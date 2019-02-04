@@ -125,6 +125,14 @@ namespace casa {
 ///
 
 
+//+
+//  typedef of accessor_
+//   for Different Column access
+//-
+typedef 
+casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
+                                       casacore::uInt rownr);
+
 class SplineInterpolation;  // Forward Refference //
 class PointingDirectionCalculator {
 public:
@@ -262,17 +270,6 @@ public:
 
     void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
 
-#if 0
-    std::unique_ptr<casa::SplineInterpolation>    &getSplineObj() { return spline; }
-
-// Under Construction: choose one and assign spline //
-
-    void selectDirectionForSpline()       { /* spline = splineDir;*/  }
-    void selectTargetForSpline()          { /* spline = splineTar;*/  }
-    void selectPointingOffsetForSpline()  { /* spline = splinePof;*/  }
-    void selectSourceOffsetSpline()       { /* spline = splineSof;*/  }
-    void selectEncoderForSpline()         { /* spline = splineEnc;*/  }
-#endif 
 
 private:
 
@@ -338,34 +335,48 @@ private:
      // Spline object and flag (for each Direction Column)
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
-        std::unique_ptr<casa::SplineInterpolation>     spline_; // Active Object 
+
+        casa::SplineInterpolation    * spline_;    // Active Object (traditiona Pointer)
+
+
+     // Spline Object for each Direction-Column //
+
+        std::unique_ptr<casa::SplineInterpolation>     splineWork;   // for work
 
         std::unique_ptr<casa::SplineInterpolation>     splineDir;   // for DIRECTION
         std::unique_ptr<casa::SplineInterpolation>     splineTar;   // for TARGET
         std::unique_ptr<casa::SplineInterpolation>     splinePof;   // for POINTING_OFFSET
         std::unique_ptr<casa::SplineInterpolation>     splineSof;   // for SOURCE_OFFSET
-        std::unique_ptr<casa::SplineInterpolation>     splineEnc;   // for ENCODER 
+        std::unique_ptr<casa::SplineInterpolation>     splineEnc;   // for Encorder
 
-    // Spline Object handle
+     // creating temporary Spline object (in construction)
 
-        std::unique_ptr<casa::SplineInterpolation>    &getSplineObj() { return spline_; }
+        bool checkColumn(casacore::MeasurementSet const &ms,
+                         casacore::String const &columnName );
 
-    // Select a Dirction-Column for Spline (Under Construction)  //
+        bool activateDirCol_0(casacore::MeasurementSet const &ms, 
+                              casacore::String const &colname, 
+                              ACCESSOR acc);
 
-    void selectDirectionForSpline()       { /* spline = splineDir;*/  }
-    void selectTargetForSpline()          { /* spline = splineTar;*/  }
-    void selectPointingOffsetForSpline()  { /* spline = splinePof;*/  }
-    void selectSourceOffsetSpline()       { /* spline = splineSof;*/  }
-    void selectEncoderForSpline()         { /* spline = splineEnc;*/  }
+     // Spline Object handle
+
+        casa::SplineInterpolation      *getSplineObj() { return spline_; }
+
+    //+
+    //  Select a Dirction-Column for Spline i(unuque_ptr to traditional *ptr assignment  //
+    //-
+
+    std::vector<bool>   readyInitialize;
+
+ 
+/*
+    void selectDirectionForSpline(ACCESSOR &acc)       ;
+    void selectTargetForSpline()          ;
+    void selectPointingOffsetForSpline()  ;
+    void selectSourceOffsetSpline()       ;
+    void selectEncoderForSpline()         ;
+*/
 };
-
-//+
-//  typedef of accessor_
-//   for Different Column access
-//-
-typedef 
-casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
-                                       casacore::uInt rownr);
 
 //+
 // Interpolation Base class

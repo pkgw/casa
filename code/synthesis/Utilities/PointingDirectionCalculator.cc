@@ -145,16 +145,34 @@ inline void skipMovingSourceCorrection(
 
 using namespace casacore;
 namespace casa {
-
-// CAS-8418 (Column checck in Pointing Table)//
-bool checkColumn(MeasurementSet const &ms,String const &columnName )
+//--------------------------------------------
+// CAS-8418 (Column checck in Pointing Table)
+//--------------------------------------------
+bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String const &columnName )
 {
     String columnNameUpcase = columnName;
     columnNameUpcase.upcase();
     if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
     else return false;
 }
+//-------------------------------------------
+// Make Temporary Spline object
+//    when specified Column exists. 
+// -----------------------------------------
+bool PointingDirectionCalculator::activateDirCol_0(MeasurementSet const &ms, 
+                                              String const &colName, ACCESSOR acc)
+{
+    if(checkColumn(ms, colName  )){
+        printf("Spline Obj:: attempt to construct by [%s].\n",colName.c_str());
+        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,acc));
 
+        splineWork = std::move(spTemp); 
+        return true;  // Obj.was created //
+    } 
+    printf("Spline Obj:: Column [%s] is already set up..\n",colName.c_str());
+    return false;    
+}
+ 
 PointingDirectionCalculator::PointingDirectionCalculator(
         MeasurementSet const &ms) :
         originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), directionColumnName_(), accessor_(
@@ -165,7 +183,8 @@ PointingDirectionCalculator::PointingDirectionCalculator(
                 0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
                 -1), pointingTableIndexCache_(0), shape_(
                 PointingDirectionCalculator::COLUMN_MAJOR),
-      /*CAS-8418*/ fgSplineInterpolation(true)
+      /*CAS-8418*/ fgSplineInterpolation(true),
+      /*CAS-8418*/ readyInitialize(5,false) 
 {
     accessor_ = directionAccessor;
 
@@ -179,47 +198,18 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //   Create Spline Object in current class.
 //   if coeff table is inactive, disable spline mode.
 //-
-
     // Create Spline Object for All Direction-Columns //   
 
-    if(checkColumn(ms, "DIRECTION"       )) {
-        printf("Spline Obj:: attempt to construct by DIRECTION.\n");
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,directionAccessor));
-        splineDir = std::move(spTemp);
-    }
+      PointingDirectionCalculator::activateDirCol_0(ms, "DIRECTION",   directionAccessor );
+      splineDir = std::move(splineWork);
 
-// following initialization is sort of heavy.  
-//    choose what is needed. 
-#if 0
-    if(checkColumn(ms, "TARGET"          )) {
-        printf("Spline Obj:: attempt to construct by TARGET.\n");
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,targetAccessor));
-        splineTar = std::move(spTemp);
-    }
-
-    if(checkColumn(ms, "POINTING_OFFSET" )) {
-        printf("Spline Obj:: attempt to construct by POINTING_OFFSET.\n");
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,pointingOffsetAccessor));
-        splinePof = std::move(spTemp);
-    }
-
-    if(checkColumn(ms, "SOURCE_OFFSET"   )) {
-        printf("Spline Obj:: attempt to construct by SOURCE_OFFSET.\n");
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,sourceOffsetAccessor));
-        splineSof = std::move(spTemp);
-    }
-
-    if(checkColumn(ms, "ENCODER"         )) {
-        printf("Spline Obj:: attempt to construct by ENCODER.\n");
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,encoderAccessor));
-        splineEnc = std::move(spTemp);
-    }
-#endif 
-    // select Direction columns for spline //
-    spline_ = std::move(splineDir);
+    // Defalut Direction-Column for Spline
+    
+        spline_ = splineDir.get();
 
     // Insufficient Data //
-    if( spline_ ->isCalculateAvailable() == false) fgSplineInterpolation = false;
+    
+       if( spline_ ->isCalculateAvailable() == false) fgSplineInterpolation = false;
 
 //-------- original code from here. -----
     init();
@@ -340,6 +330,10 @@ void PointingDirectionCalculator::configureMovingSourceCorrection() {
     }
 }
 
+
+
+
+
 void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
     String columnNameUpcase = columnName;
     columnNameUpcase.upcase();
@@ -352,7 +346,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
-#if 1   // Existing code //
+#if 0   // Existing code //
 
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
@@ -371,28 +365,58 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
     }
 
 
-#else   // To be revised (under construction) //
-
+#else
+//+   
+// New code reuired from CAS-9418 2-Feb-2019 
+//  when setDirectionColumn is called , 
+//  new spline coeffcient table corresoinding to specified Direction column
+//  is generated. once generated and from next time, lately created Obj. is used.  
+//-
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
-        getSplineObj() ->setDefaultAccessor( accessor_ );
-        selectDirectionForSpline();
+
+       // THIS IS DEFAULT. ALREADY CREATED AND AVAILABLE ..//
+
     } else if (directionColumnName_ == "TARGET") {
         accessor_ = targetAccessor;
-        getSplineObj() ->setDefaultAccessor( accessor_ );
-        selectTargetForSpline();
+
+        // CAS-8418:: SetUp spline , with specified Direction-column. 
+          if (PointingDirectionCalculator::activateDirCol_0(*originalMS_, "TARGET", accessor_ ))
+          {
+              splineTar = std::move(splineWork);   // for the first time
+          }
+          spline_ = splineTar.get();
+
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
-        getSplineObj() ->setDefaultAccessor( accessor_ );
-        selectPointingOffsetForSpline();
+
+        // CAS-8418:: SetUp spline , with specified Direction-column. 
+          if (PointingDirectionCalculator::activateDirCol_0(*originalMS_, "POINTING_OFFSET", accessor_ ))
+          {
+              splinePof = std::move(splineWork);
+          }
+          spline_ = splinePof.get();
+
     } else if (directionColumnName_ == "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
-        getSplineObj() ->setDefaultAccessor( accessor_ );
-        selectSourceOffsetSpline();
+
+        // CAS-8418:: SetUp spline , with specified Direction-column. 
+          if(PointingDirectionCalculator::activateDirCol_0(*originalMS_, "SOURCE_OFFSET", accessor_ ))
+          {
+              splineSof = std::move(splineWork);
+          }
+          spline_ = splineSof.get();
+
     } else if (directionColumnName_ == "ENCODER") {
         accessor_ = encoderAccessor;
-        getSplineObj() ->setDefaultAccessor( accessor_ );
-        selectEncoderForSpline();  
+
+        // CAS-8418:: SetUp spline , with specified Direction-column. 
+          if(PointingDirectionCalculator::activateDirCol_0(*originalMS_, "ENCODER", accessor_ ))
+          {
+              splineEnc = std::move(splineWork);
+          }
+          spline_ = splineEnc.get();
+
     } else {
         stringstream ss;
         ss << "Column \"" << columnNameUpcase << "\" is not supported.";
