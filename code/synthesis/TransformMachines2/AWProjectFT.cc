@@ -1174,6 +1174,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
+<<<<<<< HEAD
     // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
     // 						*convFuncCtor_p, 
     // 						vb,
@@ -1183,6 +1184,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						vb,
 						dPAQuant,
 						chanMap,polMap,pointingOffset);
+=======
+    cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
+						//*convFuncCtor_p, 
+						vb,
+					       dPAQuant,
+					       chanMap,polMap,pointingOffset);
+>>>>>>> bc96d01fed00b7bd74651ee60592fd6d727aefac
 
     if (cfSource == CFDefs::NOTCACHED)
       {
@@ -2459,6 +2467,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
+<<<<<<< HEAD
       vbRow2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,
 				      vb,
 				      paChangeDetector.getParAngleTolerance(),
@@ -2466,6 +2475,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // visResampler_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
       // 				      paChangeDetector.getParAngleTolerance(),
       // 				      chanMap,polMap,pointingOffset);
+=======
+      visResampler_p->makeVBRow2CFBMap(*cfwts2_p,
+				       //*convFuncCtor_p, 
+				       vb,
+				       paChangeDetector.getParAngleTolerance(),
+				       chanMap,polMap,pointingOffset);
+>>>>>>> bc96d01fed00b7bd74651ee60592fd6d727aefac
     }
     else
       {
@@ -2486,6 +2502,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
+<<<<<<< HEAD
 	vbRow2CFBMap_p->makeVBRow2CFBMap(*cfs2_p, vb,
 				       paChangeDetector.getParAngleTolerance(),
 				       chanMap,polMap,pointingOffset);
@@ -2493,6 +2510,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // visResampler_p->makeVBRow2CFBMap(*cfs2_p,*convFuncCtor_p, vb,
       // 				      paChangeDetector.getParAngleTolerance(),
       // 				      chanMap,polMap,pointingOffset);
+=======
+      visResampler_p->makeVBRow2CFBMap(*cfs2_p,
+				       //*convFuncCtor_p, 
+				       vb,
+				       paChangeDetector.getParAngleTolerance(),
+				       chanMap,polMap,pointingOffset);
+>>>>>>> bc96d01fed00b7bd74651ee60592fd6d727aefac
 
       }
 
