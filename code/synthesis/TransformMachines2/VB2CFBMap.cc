@@ -1,5 +1,5 @@
 //-*- C++ -*-
-//# PhaseGrad.h: Definition of the PhaseGrad class
+//# VB2CFBMap.h: Definition of the VB2CFBMap class
 //# Copyright (C) 1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
