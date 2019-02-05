@@ -2660,26 +2660,12 @@ Float SIImageStore::getPeakResidual()
 {
     LogIO os( LogOrigin("SIImageStore","getPeakResidual",WHERE) );
 
-    //Lattice<Bool> pixelmask = *residual()->pixelMask();
-    //LatticeExprNode pres( max(abs( *residual() ) ));
-    //Lattice<Bool> pixelmask = *residual()->pixelMask();
-    os<<"hasPixelMask="<<residual()->hasPixelMask()<<LogIO::POST;
-    os<<"ntrue="<< ntrue(residual()->getMask()) << LogIO::POST;
     ArrayLattice<Bool> pixelmask(residual()->getMask());
     LatticeExpr<Float> resd(iif(pixelmask,abs(*residual()),0));
     //LatticeExprNode pres( max(abs( *residual() ) ));
     LatticeExprNode pres( max(abs(resd) ));
     Float maxresidual = pres.getFloat();
 
-    //    Float maxresidual = max( residual()->get() );
-    //Record*  regionPtr=0;
-    //String LELmask("");
-    //Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
-    //Array<Double> maxs, mins;
-    //Double maxofabsmaxs = max(abs(maxs));
-    //os<<"mxofabsmaxs ===="<<maxofabsmaxs<<LogIO::POST;
-    //Double maxofabsmins = max(abs(mins));
-    //Float maxresidual = (Float) max(maxofabsmaxs,maxofabsmins); 
 
     return maxresidual;
   }
@@ -2690,8 +2676,6 @@ Float SIImageStore::getPeakResidualWithinMask()
         Float minresmask, maxresmask, minres, maxres;
     //findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 
-    os<<"getPeakResWithinMask   hasPixelMask="<<residual()->hasPixelMask()<<LogIO::POST;
-    os<<"ntrue="<< ntrue(residual()->getMask()) <<LogIO::POST;
     ArrayLattice<Bool> pixelmask(residual()->getMask());
     findMinMaxLattice(*residual(), *mask() , pixelmask, maxres,maxresmask, minres, minresmask);
     
@@ -2876,10 +2860,10 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
     else
       {
 	//LatticeExprNode pres( max( *residual() ) );
-	LatticeExprNode pres( max( iif(!pixelmask,*residual(),0) ) );
+	LatticeExprNode pres( max( iif(pixelmask,*residual(),0) ) );
 	maxres = pres.getFloat();
 	//LatticeExprNode pres2( min( *residual() ) );
-	LatticeExprNode pres2( min( iif(!pixelmask,*residual(),0) ) );
+	LatticeExprNode pres2( min( iif(pixelmask,*residual(),0) ) );
 	minres = pres2.getFloat();
       }
 
@@ -2898,8 +2882,8 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
     Array<Double> maxs, mins;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("min"), mins);
-    os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
-    os << LogIO::DEBUG1 << "Min : " << mins << LogIO::POST;
+    //os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+    //os << LogIO::DEBUG1 << "Min : " << mins << LogIO::POST;
     
   }
 
@@ -2924,7 +2908,7 @@ Bool SIImageStore::findMinMaxLattice(const Lattice<Float>& lattice,
 {
 
   //FOR DEGUG
-  LogIO os( LogOrigin("SIImageStore","findMinMaxLattice",WHERE) );
+  //LogIO os( LogOrigin("SIImageStore","findMinMaxLattice",WHERE) );
 
   maxAbs=0.0;maxAbsMask=0.0;
   minAbs=1e+10;minAbsMask=1e+10;
@@ -2945,21 +2929,17 @@ Bool SIImageStore::findMinMaxLattice(const Lattice<Float>& lattice,
       Float maxValMask=0.0;
       Float minValMask=0.0;
 
-      os<<"nelements for lattice="<<(li.cursor()).nelements()<<LogIO::POST;
-      os<<"nelements for pmi="<<(pmi.cursor()).nelements()<<LogIO::POST;
-      os<<"ntrue for pmi="<<ntrue(pmi.cursor())<<LogIO::POST;
 
       // skip if lattice chunk is masked entirely.
       if(ntrue(pmi.cursor()) > 0 ) {
         MaskedArray<Float> marr(li.cursor(), pmi.cursor());
         MaskedArray<Float> marrinmask(li.cursor() * mi.cursor(), pmi.cursor());
       //minMax( minVal, maxVal, posMin, posMax, li.cursor() );
-      //minMax( minVal, maxVal, posMin, posMax, marr );
-        os<<"do minMax with marrinmask.nelements()="<<marrinmask.nelements()<<LogIO::POST;
+      minMax( minVal, maxVal, posMin, posMax, marr );
       //minMaxMasked(minValMask, maxValMask, posMin, posMax, li.cursor(), mi.cursor());
       minMax(minValMask, maxValMask, posMin, posMax, marrinmask);
       
-      os<<"DONE minMax"<<LogIO::POST; 
+      //os<<"DONE minMax"<<LogIO::POST; 
       if( (maxVal) > (maxAbs) ) maxAbs = maxVal;
       if( (maxValMask) > (maxAbsMask) ) maxAbsMask = maxValMask;
 
