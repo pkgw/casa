@@ -34,6 +34,7 @@
 #include <casa/Arrays/Vector.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <synthesis/TransformMachines2/CFBuffer.h>
+#include <synthesis/TransformMachines2/CFStore2.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <casa/Utilities/CountedPtr.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
@@ -44,29 +45,31 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
  namespace refim{
-using namespace CFDefs;
- class VB2CFBMap
- {
-	public:
-		VB2CFBMap(): vbRow2CFBMap_p(){vbRow2CFBMap_p(0) = 0;}
-		
-		~VB2CFBMap() {};
-		
-		VB2CFBMap& operator=(const VB2CFBMap& other);
-                casacore::CountedPtr<CFBuffer >& operator[](const int& i) {return vbRow2CFBMap_p[i];};
+   using namespace CFDefs;
+   class VB2CFBMap
+   {
+   public:
+     VB2CFBMap(): vbRow2CFBMap_p(){vbRow2CFBMap_p(0) = 0;}
+     
+     ~VB2CFBMap() {};
+     
+     VB2CFBMap& operator=(const VB2CFBMap& other);
+     casacore::CountedPtr<CFBuffer >& operator[](const int& i) {return vbRow2CFBMap_p[i];};
+     
+     inline casacore::Vector<casacore::CountedPtr<CFBuffer>>& getVBRow2CFBMap() {return vbRow2CFBMap_p;};	
+     inline int nelements() {return vbRow2CFBMap_p.nelements();}
 
-	inline casacore::Vector<casacore::CountedPtr<CFBuffer>>& getVBRow2CFBMap() {return vbRow2CFBMap_p;};	
-        virtual casacore::Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
-	virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
-                               const VisBuffer2& vb, const casacore::Quantity& dPA,
-                               const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
-                               const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
-                               const casacore::Vector<casacore::Double>& pointingOffset);
-	protected:
-	casacore::Vector<casacore::CountedPtr<CFBuffer > > vbRow2CFBMap_p;
-
-//	VBRow2CFBMapType vbRow2CFBMap_p;
- };
+     virtual casacore::Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
+     virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
+					    const VisBuffer2& vb, const casacore::Quantity& dPA,
+					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
+					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
+					    const casacore::Vector<casacore::Double>& pointingOffset);
+     //   protected:
+     casacore::Vector<casacore::CountedPtr<CFBuffer > > vbRow2CFBMap_p;
+     
+     //	VBRow2CFBMapType vbRow2CFBMap_p;
+   };
  }
 }
 #endif	

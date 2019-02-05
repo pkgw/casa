@@ -1566,7 +1566,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     CFCell  *cfc, *baseCFC=NULL;
     ATerm *aTerm_l=&*aTerm_p;
     
-    cfb=&*(theMap(0));
+    cfb=&*(theMap[0]);
     cfc = &*(cfb->getCFCellPtr(0,0,0));
     Double actualPA = getPA(vb), currentCFPA = cfc->pa_p.getValue("rad");
     Double dPA = currentCFPA-actualPA;
@@ -1580,7 +1580,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 // #endif
     for (Int irow=0;irow<nRow;irow++)
       {
-	cfb=&*(theMap(irow));
+	cfb=&*(theMap[irow]);
 	//	if ((!cfb.null()) && (cfb != cbPtr))
 	if ((cfb!=NULL) && (cfb != cbPtr))
 	  {

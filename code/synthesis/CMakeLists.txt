@@ -719,7 +719,7 @@ install (FILES
 	TransformMachines2/TabulatedConvFunc.h
 	TransformMachines2/Utils.h
 	TransformMachines2/VBStore.h
-	TransformMachines2/VB2CFMap.h
+	TransformMachines2/VB2CFBMap.h
 	TransformMachines2/VisibilityResamplerBase.h
 	TransformMachines2/VisibilityResampler.h
 	TransformMachines2/VisModelData.h

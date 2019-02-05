@@ -63,6 +63,7 @@
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/ATerm.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 
 #include <casa/OS/Timer.h>
 
@@ -563,7 +564,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     casacore::Int previousSPWID_p;
 
-    casacore::CountedPtr<refim::FTMachine> self_p;;
+    casacore::CountedPtr<refim::FTMachine> self_p;
+    casacore::CountedPtr<refim::VB2CFBMap> vbRow2CFBMap_p;
 
 #include "AWProjectFT.FORTRANSTUFF.INC"
   };
