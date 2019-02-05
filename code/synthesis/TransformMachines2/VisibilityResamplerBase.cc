@@ -106,11 +106,12 @@ namespace casa{
       phasor=Complex(1.0);
     //cerr << "### " << pos[0] << " " << offset[0] << " " << off[0] << endl;
   }
+
   //
   //-----------------------------------------------------------------------------------
   //
   Int VisibilityResamplerBase::makeVBRow2CFBMap(CFStore2& cfs,
-					       ConvolutionFunction& cf,
+						//ConvolutionFunction& cf,
 					       const VisBuffer2& vbs, 
 					       const Quantity& dPA,
 					       const Vector<Int>& /*dataChan2ImChanMap*/,
@@ -131,8 +132,10 @@ namespace casa{
 	//
 	// Translate antenna ID to antenna type
 	//
-	Int ant1Type = cf.mapAntIDToAntType(vbs.antenna1()(irow)),
-	  ant2Type = cf.mapAntIDToAntType(vbs.antenna2()(irow));
+	// Int ant1Type = cf.mapAntIDToAntType(vbs.antenna1()(irow)),
+	//   ant2Type = cf.mapAntIDToAntType(vbs.antenna2()(irow));
+	Int ant1Type = mapAntIDToAntType(vbs.antenna1()(irow)),
+	  ant2Type = mapAntIDToAntType(vbs.antenna2()(irow));
 	//
 	// Get the CFBuffer for the given PA and baseline catagorized
 	// by the two antenna types.  For homgeneous arrays, all
