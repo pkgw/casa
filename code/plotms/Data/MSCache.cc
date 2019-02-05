@@ -39,7 +39,7 @@
 #include <lattices/Lattices/ArrayLattice.h>
 #include <lattices/LatticeMath/LatticeFFT.h>
 #include <scimath/Mathematics/FFTServer.h>
-#include <ms/MeasurementSets/MSColumns.h> 	 
+#include <ms/MeasurementSets/MSColumns.h>
 #include <msvis/MSVis/VisSet.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
@@ -65,26 +65,26 @@ using namespace casacore;
 namespace casa {
 
 MSCache::MSCache(PlotMSApp* parent):
-		  PlotMSCacheBase(parent)
+    PlotMSCacheBase(parent)
 {
-	ephemerisAvailable = false;
-	vi_p = NULL;
-	vm_ = NULL;
+    ephemerisAvailable = false;
+    vi_p = NULL;
+    vm_ = NULL;
 }
 
 MSCache::~MSCache() {}
 
 String MSCache::polname(Int ipol) {
-	return Stokes::name(Stokes::type(ipol));
+    return Stokes::name(Stokes::type(ipol));
 }
 
 
 void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
-		vector<PMS::DataColumn>& loadData,
-		ThreadCommunication* thread) {
+        vector<PMS::DataColumn>& loadData,
+        ThreadCommunication* thread) {
 
-	// process selected columns			
-	dataColumn_ = getDataColumn(loadAxes, loadData);
+    // process selected columns
+    dataColumn_ = getDataColumn(loadAxes, loadData);
 
     // Get strings stored in MS 
     Table::TableOption tabopt(Table::Old);
@@ -111,7 +111,7 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
     // Load Page Header Cache
     loadPageHeaderCache(*selMS);
 
-	delete inputMS;
+    delete inputMS;
     delete selMS;
     Vector<Int> nIterPerAve;
 
@@ -127,14 +127,13 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
         logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, "Scalar averaging ignored: no other averaging is enabled.");
     averaging_.setScalarAve(useScalarAve);
 
-	if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || useScalarAve) {
+    if ( averaging_.baseline() || averaging_.antenna() || averaging_.spw() || useScalarAve) {
         // Averaging with PlotMSVBAverager
         // Create visibility iterator vi_p
         setUpVisIter(selection_, calibration_, dataColumn_, 
             loadAxes, loadData);
         // Set nIterPerAve (number of chunks per average)
-		bool chunksCounted = countChunks(*vi_p, nIterPerAve, loadAxes, 
-            loadData, thread);
+        bool chunksCounted = countChunks(*vi_p, nIterPerAve, loadAxes, loadData, thread);
         if (chunksCounted) {
             try {
                 trapExcessVolume(pendingLoadAxes_);  // check mem req using VolMeter
@@ -142,64 +141,63 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
                 loadChunks(*vi_p, averaging_, nIterPerAve, loadAxes, loadData, thread);
             } catch(AipsError& log) {
                 deleteVm();
-                loadError(log.getMesg());	
+                loadError(log.getMesg());
             }
         }    
-	} else {
-        // Averaging with TransformingVI2 
-		try {
-			// setUpVisIter also gets the VB shapes and calls trapExcessVolume:
-			setUpVisIter(selection_, calibration_, dataColumn_, 
-                loadAxes, loadData, false, true, thread);
-			loadChunks(*vi_p, loadAxes, loadData, thread);
-		} catch(AipsError& log) {
-			loadError(log.getMesg());
-		}	
-	}
-	// Remember # of VBs per Average
-	nVBPerAve_.resize();
-	if (nIterPerAve.nelements()>0) {
-		nVBPerAve_ = nIterPerAve;
     } else {
-		nVBPerAve_.resize(nChunk_);
-		nVBPerAve_.set(1);
-	}
+        // Averaging with TransformingVI2 
+        try {
+            // setUpVisIter also gets the VB shapes and calls trapExcessVolume:
+            setUpVisIter(selection_, calibration_, dataColumn_, loadAxes, loadData, false, true, thread);
+            loadChunks(*vi_p, loadAxes, loadData, thread);
+        } catch(AipsError& log) {
+            loadError(log.getMesg());
+        }
+    }
+    // Remember # of VBs per Average
+    nVBPerAve_.resize();
+    if (nIterPerAve.nelements()>0) {
+        nVBPerAve_ = nIterPerAve;
+    } else {
+        nVBPerAve_.resize(nChunk_);
+        nVBPerAve_.set(1);
+    }
 
-	completeLoadPageHeaderCache();
+    completeLoadPageHeaderCache();
 
-	deleteVi(); // close any open tables
+    deleteVi(); // close any open tables
     deleteAtm();
 }
 
 void MSCache::loadError(String mesg) {
-	// catch load error, clear the existing cache, and rethrow
-	logLoad(mesg);
-	clear();
-	deleteVi();  // close any open tables
+    // catch load error, clear the existing cache, and rethrow
+    logLoad(mesg);
+    clear();
+    deleteVi();  // close any open tables
     deleteAtm();
-	stringstream ss;
-	ss << mesg;
-	throw(AipsError(ss.str()));
+    stringstream ss;
+    ss << mesg;
+    throw(AipsError(ss.str()));
 }
 
 void MSCache::deleteVi() {
-	if (vi_p) delete vi_p;
-	vi_p = NULL;
+    if (vi_p) delete vi_p;
+    vi_p = NULL;
 }
 
 void MSCache::deleteVm() {
-	if (vm_) delete vm_;
-	vm_ = NULL;
+    if (vm_) delete vm_;
+    vm_ = NULL;
 }
 
 String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
                               vector<PMS::DataColumn>& loadData)
-{	// Check data column choice and determine which column to pass to VisIter
-	String dataColumn = "NONE";  // default is none - CAS-7506
+{   // Check data column choice and determine which column to pass to VisIter
+    String dataColumn = "NONE";  // default is none - CAS-7506
     std::set<String> dataCols;
     
     // Get datacolumn for visibility & weight axes only
-	for (uInt i=0; i<loadAxes.size(); ++i) {
+    for (uInt i=0; i<loadAxes.size(); ++i) {
         PMS::Axis thisAxis = loadAxes[i];
         if (PMS::axisIsData(thisAxis) || PMS::axisIsWeight(thisAxis)) {
             // check if requested data column exists in MS
@@ -230,9 +228,9 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
                 }
                 case PMS::WTSP: {
                     // CAS-7517 wtsp col exists but is empty - plot weight instead
-	                Table thisTable(filename_);
-	                const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	                if (cds.isDefined("WEIGHT_SPECTRUM")) {
+                    Table thisTable(filename_);
+                    const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
+                    if (cds.isDefined("WEIGHT_SPECTRUM")) {
                         ArrayColumn<Float> weightSpectrum;
                         weightSpectrum.attach(thisTable,
                             MS::columnName(MS::WEIGHT_SPECTRUM));
@@ -246,9 +244,9 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
                 }
                 case PMS::WT: {
                     // CAS-8895 warn user requested mean WEIGHT not channelized WEIGHT_SPECTRUM
-	                Table thisTable(filename_);
-	                const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	                if (cds.isDefined("WEIGHT_SPECTRUM")) {
+                    Table thisTable(filename_);
+                    const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
+                    if (cds.isDefined("WEIGHT_SPECTRUM")) {
                         ArrayColumn<Float> weightSpectrum;
                         weightSpectrum.attach(thisTable,
                             MS::columnName(MS::WEIGHT_SPECTRUM));
@@ -264,7 +262,7 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
             }
             dataCols.insert(dataColumn);
         }
-	} 
+    } 
 
     // loadAxes is only new axes to load; if no datacolumn,
     // try datacolumn of already-loaded axes
@@ -279,18 +277,18 @@ String MSCache::getDataColumn(vector<PMS::Axis>& loadAxes,
         else
             dataColumn = normalizeColumnName(dataColumn);
     }
-	return dataColumn;
+    return dataColumn;
 }
 
 PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
-	// Check if requested data, scratch, or float cols exist
+    // Check if requested data, scratch, or float cols exist
     PMS::DataColumn datacol = reqDataCol;
-	Table thisTable(filename_);
-	const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
-	Bool datacolOk(cds.isDefined("DATA")), 
-		corrcolOk(cds.isDefined("CORRECTED_DATA") || calibration_.useCallib()),
-		modelcolOk(cds.isDefined("MODEL_DATA")),
-		floatcolOk(cds.isDefined("FLOAT_DATA"));
+    Table thisTable(filename_);
+    const ColumnDescSet cds = thisTable.tableDesc().columnDescSet();
+    Bool datacolOk(cds.isDefined("DATA")), 
+        corrcolOk(cds.isDefined("CORRECTED_DATA") || calibration_.useCallib()),
+        modelcolOk(cds.isDefined("MODEL_DATA")),
+        floatcolOk(cds.isDefined("FLOAT_DATA"));
 
     switch (reqDataCol) {
         case PMS::DATA: {
@@ -311,49 +309,49 @@ PMS::DataColumn MSCache::checkReqDataColumn(PMS::DataColumn reqDataCol) {
                     datacol = PMS::FLOAT_DATA;
                     logWarn( "load_cache", "CORRECTED_DATA column not present and calibration library not set/enabled; using FLOAT_DATA instead.");
                 }
-				break;
+                break;
             } 
-			break;
+            break;
         }
-		case PMS::MODEL: {
-			if (floatcolOk && !modelcolOk) { // model not auto-generated for singledish
-               	throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
-			}
-			break;
-		}
+        case PMS::MODEL: {
+            if (floatcolOk && !modelcolOk) { // model not auto-generated for singledish
+                throw(AipsError("MODEL_DATA not present; use FLOAT_DATA."));
+            }
+            break;
+        }
         case PMS::CORRMODEL_V:
         case PMS::CORRMODEL_S: {
             if (!corrcolOk && datacolOk) {  // use data residual instead
-				datacol = (reqDataCol==PMS::CORRMODEL_V ? PMS::DATAMODEL_V : PMS::DATAMODEL_S);
+                datacol = (reqDataCol==PMS::CORRMODEL_V ? PMS::DATAMODEL_V : PMS::DATAMODEL_S);
                 String warn("CORRECTED_DATA column not present and calibration library not set/enabled; using " + PMS::dataColumn(datacol) + " instead of " + PMS::dataColumn(reqDataCol));
-				logWarn("load_cache", warn);
-			} else if (!corrcolOk && floatcolOk) { 	// cannot use float residual instead
-              	throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
-			} else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
-              	throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
-			}
-			break;
-		}
+                logWarn("load_cache", warn);
+            } else if (!corrcolOk && floatcolOk) { // cannot use float residual instead
+                throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
+            } else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
+                throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
+            }
+            break;
+        }
         case PMS::CORR_DIV_MODEL_V:
         case PMS::CORR_DIV_MODEL_S: {
             if (!corrcolOk && datacolOk) {  // use data residual instead
-				datacol = (reqDataCol==PMS::CORR_DIV_MODEL_V ? PMS::DATA_DIV_MODEL_V : PMS::DATA_DIV_MODEL_S);
+                datacol = (reqDataCol==PMS::CORR_DIV_MODEL_V ? PMS::DATA_DIV_MODEL_V : PMS::DATA_DIV_MODEL_S);
                 String warn("CORRECTED_DATA column not present and calibration library not set/enabled; using " + PMS::dataColumn(datacol) + " instead of " + PMS::dataColumn(reqDataCol));
-               	logWarn("load_cache", warn);
-			} else if (!corrcolOk && floatcolOk) { 	// cannot use float residual instead
-              	throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
-			} else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
-              	throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
-			}
-			break;
-		}
+                logWarn("load_cache", warn);
+            } else if (!corrcolOk && floatcolOk) { // cannot use float residual instead
+                throw(AipsError("CORRECTED_DATA column not present for residuals, use FLOAT_DATA."));
+            } else if (!modelcolOk && floatcolOk) { // cannot generate model for singledish
+                throw(AipsError("MODEL_DATA column not present for residuals, use FLOAT_DATA."));
+            }
+            break;
+        }
         case PMS::DATAMODEL_V:
         case PMS::DATAMODEL_S: {
-			if (!datacolOk && floatcolOk) { // cannot use float residual instead
-             	throw(AipsError("Data residuals not valid; use FLOAT_DATA."));
-			}
-			break;
-		}
+            if (!datacolOk && floatcolOk) { // cannot use float residual instead
+                throw(AipsError("Data residuals not valid; use FLOAT_DATA."));
+            }
+            break;
+        }
         case PMS::FLOAT_DATA: {
             // requested float data but no FLOAT column 
             if (!floatcolOk && datacolOk) {
@@ -400,23 +398,23 @@ String MSCache::checkLoadedAxesDatacol() {
 
 String MSCache::normalizeColumnName(String plotmscol)
 {
-	// Convert datacolumn as needed for MSTransformManager
+    // Convert datacolumn as needed for MSTransformManager
     String colname = plotmscol;
-	if ((plotmscol == "corrected-model_vector") || 
-	    (plotmscol == "corrected-model_scalar") ||
-	    (plotmscol == "data-model_vector") ||
-	    (plotmscol == "data-model_scalar") ||
-	    (plotmscol == "data/model_vector") || 
-	    (plotmscol == "data/model_scalar") || 
-	    (plotmscol == "corrected/model_vector") ||
-	    (plotmscol == "corrected/model_scalar")) {
-			colname = "ALL";
-	} else if (plotmscol == "float") {
-		colname = "FLOAT_DATA";
-	} else {   // "data", "corrected", "model"
-		colname.upcase();
-	}
-	return colname;
+    if ((plotmscol == "corrected-model_vector") || 
+        (plotmscol == "corrected-model_scalar") ||
+        (plotmscol == "data-model_vector") ||
+        (plotmscol == "data-model_scalar") ||
+        (plotmscol == "data/model_vector") || 
+        (plotmscol == "data/model_scalar") || 
+        (plotmscol == "corrected/model_vector") ||
+        (plotmscol == "corrected/model_scalar")) {
+            colname = "ALL";
+    } else if (plotmscol == "float") {
+        colname = "FLOAT_DATA";
+    } else {   // "data", "corrected", "model"
+        colname.upcase();
+    }
+    return colname;
 }
 
 void MSCache::getNamesFromMS(MeasurementSet& ms)
@@ -441,58 +439,58 @@ void MSCache::getNamesFromMS(MeasurementSet& ms)
 }
 
 void MSCache::setUpVisIter(PlotMSSelection& selection,
-		PlotMSCalibration& calibration,
-		String dataColumn, 
+        PlotMSCalibration& calibration,
+        String dataColumn, 
         vector<PMS::Axis>& loadAxes,
-		vector<PMS::DataColumn>& loadData, 
+        vector<PMS::DataColumn>& loadData, 
         Bool interactive,
         Bool estimateMemory,
         ThreadCommunication* thread) {
-	/* Create plain or averaging (time or channel) VI with 
+    /* Create plain or averaging (time or channel) VI with 
            configuration Record and MSTransformIterator factory */
 
-	// Create configuration:
-	// Start with data selection; rename fields with expected keywords
-	Record configuration = selection.toRecord();
-	configuration.renameField("correlation", configuration.fieldNumber("corr"));
-	configuration.renameField("taql", configuration.fieldNumber("msselect"));
+    // Create configuration:
+    // Start with data selection; rename fields with expected keywords
+    Record configuration = selection.toRecord();
+    configuration.renameField("correlation", configuration.fieldNumber("corr"));
+    configuration.renameField("taql", configuration.fieldNumber("msselect"));
 
-	// Add needed fields
-	configuration.define("inputms", filename_);
-	configuration.define("datacolumn", dataColumn);
-	configuration.define("buffermode", true);
-	configuration.define("reindex", false);
+    // Add needed fields
+    configuration.define("inputms", filename_);
+    configuration.define("datacolumn", dataColumn);
+    configuration.define("buffermode", true);
+    configuration.define("reindex", false);
     configuration.define("interactive", interactive);
 
-	// Add transformation selection with expected keywords and string value
-	configuration.merge(transformations_.toRecord());
-	Double restfreq = configuration.asDouble(configuration.fieldNumber("RestFreq"));
-	configuration.removeField(configuration.fieldNumber("RestFreq"));
-	configuration.define("restfreq", String::toString(restfreq));
-	configuration.renameField("outframe", configuration.fieldNumber("Frame"));
-	configuration.renameField("veltype", configuration.fieldNumber("Veldef"));
+    // Add transformation selection with expected keywords and string value
+    configuration.merge(transformations_.toRecord());
+    Double restfreq = configuration.asDouble(configuration.fieldNumber("RestFreq"));
+    configuration.removeField(configuration.fieldNumber("RestFreq"));
+    configuration.define("restfreq", String::toString(restfreq));
+    configuration.renameField("outframe", configuration.fieldNumber("Frame"));
+    configuration.renameField("veltype", configuration.fieldNumber("Veldef"));
 
-	// Add calibration library if set
-	if (calibration.useCallib()) {
-		configuration.define("callib", calibration.calLibrary());
-	}	
+    // Add calibration library if set
+    if (calibration.useCallib()) {
+        configuration.define("callib", calibration.calLibrary());
+    }
 
-	// Apply averaging
-	if (averaging_.time()){
+    // Apply averaging
+    if (averaging_.time()){
         if (averaging_.scalarAve()) {
-		    configuration.define("scalaraverage", true);
+            configuration.define("scalaraverage", true);
         } else {
-		    configuration.define("timeaverage", true);
-		    String timespanStr = "state";
-		    if (averaging_.field())
-			    timespanStr += ",field";
-		    if (averaging_.scan())
-			    timespanStr += ",scan";
-		    configuration.define("timespan", timespanStr);
+            configuration.define("timeaverage", true);
+            String timespanStr = "state";
+            if (averaging_.field())
+                timespanStr += ",field";
+            if (averaging_.scan())
+                timespanStr += ",scan";
+            configuration.define("timespan", timespanStr);
         }
-		configuration.define("timebin", averaging_.timeStr());
-	}
-	if (averaging_.channel()) {
+        configuration.define("timebin", averaging_.timeStr());
+    }
+    if (averaging_.channel()) {
         int chanBin;
         double chanVal = averaging_.channelValue();
         if (chanVal > INT_MAX) {
@@ -504,100 +502,100 @@ void MSCache::setUpVisIter(PlotMSSelection& selection,
         } else {
             chanBin = static_cast<int>(chanVal);
         }
-		configuration.define("chanaverage", true);
-		configuration.define("chanbin", chanBin);
-	}
+        configuration.define("chanaverage", true);
+        configuration.define("chanbin", chanBin);
+    }
     if (averaging_.spw()) {
         configuration.define("spwaverage", true);
     }
 
     LogFilter oldFilter(LogMessage::NORMAL);
-	if (plotms_ != nullptr)
-    	LogFilter oldFilter(plotms_->getParameters().logPriority());
-	MSTransformIteratorFactory* factory = NULL;
-	try {
+    if (plotms_ != nullptr)
+        LogFilter oldFilter(plotms_->getParameters().logPriority());
+    MSTransformIteratorFactory* factory = NULL;
+    try {
         // Filter out MSTransformManager setup messages
         LogFilter filter(LogMessage::WARN);
         LogSink().globalSink().filter(filter);
-		factory = new MSTransformIteratorFactory(configuration);
-		if (estimateMemory) {
+        factory = new MSTransformIteratorFactory(configuration);
+        if (estimateMemory) {
             if (thread != NULL)
                 updateEstimateProgress(thread);
-			visBufferShapes_ = factory->getVisBufferStructure();
+            visBufferShapes_ = factory->getVisBufferStructure();
             // now put filter back
             LogSink().globalSink().filter(oldFilter);
-			trapExcessVolume(pendingLoadAxes_);
-			Int chunks = visBufferShapes_.size();
-			setCache(chunks, loadAxes, loadData);
-		} else {
+            trapExcessVolume(pendingLoadAxes_);
+            Int chunks = visBufferShapes_.size();
+            setCache(chunks, loadAxes, loadData); // initialize
+        } else {
             // now put filter back
             LogSink().globalSink().filter(oldFilter);
             visBufferShapes_.clear();
         }
-		vi_p = new vi::VisibilityIterator2(*factory);
-	} catch(AipsError& log) {
+        vi_p = new vi::VisibilityIterator2(*factory);
+    } catch(AipsError& log) {
         // now put filter back
         LogSink().globalSink().filter(oldFilter);
-		try {
-			if (factory) delete factory;
-		} catch(AipsError ae) {}
-		throw(AipsError(log.getMesg()));
-	}
-	if (factory) delete factory;
+        try {
+           if (factory) delete factory;
+        } catch(AipsError ae) {}
+        throw(AipsError(log.getMesg()));
+    }
+    if (factory) delete factory;
 }
 
 vi::VisibilityIterator2* MSCache::setUpVisIter(MeasurementSet& selectedMS,
-	Vector<Vector<Slice> > chansel, Vector<Vector<Slice> > corrsel) {
-	// Plain VI2 for chunk counting with baseline/antenna/spw averaging
-	// (need to set SortColumns manually)
-	Bool combscan(averaging_.scan());
-	Bool combfld(averaging_.field());
-	Bool combspw(averaging_.spw());
+    Vector<Vector<Slice> > chansel, Vector<Vector<Slice> > corrsel) {
+    // Plain VI2 for chunk counting with baseline/antenna/spw averaging
+    // (need to set SortColumns manually)
+    Bool combscan(averaging_.scan());
+    Bool combfld(averaging_.field());
+    Bool combspw(averaging_.spw());
 
-	// Set iterInterval
-	Double iterInterval(0.0);
-	if (averaging_.time()){
-		iterInterval = averaging_.timeValue();
-	}
-	if (combspw || combfld) iterInterval = DBL_MIN;  // force per-timestamp chunks
+    // Set iterInterval
+    Double iterInterval(0.0);
+    if (averaging_.time()){
+        iterInterval = averaging_.timeValue();
+    }
+    if (combspw || combfld) iterInterval = DBL_MIN;  // force per-timestamp chunks
 
-	// Create SortColumns
-	Int nsortcol(4 + Int(!combscan));  // include room for scan
-	Block<Int> columns(nsortcol);
-	Int i(0);
-	columns[i++]                = MS::ARRAY_ID;
-	if (!combscan) columns[i++] = MS::SCAN_NUMBER;  // force scan boundaries
-	if (!combfld) columns[i++]  = MS::FIELD_ID;      // force field boundaries
-	if (!combspw) columns[i++]  = MS::DATA_DESC_ID;  // force spw boundaries
-	columns[i++]                = MS::TIME;
-	if (combfld) columns[i++]   = MS::FIELD_ID;      // effectively ignore field boundaries
-	if (combspw) columns[i++]   = MS::DATA_DESC_ID;  // effectively ignore spw boundaries
-	vi::SortColumns sortcol(columns, false);
+    // Create SortColumns
+    Int nsortcol(4 + Int(!combscan));  // include room for scan
+    Block<Int> columns(nsortcol);
+    Int i(0);
+    columns[i++]                = MS::ARRAY_ID;
+    if (!combscan) columns[i++] = MS::SCAN_NUMBER;  // force scan boundaries
+    if (!combfld) columns[i++]  = MS::FIELD_ID;      // force field boundaries
+    if (!combspw) columns[i++]  = MS::DATA_DESC_ID;  // force spw boundaries
+    columns[i++]                = MS::TIME;
+    if (combfld) columns[i++]   = MS::FIELD_ID;      // effectively ignore field boundaries
+    if (combspw) columns[i++]   = MS::DATA_DESC_ID;  // effectively ignore spw boundaries
+    vi::SortColumns sortcol(columns, false);
 
-	vi::VisibilityIterator2* vi2 = new vi::VisibilityIterator2(selectedMS, sortcol, false, 0, iterInterval);
-	vi::FrequencySelectionUsingChannels fs;
-	setUpFrequencySelectionChannels(fs, chansel);
-	fs.addCorrelationSlices(corrsel);
-	// Add FrequencySelection to VI
-	vi2->setFrequencySelection(fs);
-	return vi2;
+    vi::VisibilityIterator2* vi2 = new vi::VisibilityIterator2(selectedMS, sortcol, false, 0, iterInterval);
+    vi::FrequencySelectionUsingChannels fs;
+    setUpFrequencySelectionChannels(fs, chansel);
+    fs.addCorrelationSlices(corrsel);
+    // Add FrequencySelection to VI
+    vi2->setFrequencySelection(fs);
+    return vi2;
 }
 
 void MSCache::setUpFrequencySelectionChannels(vi::FrequencySelectionUsingChannels fs,
-						Vector<Vector<Slice> > chansel) {
-	/* For the plain VI2 for chunk counting */
-	int nSpws = static_cast<int>(chansel.nelements());
-	int nChansels;
-	for (int spw=0; spw<nSpws; spw++) {
-		nChansels = static_cast<int>(chansel[spw].nelements());
-		// Add channel selections to FrequencySelection
-		for ( int sel=0; sel<nChansels; sel++) {
-			fs.add(spw, 
-			       chansel[spw][sel].start(), 
-			       chansel[spw][sel].length(),
-			       chansel[spw][sel].inc());
-		}
-	}
+                        Vector<Vector<Slice> > chansel) {
+    /* For the plain VI2 for chunk counting */
+    int nSpws = static_cast<int>(chansel.nelements());
+    int nChansels;
+    for (int spw=0; spw<nSpws; spw++) {
+        nChansels = static_cast<int>(chansel[spw].nelements());
+        // Add channel selections to FrequencySelection
+        for ( int sel=0; sel<nChansels; sel++) {
+            fs.add(spw, 
+                   chansel[spw][sel].start(), 
+                   chansel[spw][sel].length(),
+                   chansel[spw][sel].inc());
+        }
+    }
 }
 
 void MSCache::updateEstimateProgress(ThreadCommunication* thread) {
@@ -735,7 +733,7 @@ bool MSCache::countChunks(vi::VisibilityIterator2& vi,
 
     Int nAve(nAveInterval+1);
     nIterPerAve.resize(nAve, True);
-    setCache(nAve, loadAxes, loadData);  // sets nChunk_
+    setCache(nAve, loadAxes, loadData);  // initialize; sets nChunk_
 
     if (verby) {
         ss << "nIterPerAve = " << nIterPerAve << "\n";
@@ -746,84 +744,85 @@ bool MSCache::countChunks(vi::VisibilityIterator2& vi,
 }
 
 void MSCache::trapExcessVolume(map<PMS::Axis,Bool> pendingLoadAxes) {
-	try {
-		String s;
-		if (visBufferShapes_.size() > 0) {
-			s = vm_->evalVolume(visBufferShapes_, pendingLoadAxes); }
-		else {
-			Vector<Bool> mask(4, false);
-			int dataCount = getDataCount();
+    try {
+        String s;
+        if (visBufferShapes_.size() > 0) {
+            s = vm_->evalVolume(visBufferShapes_, pendingLoadAxes); }
+        else {
+            Vector<Bool> mask(4, false);
+            int dataCount = getDataCount();
 
-			for ( int i = 0; i < dataCount; i++ ){
-				Vector<Bool> subMask = netAxesMask( currentX_[i], currentY_[i]);
-				mask = mask || subMask;
-			}
-			s = vm_->evalVolume(pendingLoadAxes, mask);
-		}
-		logLoad(s);
-	} catch(AipsError& log) {
-		// catch detected volume excess, clear the existing cache, and rethrow
-		logLoad(log.getMesg());
-		deleteVm();
-		stringstream ss;
-		ss << "Estimated cache exceeds limits." << endl
-			<< "Please try using data selection, averaging," << endl
-			<< "checking 'Reload' (to clear unneeded cache items),"
-			<< "or letting other memory-intensive processes finish.";
-		throw(AipsError(ss.str()));
-	}
+            for ( int i = 0; i < dataCount; i++ ){
+                Vector<Bool> subMask = netAxesMask( currentX_[i], currentY_[i]);
+                mask = mask || subMask;
+            }
+            s = vm_->evalVolume(pendingLoadAxes, mask);
+        }
+        logLoad(s);
+    } catch(AipsError& log) {
+        // catch detected volume excess, clear the existing cache, and rethrow
+        logLoad(log.getMesg());
+        deleteVm();
+        stringstream ss;
+        ss << "Estimated cache exceeds limits." << endl
+            << "Please try using data selection, averaging," << endl
+            << "checking 'Reload' (to clear unneeded cache items),"
+            << "or letting other memory-intensive processes finish.";
+        throw(AipsError(ss.str()));
+    }
 }
 
 void MSCache::updateProgress(ThreadCommunication* thread, Int chunk) {
-	double progress;
-	// Update progress meter
-	if((nChunk_ <= (int)THREAD_SEGMENT || chunk % THREAD_SEGMENT == 0)) {
-		thread->setStatus("Loading chunk " + String::toString(chunk) +
-				" / " + String::toString(nChunk_) + ".");
-		progress = ((double)chunk+1) / nChunk_;
-		thread->setProgress((unsigned int)((progress * 100) + 0.5));
-	}
+    double progress;
+    // Update progress meter
+    if((nChunk_ <= (int)THREAD_SEGMENT || chunk % THREAD_SEGMENT == 0)) {
+        thread->setStatus("Loading chunk " + String::toString(chunk) +
+                " / " + String::toString(nChunk_) + ".");
+        progress = ((double)chunk+1) / nChunk_;
+        thread->setProgress((unsigned int)((progress * 100) + 0.5));
+    }
 }
 
 void MSCache::loadChunks(vi::VisibilityIterator2& vi,
-		const vector<PMS::Axis> loadAxes,
-		const vector<PMS::DataColumn> loadData,
-		ThreadCommunication* thread) {
+        const vector<PMS::Axis> loadAxes,
+        const vector<PMS::DataColumn> loadData,
+        ThreadCommunication* thread) {
 
-	// permit cancel in progress meter:
-	if(thread != NULL)
-		thread->setAllowedOperations(false,false,true);
-	logLoad("Loading chunks......");
+    // permit cancel in progress meter:
+    if(thread != NULL)
+        thread->setAllowedOperations(false,false,true);
+    logLoad("Loading chunks......");
 
-	// Initialize VI and get VB
-	vi::VisBuffer2* vb = vi.getVisBuffer();
+    // Initialize VI and get VB
+    vi::VisBuffer2* vb = vi.getVisBuffer();
 
-	vi.originChunks();
+    vi.originChunks();
     try {
-	    vi.origin();
+        vi.origin();
     } catch (ArraySlicerError & err) {
-	    throw(AipsError("PlotMS averaging error: Data shapes do not conform."));
+        throw(AipsError("PlotMS averaging error: Data shapes do not conform."));
     } catch (ArrayConformanceError & err) {
-	    throw(AipsError("PlotMS averaging error: Data shapes do not conform."));
+        throw(AipsError("PlotMS averaging error: Data shapes do not conform."));
     }
 
-	nAnt_ = vb->nAntennas();  // needed to set up indexer
-	// set frame; VB2 does not handle N_Types, just passes it along
-	// and fails check in MFrequency so handle it here
-	freqFrame_ = transformations_.frame();
-	if (freqFrame_ == MFrequency::N_Types)
-		freqFrame_ = static_cast<MFrequency::Types>(vi.getReportingFrameOfReference());
+    nAnt_ = vb->nAntennas();  // needed to set up indexer
+    // set frame; VB2 does not handle N_Types, just passes it along
+    // and fails check in MFrequency so handle it here
+    freqFrame_ = transformations_.frame();
+    if (freqFrame_ == MFrequency::N_Types)
+        freqFrame_ = static_cast<MFrequency::Types>(vi.getReportingFrameOfReference());
 
-	Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
-	chshapes_.resize(4,nChunk_);
-	goodChunk_.resize(nChunk_);
-	goodChunk_.set(false);
+    Int chunk(0), lastscan(0), thisscan(0), lastspw(-1), thisspw(0);
+    chshapes_.resize(4,nChunk_);
+    goodChunk_.resize(nChunk_);
+    goodChunk_.set(false);
 
-	for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
-		for(vi.origin(); vi.more(); vi.next()) {
+    for(vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
+        for(vi.origin(); vi.more(); vi.next()) {
             if (vb->nRows() > 0) {
                 if (chunk >= nChunk_) {  // nChunk_ was just an estimate
-                    setCache(chunk+1, loadAxes, loadData);
+                    bool increaseChunks(true);
+                    setCache(chunk+1, loadAxes, loadData, increaseChunks);
                     chshapes_.resize(4, nChunk_, true);
                     goodChunk_.resize(nChunk_, true);
                 }
@@ -870,8 +869,8 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
                 }
                 chunk++;
             }
-		}
-	}
+        }
+    }
     // Report averaged channels per spw in log
     // (should match MSTransformManager output in console)
     map<Int,Int>::iterator it;
@@ -915,7 +914,8 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 
     for (Int chunk=0; chunk<nChunk_; ++chunk) {
         if (chunk >= nChunk_) {  // nChunk_ was just an estimate!
-            setCache(chunk, loadAxes, loadData);
+            bool increaseChunks(true);
+            setCache(chunk, loadAxes, loadData, increaseChunks);
             chshapes_.resize(4, nChunk_, true);
             goodChunk_.resize(nChunk_, true);
         }
@@ -1173,7 +1173,7 @@ void MSCache::discernData(vector<PMS::Axis> loadAxes,
 			case PMS::DATA_DIV_MODEL_S: {
 				vba.setDoVC();
 				vba.setDoMVC();
-                break;
+				break;
 			}
 			case PMS::FLOAT_DATA:
 				vba.setDoFC();
@@ -1191,9 +1191,8 @@ void MSCache::discernData(vector<PMS::Axis> loadAxes,
 		case PMS::UWAVE:
 		case PMS::VWAVE:
 		case PMS::WWAVE: {
-			//  cout << "Arranging to load UVW
 			vba.setDoUVW();
-            break;
+			break;
 		}
 		default:
 			break;
@@ -1209,49 +1208,49 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::SCAN: { // assumes scan unique in VB
 		scan_(vbnum) = vb->scan()(0);
 		break;
-    }
+	}
 	case PMS::FIELD: { // assumes field unique in VB
 		field_(vbnum) = vb->fieldId()(0);
 		break;
-    }
+	}
 	case PMS::TIME: { // assumes time unique in VB
 		time_(vbnum) = vb->time()(0);
 		break;
-    }
+	}
 	case PMS::TIME_INTERVAL: { // assumes timeInterval unique in VB
 		timeIntr_(vbnum) = vb->timeInterval()(0);
 		break;
-    }
+	}
 	case PMS::SPW: {
 		spw_(vbnum) = vb->spectralWindows()(0);
 		break;
-    }
+	}
 	case PMS::CHANNEL: {
-        Vector<Int> chans = vb->getChannelNumbers(0);
-        *chan_[vbnum] = chans;
-	    if (averaging_.channel()) {
-            // Save which channels are being averaged, for Locate
-            Int numBins = chans.size();
-            Int numChans = vb->getChannelNumbersSelected(0).size();
-            Array<Int> chansPerBin(IPosition(2, numChans, numBins));
-            // when there is only one channel in the spw selected chans is empty array
-            if (numChans==0 && numBins==1) {
-                numChans = 1;
-                chansPerBin.resize(IPosition(2, 1, 1));
-                chansPerBin[0] = chans;
-            } else {
-                for (Int bin=0; bin < numBins; ++bin) {
-                    chansPerBin[bin] = vb->getChannelNumbersSelected(bin);
-                }
-            }
-            *chansPerBin_[vbnum] = chansPerBin;
-            chansPerSpw_[vb->spectralWindows()(0)] = numChans;
-        }
+		Vector<Int> chans = vb->getChannelNumbers(0);
+		*chan_[vbnum] = chans;
+		if (averaging_.channel()) {
+			// Save which channels are being averaged, for Locate
+			Int numBins = chans.size();
+			Int numChans = vb->getChannelNumbersSelected(0).size();
+			Array<Int> chansPerBin(IPosition(2, numChans, numBins));
+			// when there is only one channel in the spw selected chans is empty array
+			if (numChans==0 && numBins==1) {
+				numChans = 1;
+				chansPerBin.resize(IPosition(2, 1, 1));
+				chansPerBin[0] = chans;
+			} else {
+				for (Int bin=0; bin < numBins; ++bin) {
+					chansPerBin[bin] = vb->getChannelNumbersSelected(bin);
+				}
+			}
+			*chansPerBin_[vbnum] = chansPerBin;
+			chansPerSpw_[vb->spectralWindows()(0)] = numChans;
+		}
 		break;
-    }
+	}
 	case PMS::FREQUENCY: {
 		// Convert freq to desired frame
-  		*freq_[vbnum] = vb->getFrequencies(0, freqFrame_);
+		*freq_[vbnum] = vb->getFrequencies(0, freqFrame_);
 		(*freq_[vbnum]) /= 1.0e9; // in GHz
 		break;
 	}
@@ -1260,15 +1259,15 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 	case PMS::CORR: {
-        Vector<Stokes::StokesTypes> corrTypes = vb->getCorrelationTypesSelected();
-        Vector<Int> corrTypesInt;
-        corrTypesInt.resize(corrTypes.size());
-        for (uInt i=0; i<corrTypes.size(); ++i) {
-            corrTypesInt[i] = static_cast<Int>(corrTypes[i]);
-        }
+		Vector<Stokes::StokesTypes> corrTypes = vb->getCorrelationTypesSelected();
+		Vector<Int> corrTypesInt;
+		corrTypesInt.resize(corrTypes.size());
+		for (uInt i=0; i<corrTypes.size(); ++i) {
+			corrTypesInt[i] = static_cast<Int>(corrTypes[i]);
+		}
 		*corr_[vbnum] = corrTypesInt;
 		break;
-    }
+	}
 	case PMS::ANTENNA1: {
 		*antenna1_[vbnum] = vb->antenna1();
 		break;
@@ -1360,133 +1359,82 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::AMP: {
 		switch(data) {
 		case PMS::DATA: {
-			//CAS-5730.  For single dish data, absolute value of
-			//points should not be plotted.
+			//CAS-5730.  For single dish data, absolute value of points should not be plotted.
 			MeasurementSet ms( filename_);
-			if ( ms.isColumn( MS::FLOAT_DATA ) || averaging_.scalarAve()){
-				*amp_[vbnum]=real(vb->visCube());
-			}
-			else {
+			if ( ms.isColumn( MS::FLOAT_DATA ) || averaging_.scalarAve())
+				*amp_[vbnum] = real(vb->visCube());
+			else
 				*amp_[vbnum] = amplitude(vb->visCube());
-			}
-			// TEST fft on freq axis to get delay
-			if (false) {
-
-				// Only transform frequency axis
-				//   (Should avoid cross-hand data, too?)
-				Vector<Bool> ax(3,false);
-				ax(1) = true;
-
-				// Support padding for higher delay resolution
-				Int fact(4);
-				IPosition ip = vb->visCube().shape();
-				Int nch = ip(1);
-				ip(1) *= fact;
-
-				Slicer sl(Slice(),Slice(nch*(fact-1)/2,nch,1),Slice());
-
-				Array<Complex> vpad(ip);
-				vpad.set(Complex(0.0));
-				vpad(sl) = vb->visCube();
-
-
-				cout << "vpad.shape() = " << vpad.shape() << endl;
-				cout << "vpad(sl).shape() = " << vpad(sl).shape() << endl;
-
-				Vector<Complex> testf(64,Complex(1.0));
-				FFTServer<Float,Complex> ffts;
-				cout << "FFTServer..." << flush;
-				ffts.fft(testf,true);
-				cout << "done." << endl;
-
-				ArrayLattice<Complex> tf(testf);
-				cout << "tf.isWritable() = " << boolalpha << tf.isWritable() << endl;
-
-				LatticeFFT::cfft(tf,false);
-				cout << "testf = " << testf << endl;
-
-
-				cout << "Starting ffts..." << flush;
-
-				ArrayLattice<Complex> c(vpad);
-				cout << "c.shape() = " << c.shape() << endl;
-				//	  LatticeFFT::cfft(c,ax);
-				LatticeFFT::cfft2d(c,false);
-
-				cout << "done." << endl;
-
-				*amp_[vbnum] = amplitude(vpad(sl));
-			}
 			break;
 		}
 		case PMS::MODEL: {
-            if (averaging_.scalarAve()) 
-			    *ampModel_[vbnum] = real(vb->visCubeModel());
-            else
-			    *ampModel_[vbnum] = amplitude(vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampModel_[vbnum] = real(vb->visCubeModel());
+			else
+				*ampModel_[vbnum] = amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRECTED: {
-            if (averaging_.scalarAve()) 
-			    *ampCorr_[vbnum] = real(vb->visCubeCorrected());
-            else
-			    *ampCorr_[vbnum] = amplitude(vb->visCubeCorrected());
+			if (averaging_.scalarAve()) 
+				*ampCorr_[vbnum] = real(vb->visCubeCorrected());
+			else
+				*ampCorr_[vbnum] = amplitude(vb->visCubeCorrected());
 			break;
 		}
 		case PMS::CORRMODEL_V: {
-            if (averaging_.scalarAve()) 
-			  *ampCorrModel_[vbnum] = real(vb->visCubeCorrected() - vb->visCubeModel());
-            else
-			  *ampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampCorrModel_[vbnum] = real(vb->visCubeCorrected() - vb->visCubeModel());
+			else
+				*ampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCubeModel());
 			break;
 		}
 		case PMS::CORRMODEL_S: {
-            if (averaging_.scalarAve()) 
-			  *ampCorrModelS_[vbnum] = real(vb->visCubeCorrected()) - real(vb->visCubeModel());
-            else
-			  *ampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampCorrModelS_[vbnum] = real(vb->visCubeCorrected()) - real(vb->visCubeModel());
+			else
+				*ampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL_V: {
-            if (averaging_.scalarAve()) 
-			  *ampDataModel_[vbnum] = real(vb->visCube() - vb->visCubeModel());
-            else
-			  *ampDataModel_[vbnum] = amplitude(vb->visCube() - vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampDataModel_[vbnum] = real(vb->visCube() - vb->visCubeModel());
+			else
+				*ampDataModel_[vbnum] = amplitude(vb->visCube() - vb->visCubeModel());
 			break;
 		}
 		case PMS::DATAMODEL_S: {
-            if (averaging_.scalarAve()) 
-			  *ampDataModelS_[vbnum] = real(vb->visCube()) - real(vb->visCubeModel());
-            else
-			  *ampDataModelS_[vbnum] = amplitude(vb->visCube()) - amplitude(vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampDataModelS_[vbnum] = real(vb->visCube()) - real(vb->visCubeModel());
+			else
+				*ampDataModelS_[vbnum] = amplitude(vb->visCube()) - amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_V: {
-            if (averaging_.scalarAve()) 
-			  *ampDataDivModel_[vbnum] = real(vb->visCube() / vb->visCubeModel());
-            else
-			  *ampDataDivModel_[vbnum] = amplitude(vb->visCube() / vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampDataDivModel_[vbnum] = real(vb->visCube() / vb->visCubeModel());
+			else
+				*ampDataDivModel_[vbnum] = amplitude(vb->visCube() / vb->visCubeModel());
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_S: {
-            if (averaging_.scalarAve()) 
-			  *ampDataDivModelS_[vbnum] = real(vb->visCube()) / real(vb->visCubeModel());
-            else
-			  *ampDataDivModelS_[vbnum] = amplitude(vb->visCube()) / amplitude(vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampDataDivModelS_[vbnum] = real(vb->visCube()) / real(vb->visCubeModel());
+			else
+				*ampDataDivModelS_[vbnum] = amplitude(vb->visCube()) / amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_V: {
-            if (averaging_.scalarAve()) 
-			  *ampCorrDivModel_[vbnum] = real(vb->visCubeCorrected() / vb->visCubeModel());
-            else
-			  *ampCorrDivModel_[vbnum] = amplitude(vb->visCubeCorrected() / vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampCorrDivModel_[vbnum] = real(vb->visCubeCorrected() / vb->visCubeModel());
+			else
+				*ampCorrDivModel_[vbnum] = amplitude(vb->visCubeCorrected() / vb->visCubeModel());
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_S: {
-            if (averaging_.scalarAve()) 
-			  *ampCorrDivModelS_[vbnum] = real(vb->visCubeCorrected()) / real(vb->visCubeModel());
-            else
-			  *ampCorrDivModelS_[vbnum] = amplitude(vb->visCubeCorrected()) / amplitude(vb->visCubeModel());
+			if (averaging_.scalarAve()) 
+				*ampCorrDivModelS_[vbnum] = real(vb->visCubeCorrected()) / real(vb->visCubeModel());
+			else
+				*ampCorrDivModelS_[vbnum] = amplitude(vb->visCubeCorrected()) / amplitude(vb->visCubeModel());
 			break;
 		}
 		case PMS::FLOAT_DATA: {
@@ -1499,80 +1447,80 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::PHASE: {
 		switch(data) {
 		case PMS::DATA: {
-            if (averaging_.scalarAve()) 
-                *pha_[vbnum]=imag(vb->visCube()) * 180.0 / C::pi;
-            else
-			    *pha_[vbnum] = phase(vb->visCube()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*pha_[vbnum]=imag(vb->visCube()) * 180.0 / C::pi;
+			else
+				*pha_[vbnum] = phase(vb->visCube()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::MODEL: {
-            if (averaging_.scalarAve()) 
-			    *phaModel_[vbnum] = imag(vb->visCubeModel()) * 180.0 / C::pi;
-            else
-			    *phaModel_[vbnum] = phase(vb->visCubeModel()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaModel_[vbnum] = imag(vb->visCubeModel()) * 180.0 / C::pi;
+			else
+				*phaModel_[vbnum] = phase(vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::CORRECTED: {
-            if (averaging_.scalarAve()) 
-                *phaCorr_[vbnum]=imag(vb->visCubeCorrected()) * 180.0 / C::pi;
-            else
-			    *phaCorr_[vbnum] = phase(vb->visCubeCorrected()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaCorr_[vbnum]=imag(vb->visCubeCorrected()) * 180.0 / C::pi;
+			else
+				*phaCorr_[vbnum] = phase(vb->visCubeCorrected()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::CORRMODEL_V: {
-            if (averaging_.scalarAve()) 
-			*phaCorrModel_[vbnum] = imag(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
-            else
-			*phaCorrModel_[vbnum] = phase(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaCorrModel_[vbnum] = imag(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
+			else
+				*phaCorrModel_[vbnum] = phase(vb->visCubeCorrected() - vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::CORRMODEL_S: {
-            if (averaging_.scalarAve()) 
-			*phaCorrModelS_[vbnum] = (imag(vb->visCubeCorrected()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
-            else
-			*phaCorrModelS_[vbnum] = (phase(vb->visCubeCorrected()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaCorrModelS_[vbnum] = (imag(vb->visCubeCorrected()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
+			else
+				*phaCorrModelS_[vbnum] = (phase(vb->visCubeCorrected()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::DATAMODEL_V: {
-            if (averaging_.scalarAve()) 
-			    *phaDataModel_[vbnum] = imag(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
-            else
-			    *phaDataModel_[vbnum] = phase(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaDataModel_[vbnum] = imag(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
+			else
+				*phaDataModel_[vbnum] = phase(vb->visCube() - vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::DATAMODEL_S: {
-            if (averaging_.scalarAve()) 
-			    *phaDataModelS_[vbnum] = (imag(vb->visCube()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
-            else
-			    *phaDataModelS_[vbnum] = (phase(vb->visCube()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaDataModelS_[vbnum] = (imag(vb->visCube()) - imag(vb->visCubeModel())) * 180.0 / C::pi;
+			else
+				*phaDataModelS_[vbnum] = (phase(vb->visCube()) - phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_V: {
-            if (averaging_.scalarAve()) 
-			    *phaDataDivModel_[vbnum] = imag(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
-            else
-			    *phaDataDivModel_[vbnum] = phase(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaDataDivModel_[vbnum] = imag(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
+			else
+				*phaDataDivModel_[vbnum] = phase(vb->visCube() / vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_S: {
-            if (averaging_.scalarAve()) 
-			    *phaDataDivModelS_[vbnum] = (imag(vb->visCube()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
-            else
-			    *phaDataDivModelS_[vbnum] = (phase(vb->visCube()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaDataDivModelS_[vbnum] = (imag(vb->visCube()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
+			else
+				*phaDataDivModelS_[vbnum] = (phase(vb->visCube()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_V: {
-            if (averaging_.scalarAve()) 
-			    *phaCorrDivModel_[vbnum] = imag(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
-            else
-			    *phaCorrDivModel_[vbnum] = phase(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaCorrDivModel_[vbnum] = imag(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
+			else
+				*phaCorrDivModel_[vbnum] = phase(vb->visCubeCorrected() / vb->visCubeModel()) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_S: {
-            if (averaging_.scalarAve()) 
-			    *phaCorrDivModelS_[vbnum] = (imag(vb->visCubeCorrected()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
-            else
-			    *phaCorrDivModelS_[vbnum] = (phase(vb->visCubeCorrected()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
+			if (averaging_.scalarAve()) 
+				*phaCorrDivModelS_[vbnum] = (imag(vb->visCubeCorrected()) / imag(vb->visCubeModel())) * 180.0 / C::pi;
+			else
+				*phaCorrDivModelS_[vbnum] = (phase(vb->visCubeCorrected()) / phase(vb->visCubeModel())) * 180.0 / C::pi;
 			break;
 		}
 		case PMS::FLOAT_DATA:  // should have caught this already
@@ -1627,10 +1575,10 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			break;
 		}
 		case PMS::FLOAT_DATA: {
-            *real_[vbnum] = vb->visCubeFloat();  // float data is real
+			*real_[vbnum] = vb->visCubeFloat();  // float data is real
 			break;
 		}
-        }
+		}
 		break;
 	}
 	case PMS::IMAG: {
@@ -1687,7 +1635,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::FLAG: {
 		*flag_[vbnum] = vb->flagCube();
 		break;
-    }
+	}
 	case PMS::FLAG_ROW: {
 		*flagrow_[vbnum] = vb->flagRow();
 		break;
@@ -1697,101 +1645,101 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 	case PMS::WTSP: {
-	    if (vb->weightSpectrum().nelements()>0)
+		if (vb->weightSpectrum().nelements()>0)
 			*wtsp_[vbnum] = vb->weightSpectrum();
 		else
-	  		throw(AipsError("This MS does not have a valid WEIGHT_SPECTRUM column."));
-        break;
+			throw(AipsError("This MS does not have a valid WEIGHT_SPECTRUM column."));
+		break;
 	}
 	case PMS::WTxAMP: {
 		uInt nchannels = vb->nChannels();
 		switch(data) {
 		case PMS::DATA: {
 			*wtxamp_[vbnum] = amplitude(vb->visCube());
-		    Cube<Float> wtA(*wtxamp_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxamp_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::MODEL: {
 			*wtxampModel_[vbnum] = amplitude(vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampModel_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORRECTED: {
 			*wtxampCorr_[vbnum] = amplitude(vb->visCubeCorrected());
-		    Cube<Float> wtA(*wtxampCorr_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampCorr_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORRMODEL_V: {
 			*wtxampCorrModel_[vbnum] = amplitude(vb->visCubeCorrected() - vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampCorrModel_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORRMODEL_S: {
 			*wtxampCorrModelS_[vbnum] = amplitude(vb->visCubeCorrected()) - amplitude(vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampCorrModelS_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) 
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampCorrModelS_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c) 
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::DATAMODEL_V: {
 			*wtxampDataModel_[vbnum] = amplitude(vb->visCube() - vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampDataModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) 
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampDataModel_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c) 
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::DATAMODEL_S: {
 			*wtxampDataModelS_[vbnum] = amplitude(vb->visCube()) - amplitude(vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampDataModelS_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c) 
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampDataModelS_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c) 
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_V: {
 			*wtxampDataDivModel_[vbnum] = amplitude(vb->visCube() / vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampDataDivModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampDataDivModel_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::DATA_DIV_MODEL_S: {
 			*wtxampDataDivModelS_[vbnum] = amplitude(vb->visCube()) / amplitude(vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampDataDivModelS_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampDataDivModelS_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_V: {
 			*wtxampCorrDivModel_[vbnum] = amplitude(vb->visCubeCorrected() / vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampCorrDivModel_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampCorrDivModel_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::CORR_DIV_MODEL_S: {
 			*wtxampCorrDivModelS_[vbnum] = amplitude(vb->visCubeCorrected()) / amplitude(vb->visCubeModel());
-		    Cube<Float> wtA(*wtxampCorrDivModelS_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampCorrDivModelS_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		case PMS::FLOAT_DATA: {
 			*wtxampFloat_[vbnum] = vb->visCubeFloat();
-		    Cube<Float> wtA(*wtxampFloat_[vbnum]);
-		    for(uInt c = 0; c < nchannels; ++c)
-			    wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
+			Cube<Float> wtA(*wtxampFloat_[vbnum]);
+			for(uInt c = 0; c < nchannels; ++c)
+				wtA.xzPlane(c) = wtA.xzPlane(c) * vb->weight();
 			break;
 		}
 		}
-        break;
+		break;
 	}
 	case PMS::SIGMA: {
 		*sigma_[vbnum] = vb->sigma();
@@ -1827,7 +1775,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	case PMS::ELEVATION: {
 		Vector<MDirection> azelVec = vb->azel(vb->time()(0));
 		Matrix<Double> azelMat;
-                azelMat.resize(2, azelVec.nelements());
+		azelMat.resize(2, azelVec.nelements());
 		for (uInt iant = 0; iant < azelVec.nelements(); ++iant) {
 			azelMat.column(iant) = (azelVec(iant).getAngle("deg").getValue());
 		}
@@ -1874,25 +1822,23 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		*feed2_[vbnum] = vb->feed2();
 		break;
 	}
-    case PMS::ATM:
-    case PMS::TSKY: {
-        casacore::Int spw = vb->spectralWindows()(0);
-        casacore::Int scan = vb->scan()(0);
-        casacore::Array<casacore::Double> chanFreqGHz =
-            vb->getFrequencies(0, freqFrame_)/1e9;
-        casacore::Vector<casacore::Double> curve(1, 0.0);
-        bool isAtm = (axis==PMS::ATM);
-        if (plotmsAtm_) {
-            curve.resize();    
-            curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
-                    isAtm);
-        }
-        if (isAtm) 
-            *atm_[vbnum] = curve;
-        else
-            *tsky_[vbnum] = curve;
-        break;
-    }
+	case PMS::ATM:
+	case PMS::TSKY: {
+		casacore::Int spw = vb->spectralWindows()(0);
+		casacore::Int scan = vb->scan()(0);
+		casacore::Array<casacore::Double> chanFreqGHz = vb->getFrequencies(0, freqFrame_)/1e9;
+		casacore::Vector<casacore::Double> curve(1, 0.0);
+		bool isAtm = (axis==PMS::ATM);
+		if (plotmsAtm_) {
+			curve.resize();
+			curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz, isAtm);
+		}
+		if (isAtm) 
+			*atm_[vbnum] = curve;
+		else
+			*tsky_[vbnum] = curve;
+		break;
+	}
 	default: {
 		throw(AipsError("Axis choice not supported for MS"));
 		break;
@@ -1911,17 +1857,17 @@ bool MSCache::isEphemeris(){
 			throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
 		}
 
+		// Check the field subtable for ephemeris fields
 		ROMSColumns msc(ms);
-
-                // Check the field subtable for ephemeris fields
 		const ROMSFieldColumns& fieldColumns = msc.field();
-                uInt nrow = fieldColumns.nrow();
+		uInt nrow = fieldColumns.nrow();
 
 		ephemerisAvailable = false;
-                String ephemPath;
-                for (uInt i=0; i<nrow; ++i) {
-                        ephemPath = fieldColumns.ephemPath(i);
-		        if (!ephemPath.empty()) ephemerisAvailable = true;
+		String ephemPath;
+		for (uInt i=0; i<nrow; ++i) {
+			ephemPath = fieldColumns.ephemPath(i);
+			if (!ephemPath.empty())
+				ephemerisAvailable = true;
 		}
 		ephemerisInitialized = true;
 	}
@@ -1930,16 +1876,16 @@ bool MSCache::isEphemeris(){
 
 
 void MSCache::flagToDisk(const PlotMSFlagging& flagging,
-		Vector<Int>& flchunks, Vector<Int>& flrelids,
-		Bool setFlag, PlotMSIndexer* indexer, int dataIndex) {
+        Vector<Int>& flchunks, Vector<Int>& flrelids,
+        Bool setFlag, PlotMSIndexer* indexer, int dataIndex) {
 
-	// Sort the flags by chunk and relative index:
-	Sort sorter;
-	sorter.sortKey(flchunks.data(),TpInt);
-	sorter.sortKey(flrelids.data(),TpInt);
+    // Sort the flags by chunk and relative index:
+    Sort sorter;
+    sorter.sortKey(flchunks.data(),TpInt);
+    sorter.sortKey(flrelids.data(),TpInt);
 
-	Vector<uInt> order;  // holds the sort order (indices) for flchunks
-	uInt nflag = sorter.sort(order, flchunks.nelements());
+    Vector<uInt> order;  // holds the sort order (indices) for flchunks
+    uInt nflag = sorter.sort(order, flchunks.nelements());
     uInt iflag(0);  // index into 'order' array
 
     bool pmsavg = averaging_.baseline() || averaging_.antenna() || 
@@ -1950,7 +1896,7 @@ void MSCache::flagToDisk(const PlotMSFlagging& flagging,
 
     // get loadedAxes and loadedData for setting up vis iter
     vector<PMS::Axis> loadedAxes;
-	vector<PMS::DataColumn> loadedData;
+    vector<PMS::DataColumn> loadedData;
     for (std::map<PMS::Axis, bool>::iterator mapit=loadedAxes_.begin(); 
             mapit!=loadedAxes_.end(); ++mapit) {
         if (mapit->second) {
@@ -2130,8 +2076,8 @@ void MSCache::flagToDisk(const PlotMSFlagging& flagging,
             if (iflag >= nflag) break;
         } 
     }
-	// Delete the VisIter so lock is released
-	deleteVi();
+    // Delete the VisIter so lock is released
+    deleteVi();
 }
 
 void MSCache::mapIntentNamesToIds() {
@@ -2175,18 +2121,18 @@ Vector<Double> MSCache::calcVelocity(vi::VisBuffer2* vb) {
 
 void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 	logLoad("Loading page header cache");
-    using Item = PageHeaderItemsDef::Item;
+	using Item = PageHeaderItemsDef::Item;
 
-    // ---- Filename
-    pageHeaderCache_.store(HeaderItemData(Item::Filename,Path(filename_).baseName()));
+	// ---- Filename
+	pageHeaderCache_.store(HeaderItemData(Item::Filename,Path(filename_).baseName()));
 
-    if ( selectedMS.nrow() == 0 ) return;
+	if ( selectedMS.nrow() == 0 ) return;
 
 	const uInt firstSelectedRow = 0;
 
 	ROMSColumns selMSColumns(selectedMS);
 
-    // ---- Queries on Observation table
+	// ---- Queries on Observation table
 	auto firstObservationId = selMSColumns.observationId().get(firstSelectedRow);
 	auto firstObservationRow = static_cast<uInt>(firstObservationId);
 	const auto & obsColumns = selMSColumns.observation();
@@ -2297,20 +2243,20 @@ void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){
 
 void MSCache::completeLoadPageHeaderCache(){
 	using Item = PageHeaderItemsDef::Item;
-    // ---- Y Column(s)
-    String yColumns;
-    String axisSep;
-    for ( uInt k=0; k<currentY_.size(); k++) {
-    	yColumns += axisSep;
-    	auto axis = currentY_[k];
-    	yColumns += PMS::axis(axis);
-    	if ( PMS::axisIsData(axis) && k < currentYData_.size() ) {
-    		auto dataColumn = currentYData_[k];
-    		yColumns += String(":") + PMS::dataColumn(dataColumn);
-    	}
-    	axisSep = String(", ");
-    }
-    pageHeaderCache_.store(HeaderItemData(Item::YColumns,yColumns));
+	// ---- Y Column(s)
+	String yColumns;
+	String axisSep;
+	for ( uInt k=0; k<currentY_.size(); k++) {
+		yColumns += axisSep;
+		auto axis = currentY_[k];
+		yColumns += PMS::axis(axis);
+		if ( PMS::axisIsData(axis) && k < currentYData_.size() ) {
+			auto dataColumn = currentYData_[k];
+			yColumns += String(":") + PMS::dataColumn(dataColumn);
+		}
+		axisSep = String(", ");
+	}
+	pageHeaderCache_.store(HeaderItemData(Item::YColumns,yColumns));
 }
 
 }
