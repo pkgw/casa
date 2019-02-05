@@ -36,6 +36,7 @@
 #include <synthesis/TransformMachines/BeamCalc.h>
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PSTerm.h>
 #include <synthesis/TransformMachines2/WTerm.h>
 #include <synthesis/TransformMachines2/ATerm.h>
@@ -1553,7 +1554,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //
   //----------------------------------------------------------------------
   //
-  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)
+//  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)
+  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& theMap)
   {
     if (aTerm_p->rotationallySymmetric() == false) return;
     Int nRow=theMap.nelements();

@@ -54,6 +54,7 @@
 #include <casa/OS/Timer.h>
 
 #include <synthesis/TransformMachines2/ATerm.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
@@ -2478,7 +2479,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
       }
 
-    VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
+    //VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
+    VB2CFBMap& theMap=visResampler_p->getVBRow2CFBMap();
     // 
     // Trigger the computation of phase gradiant corresponding to the
     // field offset (from the VB) w.r.t. the image phase center.

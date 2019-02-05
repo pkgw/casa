@@ -32,6 +32,7 @@
 #include <synthesis/TransformMachines2/CFTerms.h>
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PolOuterProduct.h>
 #include <synthesis/TransformMachines2/PointingOffsets.h>
 #include <synthesis/TransformMachines2/Utils.h>
@@ -150,7 +151,8 @@ namespace casa{
     // {setPolMap(polMap); setFeedStokes(feedStokes);};
 
     //    virtual void prepareConvFunction(const VisBuffer2& vb, CFStore2& cfs)=0;
-    virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)=0;
+    //virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)=0;
+    virtual void prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& theMap)=0;
     virtual casacore::Matrix<casacore::Int> makeBaselineList(const casacore::Vector<casacore::Int>& antList);
     virtual casacore::Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
     virtual void setMiscInfo(const casacore::RecordInterface& /*params*/) {};

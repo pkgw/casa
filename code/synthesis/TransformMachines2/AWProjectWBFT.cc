@@ -26,6 +26,7 @@
 //#
 //# $Id$
 
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/AWProjectWBFT.h>
 #include <synthesis/TransformMachines2/AWVisResampler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
@@ -866,7 +867,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
-    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
     convFuncCtor_p->prepareConvFunction(vb,theMap);
     //runTime1_p += timer_p.real();
     //

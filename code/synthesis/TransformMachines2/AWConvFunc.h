@@ -35,6 +35,7 @@
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
 #include <synthesis/TransformMachines2/CFBuffer.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PSTerm.h>
 #include <synthesis/TransformMachines2/WTerm.h>
 #include <synthesis/TransformMachines2/ATerm.h>
@@ -122,7 +123,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Bool findSupport(casacore::Array<casacore::Complex>& func, casacore::Float& threshold,casacore::Int& origin, casacore::Int& R);
     virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
 					      const VisBuffer2& /*vb*/) {casacore::Vector<casacore::Double> tt(2); tt=0;return tt;};
-    virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& cfs);
+    //virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& cfs);
+    virtual void prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& cfs);
     casacore::Int mapAntIDToAntType(const casacore::Int& ant) {return aTerm_p->mapAntIDToAntType(ant);};
 
     virtual casacore::Vector<casacore::Double> makeFreqValList(casacore::Double& freqScale,
