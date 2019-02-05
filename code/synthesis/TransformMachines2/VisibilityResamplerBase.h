@@ -166,9 +166,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Int* __restrict__ incPtr_p;
     casacore::Vector<casacore::Int> cfMap_p, conjCFMap_p;
 //    VBRow2CFMapType vbRow2CFMap_p;
-    casacore::CountedPtr<refim::VB2CFBMap> vbRow2CFBMap_p;
     double paTolerance_p;
     casacore::Matrix<casacore::Complex> cached_phaseGrad_p;
+    casacore::CountedPtr<refim::VB2CFBMap> vbRow2CFBMap_p;
 
     void sgrid(casacore::Int& ndim, 
 	       casacore::Double* __restrict__  pos, 

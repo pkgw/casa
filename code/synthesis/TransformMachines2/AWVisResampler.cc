@@ -534,12 +534,12 @@ namespace casa{
 			      (fabs(pointingOffset(0))>0) ||  
 			      (fabs(pointingOffset(1))>0)
 			      );
-   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
+   //   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
    Double vbPA = vbs.paQuant_p.getValue("rad");
-   Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
+   //Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
 
    for(Int irow=rbeg; irow< rend; irow++){   
       //      if ((vbs.uvw_p.nelements() == 0)) 
@@ -670,7 +670,7 @@ namespace casa{
 					  
 					  
 					  convOrigin=cfShape/2;
-					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
+					  //Bool psfOnly=((dopsf==true) && (accumCFs==false));
 					  // if (finitePointingOffsets )
 					  //   cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
 					  // 		     vbSpw, vbFieldID);
@@ -774,7 +774,7 @@ namespace casa{
 			       );
     Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
     Double vbPA = vbs.paQuant_p.getValue("rad");
-    Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
+    //    Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
 
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {

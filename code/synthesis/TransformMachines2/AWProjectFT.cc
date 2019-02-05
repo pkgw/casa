@@ -2539,6 +2539,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 		 << cfcst.ySupport 
     // 		 << endl;
     // 	  }
+    visResampler_p->setVB2CFMap(vbRow2CFBMap_p);
 
     
     // The following code is required only for GPU or multi-threaded
@@ -2549,7 +2550,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //makeThGridCoords(vbs,gridShape);
 
     //runTime1_p += timer_p.real();
-    visResampler_p->setVB2CFMap(vbRow2CFBMap_p);
     visResampler_p->initializeDataBuffers(vbs);
   }
 
