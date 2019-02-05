@@ -671,9 +671,9 @@ namespace casa{
 					  
 					  convOrigin=cfShape/2;
 					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
-					  if (finitePointingOffsets )
-					    cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
-							     vbSpw, vbFieldID);
+					  // if (finitePointingOffsets )
+					  //   cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
+					  // 		     vbSpw, vbFieldID);
 					  
 					  cacheAxisIncrements(cfShape, cfInc_p);
 					  
@@ -864,9 +864,9 @@ namespace casa{
 			      if ((isOnGrid=onGrid(nx, ny, nw, loc, support))==false) break;
 			      cacheAxisIncrements(cfShape, cfInc_p);
 			      convOrigin = (cfShape)/2;
-			      if (finitePointingOffset)
-				cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
-						 vbSpw, vbFieldID);
+			      // if (finitePointingOffset)
+			      // 	cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
+			      // 			 vbSpw, vbFieldID);
 
 			      // accumulateFromGrid() is a local C++ method with the inner loops.  The include
 			      // file (FortanizedLoopsFromGrid.cc) has the interface code to call the inner 

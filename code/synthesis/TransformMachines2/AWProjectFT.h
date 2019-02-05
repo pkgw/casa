@@ -62,6 +62,7 @@
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/ATerm.h>
+#include <synthesis/TransformMachines2/PhaseGrad.h>
 
 #include <casa/OS/Timer.h>
 
@@ -155,12 +156,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static ATerm* createTelescopeATerm(const casacore::String& telescopeName, 
 				       const casacore::Bool& isATermOn);
     static casacore::CountedPtr<ConvolutionFunction> makeCFObject(const casacore::String& telescopeName,
-							const casacore::Bool aTermOn,
-							const casacore::Bool psTermOn,
-							const casacore::Bool wTermOn,
-							const casacore::Bool mTermOn,
-							const casacore::Bool wBAWP,
-							const casacore::Bool conjBeams);
+								  const casacore::Bool aTermOn,
+								  const casacore::Bool psTermOn,
+								  const casacore::Bool wTermOn,
+								  const casacore::Bool mTermOn,
+								  const casacore::Bool wBAWP,
+								  const casacore::Bool conjBeams);
     AWProjectFT();
     
     // Constructor: cachesize is the size of the cache in words
@@ -558,6 +559,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Double runTime1_p;
 
     PolOuterProduct::MuellerType muellerType_p;
+    PhaseGrad phaseGrad_p;
 
     casacore::Int previousSPWID_p;
 
