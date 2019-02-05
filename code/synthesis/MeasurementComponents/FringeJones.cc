@@ -2064,21 +2064,16 @@ void FringeJones::setCallib(const Record& callib,
 void FringeJones::setSolve(const Record& solve) {
 
     // Call parent to do conventional things
+    GJones::setSolve(solve);
+    // refant isn't properly set until selfSolveOne.  We set it to a
+    // known value here so that it can be checked in debugging code.
+    refant() = -1;
     if (prtlev() > 2) {
         cout << "Before GJones::setSolve" << endl
              << "FringeJones::setSolve()" <<endl
              << "FringeJones::refant() = "<< refant() <<endl
              << "FringeJones::refantlist() = "<< refantlist() <<endl;
     }
-    GJones::setSolve(solve);
-
-    // if (!ct_)
-    //    throw(AipsError("No calibration table specified"));
-    // cerr << "setSolve here, ct_: "<< ct_ << endl;
-
-   // Trap unspecified refant:
-    if (refant()<0)
-        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
