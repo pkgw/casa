@@ -137,6 +137,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     virtual void releaseBuffers() = 0;
 //    VBRow2CFMapType& getVBRow2CFMap() {return vbRow2CFMap_p;};
+<<<<<<< HEAD
     VB2CFBMap& getVBRow2CFBMap() {return *vbRow2CFBMap_p;};
     // virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
     // 				ConvolutionFunction& cf,
@@ -148,6 +149,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void setFieldPhaseGrad(const casacore::Matrix<casacore::Complex>& phaseGrad) {cached_phaseGrad_p.reference(phaseGrad);};
     void setVB2CFMap(const casacore::CountedPtr<refim::VB2CFBMap>& thisMap) {vbRow2CFBMap_p = thisMap;}
 
+=======
+    VBRow2CFBMapType& getVBRow2CFBMap() {return vbRow2CFBMap_p;};
+    virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
+					   //ConvolutionFunction& cf,
+					   const VisBuffer2& vb, const casacore::Quantity& dPA,
+					   const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
+					   const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
+					   const casacore::Vector<casacore::Double>& pointingOffset);
+
+    void setFieldPhaseGrad(const casacore::Matrix<casacore::Complex>& phaseGrad) {cached_phaseGrad_p.reference(phaseGrad);};
+    inline int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
+>>>>>>> bc96d01fed00b7bd74651ee60592fd6d727aefac
     casacore::Double runTimeG_p, runTimeDG_p, runTimeG1_p, runTimeG2_p, runTimeG3_p, runTimeG4_p, runTimeG5_p, runTimeG6_p, runTimeG7_p;
     casacore::Timer timer_p;
     //

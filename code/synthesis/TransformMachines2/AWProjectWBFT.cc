@@ -864,6 +864,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
     //cerr << "AWPWB: " << pointingOffset << endl;
+<<<<<<< HEAD
     // visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
     // 				      paChangeDetector.getParAngleTolerance(),
     // 				      chanMap,polMap,pointingOffset);
@@ -872,6 +873,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
     convFuncCtor_p->prepareConvFunction(vb,*vbRow2CFBMap_p);
+=======
+    visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,
+				       //*convFuncCtor_p, 
+				       vb,
+				       paChangeDetector.getParAngleTolerance(),
+				       chanMap,polMap,pointingOffset);
+    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    convFuncCtor_p->prepareConvFunction(vb,theMap);
+>>>>>>> bc96d01fed00b7bd74651ee60592fd6d727aefac
     //runTime1_p += timer_p.real();
     //
     // Set the uvw array to zero-sized array and dopsf=true.
