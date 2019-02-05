@@ -447,9 +447,8 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(
     Bool radians, Float clip, Float sigma
 ) {
     // sigma_PA = sigmaQU / 2P
-    LogIO os(LogOrigin("ImagePolarimetry", "sigmaLinPolPosAng(...)", WHERE));
     ThrowIf(
-        ! _stokes[ImagePolarimetry::Q] && ! _stokes[ImagePolarimetry::U]==0,
+        ! (_stokes[ImagePolarimetry::Q] || _stokes[ImagePolarimetry::U]),
         "This image does not have Stokes Q and U so "
         "cannot provide linear polarization"
     );
@@ -465,7 +464,7 @@ ImageExpr<Float> ImagePolarimetry::sigmaLinPolPosAng(
     LatticeExpr<Float> le(node);
     ImageExpr<Float> ie(le, String("LinearlyPolarizedPositionAngleError"));
     ie.setUnits(Unit(radians ? "rad" : "deg"));
-    ImageInfo ii = _image->imageInfo();
+    auto ii = _image->imageInfo();
     ii.removeRestoringBeam();
     ie.setImageInfo(ii);
     _fiddleStokesCoordinate(ie, Stokes::Pangle);

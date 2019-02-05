@@ -92,7 +92,9 @@ namespace casa {
 						if ( tmpfile.exists( ) && tmpfile.isWritable( ) ) {
 							if ( tmpfile.isDirectory(false) ) {
 								Directory tmpdir(tmpfile);
-								tmpdir.removeRecursive(false);
+                                try {
+                                    tmpdir.removeRecursive(false);
+                                } catch(...) { }
 							} else {
 								// why hassle with decerning symlinks from block special files from regular files, etc.
 								unlink(it->first.c_str( ));
