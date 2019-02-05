@@ -187,6 +187,7 @@ public:
     
     // Returns a copy of the canvas background.
     virtual PlotAreaFillPtr background() const = 0;
+    virtual PlotAreaFillPtr defaultBackground() const;
     
     // Sets the background of the canvas to the given.
     virtual void setBackground(const PlotAreaFill& areaFill) = 0;
@@ -799,6 +800,13 @@ public:
     bool hasSelectedRectangles();
     std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
+
+    // methods related to per-panel flag mode
+    void clearMark();
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
+    bool isBackgroundColorChanged();
+    void setAllFlagged();
 
     // Converts the given region into a region with the given system.
     // DEFAULT IMPLEMENTATION.

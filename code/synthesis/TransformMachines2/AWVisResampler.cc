@@ -448,7 +448,7 @@ namespace casa{
     Complex phasor, nvalue, wt;
     Complex norm;
     Vector<Int> cfShape;
-    cfShape=vbRow2CFBMap_p(0)->getStorage()(0,0,0)->getStorage()->shape().asVector();
+    cfShape=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
 
     Vector<Int> convOrigin = (cfShape)/2;
     Double cfRefFreq;
@@ -481,7 +481,7 @@ namespace casa{
 
     Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
     Double fIncr, wIncr;
-    CFBuffer& cfb = *vbRow2CFBMap_p(0);
+    CFBuffer& cfb = (*(*vbRow2CFBMap_p)[0]);
     // CFBStruct cfbst;
     // cfb.getAsStruct(cfbst);
     // for(int ii=0;ii<vbs.cfBSt_p.shape[0];ii++)
@@ -723,8 +723,8 @@ namespace casa{
     
     Vector<Complex> norm(4,0.0);
     Complex phasor, nvalue;
-    Vector<Int> cfShape=vbRow2CFBMap_p(0)->getStorage()(0,0,0)->getStorage()->shape().asVector();
-    Vector<Double> pointingOffset((*vbRow2CFBMap_p(0)).getPointingOffset());
+    Vector<Int> cfShape=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
+    Vector<Double> pointingOffset(((*vbRow2CFBMap_p)[0])->getPointingOffset());
     
     //    Vector<Int> convOrigin = (cfShape-1)/2;
     Vector<Int> convOrigin = (cfShape)/2;
@@ -778,7 +778,7 @@ namespace casa{
 
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
-	CFBuffer& cfb = *vbRow2CFBMap_p(irow);
+	CFBuffer& cfb = (*(*vbRow2CFBMap_p)[irow]);
 	Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
 	Double fIncr, wIncr;
 	cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);

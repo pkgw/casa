@@ -34,6 +34,7 @@
 #include <synthesis/MeasurementComponents/ExpCache.h>
 #include <synthesis/MeasurementComponents/CExp.new3.h>
 #include <synthesis/TransformMachines2/PolOuterProduct.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 using namespace casa::vi;
 namespace casa{
   namespace refim{
@@ -101,7 +102,8 @@ namespace casa{
     virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
 					      const VisBuffer2& /*vb*/)
     {throw(casacore::AipsError("IlluminationConvFunc::findPointingOffset() not implemented"));};
-    virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VBRow2CFBMapType& /*theMap*/)
+    //virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VBRow2CFBMapType& /*theMap*/)
+    virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VB2CFBMap& /*theMap*/)
     {throw(casacore::AipsError("IlluminationConvFunc::prepareConvFunction() not implemented"));};
 
     virtual casacore::Bool makeAverageResponse(const VisBuffer2&,

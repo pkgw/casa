@@ -458,7 +458,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     for (uInt k=0;  k < nMSs ; ++k){
       if(k==uInt(key)){
 	fselections_p->add(frameSel);
-	//cerr <<"framesel " << frameSel.toString() << endl;
+	//cerr <<"adding framesel " << frameSel.toString() << endl;
       }
       else{
 	const FrequencySelectionUsingFrame& thissel= static_cast<const FrequencySelectionUsingFrame &> (copyFsels->get(k));
@@ -479,8 +479,9 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     IPosition imshape=itsMappers.imageStore(gmap)->getShape();
     /////For some reason imagestore returns 0 channel image sometimes
     ////
-    if(imshape(3) < 1) 
+    if(imshape(3) < 1) {
       return;
+    }
     Double minFreq=SpectralImageUtil::worldFreq(cs, 0.0);
     Double maxFreq=SpectralImageUtil::worldFreq(cs,imshape(3)-1);
    
@@ -489,9 +490,14 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
       minFreq=maxFreq;
       maxFreq=tmp;
     }
+    
     Int spectralIndex=cs.findCoordinate(Coordinate::SPECTRAL);
     SpectralCoordinate spectralCoord=cs.spectralCoordinate(spectralIndex);
+    maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
+    minFreq-=fabs(spectralCoord.increment()(0))/2.0;
+    if(minFreq < 0.0) minFreq=0.0;
     MFrequency::Types intype=spectralCoord.frequencySystem(True);
+    
     if(!VisBufferUtil::getFreqRangeFromRange(minFreq, maxFreq,  intype, minFreq,  maxFreq, *vi_p, selFreqFrame_p)){
       //Do not retune if conversion did not happen
       return;
@@ -504,7 +510,14 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     auto copyFreqBegs=freqBegs_p;
     auto copyFreqEnds=freqEnds_p;
     auto copyFreqSpws=  freqSpws_p;
-    
+    ///////////////TESTOO
+    //cerr << std::setprecision(12) << "AFTER maxFreq " << maxFreq << "  minFreq " << minFreq << endl;
+    //for (Int k =0 ; k < (fselections_p->size()) ; ++k){
+    //  cerr << k << (fselections_p->get(k)).toString() << endl;
+    // }
+    ///////////////////////////////////////	   
+    ///TESTOO
+    // andFreqSelection(-1, -1, minFreq, maxFreq, MFrequency::TOPO); 
     andFreqSelection(-1, -1, minFreq, maxFreq, selFreqFrame_p);
     
     vi_p->setFrequencySelection (*fselections_p);
@@ -1089,10 +1102,16 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 	 SynthesisUtilMethods::getResource("Start Major Cycle for mapper"+String::toString(gmap));
 	 CountedPtr<vi::FrequencySelections> copyFsels=fselections_p->clone();
+	 ///CAS-12132  create a new visiter for each chunk
+	 createVisSet(writeAccess_p);
+	 ////////////////////////
 	 vi::VisBuffer2* vb=vi_p->getVisBuffer();
+	 /// Careful where tunechunk 
+	 tuneChunk(gmap);
+
 	 vi_p->originChunks();
 	 vi_p->origin();
-	 tuneChunk(gmap);
+
 	 Double numcoh=0;
 	 for (uInt k=0; k< mss_p.nelements(); ++k)
 	   numcoh+=Double(mss_p[k]->nrow());
@@ -1114,7 +1133,9 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 		//itsMappers.getMapper(gmap)->initializeGrid(*vb,dopsf);
 
 	SynthesisUtilMethods::getResource("After initialize for mapper"+String::toString(gmap));
+	Int iterNum=0;
 
+	
     	for (vi_p->originChunks(); vi_p->moreChunks();vi_p->nextChunk())
     	{
 
@@ -1124,6 +1145,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	      //		  cerr << "nRows "<< vb->nRow() << "   " << max(vb->visCube()) <<  endl;
 	      if (SynthesisUtilMethods::validate(*vb)!=SynthesisUtilMethods::NOVALIDROWS)
 		{
+		  
 		  if(!dopsf) {
 		    if(resetModel==False) 
 		      { 
@@ -1142,6 +1164,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 		  itsMappers.grid(*vb, dopsf, (refim::FTMachine::Type)(datacol_p), gmap);
 		  //itsMappers.getMapper(gmap)->grid(*vb, dopsf, datacol_p);
 		  cohDone += vb->nRows();
+		  ++iterNum;
 		  pm.update(Double(cohDone));
 		}
 	    }
@@ -1165,7 +1188,10 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	SynthesisUtilMethods::getResource("End Major Cycle for mapper"+String::toString(gmap));
 	fselections_p=copyFsels;
        }// end of mapper loop
-    vi_p->setFrequencySelection(*fselections_p);
+    ///CAS-12132  create a new visiter for each chunk
+    createVisSet(writeAccess_p);
+    ////////////////////////
+    //////vi_p->setFrequencySelection(*fselections_p);
 
     itsMappers.checkOverlappingModels("restore");
 

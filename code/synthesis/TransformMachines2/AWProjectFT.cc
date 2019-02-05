@@ -178,7 +178,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
     rotatedConvFunc_p(),
-    runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p()
+    runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p(), vbRow2CFBMap_p()
   {
     //    convSize=0;
     tangentSpecified_p=false;
@@ -209,6 +209,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CFBuffer::initCFBStruct(cfbst_pub);
     //    rotatedConvFunc_p.data=new Array<Complex>();    
     //    self_p.reset(this);
+    vbRow2CFBMap_p = new VB2CFBMap();
   }
   //
   //---------------------------------------------------------------
@@ -237,7 +238,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
       visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p()
+    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p(), vbRow2CFBMap_p()
   {
     //convSize=0;
     tangentSpecified_p=false;
@@ -273,12 +274,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CFBuffer::initCFBStruct(cfbst_pub);
     muellerType_p = muellerType;
     //    self_p.reset(this);
+    vbRow2CFBMap_p = new VB2CFBMap();
   }
   //
   //---------------------------------------------------------------
   //
   AWProjectFT::AWProjectFT(const RecordInterface& stateRec)
-    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p()
+    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p(), vbRow2CFBMap_p()
   {
     //
     // Construct from the input state record
@@ -301,6 +303,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     pop_p->init();
     //    self_p.reset(this);
+    vbRow2CFBMap_p = new VB2CFBMap();
   }
   //
   //----------------------------------------------------------------------
@@ -415,6 +418,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	runTime1_p = other.runTime1_p;
 	muellerType_p = other.muellerType_p;
 	previousSPWID_p = other.previousSPWID_p;
+	vbRow2CFBMap_p = other.vbRow2CFBMap_p;
 	//	self_p = other.self_p;
       };
     return *this;
@@ -1170,11 +1174,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
-    cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
-						//*convFuncCtor_p, 
+    // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
+    // 						*convFuncCtor_p, 
+    // 						vb,
+    // 					       dPAQuant,
+    // 					       chanMap,polMap,pointingOffset);
+    cfSource = vbRow2CFBMap_p->makeVBRow2CFBMap(*cfs2_p,
 						vb,
-					       dPAQuant,
-					       chanMap,polMap,pointingOffset);
+						dPAQuant,
+						chanMap,polMap,pointingOffset);
 
     if (cfSource == CFDefs::NOTCACHED)
       {
@@ -2451,11 +2459,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFBMap(*cfwts2_p,
-				       //*convFuncCtor_p, 
-				       vb,
-				       paChangeDetector.getParAngleTolerance(),
-				       chanMap,polMap,pointingOffset);
+      vbRow2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,
+				      vb,
+				      paChangeDetector.getParAngleTolerance(),
+				      chanMap,polMap,pointingOffset);
+      // visResampler_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
+      // 				      paChangeDetector.getParAngleTolerance(),
+      // 				      chanMap,polMap,pointingOffset);
     }
     else
       {
@@ -2476,15 +2486,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFBMap(*cfs2_p,
-				       //*convFuncCtor_p, 
-				       vb,
+	vbRow2CFBMap_p->makeVBRow2CFBMap(*cfs2_p, vb,
 				       paChangeDetector.getParAngleTolerance(),
 				       chanMap,polMap,pointingOffset);
 
+      // visResampler_p->makeVBRow2CFBMap(*cfs2_p,*convFuncCtor_p, vb,
+      // 				      paChangeDetector.getParAngleTolerance(),
+      // 				      chanMap,polMap,pointingOffset);
+
       }
 
-    VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
+    //    VB2CFBMap& theMap=visResampler_p->getVBRow2CFBMap();
     // 
     // Trigger the computation of phase gradiant corresponding to the
     // field offset (from the VB) w.r.t. the image phase center.
@@ -2505,13 +2517,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // 					       dummyIMFreq,
       // 					       vbSpw, vbFieldID))
       
-      if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,theMap[0],vb))
+      if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vbRow2CFBMap_p)[0],vb))
 	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
     }
     //
     // For AzElApertures, this rotates the CFs.
     //
-    convFuncCtor_p->prepareConvFunction(vb,theMap);
+    convFuncCtor_p->prepareConvFunction(vb,*vbRow2CFBMap_p);
     
     vbs.accumCFs_p=((vbs.uvw_p.nelements() == 0) && dopsf);
     
@@ -2537,6 +2549,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //makeThGridCoords(vbs,gridShape);
 
     //runTime1_p += timer_p.real();
+    visResampler_p->setVB2CFMap(vbRow2CFBMap_p);
     visResampler_p->initializeDataBuffers(vbs);
   }
 
