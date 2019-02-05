@@ -2216,23 +2216,21 @@ VisibilityIteratorImpl2::getPolarizationId(Int spectralWindowId, Int msId) const
     // This will break if the same spectral window is referenced by two
     // different data_descrption IDs.  Ideally, this whole thing should be
     // reworked to used DDIDs with spectral window ID only used internally.
-
-    for (Int iSpw = 0; iSpw < nSpw; iSpw++) {
-        if (iSpw == spectralWindowId) {
-            Int polID = -1;
-            for (Int idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
-                if(ddCols.spectralWindowId()(idd) == iSpw)
-                    polID = ddCols.polarizationId()(iSpw);
-            }
-            // If the SPW is not found in the DD return -1, rather than failing.
-            // This can happen for the so-called phantom SPWs. See CAS-11734
-            return polID;
-        }
+    Int polID = -1;
+    for (Int idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
+        if(ddCols.spectralWindowId()(idd) == spectralWindowId)
+            polID = ddCols.polarizationId()(idd);
     }
 
+    // If the SPW is not found in the DD it will return -1, rather than failing.
+    // This can happen for the so-called phantom SPWs. See CAS-11734
+    if(spectralWindowId < nSpw)
+        return polID;
+
+    // spectralWindowId is not present in subtables 
     ThrowIf(true, String::format(
             "Could not find entry for spectral window id"
-            "%d in data_description in MS #%d", spectralWindowId, msId));
+            "%d in spectral_window in MS #%d", spectralWindowId, msId));
 
     return -1; // Can't get here so make the compiler happy
 }
