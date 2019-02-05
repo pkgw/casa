@@ -49,7 +49,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    class VB2CFBMap
    {
    public:
-     VB2CFBMap(): vbRow2CFBMap_p(){vbRow2CFBMap_p(0) = 0;}
+     VB2CFBMap(): vbRow2CFBMap_p(){};
      
      ~VB2CFBMap() {};
      
