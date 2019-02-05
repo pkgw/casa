@@ -2283,11 +2283,11 @@ class test_widefield(testref_base):
                        niter=30,gridder='awproject',cfcache=self.img+'.cfcache',wbawp=False,conjbeams=True,psterm=False,computepastep=360.0,
                        rotatepastep=360.0,deconvolver='hogbom',savemodel='modelcolumn',parallel=self.parallel)
          ## ret = tclean(vis=self.msfile,spw='2',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,gridder='awproject',wbawp=False,conjbeams=True,psterm=False,computepastep=360.0,rotatepastep=360.0,deconvolver='hogbom')
-          # report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
+          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',0.96,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
           #
           # Changed to the following for 5.5.0 release of AWP.  Will revisit and replace the test MS later.
           #
-          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',0.705,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
+          #report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',0.705,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
           ## weight is pbsq which is 0.7^2 = 0.49 (approx).
           self.checkfinal(report)
 
