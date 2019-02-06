@@ -460,14 +460,17 @@ protected:
   PlotMSCacheBase(const PlotMSCacheBase&);
 
   // Resize storage for the number of chunks
+  // increaseCache parameter:
+  //   false to initialize with empty Arrays before loading cache
+  //   true  to increase: copy values then add empty Arrays while loading cache
   void setCache(casacore::Int newnChunk, const std::vector<PMS::Axis>& loadAxes,
-    const std::vector<PMS::DataColumn>& loadData);
+    const std::vector<PMS::DataColumn>& loadData, bool increaseCache=false);
   template<typename T> void addArrays(
-    casacore::PtrBlock<casacore::Array<T>*>& input);
+    casacore::PtrBlock<casacore::Array<T>*>& input, bool increaseCache=false);
   template<typename T> void addMatrices(
-    casacore::PtrBlock<casacore::Matrix<T>*>& input);
+    casacore::PtrBlock<casacore::Matrix<T>*>& input, bool increaseCache=false);
   template<typename T> void addVectors(
-    casacore::PtrBlock<casacore::Vector<T>*>& input);
+    casacore::PtrBlock<casacore::Vector<T>*>& input, bool increaseCache=false);
 
   // Specialized method for loading the cache
   //  (pure virtual: implemented specifically in child classes)
@@ -586,24 +589,24 @@ protected:
   casacore::PtrBlock<casacore::Array<casacore::Float>*> amp_, 
       ampCorr_, ampModel_, ampCorrModel_, ampCorrModelS_, ampDataModel_, 
       ampDataModelS_, ampDataDivModel_, ampDataDivModelS_, ampCorrDivModel_,
-	  ampCorrDivModelS_, ampFloat_;
+      ampCorrDivModelS_, ampFloat_;
   casacore::PtrBlock<casacore::Array<casacore::Float>*> pha_, 
       phaCorr_, phaModel_, phaCorrModel_, phaCorrModelS_, phaDataModel_, 
       phaDataModelS_, phaDataDivModel_, phaDataDivModelS_, phaCorrDivModel_,
-	  phaCorrDivModelS_;  // no phase for FLOAT_DATA
+      phaCorrDivModelS_;  // no phase for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> real_, 
       realCorr_, realModel_, realCorrModel_, realCorrModelS_, realDataModel_,
       realDataModelS_, realDataDivModel_, realDataDivModelS_, realCorrDivModel_,
-	  realCorrDivModelS_;  // use real_ for FLOAT_DATA
+      realCorrDivModelS_;  // use real_ for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> imag_,
       imagCorr_, imagModel_, imagCorrModel_, imagCorrModelS_, imagDataModel_,
       imagDataModelS_, imagDataDivModel_, imagDataDivModelS_, imagCorrDivModel_,
-	  imagCorrDivModelS_;  // no imag for FLOAT_DATA
+      imagCorrDivModelS_;  // no imag for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> wtxamp_,
       wtxampCorr_, wtxampModel_, wtxampCorrModel_, wtxampCorrModelS_,
-	  wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_, 
-	  wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
-	  wtxampFloat_;
+      wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_, 
+      wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
+      wtxampFloat_;
 
   casacore::PtrBlock<casacore::Array<casacore::Bool>*> flag_;
   casacore::PtrBlock<casacore::Vector<casacore::Bool>*> flagrow_;
@@ -638,7 +641,7 @@ protected:
 
   // Global ranges (unflagged and flagged, per indexer)
   casacore::Vector<casacore::Double> xminG_, xmaxG_, yminG_, ymaxG_,
-	  xflminG_, xflmaxG_, yflminG_, yflmaxG_;
+      xflminG_, xflmaxG_, yflminG_, yflmaxG_;
 
   // A copy of the casacore::Data parameters 
   casacore::String filename_;
