@@ -273,19 +273,29 @@ macro( casa_add_tools out_swig out_sources out_py )
     ENDIF()
     #SWIG_ADD_MODULE(${_base} python ${_swig} ${_path}/${_base}_cmpt.cc)
     SWIG_ADD_LIBRARY(${_base} LANGUAGE python TYPE MODULE OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR} SOURCES ${_swigi} ${_swigstatics})
-    SWIG_LINK_LIBRARIES( ${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
-	                          ${PYTHON_LIBRARIES}
-				  ${ATM_LIBRARIES}
-				  ${CMAKE_CURRENT_BINARY_DIR}/libtools${CMAKE_SHARED_LIBRARY_SUFFIX}
-				  ${QT4_LIBRARIES}
-				  ${DBUS_LIBRARIES}
-				  ${DL_LIBRARIES}
-				  ${READLINE_LIBRARIES}
-				  ${XERCES_LIBRARIES}
-                                  ${CASAMPI_LIBRARIES} )
-			  #install( FILES ${CMAKE_CURRENT_BINARY_DIR}/_${_base}.so
-			  #${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
-			  #DESTINATION lib/python${PYTHONV}/casac/${_base} )
+    if (CMAKE_SYSTEM MATCHES ^Darwin)
+      SWIG_LINK_LIBRARIES(${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
+        "-undefined dynamic_lookup -Wl,-pie -Wl,-dead_strip_dylibs -flto -Wl,-export_dynamic"
+	${ATM_LIBRARIES}
+	${CMAKE_CURRENT_BINARY_DIR}/libtools${CMAKE_SHARED_LIBRARY_SUFFIX}
+	${QT4_LIBRARIES}
+	${DBUS_LIBRARIES}
+	${DL_LIBRARIES}
+	${READLINE_LIBRARIES}
+	${XERCES_LIBRARIES}
+        ${CASAMPI_LIBRARIES})
+    else()
+      SWIG_LINK_LIBRARIES(${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
+	${PYTHON_LIBRARIES}
+	${ATM_LIBRARIES}
+	${CMAKE_CURRENT_BINARY_DIR}/libtools${CMAKE_SHARED_LIBRARY_SUFFIX}
+	${QT4_LIBRARIES}
+	${DBUS_LIBRARIES}
+	${DL_LIBRARIES}
+	${READLINE_LIBRARIES}
+	${XERCES_LIBRARIES}
+        ${CASAMPI_LIBRARIES})
+    endif()
 
     set( _outputs
 	    ${_base}_cmpt.h
