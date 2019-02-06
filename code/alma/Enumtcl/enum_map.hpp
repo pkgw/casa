@@ -3,46 +3,41 @@
 #include <map>
 #include <limits>
 
-
-using namespace std;
-
-
-#include "enum_par.hpp"
-
+#include <alma/Enumtcl/enum_par.hpp>
 
 template<typename enum_type, typename val_type>
-class enum_map_traits : public map<enum_type,EnumPar<val_type> > {
+class enum_map_traits : public std::map<enum_type,EnumPar<val_type> > {
 public:
   enum_map_traits(){}
   static bool init_;
-  static string typeName_;
-  static string enumerationDesc_;
-  static string order_;
-  static string xsdBaseType_;
-  static map<enum_type,EnumPar<val_type> > m_;
+  static std::string typeName_;
+  static std::string enumerationDesc_;
+  static std::string order_;
+  static std::string xsdBaseType_;
+  static std::map<enum_type,EnumPar<val_type> > m_;
 };
 
 
 template<typename type, typename val_type>
-class enum_map_traiter : public map<type,EnumPar<val_type> >, map<type,EnumPar<val_type> >::iterator
+class enum_map_traiter : public std::map<type,EnumPar<val_type> >, std::map<type,EnumPar<val_type> >::iterator
 {
 public:
   typedef type enum_type;
   static bool init_;
-  static string typeName_;
-  static string enumerationDesc_;
-  static string order_;
-  static string xsdBaseType_;
+  static std::string typeName_;
+  static std::string enumerationDesc_;
+  static std::string order_;
+  static std::string xsdBaseType_;
 
-  static std::set<string> enumMemberSet(){
-    std::set<string> s;
+  static std::set<std::string> enumMemberSet(){
+    std::set<std::string> s;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(m_.begin()), ite(m_.end());
     for(it=itb; it!=ite; ++it)s.insert(it->second.str());
     return s;
   }
 
-  static std::vector<string> enumMemberList(){
-    std::vector<string> v;
+  static std::vector<std::string> enumMemberList(){
+    std::vector<std::string> v;
     typename std::map<enum_type,EnumPar<val_type> >::iterator it, itb(m_.begin()), ite(m_.end());
     for(it=itb; it!=ite; ++it)v.push_back(it->second.str());
     return v;
@@ -59,14 +54,14 @@ public:
     return m_.size();
   }
 
-  static map<type,EnumPar<val_type> > m_;
+  static std::map<type,EnumPar<val_type> > m_;
   // ne doit pas etre static! Je n'arrive plus a trouver la raison...
-  int fromStringToInt(string s){
+  int fromStringToInt(std::string s){
     typename 
-    map<enum_type,EnumPar<val_type> >::iterator it, itb(m_.begin()), ite(m_.end());
+    std::map<enum_type,EnumPar<val_type> >::iterator it, itb(m_.begin()), ite(m_.end());
     for(it=itb;it!=ite;++it)
       if(it->second.str()==s)return (int) it->first;
-    return numeric_limits<int>::max();
+    return std::numeric_limits<int>::max();
   }
 
 };

@@ -216,7 +216,7 @@ protected:
     
 private:
     // Subparameter groups.
-    vector<Group*> itsGroups_;
+    std::vector<Group*> itsGroups_;
     
     
     // To be called when one of the groups is updated.

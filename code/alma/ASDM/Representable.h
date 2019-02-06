@@ -38,12 +38,8 @@
 #error This is a C++ include file and cannot be used from plain C
 #endif
  
-#include <Entity.h>
-#include <ConversionException.h>
-
-using std::string;
-using asdm::Entity;
-using asdm::ConversionException;
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/ConversionException.h>
 
 namespace asdm {
 
@@ -60,10 +56,10 @@ class Representable {
 public:
 
 	virtual ~Representable() {}
-	virtual string toXML()   = 0;
-	virtual void fromXML(string& xml) = 0;
+	virtual std::string toXML()   = 0;
+	virtual void fromXML(std::string& xml) = 0;
 
-	virtual string getName() const = 0;
+	virtual std::string getName() const = 0;
 	virtual unsigned int size() const = 0;
 		
 protected:

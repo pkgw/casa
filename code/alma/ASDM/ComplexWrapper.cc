@@ -24,11 +24,11 @@
  * File Complex.cpp
  */
 
-#include <ComplexWrapper.h>
-#include <DoubleWrapper.h>
-#include <NumberFormatException.h>
-using asdm::Double;
-using asdm::NumberFormatException;
+#include <alma/ASDM/ComplexWrapper.h>
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
+
+using namespace std;
 
 namespace asdm {
 

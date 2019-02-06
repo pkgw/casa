@@ -31,28 +31,22 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLInterval;
 #endif
 
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
 
-#include <EndianStream.h>
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
   class Interval;
   Interval operator * ( int64_t , const Interval & );
-  ostream & operator << ( ostream &, const Interval & );
-  istream & operator >> ( istream &, Interval&);
+  std::ostream & operator << ( std::ostream &, const Interval & );
+  std::istream & operator >> ( std::istream &, Interval&);
 
   /**
    * The Interval class implements an interval of time in units
@@ -63,19 +57,19 @@ namespace asdm {
    */
   class Interval {
     friend Interval operator * ( int64_t , const Interval & );
-    friend ostream & operator << ( ostream &, const Interval & );
-    friend istream & operator >> ( istream &, Interval&);
+    friend std::ostream & operator << ( std::ostream &, const Interval & );
+    friend std::istream & operator >> ( std::istream &, Interval&);
 
   public:
-    static int64_t fromString(const string&);
-    static string toString(int64_t);
+    static int64_t fromString(const std::string&);
+    static std::string toString(int64_t);
     static Interval getInterval(StringTokenizer &t) throw(NumberFormatException);
 
     Interval();                              		// default constructor
     Interval(const Interval &);						// X const X& constructor
-    Interval(const string &s);
+    Interval(const std::string &s);
 #ifndef WITHOUT_ACS
-    Interval(const IDLInterval &);
+    Interval(const asdmIDLTypes::IDLInterval &);
 #endif
     Interval(int64_t value);
     virtual ~Interval();							// destructor
@@ -106,8 +100,8 @@ namespace asdm {
     Interval operator - () const;					// unary minus
     Interval operator + () const; 				// unary plus
 
-    string toString() const;
-    string toStringI() const;
+    std::string toString() const;
+    std::string toStringI() const;
 	
     /**
      * Write the binary representation of this into an EndianOSStream
@@ -121,14 +115,14 @@ namespace asdm {
      * @param interval
      * @param eoss
      */
-    static void toBin(vector<Interval> interval, EndianOSStream& eoss) ;
+    static void toBin(std::vector<Interval> interval, EndianOSStream& eoss) ;
 	
     /**
      * Write the binary representation of a vector of vector  of Interval into a EndianOSStream.
      * @param interval
      * @param eoss
      */
-    static void toBin(vector<vector<Interval> > interval, EndianOSStream& eoss) ;
+    static void toBin(std::vector<std::vector<Interval> > interval, EndianOSStream& eoss) ;
 	
     /**
      * Read the binary representation of an Interval from an EndianIStream
@@ -144,7 +138,7 @@ namespace asdm {
      * @param eis the EndianIStream to be read
      * @return a vector of Interval
      */
-    static vector<Interval> from1DBin(EndianIStream& eis);
+    static std::vector<Interval> from1DBin(EndianIStream& eis);
 	
     /**
      * Read the binary representation of a vector of vector of Interval from a EndianIStream
@@ -152,14 +146,14 @@ namespace asdm {
      * @param eis the EndianIStream  to be read
      * @return a vector of vector of Interval
      */
-    static vector<vector<Interval> >from2DBin(EndianIStream& eis);	
+    static std::vector<std::vector<Interval> >from2DBin(EndianIStream& eis);	
 	
-    operator string () const;
+    operator std::string () const;
     int64_t get() const;
 #ifndef WITHOUT_ACS
-    IDLInterval toIDLInterval() const;
+    asdmIDLTypes::IDLInterval toIDLInterval() const;
 #endif
-    static string unit();
+    static std::string unit();
 
   private:
     int64_t value;
@@ -174,11 +168,11 @@ namespace asdm {
   }
 
 #ifndef WITHOUT_ACS
-  inline Interval::Interval(const IDLInterval &l) : value(l.value) {
+  inline Interval::Interval(const asdmIDLTypes::IDLInterval &l) : value(l.value) {
   }
 #endif
 
-  inline Interval::Interval(const string &s) : value(fromString(s)) {
+  inline Interval::Interval(const std::string &s) : value(fromString(s)) {
   }
 
   inline Interval::Interval(int64_t v) : value(v) {
@@ -286,15 +280,15 @@ namespace asdm {
   }
 
   // Conversion functions
-  inline Interval::operator string () const {
+  inline Interval::operator std::string () const {
     return toString();
   }
 
-  inline string Interval::toString() const {
+  inline std::string Interval::toString() const {
     return toString(value);
   }
 
-  inline string Interval::toStringI() const {
+  inline std::string Interval::toStringI() const {
     return toString(value);
   }
 
@@ -303,8 +297,8 @@ namespace asdm {
   }
 
 #ifndef WITHOUT_ACS
-  inline IDLInterval Interval::toIDLInterval() const {
-    IDLInterval tmp;
+  inline asdmIDLTypes::IDLInterval Interval::toIDLInterval() const {
+    asdmIDLTypes::IDLInterval tmp;
     tmp.value = value;
     return tmp;
   }
@@ -318,18 +312,18 @@ namespace asdm {
     return tmp;
   }
 
-  inline ostream & operator << ( ostream &o, const Interval &x ) {
+  inline std::ostream & operator << ( std::ostream &o, const Interval &x ) {
     o << x.value;
     return o;
   }
 
-  inline istream & operator >> ( istream &i, Interval &x ) {
+  inline std::istream & operator >> ( std::istream &i, Interval &x ) {
     i >> x.value;
     return i;
   }
 
-  inline string Interval::unit() {
-    return string ("nanosec");
+  inline std::string Interval::unit() {
+    return std::string ("nanosec");
   }
 
 } // End namespace asdm

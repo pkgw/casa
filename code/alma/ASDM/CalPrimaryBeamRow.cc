@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalPrimaryBeamRow.h>
-#include <CalPrimaryBeamTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPrimaryBeamRow.h>
+#include <alma/ASDM/CalPrimaryBeamTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalPrimaryBeamRow::~CalPrimaryBeamRow() {
@@ -743,7 +740,9 @@ namespace asdm {
 		
 			
 		frequencyRange .clear();
-		vector<Frequency> v_aux_frequencyRange;
+        
+        vector<Frequency> v_aux_frequencyRange;
+        
 		for (unsigned int i = 0; i < x.frequencyRange.length(); ++i) {
 			v_aux_frequencyRange.clear();
 			for (unsigned int j = 0; j < x.frequencyRange[0].length(); ++j) {
@@ -1815,7 +1814,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPrimaryBeamRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1823,7 +1824,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalPrimaryBeamRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1831,7 +1834,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPrimaryBeamRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1839,7 +1844,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPrimaryBeamRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1847,7 +1854,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPrimaryBeamRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1855,7 +1864,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPrimaryBeamRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1863,7 +1874,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void CalPrimaryBeamRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -1871,7 +1884,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPrimaryBeamRow::numSubbandFromText(const string & s) {
 		 
+          
 		numSubband = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1879,7 +1894,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalPrimaryBeamRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse2D<Frequency>(s);
+          
 		
 	}
 	
@@ -1887,7 +1904,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPrimaryBeamRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1895,7 +1914,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalPrimaryBeamRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1903,7 +1924,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalPrimaryBeamRow::mainBeamEfficiencyFromText(const string & s) {
 		 
+          
 		mainBeamEfficiency = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1912,7 +1935,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPrimaryBeamRow::relativeAmplitudeRmsFromText(const string & s) {
 		 
+          
 		relativeAmplitudeRms = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1920,7 +1945,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPrimaryBeamRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1928,7 +1955,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPrimaryBeamRow::minValidDirectionFromText(const string & s) {
 		 
+          
 		minValidDirection = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1936,7 +1965,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPrimaryBeamRow::maxValidDirectionFromText(const string & s) {
 		 
+          
 		maxValidDirection = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1944,7 +1975,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an PrimaryBeamDescription 
 	void CalPrimaryBeamRow::descriptionTypeFromText(const string & s) {
 		 
-		descriptionType = ASDMValuesParser::parse<PrimaryBeamDescription>(s);
+          
+		descriptionType = ASDMValuesParser::parse<PrimaryBeamDescriptionMod::PrimaryBeamDescription>(s);
+          
 		
 	}
 	
@@ -1952,7 +1985,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPrimaryBeamRow::imageChannelNumberFromText(const string & s) {
 		 
+          
 		imageChannelNumber = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1960,7 +1995,9 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalPrimaryBeamRow::imageNominalFrequencyFromText(const string & s) {
 		 
+          
 		imageNominalFrequency = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1983,23 +2020,23 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalPrimaryBeamRow::getAntennaName() const {
+ 	std::string CalPrimaryBeamRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalPrimaryBeamRow::setAntennaName (string antennaName)  {
+ 	void CalPrimaryBeamRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2183,21 +2220,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<vector<Frequency > >
+ 	 * @return frequencyRange as std::vector<std::vector<Frequency > >
  	 */
- 	vector<vector<Frequency > > CalPrimaryBeamRow::getFrequencyRange() const {
+ 	std::vector<std::vector<Frequency > > CalPrimaryBeamRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<vector<Frequency > >.
- 	 * @param frequencyRange The vector<vector<Frequency > > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<std::vector<Frequency > >.
+ 	 * @param frequencyRange The std::vector<std::vector<Frequency > > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setFrequencyRange (vector<vector<Frequency > > frequencyRange)  {
+ 	void CalPrimaryBeamRow::setFrequencyRange (std::vector<std::vector<Frequency > > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2247,21 +2284,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalPrimaryBeamRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalPrimaryBeamRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalPrimaryBeamRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2279,21 +2316,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get mainBeamEfficiency.
- 	 * @return mainBeamEfficiency as vector<double >
+ 	 * @return mainBeamEfficiency as std::vector<double >
  	 */
- 	vector<double > CalPrimaryBeamRow::getMainBeamEfficiency() const {
+ 	std::vector<double > CalPrimaryBeamRow::getMainBeamEfficiency() const {
 	
   		return mainBeamEfficiency;
  	}
 
  	/**
- 	 * Set mainBeamEfficiency with the specified vector<double >.
- 	 * @param mainBeamEfficiency The vector<double > value to which mainBeamEfficiency is to be set.
+ 	 * Set mainBeamEfficiency with the specified std::vector<double >.
+ 	 * @param mainBeamEfficiency The std::vector<double > value to which mainBeamEfficiency is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setMainBeamEfficiency (vector<double > mainBeamEfficiency)  {
+ 	void CalPrimaryBeamRow::setMainBeamEfficiency (std::vector<double > mainBeamEfficiency)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2375,21 +2412,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > CalPrimaryBeamRow::getDirection() const {
+ 	std::vector<Angle > CalPrimaryBeamRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setDirection (vector<Angle > direction)  {
+ 	void CalPrimaryBeamRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2407,21 +2444,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get minValidDirection.
- 	 * @return minValidDirection as vector<Angle >
+ 	 * @return minValidDirection as std::vector<Angle >
  	 */
- 	vector<Angle > CalPrimaryBeamRow::getMinValidDirection() const {
+ 	std::vector<Angle > CalPrimaryBeamRow::getMinValidDirection() const {
 	
   		return minValidDirection;
  	}
 
  	/**
- 	 * Set minValidDirection with the specified vector<Angle >.
- 	 * @param minValidDirection The vector<Angle > value to which minValidDirection is to be set.
+ 	 * Set minValidDirection with the specified std::vector<Angle >.
+ 	 * @param minValidDirection The std::vector<Angle > value to which minValidDirection is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setMinValidDirection (vector<Angle > minValidDirection)  {
+ 	void CalPrimaryBeamRow::setMinValidDirection (std::vector<Angle > minValidDirection)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2439,21 +2476,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get maxValidDirection.
- 	 * @return maxValidDirection as vector<Angle >
+ 	 * @return maxValidDirection as std::vector<Angle >
  	 */
- 	vector<Angle > CalPrimaryBeamRow::getMaxValidDirection() const {
+ 	std::vector<Angle > CalPrimaryBeamRow::getMaxValidDirection() const {
 	
   		return maxValidDirection;
  	}
 
  	/**
- 	 * Set maxValidDirection with the specified vector<Angle >.
- 	 * @param maxValidDirection The vector<Angle > value to which maxValidDirection is to be set.
+ 	 * Set maxValidDirection with the specified std::vector<Angle >.
+ 	 * @param maxValidDirection The std::vector<Angle > value to which maxValidDirection is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setMaxValidDirection (vector<Angle > maxValidDirection)  {
+ 	void CalPrimaryBeamRow::setMaxValidDirection (std::vector<Angle > maxValidDirection)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2503,21 +2540,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get imageChannelNumber.
- 	 * @return imageChannelNumber as vector<int >
+ 	 * @return imageChannelNumber as std::vector<int >
  	 */
- 	vector<int > CalPrimaryBeamRow::getImageChannelNumber() const {
+ 	std::vector<int > CalPrimaryBeamRow::getImageChannelNumber() const {
 	
   		return imageChannelNumber;
  	}
 
  	/**
- 	 * Set imageChannelNumber with the specified vector<int >.
- 	 * @param imageChannelNumber The vector<int > value to which imageChannelNumber is to be set.
+ 	 * Set imageChannelNumber with the specified std::vector<int >.
+ 	 * @param imageChannelNumber The std::vector<int > value to which imageChannelNumber is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setImageChannelNumber (vector<int > imageChannelNumber)  {
+ 	void CalPrimaryBeamRow::setImageChannelNumber (std::vector<int > imageChannelNumber)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2535,21 +2572,21 @@ void CalPrimaryBeamRow::imageNominalFrequencyFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get imageNominalFrequency.
- 	 * @return imageNominalFrequency as vector<Frequency >
+ 	 * @return imageNominalFrequency as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalPrimaryBeamRow::getImageNominalFrequency() const {
+ 	std::vector<Frequency > CalPrimaryBeamRow::getImageNominalFrequency() const {
 	
   		return imageNominalFrequency;
  	}
 
  	/**
- 	 * Set imageNominalFrequency with the specified vector<Frequency >.
- 	 * @param imageNominalFrequency The vector<Frequency > value to which imageNominalFrequency is to be set.
+ 	 * Set imageNominalFrequency with the specified std::vector<Frequency >.
+ 	 * @param imageNominalFrequency The std::vector<Frequency > value to which imageNominalFrequency is to be set.
  	 
  	
  		
  	 */
- 	void CalPrimaryBeamRow::setImageNominalFrequency (vector<Frequency > imageNominalFrequency)  {
+ 	void CalPrimaryBeamRow::setImageNominalFrequency (std::vector<Frequency > imageNominalFrequency)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3019,7 +3056,7 @@ descriptionType = CPrimaryBeamDescription::from_int(0);
 	}
 
 	
-	bool CalPrimaryBeamRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency) {
+	bool CalPrimaryBeamRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency) {
 		bool result;
 		result = true;
 		
@@ -3168,7 +3205,7 @@ descriptionType = CPrimaryBeamDescription::from_int(0);
 	
 	
 	
-	bool CalPrimaryBeamRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, vector<vector<Frequency > > frequencyRange, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, vector<Angle > direction, vector<Angle > minValidDirection, vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, vector<int > imageChannelNumber, vector<Frequency > imageNominalFrequency) {
+	bool CalPrimaryBeamRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numSubband, std::vector<std::vector<Frequency > > frequencyRange, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > mainBeamEfficiency, EntityRef beamDescriptionUID, float relativeAmplitudeRms, std::vector<Angle > direction, std::vector<Angle > minValidDirection, std::vector<Angle > maxValidDirection, PrimaryBeamDescriptionMod::PrimaryBeamDescription descriptionType, std::vector<int > imageChannelNumber, std::vector<Frequency > imageNominalFrequency) {
 		bool result;
 		result = true;
 		

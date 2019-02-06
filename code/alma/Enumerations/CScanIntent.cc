@@ -33,7 +33,7 @@
  * File CScanIntent.cpp
  */
 #include <sstream>
-#include <CScanIntent.h>
+#include <alma/Enumerations/CScanIntent.h>
 #include <string>
 using namespace std;
 

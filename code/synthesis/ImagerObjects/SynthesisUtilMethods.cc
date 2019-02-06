@@ -58,7 +58,6 @@
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <synthesis/TransformMachines/Utils.h>
 
-#include <msvis/MSVis/SubMS.h>
 #include <mstransform/MSTransform/MSTransformRegridder.h>
 #include <msvis/MSVis/MSUtil.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
@@ -2253,9 +2252,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else 
       {
-        //SubMS thems(msobj);
-        //if(!thems.combineSpws(spwids,true,dataChanFreq,dataChanWidth))
-	
 	if(!MSTransformRegridder::combineSpwsCore(os,msobj, spwids,dataChanFreq,dataChanWidth,
 											  averageWhichChan,averageWhichSPW,averageChanFrac))
           {
@@ -2902,7 +2898,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       ostr << " phaseCenter='" << phaseCenter;
       os << String(ostr)<<"' ";
 
-      //Bool rst=SubMS::calcChanFreqs(os,
       Double dummy; // dummy variable  - weightScale is not used here
       Bool rst=MSTransformRegridder::calcChanFreqs(os,
                            chanFreq, 

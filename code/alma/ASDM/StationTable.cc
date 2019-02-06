@@ -30,18 +30,18 @@
  *
  * File StationTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <StationTable.h>
-#include <StationRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/StationRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::StationTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -242,7 +242,7 @@ namespace asdm {
  	 * @param type 
 	
      */
-	StationRow* StationTable::newRow(string name, vector<Length > position, StationTypeMod::StationType type){
+	StationRow* StationTable::newRow(std::string name, std::vector<Length > position, StationTypeMod::StationType type){
 		StationRow *row = new StationRow(*this);
 			
 		row->setName(name);
@@ -430,7 +430,7 @@ StationRow* StationTable::newRow(StationRow* row) {
  * @param type.
  	 		 
  */
-StationRow* StationTable::lookup(string name, vector<Length > position, StationTypeMod::StationType type) {
+StationRow* StationTable::lookup(std::string name, std::vector<Length > position, StationTypeMod::StationType type) {
 		StationRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -491,7 +491,7 @@ StationRow* StationTable::lookup(string name, vector<Length > position, StationT
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/4/StationTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -621,7 +621,7 @@ StationRow* StationTable::lookup(string name, vector<Length > position, StationT
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/3/StationTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<StationTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sttn=\"http://Alma/XASDM/StationTable\" xsi:schemaLocation=\"http://Alma/XASDM/StationTable http://almaobservatory.org/XML/XASDM/4/StationTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='StationTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

@@ -37,18 +37,17 @@
 #include <vector>
 #include <map>
 
-#include <Representable.h>
-#include <Entity.h>
-#include <EntityId.h>
-#include <ArrayTime.h>
-#include <IllegalAccessException.h>
-#include <InvalidArgumentException.h>
+#include <alma/ASDM/Representable.h>
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/IllegalAccessException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h> /// <-------------------
-//using namespace asdmIDL;   /// <-------------------
 #endif
 
 /*\file ASDM.h
@@ -695,7 +694,7 @@ public:
 	  * @return a string containing the XML representation of this.
 	  * @throws ConversionException.
 	  */
-	virtual std::string toXML();
+	virtual std::string toXML() const;
 	
 	/**
 	 * Write this ASDM dataset to the specified directory
@@ -706,7 +705,7 @@ public:
 	 * not overwrite any existing file; a ConversionException is also
 	 * thrown in this case.
 	 */
-	void toXML(std::string directory) ;
+	void toXML(std::string directory) const;
 	
 	/**
 	 * Get an ASDM dataset, given the full path name of the 
@@ -955,21 +954,21 @@ public:
 	
  	/**
  	 * Get xmlnsPrefix.
- 	 * @return xmlnsPrefix as string
+ 	 * @return xmlnsPrefix as std::string
  	 */
- 	string getXmlnsPrefix() const;
+ 	std::string getXmlnsPrefix() const;
 	
  
  	
  	
  	/**
- 	 * Set xmlnsPrefix with the specified string.
- 	 * @param xmlnsPrefix The string value to which xmlnsPrefix is to be set.
+ 	 * Set xmlnsPrefix with the specified std::string.
+ 	 * @param xmlnsPrefix The std::string value to which xmlnsPrefix is to be set.
  	 
  		
  			
  	 */
- 	void setXmlnsPrefix (string xmlnsPrefix);
+ 	void setXmlnsPrefix (std::string xmlnsPrefix);
   		
 	
 	
@@ -1401,7 +1400,7 @@ private:
 	
 	
 
-	string xmlnsPrefix;
+	std::string xmlnsPrefix;
 
 	
 	

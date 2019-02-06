@@ -48,27 +48,27 @@
 
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -81,31 +81,27 @@
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CFocusMethod.h"
-	
-
-	
-
+#include <alma/Enumerations/CFocusMethod.h>
 	
 
 	
 
 	
-#include "CPolarizationType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -150,14 +146,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalFocus.h
     \brief Generated from model's revision "-1", branch ""
@@ -177,7 +177,7 @@ class CalReductionRow;
 
 class CalFocusRow;
 typedef void (CalFocusRow::*CalFocusAttributeFromBin) (EndianIStream& eis);
-typedef void (CalFocusRow::*CalFocusAttributeFromText) (const string& s);
+typedef void (CalFocusRow::*CalFocusAttributeFromText) (const std::string& s);
 
 /**
  * The CalFocusRow class is a row of a CalFocusTable.
@@ -278,23 +278,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -432,21 +432,21 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -462,21 +462,21 @@ public:
 	
  	/**
  	 * Get pointingDirection.
- 	 * @return pointingDirection as vector<Angle >
+ 	 * @return pointingDirection as std::vector<Angle >
  	 */
- 	vector<Angle > getPointingDirection() const;
+ 	std::vector<Angle > getPointingDirection() const;
 	
  
  	
  	
  	/**
- 	 * Set pointingDirection with the specified vector<Angle >.
- 	 * @param pointingDirection The vector<Angle > value to which pointingDirection is to be set.
+ 	 * Set pointingDirection with the specified std::vector<Angle >.
+ 	 * @param pointingDirection The std::vector<Angle > value to which pointingDirection is to be set.
  	 
  		
  			
  	 */
- 	void setPointingDirection (vector<Angle > pointingDirection);
+ 	void setPointingDirection (std::vector<Angle > pointingDirection);
   		
 	
 	
@@ -522,21 +522,21 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -552,21 +552,21 @@ public:
 	
  	/**
  	 * Get wereFixed.
- 	 * @return wereFixed as vector<bool >
+ 	 * @return wereFixed as std::vector<bool >
  	 */
- 	vector<bool > getWereFixed() const;
+ 	std::vector<bool > getWereFixed() const;
 	
  
  	
  	
  	/**
- 	 * Set wereFixed with the specified vector<bool >.
- 	 * @param wereFixed The vector<bool > value to which wereFixed is to be set.
+ 	 * Set wereFixed with the specified std::vector<bool >.
+ 	 * @param wereFixed The std::vector<bool > value to which wereFixed is to be set.
  	 
  		
  			
  	 */
- 	void setWereFixed (vector<bool > wereFixed);
+ 	void setWereFixed (std::vector<bool > wereFixed);
   		
 	
 	
@@ -582,21 +582,21 @@ public:
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<vector<Length > >
+ 	 * @return offset as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > getOffset() const;
+ 	std::vector<std::vector<Length > > getOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set offset with the specified vector<vector<Length > >.
- 	 * @param offset The vector<vector<Length > > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<std::vector<Length > >.
+ 	 * @param offset The std::vector<std::vector<Length > > value to which offset is to be set.
  	 
  		
  			
  	 */
- 	void setOffset (vector<vector<Length > > offset);
+ 	void setOffset (std::vector<std::vector<Length > > offset);
   		
 	
 	
@@ -612,21 +612,21 @@ public:
 	
  	/**
  	 * Get offsetError.
- 	 * @return offsetError as vector<vector<Length > >
+ 	 * @return offsetError as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > getOffsetError() const;
+ 	std::vector<std::vector<Length > > getOffsetError() const;
 	
  
  	
  	
  	/**
- 	 * Set offsetError with the specified vector<vector<Length > >.
- 	 * @param offsetError The vector<vector<Length > > value to which offsetError is to be set.
+ 	 * Set offsetError with the specified std::vector<std::vector<Length > >.
+ 	 * @param offsetError The std::vector<std::vector<Length > > value to which offsetError is to be set.
  	 
  		
  			
  	 */
- 	void setOffsetError (vector<vector<Length > > offsetError);
+ 	void setOffsetError (std::vector<std::vector<Length > > offsetError);
   		
 	
 	
@@ -642,21 +642,21 @@ public:
 	
  	/**
  	 * Get offsetWasTied.
- 	 * @return offsetWasTied as vector<vector<bool > >
+ 	 * @return offsetWasTied as std::vector<std::vector<bool > >
  	 */
- 	vector<vector<bool > > getOffsetWasTied() const;
+ 	std::vector<std::vector<bool > > getOffsetWasTied() const;
 	
  
  	
  	
  	/**
- 	 * Set offsetWasTied with the specified vector<vector<bool > >.
- 	 * @param offsetWasTied The vector<vector<bool > > value to which offsetWasTied is to be set.
+ 	 * Set offsetWasTied with the specified std::vector<std::vector<bool > >.
+ 	 * @param offsetWasTied The std::vector<std::vector<bool > > value to which offsetWasTied is to be set.
  	 
  		
  			
  	 */
- 	void setOffsetWasTied (vector<vector<bool > > offsetWasTied);
+ 	void setOffsetWasTied (std::vector<std::vector<bool > > offsetWasTied);
   		
 	
 	
@@ -672,21 +672,21 @@ public:
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<vector<double > >
+ 	 * @return reducedChiSquared as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > getReducedChiSquared() const;
+ 	std::vector<std::vector<double > > getReducedChiSquared() const;
 	
  
  	
  	
  	/**
- 	 * Set reducedChiSquared with the specified vector<vector<double > >.
- 	 * @param reducedChiSquared The vector<vector<double > > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<std::vector<double > >.
+ 	 * @param reducedChiSquared The std::vector<std::vector<double > > value to which reducedChiSquared is to be set.
  	 
  		
  			
  	 */
- 	void setReducedChiSquared (vector<vector<double > > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<std::vector<double > > reducedChiSquared);
   		
 	
 	
@@ -702,21 +702,21 @@ public:
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<vector<Length > >
+ 	 * @return position as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > getPosition() const;
+ 	std::vector<std::vector<Length > > getPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set position with the specified vector<vector<Length > >.
- 	 * @param position The vector<vector<Length > > value to which position is to be set.
+ 	 * Set position with the specified std::vector<std::vector<Length > >.
+ 	 * @param position The std::vector<std::vector<Length > > value to which position is to be set.
  	 
  		
  			
  	 */
- 	void setPosition (vector<vector<Length > > position);
+ 	void setPosition (std::vector<std::vector<Length > > position);
   		
 	
 	
@@ -779,21 +779,21 @@ public:
 	
  	/**
  	 * Get focusCurveWidth, which is optional.
- 	 * @return focusCurveWidth as vector<vector<Length > >
+ 	 * @return focusCurveWidth as std::vector<std::vector<Length > >
  	 * @throws IllegalAccessException If focusCurveWidth does not exist.
  	 */
- 	vector<vector<Length > > getFocusCurveWidth() const;
+ 	std::vector<std::vector<Length > > getFocusCurveWidth() const;
 	
  
  	
  	
  	/**
- 	 * Set focusCurveWidth with the specified vector<vector<Length > >.
- 	 * @param focusCurveWidth The vector<vector<Length > > value to which focusCurveWidth is to be set.
+ 	 * Set focusCurveWidth with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusCurveWidth The std::vector<std::vector<Length > > value to which focusCurveWidth is to be set.
  	 
  		
  	 */
- 	void setFocusCurveWidth (vector<vector<Length > > focusCurveWidth);
+ 	void setFocusCurveWidth (std::vector<std::vector<Length > > focusCurveWidth);
 		
 	
 	
@@ -820,21 +820,21 @@ public:
 	
  	/**
  	 * Get focusCurveWidthError, which is optional.
- 	 * @return focusCurveWidthError as vector<vector<Length > >
+ 	 * @return focusCurveWidthError as std::vector<std::vector<Length > >
  	 * @throws IllegalAccessException If focusCurveWidthError does not exist.
  	 */
- 	vector<vector<Length > > getFocusCurveWidthError() const;
+ 	std::vector<std::vector<Length > > getFocusCurveWidthError() const;
 	
  
  	
  	
  	/**
- 	 * Set focusCurveWidthError with the specified vector<vector<Length > >.
- 	 * @param focusCurveWidthError The vector<vector<Length > > value to which focusCurveWidthError is to be set.
+ 	 * Set focusCurveWidthError with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusCurveWidthError The std::vector<std::vector<Length > > value to which focusCurveWidthError is to be set.
  	 
  		
  	 */
- 	void setFocusCurveWidthError (vector<vector<Length > > focusCurveWidthError);
+ 	void setFocusCurveWidthError (std::vector<std::vector<Length > > focusCurveWidthError);
 		
 	
 	
@@ -861,21 +861,21 @@ public:
 	
  	/**
  	 * Get focusCurveWasFixed, which is optional.
- 	 * @return focusCurveWasFixed as vector<bool >
+ 	 * @return focusCurveWasFixed as std::vector<bool >
  	 * @throws IllegalAccessException If focusCurveWasFixed does not exist.
  	 */
- 	vector<bool > getFocusCurveWasFixed() const;
+ 	std::vector<bool > getFocusCurveWasFixed() const;
 	
  
  	
  	
  	/**
- 	 * Set focusCurveWasFixed with the specified vector<bool >.
- 	 * @param focusCurveWasFixed The vector<bool > value to which focusCurveWasFixed is to be set.
+ 	 * Set focusCurveWasFixed with the specified std::vector<bool >.
+ 	 * @param focusCurveWasFixed The std::vector<bool > value to which focusCurveWasFixed is to be set.
  	 
  		
  	 */
- 	void setFocusCurveWasFixed (vector<bool > focusCurveWasFixed);
+ 	void setFocusCurveWasFixed (std::vector<bool > focusCurveWasFixed);
 		
 	
 	
@@ -902,21 +902,21 @@ public:
 	
  	/**
  	 * Get offIntensity, which is optional.
- 	 * @return offIntensity as vector<Temperature >
+ 	 * @return offIntensity as std::vector<Temperature >
  	 * @throws IllegalAccessException If offIntensity does not exist.
  	 */
- 	vector<Temperature > getOffIntensity() const;
+ 	std::vector<Temperature > getOffIntensity() const;
 	
  
  	
  	
  	/**
- 	 * Set offIntensity with the specified vector<Temperature >.
- 	 * @param offIntensity The vector<Temperature > value to which offIntensity is to be set.
+ 	 * Set offIntensity with the specified std::vector<Temperature >.
+ 	 * @param offIntensity The std::vector<Temperature > value to which offIntensity is to be set.
  	 
  		
  	 */
- 	void setOffIntensity (vector<Temperature > offIntensity);
+ 	void setOffIntensity (std::vector<Temperature > offIntensity);
 		
 	
 	
@@ -943,21 +943,21 @@ public:
 	
  	/**
  	 * Get offIntensityError, which is optional.
- 	 * @return offIntensityError as vector<Temperature >
+ 	 * @return offIntensityError as std::vector<Temperature >
  	 * @throws IllegalAccessException If offIntensityError does not exist.
  	 */
- 	vector<Temperature > getOffIntensityError() const;
+ 	std::vector<Temperature > getOffIntensityError() const;
 	
  
  	
  	
  	/**
- 	 * Set offIntensityError with the specified vector<Temperature >.
- 	 * @param offIntensityError The vector<Temperature > value to which offIntensityError is to be set.
+ 	 * Set offIntensityError with the specified std::vector<Temperature >.
+ 	 * @param offIntensityError The std::vector<Temperature > value to which offIntensityError is to be set.
  	 
  		
  	 */
- 	void setOffIntensityError (vector<Temperature > offIntensityError);
+ 	void setOffIntensityError (std::vector<Temperature > offIntensityError);
 		
 	
 	
@@ -1025,21 +1025,21 @@ public:
 	
  	/**
  	 * Get peakIntensity, which is optional.
- 	 * @return peakIntensity as vector<Temperature >
+ 	 * @return peakIntensity as std::vector<Temperature >
  	 * @throws IllegalAccessException If peakIntensity does not exist.
  	 */
- 	vector<Temperature > getPeakIntensity() const;
+ 	std::vector<Temperature > getPeakIntensity() const;
 	
  
  	
  	
  	/**
- 	 * Set peakIntensity with the specified vector<Temperature >.
- 	 * @param peakIntensity The vector<Temperature > value to which peakIntensity is to be set.
+ 	 * Set peakIntensity with the specified std::vector<Temperature >.
+ 	 * @param peakIntensity The std::vector<Temperature > value to which peakIntensity is to be set.
  	 
  		
  	 */
- 	void setPeakIntensity (vector<Temperature > peakIntensity);
+ 	void setPeakIntensity (std::vector<Temperature > peakIntensity);
 		
 	
 	
@@ -1066,21 +1066,21 @@ public:
 	
  	/**
  	 * Get peakIntensityError, which is optional.
- 	 * @return peakIntensityError as vector<Temperature >
+ 	 * @return peakIntensityError as std::vector<Temperature >
  	 * @throws IllegalAccessException If peakIntensityError does not exist.
  	 */
- 	vector<Temperature > getPeakIntensityError() const;
+ 	std::vector<Temperature > getPeakIntensityError() const;
 	
  
  	
  	
  	/**
- 	 * Set peakIntensityError with the specified vector<Temperature >.
- 	 * @param peakIntensityError The vector<Temperature > value to which peakIntensityError is to be set.
+ 	 * Set peakIntensityError with the specified std::vector<Temperature >.
+ 	 * @param peakIntensityError The std::vector<Temperature > value to which peakIntensityError is to be set.
  	 
  		
  	 */
- 	void setPeakIntensityError (vector<Temperature > peakIntensityError);
+ 	void setPeakIntensityError (std::vector<Temperature > peakIntensityError);
 		
 	
 	
@@ -1148,21 +1148,21 @@ public:
 	
  	/**
  	 * Get astigmPlus, which is optional.
- 	 * @return astigmPlus as vector<Length >
+ 	 * @return astigmPlus as std::vector<Length >
  	 * @throws IllegalAccessException If astigmPlus does not exist.
  	 */
- 	vector<Length > getAstigmPlus() const;
+ 	std::vector<Length > getAstigmPlus() const;
 	
  
  	
  	
  	/**
- 	 * Set astigmPlus with the specified vector<Length >.
- 	 * @param astigmPlus The vector<Length > value to which astigmPlus is to be set.
+ 	 * Set astigmPlus with the specified std::vector<Length >.
+ 	 * @param astigmPlus The std::vector<Length > value to which astigmPlus is to be set.
  	 
  		
  	 */
- 	void setAstigmPlus (vector<Length > astigmPlus);
+ 	void setAstigmPlus (std::vector<Length > astigmPlus);
 		
 	
 	
@@ -1189,21 +1189,21 @@ public:
 	
  	/**
  	 * Get astigmPlusError, which is optional.
- 	 * @return astigmPlusError as vector<Length >
+ 	 * @return astigmPlusError as std::vector<Length >
  	 * @throws IllegalAccessException If astigmPlusError does not exist.
  	 */
- 	vector<Length > getAstigmPlusError() const;
+ 	std::vector<Length > getAstigmPlusError() const;
 	
  
  	
  	
  	/**
- 	 * Set astigmPlusError with the specified vector<Length >.
- 	 * @param astigmPlusError The vector<Length > value to which astigmPlusError is to be set.
+ 	 * Set astigmPlusError with the specified std::vector<Length >.
+ 	 * @param astigmPlusError The std::vector<Length > value to which astigmPlusError is to be set.
  	 
  		
  	 */
- 	void setAstigmPlusError (vector<Length > astigmPlusError);
+ 	void setAstigmPlusError (std::vector<Length > astigmPlusError);
 		
 	
 	
@@ -1230,21 +1230,21 @@ public:
 	
  	/**
  	 * Get astigmMult, which is optional.
- 	 * @return astigmMult as vector<Length >
+ 	 * @return astigmMult as std::vector<Length >
  	 * @throws IllegalAccessException If astigmMult does not exist.
  	 */
- 	vector<Length > getAstigmMult() const;
+ 	std::vector<Length > getAstigmMult() const;
 	
  
  	
  	
  	/**
- 	 * Set astigmMult with the specified vector<Length >.
- 	 * @param astigmMult The vector<Length > value to which astigmMult is to be set.
+ 	 * Set astigmMult with the specified std::vector<Length >.
+ 	 * @param astigmMult The std::vector<Length > value to which astigmMult is to be set.
  	 
  		
  	 */
- 	void setAstigmMult (vector<Length > astigmMult);
+ 	void setAstigmMult (std::vector<Length > astigmMult);
 		
 	
 	
@@ -1271,21 +1271,21 @@ public:
 	
  	/**
  	 * Get astigmMultError, which is optional.
- 	 * @return astigmMultError as vector<Length >
+ 	 * @return astigmMultError as std::vector<Length >
  	 * @throws IllegalAccessException If astigmMultError does not exist.
  	 */
- 	vector<Length > getAstigmMultError() const;
+ 	std::vector<Length > getAstigmMultError() const;
 	
  
  	
  	
  	/**
- 	 * Set astigmMultError with the specified vector<Length >.
- 	 * @param astigmMultError The vector<Length > value to which astigmMultError is to be set.
+ 	 * Set astigmMultError with the specified std::vector<Length >.
+ 	 * @param astigmMultError The std::vector<Length > value to which astigmMultError is to be set.
  	 
  		
  	 */
- 	void setAstigmMultError (vector<Length > astigmMultError);
+ 	void setAstigmMultError (std::vector<Length > astigmMultError);
 		
 	
 	
@@ -1312,21 +1312,21 @@ public:
 	
  	/**
  	 * Get illumOffset, which is optional.
- 	 * @return illumOffset as vector<vector<Length > >
+ 	 * @return illumOffset as std::vector<std::vector<Length > >
  	 * @throws IllegalAccessException If illumOffset does not exist.
  	 */
- 	vector<vector<Length > > getIllumOffset() const;
+ 	std::vector<std::vector<Length > > getIllumOffset() const;
 	
  
  	
  	
  	/**
- 	 * Set illumOffset with the specified vector<vector<Length > >.
- 	 * @param illumOffset The vector<vector<Length > > value to which illumOffset is to be set.
+ 	 * Set illumOffset with the specified std::vector<std::vector<Length > >.
+ 	 * @param illumOffset The std::vector<std::vector<Length > > value to which illumOffset is to be set.
  	 
  		
  	 */
- 	void setIllumOffset (vector<vector<Length > > illumOffset);
+ 	void setIllumOffset (std::vector<std::vector<Length > > illumOffset);
 		
 	
 	
@@ -1353,21 +1353,21 @@ public:
 	
  	/**
  	 * Get illumOffsetError, which is optional.
- 	 * @return illumOffsetError as vector<vector<Length > >
+ 	 * @return illumOffsetError as std::vector<std::vector<Length > >
  	 * @throws IllegalAccessException If illumOffsetError does not exist.
  	 */
- 	vector<vector<Length > > getIllumOffsetError() const;
+ 	std::vector<std::vector<Length > > getIllumOffsetError() const;
 	
  
  	
  	
  	/**
- 	 * Set illumOffsetError with the specified vector<vector<Length > >.
- 	 * @param illumOffsetError The vector<vector<Length > > value to which illumOffsetError is to be set.
+ 	 * Set illumOffsetError with the specified std::vector<std::vector<Length > >.
+ 	 * @param illumOffsetError The std::vector<std::vector<Length > > value to which illumOffsetError is to be set.
  	 
  		
  	 */
- 	void setIllumOffsetError (vector<vector<Length > > illumOffsetError);
+ 	void setIllumOffsetError (std::vector<std::vector<Length > > illumOffsetError);
 		
 	
 	
@@ -1394,21 +1394,21 @@ public:
 	
  	/**
  	 * Get fitRMS, which is optional.
- 	 * @return fitRMS as vector<Length >
+ 	 * @return fitRMS as std::vector<Length >
  	 * @throws IllegalAccessException If fitRMS does not exist.
  	 */
- 	vector<Length > getFitRMS() const;
+ 	std::vector<Length > getFitRMS() const;
 	
  
  	
  	
  	/**
- 	 * Set fitRMS with the specified vector<Length >.
- 	 * @param fitRMS The vector<Length > value to which fitRMS is to be set.
+ 	 * Set fitRMS with the specified std::vector<Length >.
+ 	 * @param fitRMS The std::vector<Length > value to which fitRMS is to be set.
  	 
  		
  	 */
- 	void setFitRMS (vector<Length > fitRMS);
+ 	void setFitRMS (std::vector<Length > fitRMS);
 		
 	
 	
@@ -1568,7 +1568,7 @@ public:
 	 * @param position
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position);
+	bool compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position);
 	
 	
 
@@ -1608,7 +1608,7 @@ public:
 	 * @param position
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position); 
 		 
 	
 	/**
@@ -1798,7 +1798,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1853,7 +1853,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1864,7 +1864,7 @@ private:
 	
 	
 
-	vector<Angle > pointingDirection;
+	std::vector<Angle > pointingDirection;
 
 	
 	
@@ -1886,7 +1886,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1897,7 +1897,7 @@ private:
 	
 	
 
-	vector<bool > wereFixed;
+	std::vector<bool > wereFixed;
 
 	
 	
@@ -1908,7 +1908,7 @@ private:
 	
 	
 
-	vector<vector<Length > > offset;
+	std::vector<std::vector<Length > > offset;
 
 	
 	
@@ -1919,7 +1919,7 @@ private:
 	
 	
 
-	vector<vector<Length > > offsetError;
+	std::vector<std::vector<Length > > offsetError;
 
 	
 	
@@ -1930,7 +1930,7 @@ private:
 	
 	
 
-	vector<vector<bool > > offsetWasTied;
+	std::vector<std::vector<bool > > offsetWasTied;
 
 	
 	
@@ -1941,7 +1941,7 @@ private:
 	
 	
 
-	vector<vector<double > > reducedChiSquared;
+	std::vector<std::vector<double > > reducedChiSquared;
 
 	
 	
@@ -1952,7 +1952,7 @@ private:
 	
 	
 
-	vector<vector<Length > > position;
+	std::vector<std::vector<Length > > position;
 
 	
 	
@@ -1978,7 +1978,7 @@ private:
 	bool focusCurveWidthExists;
 	
 
-	vector<vector<Length > > focusCurveWidth;
+	std::vector<std::vector<Length > > focusCurveWidth;
 
 	
 	
@@ -1991,7 +1991,7 @@ private:
 	bool focusCurveWidthErrorExists;
 	
 
-	vector<vector<Length > > focusCurveWidthError;
+	std::vector<std::vector<Length > > focusCurveWidthError;
 
 	
 	
@@ -2004,7 +2004,7 @@ private:
 	bool focusCurveWasFixedExists;
 	
 
-	vector<bool > focusCurveWasFixed;
+	std::vector<bool > focusCurveWasFixed;
 
 	
 	
@@ -2017,7 +2017,7 @@ private:
 	bool offIntensityExists;
 	
 
-	vector<Temperature > offIntensity;
+	std::vector<Temperature > offIntensity;
 
 	
 	
@@ -2030,7 +2030,7 @@ private:
 	bool offIntensityErrorExists;
 	
 
-	vector<Temperature > offIntensityError;
+	std::vector<Temperature > offIntensityError;
 
 	
 	
@@ -2056,7 +2056,7 @@ private:
 	bool peakIntensityExists;
 	
 
-	vector<Temperature > peakIntensity;
+	std::vector<Temperature > peakIntensity;
 
 	
 	
@@ -2069,7 +2069,7 @@ private:
 	bool peakIntensityErrorExists;
 	
 
-	vector<Temperature > peakIntensityError;
+	std::vector<Temperature > peakIntensityError;
 
 	
 	
@@ -2095,7 +2095,7 @@ private:
 	bool astigmPlusExists;
 	
 
-	vector<Length > astigmPlus;
+	std::vector<Length > astigmPlus;
 
 	
 	
@@ -2108,7 +2108,7 @@ private:
 	bool astigmPlusErrorExists;
 	
 
-	vector<Length > astigmPlusError;
+	std::vector<Length > astigmPlusError;
 
 	
 	
@@ -2121,7 +2121,7 @@ private:
 	bool astigmMultExists;
 	
 
-	vector<Length > astigmMult;
+	std::vector<Length > astigmMult;
 
 	
 	
@@ -2134,7 +2134,7 @@ private:
 	bool astigmMultErrorExists;
 	
 
-	vector<Length > astigmMultError;
+	std::vector<Length > astigmMultError;
 
 	
 	
@@ -2147,7 +2147,7 @@ private:
 	bool illumOffsetExists;
 	
 
-	vector<vector<Length > > illumOffset;
+	std::vector<std::vector<Length > > illumOffset;
 
 	
 	
@@ -2160,7 +2160,7 @@ private:
 	bool illumOffsetErrorExists;
 	
 
-	vector<vector<Length > > illumOffsetError;
+	std::vector<std::vector<Length > > illumOffsetError;
 
 	
 	
@@ -2173,7 +2173,7 @@ private:
 	bool fitRMSExists;
 	
 
-	vector<Length > fitRMS;
+	std::vector<Length > fitRMS;
 
 	
 	
@@ -2274,113 +2274,113 @@ void fitRMSFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalFocusAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void ambientTemperatureFromText (const string & s);
+void ambientTemperatureFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void focusMethodFromText (const string & s);
+void focusMethodFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void pointingDirectionFromText (const string & s);
+void pointingDirectionFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void wereFixedFromText (const string & s);
+void wereFixedFromText (const std::string & s);
 	
 	
-void offsetFromText (const string & s);
+void offsetFromText (const std::string & s);
 	
 	
-void offsetErrorFromText (const string & s);
+void offsetErrorFromText (const std::string & s);
 	
 	
-void offsetWasTiedFromText (const string & s);
+void offsetWasTiedFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 	
-void positionFromText (const string & s);
+void positionFromText (const std::string & s);
 	
 
 	
-void polarizationsAveragedFromText (const string & s);
+void polarizationsAveragedFromText (const std::string & s);
 	
 	
-void focusCurveWidthFromText (const string & s);
+void focusCurveWidthFromText (const std::string & s);
 	
 	
-void focusCurveWidthErrorFromText (const string & s);
+void focusCurveWidthErrorFromText (const std::string & s);
 	
 	
-void focusCurveWasFixedFromText (const string & s);
+void focusCurveWasFixedFromText (const std::string & s);
 	
 	
-void offIntensityFromText (const string & s);
+void offIntensityFromText (const std::string & s);
 	
 	
-void offIntensityErrorFromText (const string & s);
+void offIntensityErrorFromText (const std::string & s);
 	
 	
-void offIntensityWasFixedFromText (const string & s);
+void offIntensityWasFixedFromText (const std::string & s);
 	
 	
-void peakIntensityFromText (const string & s);
+void peakIntensityFromText (const std::string & s);
 	
 	
-void peakIntensityErrorFromText (const string & s);
+void peakIntensityErrorFromText (const std::string & s);
 	
 	
-void peakIntensityWasFixedFromText (const string & s);
+void peakIntensityWasFixedFromText (const std::string & s);
 	
 	
-void astigmPlusFromText (const string & s);
+void astigmPlusFromText (const std::string & s);
 	
 	
-void astigmPlusErrorFromText (const string & s);
+void astigmPlusErrorFromText (const std::string & s);
 	
 	
-void astigmMultFromText (const string & s);
+void astigmMultFromText (const std::string & s);
 	
 	
-void astigmMultErrorFromText (const string & s);
+void astigmMultErrorFromText (const std::string & s);
 	
 	
-void illumOffsetFromText (const string & s);
+void illumOffsetFromText (const std::string & s);
 	
 	
-void illumOffsetErrorFromText (const string & s);
+void illumOffsetErrorFromText (const std::string & s);
 	
 	
-void fitRMSFromText (const string & s);
+void fitRMSFromText (const std::string & s);
 	
 	
 	

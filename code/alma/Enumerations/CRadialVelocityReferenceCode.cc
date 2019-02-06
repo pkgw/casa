@@ -33,7 +33,7 @@
  * File CRadialVelocityReferenceCode.cpp
  */
 #include <sstream>
-#include <CRadialVelocityReferenceCode.h>
+#include <alma/Enumerations/CRadialVelocityReferenceCode.h>
 #include <string>
 using namespace std;
 

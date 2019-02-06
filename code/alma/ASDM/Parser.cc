@@ -32,22 +32,22 @@
  */
 #include <iostream>
 #include <sstream>
-#include <Base64.h>
+#include <alma/ASDM/Base64.h>
 
-#include <Parser.h>
+#include <alma/ASDM/Parser.h>
 #ifndef WITHOUT_BOOST
 #include <boost/property_tree/detail/xml_parser_utils.hpp>
 #endif
-#include <OutOfBoundsException.h>
-#include <NumberFormatException.h>
-#include <BooleanWrapper.h>
-#include <ByteWrapper.h>
-#include <CharacterWrapper.h>
-#include <DoubleWrapper.h>
-#include <FloatWrapper.h>
-#include <IntegerWrapper.h>
-#include <LongWrapper.h>
-#include <ShortWrapper.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/BooleanWrapper.h>
+#include <alma/ASDM/ByteWrapper.h>
+#include <alma/ASDM/CharacterWrapper.h>
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/FloatWrapper.h>
+#include <alma/ASDM/IntegerWrapper.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/ShortWrapper.h>
 using asdm::OutOfBoundsException;
 using asdm::NumberFormatException;
 using asdm::Boolean;
@@ -58,6 +58,8 @@ using asdm::Float;
 using asdm::Integer;
 using asdm::Long;
 using asdm::Short;
+
+using namespace std;
 
 namespace asdm { 
  
@@ -2927,9 +2929,9 @@ namespace asdm {
 		
 
 
-	// Field type: string
+	// Field type: std::string
 
-	void Parser::toXML(string data, const string &name, string &buf) {
+	void Parser::toXML(std::string data, const string &name, string &buf) {
 		buf.append("<" + name + "> ");
 	
 		if (data.size()>0)
@@ -2941,7 +2943,7 @@ namespace asdm {
 	
 	
 	
-	void Parser::toXML(vector<string> data, const string &name, string &buf) {
+	void Parser::toXML(vector<std::string> data, const string &name, string &buf) {
 		buf.append("<" + name + "> ");
 		buf.append("1 ");
 		buf.append(Integer::toString(data.size()));
@@ -2958,7 +2960,7 @@ namespace asdm {
 		buf.append(" </" + name + "> ");
 	}
 
-	void Parser::toXML(vector< vector<string> > data, const string &name, string &buf) {
+	void Parser::toXML(vector< vector<std::string> > data, const string &name, string &buf) {
 		buf.append("<" + name + "> ");
 		buf.append("2 ");
 		buf.append(Integer::toString(data.size()));
@@ -2980,7 +2982,7 @@ namespace asdm {
 		buf.append(" </" + name + "> ");
 	}
 	
-	void Parser::toXML(vector< vector< vector<string> > > data, const string &name, string &buf) {
+	void Parser::toXML(vector< vector< vector<std::string> > > data, const string &name, string &buf) {
 		buf.append("<" + name + "> ");
 		buf.append("3 ");
 		buf.append(Integer::toString(data.size()));
@@ -3006,7 +3008,7 @@ namespace asdm {
 		buf.append(" </" + name + "> ");
 	}
 	
-	void Parser::toXML(vector<vector< vector< vector<string> > > >data, const string &name, string &buf) {
+	void Parser::toXML(vector<vector< vector< vector<std::string> > > >data, const string &name, string &buf) {
 		buf.append("<" + name + "> ");
 		buf.append("4 ");
 		buf.append(Integer::toString(data.size()));

@@ -33,7 +33,7 @@
  * File CPolarizationType.cpp
  */
 #include <sstream>
-#include <CPolarizationType.h>
+#include <alma/Enumerations/CPolarizationType.h>
 #include <string>
 using namespace std;
 

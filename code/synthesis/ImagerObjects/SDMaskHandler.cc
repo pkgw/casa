@@ -2270,6 +2270,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       robuststats.get(RecordFieldId("robustrms"),resRmss); // already converted from MAD to rms  
       os<<LogIO::DEBUG1<<" robustrms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
     }
+    os<<LogIO::DEBUG1<<"get mdns"<<LogIO::POST;
     robuststats.get(RecordFieldId("median"), mdns);
     
     // only useful if single threshold value are used for all spectral planes... 
@@ -2280,7 +2281,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //resPeak = maxmaxval;
     // use MAD and convert to rms 
     //resRms = maxmadval * 1.4826; 
-    
+    //os<<LogIO::NORMAL<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
+    //os<<LogIO::DEBUG1<<" rms from MAD (mads*1.4826)= "<<resRmss<<LogIO::POST;
+
+    //check for pbmask
+    IPosition imshp=res.shape();
+    IPosition imstart(4, 0, 0, 0, 0);
+    IPosition imlength(4, imshp(0),imshp(1), imshp(2), imshp(3));
+    ArrayLattice<Bool>  pixmasklat(res.getMask()); 
+    // for debug
+    //Array<Bool>  pixmask(res.getMaskSlice(imstart, imlength)); 
+    //os<<" ntrue(pixmaskinit) = "<<ntrue(pixmaskinit)<<LogIO::POST;
 
     //define mask threshold 
     //Array<Float> sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * maxs;
@@ -2378,6 +2389,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         makeMaskByPerChanThreshold(res, chanFlag, maskedRes, maskThreshold, dummysizes); 
         os << LogIO::NORMAL << "End thresholding: time to create the initial threshold mask:  real "<< timer.real() 
            << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
+
+        // apply pbmask if exists
+        if (res.hasPixelMask()) {
+          maskedRes.copyData( (LatticeExpr<Float>)( iif(pixmasklat, maskedRes, 0.0 ) ) );
+          //for debug
+          //Array<Float> testdata;
+          //maskedRes.get(testdata);
+          //os<<" current total of pix values="<<sum(testdata)<<LogIO::POST;
+        }
 
         Vector<Bool> allPruned(nchan);
         if (!iterdone) noMaskCheck(maskedRes, ThresholdType);
@@ -2595,6 +2615,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        if (minBeamFrac > 0.0 && doGrowPrune) {
          //os<<LogIO::NORMAL << "Pruning the growed previous mask "<<LogIO::POST;
          os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
+         if (res.hasPixelMask()) {
+           prevmask.copyData( (LatticeExpr<Float>)( iif(pixmasklat, prevmask, 0.0 ) ) );
+         }
          timer.mark();
          Vector<Bool> dummy(0);
          std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);

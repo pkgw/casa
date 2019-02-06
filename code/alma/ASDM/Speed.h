@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLSpeed;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Speed;
 Speed operator * ( double , const Speed & );
-ostream & operator << ( ostream &, const Speed & );
-istream & operator >> ( istream &, Speed &);
+std::ostream & operator << ( std::ostream &, const Speed & );
+std::istream & operator >> ( std::istream &, Speed &);
 /**
  * The Speed class implements a quantity of speed in meters per second..
  * 
@@ -69,11 +63,11 @@ class Speed {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Speed.
    */
-  friend ostream & operator << ( ostream & os, const Speed & x);
+  friend std::ostream & operator << ( std::ostream & os, const Speed & x);
   /**
    * Overloading of >> to read an Speed from an istream.
    */
-  friend istream & operator >> ( istream & is, Speed & x);
+  friend std::istream & operator >> ( std::istream & is, Speed & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Speed(const string &s);
+	Speed(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlSpeed a cons ref to an IDLSpeed.
 	 */
-	Speed(const IDLSpeed & idlSpeed);
+	Speed(const asdmIDLTypes::IDLSpeed & idlSpeed);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Speed.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Speed to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Speed>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Speed>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Speed to a EndianOSStream.
 	 * @param angle the vector of vector of Speed to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Speed> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Speed> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Speed to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Speed to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Speed> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Speed> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Speed from a EndianIStream
 	 * and use the read value to set an  Speed.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Speed
 	 */	 
-	 static vector<Speed> from1DBin(EndianIStream & eis);
+	 static std::vector<Speed> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Speed from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Speed
 	 */	 
-	 static vector<vector<Speed> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Speed> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Speed from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Speed
 	 */	 
-	 static vector<vector<vector<Speed> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Speed> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Speed = Speed.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Speed.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLSpeed representation of the Speed.
 	 * @return IDLSpeed 
 	 */
-	IDLSpeed toIDLSpeed() const;
+    asdmIDLTypes::IDLSpeed toIDLSpeed() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Speed.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Speed::Speed() : value(0.0) {
 inline Speed::Speed(const Speed &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Speed::Speed(const IDLSpeed &l) : value(l.value) {
+inline Speed::Speed(const asdmIDLTypes::IDLSpeed &l) : value(l.value) {
 }
 #endif
-inline Speed::Speed(const string &s) : value(fromString(s)) {
+inline Speed::Speed(const std::string &s) : value(fromString(s)) {
 }
 inline Speed::Speed(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Speed Speed::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Speed::operator string () const {
+inline Speed::operator std::string () const {
 	return toString();
 }
-inline string Speed::toString() const {
+inline std::string Speed::toString() const {
 	return toString(value);
 }
-inline string Speed::toStringI() const {
+inline std::string Speed::toStringI() const {
 	return toString(value);
 }
 inline double Speed::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLSpeed Speed::toIDLSpeed() const {
-	IDLSpeed tmp;
+inline asdmIDLTypes::IDLSpeed Speed::toIDLSpeed() const {
+    asdmIDLTypes::IDLSpeed tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Speed operator * ( double n, const Speed &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Speed &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Speed &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Speed &x ) {
+inline std::istream & operator >> ( std::istream &i, Speed &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Speed::unit() {
-	return string ("m/s");
+inline std::string Speed::unit() {
+	return std::string ("m/s");
 }
 } // End namespace asdm
 #endif /* Speed_CLASS */

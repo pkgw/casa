@@ -189,14 +189,11 @@ Double sigToWeight(Double sig)
   
   SubMS::~SubMS()
   {
-    if(!msOut_p.isNull())
-      msOut_p.flush();
-
     delete msc_p;
-    msc_p = NULL;
+    msc_p = nullptr;
     
     delete mscIn_p;
-    mscIn_p = NULL;
+    mscIn_p = nullptr;
 
     msOut_p=MeasurementSet();
 
@@ -2868,7 +2865,6 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 	mcd.rwKeywordSet().define("CHANNEL_SELECTION",selection);
       }
 
-      ms_p.flush();
       rval = 1; // successful modification
     }
     return rval;
@@ -6212,8 +6208,6 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 
       // 6) MAIN
 
-      ms_p.flush(true); // with fsync
-
       Table newMain(TableCopy::makeEmptyTable( tempNewName,
 					       Record(),
 					       (Table) ms_p,
@@ -6850,14 +6844,11 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 	}
       }
 
-      newMain.flush(true); 
-
     } // end scope for MS related objects
  
     String oldName(ms_p.tableName());
 
     // detach old MS
-    ms_p.flush(true);
     ms_p = MeasurementSet();
     mssel_p = MeasurementSet();
 
@@ -7429,7 +7420,6 @@ Bool SubMS::subtractContinuum(const Vector<MS::PredefinedColumns>& colNames,
   //  * remapping DDID as necessary, taking (union)spw into account
   //  * filtering and rewriting the DATA_DESC_ID and SPECTRAL_WINDOW subtables.
 
-  msOut_p.flush();    // Necessary?
   return retval;
 }
 
@@ -7623,7 +7613,6 @@ Bool SubMS::copyDataFlagsWtSp(const Vector<MS::PredefinedColumns>& colNames,
       }
       meter.update(inrowsdone);
     }
-    msOut_p.flush();
     return true;
   }
 
@@ -7872,7 +7861,6 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
         if(antNewIndex_p[k] > -1)
           TableCopy::copyRows(newAnt, oldAnt, antNewIndex_p[k], k, 1, false);
       }
-      newAnt.flush();
       retval = true;
     }
     return retval;    
@@ -7913,7 +7901,6 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
           ++totalSelFeeds;
 	}
       }
-      newFeed.flush();
 
       // Remap antenna and spw #s.
       ScalarColumn<Int>& antCol = outcols.antennaId();
@@ -7998,7 +7985,6 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
 	//       }
         //     }
         //   }
-	//   newFlag_Cmd.flush();
       }
     }
     return true;
@@ -8145,7 +8131,6 @@ Bool SubMS::copyGenericSubtables(){
       }
     }
   }
-  msOut_p.flush();
 
   return true;
 }
@@ -8353,7 +8338,6 @@ void SubMS::createSubtables(MeasurementSet& ms, Table::TableOption option)
 	      }
             }
           }
-	  newPoint.flush();
         }
       }
     }
@@ -8495,7 +8479,6 @@ Bool SubMS::copySyscal()
             ++totalSelSyscals;
           }
         }
-        newSysc.flush();
 
         // Remap antenna and spw #s.
         ScalarColumn<Int>& antCol = outcols.antennaId();
@@ -8581,7 +8564,7 @@ Bool SubMS::filterOptSubtable(const String& subtabname)
               haveRemappingProblem = true;
           }
         }
-        outtab.flush();
+
         if(haveRemappingProblem)
           os << LogIO::WARN
              << "At least one row of " << intab.tableName()

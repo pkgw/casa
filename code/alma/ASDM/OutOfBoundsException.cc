@@ -23,12 +23,12 @@
  *
  * File OutOfBoundsException.cpp
  */
-#include "OutOfBoundsException.h"
+#include <alma/ASDM/OutOfBoundsException.h>
 namespace asdm {
   OutOfBoundsException::OutOfBoundsException(): message("Out of bounds exception") {;}
-  OutOfBoundsException::OutOfBoundsException (const string &s) : message(s) {;}
+  OutOfBoundsException::OutOfBoundsException (const std::string &s) : message(s) {;}
   OutOfBoundsException::~OutOfBoundsException() {;}
-  string OutOfBoundsException::getMessage()  const {
+  std::string OutOfBoundsException::getMessage()  const {
     return message;
   }    
 } // end namespace asdm.
