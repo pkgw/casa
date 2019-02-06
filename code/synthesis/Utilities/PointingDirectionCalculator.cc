@@ -145,46 +145,24 @@ inline void skipMovingSourceCorrection(
 
 using namespace casacore;
 namespace casa {
-//--------------------------------------------
-// CAS-8418 (Column checck in Pointing Table)
-//--------------------------------------------
-bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String const &columnName )
-{
-    String columnNameUpcase = columnName;
-    columnNameUpcase.upcase();
-    if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
-    else return false;
-}
-//-------------------------------------------
-// Make Temporary Spline object
-//    when specified Column exists. 
-// -----------------------------------------
-bool PointingDirectionCalculator::activateDirCol_0(MeasurementSet const &ms, 
-                                              String const &colName, ACCESSOR acc)
-{
-    if(checkColumn(ms, colName  )){
-        printf("Spline Obj:: attempt to construct by [%s].\n",colName.c_str());
-        unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,acc));
 
-        splineWork = std::move(spTemp); 
-        return true;  // Obj.was created //
-    } 
-    printf("Spline Obj:: Column [%s] is already set up..\n",colName.c_str());
-    return false;    
-}
- 
+//+
+// Original Constructor
+//- 
 PointingDirectionCalculator::PointingDirectionCalculator(
         MeasurementSet const &ms) :
-        originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), directionColumnName_(), accessor_(
-        NULL), antennaPosition_(), referenceEpoch_(), referenceFrame_(
-                referenceEpoch_, antennaPosition_), directionConvert_(
-        NULL), directionType_(MDirection::J2000), movingSource_(NULL), movingSourceConvert_(
-        NULL), movingSourceCorrection_(NULL), antennaBoundary_(), numAntennaBoundary_(
-                0), pointingTimeUTC_(), lastTimeStamp_(-1.0), lastAntennaIndex_(
-                -1), pointingTableIndexCache_(0), shape_(
-                PointingDirectionCalculator::COLUMN_MAJOR),
-      /*CAS-8418*/ fgSplineInterpolation(true),
-      /*CAS-8418*/ readyInitialize(5,false) 
+        originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), 
+        pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), 
+        directionColumnName_(), accessor_(NULL), antennaPosition_(), referenceEpoch_(),
+        referenceFrame_(referenceEpoch_, antennaPosition_), 
+        directionConvert_(NULL), directionType_(MDirection::J2000), movingSource_(NULL), 
+        movingSourceConvert_(NULL), movingSourceCorrection_(NULL), 
+        antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
+        lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
+        shape_(PointingDirectionCalculator::COLUMN_MAJOR),
+
+      /*CAS-8418*/ fgSplineInterpolation(false), accessorId_(0),
+      /*CAS-8418*/ readySplineInitialize(5,false),  readySplineCoefficient(5,false) 
 {
     accessor_ = directionAccessor;
 
@@ -196,20 +174,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
 //+
 //  CAS-8418
 //   Create Spline Object in current class.
-//   if coeff table is inactive, disable spline mode.
+//   - The setDirectionColumn(name) makes Coefficient and all the initialization
+//   - This way enables more compact implementation
+//     because in order to choose the Direction-column, setDirectionColumn is called first.
 //-
-    // Create Spline Object for All Direction-Columns //   
-
-      PointingDirectionCalculator::activateDirCol_0(ms, "DIRECTION",   directionAccessor );
-      splineDir = std::move(splineWork);
-
-    // Defalut Direction-Column for Spline
-    
-        spline_ = splineDir.get();
-
-    // Insufficient Data //
-    
-       if( spline_ ->isCalculateAvailable() == false) fgSplineInterpolation = false;
 
 //-------- original code from here. -----
     init();
@@ -368,60 +336,52 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 #else
 //+   
 // New code reuired from CAS-9418 2-Feb-2019 
-//  when setDirectionColumn is called , 
-//  new spline coeffcient table corresoinding to specified Direction column
-//  is generated. once generated and from next time, lately created Obj. is used.  
+//
+//    When setDirectionColumn is called , 
+//    new spline coeffcient table corresoinding to specified Direction column
+//    is generated. once generated and from next time, lately created Obj. is pointed and used.
+//
+//    See indetal in;
+//         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );  
 //-
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
+        accessorId_ = 0;
+        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
-       // THIS IS DEFAULT. ALREADY CREATED AND AVAILABLE ..//
+       // THIS IS DEFAULT. Constructor comes on this path. //
 
     } else if (directionColumnName_ == "TARGET") {
         accessor_ = targetAccessor;
-
-        // CAS-8418:: SetUp spline , with specified Direction-column. 
-          if (PointingDirectionCalculator::activateDirCol_0(*originalMS_, "TARGET", accessor_ ))
-          {
-              splineTar = std::move(splineWork);   // for the first time
-          }
-          spline_ = splineTar.get();
-
+        accessorId_ = 1;
+        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+ 
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
-
-        // CAS-8418:: SetUp spline , with specified Direction-column. 
-          if (PointingDirectionCalculator::activateDirCol_0(*originalMS_, "POINTING_OFFSET", accessor_ ))
-          {
-              splinePof = std::move(splineWork);
-          }
-          spline_ = splinePof.get();
+        accessorId_ = 2;
+        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
-
-        // CAS-8418:: SetUp spline , with specified Direction-column. 
-          if(PointingDirectionCalculator::activateDirCol_0(*originalMS_, "SOURCE_OFFSET", accessor_ ))
-          {
-              splineSof = std::move(splineWork);
-          }
-          spline_ = splineSof.get();
+        accessorId_ = 3;
+        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "ENCODER") {
         accessor_ = encoderAccessor;
-
-        // CAS-8418:: SetUp spline , with specified Direction-column. 
-          if(PointingDirectionCalculator::activateDirCol_0(*originalMS_, "ENCODER", accessor_ ))
-          {
-              splineEnc = std::move(splineWork);
-          }
-          spline_ = splineEnc.get();
+        accessorId_ = 4;
+        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else {
         stringstream ss;
         ss << "Column \"" << columnNameUpcase << "\" is not supported.";
         throw AipsError(ss.str());
     }
+
+    //
+    // Disable if problem.
+    //
+
+     if( spline_ ->isCalculateAvailable() == false) fgSplineInterpolation = false;
 
 #endif 
 // ---org code ---
@@ -768,7 +728,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         Vector<Double> interpolated(2);
         if(true)
         {
-            interpolated = getSplineObj()-> calculate(uIndex, dtime, antID );
+            // getCurrentSplineObj() referes, current Spline Obj. //
+            interpolated = getCurrentSplineObj()-> calculate(uIndex, dtime, antID );
         }
         else
         {
@@ -953,6 +914,69 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
     }
 }
 
+//*********************************************************
+//  CAS-8418::
+//  Extended dunctions in PointingDirectionCalculator
+//   for initializing Spline Interpolation
+//*********************************************************
+
+// Column checck in Pointing Table //
+bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String const &columnName )
+{
+    String columnNameUpcase = columnName;
+    columnNameUpcase.upcase();
+    if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
+    else return false;
+}
+// Make  Spline object from specified Direction column if specified Column exists. //
+bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementSet const &ms,
+                                                                    uInt DirColNo, 
+                                                                    bool makeActive=true)
+{ 
+    //+
+    // Direction Columns and 
+    // AccessorId and accessor_ (function pointer) 
+    //-
+    std::vector<string>   dirColList
+    = { "DIRECTION","TARGET","POINTING_OFFSET","SOURCE_OFFSET","ENCODER" };
+    std::vector<ACCESSOR> accList
+    = {directionAccessor, targetAccessor,pointingOffsetAccessor,
+       sourceOffsetAccessor, encoderAccessor };
+
+    String colName = dirColList[DirColNo];
+    ACCESSOR acc   = accList[DirColNo];
+
+    if( DirColNo >= readySplineInitialize.size())   return false;  // Bad Param //
+    if( readySplineInitialize[DirColNo] == true )
+    {
+        printf("Spline Obj:: already Available.[%s] \n",colName.c_str());
+        return true;   // Servece already OK //
+    }
+    if(checkColumn(ms, colName  ))
+    {
+        printf("Spline Obj:: attempt to construct by [%s].\n",colName.c_str());
+
+        // Temporary Obj. //
+          unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,acc));
+        // Spline Available (N>4)
+          readySplineCoefficient[DirColNo] = spTemp->isCalculateAvailable();
+        // move to Spline obj. //
+          splineObj[DirColNo] = std::move(spTemp);
+
+        // Obj. available //
+          readySplineInitialize[DirColNo] = true;
+
+        // copy to Master pointer, if this is desired.  // 
+          if(makeActive) spline_ = splineObj[DirColNo].get();
+    
+        return true;
+    } 
+    else
+    {
+        return false ;  // Ignore. No Action. //
+    }
+}
+
 //***************************************************
 //  Antenna Boundary (for Pointing Table ) methods
 //  CAS-8418
@@ -1013,12 +1037,11 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         antennaBoundary_[count] = nrow;
         ++count;
         numAntennaBoundary_ = count;
-#if 1
-       if(false) show();  // DEBUG //
-#endif 
+
+        if(false) show();  // DEBUG //
 
 }
-// AntenaBoundary(start, end) //
+// getAntenaBoundary(start, end) //
 std::pair<casacore::uInt, casacore::uInt> AntennaBoundary::getAntennaBoundary( casacore::uInt n )
 {
     std::pair<casacore::uInt, casacore::uInt> pos(antennaBoundary_[n],antennaBoundary_[n+1]);
@@ -1035,9 +1058,10 @@ void AntennaBoundary::show()
     }
 }
 
-//**********************************************
-// SplineInterpolation methods.
-//**********************************************
+//***************************************************
+//  Spline Inerpolation  methods
+//  CAS-8418
+//***************************************************
 
 // constructor (for each accessor) //
 SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR accessor ) 
@@ -1051,6 +1075,7 @@ SplineInterpolation::SplineInterpolation(MeasurementSet const &ms) // NOT TESTED
     init(ms, getDefaultAccessor() );
 }
 
+// initialize //
 void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_accessor)
 {
     // Antenna Bounday //
@@ -1113,13 +1138,13 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
             // set on Vector //
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
-#if 1 // DBG //
+
+            // DBG //
             if(false)
             {
                 printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
                        index, ant, time, dirVal[0],dirVal[1]);
             }
-#endif 
         }
     }
 
@@ -1135,7 +1160,7 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
         if ((st < 4)||(s1 < 4))
         {
           //  Exception handling is to be here...//
-          //  printf( "XXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u) XXXXX\n",st, s1);
+           printf( "XXXXX INSUFFICIENT NUMBER OF POINTING DATA (%u,%u) XXXXX\n",st, s1);
            coeffActive = false; // in-usable ..
            return;
         }
@@ -1208,7 +1233,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         printf("Bugcheck.Requested Index too large.\n");
         throw;   
     }
-   
+  
     // Coefficient //
 
     Double a0 = coeff_[antID][index][0][0];
@@ -1226,19 +1251,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 //-
     double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
     double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
-
-#if 0
-// Test . inttentionally ignore high order ,Linear equivalent. //
-    if(false)
-    {
-        Xs = a1 * dt + a0;
-        Ys = b1 * dt + b0;
-        if(false){
-            Xs = a2* (dt*dt) + a1 * dt + a0;
-            Ys = b2* (dt*dt) + b1 * dt + b0;
-        }
-    }
-#endif 
 
 // Return //
 

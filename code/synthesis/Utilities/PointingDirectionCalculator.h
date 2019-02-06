@@ -327,55 +327,42 @@ private:
     // new: Spline (CAS-8418)
     //-
 
-      // Programmer's option;Altering Old and New function //
-
-        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
-        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline only
-
      // Spline object and flag (for each Direction Column)
       
         bool fgSplineInterpolation = true;       // Use Spline if TRUE
-
         casa::SplineInterpolation    * spline_;    // Active Object (traditiona Pointer)
-
 
      // Spline Object for each Direction-Column //
 
-        std::unique_ptr<casa::SplineInterpolation>     splineWork;   // for work
+        // Hold the spline object. switchedly assigned to 'splie_' maser. //
+        std::unique_ptr<casa::SplineInterpolation>     splineObj[5];  
 
-        std::unique_ptr<casa::SplineInterpolation>     splineDir;   // for DIRECTION
-        std::unique_ptr<casa::SplineInterpolation>     splineTar;   // for TARGET
-        std::unique_ptr<casa::SplineInterpolation>     splinePof;   // for POINTING_OFFSET
-        std::unique_ptr<casa::SplineInterpolation>     splineSof;   // for SOURCE_OFFSET
-        std::unique_ptr<casa::SplineInterpolation>     splineEnc;   // for Encorder
+        casacore::Vector<bool>      readySplineInitialize ;  // status //
+        casacore::Vector<bool>     readySplineCoefficient ;  // coeff ready //
+
+     // Accessor ID i(work with accessor_ ) 
+
+        casacore::uInt accessorId_ =0;
 
      // creating temporary Spline object (in construction)
 
         bool checkColumn(casacore::MeasurementSet const &ms,
                          casacore::String const &columnName );
 
-        bool activateDirCol_0(casacore::MeasurementSet const &ms, 
-                              casacore::String const &colname, 
-                              ACCESSOR acc);
+        bool activateSplinefromDirectionColumn (casacore::MeasurementSet const &ms, 
+                                                casacore::String const &colname, 
+                                                ACCESSOR acc);
+        bool activateSplinefromDirectionColumn(casacore::MeasurementSet const &ms,
+                                               casacore::uInt DirColNo, bool makeActive);
 
      // Spline Object handle
 
-        casa::SplineInterpolation      *getSplineObj() { return spline_; }
+        casa::SplineInterpolation      *getCurrentSplineObj() { return spline_; }
 
-    //+
-    //  Select a Dirction-Column for Spline i(unuque_ptr to traditional *ptr assignment  //
-    //-
+     // Programmer's option 
+        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
+        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline only
 
-    std::vector<bool>   readyInitialize;
-
- 
-/*
-    void selectDirectionForSpline(ACCESSOR &acc)       ;
-    void selectTargetForSpline()          ;
-    void selectPointingOffsetForSpline()  ;
-    void selectSourceOffsetSpline()       ;
-    void selectEncoderForSpline()         ;
-*/
 };
 
 //+
@@ -432,7 +419,8 @@ private:
         // Coefficiat Table (returned from SDPosInterpolator) //
 
         bool     coeffActive = false;   // True when Coeff is ready to be used.   
-        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > coeff_;
+        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
+          coeff_;
 
        // debug //
          void dumpCsvCoeff();
