@@ -45,11 +45,18 @@ if CASA6:
     mms_select = casatools.ctsys.resolve('visibilities/alma/uid_mms.mms')
     singledish = casatools.ctsys.resolve('visibilities/other/analytic_spectra_tsys.ms')
 else:
-    datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/outlier_ut.ms/'
-    mms_data = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/outlier_mms.mms/'
-    selectiondata = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms/'
-    mms_select = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid_mms.mms'
-    singledish = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/analytic_spectra_tsys.ms'
+    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req'):
+        datapath = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/outlier_ut.ms/'
+        mms_data = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/outlier_mms.mms/'
+        selectiondata = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms/'
+        mms_select = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid_mms.mms'
+        singledish = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/other/analytic_spectra_tsys.ms'
+    else:
+        datapath = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/other/outlier_ut.ms/'
+        mms_data = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/other/outlier_mms.mms/'
+        selectiondata = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms/'
+        mms_select = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/alma/uid_mms.mms'
+        singledish = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/other/analytic_spectra_tsys.ms'
     
 axislist = ['flag', 'antenna1', 'antenna2', 'feed1', 'feed2', 'field_id', 'array_id', 'data_desc_id', 'flag_row', 'interval', 'scan', 'scan_number', 'time', 'weight_spectrum', 'amp', 'amplitude', 'phase', 'real', 'imag', 'imaginary', 'uvrange']
  
