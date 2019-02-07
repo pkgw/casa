@@ -54,7 +54,7 @@ namespace casa{
     //    vbRow2CFMap_p.assign(other.vbRow2CFMap_p);
     convFuncStore_p = other.convFuncStore_p;
     paTolerance_p = other.paTolerance_p;
-    vbRow2CFBMap_p = other.vbRow2CFBMap_p;
+    vb2CFBMap_p = other.vb2CFBMap_p;
 
   }
   //

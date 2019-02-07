@@ -565,7 +565,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Int previousSPWID_p;
 
     casacore::CountedPtr<refim::FTMachine> self_p;
-    casacore::CountedPtr<refim::VB2CFBMap> vbRow2CFBMap_p;
+    casacore::CountedPtr<refim::VB2CFBMap> vb2CFBMap_p;
 
 #include "AWProjectFT.FORTRANSTUFF.INC"
   };

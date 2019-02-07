@@ -56,7 +56,7 @@ using namespace vi;
     //UNUSED: nChan=dataChan2ImChanMap.nelements(), 
     //UNUSED: nPol=dataPol2ImPolMap.nelements();
     //    vbRow2CFMap_p.resize(nPol, nChan, nRow);
-    vbRow2CFBMap_p.resize(nRow);
+    vb2CFBMap_p.resize(nRow);
     Quantity pa(getPA(vbs),"rad");
     PolOuterProduct outerProduct;
     Int statusCode=CFDefs::MEMCACHE;
@@ -104,7 +104,7 @@ using namespace vi;
 	else
 	  {
 	    cfb_l->setPointingOffset(pointingOffset);
-	    vbRow2CFBMap_p(irow) = cfb_l;
+	    vb2CFBMap_p(irow) = cfb_l;
 	  }
 
 	/*

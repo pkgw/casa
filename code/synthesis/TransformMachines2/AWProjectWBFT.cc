@@ -868,10 +868,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 				      paChangeDetector.getParAngleTolerance(),
     // 				      chanMap,polMap,pointingOffset);
     //    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
-    vbRow2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
+    vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
-    convFuncCtor_p->prepareConvFunction(vb,*vbRow2CFBMap_p);
+    convFuncCtor_p->prepareConvFunction(vb,*vb2CFBMap_p);
     //runTime1_p += timer_p.real();
     //
     // Set the uvw array to zero-sized array and dopsf=true.
