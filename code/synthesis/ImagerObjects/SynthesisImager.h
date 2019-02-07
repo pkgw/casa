@@ -345,7 +345,8 @@ protected:
   bool makePBImage(const casacore::String telescop);
   virtual bool makePrimaryBeam(PBMath& pbMath);
 
-  
+  ///is any of the images defined spectral cube
+  virtual bool isSpectralCube();
 
   /////////////// Member Objects
 

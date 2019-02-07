@@ -699,8 +699,10 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Timer tim;
   tim.mark();
 
-  const Matrix<Float> *imagingweight;
-  imagingweight=&(vb.imagingWeight());
+  //const Matrix<Float> *imagingweight;
+  //imagingweight=&(vb.imagingWeight());
+  Matrix<Float> imagingweight;
+  getImagingWeight(imagingweight, vb);
   
   if(dopsf) {type=FTMachine::PSF;}
 
@@ -708,7 +710,7 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   //Fortran gridder need the flag as ints 
   Cube<Int> flags;
   Matrix<Float> elWeight;
-  interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+  interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
 
 
   Bool iswgtCopy;
@@ -803,6 +805,14 @@ void GridFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   Int idopsf=0;
   if(dopsf) idopsf=1;
 
+  //////TESTOO
+  //ofstream myfile;
+  //myfile.open ("putLoc.txt", ios::out | ios::app | ios::ate );
+  //myfile << vb.rowIds()(0) << " uv " << uvw.column(0) << " loc " << loc(0,0,0) << ", " << loc(1,0,0) << "\n" << endl;
+  //myfile.close();
+  ///////////////
+
+  
 
   Vector<Int> rowFlags(vb.nRows());
   rowFlags=0;

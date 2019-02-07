@@ -1689,14 +1689,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Nant_p     = vb.subtableColumns().antenna().nrow();
 
-    const Matrix<Float> *imagingweight;
-    imagingweight=&(vb.imagingWeight());
+    //const Matrix<Float> *imagingweight;
+    //imagingweight=&(vb.imagingWeight());
+    Matrix<Float> imagingweight;
+    getImagingWeight(imagingweight, vb);
 
     Cube<Complex> data;
     //Fortran gridder need the flag as ints 
     Cube<Int> flags;
     Matrix<Float> elWeight;
-    interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+    interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
 
     Int NAnt;
     if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);

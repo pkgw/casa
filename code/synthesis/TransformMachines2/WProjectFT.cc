@@ -779,16 +779,17 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   Timer tim;
    tim.mark();
 
-  const Matrix<Float> *imagingweight;
-  imagingweight=&(vb.imagingWeight());
-
+   //const Matrix<Float> *imagingweight;
+   //imagingweight=&(vb.imagingWeight());
+   Matrix<Float> imagingweight;
+   getImagingWeight(imagingweight, vb);
   if(dopsf) type=FTMachine::PSF;
 
   Cube<Complex> data;
   //Fortran gridder need the flag as ints 
   Cube<Int> flags;
   Matrix<Float> elWeight;
-  interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+  interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
   
   
   Bool iswgtCopy;

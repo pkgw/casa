@@ -70,7 +70,7 @@ namespace casa{ //# namespace casa
                   class VisibilityIterator2;
   }
  namespace refim{ //#	 namespace for refactored imaging code with vi2/vb2
-
+  class BriggsCubeWeightor;
   class SkyJones;
 // <summary> defines interface for the Fourier Transform Machine </summary>
 
@@ -177,6 +177,11 @@ public:
 				  casacore::CountedPtr<SIImageStore> imstore);
 
   //-------------------------------------------------------------------------------------
+  //This function has to be called after initMaps to initialize Briggs
+  //Cube weighting scheme
+  virtual void initBriggsWeightor(vi::VisibilityIterator2& vi);
+
+  
   // Finalize transform to Sky plane
   virtual void finalizeToSky() = 0;
 
@@ -375,6 +380,10 @@ public:
   casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
   casacore::Vector<casacore::Int> channelMap(const vi::VisBuffer2& vb);
   casacore::Matrix<casacore::Double> getSumWeights(){return  sumWeight;};
+
+  ///Functions associated with Briggs weighting for cubes
+  void setBriggsCubeWeight(casacore::CountedPtr<refim::BriggsCubeWeightor> bwght){briggsWeightor_p=bwght;};
+  void getImagingWeight(casacore::Matrix<casacore::Float>& imwght, const vi::VisBuffer2& vb);
 protected:
 
   friend class VisModelData;
@@ -416,6 +425,7 @@ protected:
   casacore::Bool useDoubleGrid_p;
 
   virtual void initMaps(const vi::VisBuffer2& vb);
+  
   virtual void initPolInfo(const vi::VisBuffer2& vb);
 
   // Sum of weights per polarization and per chan
@@ -522,6 +532,7 @@ protected:
   ///Some parameters and helpers for multithreaded gridders
   casacore::Int doneThreadPartition_p;
   casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
+  casacore::CountedPtr<refim::BriggsCubeWeightor> briggsWeightor_p;
   virtual void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
   
   virtual void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, 

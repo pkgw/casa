@@ -50,8 +50,16 @@ class BriggsCubeWeightor{
 		       const casacore::ImageInterface<casacore::Complex>& templateimage,
 		       const casacore::Int superUniformBox=0,
 		       const casacore::Bool multiField=false);
+   //This constructor will require that init be called at a later stage
+   BriggsCubeWeightor(const casacore::String& rmode,
+		       const casacore::Quantity& noise,
+		      const casacore::Double robust,const
+		      casacore::Int superUniformBox=0,
+		      const casacore::Bool multiField=false);
     
     void weightUniform(casacore::Matrix<casacore::Float>& imweight, const vi::VisBuffer2& vb);
+    //initialize
+    void init(vi::VisibilityIterator2& vi,const casacore::ImageInterface<casacore::Complex>& templateimage);
   private:
     void initializeFTMachine(const casacore::uInt index, const casacore::ImageInterface<casacore::Complex>& templateimage, const casacore::Int uvbox=0);
     void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
@@ -63,6 +71,12 @@ class BriggsCubeWeightor{
     casacore::Float uscale_p, vscale_p;
     casacore::Int uorigin_p, vorigin_p;
     casacore::Int nx_p, ny_p;
+    casacore::String rmode_p;
+    casacore::Quantity noise_p;
+    casacore::Double robust_p;
+    casacore::Int superUniformBox_p;
+    casacore::Bool multiField_p;
+    casacore::Bool initialized_p;
  };
    }//# end namespace refim
 } // end namespace casa

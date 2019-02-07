@@ -42,6 +42,7 @@
 #include <synthesis/TransformMachines2/FTMachine.h>
 #include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/TransformMachines2/VisModelData.h>
+#include <synthesis/TransformMachines2/BriggsCubeWeightor.h>
 #include <scimath/Mathematics/RigidVector.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 #include <synthesis/TransformMachines2/Utils.h>
@@ -97,7 +98,7 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -116,7 +117,7 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -218,6 +219,7 @@ using namespace casa::vi;
       nysect_p=other.nysect_p;
       obsvelconv_p=other.obsvelconv_p;
       mtype_p=other.mtype_p;
+      briggsWeightor_p=other.briggsWeightor_p;
     };
     return *this;
   };
@@ -526,7 +528,17 @@ using namespace casa::vi;
 
       //cerr << "initmaps polmap "<< polMap << endl;
 
+
+      
+
     }
+  void FTMachine::initBriggsWeightor(vi::VisibilityIterator2& vi){
+    ///Lastly initialized Briggs cube weighting scheme
+    if(!briggsWeightor_p.null()){
+      briggsWeightor_p->init(vi, *image);
+
+    }
+  }
 
   FTMachine::~FTMachine() 
   {
@@ -1588,9 +1600,21 @@ using namespace casa::vi;
     ///may have changed.
     doneThreadPartition_p=-1;
     vbutil_p=nullptr;
+    briggsWeightor_p=nullptr;
     return true;
   };
-  
+
+  void FTMachine::getImagingWeight(Matrix<Float>& imwgt, const vi::VisBuffer2& vb){
+    //cerr << "BRIGGSweightor " << briggsWeightor_p.null()  << " or " << !briggsWeoght_p << endl;
+    if(briggsWeightor_p.null()){
+      imwgt=vb.imagingWeight();
+    }
+    else
+      briggsWeightor_p->weightUniform(imwgt, vb);
+
+
+
+  }
   // Make a plain straightforward honest-to-FSM image. This returns
   // a complex image, without conversion to Stokes. The representation
   // is that required for the visibilities.

@@ -2833,6 +2833,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     movingSource_p=movingSource;
   }
   
+  bool SynthesisImager::isSpectralCube(){
+    bool retval=False;
+    for (Int k=0; k < itsMappers.nMappers(); ++k){
+      if((itsMappers.imageStore(k))->getShape()(3) > 1)
+	retval=True;
 
+    }
+    return retval;
+
+  }
 } //# NAMESPACE CASA - END
 

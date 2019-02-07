@@ -84,6 +84,7 @@
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
+#include <synthesis/TransformMachines2/BriggsCubeWeightor.h>
 #if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
@@ -735,12 +736,24 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
 		  //timer.mark();
-		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower 
+		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
+		  //Determine if any image is cube
+		  ////TESTOOO
+		  //if(isSpectralCube()){
+		  if(True){
+		    VisImagingWeight nat("natural");
+		    vi_p->useImagingWeight(nat);
+		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust,0, multiField);
+		    for (Int k=0; k < itsMappers.nMappers(); ++k){
+		      itsMappers.getFTM2(k)->setBriggsCubeWeight(bwgt);
 
-
-		  imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
-                                 actualCellSize_y, 0, 0, multiField);
+		    }
+		  }
+		  else{
+		    imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
+					     actualNPixels_x, actualNPixels_y, actualCellSize_x,
+					     actualCellSize_y, 0, 0, multiField);
+		  }
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -971,7 +984,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 
     	if(!dopsf)itsMappers.initializeDegrid(*vb);
-    	itsMappers.initializeGrid(*vb,dopsf);
+    	itsMappers.initializeGrid(*vi_p,dopsf);
 	SynthesisUtilMethods::getResource("After initGrid for all mappers");
 
     	for (vi_p->originChunks(); vi_p->moreChunks();vi_p->nextChunk())
@@ -1107,7 +1120,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	  itsMappers.initializeDegrid(*vb, gmap);
 		  //itsMappers.getMapper(gmap)->initializeDegrid(*vb);
 	}
-	itsMappers.initializeGrid(*vb,dopsf, gmap);
+	itsMappers.initializeGrid(*vi_p,dopsf, gmap);
 		//itsMappers.getMapper(gmap)->initializeGrid(*vb,dopsf);
 
 	SynthesisUtilMethods::getResource("After initialize for mapper"+String::toString(gmap));
@@ -1248,7 +1261,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
       ProgressMeter pm(1.0, numberCoh, "Predict Model", "","","",true);
       Int cohDone=0;
 
-      itsMappers.initializeGrid(*vb,dopsf);
+      itsMappers.initializeGrid(*vi_p,dopsf);
       for (vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
       {
 
@@ -2068,7 +2081,7 @@ void SynthesisImagerVi2::unlockMSs()
 
       ProgressMeter pm(1.0, numberCoh, "dryGridding", "","","",true);
 
-      itsMappers.initializeGrid(*vb);
+      itsMappers.initializeGrid(*vi_p);
     
       // Set the gridder (iFTM) to run in dry-gridding mode
       (itsMappers.getFTM2(whichFTM,true))->setDryRun(true);
