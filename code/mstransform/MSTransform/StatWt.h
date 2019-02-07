@@ -88,7 +88,6 @@ private:
     casacore::String _outname = "";
     // time bin width in seconds
     casacore::Double _timeBinWidth = 1;
-    casacore::Int _minSample = 2;
     casacore::LogIO _log;
     std::unique_ptr<casacore::Int> _chanBinWidthInt = nullptr;
     std::unique_ptr<casacore::Record> _chanBinWidthQ = nullptr;
