@@ -1295,10 +1295,21 @@ else()
     set( PYTHON_TASKD_CASADEF ${PYTHONTASKD} )
 endif()
 
+# For Python modules, that might reference headers and symbols from the Python
+# C API but *must not* link to libpython on macOS.
+
+if (CMAKE_SYSTEM MATCHES ^Darwin)
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES         "-undefined dynamic_lookup -Wl,-pie -Wl,-dead_strip_dylibs -flto -Wl,-export_dynamic")
+else()
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES ${PYTHON_LIBRARIES})
+endif()
+
 # The modules must be defined in dependency order!
 # This will set up include paths, and which libraries to link to
 
-casa_add_module( tools CASACORE PYTHON QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
+casa_add_module( tools CASACORE PYMOD QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.
