@@ -950,12 +950,17 @@ fitsimage.done()
             <description>The image from which metadata should be copied. Default means no gaurantee from which image is used.</description>
             <value/>
         </param>
+        <param type="string" name="prec" >
+            <description>Precision for the output image pixels. 'float' or 'double' (minimum match supported)</description>
+            <value>float</value>
+        </param>
     </input>
     <returns type="image"/>
     <description> 
 
 This method is used to evaluate a mathematical expression involving
-existing images. It fully supports both float and complex valued images.
+existing images. It fully supports float, double, and complex float, and complex
+double valued images.
 The syntax of the expression supplied via the pixels
 parameter (in what is called the Lattice Expression Language, or LEL) is
 explained in detail in \htmladdnormallink{note
@@ -1007,6 +1012,10 @@ rules of metadata copying will be followed:
     3. If the output image is a spectral image, the brightness units are set to the empty string.
     4. If the ouptut image is a polarization angle image, the brightness unit is set to "deg" and
     the stokes coordinate is set to have a single plane of type of Pangle.
+
+    The precision (float or double) of the output image pixels is determined by
+    the value specified by the prec parameter. The domain (real or complex) of
+    the output pixel values is determined from the expression.
 
     </description>
     <example>
@@ -9966,11 +9975,9 @@ lags don't have a lot of contributing values of course.
 <example> 
  
 """
-#
-print "\t----\t twopointcorrelation Ex 1 \t----"
-ia.maketestimage();        # Output image is virtual
-ia.twopointcorrelation()   # Output image is virtual
-#
+ia.maketestimage("test.image")
+ia.twopointcorrelation("2pt.image")
+ia.done()
 """
  
 </example>

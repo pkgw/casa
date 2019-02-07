@@ -236,7 +236,7 @@ public:
   PBMath(const PBMath &other);
 
   // destructor
-  ~PBMath();
+  virtual ~PBMath();
   
   //operator=   returns a reference to the PBMath; reference counted pointer
   PBMath& operator=(const PBMath& other);

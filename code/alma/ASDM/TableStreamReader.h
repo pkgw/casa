@@ -159,7 +159,11 @@ namespace asdm {
 
       // find where the rows end, seek to near the end
       tableFile.seekg(fileSizeInBytes-100);
-      std::string lastPart = accumulateUntilBoundary(boundary_1, 5);
+      // the accumulateUntilBoundary looks at "lines", but it may be starting
+      // from inside the binary part where null values might be found
+      // At most, there might be 100 bytes of null, or 100 lines. So limit
+      // the search to 100 lines before giving up.
+      std::string lastPart = accumulateUntilBoundary(boundary_1, 100);
 
       // the full size of the boundary and anything after it
       endBoundarySizeInBytes = 100 - lastPart.size();

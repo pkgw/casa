@@ -73,7 +73,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     VisMueller(vs),
     SolvableVisJones(vs),
     pointPar_(),
-    ms_p(0), vs_p(&vs),
+    // ms_p(0),
+    vs_p(&vs),
     maxTimePerSolution(0), minTimePerSolution(10000000), avgTimePerSolution(0),
     timer(), polMap_p(), tolerance_p(1e-12), gain_p(0.1), niter_p(500), modelImageName_p("")
   {
@@ -84,12 +85,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     setParType(VisCalEnum::REAL);
     byPass_p=0;
   }
-  LJJones::LJJones(VisSet& vs, MeasurementSet& ms) :
+  LJJones::LJJones(VisSet& vs, MeasurementSet& ) :
     VisCal(vs), 
     VisMueller(vs),
     SolvableVisJones(vs),
     pointPar_(),
-    ms_p(&ms), vs_p(&vs),
+    // ms_p(&ms),
+    vs_p(&vs),
     maxTimePerSolution(0), minTimePerSolution(10000000), avgTimePerSolution(0),
     timer(), polMap_p(), tolerance_p(1e-12), gain_p(0.1), niter_p(500),modelImageName_p("")
   {

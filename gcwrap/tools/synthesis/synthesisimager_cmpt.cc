@@ -292,7 +292,7 @@ synthesisimager::setimage(const std::string& imagename,
 			     const std::string& cfcache,//  = "",
 			     const bool dopointing,// = false,
 			     const bool dopbcorr,//   = true,
-			     const bool conjbeams,//  = true,
+			     const bool conjbeams,//  = false,
 			     const float computepastep,         //=360.0
 			     const float rotatepastep          //=5.0
 			     )

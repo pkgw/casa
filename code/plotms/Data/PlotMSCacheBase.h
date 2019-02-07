@@ -461,14 +461,17 @@ protected:
   PlotMSCacheBase(const PlotMSCacheBase&);
 
   // Resize storage for the number of chunks
+  // increaseCache parameter:
+  //   false to initialize with empty Arrays before loading cache
+  //   true  to increase: copy values then add empty Arrays while loading cache
   void setCache(casacore::Int newnChunk, const std::vector<PMS::Axis>& loadAxes,
-    const std::vector<PMS::DataColumn>& loadData);
+    const std::vector<PMS::DataColumn>& loadData, bool increaseCache=false);
   template<typename T> void addArrays(
-    casacore::PtrBlock<casacore::Array<T>*>& input);
+    casacore::PtrBlock<casacore::Array<T>*>& input, bool increaseCache=false);
   template<typename T> void addMatrices(
-    casacore::PtrBlock<casacore::Matrix<T>*>& input);
+    casacore::PtrBlock<casacore::Matrix<T>*>& input, bool increaseCache=false);
   template<typename T> void addVectors(
-    casacore::PtrBlock<casacore::Vector<T>*>& input);
+    casacore::PtrBlock<casacore::Vector<T>*>& input, bool increaseCache=false);
 
   // Specialized method for loading the cache
   //  (pure virtual: implemented specifically in child classes)
@@ -602,7 +605,7 @@ protected:
       imagCorrDivModelS_;  // no imag for FLOAT_DATA
   casacore::PtrBlock<casacore::Array<casacore::Float>*> wtxamp_,
       wtxampCorr_, wtxampModel_, wtxampCorrModel_, wtxampCorrModelS_,
-      wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_,
+      wtxampDataModel_, wtxampDataModelS_, wtxampDataDivModel_, 
       wtxampDataDivModelS_, wtxampCorrDivModel_, wtxampCorrDivModelS_,
       wtxampFloat_;
 

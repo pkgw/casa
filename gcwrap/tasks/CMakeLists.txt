@@ -94,6 +94,7 @@ sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
 tsdimaging.xml
+sdpolaverage.xml
 sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml
