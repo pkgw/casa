@@ -534,6 +534,11 @@ def plotms(vis=None,
                     yAxisLocation = 'left'
                     if i < yLocationCount:
                         yAxisLocation = yaxislocation[i]
+                    if xaxis in ['ant-ra','ant-dec'] or yaxis[i]  in ['ant-ra','ant-dec']:
+                        raise Exception, 'Currently not supported: multiple y-axes involving ant-ra or ant-dec'
+                    # Always make C++ ra/dec parameters vectors the same length as yaxis
+                    xframe = yframe = 'icrs'
+                    xinterp = yinterp = 'nearest'
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
                         xframe, yframe, xinterp, yinterp,
                         yAxisLocation,

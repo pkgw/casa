@@ -429,6 +429,8 @@ void PMS_PP_Cache::setAxes(const PMS::Axis& xAxis, const PMS::Axis& yAxis,
 	if (index >= itsXAxes_.size()){
 		resized = true;
 		const_cast< vector<PMS::Axis>& >(itsXAxes_).resize (index + 1);
+		itsXFrame_.resize(index + 1);
+		itsXInterp_.resize(index + 1);
 	}
 	if (index >= itsXData_.size()){
 		resized = true;
@@ -437,6 +439,8 @@ void PMS_PP_Cache::setAxes(const PMS::Axis& xAxis, const PMS::Axis& yAxis,
 	if (index >= itsYAxes_.size()){
 		resized = true;
 		const_cast< vector<PMS::Axis>& >(itsYAxes_).resize (index + 1);
+		itsYFrame_.resize(index + 1);
+		itsYInterp_.resize(index + 1);
 	}
 	if (index >= itsYData_.size()){
 		resized = true;

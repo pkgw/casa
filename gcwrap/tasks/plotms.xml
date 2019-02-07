@@ -504,7 +504,7 @@ MS Parameters
     </param>
     
     
-    <param type="any" name="yaxislocation" subparam="true">
+    <param type="any" name="yaxislocation" subparam="false">
       <description>Location of the y-axis (blank for default: left)</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string" />
