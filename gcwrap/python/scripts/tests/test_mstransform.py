@@ -748,7 +748,7 @@ class test_regridms_negative_width(test_base):
         nchan = 10
         mstransform(vis=self.vis, outputvis=self.outputvis, datacolumn='data',
                     regridms=True, outframe='BARY',
-                    mode='velocity', veltype='radio', restfreq='{0}Hz'.format(restf),
+                    mode='velocity', veltype='radio', restfreq='{0:.0f}Hz'.format(restf),
                     nchan=nchan, start='25km/s', width='-1km/s')
 
         chan_freqs, chan_widths = th.get_channel_freqs_widths(self.outputvis, 0)
