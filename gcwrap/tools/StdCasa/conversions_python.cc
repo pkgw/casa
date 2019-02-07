@@ -42,28 +42,6 @@
 
 STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
 
-#ifndef PyInt_Check
-// support for python3
-#define PyInt_Check                     PyLong_Check
-#define PyInt_FromLong                  PyLong_FromLong
-#define PyInt_FromUnsignedLong          PyLong_FromUnsignedLong
-#define PyInt_AsLong                    PyLong_AsLong
-#define PyInt_AsUnsignedLong            PyLong_AsUnsignedLong
-#define PyInt_Type                      PyLong_Type
-#define PyNumber_Int                    PyNumber_Long
-#define PyString_Check                  PyBytes_Check
-#define PyString_AsString               PyBytes_AsString
-#define PyString_FromString             PyUnicode_FromString
-#define MYPYSIZE                        Py_ssize_t
-#else
-#if ( (PY_MAJOR_VERSION <= 1) || (PY_MINOR_VERSION <= 4) )
-    #define MYPYSIZE int
-#else
-    #define MYPYSIZE Py_ssize_t
-#endif
-#endif
-
-
 #define NODOCOMPLEX(x) (x)
 #define DOCOMPLEX(x) casac::complex(x,0)
 #define DOCOMPLEXCOND(cond) casac::complex((cond ? 1 : 0),0)
@@ -502,20 +480,18 @@ PyObject *convert_idl_complex_to_python_complex(const casac::complex &from) {
     return PyComplex_FromDoubles(from.re,from.im);
 }
 
-#define RECORD2PYDICT													\
-    for ( record::const_iterator iter = rec.begin(); iter != rec.end(); ++iter ) {					\
-	const std::string &key = (*iter).first;										\
-	const variant &val = (*iter).second;										\
-	PyObject *v = variant2pyobj( val );										\
-	PyDict_SetItem(result, PYSTRING_FROM_C_STRING(key.c_str()), v);							\
-	Py_DECREF(v);													\
-    }															\
-															\
-    return result;
-
 PyObject *record2pydict(const record &rec) {
     PyObject *result = PyDict_New();
-    RECORD2PYDICT
+
+    for (record::const_iterator iter = rec.begin(); iter != rec.end(); ++iter) {
+	const std::string &key = (*iter).first;
+	const variant &val = (*iter).second;
+	PyObject *v = variant2pyobj(val);
+	PyDict_SetItem(result, PYSTRING_FROM_C_STRING(key.c_str()), v);
+	Py_DECREF(v);
+    }
+
+    return result;
 }
 
 
@@ -950,7 +926,7 @@ unmap_array_pylist( PyObject *array, std::vector<int> &shape, casac::variant &vn
 											\
     else if (PyDict_Check(obj)) {							\
 	PyObject *key, *val;								\
-        MYPYSIZE pos = 0;                                                               \
+        Py_ssize_t pos = 0;                                                               \
 	record &rec = result.asRecord( );						\
 	while ( PyDict_Next(obj, &pos, &key, &val) ) {					\
 	    std::string str; \
