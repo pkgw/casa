@@ -258,15 +258,15 @@ private:
   // agree ... may need special access code to get those into CASA
   // types on 64 bit machines??
 
-  double preamble[5], first_time;
-  int    ifield, nfield, npoint, nsource;     // both dra/ddec should become casacore::Vector's
+  double preamble[5] /*, first_time*/;
+  int    ifield, nfield, npoint /*, nsource*/;     // both dra/ddec should become casacore::Vector's
   float  dra[MAXFIELD], ddec[MAXFIELD];       // offset in radians
   double ra[MAXFIELD], dec[MAXFIELD];
   int    field[MAXFIELD];                     // source index
   int    fcount[MAXFIELD];
   float  dra_p=0, ddec_p=0;
   int    pol_p[4];
-  char   message[MAXMSG];
+  // char   message[MAXMSG];
 
 
   // The following items more or less follow the uv variables in a dataset

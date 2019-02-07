@@ -1292,21 +1292,21 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 		ss << "Axes ranges:" << endl
 		   << PMS::axis(currentX_[dataIndex]);
 
-        if (PMS::axisIsData(currentX_[dataIndex])) 
-            ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
-        ss << ": " << ixmin << " to " << ixmax << " (unflagged); ";
-        if (xflminG_[dataIndex] == DBL_MAX)
+		if (PMS::axisIsData(currentX_[dataIndex])) 
+			ss << ":" << PMS::dataColumn(currentXData_[dataIndex]);
+		ss << ": " << ixmin << " to " << ixmax << " (unflagged); ";
+		if (xflminG_[dataIndex] == DBL_MAX)
             ss << "(no flagged data)" << endl;
-        else 
-		   ss << "; " << ixflmin << " to " << ixflmax << " (flagged)." << endl;
+		else 
+			ss << "; " << ixflmin << " to " << ixflmax << " (flagged)." << endl;
 		ss << PMS::axis(currentY_[dataIndex]);
-        if (PMS::axisIsData(currentY_[dataIndex])) 
-            ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
-        ss << ": " << iymin << " to " << iymax << " (unflagged); ";
-        if (yflminG_ [dataIndex]== DBL_MAX)
-            ss << "(no flagged data)";
-        else
-		    ss << iyflmin << " to " << iyflmax << "(flagged).";
+		if (PMS::axisIsData(currentY_[dataIndex])) 
+			ss << ":" << PMS::dataColumn(currentYData_[dataIndex]);
+		ss << ": " << iymin << " to " << iymax << " (unflagged); ";
+		if (yflminG_ [dataIndex]== DBL_MAX)
+			ss << "(no flagged data)";
+		else
+			ss << iyflmin << " to " << iyflmax << "(flagged).";
 		logLoad(ss.str());
     
 		if (indexer_[dataIndex][0]->plotConjugates()) {
@@ -1348,7 +1348,8 @@ void PlotMSCacheBase::_updateAntennaMask( Int a, Vector<Bool>& antMask,
 // set the number of chunks we can store
 void PlotMSCacheBase::setCache(Int newnChunk, 
     const vector<PMS::Axis>& loadAxes, 
-    const vector<PMS::DataColumn>& loadData) {
+    const vector<PMS::DataColumn>& loadData,
+    bool increaseCache) {
 
     nChunk_ = newnChunk;
 
@@ -1357,101 +1358,101 @@ void PlotMSCacheBase::setCache(Int newnChunk,
         // Resize, copying existing contents
         switch(loadAxes[i]) {
             case PMS::SCAN: {
-                scan_.resize(nChunk_,true);
+                scan_.resize(nChunk_, increaseCache);
                 }
                 break;
             case PMS::FIELD: {
-                field_.resize(nChunk_,true);
+                field_.resize(nChunk_, increaseCache);
                 }
                 break;
             case PMS::TIME: {
-                time_.resize(nChunk_,true);
+                time_.resize(nChunk_, increaseCache);
                 }
                 break;
             case PMS::TIME_INTERVAL: {
-                timeIntr_.resize(nChunk_,true);
+                timeIntr_.resize(nChunk_, increaseCache);
                 }
                 break;
             case PMS::SPW: {
-                spw_.resize(nChunk_,true);
+                spw_.resize(nChunk_, increaseCache);
                 }
                 break;
             case PMS::CHANNEL: {
-                addVectors(chan_);
-                addArrays(chansPerBin_);
+                addVectors(chan_, increaseCache);
+                addArrays(chansPerBin_, increaseCache);
                 }
                 break;
             case PMS::FREQUENCY:
-                addVectors(freq_);
+                addVectors(freq_, increaseCache);
                 break;
             case PMS::VELOCITY:
-                addVectors(vel_);
+                addVectors(vel_, increaseCache);
                 break;
             case PMS::CORR:
-                addVectors(corr_);
+                addVectors(corr_, increaseCache);
                 break;
             case PMS::ANTENNA1:
-                addVectors(antenna1_);
+                addVectors(antenna1_, increaseCache);
                 break;
             case PMS::ANTENNA2:
-                addVectors(antenna2_);
+                addVectors(antenna2_, increaseCache);
                 break;
             case PMS::BASELINE:
-                addVectors(baseline_);
+                addVectors(baseline_, increaseCache);
                 break;
             case PMS::ROW:
-                addVectors(row_);
+                addVectors(row_, increaseCache);
                 break;
             case PMS::OBSERVATION:
-                addVectors(obsid_);
+                addVectors(obsid_, increaseCache);
                 break;
             case PMS::INTENT:
-                addVectors(intent_);
+                addVectors(intent_, increaseCache);
                 break;
             case PMS::FEED1:
-                addVectors(feed1_);
+                addVectors(feed1_, increaseCache);
                 break;
             case PMS::FEED2:
-                addVectors(feed2_);
+                addVectors(feed2_, increaseCache);
                 break;
             case PMS::AMP: 
             case PMS::GAMP: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-                        addArrays(amp_);
+                        addArrays(amp_, increaseCache);
                         break;
                     case PMS::CORRECTED:
-                        addArrays(ampCorr_);
+                        addArrays(ampCorr_, increaseCache);
                         break;
                     case PMS::MODEL:
-                        addArrays(ampModel_);
+                        addArrays(ampModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_V:
-                        addArrays(ampCorrModel_);
+                        addArrays(ampCorrModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_S:
-                        addArrays(ampCorrModelS_);
+                        addArrays(ampCorrModelS_, increaseCache);
                         break;
                     case PMS::DATAMODEL_V:
-                        addArrays(ampDataModel_);
+                        addArrays(ampDataModel_, increaseCache);
                         break;
                     case PMS::DATAMODEL_S:
-                        addArrays(ampDataModelS_);
+                        addArrays(ampDataModelS_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_V:
-                        addArrays(ampDataDivModel_);
+                        addArrays(ampDataDivModel_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_S:
-                        addArrays(ampDataDivModelS_);
+                        addArrays(ampDataDivModelS_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_V:
-                        addArrays(ampCorrDivModel_);
+                        addArrays(ampCorrDivModel_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_S:
-                        addArrays(ampCorrDivModelS_);
+                        addArrays(ampCorrDivModelS_, increaseCache);
                         break;
                     case PMS::FLOAT_DATA:
-                        addArrays(ampFloat_);
+                        addArrays(ampFloat_, increaseCache);
                         break;
                     }
                 }
@@ -1460,37 +1461,37 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GPHASE: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-                        addArrays(pha_);
+                        addArrays(pha_, increaseCache);
                         break;
                     case PMS::CORRECTED:
-                        addArrays(phaCorr_);
+                        addArrays(phaCorr_, increaseCache);
                         break;
                     case PMS::MODEL:
-                        addArrays(phaModel_);
+                        addArrays(phaModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_V:
-                        addArrays(phaCorrModel_);
+                        addArrays(phaCorrModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_S:
-                        addArrays(phaCorrModelS_);
+                        addArrays(phaCorrModelS_, increaseCache);
                         break;
                     case PMS::DATAMODEL_V:
-                        addArrays(phaDataModel_);
+                        addArrays(phaDataModel_, increaseCache);
                         break;
                     case PMS::DATAMODEL_S:
-                        addArrays(phaDataModelS_);
+                        addArrays(phaDataModelS_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_V:
-                        addArrays(phaDataDivModel_);
+                        addArrays(phaDataDivModel_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_S:
-                        addArrays(phaDataDivModelS_);
+                        addArrays(phaDataDivModelS_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_V:
-                        addArrays(phaCorrDivModel_);
+                        addArrays(phaCorrDivModel_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_S:
-                        addArrays(phaCorrDivModelS_);
+                        addArrays(phaCorrDivModelS_, increaseCache);
                         break;
                     case PMS::FLOAT_DATA:
                         break;
@@ -1501,40 +1502,40 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GREAL: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-                        addArrays(real_);
+                        addArrays(real_, increaseCache);
                         break;
                     case PMS::CORRECTED:
-                        addArrays(realCorr_);
+                        addArrays(realCorr_, increaseCache);
                         break;
                     case PMS::MODEL:
-                        addArrays(realModel_);
+                        addArrays(realModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_V:
-                        addArrays(realCorrModel_);
+                        addArrays(realCorrModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_S:
-                        addArrays(realCorrModelS_);
+                        addArrays(realCorrModelS_, increaseCache);
                         break;
                     case PMS::DATAMODEL_V:
-                        addArrays(realDataModel_);
+                        addArrays(realDataModel_, increaseCache);
                         break;
                     case PMS::DATAMODEL_S:
-                        addArrays(realDataModelS_);
+                        addArrays(realDataModelS_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_V:
-                        addArrays(realDataDivModel_);
+                        addArrays(realDataDivModel_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_S:
-                        addArrays(realDataDivModelS_);
+                        addArrays(realDataDivModelS_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_V:
-                        addArrays(realCorrDivModel_);
+                        addArrays(realCorrDivModel_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_S:
-                        addArrays(realCorrDivModelS_);
+                        addArrays(realCorrDivModelS_, increaseCache);
                         break;
                     case PMS::FLOAT_DATA:
-                        addArrays(real_);
+                        addArrays(real_, increaseCache);
                         break;
                     }
                 }
@@ -1543,37 +1544,37 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::GIMAG: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-                        addArrays(imag_);
+                        addArrays(imag_, increaseCache);
                         break;
                     case PMS::CORRECTED:
-                        addArrays(imagCorr_);
+                        addArrays(imagCorr_, increaseCache);
                         break;
                     case PMS::MODEL: 
-                        addArrays(imagModel_);
+                        addArrays(imagModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_V:
-                        addArrays(imagCorrModel_);
+                        addArrays(imagCorrModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_S:
-                        addArrays(imagCorrModelS_);
+                        addArrays(imagCorrModelS_, increaseCache);
                         break;
                     case PMS::DATAMODEL_V:
-                        addArrays(imagDataModel_);
+                        addArrays(imagDataModel_, increaseCache);
                         break;
                     case PMS::DATAMODEL_S:
-                        addArrays(imagDataModelS_);
+                        addArrays(imagDataModelS_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_V: 
-                        addArrays(imagDataDivModel_);
+                        addArrays(imagDataDivModel_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_S: 
-                        addArrays(imagDataDivModelS_);
+                        addArrays(imagDataDivModelS_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_V:
-                        addArrays(imagCorrDivModel_);
+                        addArrays(imagCorrDivModel_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_S:
-                        addArrays(imagCorrDivModelS_);
+                        addArrays(imagCorrDivModelS_, increaseCache);
                         break;
                     case PMS::FLOAT_DATA:
                         break;
@@ -1583,105 +1584,105 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::WTxAMP: {
                 switch(loadData[i]) {
                     case PMS::DATA:
-                        addArrays(wtxamp_);
+                        addArrays(wtxamp_, increaseCache);
                         break;
                     case PMS::CORRECTED:
-                        addArrays(wtxampCorr_);
+                        addArrays(wtxampCorr_, increaseCache);
                         break;
                     case PMS::MODEL:
-                        addArrays(wtxampModel_);
+                        addArrays(wtxampModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_V:
-                        addArrays(wtxampCorrModel_);
+                        addArrays(wtxampCorrModel_, increaseCache);
                         break;
                     case PMS::CORRMODEL_S:
-                        addArrays(wtxampCorrModelS_);
+                        addArrays(wtxampCorrModelS_, increaseCache);
                         break;
                     case PMS::DATAMODEL_V:
-                        addArrays(wtxampDataModel_);
+                        addArrays(wtxampDataModel_, increaseCache);
                         break;
                     case PMS::DATAMODEL_S:
-                        addArrays(wtxampDataModelS_);
+                        addArrays(wtxampDataModelS_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_V:
-                        addArrays(wtxampDataDivModel_);
+                        addArrays(wtxampDataDivModel_, increaseCache);
                         break;
                     case PMS::DATA_DIV_MODEL_S:
-                        addArrays(wtxampDataDivModelS_);
+                        addArrays(wtxampDataDivModelS_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_V:
-                        addArrays(wtxampCorrDivModel_);
+                        addArrays(wtxampCorrDivModel_, increaseCache);
                         break;
                     case PMS::CORR_DIV_MODEL_S:
-                        addArrays(wtxampCorrDivModelS_);
+                        addArrays(wtxampCorrDivModelS_, increaseCache);
                         break;
                     case PMS::FLOAT_DATA:
-                        addArrays(wtxampFloat_);
+                        addArrays(wtxampFloat_, increaseCache);
                         break;
                     }
                 }
                 break;
             case PMS::WT:
-                addArrays(wt_);
+                addArrays(wt_, increaseCache);
                 break;
             case PMS::WTSP:
-                addArrays(wtsp_);
+                addArrays(wtsp_, increaseCache);
                 break;
             case PMS::SIGMA:
-                addArrays(sigma_);
+                addArrays(sigma_, increaseCache);
                 break;
             case PMS::SIGMASP:
-                addArrays(sigmasp_);
+                addArrays(sigmasp_, increaseCache);
                 break;
             case PMS::FLAG:
-            case PMS::FLAG_ROW: {
-                addArrays(flag_);
-                addVectors(flagrow_);
+                addArrays(flag_, increaseCache);
                 break;
-            }
+            case PMS::FLAG_ROW:
+                addVectors(flagrow_, increaseCache);
+                break;
             case PMS::UVDIST:
-                addVectors(uvdist_);
+                addVectors(uvdist_, increaseCache);
                 break;
             case PMS::UVDIST_L:
-                addMatrices(uvdistL_);
+                addMatrices(uvdistL_, increaseCache);
                 break;
             case PMS::U:
-                addVectors(u_);
+                addVectors(u_, increaseCache);
                 break;
             case PMS::V:
-                addVectors(v_);
+                addVectors(v_, increaseCache);
                 break;
             case PMS::W:
-                addVectors(w_);
+                addVectors(w_, increaseCache);
                 break;
             case PMS::UWAVE:
-                addMatrices(uwave_);
+                addMatrices(uwave_, increaseCache);
                 break;
             case PMS::VWAVE:
-                addMatrices(vwave_);
+                addMatrices(vwave_, increaseCache);
                 break;
             case PMS::WWAVE:
-                addMatrices(wwave_);
+                addMatrices(wwave_, increaseCache);
                 break;
             case PMS::AZ0:
             case PMS::EL0: {
-                az0_.resize(nChunk_,true);
-                el0_.resize(nChunk_,true);
+                az0_.resize(nChunk_, increaseCache);
+                el0_.resize(nChunk_, increaseCache);
                 break;
             }
             case PMS::HA0:
-                ha0_.resize(nChunk_,true);
+                ha0_.resize(nChunk_, increaseCache);
                 break;
             case PMS::PA0:
-                pa0_.resize(nChunk_,true);
+                pa0_.resize(nChunk_, increaseCache);
                 break;
             case PMS::ANTENNA:
-                addVectors(antenna_);
+                addVectors(antenna_, increaseCache);
                 break;
             case PMS::AZIMUTH:
             case PMS::ELEVATION: {
-                addVectors(az_);
-                addVectors(el_);
+                addVectors(az_, increaseCache);
+                addVectors(el_, increaseCache);
                 break;
             }
             case PMS::RA:
@@ -1704,42 +1705,40 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             }
             */
             case PMS::PARANG:
-                addVectors(parang_);
+                addVectors(parang_, increaseCache);
                 break;
             case PMS::DELAY:
-                addArrays(par_);
+                addArrays(par_, increaseCache);
                 break;
             case PMS::SWP:
-                addArrays(par_);
+                addArrays(par_, increaseCache);
                 break;
             case PMS::TSYS:
-                addArrays(par_);
+                addArrays(par_, increaseCache);
                 break;
             case PMS::OPAC:
-                addArrays(par_);
+                addArrays(par_, increaseCache);
                 break;
             case PMS::SNR:
-                addArrays(snr_);
+                addArrays(snr_, increaseCache);
                 break;
             case PMS::TEC:
-                addArrays(par_);
+                addArrays(par_, increaseCache);
                 break;
             case PMS::ANTPOS:
-                addArrays(antpos_);
+                addArrays(antpos_, increaseCache);
                 break;
-            case PMS::RADIAL_VELOCITY: {
-                radialVelocity_.resize(nChunk_,true);
-                }
+            case PMS::RADIAL_VELOCITY:
+                radialVelocity_.resize(nChunk_, increaseCache);
                 break;
-            case PMS::RHO: {
-                rho_.resize(nChunk_,true);
-                }
+            case PMS::RHO:
+                rho_.resize(nChunk_, increaseCache);
                 break;
             case PMS::ATM:
-                addVectors(atm_);
+                addVectors(atm_, increaseCache);
                 break;
             case PMS::TSKY:
-                addVectors(tsky_);
+                addVectors(tsky_, increaseCache);
                 break;
             case PMS::NONE:
                 break;
@@ -1748,42 +1747,45 @@ void PlotMSCacheBase::setCache(Int newnChunk,
 }
 
 template<typename T>
-void PlotMSCacheBase::addArrays(PtrBlock<Array<T>*>& input) {
-    Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
+void PlotMSCacheBase::addArrays(PtrBlock<Array<T>*>& input, bool increaseCache) {
+    Int startIdx(0);
+    if (increaseCache) {
+        startIdx = input.size();
         input.resize(nChunk_, false, true);
-        // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Array<T>();
     } else {
         input.resize(nChunk_, true, false);
     }
+    // Construct (empty) pointed-to Vectors
+    for (Int ic=startIdx; ic<nChunk_; ++ic) 
+        input[ic] = new Array<T>();
 }
 
 template<typename T>
-void PlotMSCacheBase::addMatrices(PtrBlock<Matrix<T>*>& input) {
-    Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
+void PlotMSCacheBase::addMatrices(PtrBlock<Matrix<T>*>& input, bool increaseCache) {
+    Int startIdx(0);
+    if (increaseCache) {
+        startIdx = input.size();
         input.resize(nChunk_, false, true);
-        // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Matrix<T>();
     } else {
         input.resize(nChunk_, true, false);
     }
+    // Construct (empty) pointed-to Vectors
+    for (Int ic=startIdx; ic<nChunk_; ++ic) 
+        input[ic] = new Matrix<T>();
 }
 
 template<typename T>
-void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input) {
-    Int oldsize = input.size();
-    if (nChunk_ > oldsize) {
+void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input, bool increaseCache) {
+    Int startIdx(0);
+    if (increaseCache) {
+        startIdx = input.size();
         input.resize(nChunk_, false, true);
-        // Construct (empty) pointed-to Vectors
-        for (Int ic=oldsize; ic<nChunk_; ++ic) 
-            input[ic] = new Vector<T>();
     } else {
         input.resize(nChunk_, true, false);
     }
+    // Construct (empty) pointed-to Vectors
+    for (Int ic=startIdx; ic<nChunk_; ++ic) 
+        input[ic] = new Vector<T>();
 }
 
 void PlotMSCacheBase::deleteCache() {

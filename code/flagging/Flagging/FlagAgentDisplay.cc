@@ -34,7 +34,7 @@ FlagAgentDisplay::FlagAgentDisplay(FlagDataHandler *dh, Record config, Bool writ
         		nPolarizations_p(1), freqList_p(Vector<Double>()),
         		antenna1_p(""),antenna2_p(""),
         		dataDisplay_p(false), reportDisplay_p(false),reportFormat_p("screen"),
-        		stopAndExit_p(false),reportReturn_p(false),showBandpass_p(false)
+        		stopAndExit_p(false),/* reportReturn_p(false),*/ showBandpass_p(false)
 {
 	// Parse parameters and set base variables.
 	setAgentParameters(config);

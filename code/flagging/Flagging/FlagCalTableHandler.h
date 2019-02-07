@@ -208,13 +208,13 @@ public:
     virtual casacore::Float getWeightScaled (casacore::Int /*row*/) const { return 0;}
     virtual casacore::Float getWeightScaled (casacore::Int /*correlation*/, casacore::Int /*row*/) const { return 0;}
     virtual casacore::Float getWeightScaled (casacore::Int /*correlation*/, casacore::Int /*channel*/, casacore::Int /*row*/) const { return 0;}
-    virtual casacore::Float getSigmaScaled (casacore::Int row) const { return 0;}
-    virtual casacore::Float getSigmaScaled (casacore::Int correlation, casacore::Int row) const { return 0;}
-    virtual casacore::Float getSigmaScaled (casacore::Int correlation, casacore::Int channel, casacore::Int row) const { return 0;}
+    virtual casacore::Float getSigmaScaled (casacore::Int /* row */) const { return 0;}
+    virtual casacore::Float getSigmaScaled (casacore::Int /* correlation */, casacore::Int /* row */) const { return 0;}
+    virtual casacore::Float getSigmaScaled (casacore::Int /* correlation */, casacore::Int /* channel */, casacore::Int /* row */) const { return 0;}
     virtual casacore::CountedPtr<vi::WeightScaling> getWeightScaling () const { return 0; }
 
-    virtual void phaseCenterShift(const casacore::Vector<casacore::Double>& phase) {};
-    virtual void phaseCenterShift(casacore::Double dx, casacore::Double dy) {};
+    virtual void phaseCenterShift(const casacore::Vector<casacore::Double>& /* phase */) {};
+    virtual void phaseCenterShift(casacore::Double /* dx */, casacore::Double /* dy */) {};
 
 
 protected:
@@ -359,7 +359,7 @@ public:
 	const casacore::Vector<casacore::Int>& antenna2() const {return ctCache_p->antenna2();}
 	const casacore::Cube<casacore::Bool>& flagCube() const {return ctCache_p->flagCube();}
 	const casacore::Vector<casacore::Int>& getChannelNumbers(casacore::Int rowInBuffer) const {return ctCache_p->getChannelNumbers(rowInBuffer);}
-	casacore::Vector<casacore::Int> getChannelNumbersSelected (casacore::Int outputChannelIndex) const { throw casacore::AipsError ("Not Implemented");}
+	casacore::Vector<casacore::Int> getChannelNumbersSelected (casacore::Int /* outputChannelIndex */) const { throw casacore::AipsError ("Not Implemented");}
 	const casacore::Vector<casacore::Double>& getFrequencies(casacore::Int rowInBuffer,casacore::Int /*frame*/ = vi::VisBuffer2::FrameNotSpecified) const {return ctCache_p->getFrequencies(rowInBuffer);}
 	casacore::Int nRows() const {return ctCache_p->nRows();}
 	casacore::Int nChannels() const {return ctCache_p->nChannels();}
@@ -394,7 +394,7 @@ private:
         mutable casacore::Vector<casacore::Int> arrayId_p;
         mutable casacore::Vector<casacore::Int> fieldId_p;
         mutable casacore::Vector<casacore::Int> spectralWindows_p;
-    CTIter *calIter_p;
+    // CTIter *calIter_p;
 	CTCache *ctCache_p;
 
 };
