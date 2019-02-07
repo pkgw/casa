@@ -410,15 +410,15 @@ if( APPLE )
 			NOT LLVMCOMPILER )
 	        set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" )
                 if( DEFINED ENV{LDFLAGS} )
-                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran $ENV{LDFLAGS}")
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran $ENV{LDFLAGS}")
                 else( )
-                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran")
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran")
                 endif( )
 	    else()
                 if( DEFINED ENV{LDFLAGS} )
-                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit $ENV{LDFLAGS}"  )
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit $ENV{LDFLAGS}"  )
                 else( )
-                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit"  )
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit"  )
                 endif( )
         endif()
         # Which part of CASA needs -framework AppKit to run? This should probably *not* be added
@@ -701,12 +701,12 @@ if( NOT SKIP_PGPLOT )
     set( _deps X11 FORTRAN )
   endif()
   if (CMAKE_SYSTEM MATCHES ^Darwin-11 AND NOT LLVMCOMPILER )
-     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran" )
+     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran" )
   else()
      if (APPLE)
-        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit" )
      else()
-        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
      endif()
   endif()
   casa_find( PGPLOT
@@ -1295,10 +1295,26 @@ else()
     set( PYTHON_TASKD_CASADEF ${PYTHONTASKD} )
 endif()
 
+# For Python modules, which might reference headers and symbols from the
+# Python C API but on macOS *must not* link to libpython. Instead, you must
+# use a special flag to make the linker not error out on the missing symbols.
+# Here we have just copied that flag, and other potentially-magical ones, from
+# what's currently used on macOS, which is ... not awesome. I can never figure
+# out how to determine the correct toolchain flags for Python modules
+# on-the-fly.
+
+if (CMAKE_SYSTEM MATCHES ^Darwin)
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES "-undefined dynamic_lookup -Wl,-dead_strip_dylibs -flto -Wl,-export_dynamic")
+else()
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES ${PYTHON_LIBRARIES})
+endif()
+
 # The modules must be defined in dependency order!
 # This will set up include paths, and which libraries to link to
 
-casa_add_module( tools CASACORE PYTHON QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
+casa_add_module( tools CASACORE PYMOD QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.

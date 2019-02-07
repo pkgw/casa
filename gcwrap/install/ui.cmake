@@ -274,7 +274,7 @@ macro( casa_add_tools out_swig out_sources out_py )
     #SWIG_ADD_MODULE(${_base} python ${_swig} ${_path}/${_base}_cmpt.cc)
     SWIG_ADD_LIBRARY(${_base} LANGUAGE python TYPE MODULE OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR} SOURCES ${_swigi} ${_swigstatics})
     SWIG_LINK_LIBRARIES( ${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
-	                          ${PYTHON_LIBRARIES}
+	                          ${PYMOD_LIBRARIES}
 				  ${ATM_LIBRARIES}
 				  ${CMAKE_CURRENT_BINARY_DIR}/libtools${CMAKE_SHARED_LIBRARY_SUFFIX}
 				  ${QT4_LIBRARIES}
