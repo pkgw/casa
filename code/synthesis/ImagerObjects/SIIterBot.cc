@@ -191,8 +191,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		     itsPeakResidual <= itsThreshold ||
                      itsPeakResidual <= itsNsigmaThreshold ||
 	             abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
-	             // will be enabled in the next commit
-	             //abs(itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ||   
+	             abs(itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
@@ -200,9 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
 		    if( usePeakRes <= itsThreshold || (usePeakRes-itsThreshold)/itsThreshold < tol) {stopCode=2; }
-                    else if ( usePeakRes <= itsNsigmaThreshold ) {
-                    // will be enabled in the next commit
-                    //else if ( usePeakRes <= itsNsigmaThreshold || (itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ) {
+                    else if ( usePeakRes <= itsNsigmaThreshold || (itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ) {
                       if (itsNsigmaThreshold!=0.0) { stopCode=8; } // for nsigma=0.0 this mode is turned off
                     }
                     

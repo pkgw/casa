@@ -192,12 +192,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             else {
               thresholdtouse = loopcontrols.getCycleThreshold();
             }
-            os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
-            os << LogIO::DEBUG1<< "thresholdtouse="<<thresholdtouse<<LogIO::POST;
+            //os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
+            os << LogIO::NORMAL3<<"current CycleThreshold="<<loopcontrols.getCycleThreshold()<<" nsigma threshold="<<nsigmathresh<<LogIO::POST;
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
+            os << LogIO::NORMAL3<< "thresholdtouse="<< thresholdtouse << "("<<thresholddesc<<")"<< LogIO::POST;
 
             if (thresholddesc=="n-sigma") {
-              os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
+              //os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
               loopcontrols.setNsigmaThreshold(nsigmathresh);
             }
 	    loopcontrols.setPeakResidual( peakresidual );
