@@ -544,7 +544,7 @@ namespace casa{
    for(Int irow=rbeg; irow< rend; irow++){   
       //      if ((vbs.uvw_p.nelements() == 0)) 
       //if (accumCFs) if (allTrue(allPolNChanDone_l)) break;
-    CFBuffer& cfb = *(vbRow2CFBMap_p->getCFB(0));
+    CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
     // setFieldPhaseGrad(vbRow2CFBMap_p->getCFPhaseGrad(0));
     if (cached_phaseGrad_p.shape().product()==0)
       cerr << "#### " << irow << " " << endl;
@@ -737,7 +737,7 @@ namespace casa{
     Vector<Int> cfShape;//=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
     Vector<Int> convOrigin;// = (cfShape)/2;
 
-    Vector<Double> pointingOffset(((*vbRow2CFBMap_p)[0])->getPointingOffset());
+    Vector<Double> pointingOffset(((*vb2CFBMap_p)[0])->getPointingOffset());
 
     Double cfRefFreq;//cfScale=1.0
     //    Int wndx = 0, fndx=0;
@@ -790,8 +790,8 @@ namespace casa{
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
 	//	CFBuffer& cfb = (*(*vbRow2CFBMap_p)[irow]);
-	CFBuffer& cfb = *(vbRow2CFBMap_p->getCFB(0));
-	setFieldPhaseGrad(vbRow2CFBMap_p->getCFPhaseGrad(0));
+	CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
+	setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(0));
 
 	Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
 	Double fIncr, wIncr;

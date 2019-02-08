@@ -43,7 +43,7 @@ using namespace casacore;
 namespace casa{
   using namespace vi;
   namespace refim{
-    VB2CFBMap::VB2CFBMap(): vbRow2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p() 
+    VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p() 
     {
       phaseGradCalculator_p = new PhaseGrad();
     };
@@ -54,7 +54,7 @@ namespace casa{
 	{
 	  phaseGradCalculator_p = other.phaseGradCalculator_p;
 	  cfPhaseGrad_p.assign(other.cfPhaseGrad_p);
-	  vbRow2CFBMap_p.assign(vbRow2CFBMap_p);
+	  vb2CFBMap_p.assign(vb2CFBMap_p);
 	}
       return *this;
     };
@@ -85,7 +85,7 @@ namespace casa{
       //UNUSED: nChan=dataChan2ImChanMap.nelements(), 
       //UNUSED: nPol=dataPol2ImPolMap.nelements();
       //    vbRow2CFMap_p.resize(nPol, nChan, nRow);
-      vbRow2CFBMap_p.resize(nRow);
+      vb2CFBMap_p.resize(nRow);
       cfPhaseGrad_p.resize(nRow);
 
       Quantity pa(getPA(vb),"rad");
@@ -131,7 +131,7 @@ namespace casa{
 
 	      // Set the CFB per VB row
 	      cfb_l->setPointingOffset(pointingOffset);
-	      vbRow2CFBMap_p(irow) = cfb_l;
+	      vb2CFBMap_p(irow) = cfb_l;
 	    }
 	}
       return statusCode;
