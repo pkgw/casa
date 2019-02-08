@@ -738,9 +738,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //timer.mark();
 		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
 		  //Determine if any image is cube
-		  ////TESTOOO
-		  //if(isSpectralCube()){
-		  if(True){
+		  if(isSpectralCube()){
 		    VisImagingWeight nat("natural");
 		    vi_p->useImagingWeight(nat);
 		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust,0, multiField);
