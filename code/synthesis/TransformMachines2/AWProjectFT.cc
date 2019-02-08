@@ -2517,8 +2517,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // 					       dummyIMFreq,
       // 					       vbSpw, vbFieldID))
       
-      if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vbRow2CFBMap_p)[0],vb))
-	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
+
+
+
+      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vbRow2CFBMap_p)[0],vb))
+      // 	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
     }
     //
     // For AzElApertures, this rotates the CFs.
@@ -2540,6 +2543,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 		 << endl;
     // 	  }
     visResampler_p->setVB2CFMap(vbRow2CFBMap_p);
+    visResampler_p->setFieldPhaseGrad(vbRow2CFBMap_p->getCFPhaseGrad(0));
 
     
     // The following code is required only for GPU or multi-threaded

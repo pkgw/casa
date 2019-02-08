@@ -35,120 +35,106 @@
 #include <casa/Arrays/Array.h>
 #include <casa/Utilities/CountedPtr.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
-#include <synthesis/TransformMachines2/ConvolutionFunction.h>
 #include <synthesis/TransformMachines2/CFBuffer.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <synthesis/TransformMachines2/VB2CFBMap.h>
+using namespace casacore;
 namespace casa{
-using namespace vi;
+  using namespace vi;
   namespace refim{
-  Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
-  Int VB2CFBMap::makeVBRow2CFBMap(CFStore2& cfs,
-					       const VisBuffer2& vbs, 
-					       const Quantity& dPA,
-					       const Vector<Int>& /*dataChan2ImChanMap*/,
-					       const Vector<Int>& /*dataPol2ImPolMap*/,
-					       const Vector<Double>& pointingOffset)
-  {
-    //    VBRow2CFMapType& vbRow2CFMap_p,
-    const Int nRow=vbs.nRows(); 
-    //UNUSED: nChan=dataChan2ImChanMap.nelements(), 
-    //UNUSED: nPol=dataPol2ImPolMap.nelements();
-    //    vbRow2CFMap_p.resize(nPol, nChan, nRow);
-    vbRow2CFBMap_p.resize(nRow);
-    Quantity pa(getPA(vbs),"rad");
-    PolOuterProduct outerProduct;
-    Int statusCode=CFDefs::MEMCACHE;
-    for (Int irow=0;irow<nRow;irow++)
-      {
-	//
-	// Translate antenna ID to antenna type
-	//
-	Int ant1Type = mapAntIDToAntType(vbs.antenna1()(irow)),
-	  ant2Type = mapAntIDToAntType(vbs.antenna2()(irow));
-	//
-	// Get the CFBuffer for the given PA and baseline catagorized
-	// by the two antenna types.  For homgeneous arrays, all
-	// baselines will map to a single antenna-type pair.
-	//
+    VB2CFBMap::VB2CFBMap(): vbRow2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p() 
+    {
+      phaseGradCalculator_p = new PhaseGrad();
+    };
 
-	CountedPtr<CFBuffer> cfb_l;
-	try
-	  {
-	   cfb_l = cfs.getCFBuffer(pa, dPA, ant1Type, ant2Type);
-	   //cfb_l->show("From VRB: ");
-	  }
-	catch (CFNotCached& x)
-	  {
-	    LogIO log_l(LogOrigin("VB2CFBMap", "makeVBRow2CFMap"));
-	    log_l << "CFs not cached for " << pa.getValue("deg") 
-		  << " deg, dPA = " << dPA.getValue("deg") 
-		  << " Field ID = " << vbs.fieldId()(0);
-	      //		  << " TimeStamps(0-10) = " << vbs.feedPa1(getCurrentTimeStamp(vbs)).nelements() << " ";
-	      //		  << " TimeStamps(0-10) = " << vbs.feedPa1().nelements() << " ";
-	    // for (Int i=0;i<10;i++) 
-	    //   {
-	    // 	//		log_l << MVTime(vbs.time()(i)).string(MVTime::TIME) << " ";
-	    // 	log_l << vbs.time()(i)/1.0e8 << " ";
-	    // 	log_l << "(" << (vbs.feed_pa(getCurrentTimeStamp(vbs))(i))*57.2956 << ") ";
-	    //   }
-	    log_l << " Ant1Type, Ant2Type = " << ant1Type << "," << ant2Type << LogIO::POST;
-	    statusCode=CFDefs::NOTCACHED;
-	  }
+    VB2CFBMap& VB2CFBMap::operator=(const VB2CFBMap& other)
+    {
+      if(this!=&other) 
+	{
+	  phaseGradCalculator_p = other.phaseGradCalculator_p;
+	  cfPhaseGrad_p.assign(other.cfPhaseGrad_p);
+	  vbRow2CFBMap_p.assign(vbRow2CFBMap_p);
+	}
+      return *this;
+    };
 
-	if (statusCode==CFDefs::NOTCACHED)
-	  {
-	    break;
-	  }
-	else
-	  {
-	    cfb_l->setPointingOffset(pointingOffset);
-	    vbRow2CFBMap_p(irow) = cfb_l;
-	  }
+    void VB2CFBMap::setPhaseGradPerRow(const casacore::Vector<double>& pointingOffset,
+				       const casacore::CountedPtr<CFBuffer>& cfb,
+				       const vi::VisBuffer2& vb,
+				       const int& row)
+    {
+      //if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb))
+      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb);
+	{
+	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
+	}
+	//	visResampler_p->setFieldPhaseGrad(phaseGradCalculator_p.getFieldPointingGrad());
+      
+    }
+    
+    Int VB2CFBMap::makeVBRow2CFBMap(CFStore2& cfs,
+				    const VisBuffer2& vb, 
+				    const Quantity& dPA,
+				    const Vector<Int>& /*dataChan2ImChanMap*/,
+				    const Vector<Int>& /*dataPol2ImPolMap*/,
+				    const Vector<Double>& pointingOffset)
+    {
+      //    VBRow2CFMapType& vbRow2CFMap_p,
+      const Int nRow=vb.nRows(); 
+      //UNUSED: nChan=dataChan2ImChanMap.nelements(), 
+      //UNUSED: nPol=dataPol2ImPolMap.nelements();
+      //    vbRow2CFMap_p.resize(nPol, nChan, nRow);
+      vbRow2CFBMap_p.resize(nRow);
+      cfPhaseGrad_p.resize(nRow);
 
-	/*
-	//
-	// Now do the in-row mappings.
-	// 
-	// Convert the VB polarizations to MuelllerElements.  
-	for (Int ichan=0;ichan<nChan;ichan++)
-	  {
-	    //	    Double freq = vb.freq_p(ichan), wVal=vbs.uvw_p(irow,2);
-	    Double freq = vbs.frequency()(ichan), wVal=abs(vbs.uvw()(irow)(2));
-	    wVal *= freq/C::c;
-	    for (Int ipol=0;ipol<nPol;ipol++)
-	      {
-		Vector<Int> vbPol = vbs.corrType();
-		if (dataPol2ImPolMap(ipol) >= 0)
-		  {
-		    // The translate global functions comes from
-		    // PolOuterProduct.{cc,h}.
-		    //
-		    // The code below translates, e.g.,
-		    // Stokes::RR-->PolCrossProduct::RR-->MuellerElement.
-		    MuellerElementType muellerElement;// = outerProduct.getMuellerElement(translateStokesToCrossPol(vbPol(ipol)));
-		    Bool found=false;
-		    Double f,w;
-		    f=cfb_l->nearestFreq(found,freq);
-		    w=cfb_l->nearestWVal(found,wVal);
-		    if (!found) log_l << "Nearest freq. or w value not found " 
-				      << freq << " " << wVal << LogIO::EXCEPTION;
+      Quantity pa(getPA(vb),"rad");
+      //PolOuterProduct outerProduct;
+      Int statusCode=CFDefs::MEMCACHE;
+      for (Int irow=0;irow<nRow;irow++)
+	{
+	  //
+	  // Translate antenna ID to antenna type
+	  //
+	  Int ant1Type = mapAntIDToAntType(vb.antenna1()(irow)),
+	    ant2Type = mapAntIDToAntType(vb.antenna2()(irow));
+	  //
+	  // Get the CFBuffer for the given PA and baseline catagorized
+	  // by the two antenna types.  For homgeneous arrays, all
+	  // baselines will map to a single antenna-type pair.
+	  //
+	  
+	  CountedPtr<CFBuffer> cfb_l;
+	  try
+	    {
+	      cfb_l = cfs.getCFBuffer(pa, dPA, ant1Type, ant2Type);
+	      //cfb_l->show("From VRB: ");
+	    }
+	  catch (CFNotCached& x)
+	    {
+	      LogIO log_l(LogOrigin("VB2CFBMap", "makeVBRow2CFMap"));
+	      log_l << "CFs not cached for " << pa.getValue("deg") 
+		    << " deg, dPA = " << dPA.getValue("deg") 
+		    << " Field ID = " << vb.fieldId()(0);
+	      log_l << " Ant1Type, Ant2Type = " << ant1Type << "," << ant2Type << LogIO::POST;
+	      statusCode=CFDefs::NOTCACHED;
+	    }
+	  
+	  if (statusCode==CFDefs::NOTCACHED)
+	    {
+	      break;
+	    }
+	  else
+	    {
+	      // Set the phase grad for the CF per VB row
+	      setPhaseGradPerRow(pointingOffset, cfb_l, vb, irow);
 
-		    vbRow2CFMap_p(ipol,ichan,irow) = cfb_l->getCFCellPtr(f, w, muellerElement);
-
-		    // Bool Dummy;
-		    // if (irow == 1)
-		    //   {
-		    // 	cerr << "#### " << ipol << ", " << ichan << ", " << irow << " " 
-		    // 	     << vbRow2CFMap_p(ipol,ichan,irow)->getStorage()->getStorage(Dummy) << endl;
-		    //   }
-		  }
-	      }
-	  }
-	*/
-      }
-    return statusCode;
+	      // Set the CFB per VB row
+	      cfb_l->setPointingOffset(pointingOffset);
+	      vbRow2CFBMap_p(irow) = cfb_l;
+	    }
+	}
+      return statusCode;
+    }
   }
-}
 }

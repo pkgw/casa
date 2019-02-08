@@ -26,29 +26,9 @@
 //#
 //# $Id$
 //
-#include <msvis/MSVis/VisibilityIterator2.h>
 #include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
-#include <synthesis/TransformMachines/SynthesisError.h>
-#include <images/Images/ImageInterface.h>
-#include <synthesis/TransformMachines2/Utils.h>
-#include <synthesis/TransformMachines/BeamCalc.h>
-#include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
-#include <synthesis/TransformMachines2/PSTerm.h>
-#include <synthesis/TransformMachines2/WTerm.h>
-#include <synthesis/TransformMachines2/ATerm.h>
-#include <synthesis/TransformMachines2/VLACalcIlluminationConvFunc.h>
-#include <synthesis/TransformMachines2/ConvolutionFunction.h>
-#include <synthesis/TransformMachines2/PolOuterProduct.h>
-#include <coordinates/Coordinates/DirectionCoordinate.h>
-#include <coordinates/Coordinates/SpectralCoordinate.h>
-#include <coordinates/Coordinates/StokesCoordinate.h>
-#include <lattices/LatticeMath/LatticeFFT.h>
-#include <casa/Utilities/CompositeNumber.h>
-#include <measures/Measures/MeasTable.h>
-#include <ostream>
-
-#define MAX_FREQ 1e30
+#include <images/Images/ImageInterface.h>
 
 using namespace casacore;
 namespace casa{

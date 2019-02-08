@@ -648,7 +648,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 					 std::ostringstream oss;
 					 oss.precision(13);
 					 oss << t[uniqIndx[k]] << "_" << a;
-					 string key=oss.str();
+					 String key=oss.str();
 					 //String key=String::toString(t[uniqIndx[k]])+String("_")+String::toString(a);
 					 Int row=mspc.pointingIndex(a, t[uniqIndx[k]], guessIndex);
 					 //cerr << "String "<< key << "pointing row "<< row << endl;
@@ -671,7 +671,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	 std::ostringstream oss;
 	 oss.precision(13);
 	 oss << vb.time()(vbrow) << "_" << antid  ;
-	 string index=oss.str();
+	 String index=oss.str();
 	 Int rowincache=timeAntIndex_p[oldMSId_p][index];
 	 //cerr << "key "<< index << " index " << rowincache << endl;
 	 tim.show("retrieved cache");
@@ -800,7 +800,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	for (Int i=start; i<end; i++) {
 	  if(ant == antcol[i]){
 	    Double halfInt=0.0;  
-	    if(intervalcol[i]<=0.0){
+	    if(intervalcol[i]==0.0){
 	      Int counter=0;
 	      Int adder=1;
 	  

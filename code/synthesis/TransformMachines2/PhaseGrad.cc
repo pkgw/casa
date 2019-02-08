@@ -45,10 +45,10 @@ namespace casa{
       {
 	field_phaseGrad_p = other.field_phaseGrad_p;
 	antenna_phaseGrad_p = other.antenna_phaseGrad_p;
-	cached_FieldOffset_p[0] = other.cached_FieldOffset_p[0];
-	cached_FieldOffset_p[1] = other.cached_FieldOffset_p[1];
-	cached_AntennaOffset_p[0] = other.cached_AntennaOffset_p[0];
-	cached_AntennaOffset_p[1] = other.cached_AntennaOffset_p[1];
+	// cached_FieldOffset_p[0] = other.cached_FieldOffset_p[0];
+	// cached_FieldOffset_p[1] = other.cached_FieldOffset_p[1];
+	// cached_AntennaOffset_p[0] = other.cached_AntennaOffset_p[0];
+	// cached_AntennaOffset_p[1] = other.cached_AntennaOffset_p[1];
       }
     return *this;
   }
