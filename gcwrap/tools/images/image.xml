@@ -9975,11 +9975,9 @@ lags don't have a lot of contributing values of course.
 <example> 
  
 """
-#
-print "\t----\t twopointcorrelation Ex 1 \t----"
-ia.maketestimage();        # Output image is virtual
-ia.twopointcorrelation()   # Output image is virtual
-#
+ia.maketestimage("test.image")
+ia.twopointcorrelation("2pt.image")
+ia.done()
 """
  
 </example>

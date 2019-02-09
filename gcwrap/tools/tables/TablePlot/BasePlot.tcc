@@ -2153,8 +2153,8 @@ Int BasePlot::createXTENS(casacore::Vector<casacore::String> &datastr)
       if( (xtens_p[i].dataType() != TpDouble)  ) 
       {
          ostringstream dtype;
-         dtype << xtens_p[i].dataType();
-         BasePlotError(casacore::String("DataType of TaQL expression (") + 
+         dtype << xtens_p[i].dataType() << ", actual value == '" << datastr[i*2] << "', ";
+         BasePlotError(casacore::String("DataType of TaQL expression for X (") + 
                dtype + casacore::String(") is not plottable"));
       }
       
@@ -2181,8 +2181,8 @@ Int BasePlot::createYTENS(casacore::Vector<casacore::String> &datastr)
       if( (ytens_p[i].dataType() != TpDouble) ) 
       {
          ostringstream dtype;
-         dtype << ytens_p[i].dataType();
-         BasePlotError(casacore::String("DataType of TaQL expression (") + 
+         dtype << ytens_p[i].dataType() << ", actual value == '" << datastr[i*2+1] << "', ";
+         BasePlotError(casacore::String("DataType of TaQL expression for Y (") + 
               dtype + casacore::String(") is not plottable"));
       }
       
