@@ -432,7 +432,12 @@ TEST_F(XfparangJonesLINTest, XfparangJonesTest){
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-6)); 
 
   XYsol.keepNCT();
+
+  XYsol.globalPostSolveTinker();  // writes QU to header
+
   XYsol.storeNCT();
+
+  cout << "solveActionRec = " << XYsol.solveActionRec() << endl;
 
 }
 
@@ -588,6 +593,14 @@ TEST_F(XfparangJonesCIRCTest, XfparangJonesTest){
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-6)); 
 
   XYsol.keepNCT();
+  XYsol.globalPostSolveTinker();  // writes QU to header
+
   XYsol.storeNCT();
+
+  Record sAR=XYsol.solveActionRec();
+
+  cout << "solveActionRec = " << sAR  << endl;
+  cout << "sAR.nfields() = " << sAR.nfields() << endl;
+
 
 }

@@ -1002,7 +1002,8 @@ XparangJones::XparangJones(VisSet& vs) :
   VisCal(vs),             // virtual base
   VisMueller(vs),         // virtual base
   XJones(vs),             // immediate parent
-  QU_()
+  QU_(),
+  QURec_()
 {
   if (prtlev()>2) cout << "Xparang::Xparang(vs)" << endl;
 }
@@ -1011,7 +1012,8 @@ XparangJones::XparangJones(String msname,Int MSnAnt,Int MSnSpw) :
   VisCal(msname,MSnAnt,MSnSpw),             // virtual base
   VisMueller(msname,MSnAnt,MSnSpw),         // virtual base
   XJones(msname,MSnAnt,MSnSpw),             // immediate parent
-  QU_()
+  QU_(),
+  QURec_()
 {
   if (prtlev()>2) cout << "Xparang::Xparang(msname,MSnAnt,MSnSpw)" << endl;
 }
@@ -1020,7 +1022,8 @@ XparangJones::XparangJones(const MSMetaInfoForCal& msmc) :
   VisCal(msmc),             // virtual base
   VisMueller(msmc),         // virtual base
   XJones(msmc),             // immediate parent
-  QU_()
+  QU_(),
+  QURec_()
 {
   if (prtlev()>2) cout << "Xparang::Xparang(msmc)" << endl;
 }
@@ -1029,7 +1032,8 @@ XparangJones::XparangJones(const Int& nAnt) :
   VisCal(nAnt), 
   VisMueller(nAnt),
   XJones(nAnt),
-  QU_()
+  QU_(),
+  QURec_()
 {
   if (prtlev()>2) cout << "Xparang::Xparang(nAnt)" << endl;
 }
@@ -1406,6 +1410,11 @@ void XparangJones::solveOneVB(const VisBuffer& vb) {
 // Solve for the cross-hand phase from the cross-hand's slope in R/I
 void XparangJones::solveOne(SDBList& sdbs) {
 
+  //cout << "solvePol() = " << solvePol() << endl;
+  //  cout << boolalpha;
+  //  cout << "normalizable() = " << this->normalizable() << endl;
+  //  cout << "divideByStokesIModelForSolve() = " << this->divideByStokesIModelForSolve() << endl;
+
   // ensure
   if (QU_.shape()!=IPosition(2,2,nSpw())) {
     QU_.resize(2,nSpw());
@@ -1436,7 +1445,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
 
   if (sdbs.polBasis()==String("LIN")) {
 
-  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the LINEAR basis" << LogIO::POST;
+  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the LINEAR basis in spw=" << thisSpw<< LogIO::POST;
 
   Matrix<Double> x(nSDB,nChan,0.0),y(nSDB,nChan,0.0),wt(nSDB,nChan,0.0),sig(nSDB,nChan,0.0);
   Matrix<Bool> mask(nSDB,nChan,false);
@@ -1552,7 +1561,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   {
 
 
-    logSink() << "Attempting 180 deg ambiguity resolution by comparison with specified linear polarization model." << LogIO::POST;
+    //logSink() << "Attempting 180 deg ambiguity resolution by comparison with specified linear polarization model." << LogIO::POST;
       
     Vector<Double> wtf(nSDB,0.0); //,sigf(nSDB,0.0),xf(nSDB,0.0),yf(nSDB,0.0);
     //Vector<Bool> maskf(nSDB,false);
@@ -1597,7 +1606,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
     //cout << "Cp,Cn = " << Cp << " " << Cn << endl;
 
     if ( Cn > Cp ) {
-      logSink() << "180 deg ambiguity detected and corrected!" << LogIO::POST;
+      logSink() << " NB: 180 deg ambiguity detected and corrected!" << LogIO::POST;
       Complex swap(-1.0,0.0);
       Cph*=swap;
       
@@ -1613,7 +1622,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   if (ntrue(solveParOK())>0) {
     Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
 
-    logSink() << "Fld = " << msmc().fieldName(currField())
+    logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " //<< endl
 	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
@@ -1621,7 +1630,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Fld = " << msmc().fieldName(currField())
+    logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
 	      << " Cross-hand phase was not determined (insufficient data)."
@@ -1712,7 +1721,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
 	      << "P = " << sqrt(Q*Q+U*U) << ", "
 	      << "X = " << atan2(U,Q)*90.0/C::pi << "deg."
 	      << LogIO::POST;
-    logSink() << " Net (over baselines) instrumental polarization (real part): " 
+    logSink() << "  Net (over baselines) instrumental polarization (real part): " 
 	      << soln(2) << LogIO::POST;
 
   } // poln solve scope	
@@ -1720,7 +1729,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   }
   else if (sdbs.polBasis()==String("CIRC")) {
 
-  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the CIRCULAR basis" << LogIO::POST;
+  logSink() << "Solving for Cross-hand Phase and calibrator linear polarization in the CIRCULAR basis in spw="<<thisSpw << LogIO::POST;
 
   Matrix<Complex> V(nSDB,nChan,0.0),M(nSDB,nChan,0.0);
   Matrix<Float> Wt(nSDB,nChan,0.0); // ,sig(nSDB,nChan,0.0);
@@ -1812,7 +1821,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
   if (ntrue(solveParOK())>0) {
     Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
 
-    logSink() << "Fld = " << msmc().fieldName(currField())
+    logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): "  // << endl
 	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
@@ -1820,7 +1829,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Fld = " << msmc().fieldName(currField())
+    logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
 	      << " Cross-hand phase was not determined (insufficient data)."
@@ -1872,7 +1881,6 @@ void XparangJones::solveOne(SDBList& sdbs) {
 
     //cout << "sol = " << sol[0] << "," << sol[1] << "   P=" << abs(sol[1]) << "   X=" << arg(sol[1])*90.0/C::pi << endl;
 
-
     srcPolPar().resize(2);
     srcPolPar()(0)=real(sol[1]);
     srcPolPar()(1)=imag(sol[1]);
@@ -1900,12 +1908,28 @@ void XparangJones::solveOne(SDBList& sdbs) {
     throw(AipsError("Cannot solve for cross-hand phase, don't know basis"));
   }
 
+  // Add this QU result to the QURec_
+
+  Vector<Float> fStokes(4,0.0f);  // Fractional Stokes vector
+  fStokes(0)=1.0;
+  fStokes(1)=QU_(0,thisSpw);  // Q
+  fStokes(2)=QU_(1,thisSpw);  // U
+
+  ostringstream os;
+  os << "Spw" << thisSpw;
+  String spwName(os);
+  String fldName(msmc().fieldName(currField()));
+  Record fld;
+  if (QURec_.isDefined(fldName))
+    fld=QURec_.asRecord(fldName);
+  fld.define(spwName,fStokes);
+  QURec_.defineRecord(fldName,fld);
 
 }
 
 void XparangJones::globalPostSolveTinker() {
 
-    // Add QU info the the keywords
+    // Add QU info the caltable keywords
     TableRecord& tr(ct_->rwKeywordSet());
     Record qu;
     qu.define("QU",QU_);
@@ -1913,6 +1937,16 @@ void XparangJones::globalPostSolveTinker() {
 
 }
 
+Record XparangJones::solveActionRec() {
+
+  // Add QU info to QURec_, so Calibrater can extract and return
+  Record sAR;
+  sAR=SolvableVisCal::solveActionRec();
+  sAR.defineRecord("fStokes",QURec_);
+
+  return sAR;
+
+}
 
 // **********************************************************
 //  XfparangJones Implementations

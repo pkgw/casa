@@ -255,6 +255,16 @@ public:
   virtual void selfSolveOne(VisBuffGroupAcc& vbga);
   virtual void selfSolveOne(SDBList& sdbs);
 
+  // Write QU info into table keywords
+  virtual void globalPostSolveTinker();
+
+  // Override for returning Q,U info via Record
+  virtual casacore::Record solveActionRec();
+
+  // Overide model division stuff...
+  virtual casacore::Bool normalizable() { return false; };
+  virtual casacore::Bool divideByStokesIModelForSolve() { return true; };
+
 protected:
 
   // X has just 1 complex parameter, storing a phase
@@ -265,14 +275,14 @@ protected:
   virtual void solveOneVB(const VisBuffer& vb);
   virtual void solveOne(SDBList& sdbs);
 
-  // Write QU info into table keywords
-  virtual void globalPostSolveTinker();
-
   // Derived QU_ info
   casacore::Matrix<casacore::Float> QU_;
 
+  // Activity record
+  casacore::Record QURec_;
 
 };
+
 
 
 // Freq-dep cross-hand phase
