@@ -4,11 +4,24 @@ import shutil
 import pprint as pp
 import traceback
 import time
-import commands
 import numpy as np
-import matplotlib.pyplot as plt
-from __main__ import *
-from taskinit import *
+from matplotlib import pyplot as plt
+
+try:
+    # CASA 6
+    from casatasks import casalog
+    from casatools.platform import bytes2str
+    from casatools import table, ms, msmetadata
+
+    import subprocess
+    use_old_casa5_commands = False
+except ImportError:
+    # CASA 5
+    from __main__ import *
+    from taskinit import *
+
+    import commands
+    use_old_casa5_commands = True
 
 
 class convertToMMS():
@@ -111,13 +124,13 @@ class convertToMMS():
                     
                 
         # Copy non-MS files to MMS directory
-        for ff in nonmslist:
-            bfile = os.path.basename(ff)
+        for nfile in nonmslist:
+            bfile = os.path.basename(nfile)
             lfile = os.path.join(self.mmsdir, bfile)
             casalog.post('Copying non-MS file '+bfile)
 #            os.symlink(file, lfile)
-#            shutil.copytree(ff, lfile, symlinks=False)
-            os.system("cp -RL "+ff+" "+lfile)
+#            shutil.copytree(nfile, lfile, symlinks=False)
+            os.system("cp -RL {0} {1}".format(nfile, lfile))
             
 
     def getMSlist(self, files):
@@ -144,11 +157,11 @@ class convertToMMS():
 #                continue
             
             # Full path for directory
-            dir = os.path.join(topdir,d)
+            mydir = os.path.join(topdir,d)
                         
             # It is probably an MS
-            if self.isItMS(dir) == 1:                                                
-                mslist.append(dir)
+            if self.isItMS(mydir) == 1:
+                mslist.append(mydir)
         
         return mslist
 
@@ -167,10 +180,14 @@ class convertToMMS():
             return ret
                 
         cmd1 = 'grep Type '+mydir+'/table.info'
-        mytype = commands.getoutput(cmd1)
         cmd2 = 'grep SubType '+mydir+'/table.info'
-        stype = commands.getoutput(cmd2)
-        
+        if use_old_casa5_commands:
+            mytype = commands.getoutput(cmd1)
+            stype = commands.getoutput(cmd2)
+        else:
+            mytype = bytes2str(subprocess.check_output(cmd1)).rstrip("\n")
+            stype = bytes2str(subprocess.check_output(cmd2)).rstrip("\n")
+
         # It is a cal table
         if mytype.__contains__('Calibration'):
             ret = 2
@@ -240,8 +257,12 @@ class convertToMMS():
            subms  --> number of subMss to create
 
         '''
-        from tasks import partition
-        from __main__ import default
+        try:
+            # CASA 6
+            from casatasks import partition
+        except ImportError:
+            # CASA 5
+            from tasks import partition
 
         if not os.path.lexists(ms):
             return False
@@ -275,7 +296,6 @@ class convertToMMS():
             shutil.rmtree(corrupted)
         
         # Run partition   
-        default('partition')
         partition(vis=ms, outputvis=MMSFullName, createmms=True, datacolumn='all', flagbackup=False,
                   separationaxis=axis, numsubms=subms)
         casalog.origin('convertToMMS')
@@ -299,26 +319,26 @@ class convertToMMS():
         return True
         
     def usage(self):
-        print '========================================================================='
-        print '          convertToMMS will create a directory with multi-MSs.'
-        print 'Usage:\n'
-        print '  import partitionhelper as ph'
-        print '  ph.convertToMMS(inpdir=\'dir\') \n'
-        print 'Options:'
-        print '   inpdir <dir>        directory with input MS.'
-        print '   mmsdir <dir>        directory to save output MMS. If not given, it will save '
-        print '                       the MMS in a directory called mmsdir in the current directory.'
-        print "   axis='auto'         separationaxis parameter of partition (spw,scan,auto)."
-        print "   numsubms=4         number of subMSs to create in output MMS"
-        print '   cleanup=False       if True it will remove the output directory before starting.\n'
+        print('=========================================================================')
+        print('          convertToMMS will create a directory with multi-MSs.')
+        print('Usage:\n')
+        print('  import partitionhelper as ph')
+        print('  ph.convertToMMS(inpdir=\'dir\') \n')
+        print('Options:')
+        print('   inpdir <dir>        directory with input MS.')
+        print('   mmsdir <dir>        directory to save output MMS. If not given, it will save ')
+        print('                       the MMS in a directory called mmsdir in the current directory.')
+        print("   axis='auto'         separationaxis parameter of partition (spw,scan,auto).")
+        print("   numsubms=4         number of subMSs to create in output MMS")
+        print('   cleanup=False       if True it will remove the output directory before starting.\n')
         
-        print ' NOTE: this script will run using the default values of partition. It will try to '
-        print ' create an MMS for every MS in the input directory. It will skip non-MS directories '
-        print ' such as cal tables. If partition succeeds, the script will create a link to every '
-        print ' other directory or file in the output directory. '
-        print ' The script will not walk through sub-directories of inpdir. It will also skip '
-        print ' files or directories that start with a .'
-        print '=========================================================================='
+        print(' NOTE: this script will run using the default values of partition. It will try to ')
+        print(' create an MMS for every MS in the input directory. It will skip non-MS directories ')
+        print(' such as cal tables. If partition succeeds, the script will create a link to every ')
+        print(' other directory or file in the output directory. ')
+        print(' The script will not walk through sub-directories of inpdir. It will also skip ')
+        print(' files or directories that start with a .')
+        print('==========================================================================')
         return
         
 #
@@ -343,7 +363,7 @@ class convertToMMS():
 #     try:
 #         md.open(msfile)
 #     except:
-#         print 'Cannot open the msfile'
+#         print('Cannot open the msfile')
 #         return 0
 #     
 #     if item == 'row':
@@ -378,7 +398,7 @@ def getMMSScans(mmsdict):
        Return a list of the scans in this MMS. '''
     
     if not isinstance(mmsdict, dict):
-        print 'ERROR: Input is not a dictionary'
+        print('ERROR: Input is not a dictionary')
         return []
     
     tkeys = mmsdict.keys()
@@ -438,7 +458,7 @@ def getScanNrows(msfile, myscan, selection={}):
     msTool.close()
     
     Nrows = 0
-    if not scand.has_key(str(myscan)):
+    if not str(myscan) in scand:
         return Nrows
     
     subscans = scand[str(myscan)]
@@ -455,13 +475,13 @@ def getMMSScanNrows(thisdict, myscan):
        Return the number of rows in the given scan. '''
     
     if not isinstance(thisdict, dict):
-        print 'ERROR: Input is not a dictionary'
+        print('ERROR: Input is not a dictionary')
         return -1
     
     tkeys = thisdict.keys()
     scanrows = 0
     for k in tkeys:
-        if thisdict[k]['scanId'].has_key(myscan):
+        if myscan in thisdict[k]['scanId']:
             scanrows += thisdict[k]['scanId'][myscan]['nrows']
         
     return scanrows
@@ -488,7 +508,7 @@ def getSpwIds(msfile, myscan, selection={}):
     
     spwlist = []
 
-    if not scand.has_key(str(myscan)):
+    if not str(myscan) in scand:
         return spwlist
     
     subscans = scand[str(myscan)]
@@ -556,7 +576,7 @@ def getScanSpwSummary(mslist=[]):
             mslocal1.close()
         except:
             mslocal1.close()
-            raise Exception, 'Cannot get scan/spw information from subMS'
+            raise Exception('Cannot get scan/spw information from subMS')
 
         # Get the data volume in bytes per sub-MS
         sizelist.append(getDiskUsage(subms))
@@ -636,7 +656,7 @@ def getMMSSpwIds(thisdict):
     import numpy as np
     
     if not isinstance(thisdict, dict):
-        print 'ERROR: Input is not a dictionary'
+        print('ERROR: Input is not a dictionary')
         return []
     
     tkeys = thisdict.keys()
@@ -692,11 +712,17 @@ def getDiskUsage(msfile):
 
     # Command line to run
     ducmd = 'du -hs '+msfile
-    
-    p = Popen(ducmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
-    
-    sizeline = p.stdout.read()
-    
+
+    if use_old_casa5_commands:
+        p = Popen(ducmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+        sizeline = p.stdout.read()
+        _out, _err = p.communicate()
+    else:
+        p = Popen(ducmd, shell=True, stdin=None, stdout=PIPE, stderr=STDOUT, close_fds=True)
+        o, e = p.communicate()             ### previously 'sizeline = p.stdout.read()' here
+                                           ### left process running...
+        sizeline = bytes2str(o.split( )[0])
+
     # Create a list of the output string, which looks like this:
     # ' 75M\tuidScan23.data/uidScan23.0000.ms\n'
     # This will create a list with [size,sub-ms]
@@ -736,10 +762,10 @@ def makeMMS(outputvis, submslist, copysubtables=False, omitsubtables=[], paralle
     """
 
     if os.path.exists(outputvis):
-        raise ValueError, "Output MS already exists"
+        raise ValueError('Output MS already exists')
 
     if len(submslist)==0:
-        raise ValueError, "No SubMSs given"
+        raise ValueError('No SubMSs given')
 
     ## make an MMS with all sub-MSs contained in a SUBMSS subdirectory
     origpath = os.getcwd()
@@ -808,7 +834,7 @@ def makeMMS(outputvis, submslist, copysubtables=False, omitsubtables=[], paralle
     except:
         theproblem = str(sys.exc_info())
         os.chdir(origpath)
-        raise ValueError, "Problem in MMS creation: "+theproblem
+        raise ValueError('Problem in MMS creation: {0}'.format(theproblem))
 
     os.chdir(origpath)
 
@@ -830,12 +856,12 @@ def axisType(mmsname):
     try:
         tblocal.open(mmsname, nomodify=True)
     except:
-        raise ValueError, "Unable to open table %s" % mmsname
+        raise ValueError('Unable to open table {0}'.format(mmsname))
     
     tbinfo = tblocal.info()
     tblocal.close()
     
-    if tbinfo.has_key('readme'):
+    if 'readme' in tbinfo:
         readme = tbinfo['readme']
         readlist = readme.splitlines()
         for val in readlist:
@@ -857,25 +883,25 @@ def setAxisType(mmsname, axis=''):
     """
     
     if axis == '':
-        raise ValueError, "Axis value cannot be empty"
+        raise ValueError('Axis value cannot be empty')
     
     tblocal = tbtool()
     try:
         tblocal.open(mmsname, nomodify=False)
     except:
-        raise ValueError, "Unable to open table %s" % mmsname
+        raise ValueError('Unable to open table {0}'.format(mmsname))
     
     import copy
 
     tbinfo = tblocal.info()
     readme = ''
     # Save original readme
-    if tbinfo.has_key('readme'):
+    if 'readme' in tbinfo:
         readme = tbinfo['readme']
 
     # Check if AxisType already exist and remove it
     if axisType(mmsname) != '':
-        print 'WARN: Will overwrite the existing AxisType value'
+        print('WARN: Will overwrite the existing AxisType value')
         readlist = readme.splitlines()
         newlist = copy.deepcopy(readlist)
         for val in newlist:
@@ -940,13 +966,12 @@ def buildScanDDIMap(scanSummary, ddIspectralWindowInfo):
             # Get number of rows per ddi (assume all DDIs have the same number of rows)
             # In ALMA data WVR DDI has only one row per antenna but it is separated from the other DDIs
             nrowsPerDDI = scanSummary[scan][timestamp]['nRow'] / len(DDIds)
-))
             # Iterate over DDIs for this timestamp
             for ddi in DDIds:
                 # Convert to string to be used as a map key
                 ddi = str(ddi)
                 # Check if DDI entry is already present for this scan, otherwise initialize it
-                if not scanDdiMap[scan].has_key(ddi):
+                if ddi not in scanDdiMap[scan]:
                     scanDdiMap[scan][ddi] = {}
                     scanDdiMap[scan][ddi]['nVis'] = 0
                     scanDdiMap[scan][ddi]['fieldId'] = fieldId
@@ -956,17 +981,17 @@ def buildScanDDIMap(scanSummary, ddIspectralWindowInfo):
                 # Add number of rows and vis from this timestamp
                 scanDdiMap[scan][ddi]['nVis'] = scanDdiMap[scan][ddi]['nVis'] + nvis
                 # Update ddi nvis
-                if not nVisPerDDI.has_key(ddi):
+                if ddi not in nVisPerDDI:
                     nVisPerDDI[ddi] = nvis
                 else:
                     nVisPerDDI[ddi] = nVisPerDDI[ddi] + nvis
                 # Update scan nvis
-                if not nVisPerScan.has_key(scan):
+                if scan not in nVisPerScan:
                     nVisPerScan[scan] = nvis
                 else:
                     nVisPerScan[scan] = nVisPerScan[scan] + nvis
                 # Update field nvis
-                if not nVisPerField.has_key(fieldId):
+                if fieldId not in nVisPerField:
                     nVisPerField[fieldId] = nvis
                 else:
                     nVisPerField[fieldId] = nVisPerField[fieldId] + nvis
@@ -1059,6 +1084,8 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
     nVisArray = np.array(nVisList)
 
     nVisSortIndex = np.lexsort((ddiArray, scanArray, nVisArray))
+    # argsort/lexsort return indices by increasing value. This reverses the indices by
+    # decreasing value
     nVisSortIndex[:] = nVisSortIndex[::-1]
     
     ddiArray = ddiArray[nVisSortIndex]
@@ -1111,14 +1138,17 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
         # But we also take into account the actual max value in case we are distributing large uneven chunks
         jointNvisGap = np.zeros(nsubms)
         if 'scan' in axis:
-            refLevel = max(nVisPerScan[scan]/nsubms,scanNvisDistributionPerSubMs[scan].max())
+            refLevel = max(nVisPerScan[scan] //
+                           nsubms,scanNvisDistributionPerSubMs[scan].max())
             jointNvisGap = jointNvisGap + refLevel - scanNvisDistributionPerSubMs[scan]
         if 'spw' in axis:
-            refLevel = max(nVisPerDDI[ddi]/nsubms,ddiNvisDistributionPerSubMs[ddi].max())
+            refLevel = max(nVisPerDDI[ddi] //
+                           nsubms,ddiNvisDistributionPerSubMs[ddi].max())
             jointNvisGap = jointNvisGap + refLevel - ddiNvisDistributionPerSubMs[ddi]
         if 'field' in axis:
-            refLevel = max(nVisPerField[field]/nsubms,fieldNvisDistributionPerSubMs[field].max())
-            jointNvisGap = jointNvisGap + refLevel - fieldNvisDistributionPerSubMs[field]        
+            refLevel = max(nVisPerField[field] //
+                           nsubms,fieldNvisDistributionPerSubMs[field].max())
+            jointNvisGap = jointNvisGap + refLevel - fieldNvisDistributionPerSubMs[field]
             
         optimalSubMs = np.where(jointNvisGap == jointNvisGap.max())
         optimalSubMs = optimalSubMs[0] # np.where returns a tuple
