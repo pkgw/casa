@@ -1058,7 +1058,7 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
     scanArray = np.array(scanList)
     nVisArray = np.array(nVisList)
 
-    nVisSortIndex = np.argsort(nVisArray)
+    nVisSortIndex = np.lexsort((ddiArray, scanArray, nVisArray))
     nVisSortIndex[:] = nVisSortIndex[::-1]
     
     ddiArray = ddiArray[nVisSortIndex]
