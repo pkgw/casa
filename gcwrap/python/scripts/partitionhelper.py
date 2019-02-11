@@ -911,8 +911,68 @@ def setAxisType(mmsname, axis=''):
         return False
  
     return True
-    
-    
+
+def buildScanDDIMap(scanSummary, ddIspectralWindowInfo):
+    """
+    Builds a scan->DDI map and 3 list of # visibilities per DDI, scan, field
+
+    :param scanSummary: scan summary dictionary as produced by the mstool (getscansummary)
+    :param ddiSpectralWindowInfo: SPW info dictionary as produced by the mstool
+                                  (getspectralwindowinfo())
+    :returns: a dict with a scan->ddi map, and three dict with # of visibilities per
+              ddi, scan, and field.
+    """
+    # Make an array for total number of visibilites per ddi and scan separatelly
+    nVisPerDDI = {}
+    nVisPerScan = {}
+    nVisPerField = {}
+
+    # Iterate over scan list
+    scanDdiMap = {}
+    for scan in sorted(scanSummary):
+        # Initialize scan sub-map
+        scanDdiMap[scan] = {}
+        # Iterate over timestamps for this scan
+        for timestamp in scanSummary[scan]:
+            # Get list of ddis for this timestamp
+            DDIds = scanSummary[scan][timestamp]['DDIds']
+            fieldId = str(scanSummary[scan][timestamp]['FieldId'])
+            # Get number of rows per ddi (assume all DDIs have the same number of rows)
+            # In ALMA data WVR DDI has only one row per antenna but it is separated from the other DDIs
+            nrowsPerDDI = scanSummary[scan][timestamp]['nRow'] / len(DDIds)
+))
+            # Iterate over DDIs for this timestamp
+            for ddi in DDIds:
+                # Convert to string to be used as a map key
+                ddi = str(ddi)
+                # Check if DDI entry is already present for this scan, otherwise initialize it
+                if not scanDdiMap[scan].has_key(ddi):
+                    scanDdiMap[scan][ddi] = {}
+                    scanDdiMap[scan][ddi]['nVis'] = 0
+                    scanDdiMap[scan][ddi]['fieldId'] = fieldId
+                    scanDdiMap[scan][ddi]['isWVR'] = ddIspectralWindowInfo[ddi]['isWVR']
+                # Calculate number of visibilities
+                nvis = nrowsPerDDI*ddIspectralWindowInfo[ddi]['NumChan']*ddIspectralWindowInfo[ddi]['NumCorr']
+                # Add number of rows and vis from this timestamp
+                scanDdiMap[scan][ddi]['nVis'] = scanDdiMap[scan][ddi]['nVis'] + nvis
+                # Update ddi nvis
+                if not nVisPerDDI.has_key(ddi):
+                    nVisPerDDI[ddi] = nvis
+                else:
+                    nVisPerDDI[ddi] = nVisPerDDI[ddi] + nvis
+                # Update scan nvis
+                if not nVisPerScan.has_key(scan):
+                    nVisPerScan[scan] = nvis
+                else:
+                    nVisPerScan[scan] = nVisPerScan[scan] + nvis
+                # Update field nvis
+                if not nVisPerField.has_key(fieldId):
+                    nVisPerField[fieldId] = nvis
+                else:
+                    nVisPerField[fieldId] = nVisPerField[fieldId] + nvis
+
+    return scanDdiMap, nVisPerDDI, nVisPerScan, nVisPerField
+
 def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
     """Generates a partition scan/spw map to obtain optimal load balancing with the following criteria:
     
@@ -962,8 +1022,7 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
     myMsMetaDataTool.open(msfilename)
     wvrspws = myMsMetaDataTool.wvrspws()
     myMsMetaDataTool.close()
-    
-    
+
     # Mark WVR DDIs as identified by the ms metadata tool
     for ddi in ddIspectralWindowInfo:
         if ddIspectralWindowInfo[ddi] in wvrspws:
@@ -971,55 +1030,8 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
         else:
             ddIspectralWindowInfo[ddi]['isWVR'] = False
             
-    # Make an array for total number of visibilites per ddi and scan separatelly
-    nVisPerDDI = {}
-    nVisPerScan = {}
-    nVisPerField = {}
-            
-            
-    # Iterate over scan list
-    scanDdiMap = {}
-    for scan in scanSummary:
-        # Initialize scan sub-map
-        scanDdiMap[scan] = {}
-        # Iterate over timestamps for this scan
-        for timestamp in scanSummary[scan]:
-            # Get list of ddis for this timestamp
-            DDIds = scanSummary[scan][timestamp]['DDIds']
-            fieldId = str(scanSummary[scan][timestamp]['FieldId'])
-            # Get number of rows per ddi (assume all DDIs have the same number of rows)
-            # In ALMA data WVR DDI has only one row per antenna but it is separated from the other DDIs
-            nrowsPerDDI = scanSummary[scan][timestamp]['nRow'] / len(DDIds)
-            # Iterate over DDIs for this timestamp
-            for ddi in DDIds:
-                # Convert to string to be used as a map key
-                ddi = str(ddi)
-                # Check if DDI entry is already present for this scan, otherwise initialize it
-                if not scanDdiMap[scan].has_key(ddi):
-                    scanDdiMap[scan][ddi] = {}
-                    scanDdiMap[scan][ddi]['nVis'] = 0                   
-                    scanDdiMap[scan][ddi]['fieldId'] = fieldId                    
-                    scanDdiMap[scan][ddi]['isWVR'] = ddIspectralWindowInfo[ddi]['isWVR']
-                # Calculate number of visibilities
-                nvis = nrowsPerDDI*ddIspectralWindowInfo[ddi]['NumChan']*ddIspectralWindowInfo[ddi]['NumCorr']
-                # Add number of rows and vis from this timestamp
-                scanDdiMap[scan][ddi]['nVis'] = scanDdiMap[scan][ddi]['nVis'] + nvis
-                # Update ddi nvis
-                if not nVisPerDDI.has_key(ddi):
-                    nVisPerDDI[ddi] = nvis
-                else:
-                    nVisPerDDI[ddi] = nVisPerDDI[ddi] + nvis
-                # Update scan nvis
-                if not nVisPerScan.has_key(scan):
-                    nVisPerScan[scan] = nvis
-                else:
-                    nVisPerScan[scan] = nVisPerScan[scan] + nvis
-                # Update field nvis
-                if not nVisPerField.has_key(fieldId):
-                    nVisPerField[fieldId] = nvis
-                else:
-                    nVisPerField[fieldId] = nVisPerField[fieldId] + nvis         
-                    
+    scanDdiMap, nVisPerDDI, nVisPerScan, nVisPerField = buildScanDDIMap(scanSummary,
+                                                                        ddIspectralWindowInfo)
 
     # Sort the scan/ddi pairs depending on the number of visibilities
     ddiList = list()
@@ -1045,14 +1057,13 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
     ddiArray = np.array(ddiList)
     scanArray = np.array(scanList)
     nVisArray = np.array(nVisList)
-    
+
     nVisSortIndex = np.argsort(nVisArray)
     nVisSortIndex[:] = nVisSortIndex[::-1]
     
     ddiArray = ddiArray[nVisSortIndex]
     scanArray = scanArray[nVisSortIndex]
     nVisArray = nVisArray[nVisSortIndex]
-          
             
     # Make a map for the contribution of each subMS to each scan
     scanNvisDistributionPerSubMs = {}
