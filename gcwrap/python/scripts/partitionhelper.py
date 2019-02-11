@@ -10,11 +10,15 @@ from matplotlib import pyplot as plt
 try:
     # CASA 6
     from casatasks import casalog
-    from casatools.platform import bytes2str
     from casatools import table, ms, msmetadata
+    from casatools.platform import bytes2str
 
     import subprocess
     use_old_casa5_commands = False
+
+    mst_local = ms()
+    tbt_local = table()
+    msmdt_local = msmetadata()
 except ImportError:
     # CASA 5
     from __main__ import *
@@ -23,6 +27,9 @@ except ImportError:
     import commands
     use_old_casa5_commands = True
 
+    mst_local = mstool()
+    tbt_local = tbtool()
+    msmdt_local = msmdtool()
 
 class convertToMMS():
     def __init__(self,\
@@ -359,7 +366,7 @@ class convertToMMS():
 #        scan, spw, antenna, baseline, field, state,
 #        channel, row in a MS or MMS'''
 #     
-#     md = msmdtool()
+#     md = msmdtool()      # or msmd() in CASA 6
 #     try:
 #         md.open(msfile)
 #     except:
@@ -417,14 +424,13 @@ def getScanList(msfile, selection={}):
        selection  --> dictionary with data selection
        
        Return a list of the scans in this MS/MMS. '''
-    
-    msTool=mstool()
-    msTool.open(msfile)
+
+    mst_local.open(msfile)
     if isinstance(selection, dict) and selection != {}:
-        msTool.msselect(items=selection)
+        mst_local.msselect(items=selection)
         
-    scand = msTool.getscansummary()
-    msTool.close()
+    scand = mst_local.getscansummary()
+    mst_local.close()
         
     scanlist = scand.keys()
     
@@ -449,13 +455,12 @@ def getScanNrows(msfile, myscan, selection={}):
             msN = ph.getScanNrows('referenceMS', s)
             assert (mmsN == msN)
     '''
-    msTool=mstool()
-    msTool.open(msfile)
+    mst_local.open(msfile)
     if isinstance(selection, dict) and selection != {}:
-        msTool.msselect(items=selection)
+        mst_local.msselect(items=selection)
         
-    scand = msTool.getscansummary()
-    msTool.close()
+    scand = mst_local.getscansummary()
+    mst_local.close()
     
     Nrows = 0
     if not str(myscan) in scand:
@@ -498,13 +503,12 @@ def getSpwIds(msfile, myscan, selection={}):
     '''
     import numpy as np
     
-    msTool=mstool()
-    msTool.open(msfile)
+    mst_local.open(msfile)
     if isinstance(selection, dict) and selection != {}:
-        msTool.msselect(items=selection)
-        
-    scand = msTool.getscansummary()
-    msTool.close()
+        mst_local.msselect(items=selection)
+
+    scand = mst_local.getscansummary()
+    mst_local.close()
     
     spwlist = []
 
@@ -556,8 +560,6 @@ def getScanSpwSummary(mslist=[]):
     if mslist == []:
         return {}
 
-    mslocal1 = casac.ms()
-
     # Create lists for scan and spw dictionaries of each MS
     msscanlist = []
     msspwlist = []
@@ -568,15 +570,15 @@ def getScanSpwSummary(mslist=[]):
     # Loop through all MSs
     for subms in mslist:
         try:
-            mslocal1.open(subms)
-            scans = mslocal1.getscansummary()
+            mst_local.open(subms)
+            scans = mst_local.getscansummary()
             msscanlist.append(scans)
-            spws = mslocal1.getspectralwindowinfo()
+            spws = mst_local.getspectralwindowinfo()
             msspwlist.append(spws)
-            mslocal1.close()
-        except:
-            mslocal1.close()
-            raise Exception('Cannot get scan/spw information from subMS')
+        except Exception as exc:
+            raise Exception('Cannot get scan/spw information from subMS: {0}'.format(exc))
+        finally:
+            mst_local.close()
 
         # Get the data volume in bytes per sub-MS
         sizelist.append(getDiskUsage(subms))
@@ -711,7 +713,7 @@ def getDiskUsage(msfile):
     from subprocess import Popen, PIPE, STDOUT
 
     # Command line to run
-    ducmd = 'du -hs '+msfile
+    ducmd = 'du -hs {0}'.format(msfile)
 
     if use_old_casa5_commands:
         p = Popen(ducmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
@@ -732,11 +734,10 @@ def getDiskUsage(msfile):
 
 
 def getSubtables(vis):
-    tbTool = tbtool()
     theSubTables = []
-    tbTool.open(vis)
-    myKeyw = tbTool.getkeywords()
-    tbTool.close()
+    tbt_local.open(vis)
+    myKeyw = tbt_local.getkeywords()
+    tbt_local.close()
     for k in myKeyw.keys():
         theKeyw = myKeyw[k]
         if (type(theKeyw)==str and theKeyw.split(' ')[0]=='Table:'
@@ -769,39 +770,39 @@ def makeMMS(outputvis, submslist, copysubtables=False, omitsubtables=[], paralle
 
     ## make an MMS with all sub-MSs contained in a SUBMSS subdirectory
     origpath = os.getcwd()
-    mymstool = mstool()
-    mytbtool = tbtool()
     
     try:
         try:
-            mymstool.createmultims(outputvis,
-                                   submslist,
-                                   [],
-                                   True,  # nomodify
-                                   False, # lock
-                                   copysubtables,
-                                   omitsubtables
-                                   ) # when copying the subtables, omit these
-        except:
-            mymstool.close()
+            mst_local.createmultims(outputvis,
+                                    submslist,
+                                    [],
+                                    True,  # nomodify
+                                    False, # lock
+                                    copysubtables,
+                                    omitsubtables
+            ) # when copying the subtables, omit these
+
+        except Exception:
             raise
-        mymstool.close()
+        finally:
+            mst_local.close()
         
         # remove the SORTED_TABLE keywords because the sorting is not reliable after partitioning
         try:
-            mytbtool.open(outputvis, nomodify=False)
-            if 'SORTED_TABLE' in mytbtool.keywordnames():
-                mytbtool.removekeyword('SORTED_TABLE')
-                mytbtool.close()
+            tbt_local.open(outputvis, nomodify=False)
+            if 'SORTED_TABLE' in tbt_local.keywordnames():
+                tbt_local.removekeyword('SORTED_TABLE')
+                tbt_local.close()
+
             for thesubms in submslist:
-                mytbtool.open(outputvis+'/SUBMSS/'+os.path.basename(thesubms), nomodify=False)
-                if 'SORTED_TABLE' in mytbtool.keywordnames():
-                    tobedel = mytbtool.getkeyword('SORTED_TABLE').split(' ')[1]
-                    mytbtool.removekeyword('SORTED_TABLE')
+                tbt_local.open(outputvis+'/SUBMSS/'+os.path.basename(thesubms), nomodify=False)
+                if 'SORTED_TABLE' in tbt_local.keywordnames():
+                    tobedel = tbt_local.getkeyword('SORTED_TABLE').split(' ')[1]
+                    tbt_local.removekeyword('SORTED_TABLE')
                     os.system('rm -rf '+tobedel)
-                mytbtool.close()
-        except:
-            mytbtool.close()
+                tbt_local.close()
+        except Exception:
+            tbt_local.close()
             raise
             
         # Create symbolic links to the subtables of the first SubMS in the reference MS (top one)
@@ -819,7 +820,7 @@ def makeMMS(outputvis, submslist, copysubtables=False, omitsubtables=[], paralle
         thesubtables.remove('HISTORY')
 
         # Create sym links to all sub-tables in all subMSs
-        for i in xrange(1,len(submslist)):
+        for i in range(1,len(submslist)):
             thesubms = os.path.basename(submslist[i].rstrip('/'))
             os.chdir('../'+thesubms)
             
@@ -831,10 +832,9 @@ def makeMMS(outputvis, submslist, copysubtables=False, omitsubtables=[], paralle
         if parallelaxis != '':
             setAxisType(outputvis, parallelaxis)
 
-    except:
-        theproblem = str(sys.exc_info())
+    except Exception as exc:
         os.chdir(origpath)
-        raise ValueError('Problem in MMS creation: {0}'.format(theproblem))
+        raise ValueError('Problem in MMS creation: {0}'.format(exc))
 
     os.chdir(origpath)
 
@@ -849,17 +849,16 @@ def axisType(mmsname):
 
         It returns the value of AxisType or an empty string if it doesn't exist.
     """
-    tblocal = tbtool()
     
     axis = ''
 
     try:
-        tblocal.open(mmsname, nomodify=True)
-    except:
-        raise ValueError('Unable to open table {0}'.format(mmsname))
-    
-    tbinfo = tblocal.info()
-    tblocal.close()
+        tbt_local.open(mmsname, nomodify=True)
+        tbinfo = tbt_local.info()
+    except Exception as exc:
+        raise ValueError('Unable to open table {0}. Exception: {1}'.format(mmsname, exc))
+    finally:
+        tbt_local.close()
     
     if 'readme' in tbinfo:
         readme = tbinfo['readme']
@@ -867,7 +866,6 @@ def axisType(mmsname):
         for val in readlist:
             if val.__contains__('AxisType'):
                 a,b,axis = val.partition('=')
-                
                 
     return axis.strip()
 
@@ -882,18 +880,19 @@ def setAxisType(mmsname, axis=''):
         Return True on success, False otherwise.
     """
     
+    import copy
+
     if axis == '':
         raise ValueError('Axis value cannot be empty')
     
-    tblocal = tbtool()
     try:
-        tblocal.open(mmsname, nomodify=False)
-    except:
-        raise ValueError('Unable to open table {0}'.format(mmsname))
+        tbt_local.open(mmsname)
+        tbinfo = tbt_local.info()
+    except Exception as exc:
+        raise ValueError('Unable to open table {0}. Exception: {1}'.format(mmsname, exc))
+    finally:
+        tbt_local.close()
     
-    import copy
-
-    tbinfo = tblocal.info()
     readme = ''
     # Save original readme
     if 'readme' in tbinfo:
@@ -913,7 +912,7 @@ def setAxisType(mmsname, axis=''):
         for val in readlist:
             nr = nr + val + '\n'
 
-        readme=nr.rstrip()
+        readme = nr.rstrip()
         
         
     # Preset for axis info
@@ -926,9 +925,15 @@ def setAxisType(mmsname, axis=''):
     
     # Create readme record
     readmerec = {'readme':newReadme}
-    
-    tblocal.putinfo(readmerec)
-    tblocal.close()
+
+    try:
+        tbt_local.open(mmsname, nomodify=False)
+        tbt_local.putinfo(readmerec)
+    except Exception as exc:
+        raise ValueError('Unable to put readme info into table {0}. Exception: {1}'.
+                         format(mmsname, exc))
+    finally:
+        tbt_local.close()
     
     # Check if the axis was correctly added
     check_axis = axisType(mmsname)
@@ -1000,19 +1005,19 @@ def buildScanDDIMap(scanSummary, ddIspectralWindowInfo):
 
 def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'],plotMode=0):
     """Generates a partition scan/spw map to obtain optimal load balancing with the following criteria:
-    
+
        1st - Maximize the scan/spw/field distribution across sub-MSs
        2nd - Generate sub-MSs with similar size
-       
+
        In order to balance better the size of the subMSs the allocation process
        iterates over the scan,spw pairs in descending number of visibilities.
-       
+
        That is larger chunks are allocated first, and smaller chunks at the final
        stages so that they can be used to balance the load in a stable way
-           
+
     Keyword arguments:
         msname          --    Input MS filename
-        nsubms          --    Number of subMSs 
+        nsubms          --    Number of subMSs
         selection       --    Data selection dictionary
         axis            --    Vector of strings containing the axis for load distribution (scan,spw,field)
         plotMode        --    Integer in the range 0-3 to determine the plot generation mode
@@ -1020,33 +1025,28 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
                                 1 - Show plots but don't save them
                                 2 - Save plots but don't show them
                                 3 - Show and save plots
-        
+
         Returns a map of the sub-MSs with the corresponding scan/spw selections and the number of visibilities
     """
-    
+
     # Open ms tool
-    myMsTool=mstool()
-    myMsTool.open(msfilename)
-    
-    
+    mst_local.open(msfilename)
+
     # Apply data selection
     if isinstance(selection, dict) and selection != {}:
-        myMsTool.msselect(items=selection)
-        
-        
+        mst_local.msselect(items=selection)
+
     # Get list of DDIs and timestamps per scan
-    scanSummary = myMsTool.getscansummary()
-    ddIspectralWindowInfo = myMsTool.getspectralwindowinfo()
+    scanSummary = mst_local.getscansummary()
+    ddIspectralWindowInfo = mst_local.getspectralwindowinfo()
 
     # Close ms tool
-    myMsTool.close()
-    
-    
-    # Get list of WVR SPWs using the ms metadata tool 
-    myMsMetaDataTool = msmdtool()
-    myMsMetaDataTool.open(msfilename)
-    wvrspws = myMsMetaDataTool.wvrspws()
-    myMsMetaDataTool.close()
+    mst_local.close()
+
+    # Get list of WVR SPWs using the ms metadata tool
+    msmdt_local.open(msfilename)
+    wvrspws = msmdt_local.wvrspws()
+    msmdt_local.close()
 
     # Mark WVR DDIs as identified by the ms metadata tool
     for ddi in ddIspectralWindowInfo:
@@ -1054,7 +1054,7 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
             ddIspectralWindowInfo[ddi]['isWVR'] = True
         else:
             ddIspectralWindowInfo[ddi]['isWVR'] = False
-            
+
     scanDdiMap, nVisPerDDI, nVisPerScan, nVisPerField = buildScanDDIMap(scanSummary,
                                                                         ddIspectralWindowInfo)
 
