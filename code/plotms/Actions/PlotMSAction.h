@@ -135,6 +135,9 @@ public:
 			TOOL_ANNOTATE_RECTANGLE,
 			// </group>
 
+			// Turns on/off the per-panel flagging tool.
+			TOOL_FLAG_ALL,
+
 			// Turns on/off the tracker tool hover function.  Operates on all
 			// canvases of all plots AT THE TIME of the call to doAction().
 			// Required parameters: P_ON_OFF.
@@ -223,7 +226,7 @@ public:
 
     // Constructor.
     PlotMSAction( Client * client, PMSPTMethod postThreadMethod = NULL,
-    		vector<PlotMSPlot*> postThreadObject = vector<PlotMSPlot*>());
+    		std::vector<PlotMSPlot*> postThreadObject = std::vector<PlotMSPlot*>());
 
     // Destructor.
     virtual ~PlotMSAction();
@@ -254,7 +257,7 @@ protected:
 	 casacore::String itsDoActionResult_;
 	 ThreadController* threadController;
 
-	 vector<PlotMSPlot*> postThreadObject;
+     std::vector<PlotMSPlot*> postThreadObject;
 	 PMSPTMethod* postThreadMethod;
 private:
 	// Returns true if the action is valid or not.  Invalid actions should not

@@ -94,7 +94,7 @@ public:
 			float const threshold,
 			int const avg_limit,
 			int const minwidth,
-			vector<int> const& edge);
+			std::vector<int> const& edge);
 
   //Cubicspline  
   void subtractBaselineCspline(string const& in_column_name,
@@ -109,7 +109,7 @@ public:
 			       float const threshold,
 			       int const avg_limit,
 			       int const minwidth,
-			       vector<int> const& edge);
+			       std::vector<int> const& edge);
 
   //Sinusoid  
    void subtractBaselineSinusoid(string const& in_column_name,
@@ -128,7 +128,7 @@ public:
 				 float const threshold,
 				 int const avg_limit,
 				 int const minwidth,
-				 vector<int> const& edge);
+				 std::vector<int> const& edge);
 
   // variable fitting parameters stored in a text file
   void subtractBaselineVariable(string const& in_column_name,
@@ -148,7 +148,7 @@ public:
   void fitLine(string const& in_column_name, string const& in_spw,
       string const& in_pol, string const& fitfunc, string const& in_nfit,
       bool const linefinding, float const threshold, int const avg_limit,
-      int const minwidth, vector<int> const& edge,
+      int const minwidth, std::vector<int> const& edge,
       string const& tempfile_name, string const& temp_out_ms_name);
 
   // smooth data with arbitrary smoothing kernel
@@ -280,7 +280,7 @@ private:
   size_t get_num_coeff_bloutput(size_t const bltype,
 				size_t order,
                                 size_t &num_coeff_max);
-  vector<int> string_to_list(string const &wn_str, char const delim);
+  std::vector<int> string_to_list(string const &wn_str, char const delim);
   void get_effective_nwave(std::vector<int> const &addwn,
 			   std::vector<int> const &rejwn,
 			   int const wn_ulimit,
@@ -324,12 +324,12 @@ private:
   list<pair<size_t, size_t>> findLineAndGetRanges(size_t const num_data,
       float const data[/*num_data*/],
       bool mask[/*num_data*/], float const threshold,
-      int const avg_limit, int const minwidth, vector<int> const& edge,
+      int const avg_limit, int const minwidth, std::vector<int> const& edge,
       bool const invert);
 
   void findLineAndGetMask(size_t const num_data, float const data[/*num_data*/],
       bool const in_mask[/*num_data*/], float const threshold,
-      int const avg_limit, int const minwidth, vector<int> const& edge,
+      int const avg_limit, int const minwidth, std::vector<int> const& edge,
       bool const invert, bool out_mask[/*num_data*/]);
 
   template<typename Func0, typename Func1, typename Func2, typename Func3>
@@ -341,8 +341,8 @@ private:
 			  LIBSAKURA_SYMBOL(Status)& status,
 			  std::vector<LIBSAKURA_SYMBOL(LSQFitContextFloat) *> &bl_contexts,
 			  size_t const bltype,
-			  vector<int> const& blparam,
-			  vector<int> const& blparam_exclude,
+			  std::vector<int> const& blparam,
+			  std::vector<int> const& blparam_exclude,
 			  bool const& applyfft,
 			  string const& fftmethod,
 			  string const& fftthresh,
@@ -352,7 +352,7 @@ private:
 			  float const threshold,
 			  int const avg_limit,
 			  int const minwidth,
-			  vector<int> const& edge,
+			  std::vector<int> const& edge,
 			  Func0 func0,
 			  Func1 func1,
 			  Func2 func2,

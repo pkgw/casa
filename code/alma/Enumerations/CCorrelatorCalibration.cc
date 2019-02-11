@@ -33,7 +33,7 @@
  * File CCorrelatorCalibration.cpp
  */
 #include <sstream>
-#include <CCorrelatorCalibration.h>
+#include <alma/Enumerations/CCorrelatorCalibration.h>
 #include <string>
 using namespace std;
 

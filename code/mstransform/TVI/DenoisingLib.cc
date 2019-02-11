@@ -158,7 +158,7 @@ void GslMultifitLinearBase::setModel(GslLinearModelBase<Double> &model)
 void GslMultifitLinearBase::resetNComponents(size_t ncomponents)
 {
     ThrowIf (ncomponents > max_ncomponents_p,
-             "Maximum number of components is " + max_ncomponents_p);
+             "Maximum number of components is " + String::toString(max_ncomponents_p));
 
 	ncomponents_p = ncomponents;
 	GslMatrixWrap(model_p->getModelMatrix(),gsl_model_p,ncomponents_p);

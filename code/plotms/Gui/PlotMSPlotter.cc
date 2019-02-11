@@ -536,6 +536,7 @@ void PlotMSPlotter::initialize(Plotter::Implementation imp) {
     itsActionMap_.insert(PlotMSAction::TOOL_ANNOTATE_TEXT, actionAnnotateText);
     itsActionMap_.insert(PlotMSAction::TOOL_ANNOTATE_RECTANGLE,
                          actionAnnotateRectangle);
+    itsActionMap_.insert(PlotMSAction::TOOL_FLAG_ALL, actionFlagAll);
     
     itsActionMap_.insert(PlotMSAction::TRACKER_ENABLE_HOVER, actionTrackerHover);
     itsActionMap_.insert(PlotMSAction::TRACKER_ENABLE_DISPLAY, actionTrackerDisplay);
@@ -628,6 +629,7 @@ void PlotMSPlotter::initialize(Plotter::Implementation imp) {
     toolGroup->addAction(actionPan);
     toolGroup->addAction(actionAnnotateText);
     toolGroup->addAction(actionAnnotateRectangle);
+    toolGroup->addAction(actionFlagAll);
     connect(toolGroup, SIGNAL(triggered(QAction*)), SLOT(action(QAction*)));
     connect(toolGroup, SIGNAL(unchecked()),
             itsToolsTab_, SLOT(toolsUnchecked()));

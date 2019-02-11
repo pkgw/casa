@@ -297,16 +297,12 @@ void CFStore2::clear()
       {
     	if (spwID != currentSPWID_p)
 	  {
-	    // While the message below is useful as NORMAL1, in a
-	    // parallel run, it appears on the console.  So shutting
-	    // it down.
-
 	    // LogIO log_l(LogOrigin("CFStore2", "invokeGC"));
 	    // log_l << "Invoking Garbage Collector: ";
 	    // // The reason for invoking GC
 	    // if (currentSPWID_p < 0)      log_l << "Initial mopping-up";
 	    // else     log_l << "SPW" << currentSPWID_p << "->SPW" << spwID;
-	    // log_l << LogIO::NORMAL1;
+	    // log_l << LogIO::DEBUGGING;
 
 	    clear(); currentSPWID_p=spwID;
 	  }

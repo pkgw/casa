@@ -33,7 +33,7 @@
  * File CHolographyChannelType.cpp
  */
 #include <sstream>
-#include <CHolographyChannelType.h>
+#include <alma/Enumerations/CHolographyChannelType.h>
 #include <string>
 using namespace std;
 

@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLFlux;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Flux;
 Flux operator * ( double , const Flux & );
-ostream & operator << ( ostream &, const Flux & );
-istream & operator >> ( istream &, Flux &);
+std::ostream & operator << ( std::ostream &, const Flux & );
+std::istream & operator >> ( std::istream &, Flux &);
 /**
  * The Flux class implements a quantity of flux in janskys..
  * 
@@ -69,11 +63,11 @@ class Flux {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Flux.
    */
-  friend ostream & operator << ( ostream & os, const Flux & x);
+  friend std::ostream & operator << ( std::ostream & os, const Flux & x);
   /**
    * Overloading of >> to read an Flux from an istream.
    */
-  friend istream & operator >> ( istream & is, Flux & x);
+  friend std::istream & operator >> ( std::istream & is, Flux & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Flux(const string &s);
+	Flux(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlFlux a cons ref to an IDLFlux.
 	 */
-	Flux(const IDLFlux & idlFlux);
+	Flux(const asdmIDLTypes::IDLFlux & idlFlux);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Flux.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Flux>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Flux>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Flux to a EndianOSStream.
 	 * @param angle the vector of vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Flux> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Flux> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Flux to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Flux to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Flux> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Flux> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Flux from a EndianIStream
 	 * and use the read value to set an  Flux.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Flux
 	 */	 
-	 static vector<Flux> from1DBin(EndianIStream & eis);
+	 static std::vector<Flux> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Flux from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Flux
 	 */	 
-	 static vector<vector<Flux> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Flux> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Flux from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Flux
 	 */	 
-	 static vector<vector<vector<Flux> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Flux> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Flux = Flux.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Flux.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLFlux representation of the Flux.
 	 * @return IDLFlux 
 	 */
-	IDLFlux toIDLFlux() const;
+    asdmIDLTypes::IDLFlux toIDLFlux() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Flux.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Flux::Flux() : value(0.0) {
 inline Flux::Flux(const Flux &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Flux::Flux(const IDLFlux &l) : value(l.value) {
+inline Flux::Flux(const asdmIDLTypes::IDLFlux &l) : value(l.value) {
 }
 #endif
-inline Flux::Flux(const string &s) : value(fromString(s)) {
+inline Flux::Flux(const std::string &s) : value(fromString(s)) {
 }
 inline Flux::Flux(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Flux Flux::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Flux::operator string () const {
+inline Flux::operator std::string () const {
 	return toString();
 }
-inline string Flux::toString() const {
+inline std::string Flux::toString() const {
 	return toString(value);
 }
-inline string Flux::toStringI() const {
+inline std::string Flux::toStringI() const {
 	return toString(value);
 }
 inline double Flux::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLFlux Flux::toIDLFlux() const {
-	IDLFlux tmp;
+inline asdmIDLTypes::IDLFlux Flux::toIDLFlux() const {
+    asdmIDLTypes::IDLFlux tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Flux operator * ( double n, const Flux &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Flux &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Flux &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Flux &x ) {
+inline std::istream & operator >> ( std::istream &i, Flux &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Flux::unit() {
-	return string ("jy");
+inline std::string Flux::unit() {
+	return std::string ("jy");
 }
 } // End namespace asdm
 #endif /* Flux_CLASS */

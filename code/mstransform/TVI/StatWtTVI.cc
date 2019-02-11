@@ -157,6 +157,15 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
             _wtrange.reset(new std::pair<Double, Double>(*iter, *(++iter)));
         }
     }
+    auto excludeChans = False;
+    field = "excludechans";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpBool,
+            "Unsupported type for field '" + field + "'"
+        );
+        excludeChans = config.asBool(field);
+    }
     field = "fitspw";
     if (config.isDefined(field)) {
         ThrowIf(
@@ -178,13 +187,13 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                 auto row = chans.row(i);
                 const auto& spw = row[0];
                 if (_chanSelFlags.find(spw) == _chanSelFlags.end()) {
-                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, True);
+                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
                 }
                 start[1] = row[1];
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
-                _chanSelFlags[spw](slice) = False;
+                _chanSelFlags[spw](slice) = excludeChans;
             }
         }
     }
@@ -671,7 +680,7 @@ void StatWtTVI::_updateWtSpFlags(
 std::pair<Cube<Float>, Cube<Bool>> StatWtTVI::_getLowerLayerWtSpFlags(
     size_t& nOrigFlagged
 ) const {
-    auto mypair = make_pair(Cube<Float>(), Cube<Bool>());
+    auto mypair = std::make_pair(Cube<Float>(), Cube<Bool>());
     if (*_mustComputeWtSp) {
         getVii()->weightSpectrum(mypair.first);
     }

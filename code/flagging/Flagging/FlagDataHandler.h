@@ -57,8 +57,8 @@ typedef std::map< std::pair<casacore::Int,casacore::Int>,std::vector<casacore::u
 typedef std::map< casacore::Double,std::vector<casacore::uInt> > subIntegrationMap;
 typedef std::map< casacore::uShort,casacore::uShort > polarizationMap;
 typedef std::map< casacore::uInt,casacore::String > polarizationIndexMap;
-typedef std::vector< vector<casacore::Double> > antennaPointingMap;
-typedef std::map< casacore::Int,vector<casacore::Double> > scanStartStopMap;
+typedef std::vector< std::vector<casacore::Double> > antennaPointingMap;
+typedef std::map< casacore::Int,std::vector<casacore::Double> > scanStartStopMap;
 typedef std::map< casacore::Int,casacore::Double > lambdaMap;
 
 const casacore::Complex ImaginaryUnit = casacore::Complex(0,1);
@@ -167,9 +167,9 @@ public:
 
 protected:
 
-    vector<casacore::uInt> *createIndex(casacore::uInt size)
+    std::vector<casacore::uInt> *createIndex(casacore::uInt size)
     {
-    	vector<casacore::uInt> *index = new vector<casacore::uInt>(size);
+        std::vector<casacore::uInt> *index = new std::vector<casacore::uInt>(size);
     	index->clear();
     	for (casacore::uInt i=0; i<size; i++ )
     	{
@@ -288,9 +288,9 @@ public:
 
 protected:
 
-    vector<casacore::uInt> *createIndex(casacore::uInt size)
+    std::vector<casacore::uInt> *createIndex(casacore::uInt size)
     {
-    	vector<casacore::uInt> *index = new vector<casacore::uInt>(size);
+    	std::vector<casacore::uInt> *index = new std::vector<casacore::uInt>(size);
     	index->clear();
     	for (casacore::uInt i=0; i<size; i++ )
     	{
@@ -337,8 +337,8 @@ public:
 
     void setParentCubes(CubeView<casacore::Complex> *leftVis,CubeView<casacore::Complex> *rightVis=NULL);
 
-    vector< vector<casacore::uInt> > getSelectedCorrelations() { return selectedCorrelations_p;}
-    vector< string > getSelectedCorrelationStrings() { return selectedCorrelationStrings_p;}
+    std::vector< std::vector<casacore::uInt> > getSelectedCorrelations() { return selectedCorrelations_p;}
+    std::vector< string > getSelectedCorrelationStrings() { return selectedCorrelationStrings_p;}
 
 	casacore::Float operator()(casacore::uInt chan, casacore::uInt row);
 	casacore::Float operator()(casacore::uInt pol, casacore::uInt chan, casacore::uInt row);
@@ -406,10 +406,10 @@ protected:
 private:
 	casacore::Float (casa::VisMapper::*applyVisExpr_p)(casacore::Complex);
 	casacore::Complex (casa::VisMapper::*getVis_p)(casacore::uInt,casacore::uInt,casacore::uInt);
-	casacore::Complex (casa::VisMapper::*getCorr_p)(casacore::uInt,casacore::uInt);
-	vector<corrProduct> selectedCorrelationProducts_p;
-	vector< vector<casacore::uInt> > selectedCorrelations_p;
-	vector<string> selectedCorrelationStrings_p;
+	// casacore::Complex (casa::VisMapper::*getCorr_p)(casacore::uInt,casacore::uInt);
+    std::vector<corrProduct> selectedCorrelationProducts_p;
+    std::vector< std::vector<casacore::uInt> > selectedCorrelations_p;
+    std::vector<string> selectedCorrelationStrings_p;
 	CubeView<casacore::Complex> *leftVis_p;
 	CubeView<casacore::Complex> *rightVis_p;
 	casacore::IPosition reducedLength_p;
@@ -422,14 +422,14 @@ class FlagMapper
 
 public:
 
-	FlagMapper(casacore::Bool flag,	vector < vector<casacore::uInt> > selectedCorrelations,
+	FlagMapper(casacore::Bool flag,	std::vector < std::vector<casacore::uInt> > selectedCorrelations,
 							CubeView<casacore::Bool> *commonFlagsView,
 							CubeView<casacore::Bool> *originalFlagsView,
 							CubeView<casacore::Bool> *privateFlagsView=NULL,
 							VectorView<casacore::Bool> *commonFlagRowView=NULL,
 							VectorView<casacore::Bool> *originalFlagRowView=NULL,
 							VectorView<casacore::Bool> *privateFlagRowView=NULL);
-	FlagMapper(casacore::Bool flag,vector< vector<casacore::uInt> > selectedCorrelations);
+	FlagMapper(casacore::Bool flag,std::vector< std::vector<casacore::uInt> > selectedCorrelations);
 	~FlagMapper();
 
 	void setParentCubes(CubeView<casacore::Bool> *commonFlagsView,CubeView<casacore::Bool> *originalFlagsView,CubeView<casacore::Bool> *privateFlagsView=NULL);
@@ -476,7 +476,7 @@ public:
     	return;
     }
 
-	vector< vector<casacore::uInt> > getSelectedCorrelations() {return selectedCorrelations_p;}
+    std::vector< std::vector<casacore::uInt> > getSelectedCorrelations() {return selectedCorrelations_p;}
 
     void activateCheckMode() {applyFlag_p = &FlagMapper::checkCommonFlags;}
 
@@ -485,7 +485,7 @@ public:
 
 protected:
 
-	void setExpressionMapping(vector< vector<casacore::uInt> > selectedCorrelations);
+	void setExpressionMapping(std::vector< std::vector<casacore::uInt> > selectedCorrelations);
 
 	// Apply flags to common flag cube
 	void applyCommonFlags(casacore::uInt pol, casacore::uInt channel, casacore::uInt row);
@@ -509,7 +509,7 @@ private:
 	VectorView<casacore::Bool> *commonFlagRowView_p;
 	VectorView<casacore::Bool> *originalFlagRowView_p;
 	VectorView<casacore::Bool> *privateFlagRowView_p;
-	vector< vector<casacore::uInt> > selectedCorrelations_p;
+    std::vector< std::vector<casacore::uInt> > selectedCorrelations_p;
 	casacore::uInt nSelectedCorrelations_p;
 	casacore::uInt flagsPerRow_p;
 	void (casa::FlagMapper::*applyFlag_p)(casacore::uInt,casacore::uInt,casacore::uInt);
@@ -766,7 +766,7 @@ private:
 //    // NOTE: The following code is also encapsulated in the FlagAgentBase::processAntennaPair(casacore::Int antenna1,casacore::Int antenna2) code
 //
 //    // From the antenna map we can retrieve the rows corresponding to the baseline defined by the antenna pair
-//    vector<casacore::uInt> baselineRows = (*flagDataHandler_p->getAntennaPairMap())[std::make_pair(antennaPair.first,antennaPair.second)];
+//    std::vector<casacore::uInt> baselineRows = (*flagDataHandler_p->getAntennaPairMap())[std::make_pair(antennaPair.first,antennaPair.second)];
 //
 //    // This rows can be now inserted in the mapper classes (VisMapper and FlagMapper using the CubeView<T> template class)
 //    VisMapper visibilitiesMap = VisMapper(expression_p,flagDataHandler_p->getPolarizationMap());
@@ -970,7 +970,7 @@ protected:
 	bool asyncio_enabled_p;
 	// Pre-Load columns (in order to avoid parallelism problems when not using
 	// async i/o, and also to know what columns to pre-fetch in async i/o mode)
-	vector<VisBufferComponent2> preLoadColumns_p;
+    std::vector<VisBufferComponent2> preLoadColumns_p;
 
 	// Iteration parameters
 	casacore::uShort iterationApproach_p;

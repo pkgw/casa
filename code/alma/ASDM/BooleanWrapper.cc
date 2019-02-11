@@ -24,8 +24,8 @@
  * File Boolean.cpp
  */
 
-#include <BooleanWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/BooleanWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

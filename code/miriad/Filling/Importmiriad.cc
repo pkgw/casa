@@ -1546,7 +1546,7 @@ void Importmiriad::Tracking(int record)
   if (vupd && npol_p==1) {
     uvrdvr_c(uv_handle_p,H_INT,"pol",(char *)&idat, NULL, 1);
     if (idat != pol_p[0])
-        os_p << LogIO::WARN<<"polarization changed to " << pol_p << LogIO::POST;
+        os_p << LogIO::WARN<<"polarization changed to " << *pol_p << LogIO::POST;
     pol_p[0] = idat;
   }
 

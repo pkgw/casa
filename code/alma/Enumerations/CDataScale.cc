@@ -33,7 +33,7 @@
  * File CDataScale.cpp
  */
 #include <sstream>
-#include <CDataScale.h>
+#include <alma/Enumerations/CDataScale.h>
 #include <string>
 using namespace std;
 

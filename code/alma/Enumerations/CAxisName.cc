@@ -33,7 +33,7 @@
  * File CAxisName.cpp
  */
 #include <sstream>
-#include <CAxisName.h>
+#include <alma/Enumerations/CAxisName.h>
 #include <string>
 using namespace std;
 

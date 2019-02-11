@@ -77,7 +77,7 @@ namespace casa {
 		// element MUST have tag name SHAPE_OPTIONS, and will have zero or more
 		// children elements, each representing a RegionShape, with tag name
 		// SHAPE.
-		static vector<RegionShape*> DOMToShapes(QDomElement& element);
+		static std::vector<RegionShape*> DOMToShapes(QDomElement& element);
 
 		// Returns a QDomElement that represents the given shapes.  The top-level
 		// element will have tag name SHAPE_OPTIONS, and will have zero or more
@@ -85,7 +85,7 @@ namespace casa {
 		// The given document is used to create the element, but the element is NOT
 		// added to the document.
 		static QDomElement shapesToDOM(QDomDocument& document,
-		                               const vector<RegionShape*>& shapes);
+		                               const std::vector<RegionShape*>& shapes);
 
 		// XML file constants.
 		// <group>
@@ -107,7 +107,7 @@ namespace casa {
 		// RSFileReader methods //
 
 		// Implements RSFileReader::read.
-		bool read(vector<RegionShape*>& shapes);
+		bool read(std::vector<RegionShape*>& shapes);
 
 		// RSFileWriter methods //
 
@@ -118,7 +118,7 @@ namespace casa {
 		void setOptions(const QWidget* widget);
 
 		// Implements RSFileWriter::write.
-		bool write(const vector<RegionShape*>& shapes) const;
+		bool write(const std::vector<RegionShape*>& shapes) const;
 	};
 
 }

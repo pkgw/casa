@@ -3,10 +3,10 @@ from mstools import write_history
 import flaghelper
 
 def statwt(
-    vis, selectdata, field, spw, intent, array, observation, combine,
-    timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
-    lside, zscore, maxiter, fitspw, wtrange,
-    flagbackup, preview, datacolumn
+    vis, selectdata, field, spw, intent, array, observation, scan,
+    combine, timebin, slidetimebin, chanbin, minsamp, statalg,
+    fence, center, lside, zscore, maxiter, fitspw, excludechans,
+    wtrange, flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt')
     if not selectdata:
@@ -22,6 +22,7 @@ def statwt(
         intent = ""
         array = ""
         observation = ""
+        scan = ""
     try:
         if (flagbackup):
             if (preview):
@@ -39,7 +40,7 @@ def statwt(
         #sel['time'] = timerange
         sel['field'] = field
         #sel['baseline'] = antenna
-        #sel['scan'] = scan
+        sel['scan'] = scan
         sel['scanintent'] = intent
         #sel['polarization'] = correlation
         #sel['uvdist'] = uvrange
@@ -55,7 +56,7 @@ def statwt(
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
             center=center, lside=lside, zscore=zscore,
-            maxiter=maxiter, fitspw=fitspw,
+            maxiter=maxiter, fitspw=fitspw, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
         

@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLAngle;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Angle;
 Angle operator * ( double , const Angle & );
-ostream & operator << ( ostream &, const Angle & );
-istream & operator >> ( istream &, Angle &);
+std::ostream & operator << ( std::ostream &, const Angle & );
+std::istream & operator >> ( std::istream &, Angle &);
 /**
  * The Angle class implements a quantity of angle in radians..
  * 
@@ -69,11 +63,11 @@ class Angle {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Angle.
    */
-  friend ostream & operator << ( ostream & os, const Angle & x);
+  friend std::ostream & operator << ( std::ostream & os, const Angle & x);
   /**
    * Overloading of >> to read an Angle from an istream.
    */
-  friend istream & operator >> ( istream & is, Angle & x);
+  friend std::istream & operator >> ( std::istream & is, Angle & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Angle(const string &s);
+	Angle(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlAngle a cons ref to an IDLAngle.
 	 */
-	Angle(const IDLAngle & idlAngle);
+	Angle(const asdmIDLTypes::IDLAngle & idlAngle);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Angle.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Angle>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Angle>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Angle to a EndianOSStream.
 	 * @param angle the vector of vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Angle> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Angle> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Angle to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Angle to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Angle> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Angle> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Angle from a EndianIStream
 	 * and use the read value to set an  Angle.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Angle
 	 */	 
-	 static vector<Angle> from1DBin(EndianIStream & eis);
+	 static std::vector<Angle> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Angle from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Angle
 	 */	 
-	 static vector<vector<Angle> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Angle> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Angle from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Angle
 	 */	 
-	 static vector<vector<vector<Angle> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Angle> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Angle = Angle.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Angle.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLAngle representation of the Angle.
 	 * @return IDLAngle 
 	 */
-	IDLAngle toIDLAngle() const;
+    asdmIDLTypes::IDLAngle toIDLAngle() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Angle.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Angle::Angle() : value(0.0) {
 inline Angle::Angle(const Angle &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Angle::Angle(const IDLAngle &l) : value(l.value) {
+inline Angle::Angle(const asdmIDLTypes::IDLAngle &l) : value(l.value) {
 }
 #endif
-inline Angle::Angle(const string &s) : value(fromString(s)) {
+inline Angle::Angle(const std::string &s) : value(fromString(s)) {
 }
 inline Angle::Angle(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Angle Angle::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Angle::operator string () const {
+inline Angle::operator std::string () const {
 	return toString();
 }
-inline string Angle::toString() const {
+inline std::string Angle::toString() const {
 	return toString(value);
 }
-inline string Angle::toStringI() const {
+inline std::string Angle::toStringI() const {
 	return toString(value);
 }
 inline double Angle::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLAngle Angle::toIDLAngle() const {
-	IDLAngle tmp;
+inline asdmIDLTypes::IDLAngle Angle::toIDLAngle() const {
+    asdmIDLTypes::IDLAngle tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Angle operator * ( double n, const Angle &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Angle &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Angle &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Angle &x ) {
+inline std::istream & operator >> ( std::istream &i, Angle &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Angle::unit() {
-	return string ("rad");
+inline std::string Angle::unit() {
+	return std::string ("rad");
 }
 } // End namespace asdm
 #endif /* Angle_CLASS */

@@ -423,12 +423,8 @@ void SkyEquation::predict(Bool incremental,  MS::PredefinedColumns Type) {
 }
 
 //----------------------------------------------------------------------
-void SkyEquation::gradientsChiSquared(const Matrix<Bool>& required,
-				      SkyJones& sj) {
-  // Keep compiler happy
-  if(&sj) {};
-  if(&required) {};
-
+void SkyEquation::gradientsChiSquared(const Matrix<Bool>&,
+				      SkyJones&) {
   throw(AipsError("SkyEquation:: solution for SkyJones not yet implemented"));
 }
 

@@ -135,9 +135,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void init()
     {freqList.resize(0); wList.resize(0); muellerList.resize(0); cfNameList.resize(0);}
 
-    vector<casacore::Double> freqList, wList;
-    vector<casacore::Int> muellerList;
-    vector<casacore::String> cfNameList;
+    std::vector<casacore::Double> freqList, wList;
+    std::vector<casacore::Int> muellerList;
+    std::vector<casacore::String> cfNameList;
   };
   //
   //----------------------------------------------------------------------
@@ -147,7 +147,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   public:
     typedef casacore::Vector< CFStore > CFStoreCacheType;
     typedef casacore::Vector< CFStore2 > CFStoreCacheType2;
-    typedef vector<CFCacheTable> CFCacheTableType;
+    typedef std::vector<CFCacheTable> CFCacheTableType;
 
     CFCache(const char *cfDir="CF"):
       memCache2_p(), memCacheWt2_p(),memCache_p(), memCacheWt_p(), 
@@ -298,7 +298,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     casacore::Matrix<casacore::Int> XSup, YSup;
     casacore::Vector<casacore::Float> paList, Sampling;
-    vector<casacore::Float> paList_p;
+    std::vector<casacore::Float> paList_p;
     casacore::Matrix<casacore::Float> key2IndexMap; // Nx2 [PAVal, Freq]
     casacore::String Dir, WtImagePrefix, cfPrefix, aux;
     ParAngleChangeDetector paCD_p;

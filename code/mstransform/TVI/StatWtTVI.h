@@ -155,7 +155,7 @@ private:
     };
 
     struct BaselineChanBin {
-        Baseline baseline = make_pair(0, 0);
+        Baseline baseline = std::make_pair(0, 0);
         casacore::uInt spw = 0;
         ChanBin chanBin;
         bool operator<(const BaselineChanBin& other) const {
@@ -195,7 +195,7 @@ private:
     // The key refers to the spw, the value vector refers to the
     // channel numbers within that spw that are the first, last channel pair
     // in their respective bins
-    map<casacore::Int, std::vector<ChanBin>> _chanBins {};
+    std::map<casacore::Int, std::vector<ChanBin>> _chanBins {};
     casacore::Int _minSamp = 2;
     casacore::Bool _combineCorr = false;
     casacore::CountedPtr<
@@ -269,8 +269,8 @@ private:
     ) const;
 
     void _computeWeightsTimeBlockProcessing(
-        const map<BaselineChanBin, casacore::Cube<casacore::Complex>>& data,
-        const map<BaselineChanBin, casacore::Cube<casacore::Bool>>& flags
+        const std::map<BaselineChanBin, casacore::Cube<casacore::Complex>>& data,
+        const std::map<BaselineChanBin, casacore::Cube<casacore::Bool>>& flags
     ) const;
 
     void _computeWeightsSlidingTimeWindow(

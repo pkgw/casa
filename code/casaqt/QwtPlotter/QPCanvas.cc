@@ -238,7 +238,8 @@ QPCanvas::QPCanvas(QPPlotter* parent) : m_parent(parent), m_canvas(this),
         m_axesRatioLocked(false), m_axesRatios(4, 1), m_stackCache(*this),
         m_autoIncColors(false), m_picker(m_canvas.canvas()),
         m_mouseFilter(m_canvas.canvas()), m_legendFontSet(false),
-        m_inDraggingMode(false), minSizeHint(50,50) {
+        m_inDraggingMode(false), minSizeHint(50,50),
+        defaultBackground_(nullptr) {
     logObject(CLASS_NAME, this, true);
     
     commonX = false;
@@ -295,6 +296,8 @@ QPCanvas::QPCanvas(QPPlotter* parent) : m_parent(parent), m_canvas(this),
     connect(&m_picker, SIGNAL(selected(const QwtDoubleRect&)),
             this, SLOT(regionSelected(const QwtDoubleRect&)));
 #endif
+
+    defaultBackground_ = background();
 }
 
 void QPCanvas::enableAxis( QwtPlot::Axis axis, bool enable ){
@@ -355,6 +358,10 @@ void QPCanvas::setTitleFont(const PlotFont& font) {
 PlotAreaFillPtr QPCanvas::background() const {
     return new QPAreaFill(m_canvas.canvas()->palette().brush(
                           QPalette::Window));
+}
+
+PlotAreaFillPtr QPCanvas::defaultBackground() const {
+    return  defaultBackground_;
 }
 
 void QPCanvas::setBackground(const PlotAreaFill& areaFill) {

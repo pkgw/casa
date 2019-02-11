@@ -54,7 +54,7 @@
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SDMaskHandler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
-#include <synthesis/TransformMachines/Utils.h>
+#include <synthesis/TransformMachines2/Utils.h>
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 #include <images/Images/ImageRegrid.h>
 #include <imageanalysis/ImageAnalysis/ImageStatsCalculator.h>
@@ -216,6 +216,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // The PSF or Residual images must exist. ( TODO : and weight )
     if( doesImageExist(itsImageName+String(".residual")) || 
 	doesImageExist(itsImageName+String(".psf")) ||
+	//	doesImageExist(itsImageName+String(".model")) ||
 	doesImageExist(itsImageName+String(".gridwt"))  )
       {
 	std::shared_ptr<ImageInterface<Float> > imptr;
@@ -511,7 +512,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		     
 		      if( itsParentCoordSys.nCoordinates()>0 &&  checkCoordSys && ! itsParentCoordSys.near( imPtr->coordinates() ) )
 			{
-			  throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
+
+			  /// Implement an exception to get CAS-9977 to work.
+			  /// "The DirectionCoordinates have differing latpoles"
+			  if( itsParentCoordSys.errorMessage().contains("differing latpoles") )
+			    {
+			      LogIO os( LogOrigin("SIImageStore","Open existing Images",WHERE) );
+			      os << LogIO::DEBUG1 << " !!!! WARNING !!!!! Mismatch in Csys between existing image on disk and current parameters : " << itsParentCoordSys.errorMessage() << LogIO::POST;
+			    }
+			  else
+			    {
+			      throw( AipsError( "There is a coordinate system mismatch between existing images on disk and current parameters ("+itsParentCoordSys.errorMessage()+"). If you are attempting to restart a run, please change imagename and supply the old model or mask as inputs (via the startmodel or mask parameters) so that they can be regridded to the new coordinate system before continuing. " ) );
+			    }
 			}
 		    }// not dosumwt
 		}
@@ -843,7 +855,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	return;
       }
 
-    std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    // master merge 2019.01.08 - leaving in the commnets for now but clean up after it is verified 
+    //SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    //SHARED_PTR<ImageInterface<Float> > newmodel;
+    std::shared_ptr<ImageInterface<Float> > newmodel;
+    buildImage(newmodel, modelname);
+    // in master
+    //std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
 
     Bool hasMask = newmodel->isMasked(); /// || newmodel->hasPixelMask() ;
     

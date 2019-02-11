@@ -113,6 +113,9 @@ public:
     casacore::Vector<casacore::Double> fitfd;
     casacore::Vector<casacore::Double> fitfderr;
     casacore::Vector<casacore::Double> fitreffreq;
+    //casacore::Matrix<casacore::Double> covarmat;
+    //casacore::PtrBlock<casacore::Matrix<casacore::Double>* >  covarmat;
+    casacore::Vector<casacore::Matrix<casacore::Double> >  covarmat;
   } fluxScaleStruct;
 
 

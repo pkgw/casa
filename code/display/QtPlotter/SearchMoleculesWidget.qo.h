@@ -72,7 +72,7 @@ namespace casa {
 			return searchResultsCount;
 		}
 
-		vector<SplatResult> getResults() const {
+		std::vector<SplatResult> getResults() const {
 			return searchResults;
 		}
 
@@ -97,7 +97,7 @@ namespace casa {
 		int searchResultsCount;
 		int offset;
 		bool countNeeded;
-		vector<SplatResult> searchResults;
+		std::vector<SplatResult> searchResults;
 		string errorMsg;
 		string errorMsgCount;
 	};
@@ -119,7 +119,7 @@ namespace casa {
 		void setResultDisplay( SearchMoleculesResultDisplayer* resultDisplay );
 		double getRedShiftedValue( bool reverseRedshift, double value, bool* valid ) const;
 
-		vector<SplatResult> getSearchResults() const;
+		std::vector<SplatResult> getSearchResults() const;
 		casacore::MDoppler::Types getDopplerType() const;
 		casacore::MRadialVelocity::Types getReferenceFrame() const;
 		casacore::MFrequency::Types getReferenceFrequency() const;
@@ -149,10 +149,10 @@ namespace casa {
 		void setAstronomicalFilters( Searcher* searcher );
 		void convertRangeLineEdit( QLineEdit* lineEdit, Converter* converter );
 		void initializeSearchRange( QLineEdit* lineEdit, double& value, bool* valid );
-		vector<string> initializeChemicalNames();
-		vector<string> initializeChemicalFormulas();
+		std::vector<string> initializeChemicalNames();
+		std::vector<string> initializeChemicalFormulas();
 		QList<QString> getSearchChemicals();
-		vector<string> convertStringFormats( const QList<QString>& names );
+		std::vector<string> convertStringFormats( const QList<QString>& names );
 		double redShiftToVelocity( QString velocityUnits) const;
 		double velocityToRedshift( QString velocityUnits ) const;
 		void startSearchThread();
@@ -169,7 +169,7 @@ namespace casa {
 
 		QString unitStr;
 		QString dopplerVelocityUnitStr;
-		vector<SplatResult> searchResults;
+		std::vector<SplatResult> searchResults;
 		QList<QString> velocityUnitsList;
 		QMap<QString, casacore::MRadialVelocity::Types> radialVelocityTypeMap;
 		QMap<QString, casacore::MDoppler::Types> dopplerTypeMap;

@@ -173,7 +173,6 @@ private:
 
   // casacore::Coordinate system selectors.
   casacore::MBaseline::Ref bl_csys_p;
-  casacore::Muvw::Types    uvw_csys_p;
   
   const casacore::ROMSAntennaColumns& antColumns_p;
 
@@ -241,7 +240,6 @@ private:
   casacore::Vector<casacore::Vector<casacore::Double> > antUVW_p;
 
   // the 3 fundamental attributes of the state machine
-  casacore::Double                timeCentroid_p;
   casacore::ROArrayColumn<casacore::Double> phaseDir_p; 
   //casacore::Int                   subarrayId_p;
 
@@ -282,10 +280,8 @@ private:
   // errors.  The latter effect is often neglected, and the offsets are written
   // as sets of zeroes, even though they really are not.
   //
-  casacore::Double offset_tolerance;
   
   // 
-  casacore::Bool   adj_uvw_for_ptg_err;
 };
   
 } //# NAMESPACE CASA - END

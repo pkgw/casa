@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SysPowerRow.h>
-#include <SysPowerTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SysPowerRow.h>
+#include <alma/ASDM/SysPowerTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FeedTable;
 using asdm::FeedRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SysPowerRow::~SysPowerRow() {
@@ -982,7 +979,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SysPowerRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -990,7 +989,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SysPowerRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -998,7 +999,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SysPowerRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1006,7 +1009,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void SysPowerRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1014,7 +1019,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SysPowerRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1024,7 +1031,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	void SysPowerRow::switchedPowerDifferenceFromText(const string & s) {
 		switchedPowerDifferenceExists = true;
 		 
+          
 		switchedPowerDifference = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1033,7 +1042,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	void SysPowerRow::switchedPowerSumFromText(const string & s) {
 		switchedPowerSumExists = true;
 		 
+          
 		switchedPowerSum = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1042,7 +1053,9 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	void SysPowerRow::requantizerGainFromText(const string & s) {
 		requantizerGainExists = true;
 		 
+          
 		requantizerGain = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1140,10 +1153,10 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get switchedPowerDifference, which is optional.
- 	 * @return switchedPowerDifference as vector<float >
+ 	 * @return switchedPowerDifference as std::vector<float >
  	 * @throw IllegalAccessException If switchedPowerDifference does not exist.
  	 */
- 	vector<float > SysPowerRow::getSwitchedPowerDifference() const  {
+ 	std::vector<float > SysPowerRow::getSwitchedPowerDifference() const  {
 		if (!switchedPowerDifferenceExists) {
 			throw IllegalAccessException("switchedPowerDifference", "SysPower");
 		}
@@ -1152,12 +1165,12 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set switchedPowerDifference with the specified vector<float >.
- 	 * @param switchedPowerDifference The vector<float > value to which switchedPowerDifference is to be set.
+ 	 * Set switchedPowerDifference with the specified std::vector<float >.
+ 	 * @param switchedPowerDifference The std::vector<float > value to which switchedPowerDifference is to be set.
  	 
  	
  	 */
- 	void SysPowerRow::setSwitchedPowerDifference (vector<float > switchedPowerDifference) {
+ 	void SysPowerRow::setSwitchedPowerDifference (std::vector<float > switchedPowerDifference) {
 	
  		this->switchedPowerDifference = switchedPowerDifference;
 	
@@ -1187,10 +1200,10 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get switchedPowerSum, which is optional.
- 	 * @return switchedPowerSum as vector<float >
+ 	 * @return switchedPowerSum as std::vector<float >
  	 * @throw IllegalAccessException If switchedPowerSum does not exist.
  	 */
- 	vector<float > SysPowerRow::getSwitchedPowerSum() const  {
+ 	std::vector<float > SysPowerRow::getSwitchedPowerSum() const  {
 		if (!switchedPowerSumExists) {
 			throw IllegalAccessException("switchedPowerSum", "SysPower");
 		}
@@ -1199,12 +1212,12 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set switchedPowerSum with the specified vector<float >.
- 	 * @param switchedPowerSum The vector<float > value to which switchedPowerSum is to be set.
+ 	 * Set switchedPowerSum with the specified std::vector<float >.
+ 	 * @param switchedPowerSum The std::vector<float > value to which switchedPowerSum is to be set.
  	 
  	
  	 */
- 	void SysPowerRow::setSwitchedPowerSum (vector<float > switchedPowerSum) {
+ 	void SysPowerRow::setSwitchedPowerSum (std::vector<float > switchedPowerSum) {
 	
  		this->switchedPowerSum = switchedPowerSum;
 	
@@ -1234,10 +1247,10 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get requantizerGain, which is optional.
- 	 * @return requantizerGain as vector<float >
+ 	 * @return requantizerGain as std::vector<float >
  	 * @throw IllegalAccessException If requantizerGain does not exist.
  	 */
- 	vector<float > SysPowerRow::getRequantizerGain() const  {
+ 	std::vector<float > SysPowerRow::getRequantizerGain() const  {
 		if (!requantizerGainExists) {
 			throw IllegalAccessException("requantizerGain", "SysPower");
 		}
@@ -1246,12 +1259,12 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set requantizerGain with the specified vector<float >.
- 	 * @param requantizerGain The vector<float > value to which requantizerGain is to be set.
+ 	 * Set requantizerGain with the specified std::vector<float >.
+ 	 * @param requantizerGain The std::vector<float > value to which requantizerGain is to be set.
  	 
  	
  	 */
- 	void SysPowerRow::setRequantizerGain (vector<float > requantizerGain) {
+ 	void SysPowerRow::setRequantizerGain (std::vector<float > requantizerGain) {
 	
  		this->requantizerGain = requantizerGain;
 	

@@ -12,31 +12,18 @@
 #include "almaEnumerations_IFC.h"
 #endif
 
-#include "SDMDataObjectPartTypes.h"
+#include <alma/ASDMBinaries/SDMDataObjectPartTypes.h>
 
-#include "CAtmPhaseCorrection.h"
-#include "CAxisName.h"
-#include "CBasebandName.h"
-#include "CCorrelationMode.h"
-#include "CPrimitiveDataType.h"
-#include "CSpectralResolutionType.h"
-#include "CProcessorType.h"
-#include "CCorrelatorType.h"
-#include "CStokesParameter.h"
-#include "CNetSideband.h"
-
-using namespace AtmPhaseCorrectionMod;
-using namespace AxisNameMod;
-using namespace BasebandNameMod;
-using namespace CorrelationModeMod;
-using namespace PrimitiveDataTypeMod;
-using namespace SpectralResolutionTypeMod;
-using namespace ProcessorTypeMod;
-using namespace CorrelatorTypeMod;
-using namespace StokesParameterMod;
-using namespace NetSidebandMod;
-
-using namespace std;
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
+#include <alma/Enumerations/CAxisName.h>
+#include <alma/Enumerations/CBasebandName.h>
+#include <alma/Enumerations/CCorrelationMode.h>
+#include <alma/Enumerations/CPrimitiveDataType.h>
+#include <alma/Enumerations/CSpectralResolutionType.h>
+#include <alma/Enumerations/CProcessorType.h>
+#include <alma/Enumerations/CCorrelatorType.h>
+#include <alma/Enumerations/CStokesParameter.h>
+#include <alma/Enumerations/CNetSideband.h>
 
 #ifndef WITHOUT_BOOST
 #include <boost/regex.hpp> 
@@ -146,7 +133,7 @@ namespace asdmbinaries {
      * A constructor with a message associated with the exception.
      * @param m a string containing the message.
      */
-    SDMDataObjectException(const string& m);
+    SDMDataObjectException(const std::string& m);
     
     /**
      * The destructor.
@@ -157,17 +144,17 @@ namespace asdmbinaries {
      * Returns the message associated to this exception.
      * @return a string.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
-    string message;
+    std::string message;
     
   };
 
   inline SDMDataObjectException::SDMDataObjectException() : message ("SDMDataObjectReaderException") {}
-  inline SDMDataObjectException::SDMDataObjectException(const string& m) : message(m) {}
+  inline SDMDataObjectException::SDMDataObjectException(const std::string& m) : message(m) {}
   inline SDMDataObjectException::~SDMDataObjectException() {}
-  inline string SDMDataObjectException::getMessage() const {
+  inline std::string SDMDataObjectException::getMessage() const {
     return "SDMDataObjectException : " + message;
   }
   
@@ -231,7 +218,7 @@ namespace asdmbinaries {
    * A typedef definition for an optional spectral resolution type.
    *
    */
-  typedef Optional<SpectralResolutionType, CSpectralResolutionType> OptionalSpectralResolutionType;
+  typedef Optional<SpectralResolutionTypeMod::SpectralResolutionType, CSpectralResolutionType> OptionalSpectralResolutionType;
 
 
   /**
@@ -252,13 +239,13 @@ namespace asdmbinaries {
      * <li> Big_Endian is returned as "Big_Endian", </li>
      * </ul>
      */
-    string toString() const ;
+    std::string toString() const ;
 
   private:
-    string name_;
+    std::string name_;
     int endianity_;
 
-    ByteOrder(const string & name, int endianity);
+    ByteOrder(const std::string & name, int endianity);
     virtual ~ByteOrder();
     static const ByteOrder* machineEndianity(); 
   };
@@ -365,18 +352,18 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       friend class HeaderParser;
 
     private:
-      vector<StokesParameter> crossPolProducts_;
-      vector<StokesParameter> sdPolProducts_;
+      std::vector<StokesParameterMod::StokesParameter> crossPolProducts_;
+      std::vector<StokesParameterMod::StokesParameter> sdPolProducts_;
       float scaleFactor_;
       unsigned int numSpectralPoint_;
       unsigned int numBin_;
-      NetSideband sideband_;
-      string strSw_;
-      string strImage_;
-      void strSw(const string& s);
-      const string & strSw() const;
-      void strImage(const string& s);
-      const string & strImage() const;
+      NetSidebandMod::NetSideband sideband_;
+      std::string strSw_;
+      std::string strImage_;
+      void strSw(const std::string& s);
+      const std::string & strSw() const;
+      void strImage(const std::string& s);
+      const std::string & strImage() const;
 
       const SDMDataObject* owner_;
 
@@ -399,29 +386,29 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * A constructor of SpectralWindow to use when there are only interferometric data (correlationMode == CROSS_ONLY).
        */
-      SpectralWindow(const vector<StokesParameter>& crossPolProducts,
+      SpectralWindow(const std::vector<StokesParameterMod::StokesParameter>& crossPolProducts,
 		     float scaleFactor,
 		     unsigned int numSpectralPoint,
 		     unsigned int numBin,
-		     NetSideband sideband);
+		     NetSidebandMod::NetSideband sideband);
 
       /**
        * A constructor of SpectralWindow to use when there are only single dish data (correlationMode == AUTO_ONLY).
        */
-      SpectralWindow(const vector<StokesParameter>& sdPolProducts,
+      SpectralWindow(const std::vector<StokesParameterMod::StokesParameter>& sdPolProducts,
 		     unsigned int numSpectralPoint,
 		     unsigned numBin,
-		     NetSideband sideband);
+		     NetSidebandMod::NetSideband sideband);
 
       /**
        * A constructor of SpectralWindow to use when there are both single dish and  interferometric data (correlationMode == CROSS_AND_AUTO).
        */
-      SpectralWindow(const vector<StokesParameter>& crossPolProducts,
-		     const vector<StokesParameter>& sdPolProduct,
+      SpectralWindow(const std::vector<StokesParameterMod::StokesParameter>& crossPolProducts,
+		     const std::vector<StokesParameterMod::StokesParameter>& sdPolProduct,
 		     float scaleFactor,
 		     unsigned int numSpectralPoint,
 		     unsigned int numBin,
-		     NetSideband sideband);
+		     NetSidebandMod::NetSideband sideband);
 
       /**
        * Returns the vector of polarization products (for the interferometric data).
@@ -429,7 +416,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        *
        * @throw SDMDataObjectException when correlationMode() == AUTO_ONLY.
        */
-      const vector<StokesParameter>& crossPolProducts() const;
+      const std::vector<StokesParameterMod::StokesParameter>& crossPolProducts() const;
       //void crossPolProducts(const vector<StokesParameter>& value);
 
       /**
@@ -438,7 +425,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        *
        * @throw SDMDataObjectException when correlationMode() == CROSS_ONLY.
        */
-      const vector<StokesParameter>& sdPolProducts() const;
+      const std::vector<StokesParameterMod::StokesParameter>& sdPolProducts() const;
       //void sdPolProducts(const vector<StokesParameter>& value);
 
       /**
@@ -495,8 +482,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       friend class HeaderParser;
 
     private:
-      BasebandName name_;
-      vector<SpectralWindow> spectralWindows_;
+      BasebandNameMod::BasebandName name_;
+      std::vector<SpectralWindow> spectralWindows_;
 
       const SDMDataObject* owner_;
 
@@ -518,21 +505,21 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       /**
        * The constructor of Baseband.
        */
-      Baseband(BasebandName name, const vector<SpectralWindow>& spectralWindows);
+      Baseband(BasebandNameMod::BasebandName name, const std::vector<SpectralWindow>& spectralWindows);
 
       /**
        * Returns the name of the baseband.
        * @return a BasebandName value.
        */
-      BasebandName name() const;
+      BasebandNameMod::BasebandName name() const;
       //void ref(BasebandName value);
 
       /**
        * Returns the spectral windows of this baseband.
        * @return a reference to a vector of SpectralWindow.
        */
-      const vector<SpectralWindow>& spectralWindows() const;
-      void spectralWindows(const vector<SpectralWindow>& value);
+      const std::vector<SpectralWindow>& spectralWindows() const;
+      void spectralWindows(const std::vector<SpectralWindow>& value);
     }; // Baseband::
 
 
@@ -563,7 +550,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     protected:
       unsigned int size_;
-      vector<AxisName> axes_;
+      std::vector<AxisNameMod::AxisName> axes_;
 
       const SDMDataObject* owner_;
     
@@ -584,7 +571,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       BinaryPart( unsigned int size,
-		  const vector<AxisName>& axes);
+		  const std::vector<AxisNameMod::AxisName>& axes);
       
       /**
        * Returns the size of a binary attachment as a <b>number of values</b> (e.g. a number of long long for the actualDurations, or 
@@ -599,7 +586,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * rapidly varying.
        * @return a vector of AxisName.
        */
-      virtual const vector<AxisName>& axes() const ; 
+      virtual const std::vector<AxisNameMod::AxisName>& axes() const ; 
       //      virtual void axes (const vector<AxisName>& axes); 
     }; // BinaryPart::
 
@@ -634,7 +621,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       AutoDataBinaryPart(unsigned int size,
-			 const vector<AxisName>& axes,
+			 const std::vector<AxisNameMod::AxisName>& axes,
 			 bool normalized);
       
       /**
@@ -659,7 +646,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       friend class SDMDataObjectWriter;
 
     protected:
-      CorrelatorType correlatorType_;
+      CorrelatorTypeMod::CorrelatorType correlatorType_;
       
     public:
       
@@ -677,14 +664,14 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * The full constructor.
        */
       ZeroLagsBinaryPart(unsigned int size,
-			 const vector<AxisName>& axes,
-			 CorrelatorType correlatorType);
+			 const std::vector<AxisNameMod::AxisName>& axes,
+			 CorrelatorTypeMod::CorrelatorType correlatorType);
 
       /**
        * Returns the correlator type.
        * @return a value of the enumeration CorrelatorType.
        */
-      virtual CorrelatorType correlatorType() const;
+      virtual CorrelatorTypeMod::CorrelatorType correlatorType() const;
     };
 
     // SDMDataObject::DataStruct:: declarations
@@ -735,8 +722,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * AutoDataBinaryPart object.
        *
        */
-      DataStruct(const vector<AtmPhaseCorrection>& apc,
-		 const vector<Baseband>& basebands,
+      DataStruct(const std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection>& apc,
+		 const std::vector<Baseband>& basebands,
 		 const BinaryPart& flags,
 		 const BinaryPart& actualTimes,
 		 const BinaryPart& actualDurations,
@@ -749,14 +736,14 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
        * Returns the radiometric atmospheric phase correction codes.
        * @return a vector of AtmPhaseCorrectionMod::AtmPhaseCorrection.
        */       
-      const vector<AtmPhaseCorrection>& apc() const;
-      //      void apc(const vector<AtmPhaseCorrection>& value);
+      const std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection>& apc() const;
+      //      void apc(const vector<AtmPhaseCorrectionMod::AtmPhaseCorrection>& value);
 
       /**
        * Returns the vector of basebands.
        * @return a reference to a vector of Baseband.
        */
-      const vector<Baseband>& basebands() const;
+      const std::vector<Baseband>& basebands() const;
       //      void basebands(const vector<Baseband>& value);
       
       /**
@@ -868,8 +855,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       
 
     private:
-      vector<AtmPhaseCorrection> apc_;
-      vector<Baseband> basebands_;
+      std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> apc_;
+      std::vector<Baseband> basebands_;
       BinaryPart flags_;
       BinaryPart actualTimes_;
       BinaryPart actualDurations_;
@@ -880,8 +867,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       const SDMDataObject* owner_;
       void owner(const SDMDataObject* o);
 
-      map<string, string> imageSPW_;
-      map<string, string> imageOfSPW_;
+      std::map<std::string, std::string> imageSPW_;
+      std::map<std::string, std::string> imageOfSPW_;
 
       void checkCoordinate(unsigned int ibb, unsigned int ispw) const;
       bool associatedSPW(unsigned int ibb,
@@ -894,21 +881,21 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     SDMDataObject();
     SDMDataObject(unsigned long long startTime,
-		  const string& dataOID,
+		  const std::string& dataOID,
 		  unsigned int dimensionality,
-		  const string& execBlockUID,
+		  const std::string& execBlockUID,
 		  unsigned int execBlockNum,
 		  unsigned int scanNum,
 		  unsigned int subscanNum,
 		  unsigned int numAntenna,
-		  CorrelationMode correlatorMode,
+		  CorrelationModeMod::CorrelationMode correlatorMode,
 		  const SDMDataObject::DataStruct& dataStruct);
 
     SDMDataObject(unsigned long long startTime,
-		  const string& dataOID,
+		  const std::string& dataOID,
 		  unsigned int dimensionality,
 		  unsigned int numTime,
-		  const string& execBlockUID,
+		  const std::string& execBlockUID,
 		  unsigned int execBlockNum,
 		  unsigned int scanNum,
 		  unsigned int subscanNum,
@@ -919,8 +906,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns the title of the SDMDataObject.
      * @return a string.
      */
-    string title() const;
-    void title(const string& value) ;
+    std::string title() const;
+    void title(const std::string& value) ;
 
      /**
       * Returns the byte order of the binary parts.
@@ -947,16 +934,16 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns the dataOID.
      * @return a string.
      */
-    string dataOID() const;
-    void dataOID(const string& value);
+    std::string dataOID() const;
+    void dataOID(const std::string& value);
 
 
     /**
      * Returns the UID of the ExecBlock.
      * @return a string.
      */
-    string execBlockUID() const;
-    void execBlockUID(const string& value);
+    std::string execBlockUID() const;
+    void execBlockUID(const std::string& value);
 
     /**
      * Returns the number of the ExecBlock.
@@ -983,14 +970,14 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns the project path.
      * The project path is a string of the form "/<s>execBlockNum</s>/<s>scanNum</s>/<s>subscanNum</s>"
      */
-    string projectPath() const;
+    std::string projectPath() const;
 
     /**
      * Returns the projects paths of all the data subsets present in this SDMDataObject
      *
      * @return a vector of string.
      */
-    vector<string> projectPaths() const;
+    std::vector<std::string> projectPaths() const;
 
     /**
      * Returns the number of antenna.
@@ -1003,7 +990,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns the correlation mode.
      * @return a value from enumeration CorrelationMode.
      */
-    CorrelationMode correlationMode() const;
+    CorrelationModeMod::CorrelationMode correlationMode() const;
 
 
     /**
@@ -1020,7 +1007,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns the processor type.
      * @return a value from the enumeration ProcessorType.
      */
-    ProcessorType processorType() const;
+    ProcessorTypeMod::ProcessorType processorType() const;
     
 
     /**
@@ -1029,7 +1016,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @return a value from the enumeration CorrelatorType if processorType == CORRELATOR else an SDMDataObjectException is thrown.
      * @throw SDMDataException
      */
-    CorrelatorType correlatorType() const;
+    CorrelatorTypeMod::CorrelatorType correlatorType() const;
 
     /**
      * Returns true if the data are total power data and false otherwise.
@@ -1079,15 +1066,15 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * conversely if it returns false then the vector may have more than one element and the data are distributed over the elements on 
      * the basis of one integration per element.
      */
-    const vector<SDMDataSubset>& sdmDataSubsets() const;
+    const std::vector<SDMDataSubset>& sdmDataSubsets() const;
 
     /**
      * Returns the binary data as a sequence of integrations.
      * This method must be used only when the SDMDataObject contains correlator data (i.e. isCorrelation() == true)
      * @return a reference to a vector of SDMDataSubset.
      */
-    const vector<SDMDataSubset>& corrDataSubsets() const;
-    void corrDataSubsets(const vector<SDMDataSubset>& value);
+    const std::vector<SDMDataSubset>& corrDataSubsets() const;
+    void corrDataSubsets(const std::vector<SDMDataSubset>& value);
 
     /**
      * Returns a reference to a SDMDataSubset given its projectPath.
@@ -1097,7 +1084,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      *
      * @throw SDMDataObjectException.
      */
-    const SDMDataSubset& sdmDataSubset(const string& projectPath) const;
+    const SDMDataSubset& sdmDataSubset(const std::string& projectPath) const;
 
 
     /**
@@ -1134,7 +1121,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      *
      * @throw SDMDataObjectException
      */
-    string abortReason() const ;
+    std::string abortReason() const ;
 
 
     /**
@@ -1149,7 +1136,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns a string representation of the global header of this SDMDataObject.
      * @return a string.
      */
-    string toString() const;
+    std::string toString() const;
 
     /**
      * Makes this SDMDataObject unusable.
@@ -1167,10 +1154,10 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
   private:
 
-    static vector<string> correlationModeRefs;
-    static vector<string> axes;
-    static vector<string> types;
-    static vector<string> apcs;
+    static std::vector<std::string> correlationModeRefs;
+    static std::vector<std::string> axes;
+    static std::vector<std::string> types;
+    static std::vector<std::string> apcs;
 
     const static bool _init;
     static bool init();
@@ -1179,7 +1166,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     bool valid_; 
 
     // Global header variables.
-    string title_;
+    std::string title_;
 
     const ByteOrder* byteOrder_;
 
@@ -1187,13 +1174,13 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     
     long long startTime_;
 
-    string dataOID_;
+    std::string dataOID_;
 
     unsigned int dimensionality_;
 
     unsigned int numTime_;
 
-    string execBlockUID_;
+    std::string execBlockUID_;
 
     unsigned int execBlockNum_;
 
@@ -1203,22 +1190,22 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
 
     unsigned int numAntenna_;
 
-    CorrelationMode correlationMode_;
+    CorrelationModeMod::CorrelationMode correlationMode_;
 
     OptionalSpectralResolutionType spectralResolutionType_;
 
-    ProcessorType processorType_;
+    ProcessorTypeMod::ProcessorType processorType_;
 
     DataStruct dataStruct_;
 
-    map<string, unsigned int> str2index_;
+    std::map<std::string, unsigned int> str2index_;
     
-    vector<SDMDataSubset> dataSubsets_;
+    std::vector<SDMDataSubset> dataSubsets_;
 
     bool aborted_;
 
     unsigned long long int abortTime_;
-    string   abortReason_;
+    std::string   abortReason_;
 
     void append(const SDMDataSubset& value);
 
@@ -1251,13 +1238,13 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns an XML representation of the global header of this SDMDataObject.
      * @return a string.
      */
-    string toXML() ;
-    void toXML(const BinaryPart& binaryPart, const string& elementName,  ostringstream& oss) const;
-    void toXML(const AutoDataBinaryPart& autoDataBinaryPart, const string& elementName,  ostringstream& oss) const;
-    void toXML(const ZeroLagsBinaryPart& zeroLagsBinaryPart, const string& elementName,  ostringstream& oss) const;
-    void spectralWindowsToXML(const vector<Baseband>& basebands, unsigned int ibb,  ostringstream& oss) const;
-    void basebandsToXML(ostringstream& oss) const; 
-    void dataStructToXML(ostringstream& oss) ;
+    std::string toXML() ;
+    void toXML(const BinaryPart& binaryPart, const std::string& elementName,  std::ostringstream& oss) const;
+    void toXML(const AutoDataBinaryPart& autoDataBinaryPart, const std::string& elementName,  std::ostringstream& oss) const;
+    void toXML(const ZeroLagsBinaryPart& zeroLagsBinaryPart, const std::string& elementName,  std::ostringstream& oss) const;
+    void spectralWindowsToXML(const std::vector<Baseband>& basebands, unsigned int ibb,  std::ostringstream& oss) const;
+    void basebandsToXML(std::ostringstream& oss) const; 
+    void dataStructToXML(std::ostringstream& oss) ;
 
     void updateIdImageSPW();
 
@@ -1297,7 +1284,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     SDMDataSubset(SDMDataObject* owner,
 		  unsigned long long time,
 		  unsigned long long interval,
-		  const vector<float>& autoData);
+		  const std::vector<float>& autoData);
 
     /*
      * A copy constructor.
@@ -1328,7 +1315,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * <li>/<execblock-number>/<scan-number>/<subscan-number> in the case of total power data. </li>
      * </ul>
      */
-    string projectPath() const;
+    std::string projectPath() const;
   
     /**
      * Returns the midpoint of :
@@ -1350,19 +1337,19 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * Returns a description of this SDMDataSubset.
      *
      */
-    string toString(unsigned int N = 10 )const ;
+    std::string toString(unsigned int N = 10 )const ;
 
-    void binAttachToXML(const string& name, ostringstream& oss);
-    void tpBinAttachToXML(ostringstream& oss);
-    void corrBinAttachToXML(ostringstream& oss);
+    void binAttachToXML(const std::string& name, std::ostringstream& oss);
+    void tpBinAttachToXML(std::ostringstream& oss);
+    void corrBinAttachToXML(std::ostringstream& oss);
 
-    void toXML(ostringstream& oss) const;
+    void toXML(std::ostringstream& oss) const;
 
     /**
      * Returns an XML representation of this SDMDataSubset.
      *
      */
-    string toXML();
+    std::string toXML();
 
 
     /**
@@ -1457,9 +1444,9 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @return a value of the enumeration PrimitiveDataTypeMod::PrimitiveDataType.
      *
      */
-    PrimitiveDataType crossDataType() const;
+    PrimitiveDataTypeMod::PrimitiveDataType crossDataType() const;
 
-    void crossDataType(PrimitiveDataType value);
+    void crossDataType(PrimitiveDataTypeMod::PrimitiveDataType value);
 
     /**
      *
@@ -1513,7 +1500,7 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @return a string.
      * @note Of course, the returned value is not meaningful if aborted() returns false.
      */
-    string abortReason() const;
+    std::string abortReason() const;
 
 
 
@@ -1521,17 +1508,17 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     SDMDataObject* owner_;
     unsigned int integrationNum_;
     unsigned int subintegrationNum_;
-    CorrelationMode ref_;
+    CorrelationModeMod::CorrelationMode ref_;
     unsigned long long time_;
     unsigned long long interval_;
-    string dataStruct_;
-    string flagsREF_;
-    string actualTimesREF_;
-    string actualDurationsREF_;
-    string zeroLagsREF_;
-    string crossDataREF_;
-    PrimitiveDataType crossDataType_;
-    string autoDataREF_;
+    std::string dataStruct_;
+    std::string flagsREF_;
+    std::string actualTimesREF_;
+    std::string actualDurationsREF_;
+    std::string zeroLagsREF_;
+    std::string crossDataREF_;
+    PrimitiveDataTypeMod::PrimitiveDataType crossDataType_;
+    std::string autoDataREF_;
 
     const ACTUALTIMESTYPE * actualTimes_;
     unsigned long int nActualTimes_;
@@ -1554,11 +1541,11 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     unsigned long int nAutoData_;
     uint64_t autoDataPosition_;
 
-    string xsiType() const;
+    std::string xsiType() const;
 
     bool aborted_;
     unsigned long long int abortTime_;
-    string   abortReason_;
+    std::string   abortReason_;
 
   };
   // SDMDataSubset:: declarations
@@ -1568,25 +1555,25 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
   //
   class Utils {
   public:
-    static void invalidCall(const string & methodName, const SDMDataObject* sdmDataObject);
-    static string quote(const string& s);
-    static string quote(bool b);
-    static string quote(int i);
-    static string quote(unsigned int i);
-    static string quote(long long l);
-    static string quote(float f);
-    static string quote(const set<string>& s);
-    static string quote(const vector<string>& s);
-    template<class Enum, class EnumHelper> static string quote(Enum l) {
-      ostringstream oss;
+    static void invalidCall(const std::string & methodName, const SDMDataObject* sdmDataObject);
+    static std::string quote(const std::string& s);
+    static std::string quote(bool b);
+    static std::string quote(int i);
+    static std::string quote(unsigned int i);
+    static std::string quote(long long l);
+    static std::string quote(float f);
+    static std::string quote(const std::set<std::string>& s);
+    static std::string quote(const std::vector<std::string>& s);
+    template<class Enum, class EnumHelper> static std::string quote(Enum l) {
+      std::ostringstream oss;
       oss << "\"";
       oss << EnumHelper::name(l);
       oss << "\"";
       return oss.str();
     }
 
-    template<class Enum, class EnumHelper> static string quote(const vector<Enum>& v_l) {
-      ostringstream oss;
+    template<class Enum, class EnumHelper> static std::string quote(const std::vector<Enum>& v_l) {
+      std::ostringstream oss;
       oss << "\"";
 
       if (v_l.size() > 0)
@@ -1598,14 +1585,14 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
       return oss.str();
     }
 
-    template<class Enum, class EnumHelper> static string toString(Enum l) {
-      ostringstream oss;
+    template<class Enum, class EnumHelper> static std::string toString(Enum l) {
+      std::ostringstream oss;
       oss << EnumHelper::name(l);
       return oss.str();
     }
 
-    template<class Enum, class EnumHelper> static string toString(const vector<Enum>& v_l) {
-      ostringstream oss;
+    template<class Enum, class EnumHelper> static std::string toString(const std::vector<Enum>& v_l) {
+      std::ostringstream oss;
 
       if (v_l.size() > 0)
 	oss << EnumHelper::name(v_l.at(0));
@@ -1618,11 +1605,11 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     /**
      * A generic utility to return a vector of <Enum> out of a string of <Enum> literals separated by space characters.
      */
-    template<class Enum, class EnumHelper> static vector<Enum> enumvec(const string& strliterals) {
-      vector<Enum> result;
+    template<class Enum, class EnumHelper> static std::vector<Enum> enumvec(const std::string& strliterals) {
+      std::vector<Enum> result;
       
-      string strliteral;
-      istringstream iss(strliterals);
+      std::string strliteral;
+      std::istringstream iss(strliterals);
       
       while (iss >> strliteral)
 	result.push_back(EnumHelper::literal(strliteral));
@@ -1631,12 +1618,12 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
     }
 
 
-    static void toXML(const string& elementName, int value, ostringstream& oss);
-    static void toXML(const string& elementName, unsigned int value, ostringstream& oss);
-    static void toXML(const string& elementName, long long value, ostringstream& oss);
-    static void toXML(const string& elementName, unsigned long long value, ostringstream& oss);
-    static void oXML(const string& elementName, ostringstream& oss);
-    static void cXML(const string& elementName, ostringstream& oss);
+    static void toXML(const std::string& elementName, int value, std::ostringstream& oss);
+    static void toXML(const std::string& elementName, unsigned int value, std::ostringstream& oss);
+    static void toXML(const std::string& elementName, long long value, std::ostringstream& oss);
+    static void toXML(const std::string& elementName, unsigned long long value, std::ostringstream& oss);
+    static void oXML(const std::string& elementName, std::ostringstream& oss);
+    static void cXML(const std::string& elementName, std::ostringstream& oss);
     
     /**
      * A generic utility to XML'ize a literal as the content of an XML element.
@@ -1646,8 +1633,8 @@ form an SDMDataObject which is in turn converted into a MIME message, </li>
      * @param oss a reference to the output string stream where the XML is written.
      *
      */
-    template<class Enum, class EnumHelper> static void toXML(const string& elementName, Enum value, ostringstream& oss) {
-      oss << "<" << elementName << ">" << EnumHelper::name(value) << "</" << elementName << ">" << endl;      
+    template<class Enum, class EnumHelper> static void toXML(const std::string& elementName, Enum value, std::ostringstream& oss) {
+      oss << "<" << elementName << ">" << EnumHelper::name(value) << "</" << elementName << ">" << std::endl;      
     }
 
 #define QUOTE    Utils::quote

@@ -30,27 +30,22 @@
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
 
-#include <EntityId.h>
-#include <PartId.h>
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/PartId.h>
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLEntityRef;
 #endif
 
-#include <StringTokenizer.h>
-#include <InvalidArgumentException.h>
-#include <InvalidDataException.h>
-using asdm::StringTokenizer;
-using asdm::InvalidArgumentException;
-using asdm::InvalidDataException;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/InvalidDataException.h>
 
 namespace asdm {
 
 class EntityRef;
-ostream & operator << ( ostream &, const EntityRef & );
+std::ostream & operator << ( std::ostream &, const EntityRef & );
 
 /**
  * The EntityRef class is an identification of a persistant
@@ -61,18 +56,18 @@ ostream & operator << ( ostream &, const EntityRef & );
  * @author Allen Farris
  */
 class EntityRef {
-    friend ostream & operator << ( ostream &, const EntityRef & );
+    friend std::ostream & operator << ( std::ostream &, const EntityRef & );
 
 public:
 	static EntityRef getEntityRef(StringTokenizer &t) throw(InvalidArgumentException);
 
 	EntityRef();
-	EntityRef(const string &s);
+	EntityRef(const std::string &s);
 #ifndef WITHOUT_ACS
-	EntityRef(IDLEntityRef &);
+	EntityRef(asdmIDLTypes::IDLEntityRef &);
 #endif
-	EntityRef(string entityId, string partId, string entityTypeName,
-			string instanceVersion);
+	EntityRef(std::string entityId, std::string partId, std::string entityTypeName,
+			std::string instanceVersion);
 	virtual ~EntityRef();
 
 	bool operator == (const EntityRef &) const;
@@ -81,12 +76,12 @@ public:
 
 	bool isNull() const;
 
-	string toString() const;
-	string toXML() const throw(InvalidDataException);
+	std::string toString() const;
+	std::string toXML() const throw(InvalidDataException);
 #ifndef WITHOUT_ACS
-	IDLEntityRef toIDLEntityRef() const;
+    asdmIDLTypes::IDLEntityRef toIDLEntityRef() const;
 #endif
-	void setFromXML(string xml) ;
+	void setFromXML(std::string xml) ;
 	
    /**
 	 * Write the binary representation of this to a EndianOSStream.
@@ -96,7 +91,7 @@ public:
    /**
     * Write the binary representation of a vector of EntityRef to an EndianOSStream.
     */
-	static void toBin(const vector<EntityRef>& entityRef,  EndianOSStream& eoss);
+	static void toBin(const std::vector<EntityRef>& entityRef,  EndianOSStream& eoss);
 	 
    /**
 	 * Read the binary representation of an EntityRef from a EndianIStream
@@ -111,30 +106,30 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of EntityRef
 	 */
-	static vector<EntityRef> from1DBin(EndianIStream & eis);
+	static std::vector<EntityRef> from1DBin(EndianIStream & eis);
 
 	EntityId getEntityId() const;
 	PartId getPartId() const;
-	string getEntityTypeName() const;
-	string getInstanceVersion() const;
+	std::string getEntityTypeName() const;
+	std::string getInstanceVersion() const;
 	void setEntityId(EntityId e);
 	void setPartId(PartId s);
-	void setEntityTypeName(string s);
-	void setInstanceVersion(string s);
+	void setEntityTypeName(std::string s);
+	void setInstanceVersion(std::string s);
 
 private:
 	EntityId entityId;
 	PartId partId;
-	string entityTypeName;
-	string instanceVersion;
+	std::string entityTypeName;
+	std::string instanceVersion;
 
-	string getXMLValue(string xml, string parm) const;
-	string validXML() const;
+	std::string getXMLValue(std::string xml, std::string parm) const;
+	std::string validXML() const;
 
 };
 
 // EntityRef constructors
-inline EntityRef::EntityRef(const string &s) {
+inline EntityRef::EntityRef(const std::string &s) {
 	setFromXML(s);
 }
 
@@ -145,7 +140,7 @@ inline bool EntityRef::isNull() const {
 	return entityId.isNull();
 }
 
-inline string EntityRef::toString() const {
+inline std::string EntityRef::toString() const {
 	return toXML();
 }
 
@@ -163,11 +158,11 @@ inline PartId EntityRef::getPartId() const {
 	return partId;
 }
 
-inline string EntityRef::getEntityTypeName() const {
+inline std::string EntityRef::getEntityTypeName() const {
 	return entityTypeName;
 }
 
-inline string EntityRef::getInstanceVersion() const {
+inline std::string EntityRef::getInstanceVersion() const {
 	return instanceVersion;
 }
 
@@ -179,17 +174,17 @@ inline void EntityRef::setPartId(PartId p) {
 	partId = p;
 }
 
-inline void EntityRef::setEntityTypeName(string s) {
+inline void EntityRef::setEntityTypeName(std::string s) {
 	entityTypeName = s;
 }
 
-inline void EntityRef::setInstanceVersion(string s) {
+inline void EntityRef::setInstanceVersion(std::string s) {
 	instanceVersion = s;
 }
 
 // Friend functions
 
-inline ostream & operator << ( ostream &o, const EntityRef &x ) {
+inline std::ostream & operator << ( std::ostream &o, const EntityRef &x ) {
 	o << x.toXML();
 	return o;
 }

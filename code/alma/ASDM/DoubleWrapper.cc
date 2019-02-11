@@ -24,8 +24,8 @@
  * File Double.cpp
  */
 
-#include <DoubleWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 
