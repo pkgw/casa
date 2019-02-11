@@ -543,10 +543,10 @@ void XJones::newselfSolve(VisSet& vs, VisEquation& ve) {
       solveOneVB(svb);
 
       if (ntrue(solveParOK())>0) {
-	Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*90.0/C::pi;
+	Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
 
 
-	logSink() << "Mean position angle offset solution for " 
+	logSink() << "Mean CROSS-HAND PHASE solution for " 
 		  << msmc().fieldName(currField())
 		  << " (spw = " << currSpw() << ") = "
 		  << ang
@@ -554,7 +554,7 @@ void XJones::newselfSolve(VisSet& vs, VisEquation& ve) {
 		  << LogIO::POST;
       }
       else
-	logSink() << "Position angle offset solution for " 
+	logSink() << "CROSS-HAND PHASE solution for " 
 		  << msmc().fieldName(currField())
 		  << " (spw = " << currSpw() << ") "
 		  << " was not determined (insufficient data)."
@@ -703,10 +703,10 @@ void XJones::solveOneVB(const VisBuffer& vb) {
 
   
   if (ntrue(solveParOK())>0) {
-    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*90.0/C::pi;
+    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
     
     
-    logSink() << "Mean position angle offset solution for " 
+    logSink() << "Mean CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") = "
 	      << ang
@@ -714,7 +714,7 @@ void XJones::solveOneVB(const VisBuffer& vb) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Position angle offset solution for " 
+    logSink() << "CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") "
 	      << " was not determined (insufficient data)."
@@ -811,10 +811,10 @@ void XJones::solveOneSDB(SolveDataBuffer& sdb) {
 
   
   if (ntrue(solveParOK())>0) {
-    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*90.0/C::pi;
+    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
     
     
-    logSink() << "Mean position angle offset solution for " 
+    logSink() << "Mean CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") = "
 	      << ang
@@ -822,7 +822,7 @@ void XJones::solveOneSDB(SolveDataBuffer& sdb) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Position angle offset solution for " 
+    logSink() << "CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") "
 	      << " was not determined (insufficient data)."
@@ -926,10 +926,10 @@ void XJones::solveOne(SDBList& sdbs) {
 
   
   if (ntrue(solveParOK())>0) {
-    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*90.0/C::pi;
+    Float ang=arg(sum(solveCPar()(solveParOK()))/Float(ntrue(solveParOK())))*180.0/C::pi;
     
     
-    logSink() << "Mean position angle offset solution for " 
+    logSink() << "Mean CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") = "
 	      << ang
@@ -937,7 +937,7 @@ void XJones::solveOne(SDBList& sdbs) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Position angle offset solution for " 
+    logSink() << "CROSS-HAND PHASE solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") "
 	      << " was not determined (insufficient data)."
@@ -1625,7 +1625,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
     logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " //<< endl
-	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
+	      << " CROSS-HAND PHASE = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
 	      << " (Mean = " << ang << ")"
 	      << LogIO::POST;
   }
@@ -1633,7 +1633,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
     logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
-	      << " Cross-hand phase was not determined (insufficient data)."
+	      << " CROSS-HAND PHASE was not determined (insufficient data)."
 	      << LogIO::POST;
 
   if (report)
@@ -1824,7 +1824,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
     logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): "  // << endl
-	      << " Cross-hand phase = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
+	      << " CROSS-HAND PHASE = " << arg(Cph[nChan/2])*180.0/C::pi << " deg."
 	      << " (Mean = " << ang << ")"
 	      << LogIO::POST;
   }
@@ -1832,7 +1832,7 @@ void XparangJones::solveOne(SDBList& sdbs) {
     logSink() << " Fld = " << msmc().fieldName(currField())
 	      << ", Spw = " << thisSpw
 	      << " (ich=" << nChan/2 << "/" << nChan << "): " << endl
-	      << " Cross-hand phase was not determined (insufficient data)."
+	      << " CROSS-HAND PHASE was not determined (insufficient data)."
 	      << LogIO::POST;
 
   if (false)
@@ -2199,7 +2199,7 @@ void PosAngJones::solveOne(SDBList& sdbs) {
   Complex d,md;
   Float wt;
   Vector<DComplex> RL(nChan,0.0);
-  Double sumwt(0.0);
+  Vector<Double> sumwt(nChan,0.0);
   for (Int isdb=0;isdb<nSDB;++isdb) {
     SolveDataBuffer& sdb(sdbs(isdb));
     for (Int irow=0;irow<sdb.nRows();++irow) {
@@ -2231,7 +2231,7 @@ void PosAngJones::solveOne(SDBList& sdbs) {
 		    else
 		      RL(ich)+=conj(DComplex(Complex(wt)*d/md));
 		    
-		    sumwt+=Double(wt);
+		    sumwt(ich)+=Double(wt);
 		    
 		  } // abs(d)>0
 		} // icorr
@@ -2266,7 +2266,7 @@ void PosAngJones::solveOne(SDBList& sdbs) {
 
 		if (abs(d)>0.0 && abs(md)>0.0) {
 		  RL(ich)+=DComplex(Complex(wt)*d/md);
-		  sumwt+=Double(wt);
+		  sumwt(ich)+=Double(wt);
 		} // abs(d)>0
 
 	      } // wt>0
@@ -2289,16 +2289,18 @@ void PosAngJones::solveOne(SDBList& sdbs) {
     // For now, all antennas get the same solution
     IPosition blc(3,0,ich,0);
     IPosition trc(3,0,ich,nElem()-1);
-    if (sumwt>0 && amp>0.0) {
+    if (sumwt(ich)>0 && amp>0.0) {
+      RL(ich)/=amp;
       solveRPar()(blc,trc)=arg(RL(ich))/2.0;
       solveParOK()(blc,trc)=true;
     }
+    else
+      RL(ich)=0.0;
   }
 
-  
   if (ntrue(solveParOK())>0) {
-    Float ang=sum(solveRPar()(solveParOK()))/Float(ntrue(solveParOK()))*180.0/C::pi;
-    logSink() << "Mean position angle offset solution for " 
+    Float ang=arg(sum(RL))*90.0/C::pi;
+    logSink() << "Mean POSITION ANGLE OFFSET solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") = "
 	      << ang
@@ -2306,7 +2308,7 @@ void PosAngJones::solveOne(SDBList& sdbs) {
 	      << LogIO::POST;
   }
   else
-    logSink() << "Position angle offset solution for " 
+    logSink() << "POSITION ANGLE OFFSET solution for " 
 	      << msmc().fieldName(currField())
 	      << " (spw = " << currSpw() << ") "
 	      << " was not determined (insufficient data)."
