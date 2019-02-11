@@ -129,6 +129,7 @@ calibrations can be applied on the fly.
 			<value>Xf</value>
 			<value>Xparang+QU</value>
 			<value>Xfparang+QU</value>
+			<value>PosAng</value>
 			<value>Xj</value>
 		</allowed>
 	</param>

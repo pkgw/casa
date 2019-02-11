@@ -508,6 +508,9 @@ SolvableVisCal* createSolvableVisCal(const String& type, const MSMetaInfoForCal&
 	   uptype=="XFPARANG+QU")
     return new XfparangJones(msmc);
 
+  else if (uptype=="POSANG" || uptype=="POSANG JONES")
+    return new PosAngJones(msmc);
+
   else if (uptype=="KMBD" || uptype=="KMBD JONES")
     return new KMBDJones(msmc);
 

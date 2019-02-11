@@ -109,7 +109,7 @@ private:
 
 
 // **********************************************************
-//  X: position angle calibration (for circulars!)
+//  X: Cross-hand phase (generic) 
 //
 class XJones : public SolvableVisJones {
 public:
@@ -308,6 +308,102 @@ public:
 
 
 };
+
+
+// **********************************************************
+//  PosAng: Basis-agnostic position angle
+//
+class PosAngJones : public XJones {
+public:
+
+  // Constructor
+  PosAngJones(VisSet& vs);
+  PosAngJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
+  PosAngJones(const MSMetaInfoForCal& msmc);
+  PosAngJones(const casacore::Int& nAnt);
+
+  virtual ~PosAngJones();
+
+  // PosAng had casacore::Float parameter
+  virtual VisCalEnum::VCParType parType() { return VisCalEnum::REAL; };
+
+  // Return the type enum (this is its position in the ME)
+  virtual Type type() { return VisCal::C; };
+
+  // Return type name as string
+  virtual casacore::String typeName()     { return "PosAng Jones"; };
+  virtual casacore::String longTypeName() { return "PosAng Jones (antenna-based)"; };
+
+  // Type of Jones matrix (basis-sensitive)
+  virtual Jones::JonesType jonesType() { return jonestype_; };
+
+  // FreqDep
+  virtual casacore::Bool freqDepPar() { return true; };
+
+  // Local setApply
+  using XJones::setApply;
+  virtual void setApply(const casacore::Record& apply);
+
+  // Local setSolve
+  using XJones::setSolve;
+  void setSolve(const casacore::Record& solvepar);
+
+  // PosAng is NOT normalizable by the model (per correlation)
+  virtual casacore::Bool normalizable() { return false; };
+  // ...but we can divide by the I model!
+  virtual casacore::Bool divideByStokesIModelForSolve() { return true; };
+
+  // X generically gathers, but solves for itself per solution
+  virtual casacore::Bool useGenericGatherForSolve() { return true; };
+  virtual casacore::Bool useGenericSolveOne() { return false; }
+
+  // Actually do the solve on ths SDBs
+  virtual void selfSolveOne(SDBList& sdbs) { this->solveOne(sdbs); };
+
+
+protected:
+
+  // PosAng has just 1 float parameter, storing an angle
+  virtual casacore::Int nPar() { return 1; };
+
+  // Jones matrix elements are NOT trivial
+  virtual casacore::Bool trivialJonesElem() { return false; };
+
+  // Detect basis for this vb
+  virtual void syncMeta(const VisBuffer& vb);
+  virtual void syncMeta2(const vi::VisBuffer2& vb);
+
+  // Calculate the PosAng matrix for all ants
+  //  Don't use XJones::calcAllJones!!
+  virtual void calcAllJones(); //  { VisJones::calcAllJones(); };
+
+  // Calculate a single PosAngJones matrix 
+  virtual void calcOneJonesRPar(casacore::Vector<casacore::Complex>& mat, casacore::Vector<casacore::Bool>& mOk,
+                            const casacore::Vector<casacore::Float>& par, const casacore::Vector<casacore::Bool>& pOk );
+
+  virtual void solveOne(SDBList& sdbs);
+
+private:
+
+  // X gathers/solves for itself 
+  virtual void selfGatherAndSolve(VisSet& vs, VisEquation& ve) { newselfSolve(vs,ve); };
+  virtual void newselfSolve(VisSet& , VisEquation& ) { throw(casacore::AipsError("PosAngJones::newselfsolve(vs,ve) NYI")); };  // new supports combine
+
+  // When genericall gathering, solve using first VB only in VBGA
+  virtual void selfSolveOne(VisBuffGroupAcc& vbga) { this->solveOneVB(vbga(0)); };
+
+  // Solve in one VB for the position angle
+  virtual void solveOneVB(const VisBuffer& ) { throw(casacore::AipsError("PosAngJones::solveOneVB(vb) NYI")); };
+  virtual void solveOneSDB(SolveDataBuffer& ) { throw(casacore::AipsError("PosAngJones::solveOneSDB(sdb) NYI")); };
+
+  // We sense basis in setMeta, and this sets the matrix type
+  Jones::JonesType jonestype_;
+
+};
+
+
+
+
 
 
 

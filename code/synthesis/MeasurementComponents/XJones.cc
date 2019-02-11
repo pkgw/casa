@@ -1990,6 +1990,332 @@ XfparangJones::~XfparangJones() {
 }
 
 
+// **********************************************************
+//  PosAngJones Implementations
+//
+
+PosAngJones::PosAngJones(VisSet& vs) :
+  VisCal(vs),             // virtual base
+  VisMueller(vs),         // virtual base
+  XJones(vs),             // immediate parent
+  jonestype_(Jones::Diagonal)
+{
+  if (prtlev()>2) cout << "PosAng::PosAng(vs)" << endl;
+}
+
+PosAngJones::PosAngJones(String msname,Int MSnAnt,Int MSnSpw) :
+  VisCal(msname,MSnAnt,MSnSpw),             // virtual base
+  VisMueller(msname,MSnAnt,MSnSpw),         // virtual base
+  XJones(msname,MSnAnt,MSnSpw),             // immediate parent
+  jonestype_(Jones::Diagonal)
+{
+  if (prtlev()>2) cout << "PosAng::PosAng(msname,MSnAnt,MSnSpw)" << endl;
+}
+
+PosAngJones::PosAngJones(const MSMetaInfoForCal& msmc) :
+  VisCal(msmc),             // virtual base
+  VisMueller(msmc),         // virtual base
+  XJones(msmc),             // immediate parent
+  jonestype_(Jones::Diagonal)
+{
+  if (prtlev()>2) cout << "PosAng::PosAng(msmc)" << endl;
+}
+
+PosAngJones::PosAngJones(const Int& nAnt) :
+  VisCal(nAnt), 
+  VisMueller(nAnt),
+  XJones(nAnt),
+  jonestype_(Jones::Diagonal)
+{
+  if (prtlev()>2) cout << "PosAng::PosAng(nAnt)" << endl;
+}
+
+PosAngJones::~PosAngJones() {
+  if (prtlev()>2) cout << "PosAng::~PosAng()" << endl;
+}
+
+void PosAngJones::setApply(const Record& apply) {
+
+  SolvableVisCal::setApply(apply);
+
+  // Force calwt to false 
+  calWt()=false;
+
+}
+
+void PosAngJones::setSolve(const Record& solvepar) {
+
+  SolvableVisCal::setSolve(solvepar);
+
+  // Force calwt to false 
+  calWt()=false;
+
+  // For X insist preavg is meaningful (5 minutes or user-supplied)
+  if (preavg()<0.0)
+    preavg()=30.0;
+
+  // Force refant to none (==-1), because it is meaningless to
+  //  apply a refant to an X solution
+  if (refant()>-1) {
+    logSink() << ".   (Ignoring specified refant for " 
+	      << typeName() << " solve.)"
+	      << LogIO::POST;
+    refantlist().resize(1);
+    refantlist()(0)=-1;
+  }
+
+}
+
+// PJones needs to know pol basis and feed pa
+void PosAngJones::syncMeta(const VisBuffer& vb) {
+
+  // Call parent (sets currTime())
+  VisJones::syncMeta(vb);
+
+  // Basis
+  if (vb.corrType()(0)==5)         // Circulars
+    jonestype_=Jones::Diagonal;
+  else if (vb.corrType()(0)==9)    // Linears
+    jonestype_=Jones::General;
+
+}
+
+// PJones needs to know pol basis and feed pa
+void PosAngJones::syncMeta2(const vi::VisBuffer2& vb) {
+
+  // Call parent (sets currTime())
+  VisJones::syncMeta2(vb);
+
+  // Basis
+  if (vb.correlationTypes()(0)==5)         // Circulars
+    jonestype_=Jones::Diagonal;
+  else if (vb.correlationTypes()(0)==9)    // Linears
+    jonestype_=Jones::General;
+
+}
+
+void PosAngJones::calcAllJones() {
+
+  //if (prtlev()>6) cout << "       PosAng::calcAllJones()" << endl;
+
+  // Should handle OK flags in this method, and only
+  //  do Jones calc if OK
+
+  Vector<Complex> oneJones;
+  Vector<Bool> oneJOK;
+  Vector<Float> onePar;
+  Vector<Bool> onePOK;
+
+  ArrayIterator<Complex> Jiter(currJElem(),1);
+  ArrayIterator<Bool>    JOKiter(currJElemOK(),1);
+  ArrayIterator<Float>   Piter(currRPar(),1);
+  ArrayIterator<Bool>    POKiter(currParOK(),1);
+
+  for (Int iant=0; iant<nAnt(); iant++) {
+
+    for (Int ich=0; ich<nChanMat(); ich++) {
+      
+      oneJones.reference(Jiter.array());
+      oneJOK.reference(JOKiter.array());
+      onePar.reference(Piter.array());
+      onePOK.reference(POKiter.array());
+
+      // Calculate the Jones matrix
+      calcOneJonesRPar(oneJones,oneJOK,onePar,onePOK);
+
+      // Advance iterators
+      Jiter.next();
+      JOKiter.next();
+      if (freqDepPar()) {
+        Piter.next();
+        POKiter.next();
+      }
+
+    }
+    // Step to next antenns's pars if we didn't in channel loop
+    if (!freqDepPar()) {
+      Piter.next();
+      POKiter.next();
+    }
+  }
+}
+
+// Calculate a single Jones matrix by some means from parameters
+void PosAngJones::calcOneJonesRPar(Vector<Complex>& mat, Vector<Bool>& mOk,
+				   const Vector<Float>& par, const Vector<Bool>& pOk ) {
+
+  if (prtlev()>10) cout << "       PosAng::calcOneJones()" << endl;
+
+  if (pOk(0)) {
+
+    switch (jonesType()) {
+      // Circular version:
+    case Jones::Diagonal: {
+      mat(0)=Complex(cos(par(0)), sin(-par(0)));  // exp(-ia)
+      mat(1)=conj(mat(0));        // exp(ia)
+      mOk=true;
+      break;
+    }
+      // Linear version:
+    case Jones::General: {
+      const Float a=-par(0);
+      mat(0)=mat(3)=cos(a);
+      mat(1)=sin(a);
+      mat(2)=-mat(1);
+      mOk=true;
+      break;
+    }
+    default:
+      throw(AipsError("PosAngJones doesn't know if it is Diag (Circ) or General (Lin)"));
+      break;
+
+    }
+
+  }
+}
+
+
+void PosAngJones::solveOne(SDBList& sdbs) {
+
+  // This just a simple average of the cross-hand
+  //  visbilities...
+
+  Int nSDB=sdbs.nSDB();
+
+  // We are actually solving for all channels simultaneously
+  solveRPar().reference(solveAllRPar());
+  solveParOK().reference(solveAllParOK());
+  solveParErr().reference(solveAllParErr());
+  solveParSNR().reference(solveAllParSNR());
+  
+  // Fill solveCPar() with 1, nominally, and flagged
+  solveRPar()=0.0;
+  solveParOK()=false;
+
+  Int nChan=sdbs.nChannels();
+
+  String polBasis=sdbs.polBasis();
+
+  Complex d,md;
+  Float wt;
+  Vector<DComplex> RL(nChan,0.0);
+  Double sumwt(0.0);
+  for (Int isdb=0;isdb<nSDB;++isdb) {
+    SolveDataBuffer& sdb(sdbs(isdb));
+    for (Int irow=0;irow<sdb.nRows();++irow) {
+      if (!sdb.flagRow()(irow) &&
+	  sdb.antenna1()(irow)!=sdb.antenna2()(irow)) {
+	
+	for (Int ich=0;ich<nChan;++ich) {
+
+	  if (polBasis=="CIRC") {
+	    if (!sdb.flagCube()(1,ich,irow) &&
+		!sdb.flagCube()(2,ich,irow)) {
+	    
+	      // A common weight for both crosshands
+	      // TBD: we should probably consider this carefully...
+	      //  (also in D::guessPar...)
+	      wt=Double(sdb.weightSpectrum()(1,ich,irow)+
+			sdb.weightSpectrum()(2,ich,irow))/2.0;
+	      
+	      if (wt>0.0) {
+		// Cross-hands only
+		for (Int icorr=1;icorr<3;++icorr) {
+		  d=sdb.visCubeCorrected()(icorr,ich,irow);
+		  md=sdb.visCubeModel()(icorr,ich,irow);
+		  
+		  if (abs(d)>0.0 && abs(md)>0.0) {
+		    
+		    if (icorr==1) 
+		      RL(ich)+=DComplex(Complex(wt)*d/md);
+		    else
+		      RL(ich)+=conj(DComplex(Complex(wt)*d/md));
+		    
+		    sumwt+=Double(wt);
+		    
+		  } // abs(d)>0
+		} // icorr
+	      } // wt>0
+	    } // !flag
+	  } // CIRC
+	  else if (polBasis=="LIN") {
+	    // Need all 4 correlations
+	    if (!sdb.flagCube()(0,ich,irow) &&
+		!sdb.flagCube()(1,ich,irow) &&
+		!sdb.flagCube()(2,ich,irow) &&
+		!sdb.flagCube()(3,ich,irow)) {
+	    
+	      // A common weight  (correct?)
+	      wt=Double(sdb.weightSpectrum()(0,ich,irow)+
+			sdb.weightSpectrum()(1,ich,irow)+
+			sdb.weightSpectrum()(2,ich,irow)+
+			sdb.weightSpectrum()(3,ich,irow))/4.0;
+	      
+	      if (wt>0.0) {
+
+		Complex oneI(0.0,1.0);
+		const Cube<Complex>& vCC(sdb.visCubeCorrected());
+		Complex Q( (vCC(0,ich,irow)-vCC(3,ich,irow))/2.0 );
+		Complex U( (vCC(1,ich,irow)+vCC(2,ich,irow))/2.0 );
+		Complex d(Q+oneI*U);
+		
+		const Cube<Complex> vCM(sdb.visCubeModel());
+		Complex Qm( (vCM(0,ich,irow)-vCM(3,ich,irow))/2.0 );
+		Complex Um( (vCM(1,ich,irow)+vCM(2,ich,irow))/2.0 );
+		Complex md(Qm+oneI*Um);
+
+		if (abs(d)>0.0 && abs(md)>0.0) {
+		  RL(ich)+=DComplex(Complex(wt)*d/md);
+		  sumwt+=Double(wt);
+		} // abs(d)>0
+
+	      } // wt>0
+	    } // !flag
+	  } // LIN
+
+	} // ich
+      } // !flagRow
+    } // row
+  } // isdb
+
+  //  cout << "spw = " << currSpw() << endl;
+
+  // Record results
+  for (Int ich=0;ich<nChan;++ich) {
+  
+    // Normalize to unit amplitude
+    //  (note that the phase result is insensitive to sumwt)
+    Double amp=abs(RL(ich));
+    // For now, all antennas get the same solution
+    IPosition blc(3,0,ich,0);
+    IPosition trc(3,0,ich,nElem()-1);
+    if (sumwt>0 && amp>0.0) {
+      solveRPar()(blc,trc)=arg(RL(ich))/2.0;
+      solveParOK()(blc,trc)=true;
+    }
+  }
+
+  
+  if (ntrue(solveParOK())>0) {
+    Float ang=sum(solveRPar()(solveParOK()))/Float(ntrue(solveParOK()))*180.0/C::pi;
+    logSink() << "Mean position angle offset solution for " 
+	      << msmc().fieldName(currField())
+	      << " (spw = " << currSpw() << ") = "
+	      << ang
+	      << " deg."
+	      << LogIO::POST;
+  }
+  else
+    logSink() << "Position angle offset solution for " 
+	      << msmc().fieldName(currField())
+	      << " (spw = " << currSpw() << ") "
+	      << " was not determined (insufficient data)."
+	      << LogIO::POST;
+  
+}
+
+
+
 
 // **********************************************************
 //  GlinXphJones Implementations

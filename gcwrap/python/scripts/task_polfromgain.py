@@ -119,7 +119,6 @@ def polfromgain(vis,tablein,caltable,paoffset):
 
                         parang+=rang[iant,ispw]
                         parang+=(paoffset*pi/180.)       # manual feed pa offset
-                        parangd=parang*(180.0/pi)
                     
                         # indep var matrix
                         A=mypl.ones((nrows,3))

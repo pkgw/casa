@@ -604,3 +604,250 @@ TEST_F(XfparangJonesCIRCTest, XfparangJonesTest){
 
 
 }
+
+
+class PosAngJonesLINTest : public VisCalTestBase {
+
+public:
+
+  PosAngJonesLINTest() :
+    VisCalTestBase(1,5,1,4,4,64,1,true,"lin")
+  {
+    //summary("XJonesTest");
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
+  }
+
+
+};
+
+TEST_F(PosAngJonesLINTest, PATest1){
+
+  {
+  PosAngJones PA(msmc);
+  PA.setApply();
+  PA.setMeta(0,0,0.0,
+	     0,ssvp.freqs(0),
+	     0);
+  PA.sizeApplyParCurrSpw(nChan);
+  //PA.setDefApplyParCurrSpw(true,true);  // sync, w/ doInv=T
+  PA.state();
+
+  }
+
+
+  // Apply-able parang
+  PJones Papp(msmc);
+  Papp.setApply();
+
+  
+  PosAngJones PAsol(msmc);
+  Record solvePar;
+  solvePar.define("table",String("PosAngJonesLINTest.PA"));
+  solvePar.define("solint",String("inf"));
+  solvePar.define("combine",String(""));
+  Vector<Int> refant(1,0); solvePar.define("refant",refant);
+  PAsol.setSolve(solvePar);
+
+  PAsol.createMemCalTable2();
+      
+
+  for (vi2.originChunks();vi2.moreChunks();vi2.nextChunk()) {
+    for (vi2.origin();vi2.more();vi2.next()) {
+
+      Int ispw=vb2->spectralWindows()(0);
+      Int obsid(vb2->observationId()(0));
+      Int scan(vb2->scan()(0));
+      Double timestamp(vb2->time()(0));
+      Int fldid(vb2->fieldId()(0));
+      Vector<Double> freqs(vb2->getFrequencies(0));
+      Vector<Int> a1(vb2->antenna1());
+      Vector<Int> a2(vb2->antenna2());
+
+      vb2->resetWeightsUsingSigma();
+
+      Cube<Complex> vC(vb2->visCube()), vCM(vb2->visCubeModel());
+      vb2->setVisCubeCorrected(vC);
+      vb2->setFlagCube(vb2->flagCube());
+      Cube<Complex> vCC(vb2->visCubeCorrected());
+
+      cerr << "Scan=" << scan << " Bln=" << a1(0) << "-" << a2(0) 
+	   << " C=" << vCC(Slice(),Slice(0),Slice(0)).nonDegenerate()
+	   << " M=" << vCM(Slice(),Slice(0),Slice(0)).nonDegenerate()
+	   << endl;
+
+      Complex oneI(0,1);
+      Complex RL((vCC(0,0,0)-vCC(3,0,0))+oneI*(vCC(1,0,0)+vCC(2,0,0)) );
+      Float dang(arg(RL)*90/C::pi);
+      Complex RLm((vCM(0,0,0)-vCM(3,0,0))+oneI*(vCM(1,0,0)+vCM(2,0,0)) );
+      Float mang(arg(RLm)*90/C::pi);
+      Float diff(arg(RL/RLm)*90/C::pi);
+
+      cerr << dang << " - " << mang << " = " << diff << endl;
+
+      //cerr << "Forcing Q=1, U=0!!!!!!!!!!!!!" << endl;
+      //vCM(Slice(1,2,1),Slice(),Slice()).set(Complex(1.0));
+
+     
+      Papp.setMeta(obsid,scan,timestamp,
+		   ispw,freqs,
+		   fldid);
+      //Papp.corrupt2(*vb2);
+      
+
+      
+      cerr << "C="<< vCC(Slice(),Slice(0),Slice(0)).nonDegenerate() << " M=" << vCM(Slice(),Slice(0),Slice(0)).nonDegenerate() << endl;
+
+      SDBList sdbs;
+      sdbs.add(*vb2);
+
+      // Setup meta & sizes for the solve
+      PAsol.setMeta(sdbs.aggregateObsId(),
+		    sdbs.aggregateScan(),
+		    sdbs.aggregateTime(),
+		    sdbs.aggregateSpw(),
+		    sdbs.freqs(),
+		    sdbs.aggregateFld());
+
+
+      PAsol.setOrVerifyCTFrequencies(sdbs.aggregateSpw());
+
+
+      PAsol.sizeSolveParCurrSpw(sdbs.nChannels()); 
+
+
+      // Call the specialized solver
+      PAsol.selfSolveOne(sdbs);
+
+      Float soln(PAsol.solveAllRPar()(0,nChan/2,0));
+
+      cerr << "soln = " << soln*180/C::pi << endl << endl;
+
+      PAsol.keepNCT();
+
+    }
+  }
+  PAsol.storeNCT();
+
+
+}
+
+
+class PosAngJonesCIRCTest : public VisCalTestBase {
+
+public:
+
+  PosAngJonesCIRCTest() :
+    VisCalTestBase(1,5,1,4,4,64,1,true,"circ")
+  {
+    //summary("XJonesTest");
+    //cerr << "x = " << phase(x)*180/C::pi << endl;
+  }
+
+
+};
+
+TEST_F(PosAngJonesCIRCTest, PATest1){
+
+  {
+  PosAngJones PA(msmc);
+  PA.setApply();
+  PA.setMeta(0,0,0.0,
+	     0,ssvp.freqs(0),
+	     0);
+  PA.sizeApplyParCurrSpw(nChan);
+  //PA.setDefApplyParCurrSpw(true,true);  // sync, w/ doInv=T
+  PA.state();
+
+  }
+
+
+  // Apply-able parang
+  PJones Papp(msmc);
+  Papp.setApply();
+
+  
+  PosAngJones PAsol(msmc);
+  Record solvePar;
+  solvePar.define("table",String("PosAngJonesCIRCTest.PA"));
+  solvePar.define("solint",String("inf"));
+  solvePar.define("combine",String(""));
+  Vector<Int> refant(1,0); solvePar.define("refant",refant);
+  PAsol.setSolve(solvePar);
+
+  PAsol.createMemCalTable2();
+  
+  for (vi2.originChunks();vi2.moreChunks();vi2.nextChunk()) {
+    for (vi2.origin();vi2.more();vi2.next()) {
+
+      Int ispw=vb2->spectralWindows()(0);
+      Int obsid(vb2->observationId()(0));
+      Int scan(vb2->scan()(0));
+      Double timestamp(vb2->time()(0));
+      Int fldid(vb2->fieldId()(0));
+      Vector<Double> freqs(vb2->getFrequencies(0));
+      Vector<Int> a1(vb2->antenna1());
+      Vector<Int> a2(vb2->antenna2());
+
+      vb2->resetWeightsUsingSigma();
+
+      Cube<Complex> vC(vb2->visCube()), vCM(vb2->visCubeModel());
+      vb2->setVisCubeCorrected(vC);
+      vb2->setFlagCube(vb2->flagCube());
+      Cube<Complex> vCC(vb2->visCubeCorrected());
+
+      cerr << "Scan=" << scan << " Bln=" << a1(0) << "-" << a2(0) 
+	   << " C=" << vCC(Slice(),Slice(0),Slice(0)).nonDegenerate()
+	   << " M=" << vCM(Slice(),Slice(0),Slice(0)).nonDegenerate()
+	   << endl;
+
+      Float dang(arg(vCC(1,0,0))*90/C::pi), mang(arg(vCM(1,0,0))*90/C::pi);
+      Float diff(arg(vCC(1,0,0)/vCM(1,0,0))*90/C::pi);
+
+      cerr << dang << " - " << mang << " = " << diff << endl;
+
+
+      //cerr << "Forcing Q=1, U=0!!!!!!!!!!!!!" << endl;
+      //vCM(Slice(1,2,1),Slice(),Slice()).set(Complex(1.0));
+
+     
+      Papp.setMeta(obsid,scan,timestamp,
+		   ispw,freqs,
+		   fldid);
+      //Papp.corrupt2(*vb2);
+      
+
+      
+      cerr << "C="<< vCC(Slice(),Slice(0),Slice(0)).nonDegenerate() << " M=" << vCM(Slice(),Slice(0),Slice(0)).nonDegenerate() << endl;
+
+      SDBList sdbs;
+      sdbs.add(*vb2);
+
+      // Setup meta & sizes for the solve
+      PAsol.setMeta(sdbs.aggregateObsId(),
+		    sdbs.aggregateScan(),
+		    sdbs.aggregateTime(),
+		    sdbs.aggregateSpw(),
+		    sdbs.freqs(),
+		    sdbs.aggregateFld());
+
+
+      PAsol.setOrVerifyCTFrequencies(sdbs.aggregateSpw());
+
+
+      PAsol.sizeSolveParCurrSpw(sdbs.nChannels()); 
+
+
+      // Call the specialized solver
+      PAsol.selfSolveOne(sdbs);
+
+      Float soln(PAsol.solveAllRPar()(0,nChan/2,0));
+
+      cerr << "soln = " << soln*180/C::pi << endl << endl;
+
+      PAsol.keepNCT();
+
+    }
+  }
+  PAsol.storeNCT();
+
+}
