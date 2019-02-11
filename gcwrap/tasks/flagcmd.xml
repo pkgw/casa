@@ -167,8 +167,7 @@ inpmode='xml'.
                 </param>
 
                 <param type="string" name="ants" subparam="true">
-<shortdescription>Allowed flag antenna names to select
-by</shortdescription>
+<shortdescription>Allowed flag antenna names to select by</shortdescription>
 <description>Allowed flag antenna names to select by. Subparameter of
 inpmode='xml'.
 </description>
@@ -176,8 +175,7 @@ inpmode='xml'.
                 </param>
 
                 <param type="string" name="action">
-<shortdescription>Action to perform in MS and/or in inpfile
-(apply/unapply/list/plot/clear/extract)</shortdescription>
+<shortdescription>Action to perform in MS and/or in inpfile (apply/unapply/list/plot/clear/extract)</shortdescription>
 <description>Action to perform in MS and/or in inpfile
                      options: apply/unapply/list/plot/clear/extract
                      default: 'apply'
@@ -239,8 +237,7 @@ inpmode='xml'.
                 </param>
 
                 <param type="bool" name="flagbackup" subparam="true">
-<shortdescription>Automatically backup the FLAG column before
-execution</shortdescription>
+<shortdescription>Automatically backup the FLAG column before execution</shortdescription>
 <description>Automatically backup the FLAG column before
 execution. Subparameter of action='apply/unapply'.
                      options: True,False
@@ -294,8 +291,7 @@ action='clear'.
             </param>
 
             <param type="bool" name="savepars">
-<shortdescription>Save flag commands to the MS or to a
-file</shortdescription>
+<shortdescription>Save flag commands to the MS or file</shortdescription>
 <description>Save the flag commands to the FLAG_CMD table of the MS or
 to an output text file.
                      options: True/False     
@@ -304,8 +300,7 @@ to an output text file.
                 <value>False</value>
             </param>
             <param type="string" name="outfile" subparam="true">
-<shortdescription>Name of output file to save
-commands</shortdescription>
+<shortdescription>Name of output file to save commands</shortdescription>
 <description>Name of output file to save commands. Subparameter of
 savepars=True.
                      default: ' '; it will save the commands in the
@@ -317,8 +312,7 @@ savepars=True.
                     <value></value>
             </param>
             <param type="bool" name="overwrite" subparam="true">
-<shortdescription>Overwrite an existing file to save the flag
-commands</shortdescription>
+<shortdescription>Overwrite an existing file to save the flag commands</shortdescription>
 <description>Overwrite an existing file given in 'outfile' to save the
 flag commands. Subparameter of savepars=True.
                      options: True/False
@@ -387,5 +381,5 @@ For more information, see the task pages of flagcmd in CASA Docs:
 https://casa.nrao.edu/casadocs/
 
 </example>
-</task>
+ </task>
 </casaxml>
