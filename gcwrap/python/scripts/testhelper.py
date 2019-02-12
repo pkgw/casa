@@ -584,7 +584,10 @@ def compareSubTables(input,reference,order=None,excluded_cols=[]):
     
     tbinput.close()
     tbreference.close()
-    
+    if order is not None:
+        tbinput_sorted.close()
+        tbreference_sorted.close()
+
     return (True,"OK")
 
 def getColShape(tab,col,start_row=0,nrow=1,row_inc=1):
