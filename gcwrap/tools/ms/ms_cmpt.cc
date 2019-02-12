@@ -6336,7 +6336,7 @@ record* ms::statwt(
     bool slidetimebin, const casac::variant& chanbin,
     int minsamp, const string& statalg, double fence,
     const string& center, bool lside, double zscore,
-    int maxiter, const string& fitspw,
+    int maxiter, const string& fitspw, bool excludechans,
     const std::vector<double>& wtrange, bool preview,
     const string& datacolumn
 ) {
@@ -6401,6 +6401,7 @@ record* ms::statwt(
         tviConfig["zscore"] = zscore;
         tviConfig["maxiter"] = maxiter;
         tviConfig["fitspw"] = fitspw;
+        tviConfig["excludechans"] = excludechans;
         tviConfig["wtrange"] = wtrange;
         tviConfig["datacolumn"] = datacolumn;
         unique_ptr<Record> rec(toRecord(tviConfig));
