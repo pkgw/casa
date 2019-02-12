@@ -180,7 +180,7 @@ private:
   // Local casacore::Matrix for referencing pointing pars in a convenient way
   casacore::Cube<casacore::Complex>  pointPar_;
   GridFT *pbwp_p;
-  casacore::MeasurementSet *ms_p;
+//  casacore::MeasurementSet *ms_p;
   VisSet *vs_p;
   //  casacore::Array<casacore::Float> azOff, elOff;
   casacore::TempImage<casacore::Complex> targetVisModel_;

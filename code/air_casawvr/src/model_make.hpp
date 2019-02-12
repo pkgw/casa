@@ -21,7 +21,7 @@ namespace LibAIR2 {
   // Forward declarations
   class ISingleLayerWater;
   class ICloudyWater;
-  class ALMAWVRCharacter;
+  struct ALMAWVRCharacter;
 
   /**
      Creates a single layer water vapour model

@@ -104,7 +104,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </equals>
       </when>
       <when param="applytable">
-        <notequals value="">
+        <notequals value="" type="string"> <!-- applytable is of type any without a type attribute the value is indeterminate -->
           <default param="interp"><value type="string"></value></default>
           <default param="spwmap"><value type="intArray">-1</value></default>
         </notequals>

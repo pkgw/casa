@@ -80,6 +80,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				  CFStore2& cfwts,
 				  casacore::Bool fillCF=true);
     virtual void fillConvFuncBuffer(CFBuffer& cfb, CFBuffer& cfWtb,
+				    const casacore::Int& skyNX, const casacore::Int& skyNY,
+				    const casacore::Vector<casacore::Double>& skyIncr,
 				    const casacore::Int& nx, const casacore::Int& ny,
 				    const casacore::Vector<casacore::Double>& freqValues,
 				    const casacore::Vector<casacore::Double>& wValues,

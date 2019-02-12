@@ -1481,7 +1481,7 @@ RFA::IterMode RFASelector::iterRow (uInt ir)
                 Float val  = sel_clip[j].mapper->mapValue(ich,ir);
 
                 // jagonzal: Added ISO isnan check to catch extremely large values (CAS-3355)
-                if( ( sel_clip[j].clip && (val<vmin || val>vmax || isnan(val)) ) ||
+                if( ( sel_clip[j].clip && (val<vmin || val>vmax || std::isnan(val)) ) ||
                     (!sel_clip[j].clip && val>=vmin && val<=vmax   ) )
                   unflag ? flag.clearFlag(ich,ifr) : flag.setFlag(ich,ifr);
               }

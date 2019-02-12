@@ -406,7 +406,7 @@ protected:
 private:
 	casacore::Float (casa::VisMapper::*applyVisExpr_p)(casacore::Complex);
 	casacore::Complex (casa::VisMapper::*getVis_p)(casacore::uInt,casacore::uInt,casacore::uInt);
-	casacore::Complex (casa::VisMapper::*getCorr_p)(casacore::uInt,casacore::uInt);
+	// casacore::Complex (casa::VisMapper::*getCorr_p)(casacore::uInt,casacore::uInt);
     std::vector<corrProduct> selectedCorrelationProducts_p;
     std::vector< std::vector<casacore::uInt> > selectedCorrelations_p;
     std::vector<string> selectedCorrelationStrings_p;

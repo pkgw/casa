@@ -54,4 +54,27 @@ protected:
     void initReferenceConfiguration(casacore::Record &configuration);
 };
 
+class HanningSmoothTVISpwChannTest: public MsFactoryTVITester {
+
+public:
+
+    HanningSmoothTVISpwChannTest();
+
+    void createTVIs();
+
+    void useMSSelection(bool use);
+
+    void addPassThroughTVI(bool use);
+
+    void addExtraHanningTVI(bool use);
+
+protected:
+
+    bool useMSSelection_p;
+
+    bool addPassThroughTVI_p;
+
+    bool addExtraHanningTVI_p;
+};
+
 #endif /* HanningSmoothTVITest_H_ */

@@ -67,32 +67,6 @@ public:
     return "";
   }
 
-  virtual int getNROArraySize() {
-    return 0;
-  }
-  virtual int getNRONumBeam() {
-    return 0;
-  }
-  virtual int getNRONumPol() {
-    return 0;
-  }
-  virtual int getNRONumSpw() {
-    return 0;
-  }
-
-  virtual bool isNROArrayUsed(int /* array_id */) {
-    return false;
-  }
-  virtual int getNROArrayBeamId(int /* array_id */) {
-    return -1;
-  }
-  virtual casacore::Stokes::StokesTypes getNROArrayPol(int /* array_id */) {
-    return casacore::Stokes::Undefined;
-  }
-  virtual int getNROArraySpwId(int /* array_id */) {
-    return -1;
-  }
-
   virtual casacore::Bool isFloatData() const {
     return false;
   }

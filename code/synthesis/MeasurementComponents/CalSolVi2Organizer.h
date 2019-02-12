@@ -63,7 +63,8 @@ public:
   void addDiskIO(casacore::MeasurementSet* ms,float interval,
 		 casacore::Bool combobs=false,casacore::Bool combscan=false,
 		 casacore::Bool combfld=false,casacore::Bool combspw=false,
-		 casacore::Bool useMSIter2=true);
+		 casacore::Bool useMSIter2=true,
+                 std::shared_ptr<vi::FrequencySelections> freqSel=nullptr);
 
   // Add spoofed data layer factory
   void addSimIO();

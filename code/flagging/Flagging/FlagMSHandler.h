@@ -29,6 +29,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 namespace vi {
   class FrequencySelectionUsingChannels;
+  class VisIterImpl2LayerFactory;
 }
 
 // Flag casacore::Data Handler class definition
@@ -99,7 +100,7 @@ private:
 
 	// Apply channel selection for asyn or normal iterator
 	// NOTE: We always have to do this, even if there is no SPW:channel selection
-	void applyChannelSelection(vi::VisibilityIterator2 *visIter);
+	void applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory);
 
 
 	// Measurement set section
