@@ -238,7 +238,7 @@ void GridFT::init() {
   */
     // We are padding.
     isTiled=false;
-    if(!noPadding_p){
+    if(!noPadding_p && padding_p > 1.01){
       CompositeNumber cn(uInt(image->shape()(0)*2));    
       nx    = cn.nextLargerEven(Int(padding_p*Float(image->shape()(0))-0.5));
       ny    = cn.nextLargerEven(Int(padding_p*Float(image->shape()(1))-0.5));

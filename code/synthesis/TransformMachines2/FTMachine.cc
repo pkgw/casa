@@ -229,7 +229,10 @@ using namespace casa::vi;
     String err;
     if(!(this->toRecord(err, rec)))
       throw(AipsError("Error in cloning FTMachine"));
-    return VisModelData::NEW_FT(rec);
+    FTMachine* retval=VisModelData::NEW_FT(rec);
+    if(retval)
+      retval->briggsWeightor_p=briggsWeightor_p;
+    return retval;
   }
 
   //----------------------------------------------------------------------

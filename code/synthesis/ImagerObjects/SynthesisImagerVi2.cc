@@ -616,7 +616,6 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     try
       {
 
-	
 		appendToMapperList(impars.imageName,  csys,  impars.shp(),
 			   ftm, iftm,
 			   gridpars.distance, gridpars.facets, gridpars.chanchunks,impars.overwrite,
@@ -739,6 +738,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
 		  //Determine if any image is cube
 		  if(isSpectralCube()){
+		    cerr << "Doing spectral cube briggs" << endl;
 		    VisImagingWeight nat("natural");
 		    vi_p->useImagingWeight(nat);
 		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust,0, multiField);
@@ -748,6 +748,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		    }
 		  }
 		  else{
+		    cerr << "doing normal briggs" << endl;
 		    imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
 					     actualNPixels_x, actualNPixels_y, actualCellSize_x,
 					     actualCellSize_y, 0, 0, multiField);

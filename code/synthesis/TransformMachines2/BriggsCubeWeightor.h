@@ -77,6 +77,7 @@ class BriggsCubeWeightor{
     casacore::Int superUniformBox_p;
     casacore::Bool multiField_p;
     casacore::Bool initialized_p;
+    casacore::Double refFreq_p;
  };
    }//# end namespace refim
 } // end namespace casa

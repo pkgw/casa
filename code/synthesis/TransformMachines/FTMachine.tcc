@@ -69,7 +69,7 @@
       }
       tmpFloat.set(0.0);
       shp=tmpFloat.shape();
-      cerr << "getgrid "  << sum(griddedData) << endl;
+      //cerr << "getgrid "  << sum(griddedData) << endl;
       casacore::IPosition in(4, 0, 0, 0, 0);
       casacore::IPosition out(4, 0,0,0,0);
       for (casacore::Int cc=0; cc< shp[3]; ++cc){
@@ -90,7 +90,7 @@
 	  }
 	}
       }
-      cerr << "tmpFloat " << sum(tmpFloat) << endl;
+      //cerr << "tmpFloat " << sum(tmpFloat) << endl;
       ptr=tmpFloat.getStorage(del);
     }
     else if(((whatType(&thegrid)==casacore::TpArrayDouble))){

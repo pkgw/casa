@@ -47,13 +47,13 @@ using namespace casa::refim;
 using namespace casacore;
 using namespace casa::vi;
 
-  BriggsCubeWeightor::BriggsCubeWeightor(): grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), rmode_p(""), noise_p(0.0), robust_p(2), superUniformBox_p(0), multiField_p(False),initialized_p(False) {
+  BriggsCubeWeightor::BriggsCubeWeightor(): grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), rmode_p(""), noise_p(0.0), robust_p(2), superUniformBox_p(0), multiField_p(False),initialized_p(False), refFreq_p(-1.0) {
     multiFieldMap_p.clear();
     
     
   }
   
-  BriggsCubeWeightor::BriggsCubeWeightor( const String& rmode, const Quantity& noise, const Double robust, const Int superUniformBox, const Bool multiField)  : grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), initialized_p(False){
+  BriggsCubeWeightor::BriggsCubeWeightor( const String& rmode, const Quantity& noise, const Double robust, const Int superUniformBox, const Bool multiField)  : grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), initialized_p(False), refFreq_p(-1.0){
 
     rmode_p=rmode;
     noise_p=noise;
@@ -75,6 +75,7 @@ using namespace casa::vi;
     superUniformBox_p=superUniformBox;
     multiField_p=multiField;
     initialized_p=False;
+    refFreq_p=-1.0;
     
     init(vi, templateimage);
 
@@ -83,28 +84,52 @@ using namespace casa::vi;
 
   }
 				       
-  void BriggsCubeWeightor::init(vi::VisibilityIterator2& vi,
+ void BriggsCubeWeightor::init(vi::VisibilityIterator2& vi,
 			   const ImageInterface<Complex>& templateimage)
-  {
+ {
   LogIO os(LogOrigin("BriggsCubeWeightor", "constructor", WHERE));
 
 
-  if(initialized_p && nx_p==templateimage.shape()(0) && ny_p==templateimage.shape()(1))
-    return;
+  //chanchunk may call the same object
+  if(initialized_p && nx_p==templateimage.shape()(0) && ny_p==templateimage.shape()(1)){
+    CoordinateSystem cs=templateimage.coordinates();
+    Double freq=cs.toWorld(IPosition(4,0,0,0,0))[3];
+    if(freq==refFreq_p)
+      return;
+  }
+  //cerr << "in bgwt init " << endl;
   //Need to save previous wieght scheme of vi
   VisImagingWeight vWghtNat("natural");
   vi.useImagingWeight(vWghtNat);
   vi::VisBuffer2 *vb=vi.getVisBuffer();
+  Int nIndices=0;
+  for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
+    for (vi.origin(); vi.more(); vi.next()) {
+      String key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
+      Int index=0;
+      if(multiField_p){
+	//find how many indices will be needed
+	index=multiFieldMap_p.size();
+	if(multiFieldMap_p.count(key) < 1)
+	  multiFieldMap_p[key]=index;
+	nIndices=multiFieldMap_p.size();
+      }
+      else{
+	multiFieldMap_p[key]=0;
+	nIndices=1;
+      }
+
+    }
+  }
+  //cerr << "nindices " << nIndices << endl;
   vi.originChunks();
   vi.origin();
   String key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
-  multiFieldMap_p[key]=0;
-  initializeFTMachine(0, templateimage);
-  Matrix<Float> dummy;
   IPosition shp=templateimage.shape();
   nx_p=shp[0];
   ny_p=shp[1];
   CoordinateSystem cs=templateimage.coordinates();
+  refFreq_p=cs.toWorld(IPosition(4,0,0,0,0))[3];
   Vector<String> units = cs.worldAxisUnits();
   units[0]="rad"; units[1]="rad";
   cs.setWorldAxisUnits(units);
@@ -114,51 +139,42 @@ using namespace casa::vi;
   uorigin_p=nx_p/2;
   vorigin_p=ny_p/2;
   ImageInterface<Complex>& newTemplate=const_cast<ImageInterface<Complex>& >(templateimage);
-  cerr << "shape " << templateimage.shape() << endl;
-  ft_p[0]->initializeToSky(newTemplate, dummy, *vb);
-  Vector<Double> convFunc(2+superUniformBox_p, 1.0);
-  ft_p[0]->modifyConvFunc(convFunc, superUniformBox_p, 1);
-  for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
-    for (vi.origin(); vi.more(); vi.next()) {
-      Int index=0;
-      key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
-      
-      if(multiFieldMap_p.count(key)==0){
-	if(multiField_p){
-	  index=multiFieldMap_p.size();
-	  multiFieldMap_p[key]=index;
-	  initializeFTMachine(index, templateimage);
-	  ft_p[index]->modifyConvFunc(convFunc, superUniformBox_p, 1);
-	  ft_p[index]->initializeToSky(newTemplate, dummy, *vb);
-	}
-	else{
-	  multiFieldMap_p[key]=0;
-	}
-      }
-      else{
-	index=multiFieldMap_p[key];
-      }
-      //cerr << "key " << key << " index " << index << endl;
-      ft_p[index]->put(*vb, -1, true, FTMachine::PSF);
-    }
-  }
-
-  ////Lets reset vi before returning 
-  vi.originChunks();
-  vi.origin();
+  Vector<Matrix<Double> > sumWgts(nIndices);
   
-  Vector<Matrix<Double> > sumWgts(ft_p.nelements());
-  for (uInt index=0; index < ft_p.nelements(); ++index){
+  for(int index=0; index < nIndices; ++index){
+    initializeFTMachine(index, templateimage);
+    Matrix<Float> dummy;
+    
+    ft_p[index]->initializeToSky(newTemplate, dummy, *vb);
+    Vector<Double> convFunc(2+superUniformBox_p, 1.0);
+    ft_p[index]->modifyConvFunc(convFunc, superUniformBox_p, 1);
+    for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
+      for (vi.origin(); vi.more(); vi.next()) {
+	
+	key=String::toString(vb->msId())+"_"+String::toString(vb->fieldId()(0));
+      
+	//cerr << "key and index "<< key << "   " << index << "   " << multiFieldMap_p[key] << endl; 
+	if(multiFieldMap_p[key]==index){
+	  ft_p[index]->put(*vb, -1, true, FTMachine::PSF);
+	}
+      
+      }
+    }
     Array<Float> griddedWeight;
     ft_p[index]->getGrid(griddedWeight);
+    //cerr << "griddedWeight Shape " << griddedWeight.shape() << endl;
     grids_p[index]->put(griddedWeight.reform(templateimage.shape()));
     sumWgts[index]=ft_p[index]->getSumWeights();
     //clear the ftmachine
     ft_p[index]->finalizeToSky();
   }
+  ////Lets reset vi before returning 
+  vi.originChunks();
+  vi.origin();
+  
+  
   Int nchan=templateimage.shape()(3);
   for (uInt index=0; index< f2_p.nelements();++index){
-
     
     for (uInt chan=0; chan < uInt(nchan); ++ chan){
       IPosition start(4,0,0,0,chan);
@@ -183,22 +199,23 @@ using namespace casa::vi;
 	//   << noise.get("Jy").getValue() << "Jy" << LogIO::POST;
 	f2_p[index][chan] = square(robust_p);
 	d2_p[index][chan] = 2.0 * square(noise_p.get("Jy").getValue());
-
+	
       }
       else {
 	f2_p[index][chan] = 1.0;
 	d2_p[index][chan] = 0.0;
       }
-
-
-
+      
+      
+      
     }//chan
-
-
-
+    
+    
+    
   }
-  
-}
+
+  initialized_p=True;
+ }
 
   void BriggsCubeWeightor::weightUniform(Matrix<Float>& imweight, const vi::VisBuffer2& vb){
 

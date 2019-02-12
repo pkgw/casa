@@ -2836,6 +2836,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   bool SynthesisImager::isSpectralCube(){
     bool retval=False;
     for (Int k=0; k < itsMappers.nMappers(); ++k){
+      //For some reason imstore sometime returns 0 shape
+      if((((itsMappers.imageStore(k))->psf())->shape()[3]) != ((itsMappers.imageStore(k))->getShape()[3])){
+	cerr << "shapes " << ((itsMappers.imageStore(k))->psf())->shape() << "   " <<  ((itsMappers.imageStore(k))->getShape()) << endl;
+      //throw(AipsError("images shape seem insistent "));
+      if((itsMappers.imageStore(k))->getShape()(3) ==0)
+	return True;
+      }
       if((itsMappers.imageStore(k))->getShape()(3) > 1)
 	retval=True;
 
