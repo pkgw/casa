@@ -46,6 +46,7 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisBufferUtil.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
 namespace casa {
 
@@ -198,6 +199,8 @@ private:
 
   // VisIterator pointer
   vi::VisibilityIterator2* vi_p;
+
+  vi::PointingInterpolationTVI* piTvi_;
 
   // Volume meter for volume calculation
   MSCacheVolMeter* vm_;
