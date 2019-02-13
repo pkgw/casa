@@ -355,6 +355,10 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYAxes_ = o->itsYAxes_;
 		itsXData_ = o->itsXData_;
 		itsYData_ = o->itsYData_;
+		itsXFrame_ = o->itsXFrame_;
+		itsYFrame_ = o->itsYFrame_;
+		itsXInterp_ = o->itsXInterp_;
+		itsYInterp_ = o->itsYInterp_;
         itsShowAtm_ = o->itsShowAtm_;
         itsShowTsky_ = o->itsShowTsky_;
 		updated();
@@ -371,6 +375,10 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYAxes_ != o->itsYAxes_) return false;
 	if (itsXData_ != o->itsXData_) return false;
 	if (itsYData_ != o->itsYData_) return false;
+	if (itsXFrame_ != o->itsXFrame_) return false;
+	if (itsYFrame_ != o->itsYFrame_) return false;
+	if (itsXInterp_ != o->itsXInterp_) return false;
+	if (itsYInterp_ != o->itsYInterp_) return false;
     if (itsShowAtm_ != o->itsShowAtm_) return false;
     if (itsShowTsky_ != o->itsShowTsky_) return false;
 	return true;
@@ -385,6 +393,10 @@ void PMS_PP_Cache::setDefaults(){
 	itsYAxes_ = vector<PMS::Axis>(1, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(1, PMS::DEFAULT_DATACOLUMN);
+	itsXFrame_ = vector<PMS::CoordSystem>(1, PMS::DEFAULT_COORDSYSTEM);
+	itsYFrame_ = vector<PMS::CoordSystem>(1, PMS::DEFAULT_COORDSYSTEM);
+	itsXInterp_ = vector<PMS::InterpMethod>(1, PMS::DEFAULT_INTERPMETHOD);
+	itsYInterp_ = vector<PMS::InterpMethod>(1, PMS::DEFAULT_INTERPMETHOD);
     itsShowAtm_ = false;
     itsShowTsky_ = false;
 }
@@ -394,6 +406,10 @@ void PMS_PP_Cache::resize( int count ){
 	itsYAxes_ = vector<PMS::Axis>(count, PMS::NONE);
 	itsXData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
 	itsYData_ = vector<PMS::DataColumn>(count, PMS::DEFAULT_DATACOLUMN);
+	itsXFrame_ = vector<PMS::CoordSystem>(count, PMS::DEFAULT_COORDSYSTEM);
+	itsYFrame_ = vector<PMS::CoordSystem>(count, PMS::DEFAULT_COORDSYSTEM);
+	itsXInterp_ = vector<PMS::InterpMethod>(count, PMS::DEFAULT_INTERPMETHOD);
+	itsYInterp_ = vector<PMS::InterpMethod>(count, PMS::DEFAULT_INTERPMETHOD);
 }
 
 unsigned int PMS_PP_Cache::numXAxes() const{
@@ -413,6 +429,8 @@ void PMS_PP_Cache::setAxes(const PMS::Axis& xAxis, const PMS::Axis& yAxis,
 	if (index >= itsXAxes_.size()){
 		resized = true;
 		const_cast< vector<PMS::Axis>& >(itsXAxes_).resize (index + 1);
+		itsXFrame_.resize(index + 1);
+		itsXInterp_.resize(index + 1);
 	}
 	if (index >= itsXData_.size()){
 		resized = true;
@@ -421,6 +439,8 @@ void PMS_PP_Cache::setAxes(const PMS::Axis& xAxis, const PMS::Axis& yAxis,
 	if (index >= itsYAxes_.size()){
 		resized = true;
 		const_cast< vector<PMS::Axis>& >(itsYAxes_).resize (index + 1);
+		itsYFrame_.resize(index + 1);
+		itsYInterp_.resize(index + 1);
 	}
 	if (index >= itsYData_.size()){
 		resized = true;

@@ -33,6 +33,9 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Plots/PlotMSPlot.h>
+#include <plotms/PlotMS/PlotMSParameters.h>
+
 #include <plotms/Data/PageHeaderCache.h>
 
 #include <casa/aips.h>
@@ -41,14 +44,17 @@
 #include <measures/Measures/MFrequency.h>
 
 #include <QVector>
+#include <map>
 
 namespace casa {
 
 //# Forward declarations.
 class PlotMSApp;
+class PlotMSPlot;
 class PlotMSIndexer;
 class ThreadCommunication;
 class PlotMSAtm;
+
 
 class PlotMSCacheBase {
   
@@ -71,7 +77,7 @@ public:
 
   
   // Constructor which takes parent PlotMS.
-  PlotMSCacheBase(PlotMSApp* parent);
+  PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot = nullptr);
   
   // Destructor
   virtual ~PlotMSCacheBase();
@@ -143,6 +149,10 @@ public:
   // eventually be used for a cache manager to let the user know the
   // relative memory use of each axis).
   std::vector<PMS::Axis> loadedAxes() const;
+
+  // Returns true if RA/DEC axes data
+  // - for the given parameters - have been loaded
+  bool areRaDecAxesLoaded(const DirectionAxisParams &params) const;
 
   // Access to averaging state in the cache:
   PlotMSAveraging& averaging() { return averaging_; }
@@ -292,7 +302,15 @@ public:
   // These are antenna-based
   inline casacore::Double getAntenna(casacore::Int chnk,casacore::Int irel) { return *(antenna_[chnk]->data()+irel); };
   inline casacore::Double getAz(casacore::Int chnk,casacore::Int irel)      { return *(az_[chnk]->data()+irel); };
-  inline casacore::Double getEl(casacore::Int chnk,casacore::Int irel)      { return *(el_[chnk]->data()+irel); };
+  inline casacore::Double getEl(casacore::Int chnk,casacore::Int irel)             { return *(el_[chnk]->data()+irel); };
+  casacore::Double getRa(casacore::Int chnk,casacore::Int irel) {
+	  throw AipsError("PlotMS internal error. PlotMsCacheBase::getRa() was called");
+	  return chnk + irel; /* return *(ra_[chnk]->data()+irel); */
+  };
+  inline casacore::Double getDec(casacore::Int chnk,casacore::Int irel) {
+		throw AipsError("PlotMS internal error. PlotMsCacheBase::getDec() was called");
+	  return chnk + irel; /*(dec_[chnk]->data()+irel); */
+  };
   inline casacore::Double getParAng(casacore::Int chnk,casacore::Int irel)  { return *(parang_[chnk]->data()+irel); };
 
   // These support generic non-complex calibration
@@ -450,6 +468,17 @@ public:
   inline PMS::DataColumn getXDataColumn() { return currentXData_[0]; };
   inline PMS::DataColumn getYDataColumn(int index) { return currentYData_[index]; };
 
+  void setPlot(PlotMSPlot *plot);
+
+  using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
+  using RaDecMap = std::map<DirectionAxisParams,RaDecData>;
+
+  bool isValidRaDecIndex(int index) const;
+  const RaDecData & getRaDataX(int index) const;
+  const RaDecData & getRaDataY(int index) const;
+  const RaDecData & getDecDataX(int index) const;
+  const RaDecData & getDecDataY(int index) const;
+
   // public log method
   inline void logmesg(const casacore::String& method, 
     const casacore::String& message, int type=PlotLogger::MSG_INFO) 
@@ -537,12 +566,18 @@ protected:
   //Return the color lookup index for the chunk.
   int findColorIndex( int chunk, bool initialize );
 
+  // Check access to vector
+  template<typename T>
+  T checkIndex(int index, const std::vector<T>& v, const std::string &vname) const;
 
   // Private data
   
   // Parent plotms.
   //  (used only for access to logger, so far)
   PlotMSApp* plotms_;
+
+  // Parent PlotMSPlot, if any
+  PlotMSPlot* itsPlot_;
 
   // An empty indexer (its an empty PlotData object used for initialization)
   PlotMSIndexer* indexer0_;
@@ -618,6 +653,8 @@ protected:
   casacore::PtrBlock<casacore::Vector<casacore::Float>*> parang_;
   casacore::PtrBlock<casacore::Vector<casacore::Int>*> antenna_;
   casacore::PtrBlock<casacore::Vector<casacore::Double>*> az_,el_;
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> ra_,dec_;
+  std::map<DirectionAxisParams,RaDecData> raMap_,decMap_;
 
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
@@ -635,6 +672,16 @@ protected:
   std::vector<PMS::Axis> currentY_;
   std::vector<PMS::DataColumn> currentXData_;
   std::vector<PMS::DataColumn> currentYData_;
+  std::vector<PMS::CoordSystem> currentXFrame_;
+  std::vector<PMS::CoordSystem> currentYFrame_;
+  std::vector<PMS::InterpMethod> currentXInterp_;
+  std::vector<PMS::InterpMethod> currentYInterp_;
+  std::vector<PMS::CoordSystem> xyFrame_;
+  std::vector<PMS::InterpMethod> xyInterp_;
+  std::vector<PMS::CoordSystem> loadXYFrame_;
+  std::vector<PMS::InterpMethod> loadXYInterp_;
+  decltype(raMap_)::mapped_type *loadRa_;
+  decltype(decMap_)::mapped_type *loadDec_;
   map<PMS::Axis, bool> loadedAxes_;
   map<PMS::Axis, casacore::Record> loadedAxesData_;
   //map<PMS::Axis, std::set<PMS::DataColumn>> loadedAxesData_;

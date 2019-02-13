@@ -60,8 +60,10 @@ ActionCacheLoad::ActionCacheLoad( Client* client, vector<PlotMSPlot*> plots,
 			for ( int k = 0; k < plotAxesXEnd; k++ ){
 				if ( plotAxes[j] == plotAxesX[k] && plotAxes[xAxisEnd+j] == plotAxesY[k]){
 					if ( datas[j] == datasX[k] && datas[xAxisEnd+j] == datasY[k]){
-						duplicate = true;
-						break;
+						if ( plotAxes[j] != PMS::RA and plotAxes[j] != PMS::DEC ) {
+							duplicate = true;
+							break;
+						}
 					}
 				}
 			}

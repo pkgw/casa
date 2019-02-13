@@ -855,7 +855,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	return;
       }
 
-    std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    // master merge 2019.01.08 - leaving in the commnets for now but clean up after it is verified 
+    //SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    //SHARED_PTR<ImageInterface<Float> > newmodel;
+    std::shared_ptr<ImageInterface<Float> > newmodel;
+    buildImage(newmodel, modelname);
+    // in master
+    //std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
 
     Bool hasMask = newmodel->isMasked(); /// || newmodel->hasPixelMask() ;
     
