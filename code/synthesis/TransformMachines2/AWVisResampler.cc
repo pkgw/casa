@@ -545,9 +545,9 @@ namespace casa{
       //      if ((vbs.uvw_p.nelements() == 0)) 
       //if (accumCFs) if (allTrue(allPolNChanDone_l)) break;
     CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
-    // setFieldPhaseGrad(vbRow2CFBMap_p->getCFPhaseGrad(0));
-    if (cached_phaseGrad_p.shape().product()==0)
-      cerr << "#### " << irow << " " << endl;
+    setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(0));
+    // if (cached_phaseGrad_p.shape().product()==0)
+    //   cerr << "#### " << irow << " " << endl;
     cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
     Vector<Double> pointingOffset(cfb.getPointingOffset());
       
