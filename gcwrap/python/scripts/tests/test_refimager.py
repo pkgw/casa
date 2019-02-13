@@ -73,6 +73,7 @@ import unittest
 import inspect
 import numpy as np
 from parallel.parallel_task_helper import ParallelTaskHelper
+from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
 
 
 _ia = iatool( )
@@ -102,8 +103,11 @@ class testref_base(unittest.TestCase):
           # To use subdir in the output image names in some tests (CAS-10937)
           self.img_subdir = 'refimager_tst_subdir'
           self.parallel = False
+          self.nnode = 0
           if ParallelTaskHelper.isMPIEnabled():
               self.parallel = True
+              self.PH = PyParallelImagerHelper()
+              self.nnode = len(self.PH.getNodeList())
 
           self.th = TestHelpers()
 
@@ -644,7 +648,10 @@ class test_multifield(testref_base):
           ret={}
           if self.parallel:
             ret=self.th.mergeParaCubeResults(retpar, ['iterdone', 'nmajordone'])
-            iterdone_expected=46
+            if self.nnode < 2:
+              iterdone_expected=42  # single server case = serial
+            else:
+              iterdone_expected=46
           else:
             iterdone_expected=42
             ret=retpar 

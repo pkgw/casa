@@ -77,7 +77,6 @@ class PyParallelCubeSynthesisImager():
         # to avoid this, reduces the number of nodes actually uses.
         # Variable nchans among the fields are not supported yet in parallel mode
         fid0nchan = allimagepars['0']['nchan']
-        print ("listOfNodes=",self.listOfNodes)
         nnodes = len(self.listOfNodes)
         if nnodes > fid0nchan:
            self.modifiedListOfNodes = self.listOfNodes[0:fid0nchan]
