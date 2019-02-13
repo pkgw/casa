@@ -91,8 +91,8 @@ PlotMSIndexer::PlotMSIndexer():
 	}
 
 PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
-        PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-        String xconnect, bool timeconnect, int index ):
+		PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+		String xconnect, bool timeconnect, int index ):
 		  plotmscache_(parent),
 		  currChunk_(0),
 		  irel_(0),
@@ -702,12 +702,6 @@ void PlotMSIndexer::setUpIndexing() {
 
 	if (itsXConnect_ != "none")
 		reindexForConnect();
-
-	// Compute the nominal plot ranges
-	computeRanges();
-
-	// The indexer is now ready for plotting
-	indexerReady_ = true;
 }
 
 void PlotMSIndexer::reindexForConnect() {
@@ -2126,9 +2120,10 @@ PlotMSRaDecIndexer::PlotMSRaDecIndexer()
 
 PlotMSRaDecIndexer::PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache,
 		PMS::Axis xAxis, PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-		PMS::Axis iterAxis, casacore::Int iterValue, int index)
+		PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnect,
+		bool timeconnect, int index)
 	:	PlotMSIndexer(plotmscache, xAxis, xData, yAxis, yData,
-					  iterAxis, iterValue, "none", false, index),
+					  iterAxis, iterValue, xconnect, timeconnect, index),
 		cacheOk_( plotmscache == nullptr ?
 				  throw AipsError(CLASS_NAME + " constructor: plotmscache pointer is null")
 				: true),
@@ -2169,7 +2164,7 @@ PlotMSIndexer* PlotMSIndexerFactory::initIndexer(PlotMSCacheBase* plotmscache, P
 			iterAxis, iterValue, xconnector, timeconnector, index);
 	} else {
 		indexer = new PlotMSRaDecIndexer(plotmscache, xAxis, xData, yAxis, yData,
-			iterAxis, iterValue, index);
+			iterAxis, iterValue, xconnector, timeconnector, index);
 	}
 	indexer->computeRanges();
 	indexer->setReady();

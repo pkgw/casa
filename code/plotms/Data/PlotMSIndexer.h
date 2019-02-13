@@ -70,9 +70,8 @@ protected:
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-    PMS::Axis iterAxis, casacore::Int iterValue, 
+    PMS::Axis iterAxis, casacore::Int iterValue,
     casacore::String xconnect, bool timeconnect, int index);
-  
   friend class PlotMSIndexerFactory;
 
 public:
@@ -260,8 +259,8 @@ private:
   IndexerMethPtr XIndexer_, YIndexer_, ColIndexer_;
   //  CollapseMethPtr collapseXMask_, collapseYMask_;
 
-  // The in-focus chunk and relative index offset
 protected:
+  // The in-focus chunk and relative index offset
   mutable casacore::Int currChunk_, irel_;
 
 private:
@@ -349,7 +348,8 @@ public:
 	// Constructor which supports iteration
 	PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
 	PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-	PMS::Axis iterAxis, casacore::Int iterValue, int index);
+	PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnect,
+	bool timeconnect, int index);
 
 	// Destructor
 	~PlotMSRaDecIndexer() {}
@@ -399,8 +399,8 @@ class PlotMSIndexerFactory {
 public:
 static PlotMSIndexer* initIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
   PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-  PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnector,
-  bool timeconnector, int index, bool makeRaDecIndexer=false);
+  PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnect,
+  bool timeconnect, int index, bool makeRaDecIndexer=false);
 };
 
 }

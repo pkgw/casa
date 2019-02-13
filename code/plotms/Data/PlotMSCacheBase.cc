@@ -1267,10 +1267,10 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			PMS::axisIsRaDec(currentX_[dataIndex]) or
 			PMS::axisIsRaDec(currentY_[dataIndex]) );
 	for (Int iter=0;iter<nIter;++iter) {
-		indexer_[dataIndex][iter] = PlotMSIndexerFactory::initIndexer(this, 
-            currentX_[dataIndex], currentXData_[dataIndex], 
-            currentY_[dataIndex], currentYData_[dataIndex],
-            iteraxis, iterValues(iter), xconnector, timeconnect, 
+		indexer_[dataIndex][iter] = PlotMSIndexerFactory::initIndexer(this,
+			currentX_[dataIndex], currentXData_[dataIndex],
+			currentY_[dataIndex], currentYData_[dataIndex],
+			iteraxis, iterValues(iter), xconnector, timeconnect,
 			dataIndex, useRaDecIndexer);
 	}
 
