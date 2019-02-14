@@ -2217,14 +2217,14 @@ VisibilityIteratorImpl2::getPolarizationId(Int spectralWindowId, Int msId) const
     // different data_descrption IDs.  Ideally, this whole thing should be
     // reworked to used DDIDs with spectral window ID only used internally.
     Int polID = -1;
-    for (Int idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
+    for (uInt idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
         if(ddCols.spectralWindowId()(idd) == spectralWindowId)
             polID = ddCols.polarizationId()(idd);
     }
 
     // If the SPW is not found in the DD it will return -1, rather than failing.
     // This can happen for the so-called phantom SPWs. See CAS-11734
-    if(spectralWindowId < nSpw)
+    if(uInt(spectralWindowId) < nSpw)
         return polID;
 
     // spectralWindowId is not present in subtables 

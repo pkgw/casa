@@ -616,77 +616,77 @@ void MSTransformManager::parseDataSelParams(Record &configuration)
 // -----------------------------------------------------------------------
 void MSTransformManager::parseChanAvgParams(Record &configuration)
 {
-	int exists = -1;
+    int exists = -1;
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanaverage");
-	if (exists >= 0)
-	{
-		configuration.get (exists, channelAverage_p);
-		if (channelAverage_p)
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Channel average is activated" << LogIO::POST;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		return;
-	}
+    exists = -1;
+    exists = configuration.fieldNumber ("chanaverage");
+    if (exists >= 0)
+    {
+        configuration.get (exists, channelAverage_p);
+        if (channelAverage_p)
+        {
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Channel average is activated" << LogIO::POST;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else
+    {
+        return;
+    }
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanbin");
-	if (exists >= 0)
-	{
-		if ( configuration.type(exists) == casacore::TpInt )
-		{
-			Int freqbin;
-			configuration.get (exists, freqbin);
+    exists = -1;
+    exists = configuration.fieldNumber ("chanbin");
+    if (exists >= 0)
+    {
+        if ( configuration.type(exists) == casacore::TpInt )
+        {
+            Int freqbin;
+            configuration.get (exists, freqbin);
 
-			if (freqbin < 2)
-			{
-				logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-						<< "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
-				channelAverage_p = False;
-			}
-			else
-			{
-				freqbin_p = Vector<Int>(1,freqbin);
+            if (freqbin < 2)
+            {
+                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+						        << "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
+                channelAverage_p = False;
+            }
+            else
+            {
+                freqbin_p = Vector<Int>(1,freqbin);
 
-			}
-		}
-		else if ( configuration.type(exists) == casacore::TpArrayInt)
-		{
-		    if(combinespws_p)
-		        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-		                 << "If SPW combination is active, "
-		                 "chabin cannot be an array" << LogIO::EXCEPTION;
-		        
-			configuration.get (exists, freqbin_p);
-		}
-		else
-		{
-			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
-		}
+            }
+        }
+        else if ( configuration.type(exists) == casacore::TpArrayInt)
+        {
+            if(combinespws_p)
+                logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+                << "If SPW combination is active, "
+                "chabin cannot be an array" << LogIO::EXCEPTION;
 
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel bin is " << freqbin_p << LogIO::POST;
-	}
-	else
-	{
-		logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
-		channelAverage_p = false;
-		return;
-	}
+            configuration.get (exists, freqbin_p);
+        }
+        else
+        {
+            logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
+        }
 
-	// jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
-	/*
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel bin is " << freqbin_p << LogIO::POST;
+    }
+    else
+    {
+        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
+        channelAverage_p = false;
+        return;
+    }
+
+    // jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
+    /*
 	exists = configuration.fieldNumber ("useweights");
 	if (exists >= 0)
 	{
@@ -712,9 +712,9 @@ void MSTransformManager::parseChanAvgParams(Record &configuration)
 			useweights_p = String("flags");
 		}
 	}
-	*/
+     */
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
