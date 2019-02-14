@@ -438,7 +438,8 @@ class PySynthesisImager:
         # Only set this to True for testing and debugging automask in parallel mode
         # since in parallel mode, runtime setting of the enviroment variable
         # currently does not work.
-        alwaysSaveIntermediateImages=True
+        # False = disable always save intermediate images mode
+        alwaysSaveIntermediateImages=False
 
         # Get iteration control parameters
         iterbotrec = self.IBtool.getminorcyclecontrols()
