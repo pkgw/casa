@@ -159,6 +159,19 @@ private:
 
 };
 
+//+
+// NEW: Under construction
+// Direction Column (List and other service)
+//-
+class DirectionColumnList 
+{
+public:
+        string dirName(uint n) { return DirList[n]; }
+private:
+        std::vector<string> DirList 
+         = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
+
+};
 
 //+
 // DEBUG Tentative 
@@ -310,10 +323,9 @@ void BaseClass::FunctionalDescription(const String &Title, const String &Param)
 
 void BaseClass::Description(const String &Title, const String &Param)
 {
-    printf("+-----------------------------\n");
-    printf("| %s \n",Title.c_str());
-    printf("| [%s] \n",Param.c_str());
-    printf("+-----------------------------\n");
+    printf("+---------------------------------------------------\n");
+    printf("| %s   [%s] \n", Title.c_str(), Param.c_str());
+    printf("+---------------------------------------------------\n");
 }
 
 //**************************************************************************
@@ -2000,7 +2012,9 @@ protected:
         // NEW: CAS-8418 related
         //
         
-           /* reserved */
+        // select Direction column (Internal Test) //
+        
+         uInt  GTestSelectDirectionColumn = 0;
 
         // MeasurementSet Editting
      
@@ -2120,6 +2134,8 @@ TEST_F(TestDirection, setDirectionColumn  )
     //-
         String ColName;
 
+    for( uInt n=0; n<2;n++ ) 	// 2 Times. run .../
+    {     
         ColName = "DIRECTION";
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
@@ -2155,6 +2171,8 @@ TEST_F(TestDirection, setDirectionColumn  )
         EXPECT_ANY_THROW( calc.setDirectionColumn( ColName ) );
 
         assert_accessor();
+
+    }    
 }
 
 /*----------------------------------------------------------
@@ -2690,6 +2708,19 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
        EXPECT_NE((uInt)0, ExpectedNrow );
 
     //+
+    //  MatrixShape (COLUMN_MAJOR) 
+    //-
+        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
+        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ); 
+
+    //+
+    // setFrame()
+    //-
+
+        String FrameName= "J2000";
+        EXPECT_NO_THROW( calc.setFrame( FrameName ));
+
+    //+
     // selectData
     //    0=DA61, 1=PM03, 2=PM04
     //-
@@ -2705,24 +2736,11 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
     // setDirectionColumn() 
     //-
   
-        String ColName = "DIRECTION"; 
-        Description( "getDirectionColumn()", ColName  );
+        String DColName[] = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" }; 
+        
+        Description( "getDirectionColumn()", DColName[GTestSelectDirectionColumn]  );
 
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-    //+
-    //  MatrixShape (COLUMN_MAJOR) 
-    //-
-        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
-        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ); 
-
-    //+
-    // setFrame()
-    //-
-
-        String FrameName= "J2000";
-
-        EXPECT_NO_THROW( calc.setFrame( FrameName ));
+        EXPECT_NO_THROW( calc.setDirectionColumn( DColName[GTestSelectDirectionColumn] ) );
 
     //  Dump (before)
 
@@ -2970,7 +2988,7 @@ TEST_F(TestDirection, InterpolationSingle )
 
       use_spline = true;
 
-      msedit.evgen.    setCurveFunctionNo(2);   // set Curve Fuction
+      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
                                      2.99827 ) ;  // Main Interval
@@ -3000,13 +3018,15 @@ TEST_F(TestDirection, InterpolationSingle )
       Double p_interval = msedit.evgen.getPointingTableInterval();
       Double m_interval = msedit.evgen.getMainTableInterval();
 
-    // Execute and get numerical error info 
+     // Execute and get numerical error info 
 
        r_err = TestDirection::testDirectionByInterval(p_interval, m_interval);
 
        printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
        printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
        printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
+
+
 }
 
 TEST_F(TestDirection, CompareInterpolation )
@@ -4398,6 +4418,27 @@ TEST_F(MyDebug, Debug12_Dump )
                      row, name.c_str(), position[0],position[1],position[2]  );
         }
     }
+
+}
+
+TEST_F(MyDebug, SplineConstructor )
+{
+    const String MsName = "./sdimaging-t.ms";
+    String name = /* env.getCasaMasterPath()+ */  MsName;
+
+    MeasurementSet ms0(name);
+    PointingDirectionCalculator calc(ms0); 
+
+    casa::SplineInterpolation  *spH =  calc.getCurrentSplineObj();
+
+    calc.setDirectionColumn("DIRECTION" );
+      spH =  calc.getCurrentSplineObj();
+    calc.setDirectionColumn("DIRECTION" );  
+      spH =  calc.getCurrentSplineObj();
+    calc.setDirectionColumn("TARGET" );
+      spH =  calc.getCurrentSplineObj();
+    calc.setDirectionColumn("TARGET" );
+      spH =  calc.getCurrentSplineObj();
 
 }
 

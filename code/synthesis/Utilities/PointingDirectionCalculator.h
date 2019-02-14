@@ -126,14 +126,18 @@ namespace casa {
 
 
 //+
-//  typedef of accessor_
-//   for Different Column access
+//  CAS-8418:
+//    typedef of accessor_ and 
+//    Direction column types.
 //-
 typedef 
 casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
                                        casacore::uInt rownr);
+typedef
+enum DC_ { Undefined, DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER } DirectionColumnID;
 
-class SplineInterpolation;  // Forward Refference //
+
+class SplineInterpolation;  // CAS-8418::Forward Refference //
 class PointingDirectionCalculator {
 public:
     // Enumerations for memory layout of the output pointing direction array.
@@ -145,7 +149,25 @@ public:
         ROW_MAJOR
     };
 
+    //+
     // Constructor
+    //-
+   
+    //+
+    //  CAS-8418 Extension.
+    //   Create Spline five Objects on PointingDirectionCalculator.
+    //
+    //   - The setDirectionColumn(name) performs all the initialization and make Coefficient table.
+    //   - In this constructor, init() and setDirectionColumn("DIRECTION") are called,
+    //     soon or later, setDirectionColumn will be called, whenever new Direction column is used
+    //     and interporation is made.
+    //   - The spline object is created by a column, which contains all antenna_Id.
+    //   - Cofficient table is obtained from SDPosInterpolation. 
+    //   - SplineInterpolation class in this file provides calculation but it is sort of customize 
+    //     for PoinitngDirectionCalculator.
+    //   - To see the initialization, please start from setDirectionColumn().  
+    //- 
+
     PointingDirectionCalculator(casacore::MeasurementSet const &ms);
 
     // Destructor
@@ -264,12 +286,22 @@ public:
 
     casacore::uInt getRowId(casacore::uInt irow);
 
-    //+
+    //*************************************
     // CAS-8418  Spline Interpolation API 
-    //-
+    //*************************************
 
-    void setSplineInterpolation(bool mode) {fgSplineInterpolation = mode;};
+    void setSplineInterpolation(bool mode) {useSplineInterpolation_ = mode;};
 
+    // Spline Object handle
+    casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
+
+    // Curret Direction column (=accessor in this source )
+    casacore::uInt getCurretAccessorId()  { return  accessorId_ ; };
+
+    // Spline device status (on Debug) //
+
+    bool isInitializeDone (casacore::uInt n)   {return initializeReady_ [n]; }
+    bool isCofficientReady(casacore::uInt n)   {return coefficientReady_[n]; }
 
 private:
 
@@ -323,27 +355,33 @@ private:
 
     PointingDirectionCalculator();
 
-    //+
-    // new: Spline (CAS-8418)
-    //-
+    //***************************
+    // CAS-8418 Spline Extended
+    //***************************
 
      // Spline object and flag (for each Direction Column)
       
-        bool fgSplineInterpolation = true;       // Use Spline if TRUE
-        casa::SplineInterpolation    * spline_;    // Active Object (traditiona Pointer)
+        bool useSplineInterpolation_    = true;      // default: Use Spline if TRUE
+        bool useOldInterpolationModule_ = false;     // default: Use origial doGetDirection 
+
+        casa::SplineInterpolation    *currSpline_;      // Currently Active Object (traditiona Pointer)
 
      // Spline Object for each Direction-Column //
 
-        // Hold the spline object. switchedly assigned to 'splie_' maser. //
-        std::unique_ptr<casa::SplineInterpolation>     splineObj[5];  
+        // Hold the spline object. switched and  assigned to 'currSpline_.  pointer.//
 
-        casacore::Vector<bool>      readySplineInitialize ;  // status //
-        casacore::Vector<bool>     readySplineCoefficient ;  // coeff ready //
+        std::unique_ptr<casa::SplineInterpolation>     splineObj_[5];
 
-     // Accessor ID i(work with accessor_ ) 
 
-        casacore::uInt accessorId_ =0;
+        // Internal conditions to check limitted service.  
+        casacore::Vector<bool>                         initializeReady_  ;
+        casacore::Vector<bool>                         coefficientReady_ ;
 
+     // Accessor ID (See typedef above. ) 
+
+//      DirectionColumnID     accessorId_ ; 
+        casacore::uInt        accessorId_ ;
+  
      // creating temporary Spline object (in construction)
 
         bool checkColumn(casacore::MeasurementSet const &ms,
@@ -355,26 +393,31 @@ private:
         bool activateSplinefromDirectionColumn(casacore::MeasurementSet const &ms,
                                                casacore::uInt DirColNo, bool makeActive);
 
-     // Spline Object handle
-
-        casa::SplineInterpolation      *getCurrentSplineObj() { return spline_; }
-
-     // Programmer's option 
+     //+
+     // [new] doGetDirection(uint row)   CAS-8418
+     // Changes:   
+     //   - Performs Spline-Interpolation
+     //   - In case number of dat is insfficient, alternatively uses Linea-Interpolation
+     //   - Logic is mostly same as the old one, new calculation was inserted.
+     // Limitatioon:
+     //   - provided calcuation() requires deviding point (as written dt in src.) 
+     //     between the given fixed points.
+     // Migration:
+     //   - Old module remains until the compatibility is validated.
+     //   - see doGetDirection() in detail.  
+     //-
+     
+     // The Old and the New // 
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
-        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline only
-
+        casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline/inear
 };
 
 //+
-// Interpolation Base class
+// Interpolation Base class (reserved for future)
 //-
 class Interpolation {
 public:
 
-    // Default Accessor (reserved)
-      void       setDefaultAccessor( ACCESSOR acc) {defaultAccessor=acc;}
-      ACCESSOR   getDefaultAccessor() {return defaultAccessor; }
- 
     // Interpolation TYpe
       enum InterpolationType {
         LINEAR,
@@ -382,7 +425,7 @@ public:
    };
 
 private:
-      ACCESSOR   defaultAccessor;
+      casacore::uInt reservedInformaiton; 
 };
 
 //+
@@ -394,36 +437,42 @@ class SplineInterpolation :public Interpolation  {
 
 public:
         // Constructor 
-        SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
-        SplineInterpolation(casacore::MeasurementSet const &ms );
+          SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
 
-       ~SplineInterpolation() { };
+         ~SplineInterpolation() { };
 
-        // Caluclation Available or not. 
-
-        bool   isCalculateAvailable() { return coeffActive; }
-
-        // Calculate function
+        // Calculate function //
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
                                                        casacore::uInt AntennaID =0);
+        // Internal stauts (for inspection)  //
+
+        bool isCofficientReady()   {return stsCofficientReady; }
+
 private:
         //  default constructor 
 
          SplineInterpolation();
 
-        // Internal constructor 
+        //  constructor sub. 
 
-         void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
+          void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
-        // Coefficiat Table (returned from SDPosInterpolator) //
-
-        bool     coeffActive = false;   // True when Coeff is ready to be used.   
-        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
+          casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
           coeff_;
+       
+        // Interal Staus (one Spline status)//
+ 
+          bool stsCofficientReady = false;
+  
+        // debug routune //
+          void dumpCsvCoeff();
 
-       // debug //
-         void dumpCsvCoeff();
+        // Programmers Debug Flag //
+       
+          bool verifySDP          = false;
+          bool dumpCoeffientTable = false;
+
 };
 
 //+
@@ -437,18 +486,21 @@ public:
 
         std::pair<casacore::uInt, casacore::uInt>  getAntennaBoundary( casacore::uInt n );
     
-        casacore::uInt  getNumAntennaBoundary( ){return numAntennaBoundary_;}
+        casacore::uInt  getNumOfAntenna() {return numAntennaBoundary_ - 1;}
 
         casacore::MSPointing  getPointingHandle() { return hPointing_; };
 
-        void show() ;
 private:
        //  AntennaBoundary on Pointing Tablle 
-       casacore::Vector<casacore::uInt>            antennaBoundary_;
-       casacore::uInt                              numAntennaBoundary_;
+         casacore::Vector<casacore::uInt>            antennaBoundary_;
+         casacore::uInt                              numAntennaBoundary_;
      
        // Pointing Table handle
-       casacore::MSPointing hPointing_; 
+         casacore::MSPointing hPointing_; 
+ 
+       // Programmer's Debug //
+         void showTable() ;
+         bool showAntennaTable =false;
 };
 
 
