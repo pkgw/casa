@@ -1915,6 +1915,21 @@ class test_base(unittest.TestCase):
         os.system('cp -RL '+self.datapath + self.vis +' '+ self.vis)
         default(split)
         
+    def setUp_mixedpol(self):
+        # DD table is as follows:
+        #  PolID SpwID   
+        #    0    0      
+        #    1    1      
+        #    1    2      
+        #    0    3      
+
+        self.vis = 'split_ddid_mixedpol_CAS-12283.ms'
+        if os.path.exists(self.vis):
+           self.cleanup()
+
+        os.system('cp -RL '+self.datapath + self.vis +' '+ self.vis)
+        default(split)
+        
     def setUp_flags(self):
         asdmname = 'test_uid___A002_X997a62_X8c-short' # Flag.xml is modified
         self.vis = asdmname+'.ms'
@@ -2146,6 +2161,52 @@ class splitSpwPoln(test_base):
         listobs(self.outputms, listfile='list.obs')
         self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')
         
+class splitUnsortedPoln(test_base):
+    '''tests for DDs with polIDs in unsorted order 
+       CAS-12283
+    '''
+
+    def setUp(self):
+        if testmms:
+            self.datapath = datapath
+        else:
+            self.datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/'
+        self.setUp_mixedpol()
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outputms)
+        os.system('rm -rf list.obs')
+        
+    def test_split_unsorted_polids(self):
+        '''split: split MS with unsorted polIDs'''
+        self.outputms = 'split_unsorted_polids.ms'
+        split(self.vis, outputvis=self.outputms, spw='', scan='11', correlation='RR,LL', datacolumn='all')
+        
+        # Verify the input versus the output
+        myms = mstool()
+        myms.open(self.vis)
+        inp_nrow = myms.nrow(True)
+        myms.close()
+
+        mymd = msmdtool()
+        mymd.open(self.outputms)
+        out_nrow = mymd.nrows()
+        dds = mymd.datadescids()
+        mymd.done()
+        
+        self.assertEqual(inp_nrow, out_nrow)
+        self.assertEqual(dds.size, 64)
+
+        # Check that the data description column in the main table is unchanged.
+        mytbinp = tbtool()
+        mytbinp.open(self.vis)
+        ddcol_inp = mytbinp.getcol('DATA_DESC_ID') 
+        mytbout = tbtool()
+        mytbout.open(self.outputms)
+        ddcol_out = mytbout.getcol('DATA_DESC_ID')
+        self.assertItemsEqual(ddcol_inp, ddcol_out)
+
 class splitUpdateFlagCmd(test_base):
     
     def setUp(self):
@@ -2187,5 +2248,6 @@ def suite():
 #            split_test_fc
             splitTests,
             splitSpwPoln,
+            splitUnsortedPoln,
             splitUpdateFlagCmd
             ]
