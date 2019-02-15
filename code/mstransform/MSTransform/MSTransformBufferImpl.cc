@@ -1169,6 +1169,13 @@ const Vector<MDirection> & MSTransformBufferImpl::azel(Double time) const
 {
 	return manager_p->getVisBuffer()->azel(time);
 }
+// -----------------------------------------------------------------------
+//
+// -----------------------------------------------------------------------
+const Vector<MDirection> & MSTransformBufferImpl::direction1() const
+{
+	return manager_p->getVisBuffer()->direction1();
+}
 
 // -----------------------------------------------------------------------
 //

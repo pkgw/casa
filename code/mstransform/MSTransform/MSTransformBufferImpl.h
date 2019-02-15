@@ -226,6 +226,7 @@ public:
     casacore::MDirection azel0(casacore::Double time) const;
     const casacore::Vector<casacore::MDirection> & azel(casacore::Double time) const; // [nA]
     casacore::Double hourang(casacore::Double time) const;
+    const casacore::Vector<casacore::MDirection> & direction1() const; // ??
 
     casacore::Vector<casacore::Int> getCorrelationTypes () const;
     const casacore::Vector<casacore::Int> & correlationTypes () const;

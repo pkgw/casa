@@ -29,6 +29,7 @@
 
 #include <plotms/Plots/PlotMSPlotParameters.h>
 
+#include <plotms/PlotMS/PlotMSParameters.h>
 #include <plotms/PlotMS/PlotMSAveraging.h>
 #include <plotms/PlotMS/PlotMSExportParam.h>
 #include <plotms/PlotMS/PlotMSIterParam.h>
@@ -425,6 +426,119 @@ public:
 		}
 	}
 
+
+	const vector < PMS::CoordSystem > &xFrames() const {
+		return itsXFrame_;
+	}
+	void setXFrames (const vector < PMS::CoordSystem > &value) {
+		if (itsXFrame_ != value) {
+			itsXFrame_ = value;
+			updated();
+		}
+	}
+	PMS::CoordSystem xFrame (unsigned int index = 0) const {
+		if (index >= itsXFrame_.size())
+			const_cast < vector < PMS::CoordSystem >
+		&>(itsXFrame_).resize (index + 1);
+		return itsXFrame_[index];
+	}
+	void setXFrame (const PMS::CoordSystem & value, unsigned int index =
+			0) {
+		if (index >= itsXFrame_.size())
+			itsXFrame_.resize (index + 1);
+		if (itsXFrame_[index] != value)   {
+			itsXFrame_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::CoordSystem > &yFrames() const {
+		return itsYFrame_;
+	}
+	void setYFrames (const vector < PMS::CoordSystem > &value) {
+		if (itsYFrame_ != value) {
+			itsYFrame_ = value;
+			updated();
+		}
+	}
+	PMS::CoordSystem yFrame (unsigned int index = 0) const {
+		if (index >= itsYFrame_.size())
+			const_cast < vector < PMS::CoordSystem >
+		&>(itsYFrame_).resize (index + 1);
+		return itsYFrame_[index];
+	}
+
+	void setYFrame (const PMS::CoordSystem & value, unsigned int index =
+			0) {
+		if (index >= itsYFrame_.size())
+			itsYFrame_.resize (index + 1);
+		if (itsYFrame_[index] != value)   {
+			itsYFrame_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::InterpMethod > &xInterps() const {
+		return itsXInterp_;
+	}
+	void setXInterps (const vector < PMS::InterpMethod > &value) {
+		if (itsXInterp_ != value) {
+			itsXInterp_ = value;
+			updated();
+		}
+	}
+	PMS::InterpMethod xInterp (unsigned int index = 0) const {
+		if (index >= itsXInterp_.size())
+			const_cast < vector < PMS::InterpMethod >
+		&>(itsXInterp_).resize (index + 1);
+		return itsXInterp_[index];
+	}
+	void setXInterp (const PMS::InterpMethod & value, unsigned int index =
+			0) {
+		if (index >= itsXInterp_.size())
+			itsXInterp_.resize (index + 1);
+		if (itsXInterp_[index] != value)   {
+			itsXInterp_[index] = value;
+			updated();
+		}
+	}
+
+
+	const vector < PMS::InterpMethod > &yInterps() const {
+		return itsYInterp_;
+	}
+	void setYInterps (const vector < PMS::InterpMethod > &value) {
+		if (itsYInterp_ != value) {
+			itsYInterp_ = value;
+			updated();
+		}
+	}
+	PMS::InterpMethod yInterp (unsigned int index = 0) const {
+		if (index >= itsYInterp_.size())
+			const_cast < vector < PMS::InterpMethod >
+		&>(itsYInterp_).resize (index + 1);
+		return itsYInterp_[index];
+	}
+	void setYInterp (const PMS::InterpMethod & value, unsigned int index =
+			0) {
+		if (index >= itsYInterp_.size())
+			itsYInterp_.resize (index + 1);
+		if (itsYInterp_[index] != value)   {
+			itsYInterp_[index] = value;
+			updated();
+		}
+	}
+
+	DirectionAxisParams xDirectionParams (unsigned int index = 0) const {
+		return DirectionAxisParams(xFrame(index),xInterp(index));
+	}
+	DirectionAxisParams yDirectionParams (unsigned int index = 0) const {
+		return DirectionAxisParams(yFrame(index),yInterp(index));
+	}
+
+
 	bool showAtm() const {
 		return itsShowAtm_;
 	}
@@ -456,14 +570,24 @@ private:
 	std::vector<PMS::Axis> itsYAxes_;
 	std::vector<PMS::DataColumn> itsXData_;
 	std::vector<PMS::DataColumn> itsYData_;
+	std::vector<PMS::CoordSystem> itsXFrame_;
+	std::vector<PMS::InterpMethod> itsXInterp_;
+	std::vector<PMS::CoordSystem> itsYFrame_;
+	std::vector<PMS::InterpMethod> itsYInterp_;
+	
 	bool itsShowAtm_;
 	bool itsShowTsky_;
+
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_XAXES;
 	static const casacore::String REC_YAXES;
 	static const casacore::String REC_XDATACOLS;
 	static const casacore::String REC_YDATACOLS;
+	static const casacore::String REC_XFRAMES;
+	static const casacore::String REC_YFRAMES;
+	static const casacore::String REC_XINTERPS;
+	static const casacore::String REC_YINTERPS;
 	static const casacore::String REC_SHOWATM;
 	static const casacore::String REC_SHOWTSKY;
 
