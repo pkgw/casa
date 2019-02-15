@@ -10,15 +10,23 @@ import math
 try:
     # CASA 6
     from casatools import table
+    # Most of this helper file is about table operations. The ms and image tools are used
+    # only for a couple of functions (for which there might be a better place)
+    from casatools import ms, image
 
     tb_local = table()
     tb_local2 = table()
+    ms_local = ms()
+    image_local = image()
 except ImportError:
     # CASA 5
     from taskinit import tbtool
+    from taskinit import mstool, imtool
 
     tb_local = tbtool()
     tb_local2 = tbtool()
+    ms_local = mstool()
+    image_local = imtool()
 
 
 '''
@@ -581,7 +589,7 @@ def compareSubTables(input,reference,order=None,excluded_cols=[]):
                 tbinput.close()
                 tbreference.close()
                 return (False,col)
-    
+
     tbinput.close()
     tbreference.close()
     if order is not None:
@@ -647,6 +655,8 @@ def findTemplate(testname,refimage,copy=False):
     return found
 
 
+# As opposed to most other functions in this file, this doesn't use the table tool but the
+# image tool
 def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose=False):
     """
     compare two images using imstat and the specified keys, 
@@ -656,16 +666,15 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
     from os import F_OK
     if isinstance(tol,float):
         tol=tol+np.zeros(len(keys))
-    myia=casac.image()
     ims=[im0,im1]
     s=[]
     for i in range(2):
         if not os.access(ims[i],F_OK): 
             print(ims[i]+" not found")
             return False
-        myia.open(ims[1])
-        s.append(myia.statistics())
-        myia.done()
+        image_local.open(ims[1])
+        s.append(image_local.statistics())
+        image_local.done()
     status=True
     for ik in range(len(keys)):
         k=keys[ik]
@@ -677,6 +686,8 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
     return status
 
 
+# As opposed to most other functions in this file, this doesn't use the table tool but the
+# ms tool
 def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=False):
     """
     compare two MS using ms.statistics on amp or phase as specified, 
@@ -686,17 +697,16 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
     from os import F_OK
     if isinstance(tol,float):
         tol=tol+np.zeros(len(keys))
-    myms=casac.ms()
     mss=[ms0,ms1]
     s=[]
     for i in range(2):
         if not os.access(mss[i],F_OK): 
             print(mss[i]+" not found")
             return False
-        myms.open(mss[1])
-        stats = myms.statistics("DATA",ap)
+        ms_local.open(mss[1])
+        stats = ms_local.statistics("DATA",ap)
         s.append(stats[stats.keys()[0]])
-        myms.done()
+        ms_local.done()
     status=True
     for ik in range(len(keys)):
         k=keys[ik]
