@@ -67,16 +67,18 @@ def polfromgain(vis,tablein,caltable,paoffset):
         R=mypl.zeros((nspw,nfld))
         Q=mypl.zeros((nspw,nfld))
         U=mypl.zeros((nspw,nfld))
-        mask=mypl.ones((nspw,nfld),dtype=bool)
+        mask=mypl.zeros((nspw,nfld),dtype=bool)
 
         IQUV={}
         nomod=not rempol
         mytb.open(caltable,nomodify=nomod)
-        for ifld in range(nfld):
+        uflds=mypl.unique(mytb.getcol('FIELD_ID'))
+        uspws=mypl.unique(mytb.getcol('SPECTRAL_WINDOW_ID'))
+        for ifld in uflds:
             rah=dirs[0,ifld]*12.0/pi
             decr=dirs[1,ifld]
             IQUV[fldnames[ifld]]={}
-            for ispw in range(nspw):
+            for ispw in uspws:
 
                 r=mypl.zeros(nant)
                 q=mypl.zeros(nant)
@@ -164,17 +166,18 @@ def polfromgain(vis,tablein,caltable,paoffset):
                     U[ispw,ifld]=mypl.sum(u)/nantok
                     R[ispw,ifld]=mypl.sum(r)/nantok
                     mask[ispw,ifld]=True
-                else:
-                    mask[ispw,ifld]=False
                 
-                P=sqrt(Q[ispw,ifld]**2+U[ispw,ifld]**2)
-                X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
+                    P=sqrt(Q[ispw,ifld]**2+U[ispw,ifld]**2)
+                    X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
 
                 #print 'Fld='+fldnames[ifld],'Spw='+str(ispw),'Ant=*', '(PA offset='+str(rang[iant,ispw]*180/pi+paoffset)+'deg)','Gx/Gy='+str(R[ispw,ifld]),'Q='+str(Q[ispw,ifld]),'U='+str(U[ispw,ifld]),'P='+str(P),'X='+str(X)
 
-                casalog.post('Fld='+fldnames[ifld]+' Spw='+str(ispw)+' Ant=*'+' (PA offset='+str(rang[iant,ispw]*180/pi+paoffset)+'deg)'+' Q='+str(Q[ispw,ifld])+' U='+str(U[ispw,ifld])+' P='+str(P)+' X='+str(X))
+                    casalog.post('Fld='+fldnames[ifld]+' Spw='+str(ispw)+' Ant=*'+' (PA offset='+str(rang[iant,ispw]*180/pi+paoffset)+'deg)'+' Q='+str(Q[ispw,ifld])+' U='+str(U[ispw,ifld])+' P='+str(P)+' X='+str(X))
 
-                IQUV[fldnames[ifld]]['Spw'+str(ispw)]=[1.0,Q[ispw,ifld],U[ispw,ifld],0.0]
+                    IQUV[fldnames[ifld]]['Spw'+str(ispw)]=[1.0,Q[ispw,ifld],U[ispw,ifld],0.0]
+
+                else:
+                    mask[ispw,ifld]=False
 
             if sum(mask[:,ifld])>0:
                 casalog.post('For field='+fldnames[ifld]+' there are '+str(sum(mask[:,ifld]))+' good spws.')
