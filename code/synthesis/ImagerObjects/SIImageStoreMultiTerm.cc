@@ -1266,17 +1266,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os( LogOrigin("SIImageStoreMultiTerm","printImageStats",WHERE) );
     // FIXME minresmask needs to be initialized here, or else compiler complains
     Float minresmask, maxresmask, minres, maxres;
+    ArrayLattice<Bool> pixelmask(residual()->getMask());
+
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 
     if (hasMask())
       {
-	findMinMaxLattice(*residual(), *mask() , maxres,maxresmask, minres, minresmask);
+//	findMinMaxLattice(*residual(), *mask() , maxres,maxresmask, minres, minresmask);
+	findMinMaxLattice(*residual(), *mask() , pixelmask, maxres,maxresmask, minres, minresmask);
       }
     else
       {
-	LatticeExprNode pres( max( *residual() ) );
+        LatticeExpr<Float> reswithpixmask(iif(pixelmask, *residual(), 0));
+	//LatticeExprNode pres( max( *residual() ) );
+	LatticeExprNode pres( max( reswithpixmask ) );
 	maxres = pres.getFloat();
-	LatticeExprNode pres2( min( *residual() ) );
+	//LatticeExprNode pres2( min( *residual() ) );
+	LatticeExprNode pres2( min( reswithpixmask ) );
 	minres = pres2.getFloat();
       }
 

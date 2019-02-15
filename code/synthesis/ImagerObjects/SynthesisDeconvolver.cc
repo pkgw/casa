@@ -72,6 +72,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				       //itsMaskString(String("")),
                                        itsIterDone(0.0),
                                        itsChanFlag(Vector<Bool>(False)),
+                                       itsRobustStats(Record()),
                                        initializeChanMaskFlag(false),
 				       itsIsMaskLoaded(false),
 				       itsMaskSum(-1e+9)
@@ -217,6 +218,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   { 
     LogIO os( LogOrigin("SynthesisDeconvolver","initMinorCycle",WHERE) );
     Record returnRecord;
+    Timer timer;
 
     try {
       
@@ -252,14 +254,56 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //os<<"Calling calcRobustRMS ....syndeconv."<<LogIO::POST;
       Float nsigmathresh = 0.0;
       Bool useautomask = ( itsAutoMaskAlgorithm=="multithresh" ? true : false);
-      if (itsNsigma >0.0) {
+      Int iterdone = itsLoopController.getIterDone();
+      if ( itsNsigma >0.0 ) { 
         itsMaskHandler->setPBMaskLevel(itsPBMask);
-        Array<Double> medians;
-        Array<Double> robustrms = itsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
+        Array<Double> medians, robustrms;
+        // 2 cases to use existing stats.
+        // 1. automask has run and so the image statistics record has filled
+        // or
+        // 2. no automask but for the first cycle but already initial calcRMS has ran to avoid duplicate
+        // 
+        if ((useautomask && itsRobustStats.nfields()) || 
+            (!useautomask && iterdone==0 && itsRobustStats.nfields()) ) {
+           os <<LogIO::DEBUG1<<"automask on: check the current stats"<<LogIO::POST;
+           //os<< "itsRobustStats nfield="<< itsRobustStats.nfields() << LogIO::POST;;
+           if (itsRobustStats.isDefined("medabsdevmed")) {
+             Array<Double> mads;
+             itsRobustStats.get(RecordFieldId("medabsdevmed"), mads);
+             os<<LogIO::DEBUG1<<"Using robust rms from automask ="<< mads*1.4826 <<LogIO::POST;
+             robustrms = mads*1.4826;
+           }
+           else if(itsRobustStats.isDefined("robustrms")) {
+             itsRobustStats.get(RecordFieldId("robustrms"), robustrms);
+           }
+           itsRobustStats.get(RecordFieldId("median"), medians);
+              
+        }
+       else { // do own stats calculation
+          timer.mark();
+          os<<LogIO::DEBUG1<<"Calling calcRobustRMS .. "<<LogIO::POST;
+          robustrms = itsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
+          os<< LogIO::NORMAL << "time for calcRobustRMS:  real "<< timer.real() << "s ( user " << timer.user() 
+             <<"s, system "<< timer.system() << "s)" << LogIO::POST;
+          //reset itsRobustStats
+          try {
+            //os<<"current content of itsRobustStats nfields=="<<itsRobustStats.nfields()<<LogIO::POST;
+            itsRobustStats.define(RecordFieldId("robustrms"), robustrms);
+            itsRobustStats.define(RecordFieldId("median"), medians);
+          }   
+          catch(AipsError &x) { 
+            throw( AipsError("Error in storing the robust image statistics") );
+          }
+        }
+ 
+        /***
+        Array<Double> robustrms =kitsImages->calcRobustRMS(medians, itsPBMask, itsFastNoise);
         // Before the first iteration the iteration parameters have not been
         // set in SIMinorCycleController
         // Use nsigma pass to SynthesisDeconvolver directly for now...
         //Float nsigma = itsLoopController.getNsigma();
+        ***/
+
         Double minval, maxval;
         IPosition minpos, maxpos;
         //Double maxrobustrms = max(robustrms);
@@ -402,7 +446,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if (itsAutoMaskAlgorithm=="multithresh") {
         automaskon=true;
       }
-      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon, itsFastNoise );
+      //itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon, itsFastNoise );
+      // include robust stats rec 
+      itsDeconvolver->deconvolve( itsLoopController, itsImages, itsDeconvolverId, automaskon, itsFastNoise, itsRobustStats );
       returnRecord = itsLoopController.getCycleExecutionRecord();
 
       //scatterModel(); // This is a no-op for the single-node case.
@@ -600,10 +646,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
        //os << "itsMinPercentChnage = " << itsMinPercentChange<< LogIO::POST;
 
        if ( itsPBMask > 0.0 ) {
-         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached, itsPBMask);
+         //itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached, itsPBMask);
+         //pass robust stats
+         itsMaskHandler->autoMaskWithinPB( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsRobustStats, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust,  itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold,itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached, itsPBMask);
        }
        else {
-         itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached );
+         //itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag,itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached );
+        // pass robust stats 
+        itsMaskHandler->autoMask( itsImages, itsPosMask, itsIterDone, itsChanFlag, itsRobustStats, itsAutoMaskAlgorithm, itsMaskThreshold, itsFracOfPeak, itsMaskResolution, itsMaskResByBeam, itsNMask, itsAutoAdjust, itsSidelobeThreshold, itsNoiseThreshold, itsLowNoiseThreshold, itsNegativeThreshold, itsCutThreshold, itsSmoothFactor, itsMinBeamFrac, itsGrowIterations, itsDoGrowPrune, itsMinPercentChange, itsVerbose, itsFastNoise, isThresholdReached );
        }
      }
   }
