@@ -2191,7 +2191,6 @@ void MSTransformManager::initDataSelectionParams()
 				inputOutputChanIndexMap_p[spw].push_back(inpChan);
 			}
 		}
-		
 	}
 
 	// jagonzal: must fill numOfSelChanMap_p
@@ -2363,7 +2362,9 @@ void MSTransformManager::initDataSelectionParams()
 		// when there is no spw selection
 		if (spwSelection_p.empty() and reindex_p)
 		{
-			Vector<Int> polddids = mssel.getDDIDList(inputMs_p);
+			std::vector<Int> polddids = mssel.getDDIDList(inputMs_p).tovector();
+			// The output from MSSelection might not be sorted
+            std::sort(polddids.begin(), polddids.end());
 
 			// Make the in/out DD mapping
 			uInt nddids = polddids.size();
