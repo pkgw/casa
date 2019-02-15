@@ -2205,7 +2205,7 @@ class splitUnsortedPoln(test_base):
         mytbout = tbtool()
         mytbout.open(self.outputms)
         ddcol_out = mytbout.getcol('DATA_DESC_ID')
-        self.assertItemsEqual(ddcol_inp, ddcol_out)
+        self.assertTrue(ddcol_inp.tolist() == ddcol_out.tolist())
 
 class splitUpdateFlagCmd(test_base):
     
