@@ -124,7 +124,6 @@ namespace casa {
 // </todo>
 ///
 
-
 //+
 //  CAS-8418:
 //    typedef of accessor_ and 
@@ -134,10 +133,11 @@ typedef
 casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
                                        casacore::uInt rownr);
 typedef
-enum DC_ { Undefined, DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER } DirectionColumnID;
+enum DC_ { DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER } DirectionColumnID;
 
+class SplineInterpolation;       // CAS-8418 Forward Reference //
+class DirectionColumnsAccessor;  // CAS-8418 Forward Reference //
 
-class SplineInterpolation;  // CAS-8418::Forward Refference //
 class PointingDirectionCalculator {
 public:
     // Enumerations for memory layout of the output pointing direction array.
@@ -296,7 +296,8 @@ public:
     casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
 
     // Curret Direction column (=accessor in this source )
-    casacore::uInt getCurretAccessorId()  { return  accessorId_ ; };
+
+    DirectionColumnID  getCurretAccessorId()  { return  accessorId_ ; };
 
     // Spline device status (on Debug) //
 
@@ -372,26 +373,23 @@ private:
 
         std::unique_ptr<casa::SplineInterpolation>     splineObj_[5];
 
-
         // Internal conditions to check limitted service.  
         casacore::Vector<bool>                         initializeReady_  ;
         casacore::Vector<bool>                         coefficientReady_ ;
 
      // Accessor ID (See typedef above. ) 
 
-//      DirectionColumnID     accessorId_ ; 
-        casacore::uInt        accessorId_ ;
-  
+//        casacore::uInt        accessorId_ ;
+        DirectionColumnID   accessorId_ ;
+ 
      // creating temporary Spline object (in construction)
 
         bool checkColumn(casacore::MeasurementSet const &ms,
                          casacore::String const &columnName );
 
-        bool activateSplinefromDirectionColumn (casacore::MeasurementSet const &ms, 
-                                                casacore::String const &colname, 
-                                                ACCESSOR acc);
         bool activateSplinefromDirectionColumn(casacore::MeasurementSet const &ms,
-                                               casacore::uInt DirColNo, bool makeActive);
+                                               DirectionColumnID  DirColNo,
+                                               bool makeActive);
 
      //+
      // [new] doGetDirection(uint row)   CAS-8418
@@ -410,6 +408,7 @@ private:
      // The Old and the New // 
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline/inear
+
 };
 
 //+
@@ -470,7 +469,7 @@ private:
 
         // Programmers Debug Flag //
        
-          bool verifySDP          = false;
+          bool showSDPParam     = false;
           bool dumpCoeffientTable = false;
 
 };

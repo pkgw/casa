@@ -2098,14 +2098,12 @@ void TestDirection::addColumnDataOnPointing()
 //  - At the moment, getAccessor() is not implemented
 //-  
 
-static void assert_accessor()
+static void assert_accessor( PointingDirectionCalculator  &calc )
 {
-#if 0
-    void *  pAccessor = calc.getAccessor();
-    printf( "#   Accessor [%p] \n", pAccessor );
-     
-#endif
 
+    uInt Id = calc.getCurretAccessorId();
+    printf( "# Currnet Accessor ID = %d\n",Id);
+  
 }
 
 
@@ -2140,37 +2138,37 @@ TEST_F(TestDirection, setDirectionColumn  )
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();
+        assert_accessor(calc);
 
         ColName = "TARGET";
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();       
+        assert_accessor(calc);       
  
         ColName = "POINTING_OFFSET";    // NEED to ADD Table in advance  //
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();
+        assert_accessor(calc);
 
         ColName = "SOURCE_OFFSET"; // NEED to Add Table in advance //
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();
+        assert_accessor(calc);
  
         ColName = "ENCODER";      // NEED to add Table in advance  //
         Description("Column Name" , ColName );
         EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();
+        assert_accessor(calc);
 
         ColName = "hogehoge";
         Description("Column Name" , ColName );
         EXPECT_ANY_THROW( calc.setDirectionColumn( ColName ) );
 
-        assert_accessor();
+        assert_accessor(calc);
 
     }    
 }
@@ -2380,8 +2378,7 @@ TEST_F(TestDirection, setMovingSource  )
 
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
-    
+        MeasurementSet ms( MsName ); 
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3057,7 +3054,7 @@ TEST_F(TestDirection, CompareInterpolation )
         printf( "MS[%s] is used. \n",name.c_str() );
 
         // Create Object //
-        MeasurementSet ms0( name.c_str() );
+        MeasurementSet ms0( name );
         PointingDirectionCalculator calc(ms0);
 
         //+

@@ -160,10 +160,11 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
-      /*CAS-8418*/ useSplineInterpolation_(true), useOldInterpolationModule_(false), 
+      /*CAS-8418*/ useSplineInterpolation_(false), useOldInterpolationModule_(false), 
       /*CAS-8418*/ initializeReady_(5,false), coefficientReady_(5,false),
-      /*CAS-8418*/ accessorId_(Undefined) 
+      /*CAS-8418*/ accessorId_(DIRECTION) 
 { 
+
 // -- original code -- //
     accessor_ = directionAccessor;
 
@@ -338,27 +339,27 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
-        accessorId_ =  0; 
+        accessorId_ =  DIRECTION;
         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "TARGET") {
         accessor_ = targetAccessor;
-        accessorId_ = 1;
+        accessorId_ = TARGET;
         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
  
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
-        accessorId_ = 2;
+        accessorId_ = POINTING_OFFSET;
         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
-        accessorId_ = 3;
+        accessorId_ = SOURCE_OFFSET;
         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "ENCODER") {
         accessor_ = encoderAccessor;
-        accessorId_ = 4;
+        accessorId_ = ENCODER;
         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
 
     } else {
@@ -373,7 +374,9 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
      if (getCurrentSplineObj()->isCofficientReady() == false )
      {
-         printf("XXXXX COEFF is not ready use LINEAR.\n" );
+         LogIO os(LogOrigin("PointingDirectionCalculator", "doGetDirection(i)", WHERE));
+         os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA,  \n"
+                           << "forced to Linear Interpolation " << LogIO::POST;
          useSplineInterpolation_ = false;
      }
 
@@ -504,152 +507,15 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 //
 ///////////////////////////////////////
 
-// (0)WRAPPER //
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
-#if 1 // NEW CODE (RESERVED) //
+    // In case Old source is needed, please locate Org.source and
+    // branch controle here.
 
     return (doGetDirectionNew(irow));
-
-#else // Old and new Linear check (Obsoleted soon) // 
-
-    if (useSplineInterpolation_== false) 
-    {
-        return (doGetDirectionOrg(irow));
-    }
-    else
-    {
-#if 1  // Validate compatibility Old-Lienar and New-Linear //
-        useSplineInterpolation_ = false;  // Foce to use Linear Interpolation //
-#endif
-        return (doGetDirectionNew(irow));
-    }
-#endif 
 }
 
-#if 1 // OBSOLETED SOON // 
- 
-//+
-// (1)ORIGINAL //
-//-
-Vector<Double> PointingDirectionCalculator::doGetDirectionOrg(uInt irow) {
-    debuglog << "doGetDirection(" << irow << ")" << debugpost;
-    Double currentTime =
-            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
-    resetTime(currentTime);
-
-    // search and interpolate if necessary
-    Bool exactMatch;
-    uInt const nrowPointing = pointingTimeUTC_.nelements();
-    // pointingTableIndexCache_ is not so effective in terms of performance
-    // simple binary search may be enough,
-    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
-            nrowPointing, 0);
-    debuglog << "binarySearch result " << index << debugpost;
-//    uInt n = nrowPointing - pointingTableIndexCache_;
-//    Int lower = pointingTableIndexCache_;
-//    debuglog << "do binarySearch n=" << n << " lower=" << lower
-//            << " nrowPointing=" << nrowPointing << " cache="
-//            << pointingTableIndexCache_ << debugpost;
-//    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime, n,
-//            lower);
-//    debuglog << "binarySearch result " << index << debugpost;
-//    if (!exactMatch && lower > 0 && index == lower) {
-//        // maybe out of range
-//        n = nrowPointing - n;
-//        lower = 0;
-//        debuglog << "do second binarySearch n=" << n << " lower=" << lower
-//                << " nrowPointing=" << nrowPointing << " cache="
-//                << pointingTableIndexCache_ << debugpost;
-//        index = binarySearch(exactMatch, pointingTimeUTC_, currentTime, n,
-//                lower);
-//        debuglog << "second binarySearch result " << index << debugpost;
-//    }
-//    pointingTableIndexCache_ = (uInt) max((Int) 0, (Int) (index - 1));
-    debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
-            << debugpost;
-    MDirection direction;
-    assert(accessor_ != NULL);
-    if (exactMatch) {
-        debuglog << "exact match" << debugpost;
-        direction = accessor_(*pointingColumns_, index);
-    } else if (index <= 0) {
-        debuglog << "take 0th row" << debugpost;
-        direction = accessor_(*pointingColumns_, 0);
-    } else if (index > (Int) (nrowPointing - 1)) {
-        debuglog << "take final row" << debugpost;
-        direction = accessor_(*pointingColumns_, nrowPointing - 1);
-//            } else if (currentInterval > pointingIntervalColumn(index)) {
-//                // Sampling rate of pointing < data dump rate
-//                // nearest interpolation
-//                debuglog << "nearest interpolation" << debugpost;
-//                Double dt1 = abs(pointingTimeUTC[index] - currentTime);
-//                Double dt2 = abs(currentTime - pointingTimeUTC[index - 1]);
-//                if (dt1 >= dt2) {
-//                    // midpoint takes the value at index - 1
-//                    direction = accessor_(*pointingColumns_, index - 1);
-//                } else {
-//                    direction = accessor_(*pointingColumns_, index);
-//                }
-    } else {
-
-        debuglog << "linear interpolation " << debugpost;
-        // Sampling rate of pointing > data dump rate (fast scan)
-        // linear interpolation
-        Double t0 = pointingTimeUTC_[index - 1];
-        Double t1 = pointingTimeUTC_[index];
-        Double dt = t1 - t0;
-        debuglog << "Interpolate between " << setprecision(16) << index - 1
-                << " (" << t0 << ") and " << index << " (" << t1 << ")"
-                << debugpost;
-        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
-        MDirection dir2 = accessor_(*pointingColumns_, index);
-        String dirRef1 = dir1.getRefString();
-        String dirRef2 = dir2.getRefString();
-        MDirection::Types refType1, refType2;
-        MDirection::getType(refType1, dirRef1);
-        MDirection::getType(refType2, dirRef2);
-        debuglog << "dirRef1 = " << dirRef1 << " ("
-                << MDirection::showType(refType1) << ")" << debugpost;
-        if (dirRef1 != dirRef2) {
-            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
-                    *(referenceFrame_.position()));
-            dir2 = MDirection::Convert(dir2,
-                    MDirection::Ref(refType1, referenceFrameLocal))();
-        }
-        Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
-        Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
-        Vector<Double> scanRate = dirVal2 - dirVal1;
-        Vector<Double> interpolated = dirVal1
-                + scanRate * (currentTime - t0) / dt;
-        direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),
-                refType1);
-    }
-    debuglog << "direction = "
-            << direction.getAngle("rad").getValue() << " (unit rad reference frame "
-            << direction.getRefString()
-            << ")" << debugpost;
-    Vector<Double> outVal(2);
-    if (direction.getRefString() == MDirection::showType(directionType_)) {
-        outVal = direction.getAngle("rad").getValue();
-    } else {
-        MDirection converted = (*directionConvert_)(direction);
-        outVal = converted.getAngle("rad").getValue();
-        debuglog << "converted = " << outVal << "(unit rad reference frame "
-                << converted.getRefString() << ")" << debugpost;
-    }
-
-    // moving source correction
-    assert(movingSourceCorrection_ != NULL);
-    movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
-
-    return outVal;
-}
-#endif 
-
-//-------------------------------
-// (2) New Edition (Spline ONLY)
-// ------------------------------
+// CAS-8418 NEW doGetDirection(i)  //
 Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
@@ -666,8 +532,10 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     debuglog << "binarySearch result " << index << debugpost;
     debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
             << debugpost;
-
-    // Check section by Binary match wth Pointing Table //
+    //+
+    // Check section on series of pointing data 
+    // by 'Binary match' wth Pointing Table //
+    // -
     MDirection direction;
     assert(accessor_ != NULL);
     if (exactMatch) {
@@ -683,7 +551,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         debuglog << "linear interpolation " << debugpost;
 
         //+
-        // Already existing part (dead copied)
+        // Copied from original (same logic)
         // - checcking Reference type.
         // - If needed , make conversion. 
         //-
@@ -716,7 +584,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         }
 
         //+
-        // NEW Spline Interpolation
+        // CAS-8418::  Spline Interpolation
         //   using original var. see above for t0,t1,dt and nrowPointing.
         //-
 
@@ -941,6 +809,65 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
 //   for initializing Spline Interpolation
 //*********************************************************
 
+//+
+// Direction Columns and 
+// AccessorId and accessor_ (function pointer) 
+//-
+
+// TRADITIONAL : by Array //
+#if 1
+std::vector<string>   dirColList
+= { "DIRECTION","TARGET","POINTING_OFFSET","SOURCE_OFFSET","ENCODER" };
+
+std::vector<ACCESSOR> accList
+= {  directionAccessor, targetAccessor,pointingOffsetAccessor,
+   sourceOffsetAccessor, encoderAccessor };
+#endif 
+
+//+
+// Singlton" class
+// Direction Column and Accessor 
+//-
+class DirectionColumnsAccessor 
+{
+private:
+      DirectionColumnsAccessor() // define contenz statistically //
+      {  
+           dirColList.resize(10);
+           dirColList[DIRECTION]       = "DIRECTION";
+           dirColList[TARGET]          = "TARGET";
+           dirColList[POINTING_OFFSET] = "POINTING_OFFSET";
+           dirColList[SOURCE_OFFSET]   = "SOURCE_OFFSET";
+           dirColList[ENCODER]         = "ENCODER";
+
+           accList.resize(10);
+           accList[DIRECTION]       = directionAccessor;
+           accList[TARGET]          = targetAccessor;
+           accList[POINTING_OFFSET] = pointingOffsetAccessor;
+           accList[SOURCE_OFFSET]   = sourceOffsetAccessor;
+           accList[ENCODER]         = encoderAccessor;
+      }   
+
+      DirectionColumnsAccessor(const DirectionColumnsAccessor&);
+      DirectionColumnsAccessor& operator=(const DirectionColumnsAccessor&); 
+      ~DirectionColumnsAccessor() {}  
+
+    // Member //
+    casacore::Vector<casacore::String>    dirColList;
+    casacore::Vector<ACCESSOR>          accList;
+
+public:
+  static DirectionColumnsAccessor& singleton() {
+    static DirectionColumnsAccessor inst; 
+    return inst;
+  }
+
+  // getter ..//
+  ACCESSOR        accessor    (DirectionColumnID id) {  return accList[id];  }
+  String          colName     (DirectionColumnID id) {  return dirColList[id];  }
+
+};
+
 // Column checck in Pointing Table //
 bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String const &columnName )
 {
@@ -956,23 +883,18 @@ bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String co
 // - prepare Coeffient table for calulation. 
 //-
 bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementSet const &ms,
-                                                                    uInt DirColNo, 
+                                                                    DirectionColumnID  DirColNo, 
                                                                     bool makeActive=true)
 {
-     debuglog << "activateSplinefromDirectionColumn, columNo=" << DirColNo << debugpost;
-        printf("activateSplinefromDirectionColumn called. Col=%d \n",DirColNo);
-    //+
-    // Direction Columns and 
-    // AccessorId and accessor_ (function pointer) 
-    //-
-    std::vector<string>   dirColList
-    = { "DIRECTION","TARGET","POINTING_OFFSET","SOURCE_OFFSET","ENCODER" };
-    std::vector<ACCESSOR> accList
-    = {directionAccessor, targetAccessor,pointingOffsetAccessor,
-       sourceOffsetAccessor, encoderAccessor };
+    debuglog << "activateSplinefromDirectionColumn, columNo=" << DirColNo << debugpost;
 
-    String colName = dirColList[DirColNo];
-    ACCESSOR acc   = accList[DirColNo];
+#if 1
+    String colName = DirectionColumnsAccessor::singleton().colName ( DirColNo );
+    ACCESSOR acc   = DirectionColumnsAccessor::singleton().accessor( DirColNo );
+#else
+    String colName = dirColList[DirColNo] ;
+    ACCESSOR acc   = accList[DirColNo] ;
+#endif 
 
     // Column Range check //
     if( DirColNo >= initializeReady_.size())
@@ -985,7 +907,6 @@ bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementS
     if( initializeReady_[DirColNo] == true )
     {
         debuglog << "activateSplinefromDirectionColumn, Normal,already active."  << debugpost;
-        printf("activateSplinefromDirectionColumn Col=%d already created.\n",DirColNo);
 
         // Change Master pointer  // 
         if(makeActive) currSpline_ = splineObj_[DirColNo].get();
@@ -1183,7 +1104,7 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
             tmp_dir [ant][index] = dirVal;
 
             // DBG //
-            if(verifySDP)
+            if(showSDPParam)
             {
                 printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
                        index, ant, time, dirVal[0],dirVal[1]);
