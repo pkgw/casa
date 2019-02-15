@@ -28,7 +28,7 @@ import filecmp
 from __main__ import default
 from recipes.listshapes import listshapes
 import testhelper as th
-from tasks import split, partition, listobs, flagdata, importasdm, flagcmd
+from tasks import split, partition, split, listobs, flagdata, importasdm, flagcmd
 from taskinit import mstool, msmdtool, tbtool
 import unittest
 from parallel.parallel_task_helper import ParallelTaskHelper
@@ -438,7 +438,7 @@ class split_test_cav(SplitChecker):
         self.records[corrsel] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_sts(self):
@@ -549,7 +549,7 @@ class split_test_cav5(SplitChecker):
         self.records[corrsel] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_sts(self):
@@ -864,7 +864,7 @@ class split_test_cavcd(unittest.TestCase):
         shutil.rmtree(self.inpms, ignore_errors=True)
         shutil.rmtree(self.outms, ignore_errors=True)
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_cavcd(self):
@@ -1169,7 +1169,7 @@ class split_test_sw_and_fc(SplitChecker):
         self.__class__.records[spwwidth] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_fc_noavg(self):
@@ -1369,7 +1369,7 @@ class split_test_optswc(SplitChecker):
         self.__class__.records[spwwidth] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_rightcols_noavg(self):
@@ -1574,7 +1574,7 @@ class split_test_wttosig(SplitChecker):
         self.__class__.records[dcwtb] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_wt_straightselection(self):
@@ -1691,6 +1691,39 @@ class split_test_wttosig(SplitChecker):
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01],
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01]]), 0.001)
 
+class split_test_singlespw_severalchranges(unittest.TestCase):
+    """
+    Check that if the selection contains a single SPW but several channel
+    ranges within the same SPW, you get as an output a single SPW in the
+    data description table. See CAS-11087
+    """ 
+    inpms = datapath + '../flagdata/uid___A002_X30a93d_X43e_small.ms'
+    outms = 'uid___A002_X30a93d_X43e_small_chanl4.ms'
+    
+    def setUp(self):
+        try:
+            shutil.rmtree(self.outms, ignore_errors=True)
+            print "\nChecking DDI after channel selection ranges in single SPW"
+            split(self.inpms, self.outms, keepmms=True, field='',
+                   spw='1:1~2;5~6', scan='', antenna='', 
+                   correlation='', timerange='', intent='',
+                   array='', uvrange='', observation='',
+                   feed='', datacolumn='DATA', keepflags=True,
+                   width=1, timebin='0s', combine='')
+        except Exception, e:
+            print "Error running split selecting different channel ranges in single SPW from", self.inpms
+            raise e
+
+    def tearDown(self):
+        shutil.rmtree(self.outms, ignore_errors=True)
+
+    def test_ddi_entries(self):
+        """Check that there is a single row in the DDI table."""
+        tblocal.open(self.outms + '/DATA_DESCRIPTION')
+        nrows_ddi = tblocal.nrows()
+        tblocal.close()
+        check_eq(nrows_ddi, 1)
+
 class split_test_fc(SplitChecker):
     """
     Check FLAG_CATEGORY after various selections and averagings.
@@ -1730,7 +1763,7 @@ class split_test_fc(SplitChecker):
         self.__class__.records['categories'] = categories
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_fc_categories(self):
@@ -1854,7 +1887,7 @@ class split_test_fc(SplitChecker):
                               [ True, False, False]]))
         
         
-''' New class of tests for split -- MMS tests, etc.'''    
+''' New tests for split'''    
 class test_base(unittest.TestCase):
     
     def setUp_4ants(self):
@@ -1890,7 +1923,7 @@ class test_base(unittest.TestCase):
         asdmpath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importasdm/'
         os.system('ln -sf '+asdmpath+asdmname)
         importasdm(asdmname, convert_ephem2geo=False, flagbackup=False, process_syspower=False, lazy=True, 
-                   scans='1', savecmds=True, overwrite=True)
+                   scans='1', savecmds=True)
         
 
     def createMMS(self, msfile, axis='auto',scans='',spws=''):
@@ -2149,6 +2182,7 @@ def suite():
             split_test_sw_and_fc, 
             split_test_cavcd, 
             split_test_almapol,
+            split_test_singlespw_severalchranges,
 #            split_test_wttosig, 
 #            split_test_fc
             splitTests,
