@@ -224,5 +224,33 @@ bool PlotMSParameters::equals(const PlotMSWatchedParameters& other, int updateFl
     return equalParams;
 }
 
+
+DirectionAxisParams::DirectionAxisParams(
+		PMS::CoordSystem coordSystem,
+		PMS::InterpMethod interpMethod
+		)
+	: coordSystem_(coordSystem),
+	  interpMethod_(interpMethod)
+{
+}
+PMS::CoordSystem DirectionAxisParams::getCoordSystem() const {
+	return coordSystem_;
+}
+PMS::InterpMethod DirectionAxisParams::getInterpMethod() const {
+	return interpMethod_;
+}
+
+bool operator<(const DirectionAxisParams & p1, const DirectionAxisParams & p2){
+	if (p1.coordSystem_ < p2.coordSystem_) return true;
+	if (p1.coordSystem_ == p2.coordSystem_)
+		return p1.interpMethod_ < p2.interpMethod_ ;
+	return false;
+}
+
+bool operator!=(const DirectionAxisParams & p1, const DirectionAxisParams & p2){
+	return (p1.coordSystem_  != p2.coordSystem_) ||
+		   (p1.interpMethod_ != p2.interpMethod_);
+}
+
 }
 

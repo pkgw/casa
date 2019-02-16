@@ -39,6 +39,7 @@ casa_add_library( mstransform
  TVI/RegriddingTVI.cc  
  TVI/UVContSubTVI.cc
  TVI/PolAverageTVI.cc
+ TVI/PointingInterpolationTVI.cc
  TVI/StatWtTVI.cc
  TVI/StatWtTVIFactory.cc
  TVI/StatWtTVILayerFactory.cc
@@ -74,6 +75,7 @@ install (FILES
  	TVI/RegriddingTVI.h
  	TVI/UVContSubTVI.h 	
  	TVI/PolAverageTVI.h
+ 	TVI/PointingInterpolationTVI.h
     TVI/StatWtTVI.h
     TVI/StatWtTVIFactory.h
     TVI/StatWtTVILayerFactory.h

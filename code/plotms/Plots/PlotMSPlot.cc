@@ -1273,6 +1273,7 @@ bool PlotMSPlot::parametersHaveChanged_(const PlotMSWatchedParameters &p,
 }
 
 void PlotMSPlot::constructorSetup() {
+	itsCache_->setPlot(this);
 	PlotMSPlotParameters& params = parameters();
 	params.addWatcher(this);
 	// hold notification until initializePlot is called

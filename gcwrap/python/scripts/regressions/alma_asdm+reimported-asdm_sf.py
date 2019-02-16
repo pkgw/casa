@@ -267,32 +267,22 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
     # For GSPLINE solutions, have to do it for different spws separately
     
-    # There is a bug in VI/VB2 if phantom SPWs are present (for instance WVR)
-    # The bug CAS-11734 is triggered by FreqAxisTVI class, which gets called
-    # by gaincal. Once that bug is fixed there is no need to do this split
-    # anymore.
-    vissel = msn
-    if select_real_spws!='' :
-        os.system('rm -rf '+bname+'_spwsel.ms')
-        split(vis=msn, outputvis=bname+'_spwsel.ms', spw='0;1;2;3;4', datacolumn='DATA')
-        vissel = bname+'_spwsel.ms' 
-
-    # print ">> Find G solutions"
-    # for i in range(2):
-    #     print ">> SPW: ",i
-    #     os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
-    #     gaincal(
-    #         vis=vissel,
-    #         caltable=caltablename+"_spw"+str(i)+".G",
-    #         field=calfield,
-    #         spw=avspw[i],
-    #         selectdata=True,
-    #         solint="60s",
-    #         gaintable=[caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
-    #         spwmap=[[i],[i]],
-    #         combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
-    #         gaintype="G",calmode="ap",
-    #         )
+    print ">> Find G solutions"
+    for i in range(2):
+        print ">> SPW: ",i
+        os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
+        gaincal(
+            vis=msn,
+            caltable=caltablename+"_spw"+str(i)+".G",
+            field=calfield,
+            spw=avspw[i],
+            selectdata=True,
+            solint="60s",
+            gaintable=[caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
+            spwmap=[[i],[i]],
+            combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
+            gaintype="G",calmode="ap",
+            )
 
     print ">> Find G solutions, using WVR corrections"
     for i in range(2):
@@ -302,7 +292,7 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         if(cu.compare_version('>=',[3,4,0])):
             wvrspw = i
         gaincal(
-            vis=vissel,
+            vis=msn,
             caltable=caltablename+"_spw"+str(i)+".G_WVR",
             field=calfield,
             spw=avspw[i],
@@ -869,4 +859,3 @@ if(not (part1 and part2 and part3 and part4)):
     raise
 else:
     print "Regression passed."
- 
