@@ -21,12 +21,12 @@ try:
 except ImportError:
     # CASA 5
     from taskinit import tbtool
-    from taskinit import mstool, imtool
+    from taskinit import mstool, iatool
 
     tb_local = tbtool()
     tb_local2 = tbtool()
     ms_local = mstool()
-    image_local = imtool()
+    image_local = iatool()
 
 
 '''
