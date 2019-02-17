@@ -106,7 +106,7 @@ EVLASwPow::EVLASwPow(VisSet& vs) :
   calDevTabName_(vs.caldeviceTableName()),
   correff_(Float(0.932)),     // EVLA-specific net corr efficiency (4bit)
   frgrotscale_(Float(1.176)), // EVLA-specific fringe rotation mean _scale_
-  nyquist_(1.0),
+  //nyquist_(1.0),
   effChBW_()
 
 {
@@ -131,7 +131,7 @@ EVLASwPow::EVLASwPow(String msname,Int MSnAnt,Int MSnSpw) :
   calDevTabName_(""),
   correff_(Float(0.932)),     // EVLA-specific net corr efficiency (4bit)
   frgrotscale_(Float(1.176)), // EVLA-specific fringe rotation mean _scale_
-  nyquist_(1.0),
+  //nyquist_(1.0),
   effChBW_()
 
 {
@@ -164,7 +164,7 @@ EVLASwPow::EVLASwPow(const MSMetaInfoForCal& msmc) :
   calDevTabName_(""),
   correff_(Float(0.932)),     // EVLA-specific net corr efficiency (4bit)
   frgrotscale_(Float(1.176)), // EVLA-specific fringe rotation mean _scale_
-  nyquist_(1.0),
+  //nyquist_(1.0),
   effChBW_()
 
 {

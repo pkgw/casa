@@ -173,7 +173,7 @@ _rg = rgtool()
 def immath(
     imagename, mode, outfile, expr, varnames, sigma,
     polithresh, mask, region, box, chans, stokes, stretch,
-    imagemd
+    imagemd, prec
 ):
     # Tell CASA who will be reporting
     casalog.origin('immath')
@@ -204,39 +204,42 @@ def immath(
                 box, chans, stokes, stretch, polithresh, _myia
             )
             return True
-        elif mode == 'poli':
+        elif mode == 'poli' or mode == 'lpoli' or mode == 'tpoli':
             _immath_new_poli(
                 filenames, outfile, tmpFilePrefix, mask, region,
-                box, chans, stokes, stretch, sigma, _myia
+                box, chans, stokes, stretch, sigma, _myia, mode
             )
             return True
-        if box or chans or stokes or region or mask:
-            (subImages, file_map) = _immath_createsubimages(
-                box, chans, stokes, region, mask,
-                stretch, filenames, _myia, tmpFilePrefix
-            )
-            if imagemd:
-                casalog.post(
-                    "Specifying region, box, chan, or stokes will "
-                    + "create smaller sub-images. The image "
-                    + "metadata specified in imagemd will have to "
-                    + "conform to the output, not the input image "
-                    + "dimensions. Please check your output image "
-                    + "for accurate header definition.", 'WARN'
+        elif mode == 'evalexpr':
+            if box or chans or stokes or region or mask:
+                (subImages, file_map) = _immath_createsubimages(
+                    box, chans, stokes, region, mask,
+                    stretch, filenames, _myia, tmpFilePrefix
                 )
-            (expr, varnames, subImages) = _immath_updateexpr(
-                expr, varnames, subImages, filenames, file_map
-            )
-            outia = _immath_compute(
-                imagename, expr, outfile, imagemd, _myia
-            )
+                if imagemd:
+                    casalog.post(
+                        "Specifying region, box, chan, or stokes will "
+                        + "create smaller sub-images. The image "
+                        + "metadata specified in imagemd will have to "
+                        + "conform to the output, not the input image "
+                        + "dimensions. Please check your output image "
+                        + "for accurate header definition.", 'WARN'
+                    )
+                (expr, varnames, subImages) = _immath_updateexpr(
+                    expr, varnames, subImages, filenames, file_map
+                )
+                outia = _immath_compute(
+                    imagename, expr, outfile, imagemd, _myia, prec
+                )
+            else:
+                # If the user didn't give any region or mask information
+                # then just evaluated the expression with the filenames in it.
+                outia = _immath_dofull(
+                    imagename, imagemd, outfile, mode, expr,
+                    varnames, filenames, _myia, prec
+                )
         else:
-            # If the user didn't give any region or mask information
-            # then just evaluated the expression with the filenames in it.
-            outia = _immath_dofull(
-                imagename, imagemd, outfile, mode, expr,
-                varnames, filenames, _myia
-            )
+            raise(Exception, "Unsupported mode " + str(mode))
         try:
             param_names = immath.func_code.co_varnames[:immath.func_code.co_argcount]
             param_vals = [eval(p) for p in param_names]   
@@ -248,7 +251,10 @@ def immath(
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, error:
-        casalog.post("Unable to process expression " + expr, 'SEVERE')
+        if mode == 'evalexpr':
+            casalog.post("Unable to process expression " + expr, 'SEVERE')
+        else:
+            casalog.post("Error running immath", 'SEVERE')
         casalog.post("Exception caught was: " + str(error), 'SEVERE')
         raise
     finally:
@@ -338,12 +344,23 @@ def _immath_new_pola(
 
 def _immath_new_poli(
     filenames, outfile, tmpFilePrefix, mask, region,
-    box, chans, stokes, stretch, sigma, _myia
+    box, chans, stokes, stretch, sigma, _myia, mode
 ):
     target = filenames[0]
     if len(filenames) > 1:
         target = tmpFilePrefix + "_concat_for_poli"
         _immath_concat_stokes(filenames, target, _myia)
+    if mode == 'tpoli':
+        _myia.open(target)
+        csys = _myia.coordsys()
+        _myia.done()
+        stokes = csys.stokes()
+        csys.done()
+        for p in ["Q", "U", "V"]:
+            if stokes.count(p) == 0:
+                raise Exception(
+                    "Stokes " + p + " is required for mode tpoli but was not found"
+                )       
     debias = False
     newsigma = 0
     if sigma:
@@ -365,20 +382,28 @@ def _immath_new_poli(
     mypo = potool()
     mypo.open(target)
     numeric_sigma = qa.getvalue(qa.quantity(newsigma))
-    _myia = mypo.totpolint(
-        debias=debias, sigma=numeric_sigma, outfile=outfile,
-        region=myreg, mask=mask, stretch=stretch
-    )
+    if mode == 'tpoli' or mode == 'poli':
+        _myia = mypo.totpolint(
+            debias=debias, sigma=numeric_sigma, outfile=outfile,
+            region=myreg, mask=mask, stretch=stretch
+        )
+    elif mode == 'lpoli':
+        _myia = mypo.linpolint(
+            debias=debias, sigma=numeric_sigma, outfile=outfile,
+            region=myreg, mask=mask, stretch=stretch
+        )
+    else:
+        raise Exception("Logic Error: Unhandled mode " + mode)
     _myia.done()
     mypo.done()
     
 def _immath_compute(
-    imagename, expr, outfile, imagemd, _myia
+    imagename, expr, outfile, imagemd, _myia, prec
 ):
     # Do the calculation
     res = _myia.imagecalc(
         pixels=expr, outfile=outfile,
-        imagemd=_immath_translate_imagemd(imagename, imagemd)
+        imagemd=_immath_translate_imagemd(imagename, imagemd), prec=prec
     )
     res.dohistory(False)
     # modify stokes type for polarization intensity image
@@ -439,11 +464,11 @@ def _immath_createsubimages(
 
 def _immath_dofull(
     imagename, imagemd, outfile, mode, expr,
-    varnames, filenames, _myia
+    varnames, filenames, _myia, prec
 ):
     expr = _immath_expr_from_varnames(expr, varnames, filenames)    
     return _immath_compute(
-        imagename, expr, outfile, imagemd, _myia
+        imagename, expr, outfile, imagemd, _myia, prec
     )
 
 def _immath_dospix(nfiles, varnames):

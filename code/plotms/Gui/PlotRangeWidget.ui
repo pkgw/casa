@@ -1,112 +1,98 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>RangeWidget</class>
- <widget class="QWidget" name="RangeWidget" >
-  <property name="geometry" >
+ <widget class="QWidget" name="RangeWidget">
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>49</height>
+    <height>75</height>
    </rect>
   </property>
-  <property name="sizePolicy" >
-   <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Plot Range Widget</string>
   </property>
-  <layout class="QVBoxLayout" >
-   <property name="spacing" >
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <layout class="QVBoxLayout">
+   <property name="spacing">
     <number>0</number>
    </property>
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
+   <property name="margin">
     <number>0</number>
    </property>
    <item>
-    <widget class="QRadioButton" name="automatic" >
-     <property name="text" >
+    <widget class="QRadioButton" name="automatic">
+     <property name="text">
       <string>Automatic</string>
      </property>
-     <property name="checked" >
+     <property name="checked">
       <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" >
-     <property name="spacing" >
+    <layout class="QHBoxLayout">
+     <property name="spacing">
       <number>0</number>
      </property>
      <item>
-      <widget class="QRadioButton" name="custom" >
-       <property name="text" >
+      <widget class="QRadioButton" name="custom">
+       <property name="text">
         <string/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QStackedWidget" name="stackedWidget" >
-       <property name="enabled" >
+      <widget class="QStackedWidget" name="stackedWidget">
+       <property name="enabled">
         <bool>false</bool>
        </property>
-       <property name="currentIndex" >
+       <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="doublePage" >
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+       <widget class="QWidget" name="doublePage">
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>3</number>
          </property>
-         <property name="leftMargin" >
-          <number>0</number>
-         </property>
-         <property name="topMargin" >
-          <number>0</number>
-         </property>
-         <property name="rightMargin" >
-          <number>0</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="doubleFrom" />
+          <widget class="QLineEdit" name="doubleFrom"/>
          </item>
          <item>
-          <widget class="QLabel" name="doubleLabel" >
-           <property name="text" >
+          <widget class="QLabel" name="doubleLabel">
+           <property name="text">
             <string>to</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="doubleTo" />
+          <widget class="QLineEdit" name="doubleTo"/>
          </item>
          <item>
-          <widget class="QLabel" name="doubleUnitLabel" >
-           <property name="text" >
+          <widget class="QLabel" name="doubleUnitLabel">
+           <property name="text">
             <string/>
            </property>
           </widget>
          </item>
          <item>
           <spacer>
-           <property name="orientation" >
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
              <height>20</height>
@@ -116,44 +102,33 @@
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="timePage" >
-        <layout class="QHBoxLayout" >
-         <property name="spacing" >
+       <widget class="QWidget" name="timePage">
+        <layout class="QHBoxLayout">
+         <property name="spacing">
           <number>3</number>
          </property>
-         <property name="leftMargin" >
-          <number>0</number>
-         </property>
-         <property name="topMargin" >
-          <number>0</number>
-         </property>
-         <property name="rightMargin" >
-          <number>0</number>
-         </property>
-         <property name="bottomMargin" >
+         <property name="margin">
           <number>0</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="timeFrom" >
-          </widget>
+          <widget class="QLineEdit" name="timeFrom"/>
          </item>
          <item>
-          <widget class="QLabel" name="timeLabel" >
-           <property name="text" >
+          <widget class="QLabel" name="timeLabel">
+           <property name="text">
             <string>to</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="timeTo" >
-          </widget>
+          <widget class="QLineEdit" name="timeTo"/>
          </item>
          <item>
           <spacer>
-           <property name="orientation" >
+           <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0">
             <size>
              <width>40</width>
              <height>20</height>
@@ -168,14 +143,14 @@
     </layout>
    </item>
    <item>
-    <spacer>
-     <property name="orientation" >
+    <spacer name="spacer">
+     <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeType" >
+     <property name="sizeType">
       <enum>QSizePolicy::Expanding</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0">
       <size>
        <width>330</width>
        <height>16</height>
@@ -193,11 +168,11 @@
    <receiver>stackedWidget</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
-    <hint type="sourcelabel" >
+    <hint type="sourcelabel">
      <x>11</x>
      <y>31</y>
     </hint>
-    <hint type="destinationlabel" >
+    <hint type="destinationlabel">
      <x>180</x>
      <y>31</y>
     </hint>

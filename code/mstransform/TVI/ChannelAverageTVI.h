@@ -102,7 +102,8 @@ class ChannelAverageTVIFactory : public ViFactory
 
 public:
 
-	ChannelAverageTVIFactory(casacore::Record &configuration,ViImplementation2 *inputVII);
+	ChannelAverageTVIFactory(casacore::Record &configuration,
+	                         ViImplementation2 *inputVII);
 
 protected:
 

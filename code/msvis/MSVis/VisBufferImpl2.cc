@@ -2299,6 +2299,7 @@ VisBufferImpl2::fillDirectionAux (Vector<MDirection>& value,
         return;
     }
 
+
     for (uInt row = 0; row < antenna.nelements(); ++row) {
 
         DebugAssert(antenna (row) >= 0 && feed (row) >= 0, AipsError);

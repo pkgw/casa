@@ -271,7 +271,10 @@ Previous calibrations should be applied on the fly.
                single-band delays will be determined.
               example: combine='scan,spw'  --&gt; extend solutions over scan boundaries
                        (up to the solint), and combine spws for solving
-      refant -- Reference antenna name(s); a prioritized list may be specified
+      refant -- Reference antenna name(s); a prioritized list may be
+                specified for solving and for applying solutions. For
+                solving, the first reference antenna associated with
+                unflagged data is used for the solution.
               default: '' =&gt; no refant applied
               example: refant='4' (antenna with index 4)
                        refant='VA04' (VLA antenna #4)

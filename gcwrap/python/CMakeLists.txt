@@ -186,6 +186,7 @@ scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
 scripts/task_tsdimaging.py
+scripts/task_sdpolaverage.py
 scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py

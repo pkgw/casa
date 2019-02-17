@@ -37,7 +37,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 UVContSubTVI::UVContSubTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	fitOrder_p = 0;
 	want_cont_p = False;

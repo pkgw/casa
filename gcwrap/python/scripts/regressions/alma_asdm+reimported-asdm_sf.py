@@ -157,7 +157,7 @@ def verify_asdm(asdmname, withPointing):
         raise Exception
 
 
-def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=True):
+def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=True, select_real_spws=''):
     # Reduction of NGC3256 Band 6
     # M. Zwaan, May 2010
     # D. Petry, May 2010
@@ -267,22 +267,22 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
     # For GSPLINE solutions, have to do it for different spws separately
     
-    # print ">> Find G solutions"
-    # for i in range(2):
-    #     print ">> SPW: ",i
-    #     os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
-    #     gaincal(
-    #         vis=msn,
-    #         caltable=caltablename+"_spw"+str(i)+".G",
-    #         field=calfield,
-    #         spw=avspw[i],
-    #         selectdata=True,
-    #         solint="60s",
-    #         gaintable=[caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
-    #         spwmap=[[i],[i]],
-    #         combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
-    #         gaintype="G",calmode="ap",
-    #         )
+    print ">> Find G solutions"
+    for i in range(2):
+        print ">> SPW: ",i
+        os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
+        gaincal(
+            vis=msn,
+            caltable=caltablename+"_spw"+str(i)+".G",
+            field=calfield,
+            spw=avspw[i],
+            selectdata=True,
+            solint="60s",
+            gaintable=[caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
+            spwmap=[[i],[i]],
+            combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
+            gaintype="G",calmode="ap",
+            )
 
     print ">> Find G solutions, using WVR corrections"
     for i in range(2):
@@ -755,7 +755,7 @@ part3 = True
 try:
     ref_rms = [0.0019042, 0.0008856]
     ref_peak = [0.999954, 1.0001681]
-    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak)
+    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak, select_real_spws='0;1;2;3;4')
 except:
     print myname, ': *** Unexpected error analysing ASDM, regression failed ***'   
     part3 = False
