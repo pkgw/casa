@@ -244,7 +244,9 @@ public:
   // Look at what WE think the residuals look like
   // Assumes the first scale is zero-sized
   casacore::Matrix<casacore::Float>  residual() { return itsDirtyConvScales[0]; }
-
+  //slightly better approximation of the residual: it convolves the given model
+  //with the psf and remove it from the dirty image put in setdirty
+  casacore::Matrix<casacore::Float>  residual(const casacore::Matrix<casacore::Float>& model);
   // Method to return threshold, including any speedup factors
   casacore::Float threshold() const;
 
