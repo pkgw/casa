@@ -2224,7 +2224,7 @@ VisibilityIteratorImpl2::getPolarizationId(Int spectralWindowId, Int msId) const
 
     // If the SPW is not found in the DD it will return -1, rather than failing.
     // This can happen for the so-called phantom SPWs. See CAS-11734
-    if(uInt(spectralWindowId) < nSpw)
+    if(spectralWindowId < (Int)nSpw)
         return polID;
 
     // spectralWindowId is not present in subtables 
