@@ -2199,12 +2199,13 @@ class splitUnsortedPoln(test_base):
         self.assertEqual(dds.size, 64)
 
         # Check that the data description column in the main table is unchanged.
-        mytbinp = tbtool()
-        mytbinp.open(self.vis)
-        ddcol_inp = mytbinp.getcol('DATA_DESC_ID') 
-        mytbout = tbtool()
-        mytbout.open(self.outputms)
-        ddcol_out = mytbout.getcol('DATA_DESC_ID')
+        mytbtool = tbtool()
+        mytbtool.open(self.vis)
+        ddcol_inp = mytbtool.getcol('DATA_DESC_ID')
+        mytbtool.close()
+        mytbtool.open(self.outputms)
+        ddcol_out = mytbtool.getcol('DATA_DESC_ID')
+        mytbtool.close()
         self.assertTrue(ddcol_inp.tolist() == ddcol_out.tolist())
 
 class splitUpdateFlagCmd(test_base):
