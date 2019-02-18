@@ -166,12 +166,14 @@ private:
 class DirectionColumnList 
 {
 public:
-        string dirName(uint n) { return DirList[n]; }
+        size_t size() { return DirList.size();}
+        string colName(uint n) { return DirList[n]; }
 private:
         std::vector<string> DirList 
          = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
 
 };
+
 
 //+
 // DEBUG Tentative 
@@ -255,12 +257,12 @@ private:
 //************************************** 
 // Base TestClass
 //**************************************
-
 class BaseClass : public ::testing::Test
 {
 
 public:
 
+     // Running Environment //
      RunEnv       env;
 
      //+
@@ -339,7 +341,7 @@ void BaseClass::CopyDefaultMStoWork()
 {
     //  Environment //
 
-        RunEnv env;
+    //    RunEnv env;
 
     // Src/Dst Path (string) 
 
@@ -401,8 +403,7 @@ void BaseClass::DeleteWorkingMS()
 //  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
 //********************************************************
 
-class CurveFunction;
-class EvaluateInterporation /* : public BaseClass */ 
+class EvaluateInterporation  /*: public BaseClass */ 
 {
 public:
 
@@ -413,10 +414,6 @@ public:
         Double  getPointingTableInterval() { return pointingIntervalSec;}
         Double  getMainTableInterval()     { return mainIntervalSec;}
 
-    // Curve Function select //
-
-        void setCurveFunctionNo(uInt num) { printf("EvaluateInterporation:: selected Curve Function = %u \n", num ); 
-                                            curveFunctionNo = defaultCurveFunctionNo = num; }
     // Calculation Error Limit //
     
          void setInterpolationErrorLimit(Double val)
@@ -504,14 +501,6 @@ private:
         Double interpolationErrorLimit ;
         Double defaultInterpolationErrorLimit = 2.0e-03 ;
 
-        //+
-        // Testing Function Select [TENTATIVE]
-        //   21-JAN-2018: Migrating to isolate CurveFunction.
-        //   class CurveFunction is under constrution.
-        //-
-
-        uInt curveFunctionNo;                  // Testing Function Mo/
-        uInt defaultCurveFunctionNo = 0;       // Testing Function default //
 
     // Interval Second.
 
@@ -603,9 +592,6 @@ void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
 
         /*Tunable*/ 
         requiredMainTestingRow =  defultMainTestingRow;
-
-        /*Tunable*/ 
-        curveFunctionNo     =  defaultCurveFunctionNo;
 
         /*Tunable*/
         interpolationErrorLimit  = defaultInterpolationErrorLimit;
@@ -729,47 +715,128 @@ void Function_Err(Double r_time, Double& X, Double& Y)
     throw;
 }
 
-//****
-// UNDER CoNSTRUCTION
-//****
+//********************
+// CURVE FUNCTION
+//********************
 class CurveFunction
 {
+
 public:
-    // Curve Type //
-    enum CurveFuncType {
-       SimpleLinear,
-       NormalizedLinear,
-       SinusoidSlow,
-       SinusoidQuick,
-       SinusoidHasty,
-       HarmonicsSinusoid,
-       Gauss,
-       Err 
-    };
 
-    // constructor //
-    CurveFunction(uInt no=0){ curveFunctionNo = no; }
-
+   // Methods //
+    size_t size() { return fpCurvefunc.size(); }
     void calc(Double r_time, Double& X, Double& Y) {
            (*fpCurvefunc[curveFunctionNo])( r_time, X, Y ); return; }
-
     void setFunctionType(uInt no ) {
            if( no < fpCurvefunc.size() )  curveFunctionNo = no;}
 
+    // get instance (first call) //
+    static CurveFunction &getInstance() { static CurveFunction inst; return inst; }
+
 private:
 
-    uInt curveFunctionNo =0;
+    CurveFunction() {}
+    ~CurveFunction(){}
+    CurveFunction(const CurveFunction&);
+    CurveFunction& operator=(const CurveFunction&);
 
+    // Selected Function //
+     uInt curveFunctionNo =0;
+
+static void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
+{
+    X = -1.0 + 2.0 * r_time;
+    Y = -1.0 + 2.0 * r_time;
+    return;
+} 
+
+static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
+{
+    // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
+
+    X =  (r_time * 2.0 - 1.0 ) * M_PI ;
+    Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
+
+    return;
+}
+
+static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
+{
+ 
+    X = 1.0 * cos( 2.0*M_PI  * r_time );
+    Y = 1.0 * sin( 2.0*M_PI  * r_time );
+
+    return;
+}
+
+static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
+{   
+    
+    X = 2.0 * cos( 10* 2.0*M_PI  * r_time );
+    Y = 1.0 * sin( 10*  2.0*M_PI  * r_time );
+   
+    return;
+}   
+
+static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
+{
+    double FREQ= 100.0; 
+    X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
+    Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
+
+    return;
+}
+
+static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
+{        
+    const Double Amp1 = 0.5;
+    const Double Amp2 = 0.6;
+    const Double Omega = 2.0 * M_PI ; 
+         
+    Double x1  = Amp1 * cos( Omega * r_time );
+    Double y1  = Amp2 * sin( Omega * r_time );
+
+    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
+    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
+
+    X = x1 + x4;
+    Y = y1 + y4;
+
+    return;
+}
+
+static void Function_gauss( Double r_time, Double& X, Double& Y)
+{
+
+    Double t   = r_time - 0.5;
+    Double A = 50;
+
+    Double gauss  = exp (-A*t*t);
+
+    X = gauss;
+    Y = gauss;
+
+    return;
+}
+
+static void Function_Const(Double r_time, Double& X, Double& Y)
+{
+    X = 1.0 + 0.0*r_time;
+    Y = 1.0 + 0.0*r_time;
+    return;
+}
+
+    // Function Table //
     std::vector<FUNCTYPE>  fpCurvefunc
     {    
-        Function_SimpleLinear,        // 0 
-        Function_NormalizedLinear,    // 1 
-        Function_sinusoid_slow,       // 2 
-        Function_sinusoid_quick,      // 3 
-        Function_sinusoid_hasty,      // 4 
-        Function_harmonics_sinusoid,  // 5 
+        Function_SimpleLinear,        // 0
+        Function_NormalizedLinear,    // 1
+        Function_sinusoid_slow,       // 2
+        Function_sinusoid_quick,      // 3
+        Function_sinusoid_hasty,      // 4
+        Function_harmonics_sinusoid,  // 5
         Function_gauss,               // 6   (new 12/11)
-        Function_Err
+        Function_Const
     };   
 
 };
@@ -778,20 +845,6 @@ private:
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
 //-
-
-
-FUNCTYPE fpCurvefunc[]  = 
-{
-    Function_SimpleLinear,        // 0
-    Function_NormalizedLinear,    // 1
-    Function_sinusoid_slow,       // 2
-    Function_sinusoid_quick,      // 3
-    Function_sinusoid_hasty,      // 4
-    Function_harmonics_sinusoid,  // 5
-    Function_gauss,               // 6   (new 12/11)
-    Function_Err
-
-};
 
 casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
 {
@@ -830,16 +883,12 @@ casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
         Double Y = 0.0;
 
         //+
-        //  Choose Function
-        //  (In near future, change to Templated Function in C++ )
+        //  Curve Function execution
+        //    (memo) debug function should be build in this class.
         //-
 
-// rsv://        curv_func.calc( r_time, X, Y);
-
-        (*fpCurvefunc[curveFunctionNo])( r_time, X, Y );
-        
-        if(false)    printf("PSD_DEBUG time=%f, r_time=%f, XY( %f,%f) \n", time, r_time, X, Y);
-
+        CurveFunction::getInstance().calc( r_time, X, Y );
+   
         // Probe the range //
 
 	assert( abs(X) <=  M_PI );
@@ -1038,6 +1087,10 @@ public:
         Array<Double> getSourceOffset  (uInt row) { return pointingSourceOffset   .get(row); }
         Array<Double> getEncoder       (uInt row) { return pointingEncoder        .get(row); }
  
+      /* IPO */
+
+        IPosition getIpo() {return  pointingDirection.shape(0); }
+
       /* Scalor */
         Double getTime     (uInt row)       { return pointingTime.      get(row); }
         Double getInterval (uInt row)       { return pointingInterval.  get(row); }
@@ -1053,6 +1106,7 @@ public:
         /* Scolar type */
           void putTime(uInt row, Double dd)      {  pointingTime.      put(row, dd ); }
           void putInterval(uInt row, Double dd)  {  pointingInterval.  put(row, dd ); }
+          void putAntennaId(uInt row, Double dd) {  pointingAntennaId.  put(row, dd ); }
 
 private:
 
@@ -1259,8 +1313,6 @@ public:
  
     EvaluateInterporation  evgen;
 
-//rsv//    CurveFunction          cvfunc(0);
-
     MsEdit() {     }   // Current 
 
     MsEdit(const String &ms, bool mode=false )
@@ -1283,7 +1335,6 @@ public:
     //            on Pointing Table //
 
         void writeDataToAntennaTable( uInt Row =0 );
-        void writeDataToPointingTable(String MsName =DefaultLocalMsName );
 
     // Write (generated) Test Data on Pointing Table //
 
@@ -1448,92 +1499,6 @@ uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
     return nrow;
 }
 
-//+
-// Write Columns on Pointing Table  
-//-
-void MsEdit::writeDataToPointingTable(String MsName )
-{
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-
-        printf("MsEdit:Adding Data on new columns in POINTING table[%s]. \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt  nrow_p = hPointingTable.nrow();
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        // create the Smart Pointer in use. //
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Listing  (Pointing) 
-    //-
-
-        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROScalarColumn<String> pointingName           = columnPointing ->name();
-        ROScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
-        ROScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
-
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-        ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-        ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
-
-        // Matrix Shape //
-
-        IPosition Ipo;
-        Ipo  = pointingDirection.shape(0);
-        printf(" - Shape of Direction.[%ld, %ld] \n", Ipo[0], Ipo[1] );
-
-        printf( "attempting to add Data on Pointing Table. Nrow=%d \n", nrow_p  );
-
-        // prepare initial value //
-
-        Array<Double> init_data1( Ipo, -0.1);
-        Array<Double> init_data2( Ipo, -0.2);
-        Array<Double> init_data3( Ipo, -0.3);
-
-        for (uInt row=0; row<nrow_p; row++)
-        {
-            // set Shape of New added Colum //
-
-            pointingPointingOffset. setShape(row, Ipo); 
-            pointingSourceOffset.   setShape(row, Ipo);
-            pointingEncoder.        setShape(row, Ipo);
-
-            // put initial data to Column //
-            
-            pointingPointingOffset. put( row, init_data1 );
-            pointingSourceOffset.   put( row, init_data2 );
-            pointingEncoder.        put( row, init_data3 );
-
-        }
-
-        // Flush // 
-        ms0.flush();
- 
-}
 
 //+
 //   Create new columns
@@ -1569,6 +1534,90 @@ void MsEdit::duplicateNewColumnsFromDirection()
 void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName)
 {
     printf( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table [%s]\n",MsName.c_str()  );
+
+
+#if 0
+//******************
+// CAS-8418 CODE 
+//******************
+    PointingTableAccess pT(MsName,true);
+
+    //+
+    //  Loop for each Row,
+    //  (NOTE) In particular case , LoopCnt requires ONE more.
+    //          In ordinary case +1 causes Exceeding row count.
+    //-
+
+    uInt LoopCnt = evgen.getAvailablePointingTestingRow();
+
+    if(evgen.checkExtendAvailable() )
+    { 
+        printf( "- Extend access to Pointing table = Available.\n" );
+        LoopCnt += 5;
+    }
+
+    //+
+    // For all Antenna and Row 
+    //+
+    for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
+    {
+            printf( "- [CAS-8418]creating  Antenna %d data. Loop=%d \n", ant_id, LoopCnt );
+            for (uInt row=0; row < LoopCnt; row++)
+            {
+                uInt  rowA = row + (ant_id * LoopCnt);
+
+                //+
+                // DIRECTION  
+                //   CAS-8418::   1-Feb-2019
+                //   updated to make indivisual value on Direction Columns
+                //-
+                Double delta = (Double)row + dt ;    // delta must be [0,1]
+
+                IPosition Ipo = pT.getIpo();
+                Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+
+                // Calculate Pseudo-Direction as test data //
+                Vector<Double>  psd_data  
+                        = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
+
+                //+
+                // Intentionally add offset ..
+                //   In near future,  pseudoDirInfoPointing() returns multiple data set 
+                //-
+
+                direction[0][0] = psd_data[0] + 0.0;
+                direction[0][1] = psd_data[1] + 0.0;               
+
+                // write access //
+                // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
+                pT.putDirection      (rowA, direction );
+                pT.putTarget         (rowA, direction );
+                pT.putPointingOffset (rowA, direction );
+                pT.putSourceOffset   (rowA, direction );
+                pT.putEncoder        (rowA, direction );
+
+                //+ 
+                // New Time   (intentionally activates interporation)
+                //  basically FIXED values.
+                //-
+            
+                pT.putTime      (rowA, psd_data[2] ); // Time
+                pT.putInterval  (rowA, psd_data[3] ); // Interval
+
+                pT.putAntennaId (rowA, ant_id ) ;     // AntennaID 
+
+
+            }//end row
+    }// end antid
+
+
+    pT.flush();
+
+ 
+#else
+//******************
+// OLD CODE 
+//******************
 
     // Open MS by Update mode //
 
@@ -1686,16 +1735,6 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
 
                     pointingAntennaId.      put(rowA, ant_id ) ;      // AntennaID 
 
-                //+
-                // Show (option)
-                //-
-
-                if(false)
-                {
-                    printf( "%d, Time-Interval-dirX- dirY,", row);
-                    printf( "%f, %f , ", psd_data[2], psd_data[3] );
-                    printf( "%f, %f \n", psd_data[0], psd_data[1] );
-                }
 
             }//end row
         }// end antid
@@ -1703,6 +1742,9 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
         // Flush //
         
         ms0.flush();
+
+#endif 
+
 }
 
 //+
@@ -2006,6 +2048,9 @@ class TestDirection : public BaseClass
 
 public:
         uInt const InterpolationDivCount = 10;
+
+        DirectionColumnList dc;
+
 protected:
 
         //+
@@ -2016,7 +2061,7 @@ protected:
         
          uInt  GTestSelectDirectionColumn = 0;
 
-        // MeasurementSet Editting
+        // MeasurementSet Editting  //
      
             casa::MsEdit  msedit;
 
@@ -2026,11 +2071,12 @@ protected:
         // Add avalable data on OFFSET columns  //
           void addColumnDataOnPointing();
 
-        // Sub-function of TEST_F(TestDirection....)
+        //*
+        // Sub-function of TEST_F(TestDirection....)  
+        //*
 
         std::vector<Double>  testDirectionForDeltaTime(Double dt);
         vector<Double>       testDirectionByInterval(Double p, Double m);
-
 
         TestDirection()
         {
@@ -2065,6 +2111,8 @@ protected:
 
              DeleteWorkingMS();
         }
+private:
+
 
 };
 /*--------------------------------------
@@ -2080,9 +2128,7 @@ void TestDirection::addColumnsOnPointing()
 
 void TestDirection::addColumnDataOnPointing()
 {
-#if 0
-    msedit.writeDataToPointingTable( DefaultLocalMsName );
-#endif 
+    /* nothing */ 
 }
  
 /*---------------------------------------
@@ -2213,15 +2259,6 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     //+
     // setDirectionColumm()  calls 
     //-
-        const vector<String> ColName
-        {
-            "DIRECTION",       
-             "TARGET",
-             "POINTING_OFFSET",  // *** NEED to ADD in advance  //
-             "SOURCE_OFFSET",    // *** NEED to Add in advance //
-             "ENCODER",          // *** NEED to add in advance  //
-             "DIRECTION"         // extra //
-        };
 
         //+
         // Normal Seq. with setMovingSoure Convert.
@@ -2230,10 +2267,11 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(size_t k=0; k < ColName.size(); k++)
+
+        for(size_t k=0; k < dc.size(); k++)
         {
-            Description("Column Name" , ColName[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+            Description("Column Name" , dc.colName(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( dc.colName(k) ) );
 
             if(true)  // Selective:: TESTING dependency how  setMovingSource() relates. //
             {
@@ -2242,7 +2280,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
                 EXPECT_NO_THROW( calc.setMovingSource( src ) );
             }    
 
-            Description("calling  getDirection() ", ColName[k] );
+            Description("calling  getDirection() ", dc.colName(k) );
             Matrix<Double>  DirList;
             EXPECT_NO_THROW( DirList= calc.getDirection() );
 
@@ -2259,16 +2297,16 @@ TEST_F(TestDirection, MovingSourceCorrection  )
         
         FunctionalDescription("Normal Seq.", "Always call setDirectionColumn");
 
-        for(uInt k=0; k < ColName.size(); k++)
+        for(uInt k=0; k < dc.size(); k++)
         {
-            Description("Column Name" , ColName[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+            Description("Column Name" , dc.colName(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( dc.colName(k) ) );
 
             String src = "SUN";
             Description("setMovingSource()", src);
             EXPECT_NO_THROW( calc.setMovingSource( src ) );
             
-            Description("calling  getDirection() ", ColName[k] );
+            Description("calling  getDirection() ", dc.colName(k) );
             Matrix<Double>  DirList;   
             EXPECT_NO_THROW( DirList = calc.getDirection() );
 
@@ -2285,10 +2323,6 @@ TEST_F(TestDirection, MovingSourceCorrection  )
   Verification Test of CAS-11818
   - If you use old source, this test causes
     core dump.
-
-   XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   XXXX   DO NOT UPDATE !!  XXXX
-   XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------*/
 TEST_F(TestDirection, VerifyCAS11818 )
 {
@@ -2325,26 +2359,18 @@ TEST_F(TestDirection, VerifyCAS11818 )
     //
     // setDirectionColumm()  calls 
     //
-        String Name[6];
-        
-        Name[0] = "DIRECTION";        
-        Name[1] = "TARGET";
-        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
-        Name[3] = "SOURCE_OFFSET";      // *** NEED to Add in advance //
-        Name[4] = "ENCODER";            // *** NEED to add in advance  //
-        Name[5] = "hogehoge";         /// NOT USED ///
-
          
         // No SetMovingSouce executution 
 
         FunctionalDescription("BUG-TEST by assert()" , "setDirectionColumn+ getDirection, without setMovingSource");
 
+
         for(uInt k=0; k<5; k++)
         {
-            Description("Column Name" , Name[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
+            Description("Column Name" , dc.colName(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( dc.colName(k) ) );
 
-            Description("calling  getDirection() ", Name[k] );
+            Description("calling  getDirection() ", dc.colName(k) );
             Matrix<Double>  DirList;   
 #if 1
             EXPECT_NO_THROW( DirList= calc.getDirection() );
@@ -2397,31 +2423,20 @@ TEST_F(TestDirection, setMovingSource  )
         Description("setFrame()", "J2000" );
         EXPECT_NO_THROW( calc.setFrame( "J2000" ) );
 
-    //
-    // setDirectionColumm()  calls 
-    //
-        const std::vector<String> ColName
-        {
-            "DIRECTION",        
-            "TARGET",
-            "POINTING_OFFSET",  // *** NEED to ADD in advance  //
-            "SOURCE_OFFSET",    // *** NEED to Add in advance //
-            "ENCODER",          // *** NEED to add in advance  //
-//          "hogehoge"          // => This makes Exception 
-        };
 
     //+
     //  Four senarios are executed.
     //-  	
 
+
     for(uInt senario = 0; senario <= 3; senario++ )	// senario [0,1,2,3] //
     {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
-          for(size_t k=0; k < ColName.size(); k++)
+          for(size_t k=0; k < dc.size(); k++)
           {
-              Description("- Column Name" , ColName[k] );
-              EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+              Description("- Column Name" , dc.colName(k) );
+              EXPECT_NO_THROW( calc.setDirectionColumn( dc.colName(k) ) );
 
               if( senario==0 )     // Always No call //
               {
@@ -2457,7 +2472,7 @@ TEST_F(TestDirection, setMovingSource  )
               // getDirection()
               //-
 
-              Description("- getDirection() ", ColName[k] );
+              Description("- getDirection() ", dc.colName(k) );
               EXPECT_NO_THROW( DirList  = calc.getDirection() );
 
               uInt n_row;
@@ -2614,67 +2629,6 @@ TEST_F(TestDirection, getDirection1 )
 
 }
 
-/*--------------------------------------
-   Interpolation Test in getDirection
- ---------------------------------------*/
-
-void listPointingTable(String MsName)
-{
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str());
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-        printf("Pointing Table name [%s] \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Listing  (Pointing) 
-    //-
-
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        printf( "================================\n");
-        printf( " Pointing (Time and Dir) \n");
-        printf( "-----------------+--------------\n");
-
-        for (uInt row=0; row<nrow_p; row++)
-        {
-
-            Vector<Double> valDirection  =   pointingDirection. get(row);
-            Vector<Double> valTarget     =   pointingTarget.    get(row);
-	    Double         valTime       =    pointingTime.     get(row);
-
-            printf( "Pointing,(pos time dir target), %d , %f, , %f, %f, ,%f, %f)  \n", 
-                    row,  valTime, 
-                    valDirection[0],      valDirection[1],
-                    valTarget[0],         valTarget[1] );
-
-        }
-
-}
-    
 
 /*---------------------------------------------
     Interporation Test (sub) 
@@ -2688,10 +2642,6 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
     printf( " dt = %f (sec)\n",dt ); 
 
     const String MsName = DefaultLocalMsName;
-
-    //  MS (Dump) ** develper option ** //
-
-        if(false)  listPointingTable(MsName);
 
     // Create Object //
 
@@ -2732,20 +2682,13 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime(Double dt )
     //+
     // setDirectionColumn() 
     //-
-  
+        /*SN*/
         String DColName[] = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" }; 
         
         Description( "getDirectionColumn()", DColName[GTestSelectDirectionColumn]  );
 
         EXPECT_NO_THROW( calc.setDirectionColumn( DColName[GTestSelectDirectionColumn] ) );
 
-    //  Dump (before)
-
-        if(false)
-        {
-            Description("Dump Pointing (before getDirection) ","" );
-            listPointingTable( MsName );
-        }
 
     //+
     //  InterPolation mode (Foece Unuse)
@@ -2928,7 +2871,9 @@ TEST_F(TestDirection, InterpolationFull )
              Double m_i = Main_IntervalList[m];
   
              SetUp();
-             msedit.evgen  .    setCurveFunctionNo(0);   // set Curve Fuction
+
+             CurveFunction::getInstance(). setFunctionType(0); ;   // set Curve Fuction
+  
              msedit.evgen.      setMainRowCount(5000);
              msedit.evgen.      Initialize(p_i, m_i) ;
 
@@ -2985,12 +2930,13 @@ TEST_F(TestDirection, InterpolationSingle )
 
       use_spline = true;
 
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
+      CurveFunction::getInstance(). setFunctionType(0);   // Curve Function Type // 
+ 
       msedit.evgen.    setMainRowCount   (5000);  // aprox. 1-2H 
       msedit.evgen.      Initialize( 2.99827,     // Pointing Interval
                                      2.99827 ) ;  // Main Interval
  
-      msedit.evgen.    setInterpolationErrorLimit( 1.0E-04 );
+      msedit.evgen.    setInterpolationErrorLimit( 1.0E-06 );
 
     // Prepate Antenna (for Multple-set) //
 
@@ -3032,6 +2978,8 @@ TEST_F(TestDirection, CompareInterpolation )
 
     std::vector<Double>   r_err1 ;
     std::vector<Double>   r_err2 ;
+
+    Double            errorLimit = 5e-04;
    
     TestDescription( "getDirection (J2000) with selected data. uvw available" );
  
@@ -3082,6 +3030,9 @@ TEST_F(TestDirection, CompareInterpolation )
             calc.setFrame( FrameName );
         }
 
+        //******************
+        // Examine Linear
+        //******************
         if(true)
         {
      
@@ -3103,7 +3054,9 @@ TEST_F(TestDirection, CompareInterpolation )
             printf( "getDirection()::Number of Col = %zu \n", n_col );
     
         }
-
+        //******************
+        // Examine Spline
+        //******************
         if(true)
         {
 
@@ -3131,6 +3084,9 @@ TEST_F(TestDirection, CompareInterpolation )
             Double er1 = DirList2(row,0) - DirList1(row,0);
             Double er2 = DirList2(row,1) - DirList1(row,1);
 
+            EXPECT_LT( er1, errorLimit );
+            EXPECT_LT( er2, errorLimit );
+       
             printf("row[%4d] ", row );
             printf("Dir1=, %e,%e  ,", DirList1(row,0),DirList1(row,1) ); 
             printf("Dir2=, %e,%e  ,", DirList2(row,0),DirList2(row,1) );
@@ -3272,7 +3228,8 @@ class TestSelectData : public BaseClass
 public:
 
 protected:
- 
+
+        // Select Keywords //
         String  AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
         String  SpwSel              = "";     
         String  FieldSel            = "";
@@ -4430,13 +4387,37 @@ TEST_F(MyDebug, SplineConstructor )
 
     calc.setDirectionColumn("DIRECTION" );
       spH =  calc.getCurrentSplineObj();
+      printf( "Coeff Ready = %d\n" ,spH->isCofficientReady() );
     calc.setDirectionColumn("DIRECTION" );  
       spH =  calc.getCurrentSplineObj();
+      printf( "Coeff Ready = %d\n" ,spH->isCofficientReady() );
     calc.setDirectionColumn("TARGET" );
       spH =  calc.getCurrentSplineObj();
-    calc.setDirectionColumn("TARGET" );
+      printf( "Coeff Ready = %d\n" ,spH->isCofficientReady() );
+//+
+// The following depends on specified MS. 
+//-
+    calc.setDirectionColumn("POINTING_OFFSET" );
       spH =  calc.getCurrentSplineObj();
+      printf( "Coeff Ready = %d\n" ,spH->isCofficientReady() );
+}
 
+TEST_F(MyDebug, CurveFunction )
+{
+    Double X, Y;
+    Double time;
+
+    for(uInt fn=0;fn<CurveFunction::getInstance().size(); fn++)
+    {
+        CurveFunction::getInstance().setFunctionType(fn);
+        printf( "======== Function %d =========\n" , fn);
+        for (int t=0; t<100; t++)
+        {
+            time = (Double)t / 100.0;
+            CurveFunction::getInstance().calc(time, X,Y );
+            printf( "time, (X,Y)=, %f,%f,%f \n",time, X,Y );
+        }
+    }
 }
 
 }  // END namespace

@@ -814,59 +814,12 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
 // AccessorId and accessor_ (function pointer) 
 //-
 
-// TRADITIONAL : by Array //
-#if 1
 std::vector<string>   dirColList
 = { "DIRECTION","TARGET","POINTING_OFFSET","SOURCE_OFFSET","ENCODER" };
 
 std::vector<ACCESSOR> accList
 = {  directionAccessor, targetAccessor,pointingOffsetAccessor,
    sourceOffsetAccessor, encoderAccessor };
-#endif 
-
-//+
-// Singlton" class
-// Direction Column and Accessor 
-//-
-class DirectionColumnsAccessor 
-{
-private:
-      DirectionColumnsAccessor() // define contenz statistically //
-      {  
-           dirColList.resize(10);
-           dirColList[DIRECTION]       = "DIRECTION";
-           dirColList[TARGET]          = "TARGET";
-           dirColList[POINTING_OFFSET] = "POINTING_OFFSET";
-           dirColList[SOURCE_OFFSET]   = "SOURCE_OFFSET";
-           dirColList[ENCODER]         = "ENCODER";
-
-           accList.resize(10);
-           accList[DIRECTION]       = directionAccessor;
-           accList[TARGET]          = targetAccessor;
-           accList[POINTING_OFFSET] = pointingOffsetAccessor;
-           accList[SOURCE_OFFSET]   = sourceOffsetAccessor;
-           accList[ENCODER]         = encoderAccessor;
-      }   
-
-      DirectionColumnsAccessor(const DirectionColumnsAccessor&);
-      DirectionColumnsAccessor& operator=(const DirectionColumnsAccessor&); 
-      ~DirectionColumnsAccessor() {}  
-
-    // Member //
-    casacore::Vector<casacore::String>    dirColList;
-    casacore::Vector<ACCESSOR>          accList;
-
-public:
-  static DirectionColumnsAccessor& singleton() {
-    static DirectionColumnsAccessor inst; 
-    return inst;
-  }
-
-  // getter ..//
-  ACCESSOR        accessor    (DirectionColumnID id) {  return accList[id];  }
-  String          colName     (DirectionColumnID id) {  return dirColList[id];  }
-
-};
 
 // Column checck in Pointing Table //
 bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String const &columnName )
@@ -888,13 +841,8 @@ bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementS
 {
     debuglog << "activateSplinefromDirectionColumn, columNo=" << DirColNo << debugpost;
 
-#if 1
-    String colName = DirectionColumnsAccessor::singleton().colName ( DirColNo );
-    ACCESSOR acc   = DirectionColumnsAccessor::singleton().accessor( DirColNo );
-#else
     String colName = dirColList[DirColNo] ;
     ACCESSOR acc   = accList[DirColNo] ;
-#endif 
 
     // Column Range check //
     if( DirColNo >= initializeReady_.size())
