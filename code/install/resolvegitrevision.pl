@@ -17,7 +17,7 @@ $casaBranchHint=$ARGV[0];
 $headGrep="-mas-";
 $tagid="mas";
 
-$debug=1;
+$debug=0;
 print "headGrep: $headGrep\n" if $debug;
 print "tagId: $tagid\n" if $debug;
 
@@ -117,6 +117,7 @@ else {
      print "needsId: $needsId\n" if $debug;
      print "branchTag: $branchTag\n" if $debug;
      print "casaVersionDesc: $casaVersionDesc\n" if $debug;
+     @splat = split '-', $branchTag;
      if ($needsId) {
          if ($tagMatcher eq "rel" || $tagMatcher eq "mas") {
              print "$splat[-1];$casaVersionDesc\n"
