@@ -173,6 +173,11 @@ private:
          = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
 };
 
+//+
+// for CurveFunction Class 
+//-
+typedef void (*FUNCTYPE)(Double, Double&, Double&);
+
 
 //+
 // DEBUG Tentative 
@@ -285,6 +290,13 @@ public:
     void SetUp() { }
     void TearDown() { }
 
+
+    void MyFunction(const String& name) 
+    { 
+        // Chanllenge // 
+        return ;
+    }
+ 
 
 private:
 
@@ -612,102 +624,6 @@ void EvaluateInterporation::Initialize( )
 //  
 //****************************************************
 
-typedef void (*FUNCTYPE)(Double, Double&, Double&);
-
-//+
-// Local function definition
-//     Normalized time ::     0 <=  r_time <= 1.0 
-//     func(t) = {x(t), y(t) }:   (0 <= t <= 1)
-//-
-
-void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
-{
-    X = -1.0 + 2.0 * r_time;
-    Y = -1.0 + 2.0 * r_time;
-
-    return;
-}
-
-void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
-{
-    // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
-
-    X =  (r_time * 2.0 - 1.0 ) * M_PI ;
-    Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
-
-    return;
-}
-
-void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
-{
- 
-    X = 1.0 * cos( 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 2.0*M_PI  * r_time );
-
-    return;
-}
-
-void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
-{   
-    
-    X = 2.0 * cos( 10* 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 10*  2.0*M_PI  * r_time );
-   
-    return;
-}   
-
-void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
-{
-    double FREQ= 100.0; 
-    X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
-    Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
-
-    return;
-}
-
-void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
-{        
-    const Double Amp1 = 0.5;
-    const Double Amp2 = 0.6;
-    const Double Omega = 2.0 * M_PI ; 
-         
-    Double x1  = Amp1 * cos( Omega * r_time );
-    Double y1  = Amp2 * sin( Omega * r_time );
-
-    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
-    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
-
-    X = x1 + x4;
-    Y = y1 + y4;
-
-    return;
-}
-
-void Function_gauss( Double r_time, Double& X, Double& Y)
-{
-
-    Double t   = r_time - 0.5;
-    Double A = 50;
-
-    Double gauss  = exp (-A*t*t);
-
-    X = gauss;
-    Y = gauss;
-
-    return;
-}
-
-void Function_Err(Double r_time, Double& X, Double& Y)
-{
-    X = r_time;
-    Y = r_time;
-
-    throw;
-}
-
-//********************
-// CURVE FUNCTION
-//********************
 class CurveFunction
 {
 
@@ -1186,7 +1102,6 @@ public:
           if(WriteAccess) option = casacore::Table::TableOption::Update;
 
           MeasurementSet ms_t(MsName, option );
-
           ms = std::move(ms_t);
 
           init();
@@ -1461,7 +1376,6 @@ void setData(ANTENNADataBuff &data)
 
 void MsEdit::writeDataToAntennaTable( uInt Row )
 {
-#if 1
 //******************
 // CAS-8418 CODE 
 //******************
@@ -1486,97 +1400,9 @@ void MsEdit::writeDataToAntennaTable( uInt Row )
     // Put Data //
     ata.putRowData(Row, dt0);
     // flush and close // 
-     ata.flush();
+    ata.flush();
 
-#else
-//***************
-// OLD CODE
-//***************
-    // Open MS by Update mode //
-
-        String MsName =DefaultLocalMsName;
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String AntennaTableName = ms0.antennaTableName(); 
-        printf("MsEdit:Antanna  Table name \n" );
-        printf(" [%s] \n",AntennaTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSAntenna   hAntennaTable  = ms0.antenna();
-
-    // Get current row count //
-
-        uInt nrow_a = hAntennaTable.nrow();
-
-        printf( "MsEdit:Antenna Table nrow  =%d \n",nrow_a);
-
-    //
-    // Get Column handle from Table  (Antenna)
-    //
-
-        std::unique_ptr<casacore::MSAntennaColumns> 
-                columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
-
-    //+
-    // LIST
-    //-
-
-    // Special Column //
-        
-        ROScalarColumn<String> antennaName      = columnAntenna->name(); 
-        ROScalarColumn<String> antennaStation   = columnAntenna->station();
-        ROScalarColumn<String> antennaType      = columnAntenna->type();
-        ROScalarColumn<String> antennaMount     = columnAntenna->mount();
-        ROArrayColumn<Double>  antennaPosition  = columnAntenna->position();
-        ROArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
-
-        ROScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
-
-        // Set Up Locate data  to be copied to Columns. //
-
-        printf( "setting on Local Structure \n" );
-        
-        AntennaData1.name            =  "Z80A";
-        AntennaData1.station         =  "SN123";
-        AntennaData1.type            =  "KUMIKO-based";
-        AntennaData1.mount           =  "IBM-PC";
-        
-        AntennaData1.position.resize(3);
-        AntennaData1.position[0]    =  100051.01 ;
-        AntennaData1.position[1]    =  -100052.02 ;
-        AntennaData1.position[2]    =  100053.03 ;
-
-        AntennaData1.offset.resize(3);
-        AntennaData1.offset[0]    =   33.3 ;
-        AntennaData1.offset[1]    =   44.4 ;
-        AntennaData1.offset[2]    =   55.5 ;
-
-        AntennaData1.dish_diameter  = 2.23620679;
-
-
-        // Put Data to Column. //
-
-        printf( "putting Local Structure to Column.\n" );
-
-        antennaName.         put(Row, AntennaData1.name);
-        antennaStation.      put(Row, AntennaData1.station);
-        antennaType.         put(Row, AntennaData1.type);
-        antennaMount.        put(Row, AntennaData1.mount);
-
-        antennaPosition.     put(Row, AntennaData1.position);
-        antennaOffset.       put(Row, AntennaData1.offset);
-
-        antennaDishDiameter. put(Row, AntennaData1.dish_diameter);
-
-        // Flush //
-        
-        ms0.flush();
-#endif 
 }
-
 
 //+
 // Add rows by specified count on Pointing Table Table
@@ -1631,8 +1457,6 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
 {
     printf( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table [%s]\n",MsName.c_str()  );
 
-
-#if 1
 //******************
 // CAS-8418 CODE 
 //******************
@@ -1718,138 +1542,6 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
 
     pT.flush();
 
- 
-#else
-//******************
-// OLD CODE 
-//******************
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        // create the Smart Pointer in use. //
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    //   Antenna ID
-    //-
-        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
-    //+
-    // Time Info
-    //-
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-    //+
-    // Listing Columns(Direction related) on Pointing 
-    //-
-
-        ROArrayColumn<Double>  pointingDirection              = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget                 = columnPointing ->target();
-
-        ROArrayColumn<Double>  pointingPointingOffset         = columnPointing ->pointingOffset();
-        ROArrayColumn<Double>  pointingSourceOffset           = columnPointing ->sourceOffset();
-        ROArrayColumn<Double>  pointingEncoder                = columnPointing ->encoder();
-
-        IPosition Ipo = pointingDirection.shape(0);
-        printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
-
-
-    //+
-    //  Loop for each Row,
-    //  (NOTE) In particular case , LoopCnt requires ONE more.
-    //          In ordinary case +1 causes Exceeding row count.
-    //-
-        uInt LoopCnt = evgen.getAvailablePointingTestingRow();
-
-        if(evgen.checkExtendAvailable() )
-        { 
-            printf( "- Extend access to Pointing table = Available.\n" );
-            LoopCnt += 5;
-        }
-   
-        for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
-        {
-            printf( "- [CAS-8418]creating  Antenna %d data. Loop=%d \n", ant_id, LoopCnt );
-            for (uInt row=0; row < LoopCnt; row++)
-            {
-                uInt  rowA = row + (ant_id * LoopCnt);
-
-                //+
-                // Experiment   the following cannot be compiled.
-                //  Set AZEL on this Colun 
-                //-
- 
-                //+
-                // DIRECTION  
-                //   CAS-8418::   1-Feb-2019
-                //   updated to make indivisual value on Direction Columns
-                //-
-                    Double delta = (Double)row + dt ;    // delta must be [0,1]
-
-                    Array<Double> direction1(Ipo, 0.0);   // IP shape and initial val // 
-                    Array<Double> direction2(Ipo, 0.0);   // IP shape and initial val // 
-                    Array<Double> direction3(Ipo, 0.0);   // IP shape and initial val // 
-                    Array<Double> direction4(Ipo, 0.0);   // IP shape and initial val // 
-                    Array<Double> direction5(Ipo, 0.0);   // IP shape and initial val // 
-
-                    Vector<Double>  psd_data  
-                        = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
-
-                           
-                    direction1[0][0] = psd_data[0];
-                    direction1[0][1] = psd_data[1];
-
-                // write access //
-                // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
-
-                    pointingDirection.           put(rowA, direction1 );
-                    pointingTarget.              put(rowA, direction1 );
-
-                    pointingPointingOffset.      put(rowA, direction1 );
-                    pointingSourceOffset.        put(rowA, direction1 );
-                    pointingEncoder.             put(rowA, direction1 );
-
-               //+ 
-               // New Time   (intentionally activates interporation)
-               //  basically FIXED values.
-               //-
-            
-                    pointingTime.           put(rowA, psd_data[2] ); // Time
-                    pointingInterval.       put(rowA, psd_data[3] ); // Interval
-
-                    pointingAntennaId.      put(rowA, ant_id ) ;      // AntennaID 
-
-
-            }//end row
-        }// end antid
-
-        // Flush //
-        
-        ms0.flush();
-
-#endif 
-
 }
 
 //+
@@ -1859,29 +1551,15 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
 
 uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 {
-#if 1   // NEW CODE //
+
+// CAS-8418 NEW CODE //
+
      MainTableAccess   mta(MsName,true);
      mta.appendRow(AddCount);
      uInt nRow = mta.getNrow();
      mta.flush();
 
      return nRow;
-#else // OLD CODE //
-
-    // Measurement Set (use default name) //
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
-
-    // Add Row //
-        ms0.addRow(AddCount);
-        uInt nrow = ms0.nrow();
-
-        printf( "MsEdit:INTERPOLATION:: attempted to add [%d].  New nrow Cnt is %d \n", AddCount,nrow ); 
-
-       ms0.flush();
-       ms0.resync();
-
-       return nrow;
-#endif 
 }
 
 //+
@@ -1894,7 +1572,6 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
 {
     printf( "   delta_shift =, %f \n", delta_shift );
 
-#if 1
 //******************
 // CAS-8418 CODE 
 //******************
@@ -1931,76 +1608,6 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
 
      mta.flush();
 
-#else
-//******************
-// CAS-8418 CODE 
-//******************
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Get current row count //
-
-        uInt nrow_ms = ms0.nrow();
-        printf( "MsEdit:INTERPOLATION::Main Table nrow =%d \n",nrow_ms);
-
-    //+
-    // Column::
-    //   Time Info
-    //-
-
-        ROScalarColumn<Int>    antenna_col       ;
-
-        ROScalarColumn<Double> mainTime_col           ;
-        ROScalarColumn<Double> mainInterval_col       ;
- 
-    // Attach ..//
-
-        antenna_col       .attach( ms0  , "ANTENNA1");
-
-        mainTime_col      .attach( ms0 , "TIME");
-        mainInterval_col  .attach( ms0 , "INTERVAL");
-
-    // WRite .. //
-
-        uInt LoopCnt = evgen.getRequiredMainTestingRow();
-
-        for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
-        {
-            for (uInt row=0; row < LoopCnt; row++)
-            {
-                uInt  rowA = row + (ant_id * LoopCnt);
-
-                // Pseudo Data (TEST DATA );
-
-                   Vector<Double>  psd_data 
-                       = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
-
-                // Time Set  //
-                    Double interval = psd_data[3];
-                    Double time     = psd_data[2];
-                
-                    Double SetTime = time + (delta_shift * interval) ; 
-
-                    antenna_col.            put(rowA, ant_id   );      // AntennaID (CAS-8418)
-                    mainTime_col.           put(rowA, SetTime  );      // Time     (( REvised 10.26))
-                    mainInterval_col.       put(rowA, interval );      // Interval (( Revised 10.26))
-
-                // Antenna //
-                // Show Time //
-
-                    if (false){
-                            printf( "Main Tbl, %d SetTime=%f,  Interval=%f, \n",
-                            row, SetTime, interval );
-                }
-            }
-        }
-
-        // Flush //
-        
-        ms0.flush();
-#endif 
 }
 
 
@@ -2109,6 +1716,7 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
      MeasurementSet ms0( name  );       
      PointingDirectionCalculator calc(ms0);
+
      uInt nrow0 = calc.getNrowForSelectedMS(); 
 
    // Prepare  Arraay ..//
@@ -2193,7 +1801,6 @@ class TestDirection : public BaseClass
 
 public:
         uInt const InterpolationDivCount = 10;
-
         DirectionColumnList dc;
 
 protected:
@@ -2365,7 +1972,6 @@ TEST_F(TestDirection, setDirectionColumn  )
 }
 
 /*----------------------------------------------------------
-
   getDirection() and MovingSourceCorrection
 
  - Test performing MovingSource Correction.
@@ -3258,7 +2864,6 @@ TEST_F(TestDirection, getDirectionExtended )
     // Create Object //
     
         MeasurementSet ms0( MsName.c_str() );
-    
         PointingDirectionCalculator calc(ms0);
     
     // Initial brief Inspection //
@@ -3449,9 +3054,9 @@ TEST_F(TestSelectData, Antenna )
        printf( " Used MS is [%s] \n", name.c_str() );
   
     // Create Object //
-    
-       MeasurementSet ms( name.c_str() );
-  
+//       auto calc  = MyFunction(name);
+
+       MeasurementSet ms( name.c_str() ); 
        PointingDirectionCalculator calc(ms);
 
     // Initial brief Inspection //
