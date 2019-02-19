@@ -106,6 +106,10 @@ public:
   // 
   //
   // @param[in,out] imstore SIImageStore 
+  // @param[in,out] positive only mask
+  // @param[in] current iteration number completed 
+  // @param[in, out] channel flag
+  // @param[in, out] robust image statistics 
   // @param[in] alg autoboxing alogrithm name (currently recongnized names are 'one-box', 'thresh','thresh2', and 'multithresh')
   // @param[in] threshold threshold with a unit
   // @param[in] fracpeak Fraction of the peak
@@ -132,6 +136,7 @@ public:
                 casacore::TempImage<casacore::Float>& posmask,
                 const casacore::Int iterdone,
                 casacore::Vector<casacore::Bool>& chanflag,
+                casacore::Record& robuststatsrec,
                 const casacore::String& alg="",
                 const casacore::String& threshold="",
                 const casacore::Float& fracpeak=0.0,
@@ -275,6 +280,7 @@ public:
                         casacore::TempImage<casacore::Float>& posmask,
                         const casacore::Int iterdone,
                         casacore::Vector<casacore::Bool>& chanflag,
+                        casacore::Record& robuststatsrec,
                         const casacore::String& alg="",
                         const casacore::String& threshold="",
                         const casacore::Float& fracpeak=0.0,

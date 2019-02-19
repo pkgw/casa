@@ -433,6 +433,14 @@ class PySynthesisImager:
 #############################################
 
     def runMinorCycleCore(self):
+
+        # Set False for release packages. 
+        # Only set this to True for testing and debugging automask in parallel mode
+        # since in parallel mode, runtime setting of the enviroment variable
+        # currently does not work.
+        # False = disable always save intermediate images mode
+        alwaysSaveIntermediateImages=False
+
         # Get iteration control parameters
         iterbotrec = self.IBtool.getminorcyclecontrols()
         ##print "Minor Cycle controls : ", iterbotrec
@@ -446,7 +454,7 @@ class PySynthesisImager:
             if self.stopMinor[str(immod)]<3 :
 
                 # temporarily disable the check (=> always save the intermediate images
-                if os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true":
+                if alwaysSaveIntermediateImages or (os.environ.has_key('SAVE_ALL_RESIMS') and os.environ['SAVE_ALL_RESIMS']=="true"):
                     resname = self.allimpars[str(immod)]['imagename']+'.residual'
                     tempresname = self.allimpars[str(immod)]['imagename']+'.inputres'+str(self.ncycle)
                     if os.path.isdir(resname):
@@ -456,7 +464,7 @@ class PySynthesisImager:
 
                 #print '.... iterdone for ', immod, ' : ' , exrec['iterdone']
                 self.IBtool.mergeexecrecord( exrec )
-                if os.environ.has_key('SAVE_ALL_AUTOMASKS') and os.environ['SAVE_ALL_AUTOMASKS']=="true":
+                if alwaysSaveIntermediateImages or (os.environ.has_key('SAVE_ALL_AUTOMASKS') and os.environ['SAVE_ALL_AUTOMASKS']=="true"):
                     maskname = self.allimpars[str(immod)]['imagename']+'.mask'
                     tempmaskname = self.allimpars[str(immod)]['imagename']+'.autothresh'+str(self.ncycle)
                     if os.path.isdir(maskname):

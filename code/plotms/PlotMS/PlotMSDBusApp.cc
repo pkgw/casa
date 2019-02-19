@@ -64,6 +64,10 @@ const String PlotMSDBusApp::PARAM_LEGENDPOSITION = "legendPosition";
 const String PlotMSDBusApp::PARAM_CLEARSELECTIONS = "clearSelections";
 const String PlotMSDBusApp::PARAM_DATACOLUMN_X = "xDataColumn";
 const String PlotMSDBusApp::PARAM_DATACOLUMN_Y = "yDataColumn";
+const String PlotMSDBusApp::PARAM_FRAME_X = "xFrame";
+const String PlotMSDBusApp::PARAM_FRAME_Y = "yFrame";
+const String PlotMSDBusApp::PARAM_INTERP_X = "xInterp";
+const String PlotMSDBusApp::PARAM_INTERP_Y = "yInterp";
 const String PlotMSDBusApp::PARAM_DATA_INDEX = "overplotDataIndex";
 const String PlotMSDBusApp::PARAM_FILENAME = "filename";
 const String PlotMSDBusApp::PARAM_FLAGGING = "flagging";
@@ -581,12 +585,42 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
 		}
+		PMS::CoordSystem cs;
+		if(parameters.isDefined(PARAM_FRAME_X) &&
+				parameters.dataType(PARAM_FRAME_X) == TpString) {
+			cs = PMS::coordSystem(parameters.asString(PARAM_FRAME_X), &ok);
+			if(ok){
+				ppcache->setXFrame(cs, dataIndex);
+			}
+		}
+		if(parameters.isDefined(PARAM_FRAME_Y) &&
+				parameters.dataType(PARAM_FRAME_Y) == TpString) {
+			cs = PMS::coordSystem(parameters.asString(PARAM_FRAME_Y), &ok);
+			if(ok){
+				ppcache->setYFrame(cs, dataIndex);
+			}
+		}
+		PMS::InterpMethod im;
+		if(parameters.isDefined(PARAM_INTERP_X) &&
+				parameters.dataType(PARAM_INTERP_X) == TpString) {
+			im = PMS::interpMethod(parameters.asString(PARAM_INTERP_X), &ok);
+			if(ok){
+				ppcache->setXInterp(im, dataIndex);
+			}
+		}
+		if(parameters.isDefined(PARAM_INTERP_Y) &&
+				parameters.dataType(PARAM_INTERP_Y) == TpString) {
+			im = PMS::interpMethod(parameters.asString(PARAM_INTERP_Y), &ok);
+			if(ok){
+				ppcache->setYInterp(im, dataIndex);
+			}
+		}
+
 		if(parameters.isDefined(PARAM_SHOWATM) &&
 				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
 			bool show = parameters.asBool(PARAM_SHOWATM);
 			ppcache->setShowAtm(show);
 		}
-
 		if(parameters.isDefined(PARAM_SHOWTSKY) &&
 				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
 			bool show = parameters.asBool(PARAM_SHOWTSKY);

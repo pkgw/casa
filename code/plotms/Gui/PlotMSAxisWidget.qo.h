@@ -53,18 +53,21 @@ public:
     
     // Returns the labels used in the widget.
     // <group>
+    QLabel* axisLabel() { return AxisWidget::axisLabel;}
     QLabel* dataLabel() { return AxisWidget::dataLabel; }
+    QLabel* interpLabel() { return AxisWidget::interpLabel; }
+    QLabel* refFrameLabel() { return AxisWidget::refFrameLabel; }
     QLabel* attachLabel() { return AxisWidget::attachLabel; }
     QLabel* rangeLabel() { return AxisWidget::rangeLabel; }
-    QLabel* axisLabel(){
-    	return AxisWidget::axisLabel;
-    }
+
     // </group>
     
     // Gets the current set values in the widget.
     // <group>
     PMS::Axis axis() const;
     PMS::DataColumn data() const;
+    PMS::InterpMethod interpMethod() const;
+    PMS::CoordSystem refFrame() const;
     PlotAxis attachAxis() const;
     bool matchesData(const PlotMSAxisWidget* other ) const;
     bool rangeCustom() const;
@@ -78,6 +81,9 @@ public:
     void setValue(PMS::Axis axis, PMS::DataColumn data, PlotAxis attachAxis,
             bool rangeCustom, prange_t range);
     
+    // Sets the displayed direction parameters values to the given
+    void setDirParams(PMS::InterpMethod interp, PMS::CoordSystem refFrame);
+
     // Sets the "in cache" checkbox to the given.
     void setInCache(bool inCache);
     void insertLabelDefaults( QMap<QLabel*,QString>& map );
@@ -95,12 +101,13 @@ private:
 
     // Widget for the range.
     PlotRangeWidget* itsRangeWidget_;
-
     
 private slots:
     // Slot for when the axis value changed.
     void axisChanged(const QString& value);
     void axisDataChanged();
+    void axisInterpChanged();
+    void axisRefFrameChanged();
 
 };
 

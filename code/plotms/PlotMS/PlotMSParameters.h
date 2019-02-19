@@ -159,6 +159,21 @@ private:
 	static const int dummyIter;
 };
 
+class DirectionAxisParams {
+public:
+	DirectionAxisParams(
+			PMS::CoordSystem coordSystem=PMS::DEFAULT_COORDSYSTEM,
+			PMS::InterpMethod interpMethod=PMS::DEFAULT_INTERPMETHOD
+			);
+	PMS::CoordSystem getCoordSystem() const;
+	PMS::InterpMethod getInterpMethod() const;
+	friend bool operator<(const DirectionAxisParams & p1, const DirectionAxisParams & p2);
+	friend bool operator!=(const DirectionAxisParams & p1, const DirectionAxisParams & p2);
+private:
+	PMS::CoordSystem coordSystem_;
+	PMS::InterpMethod interpMethod_;
+};
+
 }
 
 #endif /* PLOTMSPARAMETERS_H_ */
