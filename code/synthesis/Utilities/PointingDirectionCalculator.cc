@@ -160,9 +160,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
-      /*CAS-8418*/ useSplineInterpolation_(false), useOldInterpolationModule_(false), 
-      /*CAS-8418*/ initializeReady_(5,false), coefficientReady_(5,false),
-      /*CAS-8418*/ accessorId_(DIRECTION) 
+      /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
+      /*CAS-8418*/ initializeReady_(5,false),           // Spline initialization Ready
+      /*CAS-8418*/ coefficientReady_(5,false),          // Spline Coefficient Ready
+      /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
 { 
 
 // -- original code -- //
@@ -290,9 +291,6 @@ void PointingDirectionCalculator::configureMovingSourceCorrection() {
         movingSourceCorrection_ = skipMovingSourceCorrection;
     }
 }
-
-
-
 
 
 void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
@@ -510,12 +508,14 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
     // In case Old source is needed, please locate Org.source and
-    // branch controle here.
+    // make a link here.
 
     return (doGetDirectionNew(irow));
 }
 
-// CAS-8418 NEW doGetDirection(i)  //
+//----------------------------------
+// CAS-8418 NEW doGetDirection(i)
+//----------------------------------
 Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =

@@ -160,7 +160,7 @@ private:
 };
 
 //+
-// NEW: Under construction
+// CAS-8418 added
 // Direction Column (List and other service)
 //-
 class DirectionColumnList 
@@ -171,7 +171,6 @@ public:
 private:
         std::vector<string> DirList 
          = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
-
 };
 
 
@@ -252,21 +251,19 @@ private:
 };
 
 
-
-
 //************************************** 
-// Base TestClass
+// Base TestClass 
+//  for TEST FIXTURE
 //**************************************
 class BaseClass : public ::testing::Test
 {
-
 public:
 
      // Running Environment //
      RunEnv       env;
 
      //+
-     // MS for Test
+     // MS copy/delete to make Test-MS
      //-
      void CopyDefaultMStoWork();
      void DeleteWorkingMS();
@@ -303,11 +300,10 @@ private:
 const String  DefaultLocalMsName = "./sdimaging-t.ms";
 
 
-//******************************************************
+//+
 //  Log Title Output Functions for readable text 
 //  of this UT.
-//******************************************************
-
+//-
 void BaseClass::TestDescription( const String &Title )
 {
     printf( "///////////////////////////////////////////////////////////////////////////// \n");
@@ -339,9 +335,6 @@ void BaseClass::Description(const String &Title, const String &Param)
 //***************************************************************************
 void BaseClass::CopyDefaultMStoWork()
 {
-    //  Environment //
-
-    //    RunEnv env;
 
     // Src/Dst Path (string) 
 
@@ -359,10 +352,7 @@ void BaseClass::CopyDefaultMStoWork()
         printf( " - src filespec  : %s \n", src.c_str() );
         printf( " - dest filespec : %s \n", dst.c_str() );
 
-    //+
     // Copy File, use copy() method.
-    //   WARNING; Destination directory must be full described.
-    //-
 
         if(copyOperation)
         {
@@ -1301,6 +1291,70 @@ private:
 };
 
 
+//************************************************
+// [NEW C++]
+// Access Service class
+//   for MAIN table
+//************************************************
+
+class MainTableAccess {
+
+public:
+    // constructor //
+    MainTableAccess(String const &MsName, bool WriteAccess =false )
+    {
+        auto option = casacore::Table::TableOption::Old;
+        if(WriteAccess) option = casacore::Table::TableOption::Update;
+
+        MeasurementSet ms_t(MsName, option );
+        ms = std::move(ms_t);
+
+        init();
+        prepareColumns();
+    }
+
+    // Destructor //
+    ~MainTableAccess() { }
+    void flush()
+    {
+        ms.flush();
+        ms.resync();
+    }
+    // Row //
+    uInt getNrow()               { return (nrow = ms.nrow()) ;  };
+    void appendRow(uInt AddCnt)  { ms.addRow(AddCnt); }
+    void removeRow(uInt row)      { ms.removeRow(row); }
+
+    // Write (put) //
+
+    void putAntenna (uInt row, Double dd) { antenna_col.     put(row, dd );}
+    void putTime    (uInt row, Double dd) { mainTime_col.    put(row, dd );}
+    void putInterval(uInt row, Double dd) { mainInterval_col.put(row, dd );}
+
+private:
+
+    void init()
+    {
+        nrow     = ms.nrow();
+    }
+
+    void prepareColumns()
+    {
+        antenna_col       .attach( ms  , "ANTENNA1");
+        mainTime_col      .attach( ms , "TIME");
+        mainInterval_col  .attach( ms , "INTERVAL");
+    }
+
+
+    // handle (in MS, directly connects to Columns)
+     casacore::MeasurementSet     ms;
+     casacore::uInt               nrow;
+    // Columns //
+     ROScalarColumn<Int>    antenna_col  ;
+     ROScalarColumn<Double> mainTime_col ;
+     ROScalarColumn<Double> mainInterval_col ;
+
+};
 //*******************************************************
 // MeasurementSet Edit Class (MsEdit)
 //  - Modifying test-MS
@@ -1374,7 +1428,7 @@ private:
 
 
 //+
-// Add one row on Antanna Table
+// CAS-8418 Add one row on Antanna Table
 //  returns latest nrow.
 //-
 
@@ -1394,8 +1448,50 @@ uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 //  Write Data to Antenna Table 
 //-
 
+void setData(ANTENNADataBuff &data)
+{
+    data.name            =  "Z80A";
+    data.station         =  "SN123";
+    data.type            =  "lovely-KUMIKO";
+    data.mount           =  "IBM-PC";
+  
+    data.position .resize(3);
+    data.offset   .resize(3);
+}
+
 void MsEdit::writeDataToAntennaTable( uInt Row )
 {
+#if 1
+//******************
+// CAS-8418 CODE 
+//******************
+    String MsName =DefaultLocalMsName;
+    AntennaTableAccess ata(MsName,true);
+
+    uInt nrow_a = ata.getNrow();
+    printf( "MsEdit:Antenna Table nrow  =%d \n",nrow_a);
+
+    ANTENNADataBuff dt0;
+    // Fix Data 
+    setData(dt0);     
+    // Dummy Data 
+    dt0.position[0]    =  100051.01 ;
+    dt0.position[1]    =  -100052.02 ;
+    dt0.position[2]    =  100053.03 ;
+
+    dt0.offset[0]    =   33.3 ;
+    dt0.offset[1]    =   44.4 ;
+    dt0.offset[2]    =   55.5 ;
+   
+    // Put Data //
+    ata.putRowData(Row, dt0);
+    // flush and close // 
+     ata.flush();
+
+#else
+//***************
+// OLD CODE
+//***************
     // Open MS by Update mode //
 
         String MsName =DefaultLocalMsName;
@@ -1478,7 +1574,7 @@ void MsEdit::writeDataToAntennaTable( uInt Row )
         // Flush //
         
         ms0.flush();
-
+#endif 
 }
 
 
@@ -1536,7 +1632,7 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
     printf( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table [%s]\n",MsName.c_str()  );
 
 
-#if 0
+#if 1
 //******************
 // CAS-8418 CODE 
 //******************
@@ -1574,7 +1670,12 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
                 Double delta = (Double)row + dt ;    // delta must be [0,1]
 
                 IPosition Ipo = pT.getIpo();
+
                 Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+
+                Vector< Array<Double>  > Dir5;
+                Dir5.resize(5);
+
 
                 // Calculate Pseudo-Direction as test data //
                 Vector<Double>  psd_data  
@@ -1584,20 +1685,24 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
                 // Intentionally add offset ..
                 //   In near future,  pseudoDirInfoPointing() returns multiple data set 
                 //-
-
-                direction[0][0] = psd_data[0] + 0.0;
-                direction[0][1] = psd_data[1] + 0.0;               
+                Double InterntionalErrorForTest = 0.0;
+                for(uInt cno=0; cno<5; cno++)
+                {
+                    direction[0][0] = psd_data[0] + 0.1*(Double)cno  + InterntionalErrorForTest;
+                    direction[0][1] = psd_data[1] + 0.1*(Double)cno  + InterntionalErrorForTest;               
+                    Dir5[cno] = direction;
+                }
 
                 // write access //
                 // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
-                pT.putDirection      (rowA, direction );
-                pT.putTarget         (rowA, direction );
-                pT.putPointingOffset (rowA, direction );
-                pT.putSourceOffset   (rowA, direction );
-                pT.putEncoder        (rowA, direction );
+                pT.putDirection      (rowA, Dir5[0] );
+                pT.putTarget         (rowA, Dir5[1] );
+                pT.putPointingOffset (rowA, Dir5[2] );
+                pT.putSourceOffset   (rowA, Dir5[3] );
+                pT.putEncoder        (rowA, Dir5[4] );
 
                 //+ 
-                // New Time   (intentionally activates interporation)
+                // New Time (shifted)  (this  activates interporation)
                 //  basically FIXED values.
                 //-
             
@@ -1748,29 +1853,35 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
 }
 
 //+
-// Add rows by specified count 
+// CAS-8418 Add rows by specified count 
 // on Main Table Table
 //-
 
 uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 {
-    // Measurement Set (use default name) //
+#if 1   // NEW CODE //
+     MainTableAccess   mta(MsName,true);
+     mta.appendRow(AddCount);
+     uInt nRow = mta.getNrow();
+     mta.flush();
 
+     return nRow;
+#else // OLD CODE //
+
+    // Measurement Set (use default name) //
         MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
 
     // Add Row //
-
-        printf( "MsEdit:INTERPOLATION::Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
-
         ms0.addRow(AddCount);
         uInt nrow = ms0.nrow();
 
-        printf( "MsEdit:INTERPOLATION::   New nrow count is %d \n", nrow ); 
+        printf( "MsEdit:INTERPOLATION:: attempted to add [%d].  New nrow Cnt is %d \n", AddCount,nrow ); 
 
        ms0.flush();
        ms0.resync();
 
        return nrow;
+#endif 
 }
 
 //+
@@ -1781,11 +1892,49 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 
 void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String MsName)
 {
-    printf( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,1) Writing Time in MAIN Table [%s]\n",
-             MsName.c_str()  );
-    printf( "ddddddddddddddddddddddddddddddddddddd\n");
     printf( "   delta_shift =, %f \n", delta_shift );
-    printf( "ddddddddddddddddddddddddddddddddddddd\n");
+
+#if 1
+//******************
+// CAS-8418 CODE 
+//******************
+    MainTableAccess   mta(MsName,true);
+
+    uInt nrow_ms = mta.getNrow();
+    uInt LoopCnt = evgen.getRequiredMainTestingRow();
+
+    printf("writing to MAIN, nrow=%d,count=%d \n", nrow_ms,LoopCnt );
+
+    for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
+    {
+        for (uInt row=0; row < LoopCnt; row++)
+        {
+            uInt  rowA = row + (ant_id * LoopCnt);
+
+            // Pseudo Data (TEST DATA );
+
+            Vector<Double>  psd_data 
+                   = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
+ 
+            // Time Set  //
+            Double interval = psd_data[3];
+            Double time     = psd_data[2];
+                 
+            Double SetTime = time + (delta_shift * interval) ; 
+
+            mta.  putAntenna (rowA, ant_id   );      // AntennaID (CAS-8418)
+            mta.  putTime    (rowA, SetTime  );      // Time     (( REvised 10.26))
+            mta.  putInterval(rowA, interval );      // Interval (( Revised 10.26))
+
+        }
+    }
+
+     mta.flush();
+
+#else
+//******************
+// CAS-8418 CODE 
+//******************
 
     // Open MS by Update mode //
 
@@ -1851,12 +2000,8 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
         // Flush //
         
         ms0.flush();
-
+#endif 
 }
-
-
-
-
 
 
 
@@ -4397,9 +4542,11 @@ TEST_F(MyDebug, SplineConstructor )
 //+
 // The following depends on specified MS. 
 //-
+#if 0
     calc.setDirectionColumn("POINTING_OFFSET" );
       spH =  calc.getCurrentSplineObj();
       printf( "Coeff Ready = %d\n" ,spH->isCofficientReady() );
+#endif 
 }
 
 TEST_F(MyDebug, CurveFunction )

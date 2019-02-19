@@ -190,8 +190,12 @@ public:
     // Select which POINTING column to use for pointing direction calculation.
     // Possible values are "DIRECTION" (default), "TARGET", "POINTING_OFFSET",
     // "SOURCE_OFFSET", and "ENCODER". These values are all case-sensitive.
+    //
+    // CAS-8418 Update
+    //   Spline-Interpolation initialze is inserted for each POINTING Column.
+    //   Once this initialization is done, the object will be reused.
     //-
-    
+       
     void setDirectionColumn(casacore::String const &columnName = "DIRECTION");
 
     //+
@@ -286,10 +290,12 @@ public:
 
     casacore::uInt getRowId(casacore::uInt irow);
 
-    //*************************************
-    // CAS-8418  Spline Interpolation API 
-    //*************************************
-
+//*************************************
+// CAS-8418  Spline Interpolation API 
+//*************************************
+    
+    // Spline interpolation Enable/Disable (true=ENABLE) 
+    // please change this field in Constructor.
     void setSplineInterpolation(bool mode) {useSplineInterpolation_ = mode;};
 
     // Spline Object handle
@@ -356,30 +362,25 @@ private:
 
     PointingDirectionCalculator();
 
-    //***************************
-    // CAS-8418 Spline Extended
-    //***************************
+//***************************
+// CAS-8418 Spline Extended
+//***************************
 
-     // Spline object and flag (for each Direction Column)
-      
+     // Spline Type //
         bool useSplineInterpolation_    = true;      // default: Use Spline if TRUE
-        bool useOldInterpolationModule_ = false;     // default: Use origial doGetDirection 
 
-        casa::SplineInterpolation    *currSpline_;      // Currently Active Object (traditiona Pointer)
+     // Current Spline Object (active, work with Direction Column)
+        casa::SplineInterpolation                     *currSpline_;   
 
      // Spline Object for each Direction-Column //
-
-        // Hold the spline object. switched and  assigned to 'currSpline_.  pointer.//
-
         std::unique_ptr<casa::SplineInterpolation>     splineObj_[5];
 
-        // Internal conditions to check limitted service.  
+     // Internal conditions to check limitted service.  
         casacore::Vector<bool>                         initializeReady_  ;
         casacore::Vector<bool>                         coefficientReady_ ;
 
      // Accessor ID (See typedef above. ) 
 
-//        casacore::uInt        accessorId_ ;
         DirectionColumnID   accessorId_ ;
  
      // creating temporary Spline object (in construction)
@@ -392,7 +393,7 @@ private:
                                                bool makeActive);
 
      //+
-     // [new] doGetDirection(uint row)   CAS-8418
+     // CAS-8418  doGetDirection(uint row)   
      // Changes:   
      //   - Performs Spline-Interpolation
      //   - In case number of dat is insfficient, alternatively uses Linea-Interpolation
