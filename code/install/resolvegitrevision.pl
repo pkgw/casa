@@ -13,11 +13,11 @@
 #    println "B: " + branch
 #}
 
-$casaBranchHint=$ARGV[0];
+$casaBranchHint = $ENV{'CASABRANCHHINT'};
 $tagMatcher="-mas-";
 #$tagid="mas";
 
-$debug=1;
+$debug=$ARGV[0];
 print "tagMatcher: $tagMatcher\n" if $debug;
 #print "tagId: $tagid\n" if $debug;
 
