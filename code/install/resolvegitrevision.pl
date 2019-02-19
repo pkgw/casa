@@ -1,4 +1,18 @@
 #!/usr/bin/env perl
+
+# Note:
+#branch="release/5.1.0"
+#branch="release/vla/1.0.0"
+#println branch
+
+#if (branch =~ ".*release/[A-Za-z].*") {
+#    println "A: " + branch
+#}
+
+#if (branch =~ /.*release\/\d+\.\d+\.\d+/) {
+#    println "B: " + branch
+#}
+
 $casaBranchHint=$ARGV[0];
 $headGrep="-mas-";
 $tagid="mas";
@@ -19,7 +33,7 @@ if ($casaBranchHint)  {
         $headGrep = "@splat[0]-@splat[1]";
     } elsif ($casaBranchHint =~ "^CAS-.*" ) {
         $headGrep = $casaBranchHint;
-    } elsif ($casaBranchHint =~ ".*release.*" ) {
+    } elsif ($casaBranchHint =~ ".*release/\d+\.\d+\.\d+") {
         $headGrep = $casaBranchHint;
         $tagid="rel";
     } elsif ($casaBranchHint =~ "^bambooprtest.*" ) {
@@ -76,50 +90,14 @@ if ( $branch eq "HEAD") {
       print "$splat[-1];$casaVersionDesc\n";
   }
 }
-elsif ($branch eq "master") {
-    # Check if the last commit has "-mas-" tag.
-    $masterTag=`git tag --points-at HEAD | grep -- -mas-`;
-    $headCommit=`git rev-parse HEAD`;
-    $casaVersionDesc="";
-    if (!$masterTag) {
-        $headCommit=`git rev-parse HEAD`;
-        $masterTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*'`;
-        $needsId=1
-    }
-    chomp($masterTag);
-    $casaVersionDesc = "ID $headCommit";
-    chomp($casaVersionDesc);
-    @splat = split '-',$masterTag;
-    if ($needsId) {
-        print "$splat[-1];$casaVersionDesc\n"
-    }
-    else {
-        print "$splat[-1];\n"
-    }
-}
-elsif ($branch =~ ".*release.*") {
-    print("Release branch\n") if $debug;
-    $relTag=`git tag --points-at HEAD | grep -- -rel-`;
-    $headCommit=`git rev-parse HEAD`;
-    $casaVersionDesc="";
-    if (!$relTag) {
-        $headCommit=`git rev-parse HEAD`;
-        $relTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-rel-[0-9]*'`;
-        $needsId=1
-    }
-    chomp ($relTag);
-    $casaVersionDesc = "ID $headCommit";
-    chomp($casaVersionDesc);
-    @splat = split '-',$relTag;
-    if ($needsId) {
-        print "$splat[-1];$casaVersionDesc\n"
-    }
-    else {
-        print "$splat[-1];\n"
-    }
-}
+# Version from branch
 else {
-     $tagMatcher = $branch;
+     if ($branch eq "master") { $tagMatcher = "mas"; }
+     elsif ($branch =~ ".*release/\d+\.\d+\.\d+") { $tagMatcher = "rel"; }
+     else {
+         $tagMatcher = $branch;
+     }
+
      if ($tagMatcher =~ "/") {
          $tagMatcher =~ s/\//-/;
      }
@@ -130,17 +108,28 @@ else {
      $needsId=0;
      if (!$branchTag) {
          $headCommit=`git rev-parse HEAD`;
-         $branchTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-$tagMatcher-[0-9]*'`;
+         #$branchTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-$tagMatcher-[0-9]*'`;
          $needsId=1
      }
      chomp ($branchTag);
      $casaVersionDesc = "ID $headCommit";
      chomp($casaVersionDesc);
+     print "needsId: $needsId\n" if $debug;
+     print "branchTag: $branchTag\n" if $debug;
+     print "casaVersionDesc: $casaVersionDesc\n" if $debug;
      if ($needsId) {
-         print ";$casaVersionDesc\n"
+         if ($tagMatcher eq "rel" || $tagMatcher eq "mas") {
+             print "$splat[-1];$casaVersionDesc\n"
+         }
+         else {
+             print ";$casaVersionDesc\n"
+         }
      }
      else {
-         print ";$branchTag\n"
+         if ($tagMatcher eq "rel" || $tagMatcher eq "mas") {
+             print "$splat[-1];\n"
+         } else {
+             print ";$branchTag\n"
+         }
      }
-
 }
