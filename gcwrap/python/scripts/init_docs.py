@@ -1,5 +1,6 @@
 import urllib2
 import re
+import ssl
 import webbrowser
 
 class __doc(object):
@@ -25,13 +26,15 @@ class __doc(object):
 
         if len(self.__task_list) == 0:
             try:
-                self.__task_list = re.findall("\w+.xml", urllib2.urlopen(self.__task_url).read().decode())
+                ### osx rejects NRAO's CERT
+                self.__task_list = re.findall("\w+.xml", urllib2.urlopen(self.__task_url).read().decode(),context=ssl.SSLContext())
             except:
                 self.__task_list = [ ]
 
         if len(self.__tool_list) == 0:
             try:
-                self.__tool_list = re.findall("\w+.xml", urllib2.urlopen(self.__tool_url).read().decode())
+                ### osx rejects NRAO's CERT
+                self.__tool_list = re.findall("\w+.xml", urllib2.urlopen(self.__tool_url).read().decode(),context=ssl.SSLContext())
             except:
                 self.__tool_list = [ ]
 
