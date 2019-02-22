@@ -21,20 +21,26 @@ class __doc(object):
         self.__task_list = [ ]
         self.__tool_list = [ ]
 
+    def __unverified_ctx( self ):
+        ctx = ssl.create_default_context( )
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        return ctx
+
     def __call__( self, topic=None ):
         "open browser with documentation, try \"doc('toc')\""
 
         if len(self.__task_list) == 0:
             try:
                 ### osx rejects NRAO's CERT
-                self.__task_list = re.findall("\w+.xml", urllib2.urlopen(self.__task_url).read().decode(),context=ssl.SSLContext())
+                self.__task_list = re.findall("\w+.xml", urllib2.urlopen(self.__task_url,context=self.__unverified_ctx( )).read().decode())
             except:
                 self.__task_list = [ ]
 
         if len(self.__tool_list) == 0:
             try:
                 ### osx rejects NRAO's CERT
-                self.__tool_list = re.findall("\w+.xml", urllib2.urlopen(self.__tool_url).read().decode(),context=ssl.SSLContext())
+                self.__tool_list = re.findall("\w+.xml", urllib2.urlopen(self.__tool_url,context=self.__unverified_ctx( )).read().decode())
             except:
                 self.__tool_list = [ ]
 
