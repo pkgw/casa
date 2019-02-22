@@ -95,7 +95,7 @@ if( CASA_VERSION_FEATURE STREQUAL "0" )
                             OUTPUT_STRIP_TRAILING_WHITESPACE )
 
     else( )
-        execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/resolvegitrevision.sh
+        execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/resolvegitrevision.pl
                          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                          OUTPUT_VARIABLE CASA_VERSION_FEATURE_AND_BRANCH_TAG # Getting a list
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
