@@ -29,23 +29,17 @@
 #include <vector>
 #include <iostream>
 #include <string>
-using namespace std;
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLTemperature;
 #endif
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
+#include <alma/ASDM/EndianStream.h>
 namespace asdm {
 class Temperature;
 Temperature operator * ( double , const Temperature & );
-ostream & operator << ( ostream &, const Temperature & );
-istream & operator >> ( istream &, Temperature &);
+std::ostream & operator << ( std::ostream &, const Temperature & );
+std::istream & operator >> ( std::istream &, Temperature &);
 /**
  * The Temperature class implements a quantity of temperature in degrees Kelvin..
  * 
@@ -69,11 +63,11 @@ class Temperature {
    * @param os a reference to the ostream to be written on.
    * @param x a const reference to a Temperature.
    */
-  friend ostream & operator << ( ostream & os, const Temperature & x);
+  friend std::ostream & operator << ( std::ostream & os, const Temperature & x);
   /**
    * Overloading of >> to read an Temperature from an istream.
    */
-  friend istream & operator >> ( istream & is, Temperature & x);
+  friend std::istream & operator >> ( std::istream & is, Temperature & x);
 public:
 	/**
 	 * The nullary constructor (default).
@@ -90,7 +84,7 @@ public:
 	 *
 	 * @param s a string.
 	 */
-	Temperature(const string &s);
+	Temperature(const std::string &s);
 #ifndef WITHOUT_ACS
 	/**
 	 *
@@ -98,7 +92,7 @@ public:
 	 * 
 	 * @param idlTemperature a cons ref to an IDLTemperature.
 	 */
-	Temperature(const IDLTemperature & idlTemperature);
+	Temperature(const asdmIDLTypes::IDLTemperature & idlTemperature);
 #endif
 	/**
 	 * A constructor from a value in double precision.
@@ -113,14 +107,14 @@ public:
 	 * A static method equivalent to the constructor from a string.
 	 * @param s a string?.
 	 */
-	static double fromString(const string& s);
+	static double fromString(const std::string& s);
 	/**
 	 * Conversion into string.
 	 * The resulting string contains the representation of the value of this Temperature.
 	 *
 	 * @return string
 	 */
-	static string toString(double);
+	static std::string toString(double);
 	/**
 	 * Parse the next (string) token of a StringTokenizer into an angle.
 	 * @param st a reference to a StringTokenizer.
@@ -138,21 +132,21 @@ public:
 	 * @param angle the vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Temperature>& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Temperature>& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Temperature to a EndianOSStream.
 	 * @param angle the vector of vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Temperature> >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Temperature> >& angle,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Temperature to a EndianOSStream.
 	 * @param angle the vector of vector of vector of Temperature to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Temperature> > >& angle,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Temperature> > >& angle,  EndianOSStream& eoss);
 	/**
 	 * Read the binary representation of an Temperature from a EndianIStream
 	 * and use the read value to set an  Temperature.
@@ -167,7 +161,7 @@ public:
 	 * @param eis a reference to the EndianIStream to be read
 	 * @return a vector of Temperature
 	 */	 
-	 static vector<Temperature> from1DBin(EndianIStream & eis);
+	 static std::vector<Temperature> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Temperature from an EndianIStream
@@ -175,7 +169,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of Temperature
 	 */	 
-	 static vector<vector<Temperature> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Temperature> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Temperature from an EndianIStream
@@ -183,7 +177,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Temperature
 	 */	 
-	 static vector<vector<vector<Temperature> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Temperature> > > from3DBin(EndianIStream & eis);	 
 	 
 	 /**
 	  * An assignment operator Temperature = Temperature.
@@ -288,16 +282,16 @@ public:
 	 * Converts into a string.
 	 * @return a string containing the representation of a the value in double precision.
 	 */
-	string toString() const;
+	std::string toString() const;
 	/** 
 	 * Idem toString.
 	 */
-	string toStringI() const;
+	std::string toStringI() const;
 	/**
 	 * Conversion operator.
 	 * Converts into a string.
 	 */
-	operator string () const;
+	operator std::string () const;
 	/**
 	 * Return the double precision value of the Temperature.
 	 * @return double
@@ -308,13 +302,13 @@ public:
 	 * Return the IDLTemperature representation of the Temperature.
 	 * @return IDLTemperature 
 	 */
-	IDLTemperature toIDLTemperature() const;
+    asdmIDLTypes::IDLTemperature toIDLTemperature() const;
 #endif
 	/**
 	 * Returns the abbreviated name of the unit implicitely associated to any Temperature.
 	 * @return string
 	 */
-	static string unit();
+	static std::string unit();
 private:
 	double value;
 };
@@ -324,10 +318,10 @@ inline Temperature::Temperature() : value(0.0) {
 inline Temperature::Temperature(const Temperature &t) : value(t.value) {
 }
 #ifndef WITHOUT_ACS
-inline Temperature::Temperature(const IDLTemperature &l) : value(l.value) {
+inline Temperature::Temperature(const asdmIDLTypes::IDLTemperature &l) : value(l.value) {
 }
 #endif
-inline Temperature::Temperature(const string &s) : value(fromString(s)) {
+inline Temperature::Temperature(const std::string &s) : value(fromString(s)) {
 }
 inline Temperature::Temperature(double v) : value(v) {
 }
@@ -415,21 +409,21 @@ inline Temperature Temperature::operator + () const {
 	return tmp;
 }
 // Conversion functions
-inline Temperature::operator string () const {
+inline Temperature::operator std::string () const {
 	return toString();
 }
-inline string Temperature::toString() const {
+inline std::string Temperature::toString() const {
 	return toString(value);
 }
-inline string Temperature::toStringI() const {
+inline std::string Temperature::toStringI() const {
 	return toString(value);
 }
 inline double Temperature::get() const {
 	return value;
 }
 #ifndef WITHOUT_ACS
-inline IDLTemperature Temperature::toIDLTemperature() const {
-	IDLTemperature tmp;
+inline asdmIDLTypes::IDLTemperature Temperature::toIDLTemperature() const {
+    asdmIDLTypes::IDLTemperature tmp;
 	tmp.value = value;
 	return tmp;
 }
@@ -440,16 +434,16 @@ inline Temperature operator * ( double n, const Temperature &x) {
 	tmp.value = x.value * n;
 	return tmp;
 }
-inline ostream & operator << ( ostream &o, const Temperature &x ) {
+inline std::ostream & operator << ( std::ostream &o, const Temperature &x ) {
 	o << x.value;
 	return o;
 }
-inline istream & operator >> ( istream &i, Temperature &x ) {
+inline std::istream & operator >> ( std::istream &i, Temperature &x ) {
 	i >> x.value;
 	return i;
 }
-inline string Temperature::unit() {
-	return string ("K");
+inline std::string Temperature::unit() {
+	return std::string ("K");
 }
 } // End namespace asdm
 #endif /* Temperature_CLASS */

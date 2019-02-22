@@ -1788,7 +1788,7 @@ FlagAgentBase::indigen(vector<uInt> &index, uInt size)
 bool
 FlagAgentBase::isZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1816,7 +1816,7 @@ FlagAgentBase::isZero(Float number)
 bool
 FlagAgentBase::isZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1844,7 +1844,7 @@ FlagAgentBase::isZero(Double number)
 bool
 FlagAgentBase::isNaN(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1868,7 +1868,7 @@ FlagAgentBase::isNaN(Float number)
 bool
 FlagAgentBase::isNaN(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1892,7 +1892,7 @@ FlagAgentBase::isNaN(Double number)
 bool
 FlagAgentBase::isNaNOrZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1923,7 +1923,7 @@ FlagAgentBase::isNaNOrZero(Float number)
 bool
 FlagAgentBase::isNaNOrZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:

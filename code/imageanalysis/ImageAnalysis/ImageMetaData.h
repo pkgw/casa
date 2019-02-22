@@ -110,7 +110,7 @@ protected:
 
     casacore::String _getImType() const;
 
-    vector<casacore::Quantity> _getIncrements() const;
+    std::vector<casacore::Quantity> _getIncrements() const;
 
     casacore::Vector<casacore::String> _getMasks() const;
 
@@ -156,7 +156,7 @@ private:
     mutable casacore::Vector<casacore::String> _masks, _stokes;
     mutable casacore::Vector<casacore::String> _axisNames, _axisUnits;
     mutable casacore::Vector<casacore::Double> _refPixel;
-    mutable vector<casacore::Quantity> _refVal, _increment;
+    mutable std::vector<casacore::Quantity> _refVal, _increment;
     mutable casacore::Record _stats;
 };
 

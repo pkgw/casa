@@ -235,6 +235,7 @@ enum ToolCode {
     SUBTRACT_TOOL,   
     ZOOM_TOOL, 
     PAN_TOOL, 
+    FLAGALL_TOOL,
     NONE_TOOL
 };
     
@@ -286,12 +287,12 @@ public:
     // <group>
     virtual unsigned int numSelectedRects() const;
     virtual void getSelectedRects( 
-                vector<double>& upperLeftXs,
-                vector<double>& upperLeftYs, 
-                vector<double>& lowerRightXs,
-                vector<double>& lowerRightYs,
+                std::vector<double>& upperLeftXs,
+                std::vector<double>& upperLeftYs, 
+                std::vector<double>& lowerRightXs,
+                std::vector<double>& lowerRightYs,
                 PlotCoordinate::System system = PlotCoordinate::WORLD)  const;
-    virtual vector<PlotRegion> getSelectedRects(
+    virtual std::vector<PlotRegion> getSelectedRects(
                 PlotCoordinate::System system = PlotCoordinate::WORLD)  const;
     virtual void clearSelectedRects();
     virtual int getSelectedRectCount();
@@ -312,7 +313,7 @@ public:
 
 protected:
     // Notifiers.
-    vector<PlotSelectToolNotifier*> m_notifiers;
+    std::vector<PlotSelectToolNotifier*> m_notifiers;
     
     // Copy of selection line to set on the canvas, or NULL if none has been
     // set.
@@ -329,7 +330,7 @@ protected:
     PlotAreaFillPtr m_rectFill;
     
     // Selected regions.
-    vector<PlotShapeRectanglePtr> m_rects;
+    std::vector<PlotShapeRectanglePtr> m_rects;
     
 
     
@@ -386,7 +387,7 @@ public:
     // </group>
     
     // Gets the zoom stack.
-    virtual vector<PlotRegion> getZoomStack(PlotCoordinate::System sytem =
+    virtual std::vector<PlotRegion> getZoomStack(PlotCoordinate::System sytem =
                                             PlotCoordinate::WORLD) const;
     
     // Gets the zoom stack index.
@@ -403,7 +404,7 @@ public:
     
 protected:
     // Notifiers.
-    vector<PlotZoomToolNotifier*> m_notifiers;
+    std::vector<PlotZoomToolNotifier*> m_notifiers;
     
     // Copy of canvas selection line, or NULL if none has been set.
     PlotLinePtr m_selLine;
@@ -454,7 +455,7 @@ public:
     virtual void addNotifier(PlotPanToolNotifier* notifier);
     
     // Gets the pan stack.
-    virtual vector<PlotRegion> getPanStack(PlotCoordinate::System system =
+    virtual std::vector<PlotRegion> getPanStack(PlotCoordinate::System system =
                                            PlotCoordinate::WORLD) const;
     
     // Gets the pan stack index.
@@ -471,7 +472,7 @@ public:
     
 protected:
     // Notifiers.
-    vector<PlotPanToolNotifier*> m_notifiers;
+    std::vector<PlotPanToolNotifier*> m_notifiers;
     
     // Whether we're in dragging mode or not.
     bool m_inDraggingMode;
@@ -568,11 +569,11 @@ public:
     virtual void handleMouseEvent(const PlotEvent& event);
     
     int getSelectedRectCount() const;
-    vector<PlotRegion> getSelectedRects() const;
+    std::vector<PlotRegion> getSelectedRects() const;
 
 protected:
     // Notifiers.
-    vector<PlotTrackerToolNotifier*> m_notifiers;
+    std::vector<PlotTrackerToolNotifier*> m_notifiers;
     
     // Annotation that holds current position (even if not drawn on canvas).
     PlotAnnotationPtr m_annotation;
@@ -604,6 +605,74 @@ protected:
     // </group>
 };
 INHERITANCE_POINTER(PlotTrackerTool, PlotTrackerToolPtr, PlotMouseTool,
+                    PlotMouseToolPtr, PlotTool, PlotToolPtr)
+
+
+// A PlotFlagAllTool is a concrete subclass of PlotMouseTool that handles
+// one-click data flag functionality.
+// PlotFlagAllTool is responsible for:
+// 1) the behavior described above
+class PlotFlagAllTool : public virtual PlotMouseTool {
+public:
+    // enum for canvas state
+    enum PPFlagType {
+      PPFLAG_FLAG,
+      PPFLAG_UNFLAG,
+      PPFLAG_NONE
+    };
+
+    // Constructor which takes the tool's coordinate system.
+    PlotFlagAllTool(PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Constructor which takes the tool's axes and coordinate system.
+    PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+                   PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Destructor.
+    virtual ~PlotFlagAllTool();
+
+    // Implements PlotMouseTool::handleMouseEvent().
+    virtual void handleMouseEvent(const PlotEvent& event);
+
+    // Sets the attributes for updating background
+    virtual void setUpdateBackground(bool on = true);
+
+    // Inquiry if update of background is active
+    virtual bool isUpdateBackgroundActive();
+
+    // Manipulate mark
+    void clearMark();
+
+    // Inquiry if it is marked
+    bool isMarkedForFlag() const;
+    bool isMarkedForUnflag() const;
+
+    // Inquiry if bgcolor is changed
+    bool isBackgroundColorChanged() const;
+
+    //
+    void setAllFlagged();
+
+protected:
+    // boolean flag for whether update of background is active
+    bool m_draw;
+
+    // boolean flag for background color
+    bool m_bgcolor_changed;
+
+    // boolean flag for whether canvas is marked for flag
+    PlotFlagAllTool::PPFlagType m_marked;
+
+    // keep default background setting
+    PlotAreaFillPtr m_defaultBackground;
+
+private:
+    // internal methods for shared operations
+    void markAsFlag();
+    void markAsUnflag();
+
+};
+INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
                     PlotMouseToolPtr, PlotTool, PlotToolPtr)
 
 
@@ -691,7 +760,7 @@ public:
     unsigned int numTools() const;    
     
     // Returns the tools in the group.
-    vector<PlotMouseToolPtr> tools() const;
+    std::vector<PlotMouseToolPtr> tools() const;
     
     // Adds the given tool to the group and returns its index.  If makeActive
     // is true, the given tool becomes the group's active tool.
@@ -769,7 +838,7 @@ public:
     
 protected:
     // All tools.
-    vector<PlotMouseToolPtr> m_tools;
+    std::vector<PlotMouseToolPtr> m_tools;
     
     // Active tool (or NULL for no active tool).
     PlotMouseToolPtr m_activeTool;
@@ -813,6 +882,7 @@ public:
     PlotStandardMouseToolGroup(PlotSelectToolPtr selectTool,
                                PlotZoomToolPtr zoomTool,
                                PlotPanToolPtr panTool,
+                               PlotFlagAllToolPtr flagAllTool,
                                PlotTrackerToolPtr trackerTool,
                                ToolCode activeTool = NONE_TOOL);
     
@@ -834,8 +904,15 @@ public:
     // </group>
     
     int getSelectedRectCount();
-    vector<PlotRegion> getSelectedRects();
+    std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
+
+    // methods related to per-panel flag mode
+    void clearMark();
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
+    bool isBackgroundColorChanged();
+    void setAllFlagged();
 
     // Provides access to the individual tools.  Note: this should be avoided
     // if possible.
@@ -843,6 +920,7 @@ public:
     PlotSelectToolPtr selectTool();
     PlotZoomToolPtr zoomTool();
     PlotPanToolPtr panTool();
+    PlotFlagAllToolPtr flagAllTool();
     PlotTrackerToolPtr trackerTool();
     // </group>
     

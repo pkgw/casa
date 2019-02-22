@@ -82,8 +82,8 @@ public:
 protected:
 
   // CAL-specific loadIt method
-  virtual void loadIt(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData,
+  virtual void loadIt(std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData,
       ThreadCommunication* thread = nullptr);
 
 private:
@@ -92,14 +92,14 @@ private:
   CalCache(const CalCache&);
 
   // NewCalTable:
-  void loadNewCalTable(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
+  void loadNewCalTable(std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
   void setUpCalIter(NewCalTable& selct, casacore::Bool readonly=True);
   void countChunks(ROCTIter& ci,
-      vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData,
+      std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData,
       ThreadCommunication* thread);
-  void loadCalChunks(ROCTIter& ci, const vector<PMS::Axis> loadAxes,
+  void loadCalChunks(ROCTIter& ci, const std::vector<PMS::Axis> loadAxes,
       ThreadCommunication* thread);
   void loadCalAxis(ROCTIter& cti, casacore::Int chunk, PMS::Axis axis,
       casacore::String pol);
@@ -109,8 +109,8 @@ private:
       casacore::Bool flag, PlotMSIndexer* indexer, int index);
 
   // CalTable:
-  void countChunks(casacore::Int nrowMain, vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread);
+  void countChunks(casacore::Int nrowMain, std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData, ThreadCommunication* thread);
   void setMSname(casacore::String msname); // set msname_; adds path to name
   void getNamesFromMS();    // for locate
   void setUpLoad(ThreadCommunication* thread, casacore::Slice& parSlice);
@@ -118,10 +118,10 @@ private:
       casacore::Int chunk);  // get axes derived from raw viscube
 
   // BPOLY CalTable:
-  void loadBPoly(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
+  void loadBPoly(std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
   void loadCalChunks(ROBJonesPolyMCol& mcol, ROCalDescColumns& dcol,
-      casacore::Int nrow, const vector<PMS::Axis> loadAxes,
+      casacore::Int nrow, const std::vector<PMS::Axis> loadAxes,
 	  casacore::Vector<casacore::Vector<casacore::Slice> >& chansel,
 	  ThreadCommunication* thread);
   void loadCalAxis(ROSolvableVisJonesMCol& mcol, ROCalDescColumns& dcol,
@@ -137,12 +137,12 @@ private:
 	casacore::Cube<T>& outputCube);
 
   // GSPLINE CalTable:
-  void loadGSpline(vector<PMS::Axis>& loadAxes,
-      vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
+  void loadGSpline(std::vector<PMS::Axis>& loadAxes,
+      std::vector<PMS::DataColumn>& loadData, ThreadCommunication* thread = nullptr);
   void loadCalChunks(ROGJonesSplineMCol& mcol, ROCalDescColumns& dcol,
-      casacore::Int nsample, const vector<PMS::Axis> loadAxes,
+      casacore::Int nsample, const std::vector<PMS::Axis> loadAxes,
 	  casacore::Vector<int>& selectedAnts, ThreadCommunication* thread);
-  void checkAxes(const vector<PMS::Axis>& loadAxes);
+  void checkAxes(const std::vector<PMS::Axis>& loadAxes);
   // cube selected by antenna1:
   template<class T>
   void getSelectedCube(casacore::Cube<T>& inputcube,

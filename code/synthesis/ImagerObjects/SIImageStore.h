@@ -198,7 +198,8 @@ class SIImageStore
 		  casacore::Float& minVal, casacore::Float& maxVal,
 		  casacore::Float& minValMask, casacore::Float& maxValMask);
   virtual void printImageStats();
-  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Float pbmasklevel=0.0);
+  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Array<casacore::Double>& mdns, 
+                                                        const casacore::Float pbmasklevel=0.0, const casacore::Bool fastcalc=true); 
   casacore::Float getMaskSum();
 
   //
@@ -259,7 +260,7 @@ protected:
   void removeMask(casacore::CountedPtr<casacore::ImageInterface<casacore::Float> >im);
   void rescaleResolution(casacore::Int chan, casacore::ImageInterface<casacore::Float>& subResidual, const casacore::GaussianBeam& newbeam, const casacore::GaussianBeam& oldbeam);
 
-  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask,
+  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask, const casacore::Lattice<casacore::Bool>& pixmask,
 			 casacore::Float& maxAbs, casacore::Float& maxAbsMask, casacore::Float& minAbs, casacore::Float& minAbsMask );
 
 

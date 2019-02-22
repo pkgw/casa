@@ -106,6 +106,10 @@ public:
   // 
   //
   // @param[in,out] imstore SIImageStore 
+  // @param[in,out] positive only mask
+  // @param[in] current iteration number completed 
+  // @param[in, out] channel flag
+  // @param[in, out] robust image statistics 
   // @param[in] alg autoboxing alogrithm name (currently recongnized names are 'one-box', 'thresh','thresh2', and 'multithresh')
   // @param[in] threshold threshold with a unit
   // @param[in] fracpeak Fraction of the peak
@@ -125,12 +129,14 @@ public:
   // @param[in] minpercentchange Mininum percentage change in mask to stop updating mask 
   // @param[in] verbose Controls automask related logging messages                                
   // @param[in] isthresholdreached Check if cyclethreshold reached threshold
+  // @param[in] fastnoise Toggle to turn on and off fast (but less robust) noise calculation
   // @param[in] pblimit Primary beam cut off level
   //
   void autoMask(std::shared_ptr<SIImageStore> imstore, 
                 casacore::TempImage<casacore::Float>& posmask,
                 const casacore::Int iterdone,
                 casacore::Vector<casacore::Bool>& chanflag,
+                casacore::Record& robuststatsrec,
                 const casacore::String& alg="",
                 const casacore::String& threshold="",
                 const casacore::Float& fracpeak=0.0,
@@ -149,6 +155,7 @@ public:
                 const casacore::Bool dogrowprune=true,
                 const casacore::Float& minpercentchange=0.0,
                 const casacore::Bool verbose=false,
+                const casacore::Bool fastnoise=false,
                 const casacore::Bool isthresholdreached=false,
                 casacore::Float pblimit=0.0);
 
@@ -198,7 +205,7 @@ public:
                                           const casacore::Int growIterations=100,
                                           const casacore::Bool dogrowprune=true,
                                           const casacore::Bool verbose=false,
-                                          const casacore::Bool isthresholdreached=false); 
+                                          const casacore::Bool isthresholdreached=false);
                            
 
   std::shared_ptr<casacore::ImageInterface<float> > makeMaskFromBinnedImage (
@@ -273,6 +280,7 @@ public:
                         casacore::TempImage<casacore::Float>& posmask,
                         const casacore::Int iterdone,
                         casacore::Vector<casacore::Bool>& chanflag,
+                        casacore::Record& robuststatsrec,
                         const casacore::String& alg="",
                         const casacore::String& threshold="",
                         const casacore::Float& fracpeak=0.0,
@@ -291,6 +299,7 @@ public:
                         const casacore::Bool dogrowprune=true,
                         const casacore::Float& minpercentchange=0.0,
                         const casacore::Bool verbose=false,
+                        const casacore::Bool fastnoise=false,
                         const casacore::Bool isthresholdreached=false,
                         casacore::Float pblimit=0.1);
 
@@ -377,12 +386,21 @@ public:
   // a. If there is no existing clean mask, calculate statistics using the chauvenet algorithm with maxiter=5 and zscore=-1.
   // b. If there is an existing clean mask, calculate the classic statistics with robust=True in the region outside the clean mask 
   //    and inside the primary beam mask. 
+  static casacore::Record calcRobustImageStatisticsOld(casacore::ImageInterface<casacore::Float>& res, 
+                                       casacore::ImageInterface<casacore::Float>& prevmask, 
+                                       casacore::LatticeExpr<casacore::Bool>& pbmask,
+                                       casacore::String& lelmask,
+                                       casacore::Record* regionPtr,
+                                       const casacore::Bool robust,
+                                       casacore::Vector<casacore::Bool>& chanflag);
+
   static casacore::Record calcRobustImageStatistics(casacore::ImageInterface<casacore::Float>& res, 
                                        casacore::ImageInterface<casacore::Float>& prevmask, 
                                        casacore::LatticeExpr<casacore::Bool>& pbmask,
                                        casacore::String& lelmask,
                                        casacore::Record* regionPtr,
-                                       const casacore::Bool robust);
+                                       const casacore::Bool robust,
+                                       casacore::Vector<casacore::Bool>& chanflag);
 
   // Store pbmask level (a.k.a pblimit for mask)
   void setPBMaskLevel(const casacore::Float pbmasklevel);

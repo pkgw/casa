@@ -195,7 +195,7 @@ public:
     // given data and contour levels and optional title and format.
     // DEFAULT IMPLEMENTATION.
     virtual RasterPlotPtr contourPlot(PlotRasterDataPtr data,
-            const vector<double>& contours,
+            const std::vector<double>& contours,
             const casacore::String& title = "Contour Plot",
             PlotRasterData::Format format = PlotRasterData::RGB32,
             bool smartDelete = true) const;
@@ -211,7 +211,7 @@ public:
     // optional title.
     // DEFAULT IMPLEMENTATION.
     virtual RasterPlotPtr contouredSpectrogramPlot(PlotRasterDataPtr data,
-            const vector<double>& cont,
+            const std::vector<double>& cont,
             const casacore::String& title = "Spectrogram Contours",
             bool smartDelete = true) const;
     
@@ -250,14 +250,14 @@ public:
     // Return a new instance of a PlotShapePolygon for this implementation
     // with the given coordinates.
     virtual PlotShapePolygonPtr shapePolygon(
-            const vector<PlotCoordinate>& coords,
+            const std::vector<PlotCoordinate>& coords,
             bool smartDelete = true) const = 0;
     
     // Convenience method for returning a polygon with the given world
     // coordinates.
     // DEFAULT IMPLEMENTATION.
-    virtual PlotShapePolygonPtr shapePolygon(const vector<double>& x,
-            const vector<double>& y, bool smartDelete = true) const;
+    virtual PlotShapePolygonPtr shapePolygon(const std::vector<double>& x,
+            const std::vector<double>& y, bool smartDelete = true) const;
     
     // Returns a new instance of a PlotShapeLine for this implementation
     // at the given location.
@@ -288,14 +288,14 @@ public:
     // Returns a new instance of a PlotShapePath for this implementation
     // with the given coordinates.
     virtual PlotShapePathPtr shapePath(
-            const vector<PlotCoordinate>& coords,
+            const std::vector<PlotCoordinate>& coords,
             bool smartDelete = true) const = 0;
     
     // Convenience method for returning a path with the given world
     // coordinates.
     // DEFAULT IMPLEMENTATION.
-    virtual PlotShapePathPtr shapePath(const vector<double>& x,
-            const vector<double>& y, bool smartDelete = true) const;
+    virtual PlotShapePathPtr shapePath(const std::vector<double>& x,
+            const std::vector<double>& y, bool smartDelete = true) const;
     
     // Returns a new instance of a PlotShapeArc for this implementation
     // with the given start position, width and height, start angle, and span
@@ -337,7 +337,7 @@ public:
             bool smartDelete = true) const;
     
     // Returns a list of all the named colors that the implementation supports.
-    virtual vector<casacore::String> allNamedColors() const = 0;
+    virtual std::vector<casacore::String> allNamedColors() const = 0;
     
     // Return a new font with the given characteristics.  Color can either be
     // in hexadecimal form or name form.
@@ -432,12 +432,15 @@ public:
     virtual PlotSelectToolPtr selectTool(bool smartDelete = true) const;
     virtual PlotZoomToolPtr zoomTool(bool smartDelete = true) const;
     virtual PlotPanToolPtr panTool(bool smartDelete = true) const;
+    virtual PlotFlagAllToolPtr flagAllTool(bool smartDelete = true) const;
     virtual PlotTrackerToolPtr trackerTool(bool smartDelete = true) const;
     virtual PlotSelectToolPtr selectTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
     virtual PlotZoomToolPtr zoomTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
     virtual PlotPanToolPtr panTool(PlotAxis xAxis, PlotAxis yAxis,
+            PlotCoordinate::System system, bool smartDelete = true) const;
+    virtual PlotFlagAllToolPtr flagAllTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
     virtual PlotTrackerToolPtr trackerTool(PlotAxis xAxis, PlotAxis yAxis,
             PlotCoordinate::System system, bool smartDelete = true) const;
@@ -459,23 +462,23 @@ public:
             bool shouldDelete = true) const;                                  \
     virtual PlotPointDataPtr data(casacore::Vector< TYPE >& y,                          \
             bool shouldDelete = false) const;                                 \
-    virtual PlotPointDataPtr data(vector< TYPE >& y,                          \
+    virtual PlotPointDataPtr data(std::vector< TYPE >& y,                          \
             bool shouldDelete = false) const;                                 \
     virtual PlotPointDataPtr data(TYPE *& x, TYPE *& y, unsigned int n,       \
             bool shouldDelete = true) const;                                  \
     virtual PlotPointDataPtr data(casacore::Vector< TYPE >& x, casacore::Vector< TYPE >& y,       \
             bool shouldDelete = false) const;                                 \
-    virtual PlotPointDataPtr data(vector< TYPE >& x, vector< TYPE >& y,       \
+    virtual PlotPointDataPtr data(std::vector< TYPE >& x, std::vector< TYPE >& y,       \
             bool shouldDelete = false) const;                                 \
     virtual PlotSingleDataPtr singleData(TYPE *& data, unsigned int n,        \
             bool shouldDelete = true) const;                                  \
     virtual PlotSingleDataPtr singleData(casacore::Vector< TYPE >& data,                \
             bool shouldDelete = false) const;                                 \
-    virtual PlotSingleDataPtr singleData(vector< TYPE >& data,                \
+    virtual PlotSingleDataPtr singleData(std::vector< TYPE >& data,                \
             bool shouldDelete = false) const;                                 \
     virtual PlotPointDataPtr histogramData(TYPE *& data, unsigned int n,      \
             unsigned int numBins, bool shouldDel = true) const;               \
-    virtual PlotPointDataPtr histogramData(vector< TYPE >& data,              \
+    virtual PlotPointDataPtr histogramData(std::vector< TYPE >& data,              \
             unsigned int numBins, bool shouldDel = false) const;              \
     virtual PlotPointDataPtr histogramData(casacore::Vector< TYPE >& data,              \
             unsigned int numBins, bool shouldDel = false) const;              \
@@ -483,15 +486,15 @@ public:
             unsigned int n, bool shouldDelete = true) const;                  \
     virtual PlotMaskedPointDataPtr data(casacore::Vector< TYPE >& x, casacore::Vector< TYPE >& y, \
             casacore::Vector<bool>& mask, bool shouldDelete = true) const;              \
-    virtual PlotMaskedPointDataPtr data(vector< TYPE >& x, vector< TYPE >& y, \
-            vector<bool>& mask, bool shouldDelete = true) const;              \
+    virtual PlotMaskedPointDataPtr data(std::vector< TYPE >& x, std::vector< TYPE >& y, \
+            std::vector<bool>& mask, bool shouldDelete = true) const;              \
     virtual PlotErrorDataPtr data(TYPE *& x, TYPE *& y, unsigned int n,       \
             TYPE xLeftError, TYPE xRightError, TYPE yBottomError,             \
             TYPE yTopError, bool shouldDelete = true) const;                  \
     virtual PlotErrorDataPtr data(casacore::Vector< TYPE >& x, casacore::Vector< TYPE >& y,       \
             TYPE xLeftError, TYPE xRightError, TYPE yBottomError,             \
             TYPE yTopError, bool shouldDelete = true) const;                  \
-    virtual PlotErrorDataPtr data(vector< TYPE >& x, vector< TYPE >& y,       \
+    virtual PlotErrorDataPtr data(std::vector< TYPE >& x, std::vector< TYPE >& y,       \
             TYPE xLeftError, TYPE xRightError, TYPE yBottomError,             \
             TYPE yTopError, bool shouldDelete = true) const;                  \
     virtual PlotErrorDataPtr data(TYPE *& x, TYPE *& y, TYPE *& xLeftError,   \
@@ -501,9 +504,9 @@ public:
             casacore::Vector< TYPE >& xLeftError, casacore::Vector< TYPE >& xRightError,          \
             casacore::Vector< TYPE >& yBottomError, casacore::Vector< TYPE >& yTopError,          \
             bool shouldDelete = false) const;                                 \
-    virtual PlotErrorDataPtr data(vector< TYPE >& x, vector< TYPE >& y,       \
-            vector< TYPE >& xLeftError, vector< TYPE >& xRightError,          \
-            vector< TYPE >& yBottomError, vector< TYPE >& yTopError,          \
+    virtual PlotErrorDataPtr data(std::vector< TYPE >& x, std::vector< TYPE >& y,       \
+            std::vector< TYPE >& xLeftError, std::vector< TYPE >& xRightError,          \
+            std::vector< TYPE >& yBottomError, std::vector< TYPE >& yTopError,          \
             bool shouldDelete = false) const;                                 \
     virtual PlotRasterDataPtr data(casacore::Matrix< TYPE >& data,                      \
             bool shouldDelete = false) const;                                 \

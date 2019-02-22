@@ -3542,6 +3542,12 @@ in spectral window 1.
      <example>"0:5~30"</example>
      </param>
 
+     <param type="bool" name="excludechans">
+     <description>If True: invert the channel selection in fitspw and exclude the fitspw selection from the computation of the weights.</description>
+     <value>false</value>
+     <example>True</example>
+     </param>
+
      <param type="doubleArray" name="wtrange">
      <description>Range of acceptable weights. Data with weights outside this range will be flagged. Empty array (default) means all weights are good.</description>
      <value/>

@@ -1,4 +1,5 @@
 from taskinit import *
+from ialib import write_image_history
 
 def specsmooth(
     imagename, outfile, box, chans, stokes, region,  mask,
@@ -6,6 +7,7 @@ def specsmooth(
 ):
     casalog.origin('specsmooth')
     myia = iatool()
+    myia.dohistory(False)
     outia = None
     try:
         if (not myia.open(imagename)):
@@ -26,6 +28,15 @@ def specsmooth(
             )
         else:
             raise Exception("Unsupported convolution function " + function)
+        try:
+            param_names = specsmooth.func_code.co_varnames[:specsmooth.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]   
+            write_image_history(
+                outia, sys._getframe().f_code.co_name,
+                param_names, param_vals, casalog
+            )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
     except Exception, instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')

@@ -26,12 +26,10 @@
 # ifndef StringTokenizer_CLASS
 # define StringTokenizer_CLASS
 
-#include <InvalidArgumentException.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 
@@ -44,15 +42,15 @@ class StringTokenizer {
 
 public:
 
-    StringTokenizer(const string &s, 
-    	const string &delim = " \t\n\r\f", 
+    StringTokenizer(const std::string &s, 
+    	const std::string &delim = " \t\n\r\f", 
     	bool returnDelims = false)
     	throw (InvalidArgumentException);
 	virtual ~StringTokenizer();
 
     bool hasMoreTokens(); 
-    string nextToken() throw (OutOfBoundsException);
-    string nextToken(const string delim) throw (OutOfBoundsException);
+    std::string nextToken() throw (OutOfBoundsException);
+    std::string nextToken(const std::string delim) throw (OutOfBoundsException);
     int countTokens();
 
 private:
@@ -61,8 +59,8 @@ private:
     int newPosition;
     int maxPosition;
     char *str;
-	string *ostr;
-	string strDelimiter;
+	std::string *ostr;
+	std::string strDelimiter;
     const char *delimiter;
 	int numDelimiters;
     bool retDelims;

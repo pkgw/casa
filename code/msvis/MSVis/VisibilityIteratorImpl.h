@@ -702,7 +702,7 @@ protected:
                              casacore::MDirection & phaseCenter,
                              casacore::Bool & velocitySelection) const;
 
-    vector<casacore::MeasurementSet> getMeasurementSets () const;
+    std::vector<casacore::MeasurementSet> getMeasurementSets () const;
 
     const casacore::MSDerivedValues & getMSD () const; // for use by Async I/O *ONLY*
 

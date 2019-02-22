@@ -250,7 +250,7 @@ protected:
 	std::vector<casacore::uInt> * generateAntennaPairRowsIndex(casacore::Int antenna1, casacore::Int antenna2);
 
 	// Generate index for all rows
-	void indigen(vector<casacore::uInt> &index, casacore::uInt size);
+	void indigen(std::vector<casacore::uInt> &index, casacore::uInt size);
 
 	// For checking ids
 	bool find(casacore::Vector<casacore::Int> &validRange, casacore::Int element);
@@ -310,10 +310,10 @@ protected:
 	virtual bool computeInRowFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags, casacore::uInt row);
 
 	// Compute flags for a given (time,freq) antenna pair map
-	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
 	// Compute flags for a given (time,freq) antenna pair map w/o using visibilities
-	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+	virtual bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer,FlagMapper &flags,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
 	// Common used members that must be accessible to derived classes
 	FlagDataHandler *flagDataHandler_p;
@@ -409,9 +409,9 @@ protected:
 	// Lists of elements to process
 	// jagonzal (CAS-4312): We need channelIndex_p available for the Rflag agent,
 	// in order to take into account channel selection for the frequency mapping
-	vector<casacore::uInt> rowsIndex_p;
-	vector<casacore::uInt> channelIndex_p;
-	vector<casacore::uInt> polarizationIndex_p;
+    std::vector<casacore::uInt> rowsIndex_p;
+    std::vector<casacore::uInt> channelIndex_p;
+    std::vector<casacore::uInt> polarizationIndex_p;
 
 	// Needed to be protected for timeavg in clip
     casacore::String dataColumn_p;
@@ -454,8 +454,8 @@ class FlagAgentList
 	protected:
 
 	private:
-		vector<FlagAgentBase *> container_p;
-		vector<FlagAgentBase *>::iterator iterator_p;
+                std::vector<FlagAgentBase *> container_p;
+                std::vector<FlagAgentBase *>::iterator iterator_p;
 };
 
 } //# NAMESPACE CASA - END

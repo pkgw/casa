@@ -33,7 +33,7 @@
  * File CAntennaMotionPattern.cpp
  */
 #include <sstream>
-#include <CAntennaMotionPattern.h>
+#include <alma/Enumerations/CAntennaMotionPattern.h>
 #include <string>
 using namespace std;
 

@@ -33,7 +33,7 @@
  * File CFilterMode.cpp
  */
 #include <sstream>
-#include <CFilterMode.h>
+#include <alma/Enumerations/CFilterMode.h>
 #include <string>
 using namespace std;
 

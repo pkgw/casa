@@ -33,7 +33,7 @@
  * File CCorrelationBit.cpp
  */
 #include <sstream>
-#include <CCorrelationBit.h>
+#include <alma/Enumerations/CCorrelationBit.h>
 #include <string>
 using namespace std;
 

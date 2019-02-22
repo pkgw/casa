@@ -33,7 +33,7 @@
  * File CCorrelationMode.cpp
  */
 #include <sstream>
-#include <CCorrelationMode.h>
+#include <alma/Enumerations/CCorrelationMode.h>
 #include <string>
 using namespace std;
 

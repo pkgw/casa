@@ -30,18 +30,18 @@
  *
  * File SeeingTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <SeeingTable.h>
-#include <SeeingRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SeeingTable.h>
+#include <alma/ASDM/SeeingRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::SeeingTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -250,7 +250,7 @@ namespace asdm {
  	 * @param exponent 
 	
      */
-	SeeingRow* SeeingTable::newRow(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent){
+	SeeingRow* SeeingTable::newRow(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent){
 		SeeingRow *row = new SeeingRow(*this);
 			
 		row->setTimeInterval(timeInterval);
@@ -442,7 +442,7 @@ SeeingRow* SeeingTable::newRow(SeeingRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<SeeingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sng=\"http://Alma/XASDM/SeeingTable\" xsi:schemaLocation=\"http://Alma/XASDM/SeeingTable http://almaobservatory.org/XML/XASDM/3/SeeingTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<SeeingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sng=\"http://Alma/XASDM/SeeingTable\" xsi:schemaLocation=\"http://Alma/XASDM/SeeingTable http://almaobservatory.org/XML/XASDM/4/SeeingTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -572,7 +572,7 @@ SeeingRow* SeeingTable::newRow(SeeingRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<SeeingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sng=\"http://Alma/XASDM/SeeingTable\" xsi:schemaLocation=\"http://Alma/XASDM/SeeingTable http://almaobservatory.org/XML/XASDM/3/SeeingTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<SeeingTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:sng=\"http://Alma/XASDM/SeeingTable\" xsi:schemaLocation=\"http://Alma/XASDM/SeeingTable http://almaobservatory.org/XML/XASDM/4/SeeingTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='SeeingTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

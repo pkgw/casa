@@ -137,7 +137,7 @@ public:
 	using HeaderItem = PageHeaderItemsDef::Item;
 
 	PageHeaderItems(const String& items=String(),const char sep=',');
-	const vector<HeaderItem>& items() const;
+	const std::vector<HeaderItem>& items() const;
 	void setItems(const String& items=String(),const char sep=',');
 	void clear();
 	bool append(const String& item);
@@ -153,7 +153,7 @@ public:
         return !(operator==(other)); }
 
 private:
-	vector<HeaderItem> items_;
+	std::vector<HeaderItem> items_;
 	map<HeaderItem,size_t> item2index_;
 };
 

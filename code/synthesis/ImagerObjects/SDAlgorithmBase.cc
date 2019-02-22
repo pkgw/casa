@@ -74,7 +74,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SDAlgorithmBase::deconvolve( SIMinorCycleController &loopcontrols, 
 				    std::shared_ptr<SIImageStore> &imagestore,
-				    Int deconvolverid)
+				    Int deconvolverid,
+                                    Bool isautomasking, Bool fastnoise, Record robuststats)
   {
     LogIO os( LogOrigin("SDAlgorithmBase","deconvolve",WHERE) );
 
@@ -137,33 +138,66 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    startpeakresidual = peakresidual;
 	    startmodelflux = modelflux;
 
-            // returns as an Array but itsImages is already single plane so 
-            // the return rms contains only a single element
-            robustrms = itsImages->calcRobustRMS(itsPBMask);
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
+            os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
             Float nsigmathresh; 
-            if ( robustrms.nelements() == 0 ) {
-              // no statistics returned, perhaps the channel is flagged...
+            if (robustrms.nelements()==0) {
               nsigmathresh = 0.0; 
-            }
-            else {
+            } else{
               nsigmathresh = nsigma * (Float)robustrms(IPosition(1,0)); 
             }
- 
+              
             Float thresholdtouse;
             if (nsigma>0.0) {
+              // returns as an Array but itsImages is already single plane so 
+              // the return rms contains only a single element
+              Array<Double> medians;
+              //os<<"robuststats rec size="<<robuststats.nfields()<<LogIO::POST;
+              Bool statsexists = false;
+              IPosition statsindex;
+              if (robuststats.nfields()) {
+                // use existing stats
+                if (robuststats.isDefined("robustrms")) {
+                  robuststats.get(RecordFieldId("robustrms"), robustrms);
+                  robuststats.get(RecordFieldId("median"), medians);
+                  statsexists=True;
+                }
+                else if(robuststats.isDefined("medabsdevmed")) {
+                  Array<Double> mads;
+                  robuststats.get(RecordFieldId("medabsdevmed"), mads);
+                  robuststats.get(RecordFieldId("median"), medians);
+                  robustrms = mads * 1.4826; // convert to rms
+                  statsexists=True;
+                }
+                statsindex=IPosition(1,chanid); // this only support for npol =1, need to fix this
+              }
+              if (statsexists) {
+                os<<LogIO::DEBUG1<<"Using the existing robust image statatistics!"<<LogIO::POST;
+              } 
+              else {
+                robustrms = itsImages->calcRobustRMS(medians, itsPBMask, fastnoise);
+                statsindex=IPosition(1,0);
+              }
+              if (isautomasking) { // new threshold defination 
+                //nsigmathresh = (Float)medians(IPosition(1,0)) + nsigma * (Float)robustrms(IPosition(1,0));
+                nsigmathresh = (Float)medians(statsindex) + nsigma * (Float)robustrms(statsindex);
+              }
+              else {
+                nsigmathresh = nsigma * (Float)robustrms(statsindex);
+              }
               thresholdtouse = max( nsigmathresh, loopcontrols.getCycleThreshold());
             }
             else {
               thresholdtouse = loopcontrols.getCycleThreshold();
             }
-            os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
-            os << LogIO::DEBUG1<< "thresholdtouse="<<thresholdtouse<<LogIO::POST;
+            //os << LogIO::DEBUG1<<"loopcontrols.getCycleThreshold()="<<loopcontrols.getCycleThreshold()<<LogIO::POST;
+            os << LogIO::NORMAL3<<"current CycleThreshold="<<loopcontrols.getCycleThreshold()<<" nsigma threshold="<<nsigmathresh<<LogIO::POST;
             String thresholddesc = (thresholdtouse == loopcontrols.getCycleThreshold() ? "cyclethreshold" : "n-sigma");
+            os << LogIO::NORMAL3<< "thresholdtouse="<< thresholdtouse << "("<<thresholddesc<<")"<< LogIO::POST;
 
             if (thresholddesc=="n-sigma") {
-              os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
+              //os << LogIO::DEBUG1<< "Set nsigma thresh="<<nsigmathresh<<LogIO::POST;
               loopcontrols.setNsigmaThreshold(nsigmathresh);
             }
 	    loopcontrols.setPeakResidual( peakresidual );

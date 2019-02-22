@@ -250,14 +250,14 @@ class FlagIDS {
    static int compareID (const void* val1, const void* val2);
 
    void show() {
-       cout 
+       std::cout 
             << " time=" << time
             << " bl=" << bl 
             << " field=" << field
             << " spw=" << spw
             << " corr=" << corr
             << " chan=" << chan
-            << endl;
+            << std::endl;
     }
 };
 
@@ -304,7 +304,7 @@ class FlagID {
    static int compare (const void* val1, const void* val2);
 
    void show() {
-       cout << "rowNum=" << rowNum
+       std::cout << "rowNum=" << rowNum
             //casacore::uInt npts;
             << " ant1=" << ant1
             << " ant2=" << ant2
@@ -314,7 +314,7 @@ class FlagID {
             << " corr=" << corr
             << " chan=" << chan
             << " polid=" << polid
-            << endl;
+            << std::endl;
     }
 };
 
@@ -385,7 +385,7 @@ class ExtendFlagger
    private:
       
       Flagger flagger;
-      casacore::Bool useoriginalms;
+      // casacore::Bool useoriginalms;
 
       casacore::String field;
       casacore::String spw;

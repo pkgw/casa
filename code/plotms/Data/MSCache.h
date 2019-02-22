@@ -46,6 +46,7 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisBufferUtil.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
 namespace casa {
 
@@ -81,8 +82,8 @@ public:
 protected:
 
   // casacore::MS-specific loadIt method
-  virtual void loadIt(vector<PMS::Axis>& loadAxes,
-		      vector<PMS::DataColumn>& loadData,
+  virtual void loadIt(std::vector<PMS::Axis>& loadAxes,
+		      std::vector<PMS::DataColumn>& loadData,
 		      /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
 
   //Returns whether or not the ephemeris data has been
@@ -95,8 +96,8 @@ private:
 
   // Set up:
   // DataColumn
-  casacore::String getDataColumn(vector<PMS::Axis>& loadAxes, 
-                       vector<PMS::DataColumn>& loadData);
+  casacore::String getDataColumn(std::vector<PMS::Axis>& loadAxes, 
+                       std::vector<PMS::DataColumn>& loadData);
   PMS::DataColumn checkReqDataColumn(PMS::DataColumn reqDataCol);
   void adjustCurrentAxes(PMS::Axis axis, PMS::DataColumn olddata, 
     PMS::DataColumn newdata);
@@ -108,8 +109,8 @@ private:
   void setUpVisIter(PlotMSSelection& selection,
 		    PlotMSCalibration& calibration,
 		    casacore::String dataColumn,
-            vector<PMS::Axis>& loadAxes,
-		    vector<PMS::DataColumn>& loadData, 
+            std::vector<PMS::Axis>& loadAxes,
+		    std::vector<PMS::DataColumn>& loadData, 
             casacore::Bool interactive=false,
 		    casacore::Bool estimateMemory=false,
             ThreadCommunication* thread=NULL);
@@ -127,8 +128,8 @@ private:
   // Estimate cache size for averaging
   bool countChunks(vi::VisibilityIterator2& vi, 
     casacore::Vector<casacore::Int>& nIterPerAve, 
-    vector<PMS::Axis>& loadAxes,
-	vector<PMS::DataColumn>& loadData, 
+    std::vector<PMS::Axis>& loadAxes,
+	std::vector<PMS::DataColumn>& loadData, 
     /*PlotMSCacheThread**/ThreadCommunication* thread);
   void updateEstimateProgress(ThreadCommunication* thread);
 
@@ -138,26 +139,26 @@ private:
 
   // Loop over VisIter, filling the cache
   void loadChunks(vi::VisibilityIterator2& vi,
-		  const vector<PMS::Axis> loadAxes,
-		  const vector<PMS::DataColumn> loadData,
+		  const std::vector<PMS::Axis> loadAxes,
+		  const std::vector<PMS::DataColumn> loadData,
 		  /*PlotMSCacheThread**/ThreadCommunication* thread);
   void loadChunks(vi::VisibilityIterator2& vi,
 		  const PlotMSAveraging& averaging,
 		  const casacore::Vector<casacore::Int>& nIterPerAve,
-		  const vector<PMS::Axis> loadAxes,
-		  const vector<PMS::DataColumn> loadData,
+		  const std::vector<PMS::Axis> loadAxes,
+		  const std::vector<PMS::DataColumn> loadData,
 		  /*PlotMSCacheThread**/ThreadCommunication* thread);
   void updateProgress(ThreadCommunication* thread, casacore::Int chunk);
 
   // Force read on vb for requested axes 
   //   (so pre-cache averaging treats all data it should)
   void forceVBread(vi::VisBuffer2* vb,
-		   vector<PMS::Axis> loadAxes,
-		   vector<PMS::DataColumn> loadData);
+		   std::vector<PMS::Axis> loadAxes,
+		   std::vector<PMS::DataColumn> loadData);
 
   // Tell time averager which data column to read
-  void discernData(vector<PMS::Axis> loadAxes,
-		   vector<PMS::DataColumn> loadData,
+  void discernData(std::vector<PMS::Axis> loadAxes,
+		   std::vector<PMS::DataColumn> loadData,
 		   PlotMSVBAverager& vba);
 
   // Loads the specific axis/metadata into the cache using the given VisBuffer.
@@ -198,6 +199,8 @@ private:
 
   // VisIterator pointer
   vi::VisibilityIterator2* vi_p;
+
+  vi::PointingInterpolationTVI* piTvi_;
 
   // Volume meter for volume calculation
   MSCacheVolMeter* vm_;

@@ -30,18 +30,18 @@
  *
  * File SourceTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <SourceTable.h>
-#include <SourceRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SourceTable.h>
+#include <alma/ASDM/SourceRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::SourceTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -143,6 +143,14 @@ namespace asdm {
 			, "sizeErr"
 		
 			, "velRefCode"
+		
+			, "dopplerVelocity"
+		
+			, "dopplerReferenceSystem"
+		
+			, "dopplerCalcType"
+		
+			, "parallax"
 				
 	};
 	
@@ -158,7 +166,7 @@ namespace asdm {
     
     	 "sourceId" , "timeInterval" , "spectralWindowId" , "code" , "direction" , "properMotion" , "sourceName" 
     	,
-    	 "directionCode" , "directionEquinox" , "calibrationGroup" , "catalog" , "deltaVel" , "position" , "numLines" , "transition" , "restFrequency" , "sysVel" , "rangeVel" , "sourceModel" , "frequencyRefCode" , "numFreq" , "numStokes" , "frequency" , "frequencyInterval" , "stokesParameter" , "flux" , "fluxErr" , "positionAngle" , "positionAngleErr" , "size" , "sizeErr" , "velRefCode" 
+    	 "directionCode" , "directionEquinox" , "calibrationGroup" , "catalog" , "deltaVel" , "position" , "numLines" , "transition" , "restFrequency" , "sysVel" , "rangeVel" , "sourceModel" , "frequencyRefCode" , "numFreq" , "numStokes" , "frequency" , "frequencyInterval" , "stokesParameter" , "flux" , "fluxErr" , "positionAngle" , "positionAngleErr" , "size" , "sizeErr" , "velRefCode" , "dopplerVelocity" , "dopplerReferenceSystem" , "dopplerCalcType" , "parallax" 
     
 	};
 	        			
@@ -306,7 +314,7 @@ namespace asdm {
  	 * @param sourceName 
 	
      */
-	SourceRow* SourceTable::newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName){
+	SourceRow* SourceTable::newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName){
 		SourceRow *row = new SourceRow(*this);
 			
 		row->setTimeInterval(timeInterval);
@@ -641,7 +649,7 @@ SourceRow* SourceTable::newRow(SourceRow* row) {
  * @param <<ASDMAttribute>> sourceName.
  	 		 
  */
-SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName) {	
+SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName) {	
 		using asdm::ArrayTimeInterval;
 		map<string, ID_TIME_ROWS >::iterator mapIter;
 		string k = Key(spectralWindowId);
@@ -710,7 +718,7 @@ SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindo
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<SourceTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:src=\"http://Alma/XASDM/SourceTable\" xsi:schemaLocation=\"http://Alma/XASDM/SourceTable http://almaobservatory.org/XML/XASDM/3/SourceTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<SourceTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:src=\"http://Alma/XASDM/SourceTable\" xsi:schemaLocation=\"http://Alma/XASDM/SourceTable http://almaobservatory.org/XML/XASDM/4/SourceTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -840,7 +848,7 @@ SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindo
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<SourceTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:src=\"http://Alma/XASDM/SourceTable\" xsi:schemaLocation=\"http://Alma/XASDM/SourceTable http://almaobservatory.org/XML/XASDM/3/SourceTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<SourceTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:src=\"http://Alma/XASDM/SourceTable\" xsi:schemaLocation=\"http://Alma/XASDM/SourceTable http://almaobservatory.org/XML/XASDM/4/SourceTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='SourceTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -879,6 +887,10 @@ SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindo
 		oss << "<size/>\n"; 
 		oss << "<sizeErr/>\n"; 
 		oss << "<velRefCode/>\n"; 
+		oss << "<dopplerVelocity/>\n"; 
+		oss << "<dopplerReferenceSystem/>\n"; 
+		oss << "<dopplerCalcType/>\n"; 
+		oss << "<parallax/>\n"; 
 		oss << "</Attributes>\n";		
 		oss << "</SourceTable>\n";
 
@@ -1058,6 +1070,14 @@ SourceRow* SourceTable::lookup(ArrayTimeInterval timeInterval, Tag spectralWindo
     attributesSeq.push_back("sizeErr") ; 
     	 
     attributesSeq.push_back("velRefCode") ; 
+    	 
+    attributesSeq.push_back("dopplerVelocity") ; 
+    	 
+    attributesSeq.push_back("dopplerReferenceSystem") ; 
+    	 
+    attributesSeq.push_back("dopplerCalcType") ; 
+    	 
+    attributesSeq.push_back("parallax") ; 
     	
      
     

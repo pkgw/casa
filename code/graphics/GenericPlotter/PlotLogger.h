@@ -504,9 +504,6 @@ public:
             int eventType = MSG_INFO, bool postLocateMessage = true);
     
 private:
-    // Plotter.
-    Plotter* m_plotter;
-    
     // Log sink.
     casacore::CountedPtr<casacore::LogSinkInterface> m_logger;
     

@@ -98,7 +98,7 @@ private:
 
     // accumulated over all chunks
     casacore::uInt64 
-      accumTotalFlags, accumTotalCount, accumRowFlags, 
+      accumTotalFlags, accumTotalCount, /* accumRowFlags, */
       accumTotalRowCount, accumTotalRowFlags;
 
     // per chunk

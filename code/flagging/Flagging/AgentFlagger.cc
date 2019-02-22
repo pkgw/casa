@@ -380,11 +380,10 @@ AgentFlagger::parseAgentParameters(Record agent_params)
 		if (agentParams_p.isDefined("datacolumn"))
 			agentParams_p.get("datacolumn", datacolumn);
 
-		os << LogIO::NORMAL << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
+		os << LogIO::NORMAL3 << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
 
 		if(!validateDataColumn(datacolumn)){
-	        os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"
-	                << LogIO::POST;
+			os << LogIO::WARN<< "Cannot parse agent parameters "<< LogIO::POST;
 			return false;
 		}
 
@@ -1110,7 +1109,7 @@ AgentFlagger::validateDataColumn(String datacol)
     Bool ret = false;
     datacol.upcase();
 
-    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__, WHERE));
+    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__));
 
     // The validation depends on the type of input
     if (isMS_p) {
@@ -1120,17 +1119,17 @@ AgentFlagger::validateDataColumn(String datacol)
             datacolumn = "CORRECTED_DATA";
         else if(datacol.compare("MODEL") == 0)
             datacolumn = "MODEL_DATA";
-        else if(datacol.compare("RESIDUAL") == 0)
-            datacolumn = "RESIDUAL";
-        else if(datacol.compare("RESIDUAL_DATA") == 0)
-            datacolumn = "RESIDUAL_DATA";
-        else if(datacol.compare("FLOAT_DATA") == 0)
+         else if(datacol.compare("FLOAT_DATA") == 0)
             datacolumn = "FLOAT_DATA";
         else if(datacol.compare("WEIGHT_SPECTRUM") == 0)
             datacolumn = "WEIGHT_SPECTRUM";
         else if(datacol.compare("WEIGHT") == 0)
             datacolumn = "WEIGHT";
-        else
+        else if(datacol.compare("RESIDUAL") == 0)
+             datacolumn = "CORRECTED_DATA";
+         else if(datacol.compare("RESIDUAL_DATA") == 0)
+             datacolumn = "DATA";
+       else
             datacolumn = "";
     }
     else {
@@ -1139,12 +1138,30 @@ AgentFlagger::validateDataColumn(String datacol)
                 (datacol.compare("SNR") == 0))
             datacolumn = datacol;
     }
-    // Check if requested column exist. Residual is calculated later from CORRECTED-MODEL
-    if (datacolumn.compare("RESIDUAL") == 0 or datacolumn.compare("RESIDUAL_DATA") == 0){
-    	ret = true;
+
+    // Check if main tables exist
+    if (fdh_p->checkIfColumnExists(datacolumn)) {
+            ret = true;
     }
-    else if (fdh_p->checkIfColumnExists(datacolumn))
-        ret = true;
+    else {
+    	os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"  << LogIO::POST;
+    }
+
+    // Check if other columns were requested also
+    // RESIDUAL is calculated later from CORRECTED-MODEL
+    // RESIDUAL_DATA is calculated later from DATA-MODEL
+
+    if (datacol.compare("RESIDUAL") == 0 or datacol.compare("RESIDUAL_DATA")==0){
+    	ret = false;
+    	// check if  MODEL _DATA or virtual MODEL_DATA exist
+    	if (fdh_p->checkIfColumnExists("MODEL_DATA") or fdh_p->checkIfSourceModelColumnExists()){
+    		ret = true;
+    	}
+    	else {
+	        os << LogIO::WARN << "Data column MODEL_DATA or virtual MODEL_DATA  does not exist in input data" << LogIO::POST;
+    	}
+
+    }
 
     return ret;
 }
@@ -1430,8 +1447,8 @@ AgentFlagger::parseTfcropParameters(String field, String spw, String array, Stri
 //
 // ---------------------------------------------------------------------
 bool
-AgentFlagger::parseAntIntParameters(String field, String spw, String array, 
-				    String feed, String scan, String antenna,
+AgentFlagger::parseAntIntParameters(String field, String spw, String /* array */, 
+				    String /* feed */, String scan, String antenna,
 				    String uvrange, String timerange, 
 				    String correlation, String intent,
 				    String observation, String antint_ref_antenna,

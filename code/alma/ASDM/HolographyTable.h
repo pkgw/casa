@@ -41,42 +41,42 @@
 
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
 	
 
 	
-#include "CHolographyChannelType.h"
+
+	
+
+	
+#include <alma/Enumerations/CHolographyChannelType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -139,7 +139,7 @@ class HolographyRow;
 	
  * <TR>
  * <TD> type </TD> 
- * <TD> vector<HolographyChannelTypeMod::HolographyChannelType > </TD>
+ * <TD> std::vector<HolographyChannelTypeMod::HolographyChannelType > </TD>
  * <TD>  numCorr </TD> 
  * <TD> &nbsp;identifies the types of the correlation signals. </TD>
  * </TR>
@@ -290,7 +290,7 @@ public:
  	 * @param type
 	
      */
-	HolographyRow *newRow(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type);
+	HolographyRow *newRow(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
 	
 
 
@@ -381,7 +381,7 @@ public:
  	 * @param type
  	 		 
  	 */
-	HolographyRow* lookup(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type); 
+	HolographyRow* lookup(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

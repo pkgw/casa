@@ -41,47 +41,43 @@
 
 
 	
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Flux.h>
+#include <alma/ASDM/Flux.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -92,11 +88,11 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -116,23 +112,15 @@
 	
 
 	
-#include "CSourceModel.h"
-	
-
-	
-#include "CFrequencyReferenceCode.h"
-	
 
 	
 
 	
-
+#include <alma/Enumerations/CSourceModel.h>
 	
 
 	
-
-	
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 	
 
 	
@@ -144,27 +132,51 @@
 	
 
 	
+#include <alma/Enumerations/CStokesParameter.h>
+	
+
+	
 
 	
 
 	
-#include "CRadialVelocityReferenceCode.h"
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CRadialVelocityReferenceCode.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CRadialVelocityReferenceCode.h>
+	
+
+	
+#include <alma/Enumerations/CDopplerReferenceCode.h>
+	
+
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -224,28 +236,28 @@ class SourceRow;
 	
  * <TR>
  * <TD> code </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;indicates the nature of the source. </TD>
  * </TR>
 	
  * <TR>
  * <TD> direction </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the direction of the source. </TD>
  * </TR>
 	
  * <TR>
  * <TD> properMotion </TD> 
- * <TD> vector<AngularRate > </TD>
+ * <TD> std::vector<AngularRate > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the proper motion of the source. </TD>
  * </TR>
 	
  * <TR>
  * <TD> sourceName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the source. </TD>
  * </TR>
@@ -277,7 +289,7 @@ class SourceRow;
 	
  * <TR>
  * <TD> catalog</TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the name of the catalog. </TD>
  * </TR>
@@ -291,7 +303,7 @@ class SourceRow;
 	
  * <TR>
  * <TD> position</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; the position of the source. </TD>
  * </TR>
@@ -305,28 +317,28 @@ class SourceRow;
 	
  * <TR>
  * <TD> transition</TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the names of the transitions. </TD>
  * </TR>
 	
  * <TR>
  * <TD> restFrequency</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the rest frequencies (one value per transition line). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sysVel</TD> 
- * <TD> vector<Speed > </TD>
+ * <TD> std::vector<Speed > </TD>
  * <TD>  numLines  </TD>
  * <TD>&nbsp; the systemic velocity. </TD>
  * </TR>
 	
  * <TR>
  * <TD> rangeVel</TD> 
- * <TD> vector<Speed > </TD>
+ * <TD> std::vector<Speed > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the velocity range. </TD>
  * </TR>
@@ -361,63 +373,63 @@ class SourceRow;
 	
  * <TR>
  * <TD> frequency</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the array of frequencies (one value per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyInterval</TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; an array of frequency intervals (one value per interval). </TD>
  * </TR>
 	
  * <TR>
  * <TD> stokesParameter</TD> 
- * <TD> vector<StokesParameterMod::StokesParameter > </TD>
+ * <TD> std::vector<StokesParameterMod::StokesParameter > </TD>
  * <TD>  numStokes  </TD>
  * <TD>&nbsp; the array of Stokes parameters (one value per parameter). </TD>
  * </TR>
 	
  * <TR>
  * <TD> flux</TD> 
- * <TD> vector<vector<Flux > > </TD>
+ * <TD> std::vector<std::vector<Flux > > </TD>
  * <TD>  numFreq, numStokes  </TD>
  * <TD>&nbsp; the array of flux densities expressed in Jansky (Jy). </TD>
  * </TR>
 	
  * <TR>
  * <TD> fluxErr</TD> 
- * <TD> vector<vector<Flux > > </TD>
+ * <TD> std::vector<std::vector<Flux > > </TD>
  * <TD>  numFreq, numStokes  </TD>
  * <TD>&nbsp; the array of uncertainties on flux densities. </TD>
  * </TR>
 	
  * <TR>
  * <TD> positionAngle</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the major axis position angles (one value per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> positionAngleErr</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numFreq  </TD>
  * <TD>&nbsp; the uncertainties on major axis position angles. </TD>
  * </TR>
 	
  * <TR>
  * <TD> size</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numFreq, 2  </TD>
  * <TD>&nbsp; the sizes of source (one pair of values per frequency). </TD>
  * </TR>
 	
  * <TR>
  * <TD> sizeErr</TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numFreq, 2  </TD>
  * <TD>&nbsp; the uncertainties on the source sizes (one pair of value per frequency). </TD>
  * </TR>
@@ -427,6 +439,34 @@ class SourceRow;
  * <TD> RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the velocity reference code for velocities: sysVel, rangeVel, deltaVel. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> dopplerVelocity</TD> 
+ * <TD> std::vector<Speed > </TD>
+ * <TD>  numLines  </TD>
+ * <TD>&nbsp; the systemic velocity. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> dopplerReferenceSystem</TD> 
+ * <TD> RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the velocity reference code for velocities: sysVel, rangeVel, deltaVel. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> dopplerCalcType</TD> 
+ * <TD> DopplerReferenceCodeMod::DopplerReferenceCode </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the velocity reference code for velocities: sysVel, rangeVel, deltaVel. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> parallax</TD> 
+ * <TD> std::vector<Angle > </TD>
+ * <TD>  numFreq  </TD>
+ * <TD>&nbsp; the sizes of source (one pair of values per frequency). </TD>
  * </TR>
 	
 
@@ -578,7 +618,7 @@ public:
  	 * @param sourceName
 	
      */
-	SourceRow *newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName);
+	SourceRow *newRow(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName);
 	
 
 
@@ -687,7 +727,7 @@ public:
  	 * @param sourceName
  	 		 
  	 */
-	SourceRow* lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName); 
+	SourceRow* lookup(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

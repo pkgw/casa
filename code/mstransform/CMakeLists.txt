@@ -39,6 +39,7 @@ casa_add_library( mstransform
  TVI/RegriddingTVI.cc  
  TVI/UVContSubTVI.cc
  TVI/PolAverageTVI.cc
+ TVI/PointingInterpolationTVI.cc
  TVI/StatWtTVI.cc
  TVI/StatWtTVIFactory.cc
  TVI/StatWtTVILayerFactory.cc
@@ -74,6 +75,7 @@ install (FILES
  	TVI/RegriddingTVI.h
  	TVI/UVContSubTVI.h 	
  	TVI/PolAverageTVI.h
+ 	TVI/PointingInterpolationTVI.h
     TVI/StatWtTVI.h
     TVI/StatWtTVIFactory.h
     TVI/StatWtTVILayerFactory.h
@@ -88,4 +90,4 @@ casa_add_executable( mstransform fixspwbackport apps/fixspwbackport/fixspwbackpo
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/tRecursiveVi2Layers_GT.cc )
 casa_add_google_test( MODULES mstransform SOURCES TVI/test/PolAverageTVI_GTest.cc )
 #casa_add_google_test( MODULES mstransform SOURCES TVI/test/tChannelAverageTransformEngine_GT.cc )
-casa_add_google_test( MODULES mstransform SOURCES TVI/test/tStatWtTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
+casa_add_google_test( MODULES mstransform SOURCES TVI/test/tStatWtTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)

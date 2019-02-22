@@ -54,22 +54,22 @@ std::string displaySet(const std::set<T> &aSet) {
  * @return a set equal to the intersection of s1 and s2.
  */
 template<typename T> 
-set<T> SetAndSet(const set<T>& s1, const set<T>& s2) {
-  set<T> result;
-  typename set<T>::iterator iter1_s, iter2_s;
-  for (iter1_s = s1.begin(); iter1_s != s1.end(); iter1_s++) {
-    if ((iter2_s = s2.find(*iter1_s)) != s2.end())
-      result.insert(*iter1_s);
-  }
-  return result;
+std::set<T> SetAndSet(const std::set<T>& s1, const std::set<T>& s2) {
+    std::set<T> result;
+    typename std::set<T>::iterator iter1_s, iter2_s;
+    for (iter1_s = s1.begin(); iter1_s != s1.end(); iter1_s++) {
+        if ((iter2_s = s2.find(*iter1_s)) != s2.end())
+            result.insert(*iter1_s);
+    }
+    return result;
 }
 
 
 template<typename T>
 struct rowsInAScanbyTimeIntervalFunctor {
 private:
-  const vector<ScanRow *>&	scans;
-  vector<T *>			result;
+  const std::vector<asdm::ScanRow *>&	scans;
+  std::vector<T *>			result;
   
   /**
    * A function which returns true if and only there is at least
@@ -94,7 +94,7 @@ private:
       
       rowStartTime = row->getTimeInterval().getStart().get();
       rowEndTime = rowStartTime + row->getTimeInterval().getDuration().get();
-      if (max(currentScanStartTime, rowStartTime) < min(currentScanEndTime, rowEndTime))
+      if (std::max(currentScanStartTime, rowStartTime) < std::min(currentScanEndTime, rowEndTime))
 	return true;
     }
     return result;
@@ -117,21 +117,21 @@ public:
 template<typename T>
 struct rowsInAScanbyTimeFunctor {
 private:
-  const vector<ScanRow *>&	scans;
-  vector<T *>			result;
+  const std::vector<asdm::ScanRow *>&	scans;
+  std::vector<T *>			result;
 
   /**
    * A template function which checks if there is at least one element scan of the vector scans for which
    * the time  contained by returned by row->getTime() is embedded in the time range defined in scan. 
    * Returns true there is such a scan.
    */
-  bool timeIsInAScan(T* row, const vector<ScanRow *>& scans) {
+    bool timeIsInAScan(T* row, const std::vector<asdm::ScanRow *>& scans) {
     bool result = false;
     
     int64_t currentScanStartTime, currentScanEndTime;
     int64_t rowTime;
     rowTime = row->getTime().get();
-    for (vector<ScanRow *>::const_iterator iter = scans.begin(); iter != scans.end(); iter++) {
+    for (std::vector<asdm::ScanRow *>::const_iterator iter = scans.begin(); iter != scans.end(); iter++) {
       currentScanStartTime = (*iter)->getStartTime().get();
       currentScanEndTime = (*iter)->getEndTime().get();
       if ((currentScanStartTime <= rowTime) && (rowTime < currentScanEndTime))
@@ -141,12 +141,12 @@ private:
   }
   
 public:
-  rowsInAScanbyTimeFunctor(const vector<ScanRow *>& scans): scans(scans) {};
-  const vector<T *> & operator() (const vector<T *>& rows, bool ignoreTime=false) {
+  rowsInAScanbyTimeFunctor(const std::vector<asdm::ScanRow *>& scans): scans(scans) {};
+  const std::vector<T *> & operator() (const std::vector<T *>& rows, bool ignoreTime=false) {
     if (ignoreTime) return rows;
 
     result.clear();
-    for (typename vector<T *>::const_iterator iter = rows.begin(); iter != rows.end(); iter++) {
+    for (typename std::vector<T *>::const_iterator iter = rows.begin(); iter != rows.end(); iter++) {
       if (timeIsInAScan (*iter, scans))
 	result.push_back(*iter);
     }
@@ -163,7 +163,7 @@ template<typename T>
 struct size_lt {
 public: 
   size_lt(unsigned int y) : y(y) {}
-  bool operator()(vector<T>& x) {return x.size() < y;}
+  bool operator()(std::vector<T>& x) {return x.size() < y;}
 
 private:
   unsigned int  y;
@@ -174,7 +174,7 @@ private:
  * helper class. (see <..>/code/alma/implement/Enumerations)
  */
 template<typename Enum, typename CEnum> 
-string stringValue(Enum literal) {
+std::string stringValue(Enum literal) {
   return CEnum::name(literal);
 }
 
@@ -212,10 +212,10 @@ std::string getexepath() {
 #include <casa/Logging/LogSink.h>
 
 
-#include "ConversionException.h"
-#include "CAtmPhaseCorrection.h"
-#include "ASDM.h"
-#include "ASDM2MSFiller.h"
+#include <alma/ASDM/ConversionException.h>
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
 
 #define CONTEXT_P ((ParserContext<T, R, RFilter> *)myContext_p)
 #define V2CTX_P(v_p) ((ParserContext<T, R, RFilter> *) v_p)
@@ -230,15 +230,15 @@ template<class T, class R, class RFilter>
     std::vector<std::shared_ptr<R> >  rows;
     RFilter*                    rFilter_p;
     bool                        ignoreTime;
-    void (*tableFiller_f_p) (const vector<R*>&, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
+    void (*tableFiller_f_p) (const std::vector<R*>&, std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
     std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>* msFillers_m_p;
     const xmlChar*		topLevelElement_p;
     const xmlChar*		entityElement_p;
     const xmlChar*		containerEntityElement_p;
     const xmlChar*		rowElement_p;
     int				depth;
-    string			currentElement;
-    string			currentValue;
+    std::string			currentElement;
+    std::string			currentValue;
     StatesEnum			state;
     bool			verbose;
     bool                        debug;
@@ -247,7 +247,7 @@ template<class T, class R, class RFilter>
 template <class	T, class R, class RFilter> 
   class TableSAXReader {
 
-  typedef void (*TableFiller)(const vector<R*>&, map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
+    typedef void (*TableFiller)(const std::vector<R*>&, std::map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>&);
 
  public:
   /**
@@ -283,9 +283,9 @@ template <class	T, class R, class RFilter>
   /**
    * It will be used as a functor.
    */
-  void operator() (const string&  asdmDirectory, bool ignoreTime) {
+  void operator() (const std::string&  asdmDirectory, bool ignoreTime) {
     myContext.ignoreTime = ignoreTime;
-    string tablePath = asdmDirectory + "/"+ T::name() + ".xml";
+    std::string tablePath = asdmDirectory + "/"+ T::name() + ".xml";
     xmlSAXUserParseFile(&myHandler, &myContext, tablePath.c_str());
   }
     
@@ -345,7 +345,7 @@ template <class	T, class R, class RFilter>
     
       // Otherwise we have a problem.
     default : 
-      string message = "Unexpected '" + string((char *) name) + "'.";
+      std::string message = "Unexpected '" + std::string((char *) name) + "'.";
       error(message);
     };
   
@@ -446,7 +446,7 @@ template <class	T, class R, class RFilter>
       break;
 	
     default : 
-      string message = "Unexpected '" + string((char *) name) + "'.";
+      std::string message = "Unexpected '" + std::string((char *) name) + "'.";
       error(message);
     }
       
@@ -461,14 +461,14 @@ template <class	T, class R, class RFilter>
   static void characters_callback (void *		v_p,
 				   const xmlChar * 	ch,
 				   int			len) {
-    V2CTX_P(v_p)->currentValue = string((char * ) ch, len);
+    V2CTX_P(v_p)->currentValue = std::string((char * ) ch, len);
   }
     
     
  private:
   bool			verbose;
   ParserContext<T, R, RFilter>		myContext ;
-  string			topLevelElement_s;
+  std::string			topLevelElement_s;
   asdm::ASDM			asdm;
   static xmlSAXHandler	myHandler; 
   static xmlSAXHandler        initSAXHandler() {
@@ -479,17 +479,17 @@ template <class	T, class R, class RFilter>
     return handler;
   }
 
-  static void error(const string & message) {
+  static void error(const std::string & message) {
     throw asdm::ConversionException(message, T::name());
   }
     
   static void unexpectedOpeningElement(const xmlChar *name, const xmlChar *expectedName) {
-    string message = "Unexpected opening tag '" + string((const char *)  name) + "', I was expecting '" + string((const char*) expectedName) +"'.";
+    std::string message = "Unexpected opening tag '" + std::string((const char *)  name) + "', I was expecting '" + std::string((const char*) expectedName) +"'.";
     error(message);
   }
     
   static void unexpectedClosingElement(const xmlChar *name) {
-    string message = "Unexpected closing tag '" + string((const char *) name) + "'.";
+    std::string message = "Unexpected closing tag '" + std::string((const char *) name) + "'.";
     error(message);
   }
     

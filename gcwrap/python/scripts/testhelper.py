@@ -1,14 +1,33 @@
-from casac import casac
 import os
 import sys
-import commands
 import math
 import shutil
 import string
 import time
-from taskinit import casalog,tb, tbtool
 import numpy as np
 import math
+
+try:
+    # CASA 6
+    from casatools import table
+    # Most of this helper file is about table operations. The ms and image tools are used
+    # only for a couple of functions (for which there might be a better place)
+    from casatools import ms, image
+
+    tb_local = table()
+    tb_local2 = table()
+    ms_local = ms()
+    image_local = image()
+except ImportError:
+    # CASA 5
+    from taskinit import tbtool
+    from taskinit import mstool, iatool
+
+    tb_local = tbtool()
+    tb_local2 = tbtool()
+    ms_local = mstool()
+    image_local = iatool()
+
 
 '''
 A set of common helper functions for unit tests:
@@ -25,7 +44,7 @@ def phasediffabsdeg(c1, c2):
         a = c1.imag
         a = c2.imag
     except:
-        print "Phase difference of real numbers is always zero."
+        print("Phase difference of real numbers is always zero.")
         return 0.
 
     a = math.atan2(c1.imag, c1.real)
@@ -53,42 +72,40 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
 
     rval = True
 
-    tb2 = casac.table()
+    tb_local.open(referencetab)
+    cnames = tb_local.colnames()
 
-    tb.open(referencetab)
-    cnames = tb.colnames()
-
-    tb2.open(testtab)
+    tb_local2.open(testtab)
 
     try:
         for c in cnames:
             if c in excludecols:
                 continue
             
-            print "\nTesting column " + c 
+            print("\nTesting column " + c)
             
             a = 0
             try:
-                a = tb.getcol(c,startrow=startrow,nrow=nrow,rowincr=rowincr)
+                a = tb_local.getcol(c,startrow=startrow,nrow=nrow,rowincr=rowincr)
             except:
                 rval = False
-                print 'Error accessing column ', c, ' in table ', referencetab
-                print sys.exc_info()[0]
+                print('Error accessing column ', c, ' in table ', referencetab)
+                print(sys.exc_info()[0])
                 break
 
             b = 0
             try:
-                b = tb2.getcol(c,startrow=startrow,nrow=nrow,rowincr=rowincr)
+                b = tb_local2.getcol(c,startrow=startrow,nrow=nrow,rowincr=rowincr)
             except:
                 rval = False
-                print 'Error accessing column ', c, ' in table ', testtab
-                print sys.exc_info()[0]
+                print('Error accessing column ', c, ' in table ', testtab)
+                print(sys.exc_info()[0])
                 break
 
             if not (len(a)==len(b)):
-                print 'Column ',c,' has different length in tables ', referencetab, ' and ', testtab
-                print a
-                print b
+                print('Column ',c,' has different length in tables ', referencetab, ' and ', testtab)
+                print(a)
+                print(b)
                 rval = False
                 break
             else:
@@ -97,40 +114,40 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
                     for i in range(0,len(a)):
                         if (isinstance(a[i],float)):
                             if ((mode=="percentage") and (abs(a[i]-b[i]) > tolerance*abs(a[i]))) or ((mode=="absolute") and (abs(a[i]-b[i]) > tolerance)):
-                                print "Column " + c + " differs"
-                                print "Row=" + str(i)
-                                print "Reference file value: " + str(a[i])
-                                print "Input file value: " + str(b[i])
+                                print("Column " + c + " differs")
+                                print("Row=" + str(i))
+                                print("Reference file value: " + str(a[i]))
+                                print("Input file value: " + str(b[i]))
                                 if (mode=="percentage"):
-                                    print "Tolerance is {0}%; observed difference was {1} %".format (tolerance * 100, 100*abs(a[i]-b[i])/abs(a[i]))
+                                    print("Tolerance is {0}%; observed difference was {1} %".format (tolerance * 100, 100*abs(a[i]-b[i])/abs(a[i])))
                                 else:
-                                    print "Absolute tolerance is {0}; observed difference: {1}".format (tolerance, (abs(a[i]-b[i])))
+                                    print("Absolute tolerance is {0}; observed difference: {1}".format (tolerance, (abs(a[i]-b[i]))))
                                 differs = True
                                 rval = False
                                 break
                         elif (isinstance(a[i],int) or isinstance(a[i],np.int32)):
                             if (abs(a[i]-b[i]) > 0):
-                                print "Column " + c + " differs"
-                                print "Row=" + str(i)
-                                print "Reference file value: " + str(a[i])
-                                print "Input file value: " + str(b[i])
+                                print("Column " + c + " differs")
+                                print("Row=" + str(i))
+                                print("Reference file value: " + str(a[i]))
+                                print("Input file value: " + str(b[i]))
                                 if (mode=="percentage"):
-                                    print "tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i]))
+                                    print("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i])))
                                 else:
-                                    print "absolute tolerance should be " + str(abs(a[i]-b[i]))
+                                    print("absolute tolerance should be " + str(abs(a[i]-b[i])))
                                 differs = True
                                 rval = False
                                 break
                         elif (isinstance(a[i],str) or isinstance(a[i],np.bool_)):
                             if not (a[i]==b[i]):
-                                print "Column " + c + " differs"
-                                print "Row=" + str(i)
-                                print "Reference file value: " + str(a[i])
-                                print "Input file value: " + str(b[i])
+                                print("Column " + c + " differs")
+                                print("Row=" + str(i))
+                                print("Reference file value: " + str(a[i]))
+                                print("Input file value: " + str(b[i]))
                                 if (mode=="percentage"):   
-                                    print "tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i]))
+                                    print("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i])))
                                 else:
-                                    print "absolute tolerance should be " + str(abs(a[i]-b[i]))
+                                    print("absolute tolerance should be " + str(abs(a[i]-b[i])))
                                 differs = True
                                 rval = False
                                 break
@@ -139,19 +156,19 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
                                 if differs: break
                                 if ((isinstance(a[i][j],float)) or (isinstance(a[i][j],int))):
                                     if ((mode=="percentage") and (abs(a[i][j]-b[i][j]) > tolerance*abs(a[i][j]))) or ((mode=="absolute") and (abs(a[i][j]-b[i][j]) > tolerance)):
-                                        print "Column " + c + " differs"
-                                        print "(Row,Element)=(" + str(j) + "," + str(i) + ")"
-                                        print "Reference file value: " + str(a[i][j])
-                                        print "Input file value: " + str(b[i][j])
+                                        print("Column " + c + " differs")
+                                        print("(Row,Element)=(" + str(j) + "," + str(i) + ")")
+                                        print("Reference file value: " + str(a[i][j]))
+                                        print("Input file value: " + str(b[i][j]))
                                         if (mode=="percentage"):
-                                            print "Tolerance in % should be " + str(100*abs(a[i][j]-b[i][j])/abs(a[i][j]))
+                                            print("Tolerance in % should be " + str(100*abs(a[i][j]-b[i][j])/abs(a[i][j])))
                                         else:
-                                            print "Absolute tolerance should be " + str(abs(a[i][j]-b[i][j]))
+                                            print("Absolute tolerance should be " + str(abs(a[i][j]-b[i][j])))
                                         differs = True
                                         rval = False
                                         break
                                 elif (isinstance(a[i][j],list)) or (isinstance(a[i][j],np.ndarray)):
-                                    it = xrange(0,len(a[i][j]))
+                                    it = range(0,len(a[i][j]))
                                     if mode=="percentage":
                                         diff = np.abs(np.subtract(a[i][j], b[i][j])) > tolerance * np.abs(a[i][j])
                                         it = np.where(diff)[0]
@@ -164,32 +181,32 @@ def compTables(referencetab, testtab, excludecols, tolerance=0.001, mode="percen
                                                  or ((mode=="absolute") and (abs(a[i][j][k]-b[i][j][k]) > tolerance)) \
                                                  or ((mode=="phaseabsdeg") and (phasediffabsdeg(a[i][j][k],b[i][j][k])>tolerance)) \
                                                  ):
-                                            print "Column " + c + " differs"
-                                            print "(Row,Channel,Corr)=(" + str(k) + "," + str(j) + "," + str(i) + ")"
-                                            print "Reference file value: " + str(a[i][j][k])
-                                            print "Input file value: " + str(b[i][j][k])
+                                            print("Column " + c + " differs")
+                                            print("(Row,Channel,Corr)=(" + str(k) + "," + str(j) + "," + str(i) + ")")
+                                            print("Reference file value: " + str(a[i][j][k]))
+                                            print("Input file value: " + str(b[i][j][k]))
                                             if (mode=="percentage"):
-                                                print "Tolerance in % should be " + str(100*abs(a[i][j][k]-b[i][j][k])/abs(a[i][j][k]))
+                                                print("Tolerance in % should be " + str(100*abs(a[i][j][k]-b[i][j][k])/abs(a[i][j][k])))
                                             elif (mode=="absolute"):
-                                                print "Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k]))                     
+                                                print("Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k])))
                                             elif (mode=="phaseabsdeg"):
-                                                print "Phase tolerance in degrees should be " + str(phasediffabsdeg(a[i][j][k],b[i][j][k]))
+                                                print("Phase tolerance in degrees should be " + str(phasediffabsdeg(a[i][j][k],b[i][j][k])))
                                             else:
-                                                print "Unknown comparison mode: ",mode
+                                                print("Unknown comparison mode: ",mode)
                                             differs = True
                                             rval = False
                                             break                                          
                                             
                         else:
-                            print "Unknown data type: ",type(a[i])
+                            print("Unknown data type: ",type(a[i]))
                             differs = True
                             rval = False
                             break
                 
-                if not differs: print "Column " + c + " PASSED" 
+                if not differs: print("Column " + c + " PASSED")
     finally:
-        tb.close()
-        tb2.close()
+        tb_local.close()
+        tb_local2.close()
 
     return rval
 
@@ -203,24 +220,23 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
     '''
     
     retval = True
-    tb2 = casac.table()
 
-    tb.open(referencetab)
-    cnames = tb.colnames()
+    tb_local.open(referencetab)
+    cnames = tb_local.colnames()
 
-    tb2.open(testtab)
+    tb_local2.open(testtab)
     col = varcol
-    if tb.isvarcol(col) and tb2.isvarcol(col):
+    if tb_local.isvarcol(col) and tb_local2.isvarcol(col):
         try:
             # First check
-            if tb.nrows() != tb2.nrows():
-                print 'Length of %s differ from %s, %s!=%s'%(referencetab,testtab,len(rk),len(tk))
+            if tb_local.nrows() != tb_local2.nrows():
+                print('Length of %s differ from %s, %s!=%s'%(referencetab,testtab,len(rk),len(tk)))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb_local.nrows()):
             
-                    rdata = tb.getcell(col,therow)
-                    tdata = tb2.getcell(col,therow)
+                    rdata = tb_local.getcell(col,therow)
+                    tdata = tb_local2.getcell(col,therow)
 
 #                    if not (rdata==tdata).all():
                     if not rdata.all()==tdata.all():
@@ -230,39 +246,39 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
 ###                                if (type(rdata[j])==float or type(rdata[j])==int):
                                 if ((isinstance(rdata[j],float)) or (isinstance(rdata[j],int))):
                                     if (abs(rdata[j]-tdata[j]) > tolerance*abs(rdata[j]+tdata[j])):
-#                                        print 'Column ', col,' differs in tables ', referencetab, ' and ', testtab
-#                                        print therow, j
-#                                        print rdata[j]
-#                                        print tdata[j]
+#                                        print('Column ', col,' differs in tables ', referencetab, ' and ', testtab)
+#                                        print(therow, j)
+#                                        print(rdata[j])
+#                                        print(tdata[j])
                                         differs = True
 ###                                elif (type(rdata[j])==list or type(rdata[j])==np.ndarray):
                                 elif (isinstance(rdata[j],list)) or (isinstance(rdata[j],np.ndarray)):
                                     for k in range(0,len(rdata[j])):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
-#                                            print 'Column ', col,' differs in tables ', referencetab, ' and ', testtab
-#                                            print therow, j, k
-#                                            print rdata[j][k]
-#                                            print tdata[j][k]
+#                                            print('Column ', col,' differs in tables ', referencetab, ' and ', testtab)
+#                                            print(therow, j, k)
+#                                            print(rdata[j][k])
+#                                            print(tdata[j][k])
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column %s of %s and %s do not agree within tolerance %s'%(col,referencetab, testtab, tolerance)
+                                    print('ERROR: Column %s of %s and %s do not agree within tolerance %s'%(col,referencetab, testtab, tolerance))
                                     retval = False
                                     break
                         else:
-                            print 'ERROR: Column %s of %s and %s do not agree.'%(col,referencetab, testtab)
-                            print 'ERROR: First row to differ is row=%s'%therow
+                            print('ERROR: Column %s of %s and %s do not agree.'%(col,referencetab, testtab))
+                            print('ERROR: First row to differ is row=%s'%therow)
                             retval = False
                             break
         finally:
-            tb.close()
-            tb2.close()
+            tb_local.close()
+            tb_local2.close()
     
     else:
-        print 'Columns are not varcolumns.'
+        print('Columns are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column %s of %s and %s agree'%(col,referencetab, testtab)
+        print('Column %s of %s and %s agree'%(col,referencetab, testtab))
         
     return retval
 
@@ -304,17 +320,17 @@ def verifyMS(msname, expnumspws, expnumchan, inspw, expchanfreqs=[], ignoreflags
            Returns a list with True or False and a state message'''
     
     msg = ''
-    tb.open(msname+'/SPECTRAL_WINDOW')
-    nc = tb.getcell("NUM_CHAN", inspw)
-    nr = tb.nrows()
-    cf = tb.getcell("CHAN_FREQ", inspw)
-    tb.close()
+    tb_local.open(msname+'/SPECTRAL_WINDOW')
+    nc = tb_local.getcell("NUM_CHAN", inspw)
+    nr = tb_local.nrows()
+    cf = tb_local.getcell("CHAN_FREQ", inspw)
+    tb_local.close()
     # After channel selection/average, need to know the exact row number to check,
     # ignore this check in these cases.
     if not ignoreflags:
-        tb.open(msname)
-        dimdata = tb.getcell("FLAG", 0)[0].size
-        tb.close()
+        tb_local.open(msname)
+        dimdata = tb_local.getcell("FLAG", 0)[0].size
+        tb_local.close()
         
     if not (nr==expnumspws):
         msg =  "Found "+str(nr)+", expected "+str(expnumspws)+" spectral windows in "+msname
@@ -327,9 +343,9 @@ def verifyMS(msname, expnumspws, expnumchan, inspw, expchanfreqs=[], ignoreflags
         return [False,msg]
 
     if not (expchanfreqs==[]):
-        print "Testing channel frequencies ..."
-#        print cf
-#        print expchanfreqs
+        print("Testing channel frequencies ...")
+#        print(cf)
+#        print(expchanfreqs)
         if not (expchanfreqs.size == expnumchan):
             msg =  "Internal error: array of expected channel freqs should have dimension ", expnumchan
             return [False,msg]
@@ -350,18 +366,18 @@ def getChannels(msname, spwid, chanlist):
     
     try:
         try:
-            tb.open(msname+'/SPECTRAL_WINDOW')
+            tb_local.open(msname+'/SPECTRAL_WINDOW')
         except:
-            print 'Cannot open table '+msname+'SPECTRAL_WINDOW'
+            print('Cannot open table '+msname+'SPECTRAL_WINDOW')
             
-        cf = tb.getcell("CHAN_FREQ", spwid)
+        cf = tb_local.getcell("CHAN_FREQ", spwid)
         
         # Get only the requested channels
         b = [cf[i] for i in chanlist]
         selchans = np.array(b)
     
     finally:
-        tb.close()
+        tb_local.close()
         
     return selchans
 
@@ -377,18 +393,18 @@ def get_channel_freqs_widths(msname, spwid):
     try:
         spw_table = os.path.join(msname, 'SPECTRAL_WINDOW')
         try:
-            tb.open(spw_table)
+            tb_local.open(spw_table)
         except RuntimeError:
-            print 'Cannot open table: {0}'.format(spw_table)
+            print('Cannot open table: {0}').format(spw_table)
 
-        freqs = tb.getcell("CHAN_FREQ", spwid)
-        widths = tb.getcell("CHAN_WIDTH", spwid)
-    
+        freqs = tb_local.getcell("CHAN_FREQ", spwid)
+        widths = tb_local.getcell("CHAN_WIDTH", spwid)
+
     finally:
-        tb.close()
+        tb_local.close()
 
     return freqs, widths
-    
+
 def getColDesc(table, colname):
     '''Get the description of a column in a table
        table    --> name of table or MS
@@ -398,14 +414,14 @@ def getColDesc(table, colname):
     coldesc = {}
     try:
         try:
-            tb.open(table)            
-            tcols = tb.colnames()
+            tb_local.open(table)
+            tcols = tb_local.colnames()
             if tcols.__contains__(colname):
-                coldesc = tb.getcoldesc(colname)
+                coldesc = tb_local.getcoldesc(colname)
         except:
             pass                        
     finally:
-        tb.close()
+        tb_local.close()
         
     return coldesc
 
@@ -418,13 +434,13 @@ def getVarCol(table, colname):
     col = {}
     try:
         try:
-            tb.open(table)
-            col = tb.getvarcol(colname)
+            tb_local.open(table)
+            col = tb_local.getvarcol(colname)
         except:
-            print 'Cannot open table '+table
+            print('Cannot open table '+table)
 
     finally:
-        tb.close()
+        tb_local.close()
         
     return col
    
@@ -483,25 +499,25 @@ def getTileShape(mydict, column='DATA'):
 
 def checkwithtaql(taqlstring):
     os.system('rm -rf mynewtable.tab')
-    tb.create('mynewtable.tab')
-    tb.open('mynewtable.tab',nomodify=False)
-    rval = tb.taql(taqlstring)
-    tb.close()
+    tb_local.create('mynewtable.tab')
+    tb_local.open('mynewtable.tab',nomodify=False)
+    rval = tb_local.taql(taqlstring)
+    tb_local.close()
     therval = rval.nrows()
     tmpname = rval.name()
     rval.close()
     os.system('rm -rf mynewtable.tab')
     os.system('rm -rf '+tmpname)
-    print "Found ", therval, " rows in selection."
+    print("Found ", therval, " rows in selection.")
     return therval
 
 
 def compcaltabnumcol(cal1, cal2, tolerance, colname1='CPARAM', colname2="CPARAM", testspw=None):
-    print "Comparing column "+colname1+" of caltable "+cal1
-    print "     with column "+colname2+" of caltable "+cal2
+    print("Comparing column "+colname1+" of caltable "+cal1)
+    print("     with column "+colname2+" of caltable "+cal2)
     if testspw!=None:
-        print "for SPW "+str(testspw)+" only."
-    print "Discrepant row search ..."
+        print("for SPW "+str(testspw)+" only.")
+    print("Discrepant row search ...")
     rval = False
     try:
         discrepantrows = -1
@@ -510,54 +526,54 @@ def compcaltabnumcol(cal1, cal2, tolerance, colname1='CPARAM', colname2="CPARAM"
         else:
             discrepantrows = checkwithtaql("select from [select from "+cal1+" where SPECTRAL_WINDOW_ID=="+str(testspw)+" orderby TIME, FIELD_ID, ANTENNA1, ANTENNA2 ] t1, [select from "+cal2+" where SPECTRAL_WINDOW_ID=="+str(testspw)+" orderby TIME, FIELD_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1."+colname1+",t2."+colname2+", "+str(tolerance)+")))")
         if discrepantrows==0:
-            print "The two columns agree."
+            print("The two columns agree.")
             rval = True
-    except Exception, instance:
-        print "Error: "+str(instance)
+    except Exception as instance:
+        print("Error: "+str(instance))
 
     return rval
 
                     
 def compmsmainnumcol(vis1, vis2, tolerance, colname1='DATA', colname2="DATA"):
-    print "Comparing column "+colname1+" of MS "+vis1
-    print "     with column "+colname2+" of MS "+vis2
-    print "Discrepant row search ..."
+    print("Comparing column "+colname1+" of MS "+vis1)
+    print("     with column "+colname2+" of MS "+vis2)
+    print("Discrepant row search ...")
     rval = False
     try:
         discrepantrows = checkwithtaql("select from [select from "+vis1+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "+vis2+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(near(t1."+colname1+",t2."+colname2+", "+str(tolerance)+")))")
         if discrepantrows==0:
-            print "The two columns agree."
+            print("The two columns agree.")
             rval = True
-    except Exception, instance:
-        print "Error: "+str(instance)
+    except Exception as instance:
+        print("Error: "+str(instance))
 
     return rval
 
 def compmsmainboolcol(vis1, vis2, colname1='FLAG', colname2='FLAG'):
-    print "Comparing column "+colname1+" of MS "+vis1
-    print "     with column "+colname2+" of MS "+vis2
-    print "Discrepant row search ..."
+    print("Comparing column "+colname1+" of MS "+vis1)
+    print("     with column "+colname2+" of MS "+vis2)
+    print("Discrepant row search ...")
     rval = False
     try:
         discrepantrows = checkwithtaql("select from [select from "+vis1+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t1, [select from "+vis2+" orderby TIME, DATA_DESC_ID, ANTENNA1, ANTENNA2 ] t2 where (not all(t1."+colname1+"==t2."+colname2+"))")
         if discrepantrows==0:
-            print "The two columns agree."
+            print("The two columns agree.")
             rval = True
-    except Exception, instance:
-        print "Error: "+str(instance)
+    except Exception as instance:
+        print("Error: "+str(instance))
 
     return rval
 
 def compareSubTables(input,reference,order=None,excluded_cols=[]):
     
-    tbinput = tbtool()
+    tbinput = tb_local
     tbinput.open(input)
     if order is not None:
         tbinput_sorted = tbinput.taql("SELECT * from " + input + " order by " + order)
     else:
         tbinput_sorted = tbinput
     
-    tbreference = tbtool()
+    tbreference = tb_local2
     tbreference.open(reference)
     if order is not None:
         tbreference_sorted = tbreference.taql("SELECT * from " + reference + " order by " + order)
@@ -572,21 +588,20 @@ def compareSubTables(input,reference,order=None,excluded_cols=[]):
             if not (col_input == col_reference).all():
                 tbinput.close()
                 tbreference.close()
-                del tbinput
-                del tbreference
                 return (False,col)
-    
+
     tbinput.close()
     tbreference.close()
-    del tbinput
-    del tbreference
-    
+    if order is not None:
+        tbinput_sorted.close()
+        tbreference_sorted.close()
+
     return (True,"OK")
 
-def getColShape(table,col,start_row=0,nrow=1,row_inc=1):
+def getColShape(tab,col,start_row=0,nrow=1,row_inc=1):
     """ Get the shape of the given column.
     Keyword arguments:
-        table      --    input table or MS
+        tab        --    input table or MS
         col        --    column to get the shape
         start_row  --    start row (default 0)
         nrow       --    number of rows to read (default 1)
@@ -599,19 +614,15 @@ def getColShape(table,col,start_row=0,nrow=1,row_inc=1):
     col_shape = []
     try:
         try:
-            tblocal = tbtool()
-            tblocal.open(table)
-            col_shape = tblocal.getcolshapestring(col,start_row,nrow,row_inc)
+            tb_local.open(tab)
+            col_shape = tb_local.getcolshapestring(col,start_row,nrow,row_inc)
         except:
-            print 'Cannot get shape of col %s from table %s '%(col,table)
+            print('Cannot get shape of col %s from table %s '%(col,tab))
 
     finally:
-        tblocal.close()
+        tb_local.close()
             
     return col_shape
-
-
-
 
 def findTemplate(testname,refimage,copy=False):
     """
@@ -631,19 +642,21 @@ def findTemplate(testname,refimage,copy=False):
     datapaths.append(os.environ.get('CASAPATH').split()[0]+"/data/")
     possibilities=map(lambda x: x+'/regression/'+testname+'/'+refimage,datapaths)+map(lambda x: x+'/regression/'+testname+'/reference/'+refimage,datapaths) 
 
-    #print possibilities
+    #print(possibilities)
     from itertools import dropwhile
     try:
         found = dropwhile( lambda x: not os.access(x,F_OK),possibilities).next()
     except:
-        raise IOError," ERROR: "+refimage+" not found"
+        raise IOError(" ERROR: "+refimage+" not found")
     if copy:
         from shutil import copytree
-        print "Copying "+found
+        print("Copying "+found)
         copytree(found,msname)
     return found
 
 
+# As opposed to most other functions in this file, this doesn't use the table tool but the
+# image tool
 def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose=False):
     """
     compare two images using imstat and the specified keys, 
@@ -653,16 +666,15 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
     from os import F_OK
     if isinstance(tol,float):
         tol=tol+np.zeros(len(keys))
-    myia=casac.image()
     ims=[im0,im1]
     s=[]
     for i in range(2):
         if not os.access(ims[i],F_OK): 
-            print ims[i]+" not found"
+            print(ims[i]+" not found")
             return False
-        myia.open(ims[1])
-        s.append(myia.statistics())
-        myia.done()
+        image_local.open(ims[1])
+        s.append(image_local.statistics())
+        image_local.done()
     status=True
     for ik in range(len(keys)):
         k=keys[ik]
@@ -670,10 +682,12 @@ def compImages(im0,im1,keys=['flux','min','max','maxpos','rms'],tol=1e-4,verbose
         s1=s[1][k][0]
         if abs(s0-s1)*2/(s0+s1)>tol[ik]: status=False
         if verbose:
-            print ("%7s: "%k),s0,s1
+            print(("%7s: "%k),s0,s1)
     return status
 
 
+# As opposed to most other functions in this file, this doesn't use the table tool but the
+# ms tool
 def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=False):
     """
     compare two MS using ms.statistics on amp or phase as specified, 
@@ -683,17 +697,16 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
     from os import F_OK
     if isinstance(tol,float):
         tol=tol+np.zeros(len(keys))
-    myms=casac.ms()
     mss=[ms0,ms1]
     s=[]
     for i in range(2):
         if not os.access(mss[i],F_OK): 
-            print mss[i]+" not found"
+            print(mss[i]+" not found")
             return False
-        myms.open(mss[1])
-        stats = myms.statistics("DATA",ap)
+        ms_local.open(mss[1])
+        stats = ms_local.statistics("DATA",ap)
         s.append(stats[stats.keys()[0]])
-        myms.done()
+        ms_local.done()
     status=True
     for ik in range(len(keys)):
         k=keys[ik]
@@ -701,19 +714,33 @@ def compMS(ms0,ms1,keys=['mean','min','max','rms'],ap="amp",tol=1e-4,verbose=Fal
         s1=s[1][k]
         if abs(s0-s1)*2/(s0+s1)>tol[ik]: status=False
         if verbose:
-            print ("%7s: "%k),s0,s1
+            print(("%7s: "%k),s0,s1)
     return status
-        
-    
+
+# A function object that can be passed to ignore parameter
+# of shutil.copytree. It will ignore subversion directory
+# when data are copied to working directory.
+ignore_subversion = shutil.ignore_patterns('.svn')
+
+def copytree_ignore_subversion(datadir, name, outname=None):
+    if outname is None:
+        outname = name
+    if not os.path.exists(name):
+        shutil.copytree(os.path.join(datadir, name), outname,
+                        ignore=ignore_subversion)
 
 
+def get_table_cache():
+    cache = tb_local.showcache()
+    # print('cache = {}'.format(cache))
+    return cache
 
 
+class TableCacheValidator(object):
+    def __init__(self):
+        self.original_cache = get_table_cache()
 
-
-
-
-
-
-
-
+    def validate(self):
+        cache = get_table_cache()
+        #print 'original {} current {}'.format(self.original_cache, cache)
+        return len(cache) == 0 or cache == self.original_cache

@@ -76,6 +76,10 @@ public:
     static const casacore::String PARAM_CLEARSELECTIONS; // bool
     static const casacore::String PARAM_DATACOLUMN_X; // String
     static const casacore::String PARAM_DATACOLUMN_Y; // String
+    static const casacore::String PARAM_FRAME_X; // String
+    static const casacore::String PARAM_FRAME_Y; // String
+    static const casacore::String PARAM_INTERP_X; // String
+    static const casacore::String PARAM_INTERP_Y; // String
     static const casacore::String PARAM_FILENAME; // String
     static const casacore::String PARAM_FLAGGING; // Record
     static const casacore::String PARAM_HEIGHT; // int or uInt
@@ -289,7 +293,7 @@ private:
     
     // Set PlotMSSinglePlot parameters that haven't yet been transfered to the
     // current PlotMS.
-    vector<PlotMSPlotParameters> itsPlotParams_;
+    std::vector<PlotMSPlotParameters> itsPlotParams_;
     
     // Flag for whether to call update() during show() or not.  This will be
     // true if the user updates something while the GUI is hidden.

@@ -137,6 +137,7 @@ def tclean(
     dogrowprune,#=True
     minpercentchange,#=0.0
     verbose, #=False
+    fastnoise, #=False
 
     ## Misc
 

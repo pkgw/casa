@@ -145,7 +145,7 @@ public:
     TBFilterRule* at(unsigned int i);
     
     // Returns the rules in this sequence.
-    vector<TBFilterRule*>* getRules();
+    std::vector<TBFilterRule*>* getRules();
 
     
     // Checks the given row in the given table.  If the row passes ALL of the
@@ -162,7 +162,7 @@ public:
 
 private:
     // Rule sequence.
-    vector<TBFilterRule*> rules;
+    std::vector<TBFilterRule*> rules;
 };
 
 // <summary>

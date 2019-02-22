@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -59,21 +59,21 @@
 	
 
 	
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Polarization.h
     \brief Generated from model's revision "-1", branch ""
@@ -87,7 +87,7 @@ namespace asdm {
 
 class PolarizationRow;
 typedef void (PolarizationRow::*PolarizationAttributeFromBin) (EndianIStream& eis);
-typedef void (PolarizationRow::*PolarizationAttributeFromText) (const string& s);
+typedef void (PolarizationRow::*PolarizationAttributeFromText) (const std::string& s);
 
 /**
  * The PolarizationRow class is a row of a PolarizationTable.
@@ -178,21 +178,21 @@ public:
 	
  	/**
  	 * Get corrType.
- 	 * @return corrType as vector<StokesParameterMod::StokesParameter >
+ 	 * @return corrType as std::vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > getCorrType() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getCorrType() const;
 	
  
  	
  	
  	/**
- 	 * Set corrType with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param corrType The vector<StokesParameterMod::StokesParameter > value to which corrType is to be set.
+ 	 * Set corrType with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param corrType The std::vector<StokesParameterMod::StokesParameter > value to which corrType is to be set.
  	 
  		
  			
  	 */
- 	void setCorrType (vector<StokesParameterMod::StokesParameter > corrType);
+ 	void setCorrType (std::vector<StokesParameterMod::StokesParameter > corrType);
   		
 	
 	
@@ -208,21 +208,21 @@ public:
 	
  	/**
  	 * Get corrProduct.
- 	 * @return corrProduct as vector<vector<PolarizationTypeMod::PolarizationType > >
+ 	 * @return corrProduct as std::vector<std::vector<PolarizationTypeMod::PolarizationType > >
  	 */
- 	vector<vector<PolarizationTypeMod::PolarizationType > > getCorrProduct() const;
+ 	std::vector<std::vector<PolarizationTypeMod::PolarizationType > > getCorrProduct() const;
 	
  
  	
  	
  	/**
- 	 * Set corrProduct with the specified vector<vector<PolarizationTypeMod::PolarizationType > >.
- 	 * @param corrProduct The vector<vector<PolarizationTypeMod::PolarizationType > > value to which corrProduct is to be set.
+ 	 * Set corrProduct with the specified std::vector<std::vector<PolarizationTypeMod::PolarizationType > >.
+ 	 * @param corrProduct The std::vector<std::vector<PolarizationTypeMod::PolarizationType > > value to which corrProduct is to be set.
  	 
  		
  			
  	 */
- 	void setCorrProduct (vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+ 	void setCorrProduct (std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
   		
 	
 	
@@ -251,7 +251,7 @@ public:
 	 * @param corrProduct
 	    
 	 */ 
-	bool compareNoAutoInc(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+	bool compareNoAutoInc(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
 	
 	
 
@@ -267,7 +267,7 @@ public:
 	 * @param corrProduct
 	    
 	 */ 
-	bool compareRequiredValue(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
+	bool compareRequiredValue(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
 		 
 	
 	/**
@@ -437,7 +437,7 @@ private:
 	
 	
 
-	vector<StokesParameterMod::StokesParameter > corrType;
+	std::vector<StokesParameterMod::StokesParameter > corrType;
 
 	
 	
@@ -448,7 +448,7 @@ private:
 	
 	
 
-	vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct;
+	std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct;
 
 	
 	
@@ -481,16 +481,16 @@ void corrProductFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, PolarizationAttributeFromText> fromTextMethods;
 	
-void polarizationIdFromText (const string & s);
+void polarizationIdFromText (const std::string & s);
 	
 	
-void numCorrFromText (const string & s);
+void numCorrFromText (const std::string & s);
 	
 	
-void corrTypeFromText (const string & s);
+void corrTypeFromText (const std::string & s);
 	
 	
-void corrProductFromText (const string & s);
+void corrProductFromText (const std::string & s);
 	
 
 		
