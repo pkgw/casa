@@ -1304,6 +1304,10 @@ void MSTransformManager::open()
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
 	
+
+	// Check whether the MS has correlator pre-averaging and we are smoothing or averaging
+	checkCorrelatorPreaveraging();
+
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -3037,10 +3041,24 @@ void MSTransformManager::separateSpwSubtable()
 						spwCols.dopplerId().put(rowIndex,spwCols.dopplerId()(0));
 					}
 
-					if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
-					{
-						spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
-					}
+                    if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
+                    {
+                        spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+                    {
+                        ScalarColumn<String> swfCol(spwTable, "SDM_WINDOW_FUNCTION");
+                        swfCol.put(rowIndex, swfCol(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+                    {
+                        ScalarColumn<Int> snbCol(spwTable, "SDM_NUM_BIN");
+                        snbCol.put(rowIndex, snbCol(0));
+                    }
 
 				}
 
@@ -4902,6 +4920,45 @@ void MSTransformManager::checkSPWChannelsKnownLimitation()
 		    "selected has " + std::to_string(firstNum) + " channels, but another "
 		    "selected SPW has " + std::to_string(otherNum) + " channels.");
   }
+}
+
+/**
+ * Early check to issue a warning if the data was preaveraged
+ * by the correlator ans we are performing a further
+ * smoothing and average.
+ */
+void MSTransformManager::checkCorrelatorPreaveraging()
+{
+  std::string spwPreaveraged;
+  if (hanningSmooth_p || channelAverage_p)
+  {
+    auto spwTable = inputMs_p->spectralWindow();
+    ROMSSpWindowColumns spwColumns(spwTable);
+    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+    {
+      auto nrows = spwColumns.nrow();
+      auto effBWCol = spwColumns.effectiveBW();
+      auto chanWidthCol = spwColumns.chanWidth();
+      ScalarColumn<String> windowFunctionCol(spwTable, "SDM_WINDOW_FUNCTION");
+      ScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
+      for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
+      {
+        auto numBin =  numBinCol(spwIdx);
+        auto windowFunction = windowFunctionCol(spwIdx);
+        if(windowFunction != "UNKNOWN" && numBin != 1)
+          spwPreaveraged += std::to_string(spwIdx)+" ";
+      }
+    }
+  }
+
+  if(spwPreaveraged != "")
+    logger_p << LogIO::WARN<<LogOrigin("MSTransformManager", __func__) <<
+        "The data has already been preaveraged by the correlator but "
+        "further smoothing or averaging has been requested. "
+        "Preaveraged SPWs are: "<<spwPreaveraged<<LogIO::POST;
 }
 
 // -----------------------------------------------------------------------
