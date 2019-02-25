@@ -1164,11 +1164,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         const auto npol = dataCube.nrow();
         auto resultantFlags = _getResultantFlags(
             chanSelFlagTemplate, chanSelFlags, initChanSelTemplate,
-<<<<<<< HEAD
             spw, flagCube
-=======
-            doChanSelFlags, spw, flagCube
->>>>>>> master
         );
         auto bins = _chanBins.find(spw)->second;
         BaselineChanBin blcb;
@@ -1216,12 +1212,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
 
 Cube<Bool> StatWtTVI::_getResultantFlags(
     Cube<Bool>& chanSelFlagTemplate, Cube<Bool>& chanSelFlags,
-<<<<<<< HEAD
     Bool& initTemplate, Int spw, const Cube<Bool>& flagCube
-=======
-    Bool& initTemplate, Bool& doChanSelFlags, Int spw,
-    const Cube<Bool>& flagCube
->>>>>>> master
 ) const {
     if (_chanSelFlags.find(spw) == _chanSelFlags.cend()) {
         // no selection of channels to ignore
