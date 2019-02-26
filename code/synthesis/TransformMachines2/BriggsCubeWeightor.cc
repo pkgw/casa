@@ -47,13 +47,13 @@ using namespace casa::refim;
 using namespace casacore;
 using namespace casa::vi;
 
-  BriggsCubeWeightor::BriggsCubeWeightor(): grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), rmode_p(""), noise_p(0.0), robust_p(2), superUniformBox_p(0), multiField_p(False),initialized_p(False), refFreq_p(-1.0) {
+  BriggsCubeWeightor::BriggsCubeWeightor(): grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), rmode_p(""), noise_p(0.0), robust_p(2), superUniformBox_p(0), multiField_p(False),initialized_p(False), refFreq_p(-1.0), freqInterpMethod_p(InterpolateArray1D<Double, Complex>::nearestNeighbour) {
     multiFieldMap_p.clear();
     
     
   }
   
-  BriggsCubeWeightor::BriggsCubeWeightor( const String& rmode, const Quantity& noise, const Double robust, const Int superUniformBox, const Bool multiField)  : grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), initialized_p(False), refFreq_p(-1.0){
+  BriggsCubeWeightor::BriggsCubeWeightor( const String& rmode, const Quantity& noise, const Double robust, const Int superUniformBox, const Bool multiField)  : grids_p(0), ft_p(0), f2_p(0), d2_p(0), uscale_p(0), vscale_p(0), uorigin_p(0),vorigin_p(0), nx_p(0), ny_p(0), initialized_p(False), refFreq_p(-1.0),freqInterpMethod_p(InterpolateArray1D<Double, Complex>::nearestNeighbour) {
 
     rmode_p=rmode;
     noise_p=noise;
@@ -68,7 +68,7 @@ using namespace casa::vi;
 				       const String& rmode, const Quantity& noise,
 				       const Double robust,
 				       const ImageInterface<Complex>& templateimage,
-				       const Int superUniformBox, const Bool multiField){
+					 const Int superUniformBox, const Bool multiField, const InterpolateArray1D<Double, Complex>::InterpolationMethod interpMethod){
     rmode_p=rmode;
     noise_p=noise;
     robust_p=robust;
@@ -77,7 +77,7 @@ using namespace casa::vi;
     initialized_p=False;
     refFreq_p=-1.0;
     
-    init(vi, templateimage);
+    init(vi, templateimage,interpMethod);
 
 
 
@@ -85,11 +85,12 @@ using namespace casa::vi;
   }
 				       
  void BriggsCubeWeightor::init(vi::VisibilityIterator2& vi,
-			   const ImageInterface<Complex>& templateimage)
+			       const ImageInterface<Complex>& templateimage, const InterpolateArray1D<Double, Complex>::InterpolationMethod interpMethod, const Bool freqFrameValid)
  {
   LogIO os(LogOrigin("BriggsCubeWeightor", "constructor", WHERE));
 
-
+  freqInterpMethod_p=interpMethod;
+  freqFrameValid_p=freqFrameValid;
   //chanchunk may call the same object
   if(initialized_p && nx_p==templateimage.shape()(0) && ny_p==templateimage.shape()(1)){
     CoordinateSystem cs=templateimage.coordinates();
@@ -162,9 +163,10 @@ using namespace casa::vi;
     }
     Array<Float> griddedWeight;
     ft_p[index]->getGrid(griddedWeight);
-    //cerr << "griddedWeight Shape " << griddedWeight.shape() << endl;
+    //cerr << index << " griddedWeight Shape " << griddedWeight.shape() << endl;
     grids_p[index]->put(griddedWeight.reform(templateimage.shape()));
     sumWgts[index]=ft_p[index]->getSumWeights();
+    //cerr << "sumweight " << sumWgts[index] << endl;
     //clear the ftmachine
     ft_p[index]->finalizeToSky();
   }
@@ -224,6 +226,7 @@ using namespace casa::vi;
     String key=String::toString(vb.msId())+"_"+String::toString(vb.fieldId()(0));
     Int index=multiFieldMap_p[key];
     Vector<Int> chanMap=ft_p[0]->channelMap(vb);
+    //cerr << "weightuniform chanmap " << chanMap << endl;
     ///No matching channels
     if(max(chanMap)==-1)
       return;
@@ -294,6 +297,8 @@ void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterf
     d2_p[index]=Vector<Float>(nchan, 0.0);
   }
   ft_p[index]=new refim::GridFT(Long(1000000), Int(200), "BOX",1.0, true, false);
+  ft_p[index]->setFreqInterpolation(freqInterpMethod_p);
+  ft_p[index]->setFrameValidity(freqFrameValid_p);
   //remember to make the stokes I
   grids_p[index]=new TempImage<Float>(templateimage.shape(), templateimage.coordinates(), 0.0);
   

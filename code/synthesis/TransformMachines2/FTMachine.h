@@ -327,7 +327,7 @@ public:
 
   //set frequency interpolation type
   virtual void setFreqInterpolation(const casacore::String& method);
-
+  virtual void setFreqInterpolation(const casacore::InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod type);
   //tell ftmachine which Pointing table column to use for Direction
   //Mosaic or Single dish ft use this for example
   virtual void setPointingDirColumn(const casacore::String& column="DIRECTION");

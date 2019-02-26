@@ -32,7 +32,7 @@
 #define SYNTHESIS_TRANSFORM2_BRIGGSCUBEWEIGHTOR_H
 
 #include <synthesis/TransformMachines2/GridFT.h>
-
+#include <scimath/Mathematics/InterpolateArray1D.h>
 
 
 namespace casa{ //# namespace casa
@@ -49,7 +49,7 @@ class BriggsCubeWeightor{
 		       const casacore::Quantity& noise, const casacore::Double robust,
 		       const casacore::ImageInterface<casacore::Complex>& templateimage,
 		       const casacore::Int superUniformBox=0,
-		       const casacore::Bool multiField=false);
+		      const casacore::Bool multiField=false , casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::InterpolationMethod interpMethod=casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::nearestNeighbour);
    //This constructor will require that init be called at a later stage
    BriggsCubeWeightor(const casacore::String& rmode,
 		       const casacore::Quantity& noise,
@@ -59,7 +59,7 @@ class BriggsCubeWeightor{
     
     void weightUniform(casacore::Matrix<casacore::Float>& imweight, const vi::VisBuffer2& vb);
     //initialize
-    void init(vi::VisibilityIterator2& vi,const casacore::ImageInterface<casacore::Complex>& templateimage);
+    void init(vi::VisibilityIterator2& vi,const casacore::ImageInterface<casacore::Complex>& templateimage,const casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::InterpolationMethod interpMethod, const casacore::Bool freqFrameValid=true);
   private:
     void initializeFTMachine(const casacore::uInt index, const casacore::ImageInterface<casacore::Complex>& templateimage, const casacore::Int uvbox=0);
     void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
@@ -78,6 +78,8 @@ class BriggsCubeWeightor{
     casacore::Bool multiField_p;
     casacore::Bool initialized_p;
     casacore::Double refFreq_p;
+    casacore::InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod freqInterpMethod_p;
+    casacore::Bool freqFrameValid_p;
  };
    }//# end namespace refim
 } // end namespace casa

@@ -538,7 +538,7 @@ using namespace casa::vi;
   void FTMachine::initBriggsWeightor(vi::VisibilityIterator2& vi){
     ///Lastly initialized Briggs cube weighting scheme
     if(!briggsWeightor_p.null()){
-      briggsWeightor_p->init(vi, *image);
+      briggsWeightor_p->init(vi, *image, freqInterpMethod_p, freqFrameValid_p);
 
     }
   }
@@ -1983,7 +1983,9 @@ using namespace casa::vi;
     }
   
   }
-  
+  void FTMachine::setFreqInterpolation(const InterpolateArray1D<Double,Complex>::InterpolationMethod type){
+    freqInterpMethod_p=type;
+  }
   
   // helper function to swap the y and z axes of a Cube
   void FTMachine::swapyz(Cube<Complex>& out, const Cube<Complex>& in)
