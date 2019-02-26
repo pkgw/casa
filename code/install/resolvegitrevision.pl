@@ -98,7 +98,7 @@ if ($needsId) {
         print "$splat[-1];$casaVersionDesc;$casaVariant\n"
     }
     else {
-        print ";$casaVersionDesc;$casaVariant\n"
+        print "0;$casaVersionDesc;$casaVariant\n"
     }
 }
 else {
@@ -109,6 +109,6 @@ else {
         }
         print "$splat[-1];;$casaVariant\n"
     } else {
-        print ";$branchTag;$casaVariant\n"
+        print "0;$branchTag;$casaVariant\n"
     }
 }

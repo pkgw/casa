@@ -453,6 +453,16 @@ Returns a four element vector representing the version (major, minor, patch and 
 </description>
 </method>
 
+<method type="function" name="version_variant">
+<shortdescription>returns the target instrument f.e. ALMA or VLA</shortdescription>
+<returns type="string"/>
+<description>
+
+Returns the target instrument. This helps distinguish versions that otherwise may have the same version number
+
+</description>
+</method>
+
 <method type="function" name="version_desc">
 <shortdescription>returns the descriptive version string, e.g. DEV or REL</shortdescription>
 
