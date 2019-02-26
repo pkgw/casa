@@ -15,6 +15,7 @@
 
 $casaBranchHint = $ENV{'CASABRANCHHINT'};
 $tagMatcher="-mas-";
+$casaVariant="";
 #$tagid="mas";
 
 $debug=$ARGV[0];
@@ -90,16 +91,24 @@ print "casaVersionDesc: $casaVersionDesc\n" if $debug;
 @splat = split '-', $branchTag;
 if ($needsId) {
     if ($tagMatcher eq "rel" || $tagMatcher eq "mas" || $tagMatcher =~ /^release-/) {
-        print "$splat[-1];$casaVersionDesc\n"
+        if ($tagMatcher =~ /^release-/) {
+            @mComp = split '-', $tagMatcher;
+            $casaVariant = uc $mComp[1];
+        }
+        print "$splat[-1];$casaVersionDesc;$casaVariant\n"
     }
     else {
-        print ";$casaVersionDesc\n"
+        print ";$casaVersionDesc;$casaVariant\n"
     }
 }
 else {
     if ($tagMatcher eq "rel" || $tagMatcher eq "mas" || $tagMatcher =~ /^release-/) {
-        print "$splat[-1];\n"
+        if ($tagMatcher =~ /^release-/) {
+            @mComp = split '-', $tagMatcher;
+            $casaVariant = uc $mComp[1];
+        }
+        print "$splat[-1];;$casaVariant\n"
     } else {
-        print ";$branchTag\n"
+        print ";$branchTag;$casaVariant\n"
     }
 }
