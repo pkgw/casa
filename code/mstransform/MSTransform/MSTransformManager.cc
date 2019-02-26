@@ -5550,7 +5550,7 @@ void MSTransformManager::generateIterator()
 	if (interactive_p) isWritable = true;
 
 	// Prepare time average parameters (common for all cases)
-	vi::AveragingParameters *timeavgParams = NULL;
+	std::shared_ptr<vi::AveragingParameters> timeavgParams = nullptr;
 	if (timeAverage_p)
 	{
 		if (maxuvwdistance_p > 0)
@@ -5562,9 +5562,9 @@ void MSTransformManager::generateIterator()
 		{
 			timeAvgOptions_p |= vi::AveragingOptions::phaseShifting;
 		}
-
-		timeavgParams = new vi::AveragingParameters(timeBin_p, 0, vi::SortColumns(sortColumns_p, false),
-													timeAvgOptions_p, maxuvwdistance_p,NULL,isWritable,dx_p,dy_p);
+		timeavgParams = std::make_shared<vi::AveragingParameters>
+                    (timeBin_p, .0, vi::SortColumns(sortColumns_p, false),
+                     timeAvgOptions_p, maxuvwdistance_p, nullptr, isWritable, dx_p, dy_p);
 	}
 
 	// Calibrating VI
@@ -5629,7 +5629,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration file spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams.get()));
 			}
 	        // By callib Record
 	        else if (callibRec_p.nfields() > 0)
@@ -5638,7 +5638,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration record spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams.get()));
 			}
             else // scalar
             {
