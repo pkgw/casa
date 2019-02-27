@@ -436,6 +436,9 @@ private:
 class SplineInterpolation :public Interpolation  {
 
 public:
+        typedef casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
+        COEFF;
+
         // Constructor 
           SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
 
@@ -448,6 +451,11 @@ public:
         // Internal stauts (for inspection)  //
 
         bool isCofficientReady()   {return stsCofficientReady; }
+       
+        // Inspect Coeff normally reffered by Pointing Column/AntenaID 
+
+        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
+        getCoeff() { return coeff_; }
 
 private:
         //  default constructor 
