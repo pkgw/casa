@@ -157,11 +157,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CountedPtr<ConvolutionFunction> awConvFunc;
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
     //if ((ftmName=="mawprojectft") || (mTermOn))
-    if (mTermOn)
-      //      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-    else
-      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+    // if (mTermOn)
+    //   awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+    // else
+    //   awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+
+    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     return awConvFunc;
   }
   //

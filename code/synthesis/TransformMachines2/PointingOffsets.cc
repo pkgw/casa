@@ -53,16 +53,6 @@ namespace casa{
       }
     return *this;
   }
-  //casacore::Vector<double> PointingOffsets::findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-  //							       const VisBuffer2& vb)  
-  //  {
-  //cerr<<"PO: doPointing :"<<doPointing_p<<endl;
-  //
-  //if (doPointing_p) 
-  //  return po_p->findMosaicPointingOffset(image,vb);
-  //else
-  //  return po_p->findAntennaPointingOffset(image,vb);
-  //  }
   //
   //----------------------------------------------------------------------
   //
