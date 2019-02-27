@@ -109,7 +109,7 @@ namespace casa{
     numRow = 0;
     
     MDirection antDir =vbUtils.getPointingDir(vb, antId, numRow, doPointing); 
-    cerr << "AntDir="<<antDir << endl;
+    //cerr << "AntDir="<<antDir << endl;
     thePix_p = toPix(vb, antDir, antDir);
     antOffsets = gradPerPixel(thePix_p);
 

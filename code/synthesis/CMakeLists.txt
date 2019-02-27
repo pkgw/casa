@@ -59,7 +59,7 @@ casa_add_library( synthesis
  TransformMachines2/VLACalcIlluminationConvFunc.cc
  TransformMachines2/IlluminationConvFunc.cc
  TransformMachines2/CFCache.cc
- TransformMachines2/AWConvFuncEPJones.cc
+# TransformMachines2/AWConvFuncEPJones.cc
  TransformMachines2/PointingOffsets.cc
  TransformMachines2/PhaseGrad.cc
  TransformMachines2/AWConvFunc.cc
@@ -681,7 +681,7 @@ install (FILES
 	)
 install (FILES 
 	TransformMachines2/ATerm.h
-	TransformMachines2/AWConvFuncEPJones.h
+#	TransformMachines2/AWConvFuncEPJones.h
 	TransformMachines2/AWConvFunc.h
 	TransformMachines2/AWProjectFT.h
 	TransformMachines2/AWProjectWBFT.h
