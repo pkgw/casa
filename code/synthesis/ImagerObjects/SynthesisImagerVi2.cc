@@ -83,7 +83,7 @@
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
 #include <synthesis/TransformMachines2/AWProjectWBFTNew.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
+//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
@@ -544,7 +544,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     CountedPtr<refim::FTMachine> ftm, iftm;
     impars_p = impars;
     gridpars_p = gridpars; 
-    
+
 
     try
       {
@@ -615,12 +615,13 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.convFunc,
 			gridpars.aTermOn,gridpars.psTermOn, gridpars.mTermOn,
 			gridpars.wbAWP,gridpars.cfCache,gridpars.doPointing,
-			gridpars.doPBCorr,gridpars.conjBeams,
+			gridpars.doPBCorr,gridpars.conjBeams,gridpars.usePointing,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
 			impars.imageName, gridpars.pointingDirCol, gridpars.skyPosThreshold,
 			gridpars.convSupport, gridpars.truncateSize, gridpars.gwidth, gridpars.jwidth,
 			gridpars.minWeight, gridpars.clipMinMax, impars.pseudoi);
+
 
       }
     catch(AipsError &x)
@@ -1524,6 +1525,7 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Bool doPointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
+					   const Bool usePointing,
 					const Float computePAStep,         //=360.0
 					   const Float rotatePAStep,          //=5.0
 					   const String interpolation,  //="linear"
@@ -1586,6 +1588,7 @@ void SynthesisImagerVi2::unlockMSs()
 			 aTermOn, psTermOn, mTermOn, wbAWP, cfCache, 
 			 doPointing, doPBCorr, conjBeams, computePAStep,
 			 rotatePAStep, cache,tile,imageNamePrefix);
+
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
@@ -1744,6 +1747,8 @@ void SynthesisImagerVi2::unlockMSs()
 									   mTermOn, wbAWP, conjBeams);
 
     CountedPtr<refim::PointingOffsets> po = new refim::PointingOffsets(awConvFunc->getOversampling());
+
+    po->setDoPointing(doPointing);
     awConvFunc->setPointingOffsets(po);
     //
     // Construct the appropriate re-sampler.

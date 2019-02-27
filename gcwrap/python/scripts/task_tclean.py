@@ -78,6 +78,7 @@ def tclean(
     wbawp ,#= True,
     conjbeams ,#= True,
     cfcache ,#= "",
+    dopointing, #= False
     computepastep ,#=360.0,
     rotatepastep ,#=360.0,
 

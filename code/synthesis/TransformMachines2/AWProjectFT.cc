@@ -58,7 +58,7 @@
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/EVLAAperture.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
+//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 
 //#define CONVSIZE (1024*2)
 // #define OVERSAMPLING 2
@@ -158,7 +158,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
     //if ((ftmName=="mawprojectft") || (mTermOn))
     if (mTermOn)
-      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+      //      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     else
       awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     return awConvFunc;
@@ -188,7 +189,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    doPointing=1; 
+    //doPointing=1; 
 
     maxConvSupport=-1;  
     //
@@ -1170,8 +1171,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     visResampler_p->setFreqMaps(expandedSpwFreqSel_p,expandedSpwConjFreqSel_p);
 
     lastPAUsedForWtImg = currentCFPA = pa;
-
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb));
+    //    cerr <<"AWPFT:fCF doPointing: "<<doPointing<<endl;
+    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb,doPointing));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
     // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
@@ -2455,8 +2456,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     vbs.conjBeams_p=conjBeams_p;
 
     //timer_p.mark();
-
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
+    //    cerr<<"AWP:setupVBStore doPointing:"<< doPointing<<endl;
+    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
       vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,

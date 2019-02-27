@@ -138,6 +138,21 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //
   //----------------------------------------------------------------------
   //
+  Vector<Double> AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
+						const VisBuffer2& vb, const Bool& doPointing)
+  {
+        return po_p->findPointingOffset(image,vb,doPointing);
+    //    if (!doPointing) 
+    //      {cerr<<"AWCF: Using mosaic pointing \n";return po_p->findMosaicPointingOffset(image,vb);}
+    //    else
+    //      {cerr<<"AWCF: Using antenna pointing table \n";return po_p->findAntennaPointingOffset(image,vb);}
+  }
+
+
+    //
+    //---------------------------------------------------------------
+    //
+
   void AWConvFunc::makeConjPolAxis(CoordinateSystem& cs,
 				   Int conjStokes_in)
   {

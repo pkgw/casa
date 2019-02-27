@@ -44,21 +44,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PointingOffsets 
   {
   public:
-    PointingOffsets(const int& convOversampling):epJ_p()  {convOversampling_p = convOversampling;}
+    PointingOffsets(const int& convOversampling):epJ_p(),doPointing_p(false)  {convOversampling_p = convOversampling;}
     ~PointingOffsets() {};
     PointingOffsets& operator=(const PointingOffsets& other);
 
     void setEPJones(SolvableVisJones* epJ) {epJ_p = epJ;};
     virtual casacore::Vector<casacore::Double> findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-									const vi::VisBuffer2& vb);
+									const vi::VisBuffer2& vb, const casacore::Bool& doPointing=false);
 
     virtual casacore::Vector<casacore::Double> findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-									 const vi::VisBuffer2& vb);
+									 const vi::VisBuffer2& vb, const casacore::Bool& doPointing=true);
+
+    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+								  const vi::VisBuffer2& vb, const casacore::Bool doPointing=false);
+
+    //casacore::Vector<double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+    //						const vi::VisBuffer2& vb);
 
     casacore::Vector<double> gradPerPixel(const casacore::Vector<double>& p);
     casacore::Vector<casacore::Double>& toPix(const vi::VisBuffer2& vb, 
 					      const casacore::MDirection& dir1, const casacore::MDirection& dir2);
     void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage, const vi::VisBuffer2& vb);
+    void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
   private:
 
     casacore::Vector<double> thePix_p, pixFieldGrad_p;
@@ -74,7 +81,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::MDirection direction1_p;
     casacore::MDirection direction2_p;
     casacore::CountedPtr<SolvableVisJones> epJ_p;
-
+    bool doPointing_p;
   };
   //
   //-------------------------------------------------------------------------------------------

@@ -1041,6 +1041,13 @@ HPX HEALPix grid.  -->
 	    <value type="string"></value>
     </param>
 
+    <param type="bool" name="dopointing" subparam="false">
+     <shortdescription>The parameter makes the gridder utilize the pointing table phase directions while computing the residual image.</shortdescription>
+<description>The dopointing flag informs the gridder that it should utilize the pointing table
+to use the correct direction in which the antenna is pointing with respect to the pointing phasecenter. </description>
+      <value type="bool">False</value>
+    </param>
+
     <param type="double" name="computepastep" subparam="true">
      <shortdescription>Parallactic angle interval after the AIFs are recomputed (deg)</shortdescription>
 <description>Parallactic angle interval after the AIFs are recomputed (deg)
@@ -2605,6 +2612,7 @@ HPX HEALPix grid.  -->
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
 	 <default param="mosweight"><value>False</value></default>
+	 <default param="dopointing"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2618,6 +2626,7 @@ HPX HEALPix grid.  -->
 	 <default param="mosweight"><value>False</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
+	 <default param="dopointing"><value>False</value></default>
        </equals>
        <equals type="string" value="awp">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2631,6 +2640,7 @@ HPX HEALPix grid.  -->
 	 <default param="mosweight"><value>False</value></default>
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
+	 <default param="dopointing"><value>False</value></default>
        </equals>
      </when>
 
