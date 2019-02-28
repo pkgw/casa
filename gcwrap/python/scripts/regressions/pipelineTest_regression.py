@@ -15,6 +15,7 @@ rootdatapath = pathname+'/data/regression/pipeline/'
    Update September 1, 2015
    Update April 20, 2018
    Update June  01, 2018
+   Update Feb   22, 2019   Added imaging statistics
 '''
 
 THISHOME  = "working/"
@@ -23,9 +24,12 @@ endTime=0.0
 startProc=0.0
 endProc=0.0
 regstate = True
-standard_file = rootdatapath + 'VLApipeline44-standard'
 # MIN_CASA_REVISION = 36095
 
+def printmsg(logfile, msg):
+    print >>logfile, msg
+    print(msg)
+    return
 
 
 def load_context(filename):
@@ -101,27 +105,21 @@ def stats():
     try:
         import pipeline
     except ImportError, e:
-        print e
-        print >>logfile, "Unable to import the CASA pipeline"
+        printmsg(logfile, "Unable to import the CASA pipeline.")
+        printmsg(logfile, e)
         regstate = False
     
     try:
         # Open context
         context = pipeline.Pipeline(context='last').context
         regstate = True
-        print >>logfile,"VLA pipeline context created."
-        print("VLA pipeline context created.")
-        print >>logfile,"Context verification - VLA pipeline regression PASSED."
-        print("Context verification - VLA pipeline regression PASSED.")
-        
+        printmsg(logfile, "VLA pipeline context created.")
+        printmsg(logfile,"Context verification - VLA pipeline regression PASSED.")        
     except Exception as e:
         regstate = False
-        print >>logfile,"VLA pipeline context NOT created."
-        print("VLA pipeline context NOT created.")
-        print >>logfile,"Context verification - VLA pipeline regression FAILED."
-        print("Context verification - VLA pipeline regression FAILED.")
-        print >>logfile, e
-        print e
+        printmsg(logfile,"VLA pipeline context NOT created.")
+        printmsg("Context verification - VLA pipeline regression FAILED.")
+        printmsg(logfile, e)
 
     # Test fluxscale values
     # Test that hifv_fluxboot stage was the 13th stage run (index 12)
@@ -135,42 +133,66 @@ def stats():
         # value_compare43 = 0.6934577681171487
         # value_compare = 0.716367318068  # CASA 4.5
         # value_compare = 0.717857716108  # CASA 4.6
-        # value_compare = 0.716364780148  # CASA 4.6.144 r36095, pipeline r36209 (trunk)
+        # value_compare = 0.716364780148  # CASA 4.6.144 r36095,       pipeline r36209
         # value_compare = 0.718457023749  # CASA-test 5.0.11-DEV (r38177) 
         # value_compare = 0.71857779577   # CASA-prerelease 5.0.0-187, pipeline r40156
-        # value_compare = 0.718551806637  # CASA-prerelease 5.1.0-34, pipeline r40615
-        # value_compare = 0.718519030402  # CASA-prerelease 5.3.0-26, pipeline r40909
+        # value_compare = 0.718551806637  # CASA-prerelease 5.1.0-34,  pipeline r40615
+        # value_compare = 0.718519030402  # CASA-prerelease 5.3.0-26,  pipeline r40909
         # value_compare =  0.718342661383 # CASA-prerelease 5.3.0-114, pipeline r41386
-        value_compare =  0.717434107414   # CASA-prerelease 5.4.0-3, pipeline r41527
+        # value_compare =  0.717434107414 # CASA-prerelease 5.4.0-3,   pipeline r41527
+        value_compare = 0.7174272925736047 # CASA-prerelease 5.5.0-94, pipeline r42309
+        casaversion = 'CASA-prerelease 5.5.0-94'
+        pipelinerevision = 'pipeline r42309 (trunk)'
         
         result_bool = np.isclose(fluxlist[0][0], value_compare, rtol=rtol, atol=atol, equal_nan=False)
         
-        print >>logfile, "Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)"
-        print "Accepted test value is: ", value_compare, " from CASA-prerelease 5.4.0-3, pipeline r41527 (trunk)"
-        print >>logfile, "Regression generated value is: ", fluxlist[0][0]
-        print "Regression generated value is: ", fluxlist[0][0]
+        printmsg(logfile, "Accepted test value is: {!s} from {!s}, {!s}".format(str(value_compare), casaversion, pipelinerevision))
+        printmsg(logfile, "Regression generated value is: {!s}".format(str(fluxlist[0][0])))
         
         if (result_bool):
             regstate=True
-            print >>logfile,"hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
-            print "hifv_fluxboot values match within relative tolerance of 1.0e-05 and absolute tolerance of 1.0e-05"
-            print >>logfile,"hifv_fluxboot test PASSED."
-            print "hifv_fluxboot test PASSED."
+            printmsg(logfile, "hifv_fluxboot values match within relative tolerance of {!s} and absolute tolerance of {!s}".format(rtol,atol))
+            printmsg(logfile, "hifv_fluxboot test PASSED.")
         else:
             regstate=False
-            print >>logfile,"hifv_fluxboot values are not within tolerances."
-            print "hifv_fluxboot values are not within tolerances."
-            print >>logfile,"hifv_fluxboot test FAILED."
-            print "hifv_fluxboot test FAILED."
-        
+            printmsg(logfile, "hifv_fluxboot values are not within tolerances.")
+            printmsg(logfile, "hifv_fluxboot test FAILED.")
     except Exception as e:
         regstate=False
-        print >>logfile,"hifv_fluxboot values are not within tolerances."
-        print "hifv_fluxboot values are not within tolerances."
-        print >>logfile,"hifv_fluxboot test FAILED."
-        print "hifv_fluxboot test FAILED."
-        print >>logfile, e
-        print e
+        printmsg(logfile, "hifv_fluxboot values are not within tolerances.")
+        printmsg(logfile, "hifv_fluxboot test FAILED.")
+        printmsg(logfile, e)
+        
+    # Test imaging statistics
+    # Test results of VLA calibrator imaging from 20th stage run (index 19)
+    try:
+        # Open context of regression pipeline run
+        context = pipeline.Pipeline(context='last').context
+        imlist = context.results[19].read().results
+        
+        # Test image RMS
+        value_compare = [0.00095743726646502312, 0.0076199203496288524]
+        result_bool = [(np.isclose(imlist[i].image_rms, value_compare[i], rtol=rtol, atol=atol, equal_nan=False), os.path.basename(imlist[i].image)) for i in [0,1]]
+
+        printmsg(logfile, "Accepted test RMS values are: {!s} from {!s}, {!s}".format(str(value_compare), casaversion, pipelinerevision))
+        printmsg(logfile, "Regression generated values are: {!s}".format(str([imlist[i].image_rms for i in [0,1]])))
+        
+        for (rb, imagename) in result_bool:
+            printmsg(logfile, ' ')
+            printmsg(logfile, imagename)
+            if (rb):
+                regstate=True
+                printmsg(logfile, "hif_makeimages RMS values match within relative tolerance of {!s} and absolute tolerance of {!s}".format(rtol,atol))
+                printmsg(logfile, "hif_makeimages test PASSED.")
+            else:
+                regstate=False
+                printmsg(logfile, "hif_makeimages RMS values are not within tolerances.")
+                printmsg(logfile, "hif_makeimages test FAILED.")
+    except Exception as e:
+        regstate=False
+        printmsg(logfile, "hif_makeimages RMS values are not within tolerances.")
+        printmsg(logfile, "hif_makeimages test FAILED.")
+        printmsg(logfile, e)
 
     logfile.close()
 
@@ -185,7 +207,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print "Regstate:" , regstate
+    print("Regstate:" , regstate)
     if regstate:
         print("Regression PASSED")
     else:

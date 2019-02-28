@@ -487,7 +487,8 @@ protected:
 	void checkDataColumnsToFill();
 	void colCheckInfo(const casacore::String& inputColName, const casacore::String& outputColName);
 	void checkSPWChannelsKnownLimitation();
-
+	void checkCorrelatorPreaveraging();
+	
 	// Iterator set-up
 	virtual void setIterationApproach();
 	void generateIterator();

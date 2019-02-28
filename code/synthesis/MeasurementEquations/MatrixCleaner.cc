@@ -1219,7 +1219,23 @@ Bool MatrixCleaner::makeScaleMasks()
 }
 
 
-
+  Matrix<casacore::Float>  MatrixCleaner::residual(const Matrix<Float>& model){
+    FFTServer<Float,Complex> fft(model.shape());
+    if(!itsDirty.null() && (model.shape() != (itsDirty->shape())))
+      throw(AipsError("MatrixCleaner: model size has to be consistent with dirty image size"));
+    if(itsXfr.null())
+      throw(AipsError("MatrixCleaner: need to know the psf to calculate the residual"));
+    
+    Matrix<Complex> modelFT;
+    ///Convolve model with psf
+    fft.fft0(modelFT, model);
+    modelFT= (*itsXfr) * modelFT;
+    Matrix<Float> newResidual(itsDirty->shape());
+    fft.fft0(newResidual, modelFT, false);
+    fft.flip(newResidual, false, false);
+    newResidual=(*itsDirty)-newResidual;
+    return newResidual;
+  }
 
 
 Float MatrixCleaner::threshold() const
@@ -1287,4 +1303,3 @@ Int MatrixCleaner::findBeamPatch(const Float maxScaleSize, const Int& nx, const 
 
 
 } //# NAMESPACE CASA - END
-
