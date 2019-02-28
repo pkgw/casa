@@ -1,479 +1,479 @@
-// // -*- C++ -*-
-// //# AWProjectFT.cc: Implementation of AWProjectFT class
-// //# Copyright (C) 1997,1998,1999,2000,2001,2002,2003
-// //# Associated Universities, Inc. Washington DC, USA.
-// //#
-// //# This library is free software; you can redistribute it and/or modify it
-// //# under the terms of the GNU Library General Public License as published by
-// //# the Free Software Foundation; either version 2 of the License, or (at your
-// //# option) any later version.
-// //#
-// //# This library is distributed in the hope that it will be useful, but WITHOUT
-// //# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-// //# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
-// //# License for more details.
-// //#
-// //# You should have received a copy of the GNU Library General Public License
-// //# along with this library; if not, write to the Free Software Foundation,
-// //# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
-// //#
-// //# Correspondence concerning AIPS++ should be addressed as follows:
-// //#        Internet email: aips2-request@nrao.edu.
-// //#        Postal address: AIPS++ Project Office
-// //#                        National Radio Astronomy Observatory
-// //#                        520 Edgemont Road
-// //#                        Charlottesville, VA 22903-2475 USA
-// //#
-// //# $Id$
+// -*- C++ -*-
+//# AWProjectFT.cc: Implementation of AWProjectFT class
+//# Copyright (C) 1997,1998,1999,2000,2001,2002,2003
+//# Associated Universities, Inc. Washington DC, USA.
+//#
+//# This library is free software; you can redistribute it and/or modify it
+//# under the terms of the GNU Library General Public License as published by
+//# the Free Software Foundation; either version 2 of the License, or (at your
+//# option) any later version.
+//#
+//# This library is distributed in the hope that it will be useful, but WITHOUT
+//# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Library General Public
+//# License for more details.
+//#
+//# You should have received a copy of the GNU Library General Public License
+//# along with this library; if not, write to the Free Software Foundation,
+//# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
+//#
+//# Correspondence concerning AIPS++ should be addressed as follows:
+//#        Internet email: aips2-request@nrao.edu.
+//#        Postal address: AIPS++ Project Office
+//#                        National Radio Astronomy Observatory
+//#                        520 Edgemont Road
+//#                        Charlottesville, VA 22903-2475 USA
+//#
+//# $Id$
 
-// #include <casa/Quanta/UnitMap.h>
-// #include <casa/Quanta/MVTime.h>
-// #include <casa/Quanta/UnitVal.h>
-// #include <casa/Containers/Block.h>
-// #include <casa/Containers/Record.h>
-// #include <casa/Arrays/Array.h>
-// #include <casa/OS/HostInfo.h>
-// #include <casa/sstream.h>
+#include <casa/Quanta/UnitMap.h>
+#include <casa/Quanta/MVTime.h>
+#include <casa/Quanta/UnitVal.h>
+#include <casa/Containers/Block.h>
+#include <casa/Containers/Record.h>
+#include <casa/Arrays/Array.h>
+#include <casa/OS/HostInfo.h>
+#include <casa/sstream.h>
 
-// #include <coordinates/Coordinates/CoordinateSystem.h>
-// #include <images/Images/ImageInterface.h>
+#include <coordinates/Coordinates/CoordinateSystem.h>
+#include <images/Images/ImageInterface.h>
 
-// #include <synthesis/TransformMachines/StokesImageUtil.h>
-// #include <synthesis/TransformMachines/SynthesisError.h>
-// #include <synthesis/TransformMachines2/AWProjectFT.h>
-// #include <synthesis/TransformMachines2/CFStore2.h>
-// #include <synthesis/MeasurementComponents/ExpCache.h>
-// #include <synthesis/MeasurementComponents/CExp.h>
-// #include <synthesis/TransformMachines2/AWVisResampler.h>
-// #include <synthesis/TransformMachines2/VBStore.h>
+#include <synthesis/TransformMachines/StokesImageUtil.h>
+#include <synthesis/TransformMachines/SynthesisError.h>
+#include <synthesis/TransformMachines2/AWProjectFT.h>
+#include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/MeasurementComponents/ExpCache.h>
+#include <synthesis/MeasurementComponents/CExp.h>
+#include <synthesis/TransformMachines2/AWVisResampler.h>
+#include <synthesis/TransformMachines2/VBStore.h>
 
-// #include <scimath/Mathematics/FFTServer.h>
-// #include <scimath/Mathematics/MathFunc.h>
-// #include <measures/Measures/MeasTable.h>
-// #include <casa/iostream.h>
-// #include <casa/OS/Timer.h>
+#include <scimath/Mathematics/FFTServer.h>
+#include <scimath/Mathematics/MathFunc.h>
+#include <measures/Measures/MeasTable.h>
+#include <casa/iostream.h>
+#include <casa/OS/Timer.h>
 
-// #include <synthesis/TransformMachines2/ATerm.h>
-// #include <synthesis/TransformMachines2/NoOpATerm.h>
-// #include <synthesis/TransformMachines2/PhaseGrad.h>
-// #include <synthesis/TransformMachines2/AWConvFunc.h>
-// #include <synthesis/TransformMachines2/EVLAAperture.h>
-// //#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
+#include <synthesis/TransformMachines2/ATerm.h>
+#include <synthesis/TransformMachines2/NoOpATerm.h>
+#include <synthesis/TransformMachines2/PhaseGrad.h>
+#include <synthesis/TransformMachines2/AWConvFunc.h>
+#include <synthesis/TransformMachines2/EVLAAperture.h>
+//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 
-// //#define CONVSIZE (1024*2)
-// // #define OVERSAMPLING 2
-// #define USETABLES 0           // If equal to 1, use tabulated exp() and
-// 			      // complex exp() functions.
-// #define MAXPOINTINGERROR 250.0 // Max. pointing error in arcsec used to
-// // determine the resolution of the
-// // tabulated exp() function.
-// #define DORES true
+//#define CONVSIZE (1024*2)
+// #define OVERSAMPLING 2
+#define USETABLES 0           // If equal to 1, use tabulated exp() and
+			      // complex exp() functions.
+#define MAXPOINTINGERROR 250.0 // Max. pointing error in arcsec used to
+// determine the resolution of the
+// tabulated exp() function.
+#define DORES true
 
 
-// using namespace casacore;
-// namespace casa { //# NAMESPACE CASA - BEGIN
-//   using namespace vi;  
-// #define NEED_UNDERSCORES
-//   namespace refim{
-//   extern "C" 
-//   {
-//     //
-//     // The Gridding Convolution Function (GCF) used by the underlying
-//     // gridder written in FORTRAN.
-//     //
-//     // The arguments must all be pointers and the value of the GCF at
-//     // the given (u,v) point is returned in the weight variable.  Making
-//     // this a function which returns a complex value (namely the weight)
-//     // has problems when called in FORTRAN - I (SB) don't understand
-//     // why.
-//     //
-// #if defined(NEED_UNDERSCORES)
-// #define nwcppeij nwcppeij_
-// #endif
-//     //
-//     //---------------------------------------------------------------
-//     //
-//     IlluminationConvFunc awEij2;
-//     void awcppeij2(Double *griduvw, Double *area,
-// 		 Double *raoff1, Double *decoff1,
-// 		 Double *raoff2, Double *decoff2, 
-// 		 Int *doGrad,
-// 		 Complex *weight,
-// 		 Complex *dweight1,
-// 		 Complex *dweight2,
-// 		 Double *currentCFPA)
-//     {
-//       Complex w,d1,d2;
-//       awEij2.getValue(griduvw, raoff1, raoff2, decoff1, decoff2,
-// 		    area,doGrad,w,d1,d2,*currentCFPA);
-//       *weight   = w;
-//       *dweight1 = d1;
-//       *dweight2 = d2;
-//     }
-//   }
+using namespace casacore;
+namespace casa { //# NAMESPACE CASA - BEGIN
+  using namespace vi;  
+#define NEED_UNDERSCORES
+  namespace refim{
+  extern "C" 
+  {
+    //
+    // The Gridding Convolution Function (GCF) used by the underlying
+    // gridder written in FORTRAN.
+    //
+    // The arguments must all be pointers and the value of the GCF at
+    // the given (u,v) point is returned in the weight variable.  Making
+    // this a function which returns a complex value (namely the weight)
+    // has problems when called in FORTRAN - I (SB) don't understand
+    // why.
+    //
+#if defined(NEED_UNDERSCORES)
+#define nwcppeij nwcppeij_
+#endif
+    //
+    //---------------------------------------------------------------
+    //
+    IlluminationConvFunc awEij2;
+    void awcppeij2(Double *griduvw, Double *area,
+		 Double *raoff1, Double *decoff1,
+		 Double *raoff2, Double *decoff2, 
+		 Int *doGrad,
+		 Complex *weight,
+		 Complex *dweight1,
+		 Complex *dweight2,
+		 Double *currentCFPA)
+    {
+      Complex w,d1,d2;
+      awEij2.getValue(griduvw, raoff1, raoff2, decoff1, decoff2,
+		    area,doGrad,w,d1,d2,*currentCFPA);
+      *weight   = w;
+      *dweight1 = d1;
+      *dweight2 = d2;
+    }
+  }
 
-//   ATerm* AWProjectFT::createTelescopeATerm(const String& telescopeName, const Bool& isATermOn)
-//   {
+  ATerm* AWProjectFT::createTelescopeATerm(const String& telescopeName, const Bool& isATermOn)
+  {
     
-//     if (!isATermOn) return new NoOpATerm();
+    if (!isATermOn) return new NoOpATerm();
     
-//     // ROMSObservationColumns msoc(ms.observation());
-//     // String ObsName=msoc.telescopeName()(0);
-//     if ((telescopeName == "EVLA") || (telescopeName == "VLA"))
-//       return new EVLAAperture();
-//     else
-//       {
-// 	LogIO os(LogOrigin("AWProjectFT2", "createTelescopeATerm",WHERE));
-// 	os << "Telescope name ('"+
-// 	  telescopeName+"') in the MS not recognized to create the telescope specific ATerm" 
-// 	   << LogIO::EXCEPTION;
-//       }
+    // ROMSObservationColumns msoc(ms.observation());
+    // String ObsName=msoc.telescopeName()(0);
+    if ((telescopeName == "EVLA") || (telescopeName == "VLA"))
+      return new EVLAAperture();
+    else
+      {
+	LogIO os(LogOrigin("AWProjectFT2", "createTelescopeATerm",WHERE));
+	os << "Telescope name ('"+
+	  telescopeName+"') in the MS not recognized to create the telescope specific ATerm" 
+	   << LogIO::EXCEPTION;
+      }
     
-//     return NULL;
-//   }
+    return NULL;
+  }
 
-//   CountedPtr<ConvolutionFunction> AWProjectFT::makeCFObject(const String& telescopeName,
-// 							    const Bool aTermOn,
-// 							    const Bool psTermOn,
-// 							    const Bool wTermOn,
-// 							    const Bool mTermOn,
-// 							    const Bool wbAWP,
-// 							    const Bool conjBeams)
-//   {
-//     (void)wTermOn;//Unused
-//     CountedPtr<ATerm> apertureFunction = AWProjectFT::createTelescopeATerm(telescopeName, aTermOn);
-//     CountedPtr<PSTerm> psTerm = new PSTerm();
-//     CountedPtr<WTerm> wTerm = new WTerm();
-//     //if (cfBufferSize > 0) apertureFunction->setConvSize(cfBufferSize);
-//     //
-//     // Selectively switch off CFTerms.
-//     //
-//     if (aTermOn == false) {apertureFunction->setOpCode(CFTerms::NOOP);}
-//     if (psTermOn == false) psTerm->setOpCode(CFTerms::NOOP);
-//     if (wTermOn == False) wTerm->setOpCode(CFTerms::NOOP);
-//     //
-//     // Construct the CF object with appropriate CFTerms.
-//     //
-//     CountedPtr<ConvolutionFunction> awConvFunc;
-//     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
-//     //if ((ftmName=="mawprojectft") || (mTermOn))
-//     // if (mTermOn)
-//     //   awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-//     // else
-//     //   awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+  CountedPtr<ConvolutionFunction> AWProjectFT::makeCFObject(const String& telescopeName,
+							    const Bool aTermOn,
+							    const Bool psTermOn,
+							    const Bool wTermOn,
+							    const Bool mTermOn,
+							    const Bool wbAWP,
+							    const Bool conjBeams)
+  {
+    (void)wTermOn;//Unused
+    CountedPtr<ATerm> apertureFunction = AWProjectFT::createTelescopeATerm(telescopeName, aTermOn);
+    CountedPtr<PSTerm> psTerm = new PSTerm();
+    CountedPtr<WTerm> wTerm = new WTerm();
+    //if (cfBufferSize > 0) apertureFunction->setConvSize(cfBufferSize);
+    //
+    // Selectively switch off CFTerms.
+    //
+    if (aTermOn == false) {apertureFunction->setOpCode(CFTerms::NOOP);}
+    if (psTermOn == false) psTerm->setOpCode(CFTerms::NOOP);
+    if (wTermOn == False) wTerm->setOpCode(CFTerms::NOOP);
+    //
+    // Construct the CF object with appropriate CFTerms.
+    //
+    CountedPtr<ConvolutionFunction> awConvFunc;
+    //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
+    //if ((ftmName=="mawprojectft") || (mTermOn))
+    // if (mTermOn)
+    //   awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+    // else
+    //   awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
 
-//     awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-//     return awConvFunc;
-//   }
-//   //
-//   //---------------------------------------------------------------
-//   //
-//   AWProjectFT::AWProjectFT()
-//     : FTMachine(), padding_p(1.0), nWPlanes_p(1),
-//       imageCache(0), cachesize(0), tilesize(16),
-//       gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
-//       maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
-//       pointingToImage(0), usezero_p(false),
-//       epJ_p(),
-//       doPBCorrection(true), conjBeams_p(true),/*cfCache_p(cfcache),*/ paChangeDetector(),
-//       rotateOTFPAIncr_p(0.1),
-//       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
-//       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-//     rotatedConvFunc_p(),
-//     runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p(), vb2CFBMap_p()
-//   {
-//     //    convSize=0;
-//     tangentSpecified_p=false;
-//     lastIndex_p=0;
-//     paChangeDetector.reset();
-//     pbLimit_p=5e-2;
-//     //
-//     // Get various parameters from the visibilities.  
-//     //
-//     //doPointing=1; 
+    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+    return awConvFunc;
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  AWProjectFT::AWProjectFT()
+    : FTMachine(), padding_p(1.0), nWPlanes_p(1),
+      imageCache(0), cachesize(0), tilesize(16),
+      gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
+      maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
+      pointingToImage(0), usezero_p(false),
+      epJ_p(),
+      doPBCorrection(true), conjBeams_p(true),/*cfCache_p(cfcache),*/ paChangeDetector(),
+      rotateOTFPAIncr_p(0.1),
+      Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
+      visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
+    rotatedConvFunc_p(),
+    runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p(), vb2CFBMap_p()
+  {
+    //    convSize=0;
+    tangentSpecified_p=false;
+    lastIndex_p=0;
+    paChangeDetector.reset();
+    pbLimit_p=5e-2;
+    //
+    // Get various parameters from the visibilities.  
+    //
+    //doPointing=1; 
 
-//     maxConvSupport=-1;  
-//     //
-//     // Set up the Conv. Func. disk cache manager object.
-//     //
-//     // if (!cfCache_p.null()) delete &cfCache_p;
-//     // cfCache_p=cfcache;
-//     convSampling=OVERSAMPLING;
-//     //convSize=CONVSIZE;
-//     Long hostRAM = (HostInfo::memoryTotal(true)*1024); // In bytes
-//     hostRAM = hostRAM/(sizeof(Float)*2); // In complex pixels
-//     if (cachesize > hostRAM) cachesize=hostRAM;
-//     sigma=1.0;
-//     canComputeResiduals_p=DORES;
-//     // cfs2_p = &cfCache_p->memCache2_p[0];//new CFStore2;
-//     // cfwts2_p =  &cfCache_p->memCacheWt2_p[0];//new CFStore2;
-//     pop_p->init();
-//     CFBuffer::initCFBStruct(cfbst_pub);
-//     //    rotatedConvFunc_p.data=new Array<Complex>();    
-//     //    self_p.reset(this);
-//     vb2CFBMap_p = new VB2CFBMap();
-//   }
-//   //
-//   //---------------------------------------------------------------
-//   //
-//   AWProjectFT::AWProjectFT(Int nWPlanes, Long icachesize, 
-// 			   CountedPtr<CFCache>& cfcache,
-// 			   CountedPtr<ConvolutionFunction>& cf,
-// 			   CountedPtr<VisibilityResamplerBase>& visResampler,
-// 			   Bool applyPointingOffset,
-// 			   Bool doPBCorr,
-// 			   Int itilesize, 
-// 			   Float pbLimit,
-// 			   Bool usezero,
-// 			   Bool conjBeams,
-// 			   Bool doublePrecGrid,
-// 			   PolOuterProduct::MuellerType muellerType)
-//     : FTMachine(cfcache,cf), padding_p(1.0), nWPlanes_p(nWPlanes),
-//       imageCache(0), cachesize(icachesize), tilesize(itilesize),
-//       gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
-//       maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
-//       pointingToImage(0), usezero_p(usezero),
-//       // convFunc_p(), convWeights_p(),
-//       epJ_p(),
-//       doPBCorrection(doPBCorr), conjBeams_p(conjBeams), 
-//       /*cfCache_p(cfcache),*/ paChangeDetector(),
-//       rotateOTFPAIncr_p(0.1),
-//       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
-//       visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-//     rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p(), vb2CFBMap_p()
-//   {
-//     //convSize=0;
-//     tangentSpecified_p=false;
-//     lastIndex_p=0;
-//     paChangeDetector.reset();
-//     pbLimit_p=pbLimit;
-//     //
-//     // Get various parameters from the visibilities.  
-//     //
-//     if (applyPointingOffset) doPointing=1; else doPointing=0;
+    maxConvSupport=-1;  
+    //
+    // Set up the Conv. Func. disk cache manager object.
+    //
+    // if (!cfCache_p.null()) delete &cfCache_p;
+    // cfCache_p=cfcache;
+    convSampling=OVERSAMPLING;
+    //convSize=CONVSIZE;
+    Long hostRAM = (HostInfo::memoryTotal(true)*1024); // In bytes
+    hostRAM = hostRAM/(sizeof(Float)*2); // In complex pixels
+    if (cachesize > hostRAM) cachesize=hostRAM;
+    sigma=1.0;
+    canComputeResiduals_p=DORES;
+    // cfs2_p = &cfCache_p->memCache2_p[0];//new CFStore2;
+    // cfwts2_p =  &cfCache_p->memCacheWt2_p[0];//new CFStore2;
+    pop_p->init();
+    CFBuffer::initCFBStruct(cfbst_pub);
+    //    rotatedConvFunc_p.data=new Array<Complex>();    
+    //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  AWProjectFT::AWProjectFT(Int nWPlanes, Long icachesize, 
+			   CountedPtr<CFCache>& cfcache,
+			   CountedPtr<ConvolutionFunction>& cf,
+			   CountedPtr<VisibilityResamplerBase>& visResampler,
+			   Bool applyPointingOffset,
+			   Bool doPBCorr,
+			   Int itilesize, 
+			   Float pbLimit,
+			   Bool usezero,
+			   Bool conjBeams,
+			   Bool doublePrecGrid,
+			   PolOuterProduct::MuellerType muellerType)
+    : FTMachine(cfcache,cf), padding_p(1.0), nWPlanes_p(nWPlanes),
+      imageCache(0), cachesize(icachesize), tilesize(itilesize),
+      gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
+      maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
+      pointingToImage(0), usezero_p(usezero),
+      // convFunc_p(), convWeights_p(),
+      epJ_p(),
+      doPBCorrection(doPBCorr), conjBeams_p(conjBeams), 
+      /*cfCache_p(cfcache),*/ paChangeDetector(),
+      rotateOTFPAIncr_p(0.1),
+      Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
+      visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
+    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p(), vb2CFBMap_p()
+  {
+    //convSize=0;
+    tangentSpecified_p=false;
+    lastIndex_p=0;
+    paChangeDetector.reset();
+    pbLimit_p=pbLimit;
+    //
+    // Get various parameters from the visibilities.  
+    //
+    if (applyPointingOffset) doPointing=1; else doPointing=0;
 
-//     maxConvSupport=-1;  
-//     //
-//     // Set up the Conv. Func. disk cache manager object.
-//     //
-//     // if (!cfCache_p.null()) delete &cfCache_p;
-//     // cfCache_p=cfcache;
-//     convSampling=OVERSAMPLING;
-//     //convSize=CONVSIZE;
-//     Long hostRAM = (HostInfo::memoryTotal(true)*1024); // In bytes
-//     hostRAM = hostRAM/(sizeof(Float)*2); // In complex pixels
-//     if (cachesize > hostRAM) cachesize=hostRAM;
-//     sigma=1.0;
-//     canComputeResiduals_p=DORES;
-//     if (!cfCache_p.null())
-//       {
-// 	cfs2_p = CountedPtr<CFStore2>(&(cfCache_p->memCache2_p)[0],false);//new CFStore2;
-// 	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
-//       }
-//     pop_p->init();
-//     useDoubleGrid_p=doublePrecGrid;
-//     //    rotatedConvFunc_p.data=new Array<Complex>();
-//     CFBuffer::initCFBStruct(cfbst_pub);
-//     muellerType_p = muellerType;
-//     //    self_p.reset(this);
-//     vb2CFBMap_p = new VB2CFBMap();
-//   }
-//   //
-//   //---------------------------------------------------------------
-//   //
-//   AWProjectFT::AWProjectFT(const RecordInterface& stateRec)
-//     : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p(), vb2CFBMap_p()
-//   {
-//     //
-//     // Construct from the input state record
-//     //
-//     String error;
+    maxConvSupport=-1;  
+    //
+    // Set up the Conv. Func. disk cache manager object.
+    //
+    // if (!cfCache_p.null()) delete &cfCache_p;
+    // cfCache_p=cfcache;
+    convSampling=OVERSAMPLING;
+    //convSize=CONVSIZE;
+    Long hostRAM = (HostInfo::memoryTotal(true)*1024); // In bytes
+    hostRAM = hostRAM/(sizeof(Float)*2); // In complex pixels
+    if (cachesize > hostRAM) cachesize=hostRAM;
+    sigma=1.0;
+    canComputeResiduals_p=DORES;
+    if (!cfCache_p.null())
+      {
+	cfs2_p = CountedPtr<CFStore2>(&(cfCache_p->memCache2_p)[0],false);//new CFStore2;
+	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
+      }
+    pop_p->init();
+    useDoubleGrid_p=doublePrecGrid;
+    //    rotatedConvFunc_p.data=new Array<Complex>();
+    CFBuffer::initCFBStruct(cfbst_pub);
+    muellerType_p = muellerType;
+    //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  AWProjectFT::AWProjectFT(const RecordInterface& stateRec)
+    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p(), vb2CFBMap_p()
+  {
+    //
+    // Construct from the input state record
+    //
+    String error;
     
-//     if (!fromRecord(stateRec)) {
-//       LogIO log_l(LogOrigin("AWProjectFT2", "AWProjectFT[R&D]"));
-//       log_l << "Failed to create " << name() << " object." << LogIO::EXCEPTION;
-//     };
-//     maxConvSupport=-1;
-//     convSampling=OVERSAMPLING;
-//     visResampler_p->init(useDoubleGrid_p);
-//     //convSize=CONVSIZE;
-//     canComputeResiduals_p=DORES;
-//     if (!cfCache_p.null())
-//       {
-// 	cfs2_p = CountedPtr<CFStore2>(&cfCache_p->memCache2_p[0],false);//new CFStore2;
-// 	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
-//       }
-//     pop_p->init();
-//     //    self_p.reset(this);
-//     vb2CFBMap_p = new VB2CFBMap();
-//   }
-//   //
-//   //----------------------------------------------------------------------
-//   //
-//   AWProjectFT::AWProjectFT(const AWProjectFT& other):FTMachine()
-//   {
-//     operator=(other);
-//   }
-//   //
-//   //---------------------------------------------------------------
-//   //
-//   // This is nasty, we should use CountedPointers here.
-//   AWProjectFT::~AWProjectFT() 
-//   {
-//       if(imageCache) delete imageCache; imageCache=0;
-//       if(gridder) delete gridder; gridder=0;
-//   }
-//   //
-//   //---------------------------------------------------------------
-//   //
-//   AWProjectFT& AWProjectFT::operator=(const AWProjectFT& other)
-//   {
-//     if(this!=&other) 
-//       {
-// 	//Do the base parameters
-// 	FTMachine::operator=(other);
+    if (!fromRecord(stateRec)) {
+      LogIO log_l(LogOrigin("AWProjectFT2", "AWProjectFT[R&D]"));
+      log_l << "Failed to create " << name() << " object." << LogIO::EXCEPTION;
+    };
+    maxConvSupport=-1;
+    convSampling=OVERSAMPLING;
+    visResampler_p->init(useDoubleGrid_p);
+    //convSize=CONVSIZE;
+    canComputeResiduals_p=DORES;
+    if (!cfCache_p.null())
+      {
+	cfs2_p = CountedPtr<CFStore2>(&cfCache_p->memCache2_p[0],false);//new CFStore2;
+	cfwts2_p =  CountedPtr<CFStore2>(&cfCache_p->memCacheWt2_p[0],false);//new CFStore2;
+      }
+    pop_p->init();
+    //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
+  }
+  //
+  //----------------------------------------------------------------------
+  //
+  AWProjectFT::AWProjectFT(const AWProjectFT& other):FTMachine()
+  {
+    operator=(other);
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  // This is nasty, we should use CountedPointers here.
+  AWProjectFT::~AWProjectFT() 
+  {
+      if(imageCache) delete imageCache; imageCache=0;
+      if(gridder) delete gridder; gridder=0;
+  }
+  //
+  //---------------------------------------------------------------
+  //
+  AWProjectFT& AWProjectFT::operator=(const AWProjectFT& other)
+  {
+    if(this!=&other) 
+      {
+	//Do the base parameters
+	FTMachine::operator=(other);
 
 	
-// 	padding_p=other.padding_p;
+	padding_p=other.padding_p;
 	
-// 	nWPlanes_p=other.nWPlanes_p;
-// 	imageCache=other.imageCache;
-// 	cachesize=other.cachesize;
-// 	tilesize=other.tilesize;
-// 	cfRefFreq_p = other.cfRefFreq_p;
-// 	if(other.gridder==0) gridder=0;
-// 	else
-// 	  {
-// 	    uvScale.resize();
-// 	    uvOffset.resize();
-// 	    uvScale=other.uvScale;
-// 	    uvOffset=other.uvOffset;
-// 	    gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
-// 							   uvScale, uvOffset,
-// 							   "SF");
-// 	  }
+	nWPlanes_p=other.nWPlanes_p;
+	imageCache=other.imageCache;
+	cachesize=other.cachesize;
+	tilesize=other.tilesize;
+	cfRefFreq_p = other.cfRefFreq_p;
+	if(other.gridder==0) gridder=0;
+	else
+	  {
+	    uvScale.resize();
+	    uvOffset.resize();
+	    uvScale=other.uvScale;
+	    uvOffset=other.uvOffset;
+	    gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
+							   uvScale, uvOffset,
+							   "SF");
+	  }
 
-// 	isTiled=other.isTiled;
-// 	lattice=0;
-// 	arrayLattice=0;
+	isTiled=other.isTiled;
+	lattice=0;
+	arrayLattice=0;
 
-// 	maxAbsData=other.maxAbsData;
-// 	centerLoc=other.centerLoc;
-// 	offsetLoc=other.offsetLoc;
-// 	pointingToImage=other.pointingToImage;
-// 	usezero_p=other.usezero_p;
+	maxAbsData=other.maxAbsData;
+	centerLoc=other.centerLoc;
+	offsetLoc=other.offsetLoc;
+	pointingToImage=other.pointingToImage;
+	usezero_p=other.usezero_p;
 
 	
-// 	padding_p=other.padding_p;
-// 	nWPlanes_p=other.nWPlanes_p;
-// 	imageCache=other.imageCache;
-// 	cachesize=other.cachesize;
-// 	tilesize=other.tilesize;
-// 	isTiled=other.isTiled;
-// 	maxAbsData=other.maxAbsData;
-// 	centerLoc=other.centerLoc;
-// 	offsetLoc=other.offsetLoc;
-// 	pointingToImage=other.pointingToImage;
-// 	usezero_p=other.usezero_p;
-// 	doPBCorrection = other.doPBCorrection;
-// 	maxConvSupport= other.maxConvSupport;
+	padding_p=other.padding_p;
+	nWPlanes_p=other.nWPlanes_p;
+	imageCache=other.imageCache;
+	cachesize=other.cachesize;
+	tilesize=other.tilesize;
+	isTiled=other.isTiled;
+	maxAbsData=other.maxAbsData;
+	centerLoc=other.centerLoc;
+	offsetLoc=other.offsetLoc;
+	pointingToImage=other.pointingToImage;
+	usezero_p=other.usezero_p;
+	doPBCorrection = other.doPBCorrection;
+	maxConvSupport= other.maxConvSupport;
 
-// 	epJ_p=other.epJ_p;
-// 	//convSize=other.convSize;
-// 	lastIndex_p=other.lastIndex_p;
-// 	paChangeDetector=other.paChangeDetector;
-// 	pbLimit_p=other.pbLimit_p;
-// 	//
-// 	// Get various parameters from the visibilities.  
-// 	//
-// 	doPointing=other.doPointing;
+	epJ_p=other.epJ_p;
+	//convSize=other.convSize;
+	lastIndex_p=other.lastIndex_p;
+	paChangeDetector=other.paChangeDetector;
+	pbLimit_p=other.pbLimit_p;
+	//
+	// Get various parameters from the visibilities.  
+	//
+	doPointing=other.doPointing;
 
-// 	maxConvSupport=other.maxConvSupport;
-// 	//
-// 	// Set up the Conv. Func. disk cache manager object.
-// 	//
-// 	cfCache_p=other.cfCache_p;
-// 	convSampling=other.convSampling;
-// 	//convSize=other.convSize;
-// 	cachesize=other.cachesize;
+	maxConvSupport=other.maxConvSupport;
+	//
+	// Set up the Conv. Func. disk cache manager object.
+	//
+	cfCache_p=other.cfCache_p;
+	convSampling=other.convSampling;
+	//convSize=other.convSize;
+	cachesize=other.cachesize;
     
-// 	currentCFPA=other.currentCFPA;
-// 	lastPAUsedForWtImg = other.lastPAUsedForWtImg;
-// 	avgPB_p = other.avgPB_p;
-// 	avgPBSq_p = other.avgPBSq_p;
-// 	convFuncCtor_p = other.convFuncCtor_p;
-// 	pbNormalized_p = other.pbNormalized_p;
-// 	sensitivityPatternQualifier_p = other.sensitivityPatternQualifier_p;
-// 	sensitivityPatternQualifierStr_p = other.sensitivityPatternQualifierStr_p;
-// 	visResampler_p=other.visResampler_p; // Copy the counted pointer
-// 	//	visResampler_p=other.visResampler_p->clone();
-// 	//	*visResampler_p = *other.visResampler_p; // Call the appropriate operator=()
+	currentCFPA=other.currentCFPA;
+	lastPAUsedForWtImg = other.lastPAUsedForWtImg;
+	avgPB_p = other.avgPB_p;
+	avgPBSq_p = other.avgPBSq_p;
+	convFuncCtor_p = other.convFuncCtor_p;
+	pbNormalized_p = other.pbNormalized_p;
+	sensitivityPatternQualifier_p = other.sensitivityPatternQualifier_p;
+	sensitivityPatternQualifierStr_p = other.sensitivityPatternQualifierStr_p;
+	visResampler_p=other.visResampler_p; // Copy the counted pointer
+	//	visResampler_p=other.visResampler_p->clone();
+	//	*visResampler_p = *other.visResampler_p; // Call the appropriate operator=()
 
-// 	rotatedConvFunc_p = other.rotatedConvFunc_p;
-// 	cfs2_p = other.cfs2_p;
-// 	cfwts2_p = other.cfwts2_p;
-// 	paNdxProcessed_p = other.paNdxProcessed_p;
-// 	imRefFreq_p = other.imRefFreq_p;
-// 	conjBeams_p = other.conjBeams_p;
-// 	rotateOTFPAIncr_p=other.rotateOTFPAIncr_p;
-// 	computePAIncr_p=other.computePAIncr_p;
-// 	runTime1_p = other.runTime1_p;
-// 	muellerType_p = other.muellerType_p;
-// 	previousSPWID_p = other.previousSPWID_p;
-// 	vb2CFBMap_p = other.vb2CFBMap_p;
-// 	//	self_p = other.self_p;
-//       };
-//     return *this;
-//   };
-//   //
-//   //----------------------------------------------------------------------
-//   //
-//   void AWProjectFT::init() 
-//   {
-//     LogIO log_l(LogOrigin("AWProjectFT2", "init[R&D]"));
+	rotatedConvFunc_p = other.rotatedConvFunc_p;
+	cfs2_p = other.cfs2_p;
+	cfwts2_p = other.cfwts2_p;
+	paNdxProcessed_p = other.paNdxProcessed_p;
+	imRefFreq_p = other.imRefFreq_p;
+	conjBeams_p = other.conjBeams_p;
+	rotateOTFPAIncr_p=other.rotateOTFPAIncr_p;
+	computePAIncr_p=other.computePAIncr_p;
+	runTime1_p = other.runTime1_p;
+	muellerType_p = other.muellerType_p;
+	previousSPWID_p = other.previousSPWID_p;
+	vb2CFBMap_p = other.vb2CFBMap_p;
+	//	self_p = other.self_p;
+      };
+    return *this;
+  };
+  //
+  //----------------------------------------------------------------------
+  //
+  void AWProjectFT::init() 
+  {
+    LogIO log_l(LogOrigin("AWProjectFT2", "init[R&D]"));
 
-//     nx    = image->shape()(0);
-//     ny    = image->shape()(1);
-//     npol  = image->shape()(2);
-//     nchan = image->shape()(3);
+    nx    = image->shape()(0);
+    ny    = image->shape()(1);
+    npol  = image->shape()(2);
+    nchan = image->shape()(3);
     
-//     if(image->shape().product()>cachesize) 
-//       isTiled=true;
-//     else 
-//       isTiled=false;
+    if(image->shape().product()>cachesize) 
+      isTiled=true;
+    else 
+      isTiled=false;
     
-//     sumWeight.resize(npol, nchan);
-//     sumCFWeight.resize(npol, nchan);
+    sumWeight.resize(npol, nchan);
+    sumCFWeight.resize(npol, nchan);
     
-//     wConvSize=max(1, nWPlanes_p);
+    wConvSize=max(1, nWPlanes_p);
     
-//     CoordinateSystem cs=image->coordinates();
-//     uvScale.resize(3);
-//     uvScale=0.0;
-//     uvScale(0)=Float(nx)*cs.increment()(0); 
-//     uvScale(1)=Float(ny)*cs.increment()(1); 
-//     uvScale(2)=Float(wConvSize)*abs(cs.increment()(0));
+    CoordinateSystem cs=image->coordinates();
+    uvScale.resize(3);
+    uvScale=0.0;
+    uvScale(0)=Float(nx)*cs.increment()(0); 
+    uvScale(1)=Float(ny)*cs.increment()(1); 
+    uvScale(2)=Float(wConvSize)*abs(cs.increment()(0));
     
-//     Int index= cs.findCoordinate(Coordinate::SPECTRAL);
-//     SpectralCoordinate spCS = cs.spectralCoordinate(index);
-//     imRefFreq_p = spCS.referenceValue()(0);
+    Int index= cs.findCoordinate(Coordinate::SPECTRAL);
+    SpectralCoordinate spCS = cs.spectralCoordinate(index);
+    imRefFreq_p = spCS.referenceValue()(0);
     
-//     uvOffset.resize(3);
-//     uvOffset(0)=nx/2;
-//     uvOffset(1)=ny/2;
-//     uvOffset(2)=0;
+    uvOffset.resize(3);
+    uvOffset(0)=nx/2;
+    uvOffset(1)=ny/2;
+    uvOffset(2)=0;
     
-//     if(gridder) delete gridder; gridder=0;
-//     gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
-// 						   uvScale, uvOffset,
-// 						   "SF");
+    if(gridder) delete gridder; gridder=0;
+    gridder = new ConvolveGridder<Double, Complex>(IPosition(2, nx, ny),
+						   uvScale, uvOffset,
+						   "SF");
     
-//     // Set up image cache needed for gridding. 
-//     if(imageCache) delete imageCache;   imageCache=0;
+    // Set up image cache needed for gridding. 
+    if(imageCache) delete imageCache;   imageCache=0;
     
-//     // The tile size should be large enough that the
-//     // extended convolution function can fit easily
-//     if(isTiled) 
+    // The tile size should be large enough that the
+    // extended convolution function can fit easily
+    if(isTiled) 
       {
 	Float tileOverlap=0.5;
 	tilesize=min(256,tilesize);
