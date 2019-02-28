@@ -141,6 +141,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Vector<Double> AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
 						const VisBuffer2& vb, const Bool& doPointing)
   {
+    Assert(po_p.null()==False && "Pointingoffset call has not been initialized in AWProjectFT call being made");
         return po_p->findPointingOffset(image,vb,doPointing);
     //    if (!doPointing) 
     //      {cerr<<"AWCF: Using mosaic pointing \n";return po_p->findMosaicPointingOffset(image,vb);}
