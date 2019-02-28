@@ -1923,6 +1923,22 @@ void XparangJones::solveOne(SDBList& sdbs) {
   if (QURec_.isDefined(fldName))
     fld=QURec_.asRecord(fldName);
   fld.define(spwName,fStokes);
+  
+  // Add average
+  Int nspw=fld.nfields();  // the number of spws recorded in the record so far
+  Vector<Float> QUave(4,0.0f);
+  Int nave(0);
+  for (Int ispw=0;ispw<nspw;++ispw) {
+    String fieldname=fld.name(ispw);
+    if (fieldname!="SpwAve") {
+      QUave+=fld.asArrayFloat(ispw);
+      ++nave;
+    }
+  }
+  QUave/=Float(nave);
+  fld.define("SpwAve",QUave);
+
+  // Replace this fld's record in QURec_
   QURec_.defineRecord(fldName,fld);
 
 }
@@ -2151,8 +2167,8 @@ void PosAngJones::calcOneJonesRPar(Vector<Complex>& mat, Vector<Bool>& mOk,
     switch (jonesType()) {
       // Circular version:
     case Jones::Diagonal: {
-      mat(0)=Complex(cos(par(0)), sin(-par(0)));  // exp(-ia)
-      mat(1)=conj(mat(0));        // exp(ia)
+      mat(0)=Complex(cos(par(0)), sin(par(0)));
+      mat(1)=conj(mat(0));       
       mOk=true;
       break;
     }
