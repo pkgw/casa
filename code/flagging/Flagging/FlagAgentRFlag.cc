@@ -259,14 +259,25 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	// timedev - Matrix for time analysis deviation thresholds - (old AIPS RFlag FPARM(3)/NOISE)
 	noise_p = 0;
 	exists = config.fieldNumber ("timedev");
-        // when no value is given to timedev, it 'exists' but as an empty string
-        if (exists >= 0 and casacore::TpString == config.type(exists)) {
-            auto value = config.asString(exists);
-            if (0 == value.length()) {
-                exists = -1;
+        bool nonempty = exists >= 0;
+        // Special empty values
+        if (nonempty) {
+            // when no value is given to timedev, it 'exists' but as an empty string
+            if (casacore::TpString == config.type(exists)) {
+                auto value = config.asString(exists);
+                if (0 == value.length()) {
+                    nonempty = false;
+                }
+            }
+            // "timedev=[]" arrives here as an empty array of bool!
+            else if (casacore::TpArrayBool == config.type(exists)) {
+                auto tdev = config.asArrayBool(RecordFieldId("timedev"));
+                if (0 == tdev.size()) {
+                    nonempty = false;
+                }
             }
         }
-	if (exists >= 0)
+        if (nonempty)
 	{
 	  if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble || config.type(exists) == casacore::TpInt )
 		{
@@ -300,9 +311,15 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		}
 		else
 		{
-                    throw AipsError("The timedev value given cannot be interpreted as a "
-                                    "numerical value or array of numerical values. Refusing "
-                                    "to run RFlag!");
+                    if (writeflags) {
+                        // action='calculate' (not writeflags) will pass the file name if
+                        // given. But we still want to accept the values to compute stats,
+                        // if they're valid
+                        // (see for example test_rflag_CAS_5037 / test_rflag_return_dict1)
+                        throw AipsError("The timedev value given cannot be interpreted as a "
+                                        "numerical value or array of numerical values. Refusing "
+                                        "to run RFlag!");
+                    }
 		}
 	}
 	else
@@ -316,14 +333,25 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	// freqdev - Matrix for time analysis deviation thresholds (freqdev) - (old AIPS RFlag FPARM(4)/SCUTOFF)
 	scutoff_p = 0;
 	exists = config.fieldNumber ("freqdev");
-        // when no value is given to freqdev, it 'exists' but as an empty string
-        if (exists >= 0 and casacore::TpString == config.type(exists)) {
-            auto value = config.asString(exists);
-            if (0 == value.length()) {
-                exists = -1;
+        nonempty = exists >= 0;
+        // Special empty values
+        if (nonempty) {
+            // when no value is given to freqdev, it 'exists' but as an empty string
+            if (casacore::TpString == config.type(exists)) {
+                auto value = config.asString(exists);
+                if (0 == value.length()) {
+                    nonempty = false;
+                }
+            }
+            // "freqdev=[]" arrives here as an empty array of bool!
+            else if (casacore::TpArrayBool == config.type(exists)) {
+                auto fdev = config.asArrayBool(RecordFieldId("freqdev"));
+                if (0 == fdev.size()) {
+                    nonempty = false;
+                }
             }
         }
-	if (exists >= 0)
+        if (nonempty)
 	{
 		if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble  || config.type(exists) == casacore::TpInt )
 		{
@@ -357,9 +385,11 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		}
 		else
 		{
-                    throw AipsError("The freqdev value given cannot be interpreted as a "
-                                    "numerical value or array of numerical values. Refusing "
-                                    "to run RFlag!");
+                    if (writeflags) {
+                        throw AipsError("The freqdev value given cannot be interpreted as a "
+                                        "numerical value or array of numerical values. Refusing "
+                                        "to run RFlag!");
+                    }
 		}
 	}
 	else
