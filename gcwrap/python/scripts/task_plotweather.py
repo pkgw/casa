@@ -80,7 +80,11 @@ def jm_sunEL(mytime):
 ## gets and plots data from the weather table of the given MS
 def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
     myMS=vis
-    if plotName == '': plotName = myMS+'.plotweather.png'
+    if plotName == '':
+        if myMS.endswith("/"):
+            plotName = myMS + myMS.rstrip("/") + '.plotweather.png'
+        else:
+            plotName = myMS + '.plotweather.png'
 
     # check for weather table
 
