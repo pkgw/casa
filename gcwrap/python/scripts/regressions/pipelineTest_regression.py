@@ -171,7 +171,7 @@ def stats():
         imlist = context.results[19].read().results
         
         # Test image RMS
-        value_compare = [0.00095743726646502312, 0.0076199203496288524]
+        value_compare = [0.00093823650812654589, 0.0081490810756300238]
         result_bool = [(np.isclose(imlist[i].image_rms, value_compare[i], rtol=rtol, atol=atol, equal_nan=False), os.path.basename(imlist[i].image)) for i in [0,1]]
 
         printmsg(logfile, "Accepted test RMS values are: {!s} from {!s}, {!s}".format(str(value_compare), casaversion, pipelinerevision))
