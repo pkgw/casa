@@ -453,11 +453,13 @@ public:
 
         uInt getNumberOfAntenna() { return numberOfAntenna; };
 
+#if 0
         bool checkExtendAvailable() 
         {
             if(availableNrowInPointing < defInerpolationTestPointingTableRow_) return true;
             else return false; 
         }
+#endif 
 
 private:
         // initialize  Commmon //
@@ -754,8 +756,9 @@ EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointing
 
         if (r_time > 1.0) {
             printf( "r_time::Exceeded 1.0: %f \n",r_time );
-            assert(r_time > 1.0);
+            assert( r_time < 1.0); 
         }
+
  
         //+
         //  Determin TIME upon Base Date. 
@@ -1495,11 +1498,15 @@ void  MsEdit::writePseudoOnPointing()
 
     uInt LoopCnt = evgen.getAvailablePointingTestingRow();
     // determin if extending row of Poinitng is needed
+
+#if 0 // CAS-8418: 1-MAR-2019; this irregular if() was no more needed // 
+
     if(evgen.checkExtendAvailable() )
     { 
         printf( "- Extend access to Pointing table = Available.\n" );
         LoopCnt += 5;
     }
+#endif 
 
     //+
     // For all Antenna and Row 
@@ -1824,25 +1831,37 @@ public:
 
         //+ 
         // TestCondition const
+        // (Programmer Tunable)
         //-
 
-        uInt const InterpolationDivCount_ = 10;
-        uInt const numAntenna_            = 3;
-        uInt const numPointingColumn_     = 5;
+            // Resources //
+            uInt const InterpolationDivCount_ = 10;
+            uInt const numAntenna_            = 3;
+            uInt const numPointingColumn_     = 5;
+
+            // Listing option
+            bool       fgResultListing = false;
+            // Convertion option (by setFrame)
+            bool       fgConversion    = false;
+            // Google Test On/OFF
+            bool       fgGoogleTest    = true;
+
+        // Pointing Colum List (common definition) //
 
         PointingColumnList pColLis_;
 
         // NEW: CAS-8418 relatedly commonized
 
         unique_ptr<casa::PointingDirectionCalculator> calc0;
-        casa::PointingDirectionCalculator   *pdc;
+        casa::PointingDirectionCalculator             *pdc;
 
         void start(const String msName)
         {
             MeasurementSet ms( msName.c_str() );
 
             // create PDCalc obj. on this class to share //
-            unique_ptr<casa::PointingDirectionCalculator> calcTmp( new casa::PointingDirectionCalculator(ms));
+            unique_ptr<casa::PointingDirectionCalculator> 
+                   calcTmp( new casa::PointingDirectionCalculator(ms));
             calc0 = std::move(calcTmp);
             pdc   = calc0.get();
         }
@@ -1949,8 +1968,6 @@ private:
            uInt currentPointingColumn = 0; 
            uInt curretSelectedAntenna = 0;
 };
-
-
 
 //+
 //  check Accessor ID (So far, this is no Assetion)
@@ -2449,9 +2466,9 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime2(Double dt )
     // setFrame call for "conversion"
     // in CAS-8418, try to examine converted result.
     //-
-        if(false)
+        if(fgConversion)
         {
-            String frameName = "AZEL" ;
+            String frameName = "AZELGEO" ;
             calc.setFrame( frameName );
         }
 
@@ -2500,14 +2517,14 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime2(Double dt )
           if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
 
           // Google Test On/Off
-          if(true)
+          if(fgGoogleTest)
           {
 	      EXPECT_LE( absErr_1, msedit.evgen.getInterpolationErrorLimit()  ); 
               EXPECT_LE( absErr_2, msedit.evgen.getInterpolationErrorLimit()  ); 
           }
 
           // Output List (in One line) On/OFF   //
-          if(false) 
+          if(fgResultListing) 
           {
               printf( "Evaluation,");
               printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
@@ -2581,9 +2598,9 @@ TEST_F(TestDirection, InterpolationFull )
   TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<bool>   InterpolationMode     = { false, true };
-    vector<Double> Main_IntervalList     = { 1.0 };
-    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.2, 0.1, 0.05  };
+    vector<bool>   InterpolationMode     = { true };
+    vector<Double> Main_IntervalList     = { 0.1, 0.01, 0.001 };
+    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.1, 0.05  };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2621,7 +2638,7 @@ TEST_F(TestDirection, InterpolationFull )
                  setCondition( 5000,   /*numinTestingRow */      //number of row
                                p_i,    // Pointing Interval
                                m_i,    // Main Interval
-                               1.0E-04 );  // Error limit 
+                               1E-03 );  // Error limit 
  
                  // Prepate Antenna (for Multple-set) //
                    prepareAntenna();
@@ -2663,9 +2680,9 @@ TEST_F(TestDirection, InterpolationSingle )
 
       selectTrajectory( 0 );    // Trajectory(Curve) Function
       setCondition( 5000,       // number of row
-                    2.99827,    // Pointing Interval
-                    2.99827,    // Main Interval
-                    5.0E-06 );  // Error limit 
+                    2.998,      // Pointing Interval
+                    2.998,       // Main Interval
+                    5E-09 );  // Error limit 
 
 
     // Prepate Antenna (for Multple-set) //
@@ -2760,18 +2777,15 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     for(uInt pcol=0; pcol <numPointingColumn_; pcol++) 
     {
         String name =pColLis_.name(pcol);
-        printf( "calling setDirectionColumn(Pointing Column = %s) \n",name.c_str() );
+        printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n",name.c_str() );
 
         calc.setDirectionColumn(name);
 
         // Check out Spline Object ..//
-#if 0
-        SplineInterpolation  *sp =  calc.getCurrentSplineObj();
-        SplineInterpolation::COEFF coeff = sp->getCoeff();
-#endif 
-        sp =  calc.getCurrentSplineObj();
-        coeff = sp->getCoeff();
+          sp =  calc.getCurrentSplineObj();
+          coeff = sp->getCoeff();
 
+        // TENTATIVE (working) //
         for(uInt ant=0;ant<numAntenna_;ant++)
         {
             for(uInt i =0; i<20; i++)
