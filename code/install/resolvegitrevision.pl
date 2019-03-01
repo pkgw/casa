@@ -96,16 +96,16 @@ print "branchTag: $branchTag\n" if $debug;
 print "casaVersionDesc: $casaVersionDesc\n" if $debug;
 @splat = split '-', $branchTag;
 if ($needsId) {
-    if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
-        if ($tagMatcher =~ /^release-/) {
-            @mComp = split '-', $tagMatcher;
-            $casaVariant = uc $mComp[1];
-        }
-        print "$splat[-1];$casaVersionDesc;$casaVariant\n"
-    }
-    else {
+    # if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
+    #     if ($tagMatcher =~ /^release-/) {
+    #         @mComp = split '-', $tagMatcher;
+    #         $casaVariant = uc $mComp[1];
+    #     }
+    #     print "$splat[-1];$casaVersionDesc;$casaVariant\n"
+    # }
+    # else {
         print "0;$casaVersionDesc;$casaVariant\n"
-    }
+    #}
 }
 else {
     if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
