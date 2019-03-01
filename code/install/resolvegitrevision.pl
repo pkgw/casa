@@ -27,6 +27,7 @@ print "tagMatcher: $tagMatcher\n" if $debug;
 
 # The "default" Casa release that is not tied to any instrument
 $defaultReleaseMatch = '.*release/\d+\.\d+\.\d';
+$instrumentReleaseMatch = 'release/.*/\d+\.\d+\.\d';
 
 if ($casaBranchHint)  {
     print "Branch hint provided: $casaBranchHint\n" if $debug;
@@ -38,6 +39,11 @@ if ($casaBranchHint)  {
         $tagMatcher = $casaBranchHint;
     } elsif ($casaBranchHint =~ m/$defaultReleaseMatch/) {
         $tagMatcher = $casaBranchHint;
+        $tagMatcher =~s/\//-/g;
+        #$tagid="rel";
+    } elsif ($casaBranchHint =~ m/$instrumentReleaseMatch/) {
+        $tagMatcher = $casaBranchHint;
+        $tagMatcher =~s/\//-/g;
         #$tagid="rel";
     } elsif ($casaBranchHint =~ "^bambooprtest.*" ) {
         $tagMatcher = "bambooprtest";
@@ -90,7 +96,7 @@ print "branchTag: $branchTag\n" if $debug;
 print "casaVersionDesc: $casaVersionDesc\n" if $debug;
 @splat = split '-', $branchTag;
 if ($needsId) {
-    if ($tagMatcher eq "rel" || $tagMatcher eq "mas" || $tagMatcher =~ /^release-/) {
+    if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
         if ($tagMatcher =~ /^release-/) {
             @mComp = split '-', $tagMatcher;
             $casaVariant = uc $mComp[1];
@@ -102,7 +108,7 @@ if ($needsId) {
     }
 }
 else {
-    if ($tagMatcher eq "rel" || $tagMatcher eq "mas" || $tagMatcher =~ /^release-/) {
+    if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
         if ($tagMatcher =~ /^release-/) {
             @mComp = split '-', $tagMatcher;
             $casaVariant = uc $mComp[1];
