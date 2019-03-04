@@ -1987,12 +1987,15 @@ void PlotMSIndexer::flagInCache(const PlotMSFlagging& flagging,Bool flag) {
 	Cube<Bool> flagcube(plotmscache_->flag(currChunk_));
 	flagcube(corr,chan,bsln)=flag;
 
+	// flagrow not loaded by default, this gets seg fault
+	/*
 	// unset flagrow when unflagging (if present in cache)
 	if (!flag) {
 		Vector<Bool> flagrow(plotmscache_->flagrow(currChunk_));
 		if (flagrow.nelements()>0)
 			flagrow(bsln)=false;
 	}
+	*/
 }
 
 /* These may not ever be needed? (gmoellen 2011March15)

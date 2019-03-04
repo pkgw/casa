@@ -198,7 +198,7 @@ void VisSetUtil::Sensitivity(ROVisIter &vi, Matrix<Double>& /*mssFreqSel*/,
                 {
                     //		  Double variance=square(vb.sigma()(row));
                     Double variance=1.0/(vb.weight()(row));
-                    if (abs(vb.time()(row) - t0(spwIndex) > timeInterval(row)))
+                    if (abs(vb.time()(row) - t0(spwIndex)) > timeInterval(row))
                     {
                         t0(spwIndex)=vb.time()(row);
                         spwIntegTime(spwIndex) += timeInterval(row);

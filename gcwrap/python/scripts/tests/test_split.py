@@ -28,7 +28,7 @@ import filecmp
 from __main__ import default
 from recipes.listshapes import listshapes
 import testhelper as th
-from tasks import split, partition, listobs, flagdata, importasdm, flagcmd
+from tasks import split, partition, split, listobs, flagdata, importasdm, flagcmd
 from taskinit import mstool, msmdtool, tbtool
 import unittest
 from parallel.parallel_task_helper import ParallelTaskHelper
@@ -438,7 +438,7 @@ class split_test_cav(SplitChecker):
         self.records[corrsel] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_sts(self):
@@ -549,7 +549,7 @@ class split_test_cav5(SplitChecker):
         self.records[corrsel] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_sts(self):
@@ -864,7 +864,7 @@ class split_test_cavcd(unittest.TestCase):
         shutil.rmtree(self.inpms, ignore_errors=True)
         shutil.rmtree(self.outms, ignore_errors=True)
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_cavcd(self):
@@ -1169,7 +1169,7 @@ class split_test_sw_and_fc(SplitChecker):
         self.__class__.records[spwwidth] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_fc_noavg(self):
@@ -1369,7 +1369,7 @@ class split_test_optswc(SplitChecker):
         self.__class__.records[spwwidth] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_rightcols_noavg(self):
@@ -1574,7 +1574,7 @@ class split_test_wttosig(SplitChecker):
         self.__class__.records[dcwtb] = record
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_wt_straightselection(self):
@@ -1691,6 +1691,39 @@ class split_test_wttosig(SplitChecker):
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01],
                         [  7.07106769e-01,   7.07106769e-01,   7.07106769e-01,       7.07106769e-01]]), 0.001)
 
+class split_test_singlespw_severalchranges(unittest.TestCase):
+    """
+    Check that if the selection contains a single SPW but several channel
+    ranges within the same SPW, you get as an output a single SPW in the
+    data description table. See CAS-11087
+    """ 
+    inpms = datapath + '../flagdata/uid___A002_X30a93d_X43e_small.ms'
+    outms = 'uid___A002_X30a93d_X43e_small_chanl4.ms'
+    
+    def setUp(self):
+        try:
+            shutil.rmtree(self.outms, ignore_errors=True)
+            print "\nChecking DDI after channel selection ranges in single SPW"
+            split(self.inpms, self.outms, keepmms=True, field='',
+                   spw='1:1~2;5~6', scan='', antenna='', 
+                   correlation='', timerange='', intent='',
+                   array='', uvrange='', observation='',
+                   feed='', datacolumn='DATA', keepflags=True,
+                   width=1, timebin='0s', combine='')
+        except Exception, e:
+            print "Error running split selecting different channel ranges in single SPW from", self.inpms
+            raise e
+
+    def tearDown(self):
+        shutil.rmtree(self.outms, ignore_errors=True)
+
+    def test_ddi_entries(self):
+        """Check that there is a single row in the DDI table."""
+        tblocal.open(self.outms + '/DATA_DESCRIPTION')
+        nrows_ddi = tblocal.nrows()
+        tblocal.close()
+        check_eq(nrows_ddi, 1)
+
 class split_test_fc(SplitChecker):
     """
     Check FLAG_CATEGORY after various selections and averagings.
@@ -1730,7 +1763,7 @@ class split_test_fc(SplitChecker):
         self.__class__.records['categories'] = categories
         return splitran
 
-    # NOTE: In MSTransform (new split), if fewer channels than chanbin are left at 
+    # NOTE: In MSTransform (split), if fewer channels than chanbin are left at 
     # the end of the spw, these channels will be dropped. 
 
     def test_fc_categories(self):
@@ -1854,7 +1887,7 @@ class split_test_fc(SplitChecker):
                               [ True, False, False]]))
         
         
-''' New class of tests for split -- MMS tests, etc.'''    
+''' New tests for split'''    
 class test_base(unittest.TestCase):
     
     def setUp_4ants(self):
@@ -1882,6 +1915,21 @@ class test_base(unittest.TestCase):
         os.system('cp -RL '+self.datapath + self.vis +' '+ self.vis)
         default(split)
         
+    def setUp_mixedpol(self):
+        # DD table is as follows:
+        #  PolID SpwID   
+        #    0    0      
+        #    1    1      
+        #    1    2      
+        #    0    3      
+
+        self.vis = 'split_ddid_mixedpol_CAS-12283.ms'
+        if os.path.exists(self.vis):
+           self.cleanup()
+
+        os.system('cp -RL '+self.datapath + self.vis +' '+ self.vis)
+        default(split)
+        
     def setUp_flags(self):
         asdmname = 'test_uid___A002_X997a62_X8c-short' # Flag.xml is modified
         self.vis = asdmname+'.ms'
@@ -1890,7 +1938,7 @@ class test_base(unittest.TestCase):
         asdmpath=os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/importasdm/'
         os.system('ln -sf '+asdmpath+asdmname)
         importasdm(asdmname, convert_ephem2geo=False, flagbackup=False, process_syspower=False, lazy=True, 
-                   scans='1', savecmds=True, overwrite=True)
+                   scans='1', savecmds=True)
         
 
     def createMMS(self, msfile, axis='auto',scans='',spws=''):
@@ -2113,6 +2161,53 @@ class splitSpwPoln(test_base):
         listobs(self.outputms, listfile='list.obs')
         self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')
         
+class splitUnsortedPoln(test_base):
+    '''tests for DDs with polIDs in unsorted order 
+       CAS-12283
+    '''
+
+    def setUp(self):
+        if testmms:
+            self.datapath = datapath
+        else:
+            self.datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/'
+        self.setUp_mixedpol()
+
+    def tearDown(self):
+        os.system('rm -rf '+ self.vis)
+        os.system('rm -rf '+ self.outputms)
+        os.system('rm -rf list.obs')
+        
+    def test_split_unsorted_polids(self):
+        '''split: split MS with unsorted polIDs'''
+        self.outputms = 'split_unsorted_polids.ms'
+        split(self.vis, outputvis=self.outputms, spw='', scan='11', correlation='RR,LL', datacolumn='all')
+        
+        # Verify the input versus the output
+        myms = mstool()
+        myms.open(self.vis)
+        inp_nrow = myms.nrow(True)
+        myms.close()
+
+        mymd = msmdtool()
+        mymd.open(self.outputms)
+        out_nrow = mymd.nrows()
+        dds = mymd.datadescids()
+        mymd.done()
+        
+        self.assertEqual(inp_nrow, out_nrow)
+        self.assertEqual(dds.size, 64)
+
+        # Check that the data description column in the main table is unchanged.
+        mytbtool = tbtool()
+        mytbtool.open(self.vis)
+        ddcol_inp = mytbtool.getcol('DATA_DESC_ID')
+        mytbtool.close()
+        mytbtool.open(self.outputms)
+        ddcol_out = mytbtool.getcol('DATA_DESC_ID')
+        mytbtool.close()
+        self.assertTrue(ddcol_inp.tolist() == ddcol_out.tolist())
+
 class splitUpdateFlagCmd(test_base):
     
     def setUp(self):
@@ -2149,9 +2244,11 @@ def suite():
             split_test_sw_and_fc, 
             split_test_cavcd, 
             split_test_almapol,
+            split_test_singlespw_severalchranges,
 #            split_test_wttosig, 
 #            split_test_fc
             splitTests,
             splitSpwPoln,
+            splitUnsortedPoln,
             splitUpdateFlagCmd
             ]
