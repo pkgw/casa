@@ -186,7 +186,6 @@ typedef void (*FUNCTYPE)(Double, Double&, Double&);
 
 bool use_spline = false;
 
-
 //****************************************
 // Execution / Running Enviromnent
 // CASAPATH is the base directory
@@ -406,14 +405,14 @@ public:
 
     // Interval Time //
 
-        Double  getPointingTableInterval() { return pointingIntervalSec;}
-        Double  getMainTableInterval()     { return mainIntervalSec;}
+        Double  getPointingTableInterval() { return pointingIntervalSec_;}
+        Double  getMainTableInterval()     { return mainIntervalSec_;}
 
     // Calculation Error Limit //
     
          void setInterpolationErrorLimit(Double val)
                                           { printf("EvaluateInterporation:: set interpolation err. limit = %e \n", val );
-                                            errorLimit_ = defaultInterpolationErrorLimit = val; }
+                                            errorLimit_ = defaultInterpolationErrorLimit_ = val; }
 
     // Init and Define Parameters 
 
@@ -432,7 +431,7 @@ public:
 
     // available POINTING TABLE count //
 
-       uInt getAvailablePointingTestingRow() { return availableNrowInPointing; }
+       uInt getAvailablePointingTestingRow() { return availableNrowInPointing_; }
 
     // required MAIN TABLE count 
 
@@ -453,14 +452,6 @@ public:
 
         uInt getNumberOfAntenna() { return numberOfAntenna; };
 
-#if 0
-        bool checkExtendAvailable() 
-        {
-            if(availableNrowInPointing < defInerpolationTestPointingTableRow_) return true;
-            else return false; 
-        }
-#endif 
-
 private:
         // initialize  Commmon //
           void init();
@@ -471,8 +462,7 @@ private:
         //  => see PseudoPointing
         //-
 
-          casacore::Vector<Double>  pseudoPointingInfo(Double tn);
-          PseudoPointingData        pseudoPointingInfo2(Double delta);
+          PseudoPointingData        pseudoPointingBaseInfo(Double delta);
 
         //+
         //  Relative Time (r_time) and Total Time
@@ -494,7 +484,7 @@ private:
         uInt requiredMainTestingRow_     = 0;    //   MUST BE SET 
 
         Double  requiredNrowInPointing_ = 0;    //   internally calculated
-        Double  availableNrowInPointing = 0;    //   internally calculated   
+        Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
         Double  extraNrowInPointing_ ;   // calculated when start
         Double extraNrowInMain ;       // calculated when start
@@ -502,13 +492,13 @@ private:
        // Error Limit (threshold) in GoogleTest Macro //
 
         Double errorLimit_ ;
-        Double defaultInterpolationErrorLimit = 2.0e-03 ;
+        Double defaultInterpolationErrorLimit_ = 2.0e-03 ;
 
 
     // Interval Second.
 
-         Double pointingIntervalSec =0.0;            // Interval Time to set in POINTING 
-         Double mainIntervalSec     =0.0;            // Interval Time to set in MAIN 
+         Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
+         Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
     // Number of Antenna (CAS-8418)  
 
@@ -524,8 +514,8 @@ void EvaluateInterporation::init()
         // Bugcheck //
         assert(requiredMainTestingRow_!=0);
 
-        printf( "EvaluateInterporation::init()::  Pointing Interval = %f\n", pointingIntervalSec);
-        printf( "EvaluateInterporation::init()::  Main     Interval = %f\n", mainIntervalSec);
+        printf( "EvaluateInterporation::init()::  Pointing Interval = %f\n", pointingIntervalSec_);
+        printf( "EvaluateInterporation::init()::  Main     Interval = %f\n", mainIntervalSec_);
         printf( "EvaluateInterporation::init()::  Main Testing Row  = %d\n", requiredMainTestingRow_ );
 
         //+
@@ -533,13 +523,13 @@ void EvaluateInterporation::init()
         //   - the reuired minimum numbers are up to Interval ration.
         //-
 
-            Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec ;
+            Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec_ ;
 
-            availableNrowInPointing = requiredNrowInPointing_  = TotalTime / pointingIntervalSec;
+            availableNrowInPointing_ = requiredNrowInPointing_  = TotalTime / pointingIntervalSec_;
  
            // if POINTING table already have sufficient length 
             if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_){
-                    availableNrowInPointing = requiredNrowInPointing_;
+                    availableNrowInPointing_ = requiredNrowInPointing_;
                     requiredNrowInPointing_  = defInerpolationTestPointingTableRow_;
             }
 
@@ -547,7 +537,7 @@ void EvaluateInterporation::init()
          // Interpolation Error Limit 
          //-
 
-         errorLimit_ =  defaultInterpolationErrorLimit ;
+         errorLimit_ =  defaultInterpolationErrorLimit_ ;
 
         //+
         // Optimize Row Count
@@ -586,14 +576,14 @@ void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
 {
         printf("EveInterp::initialize()::Setting Up INTERVALs " );
 
-        pointingIntervalSec         =  p_interval;
-        mainIntervalSec             =  m_interval;
+        pointingIntervalSec_         =  p_interval;
+        mainIntervalSec_             =  m_interval;
 
         // Number of Row count used in TEST // 
         requiredMainTestingRow_ =  defultMainTestingRow;
 
         // Inerpolation Error limit (currently active)
-        errorLimit_  = defaultInterpolationErrorLimit;
+        errorLimit_  = defaultInterpolationErrorLimit_;
 
         // common init //
         init();
@@ -735,14 +725,14 @@ static void Function_zero(Double r_time, Double& X, Double& Y)
         Function_zero                 // 7
     };   
 
-};
+}; // end class
 
 //+
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
 //-
 
-EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointingInfo2(Double delta)
+EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointingBaseInfo(Double delta)
 {
         casacore::Vector<Double> point;
         point.resize(5);
@@ -758,7 +748,6 @@ EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointing
             printf( "r_time::Exceeded 1.0: %f \n",r_time );
             assert( r_time < 1.0); 
         }
-
  
         //+
         //  Determin TIME upon Base Date. 
@@ -792,50 +781,61 @@ EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointing
         TrajectoryFunction::getInstance().calc( r_time, X2[3], Y2[3] );
         TrajectoryFunction::getInstance().calc( r_time, X2[4], Y2[4] );
 
+        // Intentional Offset (for identify 5 sets)
+
+        if(false)
+        {
+            for(uInt n=0;n<5;n++)
+            {
+                X2[n] += 0.01 * (Double)n;
+                Y2[n] += 0.01 * (Double)n;
+            }
+        }
+
         // Probe the range //
-#if 1
+
         for(uInt n=0;n<5;n++) {
 	    assert( abs(X2[n]) <=  M_PI );
             assert( abs(Y2[n]) <=  M_PI/2.0 );
         }
-#endif 
+
         // Direction Values //
         // CAS-8418 New  Interface //
 
         point2.time         = basetime.second();
         point2.interval     = Interval;
         point2.relativeTime = r_time;  
+
+        // Five different output values. //
         for(uInt n=0;n<5;n++) {
             point2.position[n] = make_pair(X2[n],Y2[n]);
         }        
 
-
         return point2; 
-
 }
 
 
 EvaluateInterporation::PseudoPointingData EvaluateInterporation::pseudoPointingInfoPointing2(Double delta)
 {
     // privide local conditon on private variables //
-      Interval =   pointingIntervalSec;
-      nRow     =   availableNrowInPointing; 
-      r_time   =   delta/availableNrowInPointing;
+      Interval =   pointingIntervalSec_;
+      nRow     =   availableNrowInPointing_; 
+      r_time   =   delta/availableNrowInPointing_;
              
-      return(pseudoPointingInfo2(delta));
+      return(pseudoPointingBaseInfo(delta));
 }
              
 EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointingInfoMain2(Double delta)
 {
     // privide local conditon on private variables //
  
-    Interval = mainIntervalSec;
+    Interval = mainIntervalSec_;
 
     //+
     // Determine number of row of Pointing and Main table.
     // this depends on which total time is longer.
     //-              
-    if(pointingIntervalSec <= mainIntervalSec ) // Ordinary case
+    if(pointingIntervalSec_ <= mainIntervalSec_ ) // Ordinary case
     {
         nRow=  requiredMainTestingRow_;
         r_time =   delta / nRow ;
@@ -846,7 +846,7 @@ EvaluateInterporation::PseudoPointingData  EvaluateInterporation::pseudoPointing
         r_time =   delta / nRow   ;
     } 
 
-    return(pseudoPointingInfo2(delta));
+    return(pseudoPointingBaseInfo(delta));
 
 }
 
@@ -1497,16 +1497,6 @@ void  MsEdit::writePseudoOnPointing()
     //-
 
     uInt LoopCnt = evgen.getAvailablePointingTestingRow();
-    // determin if extending row of Poinitng is needed
-
-#if 0 // CAS-8418: 1-MAR-2019; this irregular if() was no more needed // 
-
-    if(evgen.checkExtendAvailable() )
-    { 
-        printf( "- Extend access to Pointing table = Available.\n" );
-        LoopCnt += 5;
-    }
-#endif 
 
     //+
     // For all Antenna and Row 
@@ -1866,13 +1856,13 @@ public:
             pdc   = calc0.get();
         }
 
-        void setCondition(uInt numRow, Double pointingInterval, Double mainInterval, Double errorLimit)
+        void setCondition(uInt numRow, Double pointingInterval, Double mainInterval, Double errLimit)
         {
             msedit.evgen.    setMainRowCount   (numRow);       // aprox. 1-2H 
             msedit.evgen.    Initialize( pointingInterval,     // Pointing Interval
                                          mainInterval ) ;      // Main Interval
 
-            msedit.evgen.    setInterpolationErrorLimit( errorLimit );
+            msedit.evgen.    setInterpolationErrorLimit( errLimit );
         }
         void selectTrajectory( uInt no )
         {
@@ -2587,7 +2577,8 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
     return e_max; 
 }
 /*-----------------------------------------------------------------------
-   Interporatio Test in getDirection()   Multiple-Combiniation
+   Interporatio Test in getDirection()  
+   FULL combiniation of Interval Times and spline mode.
 
  - Use Combiniation of Pointing table Interval and Main table Interval
  - Capable of selecting curve fucntion for simulated pointing trajectry
@@ -2598,9 +2589,9 @@ TEST_F(TestDirection, InterpolationFull )
   TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
     // Combiniation List of Pointing Interval and Main Interval //
 
-    vector<bool>   InterpolationMode     = { true };
-    vector<Double> Main_IntervalList     = { 0.1, 0.01, 0.001 };
-    vector<Double> Pointing_IntervalList = { 1.0, 0.5, 0.1, 0.05  };
+    vector<bool>   InterpolationMode     = { false, true};
+    vector<Double> Main_IntervalList     = { 0.5, 0.1, 0.05  };
+    vector<Double> Pointing_IntervalList = { 0.5, 0.1, 0.05  };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2618,7 +2609,12 @@ TEST_F(TestDirection, InterpolationFull )
         use_spline = InterpolationMode[s];
         printf("DBG:: Interpolation Mode = %d \n", use_spline );
 
-        // Combiniation Loop 
+        Double ErrLimit =0.0;
+        if( use_spline==true)  ErrLimit = 1E-05;
+        else                   ErrLimit = 0.05;
+
+    
+       // Combiniation Loop 
         for( uint m=0; m < Main_IntervalList.size(); m++)
         {
             for( uint p=0; p < Pointing_IntervalList.size(); p++)
@@ -2638,7 +2634,7 @@ TEST_F(TestDirection, InterpolationFull )
                  setCondition( 5000,   /*numinTestingRow */      //number of row
                                p_i,    // Pointing Interval
                                m_i,    // Main Interval
-                               1E-03 );  // Error limit 
+                               ErrLimit );  // Error limit 
  
                  // Prepate Antenna (for Multple-set) //
                    prepareAntenna();
@@ -2663,7 +2659,85 @@ TEST_F(TestDirection, InterpolationFull )
 }
 
 /*-----------------------------------------------------------------------
-  Interporatio Test in getDirection()   SINGLE mode.
+  Interporatio Test in getDirection()   
+  Specific COMBIIATION Parameter mode
+ - Set of testing parameters are given
+------------------------------------------------------------------------*/ 
+
+
+typedef struct Parm {
+    bool   use_spline;
+    Double p_interval;
+    Double m_interval;
+    Double errLimit;
+} ParamList;
+
+std::vector<ParamList>
+ pList =
+{
+    {true,0.05,  0.1, 0.0001 }
+#if 0
+    {true, 0.1,    0.1,   5.0E-08},
+    {true, 0.048,  0.001, 4.0E-05},
+    {true, 0.050,  2.5,   4.0E-05}
+#endif 
+};
+
+TEST_F(TestDirection, InterpolationCombi )
+{
+  TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
+    // Combiniation List of Pointing Interval and Main Interval //
+
+
+    ErrorMax  maxerr;
+    std::vector<Double> r_err = {0.0}; 
+
+    //+
+    // Commonly use following paramters
+    //-
+      setCurrentPointingColumn( 0 );  // PointingColumn = 0:DIRECITON
+      setSelectedAntenna(0);          // AntennaID  = 0; (3 anttenas are set up )
+
+    for(uInt n=0; n<pList.size();n++)
+    { 
+          printf("DBG:: parameter Set[%d]  starts. \n",n );
+         
+          use_spline       = pList[n].use_spline;
+          Double p_i       = pList[n].p_interval;
+          Double m_i       = pList[n].m_interval;
+          Double err_limit = pList[n].errLimit;
+
+          printf( "DBG:: Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
+
+          // Copy Template MS //
+          SetUp();
+
+          //+
+          // set Examination Condition (revised by CAS-8418) //
+          //-
+            selectTrajectory( 0 ); 
+            setCondition( 5000,   /*numinTestingRow */      //number of row
+                          p_i,    // Pointing Interval
+                          m_i,    // Main Interval
+                          err_limit );  // Error limit 
+ 
+          // Prepate Antenna (for Multple-set) //
+            prepareAntenna();
+ 
+          // Increase(Append)  Row on MS for large-file.:
+            prepareRows();
+          
+          //+
+          // Execute Main-Body , get error info //
+          //-
+            r_err = TestDirection::testDirectionByInterval( p_i, m_i );
+            maxerr.put(r_err);
+    }
+}
+
+/*-----------------------------------------------------------------------
+  Interporation Test in getDirection()   
+  SINGLE Parameter mode
 
 - Set up one set of Pointing table Interval and Main table Interval
 - Table sizes to be created is automatically tuned.
@@ -2680,9 +2754,9 @@ TEST_F(TestDirection, InterpolationSingle )
 
       selectTrajectory( 0 );    // Trajectory(Curve) Function
       setCondition( 5000,       // number of row
-                    2.998,      // Pointing Interval
-                    2.998,       // Main Interval
-                    5E-09 );  // Error limit 
+                    0.001,      // Pointing Interval
+                    0.5,       // Main Interval
+                    1.0  );  // Error limit 
 
 
     // Prepate Antenna (for Multple-set) //
@@ -2724,6 +2798,7 @@ TEST_F(TestDirection, InterpolationSingle )
 }
 
 //*****************************************
+// Interporation Test in getDirection()
 // Examine Coeff Table
 //    with Pointing Column and AntennaId 
 //*****************************************
@@ -2732,7 +2807,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 {
       use_spline = true;
 
-    // set Examination Condition (revised by CAS-8418) //
+    // set Examination Condition  //
 
       selectTrajectory( 0 );    // Trajectory(Curve) Function
       setCondition( 5000,       // number of row
@@ -2765,6 +2840,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 
     //+
     // setDirectionCplumn() call to create Spline Object.
+    //   creating 5 spline objects with specified Pointing Column.
     //-
 
     const String MsName = DefaultLocalMsName;
@@ -2785,7 +2861,11 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
           sp =  calc.getCurrentSplineObj();
           coeff = sp->getCoeff();
 
+        //*
         // TENTATIVE (working) //
+        // Check if the coeff is expected value.
+        // at the moment only showing values.
+        //*
         for(uInt ant=0;ant<numAntenna_;ant++)
         {
             for(uInt i =0; i<20; i++)
@@ -2923,6 +3003,9 @@ TEST_F(TestDirection, CompareInterpolation )
             printf( "getDirection()::Number of Col = %zu \n", n_col );
         }
 
+        //****************************
+        // List, Compare and Examine
+        //****************************
         uInt size = DirList1.nrow();
         for( uint row=0; row<size; row++)
         {
@@ -3005,7 +3088,6 @@ TEST_F(TestDirection, getDirectionExtended )
     //+
     //  getDirection()
     //-
-
         Description("calling  getDirection() ","" );
 
          Matrix<Double>  DirList1  = calc.getDirection();
@@ -3014,19 +3096,16 @@ TEST_F(TestDirection, getDirectionExtended )
          printf( "Number of Row = %d \n", n_row );
          EXPECT_EQ( n_row, expectedNrow);
 
-
     //+
     // uv value 
     //  (first attach to Column e )
     //-
-
         casacore::ROArrayColumn<casacore::Double> uvwColumn;	
         uvwColumn .attach( ms0 , "UVW");
 
     //+
     // Dump Matrix
     //-
-
     Description("Dump obtined Direction info. ","" );
 
     for (uInt row=0; row< n_row; row++)
@@ -3051,7 +3130,6 @@ TEST_F(TestDirection, getDirectionExtended )
         printf(    "Dir at, %d, %f,%f, [Mov:%s], uv=, %f,%f,%f  \n",  
                 row, Val_1, Val_2, strMovDir.c_str(), 
                 u, v, w );
-
     }
 }
 
