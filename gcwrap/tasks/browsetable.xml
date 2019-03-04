@@ -23,11 +23,11 @@ loaded after the browser comes up.
       <value></value>
     </param>
     <param type="bool" name="mightedit" subparam="true">
-  <shortdescription>Warning: the GUI seems to ignore whether the table tool is opened read-only - just be careful, esp. if filtering.</shortdescription>      
+  <shortdescription>Warning: the GUI seems to ignore whether the table tool is opened read-only. Just be careful, esp. if filtering.</shortdescription>      
 <description>Disable the filtering options (below) and allow editing
 the table.
                      Default: False
-                     Options: Flase|True
+                     Options: False|True
 
                      Warning: the GUI seems to ignore whether the
 		     table tool is opened read-only - just be careful,

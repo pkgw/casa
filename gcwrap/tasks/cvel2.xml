@@ -66,7 +66,7 @@ will create an output Multi-MS too.
 
 	<!-- MMS-CASE parameters -->
     <param type="bool" name="keepmms">
-<shortdescription>Create a Multi-MS as the output if the input is a Multi-MS.</shortdescription>
+<shortdescription>Create a Multi-MS as the output if the input is a Multi-MS</shortdescription>
 <description>If the input is a Multi-MS the output will also be a
 Multi-MS.
                      Default: True
@@ -86,6 +86,7 @@ Multi-MS.
     </param>        
 	
 	<param type="bool" name="passall" subparam="true" visibility="hidden">
+<shortdescription>Hidden parameter</shortdescription>
 	     <description>HIDDEN parameter. Pass through (write to output MS) non-selected data with no change</description>
 	     <value>False</value>
 	</param>
@@ -94,7 +95,7 @@ Multi-MS.
     <param type="any" name="field">
 <shortdescription>Select field using field id(s) or field name(s)</shortdescription>
 <description>Select field using field id(s) or field name(s)
-                     Default: '' --> all fields
+                     Default: '' (all fields)
                      
                      Use 'go listobs' to obtain the list id's or
 		     names. If field string is a non-negative integer,
@@ -109,7 +110,8 @@ Multi-MS.
                         field = '3,4C*'; field id 3, all names
 			starting with 4C
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
 
     <param type="any" name="spw">
@@ -129,9 +131,10 @@ Multi-MS.
                         spw = ' :3~64' will NOT work.
 
                      NOTE: mstransform does not support multiple
-		     channel ranges per spectral window (';').
+		     channel ranges per spectral window.
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
     
     <param type="any" name="scan" >
@@ -140,7 +143,8 @@ Multi-MS.
                      Subparameter of selectdata=True
                      default: '' = all
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
 
     <param type="any" name="antenna">
@@ -170,16 +174,17 @@ Multi-MS.
 			 except those that include EVLA antennas ea03,
 			 ea12, or ea17.
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
 
     
     <param type="any" name="correlation">
 <shortdescription>Select data based on correlation</shortdescription>
 <description>Select data based on correlation
-                     Default: '' ==> all
+                     Default: '' (all)
 
-                        Example: correlation="XX,YY".
+                        Example: correlation='XX,YY'.
 </description>
         <any type="variant" limittypes="string stringArray" />
         <value type="string" />
@@ -202,9 +207,10 @@ Multi-MS.
 			hr 30min on NEXT day
                         timerange='09:44:00' pick data within one
 			integration of time
-                        timerange='>10:24:00' data after this time
+                        timerange='&gt;10:24:00' data after this time
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
     
     <param type="any" name="intent" >
@@ -215,11 +221,12 @@ Multi-MS.
                         Example: intent='*BANDPASS*'  (selects data
 			labelled with BANDPASS intent)
 </description>
-		<value></value>
+        <any type="variant" limittypes="string stringArray int intArray"/>
+        <value type="string"></value>
 	</param>
     
     <param type="any" name="array">
-<shortdescription>Select (sub)array(s) by array ID number.</shortdescription>		
+<shortdescription>Select (sub)array(s) by array ID number.</shortdescription>
 <description>Select (sub)array(s) by array ID number.
                      Default = '' (all)
 </description>
@@ -234,7 +241,8 @@ Multi-MS.
 
                         Examples:
                         uvrange='0~1000klambda'; uvrange from 0-1000 kilo-lambda
-                        uvrange='>4klambda';uvranges greater than 4 kilo-lambda
+                        uvrange='&gt;4klambda';uvranges greater than 4
+			kilo-lambda
                         uvrange='0~1000km'; uvrange in kilometers
 
         <any type="variant" limittypes="string stringArray int intArray"/>
@@ -343,7 +351,7 @@ Multi-MS.
         </param>
 
         <param type="int" name="nchan" subparam="true">
-<shortdescription>Number of channels in the output spw (-1=all).</shortdescription>
+<shortdescription>Number of channels in the output spw</shortdescription>
 <description>Number of channels in the output spw (-1=all). 
                      Subparameter of
 		     mode='channel|velocity|frequency|channel_b'                
@@ -379,7 +387,7 @@ Multi-MS.
         </param>
 
         <param type="any" name="width" subparam="true">
-<shortdescription>Channel width of the output visibilities. </shortdescription>
+<shortdescription>Channel width of the output visibilities.</shortdescription>
 <description>Channel width of the output visibilities. 
                      Subparameter of
 		     mode='channel|velocity|frequency|channel_b'                
@@ -453,7 +461,7 @@ coordinate transformation.
         </param>
 	
 	<param type="string" name="outframe" ignorecase="True">
-<shortdescription>Output reference frame (''=keep input frame).</shortdescription>
+<shortdescription>Output reference frame.</shortdescription>
 <description>Output reference frame (not case-sensitive).
                      Default: '' (keep original reference frame)
                      Options: LSRK, LSRD, BARY, GALACTO, LGROUP, CMB,

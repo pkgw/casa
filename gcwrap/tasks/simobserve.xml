@@ -81,7 +81,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                      Subparameter of skymodel
                      Default: '' (i.e., unchanged)
 
-                        Example: inbright='1.2Jy/pixel
+                        Example: inbright='1.2Jy/pixel'
 
                      Note: "unchanged" will take the numerical values
 		     in your image and assume they are in Jy/pixel,
@@ -93,7 +93,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <!-- TODO document permitted units in online help -->
 
     <param type="string" name="indirection" subparam="true">
-      <shortdescription>Set new direction, e.g. "J2000 19h00m00 -40d00m00"</shortdescription>
+      <shortdescription>Set new direction, e.g. J2000 19h00m00 -40d00m00</shortdescription>
 <description>Central direction to place the sky model image
                      Subparameter of skymodel
                      Default: '' (use whatever is in the image
@@ -237,7 +237,7 @@ if the skymodel is 2D)
 -->
 
     <param type="stringArray" name="direction" subparam="true">
-<shortdescription>Mosaic center direction, e.g "J2000 19h00m00 -40d00m00"</shortdescription>
+<shortdescription>Mosaic center direction, e.g J2000 19h00m00 -40d00m00</shortdescription>
 <description>Mosaic center direction.
                      Subparameter of setpointings=True
 
@@ -293,7 +293,7 @@ observation?
     </param>
 
     <param type="string" name="pointingspacing" subparam="true">
-<shortdescription>Spacing in between pointings or "0.25PB" or "" for ALMA default INT=lambda/D/sqrt(3), SD=lambda/D/3 </shortdescription>
+<shortdescription>Spacing in between pointings e.g. 0.25PB. ALMA default: INT=lambda/D/sqrt(3), SD=lambda/D/3 </shortdescription>
 <description>Spacing in between pointings. 
                      Subparameter of setpointings=True
 
@@ -323,7 +323,7 @@ observation?
 <!--  observe always reads from $project.skymodel file now -->
 
     <param type="string" name="obsmode">
-<shortdescription>Observation mode to simulate [int(interferometer)|sd(singledish)|""(none)]</shortdescription>
+<shortdescription>Observation mode to simulate [int(interferometer)|sd(singledish)|(none)]</shortdescription>
 <description>Observation mode to simulate
                      Options: int(interferometer)|sd(singledish)|""(none)
 
@@ -355,8 +355,7 @@ observation?
     </param>
 
     <param type="string" name="refdate" subparam="true">
-<shortdescription>Date of observation - not critical unless concatting
-simulations</shortdescription>
+<shortdescription>Date of observation. Not critical unless concatting simulations</shortdescription>
 <description>Date of simulated observation
                      Subparameter of obsmode='int|sd'
                      Not critical unless concatting simulations
@@ -367,7 +366,7 @@ simulations</shortdescription>
     </param>
 
     <param type="string" name="hourangle" subparam="true">
-<shortdescription>Hour angle of observation center, e.g. "-3:00:00", "5h", "-4.5"</shortdescription>
+<shortdescription>Hour angle of observation center, e.g. -3:00:00, 5h, -4.5</shortdescription>
 <description>Hour angle of observation center.
                      Subparameter of obsmode='int|sd'
 
@@ -461,7 +460,7 @@ it'll do them for the same amount of time -->
 <!--  NOISE  -->
 
     <param type="string" name="thermalnoise">
-<shortdescription>add thermal noise: [tsys-atm|tsys-manual|""]</shortdescription>
+<shortdescription>add thermal noise: [tsys-atm|tsys-manual|(none)]</shortdescription>
 <description>add thermal noise.
                      Options: tsys-atm, tsys-manual, ""
 
@@ -530,6 +529,7 @@ model (in mm)
 
       <allowed kind="range"><value range="min">0</value></allowed>
     </param>
+
     <param type="double" name="t_sky" subparam="true">
 <shortdescription>Atmospheric temperatur in K</shortdescription>
 <description>Atmospheric temperature in K
@@ -538,6 +538,7 @@ model (in mm)
        <value>260.</value>
       <allowed kind="range"><value range="min">0</value></allowed>
     </param>	
+
     <param type="double" name="tau0" subparam="true">
 <shortdescription>Zenith opacity</shortdescription>
 <description>Zenith opacity at observing frequency
@@ -549,6 +550,7 @@ model (in mm)
 </description><value>0.1</value>
       <allowed kind="range"><value range="min">0</value></allowed>
     </param>
+
     <param type="int" name="seed" subparam="true">
 <shortdescription>Random number seed</shortdescription>
 <description>Random number seed
@@ -712,5 +714,11 @@ magnitude (interferometer only)
   </input>
   <returns type="bool"/>
   
-</task>
+<example>
+
+For more information, see the task pages of simobserve in CASA Docs:
+
+https://casa.nrao.edu/casadocs/
+
+</example></task>
 </casaxml>

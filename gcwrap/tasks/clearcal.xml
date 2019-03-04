@@ -31,7 +31,7 @@ case).
         <param type="string" name="field">
 <shortdescription>Select field using field id(s) or field name(s)</shortdescription>
 <description>Select field using field id(s) or field name(s)
-                     default: '' --> all fields
+                     default: '' (all fields)
                      
                      Use 'go listobs' to obtain the list id's or
 		     names. If field string is a non-negative integer,
