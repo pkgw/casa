@@ -53,7 +53,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   public:
     
     // Empty constructor
-    SDAlgorithmMSMFS(casacore::uInt nTaylorTerms, casacore::Vector<casacore::Float> scalesizes);
+    SDAlgorithmMSMFS(casacore::uInt nTaylorTerms, casacore::Vector<casacore::Float> scalesizes, casacore::Float smallscalebias);
     virtual  ~SDAlgorithmMSMFS();
     
     void restore( std::shared_ptr<SIImageStore> imagestore );
@@ -88,6 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     casacore::uInt itsNTerms;
     casacore::Vector<casacore::Float> itsScaleSizes;
+    casacore::Float itsSmallScaleBias;
 
     MultiTermMatrixCleaner itsMTCleaner;
 
