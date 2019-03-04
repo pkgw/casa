@@ -137,6 +137,7 @@ public:
     
     // Implements PlotCanvas::background().
     PlotAreaFillPtr background() const;
+    PlotAreaFillPtr defaultBackground() const;
     
     // Implements PlotCanvas::setBackground().
     void setBackground(const PlotAreaFill& areaFill);
@@ -583,6 +584,9 @@ private:
 	void setTimeScaleDiv(PlotAxis axis, double from, double to);
 	
     QSize minSizeHint;
+
+    // default background
+    PlotAreaFillPtr defaultBackground_;
 
 
 private slots:    

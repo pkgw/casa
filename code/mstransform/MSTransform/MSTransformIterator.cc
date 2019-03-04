@@ -80,6 +80,10 @@ MSTransformIterator::~MSTransformIterator()
 	return;
 }
 
+String MSTransformIterator::ViiType() const {
+	return String("MSTransform( ") + getVii()->ViiType() + " )";
+}
+
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------

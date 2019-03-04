@@ -90,6 +90,13 @@ bool PMS::axisIsOverlay(Axis axis) {
     }
 }
 
+bool PMS::axisIsRaDec(Axis axis) {
+    switch(axis) {
+    case RA: case DEC: return true;
+    default: return false;
+    }
+}
+
 PMS::AxisType PMS::axisType(Axis axis) {
     switch(axis) {
     case FLAG:
@@ -138,6 +145,8 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case GPHASE:
     case ELEVATION:
     case AZIMUTH:
+    case RA:
+    case DEC:
     case PARANG:
     case AZ0:
     case EL0:
@@ -296,6 +305,8 @@ const PMS::Axis PMS::DEFAULT_XAXIS = TIME;
 const PMS::Axis PMS::DEFAULT_YAXIS = AMP;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN = DATA;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN_WT = CORRECTED;
+const PMS::CoordSystem PMS::DEFAULT_COORDSYSTEM = ICRS;
+const PMS::InterpMethod PMS::DEFAULT_INTERPMETHOD = CUBIC;
 const PMS::Axis PMS::DEFAULT_COLOR_AXIS = SPW;
 
 const PlotAxis PMS::DEFAULT_CANVAS_XAXIS = X_BOTTOM;

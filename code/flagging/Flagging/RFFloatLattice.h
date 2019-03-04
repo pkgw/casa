@@ -70,7 +70,7 @@ class RFFloatLatticeIterator
 
     unsigned int iter_pos;
 
-    unsigned n_chan, n_ifr, n_time, n_bit, n_corr;
+    unsigned n_chan, n_ifr, /* n_time,*/ n_bit, n_corr;
 
     void update_curs();
   
