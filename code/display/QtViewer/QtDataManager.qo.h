@@ -45,10 +45,12 @@
 //#dk Be careful to put *.ui.h within X_enter/exit bracket too,
 //#   because they'll have Qt includes.
 //#   E.g. <QApplication> needs the X11 definition of 'Display'
-#include <display/QtViewer/QtDataManager.ui.h>
-#include <display/QtViewer/QtDataMgrMsSelect.ui.h>
-#include <display/QtViewer/VOParam.ui.h>
-#include <casaqt/QtDBus/dVO.h>
+#include <ui/ui_QtDataManager.h>
+#include <ui/ui_QtDataMgrMsSelect.h>
+#include <ui/ui_VOParam.h>
+#if ! defined(WITHOUT_DBUS)
+#include <dbus/dVO.h>
+#endif
 #include <graphics/X11/X_exit.h>
 #include <display/Utilities/Lowlevel.h>
 #include <QListWidget>
@@ -197,6 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void region_item_state_change(QTreeWidgetItem*,int);
 		void region_selection_change( viewer::Region *rgn, bool selected );
 
+#if ! defined(WITHOUT_DBUS)
 #ifdef WITH_VO
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
         //  VO controls...
@@ -204,6 +207,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         void addVOParam( );
         void removeVOParam( );
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
+#endif
 #endif
 
     private slots:
@@ -360,6 +364,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         bool slice_available;
         bool regrid_available;
+#if ! defined(WITHOUT_DBUS)
 #ifdef WITH_VO
         void setupVO( );
         // returns true if everything is OK...
@@ -470,6 +475,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		std::vector<int> vo_selected_rows;
 
 		friend void lambda_dsoc_test_pre_( QtDataManager& );
+#endif
 #endif
 	};
 
