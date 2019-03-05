@@ -474,7 +474,10 @@ class imcollapse_test(unittest.TestCase):
         yy.done()
         maskim = "ymask"
         yy.fromshape(maskim,[3,3,1,1])
-        yy.addnoise()
+        bb = yy.getchunk()
+        bb = bb + 1
+        bb[1,1] = -1
+        yy.putchunk(bb)
         yy.setcoordsys(mycs)
         yy.done()
         for i in [0,1]:
