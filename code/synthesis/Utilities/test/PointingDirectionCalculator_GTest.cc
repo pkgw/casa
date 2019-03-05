@@ -298,7 +298,7 @@ private:
 
      // Test MS copy and delete flag //
      bool fgCopyMS    = true;
-     bool fgDeleteMS  = false;
+     bool fgDeleteMS  = true;
  
 };
 
@@ -370,7 +370,7 @@ void BaseClass::DeleteWorkingMS()
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
 
-    printf( "Deleting Working MeasurementSet[%s] no more needed.\n" ,dst.c_str() );
+    printf( "Deleting Working MeasurementSet[%s]. \n" ,dst.c_str() );
 
     // Delete File (Recursively done) 
     if (fgDeleteMS)
@@ -411,8 +411,8 @@ public:
     // Calculation Error Limit //
     
          void setInterpolationErrorLimit(Double val)
-                                          { printf("EvaluateInterporation:: set interpolation err. limit = %e \n", val );
-                                            errorLimit_ = defaultInterpolationErrorLimit_ = val; }
+             { printf("EvaluateInterporation:: set interpolation err. limit = %e \n", val );
+               errorLimit_ = defaultInterpolationErrorLimit_ = val; }
 
     // Init and Define Parameters 
 
@@ -457,7 +457,7 @@ private:
           void init();
 
         //+
-        // create pseudo Pointing Info by trajectory-function 
+        // create pseudo Pointing Info by--rajectory-function 
         // return value contains various info 
         //  => see PseudoPointing
         //-
@@ -492,7 +492,7 @@ private:
        // Error Limit (threshold) in GoogleTest Macro //
 
         Double errorLimit_ ;
-        Double defaultInterpolationErrorLimit_ = 2.0e-03 ;
+        Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
 
 
     // Interval Second.
@@ -502,7 +502,7 @@ private:
 
     // Number of Antenna (CAS-8418)  
 
-        const uInt numberOfAntenna =3;
+        const uInt numberOfAntenna =1;
 };
 
 //+
@@ -514,6 +514,16 @@ void EvaluateInterporation::init()
         // Bugcheck //
         assert(requiredMainTestingRow_!=0);
 
+        //+
+        // Interpolation Error Limit 
+        //-
+
+         errorLimit_ =  defaultInterpolationErrorLimit_ ;
+
+        //+
+        // Measurment Set Size Set-Up.
+        //- 
+
         printf( "EvaluateInterporation::init()::  Pointing Interval = %f\n", pointingIntervalSec_);
         printf( "EvaluateInterporation::init()::  Main     Interval = %f\n", mainIntervalSec_);
         printf( "EvaluateInterporation::init()::  Main Testing Row  = %d\n", requiredMainTestingRow_ );
@@ -522,22 +532,18 @@ void EvaluateInterporation::init()
         //  Define Row Count in POINTING and Main
         //   - the reuired minimum numbers are up to Interval ration.
         //-
-
+       
             Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec_ ;
-
-            availableNrowInPointing_ = requiredNrowInPointing_  = TotalTime / pointingIntervalSec_;
+           
+            availableNrowInPointing_ = requiredNrowInPointing_  
+                                     = TotalTime / pointingIntervalSec_;
  
            // if POINTING table already have sufficient length 
-            if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_){
+            if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_)
+            {
                     availableNrowInPointing_ = requiredNrowInPointing_;
                     requiredNrowInPointing_  = defInerpolationTestPointingTableRow_;
             }
-
-         //+
-         // Interpolation Error Limit 
-         //-
-
-         errorLimit_ =  defaultInterpolationErrorLimit_ ;
 
         //+
         // Optimize Row Count
@@ -555,6 +561,9 @@ void EvaluateInterporation::init()
             extraNrowInPointing_ = 0;
         }
 
+        //+
+        // Expanding MAIN
+        //-
         if ( requiredMainTestingRow_ > defInerpolationTestMainTableRow_ )
         {
             extraNrowInMain = requiredMainTestingRow_ * numberOfAntenna
@@ -562,8 +571,11 @@ void EvaluateInterporation::init()
         }
         else
         {
-            extraNrowInMain  =0 ;
+            extraNrowInMain  = 0 ;
         }
+
+
+
 
         printf( "EvaluateInterporation::init()::File Size: Pointing, required =%f, adding size = %f \n", 
                 requiredNrowInPointing_ ,extraNrowInPointing_);
@@ -1443,11 +1455,13 @@ void MsEdit::prepareDataToAntennaTable( )
 uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
     // CAS-8418 new code //
-
+    {
+      PointingTableAccess pta(MsName,true);
+      pta.appendRow(AddCount);
+      pta.flush();
+    }
+    
     PointingTableAccess pta(MsName,true);
-    pta.appendRow(AddCount);
-    pta.flush();
-
     uInt nrow = pta.getNrow();
    
     return nrow;
@@ -1501,8 +1515,8 @@ void  MsEdit::writePseudoOnPointing()
     //+
     // For all Antenna and Row 
     //+
-
-    printf( "writePseudoOnPointing:: Creating Data on Pointing Table. \n");
+    uInt N = pT.getNrow();
+    printf( "writePseudoOnPointing:: Creating Data on Pointing Table. (Currently nrow=%d)\n",N);
     for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
     {
             printf( "writePseudoOnPointing::creating row data ( Ant=%d) data. Loop=%d \n", 
@@ -1604,6 +1618,7 @@ void  MsEdit::writePseudoOnMainTable(Double delta_shift, String MsName)
     printf("writing to MAIN, nrow=%d, number of data on each antenna=%d \n", nrow_ms,LoopCnt );
     for (uInt ant_id=0; ant_id < evgen.getNumberOfAntenna() ; ant_id++ )
     {
+        printf("DBG:: Ant=%d \n",ant_id);
         for (uInt row=0; row < LoopCnt; row++)
         {
             uInt  rowA = row + (ant_id * LoopCnt);
@@ -1630,7 +1645,8 @@ void  MsEdit::writePseudoOnMainTable(Double delta_shift, String MsName)
         }
     }
 
-     mta.flush();
+     mta.flush(); 
+     printf( "return writePseudoOnMainTable  \n");
 
 }
 
@@ -1826,7 +1842,7 @@ public:
 
             // Resources //
             uInt const InterpolationDivCount_ = 10;
-            uInt const numAntenna_            = 3;
+            uInt const numAntenna_            = 1;
             uInt const numPointingColumn_     = 5;
 
             // Listing option
@@ -2419,7 +2435,7 @@ std::vector<Double>  TestDirection::testDirectionForDeltaTime2(Double dt )
         MeasurementSet ms( MsName.c_str() );
         PointingDirectionCalculator calc(ms);   
 
-    //  MatrixShape (COLUMN_MAJOR) 
+    //  MatrixShape (COLUMN_MAJOR)
         calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ; 
 
     // setFrame()
@@ -2590,8 +2606,8 @@ TEST_F(TestDirection, InterpolationFull )
     // Combiniation List of Pointing Interval and Main Interval //
 
     vector<bool>   InterpolationMode     = { false, true};
-    vector<Double> Main_IntervalList     = { 0.5, 0.1, 0.05  };
-    vector<Double> Pointing_IntervalList = { 0.5, 0.1, 0.05  };
+    vector<Double> Main_IntervalList     = { 0.5, 0.1, 0.01, 0.001  };
+    vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.02  };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2609,22 +2625,29 @@ TEST_F(TestDirection, InterpolationFull )
         use_spline = InterpolationMode[s];
         printf("DBG:: Interpolation Mode = %d \n", use_spline );
 
-        Double ErrLimit =0.0;
-        if( use_spline==true)  ErrLimit = 1E-05;
-        else                   ErrLimit = 0.05;
-
-    
-       // Combiniation Loop 
-        for( uint m=0; m < Main_IntervalList.size(); m++)
+       // Combiniation Loop
+       //  5-MAR-2919 ; changed out/in loop var. 
+        for( uint p=0; p < Pointing_IntervalList.size(); p++)
         {
-            for( uint p=0; p < Pointing_IntervalList.size(); p++)
+            for( uint m=0; m < Main_IntervalList.size(); m++)
             {
+                // Interval // 
                  Double p_i = Pointing_IntervalList[p];
                  Double m_i = Main_IntervalList[m];
-  
-                 printf( "DBG:: Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
 
-                 SetUp();
+                // Error Limit
+                 Double ErrLimit =0.0;
+               
+                 if( use_spline==true) { ErrLimit = 1E-06; }
+                 else                  {  ErrLimit = 5E-03;}
+       
+                 if( m_i < 0.01 )      {  ErrLimit = 0.1; }   
+
+                 printf( "DBG:: **** Mode[%d] Interval (Poinitng, Main) = (%f,%f) **** \n", 
+                          use_spline , p_i, m_i );
+
+                 // Copy Template MS //
+                   SetUp();
 
                  //+
                  // set Examination Condition (revised by CAS-8418) //
@@ -2675,8 +2698,17 @@ typedef struct Parm {
 std::vector<ParamList>
  pList =
 {
-    {true,0.05,  0.1, 0.0001 }
+    {true, 0.01,  0.05,  0.01 },
+    {true, 0.05,  0.05,  0.01 },
+    {true, 0.10,  0.05, 0.01 },
+    {true, 0.15,   0.05,  0.01 },
+    {true, 0.20,   0.05,  0.01 },
+    {true, 0.25,   0.05, 0.01 },
 #if 0
+    {true, 0.5,   0.5,  0.01 },
+    {true, 0.5,   0.1,  0.01 },
+    {true, 0.5,   0.05, 0.01 }
+
     {true, 0.1,    0.1,   5.0E-08},
     {true, 0.048,  0.001, 4.0E-05},
     {true, 0.050,  2.5,   4.0E-05}
@@ -2754,8 +2786,8 @@ TEST_F(TestDirection, InterpolationSingle )
 
       selectTrajectory( 0 );    // Trajectory(Curve) Function
       setCondition( 5000,       // number of row
-                    0.001,      // Pointing Interval
-                    0.5,       // Main Interval
+                    0.4,          // Pointing Interval
+                    0.05,         // Main Interval
                     1.0  );  // Error limit 
 
 

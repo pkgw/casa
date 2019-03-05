@@ -174,9 +174,11 @@ PointingDirectionCalculator::PointingDirectionCalculator(
     sortColumns[1] = "TIME";
     selectedMS_ = new MeasurementSet(originalMS_->sort(sortColumns));
 
+    debuglog << "Calling init()" << debugpost;
     init();
 
     // set default output direction reference frame
+    debuglog << "Calling setFrame(J2000)" << debugpost;
     setFrame("J2000");
 
     // set default direction column name
