@@ -367,7 +367,6 @@ bool PlotMSIndexer::unmaskedMinsMaxesRaw(double& xMin, double& xMax,
 }
 
 
-
 unsigned int PlotMSIndexer::numBins() const {
 	return PMS::COLORS_LIST().size();
 }
@@ -400,7 +399,15 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 
 			}
 		}
-	} else if (itsXConnect_ != "none") {
+	} else {
+		binValue = connectBinAt(i);
+    }
+	return binValue;
+}
+
+unsigned int PlotMSIndexer::connectBinAt(unsigned int i) const {
+	unsigned int binValue(0);
+	if (itsXConnect_ != "none") {
 		for (casacore::Int bin=0; bin<nSegment_; ++bin) {
 			if (i < nCumulPoints_(bin)) {
 				binValue = bin;
@@ -435,9 +442,8 @@ bool PlotMSIndexer::setConnect(String xconnect, bool timeconnect) {
 	itsXConnect_ = xconnect;
 	itsTimeConnect_ = timeconnect;
 	if (changed) {
-		plotmscache_->logmesg("load_cache", "Updating indexing for connect points.");
+		plotmscache_->logmesg("load_cache", "Updating indexing for new connect points setting.");
 		setUpIndexing();
-		plotmscache_->logmesg("load_cache", "Finished indexing.");
 	}
 	return changed;
 }
@@ -708,62 +714,73 @@ void PlotMSIndexer::reindexForConnect() {
 	// Need points reordered for connecting points.
 	bool doTimeConnect(itsXConnect_ != "none" && itsTimeConnect_),
 		 xIsIter(currentX_ == iterAxis_),
-		 isGSpline(plotmscache_->calType()=="GSPLINE"); // no chan!
-
-	casacore::uInt npoints(nCumulPoints_(nSegment_-1));
-	Vector<Int> points(npoints);
-	indgen(points);
-	casacore::Vector<casacore::Double> timevec(npoints), spwvec(npoints), corrvec(npoints),
-		ant1vec(npoints), chanvec(npoints);
-	for (Int point: points) {
-		setChunk(point, true);
-		corrvec[point] = plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_));
-		ant1vec[point] = plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_));
-		spwvec[point] =  plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_));
-		timevec[point] = plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_));
-		if (!isGSpline)
-			chanvec[point] = plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_));
-    }
-	casacore::Sort sorter(points.data(), npoints);
+		 hasChan(plotmscache_->hasChan()),
+		 hasAnt2(plotmscache_->hasAnt2());
 
 	// set up sortkeys and sort
-	bool needCorr(true), needAnt1(true), needSpw(true), needChan(true), needTime(true);
+	bool needCorr(true), needAnt1(true), needAnt2(hasAnt2),
+		 needSpw(true), needChan(hasChan), needTime(true);
 	if (doTimeConnect || (currentX_==PMS::TIME)) {
 		needTime = false;
-		if (isGSpline)  // no chan in cache
-			needChan = false;
 	} else if (xIsIter) {
 		// use all sortkeys
 	} else switch (currentX_) {
 		case PMS::SPW:
-            needSpw = false;
+			needSpw = false;
 			break;
 		case PMS::CHANNEL:
 		case PMS::FREQUENCY:
-            needChan = false;
+			needChan = false;
 			break;
 		case PMS::CORR:
-            needCorr = false;
+			needCorr = false;
 			break;
 		case PMS::ANTENNA1:
-            needAnt1 = false;
+			needAnt1 = false;
+			break;
+		case PMS::ANTENNA2:
+			needAnt2 = false;
 			break;
 		default:
 			// use all sortkeys
 			break;
 	}
+
+	casacore::uInt npoints(nCumulPoints_(nSegment_-1));
+	Vector<Int> points(npoints);
+	indgen(points);
+	casacore::Vector<casacore::Double> timevec(npoints), spwvec(npoints), corrvec(npoints),
+		ant1vec(npoints), ant2vec(npoints), chanvec(npoints);
+	for (Int point: points) {
+		setChunk(point, true);
+		if (needTime)
+			timevec[point] = plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_));
+		if (needCorr)
+			corrvec[point] = plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_));
+		if (needAnt1)
+			ant1vec[point] = plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_));
+		if (needAnt2)
+			ant2vec[point] = plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_));
+		if (needSpw)
+			spwvec[point] =  plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_));
+		if (needChan)
+			chanvec[point] = plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_));
+	}
+
+	casacore::Sort sorter(points.data(), npoints);
 	if (needCorr) sorter.sortKey(corrvec.data(), TpDouble);
 	if (needAnt1) sorter.sortKey(ant1vec.data(), TpDouble);
+	if (needAnt2) sorter.sortKey(ant2vec.data(), TpDouble);
 	if (needSpw)  sorter.sortKey(spwvec.data(), TpDouble);
 	if (needChan) sorter.sortKey(chanvec.data(), TpDouble);
 	if (needTime) sorter.sortKey(timevec.data(), TpDouble);
 	Vector<uInt> idx;
 	sorter.sort(idx, npoints);
 
-	// redo chunk, offset for sorted points, find boundaries for nSegment_, nCumulPoints_
+	// redo chunk, offset for *sorted* points, find boundaries for nSegment_, nCumulPoints_
 	casacore::Vector<casacore::uInt> chunk(npoints), offset(npoints);
-	casacore::Double thiscorr, thisant1, thisspw, thischan, thistime;
-	casacore::Double lastcorr, lastant1, lastspw, lastchan, lasttime;
+	casacore::Double thiscorr, thisant1, thisant2, thisspw, thischan, thistime;
+	casacore::Double lastcorr, lastant1, lastant2, lastspw, lastchan, lasttime;
 	casacore::Int isegment(0);
 	casacore::Vector<casacore::uInt> nptsPerSeg;
 	for (uInt i=0; i<npoints; ++i) {
@@ -773,15 +790,18 @@ void PlotMSIndexer::reindexForConnect() {
 
 		thiscorr = plotmscache_->getCorr(currChunk_, getIndex1000(currChunk_, irel_));
 		thisant1 = plotmscache_->getAnt1(currChunk_, getIndex0010(currChunk_, irel_));
+		if (needAnt2)
+			thisant2 = plotmscache_->getAnt2(currChunk_, getIndex0010(currChunk_, irel_));
 		thisspw =  plotmscache_->getSpw(currChunk_, getIndex0000(currChunk_, irel_));
 		thistime = plotmscache_->getTime(currChunk_, getIndex0000(currChunk_, irel_));
-		if (needChan)  // avoid for GSpline
+		if (needChan)
 			thischan = plotmscache_->getChan(currChunk_, getIndex0100(currChunk_, irel_));
 
 		if (i > 0) {  // check if segment changed
 			bool newseg(false);
 			if (needCorr) newseg |= (thiscorr != lastcorr);
 			if (needAnt1) newseg |= (thisant1 != lastant1);
+			if (needAnt2) newseg |= (thisant2 != lastant2);
 			if (needSpw)  newseg |= (thisspw != lastspw);
 			if (needChan) newseg |= (thischan != lastchan);
 			if (needTime) newseg |= (thistime != lasttime);
@@ -798,10 +818,11 @@ void PlotMSIndexer::reindexForConnect() {
 		} else {
 			lastcorr = thiscorr;
 			lastant1 = thisant1;
+			if (needAnt2) lastant2 = thisant2;
 			lastspw = thisspw;
-			lastchan = thischan;
+			if (needChan) lastchan = thischan;
 			lasttime = thistime;
-        }
+		}
 	}
 
 	nSegment_ = isegment;

@@ -192,6 +192,10 @@ public:
     const casacore::String& xconnect = "none", bool timeconnect=false,
     int dataIndex = 0);
 
+  // Some metadata axes not loaded for certain calibration tables
+  inline bool hasChan() { return ( chan_[0]->size() > 0); };
+  inline bool hasAnt2() { return ( antenna2_[0]->size() > 0); };
+
   /*** Axis-specific generic gets, per chunk and relative index (from indexer) ***/
   inline casacore::Double getScan(casacore::Int chnk,casacore::Int irel)     { return scan_(chnk);   (void)irel; };
   inline casacore::Double getField(casacore::Int chnk,casacore::Int irel)    { return field_(chnk);  (void)irel; };

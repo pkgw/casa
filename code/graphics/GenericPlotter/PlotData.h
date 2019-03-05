@@ -234,6 +234,8 @@ public:
     // Returns the bin index number for the given index.  MUST be between 0 and
     // numBins().
     virtual unsigned int binAt(unsigned int i) const = 0;
+    virtual unsigned int connectBinAt(unsigned int i) const {
+        return binAt(i); };
     
     
     // IMPLEMENTED METHODS //

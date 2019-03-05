@@ -541,12 +541,15 @@ bool PlotMSPlot::updateCache() {
 }
 
 void PlotMSPlot::checkColoraxis(String caltype, PMS_PP_Display* display) {
-	// check coloraxis for cal tables
-	if (caltype.empty())
+	// check coloraxis for cal tables, xconnect for MS
+	if (caltype.empty()) {
+		if (display->xConnect() != "none")
+			logMessage("WARNING: Connecting points is implemented for calibration tables only");
 		return;
+	}
 	PMS::Axis coloraxis = display->colorizeAxis();
 	if (coloraxis==PMS::INTENT) {
-        logMessage("WARNING: Cannot colorize Intent for cal tables.\nTurning off colorize.");
+		logMessage("WARNING: Cannot colorize Intent for cal tables.\nTurning off colorize.");
 		display->setColorize(false, PMS::NONE);
 		return;
 	}
@@ -1306,8 +1309,6 @@ bool PlotMSPlot::parametersHaveChanged_(const PlotMSWatchedParameters &p,
 			cacheLoaded_(false);
 			handled = false;
 		}
-	} else {
-		cacheLoaded_(false);
 	}
 	return handled;
 }

@@ -113,7 +113,7 @@ public:
   // <group>
   unsigned int numBins() const;
   unsigned int binAt(unsigned int i) const;
-  bool isBinned() const;
+  bool isBinned() const;  // affects colorizing points
   // </group>
 
   // Set up indexing for the plot 
@@ -176,6 +176,7 @@ public:
 
   bool setConnect(casacore::String xconnect, bool timeconnect);
   virtual bool reverseConnect(unsigned int index) const;
+  unsigned int connectBinAt(unsigned int i) const;
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }

@@ -490,9 +490,10 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             lastix = xMap.transform(lastx);
             lastiy = yMap.transform(lasty);
 
-            unsigned int lastbin, thisbin;
+            unsigned int thisColorBin;  // for colorized data
+            unsigned int lastConnectBin, thisConnectBin; // whether to connect
             if (diffColorLine) {
-                lastbin = m_coloredData->binAt(drawIndex);
+                lastConnectBin = m_coloredData->connectBinAt(drawIndex);
             }
             for(unsigned int i = drawIndex + 1; i < n; i++) {
                 // get this point
@@ -511,20 +512,21 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                            linePen = m_line.asQPen();
                         if (!drawLine)
                            linePen = m_maskedLine.asQPen();
-                        thisbin = m_coloredData->binAt(i);
-                        sameBin = (thisbin==lastbin);
-                        unsigned int colorBin = thisbin % numBins;
+                        thisColorBin = m_coloredData->binAt(i);
+						thisConnectBin = m_coloredData->connectBinAt(i);
+                        sameBin = (thisConnectBin==lastConnectBin);
+                        unsigned int colorBin = thisColorBin % numBins;
                         QBrush coloredBrush = m_coloredBrushes[colorBin];
                         linePen.setBrush(coloredBrush);
                         QColor brushColor = coloredBrush.color();
                         linePen.setColor(brushColor);
                         p->setPen(linePen);
-                        // compare then save for next point
+                        // compare connect bins then save for next point
                         if (reversed)
                             sameLine = sameBin && (thisx < lastx); // for colorized data
                         else
                             sameLine = sameBin && (thisx > lastx); // for colorized data
-                        lastbin = thisbin;
+                        lastConnectBin = thisConnectBin;
                     }
 
                     sameMask = (thismask==lastmask); // only connect same-masked points
@@ -555,14 +557,14 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                     // normally, next point draws trailing line for last point unless:
                                     // 1. this is last point in plot or in this line (bin changes)
                                     // 2. same bin but mask changes for next point
-                                    if (!morepoints || (morepoints && (m_coloredData->binAt(i+1)!=thisbin))) {
+                                    if (!morepoints || (morepoints && (m_coloredData->connectBinAt(i+1)!=thisConnectBin))) {
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // last point
                                     }
-                                    if ((morepoints && (m_coloredData->binAt(i+1) == thisbin)) &&
+                                    if ((morepoints && (m_coloredData->connectBinAt(i+1) == thisConnectBin)) &&
                                         (nextmask != thismask)) {
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // mask changes
                                     }
-                                } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
+                                } else if ((i < n-1) && (m_coloredData->connectBinAt(i+1)==thisConnectBin))  {
                                     // first point in new line, use next point to draw leading line
                                     if (nextmask==thismask) {
                                         int nextix(xMap.transform(nextx));
@@ -589,14 +591,14 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                     if (secondpoint) {
                                         p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
                                     }
-                                    if (!morepoints || (morepoints && (m_coloredData->binAt(i+1)!=thisbin))) {
+                                    if (!morepoints || (morepoints && (m_coloredData->connectBinAt(i+1)!=thisConnectBin))) {
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
                                     }
-                                    if ((morepoints && (m_coloredData->binAt(i+1) == thisbin)) &&
+                                    if ((morepoints && (m_coloredData->connectBinAt(i+1) == thisConnectBin)) &&
                                         (nextmask != thismask)) {
                                         p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
                                     }
-                                } else if ((i < n-1) && (m_coloredData->binAt(i+1)==thisbin))  {
+                                } else if ((i < n-1) && (m_coloredData->connectBinAt(i+1)==thisConnectBin))  {
                                     double nextx, nexty;
                                     bool nextmask;
                                     m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
