@@ -150,6 +150,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Matrix<Float> tempModel;
     tempModel.reference( itsMatModel );
+    //save the previous model
+    Matrix<Float> prevModel;
+    prevModel=itsMatModel;
 
     //cout << "SDALMS,  matrix shape : " << tempModel.shape() << " array shape : " << itsMatModel.shape() << endl;
 
@@ -168,7 +171,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( retval==-3 ) {os << LogIO::WARN << "MSClean minor cycle stopped because it is diverging" << LogIO::POST; }
 
     ////This is going to be wrong if there is no 0 scale;
-    peakresidual = max(abs(itsCleaner.residual()));
+    ///Matrix<Float> residual(itsCleaner.residual());
+    Matrix<Float> residual(itsCleaner.residual(tempModel-prevModel));
+    // account for mask as well
+    peakresidual = max(abs(residual*itsMatMask));
     modelflux = sum( itsMatModel ); // Performance hog ?
   }	    
 

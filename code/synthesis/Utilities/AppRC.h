@@ -72,7 +72,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   private:
     casacore::Casarc *rc_p;
     casacore::CasarcCleanup rcCleanup;
-    pid_t myPID_p, myTID_p;
+    pid_t myPID_p /*, myTID_p*/;
     casacore::Bool addPID_p,deleteFile_p;
     string fileName_p, id_p;
     void setPID() {/*myTID_p = gettid_p ();*/ myPID_p = getpid ();}

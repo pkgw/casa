@@ -161,10 +161,11 @@ namespace casa{
 	tel = vb.subtableColumns().observation().telescopeName()
 	  (mscol.observationId()(0));
       }
-      if (tel.length() == 0 || 
+      if (tel.length() == 0 || !tel.contains("VLA") ||  
 	  !MeasTable::Observatory(pos,tel)) {
 	// unknown observatory, use first antenna
-	pos=vb.subtableColumns().antenna().positionMeas()(0);
+	Int ant1 = vb.antenna1()(0);
+	pos=vb.subtableColumns().antenna().positionMeas()(ant1);
       }
       //cout << "TELESCOPE " << tel << endl;
       //Store this to build epochs via the time access of visbuffer later

@@ -26,6 +26,8 @@
 //# $Id: $
 #ifndef PLOTMSINDEXER_H_
 #define PLOTMSINDEXER_H_
+#include <map>
+#include <sstream>
 
 #include <casa/aips.h>
 #include <casa/Arrays.h>
@@ -41,12 +43,14 @@ namespace casa {
 
 //# Forward declarations.
 class PlotMSApp;
+class PlotMSCacheBase;
 class PlotMSIndexer;  // needed for method pointer typedefs
 
 typedef casacore::Double(PlotMSCacheBase::*CacheMemPtr)(casacore::Int,casacore::Int);
 typedef    casacore::Int(PlotMSIndexer::*IndexerMethPtr)(casacore::Int,casacore::Int);
 typedef   void(PlotMSIndexer::*CollapseMethPtr)(casacore::Int,casacore::Array<casacore::Bool>&);
- 
+
+
 class PlotMSIndexer : public PlotMaskedPointData, public PlotBinnedData {
 
 public:
@@ -60,13 +64,18 @@ public:
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index);
+
+protected:
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
     PMS::Axis iterAxis, casacore::Int iterValue, int index);
-  
+  friend class PlotMSIndexerFactory;
+
+public:
+
   // Destructor
-  ~PlotMSIndexer();
+  virtual ~PlotMSIndexer();
 
   // Implemented PlotData methods.
   // <group>
@@ -78,16 +87,16 @@ public:
   // Implemented PlotPointData methods.
   // <group>
   unsigned int size() const;
-  double xAt(unsigned int i) const;
-  double yAt(unsigned int i) const;
-  void xAndYAt(unsigned int index, double& x, double& y) const;
+  virtual double xAt(unsigned int i) const;
+  virtual double yAt(unsigned int i) const;
+  virtual void xAndYAt(unsigned int index, double& x, double& y) const;
   bool minsMaxes(double& xMin, double& xMax, double& yMin, double& yMax);
   // </group>
     
   // Implemented PlotMaskedPointData methods.
   // <group>
   bool maskedAt(unsigned int index) const;
-  void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask) const;
+  virtual void xyAndMaskAt(unsigned int index, double& x, double& y, bool& mask) const;
   // </group>
     
   // Unimplemented PlotMaskedPointData methods.
@@ -132,7 +141,7 @@ public:
 
 
   // Report meta info for current value of currChunk_/irel_
-  void reportMeta(casacore::Double x, casacore::Double y, casacore::Bool masked, stringstream& ss);
+  void reportMeta(casacore::Double x, casacore::Double y, casacore::Bool masked, std::stringstream& ss);
 
   // Set flags in the cache
   void flagInCache(const PlotMSFlagging& flagging,casacore::Bool flag);
@@ -164,7 +173,13 @@ public:
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
-  
+
+protected:
+  PlotMSCacheBase* getCache() { return plotmscache_; }
+  // Set currChunk_ according to a supplied index
+  void setChunk(casacore::uInt i) const;
+  void setReady(bool isReady=true) { indexerReady_ = isReady; };
+
 private:
     
   // Forbid copy for now
@@ -188,13 +203,10 @@ private:
   */
 
   // Report the number of chunks
-  casacore::Int nChunk() const { return (plotmscache_ ? plotmscache_->nChunk() : 0); };
+  casacore::Int nChunk() const; // { return (plotmscache_ ? plotmscache_->nChunk() : 0); };
 
   // Report the reference time for this cache (in seconds)
-  inline casacore::Double refTime() { return plotmscache_->refTime(); };
-
-  // Set currChunk_ according to a supplied index
-  void setChunk(casacore::uInt i) const;
+  inline casacore::Double refTime(); // { return plotmscache_->refTime(); };
 
   // Computes the X and Y limits for the currently set axes.  In the future we
   // may want to cache ALL ranges for all loaded values to avoid recomputation.
@@ -236,7 +248,10 @@ private:
   //  CollapseMethPtr collapseXMask_, collapseYMask_;
 
   // The in-focus chunk and relative index offset
+protected:
   mutable casacore::Int currChunk_, irel_;
+
+private:
   mutable casacore::uInt lasti_;
 
   // The number of points per chunk
@@ -280,13 +295,93 @@ private:
   // </group>
   
   // Cope with const-ness in the get methods
+protected:
   PlotMSIndexer* self;
+
+private:
 
   int dataIndex_;
 
 };
 
 typedef casacore::CountedPtr<PlotMSIndexer> PlotMSIndexerPtr;
+
+class PlotMSRaDecIndexer : public PlotMSIndexer {
+
+public:
+
+	// Convenient access to class name.
+	static const casacore::String CLASS_NAME;
+
+	using RaDecData = casacore::PtrBlock<casacore::Vector<casacore::Double>*>;
+	using RaDecMap = std::map<DirectionAxisParams,RaDecData>;
+
+	static const RaDecData EMPTY_DATA;
+
+	// Empty Indexer
+	PlotMSRaDecIndexer();
+
+	// Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
+	//PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+	//PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index)
+	//: PlotMSIndexer(plotmscache, xAxis,xData,yAxis,yData,index) {}
+
+	// Constructor which supports iteration
+	PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+	PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+	PMS::Axis iterAxis, casacore::Int iterValue, int index);
+
+	// Destructor
+	~PlotMSRaDecIndexer() {}
+
+	// Overridden PlotPointData methods.
+	double xAt(unsigned int i) const;
+	double yAt(unsigned int i) const;
+	void xAndYAt(unsigned int index, double& x, double& y) const;
+
+	void xyAndMaskAt(unsigned int index,
+			double& x, double& y,
+			bool& mask) const;
+
+	inline casacore::Double getRaX(casacore::Int chnk,casacore::Int irel) const {
+		return *(xRa_[chnk]->data()+irel);
+	}
+	inline casacore::Double getRaY(casacore::Int chnk,casacore::Int irel) const {
+		return *(yRa_[chnk]->data()+irel);
+	}
+	inline casacore::Double getDecX(casacore::Int chnk,casacore::Int irel) const {
+		return *(xDec_[chnk]->data()+irel);
+	}
+	inline casacore::Double getDecY(casacore::Int chnk,casacore::Int irel) const {
+		return *(yDec_[chnk]->data()+irel);
+	}
+
+private:
+
+
+	const bool cacheOk_;
+	const bool axesOk_;
+	const bool xAxisIsRa_;
+	const bool xAxisIsDec_;
+	const bool xAxisIsRaOrDec_;
+	const bool yAxisIsRa_;
+	const bool yAxisIsDec_;
+	const bool yAxisIsRaOrDec_;
+
+	const RaDecData& xRa_;
+	const RaDecData& xDec_;
+
+	const RaDecData& yRa_;
+	const RaDecData& yDec_;
+};
+
+class PlotMSIndexerFactory {
+public:
+static PlotMSIndexer* initIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
+  PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+  PMS::Axis iterAxis, casacore::Int iterValue, int index,
+  bool makeRaDecIndexer=false);
+};
 
 }
 

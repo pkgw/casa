@@ -3148,36 +3148,37 @@ std::vector<std::string> image::history(bool list) {
 
 image* image::imagecalc(
     const string& outfile, const string& pixels,
-    bool overwrite, const string& imagemd
+    bool overwrite, const string& imagemd, const string& prec 
 ) {
     try {
         ThrowIf(
             pixels.empty(),
             "You must provide an expression using the pixels parameter"
         );
-        DataType type = ImageExprParse::command(pixels).dataType();
-        if (type == TpFloat || type == TpInt) {
-            return new image(
-                _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpComplex) {
-            return new image(
-                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpDouble) {
-            return new image(
-                _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpDComplex) {
-            return new image(
-                _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
-            );
+        String myPrec = prec;
+        myPrec.downcase();
+        auto asFloat = myPrec.startsWith("f");
+        ThrowIf(
+            ! myPrec.startsWith("d") && ! asFloat,
+            "Unsupported value for type, it must be 'float' or 'double'"
+        );
+        if (isReal(ImageExprParse::command(pixels).dataType())) {
+            return asFloat
+                ? new image(
+                    _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
+                )
+                : new image(
+                    _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
+                );
         }
         else {
-            ThrowCc("Unsupported data type for resulting image");
+            return asFloat
+                ? new image(
+                    _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
+                )
+                : new image(
+                    _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
+                );
         }
     }
     catch (const AipsError& x) {

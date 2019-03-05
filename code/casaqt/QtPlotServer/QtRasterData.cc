@@ -43,7 +43,7 @@ namespace casa {
 	    if ( output_limit < 20 ) {
 	      // fprintf( stderr, "%d =====================> [(%f,%f), (%f,%f)]: (%f,%f)\n", output_limit,
 	      // 	       bounding_box.left(), bounding_box.right(), bounding_box.bottom(), bounding_box.top(), x, y );
-	      QwtDoubleRect plot_box(spect->boundingRect( ));
+	      //QwtDoubleRect plot_box(spect->boundingRect( ));
 	      // fprintf( stderr, "%d =====================> [(%f,%f), (%f,%f)]\n", output_limit,
 	      // 	       plot_box.left(), plot_box.right(), plot_box.bottom(), plot_box.top() );
 	    }

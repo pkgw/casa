@@ -95,8 +95,10 @@ int FlagID::compare (const void* val1, const void* val2) {
 int FlagIDS::compareID (const void* val1, const void* val2) {
         const FlagIDS& t1 = *(FlagIDS*)val1;
         const FlagIDS& t2 = *(FlagIDS*)val2;
-        
-    if (&t1 != 0 && &t2 != 0) {  
+    // this condition makes no sense and produces a clang compiler warning
+    // warning: reference cannot be bound to dereferenced null pointer in well-defined C++ code;
+    // comparison may be assumed to always evaluate to true [-Wtautological-undefined-compare]
+    // if (&t1 != 0 && &t2 != 0) {  
         cout << "t1=" << t1.time << " " << t2.time << endl;
         if (t1.time < t2.time) return -1;
         if (t1.time > t2.time) return 1;
@@ -110,7 +112,7 @@ int FlagIDS::compareID (const void* val1, const void* val2) {
         if (t1.corr > t2.corr) return 1;
         if (t1.chan < t2.chan) return -1;
         if (t1.chan > t2.chan) return 1;
-    } 
+    // } 
         
     return 0;
 }

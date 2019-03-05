@@ -120,7 +120,7 @@ public:
           UVDIST,UVDIST_L,U,V,W,UWAVE,VWAVE,WWAVE,
           AZ0,EL0,HA0,PA0,
           // Antenna-based
-          ANTENNA,AZIMUTH,ELEVATION,
+          ANTENNA,AZIMUTH,ELEVATION,RA,DEC,
           PARANG,
           // Calibration 
           GAMP,GPHASE,GREAL,GIMAG,
@@ -143,7 +143,7 @@ public:
           "UVdist","UVwave","U","V","W","Uwave","Vwave","Wwave",
           "Azimuth","Elevation","HourAngle","ParAngle",
           // Antenna-based
-          "Antenna","Ant-Azimuth","Ant-Elevation","Ant-ParAngle",
+          "Antenna","Ant-Azimuth","Ant-Elevation","Ant-Ra","Ant-Dec","Ant-ParAngle",
           // Calibration 
           "Gain Amp","Gain Phase","Gain Real","Gain Imag",
           "Delay","SwPower","Tsys","Opac", "SNR", "TEC",
@@ -172,7 +172,25 @@ public:
               "corrected/model_vector", "corrected/model_scalar",
               "data/model_vector", "data/model_scalar")
     // </group>
-              
+
+    // Enum for the different coordinate systems for data axes.
+    // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
+    // <group>
+    PMS_ENUM1(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
+              AZEL, ICRS, J2000)
+    PMS_ENUM2(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
+              "AzEl", "ICRS", "J2000")
+    // </group>
+
+    // Enum for the different interpolation methods for data axes.
+    // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
+    // <group>
+    PMS_ENUM1(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
+              NEAREST, CUBIC)
+    PMS_ENUM2(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
+              "Nearest", "Cubic")
+    // </group>
+
     // Returns whether or not the given axis needs the second data parameter to
     // indicate which data column to use or not.  Currently false except for
     // AMP, PHASE, REAL, and IMAG.
@@ -183,8 +201,10 @@ public:
     static bool axisIsWeight(Axis axis);
     // for loading conjugates and setting axis ranges
     static bool axisIsUV(Axis axis);
-	// for adjusting axis ranges
+    // for adjusting axis ranges
     static bool axisIsOverlay(Axis axis);
+    // right ascension or declination
+    static bool axisIsRaDec(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.
@@ -316,6 +336,8 @@ public:
     static const Axis DEFAULT_YAXIS;
     static const DataColumn DEFAULT_DATACOLUMN;
     static const DataColumn DEFAULT_DATACOLUMN_WT;
+    static const CoordSystem DEFAULT_COORDSYSTEM;
+    static const InterpMethod DEFAULT_INTERPMETHOD;
     static const Axis DEFAULT_COLOR_AXIS;
     // </group>
     

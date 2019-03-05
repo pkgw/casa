@@ -98,7 +98,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Complex nApertures;
     casacore::Vector<casacore::Int> fieldIds_p;
     casacore::TempImage<casacore::Complex> griddedWeights;
-    casacore::Float pbNorm;
+    //casacore::Float pbNorm;
     virtual void runFortranGet(casacore::Matrix<casacore::Double>& uvw,casacore::Vector<casacore::Double>& dphase,
 		       casacore::Cube<casacore::Complex>& visdata,
 		       casacore::IPosition& s,

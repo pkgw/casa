@@ -746,32 +746,39 @@ namespace casa{
   //
   template <class T>
   T SynthesisUtils::getenv(const char *name,const T defaultVal)
-  {
-    stringstream defaultStr;
-    defaultStr << defaultVal;
-    T val;
-    uInt handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
-    String strVal = Aipsrc::get(handle);
-    stringstream toT(strVal);
-    toT >> val;
-    // Looks like Aipsrc did not find the named variable.  See if an
-    // env. variable is defined.
-    if (val==defaultVal)
+    {
+      T val=defaultVal;
+      stringstream defaultStr;
+      defaultStr << defaultVal;
       {
 	char *valStr=NULL;
-	if ((valStr = std::getenv(name)) != NULL)
+	std::string tt(name);
+	unsigned long pos;
+	while((pos=tt.find(".")) != tt.npos)
+	  tt.replace(pos, 1, "_");
+
+	if ((valStr = std::getenv(tt.c_str())) != NULL)
 	  {
 	    stringstream toT2(valStr);
 	    toT2 >> val;
 	  }
       }
-    return val;
-  }
+      // If environment variable was not found (val remained set to the
+      // defaulVal), look in ~/.aipsrc.
+      if (val==defaultVal)
+	{
+	  uint handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
+	  String strVal = Aipsrc::get(handle);
+	  stringstream toT(strVal);
+	  toT >> val;
+	}
+      return val;
+    }
   template 
   Int SynthesisUtils::getenv(const char *name, const Int defaultVal);
   template 
   Bool SynthesisUtils::getenv(const char *name, const Bool defaultVal);
-template 
+  template 
   Double SynthesisUtils::getenv(const char *name, const Double defaultVal);
   Float SynthesisUtils::libreSpheroidal(Float nu) 
   {

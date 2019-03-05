@@ -98,32 +98,32 @@ public:
   // for DataAccumulator
   virtual casacore::Bool getData(size_t irow, sdfiller::DataRecord &record);
 
-  virtual int getNROArraySize() const {
+  int getNROArraySize() const {
 //    return obs_header_.ARYNM0; //obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
     return NRO_ARYMAX;
   }
-  virtual int getNRONumBeam() const {
+  int getNRONumBeam() const {
     return obs_header_.NBEAM;
   }
-  virtual int getNRONumPol() const {
+  int getNRONumPol() const {
     return obs_header_.NPOL;
   }
-  virtual int getNRONumSpw() const {
+  int getNRONumSpw() const {
     return obs_header_.NSPWIN;
   }
 
-  virtual bool isNROArrayUsed(int array_id) const {
+  bool isNROArrayUsed(int array_id) const {
     return array_mapper_[array_id].isUsed();
   }
-  virtual int getNROArrayBeamId(int array_id) const {
+  int getNROArrayBeamId(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getBeamId();
   }
-  virtual casacore::Stokes::StokesTypes getNROArrayPol(int array_id) const {
+  casacore::Stokes::StokesTypes getNROArrayPol(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getPol();
   }
-  virtual int getNROArraySpwId(int array_id) const {
+  int getNROArraySpwId(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getSpwId();
   }

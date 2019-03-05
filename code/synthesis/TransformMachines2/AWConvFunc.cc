@@ -26,6 +26,8 @@
 //#
 //# $Id$
 //
+#include <synthesis/TransformMachines2/Utils.h>
+
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/AWProjectFT.h>
 #include <synthesis/TransformMachines/SynthesisError.h>
@@ -70,10 +72,11 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     ConvolutionFunction(),aTerm_p(aTerm),psTerm_p(psTerm), wTerm_p(wTerm), pixFieldGrad_p(), 
     wbAWP_p(wbAWP), conjPB_p(conjPB), baseCFB_p()
   {
-    LogIO log_l(LogOrigin("AWConvFunc", "AWConvFunc"));
     if (psTerm->isNoOp() && aTerm->isNoOp())
-      log_l << "Both, psterm and aterm cannot be set to NoOp. " << LogIO::EXCEPTION;
-    
+      {
+	LogIO log_l(LogOrigin("AWConvFunc", "AWConvFunc"));
+	log_l << "Both, psterm and aterm cannot be set to NoOp. " << LogIO::EXCEPTION;
+      }
     if (wbAWP && aTerm->isNoOp())
       {
 	//log_l << "wbawp=True is ineffective when aterm is OFF.  Setting wbawp to False." << LogIO::NORMAL1;
@@ -137,7 +140,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   void AWConvFunc::makeConjPolAxis(CoordinateSystem& cs,
 				   Int conjStokes_in)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "makeConjPolAxis[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "makeConjPolAxis[R&D]"));
     IPosition dummy;
     Vector<String> csList;
     Vector<Int> stokes, conjStokes;
@@ -177,6 +180,9 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //----------------------------------------------------------------------
   //
   void AWConvFunc::fillConvFuncBuffer(CFBuffer& cfb, CFBuffer& cfWtb,
+				      const Int&,// skyNX,
+				      const Int&,// skyNY,
+				      const Vector<Double>&,// skyIncr,
 				      const Int& nx, const Int& ny, 
 				      const Vector<Double>& freqValues,
 				      const Vector<Double>& wValues,
@@ -193,12 +199,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     (void)psScale;
     (void)muellerElementsIndex;
     (void)freqHi;
-    LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
     //    Int ttt=0;
     Complex cfNorm, cfWtNorm;
     //Double vbPA = getPA(vb);
     Complex cpeak,wtcpeak;
     aTerm.cacheVBInfo(vb);
+    Int totalCFs=muellerElements.shape().product()*freqValues.shape().product()*wValues.shape().product()*2,
+      cfsDone=0;
+  
+    ProgressMeter pm(1.0, Double(totalCFs), "fillCF", "","","",true);
 
     for (uInt imx=0;imx<muellerElements.nelements();imx++) // Loop over all MuellerElements
       for (uInt imy=0;imy<muellerElements(imx).nelements();imy++)
@@ -221,7 +230,29 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			      wValues(0), 
 			      muellerElements(imx)(imy));
 		aTerm.setBandName(bandName);
-		IPosition pbshp(4,nx,ny,1,1);
+
+		// {
+		//   Double lambdaByD = 1.22*C::c/freqValues(inu)/25.0;
+		//   Double FoV_x = fabs(skyNX*skyIncr(0));
+		//   Double FoV_y = fabs(skyNY*skyIncr(1));
+		//   Vector<Double> uvScale_l(3);
+		//   uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+		//   uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+		//   uvScale_l(2) = 0.0;
+
+		//   //Hints that only uvScale needs to be updated in PSTerm.
+		//   IPosition dummy; 
+		//   Vector<Double> dummyoffset;
+		//   Double pss = -1;
+		//   //cerr << "############ " << freqValues(inu) << " " << skyIncr << skyNX << " " << uvScale_l << endl;
+		//   psTerm.reinit(dummy, uvScale_l, dummyoffset,pss);
+		// }
+		
+		
+		IPosition pbshp(4,nx, ny,1,1);
+		// Set the shape to 2x2 pixel images for dry gridding
+		if (isDryRun) pbshp[0]=pbshp[1]=2;
+
 		//
 		// Cache the A-Term for this polarization and frequency
 		//
@@ -257,7 +288,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		// }
 
 
-		Bool doSquint=true; Complex tt;
+		Bool doSquint=true; 
 		//		Bool doSquint=false; Complex tt;
 		ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
 
@@ -301,10 +332,14 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     		for (uInt iw=0;iw<wValues.nelements();iw++)     // All w-planes
     		  {
 		    if (!isDryRun)
-		      log_l << " CF("
-			    << "M:"<<muellerElements(imx)(imy) 
-			    << ",C:" << inu 
-			    << ",W:" << iw << "): ";
+		      {
+			LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
+
+			log_l << " CF("
+			      << "M:"<<muellerElements(imx)(imy) 
+			      << ",C:" << inu 
+			      << ",W:" << iw << "): ";
+		      }
 		    // {
 		    //   CountedPtr<CFCell> thisCell=cfb.getCFCellPtr(freqValues(inu), wValues(iw), muellerElements(imx)(imy));
 		    //   thisCell->conjFreq_p = conjFreq;
@@ -344,7 +379,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			//psTerm.applySky(cfBufMat, false);   // Assign (psScale set in psTerm.init()
 			//psTerm.applySky(cfWtBufMat, false); // Assign
 			psTerm.applySky(cfBufMat, s, cfBufMat.shape()(0)/s(0));   // Assign (psScale set in psTerm.init()
-	    psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
+			psTerm.applySky(cfWtBufMat, s, cfWtBufMat.shape()(0)/s(0)); // Assign
 
 			cfWtBuf *= cfWtBuf;
 		      }
@@ -492,7 +527,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    ftRef(0)=cfWtBuf.shape()(0)/2.0;
 		    ftRef(1)=cfWtBuf.shape()(1)/2.0;
 		    CoordinateSystem ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0)=nx/2.0;
+			ftRef(1)=ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx,ftRef , ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfWtBuf.shape()(0), ftRef, ftCoords);
+		    
 		    CountedPtr<CFCell> cfCellPtr;
 		    cfWtb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				    freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
@@ -530,7 +573,10 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		      AWConvFunc::resizeCF(cfBuf, xSupport, ySupport, supportBuffer, sampling,0.0);
 
 		    if (!isDryRun)
-		      log_l << "CF Support: " << xSupport << " (" << xSupportWt << ") " << "pixels" <<  LogIO::POST;
+		      {
+			LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer[R&D]"));
+			log_l << "CF Support: " << xSupport << " (" << xSupportWt << ") " << "pixels" <<  LogIO::POST;
+		      }
 
 		    // cfb.getCFCellPtr(freqValues(inu), wValues(iw), muellerElement)->storage_p->assign(cfBuf);
 		    // ftRef(0)=cfBuf.shape()(0)/2-1;
@@ -557,7 +603,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
 		    //tim.mark();
 		    ftCoords=cs_l;
-		    SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		    if (isDryRun)
+		      {
+			ftRef(0) = nx/2.0;
+			ftRef(1) = ny/2.0;
+			SynthesisUtils::makeFTCoordSys(cs_l, nx, ftRef, ftCoords);
+		      }
+		    else
+		      SynthesisUtils::makeFTCoordSys(cs_l, cfBuf.shape()(0), ftRef, ftCoords);
+		      
 		    cfb.setParams(inu,iw,imx,imy,//muellerElements(imx)(imy),
 				  freqValues(inu), String(""), wValues(iw), muellerElements(imx)(imy),
 				  ftCoords, sampling, xSupport, ySupport,
@@ -579,6 +633,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    (cfb.getCFCellPtr(freqValues(inu), wValues(iw), 
 				      muellerElements(imx)(imy)))->initCache(isDryRun);
 
+		    pm.update((Double)cfsDone++);
 		    //tim.show("End*2:");
     		  }
 	      }
@@ -592,7 +647,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			     const Int& xSupport, const Int& ySupport,
 			     const Float& sampling)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2","cfArea"));
     Complex cfNorm=0;
     Int origin=cf.shape()(0)/2;
     Float peak=0;
@@ -605,6 +659,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     // origin = peakPix(0);
    if (origin != peakPix(0))
       {
+	LogIO log_l(LogOrigin("AWConvFunc2","cfArea"));
 	log_l << "Peak not at the center " << origin << " " << cf(IPosition(4,origin,origin,0,0)) << " " << peakPix << " " << peak << LogIO::NORMAL1;
 	//	peakNIC=1e7;
       }
@@ -752,6 +807,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     
     Int nx=image.shape()(0);//, ny=image.shape()(1);
+    Vector<Double> skyIncr;
     
     log_l << "Making a new convolution function for PA="
 	  << pa*(180/C::pi) << "deg"
@@ -766,15 +822,19 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       {
 	log_l << "Using " << wConvSize << " planes for W-projection" << LogIO::POST;
 	Double maxUVW;
-	maxUVW=0.25/abs(image.coordinates().increment()(0));
+	float WFUDGE=4.0;
+	WFUDGE=refim::SynthesisUtils::getenv("WTerm.WFUDGE",WFUDGE);
+
+	//maxUVW=0.25/abs(image.coordinates().increment()(0));
+	maxUVW=1.0/abs(image.coordinates().increment()(0)*WFUDGE);
 	log_l << "Estimating maximum possible W = " << maxUVW
 	      << " (wavelengths)" << LogIO::POST;
 	
-	Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
-	Int nFreq = (vb.getFrequencies(0).nelements())-1;
-	Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
-	log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
-	      << 1.0/invMinL << " (m)" << LogIO::POST;
+	// Double invLambdaC=vb.getFrequencies(0)(0)/C::c;
+	// Int nFreq = (vb.getFrequencies(0).nelements())-1;
+	// Double invMinL = vb.getFrequencies(0)(nFreq)/C::c;
+	// log_l << "wavelength range = " << 1.0/invLambdaC << " (m) to " 
+	//       << 1.0/invMinL << " (m)" << LogIO::POST;
 	if (wConvSize > 1)
 	  {
 	    wScale=Float((wConvSize-1)*(wConvSize-1))/maxUVW;
@@ -806,7 +866,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     AlwaysAssert(index>=0, AipsError);
     DirectionCoordinate dc=coords.directionCoordinate(index);
     Vector<Double> sampling;
-    sampling = dc.increment();
+    skyIncr = sampling = dc.increment();
 //    cout<<"The image sampling is set to :"<<sampling<<endl; 
     sampling*=Double(convSampling);
     sampling*=Double(nx)/Double(convSize);
@@ -925,7 +985,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     Matrix<Int> uniqueBaselineTypeList=makeBaselineList(aTerm_p->getAntTypeList());
     //Quantity dPA(360.0,"deg");
     Quantity dPA(dpa,"rad");
-    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product();
+    Int totalCFs=uniqueBaselineTypeList.shape().product()*wConvSize*freqValues.nelements()*polMap.shape().product()*2;
     ProgressMeter pm(1.0, Double(totalCFs), "makeCF", "","","",true);
     int cfDone=0;
     for(Int ib=0;ib<uniqueBaselineTypeList.shape()(0);ib++)
@@ -960,20 +1020,31 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	//access the PS function implementation (in Utils.h
 	//SynthesisUtils::libreSpheroidal() - but this needs more
 	//testing).
-	Int inner=convSize/(convSampling);
-	// Float psScale= (image.coordinates().increment()(0)*nx) /
-	//   (coords.increment()(0)*screen.shape()(0));
-
 	Float psScale = (2.0*coords.increment()(0))/(nx*image.coordinates().increment()(0)),
 	  innerQuaterFraction=1.0;
-	// psScale when using SynthesisUtils::libreSpheroidal() is
-	// 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
-	// the center being at Nx/2.  Here the nSupport is determined
+	{
+	  Int inner=convSize/(convSampling);
+	  // Float psScale= (image.coordinates().increment()(0)*nx) /
+	  //   (coords.increment()(0)*screen.shape()(0));
 
-	// by the sky-image and is equal to convSize/convSampling.
-	psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
-	Vector<Double> uvOffset_cf(3,0); uvOffset_cf(0)=uvOffset_cf(2)=convSize/2;
-	psTerm_p->init(IPosition(2,inner,inner), uvScale, uvOffset_cf,psScale);
+	  // psScale when using SynthesisUtils::libreSpheroidal() is
+	  // 2.0/nSupport.  nSupport is in pixels and the 2.0 is due to
+	  // the center being at Nx/2.  Here the nSupport is determined
+	  innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
+
+	  Double lambdaByD = innerQuaterFraction*1.22*C::c/min(freqValues)/25.0;
+	  Double FoV_x = fabs(nx*skyIncr(0));
+	  Double FoV_y = fabs(nx*skyIncr(1));
+	  Vector<Double> uvScale_l(3);
+	  uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+	  uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+	  uvScale_l(2) = uvScale(2);
+	  // by the sky-image and is equal to convSize/convSampling.
+	  psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
+	  Vector<Double> uvOffset_cf(3,0); uvOffset_cf(0)=uvOffset_cf(2)=convSize/2;
+	  //	  psTerm_p->init(IPosition(2,inner,inner), uvScale, uvOffset_cf,psScale);
+	  psTerm_p->init(IPosition(2,inner,inner), uvScale_l, uvOffset_cf,psScale);
+	}
 
 	MuellerElementType muellerElement(0,0);
 	CoordinateSystem cfb_cs=coords;
@@ -1047,7 +1118,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	  Vector<Double> refVal = SpC.referenceValue();
 	
 	  freqHi = refVal[0];
-	  fillConvFuncBuffer(*cfb_p, *cfwtb_p, convSize, convSize, freqValues, wValues, wScale,
+	  fillConvFuncBuffer(*cfb_p, *cfwtb_p, nx, nx, skyIncr, convSize, convSize, freqValues, wValues, wScale,
 			     vbPA, freqHi,
 			     polMap, polIndexMap, vb, psScale,
 			     *psTerm_p, *wTerm_p, *aTerm_p, !fillCF);
@@ -1075,7 +1146,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::setUpCFSupport(Array<Complex>& cffunc, Int& xSupport, Int& ySupport,
 				  const Float& sampling, const Complex& peak)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
     //
     // Find the convolution function support size.  No assumption
     // about the symmetry of the conv. func. can be made (except that
@@ -1092,6 +1162,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     //threshold *= aTerm_p->getSupportThreshold();
     threshold *= 1e-3;
+    //threshold *= 7.5e-2;
+
     //    threshold *=  0.1;
     // if (aTerm_p->isNoOp()) 
     //   threshold *= 1e-3; // This is the threshold used in "standard" FTMchines
@@ -1117,6 +1189,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     // always centered on the center of the image.
     if ((xSupport*sampling + int(sampling/2.0+0.5)) > convFuncOrigin)
       {
+	LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
+
 	log_l << "Convolution function support size > N/2.  Limiting it to N/2 "
 	      << "(threshold = " << threshold << ")."
 	      << LogIO::WARN;
@@ -1124,8 +1198,12 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       }
 
     if(xSupport<1) 
-      log_l << "Convolution function is misbehaved - support seems to be zero"
+      {
+	LogIO log_l(LogOrigin("AWConvFunc2", "setUpCFSupport[R&D]"));
+	
+	log_l << "Convolution function is misbehaved - support seems to be zero"
 	    << LogIO::EXCEPTION;
+      }
     return found;
   }
   //
@@ -1134,7 +1212,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::resizeCF(Array<Complex>& func, Int& xSupport, Int& ySupport,
 			    const Int& supportBuffer, const Float& sampling, const Complex& peak)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "resizeCF[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "resizeCF[R&D]"));
     Int ConvFuncOrigin=func.shape()[0]/2;  // Conv. Func. is half that size of convSize
     
     Bool found = setUpCFSupport(func, xSupport, ySupport, sampling,peak);
@@ -1203,7 +1281,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   Bool AWConvFunc::awFindSupport(Array<Complex>& func, Float& threshold, 
 			       Int& origin, Int& radius)
   {
-    LogIO log_l(LogOrigin("AWConvFunc2", "findSupport[R&D]"));
+    //LogIO log_l(LogOrigin("AWConvFunc2", "findSupport[R&D]"));
 
     Int nCFS=func.shape().nelements(),
       PixInc=1, R0, R1, R, convSize;
@@ -1493,7 +1571,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 
     if (fabs(dPA) <= fabs(rotateCFOTFAngleRad_p)) return;
 
-    LogIO log_l(LogOrigin("AWConvFunc2", "prepareConvFunction"));
 
 //     Int Nth=1;
 // #ifdef _OPENMP
@@ -1511,6 +1588,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	    // If the following messsage is emitted more than once, we
 	    // are in a heterogeneous-array case
 	    //
+	    LogIO log_l(LogOrigin("AWConvFunc2", "prepareConvFunction"));
 	    log_l << "Rotating the base CFB from PA=" << cfb->getCFCellPtr(0,0,0)->pa_p.getValue("deg") 
 		  << " to " << actualPA*57.2957795131 
 		  << " " << cfb->getCFCellPtr(0,0,0)->shape_p
@@ -1563,7 +1641,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   {
     LogIO log_l(LogOrigin("AWConvFunc2", "fillConvFuncBuffer2[R&D]"));
     Complex cfNorm, cfWtNorm;
-    Complex cpeak,wtcpeak;
+    Complex cpeak;
     {
       Float sampling, samplingWt;
       Int xSupport, ySupport, xSupportWt, ySupportWt;
@@ -1587,7 +1665,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       CoordinateSystem conjPolCS_l=cs_l;  AWConvFunc::makeConjPolAxis(conjPolCS_l, thisCell->conjPoln_p);
       IPosition pbshp(4,nx,ny,1,1);
       TempImage<Complex> ftATerm_l(pbshp, cs_l), ftATermSq_l(pbshp,conjPolCS_l);
-      Bool doSquint=true; Complex tt;
+      Bool doSquint=true; 
       ftATerm_l.set(Complex(1.0,0.0));   ftATermSq_l.set(Complex(1.0,0.0));
       Double freq_l=miscInfo.freqValue;
       // {
@@ -1818,12 +1896,14 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     }
   }
 
+    //    extern casacore::Double casa::EVLABandMinFreqDefaults[EVLABeamCalc_NumBandCodes];
 
   //
   //----------------------------------------------------------------------
   //
   void AWConvFunc::makeConvFunction2(const String& cfCachePath,
-				     const Vector<Double>& uvScale, const Vector<Double>& uvOffset,
+				     const Vector<Double>&,// uvScale,
+				     const Vector<Double>& uvOffset,
 				     const Matrix<Double>& ,//vbFreqSelection,
 				     CFStore2& cfs2,
 				     CFStore2& cfwts2,
@@ -1839,9 +1919,18 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //
     const String uvGridDiskImage=cfCachePath+"/"+"uvgrid.im";
     PagedImage<Complex> skyImage_l(uvGridDiskImage);//cfs2.getCacheDir()+"/uvgrid.im");
-    //CoordinateSystem coords(image_l.coordinates());
-    
-    //Int nx=image_l.shape()(0);//, ny=image.shape()(1);
+    Double skyMinFreq;
+    Vector<Double> skyIncr;
+    Int skyNX,skyNY;
+    {
+      skyNX=skyImage_l.shape()(0);
+      skyNY=skyImage_l.shape()(1);
+      CoordinateSystem skyCoords(skyImage_l.coordinates());
+
+      Int directionIndex=skyCoords.findCoordinate(Coordinate::DIRECTION);
+      DirectionCoordinate dc=skyCoords.directionCoordinate(directionIndex);
+      skyIncr = dc.increment();
+    }
     CountedPtr<CFBuffer> cfb_p, cfwtb_p;
     
     IPosition cfsShape = cfs2.getShape();
@@ -1873,7 +1962,15 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 		    if (tt->cfShape_p.nelements() != 0)
 		       {
 			 (*cfb_p)(iNu,iW,iPol).getAsStruct(miscInfo); // Get misc. info. for this CFCell
-
+			 {
+			   //This code uses the BeamCalc class to get
+			   //the nominal min. freq. of the band in
+			   //use.  While not accurate, may be
+			   //sufficient for the purpose of the
+			   //anti-aliasing operator.
+			   Int bandID = BeamCalc::Instance()->getBandID(miscInfo.freqValue,miscInfo.telescopeName,miscInfo.bandName);
+			   skyMinFreq = casa::EVLABandMinFreqDefaults[bandID];
+			 }
 			 wbAWP=True; // Always true since the Freq. value is got from the coord. sys.
 			 wTermOn=(miscInfo.wValue > 0.0);
 
@@ -1901,12 +1998,25 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 			 
 			 Matrix<Complex> screen(convSize, convSize);
 			 
-			 Int inner=convSize/(convSampling);
-			 //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
-			 Float innerQuaterFraction=1.0;
+			 {
+			   // Set up the anti-aliasing operator (psTerm_p) for this CF.
+			   Int inner=convSize/(convSampling);
+
+			   //Float psScale = (2*coords.increment()(0))/(nx*image.coordinates().increment()(0));
+			   Float innerQuaterFraction=1.0;
+			   innerQuaterFraction=refim::SynthesisUtils::getenv("AWCF.FUDGE",innerQuaterFraction);
 			 
-			 Float psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
-			 ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), uvScale, uvOffset,psScale);
+			   Double lambdaByD = innerQuaterFraction*1.22*C::c/skyMinFreq/miscInfo.diameter;
+			   Double FoV_x = fabs(skyNX*skyIncr(0));
+			   Double FoV_y = fabs(skyNY*skyIncr(1));
+			   Vector<Double> uvScale_l(3);
+			   uvScale_l(0) = (FoV_x < lambdaByD) ? FoV_x : lambdaByD;
+			   uvScale_l(1) = (FoV_y < lambdaByD) ? FoV_y : lambdaByD;
+			   uvScale_l(2) = 0.0;
+
+			   Float psScale = 2.0/(innerQuaterFraction*convSize/convSampling);// nx*image.coordinates().increment()(0)*convSampling/2;
+			   ((static_cast<AWConvFunc &>(*awCF)).psTerm_p)->init(IPosition(2,inner,inner), uvScale_l, uvOffset,psScale);
+			 }
 			 
 			 //
 			 // By this point, the all the 4 axis (Time/PA, Freq, Pol,

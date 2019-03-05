@@ -32,6 +32,8 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Data/PlotMSCacheBase.h>
+
 namespace casa {
 
 class PlotMSCacheBase;
