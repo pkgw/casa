@@ -38,9 +38,8 @@ if ($casaBranchHint)  {
     } elsif ($casaBranchHint =~ "^CAS-.*" ) {
         $tagMatcher = $casaBranchHint;
     } elsif ($casaBranchHint =~ m/$defaultReleaseMatch/) {
-        $tagMatcher = $casaBranchHint;
-        $tagMatcher =~s/\//-/g;
-        #$tagid="rel";
+        @splat = split '/', $casaBranchHint;
+        $tagMatcher = "@splat[1]-rel-";
     } elsif ($casaBranchHint =~ m/$instrumentReleaseMatch/) {
         $tagMatcher = $casaBranchHint;
         $tagMatcher =~s/\//-/g;
@@ -108,7 +107,7 @@ if ($needsId) {
     #}
 }
 else {
-    if ($tagMatcher eq "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
+    if ($tagMatcher =~ "-rel-" || $tagMatcher eq "-mas-" || $tagMatcher =~ /^release-/) {
         if ($tagMatcher =~ /^release-/) {
             @mComp = split '-', $tagMatcher;
             $casaVariant = uc $mComp[1];
