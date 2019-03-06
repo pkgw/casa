@@ -49,7 +49,7 @@
 #include <display/QtViewer/QtDataMgrMsSelect.ui.h>
 #include <display/QtViewer/VOParam.ui.h>
 #if ! defined(WITHOUT_DBUS)
-#include <dbus/dVO.h>
+#include <casaqt/QtDBus/dVO.h>
 #endif
 #include <graphics/X11/X_exit.h>
 #include <display/Utilities/Lowlevel.h>
