@@ -48,7 +48,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    class VB2CFBMap
    {
    public:
-     VB2CFBMap();
+   VB2CFBMap();
      
      ~VB2CFBMap() {};
      
@@ -79,11 +79,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      {return cfPhaseGrad_p(row);}
      inline casacore::CountedPtr<CFBuffer>& getCFB(const int& row)//, const int& ant0, const int& ant1)
      {return vb2CFBMap_p(row);}
-
+     void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
    protected:
      casacore::Vector<casacore::CountedPtr<CFBuffer > > vb2CFBMap_p;
      casacore::Vector<casacore::Matrix<casacore::Complex> > cfPhaseGrad_p;
      casacore::CountedPtr<PhaseGrad> phaseGradCalculator_p;
+     bool doPointing_p;
    };
  }
 }

@@ -43,7 +43,7 @@ using namespace casacore;
 namespace casa{
   using namespace vi;
   namespace refim{
-    VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p() 
+    VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p(),doPointing_p(false)
     {
       phaseGradCalculator_p = new PhaseGrad();
     };
@@ -55,6 +55,7 @@ namespace casa{
 	  phaseGradCalculator_p = other.phaseGradCalculator_p;
 	  cfPhaseGrad_p.assign(other.cfPhaseGrad_p);
 	  vb2CFBMap_p.assign(vb2CFBMap_p);
+	  doPointing_p = other.doPointing_p;
 	}
       return *this;
     };
@@ -65,7 +66,17 @@ namespace casa{
 				       const int& row)
     {
       //if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb))
-      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
+      if (doPointing_p)
+	{
+
+	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
+	}
+      else
+	{
+	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
+	}
+      //cerr<<"doPointing VB2CFBMap::sPGPR: "<<<<endl;
+      //cerr<<"Shape of PointingOffset VB2CFBMap::sPGPR :"<< pointingOffset.shape() << " " << pointingOffset[row].shape() << endl;
 	{
 	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
 	}

@@ -868,6 +868,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 				      paChangeDetector.getParAngleTolerance(),
     // 				      chanMap,polMap,pointingOffset);
     //    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    vb2CFBMap_p->setDoPointing(doPointing);
     vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);

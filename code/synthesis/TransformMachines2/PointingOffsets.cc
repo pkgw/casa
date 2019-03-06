@@ -68,7 +68,7 @@ namespace casa{
     antId = 0;
     numRow = 0;
     casacore::Vector<casacore::Vector<double> >pixFieldGrad_l;
-    pixFieldGrad_l.resize(2);
+    pixFieldGrad_l.resize(1);
     MDirection dir = vbUtils.getPointingDir(vb,antId,numRow,doPointing);
     //cerr << "VBDir: " << dir<< endl;
     thePix_p = toPix(vb, dir, dir);
@@ -85,7 +85,7 @@ namespace casa{
     //pixFieldGrad_p(0) = -pixFieldGrad_p(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
     //pixFieldGrad_p(1) = -pixFieldGrad_p(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
     pixFieldGrad_l(0)=(pixFieldGrad_p);
-    pixFieldGrad_l(1)=(pixFieldGrad_p);
+    //pixFieldGrad_l(1)=(pixFieldGrad_p);
     return pixFieldGrad_l;
   };
   //
@@ -135,7 +135,7 @@ namespace casa{
      	    //antOffsets[antid]=antdir.separation(vbdir);
      	  }
       }
-      
+    //cerr<<"Antenna offset :"<<antOffsets<<endl;
       return antOffsets;
   }
   //

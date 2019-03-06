@@ -545,7 +545,7 @@ namespace casa{
       //      if ((vbs.uvw_p.nelements() == 0)) 
       //if (accumCFs) if (allTrue(allPolNChanDone_l)) break;
     CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
-    setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(0));
+    setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
     // if (cached_phaseGrad_p.shape().product()==0)
     //   cerr << "#### " << irow << " " << endl;
     cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
@@ -553,7 +553,7 @@ namespace casa{
       
    Bool finitePointingOffsets=(
 			       (fabs(pointingOffset(0)(0))>0) ||  
-			       (fabs(pointingOffset(1)(0))>0)
+			       (fabs(pointingOffset(0)(1))>0)
 			      );
 
       if(!(*(rowFlag_ptr+irow)))
@@ -781,7 +781,7 @@ namespace casa{
     iloc = 0;
     Bool finitePointingOffset=(
 			       (fabs(pointingOffset(0)(0))>0) ||  
-			       (fabs(pointingOffset(1)(0))>0)
+			       (fabs(pointingOffset(0)(1))>0)
 			       );
     Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
     Double vbPA = vbs.paQuant_p.getValue("rad");
@@ -791,7 +791,7 @@ namespace casa{
       if(!rowFlag[irow]) {
 	//	CFBuffer& cfb = (*(*vbRow2CFBMap_p)[irow]);
 	CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
-	setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(0));
+	setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
 
 	Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
 	Double fIncr, wIncr;

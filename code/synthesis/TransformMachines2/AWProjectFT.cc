@@ -1185,6 +1185,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 						vb,
     // 					       dPAQuant,
     // 					       chanMap,polMap,pointingOffset);
+    vb2CFBMap_p->setDoPointing(doPointing);
     cfSource = vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p,
 						vb,
 						dPAQuant,
@@ -2465,6 +2466,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
+      vb2CFBMap_p->setDoPointing(doPointing);
       vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,
 				      vb,
 				      paChangeDetector.getParAngleTolerance(),
@@ -2492,6 +2494,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
+	vb2CFBMap_p->setDoPointing(doPointing);
 	vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p, vb,
 				       paChangeDetector.getParAngleTolerance(),
 				       chanMap,polMap,pointingOffset);
