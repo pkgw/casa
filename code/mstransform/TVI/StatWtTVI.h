@@ -248,8 +248,7 @@ private:
     casacore::Cube<casacore::Bool> _getResultantFlags(
         casacore::Cube<casacore::Bool>& chanSelFlagTemplate,
         casacore::Cube<casacore::Bool>& chanSelFlags,
-        casacore::Bool& initChanSelFlags,
-        casacore::Bool& doChanSelFlags, casacore::Int spw,
+        casacore::Bool& initChanSelFlags, casacore::Int spw,
         const casacore::Cube<casacore::Bool>& flagCube
     ) const;
 
