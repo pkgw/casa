@@ -62,9 +62,10 @@ namespace casa{
   // 					   const double& /*cfRefFreq*/,
   // 					   const double& /*imRefFreq*/,
   // 					   const int& spwID, const int& fieldId)
-  bool PhaseGrad::ComputeFieldPointingGrad(const Vector<double>& pointingOffset,
+  bool PhaseGrad::ComputeFieldPointingGrad(const Vector<Vector<double> >& pointingOffset,
 					   const CountedPtr<CFBuffer>& cfb,
-					   const VisBuffer2&  //vb
+					   const VisBuffer2& ,//vb
+					   const int& row
 					   )
 
     {
@@ -85,8 +86,8 @@ namespace casa{
       // If the pointing or the max. CF size changed, recompute the phase gradient.
       //
       if (
-	  ((fabs(pointingOffset[0]-cached_FieldOffset_p[0])) > 1e-6) ||
-	  ((fabs(pointingOffset[1]-cached_FieldOffset_p[1])) > 1e-6) ||
+	  ((fabs(pointingOffset[0][0]-cached_FieldOffset_p[0])) > 1e-6) ||
+	  ((fabs(pointingOffset[0][1]-cached_FieldOffset_p[1])) > 1e-6) ||
 	  (field_phaseGrad_p.shape()[0] < maxCFShape_p[0])           ||
 	  (field_phaseGrad_p.shape()[1] < maxCFShape_p[1])
 	  )
@@ -97,18 +98,18 @@ namespace casa{
 	  Vector<int> convOrigin = maxCFShape_p/2;
 	  
 	  field_phaseGrad_p.resize(nx,ny);
-	  cached_FieldOffset_p[0] = pointingOffset[0];
-	  cached_FieldOffset_p[1] = pointingOffset[1];
+	  cached_FieldOffset_p[0] = pointingOffset[0][0];
+	  cached_FieldOffset_p[1] = pointingOffset[0][1];
 	  
 	  for(int ix=0;ix<nx;ix++)
 	    {
-	      grad = (ix-convOrigin[0])*pointingOffset[0];
+	      grad = (ix-convOrigin[0])*pointingOffset[0][0];
 	      double sx,cx;
 	      SINCOS(grad,sx,cx);
 	      phx = Complex(cx,sx);
 	      for(int iy=0;iy<ny;iy++)
 		{
-		  grad = (iy-convOrigin[1])*pointingOffset[1];
+		  grad = (iy-convOrigin[1])*pointingOffset[0][1];
 		  Double sy,cy;
 		  SINCOS(grad,sy,cy);
 		  phy = Complex(cy,sy);

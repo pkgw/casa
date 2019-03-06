@@ -59,13 +59,13 @@ namespace casa{
       return *this;
     };
 
-    void VB2CFBMap::setPhaseGradPerRow(const casacore::Vector<double>& pointingOffset,
+    void VB2CFBMap::setPhaseGradPerRow(const casacore::Vector<casacore::Vector<double> >& pointingOffset,
 				       const casacore::CountedPtr<CFBuffer>& cfb,
 				       const vi::VisBuffer2& vb,
 				       const int& row)
     {
       //if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb))
-      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb);
+      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
 	{
 	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
 	}
@@ -78,7 +78,8 @@ namespace casa{
 				    const Quantity& dPA,
 				    const Vector<Int>& /*dataChan2ImChanMap*/,
 				    const Vector<Int>& /*dataPol2ImPolMap*/,
-				    const Vector<Double>& pointingOffset)
+				    const Vector<Vector<Double> >& pointingOffset)
+				    //const Bool& /*doPointing*/)
     {
       //    VBRow2CFMapType& vbRow2CFMap_p,
       const Int nRow=vb.nRows(); 

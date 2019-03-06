@@ -144,7 +144,9 @@ namespace casa{
 
     //    virtual void setFeedStokes(const casacore::Vector<casacore::Int>& feedStokes) = 0;
     virtual casacore::Bool findSupport(casacore::Array<casacore::Complex>& func, casacore::Float& threshold,casacore::Int& origin, casacore::Int& R)=0;
-    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+    /* virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image, */
+    /* 								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0; */
+    virtual casacore::Vector<casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0;
 
     // virtual void setParams(const casacore::Vector<casacore::Int>& polMap, const casacore::Vector<casacore::Int>& feedStokes)

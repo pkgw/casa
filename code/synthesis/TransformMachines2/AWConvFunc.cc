@@ -84,7 +84,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	wbAWP_p=false;
       }
     
-    pixFieldGrad_p.resize(2);pixFieldGrad_p=0.0;
+    // pixFieldGrad_p.resize(2);pixFieldGrad_p=0.0;
+    pixFieldGrad_p.resize(2);pixFieldGrad_p(0)=0.0; pixFieldGrad_p(1)=0.0;
   }
 
   //
@@ -138,7 +139,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //
   //----------------------------------------------------------------------
   //
-  Vector<Double> AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
+  Vector<Vector<Double> > AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
 						const VisBuffer2& vb, const Bool& doPointing)
   {
     Assert(po_p.null()==False && "Pointingoffset call has not been initialized in AWProjectFT call being made");

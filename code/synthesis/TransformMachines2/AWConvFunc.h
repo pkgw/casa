@@ -123,7 +123,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Bool findSupport(casacore::Array<casacore::Complex>& func, casacore::Float& threshold,casacore::Int& origin, casacore::Int& R);
     //    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
     //					      const VisBuffer2& /*vb*/) {casacore::Vector<casacore::Double> tt(2); tt=0;return tt;};
-    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
+    virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
 								  const VisBuffer2& /*vb*/, const casacore::Bool& doPointing);
 
     //virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& cfs);
@@ -171,7 +171,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void makePBSq(casacore::ImageInterface<casacore::Complex>& inImage);
 
 
-    casacore::Vector<casacore::Double> thePix_p, pixFieldGrad_p;
+    casacore::Vector<casacore::Double> thePix_p; //pixFieldGrad_p;
+    casacore::Vector<casacore::Vector<casacore::Double> >pixFieldGrad_p;
     casacore::Double imRefFreq_p;
     casacore::Bool wbAWP_p, conjPB_p;
     casacore::CountedPtr<CFBuffer> baseCFB_p;

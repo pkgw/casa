@@ -549,11 +549,11 @@ namespace casa{
     // if (cached_phaseGrad_p.shape().product()==0)
     //   cerr << "#### " << irow << " " << endl;
     cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
-    Vector<Double> pointingOffset(cfb.getPointingOffset());
+    Vector<Vector<Double> > pointingOffset(cfb.getPointingOffset());
       
    Bool finitePointingOffsets=(
-			      (fabs(pointingOffset(0))>0) ||  
-			      (fabs(pointingOffset(1))>0)
+			       (fabs(pointingOffset(0)(0))>0) ||  
+			       (fabs(pointingOffset(1)(0))>0)
 			      );
 
       if(!(*(rowFlag_ptr+irow)))
@@ -737,7 +737,7 @@ namespace casa{
     Vector<Int> cfShape;//=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
     Vector<Int> convOrigin;// = (cfShape)/2;
 
-    Vector<Double> pointingOffset(((*vb2CFBMap_p)[0])->getPointingOffset());
+    Vector<Vector<Double> >pointingOffset(((*vb2CFBMap_p)[0])->getPointingOffset());
 
     Double cfRefFreq;//cfScale=1.0
     //    Int wndx = 0, fndx=0;
@@ -780,8 +780,8 @@ namespace casa{
     // Polarization-axis.
     iloc = 0;
     Bool finitePointingOffset=(
-			       (fabs(pointingOffset(0))>0) ||  
-			       (fabs(pointingOffset(1))>0)
+			       (fabs(pointingOffset(0)(0))>0) ||  
+			       (fabs(pointingOffset(1)(0))>0)
 			       );
     Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
     Double vbPA = vbs.paQuant_p.getValue("rad");

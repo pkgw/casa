@@ -1174,7 +1174,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     lastPAUsedForWtImg = currentCFPA = pa;
     // cerr <<"AWPFT:fCF doPointing: "<<doPointing<<endl;
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb,doPointing));
+    
+    
+    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(image,vb,doPointing));
+
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
     // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
@@ -2459,7 +2462,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //timer_p.mark();
     //    cerr<<"AWP:setupVBStore doPointing:"<< doPointing<<endl;
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
+    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
       vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,

@@ -56,7 +56,7 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<double> PointingOffsets::findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+  casacore::Vector<casacore::Vector<double> >PointingOffsets::findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 								     const VisBuffer2& vb, const casacore::Bool& doPointing)
   {
     VisBufferUtil vbUtils;
@@ -67,6 +67,8 @@ namespace casa{
     int antId,numRow;
     antId = 0;
     numRow = 0;
+    casacore::Vector<casacore::Vector<double> >pixFieldGrad_l;
+    pixFieldGrad_l.resize(2);
     MDirection dir = vbUtils.getPointingDir(vb,antId,numRow,doPointing);
     //cerr << "VBDir: " << dir<< endl;
     thePix_p = toPix(vb, dir, dir);
@@ -82,26 +84,40 @@ namespace casa{
     //phase gradient per pixel to apply
     //pixFieldGrad_p(0) = -pixFieldGrad_p(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
     //pixFieldGrad_p(1) = -pixFieldGrad_p(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
-
-    return pixFieldGrad_p;
+    pixFieldGrad_l(0)=(pixFieldGrad_p);
+    pixFieldGrad_l(1)=(pixFieldGrad_p);
+    return pixFieldGrad_l;
   };
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<double> PointingOffsets::findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+  casacore::Vector<casacore::Vector<double> > PointingOffsets::findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 								      const vi::VisBuffer2& vb, const casacore::Bool& doPointing)
   {
-    casacore::Vector<double> antOffsets;
+    casacore::Vector< casacore::Vector<double> >antOffsets;
     storeImageParams(image,vb);
     VisBufferUtil vbUtils;
-    int antId,numRow;
-    antId = 0;
-    numRow = 0;
+    const casacore::Vector<casacore::Int>& antID1 = vb.antenna1();
+    const casacore::Vector<casacore::Int>& antID2 = vb.antenna2();
+    int numRow_p = vb.nRows();
+    antOffsets.resize(numRow_p); // The array is resized to fit for a given vb
+    for (int irow=0; irow<numRow_p;irow++)
+      {
+	MDirection antDir1 =vbUtils.getPointingDir(vb, antID1[irow], irow, doPointing); 
+	//MDirection antDir2 =vbUtils.getPointingDir(vb, antID2[irow], irow, doPointing); 
+	MVDirection vbdir=vb.direction1()(0).getValue();	
+	thePix_p = toPix(vb, antDir1, vbdir);
+	antOffsets(irow) = gradPerPixel(thePix_p);
+	//cerr<<"Antenna 1:"<<antID1[irow]<<" AntDir1:"<<antDir1<<" AntDir2:"<<antDir2<<endl;
+      }
+    // int antId,numRow;
+    // antId = 0;
+    // numRow = 0;
     
-    MDirection antDir =vbUtils.getPointingDir(vb, antId, numRow, doPointing); 
-    //cerr << "AntDir="<<antDir << endl;
-    thePix_p = toPix(vb, antDir, antDir);
-    antOffsets = gradPerPixel(thePix_p);
+    // MDirection antDir =vbUtils.getPointingDir(vb, antId, numRow, doPointing); 
+    // //cerr << "AntDir="<<antDir << endl;
+    // thePix_p = toPix(vb, antDir, antDir);
+    // antOffsets = gradPerPixel(thePix_p);
 
     // // if (epJ_p.isNull())
     {
@@ -178,14 +194,15 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-Vector<Double> PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
+  Vector< Vector<Double> > PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
 						   const VisBuffer2& vb, const Bool doPointing)
   {
-
+    setDoPointing(doPointing);
     if (!doPointing) 
       { 
 	
 	return findMosaicPointingOffset(image,vb,doPointing);
+	
 			
       }
     else 

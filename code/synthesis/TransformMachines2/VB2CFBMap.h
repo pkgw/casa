@@ -60,12 +60,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
      virtual casacore::Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
      virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
-					    const VisBuffer2& vb, const casacore::Quantity& dPA,
-					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
-					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
-					    const casacore::Vector<casacore::Double>& pointingOffset);
+     					    const VisBuffer2& vb, const casacore::Quantity& dPA,
+     					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
+     					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
+     					    const casacore::Vector<casacore::Vector<casacore::Double>>& pointingOffset);
+     /* virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs, */
+     /* 					    const VisBuffer2& vb, const casacore::Quantity& dPA, */
+     /* 					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap, */
+     /* 					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap, */
+     /* 					    const casacore::Vector<casacore::Vector<casacore::Double>>& pointingOffset, */
+     /* 					    const casacore::Bool& doPointing); */
 
-     void setPhaseGradPerRow(const casacore::Vector<double>& pointingOffset,
+     void setPhaseGradPerRow(const casacore::Vector< casacore::Vector<double> >& pointingOffset,
 			     const casacore::CountedPtr<CFBuffer>& cfb,
 			     const vi::VisBuffer2& vb,
 			     const int& row);

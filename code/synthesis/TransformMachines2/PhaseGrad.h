@@ -63,6 +63,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     bool ComputeFieldPointingGrad(const casacore::Vector<double>& pointingOffset,
 				  const casacore::CountedPtr<CFBuffer>& cfb,
 				  const vi::VisBuffer2& vb);
+    bool ComputeFieldPointingGrad(const casacore::Vector<casacore::Vector<double> >& pointingOffset,
+				  const casacore::CountedPtr<CFBuffer>& cfb,
+				  const vi::VisBuffer2& vb,
+				  const int& row);
+    
     // bool ComputeFieldPointingGrad(const casacore::Vector<double>& pointingOffset,
     // 				  const casacore::Vector<int>&cfShape,
     // 				  const casacore::Vector<int>& convOrigin,

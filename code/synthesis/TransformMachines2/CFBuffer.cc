@@ -630,8 +630,16 @@ namespace casa{
       }
     //	st.CFBStorage[i] = (cfstore[i]).operator->()->getStorage()->getStorage(dummy);
     
-    if (doAlloc) st.pointingOffset=(Double *)malloc(pointingOffset_p.nelements()*sizeof(Double));
-    for (uInt i=0;i<pointingOffset_p.nelements();i++) st.pointingOffset[i]=pointingOffset_p[i];
+    // if (doAlloc) st.pointingOffset=(Double *)malloc(pointingOffset_p.nelements()*sizeof(Double)); 
+    // for (uInt i=0;i<pointingOffset_p.nelements();i++) st.pointingOffset[i]=pointingOffset_p[i];
+    // I am modifying it to allocate for a vector of vectors
+
+    // if (doAlloc) st.pointingOffset=(Double *)malloc(pointingOffset_p.nelements()*pointingOffset_p(0).nelements()*sizeof(Double));
+    // for (uInt i=0;i<pointingOffset_p.nelements();i++) 
+    //   {
+    // 	for (uInt j=0;j<pointingOffset_p(0).nelements();j++) 
+    // 	  st.pointingOffset[i][j]=pointingOffset_p[i][j];
+    //   }
 
     if (doAlloc) st.freqValues=(Double *)malloc(freqValues_p.nelements()*sizeof(Double));
     for (uInt i=0;i<freqValues_p.nelements();i++) st.freqValues[i]=freqValues_p[i];

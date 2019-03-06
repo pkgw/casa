@@ -49,13 +49,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     PointingOffsets& operator=(const PointingOffsets& other);
 
     void setEPJones(SolvableVisJones* epJ) {epJ_p = epJ;};
-    virtual casacore::Vector<casacore::Double> findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+    virtual casacore::Vector<casacore::Vector<casacore::Double> >findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 									const vi::VisBuffer2& vb, const casacore::Bool& doPointing=false);
 
-    virtual casacore::Vector<casacore::Double> findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+    virtual casacore::Vector<casacore::Vector<casacore::Double> >findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 									 const vi::VisBuffer2& vb, const casacore::Bool& doPointing=true);
 
-    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+    virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 								  const vi::VisBuffer2& vb, const casacore::Bool doPointing=false);
 
     //casacore::Vector<double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
