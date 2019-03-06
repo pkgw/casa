@@ -317,6 +317,10 @@ Bool VisCalSolver2::solveL1R(VisEquation& ve, SolvableVisCal& svc, SDBList& sdbs
 
   if (oktosolve) {
     
+    // Tweak guess in L1 case, to avoid degeneracy...
+    if (doL1_)
+      par()*=Complex(1.0001,0.0);
+  
     if (prtlev()>1) cout << "First guess:" << endl
 			 << "amp = " << amplitude(par()) << endl
 			 << "pha = " << phase(par()) 
