@@ -104,9 +104,13 @@ namespace casa{
     for (int irow=0; irow<numRow_p;irow++)
       {
 	MDirection antDir1 =vbUtils.getPointingDir(vb, antID1[irow], irow, doPointing); 
-	//MDirection antDir2 =vbUtils.getPointingDir(vb, antID2[irow], irow, doPointing); 
+	MDirection antDir2 =vbUtils.getPointingDir(vb, antID2[irow], irow, doPointing); 
+	
 	MVDirection vbdir=vb.direction1()(0).getValue();	
-	thePix_p = toPix(vb, antDir1, vbdir);
+	casacore::Vector<double> thePixDir1_l, thePixDir2_l;
+	thePixDir1_l = toPix(vb, antDir1, vbdir);
+	thePixDir2_l = toPix(vb, antDir2, vbdir);
+	thePix_p = (thePixDir1_l + thePixDir2_l)/2.;
 	antOffsets(irow) = gradPerPixel(thePix_p);
 	//cerr<<"Antenna 1:"<<antID1[irow]<<" AntDir1:"<<antDir1<<" AntDir2:"<<antDir2<<endl;
       }
