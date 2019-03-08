@@ -100,8 +100,7 @@ using namespace casa::vi;
   }
   //cerr << "in bgwt init " << endl;
   //Need to save previous wieght scheme of vi
-  ////Commenting till CAS-12352 is fixed
-  //VisImagingWeight visWgt_p=vi.getImagingWeightGenerator();
+  VisImagingWeight visWgt_p=vi.getImagingWeightGenerator();
   VisImagingWeight vWghtNat("natural");
   vi.useImagingWeight(vWghtNat);
   vi::VisBuffer2 *vb=vi.getVisBuffer();
@@ -290,9 +289,7 @@ using namespace casa::vi;
     }
 
     if(visWgt_p.doFilter()){
-      Matrix<Float> inweight;
-      inweight.assign(imweight);
-      visWgt_p.filter (imweight, flag, uvw, vb.getFrequencies(0), inweight);
+      visWgt_p.filter (imweight, flag, uvw, vb.getFrequencies(0), imweight);
 
     }
     
