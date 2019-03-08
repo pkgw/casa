@@ -653,7 +653,7 @@ class test_axis(plotms_test_base):
         grid_rows = len(interp_methods)
         n_plots = grid_rows*grid_cols
         # Create 1 plot file per supported reference frame
-        ref_frames = {'icrs':100000,'j2000':100000,'azelgeo':95000}
+        ref_frames = {'icrs':30000,'j2000':30000,'azelgeo':30000}
         for ref_frame, plot_min_size in ref_frames.iteritems():
             # Plot file
             plot_filename = "testAxis13_radec_" + ref_frame + ".png"
