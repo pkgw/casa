@@ -1,27 +1,30 @@
 //# SynthesisImagerVi2.cc: Implementation of SynthesisImager.h
-//# Copyright (C) 1997-2016
+//# Copyright (C) 1997-2019
 //# Associated Universities, Inc. Washington DC, USA.
+//# This library is free software; you can redistribute it and/or modify it
+//# under the terms of the GNU General Public License as published by
+//# the Free Software Foundation; either version 3 of the License, or (at your
+//# option) any later version.
 //#
-//# This program is free software; you can redistribute it and/or modify it
-//# under the terms of the GNU General Public License as published by the Free
-//# Software Foundation; either version 2 of the License, or (at your option)
-//# any later version.
-//#
-//# This program is distributed in the hope that it will be useful, but WITHOUT
+//# This library is distributed in the hope that it will be useful, but WITHOUT
 //# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-//# more details.
+//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+//# License for more details.
 //#
-//# You should have received a copy of the GNU General Public License along
-//# with this program; if not, write to the Free Software Foundation, Inc.,
-//# 675 Massachusetts Ave, Cambridge, MA 02139, USA.
+//# https://www.gnu.org/licenses/
 //#
-//# Correspondence concerning AIPS++ should be addressed as follows:
-//#        Internet email: aips2-request@nrao.edu.
-//#        Postal address: AIPS++ Project Office
+//# You should have received a copy of the GNU  General Public License
+//# along with this library; if not, write to the Free Software Foundation,
+//# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
+//#
+//# Queries concerning CASA should be submitted at
+//#        https://help.nrao.edu
+//#
+//#        Postal address: CASA Project Manager 
 //#                        National Radio Astronomy Observatory
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
+//#
 //#
 //# $Id$
 
@@ -755,17 +758,21 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
 		  //Determine if any image is cube
 		  if(isSpectralCube()){
-		    cerr << "Doing spectral cube briggs" << endl;
-		    VisImagingWeight nat("natural");
-		    vi_p->useImagingWeight(nat);
-		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust,0, multiField);
+		    cerr << "spectral cube" << endl;
+		    String outstr=String("Doing spectral cube Briggs weighting formula --  " + rmode + (rmode=="abs" ? " with estimated noise "+ String::toString(noise.getValue())+noise.getUnit()  : "")); 
+		    cerr << outstr << endl;
+		    //VisImagingWeight nat("natural");
+		    //vi_p->useImagingWeight(nat);
+		    if(rmode=="abs" && robust==0.0 && noise.getValue()==0.0)
+		      throw(AipsError("Absolute Briggs formula does not allow for robust 0 and estimated noise per visibility 0"));
+		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust, npixels, multiField);
 		    for (Int k=0; k < itsMappers.nMappers(); ++k){
 		      itsMappers.getFTM2(k)->setBriggsCubeWeight(bwgt);
 
 		    }
 		  }
-		  else{
-		    cerr << "doing normal briggs" << endl;
+		  else
+		  {
 		    imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
 					     actualNPixels_x, actualNPixels_y, actualCellSize_x,
 					     actualCellSize_y, 0, 0, multiField);

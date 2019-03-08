@@ -80,6 +80,7 @@ class BriggsCubeWeightor{
     casacore::Double refFreq_p;
     casacore::InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod freqInterpMethod_p;
     casacore::Bool freqFrameValid_p;
+    VisImagingWeight visWgt_p;
  };
    }//# end namespace refim
 } // end namespace casa

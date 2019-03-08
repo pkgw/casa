@@ -100,6 +100,8 @@ using namespace casa::vi;
   }
   //cerr << "in bgwt init " << endl;
   //Need to save previous wieght scheme of vi
+  ////Commenting till CAS-12352 is fixed
+  //VisImagingWeight visWgt_p=vi.getImagingWeightGenerator();
   VisImagingWeight vWghtNat("natural");
   vi.useImagingWeight(vWghtNat);
   vi::VisBuffer2 *vb=vi.getVisBuffer();
@@ -148,6 +150,7 @@ using namespace casa::vi;
     
     ft_p[index]->initializeToSky(newTemplate, dummy, *vb);
     Vector<Double> convFunc(2+superUniformBox_p, 1.0);
+    //cerr << "superuniform box " << superUniformBox_p << endl;
     ft_p[index]->modifyConvFunc(convFunc, superUniformBox_p, 1);
     for (vi.originChunks();vi.moreChunks();vi.nextChunk()) {
       for (vi.origin(); vi.more(); vi.next()) {
@@ -177,6 +180,7 @@ using namespace casa::vi;
   
   Int nchan=templateimage.shape()(3);
   for (uInt index=0; index< f2_p.nelements();++index){
+    //cerr << "rmode " << rmode_p << endl;
     
     for (uInt chan=0; chan < uInt(nchan); ++ chan){
       IPosition start(4,0,0,0,chan);
@@ -284,6 +288,14 @@ using namespace casa::vi;
     
 	}
     }
+
+    if(visWgt_p.doFilter()){
+      Matrix<Float> inweight;
+      inweight.assign(imweight);
+      visWgt_p.filter (imweight, flag, uvw, vb.getFrequencies(0), inweight);
+
+    }
+    
   }
 
 void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterface<Complex>& templateimage, const Int uvbox){

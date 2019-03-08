@@ -1487,7 +1487,7 @@ HPX HEALPix grid.  -->
                                                           a well behaved PSF can help the reconstruction.
 
                        weighting='briggs' :  Gridding weights per visibility data point are given by
-                                                         'data_weight / ( A / total_wt_per_cell + B ) ' where
+                                                         'data_weight / ( A *total_wt_per_cell + B ) ' where
                                                          A and B vary according to the 'robust' parameter.
 
                                                          robust = -2.0 maps to A=1,B=0 or uniform weighting.
@@ -1497,7 +1497,15 @@ HPX HEALPix grid.  -->
                                                          Robust/Briggs weighting generates a PSF that can
                                                          vary smoothly between 'natural' and 'uniform' and
                                                          allow customized trade-offs between PSF shape and
-                                                         imaging sensitivity.
+							 imaging sensitivity.
+			weighting='briggsabs' :
+			                                 Same as Briggs except the formula is different A=
+							 robust*robust and B is dependent on the
+							 noise per visibility estimated. Giving noise='0Jy'
+							 is a not a reasonable option.
+							 In this mode (or formula)  robust values
+							 from -2.0 to 0.0 only make sense (2.0 and
+							 -2.0 will get the same weighting)
 
                        weighting='superuniform' : This is similar to uniform weighting except that
                                                                     the total_wt_per_cell is replaced by the
@@ -1524,6 +1532,7 @@ HPX HEALPix grid.  -->
 	      <value>natural</value>
 	      <value>uniform</value>
 	      <value>briggs</value>
+	      <value>briggsabs</value>
 	      <value>radial</value>
 	      <value>superuniform</value>
 	    </allowed>
@@ -1546,8 +1555,14 @@ HPX HEALPix grid.  -->
 	    </allowed>
     </param>
 
+    <param type="any" name="noise"  subparam="true">
+	    <description>noise parameter for briggs abs mode weighting</description>
+	    <any type="variant"/>
+	    <value type="string">1.0Jy</value>	    
+    </param>
+    
     <param type="int" name="npixels" subparam="true">
-           <shortdescription>Number of pixels to determine uv-cell size (0 : -/+ 3 pixels)</shortdescription>
+           <shortdescription>Number of pixels to determine uv-cell size </shortdescription>
 <description>Number of pixels to determine uv-cell size for super-uniform weighting
                       (0 defaults to -/+ 3 pixels)
 
@@ -2627,6 +2642,12 @@ HPX HEALPix grid.  -->
        </equals>
        <equals type="string" value="briggs">
 	 <default param="robust"><value>0.5</value></default>
+	 <default param="npixels"><value>0</value></default>
+	 <default param="uvtaper"><value>[]</value></default>
+       </equals>
+       <equals type="string" value="briggsabs">
+	 <default param="robust"><value>0.5</value></default>
+	 <default param="noise"><value>"1.0Jy"</value></default>
 	 <default param="npixels"><value>0</value></default>
 	 <default param="uvtaper"><value>[]</value></default>
        </equals>
