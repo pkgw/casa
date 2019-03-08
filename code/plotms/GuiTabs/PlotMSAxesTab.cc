@@ -31,6 +31,9 @@
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 
+#include <QDebug>
+#include <QLayout>
+
 using namespace casacore;
 namespace casa {
 
@@ -46,8 +49,14 @@ PlotMSAxesTab::PlotMSAxesTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     itsXWidget_ = new PlotMSAxisWidget(PMS::DEFAULT_XAXIS, X_BOTTOM | X_TOP);
     itsXWidget_->axisLabel()->setText("X Axis:");
     itsXWidget_->insertLabelDefaults( itsLabelDefaults_ );
-    QtUtilities::putInFrame(xFrame, itsXWidget_);
-    
+    if (xFrame->layout() != NULL) delete xFrame->layout();
+    QVBoxLayout* l = new QVBoxLayout();
+    l->setContentsMargins(0, 0, 0, 0);
+    l->setSpacing(0);
+    l->addWidget(itsXWidget_,Qt::AlignTop);
+    l->setSizeConstraint(QLayout::SizeConstraint::SetMaximumSize);
+    xFrame->setLayout(l);
+
     // Initially, hide multiple y-axis support.
     setMultipleAxesYEnabled();
 
@@ -80,6 +89,7 @@ void PlotMSAxesTab::yAxisSelected( int index ){
 	QLayout* yAxisLayout = yAxisFrame->layout();
 	if ( yAxisLayout == NULL ){
 		yAxisLayout = new QVBoxLayout();
+		yAxisLayout->setContentsMargins(0, 0, 0, 0);
 	}
 	else {
 		QLayoutItem* layoutItem = yAxisLayout->takeAt( 0 );
@@ -211,17 +221,21 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     //the x-axis properties here.
     int yAxisCount = itsYWidgets_.size();
 
-    PMS::Axis xAxis = itsXWidget_->axis();
-    c->resize( yAxisCount );
-    a->resize( yAxisCount );
-    for ( int i = 0; i < yAxisCount; i++ ){
-    	c->setXAxis(xAxis, itsXWidget_->data(), i);
-    	a->setXAxis(itsXWidget_->attachAxis(), i);
+	PMS::Axis xAxis = itsXWidget_->axis();
+	c->resize( yAxisCount );
+	a->resize( yAxisCount );
+	for ( int i = 0; i < yAxisCount; i++ ){
+		c->setXAxis(xAxis, itsXWidget_->data(), i);
+    	c->setXInterp(itsXWidget_->interpMethod(),i);
+    	c->setXFrame(itsXWidget_->refFrame(),i);
+		a->setXAxis(itsXWidget_->attachAxis(), i);
 		a->setXRange(itsXWidget_->rangeCustom(), itsXWidget_->range(), i);
-    }
+	}
 
     for ( int i = 0; i < yAxisCount; i++ ){
     	c->setYAxis(itsYWidgets_[i]->axis(), itsYWidgets_[i]->data(), i);
+    	c->setYInterp(itsYWidgets_[i]->interpMethod(),i);
+    	c->setYFrame(itsYWidgets_[i]->refFrame(),i);
     	a->setYAxis(itsYWidgets_[i]->attachAxis(), i);
     	a->setYRange(itsYWidgets_[i]->rangeCustom(), itsYWidgets_[i]->range(), i);
     }
@@ -266,30 +280,44 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
 }
 
 void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
-    const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
-    const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
-    if(c == NULL || a == NULL) return; // shouldn't happen
+	const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>();
+	const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
+	if(c == NULL || a == NULL) return; // shouldn't happen
 
-    PMS::Axis cacheAxis = c->xAxis();    
-    PMS::DataColumn cacheColumn =  c->xDataColumn();
-    PlotAxis axesAxis = a->xAxis();
-    bool axesXRangeSet = a->xRangeSet();
-    std::pair<double, double> axesXRange = a->xRange();
-    itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,
-            axesXRangeSet, axesXRange);
-    //itsXWidget_->setValue(c->xAxis(), c->xDataColumn(), a->xAxis(),
-    //        a->xRangeSet(), a->xRange());
-    bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
-    atmRadio->setChecked(atm);
-    tskyRadio->setChecked(tsky);
-    noneRadio->setChecked(!overlay);
-    int yAxisCount = a->numYAxes();
-    int yWidgetSize = itsYWidgets_.size();
-    int minValue = qMin( yAxisCount, yWidgetSize );
-    for ( int i = 0; i < minValue; i++ ){
-    	itsYWidgets_[i]->setValue(c->yAxis(i), c->yDataColumn(i), a->yAxis(i),
-            a->yRangeSet(i), a->yRange(i));
-    }
+	// X Widget
+	PMS::Axis cacheAxis = c->xAxis();
+	PMS::DataColumn cacheColumn =  c->xDataColumn();
+	PlotAxis axesAxis = a->xAxis();
+	bool axesXRangeSet = a->xRangeSet();
+	std::pair<double, double> axesXRange = a->xRange();
+	itsXWidget_->setValue(cacheAxis, cacheColumn, axesAxis,
+			axesXRangeSet, axesXRange);
+	const auto & xFrames = c->xFrames();
+	const auto & xInterps = c->xInterps();
+	itsXWidget_->setDirParams(xInterps[0],xFrames[0]);
+
+	// Radio Buttons
+	bool atm(c->showAtm()), tsky(c->showTsky()), overlay(atm || tsky);
+	atmRadio->setChecked(atm);
+	tskyRadio->setChecked(tsky);
+	noneRadio->setChecked(!overlay);
+
+	// Y Widgets
+	int yAxisCount = a->numYAxes();
+	int yWidgetSize = itsYWidgets_.size();
+	int minValue = qMin( yAxisCount, yWidgetSize );
+	const auto & yFrames = c->yFrames();
+	int nFramesY = yFrames.size();
+	const auto & yInterps = c->yInterps();
+	int nInterpsY = yInterps.size();
+	for ( int i = 0; i < minValue; i++ ){
+		itsYWidgets_[i]->setValue(c->yAxis(i), c->yDataColumn(i), a->yAxis(i),
+			a->yRangeSet(i), a->yRange(i));
+		if (i < nInterpsY and i < nFramesY )
+			itsYWidgets_[i]->setDirParams(yInterps[i],yFrames[i]);
+		else
+			throw AipsError("PlotMS internal error.",AipsError::BOUNDARY);
+	}
 }
 
 void PlotMSAxesTab::axisIdentifierChanged(PlotMSAxisWidget* axisWidget){
@@ -303,79 +331,98 @@ void PlotMSAxesTab::axisIdentifierChanged(PlotMSAxisWidget* axisWidget){
 }
 
 void PlotMSAxesTab::update(const PlotMSPlot& plot) {
-    const PlotMSPlotParameters& params = plot.parameters();
-    PlotMSPlotParameters newParams(params);
-    getValue(newParams);
-    
-    const PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
-    const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>(),
-                      *c2 = newParams.typedGroup<PMS_PP_Cache>();
-    const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>(),
-                     *a2 = newParams.typedGroup<PMS_PP_Axes>();
-    
-    // shouldn't happen
-    if(d == NULL || c == NULL || c2 == NULL || a == NULL || a2 == NULL) return;
+	const PlotMSPlotParameters& params = plot.parameters();
+	PlotMSPlotParameters newParams(params);
 
-    // Update "in cache" for widgets.
-    vector<PMS::Axis> laxes = plot.cache().loadedAxes();
-    bool found = false;
-    for(unsigned int i = 0; !found && i < laxes.size(); i++){
-        if(laxes[i] == c2->xAxis()){
-        	found = true;
-        	break;
-        }
-    }
-    itsXWidget_->setInCache(found);
-   
-    int yAxisCount = itsYWidgets_.size();
-    for ( int j = 0; j < yAxisCount; j++ ){
-    	found = false;
-    	PMS::Axis yData = c2->yAxis(j);
-    	for(unsigned int i = 0; !found && i < laxes.size(); i++){
-    		if(laxes[i] == yData){
-    			found = true;
-    			break;
-    		}
-    	}
-    	itsYWidgets_[j]->setInCache(found);
-    }
+	// Deal somehow with data structures inconsistencies
+	// between the Cache and the GUI
+	getValue(newParams);
 
-    // Update labels.
-    QLabel* axisXLabel = itsXWidget_->axisLabel();
-    bool axisDifference=false;
-    if ( c->xAxis() != c2->xAxis() ){
-    	axisDifference = true;
-    }
-    bool dataDifference = false;
-    if ( PMS::axisIsData(c->xAxis()) &&
-            c->xDataColumn() != c2->xDataColumn()){
-    	dataDifference = true;
-    }
+	// Shortcuts
+	const PMS_PP_MSData* data = params.typedGroup<PMS_PP_MSData>();
+	const PMS_PP_Cache* c = params.typedGroup<PMS_PP_Cache>(),
+					*cNew = newParams.typedGroup<PMS_PP_Cache>();
+	const PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>(),
+				   *aNew = newParams.typedGroup<PMS_PP_Axes>();
 
-    highlightWidgetText(axisXLabel, d->isSet() && (axisDifference || dataDifference ));
-    highlightWidgetText(itsXWidget_->dataLabel(), d->isSet() && dataDifference);
-    highlightWidgetText(itsXWidget_->attachLabel(), d->isSet() &&
-                a->xAxis() != a2->xAxis());
-    highlightWidgetText(itsXWidget_->rangeLabel(), d->isSet() &&
-                (a->xRangeSet() != a2->xRangeSet() ||
-                (a->xRangeSet() && a->xRange() != a2->xRange())));
+	// Shouldn't happen
+	if(data == NULL || c == NULL || cNew == NULL || a == NULL || aNew == NULL)
+		throw(AipsError("PlotMSAxesTab::update(): internal error"));
 
-    bool overlayChanged = (c->showAtm() != atmRadio->isChecked()) || (c->showTsky() != tskyRadio->isChecked());
-    highlightWidgetText(overlayLabel, overlayChanged);
-    
-    for ( int i = 0; i < yAxisCount; i++ ){
-    	QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
-    	highlightWidgetText(axisLabel, d->isSet() && (c->yAxis(i) != c2->yAxis(i) ||
-                (PMS::axisIsData(c->yAxis(i)) &&
-                 c->yDataColumn(i) != c2->yDataColumn(i))));
-    	highlightWidgetText(itsYWidgets_[i]->dataLabel(), d->isSet() &&
-                c->yDataColumn(i) != c2->yDataColumn(i));
-    	highlightWidgetText(itsYWidgets_[i]->attachLabel(), d->isSet() &&
-                a->yAxis(i) != a2->yAxis(i));
-    	highlightWidgetText(itsYWidgets_[i]->rangeLabel(), d->isSet() &&
-                (a->yRangeSet(i) != a2->yRangeSet(i) ||
-                (a->yRangeSet(i) && a->yRange(i) != a2->yRange(i))));
-    }
+	// Update XWidget's "in cache" checkbox
+	auto loadedAxes = plot.cache().loadedAxes();
+	auto newXAxis = cNew->xAxis(0);
+	auto newXAxisIsLoaded = std::find(loadedAxes.begin(),loadedAxes.end(),
+			newXAxis) != loadedAxes.end();
+	if (PMS::axisIsRaDec(newXAxis)) {
+		auto newXDirParams = cNew->xDirectionParams(0);
+		newXAxisIsLoaded = plot.cache().areRaDecAxesLoaded(newXDirParams);
+	}
+	itsXWidget_->setInCache(newXAxisIsLoaded);
+
+	// Update YWidgets "in cache" checkbox
+	int yAxisCount = itsYWidgets_.size();
+	for ( int j = 0; j < yAxisCount; j++ ){
+		auto newYAxis = cNew->yAxis(j);
+		auto newYAxisIsLoaded = std::find(loadedAxes.begin(),loadedAxes.end(),
+				newYAxis) != loadedAxes.end();
+		if (PMS::axisIsRaDec(newYAxis)) {
+			auto newYDirParams = cNew->yDirectionParams(j);
+			newYAxisIsLoaded = plot.cache().areRaDecAxesLoaded(newYDirParams);
+		}
+		itsYWidgets_[j]->setInCache(newYAxisIsLoaded);
+	}
+
+	// Highlight XWidget changes
+	if (data->isSet()){
+		auto xAxisChanged = cNew->xAxis(0) != c->xAxis(0);
+		auto xDataAxisParamsChanged = cNew->xDataColumn(0) != c->xDataColumn(0);
+		auto xDirectionAxisParamsChanged = cNew->xDirectionParams(0) !=
+											  c->xDirectionParams(0);
+		auto xAxisParamsChanged = xDataAxisParamsChanged ||
+								  xDirectionAxisParamsChanged;
+		auto xInterpChanged = cNew->xInterp(0) != c->xInterp(0);
+		auto xRefFrameChanged = cNew->xFrame(0) != c->xFrame(0);
+		auto xAxisLocationChanged = aNew->xAxis(0) != a->xAxis(0);
+		auto xRangeModeChanged = aNew->xRangeSet(0) != a->xRangeSet(0);
+		auto xRangeChanged = aNew->xRange(0) != a->xRange(0);
+		highlightWidgetText(itsXWidget_->axisLabel(),
+				xAxisChanged || xAxisParamsChanged);
+		highlightWidgetText(itsXWidget_->dataLabel(), xDataAxisParamsChanged);
+		highlightWidgetText(itsXWidget_->interpLabel(), xInterpChanged);
+		highlightWidgetText(itsXWidget_->refFrameLabel(), xRefFrameChanged);
+		highlightWidgetText(itsXWidget_->attachLabel(), xAxisLocationChanged);
+		highlightWidgetText(itsXWidget_->rangeLabel(),
+				xRangeModeChanged || xRangeChanged );
+	}
+	// Highlight overlay changes
+	bool overlayChanged = (c->showAtm() != atmRadio->isChecked()) || (c->showTsky() != tskyRadio->isChecked());
+	highlightWidgetText(overlayLabel, overlayChanged);
+
+	// Highlight YWidgets changes
+	if (data->isSet()){
+		for ( int i = 0; i < yAxisCount; i++ ){
+			QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
+			auto yAxisChanged = c->yAxis(i) != cNew->yAxis(i);
+			auto yDataAxisParamsChanged = PMS::axisIsData(c->yAxis(i)) &&
+					(c->yDataColumn(i) != cNew->yDataColumn(i));
+			auto yDirectionAxisParamsChanged = PMS::axisIsRaDec(c->yAxis(i)) &&
+					(c->yDirectionParams(i) != cNew->yDirectionParams(i));
+			auto yAxisParamsChanged = yDataAxisParamsChanged || yDirectionAxisParamsChanged;
+			highlightWidgetText(axisLabel, yAxisChanged || yAxisParamsChanged);
+			highlightWidgetText(itsYWidgets_[i]->dataLabel(),
+				c->yDataColumn(i) != cNew->yDataColumn(i));
+			highlightWidgetText(itsYWidgets_[i]->interpLabel(),
+				c->yInterp(i) != cNew->yInterp(i));
+			highlightWidgetText(itsYWidgets_[i]->refFrameLabel(),
+				c->yFrame(i) != cNew->yFrame(i));
+			highlightWidgetText(itsYWidgets_[i]->attachLabel(),
+				a->yAxis() != aNew->yAxis());
+			highlightWidgetText(itsYWidgets_[i]->rangeLabel(),
+				(a->yRangeSet(i) != aNew->yRangeSet(i)) ||
+				(a->yRangeSet(i) && (a->yRange(i) != aNew->yRange(i))));
+		}
+	}
 
     // If the user hasn't set a custom range, set defaults for time axis.
     // For time axis, get bounds from cache; else use 0 for other axes types
@@ -383,7 +430,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     bool isDate;
 
     if (!itsXWidget_->rangeCustom()) {
-    	isDate = (c2->xAxis() == PMS::TIME);
+    	isDate = (cNew->xAxis() == PMS::TIME);
     	if (isDate) {
 		timebounds = plot.cache().getTimeBounds();
 		itsXWidget_->setRange(isDate, timebounds.first, timebounds.second); 
@@ -395,7 +442,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
 
     for (int i = 0; i < yAxisCount; i++ ){
 	if (!itsYWidgets_[i]->rangeCustom()) {
-    		PMS::Axis yData = c2->yAxis(i);
+    		PMS::Axis yData = cNew->yAxis(i);
     		isDate = (yData == PMS::TIME);
     		if (isDate) {
 			timebounds = plot.cache().getTimeBounds();

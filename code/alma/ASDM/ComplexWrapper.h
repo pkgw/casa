@@ -31,24 +31,16 @@
 #include <complex>
 #include <iostream>
 #include <string>
-using namespace std;
-using std::complex;
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLComplex;
 #endif
 
-#include <DoubleWrapper.h>
-#include <StringTokenizer.h>
-#include <NumberFormatException.h>
-using asdm::Double;
-using asdm::StringTokenizer;
-using asdm::NumberFormatException;
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/StringTokenizer.h>
+#include <alma/ASDM/NumberFormatException.h>
 
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
@@ -64,15 +56,15 @@ namespace asdm {
 class Complex : public std::complex<double> {
 
 public:
-	static Complex fromString(const string&) throw(NumberFormatException);
-	static string toString(const Complex&);
+	static Complex fromString(const std::string&) throw(NumberFormatException);
+	static std::string toString(const Complex&);
 	static Complex getComplex(StringTokenizer &t) throw(NumberFormatException);
 
 	Complex();                              		// default constructor
 	Complex(const Complex &);						// X const X& constructor
-	Complex(const string &s);
+	Complex(const std::string &s);
 #ifndef WITHOUT_ACS
-	Complex(const IDLComplex &);
+	Complex(const asdmIDLTypes::IDLComplex &);
 #endif
 	Complex(double re, double im);
 
@@ -84,9 +76,9 @@ public:
 	bool isZero() const;
 	bool equals(const Complex &) const;
 
-	string toString() const;
+	std::string toString() const;
 #ifndef WITHOUT_ACS
-	IDLComplex toIDLComplex() const;
+    asdmIDLTypes::IDLComplex toIDLComplex() const;
 #endif
 
 	/**
@@ -99,21 +91,21 @@ public:
 	 * @param cmplx the vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<Complex>& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<Complex>& cmplx,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of Complex to a EndianOSStream.
 	 * @param cmplx the vector of vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<Complex> >& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<Complex> >& cmplx,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of Complex to a EndianOSStream.
 	 * @param cmplx the vector of vector of vector of Complex to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<Complex> > >& cmplx,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<Complex> > >& cmplx,  EndianOSStream& eoss);
 
 	/**
 	 * Read the binary representation of an Complex from a EndianIStream
@@ -129,7 +121,7 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of Complex
 	 */	 
-	 static vector<Complex> from1DBin(EndianIStream & eis);
+	 static std::vector<Complex> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of Complex from an EndianIStream
@@ -137,7 +129,7 @@ public:
 	 * @param eiis the EndianIStream to be read
 	 * @return a vector of vector of Complex
 	 */	 
-	 static vector<vector<Complex> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<Complex> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of Complex from an EndianIStream
@@ -145,7 +137,7 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of Complex
 	 */	 
-	 static vector<vector<vector<Complex> > > from3DBin(EndianIStream & eis);	 
+	 static std::vector<std::vector<std::vector<Complex> > > from3DBin(EndianIStream & eis);	 
 
 };
 
@@ -156,11 +148,11 @@ inline Complex::Complex() : std::complex<double>(0.0,0.0) {
 inline Complex::Complex(const Complex &t) : std::complex<double>(t.real(),t.imag()) {
 }
 
-inline Complex::Complex(const string &s) : std::complex<double>(Complex::fromString(s)) {
+inline Complex::Complex(const std::string &s) : std::complex<double>(Complex::fromString(s)) {
 }
 
 #ifndef WITHOUT_ACS
-inline Complex::Complex(const IDLComplex &l) : std::complex<double>(l.re,l.im) {
+inline Complex::Complex(const asdmIDLTypes::IDLComplex &l) : std::complex<double>(l.re,l.im) {
 }
 #endif
 
@@ -192,15 +184,15 @@ inline bool Complex::equals(const Complex &x) const {
 }
 
 #ifndef WITHOUT_ACS
-inline IDLComplex Complex::toIDLComplex() const {
-	IDLComplex x;
+inline asdmIDLTypes::IDLComplex Complex::toIDLComplex() const {
+    asdmIDLTypes::IDLComplex x;
 	x.re = getReal();
 	x.im = getImg();
 	return x;
 }
 #endif
 
-inline string Complex::toString() const {
+inline std::string Complex::toString() const {
 	return Double::toString(getReal()) + " " + Double::toString(getImg());
 }
 

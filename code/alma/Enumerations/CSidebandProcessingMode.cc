@@ -33,7 +33,7 @@
  * File CSidebandProcessingMode.cpp
  */
 #include <sstream>
-#include <CSidebandProcessingMode.h>
+#include <alma/Enumerations/CSidebandProcessingMode.h>
 #include <string>
 using namespace std;
 

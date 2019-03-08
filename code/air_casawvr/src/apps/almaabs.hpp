@@ -26,14 +26,14 @@
 namespace LibAIR2 {
 
   // Forward declarations
-  class ALMAWVRCharacter;
+  struct ALMAWVRCharacter;
   class iALMAAbsRet;  
-  class ALMAResBase;
-  class ALMAContRes;
+  struct ALMAResBase;
+  struct ALMAContRes;
   class dTdLCoeffsBase;
   class InterpArrayData;
   class dTdLCoeffsSingleInterpolated;
-  class ALMARetOpts;
+  struct ALMARetOpts;
 
   /**
    */

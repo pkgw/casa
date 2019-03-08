@@ -1,12 +1,12 @@
 #ifndef TABLE_STREAM_READER_H
 #define TABLE_STREAM_READER_H
-#include "Misc.h"
+#include <alma/ASDM/Misc.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-#include "ASDM.h"
-#include "Entity.h"
-#include "EndianStream.h"
-#include "ConversionException.h"
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/EndianStream.h>
+#include <alma/ASDM/ConversionException.h>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -59,7 +59,7 @@ namespace asdm {
       checkState(T_OPEN, "TableStreamReader::open");
       // Open the file.
       tablePath = directory + "/"+ T::name() + ".bin";
-      tableFile.open(tablePath.c_str(), ios::in|ios::binary);
+      tableFile.open(tablePath.c_str(), std::ios::in|std::ios::binary);
       if (!tableFile.is_open())
 	throw asdm::ConversionException("Could not open file " + tablePath, T::name());
 
@@ -71,7 +71,7 @@ namespace asdm {
       // And start parsing the content.
 
       boundary_1 = requireMIMEHeader();
-      //cout << "boundary_1 = " << boundary_1 << endl;
+      // cout << "boundary_1 = " << boundary_1 << std::endl;
 
       requireBoundary(boundary_1, 0);
       
@@ -96,8 +96,7 @@ namespace asdm {
 	// Just try to deserialize it with Big_Endian for the bytes ordering.
 	byteOrder = asdm::ByteOrder::Big_Endian;       
 	attributesSeq = T::defaultAttributesNamesInBin();
-      }
-      else if (std::string(T::name()+"Table").compare((const char*) root_element->name) == 0) {
+      } else if (std::string(T::name()+"Table").compare((const char*) root_element->name) == 0) {
 	// It's a new (and correct) MIME file for tables.
 	//
 	// 1st )  Look for a BulkStoreRef element with an attribute byteOrder.
@@ -113,16 +112,17 @@ namespace asdm {
       	
 	// We found BulkStoreRef, now look for its attribute byteOrder.
 	_xmlAttr* byteOrderAttr = 0;
-	for (struct _xmlAttr* attr = bulkStoreRef->properties; attr; attr = attr->next) 
-	  if (string("byteOrder").compare((const char*) attr->name) == 0) {
+	for (struct _xmlAttr* attr = bulkStoreRef->properties; attr; attr = attr->next) {
+          if (std::string("byteOrder").compare((const char*) attr->name) == 0) {
 	    byteOrderAttr = attr;
 	    break;
 	  }
+        }
       
 	if (byteOrderAttr == 0) 
 	  throw asdm::ConversionException("Could not find the element '/"+T::name()+"Table/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader +"'.", T::name());
       
-	string byteOrderValue = std::string((const char*) byteOrderAttr->children->content);
+        std::string byteOrderValue = std::string((const char*) byteOrderAttr->children->content);
 	if (!(byteOrder = asdm::ByteOrder::fromString(byteOrderValue)))
 	  throw asdm::ConversionException("No valid value retrieved for the element '/"+T::name()+"Table/BulkStoreRef/@byteOrder'. Invalid XML header '" + xmlHeader + "'.", T::name());
 		
@@ -130,13 +130,13 @@ namespace asdm {
 	// 2nd) Look for the Attributes element and grab the names of the elements it contains.
 	//
 	xmlNode* attributes = bulkStoreRef->next;
-	if ( attributes == 0 || (attributes->type != XML_ELEMENT_NODE)  || (string("Attributes").compare((const char*) attributes->name) != 0))	 
+	if ( attributes == 0 || (attributes->type != XML_ELEMENT_NODE)  || (std::string("Attributes").compare((const char*) attributes->name) != 0))	 
 	  throw asdm::ConversionException ("Could not find the element '/"+T::name()+"Table/Attributes'. Invalid XML header '"+ xmlHeader + "'.", T::name());
  
  	xmlNode* childOfAttributes = attributes->children;
  	
  	while ( childOfAttributes != 0 && (childOfAttributes->type == XML_ELEMENT_NODE) ) {
-	  attributesSeq.push_back(string((const char*) childOfAttributes->name));
+            attributesSeq.push_back(std::string((const char*) childOfAttributes->name));
 	  childOfAttributes = childOfAttributes->next;
 	}
       }
@@ -152,10 +152,24 @@ namespace asdm {
       asdm::Entity containerEntity = Entity::fromBin((EndianIStream &)eifs);
 
       // Let's read numRows but ignore it and rely on the value specified in the ASDM.xml file.    
-      int numRows = ((EndianIStream &)eifs).readInt();
+      ((EndianIStream &)eifs).readInt();
       
       // Memorize the starting point of rows.
       whereRowsStart = tableFile.tellg();
+
+      // find where the rows end, seek to near the end
+      tableFile.seekg(fileSizeInBytes-100);
+      // the accumulateUntilBoundary looks at "lines", but it may be starting
+      // from inside the binary part where null values might be found
+      // At most, there might be 100 bytes of null, or 100 lines. So limit
+      // the search to 100 lines before giving up.
+      std::string lastPart = accumulateUntilBoundary(boundary_1, 100);
+
+      // the full size of the boundary and anything after it
+      endBoundarySizeInBytes = 100 - lastPart.size();
+      
+      // reset back to start of rows
+      tableFile.seekg(whereRowsStart);
 
       // Update the state
       currentState = S_OPENED;
@@ -206,8 +220,8 @@ namespace asdm {
       T& tableRef = (T&) asdm.getTable(T::name());
       do {
 	rows.push_back(R::fromBin((EndianIStream&) eifs, tableRef , attributesSeq));
-      }
-      while (((tableFile.tellg() - whereAmI) < nBytes) && hasRows());
+      } while (((tableFile.tellg() - whereAmI) < nBytes) && hasRows());
+      
       return rows;
     }
 
@@ -216,7 +230,7 @@ namespace asdm {
      */
     bool hasRows() {
       checkState(T_CHECK, "TableStreamReader::hasRows");
-      return tableFile.tellg() < (fileSizeInBytes - 19);
+      return tableFile.tellg() < (fileSizeInBytes - endBoundarySizeInBytes);
     }
 
     /**
@@ -238,6 +252,7 @@ namespace asdm {
     std::string	                boundary_1;
 
     off_t                       fileSizeInBytes;
+    off_t                       endBoundarySizeInBytes;
     asdm::EndianIFStream	eifs;
     std::vector<std::string>	attributesSeq;
     asdm::ASDM                  asdm;
@@ -245,7 +260,7 @@ namespace asdm {
 
     char*                       readBuffer;
 
-    streampos whereRowsStart;
+    std::streampos whereRowsStart;
 
     enum State {S_CLOSED, S_OPENED};
     enum Transition {T_OPEN, T_CHECK, T_RESET, T_READ, T_CLOSE};
@@ -271,7 +286,7 @@ namespace asdm {
     }
 
     void skipUntilEmptyLine(int maxSkips) {
-      // cout << "Entering skipUntilEmptyLine" << endl;
+      // cout << "Entering skipUntilEmptyLine" << std::endl;
       int numSkips = 0;
       std::string line;
       do {
@@ -284,15 +299,14 @@ namespace asdm {
 	trim(line);
 #endif
 	numSkips++;
-      } 
-      while (line.size() != 0 && numSkips <= maxSkips);
+      } while (line.size() != 0 && numSkips <= maxSkips);
       
       if (numSkips > maxSkips) {
-	ostringstream oss;
-	oss << "could not find an empty line is less than " << maxSkips + 1 << " lines." << endl;
+        std::ostringstream oss;
+	oss << "could not find an empty line is less than " << maxSkips + 1 << " lines." << std::endl;
 	throw asdm::ConversionException(oss.str(), T::name());
       } 
-      // cout << "Exiting skipUntilEmptyLine" << endl;
+      // cout << "Exiting skipUntilEmptyLine" << std::endl;
     }
 
     std::string nextLine() {
@@ -303,11 +317,11 @@ namespace asdm {
 	oss << "TableStreamReader::nextLine() : I could not read a line in '" << tablePath <<  "' at position " << whereAmI << ".";
 	throw asdm::ConversionException(oss.str(), T::name());
       }
-      // cout << "nextLine has read '" << currentLine << "'" << endl;
+      // cout << "nextLine has read '" << currentLine << "'" << std::endl;
       return currentLine;
     }  
 
-    pair<std::string, std::string> headerField2Pair(const std::string& hf){
+    std::pair<std::string, std::string> headerField2Pair(const std::string& hf){
     std::string name, value;
     size_t colonIndex = hf.find(":");
     if (colonIndex == std::string::npos)
@@ -328,8 +342,8 @@ namespace asdm {
 
 std::string requireMIMEHeader() {
   // MIME-Version
-  pair<std::string, std::string>name_value(headerField2Pair(nextLine()));
-  // cout << name_value.first << "=" << name_value.second << endl;
+  std::pair<std::string, std::string>name_value(headerField2Pair(nextLine()));
+  // cout << name_value.first << "=" << name_value.second << std::endl;
   // if (currentLine != "MIME-Version: 1.0") // a work around for the case when the very first character is not the expected "M" (happened with some corrupted data).
 #ifndef WITHOUT_BOOST
   if (! boost::algorithm::iends_with(currentLine, "IME-Version: 1.0"))
@@ -342,7 +356,7 @@ std::string requireMIMEHeader() {
   // Content-Type
   boundary_1 = requireBoundaryInCT(requireHeaderField("CONTENT-TYPE").second);
 
-  // cout << "boundary_1 =" << boundary_1 << endl;
+  // cout << "boundary_1 =" << boundary_1 << std::endl;
   
   // Content-Description
   //name_value = requireHeaderField("CONTENT-DESCRIPTION");
@@ -356,7 +370,7 @@ std::string requireMIMEHeader() {
   return boundary_1;
 }    
 
-pair<std::string, std::string> requireHeaderField(const std::string & hf) {
+std::pair<std::string, std::string> requireHeaderField(const std::string & hf) {
 #ifndef WITHOUT_BOOST
   std::string s = boost::trim_copy(nextLine());
   while (boost::algorithm::iends_with(s, ";")) {
@@ -369,7 +383,7 @@ pair<std::string, std::string> requireHeaderField(const std::string & hf) {
   }
 #endif
 
-  pair<std::string, std::string> hf2pair(headerField2Pair(s));
+  std::pair<std::string, std::string> hf2pair(headerField2Pair(s));
 
 #ifndef WITHOUT_BOOST
   if (boost::algorithm::to_upper_copy(hf2pair.first) != hf)
@@ -382,7 +396,7 @@ pair<std::string, std::string> requireHeaderField(const std::string & hf) {
 }
 
 void requireBoundary(const std::string& boundary, int maxLines) {
-  // cout << "Entering require boundary with boundary == '" << boundary << "' and maxLines = " << maxLines << endl; 
+  // cout << "Entering require boundary with boundary == '" << boundary << "' and maxLines = " << maxLines << std::endl; 
   int numLines = 0;
   std::string dashdashBoundary = "--"+boundary;
   std::string line = nextLine();
@@ -392,14 +406,14 @@ void requireBoundary(const std::string& boundary, int maxLines) {
   }
 
   if (numLines > maxLines) {
-    ostringstream oss;
-    oss << "could not find the boundary std::string '"<< boundary << "' in less than " << maxLines + 1 << " lines." << endl;
+    std::ostringstream oss;
+    oss << "could not find the boundary std::string '"<< boundary << "' in less than " << maxLines + 1 << " lines." << std::endl;
     throw asdm::ConversionException(oss.str(), T::name());
   }
 }
 
 std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
-  // cout << "Entering accumulateUntilBoundary with maxLines = " << maxLines << endl;
+  // cout << "Entering accumulateUntilBoundary with maxLines = " << maxLines << std::endl;
   int numLines = 0;
   std::string line ;
   std::string result;
@@ -425,53 +439,55 @@ std::string accumulateUntilBoundary(const std::string& boundary, int maxLines) {
   }
   
   if (numLines > maxLines) {
-    ostringstream oss;
-    oss << "could not find the boundary std::string '"<< boundary << "' in less than " << maxLines + 1 << " lines." << endl;
+    std::ostringstream oss;
+    oss << "could not find the boundary std::string '"<< boundary << "' in less than " << maxLines + 1 << " lines." << std::endl;
     throw asdm::ConversionException(oss.str(), T::name());    
   }
   return result;
 }
 
 std::string requireBoundaryInCT(const std::string& ctValue) {
-  vector<std::string> cvValueItems;
+  std::vector<std::string> cvValueItems;
  
 #ifndef WITHOUT_BOOST
   boost::algorithm::split (cvValueItems, ctValue, boost::algorithm::is_any_of(";"));
 #else
   asdm::strsplit(ctValue,';',cvValueItems);
 #endif
-  vector<std::string> cvValueItemsNameValue;
-  for ( vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
+  std::vector<std::string> cvValueItemsNameValue;
+  for ( std::vector<std::string>::const_iterator iter = cvValueItems.begin(); iter != cvValueItems.end() ; iter++ ) {
     cvValueItemsNameValue.clear();
 #ifndef WITHOUT_BOOST
     boost::algorithm::split(cvValueItemsNameValue, *iter, boost::algorithm::is_any_of("="));
-    string boundary;
+    std::string boundary;
     if ((cvValueItemsNameValue.size() > 1) && (boost::to_upper_copy(boost::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
       return boundary;
 #else
     asdm::strsplit(*iter,'=',cvValueItemsNameValue);
-    string boundary;
+    std::string boundary;
     if ((cvValueItemsNameValue.size() > 1) && (asdm::str_toupper(asdm::trim_copy(cvValueItemsNameValue[0])) == "BOUNDARY") && (unquote(cvValueItemsNameValue[1], boundary).size() > 0))
       return boundary;
 #endif
 													     }
 throw asdm::ConversionException("could not find a boundary definition in '" + ctValue + "'.", T::name());
 }
-string unquote(const string& s, string& unquoted) {
-  if (s.size() >= 2) 
+
+std::string unquote(const std::string& s, std::string& unquoted) {
+  if (s.size() >= 2) {
     if (((s.at(0) == '"') && (s.at(s.size()-1) == '"')) || ((s.at(0) == '\'') && (s.at(s.size()-1) == '\''))) {
-      if (s.size() == 2)
+      if (s.size() == 2) {
 	unquoted = "";
-      else
+      } else {
 	unquoted = s.substr(1, s.size() - 2);
-    }
-    else
+      }
+    } else {
       unquoted = s;
-  else
+    }
+  } else {
     unquoted = s;
+  }
   return unquoted;
 }
-
 };
 } // end namespace asdm
 #endif

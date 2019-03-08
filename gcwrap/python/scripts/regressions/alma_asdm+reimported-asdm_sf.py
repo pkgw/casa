@@ -157,7 +157,7 @@ def verify_asdm(asdmname, withPointing):
         raise Exception
 
 
-def analyseASDM(basename, caltablename0, genwvr=True):
+def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=True, select_real_spws=''):
     # Reduction of NGC3256 Band 6
     # M. Zwaan, May 2010
     # D. Petry, May 2010
@@ -198,6 +198,9 @@ def analyseASDM(basename, caltablename0, genwvr=True):
         showversion=False,
         useversion='v3'
         )
+
+    print "Flagging autocorrelations ..."
+    flagdata(msn, autocorr=True)
 
     if(cu.compare_version('>=',[3,4,0]) and genwvr): # generate the WVR correction table
         print ">> Generating the WVR caltable ", caltablename0
@@ -247,20 +250,20 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             spwmap=[i]
             )
 
-    print ">> Plot the bandpass solutions"
-    pl.clf()
-    for i in range(2):
-        plotcal(
-            caltable=caltablename+"_spw"+str(i)+".B",xaxis="chan",yaxis="phase",
-            spw="",subplot=221+i,overplot=False,plotsymbol='.',
-            timerange="", showgui=False
-            )
-        tget(plotcal)
-        subplot=223+i
-        yaxis="amp"
-        plotrange=[0,0,0,0.02]
-        figfile=caltablename+"_bandpass.png"
-        plotcal()
+    # print ">> Plot the bandpass solutions"
+    # pl.clf()
+    # for i in range(2):
+    #     plotcal(
+    #         caltable=caltablename+"_spw"+str(i)+".B",xaxis="chan",yaxis="phase",
+    #         spw="",subplot=221+i,overplot=False,plotsymbol='.',
+    #         timerange="", showgui=False
+    #         )
+    #     tget(plotcal)
+    #     subplot=223+i
+    #     yaxis="amp"
+    #     plotrange=[0,0,0,0.02]
+    #     figfile=caltablename+"_bandpass.png"
+    #     plotcal()
         
     # For GSPLINE solutions, have to do it for different spws separately
     
@@ -298,53 +301,53 @@ def analyseASDM(basename, caltablename0, genwvr=True):
             # Pre-apply the WVR correction, the bandpass and the delay correction
             gaintable=[caltablename0,caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
             spwmap=[[wvrspw],[i],[i]],
-            combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
+            combine="obs",refant="0",minblperant=2,minsnr=2,solnorm=False,
             gaintype="G",calmode="ap",
             )	
 
 
-    print ">> Find GSPLINE solutions, using WVR corrections"
-    for i in range(2):
-        print ">> SPW: ",i
-        os.system('rm -rf '+caltablename+'.GSPLINE_WVR_'+str(i))
-        wvrspw = 0
-        if(cu.compare_version('>=',[3,4,0])):
-            wvrspw = i
-        gaincal(
-            vis=msn,
-            caltable=caltablename+".GSPLINE_WVR_"+str(i),
-            field=calfield,
-            spw=avspw[i],
-            selectdata=True,
-            solint="300s",
-            splinetime=10000,
-            # Pre-apply the WVR correction, the bandpass and the delay correction
-            gaintable=[caltablename0,caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
-            spwmap=[[wvrspw],[i],[i]],
-            combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
-            gaintype="GSPLINE",
-            npointaver=2,
-            preavg=300,
-            calmode="ap",
-            )	
+    # print ">> Find GSPLINE solutions, using WVR corrections"
+    # for i in range(2):
+    #     print ">> SPW: ",i
+    #     os.system('rm -rf '+caltablename+'.GSPLINE_WVR_'+str(i))
+    #     wvrspw = 0
+    #     if(cu.compare_version('>=',[3,4,0])):
+    #         wvrspw = i
+    #     gaincal(
+    #         vis=msn,
+    #         caltable=caltablename+".GSPLINE_WVR_"+str(i),
+    #         field=calfield,
+    #         spw=avspw[i],
+    #         selectdata=True,
+    #         solint="300s",
+    #         splinetime=10000,
+    #         # Pre-apply the WVR correction, the bandpass and the delay correction
+    #         gaintable=[caltablename0,caltablename+'_spw'+str(i)+'.K',caltablename+'_spw'+str(i)+'.B'],
+    #         spwmap=[[wvrspw],[i],[i]],
+    #         combine="",refant="0",minblperant=2,minsnr=-1,solnorm=False,
+    #         gaintype="GSPLINE",
+    #         npointaver=2,
+    #         preavg=300,
+    #         calmode="ap",
+    #         )	
 
 
-    print "\n>> Plot the solutions: small points: uncorrected"
-    print ">>                     large points: WVR corrected"
-    print ">>                     lines: spline fits, WVR corrected"
-    pl.clf()
-    for i in range(2):
-        plotcal(
-            caltable=caltablename+"_spw"+str(i)+".G_WVR",xaxis="time",yaxis="phase",
-            spw="",subplot=211+i,overplot=False,plotsymbol='o',
-            timerange="", showgui=False
-            )
-        tget(plotcal)
-        overplot=True
-        plotsymbol='.'; caltable=caltablename+"_spw"+str(i)+".G"; plotcal()
-        plotsymbol=':'; caltable=caltablename+".GSPLINE_WVR_"+str(i);
-        figfile=caltablename+"_gaincals.png"
-        plotcal()
+    # print "\n>> Plot the solutions: small points: uncorrected"
+    # print ">>                     large points: WVR corrected"
+    # print ">>                     lines: spline fits, WVR corrected"
+    # pl.clf()
+    # for i in range(2):
+    #     plotcal(
+    #         caltable=caltablename+"_spw"+str(i)+".G_WVR",xaxis="time",yaxis="phase",
+    #         spw="",subplot=211+i,overplot=False,plotsymbol='o',
+    #         timerange="", showgui=False
+    #         )
+    #     tget(plotcal)
+    #     overplot=True
+    #     plotsymbol='.'; caltable=caltablename+"_spw"+str(i)+".G"; plotcal()
+    #     plotsymbol=':'; caltable=caltablename+".GSPLINE_WVR_"+str(i);
+    #     figfile=caltablename+"_gaincals.png"
+    #     plotcal()
 
 
     # Apply the gain calibrations
@@ -426,11 +429,6 @@ def analyseASDM(basename, caltablename0, genwvr=True):
         print ">> Peak in calibrator image: "+str(peak[i])
         print ">> Dynamic range in calibrator image: "+str(peak[i]/rms[i])
 
-    #reference_rms = [0.0016516, 0.0009388]
-    #reference_peak = [1.00014091, 1.00002384]
-    # the follow test values introduced w/ data weight updates
-    reference_rms = [0.0019042, 0.0008856]
-    reference_peak = [0.999954, 1.0001681]
 
     for i in range(2):
         print ">> image rms ", i, " is ", rms[i], " expected value is ", reference_rms[i] 
@@ -735,6 +733,7 @@ try:
     tb.close()
     tb.open(reimp_msname)
     nrowsreimp = tb.nrows()
+    tb.close()
     print "Reimported MS contains ", nrowsreimp, "integrations."
     if(not nrowsreimp==nrowsorig):
         print "Numbers of integrations disagree."
@@ -754,7 +753,9 @@ rval = True
 part3 = True
 
 try:
-    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file)
+    ref_rms = [0.0019042, 0.0008856]
+    ref_peak = [0.999954, 1.0001681]
+    rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak, select_real_spws='0;1;2;3;4')
 except:
     print myname, ': *** Unexpected error analysing ASDM, regression failed ***'   
     part3 = False
@@ -813,9 +814,12 @@ if dopart4:
     
     rval = True
     try:
+        ref_rms = [0.0021094, 0.001450]
+        ref_peak = [0.999098, 1.0002679]
         rval = analyseASDM(myasdm_dataset2_name+'-re-exported', mywvr_correction_file,
-                           False # do not regenerate the WVR table
-                           )
+                           ref_rms, ref_peak,
+                           False, # do not regenerate the WVR table
+                       )
     except:
         print myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***'   
         part4 = False

@@ -24,8 +24,8 @@
  * File Float.cpp
  */
 
-#include <FloatWrapper.h>
-#include <NumberFormatException.h>
+#include <alma/ASDM/FloatWrapper.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <sstream>
 

@@ -1,11 +1,12 @@
-from taskinit import mstool, tbtool, casalog, write_history
+from taskinit import mstool, tbtool, casalog
+from mstools import write_history
 import flaghelper
 
 def statwt(
-    vis, selectdata, field, spw, intent, array, observation, combine,
-    timebin, slidetimebin, chanbin, minsamp, statalg, fence, center,
-    lside, zscore, maxiter, excludechans, wtrange,
-    flagbackup, preview, datacolumn
+    vis, selectdata, field, spw, intent, array, observation, scan,
+    combine, timebin, slidetimebin, chanbin, minsamp, statalg,
+    fence, center, lside, zscore, maxiter, fitspw, excludechans,
+    wtrange, flagbackup, preview, datacolumn
 ):
     casalog.origin('statwt')
     if not selectdata:
@@ -21,6 +22,7 @@ def statwt(
         intent = ""
         array = ""
         observation = ""
+        scan = ""
     try:
         if (flagbackup):
             if (preview):
@@ -38,7 +40,7 @@ def statwt(
         #sel['time'] = timerange
         sel['field'] = field
         #sel['baseline'] = antenna
-        #sel['scan'] = scan
+        sel['scan'] = scan
         sel['scanintent'] = intent
         #sel['polarization'] = correlation
         #sel['uvdist'] = uvrange
@@ -47,14 +49,30 @@ def statwt(
         #sel['feed'] = feed
         # Select the data. Only-parse is set to false.
         myms.msselect(sel, False)
-        return myms.statwt(
+        
+        rval = None
+        rval = myms.statwt(
             combine=combine, timebin=timebin,
             slidetimebin=slidetimebin, chanbin=chanbin,
             minsamp=minsamp, statalg=statalg, fence=fence,
             center=center, lside=lside, zscore=zscore,
-            maxiter=maxiter, excludechans=excludechans,
+            maxiter=maxiter, fitspw=fitspw, excludechans=excludechans,
             wtrange=wtrange, preview=preview, datacolumn=datacolumn
         )
+        
+        # Write to HISTORY of MS
+        if rval != None and preview == False:
+            # Write history to MS
+            try:
+                param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]
+                param_vals = [eval(p) for p in param_names]
+                write_history(mstool(), vis, 'statwt', param_names,
+                              param_vals, casalog)
+            except Exception, instance:
+                casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                             'WARN')            
+            
+        return rval
     except Exception, instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise

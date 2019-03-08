@@ -36,6 +36,7 @@
 #include <casatools/Config/State.h>
 #ifdef CASATOOLS
 #include <asdmstman/Register.h>
+#include <toolversion.h>
 #endif
 
 using namespace std;
@@ -494,6 +495,26 @@ utils::version_string( ) { return VersionInfo::str( ); }
 
 bool utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
     return VersionInfo::compare(comparitor,vec);
+}
+
+std::vector<int>
+utils::toolversion( ) {
+    std::vector<int> result = {
+#ifdef CASATOOLS
+        ToolVersionInfo::major( ),
+        ToolVersionInfo::minor( ),
+#endif
+    };
+    return result;
+}
+
+std::string
+utils::toolversion_string( ) {
+#ifdef CASATOOLS
+    return ToolVersionInfo::version( );
+#else
+    return "";
+#endif
 }
 
 } // casac namespace

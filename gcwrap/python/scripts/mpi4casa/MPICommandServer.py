@@ -4,14 +4,19 @@ import time # To handle sleep times
 import traceback # To pretty-print tracebacks
 import subprocess # To deploy virtual frame buffer
     
+# Import CASA environment: Service thread stack ends at the level where it is launched,
+# so we need to import the CASA tasks and various functions and  definitions here.
+
 # Import casalog and casa dictionary
+# confusingly, much of taskinit is actually about initing the casa tools
 from taskinit import *
 
-# Import CASA environment: Service thread stack ends at the level where it is launched, 
-# so we need to re-define the global CASA task and macro definitions at this level.
-from task_wrappers import *
-from task_macros import *
-from taskinit import casalog
+# Import all tasks from the auto-generated tasks.py
+from tasks import *
+
+# stuff needed in the task code generated from the casa2pycli xslt template
+from init_tasks import update_params, saveinputs
+
 
 # Import MPIEnvironment static class
 from MPIEnvironment import MPIEnvironment
@@ -278,41 +283,66 @@ class MPICommandServer:
             
             
         def start_virtual_frame_buffer(self):
-            
+            """ Starts Xvfb and sets DISPLAY environment variable """
+
+            def gen_displayport():
+                """ produces display port in ':345' string format """
+                displayport = os.getpid()
+                while os.path.exists('/tmp/.X%d-lock' % displayport):
+                    displayport += 1
+
+                return ":%d" % displayport
+
+            def gen_xauth_cookie():
+                """ produces cookie ready to be used with xauth add """
+                try:
+                    cookie = subprocess.check_output(['mcookie'],
+                                                     universal_newlines=True).strip()
+                except Exception:
+                    cookie = str(uuid.uuid4()).replace('-', '')
+
+                return cookie
+
+            def run_xauth_xvfb(xauth_dir, xauthfile, port, cookie):
+                """ runs xauth + Xvfb similarly as xvfb-run """
+                subprocess.call(['xauth', '-f', xauthfile.name, 'add', port, '.', cookie],
+                                stdout=self.__logfile_descriptor,
+                                stderr=self.__logfile_descriptor)
+
+                self.__virtual_frame_buffer_process = subprocess.Popen(
+                    ['Xvfb', port, '-auth', xauthfile.name],
+                    stdout=self.__logfile_descriptor, stderr=self.__logfile_descriptor,
+                    shell=False)
+
+                try:
+                    subprocess.call(['xauth', '-f', xauthfile.name, 'remove', port],
+                                    stdout=self.__logfile_descriptor,
+                                    stderr=self.__logfile_descriptor)
+                    xauthfile.close()
+                    if os.path.isdir(xauth_dir):
+                        os.rmdir(xauth_dir)
+                except OSError as exc:
+                    casalog.post("xauth file and its subdirectory could not be removed "
+                                 "cleanly: {0}, with exception: {1}".
+                                 format(xauthfile.name, exc), "WARN",
+                                 casalog_call_origin)
+
             casalog_call_origin = "MPICommandServer::start_virtual_frame_buffer"
 
-            displayport = os.getpid()
-            while os.path.exists('/tmp/.X%d-lock' % displayport):
-                displayport += 1
-
-            self.__virtual_frame_buffer_port = ":%d" % displayport
-
-            self.__xauthfile = tempfile.NamedTemporaryFile()
+            self.__virtual_frame_buffer_port = gen_displayport()
+            xauth_dir = tempfile.mkdtemp(prefix='CASA_MPIServer_xauth')
+            xauthfile = tempfile.NamedTemporaryFile(dir=xauth_dir)
+            cookie = gen_xauth_cookie()
 
             try:
-                cookie = subprocess.check_output(['mcookie'], universal_newlines=True).strip()
-            except:
-                cookie = str(uuid.uuid4()).replace('-', '')
-
-
-            try:
-                subprocess.call(['xauth', '-f', self.__xauthfile.name, 'add',
-                                 self.__virtual_frame_buffer_port, '.', cookie],
-                                 stdout=self.__logfile_descriptor,
-                                 stderr=self.__logfile_descriptor)
-
-                self.__virtual_frame_buffer_process = subprocess.Popen(['Xvfb',self.__virtual_frame_buffer_port,
-                                                                       '-auth', self.__xauthfile.name],
-                                                                       stdout=self.__logfile_descriptor, 
-                                                                       stderr=self.__logfile_descriptor,
-                                                                       shell=False)
-                os.environ['DISPLAY']=self.__virtual_frame_buffer_port
-                os.environ['XAUTHORITY'] = self.__xauthfile.name
-                casalog.post("Deployed virtual frame buffer at %s with pid %s" % 
-                             (self.__virtual_frame_buffer_port,
-                              str(self.__virtual_frame_buffer_process.pid)),
-                             "INFO",casalog_call_origin)
-            except:
+                run_xauth_xvfb(xauth_dir, xauthfile, self.__virtual_frame_buffer_port,
+                               cookie)
+                os.environ['DISPLAY'] = self.__virtual_frame_buffer_port
+                casalog.post("Deployed virtual frame buffer at port {0} with PID {1}".
+                             format(self.__virtual_frame_buffer_port,
+                                    str(self.__virtual_frame_buffer_process.pid)),
+                             "INFO", casalog_call_origin)
+            except Exception:
                 self.__virtual_frame_buffer_process = None                
                 formatted_traceback = traceback.format_exc()
                 casalog.post("Exception deploying virtual frame buffer at %s: %s" 
@@ -341,17 +371,9 @@ class MPICommandServer:
                                     str(formatted_traceback)),
                                     "SEVERE",casalog_call_origin)
             else:
-                casalog.post("Virtual frame buffer not deployed","WARN",casalog_call_origin)            
-
-            try:
-                subprocess.call(['xauth', '-f', self.__xauthfile.name, 'remove',
-                                 self.__virtual_frame_buffer_port],
-                                 stdout=self.__logfile_descriptor,
-                                 stderr=self.__logfile_descriptor)
-            except OSError:
-                pass
-            self.__xauthfile.close()
-            
+                casalog.post("Virtual frame buffer (port {0}) not deployed".
+                             format(self.__virtual_frame_buffer_port), "WARN",
+                             casalog_call_origin)
             
         def omp_set_num_threads(self,omp_num_threads):
             

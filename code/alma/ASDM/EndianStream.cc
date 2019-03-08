@@ -1,6 +1,7 @@
-#include <EndianStream.h>
+#include <alma/ASDM/EndianStream.h>
 #define write5(x) write((const char*) &x, sizeof(x))
 
+using namespace std;
 
 namespace asdm {
 	

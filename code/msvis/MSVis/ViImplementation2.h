@@ -33,10 +33,12 @@
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <measures/Measures/MFrequency.h>
 #include <measures/Measures/Stokes.h>
+#include <measures/Measures/Stokes.h>
 
 #include <map>
 #include <vector>
 
+//Forward declarations
 namespace casacore{
 
 template <typename T> class Array;
@@ -54,6 +56,23 @@ class Slice;
 class String;
 template <typename T, Int n> class SquareMatrix;
 template <typename T> class Vector;
+class ROMSAntennaColumns;
+class ROMSDataDescColumns;
+class ROMSFeedColumns;
+class ROMSFieldColumns;
+class ROMSFlagCmdColumns;
+class ROMSHistoryColumns;
+class ROMSObservationColumns;
+class ROMSPointingColumns;
+class ROMSPolarizationColumns;
+class ROMSProcessorColumns;
+class ROMSSpWindowColumns;
+class ROMSStateColumns;
+class ROMSDopplerColumns;
+class ROMSFreqOffsetColumns;
+class ROMSSourceColumns;
+class ROMSSysCalColumns;
+class ROMSWeatherColumns;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -609,6 +628,63 @@ public:
 
     virtual void writeModel(const casacore::RecordInterface& rec, casacore::Bool iscomponentlist=true,
                             casacore::Bool incremental=false) = 0;
+
+    //**********************************************************************
+    // Methods to access the subtables.
+    // Note that for some subclasses, like TransformingTVI, those tables
+    // might be created on the fly, rather than read from the MS.
+    //**********************************************************************
+
+    // Access to antenna subtable
+    virtual const casacore::ROMSAntennaColumns& antennaSubtablecols() const = 0;
+
+    // Access to dataDescription subtable
+    virtual const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const = 0;
+
+    // Access to feed subtable
+    virtual const casacore::ROMSFeedColumns& feedSubtablecols() const = 0;
+
+    // Access to field subtable
+    virtual const casacore::ROMSFieldColumns& fieldSubtablecols() const = 0;
+
+    // Access to flagCmd subtable
+    virtual const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const = 0;
+
+    // Access to history subtable
+    virtual const casacore::ROMSHistoryColumns& historySubtablecols() const = 0;
+
+    // Access to observation subtable
+    virtual const casacore::ROMSObservationColumns& observationSubtablecols() const = 0;
+
+    // Access to pointing subtable
+    virtual const casacore::ROMSPointingColumns& pointingSubtablecols() const = 0;
+
+    // Access to polarization subtable
+    virtual const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const = 0;
+
+    // Access to processor subtable
+    virtual const casacore::ROMSProcessorColumns& processorSubtablecols() const = 0;
+
+    // Access to spectralWindow subtable
+    virtual const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const = 0;
+
+    // Access to state subtable
+    virtual const casacore::ROMSStateColumns& stateSubtablecols() const = 0;
+
+    // Access to doppler subtable
+    virtual const casacore::ROMSDopplerColumns& dopplerSubtablecols() const = 0;
+
+    // Access to freqOffset subtable
+    virtual const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const = 0;
+
+    // Access to source subtable
+    virtual const casacore::ROMSSourceColumns& sourceSubtablecols() const = 0;
+
+    // Access to sysCal subtable
+    virtual const casacore::ROMSSysCalColumns& sysCalSubtablecols() const = 0;
+
+    // Access to weather subtable
+    virtual const casacore::ROMSWeatherColumns& weatherSubtablecols() const = 0;
 
 
 protected:

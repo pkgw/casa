@@ -22,7 +22,9 @@
 
 #include <flagging/Flagging/FlagAgentRFlag.h>
 
+using std::pair;
 using namespace casacore;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 
@@ -59,7 +61,7 @@ FlagAgentRFlag::~FlagAgentRFlag()
 
 void FlagAgentRFlag::setAgentParameters(Record config)
 {
-	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__,WHERE));
+	logger_p->origin(LogOrigin(agentName_p,__FUNCTION__));
 
 	int exists;
 
@@ -257,7 +259,25 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	// timedev - Matrix for time analysis deviation thresholds - (old AIPS RFlag FPARM(3)/NOISE)
 	noise_p = 0;
 	exists = config.fieldNumber ("timedev");
-	if (exists >= 0)
+        bool nonempty = exists >= 0;
+        // Special empty values
+        if (nonempty) {
+            // when no value is given to timedev, it 'exists' but as an empty string
+            if (casacore::TpString == config.type(exists)) {
+                auto value = config.asString(exists);
+                if (0 == value.length()) {
+                    nonempty = false;
+                }
+            }
+            // "timedev=[]" arrives here as an empty array of bool!
+            else if (casacore::TpArrayBool == config.type(exists)) {
+                auto tdev = config.asArrayBool(RecordFieldId("timedev"));
+                if (0 == tdev.size()) {
+                    nonempty = false;
+                }
+            }
+        }
+        if (nonempty)
 	{
 	  if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble || config.type(exists) == casacore::TpInt )
 		{
@@ -291,12 +311,21 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		}
 		else
 		{
-		        *logger_p << logLevel_p << "Using automatically computed values for timedev" << LogIO::POST;
+                    if (writeflags) {
+                        // action='calculate' (not writeflags) will pass the file name if
+                        // given. But we still want to accept the values to compute stats,
+                        // if they're valid
+                        // (see for example test_rflag_CAS_5037 / test_rflag_return_dict1)
+                        throw AipsError("The timedev value given cannot be interpreted as a "
+                                        "numerical value or array of numerical values. Refusing "
+                                        "to run RFlag!");
+                    }
 		}
 	}
 	else
 	{
-	        *logger_p << logLevel_p << "Using automatically computed values for timedev" << LogIO::POST;
+	        *logger_p << logLevel_p << "No timedev value given. Will Use automatically "
+                    "computed values if applying flags." << LogIO::POST;
 		// noise_p initialized to 0 above.
 	}
 
@@ -304,7 +333,25 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 	// freqdev - Matrix for time analysis deviation thresholds (freqdev) - (old AIPS RFlag FPARM(4)/SCUTOFF)
 	scutoff_p = 0;
 	exists = config.fieldNumber ("freqdev");
-	if (exists >= 0)
+        nonempty = exists >= 0;
+        // Special empty values
+        if (nonempty) {
+            // when no value is given to freqdev, it 'exists' but as an empty string
+            if (casacore::TpString == config.type(exists)) {
+                auto value = config.asString(exists);
+                if (0 == value.length()) {
+                    nonempty = false;
+                }
+            }
+            // "freqdev=[]" arrives here as an empty array of bool!
+            else if (casacore::TpArrayBool == config.type(exists)) {
+                auto fdev = config.asArrayBool(RecordFieldId("freqdev"));
+                if (0 == fdev.size()) {
+                    nonempty = false;
+                }
+            }
+        }
+        if (nonempty)
 	{
 		if ( config.type( exists ) == casacore::TpFloat ||  config.type( exists ) == casacore::TpDouble  || config.type(exists) == casacore::TpInt )
 		{
@@ -338,12 +385,17 @@ void FlagAgentRFlag::setAgentParameters(Record config)
 		}
 		else
 		{
-		        *logger_p << logLevel_p << "Using automatically computed values for freqdev" << LogIO::POST;
+                    if (writeflags) {
+                        throw AipsError("The freqdev value given cannot be interpreted as a "
+                                        "numerical value or array of numerical values. Refusing "
+                                        "to run RFlag!");
+                    }
 		}
 	}
 	else
 	{
-	        *logger_p << logLevel_p << "Using automatically computed values for freqdev" << LogIO::POST;
+	        *logger_p << logLevel_p << "No freqdev value given. Will Use automatically "
+                    "computed values if applying flags." << LogIO::POST;
 		// scutoff initialized to zero above.
 	}
 

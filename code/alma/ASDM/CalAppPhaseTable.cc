@@ -30,18 +30,18 @@
  *
  * File CalAppPhaseTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CalAppPhaseTable.h>
-#include <CalAppPhaseRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAppPhaseTable.h>
+#include <alma/ASDM/CalAppPhaseRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CalAppPhaseTable;
@@ -56,7 +56,7 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
@@ -338,7 +338,7 @@ namespace asdm {
  	 * @param phasedSumAntenna 
 	
      */
-	CalAppPhaseRow* CalAppPhaseTable::newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna){
+	CalAppPhaseRow* CalAppPhaseTable::newRow(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna){
 		CalAppPhaseRow *row = new CalAppPhaseRow(*this);
 			
 		row->setBasebandName(basebandName);
@@ -615,7 +615,7 @@ CalAppPhaseRow* CalAppPhaseTable::newRow(CalAppPhaseRow* row) {
  * @param phasedSumAntenna.
  	 		 
  */
-CalAppPhaseRow* CalAppPhaseTable::lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna) {
+CalAppPhaseRow* CalAppPhaseTable::lookup(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna) {
 		CalAppPhaseRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -676,7 +676,7 @@ CalAppPhaseRow* CalAppPhaseTable::lookup(BasebandNameMod::BasebandName basebandN
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CalAppPhaseTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:calaph=\"http://Alma/XASDM/CalAppPhaseTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAppPhaseTable http://almaobservatory.org/XML/XASDM/3/CalAppPhaseTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<CalAppPhaseTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:calaph=\"http://Alma/XASDM/CalAppPhaseTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAppPhaseTable http://almaobservatory.org/XML/XASDM/4/CalAppPhaseTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -806,7 +806,7 @@ CalAppPhaseRow* CalAppPhaseTable::lookup(BasebandNameMod::BasebandName basebandN
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CalAppPhaseTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:calaph=\"http://Alma/XASDM/CalAppPhaseTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAppPhaseTable http://almaobservatory.org/XML/XASDM/3/CalAppPhaseTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<CalAppPhaseTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:calaph=\"http://Alma/XASDM/CalAppPhaseTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalAppPhaseTable http://almaobservatory.org/XML/XASDM/4/CalAppPhaseTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CalAppPhaseTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";

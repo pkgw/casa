@@ -98,6 +98,21 @@ Previous calibrations should be applied on the fly.
 		<value>False</value>
 	</param>
 
+   <param type="bool" name="globalsolve">
+		<description>Refine estimates of delay and rate with global least-squares solver</description>
+		<value>True</value>
+	</param>
+
+   <param type="doubleArray" name="delaywindow">
+		<description>Constrain FFT delay search to a window; a two-element list, units of nanoseconds</description>
+		<value></value>
+	</param>
+
+   <param type="doubleArray" name="ratewindow">
+		<description>Constrain FFT rate search to a window; a two-element list, units of seconds per second</description>
+		<value></value>
+	</param>
+   
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
@@ -256,7 +271,10 @@ Previous calibrations should be applied on the fly.
                single-band delays will be determined.
               example: combine='scan,spw'  --&gt; extend solutions over scan boundaries
                        (up to the solint), and combine spws for solving
-      refant -- Reference antenna name(s); a prioritized list may be specified
+      refant -- Reference antenna name(s); a prioritized list may be
+                specified for solving and for applying solutions. For
+                solving, the first reference antenna associated with
+                unflagged data is used for the solution.
               default: '' =&gt; no refant applied
               example: refant='4' (antenna with index 4)
                        refant='VA04' (VLA antenna #4)
@@ -278,6 +296,14 @@ Previous calibrations should be applied on the fly.
       the case of "manual phase calibration".
                 default: False
 
+      globalsolve -- Refine fringefit solutions with global least-squares solver.
+                default: False
+
+
+		delaywindow -- Constrain FFT delay search to a window
+      ratewindow -- Constrain FFT rate search to a window
+      least-squares routine. 0 => off, 1 => weight ^ -1, 2 => weight ^ -2
+      
       --- Other calibrations to apply on the fly before determining
       fringe fit solution
 

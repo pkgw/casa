@@ -21,7 +21,21 @@
 //# $Id: $
 
 #include <flagging/Flagging/FlagMSHandler.h>
+
+// Measurement Set selection
+#include <ms/MeasurementSets/MeasurementSet.h>
+#include <ms/MSSel/MSSelection.h>
+#include <ms/MeasurementSets/MSAntennaColumns.h>
+#include <ms/MeasurementSets/MSFieldColumns.h>
+#include <ms/MeasurementSets/MSPolColumns.h>
+#include <ms/MeasurementSets/MSSpWindowColumns.h>
+#include <ms/MeasurementSets/MSProcessorColumns.h>
+
+#include <msvis/MSVis/ViFrequencySelection.h>
+
 #include <mstransform/TVI/ChannelAverageTVI.h>
+#include <msvis/MSVis/LayeredVi2Factory.h>
+#include <synthesis/TransformMachines2/VisModelData.h>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -95,7 +109,7 @@ FlagMSHandler::open()
 	ROMSAntennaColumns *antennaSubTable = new ROMSAntennaColumns(originalMeasurementSet_p->antenna());
 	antennaNames_p = new Vector<String>(antennaSubTable->name().getColumn());
 	antennaDiameters_p = new Vector<Double>(antennaSubTable->dishDiameter().getColumn());
-	antennaPositions_p = new ROScalarMeasColumn<MPosition>(antennaSubTable->positionMeas());
+	antennaPositions_p = new ScalarMeasColumn<MPosition>(antennaSubTable->positionMeas());
 
 	// File the baseline to Ant1xAnt2 map
 	String baseline;
@@ -421,124 +435,105 @@ FlagMSHandler::preSweep()
 bool
 FlagMSHandler::generateIterator()
 {
-	if (!iteratorGenerated_p)
-	{
-		// Do quack pre-sweep
-		if (mapScanStartStop_p)
-		{
-			if (visibilityIterator_p) delete visibilityIterator_p;
-			visibilityIterator_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
-			                                                   vi::SortColumns (sortOrder_p, true),
-			                                                   true,NULL, timeInterval_p);
-			preSweep();
-		}
+  if (!iteratorGenerated_p)
+  {
 
-		if (asyncio_enabled_p)
-		{
-			// Set preFetchColumns
-			prefetchColumns_p = new VisBufferComponents2();
-			prefetchColumns_p->operator +=(VisBufferComponent2::FlagCube);
-			prefetchColumns_p->operator +=(VisBufferComponent2::FlagRow);
-			prefetchColumns_p->operator +=(VisBufferComponent2::NRows);
-			prefetchColumns_p->operator +=(VisBufferComponent2::FieldId);
+    if (asyncio_enabled_p)
+    {
+      // Set preFetchColumns
+      prefetchColumns_p = new VisBufferComponents2();
+      prefetchColumns_p->operator +=(VisBufferComponent2::FlagCube);
+      prefetchColumns_p->operator +=(VisBufferComponent2::FlagRow);
+      prefetchColumns_p->operator +=(VisBufferComponent2::NRows);
+      prefetchColumns_p->operator +=(VisBufferComponent2::FieldId);
 
-			preFetchColumns();
+      preFetchColumns();
 
-			// Then create and initialize RO Async iterator
-			if (visibilityIterator_p) delete visibilityIterator_p;
-			visibilityIterator_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
-			                                                   vi::SortColumns (sortOrder_p, true),
-			                                                   true,prefetchColumns_p,timeInterval_p);
-		}
-		else if ((enableTimeAvg_p) and  (enableChanAvg_p))
-		{
-            // Time averaging in clip mode uses the Time Averaging Iterator
-            vi::AveragingParameters parameters(timeAverageBin_p, 0,vi::SortColumns(sortOrder_p, false),
-                    timeAvgOptions_p,0.0,NULL,true);
+      // Then create and initialize RO Async iterator
+      if (visibilityIterator_p) delete visibilityIterator_p;
+      visibilityIterator_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
+                                                         vi::SortColumns (sortOrder_p, true),
+                                                         true,prefetchColumns_p,timeInterval_p);
+    }
+    else
+    {
+      //The vector where all the factories will be stacked
+      std::vector<vi::ViiLayerFactory*> factories;
 
-            preAveragingVI_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(parameters, selectedMeasurementSet_p));
+      //Create a VI Factory that access directly the MS (or the selected MS)
+      vi::IteratingParameters ipar(timeInterval_p, 
+                                   vi::SortColumns (sortOrder_p, true));
+      std::unique_ptr<vi::VisIterImpl2LayerFactory> directMsVIFactory;
+      directMsVIFactory.reset(new vi::VisIterImpl2LayerFactory(selectedMeasurementSet_p,ipar, true));
+      //Apply the channel selections only on the layer that access the MS directly
+      if(enableChanAvg_p)
+        applyChannelSelection(directMsVIFactory.get());
+      factories.push_back(directMsVIFactory.get());
 
-        	// Apply channel selection in input VI
-        	applyChannelSelection(preAveragingVI_p);
+      //Add a time averaging layer if so requested
+      std::auto_ptr<vi::AveragingVi2LayerFactory> timeAvgFactory;
+      if(enableTimeAvg_p)
+      {
+        // Time averaging in clip mode uses the Time Averaging Iterator
+        vi::AveragingParameters parameters(timeAverageBin_p, 0,vi::SortColumns(sortOrder_p, false),
+                                           timeAvgOptions_p,0.0,NULL,true);
+        timeAvgFactory.reset(new vi::AveragingVi2LayerFactory(parameters));
+        factories.push_back(timeAvgFactory.get());
+      }
 
-        	// Generate ChannelAverageTVI
-        	vi::ChannelAverageTVIFactory chanAvgFactory(chanAvgOptions_p,preAveragingVI_p->getImpl());
-        	visibilityIterator_p = new vi::VisibilityIterator2(chanAvgFactory);
-		}
-        else if (enableTimeAvg_p)
-        {
-            // Time averaging in clip mode uses the Time Averaging Iterator
-            vi::AveragingParameters parameters(timeAverageBin_p, 0,vi::SortColumns(sortOrder_p, false),
-                    timeAvgOptions_p,0.0,NULL,true);
+      //Create a ChannelAverageTVI Factory if so requested
+      std::unique_ptr<vi::ChannelAverageTVILayerFactory> chanAvgFactory;
+      if(enableChanAvg_p)
+      {
+        chanAvgFactory.reset(new vi::ChannelAverageTVILayerFactory(chanAvgOptions_p));
+        factories.push_back(chanAvgFactory.get());
+      }
 
-            visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(parameters, selectedMeasurementSet_p));
-        }
-        else if (enableChanAvg_p)
-        {
-        	// Generate plain input VI
-        	preAveragingVI_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
-        													vi::SortColumns (sortOrder_p, true),
-        													true,prefetchColumns_p,timeInterval_p);
-        	// Apply channel selection in plain input VI
-        	applyChannelSelection(preAveragingVI_p);
+      //Create the final visibility iterator
+      visibilityIterator_p = new vi::VisibilityIterator2(factories);
+    }
 
-        	// Generate ChannelAverageTVI
-        	vi::ChannelAverageTVIFactory chanAvgFactory(chanAvgOptions_p,preAveragingVI_p->getImpl());
-        	visibilityIterator_p = new vi::VisibilityIterator2(chanAvgFactory);
-        }
-		else if (!mapScanStartStop_p and !enableTimeAvg_p)
-		{
-			if (visibilityIterator_p) delete visibilityIterator_p;
-			visibilityIterator_p = new vi::VisibilityIterator2(*selectedMeasurementSet_p,
-			                                                   vi::SortColumns (sortOrder_p, true),
-			                                                   true,NULL,timeInterval_p);
-		}
+    // Do quack pre-sweep
+    if (mapScanStartStop_p)
+      preSweep();
 
+    // Set the table data manager (ISM and SSM) cache size to the full column size, for
+    // the columns ANTENNA1, ANTENNA2, FEED1, FEED2, TIME, INTERVAL, FLAG_ROW, SCAN_NUMBER and UVW
+    if (slurp_p) visibilityIterator_p->slurp();
 
-		// Set the table data manager (ISM and SSM) cache size to the full column size, for
-		// the columns ANTENNA1, ANTENNA2, FEED1, FEED2, TIME, INTERVAL, FLAG_ROW, SCAN_NUMBER and UVW
-		if (slurp_p) visibilityIterator_p->slurp();
+    // Apply channel selection
+    // CAS-3959: Channel selection is now going to be handled at the FlagAgent level
+    // applyChannelSelection(visibilityIterator_p);
 
-		// Apply channel selection
-		// CAS-3959: Channel selection is now going to be handled at the FlagAgent level
-		// applyChannelSelection(visibilityIterator_p);
+    // Group all the time stamps in one single buffer
+    // NOTE: Otherwise we have to iterate over Visibility Buffers
+    // that contain all the rows with the same time step.
+    if (groupTimeSteps_p)
+    {
+      // Set row blocking to a huge number
+      uLong maxChunkRows = selectedMeasurementSet_p->nrow();
+      visibilityIterator_p->setRowBlocking(maxChunkRows);
 
-		// Group all the time stamps in one single buffer
-		// NOTE: Otherwise we have to iterate over Visibility Buffers
-		// that contain all the rows with the same time step.
-		if (groupTimeSteps_p)
-		{
-			// Set row blocking to a huge number
-			uLong maxChunkRows = selectedMeasurementSet_p->nrow();
-			visibilityIterator_p->setRowBlocking(maxChunkRows);
+      *logger_p << LogIO::NORMAL <<  "Setting row blocking to number of row in selected table: " << maxChunkRows << LogIO::POST;
+    }
 
-			*logger_p << LogIO::NORMAL <<  "Setting row blocking to number of row in selected table: " << maxChunkRows << LogIO::POST;
-		}
+    // Get Visibility Buffer reference from VisibilityIterator
+    visibilityBuffer_p = visibilityIterator_p->getVisBuffer();
 
-		// Get Visibility Buffer reference from VisibilityIterator
-		visibilityBuffer_p = visibilityIterator_p->getVisBuffer();
+    // Get the TYPE column of the PROCESSOR sub-table
+    if (loadProcessorTable_p){
+      processorTable();
+      loadProcessorTable_p = false;
+    }
 
-		// Get the TYPE column of the PROCESSOR sub-table
-		if (loadProcessorTable_p){
-			processorTable();
-			loadProcessorTable_p = false;
-		}
+    iteratorGenerated_p = true;
+  }
+  chunksInitialized_p = false;
+  buffersInitialized_p = false;
+  stopIteration_p = false;
+  processedRows = 0;
 
-		iteratorGenerated_p = true;
-		chunksInitialized_p = false;
-		buffersInitialized_p = false;
-		stopIteration_p = false;
-		processedRows = 0;
-	}
-	else
-	{
-		chunksInitialized_p = false;
-		buffersInitialized_p = false;
-		stopIteration_p = false;
-		processedRows = 0;
-	}
-
-	return true;
+  return true;
 }
 
 
@@ -549,9 +544,9 @@ FlagMSHandler::generateIterator()
 // therefore this step will in practice do nothing , because the spw and channel lists are empty too.
 // -----------------------------------------------------------------------
 void
-FlagMSHandler::applyChannelSelection(vi::VisibilityIterator2 *visIter)
+FlagMSHandler::applyChannelSelection(vi::VisIterImpl2LayerFactory *viFactory)
 {
-	vi::FrequencySelectionUsingChannels channelSelector;
+    vi::FrequencySelectionUsingChannels channelSelector;
 
 	// Apply channel selection (in row selection cannot be done with MSSelection)
 	// NOTE: Each row of the Matrix has the following elements: SpwID StartCh StopCh Step
@@ -570,7 +565,9 @@ FlagMSHandler::applyChannelSelection(vi::VisibilityIterator2 *visIter)
 		channelSelector.add (spw, channelStart, channelWidth,channelStep);
 	}
 
-	visIter->setFrequencySelection(channelSelector);
+    auto freqSel = std::make_shared<vi::FrequencySelections>();
+    freqSel->add(channelSelector);
+	viFactory->setFrequencySelections(freqSel);
 
 	return;
 }
@@ -949,6 +946,21 @@ FlagMSHandler::processorTable()
 
 	return true;
 
+}
+
+/*
+ *  Check if  a VIRTUAL MODEL column exists
+ */
+bool
+FlagMSHandler::checkIfSourceModelColumnExists()
+{
+	Vector<Int> fieldids;
+
+	if (casa::refim::VisModelData::hasAnyModel(*selectedMeasurementSet_p, fieldids)){
+		return true;
+	}
+
+	return false;
 }
 
 } //# NAMESPACE CASA - END

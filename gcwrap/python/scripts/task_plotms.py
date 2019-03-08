@@ -7,8 +7,8 @@ def plotms(vis=None,
            gridrows=None, gridcols=None,
            rowindex=None,colindex=None,
            plotindex=None,
-           xaxis=None, xdatacolumn=None, 
-           yaxis=None, ydatacolumn=None, yaxislocation=None,
+           xaxis=None, xdatacolumn=None, xframe=None, xinterp=None,
+           yaxis=None, ydatacolumn=None, yframe=None, yinterp=None, yaxislocation=None,
            selectdata=None, field=None, spw=None,
            timerange=None, uvrange=None, antenna=None, scan=None,
            correlation=None, array=None, observation=None, 
@@ -76,6 +76,12 @@ def plotms(vis=None,
         &gt;&gt;&gt; xaxis, yaxis expandable parameters
         xdatacolumn, 
         ydatacolumn -- which data column to use for data axes
+                       default: '' (uses PlotMS default/current set).
+        xframe,
+        yframe      -- which coordinates frame to use for ant-ra,ant-dec axes
+                       default: '' (uses PlotMS default/current set).
+        xinterp,
+        yinterp     -- which interpolation method to use for ant-ra,ant-dec axes
                        default: '' (uses PlotMS default/current set).
         yaxislocation -- whether the data should be plotted using the left or right y-axis
                        default: '' (uses PlotMS default).
@@ -221,68 +227,72 @@ def plotms(vis=None,
     # format is:  synonym['new_term'] = 'existing_term'
     # existing_term in PlotMSConstants.h
     # CAS-8532: match capitalization in axis names in GUI
-    synonyms = {}
-    synonyms['Scan'] = 'scan'
-    synonyms['Field'] = 'field'
-    synonyms['Time'] = 'time'
-    synonyms['timeinterval'] = synonyms['timeint'] = synonyms['time_interval'] = synonyms['Interval'] = 'interval'
-    synonyms['Spw'] = 'spw'
-    synonyms['chan'] = synonyms['Channel'] = 'channel'
-    synonyms['freq'] = synonyms['Frequency'] = 'frequency'
-    synonyms['vel'] = synonyms['Velocity'] = 'velocity'
-    synonyms['correlation'] = synonyms['Corr'] = 'corr'
-    synonyms['ant1'] = synonyms['Antenna1'] = 'antenna1'
-    synonyms['ant2'] = synonyms['Antenna2'] = 'antenna2'
-    synonyms['Baseline'] = 'baseline'
-    synonyms['Row'] = 'row'
-    synonyms['Observation'] = 'observation'
-    synonyms['Intent'] = 'intent'
-    synonyms['Feed1'] = 'feed1'
-    synonyms['Feed2'] = 'feed2'
-    synonyms['amplitude'] = synonyms['Amp'] = 'amp'
-    synonyms['Phase'] = 'phase'
-    synonyms['Real'] = 'real'
-    synonyms['imaginary'] = synonyms['Imag'] = 'imag'
-    synonyms['weight'] = synonyms['Wt'] = synonyms['Weight'] = 'wt'
-    synonyms['wtamp'] = synonyms['Wt*Amp'] = 'wtamp'
-    synonyms['weightspectrum'] = synonyms['WtSp'] = synonyms['WeightSpectrum'] = 'wtsp'
-    synonyms['Sigma'] = 'sigma'
-    synonyms['sigmaspectrum'] = synonyms['SigmaSpectrum'] = synonyms['SigmaSp'] = 'sigmasp'
-    synonyms['Flag'] = 'flag'
-    synonyms['FlagRow'] = 'flagrow'
-    synonyms['UVdist'] = 'uvdist'
-    synonyms['uvdistl'] = synonyms['uvdist_l']=synonyms['UVwave'] = 'uvwave'
-    synonyms['U'] = 'u'
-    synonyms['V'] = 'v'
-    synonyms['W'] = 'w'
-    synonyms['Uwave'] = 'uwave'
-    synonyms['Vwave'] = 'vwave'
-    synonyms['Wwave'] = 'wwave'
-    synonyms['Azimuth'] = 'azimuth'
-    synonyms['Elevation'] = 'elevation'
-    synonyms['hourang'] = synonyms['HourAngle'] = 'hourangle'
-    synonyms['parang'] = synonyms['parallacticangle'] = synonyms['ParAngle'] = 'parangle'
-    synonyms['ant'] = synonyms['Antenna'] = 'antenna'
-    synonyms['Ant-Azimuth'] = 'ant-azimuth'
-    synonyms['Ant-Elevation'] = 'ant-elevation'
-    synonyms['ant-parallacticangle']=synonyms['ant-parang'] = synonyms['Ant-ParAngle'] = 'ant-parangle'
-    synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amp'
-    synonyms['gphase']=synonyms['gainphase']=synonyms['GainPhase']='Gain Phase'
-    synonyms['greal']=synonyms['gainreal']=synonyms['GainReal']='Gain Real'
-    synonyms['gimag']=synonyms['gainimag']=synonyms['GainImag']='Gain Imag'
-    synonyms['del']=synonyms['delay']=synonyms['Delay']='delay'
-    synonyms['swp']=synonyms['swpower']=synonyms['switchedpower']=synonyms['SwPower']=synonyms['spgain']='swpower'
-    synonyms['tsys']=synonyms['Tsys']=synonyms['TSYS']='tsys'
-    synonyms['opac']=synonyms['opacity']=synonyms['Opac']='opac'
-    synonyms['snr']=synonyms['SNR']='SNR'
-    synonyms['antpos']='Antenna Positions'
-    synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
-    synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
-    # data columns: unspecified residuals default to vector
-    synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
-    synonyms['data-model']='data-model_vector'
-    synonyms['corrected/model']='corrected/model_vector'
-    synonyms['data/model']='data/model_vector'
+    if True:
+        synonyms = {}
+        synonyms['Scan'] = 'scan'
+        synonyms['Field'] = 'field'
+        synonyms['Time'] = 'time'
+        synonyms['timeinterval'] = synonyms['timeint'] = synonyms['time_interval'] = synonyms['Interval'] = 'interval'
+        synonyms['Spw'] = 'spw'
+        synonyms['chan'] = synonyms['Channel'] = 'channel'
+        synonyms['freq'] = synonyms['Frequency'] = 'frequency'
+        synonyms['vel'] = synonyms['Velocity'] = 'velocity'
+        synonyms['correlation'] = synonyms['Corr'] = 'corr'
+        synonyms['ant1'] = synonyms['Antenna1'] = 'antenna1'
+        synonyms['ant2'] = synonyms['Antenna2'] = 'antenna2'
+        synonyms['Baseline'] = 'baseline'
+        synonyms['Row'] = 'row'
+        synonyms['Observation'] = 'observation'
+        synonyms['Intent'] = 'intent'
+        synonyms['Feed1'] = 'feed1'
+        synonyms['Feed2'] = 'feed2'
+        synonyms['amplitude'] = synonyms['Amp'] = 'amp'
+        synonyms['Phase'] = 'phase'
+        synonyms['Real'] = 'real'
+        synonyms['imaginary'] = synonyms['Imag'] = 'imag'
+        synonyms['weight'] = synonyms['Wt'] = synonyms['Weight'] = 'wt'
+        synonyms['wtamp'] = synonyms['Wt*Amp'] = 'wtamp'
+        synonyms['weightspectrum'] = synonyms['WtSp'] = synonyms['WeightSpectrum'] = 'wtsp'
+        synonyms['Sigma'] = 'sigma'
+        synonyms['sigmaspectrum'] = synonyms['SigmaSpectrum'] = synonyms['SigmaSp'] = 'sigmasp'
+        synonyms['Flag'] = 'flag'
+        synonyms['FlagRow'] = 'flagrow'
+        synonyms['UVdist'] = 'uvdist'
+        synonyms['uvdistl'] = synonyms['uvdist_l']=synonyms['UVwave'] = 'uvwave'
+        synonyms['U'] = 'u'
+        synonyms['V'] = 'v'
+        synonyms['W'] = 'w'
+        synonyms['Uwave'] = 'uwave'
+        synonyms['Vwave'] = 'vwave'
+        synonyms['Wwave'] = 'wwave'
+        synonyms['Azimuth'] = 'azimuth'
+        synonyms['Elevation'] = 'elevation'
+        synonyms['hourang'] = synonyms['HourAngle'] = 'hourangle'
+        synonyms['parang'] = synonyms['parallacticangle'] = synonyms['ParAngle'] = 'parangle'
+        synonyms['ant'] = synonyms['Antenna'] = 'antenna'
+        synonyms['Ant-Azimuth'] = 'ant-azimuth'
+        synonyms['Ant-Elevation'] = 'ant-elevation'
+        synonyms['Ant-Ra'] = synonyms['Ant-RA'] = 'ant-ra'
+        synonyms['Ant-Dec'] = synonyms['Ant-DEC'] = 'ant-dec'
+        synonyms['ant-parallacticangle']=synonyms['ant-parang'] = synonyms['Ant-ParAngle'] = 'ant-parangle'
+        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amp'
+        synonyms['gphase']=synonyms['gainphase']=synonyms['GainPhase']='Gain Phase'
+        synonyms['greal']=synonyms['gainreal']=synonyms['GainReal']='Gain Real'
+        synonyms['gimag']=synonyms['gainimag']=synonyms['GainImag']='Gain Imag'
+        synonyms['del']=synonyms['delay']=synonyms['Delay']='delay'
+        synonyms['swp']=synonyms['swpower']=synonyms['switchedpower']=synonyms['SwPower']=synonyms['spgain']='swpower'
+        synonyms['tsys']=synonyms['Tsys']=synonyms['TSYS']='tsys'
+        synonyms['opac']=synonyms['opacity']=synonyms['Opac']='opac'
+        synonyms['snr']=synonyms['SNR']='SNR'
+        synonyms['antpos']='Antenna Positions'
+        synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
+        synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
+        # data columns: unspecified residuals default to vector
+        synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
+        synonyms['data-model']='data-model_vector'
+        synonyms['corrected/model']='corrected/model_vector'
+        synonyms['data/model']='data/model_vector'
+        synonyms['azelgeo']='AzEl'
         
     try:
         # Do preliminary checks on argument values
@@ -310,6 +320,22 @@ def plotms(vis=None,
             for index,col in enumerate(ydatacolumn):
                 if synonyms.has_key(col):
                     ydatacolumn[index] = synonyms[col]
+
+        if isinstance(xframe, str):
+            if synonyms.has_key(xframe):
+                xframe = synonyms[xframe]
+        elif isinstance(xframe, list):
+            for index,frame in enumerate(xframe):
+                if synonyms.has_key(frame):
+                    xframe[index] = synonyms[frame]
+
+        if isinstance(yframe, str):
+            if synonyms.has_key(yframe):
+                yframe = synonyms[yframe]
+        elif isinstance(yframe, list):
+            for index,frame in enumerate(yframe):
+                if synonyms.has_key(frame):
+                    yframe[index] = synonyms[frame]
 
         # check vis exists
         vis = vis.strip()
@@ -393,14 +419,86 @@ def plotms(vis=None,
             # set it to the empty string
             yaxis = yaxis[0]
         if not yaxis or isinstance(yaxis, str):
-            if not yaxislocation or not isinstance(yaxislocation, str):
-                yaxislocation='left'
-            if not ydatacolumn or not isinstance(ydatacolumn, str):
-                ydatacolumn=''
             if not yaxis:
                 yaxis = ''
-            pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn, 
-                yaxislocation, False, plotindex, 0)
+            if yaxis == 'ant-ra' or yaxis == 'ant-dec':
+                # Handle empty lists as empty strings
+                if isinstance(yinterp, list) and not yinterp:
+                    yinterp = ''
+                if isinstance(yframe, list) and not yframe:
+                    yframe = ''
+                if isinstance(yinterp, str) and isinstance(yframe, str):
+                    # For now, ignore cases where xinterp or xframe is a list
+                    if isinstance(xframe, list):
+                        msg_fmt = "Assuming xframe={assumed} instead of xframe={org}"
+                        assumed_xframe = '' if not xframe else xframe[0]
+                        msg = msg_fmt.format(assumed=assumed_xframe, org=xframe)
+                        casalog.post(msg,'WARN','set_axes')
+                        xframe = assumed_xframe
+                    if isinstance(xinterp, list):
+                        msg_fmt = "Assuming xinterp={assumed} instead of xinterp={org}"
+                        assumed_xinterp = '' if not xinterp else xinterp[0]
+                        msg = msg_fmt.format(assumed=assumed_xinterp, org=xinterp)
+                        casalog.post(msg,'WARN','set_axes')
+                        xinterp = assumed_xinterp
+                    if isinstance(yaxislocation, list):
+                        yaxislocation= 'left' if not yaxislocation else yaxislocation[0]
+                    if not isinstance(yaxislocation, str):
+                        yaxislocation= 'left'
+                    xdatacolumn = ydatacolumn = ''
+                    pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                    xframe, yframe, xinterp, yinterp,
+                    yaxislocation,
+                    False, plotindex, 0)
+                else:
+                    # Handle yinterp, yframe and yaxislocation as parallel lists, which
+                    # 1. must have the same length
+                    # 2. must NOT contain empty strings, otherwise C++ vectors won't have the same length
+                    if isinstance(yinterp, list):
+                        if isinstance(yframe, str):
+                            # Allow usage: plotms(yinterp=['nearest','spline'],yframe='')
+                            if not yframe:
+                                yframe = 'icrs'
+                            yframe = [yframe for i in yinterp]
+                        else:
+                            if len(yframe) != len(yinterp):
+                                msg_fmt = "Length mismatch: yframe={0} and yinterp={1}"
+                                msg = msg_fmt.format(yframe,yinterp)
+                                casalog.post(msg,'ERROR',set_axes)
+                                return False
+                        if isinstance(yaxislocation, str):
+                            # Allow usage: plotms(yinterp=['nearest','spline'],yaxislocation='')
+                            if not yaxislocation:
+                                yaxislocation = 'left'
+                            yaxislocation = [yaxislocation for i in yinterp]
+                        else:
+                            if len(yaxislocation) != len(yinterp):
+                                msg_fmt = "Length mismatch: yaxislocation={0} and yinterp={1}"
+                                msg = msg_fmt.format(yaxislocation,yinterp)
+                                casalog.post(msg,'ERROR',set_axes)
+                                return False
+                        # For now: enforce xframe=yframe, xinterp=yinterp in this case
+                        casalog.post('Enforcing xframe=yframe, xinterp=yinterp','WARN','set_axes')
+                        xdatacolumn = ydatacolumn = 'data'
+                        if not xaxis:
+                            xaxis = 'time'
+                        for dataindex, (frame,interp,yaxisloc) in enumerate(zip(yframe,yinterp,yaxislocation)):
+                            pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                                           frame, frame, interp, interp,
+                                           yaxisloc,
+                                           False, plotindex, dataindex)
+                    else:
+                        casalog.post('Not yet implemented: yframe=list','SEVERE','set_axes')
+                        return False
+            else:
+                if not yaxislocation or not isinstance(yaxislocation, str):
+                    yaxislocation='left'
+                if not ydatacolumn or not isinstance(ydatacolumn, str):
+                    ydatacolumn=''
+                pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                    xframe, yframe, xinterp, yinterp,
+                    yaxislocation,
+                    False, plotindex, 0)
         else:
             # make ydatacolumn and yaxislocation same length as yaxis
             # and check that no duplicate y axes
@@ -436,8 +534,15 @@ def plotms(vis=None,
                     yAxisLocation = 'left'
                     if i < yLocationCount:
                         yAxisLocation = yaxislocation[i]
+                    if xaxis in ['ant-ra','ant-dec'] or yaxis[i]  in ['ant-ra','ant-dec']:
+                        raise Exception, 'Currently not supported: multiple y-axes involving ant-ra or ant-dec'
+                    # Always make C++ ra/dec parameters vectors the same length as yaxis
+                    xframe = yframe = 'icrs'
+                    xinterp = yinterp = 'nearest'
                     pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
-                        yAxisLocation, False, plotindex, i)
+                        xframe, yframe, xinterp, yinterp,
+                        yAxisLocation,
+                        False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
 

@@ -426,10 +426,23 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         
     <constraints>
           <when param="createmms">
-            <equals type="bool" value="False"/>
+            <equals type="bool" value="False">
+                  <default param="separationaxis"><value type="string">auto</value></default>
+                  <default param="numsubms"><value type="string">auto</value></default>
+
+                  <default param="disableparallel"><value type="bool">False</value></default>
+                  <default param="ddistart"><value type="int">-1</value></default>
+                  <default param="taql"><value type="string"></value></default>
+                  <default param="reindex"><value type="bool">True</value></default>
+            </equals>
             <equals type="bool" value="True">
                   <default param="separationaxis"><value type="string">auto</value></default>
                   <default param="numsubms"><value type="string">auto</value></default>
+
+                  <default param="disableparallel"><value type="bool">False</value></default>
+                  <default param="ddistart"><value type="int">-1</value></default>
+                  <default param="taql"><value type="string"></value></default>
+                  <default param="reindex"><value type="bool">True</value></default>
             </equals>
           </when>
 
@@ -892,8 +905,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         maxuvwdistance -- Provide a maximum separation of start-to-end baselines 
                           that can be included in an average. (int)
             default: 0.0 (given in meters)
-            
-            
+
 --- On-the-fly calibration parameters ---            
     docallib -- Enable on-the-fly (OTF) calibration as in task applycal
         default: False

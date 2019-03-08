@@ -48,13 +48,13 @@ public:
 	virtual bool isActionEnabled( PlotMSAction::Type type ) const = 0;
 
 	//Return the current client plot.
-	virtual vector<PlotMSPlot*> getCurrentPlots() const = 0;
+	virtual std::vector<PlotMSPlot*> getCurrentPlots() const = 0;
 
 	//Retrieve the plot load axes the user has specified.
-	virtual vector<vector<PMS::Axis> > getSelectedLoadAxes() const = 0;
+	virtual std::vector<std::vector<PMS::Axis> > getSelectedLoadAxes() const = 0;
 
 	//Retrieve the release axes the user has specified.
-	virtual vector<vector<PMS::Axis> > getSelectedReleaseAxes() const = 0;
+	virtual std::vector<std::vector<PMS::Axis> > getSelectedReleaseAxes() const = 0;
 
 
 
@@ -71,7 +71,7 @@ public:
 	virtual PlotAxis getAxisLocationY() const;
 
 	//Return a list of files loaded in the client
-	virtual vector<casacore::String> getFiles() const = 0;
+	virtual std::vector<casacore::String> getFiles() const = 0;
 
 
 	//Flagging
@@ -145,7 +145,7 @@ public:
 
 
 
-	virtual vector<PlotCanvasPtr> currentCanvases();
+	virtual std::vector<PlotCanvasPtr> currentCanvases();
 
 	//Keeps resizes from flooding event loop (dragging).
 	virtual void holdDrawing();

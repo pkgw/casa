@@ -28,6 +28,9 @@
   <property name="toolTip">
    <string/>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
     <number>1</number>
@@ -44,7 +47,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -52,8 +55,11 @@
      <property name="maximumSize">
       <size>
        <width>325</width>
-       <height>16777215</height>
+       <height>800</height>
       </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
      <property name="tabPosition">
       <enum>QTabWidget::West</enum>
@@ -62,6 +68,9 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tab">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <attribute name="title">
        <string>Page</string>
       </attribute>

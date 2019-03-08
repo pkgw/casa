@@ -174,19 +174,21 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_predictcomp.py
   test_refimager.py
   test_refimager_parallel.py
+  test_rerefant.py
   test_report.py
   test_rg_selectedchannels.py
   test_rg_frombcs.py
   test_rg_fromtextfile.py
-  test_sdfixscan.py
-  test_sdgaincal.py
-  test_sdimaging.py
   test_sdbaseline.py
   test_sdcal.py
   test_sdfit.py
+  test_sdfixscan.py
+  test_sdgaincal.py
+  test_sdimaging.py
   test_tsdimaging.py
-  test_sdsmooth.py
+  test_sdpolaverage.py
   test_sdsidebandsplit.py
+  test_sdsmooth.py
 
   ### CASAGUIDES ###
   test_FirstLook_Imaging.py
@@ -198,7 +200,20 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_VLA_CorrectingBandpass.py
   test_VLA_Flagging.py
   test_VLA_Imaging.py
+  test_VLA_3C391.py
+  test_VLA_IRC10216.py
+  test_VLA_MG0414.py
 
+  ###
+
+  test_req_task_listobs.py
+  test_req_task_listhistory.py
+  test_req_task_importuvfits.py
+  test_req_task_calstat.py
+  test_req_task_rmtables.py
+  test_req_task_clearcal.py
+  test_req_task_imhead.py
+  test_req_task_visstat.py
 
   ###
   test_setjy.py
@@ -209,7 +224,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_specflux.py
   test_splattotable.py
   test_split.py
-  test_split2.py
   test_spxfit.py
   test_oldstatwt.py
   test_statwt.py

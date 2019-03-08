@@ -23,8 +23,9 @@
  *
  * File DuplicateKey.cpp
  */
-#include "DuplicateKey.h"
+#include <alma/ASDM/DuplicateKey.h>
 
+using namespace std;
 
 namespace asdm {
   const  string DuplicateKey::ITSNAME = "Duplicate key exception: ";

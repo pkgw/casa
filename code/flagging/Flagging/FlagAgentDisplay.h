@@ -30,7 +30,6 @@
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
 
-//#include <ms/MeasurementSets/MSColumns.h>
 
 #include <flagging/Flagging/FlagPlotServerProxy.h>
 
@@ -53,7 +52,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   protected:
     
     // Compute flags for a given (time,freq) map
-    bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flag,casacore::Int antenna1,casacore::Int antenna2,vector<casacore::uInt> &rows);
+    bool computeAntennaPairFlags(const vi::VisBuffer2 &visBuffer, VisMapper &visibilities,FlagMapper &flag,casacore::Int antenna1,casacore::Int antenna2,std::vector<casacore::uInt> &rows);
 
     void preProcessBuffer(const vi::VisBuffer2 &visBuffer);
     
@@ -109,7 +108,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Bool dataDisplay_p, reportDisplay_p; // show per chunk plots and/or end-of-casacore::MS plots
     casacore::String reportFormat_p;
     casacore::Bool stopAndExit_p;
-    casacore::Bool reportReturn_p;
+    // casacore::Bool reportReturn_p;
     casacore::Bool showBandpass_p;
 
     casacore::Vector<dbus::variant> panels_p, report_panels_p;

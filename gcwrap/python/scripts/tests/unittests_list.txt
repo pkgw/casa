@@ -6,11 +6,11 @@
 # The second column gives the name of the person responsible for each test
 # Do not include the suffix .py
 
-test_agentflagger		scastro@eso.org
+test_agentflagger               scastro@eso.org
 test_applycal                   scastro@eso.org
-test_bandpass			gmoellen@aoc.nrao.edu
-test_calanalysis		gmoellen@aoc.nrao.edu
-test_caltabconvert		gmoellen@aoc.nrao.edu
+test_bandpass                   gmoellen@aoc.nrao.edu
+test_calanalysis                gmoellen@aoc.nrao.edu
+test_caltabconvert              gmoellen@aoc.nrao.edu
 test_clean                      kgolap@aoc.nrao.edu
 test_cleanhelper                ttsutsum@nrao.edu
 test_clearstat                  scastro@eso.org
@@ -30,7 +30,7 @@ test_flagdata                   scastro@eso.org
 test_flaghelper                 scastro@eso.org
 test_flagmanager                scastro@eso.org
 test_fluxscale                  ttsutsum@nrao.edu
-test_gaincal			gmoellen@aoc.nrao.edu
+test_gaincal                    gmoellen@aoc.nrao.edu
 test_gencal                     ttsutsum@nrao.edu
 test_getchunk                   dmehring@nrao.edu
 test_hanningsmooth              scastro@eso.org
@@ -97,7 +97,7 @@ test_listvis                    scastro@eso.org
 test_listpartition              scastro@eso.org
 test_makemask                   ttsutsum@nrao.edu
 test_me_shift                   dmehring@nrao.edu
-test_measures			jjacobs@nrao.edu
+test_measures                   jjacobs@nrao.edu
 test_msmd                       dmehring@nrao.edu
 test_mstransform                jagonzal@eso.org
 test_mstransform_mms            scastro@eso.org
@@ -130,12 +130,17 @@ test_rg_frombcs                 dmehring@nrao.edu
 test_rg_fromtextfile            dmehring@nrao.edu
 test_rg_selectedchannels        dmehring@nrao.edu
 test_slsearch                   dmehring@nrao.edu
+test_sdbaseline                 wataru.kawasaki@nao.ac.jp
+test_sdcal                      takeshi.nakazato@nao.ac.jp
+test_sdfit                      wataru.kawasaki@nao.ac.jp
 test_sdfixscan                  takeshi.nakazato@nao.ac.jp
 test_sdgaincal                  takeshi.nakazato@nao.ac.jp
 test_sdimaging                  takeshi.nakazato@nao.ac.jp
 test_tsdimaging                 takeshi.nakazato@nao.ac.jp
+test_sdpolaverage               wataru.kawasaki@nao.ac.jp
 test_sdsidebandsplit            kana.sugi@nao.ac.jp
-test_setjy			ttsutsum@nrao.edu
+test_sdsmooth                   takeshi.nakazato@nao.ac.jp
+test_setjy                      ttsutsum@nrao.edu
 test_simobserve                 kana.sugi@ezweb.ne.jp
 test_smoothcal                  gmoellen@aoc.nrao.edu
 test_specfit                    dmehring@nrao.edu
@@ -143,15 +148,35 @@ test_splattotable               dmehring@nrao.edu
 test_split                      scastro@eso.org
 test_spxfit                     dmehring@nrao.edu
 test_statwt                     ttsutsum@nrao.edu
-test_tsdbaseline                wataru.kawasaki@nao.ac.jp
-test_tsdcal                     takeshi.nakazato@nao.ac.jp
-test_tsdfit                     wataru.kawasaki@nao.ac.jp
-test_tsdsmooth                  takeshi.nakazato@nao.ac.jp
-test_uvcontsub			ttsutsum@nrao.edu
-test_uvcontsub3			ttsutsum@nrao.edu
+test_uvcontsub                  ttsutsum@nrao.edu
+test_uvcontsub3                 ttsutsum@nrao.edu
 test_testconcat                 dpetry@eso.org
-test_virtualconcat		dpetry@eso.org
+test_virtualconcat              dpetry@eso.org
 test_vishead                    jkern@nrao.edu
 test_visstat                    jkern@nrao.edu
 test_vpmanager                  dpetry@eso.org
-test_wvrgcal			dpetry@eso.org
+test_wvrgcal                    dpetry@eso.org
+test_req_task_listobs           nschweig@nrao.edu
+test_req_task_listobs        nschweig@nrao.edu
+test_req_task_listhistory    nschweig@nrao.edu
+test_req_task_importuvfits   nschweig@nrao.edu
+test_req_task_calstat        nschweig@nrao.edu
+test_req_task_rmtables       nschweig@nrao.edu
+test_req_task_clearcal       nschweig@nrao.edu
+test_req_task_imhead         nschweig@nrao.edu
+test_req_task_visstat        nschweig@nrao.edu
+
+# Casaguide List
+#test_FirstLook_Imaging               awells@nrao.edu
+#test_FirstLook_LineImageAnalysis     awells@nrao.edu
+#test_FirstLook_LineImaging           awells@nrao.edu
+#test_FirstLook_SelfCalibration       awells@nrao.edu
+#test_ATCA_NGC612_advanced            awells@nrao.edu
+#test_ATCA_NGC612                     awells@nrao.edu
+#test_VLA_CorrectingBandpass          awells@nrao.edu
+#test_VLA_Flagging                    awells@nrao.edu
+#test_VLA_Imaging                     awells@nrao.edu
+#test_VLA_3C391                       awells@nrao.edu
+#test_VLA_IRC10216                    awells@nrao.edu
+#test_VLA_MG0414                      awells@nrao.edu
+

@@ -6,6 +6,7 @@
 #include <casa/BasicSL/String.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <msvis/MSVis/UtilJ.h>
+#include <msvis/MSVis/TransformingVi2.h>
 #include <tables/Tables/ArrayColumn.h>
 #include <tables/Tables/ScalarColumn.h>
 #include <tuple>
@@ -13,6 +14,7 @@
 
 #include <map>
 #include <set>
+#include <list>
 #include <memory>
 #include <stdlib.h>
 
@@ -194,8 +196,61 @@ public:
 
 private:
 
-	std::unique_ptr<MsFactory> msf_p;
+    std::unique_ptr<MsFactory> msf_p;
     casacore::Int nRowsToProcess_p;
+};
+
+// This test creates a synthetic MS that can be used to check that
+// the subtables accessed via the VisibilityIterator2 are compatible
+// with the simulated values.
+class SubtablePropagation : public TestWidget {
+
+public:
+
+    SubtablePropagation (): TestWidget ("SubtablePropagation") {}
+
+    virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
+
+    virtual casacore::String name () const { return "SubtablePropagation";}
+
+    void checkSubtables();
+private:
+
+    std::unique_ptr<MsFactory> msf_p;
+    unsigned int nAntennas_p;
+    std::list<std::tuple<std::string, int, double, double, std::string>> spwDef_p;
+};
+
+// This test creates a synthetic MS with an extra SPW in the SPW subtable
+// that is not referenced by the Data Description subtable or the main table.
+// The purpose is to check that the getChannels() function in ViImplementation
+// returns the channels for that special SPW without launching an exception.
+// See CAS-11734 for details.
+class PhantomSPWCheck : public TestWidget {
+
+public:
+
+    PhantomSPWCheck (): TestWidget ("PhantomSPWCheck") {}
+
+    virtual std::tuple <casacore::MeasurementSet *, casacore::Int, casacore::Bool> createMs ();
+
+    virtual casacore::String name () const { return "PhantomSPWCheck";}
+
+    void checkGetChannels();
+private:
+
+    // Simple TVI that calls getChannels of the underlying VI,
+    // which for this test is the disk layer VI
+    class IntermediateTVI : public TransformingVi2
+    {
+    public:
+        IntermediateTVI(ViImplementation2 *inputVii);
+        std::vector<int> spw1Channels;
+    };
+
+    std::unique_ptr<MsFactory> msf_p;
+    unsigned int nAntennas_p;
+    std::list<std::tuple<std::string, int, double, double, std::string>> spwDef_p;
 };
 
 class BasicMutation : public BasicChannelSelection
@@ -314,19 +369,6 @@ private:
     casacore::Int lineNumber_p;
     casacore::String message_p;
     mutable casacore::String what_p;
-
-};
-
-class CopyMs {
-
-public:
-
-    void doit (const casacore::String &);
-
-protected:
-
-    void copySubtables (casacore::MeasurementSet * newMs, const casacore::MeasurementSet * oldMs);
-    void setupNewPointing(casacore::MeasurementSet * newMs);
 
 };
 

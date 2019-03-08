@@ -5,8 +5,9 @@ import sys
 import shutil
 from setjy_helper import * 
 from taskinit import *
+from mstools import write_history
+from parallel.parallel_data_helper import ParallelDataHelper
 from parallel.parallel_task_helper import ParallelTaskHelper
-import pdb
 
 # Helper class for Multi-MS processing (by SC)
 class SetjyHelper():
@@ -66,7 +67,7 @@ def setjy(vis=None, field=None, spw=None,
 
 
     # Take care of the trivial parallelization
-    if ( not listmodels and ParallelTaskHelper.isParallelMS(vis) and usescratch):
+    if ( not listmodels and ParallelDataHelper.isMMSAndNotServer(vis) and usescratch):
         # jagonzal: We actually operate in parallel when usescratch=True because only
         # in this case there is a good trade-off between the parallelization overhead
         # and speed up due to the load involved with MODEL_DATA column creation
@@ -252,7 +253,6 @@ def setjy_core(vis=None, field=None, spw=None,
             try:
                 param_names = setjy.func_code.co_varnames[:setjy.func_code.co_argcount]
                 param_vals = [eval(p) for p in param_names]   
-                #retval &= write_history(myms, vis, 'setjy', param_names,
                 retval = write_history(myms, vis, 'setjy', param_names,
                                     param_vals, casalog)
             except Exception, instance:

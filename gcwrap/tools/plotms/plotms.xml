@@ -1217,8 +1217,28 @@ called.
       <value />
     </param>
     
+    <param type="string" name="xFrame">
+      <description>coordinates frame to use for the x axis, if applicable (blank to keep current)</description>
+      <value />
+    </param>
+    
+    <param type="string" name="yFrame">
+      <description>coordinates frame to use for the y axis, if applicable (blank to keep current)</description>
+      <value />
+    </param>
+    
+    <param type="string" name="xInterp">
+      <description>interpolation method to use for the x axis, if applicable (blank to keep current)</description>
+      <value />
+    </param>
+    
+    <param type="string" name="yInterp">
+      <description>interpolation method to use for the y axis, if applicable (blank to keep current)</description>
+      <value />
+    </param>
+    
      <param type="string" name="yAxisLocation">
-      <description>The whether to plot the y-data against a left or right axis (blank for default)</description>
+      <description>whether to plot the y-data against a left or right axis (blank for default)</description>
       <value />
     </param>
     
@@ -1236,7 +1256,6 @@ called.
       <description>When overplotting data, the index of the data being overplotted.</description>
       <value>0</value>
     </param>
-    
     
   </input>
   

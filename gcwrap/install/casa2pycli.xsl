@@ -24,12 +24,12 @@
 #
 import sys
 import os
+import datetime
 #from casac import *
 import casac
 import string
 import time
 import inspect
-import gc
 import numpy
 from casa_stack_manip import stack_frame_find
 from odict import odict
@@ -211,23 +211,34 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
           casac.casac.utils().verify(mytmp, trec[&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;], True)
           scriptstr=['']
           saveinputs = self.__globals__['saveinputs']
+
+          # Save .last file for this task execution. MPI servers don't write it (CASR-329).
+          from mpi4casa.MPIEnvironment import MPIEnvironment
+          do_full_logging = MPIEnvironment.is_mpi_disabled_or_client()
           if type(self.__call__.func_defaults) is NoneType:
               saveinputs=''
           else:
-              saveinputs(</xsl:text>&apos;<xsl:value-of select="$taskname"/>&apos;, &apos;<xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">.last&apos;, myparams, self.__globals__,scriptstr=scriptstr)</xsl:text>
+              saveinputs(</xsl:text>&apos;<xsl:value-of select="$taskname"/>&apos;, &apos;<xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">.last&apos;, myparams, self.__globals__,scriptstr=scriptstr, do_save_inputs=do_full_logging)</xsl:text>
+
           tname = '<xsl:value-of select="$taskname"/>'
           spaces = ' '*(18-len(tname))
           casalog.post('\n##########################################'+
                        '\n##### Begin Task: ' + tname + spaces + ' #####')
-          if (casa['state']['telemetry-enabled']):
-              casalog.poststat('Begin Task: ' + tname)
+          # Don't do telemetry from MPI servers (CASR-329)
+          if do_full_logging and casa['state']['telemetry-enabled']:
+              #casalog.poststat('Begin Task: ' + tname)
+              task_starttime = str(datetime.datetime.now())
           if type(self.__call__.func_defaults) is NoneType:
               casalog.post(scriptstr[0]+'\n', 'INFO')
-          else :
+          else:
               casalog.post(scriptstr[1][1:]+'\n', 'INFO')
+
+          # Effective call to the task as defined in gcwrap/python/scripts/task_*
           result = <xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
-          if (casa['state']['telemetry-enabled']):
-              casalog.poststat('End Task: ' + tname)
+
+          if do_full_logging and casa['state']['telemetry-enabled']:
+              task_endtime = str(datetime.datetime.now())
+              casalog.poststat( 'Task ' + tname + ' complete. Start time: ' + task_starttime + ' End time: ' + task_endtime )
           casalog.post('##### End Task: ' + tname + '  ' + spaces + ' #####'+
                        '\n##########################################')
 </xsl:for-each>
@@ -246,7 +257,6 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
    <xsl:call-template name="checkoutput"/>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes">
-        gc.collect()
         return result
 #
 #

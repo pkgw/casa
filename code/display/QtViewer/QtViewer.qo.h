@@ -112,14 +112,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	protected:
 
+#if ! defined(WITHOUT_DBUS)
 		QtDBusViewerAdaptor* dbus_;
+#endif
 		std::list<std::string> args_;
 
 	private:
 		static QString name_;
 		QString dbus_name_;
 		bool is_server_;
-		typedef vector<QtDisplayPanelGui*> panel_list_t;
+		typedef std::vector<QtDisplayPanelGui*> panel_list_t;
 		panel_list_t panels;
 
 	};

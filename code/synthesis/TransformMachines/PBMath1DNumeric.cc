@@ -154,5 +154,16 @@ PBMath1DNumeric::summary(Int nValues)
    }
 };
 
+  Int PBMath1DNumeric::support (const CoordinateSystem& cs){
+
+    Int value=PBMath1D::support(cs);
+    //As the maxRadius is determines where the numeric value stop...the support should be a bit larger
+    value=Int(Double(value)*0.55)*2;
+    return value;
+
+
+  };
+  
+
 } //# NAMESPACE CASA - END
 

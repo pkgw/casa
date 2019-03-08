@@ -42,10 +42,14 @@ ViImplementation2 * ViiLayerFactory::createViImpl2 (Vector<ViiLayerFactory*> vii
 
   Int nfactory=viifactories.nelements();
 
-  ViImplementation2* vii(NULL);
+  ViImplementation2* vii(nullptr);
   if (nfactory>0)
+  {
+    if(viifactories(nfactory-1) == nullptr)
+        throw(AipsError("ViiLayerFactory in viifactories is null"));
     // Get ViImpl from below if any more to get
     vii= viifactories[nfactory-1]->createViImpl2(viifactories(Slice(0,nfactory-1,1)));
+  }
   return createInstance(vii);
 
 }

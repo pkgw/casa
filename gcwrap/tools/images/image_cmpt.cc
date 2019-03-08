@@ -645,15 +645,17 @@ image* image::collapse(
     try {
         _notSupported(__func__);
         IPosition myAxes;
-        if (axes.type() == variant::INT) {
+        auto axesType = axes.type();
+        ThrowIf(axesType == variant::BOOLVEC, "axes must be specified");
+        if (axesType == variant::INT) {
             myAxes = IPosition(1, axes.toInt());
         }
-        else if (axes.type() == variant::INTVEC) {
+        else if (axesType == variant::INTVEC) {
             myAxes = IPosition(axes.getIntVec());
         }
         else if (
-            axes.type() == variant::STRINGVEC
-            || axes.type() == variant::STRING
+            axesType == variant::STRINGVEC
+            || axesType == variant::STRING
         ) {
             Vector<String> axVec = (axes.type() == variant::STRING)
                 ? Vector<String> (1, axes.getString())
@@ -3146,36 +3148,37 @@ std::vector<std::string> image::history(bool list) {
 
 image* image::imagecalc(
     const string& outfile, const string& pixels,
-    bool overwrite, const string& imagemd
+    bool overwrite, const string& imagemd, const string& prec 
 ) {
     try {
         ThrowIf(
             pixels.empty(),
             "You must provide an expression using the pixels parameter"
         );
-        DataType type = ImageExprParse::command(pixels).dataType();
-        if (type == TpFloat || type == TpInt) {
-            return new image(
-                _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpComplex) {
-            return new image(
-                _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpDouble) {
-            return new image(
-                _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
-            );
-        }
-        else if (type == TpDComplex) {
-            return new image(
-                _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
-            );
+        String myPrec = prec;
+        myPrec.downcase();
+        auto asFloat = myPrec.startsWith("f");
+        ThrowIf(
+            ! myPrec.startsWith("d") && ! asFloat,
+            "Unsupported value for type, it must be 'float' or 'double'"
+        );
+        if (isReal(ImageExprParse::command(pixels).dataType())) {
+            return asFloat
+                ? new image(
+                    _imagecalc<Float>(outfile, pixels, overwrite, imagemd)
+                )
+                : new image(
+                    _imagecalc<Double>(outfile, pixels, overwrite, imagemd)
+                );
         }
         else {
-            ThrowCc("Unsupported data type for resulting image");
+            return asFloat
+                ? new image(
+                    _imagecalc<Complex>(outfile, pixels, overwrite, imagemd)
+                )
+                : new image(
+                    _imagecalc<DComplex>(outfile, pixels, overwrite, imagemd)
+                );
         }
     }
     catch (const AipsError& x) {
@@ -3280,7 +3283,7 @@ template<class T> SPIIT image::_concat(
     const variant& infiles, int axis, bool relax, bool tempclose,
     bool overwrite, bool reorder, const vector<String>& imageNames
 ) {
-    SPIIT im = DYNAMIC_POINTER_CAST<ImageInterface<T>>(latt);
+    SPIIT im = std::dynamic_pointer_cast<ImageInterface<T>>(latt);
     ThrowIf(! im, "dynamic cast failed");
     ImageConcatenator<T> concat(im, outfile, overwrite);
     concat.setAxis(axis);
@@ -6854,16 +6857,27 @@ std::shared_ptr<Record> image::_getRegion(
         CoordinateSystem csys;
         if (otherImageName.empty()) {
             ThrowIf(
-                ! _imageF && ! _imageC,
+                ! (_imageF || _imageC || _imageD || _imageDC),
                 "No attached image. Cannot use a string value for region"
             );
             if (_imageF) {
                 shape = _imageF->shape();
                 csys = _imageF->coordinates();
             }
-            else {
+            else if (_imageC) {
                 shape = _imageC->shape();
                 csys = _imageC->coordinates();
+            }
+            else if (_imageD) {
+                shape = _imageD->shape();
+                csys = _imageD->coordinates();
+            }
+            else if (_imageDC) {
+                shape = _imageDC->shape();
+                csys = _imageDC->coordinates();
+            }
+            else {
+                ThrowCc("Logic Error");
             }
         }
         else {

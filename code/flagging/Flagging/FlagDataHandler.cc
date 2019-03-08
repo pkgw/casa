@@ -22,6 +22,11 @@
 
 #include <flagging/Flagging/FlagDataHandler.h>
 
+#include <ms/MSSel/MSSelection.h>
+
+// .casarc (or .casa/rc) interface
+#include <casa/System/AipsrcValue.h>
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -1677,12 +1682,6 @@ void
 FlagDataHandler::setChanAverageIter(Vector<Int> chanbin)
 {
     enableChanAvg_p = true;
-
-    // Store spw selection
-    if (spwSelection_p.size() > 0)
-    {
-    	chanAvgOptions_p.define("spw",spwSelection_p);
-    }
 
     // Store chanbin
     if (chanbin.size() == 1)

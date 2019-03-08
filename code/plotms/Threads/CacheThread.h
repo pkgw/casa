@@ -32,6 +32,8 @@
 #include <plotms/PlotMS/PlotMSTransformations.h>
 #include <plotms/PlotMS/PlotMSCalibration.h>
 
+#include <plotms/Data/PlotMSCacheBase.h>
+
 namespace casa {
 
 class PlotMSCacheBase;
@@ -45,9 +47,9 @@ public:
 	void setPlot( PlotMSPlot* plot );
 	virtual PlotMSPlot* getPlot();
 	void setCacheBase( PlotMSCacheBase* cacheBase );
-	void setAxes( vector<PMS::Axis> axes );
+	void setAxes( std::vector<PMS::Axis> axes );
 	void setAxesData( int size  );
-	void setAxesData( vector<PMS::DataColumn> cachedData );
+	void setAxesData( std::vector<PMS::DataColumn> cachedData );
 	void setName( casacore::String msName );
 	void setSelection( PlotMSSelection selection );
 	void setAveraging( PlotMSAveraging averaging );
@@ -68,8 +70,8 @@ private:
 	bool itsLoad;
 	bool itsSetupPlot;
 	PlotMSCacheBase* itsCache;
-	vector<PMS::Axis> workAxes;
-	vector<PMS::DataColumn> itsAxesData;
+    std::vector<PMS::Axis> workAxes;
+    std::vector<PMS::DataColumn> itsAxesData;
 	casacore::String itsMSName;
 	PlotMSSelection itsSelection;
 	PlotMSAveraging itsAveraging;

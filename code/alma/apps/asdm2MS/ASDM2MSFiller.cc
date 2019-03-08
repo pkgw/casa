@@ -2,11 +2,16 @@
 // #include <omp.h>
 // #endif 
 
-#include	"stdio.h"			/* <stdio.h> */
-#include	"stddef.h"			/* <stddef.h> */
+#include	<stdio.h>
+#include	<stddef.h>
 #include        <math.h>
-#include	"time.h"			/* <time.h> */
-/*#include	"gipsyc.h" */			/* GIPSY definitions */
+#include	<time.h>
+
+#include <alma/apps/asdm2MS/ASDM2MSFiller.h>
+#include <msvis/MSVis/SubMS.h>
+
+using namespace casacore;
+using namespace casa;
 
 #if	defined(__sysv__)
 
@@ -29,8 +34,7 @@ extern	void	ftime( struct timeb * );	/* this is the funtion */
 
 void	timer( double *cpu_time ,		/* cpu timer */
 	       double *real_time ,		/* real timer */
-	       int  *mode )			/* the mode */
-{
+	       int  *mode ) {			/* the mode */
   clock_t	tc;				/* clock time */
   double	ct;				/* cpu time in seconds */
   double	rt = 0.0;			/* real time in seconds */
@@ -60,12 +64,6 @@ void	timer( double *cpu_time ,		/* cpu timer */
   }
 }
 
-#include "ASDM2MSFiller.h"
-#include "msvis/MSVis/SubMS.h"
-
-using namespace casacore;
-using namespace casa;
-
 // Methods of ddMgr class.
 ddMgr::ddMgr() {
   int i;
@@ -80,50 +78,41 @@ ddMgr::ddMgr() {
 int ddMgr::setNumCorr(int i, int numCorr) {
   if ((i < 0) || (i > 100) || (numCorr <= 0)) {
     return -1;
-  }
-  else {
+  } else {
     this->numCorr[i] = numCorr;
     return numCorr;
   }
 }
 
-
 int ddMgr::setNumChan(int i, int numChan) {
   if ((i < 0) || (i >= 100) || (numChan <= 0)) {
     return -1;
-  }
-  else {
+  } else {
     this->numChan[i] = numChan;
     return numChan;
   }
 }
 
-
 int ddMgr::getNumCorr(int i) {
   if ((i<0) || (i >= 100)) {
     return -1;
-  }
-  else 
+  } else 
     return numCorr[this->dd[i].polId];
 }
-
 
 int ddMgr::getNumChan(int i) {
   if ((i<0) || (i >= 100)) {
     return -1;
-  }
-  else 
+  } else 
     return numChan[this->dd[i].swId];
 }
-
 
 int ddMgr::setDD(int i, int polId, int swId) {
   if ((i<0) || (i >= 100) ||
       (polId < 0) || (polId >= 100) ||
       (swId  < 0) || (swId  >= 100)) {
     return -1;
-  }
-  else {
+  } else {
     dd[i].polId = polId;
     dd[i].swId  = swId;
     return i;
@@ -133,22 +122,18 @@ int ddMgr::setDD(int i, int polId, int swId) {
 int ddMgr::getPolId(int i) {
   if ((i<0) || (i >= 100)) {
     return -1;
-  }
-  else {
+  } else {
     return dd[i].polId;
   }
 }
 
-
 int ddMgr::getSwId(int i) {
   if ((i<0) || (i >= 100)) {
     return -1;
-  }
-  else {
+  } else {
     return dd[i].swId;
   }
 }
-
 
 map<string, MDirection::Types> ASDM2MSFiller::string2MDirectionInit() {
   map<string, MDirection::Types> string2MDirection;
@@ -194,7 +179,6 @@ map<string, MDirection::Types> ASDM2MSFiller::string2MDirectionInit() {
 map<string, MDirection::Types> ASDM2MSFiller::string2MDirection = ASDM2MSFiller::string2MDirectionInit();
 
 
-
 // Methods of ASDM2MSFiller classe.
 // The constructor
 ASDM2MSFiller::ASDM2MSFiller(const string& name_,
@@ -212,14 +196,15 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
   itsFirstScan(true),
   itsMSMainRow(0),
   itsDataShapes(0),
-  itsNCat(3)
-{
+  itsNCat(3) {
   // int status;
 
   itsCreationTime = creation_time_;
    
   itsMS			= 0;
   itsMSCol		= 0;
+  itsWinFuncCol         = 0;
+  itsNumBinCol          = 0;
   itsNumAntenna		= 0;
   itsScanNumber         = 0;
 
@@ -234,12 +219,11 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
 	   withCorrectedData,
 	   useAsdmStMan4DATA);
   //cout << "Back from call createMS" << endl;
-
 }
 
 // The destructor
 ASDM2MSFiller::~ASDM2MSFiller() {
-  // end flushes to the MS and deletes itsMS and itsMSCol
+  // end flushes to the MS and deletes itsMS and itsMSCol and itsWinFuncCol and itsNumBinCol
   end();
 }
 
@@ -251,7 +235,6 @@ int ASDM2MSFiller::createMS(const string& msName,
 			    int maxNumChan,
 			    bool withCorrectedData,
 			    bool useAsdmStMan4DATA) {
-
   String aName(msName);
 
   // FLAG CATEGORY stuff.
@@ -259,7 +242,6 @@ int ASDM2MSFiller::createMS(const string& msName,
   cat(0) = "FLAG_CMD";
   cat(1) = "ORIGINAL";
   cat(2) = "USER";
-
 
   const Int nTileCorr = maxNumCorr;
   const Int nTileChan = maxNumChan;
@@ -273,13 +255,11 @@ int ASDM2MSFiller::createMS(const string& msName,
       colnames.resize(2);
       colnames(0)=MS::DATA;
       colnames(1)=MS::CORRECTED_DATA;
-    }
-    else {
+    } else {
       colnames.resize(1);
       colnames(0)= MS::DATA;
     }
-  }
-  else {
+  } else {
     colnames.resize(1);
     colnames(0)= MS::FLOAT_DATA;
   }
@@ -293,8 +273,7 @@ int ASDM2MSFiller::createMS(const string& msName,
 			 colnames,
 			 inint,
 			 withCompression,
-			 (useAsdmStMan4DATA ? SubMS::USE_FOR_DATA : SubMS::DONT)
-			 );
+			 (useAsdmStMan4DATA ? SubMS::USE_FOR_DATA : SubMS::DONT) );
 
   if (! itsMS) {
     return false;
@@ -329,8 +308,7 @@ int ASDM2MSFiller::createMS(const string& msName,
     {
       //      ArrayColumnDesc<Double> cdMDir("PHASE_DIR", "variable phase dir",
       //				     IPosition(2, 2, 1), ColumnDesc::Direct);
-      ArrayColumnDesc<Double> cdMDir("PHASE_DIR", "variable phase dir",
-				     2);
+      ArrayColumnDesc<Double> cdMDir("PHASE_DIR", "variable phase dir", 2);
       ScalarColumnDesc<Int> cdMDirRef("PhaseDir_Ref");
       td.addColumn(cdMDir);
       td.addColumn(cdMDirRef);
@@ -342,8 +320,7 @@ int ASDM2MSFiller::createMS(const string& msName,
     {
       //      ArrayColumnDesc<Double> cdMDir2("DELAY_DIR", "variable delay dir",
       //				      IPosition(2, 2, 1), ColumnDesc::Direct);
-      ArrayColumnDesc<Double> cdMDir2("DELAY_DIR", "variable delay dir",
-				      2);
+      ArrayColumnDesc<Double> cdMDir2("DELAY_DIR", "variable delay dir", 2);
       ScalarColumnDesc<Int> cdMDirRef2("DelayDir_Ref");
       td.addColumn(cdMDir2);
       td.addColumn(cdMDirRef2);
@@ -355,8 +332,7 @@ int ASDM2MSFiller::createMS(const string& msName,
     {
       //      ArrayColumnDesc<Double> cdMDir3("REFERENCE_DIR", "variable reference dir",
       //				      IPosition(2, 2, 1), ColumnDesc::Direct);
-      ArrayColumnDesc<Double> cdMDir3("REFERENCE_DIR", "variable reference dir",
-				      2);
+      ArrayColumnDesc<Double> cdMDir3("REFERENCE_DIR", "variable reference dir", 2);
       ScalarColumnDesc<Int> cdMDirRef3("RefDir_Ref");
       td.addColumn(cdMDir3);
       td.addColumn(cdMDirRef3);
@@ -371,7 +347,6 @@ int ASDM2MSFiller::createMS(const string& msName,
     itsMS->field().addColumn(td,fldStMan);
   }
 
-
   // Pointing
   // need to add this (TT)
   {
@@ -381,10 +356,8 @@ int ASDM2MSFiller::createMS(const string& msName,
     MSPointing::addColumnToDesc (td, MSPointing::ON_SOURCE);
     MSPointing::addColumnToDesc (td, MSPointing::OVER_THE_TOP);
     SetupNewTable tabSetup(itsMS->pointingTableName(), td, Table::New);    
-    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::POINTING),
-				      Table(tabSetup));
+    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::POINTING), Table(tabSetup));
   }
-
 
   // Source
   // need to update with additional columns (TT) 
@@ -411,14 +384,22 @@ int ASDM2MSFiller::createMS(const string& msName,
     MSSpectralWindow::addColumnToDesc (td, MSSpectralWindow::BBC_NO);
     MSSpectralWindow::addColumnToDesc (td, MSSpectralWindow::ASSOC_SPW_ID);
     MSSpectralWindow::addColumnToDesc (td, MSSpectralWindow::ASSOC_NATURE);
+
+    // add the non-standard SDM_WINDOW_FUNCTION and SDM_NUM_BIN columns
+    ScalarColumnDesc<String> sdmWinFuncDesc("SDM_WINDOW_FUNCTION","windowFunction value found in SDM");
+    sdmWinFuncDesc.setDefault("UNKNOWN");
+    td.addColumn(sdmWinFuncDesc);
+
+    ScalarColumnDesc<Int> sdmNumBinDesc("SDM_NUM_BIN","numBin value found in or inferred from SDM");
+    sdmNumBinDesc.setDefault(1);
+    td.addColumn(sdmNumBinDesc);
+
     itsMS->spectralWindow().addColumn(td,spwStMan);
     //SetupNewTable tabSetup(itsMS->spectralWindowTableName(),
     //			   td, Table::New);
     //itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::SPECTRAL_WINDOW),
     //				      Table(tabSetup));
-
   }
-
 
   // Syscal
   // need to add subtable (TT)
@@ -437,9 +418,9 @@ int ASDM2MSFiller::createMS(const string& msName,
     MSSysCal::addColumnToDesc (td, MSSysCal::TANT_FLAG);
     MSSysCal::addColumnToDesc (td, MSSysCal::TANT_TSYS_FLAG);
     SetupNewTable tabSetup(itsMS->sysCalTableName(), td, Table::New);
-    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::SYSCAL),
-				      Table(tabSetup));
+    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::SYSCAL), Table(tabSetup));
   }
+
   // Weather
   {
     TableDesc td = MSWeather::requiredTableDesc();
@@ -461,14 +442,10 @@ int ASDM2MSFiller::createMS(const string& msName,
 					 "The position of the station",
 					 IPosition(1,3),
 					 ColumnDesc::Direct));
-
 		 
     SetupNewTable tabSetup(itsMS->weatherTableName(), td, Table::New);
-    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::WEATHER),
-				      Table(tabSetup));   
-
+    itsMS->rwKeywordSet().defineTable(MS::keywordName(MS::WEATHER), Table(tabSetup));   
   }
-
 
   //
   // New Tables.
@@ -497,9 +474,7 @@ int ASDM2MSFiller::createMS(const string& msName,
     tableDesc_.addColumn(ArrayColumnDesc<Float>("SWITCHED_SUM", "Switched power sum (cal on + off)."));
     tableDesc_.addColumn(ArrayColumnDesc<Float>("REQUANTIZER_GAIN", "Requantizer gain."));
     
-    SetupNewTable tableSetup(itsMS->tableName() + "/" + name_,
-			     tableDesc_,
-			     Table::New);
+    SetupNewTable tableSetup(itsMS->tableName() + "/" + name_, tableDesc_, Table::New);
     itsMS->rwKeywordSet().defineTable(name_, Table(tableSetup));
   }
   
@@ -531,9 +506,7 @@ int ASDM2MSFiller::createMS(const string& msName,
     tableDesc_.addColumn(ArrayColumnDesc<Float>("CAL_EFF", "Calibration efficiencies (one per receptor per load)."));
     tableDesc_.addColumn(ArrayColumnDesc<Double>("TEMPERATURE_LOAD", "Physical."));
 
-    SetupNewTable tableSetup(itsMS->tableName() + "/" + name_,
-			     tableDesc_,
-			     Table::New);
+    SetupNewTable tableSetup(itsMS->tableName() + "/" + name_, tableDesc_, Table::New);
     itsMS->rwKeywordSet().defineTable(name_, Table(tableSetup));
     itsCalDeviceNumberOfRows = 0;
     itsMSCalDeviceTable = itsMS->rwKeywordSet().asTable("CALDEVICE");
@@ -556,6 +529,13 @@ int ASDM2MSFiller::createMS(const string& msName,
 
   itsMS->flush();
 
+  // get the SPECTRAL_WINDOW::SDM_WINDOW_FUNCTION column here so it doesn't need to be
+  // constructed each time a value is written to it
+  itsWinFuncCol = new ScalarColumn<String>(itsMS->spectralWindow(), "SDM_WINDOW_FUNCTION");
+
+  // get the SPECTRAL_WINDOW::SDM_NUM_BIN column here so it doesn't need to be
+  // constructed each time a value is written to it
+  itsNumBinCol = new ScalarColumn<Int>(itsMS->spectralWindow(), "SDM_NUM_BIN");
 
   //cout << "\n";
   {
@@ -578,15 +558,12 @@ const char** ASDM2MSFiller::getPolCombinations(int numCorr) {
 
   if (numCorr == 1) {
     return p1;
-  }
-  else if (numCorr == 2) {
+  } else if (numCorr == 2) {
     return p2;
-  }
-  else {
+  } else {
     return p4;
   } 
 }
-
 
 // Insert records in the table ANTENNA
 int ASDM2MSFiller::addAntenna( const string& name_,
@@ -598,7 +575,6 @@ int ASDM2MSFiller::addAntenna( const string& name_,
 			       double offset_y_,
 			       double offset_z_,
 			       float  dish_diam_) {
-
   uInt crow;
   //itsNumAntenna = num_antenna_;
   itsNumAntenna++;
@@ -661,14 +637,12 @@ void ASDM2MSFiller::addData (bool                      /* complexData */,
 			     vector<pair<int, int> >   &nChanNPol_,
 			     vector<double>            &uvw_,
 			     vector<double>            &weight_,
-			     vector<double>            &sigma_){
-  
+			     vector<double>            &sigma_){  
   unsigned int theSize = time_.size();
   Bool *flag_row__  = new Bool[theSize];
   for (unsigned int i = 0; i < theSize; i++) {
     flag_row__[i] = 0;
   }
-
   
   Vector<Double> time(IPosition(1, theSize), &time_.at(0), SHARE);
   Vector<Int>    antenna1(IPosition(1, theSize), &antennaId1_.at(0), SHARE);
@@ -695,13 +669,11 @@ void ASDM2MSFiller::addData (bool                      /* complexData */,
   // The sigma               "
   // The weight              "
   // The flag                "
-  
-    
+      
   // Define  a slicer to write blocks of values in each column of the main table.
   Slicer slicer(IPosition(1,itsMSMainRow),
 		IPosition(1, (itsMSMainRow+theSize-1)),
 		Slicer::endIsLast);
-
 
   // Let's create nBaseLines empty rows into the main table.
   itsMS->addRow(theSize);    
@@ -762,8 +734,7 @@ void ASDM2MSFiller::addData (bool                      /* complexData */,
       // Uncorrected data
       if ( uncorrectedData_.at(cRow0) != 0) {
 	uncorrected_data.takeStorage(IPosition(2, numCorr, numChan), (Complex *)(uncorrectedData_.at(cRow0)), COPY);
-      }
-      else {
+      } else {
 	uncorrected_data.resize(numCorr, numChan);
 	uncorrected_data = 0.0;
       }
@@ -772,14 +743,12 @@ void ASDM2MSFiller::addData (bool                      /* complexData */,
       // Corrected data
       if ( correctedData_.at(cRow0) != 0) {
 	corrected_data.takeStorage(IPosition(2, numCorr, numChan), (Complex *)(correctedData_.at(cRow0)), COPY);
-      }
-      else {
+      } else {
 	corrected_data.resize(numCorr, numChan);
 	corrected_data = 0.0;
       }
       itsMSCol->correctedData().put(cRow, corrected_data);
-    }
-    else {
+    } else {
       // Float data.
       float_data.takeStorage(IPosition(2, numCorr, numChan), uncorrectedData_.at(cRow0), SHARE);
       itsMSCol->floatData().put(cRow, float_data);
@@ -797,7 +766,6 @@ void ASDM2MSFiller::addData (bool                      /* complexData */,
 #endif
   // Don't forget to increment itsMSMainRow.
   itsMSMainRow += theSize;
-
   
   // Flush
   // itsMS->flush();   
@@ -864,8 +832,7 @@ void ASDM2MSFiller::addData (bool                      complexData,
   // The sigma               "
   // The weight              "
   // The flag                "
-  
-    
+      
   // Define  a slicer to write blocks of values in each column of the main table.
   Slicer slicer(IPosition(1,itsMSMainRow),
 		IPosition(1, (itsMSMainRow+theSize-1)),
@@ -915,8 +882,7 @@ void ASDM2MSFiller::addData (bool                      complexData,
       // Uncorrected data
       if ( uncorrectedData_.at(cRow0) != 0) {
 	uncorrected_data.takeStorage(IPosition(2, numCorr, numChan), (Complex *)(uncorrectedData_.at(cRow0)), COPY);
-      }
-      else {
+      } else {
 	uncorrected_data.resize(numCorr, numChan);
 	uncorrected_data = 0.0;
       }
@@ -925,14 +891,12 @@ void ASDM2MSFiller::addData (bool                      complexData,
       // Corrected data
       if ( correctedData_.at(cRow0) != 0) {
 	corrected_data.takeStorage(IPosition(2, numCorr, numChan), (Complex *)(correctedData_.at(cRow0)), COPY);
-      }
-      else {
+      } else {
 	corrected_data.resize(numCorr, numChan);
 	corrected_data = 0.0;
       }
       itsMSCol->correctedData().put(cRow, corrected_data);
-    }
-    else {
+    } else {
       // Float data.
       float_data.takeStorage(IPosition(2, numCorr, numChan), uncorrectedData_.at(cRow0), SHARE);
       itsMSCol->floatData().put(cRow, float_data);
@@ -950,7 +914,6 @@ void ASDM2MSFiller::addData (bool                      complexData,
 #endif
   // Don't forget to increment itsMSMainRow.
   itsMSMainRow += theSize;
-
   
   // Flush
   // itsMS->flush();   
@@ -1021,8 +984,7 @@ void ASDM2MSFiller::addData (bool			 complexData,
   // The sigma               "
   // The weight              "
   // The flag                "
-  
-    
+      
   // Define  a slicer to write blocks of values in each column of the main table.
   Slicer slicer(IPosition(1,itsMSMainRow),
 		IPosition(1, (itsMSMainRow+theSize-1)),
@@ -1075,8 +1037,7 @@ void ASDM2MSFiller::addData (bool			 complexData,
 	data.takeStorage(IPosition(2, numCorr, numChan), (Complex *)(data_.at(cRow0)), COPY);
 	itsMSCol->data().put(cRow, data);
 	//printf("DONE writing complex data column %d %d\n", cRow, maxrow);
-      }
-      else {
+      } else {
 	// Float data.
 	float_data.takeStorage(IPosition(2, numCorr, numChan), data_.at(cRow0), SHARE);
 	itsMSCol->floatData().put(cRow, float_data);
@@ -1093,7 +1054,6 @@ void ASDM2MSFiller::addData (bool			 complexData,
 #endif
   // Don't forget to increment itsMSMainRow.
   itsMSMainRow += theSize;
-
   
   // Flush
   // itsMS->flush();   
@@ -1121,8 +1081,7 @@ int  ASDM2MSFiller::addDataDescription(int spectral_window_id_,
 }
 
 // Add a record in the table DataDescription
-int  ASDM2MSFiller::addUniqueDataDescription( int spectral_window_id_,
-					      int polarization_id_ ) {
+int  ASDM2MSFiller::addUniqueDataDescription( int spectral_window_id_, int polarization_id_ ) {
   uInt crow;
   MSDataDescription msdd = itsMS -> dataDescription();
   MSDataDescColumns msddCol(msdd);
@@ -1172,8 +1131,7 @@ int ASDM2MSFiller::exists( char *path) {
   
   if (existFlag) {
     writableFlag = Table::isWritable(absolute);
-  }
-  else {
+  } else {
     writableFlag = File(dirname).isWritable();
   }
   return existFlag + 2*writableFlag;
@@ -1202,7 +1160,6 @@ void ASDM2MSFiller::addFeed(int      antenna_id_,
 			    vector<double>&   position_,
 			    vector<double>&   feed_angle_) {
   
-
   int crow;
   MSFeed msfeed = itsMS -> feed();
   MSFeedColumns msfeedCol(msfeed);
@@ -1265,7 +1222,6 @@ void ASDM2MSFiller::addFeed(int      antenna_id_,
   // cout << "\n Exiting addFeed";
 }
 	     
-
 // Adds a field record in the TABLE
 void ASDM2MSFiller::addField(const string&		name_,
 			     const string&		code_,
@@ -1293,7 +1249,6 @@ void ASDM2MSFiller::addField(const string&		name_,
   msfieldCol.time().put(crow, time_);
   msfieldCol.numPoly().put(crow, 0);
 
-
   String s(direction_code_);
   if(s==""){
     // cout << "directionCode doesn't exist or is empty. Will try to determine it based on name." << endl;
@@ -1306,9 +1261,9 @@ void ASDM2MSFiller::addField(const string&		name_,
   MDirection::Types directionReference = (iter == string2MDirection.end()) ? MDirection::J2000 : iter->second;
 
   for (unsigned int i = 0; i < num_poly_; i++) {
-    delayDir(i)     = MDirection(Quantity(delay_dir_[i][0], "rad"), Quantity(delay_dir_[i][1], "rad"), directionReference);
-    referenceDir(i) = MDirection(Quantity(reference_dir_[i][0], "rad"), Quantity(reference_dir_[i][1], "rad"), directionReference);
-    phaseDir(i)     = MDirection(Quantity(phase_dir_[i][0], "rad"), Quantity(phase_dir_[i][1], "rad"), directionReference);
+      delayDir(i)     = MDirection(casacore::Quantity(delay_dir_[i][0], "rad"), casacore::Quantity(delay_dir_[i][1], "rad"), directionReference);
+      referenceDir(i) = MDirection(casacore::Quantity(reference_dir_[i][0], "rad"), casacore::Quantity(reference_dir_[i][1], "rad"), directionReference);
+      phaseDir(i)     = MDirection(casacore::Quantity(phase_dir_[i][0], "rad"), casacore::Quantity(phase_dir_[i][1], "rad"), directionReference);
   }
   
   msfieldCol.numPoly().put(crow,num_poly_ - 1);
@@ -1432,10 +1387,8 @@ void ASDM2MSFiller::addObservation(const string&		telescopeName_,
   if (log_.size() > 0) {
     log.resize(log_.size());
     for (vector<string>::size_type i = 0; i < log_.size(); i++) log(i) = log_[i];    
-  }
-  else
+  } else
     log(0) =  "" ;
-
 
   // Build the schedule vector
   Vector<String> schedule(1);
@@ -1443,8 +1396,7 @@ void ASDM2MSFiller::addObservation(const string&		telescopeName_,
   if (schedule_.size() > 0) {
     schedule.resize(schedule_.size());
     for (vector<string>::size_type  i = 0; i < schedule_.size(); i++) schedule(i) = schedule_[i];
-  }
-  else
+  } else
     schedule(0) = "";
 
   Vector<Double> timeRange(2);
@@ -1532,9 +1484,7 @@ void ASDM2MSFiller::addPointingSlice(unsigned int                 n_row_,
       *oiter = *iiter;
 
     mspointingCol.overTheTop().putColumnRange(slicer, over_the_top);
-  }
-  // Otherwise we fill overTheTop range after range.
-  else {
+  } else { // Otherwise we fill overTheTop range after range.
     for (unsigned int i = 0; i < v_overTheTop_.size(); i++) {
       s_overTheTop saux = v_s_overTheTop_.at(i);
       for (unsigned int j = saux.start; j < (saux.start + saux.len) ; j++)
@@ -1544,8 +1494,6 @@ void ASDM2MSFiller::addPointingSlice(unsigned int                 n_row_,
 
   //mspointing.flush();
 }
-
-
 		 
 // Adds a record in the table Polarization
 // Only num_corr_ is used here
@@ -1561,7 +1509,6 @@ int ASDM2MSFiller::addPolarization(int num_corr_,
   MSPolarizationColumns mspolarCol(mspolar);
 
   const char** p=getPolCombinations(num_corr_);
-
 
   crow = mspolar.nrow();
   itsDDMgr.setNumCorr(crow, num_corr_);
@@ -1580,7 +1527,6 @@ int ASDM2MSFiller::addPolarization(int num_corr_,
   // cout << "\n";
   return crow;
 }
-
 
 int ASDM2MSFiller::addUniquePolarization(int num_corr_,
 					 const vector<int>& corr_type_,
@@ -1628,7 +1574,6 @@ int ASDM2MSFiller::addUniquePolarization(int num_corr_,
   return crow;
 }
 
-
 // Adds a record in the table PROCESSOR
 void ASDM2MSFiller::addProcessor(string& type_,
 				 string& sub_type_,
@@ -1651,7 +1596,6 @@ void ASDM2MSFiller::addProcessor(string& type_,
   //msproc.flush();
   // cout << "\n";
 }
-
 
 // Adds a single state record in the table STATE in such a way that there is no repeated row.
 // Returns the index of row added or found with these values. 
@@ -1722,11 +1666,10 @@ void ASDM2MSFiller::addSource(int             source_id_,
 
   if (iter == string2MDirection.end()) {
     //cout << "Could not determine directionCode. Assuming J2000 ..." << endl;
-    directionMD    = MDirection(Quantity(direction_[0], "rad"), Quantity(direction_[1], "rad"), MDirection::J2000);
-  }
-  else {
+      directionMD    = MDirection(casacore::Quantity(direction_[0], "rad"), casacore::Quantity(direction_[1], "rad"), MDirection::J2000);
+  } else {
     //cout << "directionCode is " << s << " (" << (int)iter->second << ")" << endl;
-    directionMD    = MDirection(Quantity(direction_[0], "rad"), Quantity(direction_[1], "rad"), iter->second);
+      directionMD    = MDirection(casacore::Quantity(direction_[0], "rad"), casacore::Quantity(direction_[1], "rad"), iter->second);
   }
 
   MDirection::Types theType;
@@ -1736,12 +1679,10 @@ void ASDM2MSFiller::addSource(int             source_id_,
     if( ((int)theType) >= MDirection::N_Types ){
       cout << "Solar system object reference frame handling in Source table not yet implemented. Falling back to J2000." << endl;
       mssourceCol.directionMeas().setDescRefCode((int)MDirection::J2000, true); 
-    }
-    else{
+    } else {
       mssourceCol.directionMeas().setDescRefCode((int)theType, true); 
     }
-  }
-  else{
+  } else{
     casacore::MDirection::Types theFirstType;
     casacore::MDirection mD;
     mssourceCol.directionMeas().get(0, mD);
@@ -1755,9 +1696,8 @@ void ASDM2MSFiller::addSource(int             source_id_,
       
       if( ((int)theType) >= MDirection::N_Types ){
 	cout << "(Proper conversion not yet implemented for solar system objects.)" << endl;
-	directionMD = MDirection(Quantity(direction_[0], "rad"), Quantity(direction_[1], "rad"), theFirstType);
-      }
-      else{ // convert to theFirstType
+	directionMD = MDirection(casacore::Quantity(direction_[0], "rad"), casacore::Quantity(direction_[1], "rad"), theFirstType);
+      } else { // convert to theFirstType
 	directionMD = MDirection::Convert(directionMD, theFirstType)();
       }
     }
@@ -1810,7 +1750,9 @@ int ASDM2MSFiller::addSpectralWindow(int			num_chan_,
 				     const string&		freq_group_name_,
 				     int			num_assoc_,
 				     const vector<int>&		assoc_sp_id_,
-				     const vector<string>&      assoc_nature_) {
+				     const vector<string>&      assoc_nature_,
+				     const string&              windowFunction_,
+				     int                        numBin_) {
  
   MSSpectralWindow msspwin = itsMS -> spectralWindow();
   MSSpWindowColumns msspwinCol(msspwin);
@@ -1858,11 +1800,16 @@ int ASDM2MSFiller::addSpectralWindow(int			num_chan_,
 
   msspwinCol.flagRow().put(crow, false);
 
+  // non-standard SDM_WINDOW_FUNCTION column
+  itsWinFuncCol->put(crow, windowFunction_);
+
+  // non-standard SDM_NUM_BIN column
+  itsNumBinCol->put(crow, numBin_);
+
   //msspwin.flush();
   // cout << "\n";
   return crow;
 }
-
 
 // Adds a single state record in the table STATE.
 void ASDM2MSFiller::addState(bool    sig_,
@@ -2245,6 +2192,14 @@ void ASDM2MSFiller::end() {
   if (itsMSCol) {
     delete itsMSCol;
     itsMSCol = 0;
+  }
+  if (itsWinFuncCol) {
+    delete itsWinFuncCol;
+    itsWinFuncCol = 0;
+  }
+  if (itsNumBinCol) {
+    delete itsNumBinCol;
+    itsNumBinCol = 0;
   }
   if (itsMS) {
     itsMS->flush();

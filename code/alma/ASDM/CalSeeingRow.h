@@ -48,38 +48,34 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
 
 	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
@@ -102,14 +98,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalSeeing.h
     \brief Generated from model's revision "-1", branch ""
@@ -129,7 +129,7 @@ class CalReductionRow;
 
 class CalSeeingRow;
 typedef void (CalSeeingRow::*CalSeeingAttributeFromBin) (EndianIStream& eis);
-typedef void (CalSeeingRow::*CalSeeingAttributeFromText) (const string& s);
+typedef void (CalSeeingRow::*CalSeeingAttributeFromText) (const std::string& s);
 
 /**
  * The CalSeeingRow class is a row of a CalSeeingTable.
@@ -262,21 +262,21 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -352,21 +352,21 @@ public:
 	
  	/**
  	 * Get baselineLengths.
- 	 * @return baselineLengths as vector<Length >
+ 	 * @return baselineLengths as std::vector<Length >
  	 */
- 	vector<Length > getBaselineLengths() const;
+ 	std::vector<Length > getBaselineLengths() const;
 	
  
  	
  	
  	/**
- 	 * Set baselineLengths with the specified vector<Length >.
- 	 * @param baselineLengths The vector<Length > value to which baselineLengths is to be set.
+ 	 * Set baselineLengths with the specified std::vector<Length >.
+ 	 * @param baselineLengths The std::vector<Length > value to which baselineLengths is to be set.
  	 
  		
  			
  	 */
- 	void setBaselineLengths (vector<Length > baselineLengths);
+ 	void setBaselineLengths (std::vector<Length > baselineLengths);
   		
 	
 	
@@ -382,21 +382,21 @@ public:
 	
  	/**
  	 * Get phaseRMS.
- 	 * @return phaseRMS as vector<Angle >
+ 	 * @return phaseRMS as std::vector<Angle >
  	 */
- 	vector<Angle > getPhaseRMS() const;
+ 	std::vector<Angle > getPhaseRMS() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseRMS with the specified vector<Angle >.
- 	 * @param phaseRMS The vector<Angle > value to which phaseRMS is to be set.
+ 	 * Set phaseRMS with the specified std::vector<Angle >.
+ 	 * @param phaseRMS The std::vector<Angle > value to which phaseRMS is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseRMS (vector<Angle > phaseRMS);
+ 	void setPhaseRMS (std::vector<Angle > phaseRMS);
   		
 	
 	
@@ -720,7 +720,7 @@ public:
 	 * @param seeingError
 	    
 	 */ 
-	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
+	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
 	
 	
 
@@ -748,7 +748,7 @@ public:
 	 * @param seeingError
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
 		 
 	
 	/**
@@ -928,7 +928,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -961,7 +961,7 @@ private:
 	
 	
 
-	vector<Length > baselineLengths;
+	std::vector<Length > baselineLengths;
 
 	
 	
@@ -972,7 +972,7 @@ private:
 	
 	
 
-	vector<Angle > phaseRMS;
+	std::vector<Angle > phaseRMS;
 
 	
 	
@@ -1113,50 +1113,50 @@ void outerScaleRMSFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalSeeingAttributeFromText> fromTextMethods;
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void integrationTimeFromText (const string & s);
+void integrationTimeFromText (const std::string & s);
 	
 	
-void numBaseLengthsFromText (const string & s);
+void numBaseLengthsFromText (const std::string & s);
 	
 	
-void baselineLengthsFromText (const string & s);
+void baselineLengthsFromText (const std::string & s);
 	
 	
-void phaseRMSFromText (const string & s);
+void phaseRMSFromText (const std::string & s);
 	
 	
-void seeingFromText (const string & s);
+void seeingFromText (const std::string & s);
 	
 	
-void seeingErrorFromText (const string & s);
+void seeingErrorFromText (const std::string & s);
 	
 
 	
-void exponentFromText (const string & s);
+void exponentFromText (const std::string & s);
 	
 	
-void outerScaleFromText (const string & s);
+void outerScaleFromText (const std::string & s);
 	
 	
-void outerScaleRMSFromText (const string & s);
+void outerScaleRMSFromText (const std::string & s);
 	
 	
 	

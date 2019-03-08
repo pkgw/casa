@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <PointingRow.h>
-#include <PointingTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/PointingRow.h>
+#include <alma/ASDM/PointingTable.h>
 
-#include <PointingModelTable.h>
-#include <PointingModelRow.h>
+#include <alma/ASDM/PointingModelTable.h>
+#include <alma/ASDM/PointingModelRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::AntennaTable;
 using asdm::AntennaRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	PointingRow::~PointingRow() {
@@ -715,7 +712,9 @@ namespace asdm {
 		
 			
 		encoder .clear();
-		vector<Angle> v_aux_encoder;
+        
+        vector<Angle> v_aux_encoder;
+        
 		for (unsigned int i = 0; i < x.encoder.length(); ++i) {
 			v_aux_encoder.clear();
 			for (unsigned int j = 0; j < x.encoder[0].length(); ++j) {
@@ -775,7 +774,9 @@ namespace asdm {
 		
 			
 		pointingDirection .clear();
-		vector<Angle> v_aux_pointingDirection;
+        
+        vector<Angle> v_aux_pointingDirection;
+        
 		for (unsigned int i = 0; i < x.pointingDirection.length(); ++i) {
 			v_aux_pointingDirection.clear();
 			for (unsigned int j = 0; j < x.pointingDirection[0].length(); ++j) {
@@ -795,7 +796,9 @@ namespace asdm {
 		
 			
 		target .clear();
-		vector<Angle> v_aux_target;
+        
+        vector<Angle> v_aux_target;
+        
 		for (unsigned int i = 0; i < x.target.length(); ++i) {
 			v_aux_target.clear();
 			for (unsigned int j = 0; j < x.target[0].length(); ++j) {
@@ -815,7 +818,9 @@ namespace asdm {
 		
 			
 		offset .clear();
-		vector<Angle> v_aux_offset;
+        
+        vector<Angle> v_aux_offset;
+        
 		for (unsigned int i = 0; i < x.offset.length(); ++i) {
 			v_aux_offset.clear();
 			for (unsigned int j = 0; j < x.offset[0].length(); ++j) {
@@ -853,7 +858,9 @@ namespace asdm {
 		
 			
 		sourceOffset .clear();
-		vector<Angle> v_aux_sourceOffset;
+        
+        vector<Angle> v_aux_sourceOffset;
+        
 		for (unsigned int i = 0; i < x.sourceOffset.length(); ++i) {
 			v_aux_sourceOffset.clear();
 			for (unsigned int j = 0; j < x.sourceOffset[0].length(); ++j) {
@@ -928,7 +935,9 @@ namespace asdm {
 		
 			
 		atmosphericCorrection .clear();
-		vector<Angle> v_aux_atmosphericCorrection;
+        
+        vector<Angle> v_aux_atmosphericCorrection;
+        
 		for (unsigned int i = 0; i < x.atmosphericCorrection.length(); ++i) {
 			v_aux_atmosphericCorrection.clear();
 			for (unsigned int j = 0; j < x.atmosphericCorrection[0].length(); ++j) {
@@ -1835,7 +1844,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void PointingRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1843,7 +1854,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void PointingRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1851,7 +1864,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingRow::numSampleFromText(const string & s) {
 		 
+          
 		numSample = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1859,7 +1874,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void PointingRow::encoderFromText(const string & s) {
 		 
+          
 		encoder = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1867,7 +1884,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void PointingRow::pointingTrackingFromText(const string & s) {
 		 
+          
 		pointingTracking = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1875,7 +1894,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void PointingRow::usePolynomialsFromText(const string & s) {
 		 
+          
 		usePolynomials = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1883,7 +1904,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void PointingRow::timeOriginFromText(const string & s) {
 		 
+          
 		timeOrigin = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1891,7 +1914,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingRow::numTermFromText(const string & s) {
 		 
+          
 		numTerm = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1899,7 +1924,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void PointingRow::pointingDirectionFromText(const string & s) {
 		 
+          
 		pointingDirection = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1907,7 +1934,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void PointingRow::targetFromText(const string & s) {
 		 
+          
 		target = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1915,7 +1944,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void PointingRow::offsetFromText(const string & s) {
 		 
+          
 		offset = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1923,7 +1954,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingRow::pointingModelIdFromText(const string & s) {
 		 
+          
 		pointingModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1933,7 +1966,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::overTheTopFromText(const string & s) {
 		overTheTopExists = true;
 		 
+          
 		overTheTop = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1942,7 +1977,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::sourceOffsetFromText(const string & s) {
 		sourceOffsetExists = true;
 		 
+          
 		sourceOffset = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1951,7 +1988,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::sourceOffsetReferenceCodeFromText(const string & s) {
 		sourceOffsetReferenceCodeExists = true;
 		 
-		sourceOffsetReferenceCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		sourceOffsetReferenceCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -1960,7 +1999,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::sourceOffsetEquinoxFromText(const string & s) {
 		sourceOffsetEquinoxExists = true;
 		 
+          
 		sourceOffsetEquinox = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1969,7 +2010,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::sampledTimeIntervalFromText(const string & s) {
 		sampledTimeIntervalExists = true;
 		 
+          
 		sampledTimeInterval = ASDMValuesParser::parse1D<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1978,7 +2021,9 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	void PointingRow::atmosphericCorrectionFromText(const string & s) {
 		atmosphericCorrectionExists = true;
 		 
+          
 		atmosphericCorrection = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -2068,21 +2113,21 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get encoder.
- 	 * @return encoder as vector<vector<Angle > >
+ 	 * @return encoder as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > PointingRow::getEncoder() const {
+ 	std::vector<std::vector<Angle > > PointingRow::getEncoder() const {
 	
   		return encoder;
  	}
 
  	/**
- 	 * Set encoder with the specified vector<vector<Angle > >.
- 	 * @param encoder The vector<vector<Angle > > value to which encoder is to be set.
+ 	 * Set encoder with the specified std::vector<std::vector<Angle > >.
+ 	 * @param encoder The std::vector<std::vector<Angle > > value to which encoder is to be set.
  	 
  	
  		
  	 */
- 	void PointingRow::setEncoder (vector<vector<Angle > > encoder)  {
+ 	void PointingRow::setEncoder (std::vector<std::vector<Angle > > encoder)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2228,21 +2273,21 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get pointingDirection.
- 	 * @return pointingDirection as vector<vector<Angle > >
+ 	 * @return pointingDirection as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > PointingRow::getPointingDirection() const {
+ 	std::vector<std::vector<Angle > > PointingRow::getPointingDirection() const {
 	
   		return pointingDirection;
  	}
 
  	/**
- 	 * Set pointingDirection with the specified vector<vector<Angle > >.
- 	 * @param pointingDirection The vector<vector<Angle > > value to which pointingDirection is to be set.
+ 	 * Set pointingDirection with the specified std::vector<std::vector<Angle > >.
+ 	 * @param pointingDirection The std::vector<std::vector<Angle > > value to which pointingDirection is to be set.
  	 
  	
  		
  	 */
- 	void PointingRow::setPointingDirection (vector<vector<Angle > > pointingDirection)  {
+ 	void PointingRow::setPointingDirection (std::vector<std::vector<Angle > > pointingDirection)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2260,21 +2305,21 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get target.
- 	 * @return target as vector<vector<Angle > >
+ 	 * @return target as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > PointingRow::getTarget() const {
+ 	std::vector<std::vector<Angle > > PointingRow::getTarget() const {
 	
   		return target;
  	}
 
  	/**
- 	 * Set target with the specified vector<vector<Angle > >.
- 	 * @param target The vector<vector<Angle > > value to which target is to be set.
+ 	 * Set target with the specified std::vector<std::vector<Angle > >.
+ 	 * @param target The std::vector<std::vector<Angle > > value to which target is to be set.
  	 
  	
  		
  	 */
- 	void PointingRow::setTarget (vector<vector<Angle > > target)  {
+ 	void PointingRow::setTarget (std::vector<std::vector<Angle > > target)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2292,21 +2337,21 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<vector<Angle > >
+ 	 * @return offset as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > PointingRow::getOffset() const {
+ 	std::vector<std::vector<Angle > > PointingRow::getOffset() const {
 	
   		return offset;
  	}
 
  	/**
- 	 * Set offset with the specified vector<vector<Angle > >.
- 	 * @param offset The vector<vector<Angle > > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<std::vector<Angle > >.
+ 	 * @param offset The std::vector<std::vector<Angle > > value to which offset is to be set.
  	 
  	
  		
  	 */
- 	void PointingRow::setOffset (vector<vector<Angle > > offset)  {
+ 	void PointingRow::setOffset (std::vector<std::vector<Angle > > offset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2379,10 +2424,10 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceOffset, which is optional.
- 	 * @return sourceOffset as vector<vector<Angle > >
+ 	 * @return sourceOffset as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If sourceOffset does not exist.
  	 */
- 	vector<vector<Angle > > PointingRow::getSourceOffset() const  {
+ 	std::vector<std::vector<Angle > > PointingRow::getSourceOffset() const  {
 		if (!sourceOffsetExists) {
 			throw IllegalAccessException("sourceOffset", "Pointing");
 		}
@@ -2391,12 +2436,12 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sourceOffset with the specified vector<vector<Angle > >.
- 	 * @param sourceOffset The vector<vector<Angle > > value to which sourceOffset is to be set.
+ 	 * Set sourceOffset with the specified std::vector<std::vector<Angle > >.
+ 	 * @param sourceOffset The std::vector<std::vector<Angle > > value to which sourceOffset is to be set.
  	 
  	
  	 */
- 	void PointingRow::setSourceOffset (vector<vector<Angle > > sourceOffset) {
+ 	void PointingRow::setSourceOffset (std::vector<std::vector<Angle > > sourceOffset) {
 	
  		this->sourceOffset = sourceOffset;
 	
@@ -2520,10 +2565,10 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sampledTimeInterval, which is optional.
- 	 * @return sampledTimeInterval as vector<ArrayTimeInterval >
+ 	 * @return sampledTimeInterval as std::vector<ArrayTimeInterval >
  	 * @throw IllegalAccessException If sampledTimeInterval does not exist.
  	 */
- 	vector<ArrayTimeInterval > PointingRow::getSampledTimeInterval() const  {
+ 	std::vector<ArrayTimeInterval > PointingRow::getSampledTimeInterval() const  {
 		if (!sampledTimeIntervalExists) {
 			throw IllegalAccessException("sampledTimeInterval", "Pointing");
 		}
@@ -2532,12 +2577,12 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sampledTimeInterval with the specified vector<ArrayTimeInterval >.
- 	 * @param sampledTimeInterval The vector<ArrayTimeInterval > value to which sampledTimeInterval is to be set.
+ 	 * Set sampledTimeInterval with the specified std::vector<ArrayTimeInterval >.
+ 	 * @param sampledTimeInterval The std::vector<ArrayTimeInterval > value to which sampledTimeInterval is to be set.
  	 
  	
  	 */
- 	void PointingRow::setSampledTimeInterval (vector<ArrayTimeInterval > sampledTimeInterval) {
+ 	void PointingRow::setSampledTimeInterval (std::vector<ArrayTimeInterval > sampledTimeInterval) {
 	
  		this->sampledTimeInterval = sampledTimeInterval;
 	
@@ -2567,10 +2612,10 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get atmosphericCorrection, which is optional.
- 	 * @return atmosphericCorrection as vector<vector<Angle > >
+ 	 * @return atmosphericCorrection as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If atmosphericCorrection does not exist.
  	 */
- 	vector<vector<Angle > > PointingRow::getAtmosphericCorrection() const  {
+ 	std::vector<std::vector<Angle > > PointingRow::getAtmosphericCorrection() const  {
 		if (!atmosphericCorrectionExists) {
 			throw IllegalAccessException("atmosphericCorrection", "Pointing");
 		}
@@ -2579,12 +2624,12 @@ void PointingRow::atmosphericCorrectionFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set atmosphericCorrection with the specified vector<vector<Angle > >.
- 	 * @param atmosphericCorrection The vector<vector<Angle > > value to which atmosphericCorrection is to be set.
+ 	 * Set atmosphericCorrection with the specified std::vector<std::vector<Angle > >.
+ 	 * @param atmosphericCorrection The std::vector<std::vector<Angle > > value to which atmosphericCorrection is to be set.
  	 
  	
  	 */
- 	void PointingRow::setAtmosphericCorrection (vector<vector<Angle > > atmosphericCorrection) {
+ 	void PointingRow::setAtmosphericCorrection (std::vector<std::vector<Angle > > atmosphericCorrection) {
 	
  		this->atmosphericCorrection = atmosphericCorrection;
 	
@@ -3076,7 +3121,7 @@ sourceOffsetReferenceCode = CDirectionReferenceCode::from_int(0);
 	}
 
 	
-	bool PointingRow::compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId) {
+	bool PointingRow::compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId) {
 		bool result;
 		result = true;
 		
@@ -3169,7 +3214,7 @@ sourceOffsetReferenceCode = CDirectionReferenceCode::from_int(0);
 	
 	
 	
-	bool PointingRow::compareRequiredValue(int numSample, vector<vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, vector<vector<Angle > > pointingDirection, vector<vector<Angle > > target, vector<vector<Angle > > offset, int pointingModelId) {
+	bool PointingRow::compareRequiredValue(int numSample, std::vector<std::vector<Angle > > encoder, bool pointingTracking, bool usePolynomials, ArrayTime timeOrigin, int numTerm, std::vector<std::vector<Angle > > pointingDirection, std::vector<std::vector<Angle > > target, std::vector<std::vector<Angle > > offset, int pointingModelId) {
 		bool result;
 		result = true;
 		

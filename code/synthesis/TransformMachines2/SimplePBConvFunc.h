@@ -124,6 +124,7 @@ namespace refim{ //namespace for imaging refactor
 
       virtual void setSkyJones(SkyJones* sj);
       virtual void setVBUtil(casacore::CountedPtr<VisBufferUtil> vbutil) {vbutil_p=vbutil;};
+      virtual  casacore::CountedPtr<VisBufferUtil> getVBUtil() {return vbutil_p;};
       casacore::Bool findSupport(casacore::Array<casacore::Complex>& /*func*/, casacore::Float& /*threshold*/,casacore::Int& /*origin*/, casacore::Int& /*R*/) 
       {throw(casacore::AipsError("SimplePBConvFunc::findSupport() not implemented"));};
       virtual casacore::Bool makeAverageResponse(const vi::VisBuffer2& /*vb*/, 
@@ -139,7 +140,8 @@ namespace refim{ //namespace for imaging refactor
       virtual casacore::Bool fromRecord(casacore::String& err, const casacore::RecordInterface& rec, casacore::Bool calcFluxneeded=false);
       //give possibility to erase history
       virtual void reset();
-      virtual casacore::String name() {return casacore::String("SimplePBConvFunc");}
+      virtual casacore::String name() {return casacore::String("SimplePBConvFunc");};
+      void setUsePointing(casacore::Bool usepointing){usePointingTable_p=usepointing;};
     protected:
       SkyJones* sj_p;
       casacore::TempImage<casacore::Float> fluxScale_p;
@@ -194,7 +196,7 @@ namespace refim{ //namespace for imaging refactor
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
       casacore::Matrix<casacore::Bool> pointingPix_p;
       VisBufferUtil vbUtil_p;
-      
+      casacore::Bool usePointingTable_p;
     };
   }; //end of refim namespace
 };// end of namespace

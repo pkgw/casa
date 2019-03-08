@@ -34,6 +34,7 @@ scripts/casa_builtin.py
 scripts/start_casa.py
 scripts/casa_system.py
 scripts/casa_system_defaults.py
+scripts/mstools.py
 scripts/init_begin_startup.py
 scripts/init_end_startup.py
 scripts/init_system.py
@@ -186,6 +187,7 @@ scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
 scripts/task_tsdimaging.py
+scripts/task_sdpolaverage.py
 scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py

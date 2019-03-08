@@ -115,12 +115,12 @@ private:
     casacore::Int nt_;
     casacore::Int nPadT_;
     casacore::Int nChan_;
-    casacore::Int nSPWChan_;
+    //casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
     casacore::Double dt_, f0_, df_, df_all_;
-    casacore::Double t0_, t1_;
-    casacore::Double padBW_;
+    //casacore::Double t0_, t1_;
+    //casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
     casacore::Array<casacore::Int> xcount_;
     casacore::Array<casacore::Float> sumw_;
@@ -131,10 +131,19 @@ private:
     casacore::Matrix<casacore::Bool> flag_; //?
     std::map< casacore::Int, std::set<casacore::Int> > activeAntennas_;
     std::set<casacore::Int> allActiveAntennas_;
+    casacore::Array<casacore::Double>& delayWindow_;
+    casacore::Array<casacore::Double>& rateWindow_;
+    
 public:
-    DelayRateFFT(SDBList& sdbs, casacore::Int refant);
+    DelayRateFFT(SDBList& sdbs, casacore::Int refant,
+                 casacore::Array<casacore::Double>& delayWindow_,
+                 casacore::Array<casacore::Double>& rateWindow_
+         );
     DelayRateFFT(casacore::Array<casacore::Complex>& data, casacore::Int nPadFactor,
-                 casacore::Float f0, casacore::Float df, casacore::Float dt, SDBList& s);
+                 casacore::Float f0, casacore::Float df, casacore::Float dt, SDBList& s,
+                 casacore::Array<casacore::Double>& delayWindow_,
+                 casacore::Array<casacore::Double>& rateWindow_
+         );
     // The following are copied from KJones.h definition of DelayFFT.
     const std::map<casacore::Int, std::set<casacore::Int> >& getActiveAntennas() const
     { return activeAntennas_; }
@@ -225,9 +234,8 @@ public:
   virtual casacore::Bool useGenericGatherForSolve() { return true; };
   virtual casacore::Bool useGenericSolveOne() { return false; }
 
-  // Override G here; nothing to do for K, for now
-  //   TBD: refant apply, etc.
-  virtual void globalPostSolveTinker() {};
+  // Post solve tinkering
+  virtual void globalPostSolveTinker();
 
   // Local implementation of selfSolveOne (generalized signature)
   // virtual void selfSolveOne(VisBuffGroupAcc& vbga);
@@ -239,6 +247,14 @@ public:
   // virtual void solveOneSDB(const SolveDataBuffer&);
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
+  virtual casacore::Bool& globalSolve() { return globalSolve_; } 
+  virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
+  virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
+  
+  // Apply reference antenna
+  virtual void applyRefAnt();
+
+  virtual casacore::Int& refant() { return refant_; }
   
 protected:
 
@@ -269,7 +285,11 @@ private:
   virtual CTTIFactoryPtr cttifactoryptr() { return &CTRateAwareTimeInterp1::factory; };
   void calculateSNR(casacore::Int, DelayRateFFT);
 
+  casacore::Int refant_; // Override
   casacore::Bool zeroRates_;
+  casacore::Bool globalSolve_;
+  casacore::Array<casacore::Double> delayWindow_;
+  casacore::Array<casacore::Double> rateWindow_;
 };
 
 

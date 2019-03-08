@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SourceRow.h>
-#include <SourceTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SourceRow.h>
+#include <alma/ASDM/SourceTable.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::SpectralWindowTable;
 using asdm::SpectralWindowRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SourceRow::~SourceRow() {
@@ -585,6 +582,68 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x->dopplerVelocityExists = dopplerVelocityExists;
+		
+		
+			
+		x->dopplerVelocity.length(dopplerVelocity.size());
+		for (unsigned int i = 0; i < dopplerVelocity.size(); ++i) {
+			
+			x->dopplerVelocity[i] = dopplerVelocity.at(i).toIDLSpeed();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x->dopplerReferenceSystemExists = dopplerReferenceSystemExists;
+		
+		
+			
+				
+		x->dopplerReferenceSystem = dopplerReferenceSystem;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x->dopplerCalcTypeExists = dopplerCalcTypeExists;
+		
+		
+			
+				
+		x->dopplerCalcType = dopplerCalcType;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x->parallaxExists = parallaxExists;
+		
+		
+			
+		x->parallax.length(parallax.size());
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x->parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
+			
+		
+	
+
+	
 	
 		
 	
@@ -1100,6 +1159,68 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x.dopplerVelocityExists = dopplerVelocityExists;
+		
+		
+			
+		x.dopplerVelocity.length(dopplerVelocity.size());
+		for (unsigned int i = 0; i < dopplerVelocity.size(); ++i) {
+			
+			x.dopplerVelocity[i] = dopplerVelocity.at(i).toIDLSpeed();
+			
+	 	}
+			
+		
+	
+
+	
+  		
+		
+		x.dopplerReferenceSystemExists = dopplerReferenceSystemExists;
+		
+		
+			
+				
+		x.dopplerReferenceSystem = dopplerReferenceSystem;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x.dopplerCalcTypeExists = dopplerCalcTypeExists;
+		
+		
+			
+				
+		x.dopplerCalcType = dopplerCalcType;
+ 				
+ 			
+		
+	
+
+	
+  		
+		
+		x.parallaxExists = parallaxExists;
+		
+		
+			
+		x.parallax.length(parallax.size());
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x.parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
+			
+		
+	
+
+	
 	
 		
 	
@@ -1520,7 +1641,9 @@ namespace asdm {
 		
 			
 		flux .clear();
-		vector<Flux> v_aux_flux;
+        
+        vector<Flux> v_aux_flux;
+        
 		for (unsigned int i = 0; i < x.flux.length(); ++i) {
 			v_aux_flux.clear();
 			for (unsigned int j = 0; j < x.flux[0].length(); ++j) {
@@ -1545,7 +1668,9 @@ namespace asdm {
 		
 			
 		fluxErr .clear();
-		vector<Flux> v_aux_fluxErr;
+        
+        vector<Flux> v_aux_fluxErr;
+        
 		for (unsigned int i = 0; i < x.fluxErr.length(); ++i) {
 			v_aux_fluxErr.clear();
 			for (unsigned int j = 0; j < x.fluxErr[0].length(); ++j) {
@@ -1610,7 +1735,9 @@ namespace asdm {
 		
 			
 		size .clear();
-		vector<Angle> v_aux_size;
+        
+        vector<Angle> v_aux_size;
+        
 		for (unsigned int i = 0; i < x.size.length(); ++i) {
 			v_aux_size.clear();
 			for (unsigned int j = 0; j < x.size[0].length(); ++j) {
@@ -1635,7 +1762,9 @@ namespace asdm {
 		
 			
 		sizeErr .clear();
-		vector<Angle> v_aux_sizeErr;
+        
+        vector<Angle> v_aux_sizeErr;
+        
 		for (unsigned int i = 0; i < x.sizeErr.length(); ++i) {
 			v_aux_sizeErr.clear();
 			for (unsigned int j = 0; j < x.sizeErr[0].length(); ++j) {
@@ -1662,6 +1791,76 @@ namespace asdm {
 		setVelRefCode(x.velRefCode);
   			
  		
+		
+		}
+		
+	
+
+	
+		
+		dopplerVelocityExists = x.dopplerVelocityExists;
+		if (x.dopplerVelocityExists) {
+		
+		
+			
+		dopplerVelocity .clear();
+		for (unsigned int i = 0; i <x.dopplerVelocity.length(); ++i) {
+			
+			dopplerVelocity.push_back(Speed (x.dopplerVelocity[i]));
+			
+		}
+			
+  		
+		
+		}
+		
+	
+
+	
+		
+		dopplerReferenceSystemExists = x.dopplerReferenceSystemExists;
+		if (x.dopplerReferenceSystemExists) {
+		
+		
+			
+		setDopplerReferenceSystem(x.dopplerReferenceSystem);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
+		dopplerCalcTypeExists = x.dopplerCalcTypeExists;
+		if (x.dopplerCalcTypeExists) {
+		
+		
+			
+		setDopplerCalcType(x.dopplerCalcType);
+  			
+ 		
+		
+		}
+		
+	
+
+	
+		
+		parallaxExists = x.parallaxExists;
+		if (x.parallaxExists) {
+		
+		
+			
+		parallax .clear();
+		for (unsigned int i = 0; i <x.parallax.length(); ++i) {
+			
+			parallax.push_back(Angle (x.parallax[i]));
+			
+		}
+			
+  		
 		
 		}
 		
@@ -2042,6 +2241,54 @@ namespace asdm {
 		
 		
 			buf.append(EnumerationParser::toXML("velRefCode", velRefCode));
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (dopplerVelocityExists) {
+		
+		
+		Parser::toXML(dopplerVelocity, "dopplerVelocity", buf);
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (dopplerReferenceSystemExists) {
+		
+		
+			buf.append(EnumerationParser::toXML("dopplerReferenceSystem", dopplerReferenceSystem));
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (dopplerCalcTypeExists) {
+		
+		
+			buf.append(EnumerationParser::toXML("dopplerCalcType", dopplerCalcType));
+		
+		
+		}
+		
+	
+
+  	
+ 		
+		if (parallaxExists) {
+		
+		
+		Parser::toXML(parallax, "parallax", buf);
 		
 		
 		}
@@ -2430,6 +2677,60 @@ namespace asdm {
 		velRefCodeExists = true;
 	}
 		
+	
+
+	
+  		
+        if (row.isStr("<dopplerVelocity>")) {
+			
+								
+	  		setDopplerVelocity(Parser::get1DSpeed("dopplerVelocity","Source",rowDoc));
+	  			
+	  		
+		}
+ 		
+	
+
+	
+		
+	if (row.isStr("<dopplerReferenceSystem>")) {
+		
+		
+		
+		dopplerReferenceSystem = EnumerationParser::getRadialVelocityReferenceCode("dopplerReferenceSystem","Source",rowDoc);
+		
+		
+		
+		dopplerReferenceSystemExists = true;
+	}
+		
+	
+
+	
+		
+	if (row.isStr("<dopplerCalcType>")) {
+		
+		
+		
+		dopplerCalcType = EnumerationParser::getDopplerReferenceCode("dopplerCalcType","Source",rowDoc);
+		
+		
+		
+		dopplerCalcTypeExists = true;
+	}
+		
+	
+
+	
+  		
+        if (row.isStr("<parallax>")) {
+			
+								
+	  		setParallax(Parser::get1DAngle("parallax","Source",rowDoc));
+	  			
+	  		
+		}
+ 		
 	
 
 	
@@ -2847,6 +3148,60 @@ namespace asdm {
 			eoss.writeString(CRadialVelocityReferenceCode::name(velRefCode));
 			/* eoss.writeInt(velRefCode); */
 				
+		
+	
+
+	}
+
+	eoss.writeBoolean(dopplerVelocityExists);
+	if (dopplerVelocityExists) {
+	
+	
+	
+		
+	Speed::toBin(dopplerVelocity, eoss);
+		
+	
+
+	}
+
+	eoss.writeBoolean(dopplerReferenceSystemExists);
+	if (dopplerReferenceSystemExists) {
+	
+	
+	
+		
+					
+			eoss.writeString(CRadialVelocityReferenceCode::name(dopplerReferenceSystem));
+			/* eoss.writeInt(dopplerReferenceSystem); */
+				
+		
+	
+
+	}
+
+	eoss.writeBoolean(dopplerCalcTypeExists);
+	if (dopplerCalcTypeExists) {
+	
+	
+	
+		
+					
+			eoss.writeString(CDopplerReferenceCode::name(dopplerCalcType));
+			/* eoss.writeInt(dopplerCalcType); */
+				
+		
+	
+
+	}
+
+	eoss.writeBoolean(parallaxExists);
+	if (parallaxExists) {
+	
+	
+	
+		
+	Angle::toBin(parallax, eoss);
 		
 	
 
@@ -3400,6 +3755,78 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	}
 	
 }
+void SourceRow::dopplerVelocityFromBin(EndianIStream& eis) {
+		
+	dopplerVelocityExists = eis.readBoolean();
+	if (dopplerVelocityExists) {
+		
+	
+		
+		
+			
+	
+	dopplerVelocity = Speed::from1DBin(eis);	
+	
+
+		
+	
+
+	}
+	
+}
+void SourceRow::dopplerReferenceSystemFromBin(EndianIStream& eis) {
+		
+	dopplerReferenceSystemExists = eis.readBoolean();
+	if (dopplerReferenceSystemExists) {
+		
+	
+	
+		
+			
+		dopplerReferenceSystem = CRadialVelocityReferenceCode::literal(eis.readString());
+			
+		
+	
+
+	}
+	
+}
+void SourceRow::dopplerCalcTypeFromBin(EndianIStream& eis) {
+		
+	dopplerCalcTypeExists = eis.readBoolean();
+	if (dopplerCalcTypeExists) {
+		
+	
+	
+		
+			
+		dopplerCalcType = CDopplerReferenceCode::literal(eis.readString());
+			
+		
+	
+
+	}
+	
+}
+void SourceRow::parallaxFromBin(EndianIStream& eis) {
+		
+	parallaxExists = eis.readBoolean();
+	if (parallaxExists) {
+		
+	
+		
+		
+			
+	
+	parallax = Angle::from1DBin(eis);	
+	
+
+		
+	
+
+	}
+	
+}
 	
 	
 	SourceRow* SourceRow::fromBin(EndianIStream& eis, SourceTable& table, const vector<string>& attributesSeq) {
@@ -3431,7 +3858,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SourceRow::sourceIdFromText(const string & s) {
 		 
+          
 		sourceId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3439,7 +3868,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void SourceRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -3447,7 +3878,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SourceRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3455,7 +3888,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SourceRow::codeFromText(const string & s) {
 		 
+          
 		code = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3463,7 +3898,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void SourceRow::directionFromText(const string & s) {
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3471,7 +3908,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an AngularRate 
 	void SourceRow::properMotionFromText(const string & s) {
 		 
+          
 		properMotion = ASDMValuesParser::parse1D<AngularRate>(s);
+          
 		
 	}
 	
@@ -3479,7 +3918,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SourceRow::sourceNameFromText(const string & s) {
 		 
+          
 		sourceName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3489,7 +3930,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::directionCodeFromText(const string & s) {
 		directionCodeExists = true;
 		 
-		directionCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		directionCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -3498,7 +3941,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::directionEquinoxFromText(const string & s) {
 		directionEquinoxExists = true;
 		 
+          
 		directionEquinox = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3507,7 +3952,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::calibrationGroupFromText(const string & s) {
 		calibrationGroupExists = true;
 		 
+          
 		calibrationGroup = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3516,7 +3963,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::catalogFromText(const string & s) {
 		catalogExists = true;
 		 
+          
 		catalog = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3525,7 +3974,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::deltaVelFromText(const string & s) {
 		deltaVelExists = true;
 		 
+          
 		deltaVel = ASDMValuesParser::parse<Speed>(s);
+          
 		
 	}
 	
@@ -3534,7 +3985,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::positionFromText(const string & s) {
 		positionExists = true;
 		 
+          
 		position = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -3543,7 +3996,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::numLinesFromText(const string & s) {
 		numLinesExists = true;
 		 
+          
 		numLines = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3552,7 +4007,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::transitionFromText(const string & s) {
 		transitionExists = true;
 		 
+          
 		transition = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -3561,7 +4018,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::restFrequencyFromText(const string & s) {
 		restFrequencyExists = true;
 		 
+          
 		restFrequency = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3570,7 +4029,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::sysVelFromText(const string & s) {
 		sysVelExists = true;
 		 
+          
 		sysVel = ASDMValuesParser::parse1D<Speed>(s);
+          
 		
 	}
 	
@@ -3579,7 +4040,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::rangeVelFromText(const string & s) {
 		rangeVelExists = true;
 		 
+          
 		rangeVel = ASDMValuesParser::parse1D<Speed>(s);
+          
 		
 	}
 	
@@ -3588,7 +4051,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::sourceModelFromText(const string & s) {
 		sourceModelExists = true;
 		 
-		sourceModel = ASDMValuesParser::parse<SourceModel>(s);
+          
+		sourceModel = ASDMValuesParser::parse<SourceModelMod::SourceModel>(s);
+          
 		
 	}
 	
@@ -3597,7 +4062,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::frequencyRefCodeFromText(const string & s) {
 		frequencyRefCodeExists = true;
 		 
-		frequencyRefCode = ASDMValuesParser::parse<FrequencyReferenceCode>(s);
+          
+		frequencyRefCode = ASDMValuesParser::parse<FrequencyReferenceCodeMod::FrequencyReferenceCode>(s);
+          
 		
 	}
 	
@@ -3606,7 +4073,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::numFreqFromText(const string & s) {
 		numFreqExists = true;
 		 
+          
 		numFreq = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3615,7 +4084,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::numStokesFromText(const string & s) {
 		numStokesExists = true;
 		 
+          
 		numStokes = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3624,7 +4095,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::frequencyFromText(const string & s) {
 		frequencyExists = true;
 		 
+          
 		frequency = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3633,7 +4106,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::frequencyIntervalFromText(const string & s) {
 		frequencyIntervalExists = true;
 		 
+          
 		frequencyInterval = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3642,7 +4117,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::stokesParameterFromText(const string & s) {
 		stokesParameterExists = true;
 		 
-		stokesParameter = ASDMValuesParser::parse1D<StokesParameter>(s);
+          
+		stokesParameter = ASDMValuesParser::parse1D<StokesParameterMod::StokesParameter>(s);
+          
 		
 	}
 	
@@ -3651,7 +4128,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::fluxFromText(const string & s) {
 		fluxExists = true;
 		 
+          
 		flux = ASDMValuesParser::parse2D<Flux>(s);
+          
 		
 	}
 	
@@ -3660,7 +4139,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::fluxErrFromText(const string & s) {
 		fluxErrExists = true;
 		 
+          
 		fluxErr = ASDMValuesParser::parse2D<Flux>(s);
+          
 		
 	}
 	
@@ -3669,7 +4150,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::positionAngleFromText(const string & s) {
 		positionAngleExists = true;
 		 
+          
 		positionAngle = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3678,7 +4161,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::positionAngleErrFromText(const string & s) {
 		positionAngleErrExists = true;
 		 
+          
 		positionAngleErr = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3687,7 +4172,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::sizeFromText(const string & s) {
 		sizeExists = true;
 		 
+          
 		size = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3696,7 +4183,9 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::sizeErrFromText(const string & s) {
 		sizeErrExists = true;
 		 
+          
 		sizeErr = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -3705,7 +4194,53 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	void SourceRow::velRefCodeFromText(const string & s) {
 		velRefCodeExists = true;
 		 
-		velRefCode = ASDMValuesParser::parse<RadialVelocityReferenceCode>(s);
+          
+		velRefCode = ASDMValuesParser::parse<RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an Speed 
+	void SourceRow::dopplerVelocityFromText(const string & s) {
+		dopplerVelocityExists = true;
+		 
+          
+		dopplerVelocity = ASDMValuesParser::parse1D<Speed>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an RadialVelocityReferenceCode 
+	void SourceRow::dopplerReferenceSystemFromText(const string & s) {
+		dopplerReferenceSystemExists = true;
+		 
+          
+		dopplerReferenceSystem = ASDMValuesParser::parse<RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an DopplerReferenceCode 
+	void SourceRow::dopplerCalcTypeFromText(const string & s) {
+		dopplerCalcTypeExists = true;
+		 
+          
+		dopplerCalcType = ASDMValuesParser::parse<DopplerReferenceCodeMod::DopplerReferenceCode>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an Angle 
+	void SourceRow::parallaxFromText(const string & s) {
+		parallaxExists = true;
+		 
+          
+		parallax = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3799,21 +4334,21 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get code.
- 	 * @return code as string
+ 	 * @return code as std::string
  	 */
- 	string SourceRow::getCode() const {
+ 	std::string SourceRow::getCode() const {
 	
   		return code;
  	}
 
  	/**
- 	 * Set code with the specified string.
- 	 * @param code The string value to which code is to be set.
+ 	 * Set code with the specified std::string.
+ 	 * @param code The std::string value to which code is to be set.
  	 
  	
  		
  	 */
- 	void SourceRow::setCode (string code)  {
+ 	void SourceRow::setCode (std::string code)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3831,21 +4366,21 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > SourceRow::getDirection() const {
+ 	std::vector<Angle > SourceRow::getDirection() const {
 	
   		return direction;
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  		
  	 */
- 	void SourceRow::setDirection (vector<Angle > direction)  {
+ 	void SourceRow::setDirection (std::vector<Angle > direction)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3863,21 +4398,21 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get properMotion.
- 	 * @return properMotion as vector<AngularRate >
+ 	 * @return properMotion as std::vector<AngularRate >
  	 */
- 	vector<AngularRate > SourceRow::getProperMotion() const {
+ 	std::vector<AngularRate > SourceRow::getProperMotion() const {
 	
   		return properMotion;
  	}
 
  	/**
- 	 * Set properMotion with the specified vector<AngularRate >.
- 	 * @param properMotion The vector<AngularRate > value to which properMotion is to be set.
+ 	 * Set properMotion with the specified std::vector<AngularRate >.
+ 	 * @param properMotion The std::vector<AngularRate > value to which properMotion is to be set.
  	 
  	
  		
  	 */
- 	void SourceRow::setProperMotion (vector<AngularRate > properMotion)  {
+ 	void SourceRow::setProperMotion (std::vector<AngularRate > properMotion)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3895,21 +4430,21 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceName.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 */
- 	string SourceRow::getSourceName() const {
+ 	std::string SourceRow::getSourceName() const {
 	
   		return sourceName;
  	}
 
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  	
  		
  	 */
- 	void SourceRow::setSourceName (string sourceName)  {
+ 	void SourceRow::setSourceName (std::string sourceName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4076,10 +4611,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get catalog, which is optional.
- 	 * @return catalog as string
+ 	 * @return catalog as std::string
  	 * @throw IllegalAccessException If catalog does not exist.
  	 */
- 	string SourceRow::getCatalog() const  {
+ 	std::string SourceRow::getCatalog() const  {
 		if (!catalogExists) {
 			throw IllegalAccessException("catalog", "Source");
 		}
@@ -4088,12 +4623,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set catalog with the specified string.
- 	 * @param catalog The string value to which catalog is to be set.
+ 	 * Set catalog with the specified std::string.
+ 	 * @param catalog The std::string value to which catalog is to be set.
  	 
  	
  	 */
- 	void SourceRow::setCatalog (string catalog) {
+ 	void SourceRow::setCatalog (std::string catalog) {
 	
  		this->catalog = catalog;
 	
@@ -4170,10 +4705,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get position, which is optional.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 * @throw IllegalAccessException If position does not exist.
  	 */
- 	vector<Length > SourceRow::getPosition() const  {
+ 	std::vector<Length > SourceRow::getPosition() const  {
 		if (!positionExists) {
 			throw IllegalAccessException("position", "Source");
 		}
@@ -4182,12 +4717,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  	
  	 */
- 	void SourceRow::setPosition (vector<Length > position) {
+ 	void SourceRow::setPosition (std::vector<Length > position) {
 	
  		this->position = position;
 	
@@ -4264,10 +4799,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get transition, which is optional.
- 	 * @return transition as vector<string >
+ 	 * @return transition as std::vector<std::string >
  	 * @throw IllegalAccessException If transition does not exist.
  	 */
- 	vector<string > SourceRow::getTransition() const  {
+ 	std::vector<std::string > SourceRow::getTransition() const  {
 		if (!transitionExists) {
 			throw IllegalAccessException("transition", "Source");
 		}
@@ -4276,12 +4811,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set transition with the specified vector<string >.
- 	 * @param transition The vector<string > value to which transition is to be set.
+ 	 * Set transition with the specified std::vector<std::string >.
+ 	 * @param transition The std::vector<std::string > value to which transition is to be set.
  	 
  	
  	 */
- 	void SourceRow::setTransition (vector<string > transition) {
+ 	void SourceRow::setTransition (std::vector<std::string > transition) {
 	
  		this->transition = transition;
 	
@@ -4311,10 +4846,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get restFrequency, which is optional.
- 	 * @return restFrequency as vector<Frequency >
+ 	 * @return restFrequency as std::vector<Frequency >
  	 * @throw IllegalAccessException If restFrequency does not exist.
  	 */
- 	vector<Frequency > SourceRow::getRestFrequency() const  {
+ 	std::vector<Frequency > SourceRow::getRestFrequency() const  {
 		if (!restFrequencyExists) {
 			throw IllegalAccessException("restFrequency", "Source");
 		}
@@ -4323,12 +4858,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set restFrequency with the specified vector<Frequency >.
- 	 * @param restFrequency The vector<Frequency > value to which restFrequency is to be set.
+ 	 * Set restFrequency with the specified std::vector<Frequency >.
+ 	 * @param restFrequency The std::vector<Frequency > value to which restFrequency is to be set.
  	 
  	
  	 */
- 	void SourceRow::setRestFrequency (vector<Frequency > restFrequency) {
+ 	void SourceRow::setRestFrequency (std::vector<Frequency > restFrequency) {
 	
  		this->restFrequency = restFrequency;
 	
@@ -4358,10 +4893,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sysVel, which is optional.
- 	 * @return sysVel as vector<Speed >
+ 	 * @return sysVel as std::vector<Speed >
  	 * @throw IllegalAccessException If sysVel does not exist.
  	 */
- 	vector<Speed > SourceRow::getSysVel() const  {
+ 	std::vector<Speed > SourceRow::getSysVel() const  {
 		if (!sysVelExists) {
 			throw IllegalAccessException("sysVel", "Source");
 		}
@@ -4370,12 +4905,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sysVel with the specified vector<Speed >.
- 	 * @param sysVel The vector<Speed > value to which sysVel is to be set.
+ 	 * Set sysVel with the specified std::vector<Speed >.
+ 	 * @param sysVel The std::vector<Speed > value to which sysVel is to be set.
  	 
  	
  	 */
- 	void SourceRow::setSysVel (vector<Speed > sysVel) {
+ 	void SourceRow::setSysVel (std::vector<Speed > sysVel) {
 	
  		this->sysVel = sysVel;
 	
@@ -4405,10 +4940,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get rangeVel, which is optional.
- 	 * @return rangeVel as vector<Speed >
+ 	 * @return rangeVel as std::vector<Speed >
  	 * @throw IllegalAccessException If rangeVel does not exist.
  	 */
- 	vector<Speed > SourceRow::getRangeVel() const  {
+ 	std::vector<Speed > SourceRow::getRangeVel() const  {
 		if (!rangeVelExists) {
 			throw IllegalAccessException("rangeVel", "Source");
 		}
@@ -4417,12 +4952,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set rangeVel with the specified vector<Speed >.
- 	 * @param rangeVel The vector<Speed > value to which rangeVel is to be set.
+ 	 * Set rangeVel with the specified std::vector<Speed >.
+ 	 * @param rangeVel The std::vector<Speed > value to which rangeVel is to be set.
  	 
  	
  	 */
- 	void SourceRow::setRangeVel (vector<Speed > rangeVel) {
+ 	void SourceRow::setRangeVel (std::vector<Speed > rangeVel) {
 	
  		this->rangeVel = rangeVel;
 	
@@ -4640,10 +5175,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequency, which is optional.
- 	 * @return frequency as vector<Frequency >
+ 	 * @return frequency as std::vector<Frequency >
  	 * @throw IllegalAccessException If frequency does not exist.
  	 */
- 	vector<Frequency > SourceRow::getFrequency() const  {
+ 	std::vector<Frequency > SourceRow::getFrequency() const  {
 		if (!frequencyExists) {
 			throw IllegalAccessException("frequency", "Source");
 		}
@@ -4652,12 +5187,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set frequency with the specified vector<Frequency >.
- 	 * @param frequency The vector<Frequency > value to which frequency is to be set.
+ 	 * Set frequency with the specified std::vector<Frequency >.
+ 	 * @param frequency The std::vector<Frequency > value to which frequency is to be set.
  	 
  	
  	 */
- 	void SourceRow::setFrequency (vector<Frequency > frequency) {
+ 	void SourceRow::setFrequency (std::vector<Frequency > frequency) {
 	
  		this->frequency = frequency;
 	
@@ -4687,10 +5222,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyInterval, which is optional.
- 	 * @return frequencyInterval as vector<Frequency >
+ 	 * @return frequencyInterval as std::vector<Frequency >
  	 * @throw IllegalAccessException If frequencyInterval does not exist.
  	 */
- 	vector<Frequency > SourceRow::getFrequencyInterval() const  {
+ 	std::vector<Frequency > SourceRow::getFrequencyInterval() const  {
 		if (!frequencyIntervalExists) {
 			throw IllegalAccessException("frequencyInterval", "Source");
 		}
@@ -4699,12 +5234,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set frequencyInterval with the specified vector<Frequency >.
- 	 * @param frequencyInterval The vector<Frequency > value to which frequencyInterval is to be set.
+ 	 * Set frequencyInterval with the specified std::vector<Frequency >.
+ 	 * @param frequencyInterval The std::vector<Frequency > value to which frequencyInterval is to be set.
  	 
  	
  	 */
- 	void SourceRow::setFrequencyInterval (vector<Frequency > frequencyInterval) {
+ 	void SourceRow::setFrequencyInterval (std::vector<Frequency > frequencyInterval) {
 	
  		this->frequencyInterval = frequencyInterval;
 	
@@ -4734,10 +5269,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stokesParameter, which is optional.
- 	 * @return stokesParameter as vector<StokesParameterMod::StokesParameter >
+ 	 * @return stokesParameter as std::vector<StokesParameterMod::StokesParameter >
  	 * @throw IllegalAccessException If stokesParameter does not exist.
  	 */
- 	vector<StokesParameterMod::StokesParameter > SourceRow::getStokesParameter() const  {
+ 	std::vector<StokesParameterMod::StokesParameter > SourceRow::getStokesParameter() const  {
 		if (!stokesParameterExists) {
 			throw IllegalAccessException("stokesParameter", "Source");
 		}
@@ -4746,12 +5281,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set stokesParameter with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param stokesParameter The vector<StokesParameterMod::StokesParameter > value to which stokesParameter is to be set.
+ 	 * Set stokesParameter with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param stokesParameter The std::vector<StokesParameterMod::StokesParameter > value to which stokesParameter is to be set.
  	 
  	
  	 */
- 	void SourceRow::setStokesParameter (vector<StokesParameterMod::StokesParameter > stokesParameter) {
+ 	void SourceRow::setStokesParameter (std::vector<StokesParameterMod::StokesParameter > stokesParameter) {
 	
  		this->stokesParameter = stokesParameter;
 	
@@ -4781,10 +5316,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get flux, which is optional.
- 	 * @return flux as vector<vector<Flux > >
+ 	 * @return flux as std::vector<std::vector<Flux > >
  	 * @throw IllegalAccessException If flux does not exist.
  	 */
- 	vector<vector<Flux > > SourceRow::getFlux() const  {
+ 	std::vector<std::vector<Flux > > SourceRow::getFlux() const  {
 		if (!fluxExists) {
 			throw IllegalAccessException("flux", "Source");
 		}
@@ -4793,12 +5328,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set flux with the specified vector<vector<Flux > >.
- 	 * @param flux The vector<vector<Flux > > value to which flux is to be set.
+ 	 * Set flux with the specified std::vector<std::vector<Flux > >.
+ 	 * @param flux The std::vector<std::vector<Flux > > value to which flux is to be set.
  	 
  	
  	 */
- 	void SourceRow::setFlux (vector<vector<Flux > > flux) {
+ 	void SourceRow::setFlux (std::vector<std::vector<Flux > > flux) {
 	
  		this->flux = flux;
 	
@@ -4828,10 +5363,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fluxErr, which is optional.
- 	 * @return fluxErr as vector<vector<Flux > >
+ 	 * @return fluxErr as std::vector<std::vector<Flux > >
  	 * @throw IllegalAccessException If fluxErr does not exist.
  	 */
- 	vector<vector<Flux > > SourceRow::getFluxErr() const  {
+ 	std::vector<std::vector<Flux > > SourceRow::getFluxErr() const  {
 		if (!fluxErrExists) {
 			throw IllegalAccessException("fluxErr", "Source");
 		}
@@ -4840,12 +5375,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set fluxErr with the specified vector<vector<Flux > >.
- 	 * @param fluxErr The vector<vector<Flux > > value to which fluxErr is to be set.
+ 	 * Set fluxErr with the specified std::vector<std::vector<Flux > >.
+ 	 * @param fluxErr The std::vector<std::vector<Flux > > value to which fluxErr is to be set.
  	 
  	
  	 */
- 	void SourceRow::setFluxErr (vector<vector<Flux > > fluxErr) {
+ 	void SourceRow::setFluxErr (std::vector<std::vector<Flux > > fluxErr) {
 	
  		this->fluxErr = fluxErr;
 	
@@ -4875,10 +5410,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get positionAngle, which is optional.
- 	 * @return positionAngle as vector<Angle >
+ 	 * @return positionAngle as std::vector<Angle >
  	 * @throw IllegalAccessException If positionAngle does not exist.
  	 */
- 	vector<Angle > SourceRow::getPositionAngle() const  {
+ 	std::vector<Angle > SourceRow::getPositionAngle() const  {
 		if (!positionAngleExists) {
 			throw IllegalAccessException("positionAngle", "Source");
 		}
@@ -4887,12 +5422,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set positionAngle with the specified vector<Angle >.
- 	 * @param positionAngle The vector<Angle > value to which positionAngle is to be set.
+ 	 * Set positionAngle with the specified std::vector<Angle >.
+ 	 * @param positionAngle The std::vector<Angle > value to which positionAngle is to be set.
  	 
  	
  	 */
- 	void SourceRow::setPositionAngle (vector<Angle > positionAngle) {
+ 	void SourceRow::setPositionAngle (std::vector<Angle > positionAngle) {
 	
  		this->positionAngle = positionAngle;
 	
@@ -4922,10 +5457,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get positionAngleErr, which is optional.
- 	 * @return positionAngleErr as vector<Angle >
+ 	 * @return positionAngleErr as std::vector<Angle >
  	 * @throw IllegalAccessException If positionAngleErr does not exist.
  	 */
- 	vector<Angle > SourceRow::getPositionAngleErr() const  {
+ 	std::vector<Angle > SourceRow::getPositionAngleErr() const  {
 		if (!positionAngleErrExists) {
 			throw IllegalAccessException("positionAngleErr", "Source");
 		}
@@ -4934,12 +5469,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set positionAngleErr with the specified vector<Angle >.
- 	 * @param positionAngleErr The vector<Angle > value to which positionAngleErr is to be set.
+ 	 * Set positionAngleErr with the specified std::vector<Angle >.
+ 	 * @param positionAngleErr The std::vector<Angle > value to which positionAngleErr is to be set.
  	 
  	
  	 */
- 	void SourceRow::setPositionAngleErr (vector<Angle > positionAngleErr) {
+ 	void SourceRow::setPositionAngleErr (std::vector<Angle > positionAngleErr) {
 	
  		this->positionAngleErr = positionAngleErr;
 	
@@ -4969,10 +5504,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get size, which is optional.
- 	 * @return size as vector<vector<Angle > >
+ 	 * @return size as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<Angle > > SourceRow::getSize() const  {
+ 	std::vector<std::vector<Angle > > SourceRow::getSize() const  {
 		if (!sizeExists) {
 			throw IllegalAccessException("size", "Source");
 		}
@@ -4981,12 +5516,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set size with the specified vector<vector<Angle > >.
- 	 * @param size The vector<vector<Angle > > value to which size is to be set.
+ 	 * Set size with the specified std::vector<std::vector<Angle > >.
+ 	 * @param size The std::vector<std::vector<Angle > > value to which size is to be set.
  	 
  	
  	 */
- 	void SourceRow::setSize (vector<vector<Angle > > size) {
+ 	void SourceRow::setSize (std::vector<std::vector<Angle > > size) {
 	
  		this->size = size;
 	
@@ -5016,10 +5551,10 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sizeErr, which is optional.
- 	 * @return sizeErr as vector<vector<Angle > >
+ 	 * @return sizeErr as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If sizeErr does not exist.
  	 */
- 	vector<vector<Angle > > SourceRow::getSizeErr() const  {
+ 	std::vector<std::vector<Angle > > SourceRow::getSizeErr() const  {
 		if (!sizeErrExists) {
 			throw IllegalAccessException("sizeErr", "Source");
 		}
@@ -5028,12 +5563,12 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sizeErr with the specified vector<vector<Angle > >.
- 	 * @param sizeErr The vector<vector<Angle > > value to which sizeErr is to be set.
+ 	 * Set sizeErr with the specified std::vector<std::vector<Angle > >.
+ 	 * @param sizeErr The std::vector<std::vector<Angle > > value to which sizeErr is to be set.
  	 
  	
  	 */
- 	void SourceRow::setSizeErr (vector<vector<Angle > > sizeErr) {
+ 	void SourceRow::setSizeErr (std::vector<std::vector<Angle > > sizeErr) {
 	
  		this->sizeErr = sizeErr;
 	
@@ -5094,6 +5629,194 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	 */
 	void SourceRow::clearVelRefCode () {
 		velRefCodeExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute dopplerVelocity is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerVelocity attribute exists. 
+	 */
+	bool SourceRow::isDopplerVelocityExists() const {
+		return dopplerVelocityExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get dopplerVelocity, which is optional.
+ 	 * @return dopplerVelocity as std::vector<Speed >
+ 	 * @throw IllegalAccessException If dopplerVelocity does not exist.
+ 	 */
+ 	std::vector<Speed > SourceRow::getDopplerVelocity() const  {
+		if (!dopplerVelocityExists) {
+			throw IllegalAccessException("dopplerVelocity", "Source");
+		}
+	
+  		return dopplerVelocity;
+ 	}
+
+ 	/**
+ 	 * Set dopplerVelocity with the specified std::vector<Speed >.
+ 	 * @param dopplerVelocity The std::vector<Speed > value to which dopplerVelocity is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SourceRow::setDopplerVelocity (std::vector<Speed > dopplerVelocity) {
+	
+ 		this->dopplerVelocity = dopplerVelocity;
+	
+		dopplerVelocityExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark dopplerVelocity, which is an optional field, as non-existent.
+	 */
+	void SourceRow::clearDopplerVelocity () {
+		dopplerVelocityExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute dopplerReferenceSystem is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerReferenceSystem attribute exists. 
+	 */
+	bool SourceRow::isDopplerReferenceSystemExists() const {
+		return dopplerReferenceSystemExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get dopplerReferenceSystem, which is optional.
+ 	 * @return dopplerReferenceSystem as RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode
+ 	 * @throw IllegalAccessException If dopplerReferenceSystem does not exist.
+ 	 */
+ 	RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode SourceRow::getDopplerReferenceSystem() const  {
+		if (!dopplerReferenceSystemExists) {
+			throw IllegalAccessException("dopplerReferenceSystem", "Source");
+		}
+	
+  		return dopplerReferenceSystem;
+ 	}
+
+ 	/**
+ 	 * Set dopplerReferenceSystem with the specified RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode.
+ 	 * @param dopplerReferenceSystem The RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode value to which dopplerReferenceSystem is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SourceRow::setDopplerReferenceSystem (RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode dopplerReferenceSystem) {
+	
+ 		this->dopplerReferenceSystem = dopplerReferenceSystem;
+	
+		dopplerReferenceSystemExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark dopplerReferenceSystem, which is an optional field, as non-existent.
+	 */
+	void SourceRow::clearDopplerReferenceSystem () {
+		dopplerReferenceSystemExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute dopplerCalcType is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerCalcType attribute exists. 
+	 */
+	bool SourceRow::isDopplerCalcTypeExists() const {
+		return dopplerCalcTypeExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get dopplerCalcType, which is optional.
+ 	 * @return dopplerCalcType as DopplerReferenceCodeMod::DopplerReferenceCode
+ 	 * @throw IllegalAccessException If dopplerCalcType does not exist.
+ 	 */
+ 	DopplerReferenceCodeMod::DopplerReferenceCode SourceRow::getDopplerCalcType() const  {
+		if (!dopplerCalcTypeExists) {
+			throw IllegalAccessException("dopplerCalcType", "Source");
+		}
+	
+  		return dopplerCalcType;
+ 	}
+
+ 	/**
+ 	 * Set dopplerCalcType with the specified DopplerReferenceCodeMod::DopplerReferenceCode.
+ 	 * @param dopplerCalcType The DopplerReferenceCodeMod::DopplerReferenceCode value to which dopplerCalcType is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SourceRow::setDopplerCalcType (DopplerReferenceCodeMod::DopplerReferenceCode dopplerCalcType) {
+	
+ 		this->dopplerCalcType = dopplerCalcType;
+	
+		dopplerCalcTypeExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark dopplerCalcType, which is an optional field, as non-existent.
+	 */
+	void SourceRow::clearDopplerCalcType () {
+		dopplerCalcTypeExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute parallax is optional. Return true if this attribute exists.
+	 * @return true if and only if the parallax attribute exists. 
+	 */
+	bool SourceRow::isParallaxExists() const {
+		return parallaxExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get parallax, which is optional.
+ 	 * @return parallax as std::vector<Angle >
+ 	 * @throw IllegalAccessException If parallax does not exist.
+ 	 */
+ 	std::vector<Angle > SourceRow::getParallax() const  {
+		if (!parallaxExists) {
+			throw IllegalAccessException("parallax", "Source");
+		}
+	
+  		return parallax;
+ 	}
+
+ 	/**
+ 	 * Set parallax with the specified std::vector<Angle >.
+ 	 * @param parallax The std::vector<Angle > value to which parallax is to be set.
+ 	 
+ 	
+ 	 */
+ 	void SourceRow::setParallax (std::vector<Angle > parallax) {
+	
+ 		this->parallax = parallax;
+	
+		parallaxExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark parallax, which is an optional field, as non-existent.
+	 */
+	void SourceRow::clearParallax () {
+		parallaxExists = false;
 	}
 	
 
@@ -5288,6 +6011,22 @@ void SourceRow::velRefCodeFromBin(EndianIStream& eis) {
 	
 
 	
+		dopplerVelocityExists = false;
+	
+
+	
+		dopplerReferenceSystemExists = false;
+	
+
+	
+		dopplerCalcTypeExists = false;
+	
+
+	
+		parallaxExists = false;
+	
+
+	
 	
 
 	
@@ -5368,6 +6107,20 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 	
 
 	
+
+	
+// This attribute is scalar and has an enumeration type. Let's initialize it to some valid value (the 1st of the enumeration).		
+dopplerReferenceSystem = CRadialVelocityReferenceCode::from_int(0);
+	
+
+	
+// This attribute is scalar and has an enumeration type. Let's initialize it to some valid value (the 1st of the enumeration).		
+dopplerCalcType = CDopplerReferenceCode::from_int(0);
+	
+
+	
+
+	
 	
 	 fromBinMethods["sourceId"] = &SourceRow::sourceIdFromBin; 
 	 fromBinMethods["timeInterval"] = &SourceRow::timeIntervalFromBin; 
@@ -5403,6 +6156,10 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 	 fromBinMethods["size"] = &SourceRow::sizeFromBin; 
 	 fromBinMethods["sizeErr"] = &SourceRow::sizeErrFromBin; 
 	 fromBinMethods["velRefCode"] = &SourceRow::velRefCodeFromBin; 
+	 fromBinMethods["dopplerVelocity"] = &SourceRow::dopplerVelocityFromBin; 
+	 fromBinMethods["dopplerReferenceSystem"] = &SourceRow::dopplerReferenceSystemFromBin; 
+	 fromBinMethods["dopplerCalcType"] = &SourceRow::dopplerCalcTypeFromBin; 
+	 fromBinMethods["parallax"] = &SourceRow::parallaxFromBin; 
 	
 	
 	
@@ -5536,6 +6293,22 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 				
 	fromTextMethods["velRefCode"] = &SourceRow::velRefCodeFromText;
 		 	
+	 
+				
+	fromTextMethods["dopplerVelocity"] = &SourceRow::dopplerVelocityFromText;
+		 	
+	 
+				
+	fromTextMethods["dopplerReferenceSystem"] = &SourceRow::dopplerReferenceSystemFromText;
+		 	
+	 
+				
+	fromTextMethods["dopplerCalcType"] = &SourceRow::dopplerCalcTypeFromText;
+		 	
+	 
+				
+	fromTextMethods["parallax"] = &SourceRow::parallaxFromText;
+		 	
 		
 	}
 	
@@ -5655,6 +6428,22 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 
 	
 		velRefCodeExists = false;
+	
+
+	
+		dopplerVelocityExists = false;
+	
+
+	
+		dopplerReferenceSystemExists = false;
+	
+
+	
+		dopplerCalcTypeExists = false;
+	
+
+	
+		parallaxExists = false;
 	
 
 	
@@ -5859,6 +6648,34 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 		else
 			velRefCodeExists = false;
 		
+		if (row.dopplerVelocityExists) {
+			dopplerVelocity = row.dopplerVelocity;		
+			dopplerVelocityExists = true;
+		}
+		else
+			dopplerVelocityExists = false;
+		
+		if (row.dopplerReferenceSystemExists) {
+			dopplerReferenceSystem = row.dopplerReferenceSystem;		
+			dopplerReferenceSystemExists = true;
+		}
+		else
+			dopplerReferenceSystemExists = false;
+		
+		if (row.dopplerCalcTypeExists) {
+			dopplerCalcType = row.dopplerCalcType;		
+			dopplerCalcTypeExists = true;
+		}
+		else
+			dopplerCalcTypeExists = false;
+		
+		if (row.parallaxExists) {
+			parallax = row.parallax;		
+			parallaxExists = true;
+		}
+		else
+			parallaxExists = false;
+		
 		}
 		
 		 fromBinMethods["sourceId"] = &SourceRow::sourceIdFromBin; 
@@ -5895,11 +6712,15 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 		 fromBinMethods["size"] = &SourceRow::sizeFromBin; 
 		 fromBinMethods["sizeErr"] = &SourceRow::sizeErrFromBin; 
 		 fromBinMethods["velRefCode"] = &SourceRow::velRefCodeFromBin; 
+		 fromBinMethods["dopplerVelocity"] = &SourceRow::dopplerVelocityFromBin; 
+		 fromBinMethods["dopplerReferenceSystem"] = &SourceRow::dopplerReferenceSystemFromBin; 
+		 fromBinMethods["dopplerCalcType"] = &SourceRow::dopplerCalcTypeFromBin; 
+		 fromBinMethods["parallax"] = &SourceRow::parallaxFromBin; 
 			
 	}
 
 	
-	bool SourceRow::compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName) {
+	bool SourceRow::compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName) {
 		bool result;
 		result = true;
 		
@@ -5950,7 +6771,7 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 	
 	
 	
-	bool SourceRow::compareRequiredValue(string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName) {
+	bool SourceRow::compareRequiredValue(std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName) {
 		bool result;
 		result = true;
 		
@@ -6037,6 +6858,10 @@ velRefCode = CRadialVelocityReferenceCode::from_int(0);
 		result["size"] = &SourceRow::sizeFromBin;
 		result["sizeErr"] = &SourceRow::sizeErrFromBin;
 		result["velRefCode"] = &SourceRow::velRefCodeFromBin;
+		result["dopplerVelocity"] = &SourceRow::dopplerVelocityFromBin;
+		result["dopplerReferenceSystem"] = &SourceRow::dopplerReferenceSystemFromBin;
+		result["dopplerCalcType"] = &SourceRow::dopplerCalcTypeFromBin;
+		result["parallax"] = &SourceRow::parallaxFromBin;
 			
 		
 		return result;	

@@ -31,6 +31,10 @@
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/BasicSL.h>
+#include <casacore/ms/MeasurementSets/MSAntennaColumns.h>
+#include <casacore/ms/MeasurementSets/MSSpWindowColumns.h>
+#include <casacore/ms/MeasurementSets/MSDataDescColumns.h>
+#include <casacore/ms/MeasurementSets/MSPolColumns.h>
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <msvis/MSVis/ViImplementation2.h>
 #include <msvis/MSVis/ViiLayerFactory.h>
@@ -144,7 +148,7 @@ public:
   virtual ~SimpleSimVi2 ();
 
   // Report the the ViImplementation type
-  virtual casacore::String ViiType() const { return casacore::String("Simulated(*)"); };
+  virtual casacore::String ViiType() const override {return casacore::String("Simulated(*)"); };
 
   //   +==================================+
   //   |                                  |
@@ -155,58 +159,58 @@ public:
 
   // Methods to control and monitor subchunk iteration
 
-  virtual void origin ();
-  virtual casacore::Bool more () const;
-  virtual void next ();
-  virtual Subchunk getSubchunkId () const;
+  virtual void origin () override;
+  virtual casacore::Bool more () const override;
+  virtual void next () override;
+  virtual Subchunk getSubchunkId () const override;
   
   // Methods to control chunk iterator
 
-  virtual void originChunks (casacore::Bool forceRewind = false);
-  virtual casacore::Bool moreChunks () const;
-  virtual void nextChunk ();
+  virtual void originChunks (casacore::Bool forceRewind = false) override;
+  virtual casacore::Bool moreChunks () const override;
+  virtual void nextChunk () override;
 
   // Detecting the key change isn't possible (yet?)  
-  virtual casacore::String keyChange() const { SSVi2NotPossible() };
+  virtual casacore::String keyChange() const override { SSVi2NotPossible() };
 
-  virtual casacore::Bool isWritable () const { return false; };
+  virtual casacore::Bool isWritable () const override { return false; };
 
   // Return the time interval (in seconds) used for iteration.
   // This is not the same as the INTERVAL column.  Setting the
   // the interval requires calling origin chunks before performing
   // further iterator.
   
-  virtual casacore::Double getInterval() const {return 1.0e9; };
-  virtual void setInterval (casacore::Double) { SSVi2NotPossible() };
+  virtual casacore::Double getInterval() const override {return 1.0e9; };
+  virtual void setInterval (casacore::Double) override { SSVi2NotPossible() };
 
   // Select the channels to be returned.  Requires calling originChunks before
   // performing additional iteration.
   
-  virtual void setFrequencySelections (const FrequencySelections & selection);
+  virtual void setFrequencySelections (const FrequencySelections & selection) override;
 
   // Set the 'blocking' size for returning data.
-  virtual void setRowBlocking (casacore::Int) { SSVi2NotPossible() };
+  virtual void setRowBlocking (casacore::Int) override { SSVi2NotPossible() };
   
-  virtual casacore::Bool existsColumn (VisBufferComponent2 id) const;
+  virtual casacore::Bool existsColumn (VisBufferComponent2 id) const override;
   
-  virtual const SortColumns & getSortColumns() const { SSVi2NotPossible() };
+  virtual const SortColumns & getSortColumns() const override { SSVi2NotPossible() };
 
-  virtual casacore::Bool isNewArrayId () const { return false; };
-  virtual casacore::Bool isNewFieldId () const { return thisField_!=lastField_; };
-  virtual casacore::Bool isNewMs () const  { return false; };
-  virtual casacore::Bool isNewSpectralWindow () const { return thisSpw_!=lastSpw_; };
+  virtual casacore::Bool isNewArrayId () const override { return false; };
+  virtual casacore::Bool isNewFieldId () const override { return thisField_!=lastField_; };
+  virtual casacore::Bool isNewMs () const override  { return false; };
+  virtual casacore::Bool isNewSpectralWindow () const override { return thisSpw_!=lastSpw_; };
 
   // Return the number of rows in the current iteration
 
-  virtual casacore::Int nRows () const { return nBsln_; };
+  virtual casacore::Int nRows () const override { return nBsln_; };
   
   // Return the row ids as from the original root table. This is useful
   // to find correspondance between a given row in this iteration to the
   // original ms row
 
-  virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const;
+  virtual void getRowIds (casacore::Vector<casacore::uInt> & rowids) const override;
 
-  virtual VisBuffer2 * getVisBuffer () const;
+  virtual VisBuffer2 * getVisBuffer () const override;
 
 
   //   +=========================+
@@ -216,55 +220,55 @@ public:
   //   +=========================+
   
   // Return info
-  virtual void antenna1 (casacore::Vector<casacore::Int> & ant1) const;
-  virtual void antenna2 (casacore::Vector<casacore::Int> & ant2) const;
-  virtual void corrType (casacore::Vector<casacore::Int> & corrTypes) const;
-  virtual casacore::Int  dataDescriptionId () const;
-  virtual void dataDescriptionIds (casacore::Vector<casacore::Int> & ddis) const;
-  virtual void exposure (casacore::Vector<casacore::Double> & expo) const;
-  virtual void feed1 (casacore::Vector<casacore::Int> & fd1) const;
-  virtual void feed2 (casacore::Vector<casacore::Int> & fd2) const;
-  virtual void fieldIds (casacore::Vector<casacore::Int>&) const;
-  virtual void arrayIds (casacore::Vector<casacore::Int>&) const;
-  virtual casacore::String fieldName () const;
+  virtual void antenna1 (casacore::Vector<casacore::Int> & ant1) const override;
+  virtual void antenna2 (casacore::Vector<casacore::Int> & ant2) const override;
+  virtual void corrType (casacore::Vector<casacore::Int> & corrTypes) const override;
+  virtual casacore::Int  dataDescriptionId () const override;
+  virtual void dataDescriptionIds (casacore::Vector<casacore::Int> & ddis) const override;
+  virtual void exposure (casacore::Vector<casacore::Double> & expo) const override;
+  virtual void feed1 (casacore::Vector<casacore::Int> & fd1) const override;
+  virtual void feed2 (casacore::Vector<casacore::Int> & fd2) const override;
+  virtual void fieldIds (casacore::Vector<casacore::Int>&) const override;
+  virtual void arrayIds (casacore::Vector<casacore::Int>&) const override;
+  virtual casacore::String fieldName () const override;
 
-  virtual void flag (casacore::Cube<casacore::Bool> & flags) const;
-  virtual void flag (casacore::Matrix<casacore::Bool> &) const { SSVi2NotPossible() };
-  virtual casacore::Bool flagCategoryExists () const { return false; };
-  virtual void flagCategory (casacore::Array<casacore::Bool> &) const { SSVi2NotPossible() };
-  virtual void flagRow (casacore::Vector<casacore::Bool> & rowflags) const;
-  virtual void observationId (casacore::Vector<casacore::Int> & obsids) const;
-  virtual casacore::Int polarizationId () const;
-  virtual void processorId (casacore::Vector<casacore::Int> & procids) const;
-  virtual void scan (casacore::Vector<casacore::Int> & scans) const;
-  virtual casacore::String sourceName () const;
-  virtual void stateId (casacore::Vector<casacore::Int> & stateids) const;
-  virtual void jonesC (casacore::Vector<casacore::SquareMatrix<casacore::Complex, 2> > &) const { SSVi2NotPossible() };
-  virtual casacore::Int polFrame () const;
-  virtual void sigma (casacore::Matrix<casacore::Float> & sigmat) const;
-  virtual casacore::Int spectralWindow () const;
-  virtual void spectralWindows (casacore::Vector<casacore::Int> & spws) const;
-  virtual void time (casacore::Vector<casacore::Double> & t) const;
-  virtual void timeCentroid (casacore::Vector<casacore::Double> & t) const;
-  virtual void timeInterval (casacore::Vector<casacore::Double> & ti) const;
-  virtual void uvw (casacore::Matrix<casacore::Double> & uvwmat) const;
+  virtual void flag (casacore::Cube<casacore::Bool> & flags) const override;
+  virtual void flag (casacore::Matrix<casacore::Bool> &) const override { SSVi2NotPossible() };
+  virtual casacore::Bool flagCategoryExists () const override { return false; };
+  virtual void flagCategory (casacore::Array<casacore::Bool> &) const override { SSVi2NotPossible() };
+  virtual void flagRow (casacore::Vector<casacore::Bool> & rowflags) const override;
+  virtual void observationId (casacore::Vector<casacore::Int> & obsids) const override;
+  virtual casacore::Int polarizationId () const override;
+  virtual void processorId (casacore::Vector<casacore::Int> & procids) const override;
+  virtual void scan (casacore::Vector<casacore::Int> & scans) const override;
+  virtual casacore::String sourceName () const override;
+  virtual void stateId (casacore::Vector<casacore::Int> & stateids) const override;
+  virtual void jonesC (casacore::Vector<casacore::SquareMatrix<casacore::Complex, 2> > &) const override { SSVi2NotPossible() };
+  virtual casacore::Int polFrame () const override;
+  virtual void sigma (casacore::Matrix<casacore::Float> & sigmat) const override;
+  virtual casacore::Int spectralWindow () const override;
+  virtual void spectralWindows (casacore::Vector<casacore::Int> & spws) const override;
+  virtual void time (casacore::Vector<casacore::Double> & t) const override;
+  virtual void timeCentroid (casacore::Vector<casacore::Double> & t) const override;
+  virtual void timeInterval (casacore::Vector<casacore::Double> & ti) const override;
+  virtual void uvw (casacore::Matrix<casacore::Double> & uvwmat) const override;
 
-  virtual void visibilityCorrected (casacore::Cube<casacore::Complex> & vis) const;
-  virtual void visibilityModel (casacore::Cube<casacore::Complex> & vis) const;
-  virtual void visibilityObserved (casacore::Cube<casacore::Complex> & vis) const;
-  virtual void floatData (casacore::Cube<casacore::Float> & fcube) const;
+  virtual void visibilityCorrected (casacore::Cube<casacore::Complex> & vis) const override;
+  virtual void visibilityModel (casacore::Cube<casacore::Complex> & vis) const override;
+  virtual void visibilityObserved (casacore::Cube<casacore::Complex> & vis) const override;
+  virtual void floatData (casacore::Cube<casacore::Float> & fcube) const override;
 
-  virtual casacore::IPosition visibilityShape () const;
+  virtual casacore::IPosition visibilityShape () const override;
 
-  virtual void weight (casacore::Matrix<casacore::Float> & wtmat) const;
-  virtual casacore::Bool weightSpectrumExists () const;
-  virtual casacore::Bool sigmaSpectrumExists () const;
-  virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
-  virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & wtsp) const;
+  virtual void weight (casacore::Matrix<casacore::Float> & wtmat) const override;
+  virtual casacore::Bool weightSpectrumExists () const override;
+  virtual casacore::Bool sigmaSpectrumExists () const override;
+  virtual void weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const override;
+  virtual void sigmaSpectrum (casacore::Cube<casacore::Float> & wtsp) const override;
 
-  virtual void setWeightScaling (casacore::CountedPtr<WeightScaling>) { SSVi2NotPossible() };
-  virtual casacore::Bool hasWeightScaling () const { return false; };
-  virtual casacore::CountedPtr<WeightScaling> getWeightScaling () const; //  { SSVi2NotPossible() };
+  virtual void setWeightScaling (casacore::CountedPtr<WeightScaling>) override { SSVi2NotPossible() };
+  virtual casacore::Bool hasWeightScaling () const override { return false; };
+  virtual casacore::CountedPtr<WeightScaling> getWeightScaling () const override; //  { SSVi2NotPossible() };
 
   //   +------------------------+
   //   |                        |
@@ -273,18 +277,18 @@ public:
   //   +------------------------+
 
   // No underlying geometry is available for these!
-  virtual casacore::Bool allBeamOffsetsZero () const { SSVi2NotPossible() };
-  virtual casacore::MDirection azel0 (casacore::Double) const { SSVi2NotPossible() };
-  virtual const casacore::Vector<casacore::MDirection> & azel (casacore::Double) const { SSVi2NotPossible() };
-  virtual const casacore::Vector<casacore::Float> & feed_pa (casacore::Double t) const; 
-  virtual std::pair<bool, casacore::MDirection> getPointingAngle (int /*antenna*/, double /*time*/) const
+  virtual casacore::Bool allBeamOffsetsZero () const override { SSVi2NotPossible() };
+  virtual casacore::MDirection azel0 (casacore::Double) const override { SSVi2NotPossible() };
+  virtual const casacore::Vector<casacore::MDirection> & azel (casacore::Double) const override { SSVi2NotPossible() };
+  virtual const casacore::Vector<casacore::Float> & feed_pa (casacore::Double t) const override; 
+  virtual std::pair<bool, casacore::MDirection> getPointingAngle (int /*antenna*/, double /*time*/) const override
   { return std::make_pair (true, phaseCenter()); }
-  virtual const casacore::Cube<casacore::RigidVector<casacore::Double, 2> > & getBeamOffsets () const { SSVi2NotPossible() };
-  virtual casacore::Double hourang (casacore::Double) const { SSVi2NotPossible() };
-  virtual const casacore::Float & parang0 (casacore::Double) const { SSVi2NotPossible() };
-  virtual const casacore::Vector<casacore::Float> & parang (casacore::Double) const { SSVi2NotPossible() };
-  virtual const casacore::MDirection & phaseCenter () const { return phaseCenter_; }; // trivial value (for now)
-  virtual const casacore::Cube<casacore::Double> & receptorAngles () const { SSVi2NotPossible() };
+  virtual const casacore::Cube<casacore::RigidVector<casacore::Double, 2> > & getBeamOffsets () const override { SSVi2NotPossible() };
+  virtual casacore::Double hourang (casacore::Double) const override { SSVi2NotPossible() };
+  virtual const casacore::Float & parang0 (casacore::Double) const override { SSVi2NotPossible() };
+  virtual const casacore::Vector<casacore::Float> & parang (casacore::Double) const override { SSVi2NotPossible() };
+  virtual const casacore::MDirection & phaseCenter () const override { return phaseCenter_; }; // trivial value (for now)
+  virtual const casacore::Cube<casacore::Double> & receptorAngles () const override { SSVi2NotPossible() };
 
   //   +=========================+
   //   |                         |
@@ -292,75 +296,130 @@ public:
   //   |                         |
   //   +=========================+
 
-  virtual const casacore::Vector<casacore::String> & antennaMounts () const { SSVi2NotPossible() };
-  virtual const VisImagingWeight & getImagingWeightGenerator () const { SSVi2NotPossible() };
+  virtual const casacore::Vector<casacore::String> & antennaMounts () const override { SSVi2NotPossible() };
+  virtual const VisImagingWeight & getImagingWeightGenerator () const override { SSVi2NotPossible() };
   
-  virtual casacore::MFrequency::Types getObservatoryFrequencyType () const { SSVi2NotPossible() };
-  virtual casacore::MPosition getObservatoryPosition () const { SSVi2NotPossible() };
-  virtual casacore::Vector<casacore::Float> getReceptor0Angle () { SSVi2NotPossible() };
+  virtual casacore::MFrequency::Types getObservatoryFrequencyType () const override { SSVi2NotPossible() };
+  virtual casacore::MPosition getObservatoryPosition () const override { SSVi2NotPossible() };
+  virtual casacore::Vector<casacore::Float> getReceptor0Angle () override { SSVi2NotPossible() };
  
-  virtual casacore::Int getReportingFrameOfReference () const { return -2;  /*SSVi2NotPossible()*/ };
-  virtual void setReportingFrameOfReference (casacore::Int) { SSVi2NotPossible() };
+  virtual casacore::Int getReportingFrameOfReference () const override { return -2;  /*SSVi2NotPossible()*/ };
+  virtual void setReportingFrameOfReference (casacore::Int) override { SSVi2NotPossible() };
  
-  virtual casacore::MEpoch getEpoch () const;
+  virtual casacore::MEpoch getEpoch () const override;
 
-  virtual casacore::Vector<casacore::Int> getCorrelations () const;
+  virtual casacore::Vector<casacore::Int> getCorrelations () const override;
 
-  virtual casacore::Vector<casacore::Stokes::StokesTypes> getCorrelationTypesDefined () const { return corrdef_; /*SSVi2NotPossible()*/ };
-  virtual casacore::Vector<casacore::Stokes::StokesTypes> getCorrelationTypesSelected () const { return corrdef_; /*SSVi2NotPossible()*/ };
+  virtual casacore::Vector<casacore::Stokes::StokesTypes> getCorrelationTypesDefined () const override { return corrdef_; /*SSVi2NotPossible()*/ };
+  virtual casacore::Vector<casacore::Stokes::StokesTypes> getCorrelationTypesSelected () const override { return corrdef_; /*SSVi2NotPossible()*/ };
 
   virtual casacore::Vector<casacore::Int> getChannels (casacore::Double time, casacore::Int frameOfReference, casacore::Int spectralWndow = -1,
-				   casacore::Int msId = -1) const;
+				   casacore::Int msId = -1) const override;
   virtual casacore::Vector<casacore::Double> getFrequencies (casacore::Double time, casacore::Int frameOfReference, casacore::Int spectralWndow = -1,
-					 casacore::Int msId = -1) const;
+					 casacore::Int msId = -1) const override;
 
   //reference to actual ms in interator  (TRIVIAL returns
-  virtual casacore::Int msId () const { return -1; }; // zero-based index of current casacore::MS in set of MSs
-  virtual const casacore::MeasurementSet & ms () const { SSVi2NotPossible() };
-  virtual casacore::Int getNMs () const { return 0; };
+  virtual casacore::Int msId () const override { return -1; }; // zero-based index of current casacore::MS in set of MSs
+  virtual const casacore::MeasurementSet & ms () const override { SSVi2NotPossible() };
+  virtual casacore::Int getNMs () const override { return 0; };
 
   // Name of the MS in the interator
-  virtual casacore::String msName() const { return casacore::String("<noms>"); };
+  virtual casacore::String msName() const override { return casacore::String("<noms>"); };
 
   // Call to use the slurp i/o method for all scalar columns. 
   //  Not meaningful for non-I/O
-  virtual void slurp () const { SSVi2NotPossible() };
+  virtual void slurp () const override { SSVi2NotPossible() };
 
   // Access the current casacore::ROMSColumns object in MSIter -- NOT POSSIBLE
-  virtual const vi::SubtableColumns & subtableColumns () const { SSVi2NotPossible() };
+  virtual const vi::SubtableColumns & subtableColumns () const override { SSVi2NotPossible() };
 
 
   // get back the selected spectral windows and spectral channels for
   // current ms
 
-  virtual const SpectralWindowChannels & getSpectralWindowChannels (casacore::Int msId, casacore::Int spectralWindowId) const;
+  virtual const SpectralWindowChannels & getSpectralWindowChannels (casacore::Int msId, casacore::Int spectralWindowId) const override;
 
   //assign a VisImagingWeight object to this iterator
-  virtual void useImagingWeight (const VisImagingWeight & ) { SSVi2NotPossible() };
+  virtual void useImagingWeight (const VisImagingWeight & ) override { SSVi2NotPossible() };
   
   // Return number of antennasm spws, polids, ddids
   
-  virtual casacore::Int nAntennas () const;
-  virtual casacore::Int nDataDescriptionIds () const;
-  virtual casacore::Int nPolarizationIds () const;
-  virtual casacore::Int nRowsInChunk () const; // number rows in current chunk
-  virtual casacore::Int nRowsViWillSweep () const; // number of rows in all selected ms's
-  virtual casacore::Int nSpectralWindows () const;
+  virtual casacore::Int nAntennas () const override;
+  virtual casacore::Int nDataDescriptionIds () const override;
+  virtual casacore::Int nPolarizationIds () const override;
+  virtual casacore::Int nRowsInChunk () const override; // number rows in current chunk
+  virtual casacore::Int nRowsViWillSweep () const override; // number of rows in all selected ms's
+  virtual casacore::Int nSpectralWindows () const override;
 
   // Writeback methods are Irrelevant for non-disk-reading VI2
-  virtual void writeBackChanges (VisBuffer2* ) { SSVi2NotPossible() };
-  virtual void writeFlag (const casacore::Cube<casacore::Bool> &) { SSVi2NotPossible() };
-  virtual void writeFlagRow (const casacore::Vector<casacore::Bool> &) { SSVi2NotPossible() };
-  virtual void writeFlagCategory(const casacore::Array<casacore::Bool>&) { SSVi2NotPossible() };
-  virtual void writeVisCorrected (const casacore::Cube<casacore::Complex> &) { SSVi2NotPossible() };
-  virtual void writeVisModel (const casacore::Cube<casacore::Complex> &) { SSVi2NotPossible() };
-  virtual void writeVisObserved (const casacore::Cube<casacore::Complex> &) { SSVi2NotPossible() };
-  virtual void writeWeight (const casacore::Matrix<casacore::Float> &) { SSVi2NotPossible() };
-  virtual void writeWeightSpectrum (const casacore::Cube<casacore::Float> &) { SSVi2NotPossible() };
-  virtual void initWeightSpectrum (const casacore::Cube<casacore::Float> &) { SSVi2NotPossible() };
-  virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> &) { SSVi2NotPossible() };
-  virtual void writeSigma (const casacore::Matrix<casacore::Float> &) { SSVi2NotPossible() };
-  virtual void writeModel(const casacore::RecordInterface&,casacore::Bool,casacore::Bool) { SSVi2NotPossible() };
+  virtual void writeBackChanges (VisBuffer2* ) override { SSVi2NotPossible() };
+  virtual void writeFlag (const casacore::Cube<casacore::Bool> &) override { SSVi2NotPossible() };
+  virtual void writeFlagRow (const casacore::Vector<casacore::Bool> &) override { SSVi2NotPossible() };
+  virtual void writeFlagCategory(const casacore::Array<casacore::Bool>&) override { SSVi2NotPossible() };
+  virtual void writeVisCorrected (const casacore::Cube<casacore::Complex> &) override { SSVi2NotPossible() };
+  virtual void writeVisModel (const casacore::Cube<casacore::Complex> &) override { SSVi2NotPossible() };
+  virtual void writeVisObserved (const casacore::Cube<casacore::Complex> &) override { SSVi2NotPossible() };
+  virtual void writeWeight (const casacore::Matrix<casacore::Float> &) override { SSVi2NotPossible() };
+  virtual void writeWeightSpectrum (const casacore::Cube<casacore::Float> &) override { SSVi2NotPossible() };
+  virtual void initWeightSpectrum (const casacore::Cube<casacore::Float> &) override { SSVi2NotPossible() };
+  virtual void writeSigmaSpectrum (const casacore::Cube<casacore::Float> &) override { SSVi2NotPossible() };
+  virtual void writeSigma (const casacore::Matrix<casacore::Float> &) override { SSVi2NotPossible() };
+  virtual void writeModel(const casacore::RecordInterface&,casacore::Bool,casacore::Bool) override { SSVi2NotPossible() };
+
+  //**********************************************************************
+  // Methods to access the subtables.
+  //**********************************************************************
+
+  // Access to antenna subtable
+  const casacore::ROMSAntennaColumns& antennaSubtablecols() const override;
+
+  // Access to dataDescription subtable
+  const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const override;
+
+  // Access to feed subtable
+  const casacore::ROMSFeedColumns& feedSubtablecols() const override;
+
+  // Access to field subtable
+  const casacore::ROMSFieldColumns& fieldSubtablecols() const override;
+
+  // Access to flagCmd subtable
+  const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const override;
+
+  // Access to history subtable
+  const casacore::ROMSHistoryColumns& historySubtablecols() const override;
+
+  // Access to observation subtable
+  const casacore::ROMSObservationColumns& observationSubtablecols() const override;
+
+  // Access to pointing subtable
+  const casacore::ROMSPointingColumns& pointingSubtablecols() const override;
+
+  // Access to polarization subtable
+  const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const override;
+
+  // Access to processor subtable
+  const casacore::ROMSProcessorColumns& processorSubtablecols() const override;
+
+  // Access to spectralWindow subtable
+  const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
+
+  // Access to state subtable
+  const casacore::ROMSStateColumns& stateSubtablecols() const override;
+
+  // Access to doppler subtable
+  const casacore::ROMSDopplerColumns& dopplerSubtablecols() const override;
+
+  // Access to freqOffset subtable
+  const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const override;
+
+  // Access to source subtable
+  const casacore::ROMSSourceColumns& sourceSubtablecols() const override;
+
+  // Access to sysCal subtable
+  const casacore::ROMSSysCalColumns& sysCalSubtablecols() const override;
+
+  // Access to weather subtable
+  const casacore::ROMSWeatherColumns& weatherSubtablecols() const override;
 
 private:
 
@@ -375,6 +434,9 @@ private:
 
   // Corrupt by (ad hoc) parang factors
   void corruptByParang(casacore::Cube<casacore::Complex>& vis) const;
+
+  // Generate the antenna, spw and DD subtables
+  void generateSubtables();
 
   // casacore::Input parameters
   const SimpleSimVi2Parameters pars_;
@@ -412,6 +474,16 @@ private:
 
   // The associated VB
   std::unique_ptr<VisBuffer2> vb_;
+
+  // Subtables
+  casacore::MSAntenna antennaSubTable_p;
+  std::unique_ptr<casacore::MSAntennaColumns> antennaSubTablecols_p;
+  casacore::MSSpectralWindow spwSubTable_p;
+  std::unique_ptr<casacore::MSSpWindowColumns> spwSubTablecols_p;
+  casacore::MSDataDescription ddSubTable_p;
+  std::unique_ptr<casacore::MSDataDescColumns> ddSubTablecols_p;
+  casacore::MSPolarization polSubTable_p;
+  std::unique_ptr<casacore::MSPolarizationColumns> polSubTablecols_p;
 
   // Trivial (for now) MDirection, so phaseCenter() has something to return
   casacore::MDirection phaseCenter_;

@@ -1040,22 +1040,22 @@ vector<string> msmetadata::intents() {
 
 vector<string> msmetadata::intentsforfield(const variant& field) {
 	_FUNC(
-		Int id = -1;
 		switch (field.type()) {
 		case variant::STRING:
-			id = *(_msmd->getFieldIDsForField(field.toString()).begin());
-			break;
-		case variant::INT:
-			id = field.toInt();
-			break;
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(field.toString())
+			);
+		case variant::INT: {
+		    Int id = field.toInt();
+		    ThrowIf(id < 0, "field must be nonnegative if an int.");
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(id)
+	        );
+		}
 		default:
 			*_log << "Unsupported type for field which must be "
 				<< "a nonnegative int or string." << LogIO::EXCEPTION;
 		}
-		if (id < 0) {
-			throw AipsError("field must be nonnegative if an int.");
-		}
-		return _setStringToVectorString(_msmd->getIntentsForField(id));
 	)
 	return vector<string>();
 }
@@ -1468,7 +1468,7 @@ record* msmetadata::reffreq(int spw) {
 		freq.toRecord(ret);
 		return fromRecord(ret);
 	)
-	return NULL;
+	return nullptr;
 }
 
 variant* msmetadata::restfreqs(int sourceid, int spw) {
@@ -1477,8 +1477,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA std::shared_ptr<vector<MFrequency> > > mymap
-            = _msmd->getRestFrequencies();
+        auto mymap = _msmd->getRestFrequencies();
         SourceKey key;
         key.id = sourceid;
         key.spw = spw;
@@ -1488,7 +1487,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
             + String::toString(sourceid) + " and SPECTRAL_WINDOW_ID="
             + String::toString(spw)
         );
-        std::shared_ptr<vector<MFrequency> > ptr = mymap[key];
+        std::shared_ptr<vector<MFrequency>> ptr = mymap[key];
         if (ptr) {
             Record mr;
             Record r;
@@ -2126,8 +2125,7 @@ variant* msmetadata::transitions(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA std::shared_ptr<vector<String> > > mymap
-            = _msmd->getTransitions();
+        auto mymap = _msmd->getTransitions();
         SourceKey key;
         key.id = sourceid;
         key.spw = spw;
@@ -2139,7 +2137,7 @@ variant* msmetadata::transitions(int sourceid, int spw) {
         );
         std::shared_ptr<vector<String> > ptr = mymap[key];
         if (ptr) {
-        	vector<string> v = _vectorStringToStdVectorString(*ptr);
+        	auto v = _vectorStringToStdVectorString(*ptr);
             return new variant(v);
         }
         else {

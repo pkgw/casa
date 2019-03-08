@@ -33,7 +33,7 @@
  * File CFrequencyReferenceCode.cpp
  */
 #include <sstream>
-#include <CFrequencyReferenceCode.h>
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 #include <string>
 using namespace std;
 

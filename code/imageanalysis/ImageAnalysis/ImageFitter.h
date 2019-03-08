@@ -143,7 +143,7 @@ public:
     // get the fitted result and error. Throws
     // an exception if the zero level was not fit for.
     void getZeroLevelSolution(
-        vector<casacore::Double>& solution, vector<casacore::Double>& error
+        std::vector<casacore::Double>& solution, std::vector<casacore::Double>& error
     );
 
     // set rms level for calculating uncertainties. If not positive, an exception is thrown.
@@ -238,9 +238,9 @@ private:
         SPIIT residualImage, SPIIT modelImage, casacore::String& resultsString
     );
 
-    vector<OutputDestinationChecker::OutputStruct> _getOutputStruct();
+    std::vector<OutputDestinationChecker::OutputStruct> _getOutputStruct();
 
-    vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
+    std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const;
 
     CasacRegionManager::StokesControl _getStokesControl() const;
 
