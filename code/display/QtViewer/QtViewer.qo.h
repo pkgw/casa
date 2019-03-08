@@ -112,7 +112,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	protected:
 
+#if ! defined(WITHOUT_DBUS)
 		QtDBusViewerAdaptor* dbus_;
+#endif
 		std::list<std::string> args_;
 
 	private:
