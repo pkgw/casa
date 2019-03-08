@@ -1044,11 +1044,16 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
             // resizei (for Dir) //
             tmp_dir[ant][index].resize(2);
-
+#if 0
             Double        time    = pointingTime.get(index);
             MDirection     dir    = my_accessor(*columnPointing, index);
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
 
+#else       // BUG FIXED //
+            Double        time    = pointingTime.get(row);
+            MDirection     dir    = my_accessor(*columnPointing, row);
+            Vector<Double> dirVal = dir.getAngle("rad").getValue();
+#endif 
             // set on Vector //
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
