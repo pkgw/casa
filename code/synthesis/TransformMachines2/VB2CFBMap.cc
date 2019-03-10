@@ -68,17 +68,19 @@ namespace casa{
       //if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb))
       if (doPointing_p)
 	{
-
-	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
+	  //phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
+	  if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row)) // if a new Phase Grad was computed
+	    cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
 	}
       else
 	{
-	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
+	  //phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
+	  if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0)) // if a new Phase Grad was computed
+	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
 	}
       //cerr<<"doPointing VB2CFBMap::sPGPR: "<<<<endl;
       //cerr<<"Shape of PointingOffset VB2CFBMap::sPGPR :"<< pointingOffset.shape() << " " << pointingOffset[row].shape() << endl;
 	{
-	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
 	}
 	//	visResampler_p->setFieldPhaseGrad(phaseGradCalculator_p.getFieldPointingGrad());
       
