@@ -308,7 +308,7 @@ public:
     // Spline device status (on Debug) //
 
     bool isInitializeDone (casacore::uInt n)   {return initializeReady_ [n]; }
-    bool isCofficientReady(casacore::uInt n)   {return coefficientReady_[n]; }
+    bool isCoefficientReady(casacore::uInt n)   {return coefficientReady_[n]; }
 
 private:
 
@@ -450,7 +450,7 @@ public:
                                                        casacore::uInt AntennaID =0);
         // Internal stauts (for inspection)  //
 
-        bool isCofficientReady()   {return stsCofficientReady; }
+        bool isCoefficientReady()   {return stsCofficientReady; }
        
         // Inspect Coeff normally reffered by Pointing Column/AntenaID 
 

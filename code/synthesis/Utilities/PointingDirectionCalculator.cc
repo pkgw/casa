@@ -372,7 +372,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
     // Limmited service, force to use traditional Linear Interpolation. 
     //-
 
-     if (getCurrentSplineObj()->isCofficientReady() == false )
+     if (getCurrentSplineObj()->isCoefficientReady() == false )
      {
          LogIO os(LogOrigin("PointingDirectionCalculator", "doGetDirection(i)", WHERE));
          os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA,  \n"
@@ -871,7 +871,7 @@ bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementS
           unique_ptr<SplineInterpolation> spTemp( new SplineInterpolation(ms,acc));
 
         // Spline Available (N>4)
-          coefficientReady_ [DirColNo] = spTemp-> isCofficientReady();
+          coefficientReady_ [DirColNo] = spTemp-> isCoefficientReady();
 
         // move to Spline obj. //
           splineObj_[DirColNo] = std::move(spTemp);

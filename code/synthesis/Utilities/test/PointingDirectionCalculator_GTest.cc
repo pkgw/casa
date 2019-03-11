@@ -556,7 +556,7 @@ public:
 
         void Initialize();
         void Initialize( Double, Double);
-        void setMainRowCount( uint n ) { requiredMainTestingRow_ =  defultMainTestingRow       = n; }  
+        void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt       = n; }  
 
     // Offset between POINTNG and MAIN //
 
@@ -620,7 +620,8 @@ private:
 
        // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
 
-        uInt defultMainTestingRow       = 5040; 
+        const uInt defaultTestingRowCnt    = 5040 ;
+        uInt currentDefaultTestingRowCnt   = 5040 ; 
 
         const uInt defInerpolationTestPointingTableRow_   = 3843;
         const uInt defInerpolationTestMainTableRow_       = 3843;
@@ -645,9 +646,9 @@ private:
          Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
          Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
-    // Number of Antenna (CAS-8418)  
+    // Number of Antenna to prepeare before the Test, (CAS-8418)  
 
-        uInt prepareMaxAntenna_ = 3;
+        uInt prepareMaxAntenna_ = 1;    // Tunable //
         bool fgCoeffLocationTest  = false; 
 
 };
@@ -731,7 +732,7 @@ void TuneMSParam::Initialize(Double p_interval, Double m_interval )
         mainIntervalSec_             =  m_interval;
 
         // Number of Row count used in TEST // 
-        requiredMainTestingRow_ =  defultMainTestingRow;
+        requiredMainTestingRow_ =  currentDefaultTestingRowCnt;
 
         // Inerpolation Error limit (currently active)
         errorLimit_  = defaultInterpolationErrorLimit_;
@@ -745,7 +746,7 @@ void TuneMSParam::Initialize( )
         Double p_int = 0.048;
         Double m_int = 1.008;
 
-        setMainRowCount(defultMainTestingRow);
+        setMainRowCount(currentDefaultTestingRowCnt);
         Initialize(p_int, m_int);  // Give Pointing and Main Intervals. //
 }
 
@@ -1868,10 +1869,10 @@ public:
         // (Programmer Tunable)
         //-
 
-            // Resources (Tunable) //
-            uInt const InterpolationDivCount_ = 10;
-            uInt const numAntenna_            = 3;
-            uInt const numPointingColumn_     = 5;
+            // Resources (Tunable from external env.) //
+            uInt  InterpolationDivCount_ = 10;
+            uInt  numAntenna_            = 3;
+            uInt  numPointingColumn_     = 2;
 
             // Listing option
             bool       fgResultListing = false;
@@ -1882,7 +1883,10 @@ public:
 
         // Prepared Antenna in MS //
 
-        void setMaxAntenna(uInt n) { msedit.tuneMS.setMaxAntenna(n);    }
+        void setMaxAntenna(uInt n) {
+                 msedit.tuneMS.setMaxAntenna(n); 
+                 numAntenna_ = n;  
+        }
 
         // Pointing Colum List (common definition) //
 
@@ -1974,7 +1978,7 @@ protected:
         // Sub-function of TEST_F(TestDirection....)  
         //*
 
-        std::vector<Double>  testDirectionForDeltaTime2(Double dt, uInt p, uInt a);// Extended(CAS-8418)
+        std::vector<Double>  testDirectionByDeltaTime(Double dt, uInt p, uInt a);// Extended(CAS-8418)
         vector<Double>       testDirectionByInterval(Double p, Double m, uInt pc, uInt a);
 
         TestDirection(){ }
@@ -1983,6 +1987,9 @@ protected:
         virtual void SetUp()
         {
             BaseClass::SetUp();
+  
+            // SetUp Number of Anntena for TEST //
+            msedit.tuneMS.setMaxAntenna( numAntenna_ ); 
 
             //+
             // Copy and add columns,  init columns, 
@@ -2007,6 +2014,653 @@ private:
            uInt curretSelectedAntenna = 0;
 };
 
+//-------------------------------------------------
+//    Interporation Test (sub) 
+//     dt : displacement betweeen measure point
+//     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
+//------------------------------------------------
+std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt colNo, uInt ant )
+{
+    printf("DBG::TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", dt,colNo, ant);
+
+    const String MsName = DefaultLocalMsName;
+
+    // Create Object //
+        MeasurementSet ms( MsName.c_str() );
+        PointingDirectionCalculator calc(ms);   
+
+    //  MatrixShape (COLUMN_MAJOR)
+        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ; 
+
+    // setFrame()
+        String FrameName= "J2000";
+        calc.setFrame( FrameName );
+
+    //+
+    // selectData on generated MS
+    //  Antenna name is ANT0, ANT1, AT2
+    //-
+   
+        const String AntSel = "ZZ0" + std::to_string(ant)+ "&&ZZ00"; 
+
+        calc.selectData( AntSel,  "","","","","","","","","" );
+        /* uInt match_row = calc.getNrowForSelectedMS();    */
+     
+    //  InterPolation mode (Foece Unuse)
+        calc.setSplineInterpolation(use_spline);
+
+    //+
+    // setDirectionColumn()
+    //
+    //   NOTES: If multiple loop is intened.
+    //       setDirectionColumn() must be working with psd data.  
+    //-
+        printf( "setDirectionColumn(%s)\n", pColLis_.name( colNo ).c_str() );
+        calc.setDirectionColumn( pColLis_.name(colNo) ) ;
+
+    //+
+    // setFrame call for "conversion"
+    // in CAS-8418, try to examine converted result.
+    //-
+        if(fgConversion)
+        {
+            String frameName = "AZELGEO" ;
+            calc.setFrame( frameName );
+        }
+
+    //+
+    //  getDirection()
+    //-
+        Matrix<Double>  DirList1  = calc.getDirection();
+        size_t   n_row    = DirList1.nrow();
+
+    //+
+    // Direction Interpolation
+    //-
+    Double maxErr_1 = 0.0;
+    Double maxErr_2 = 0.0;             
+    Double absErr_1 = 0.0;
+    Double absErr_2 = 0.0;
+
+
+    uInt LoopCnt = n_row-2;
+    for (uInt row=0; row < LoopCnt; row++)   
+    {
+        // Direction(1) by getDirection //
+
+          Double calculated_1 = DirList1(row,0);
+          Double calculated_2 = DirList1(row,1);
+
+        // Direction by generated/estimated //
+
+          TuneMSParam::PseudoPointingData  gen_out2
+                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + dt );  // dt:Interpolation offset  (sec)
+
+          Double generated_1 = gen_out2.position[colNo].first;
+          Double generated_2 = gen_out2.position[colNo].second;
+
+        //+
+        // Error calculation 
+        //-
+
+          Double Err_1 = calculated_1 - generated_1 ;   
+          Double Err_2 = calculated_2 - generated_2 ;
+
+          absErr_1 = abs(Err_1);
+          absErr_2 = abs(Err_2);
+                
+          if( maxErr_1 < absErr_1 ) maxErr_1 = absErr_1;
+          if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
+
+          // Google Test On/Off
+          if(fgGoogleTest)
+          {
+	      EXPECT_LE( absErr_1, msedit.tuneMS.getInterpolationErrorLimit()  ); 
+              EXPECT_LE( absErr_2, msedit.tuneMS.getInterpolationErrorLimit()  ); 
+          }
+
+          // Output List (in One line) On/OFF   //
+          if(fgResultListing) 
+          {
+              printf( "Evaluation,");
+              printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
+              printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
+              printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
+          }
+    }
+   
+   std::vector<Double> vv(2);
+   vv[0] = maxErr_1;   
+   vv[1] = maxErr_2;
+
+   return vv; 
+}
+//+
+// TestSub
+//  - Pointing table interval and Main table interval are specified
+//  - execute numerical error test by activating Interpolation
+//    by using slided time in Main Table.
+//-
+std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double m_int,
+                                                           uInt p_col, uInt antenna )
+{
+    // Max Error ///
+
+      std::vector<Double> reterr;
+      ErrorMax            maxerr;
+    
+    // Add INTERPOLATION TEST DATA 
+
+      writeOnPointing();
+
+    // Test Loop  
+    //   - nDiv is given, internd to spacify number of separating count 
+    //     between one exact point and the next,  
+
+    uInt nDiv = InterpolationDivCount_; 
+    for (uInt loop=0; loop < nDiv; loop ++ )
+    {
+        //+
+        // SetUp Testing  MeasurmentSet
+        //-  
+
+        writeOnMain((Double)loop/(Double)nDiv);
+
+        // Execution //
+        reterr = testDirectionByDeltaTime( (Double)loop/(Double)nDiv, p_col, antenna );
+
+        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+        printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
+        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+
+        maxerr.put(reterr);
+    }
+    std::vector<Double> e_max = maxerr.get();
+
+    printf("----------------------------------------\n");
+    printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
+    printf("----------------------------------------\n");
+
+    return e_max; 
+}
+/*-----------------------------------------------------------------------
+   Interporatio Test in getDirection()  
+   FULL combiniation of Interval Times and spline mode.
+
+ - Use Combiniation of Pointing table Interval and Main table Interval
+ - Capable of selecting curve fucntion for simulated pointing trajectry
+  ----------------------------------------------------------------------*/
+ 
+TEST_F(TestDirection, InterpolationFull )
+{
+  TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
+    // Combiniation List of Pointing Interval and Main Interval //
+
+    vector<bool>   InterpolationMode     = { false, true};
+    vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
+    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01,  };
+
+    ErrorMax  maxerr;
+    std::vector<Double> r_err = {0.0}; 
+
+    //+
+    // Use following paramters
+    //-
+      uInt usingColumn  = 0;
+      uInt usingAntenna = 0;
+
+    // Multiple Loop //
+    for(uInt s=0; s<InterpolationMode.size(); s++)
+    {  
+        // Spline OFF, ON //
+        use_spline = InterpolationMode[s];
+
+       // Combiniation Loop
+       //  5-MAR-2919 ; changed out/in loop var. 
+        for( uint p=0; p < Pointing_IntervalList.size(); p++)
+        {
+            for( uint m=0; m < Main_IntervalList.size(); m++)
+            {
+                // Interval // 
+                 Double p_i = Pointing_IntervalList[p];
+                 Double m_i = Main_IntervalList[m];
+
+                // Error Limit
+                 Double ErrLimit =0.0;
+               
+                 if( use_spline==true) { ErrLimit = 1E-06; }
+                 else                  {  ErrLimit = 1E-04;}
+       
+                 if(p_i > m_i )        {  ErrLimit = 1E-02;}
+
+                 printf( "======================================================\n");
+                 printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
+                          use_spline , p_i, m_i , ErrLimit );
+                 printf( "======================================================\n");
+
+                 // Copy Template MS //
+                   SetUp();
+
+                 // define Number of Antenna prepeared in MS //
+                   setMaxAntenna(5);
+
+                 //+
+                 // set Examination Condition (revised by CAS-8418) //
+                 //-
+    
+                 selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+                 setCondition( 5040,   /*numinTestingRow */      //number of row
+                               p_i,    // Pointing Interval
+                               m_i,    // Main Interval
+                               ErrLimit );  // Error limit 
+ 
+                 // Prepate Antenna (for Multple-set) //
+                   prepareAntenna();
+ 
+                 // Increase(Append)  Row on MS for large-file.:
+                   prepareRows();
+          
+                 //+
+                 // Execute Main-Body , get error info //
+                 //-
+                   r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
+                   maxerr.put(r_err);
+             }
+        } // End Interval combiniation
+
+        std::vector<Double>  e = maxerr.get();
+        printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+        printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
+        printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+
+    } // End Interpolation Mode 
+}
+
+/*-----------------------------------------------------------------------
+  Interporatio Test in getDirection()   
+  Specific COMBIIATION Parameter mode
+ - Set of testing parameters are given
+------------------------------------------------------------------------*/ 
+
+
+typedef struct Parm {
+    bool   use_spline;
+    Double p_interval;
+    Double m_interval;
+    Double errLimit;
+} ParamList;
+
+std::vector<ParamList>
+ pList =
+{
+    {true, 0.05,  0.01,  5.0E-03 },
+    {true, 0.01,  0.05,  5.0E-03 }
+#if 0
+    {true, 0.01,  0.05,  5.0E-05 },
+    {true, 0.05,  0.05,  5.0E-05 },
+    {true, 0.10,  0.05,  5.0E-05 },
+    {true, 0.15,  0.05,  2.0E-02 },
+    {true, 0.20,  0.05,  2.0E-02 },
+    {true, 0.25,  0.05,  2.0E-02 },
+    {true, 0.30,  0.05,  2.0E-02 },
+    {true, 0.35,  0.05,  2.0E-02 },
+
+    {true, 0.1,    0.1,   5.0E-08},
+    {true, 0.048,  0.001, 4.0E-05},
+    {true, 0.050,  2.5,   4.0E-05}
+#endif 
+};
+
+TEST_F(TestDirection, InterpolationCombiniation )
+{
+  TestDescription( "Interpolation by Listed condition." );
+    // Combiniation List of Pointing Interval and Main Interval //
+
+    ErrorMax  maxerr;
+    std::vector<Double> r_err = {0.0}; 
+
+    //+
+    // using following Column and AntennaId 
+    //-
+      uInt usingColumn  = 0;
+      uInt usingAntenna = 0;
+
+    // Loop //
+    for(uInt n=0; n<pList.size();n++)
+    {
+          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   ); 
+          printf("DBG:: parameter Set[%d]  starts. \n",n );
+          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+
+          use_spline       = pList[n].use_spline;
+          Double p_i       = pList[n].p_interval;
+          Double m_i       = pList[n].m_interval;
+          Double err_limit = pList[n].errLimit;
+
+          printf( "DBG:: Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
+
+          // Copy Template MS //
+          SetUp();
+
+          // define Number of Antenna prepeared in MS //
+          setMaxAntenna(5);
+
+          //+
+          // set Examination Condition (revised by CAS-8418) //
+          //-
+            selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+            setCondition( 5040,   /*numinTestingRow */      //number of row
+                          p_i,    // Pointing Interval
+                          m_i,    // Main Interval
+                          err_limit );  // Error limit 
+ 
+          // Prepate Antenna (for Multple-set) //
+            prepareAntenna();
+ 
+          // Increase(Append)  Row on MS for large-file.:
+            prepareRows();
+          
+          //+
+          // Execute Main-Body , get error info //
+          //-
+            r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
+            maxerr.put(r_err);
+    }
+}
+
+/*-----------------------------------------------------------------------
+  Interporation Test in getDirection()   
+  SINGLE Parameter mode
+
+- Set up one set of Pointing table Interval and Main table Interval
+- Table sizes to be created is automatically tuned.
+- Capable of selecting curve fucntion for simulated pointing trajectry
+ ----------------------------------------------------------------------*/
+
+TEST_F(TestDirection, InterpolationSingle )
+{
+    TestDescription( "Interpolation test in getDirection() SINGLE-parameter mode" );
+
+      use_spline = true;
+
+    // define Number of Antenna prepeared in MS //
+
+      setMaxAntenna(3);
+
+    // set Examination Condition (revised by CAS-8418) //
+
+      selectTrajectory( TrajectoryFunction::Type::Simple_linear );// Trajectory(Curve) Function
+      setCondition( 5000,       // number of row
+                    0.05,          // Pointing Interval
+                    0.01,         // Main Interval
+                    5E-03  );  // Error limit 
+
+
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
+
+    //+
+    // For all Pointing Columns  and,
+    //   For all regisetered Antenna 
+    //-
+
+    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
+    {
+        for(uInt ant=0;ant< numAntenna_ ; ant++)
+        {   
+            String info = "Col="+std::to_string(pcol)+", Ant="+to_string(ant);
+            Description( "Single mode", info );
+
+            // Indicate antenna select. //
+              setSelectedAntenna( ant );
+
+            // get currect interval time.. //
+              Double p_interval = getPointingInterval();
+              Double m_interval = getMainInterval();
+
+            // Execute and get numerical error info 
+             std::vector<Double> r_err = testDirectionByInterval(p_interval, m_interval,
+                                                                 pcol,  ant );
+             printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
+        }
+    }
+}
+
+//*****************************************
+// Interporation Test in getDirection()
+// Examine Coeff Table
+//    with Pointing Column and AntennaId 
+//*****************************************
+
+TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
+{
+      use_spline = true;
+
+    // define Number of Antenna prepeared in MS //
+
+      setMaxAntenna(5);
+
+    // set Examination Condition  //
+
+      selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
+      setCondition( 5040,       // number of row
+                    1.0,        // Pointing Interval
+                    1.0,        // Main Interval
+                    5.0E-03 );  // Error limit 
+
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
+
+    // NEW: 8-MAR-2019 Set Pseudo control in Special mode 
+      msedit.tuneMS.setCoeffLocTest( true ) ; 
+
+    //+
+    // Create MS for all Pointing Columns  and,
+    //   for all regisetered Antenna 
+    //-
+
+    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
+    {
+        printf("DBG:: Direction Column = %d \n", pcol );
+
+        // Internally indicate Pointing Column to be used
+        setCurrentPointingColumn( pcol );
+
+        // Write Data on Pointing TAble  
+        writeOnPointing();
+    }
+
+    //+
+    // setDirectionCplumn() call to create Spline Object.
+    //   creating 5 spline objects with specified Pointing Column.
+    //-
+
+    const String MsName = DefaultLocalMsName;
+
+    // Create Object //
+    MeasurementSet ms( MsName.c_str() );
+    PointingDirectionCalculator calc(ms);
+   
+    //+
+    // Poinying-Column and Antenna Loop
+    //- 
+    PointingColumnList pList;
+    for(uInt pcol=0; pcol <numPointingColumn_; pcol++) 
+    {
+        String name =pColLis_.name(pcol);
+        printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n\n",name.c_str() );
+
+        calc.setDirectionColumn(name);
+
+        // Check out Spline Object ..//
+          sp =  calc.getCurrentSplineObj();
+          coeff = sp->getCoeff();
+
+        //*
+        // TENTATIVE (working) //
+        // Check if the coeff is expected value.
+        // at the moment only showing values.
+        //*
+        for(uInt ant=0;ant<numAntenna_;ant++)
+        {
+            for(uInt i =0; i<10; i++)
+            {
+                uInt Index = i;
+                Double a0 = coeff[ant][Index][0][0];
+                Double a1 = coeff[ant][Index][0][1];
+                Double a2 = coeff[ant][Index][0][2];
+                Double a3 = coeff[ant][Index][0][3];
+
+                Double b0 = coeff[ant][Index][1][0];
+                Double b1 = coeff[ant][Index][1][1];
+                Double b2 = coeff[ant][Index][1][2];
+                Double b3 = coeff[ant][Index][1][3];
+
+                printf( "COEFF[%d][%d][XY][0-3] = %f,%f,%f,%f,|,",ant, Index, a0,a1,a2,a3  );
+                printf( " %f,%f,%f,%f \n",b0,b1,b2,b3  );
+            }
+            printf( "\n");
+        }
+    }
+
+
+}
+
+
+TEST_F(TestDirection, CompareInterpolation )
+{
+  TestDescription( "Interpolation Result Comparing.(Linear vs Spline)" );
+
+    std::vector<Double>   r_err1 ;
+    std::vector<Double>   r_err2 ;
+
+    Double            errorLimit = 5e-04;
+   
+    TestDescription( "getDirection (J2000) with selected data. uvw available" );
+ 
+    // Use the below MS to evaluate the difference of
+    //  interpolation results.
+
+    std::vector<String> MsList = {
+      "sdimaging/Uranus1.cal.Ant0.spw34.ms",
+      "sdimaging/Uranus2.cal.Ant0.spw34.ms"
+    };
+
+    // TEST LOOP //
+
+    for(uInt fno=0; fno<MsList.size(); fno++)
+    {
+        // Direction 
+        Matrix<Double>  DirList1; // for Linear
+        Matrix<Double>  DirList2; // for Spline
+
+        // selected MS name //
+        String name = env.getCasaMasterPath()+MsList[fno]; 
+        printf( "MS[%s] is used. \n",name.c_str() );
+
+        if(true){
+           PointingTableAccess pta(name);
+           pta.dump("Pointing_"+std::to_string(fno)+ ".csv" );
+        }
+        
+        // Create Object //
+        MeasurementSet ms0( name );
+        PointingDirectionCalculator calc(ms0);
+
+        //+
+        // setDirectionColumn() 
+        //-
+
+        String ColName = "DIRECTION";
+        calc.setDirectionColumn( ColName ) ;
+
+        //+
+        //  MatrixShape (COLUMN_MAJOR) 
+        //-
+
+        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ;
+
+        //+
+        // setFrame()
+        //-
+
+        if(true)
+        {
+            String FrameName= "AZELGEO";
+            calc.setFrame( FrameName );
+        }
+
+        //******************
+        // Examine Linear
+        //******************
+        if(true)
+        {
+     
+            // Set Interporation Mode //
+         
+            calc.setSplineInterpolation(false);
+        
+            //+
+            //  getDirection()
+            //-
+          
+            Description("calling getDirection()" ,"#1" );
+         
+            DirList1  = calc.getDirection();
+            size_t   n_col    = DirList1.ncolumn();
+            size_t   n_row    = DirList1.nrow();
+         
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
+    
+        }
+        //******************
+        // Examine Spline
+        //******************
+        if(true)
+        {
+            // Set Interporation Mode //
+            calc.setSplineInterpolation(true);
+
+            //+
+            //  getDirection()
+            //-
+
+            Description("calling getDirection()" ,"#2" );
+ 
+            DirList2  = calc.getDirection();
+            size_t   n_col    = DirList2.ncolumn();
+            size_t   n_row    = DirList2.nrow();
+ 
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
+        }
+
+        //****************************
+        // List, Compare and Examine
+        //****************************
+        uInt size = DirList1.nrow();
+        for( uint row=0; row<size; row++)
+        {
+            Double er1 = DirList2(row,0) - DirList1(row,0);
+            Double er2 = DirList2(row,1) - DirList1(row,1);
+
+            EXPECT_LT( er1, errorLimit );
+            EXPECT_LT( er2, errorLimit );
+       
+            printf("row,%d, ", row );
+            printf("Dir1, %e,%e,", DirList1(row,0),DirList1(row,1) ); 
+            printf("Dir2, %e,%e,", DirList2(row,0),DirList2(row,1) );
+            printf("Err, %e,%e \n", er1, er2 );
+        }
+    }
+}
 //+
 //  check Accessor ID (So far, this is no Assetion)
 //-  
@@ -2017,11 +2671,10 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
     SplineInterpolation *sp =  calc.getCurrentSplineObj();
 
     // Inspect Coefficient Table //
-    ASSERT_EQ( sp->isCofficientReady(), true );
+    ASSERT_EQ( sp->isCoefficientReady(), true );
 
-    printf( "Spline Cofficient in Pointing Column[%d] GTest OK.\n",Id);
+    printf( "SplinCofficient in Pointing Column[%d] GTest OK.\n",Id);
 }
-
 
 //------------------------------
 // Revised Edition (CAS-8418)
@@ -2371,7 +3024,6 @@ TEST_F(TestDirection, getDirection1 )
     // Create Object //
     
         MeasurementSet ms( MsName.c_str() );
-    
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -2439,647 +3091,6 @@ TEST_F(TestDirection, getDirection1 )
     }
 }
 
-//-------------------------------------------------
-//    Interporation Test (sub) 
-//     dt : displacement betweeen measure point
-//     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
-//------------------------------------------------
-//+
-// BEING REVISED (CAS-8418)   22-FEB-2019 
-//    Extend multiple Direction Colums, multiple Antenna.
-//-
-std::vector<Double>  TestDirection::testDirectionForDeltaTime2(Double dt, uInt colNo, uInt ant )
-{
-    const String MsName = DefaultLocalMsName;
-
-    // Create Object //
-        MeasurementSet ms( MsName.c_str() );
-        PointingDirectionCalculator calc(ms);   
-
-    //  MatrixShape (COLUMN_MAJOR)
-        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ; 
-
-    // setFrame()
-        String FrameName= "J2000";
-        calc.setFrame( FrameName );
-
-    //+
-    // selectData on generated MS
-    //  Antenna name is ANT0, ANT1, AT2
-    //-
-   
-        const String AntSel = "ZZ0" + std::to_string(ant)+ "&&ZZ00"; 
-
-        calc.selectData( AntSel,  "","","","","","","","","" );
-        /* uInt match_row = calc.getNrowForSelectedMS();    */
-     
-    //  InterPolation mode (Foece Unuse)
-        calc.setSplineInterpolation(use_spline);
-
-    //+
-    // setDirectionColumn()
-    //
-    //   NOTES: If multiple loop is intened.
-    //       setDirectionColumn() must be working with psd data.  
-    //-
-#if 0
-        uInt colNo = getCurrentPointingColumn() ; 
-#endif 
-        printf( "setDirectionColumn(%s)\n", pColLis_.name( colNo ).c_str() );
-
-        calc.setDirectionColumn( pColLis_.name(colNo) ) ;
-
-    //+
-    // setFrame call for "conversion"
-    // in CAS-8418, try to examine converted result.
-    //-
-        if(fgConversion)
-        {
-            String frameName = "AZELGEO" ;
-            calc.setFrame( frameName );
-        }
-
-    //+
-    //  getDirection()
-    //-
-        Matrix<Double>  DirList1  = calc.getDirection();
-        size_t   n_row    = DirList1.nrow();
-
-    //+
-    // Direction Interpolation
-    //-
-    Double maxErr_1 = 0.0;
-    Double maxErr_2 = 0.0;             
-    Double absErr_1 = 0.0;
-    Double absErr_2 = 0.0;
-
-
-    uInt LoopCnt = n_row-2;
-    for (uInt row=0; row < LoopCnt; row++)   
-    {
-        // Direction(1) by getDirection //
-
-          Double calculated_1 = DirList1(row,0);
-          Double calculated_2 = DirList1(row,1);
-
-        // Direction by generated/estimated //
-
-          TuneMSParam::PseudoPointingData  gen_out2
-                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + dt );  // dt:Interpolation offset  (sec)
-
-          Double generated_1 = gen_out2.position[colNo].first;
-          Double generated_2 = gen_out2.position[colNo].second;
-
-        //+
-        // Error calculation 
-        //-
-
-          Double Err_1 = calculated_1 - generated_1 ;   
-          Double Err_2 = calculated_2 - generated_2 ;
-
-          absErr_1 = abs(Err_1);
-          absErr_2 = abs(Err_2);
-                
-          if( maxErr_1 < absErr_1 ) maxErr_1 = absErr_1;
-          if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
-
-          // Google Test On/Off
-          if(fgGoogleTest)
-          {
-	      EXPECT_LE( absErr_1, msedit.tuneMS.getInterpolationErrorLimit()  ); 
-              EXPECT_LE( absErr_2, msedit.tuneMS.getInterpolationErrorLimit()  ); 
-          }
-
-          // Output List (in One line) On/OFF   //
-          if(fgResultListing) 
-          {
-              printf( "Evaluation,");
-              printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
-              printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
-              printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
-          }
-    }
-   
-   std::vector<Double> vv(2);
-   vv[0] = maxErr_1;   
-   vv[1] = maxErr_2;
-
-   return vv; 
-}
-//+
-// TestSub
-//  - Pointing table interval and Main table interval are specified
-//  - execute numerical error test by activating Interpolation
-//    by using slided time in Main Table.
-//-
-std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double m_int,
-                                                           uInt p_col, uInt antenna )
-{
-    // Max Error ///
-
-      std::vector<Double> reterr;
-      ErrorMax            maxerr;
-    
-    // Add INTERPOLATION TEST DATA 
-
-      writeOnPointing();
-
-    // Test Loop  
-    //   - nDiv is given, internd to spacify number of separating count 
-    //     between one exact point and the next,  
-
-    uInt nDiv = InterpolationDivCount_; 
-    for (uInt loop=0; loop < nDiv; loop ++ )
-    {
-        //+
-        // SetUp Testing  MeasurmentSet
-        //-  
-
-        writeOnMain((Double)loop/(Double)nDiv);
-
-        // Execution //
-        reterr = testDirectionForDeltaTime2( (Double)loop/(Double)nDiv, p_col, antenna );
-
-        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-        printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
-        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-
-        maxerr.put(reterr);
-    }
-    std::vector<Double> e_max = maxerr.get();
-
-    printf("----------------------------------------\n");
-    printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
-    printf("----------------------------------------\n");
-
-    return e_max; 
-}
-/*-----------------------------------------------------------------------
-   Interporatio Test in getDirection()  
-   FULL combiniation of Interval Times and spline mode.
-
- - Use Combiniation of Pointing table Interval and Main table Interval
- - Capable of selecting curve fucntion for simulated pointing trajectry
-  ----------------------------------------------------------------------*/
- 
-TEST_F(TestDirection, InterpolationFull )
-{
-  TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
-    // Combiniation List of Pointing Interval and Main Interval //
-
-    vector<bool>   InterpolationMode     = { false, true};
-    vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
-    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01,  };
-
-    ErrorMax  maxerr;
-    std::vector<Double> r_err = {0.0}; 
-
-    //+
-    // Use following paramters
-    //-
-      uInt usingColumn  = 0;
-      uInt usingAntenna = 0;
-
-    // Multiple Loop //
-    for(uInt s=0; s<InterpolationMode.size(); s++)
-    {  
-        // Spline OFF, ON //
-        use_spline = InterpolationMode[s];
-
-       // Combiniation Loop
-       //  5-MAR-2919 ; changed out/in loop var. 
-        for( uint p=0; p < Pointing_IntervalList.size(); p++)
-        {
-            for( uint m=0; m < Main_IntervalList.size(); m++)
-            {
-                // Interval // 
-                 Double p_i = Pointing_IntervalList[p];
-                 Double m_i = Main_IntervalList[m];
-
-                // Error Limit
-                 Double ErrLimit =0.0;
-               
-                 if( use_spline==true) { ErrLimit = 1E-06; }
-                 else                  {  ErrLimit = 1E-04;}
-       
-                 if(p_i > m_i )        {  ErrLimit = 1E-02;}
-
-                 printf( "======================================================\n");
-                 printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
-                          use_spline , p_i, m_i , ErrLimit );
-                 printf( "======================================================\n");
-
-                 // Copy Template MS //
-                   SetUp();
-
-                 //+
-                 // set Examination Condition (revised by CAS-8418) //
-                 //-
-    
-                 selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-                 setCondition( 5040,   /*numinTestingRow */      //number of row
-                               p_i,    // Pointing Interval
-                               m_i,    // Main Interval
-                               ErrLimit );  // Error limit 
- 
-                 // Prepate Antenna (for Multple-set) //
-                   prepareAntenna();
- 
-                 // Increase(Append)  Row on MS for large-file.:
-                   prepareRows();
-          
-                 //+
-                 // Execute Main-Body , get error info //
-                 //-
-                   r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
-                   maxerr.put(r_err);
-             }
-        } // End Interval combiniation
-
-        std::vector<Double>  e = maxerr.get();
-        printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-        printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
-        printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-
-    } // End Interpolation Mode 
-}
-
-/*-----------------------------------------------------------------------
-  Interporatio Test in getDirection()   
-  Specific COMBIIATION Parameter mode
- - Set of testing parameters are given
-------------------------------------------------------------------------*/ 
-
-
-typedef struct Parm {
-    bool   use_spline;
-    Double p_interval;
-    Double m_interval;
-    Double errLimit;
-} ParamList;
-
-std::vector<ParamList>
- pList =
-{
-    {true, 0.01,  0.05,  5.0E-05 },
-    {true, 0.05,  0.05,  5.0E-05 },
-    {true, 0.10,  0.05,  5.0E-05 },
-    {true, 0.15,  0.05,  5.0E-04 },
-    {true, 0.20,  0.05,  5.0E-04 },
-    {true, 0.25,  0.05,  5.0E-04 },
-    {true, 0.30,  0.05,  5.0E-04 },
-    {true, 0.35,  0.05,  5.0E-04 },
-
-    {true, 0.1,    0.1,   5.0E-08},
-    {true, 0.048,  0.001, 4.0E-05},
-    {true, 0.050,  2.5,   4.0E-05}
-};
-
-TEST_F(TestDirection, InterpolationCombiniation )
-{
-  TestDescription( "Interpolation by Listed condition." );
-    // Combiniation List of Pointing Interval and Main Interval //
-
-    ErrorMax  maxerr;
-    std::vector<Double> r_err = {0.0}; 
-
-    //+
-    // Commonly use following paramters
-    //-
-      uInt usingColumn  = 0;
-      uInt usingAntenna = 0;
-
-    // Loop //
-    for(uInt n=0; n<pList.size();n++)
-    {
-          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   ); 
-          printf("DBG:: parameter Set[%d]  starts. \n",n );
-          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
-
-          use_spline       = pList[n].use_spline;
-          Double p_i       = pList[n].p_interval;
-          Double m_i       = pList[n].m_interval;
-          Double err_limit = pList[n].errLimit;
-
-          printf( "DBG:: Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
-
-          // Copy Template MS //
-          SetUp();
-
-          //+
-          // set Examination Condition (revised by CAS-8418) //
-          //-
-            selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-            setCondition( 5040,   /*numinTestingRow */      //number of row
-                          p_i,    // Pointing Interval
-                          m_i,    // Main Interval
-                          err_limit );  // Error limit 
- 
-          // Prepate Antenna (for Multple-set) //
-            prepareAntenna();
- 
-          // Increase(Append)  Row on MS for large-file.:
-            prepareRows();
-          
-          //+
-          // Execute Main-Body , get error info //
-          //-
-            r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
-            maxerr.put(r_err);
-    }
-}
-
-/*-----------------------------------------------------------------------
-  Interporation Test in getDirection()   
-  SINGLE Parameter mode
-
-- Set up one set of Pointing table Interval and Main table Interval
-- Table sizes to be created is automatically tuned.
-- Capable of selecting curve fucntion for simulated pointing trajectry
- ----------------------------------------------------------------------*/
-
-TEST_F(TestDirection, InterpolationSingle )
-{
-    TestDescription( "Interpolation test in getDirection() SINGLE-parameter mode" );
-
-      use_spline = true;
-
-    // define Number of Antenna prepeared in MS //
-
-      setMaxAntenna(5);
-
-    // set Examination Condition (revised by CAS-8418) //
-
-      selectTrajectory( TrajectoryFunction::Type::Simple_linear );// Trajectory(Curve) Function
-      setCondition( 5040,       // number of row
-                    0.1,          // Pointing Interval
-                    0.05,         // Main Interval
-                    1E-07  );  // Error limit 
-
-
-    // Prepate Antenna (for Multple-set) //
-      prepareAntenna();
-
-    // Increase(Append)  Row on MS for large-file.:
-      prepareRows();
-
-    //+
-    // For all Pointing Columns  and,
-    //   For all regisetered Antenna 
-    //-
-
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
-    {
-        for(uInt ant=0;ant< numAntenna_ ; ant++)
-        {   
-            String info = "Col="+std::to_string(pcol)+", Ant="+to_string(ant);
-            Description( "Single mode", info );
-
-            // Indicate antenna select. //
-              setSelectedAntenna( ant );
-
-            // get currect interval time.. //
-              Double p_interval = getPointingInterval();
-              Double m_interval = getMainInterval();
-
-            // Execute and get numerical error info 
-             std::vector<Double> r_err = testDirectionByInterval(p_interval, m_interval,
-                                                                 pcol,  ant );
-             printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
-        }
-    }
-}
-
-//*****************************************
-// Interporation Test in getDirection()
-// Examine Coeff Table
-//    with Pointing Column and AntennaId 
-//*****************************************
-
-TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
-{
-      use_spline = true;
-
-    // set Examination Condition  //
-
-      selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
-      setCondition( 5000,       // number of row
-                    1.0,        // Pointing Interval
-                    1.0,        // Main Interval
-                    5.0E-06 );  // Error limit 
-
-    // Prepate Antenna (for Multple-set) //
-      prepareAntenna();
-
-    // Increase(Append)  Row on MS for large-file.:
-      prepareRows();
-
-    // NEW: 8-MAR-2019 Set Pseudo control in Special mode 
-      msedit.tuneMS.setCoeffLocTest( true ) ; 
-
-    //+
-    // Create MS for all Pointing Columns  and,
-    //   for all regisetered Antenna 
-    //-
-
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
-    {
-        printf("DBG:: Direction Column = %d \n", pcol );
-
-        // Internally indicate Pointing Column to be used
-        setCurrentPointingColumn( pcol );
-
-        // Write Data on Pointing TAble  
-        writeOnPointing();
-    }
-
-    //+
-    // setDirectionCplumn() call to create Spline Object.
-    //   creating 5 spline objects with specified Pointing Column.
-    //-
-
-    const String MsName = DefaultLocalMsName;
-
-    // Create Object //
-    MeasurementSet ms( MsName.c_str() );
-    PointingDirectionCalculator calc(ms);
-   
-    //+
-    // Poinying-Column and Antenna Loop
-    //- 
-    PointingColumnList pList;
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++) 
-    {
-        String name =pColLis_.name(pcol);
-        printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n\n",name.c_str() );
-
-        calc.setDirectionColumn(name);
-
-        // Check out Spline Object ..//
-          sp =  calc.getCurrentSplineObj();
-          coeff = sp->getCoeff();
-
-        //*
-        // TENTATIVE (working) //
-        // Check if the coeff is expected value.
-        // at the moment only showing values.
-        //*
-        for(uInt ant=0;ant<numAntenna_;ant++)
-        {
-            for(uInt i =0; i<10; i++)
-            {
-                uInt Index = i;
-                Double a0 = coeff[ant][Index][0][0];
-                Double a1 = coeff[ant][Index][0][1];
-                Double a2 = coeff[ant][Index][0][2];
-                Double a3 = coeff[ant][Index][0][3];
-
-                Double b0 = coeff[ant][Index][1][0];
-                Double b1 = coeff[ant][Index][1][1];
-                Double b2 = coeff[ant][Index][1][2];
-                Double b3 = coeff[ant][Index][1][3];
-
-                printf( "COEFF[%d][%d][XY][0-3] = %f,%f,%f,%f,|,",ant, Index, a0,a1,a2,a3  );
-                printf( " %f,%f,%f,%f \n",b0,b1,b2,b3  );
-            }
-            printf( "\n");
-        }
-    }
-
-
-}
-
-
-TEST_F(TestDirection, CompareInterpolation )
-{
-  TestDescription( "Interpolation Result Comparing.(Linear vs Spline)" );
-
-    std::vector<Double>   r_err1 ;
-    std::vector<Double>   r_err2 ;
-
-    Double            errorLimit = 5e-04;
-   
-    TestDescription( "getDirection (J2000) with selected data. uvw available" );
- 
-    // Use the below MS to evaluate the difference of
-    //  interpolation results.
-
-    std::vector<String> MsList = {
-      "sdimaging/Uranus1.cal.Ant0.spw34.ms",
-      "sdimaging/Uranus2.cal.Ant0.spw34.ms"
-    };
-
-    // TEST LOOP //
-
-    for(uInt fno=0; fno<MsList.size(); fno++)
-    {
-        // Direction 
-        Matrix<Double>  DirList1; // for Linear
-        Matrix<Double>  DirList2; // for Spline
-
-        // selected MS name //
-        String name = env.getCasaMasterPath()+MsList[fno]; 
-        printf( "MS[%s] is used. \n",name.c_str() );
-
-        if(true){
-           PointingTableAccess pta(name);
-           pta.dump("Pointing_"+std::to_string(fno)+ ".csv" );
-        }
-        
-        // Create Object //
-        MeasurementSet ms0( name );
-        PointingDirectionCalculator calc(ms0);
-
-        //+
-        // setDirectionColumn() 
-        //-
-
-        String ColName = "DIRECTION";
-        calc.setDirectionColumn( ColName ) ;
-
-        //+
-        //  MatrixShape (COLUMN_MAJOR) 
-        //-
-
-        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ;
-
-        //+
-        // setFrame()
-        //-
-
-        if(true)
-        {
-            String FrameName= "AZELGEO";
-            calc.setFrame( FrameName );
-        }
-
-        //******************
-        // Examine Linear
-        //******************
-        if(true)
-        {
-     
-            // Set Interporation Mode //
-         
-            calc.setSplineInterpolation(false);
-        
-            //+
-            //  getDirection()
-            //-
-          
-            Description("calling getDirection()" ,"#1" );
-         
-            DirList1  = calc.getDirection();
-            size_t   n_col    = DirList1.ncolumn();
-            size_t   n_row    = DirList1.nrow();
-         
-            printf( "getDirection()::Number of Row = %zu \n", n_row );
-            printf( "getDirection()::Number of Col = %zu \n", n_col );
-    
-        }
-        //******************
-        // Examine Spline
-        //******************
-        if(true)
-        {
-
-            // Set Interporation Mode //
-
-            calc.setSplineInterpolation(true);
-
-            //+
-            //  getDirection()
-            //-
-
-            Description("calling getDirection()" ,"#2" );
- 
-            DirList2  = calc.getDirection();
-            size_t   n_col    = DirList2.ncolumn();
-            size_t   n_row    = DirList2.nrow();
- 
-            printf( "getDirection()::Number of Row = %zu \n", n_row );
-            printf( "getDirection()::Number of Col = %zu \n", n_col );
-        }
-
-        //****************************
-        // List, Compare and Examine
-        //****************************
-        uInt size = DirList1.nrow();
-        for( uint row=0; row<size; row++)
-        {
-            Double er1 = DirList2(row,0) - DirList1(row,0);
-            Double er2 = DirList2(row,1) - DirList1(row,1);
-
-            EXPECT_LT( er1, errorLimit );
-            EXPECT_LT( er2, errorLimit );
-       
-            printf("row,%d, ", row );
-            printf("Dir1, %e,%e,", DirList1(row,0),DirList1(row,1) ); 
-            printf("Dir2, %e,%e,", DirList2(row,0),DirList2(row,1) );
-            printf("Err, %e,%e \n", er1, er2 );
-        }
-    }
-}
 
 /*---------------------------------------------------
     getDirection  with uvw data dump,
