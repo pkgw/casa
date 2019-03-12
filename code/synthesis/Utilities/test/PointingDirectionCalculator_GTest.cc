@@ -569,7 +569,7 @@ public:
 
     // available POINTING TABLE count //
 
-       uInt getAvailablePointingTestingRow() { return availableNrowInPointing_; }
+       uInt getAvailablePointingTestingRow() { return std::round(availableNrowInPointing_); }
 
     // required MAIN TABLE count 
 
@@ -583,8 +583,8 @@ public:
 
     // Row count (to add) 
 
-        uInt getAddInerpolationTestPointingTableRow() {return extraNrowInPointing_; };
-        uInt getAddInerpolationTestMainTableRow()     {return extraNrowInMain; };
+        uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
+        uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain);      };
 	
     // Antenna Count //
 
@@ -2285,6 +2285,7 @@ TEST_F(TestDirection, InterpolationFull )
 
 typedef struct Parm {
     bool   use_spline;
+    Double testCount;
     Double p_interval;
     Double m_interval;
     Double errLimit;
@@ -2293,22 +2294,27 @@ typedef struct Parm {
 std::vector<ParamList>
  pList =
 {
-    {true, 0.05,  0.01,  5.0E-03 },
-    {true, 0.01,  0.05,  5.0E-03 }
-#if 0
-    {true, 0.01,  0.05,  5.0E-05 },
-    {true, 0.05,  0.05,  5.0E-05 },
-    {true, 0.10,  0.05,  5.0E-05 },
-    {true, 0.15,  0.05,  2.0E-02 },
-    {true, 0.20,  0.05,  2.0E-02 },
-    {true, 0.25,  0.05,  2.0E-02 },
-    {true, 0.30,  0.05,  2.0E-02 },
-    {true, 0.35,  0.05,  2.0E-02 },
+    {true, 5000, 0.05,  0.01,  5.0E-03 },
+    {true, 5005, 0.05,  0.01,  5.0E-03 },
+    {true, 5010, 0.05,  0.01,  5.0E-03 },
+    {true, 5015, 0.05,  0.01,  5.0E-03 },
+    {true, 5020, 0.05,  0.01,  5.0E-03 },
+    {true, 5005, 0.05,  0.01,  5.0E-03 },
+    {true, 5030, 0.05,  0.01,  5.0E-03 },
+    {true, 5035, 0.05,  0.01,  5.0E-03 },
+    {true, 5040, 0.05,  0.01,  5.0E-03 },
+    {true, 5045, 0.05,  0.01,  5.0E-03 },
+    {true, 5050, 0.05,  0.01,  5.0E-03 },
+    {true, 5055, 0.05,  0.01,  5.0E-03 },
+    {true, 5060, 0.05,  0.01,  5.0E-03 },
+    {true, 5065, 0.05,  0.01,  5.0E-03 },
+    {true, 5070, 0.05,  0.01,  5.0E-03 },
+    {true, 5075, 0.05,  0.01,  5.0E-03 },
+    {true, 5080, 0.05,  0.01,  5.0E-03 },
+    {true, 5085, 0.05,  0.01,  5.0E-03 },
+    {true, 5090, 0.05,  0.01,  5.0E-03 },
+    {true, 5095, 0.05,  0.01,  5.0E-03 },
 
-    {true, 0.1,    0.1,   5.0E-08},
-    {true, 0.048,  0.001, 4.0E-05},
-    {true, 0.050,  2.5,   4.0E-05}
-#endif 
 };
 
 TEST_F(TestDirection, InterpolationCombiniation )
@@ -2333,23 +2339,25 @@ TEST_F(TestDirection, InterpolationCombiniation )
           printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
 
           use_spline       = pList[n].use_spline;
+          uInt   testCount = pList[n].testCount;
           Double p_i       = pList[n].p_interval;
           Double m_i       = pList[n].m_interval;
           Double err_limit = pList[n].errLimit;
 
-          printf( "DBG:: Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
+          printf( "DBG:: N=%d, Interval (Poinitng, Main) = (%f,%f) \n", 
+                   testCount, p_i, m_i );
 
           // Copy Template MS //
           SetUp();
 
           // define Number of Antenna prepeared in MS //
-          setMaxAntenna(5);
+          setMaxAntenna(7);
 
           //+
           // set Examination Condition (revised by CAS-8418) //
           //-
             selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-            setCondition( 5040,   /*numinTestingRow */      //number of row
+            setCondition( testCount,   /*numinTestingRow */      //number of row
                           p_i,    // Pointing Interval
                           m_i,    // Main Interval
                           err_limit );  // Error limit 
