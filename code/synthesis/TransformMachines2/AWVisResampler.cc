@@ -366,7 +366,7 @@ namespace casa{
 
     if (
     	((fabs(pointingOffset[0]-cached_PointingOffset_p[0])) > 1e-6) ||
-    	((fabs(pointingOffset[0]-cached_PointingOffset_p[0])) > 1e-6) ||
+    	((fabs(pointingOffset[1]-cached_PointingOffset_p[1])) > 1e-6) ||
     	(cached_phaseGrad_p.shape()[0] < cfShape[0])              ||
     	(cached_phaseGrad_p.shape()[1] < cfShape[1])
     	)

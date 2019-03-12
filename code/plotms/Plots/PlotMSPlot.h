@@ -26,6 +26,7 @@
 //# $Id: $
 #ifndef PLOTMSPLOT_H_
 #define PLOTMSPLOT_H_
+#include <vector>
 
 #include <graphics/GenericPlotter/PlotFactory.h>
 #include <plotms/Data/PlotMSCacheBase.h>
@@ -40,6 +41,7 @@ namespace casa {
 
 //# Forward declarations
 class PlotMSPages;
+class PlotMSCacheBase;
 class PMS_PP_Cache;
 class PMS_PP_Canvas;
 class PMS_PP_Axes;
@@ -330,7 +332,7 @@ private:
     void logMessage( const QString& msg ) const;
 
     void clearCanvasProperties( int row, int col);
-    void setCanvasProperties (int row, int col, int numplots, uInt iteration,
+    void setCanvasProperties (int row, int col, int numplots, casacore::uInt iteration,
             PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
             PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
             PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
@@ -356,7 +358,7 @@ private:
     //second index is the column withen a grid.
     std::vector<std::vector<PlotCanvasPtr> > itsCanvases_;
 
-    vector<vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
+    std::vector<std::vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
     TCLParams itsTCLParams_;
     int gridRow;
     int gridCol;

@@ -387,6 +387,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const Int startchan, const Int endchan){
+
 	map<Int, Vector<Int> > spwsel;
 	auto it=channelSelections_p.find(msId);
 	if(it !=channelSelections_p.end())
@@ -421,7 +422,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
 }
   void SynthesisImagerVi2::andFreqSelection(const Int msId, const Int spwId,  const Double freqBeg, const Double freqEnd, const MFrequency::Types frame){
     
-   
+    
     Int key=msId;
    
     Bool isDefined=False;

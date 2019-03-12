@@ -211,6 +211,9 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_req_task_importuvfits.py
   test_req_task_calstat.py
   test_req_task_rmtables.py
+  test_req_task_clearcal.py
+  test_req_task_imhead.py
+  test_req_task_visstat.py
 
   ###
   test_setjy.py
@@ -221,7 +224,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_specflux.py
   test_splattotable.py
   test_split.py
-  test_split2.py
   test_spxfit.py
   test_oldstatwt.py
   test_statwt.py

@@ -136,7 +136,7 @@ private:
 	double maxValueEl;
 	double minValueEu;
 	double maxValueEu;
-	bool recommendedOnly;
+	//bool recommendedOnly;
 	std::vector<string> speciesNames;
 	std::vector<string> chemicalNames;
 	std::vector<string> qns;

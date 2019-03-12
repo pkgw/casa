@@ -1040,22 +1040,22 @@ vector<string> msmetadata::intents() {
 
 vector<string> msmetadata::intentsforfield(const variant& field) {
 	_FUNC(
-		Int id = -1;
 		switch (field.type()) {
 		case variant::STRING:
-			id = *(_msmd->getFieldIDsForField(field.toString()).begin());
-			break;
-		case variant::INT:
-			id = field.toInt();
-			break;
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(field.toString())
+			);
+		case variant::INT: {
+		    Int id = field.toInt();
+		    ThrowIf(id < 0, "field must be nonnegative if an int.");
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(id)
+	        );
+		}
 		default:
 			*_log << "Unsupported type for field which must be "
 				<< "a nonnegative int or string." << LogIO::EXCEPTION;
 		}
-		if (id < 0) {
-			throw AipsError("field must be nonnegative if an int.");
-		}
-		return _setStringToVectorString(_msmd->getIntentsForField(id));
 	)
 	return vector<string>();
 }

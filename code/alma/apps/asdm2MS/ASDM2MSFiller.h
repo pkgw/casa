@@ -144,6 +144,8 @@ class ASDM2MSFiller {
   int            itsNumCorr;
   casacore::MeasurementSet *itsMS;
   casacore::MSMainColumns  *itsMSCol;
+  casacore::ScalarColumn<casacore::String> *itsWinFuncCol;
+  casacore::ScalarColumn<casacore::Int> *itsNumBinCol;
   casacore::String     itsMSPath;
   casacore::Bool     itsWithRadioMeters;     /* Are we building an ALMA casacore::MS ?*/
   casacore::Bool     itsFirstScan;
@@ -390,7 +392,9 @@ class ASDM2MSFiller {
 			 const std::string&		freq_group_name_,
 			 int			num_assoc_,
 			 const std::vector<int>&	assoc_sp_id_,
-			 const std::vector<std::string>&	assoc_nature_);
+			 const std::vector<std::string>&	assoc_nature_,
+			 const std::string &         windowFunction_,
+			 int                    numBin_);
 
   int  addUniqueState(bool sig_,
 		      bool ref_,
