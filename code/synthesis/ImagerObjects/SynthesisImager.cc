@@ -1017,6 +1017,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
 			       const Int npixels, const Bool multiField,
+			       const Bool /*useCubeBriggs*/,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {

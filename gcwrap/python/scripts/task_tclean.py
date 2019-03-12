@@ -60,6 +60,7 @@ def tclean(
 #    sysvel,#='',
 #    sysvelframe,#='',
     interpolation,#='',
+    perchanweightdensity, #=''
     ## 
     ####### Gridding parameters
     gridder,#='ft',

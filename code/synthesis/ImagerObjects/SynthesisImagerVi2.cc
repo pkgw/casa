@@ -655,7 +655,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
  Bool SynthesisImagerVi2::weight(const String& type, const String& rmode,
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
-			       const Int npixels, const Bool multiField,
+				 const Int npixels, const Bool multiField, const Bool useCubeBriggs,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
@@ -757,7 +757,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //timer.mark();
 		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
 		  //Determine if any image is cube
-		  if(isSpectralCube()){
+		  if(isSpectralCube() && useCubeBriggs){
 		    cerr << "spectral cube" << endl;
 		    String outstr=String("Doing spectral cube Briggs weighting formula --  " + rmode + (rmode=="abs" ? " with estimated noise "+ String::toString(noise.getValue())+noise.getUnit()  : "")); 
 		    cerr << outstr << endl;

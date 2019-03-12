@@ -59,6 +59,7 @@ class ImagerParameters():
                  sysvel='', 
                  sysvelframe='',
                  interpolation='nearest',
+                 perchanweightdensity=False,
 
                  gridder="standard",
 #                 ftmachine='gridft', 
@@ -196,7 +197,7 @@ class ImagerParameters():
             weighting='briggs'
         elif(weighting=='briggs'):
             rmode='norm'
-        self.weightpars = fixedDict({'type':weighting,'rmode':rmode,'robust':robust, 'noise': noise, 'npixels':npixels,'uvtaper':uvtaper, 'multifield':mosweight})
+        self.weightpars = fixedDict({'type':weighting,'rmode':rmode,'robust':robust, 'noise': noise, 'npixels':npixels,'uvtaper':uvtaper, 'multifield':mosweight, 'usecubebriggs': perchanweightdensity})
 
         ######### Normalizers ( this is where flat noise, flat sky rules will go... )
         self.allnormpars = fixedDict({ self.defaultKey : fixedDict({#'mtype': mtype,

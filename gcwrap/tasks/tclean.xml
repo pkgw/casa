@@ -662,7 +662,12 @@ HPX HEALPix grid.  -->
 	      <value>cubic</value>
 	    </allowed>
     </param>
-
+<param type="bool" name="perchanweightdensity" subparam="true">
+           <shortdescription>wherther to calculate weight density per channel in Briggs style weighting or not</shortdescription>
+<description>When calculating weight density for Briggs style weighting whether to calculate the weight density for a cube for each channel independently or a common weight density for all the selected data. This has no meaning for continuum imaging.
+</description>
+	    <value type="bool">False</value>
+    </param>
 
 <!--============================================== -->
 <!--                            Imaging/Gridding Parameters                                                      -->
@@ -2531,6 +2536,7 @@ HPX HEALPix grid.  -->
 	 <default param="restfreq"><value>[]</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
+	 <default param="perchanweightdensity"><value>False</value></default>
        </equals>
        <equals type="string" value="cubesource">
 	 <default param="nchan"><value>-1</value></default>
@@ -2541,6 +2547,7 @@ HPX HEALPix grid.  -->
 	 <default param="restfreq"><value>[]</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
+	 <default param="perchanweightdensity"><value>False</value></default>
        </equals>
        
        <equals type="string" value="cubedata">
@@ -2551,6 +2558,7 @@ HPX HEALPix grid.  -->
 	 <default param="restfreq"><value>[]</value></default>
 	 <default param="interpolation"><value>"linear"</value></default>
 	 <default param="chanchunks"><value>1</value></default>
+	 <default param="perchanweightdensity"><value>False</value></default>
        </equals>
      </when>
 
