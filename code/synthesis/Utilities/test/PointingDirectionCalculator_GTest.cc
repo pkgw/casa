@@ -79,6 +79,29 @@ using namespace std;
 #include <cstdio>
 #include <casa/OS/EnvVar.h>
 #include <casacore/ms/MeasurementSets/MSAntennaColumns.h>
+/*
+ * About this programme.
+ *
+ * Fixed Data
+ *
+ *
+ *
+ * Classes:
+ *
+ *
+ *
+ *
+ *
+ * Test Fexture
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 namespace casa {
 
@@ -172,9 +195,9 @@ private:
 //***************************
 // DEBUG flags
 //***************************
-
+#if 0
 bool use_spline = false;
-
+#endif 
 //****************************************
 // Execution / Running Enviromnent
 // CASAPATH is the base directory
@@ -246,7 +269,6 @@ private:
 //************************************** 
 // Programme Wide constant 
 //**************************************
-
 const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 
 //************************************** 
@@ -256,6 +278,7 @@ const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 class BaseClass : public ::testing::Test
 {
 public:
+
      // Running Environment //
      RunEnv       env;
 
@@ -317,7 +340,7 @@ void BaseClass::Description(const String &Title, const String &Param)
 }
 
 //**************************************************************************
-//  Copying template MS from Master Repository.
+//  Copying a MeasurementSet template from Master Repository.
 //
 //   This is for Some testing items which must contain planned Data in the MS.
 //   After copying, This UT programme moify the MS for each purpose.
@@ -406,7 +429,6 @@ public:
 
     // get instance (first call) //
     static TrajectoryFunction &getInstance() { static TrajectoryFunction inst; return inst; }
-
 
 private:
 
@@ -518,14 +540,15 @@ static void Function_const(Double r_time, Double& X, Double& Y)
  
 
 }; // end class
+
 //********************************************************
-//  INTERPOLATION  Generation 
+// Tuning MS Configulation for various use of Unit Test. 
 //   for Interporation Verification TEST 
 //  - Generate testing trajectry in Direction
 //  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
 //********************************************************
 
-class TuneMSParam  /*: public BaseClass */ 
+class TuneMSConfig  /*: public BaseClass */ 
 {
 public:
 
@@ -539,7 +562,7 @@ public:
 
     } PseudoPointingData;
  
-    TuneMSParam() { printf("TuneMSParam constructor \n" ); /* Minimum SetUp only */  }
+    TuneMSConfig() { printf("TuneMSConfig constructor \n" ); /* Minimum SetUp only */  }
 
     // Interval Time //
 
@@ -548,23 +571,20 @@ public:
 
     // Calculation Error Limit //
     
-        void setInterpolationErrorLimit(Double val)
-             { printf("TuneMSParam:: set interpolation err. limit = %e \n", val );
-               errorLimit_ = defaultInterpolationErrorLimit_ = val; }
+        void setInterpolationErrorLimit(Double val) { 
+            printf("TuneMSConfig:: set interpolation err. limit = %e \n", val );
+            errorLimit_ = defaultInterpolationErrorLimit_ = val; 
+        }
 
     // Init and Define Parameters 
 
         void Initialize();
         void Initialize( Double, Double);
-        void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt       = n; }  
+        void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt_ = n; }  
 
-    // Offset between POINTNG and MAIN //
-
-        /* function reserved */
- 
     // Pseudo Trace(Direction) for the Test
 
-        PseudoPointingData     pseudoPointingInfoPointing2(Double tn);
+        PseudoPointingData     pseudoPointingInfoPointing(Double tn);
         PseudoPointingData     pseudoPointingInfoMain2    (Double tn);
 
     // available POINTING TABLE count //
@@ -584,13 +604,16 @@ public:
     // Row count (to add) 
 
         uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
-        uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain);      };
+        uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain_);      };
 	
     // Antenna Count //
 
         uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
         void setMaxAntenna(uInt n) { prepareMaxAntenna_ = n;  }
    
+    // Pointing Columns //
+
+        void setMaxPointingColumns(uInt n ) { prepareMaxPointingColumns_ = n; }
 
     // Special TEST (new : 8-MAr-29190)
 
@@ -602,7 +625,7 @@ private:
           void init();
 
         //+
-        // create pseudo Pointing Info by--rajectory-function 
+        // create pseudo Pointing Info by Trajectory-function 
         // return value contains various info 
         //  => see PseudoPointing
         //-
@@ -614,14 +637,14 @@ private:
         //   for Trajectory Function
         //-
 
-          Double  Interval  = 0.0; // Initilal ..
-          uInt    nRow      = 0;
-          Double  r_time     = 0.0;
+          Double  Interval__   = 0.0; 
+          uInt    nRow__       = 0;
+          Double  r_time__     = 0.0;
 
        // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
 
-        const uInt defaultTestingRowCnt    = 5040 ;
-        uInt currentDefaultTestingRowCnt   = 5040 ; 
+        const uInt defaultTestingRowCnt_    = 5040 ;
+        uInt currentDefaultTestingRowCnt_   = 5040 ; 
 
         const uInt defInerpolationTestPointingTableRow_   = 3843;
         const uInt defInerpolationTestMainTableRow_       = 3843;
@@ -633,7 +656,7 @@ private:
         Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
         Double  extraNrowInPointing_ ;   // calculated when start
-        Double extraNrowInMain ;       // calculated when start
+        Double extraNrowInMain_ ;       // calculated when start
 
        // Error Limit (threshold) in GoogleTest Macro //
 
@@ -646,9 +669,12 @@ private:
          Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
          Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
-    // Number of Antenna to prepeare before the Test, (CAS-8418)  
+    // Number of Antenna , Number of avilable Pointing Columns
+    //   to prepeare for the Test, (CAS-8418)  
 
-        uInt prepareMaxAntenna_ = 1;    // Tunable //
+        uInt prepareMaxAntenna_         = 1;    // Tunable //
+        uInt prepareMaxPointingColumns_ = 1;    // Tunable //
+
         bool fgCoeffLocationTest  = false; 
 
 };
@@ -657,7 +683,7 @@ private:
 // Initialize
 //-
 
-void TuneMSParam::init()
+void TuneMSConfig::init()
 {
         // Bugcheck //
           assert(requiredMainTestingRow_!=0);
@@ -668,9 +694,9 @@ void TuneMSParam::init()
         //+
         // Measurment Set Size Set-Up.
         //- 
-          printf( "TuneMSParam::init()::  Pointing Interval = %f\n", pointingIntervalSec_);
-          printf( "TuneMSParam::init()::  Main     Interval = %f\n", mainIntervalSec_);
-          printf( "TuneMSParam::init()::  Main Testing Row  = %d\n", requiredMainTestingRow_ );
+          printf( "TuneMSConfig::init()::  Pointing Interval = %f\n", pointingIntervalSec_);
+          printf( "TuneMSConfig::init()::  Main     Interval = %f\n", mainIntervalSec_);
+          printf( "TuneMSConfig::init()::  Main Testing Row  = %d\n", requiredMainTestingRow_ );
 
         //+
         //  Define Row Count in POINTING and Main
@@ -711,28 +737,28 @@ void TuneMSParam::init()
         //-
         if ( (prepareMaxAntenna_ * requiredMainTestingRow_) > defInerpolationTestMainTableRow_ )
         {
-            extraNrowInMain = requiredMainTestingRow_ * prepareMaxAntenna_
-                            - defInerpolationTestMainTableRow_;
+            extraNrowInMain_ = requiredMainTestingRow_ * prepareMaxAntenna_
+                             - defInerpolationTestMainTableRow_;
         }
         else
         {
-            extraNrowInMain  = 0 ;
+            extraNrowInMain_  = 0 ;
         }
 
-        printf( "DBG::TuneMSParam::init()::File Size: Pointing, required =%f, adding size = %f \n", 
+        printf( "DBG::TuneMSConfig::init()::File Size: Pointing, required =%f, adding size = %f \n", 
                 requiredNrowInPointing_ ,extraNrowInPointing_);
-        printf( "DBG::TuneMSParam::init()::File Size: MAIN    , required =%u, adding size = %f \n", 
-                requiredMainTestingRow_ ,extraNrowInMain);
+        printf( "DBG::TuneMSConfig::init()::File Size: MAIN    , required =%u, adding size = %f \n", 
+                requiredMainTestingRow_ ,extraNrowInMain_);
 
 }
 
-void TuneMSParam::Initialize(Double p_interval, Double m_interval )
+void TuneMSConfig::Initialize(Double p_interval, Double m_interval )
 {
         pointingIntervalSec_         =  p_interval;
         mainIntervalSec_             =  m_interval;
 
         // Number of Row count used in TEST // 
-        requiredMainTestingRow_ =  currentDefaultTestingRowCnt;
+        requiredMainTestingRow_ =  currentDefaultTestingRowCnt_;
 
         // Inerpolation Error limit (currently active)
         errorLimit_  = defaultInterpolationErrorLimit_;
@@ -741,12 +767,12 @@ void TuneMSParam::Initialize(Double p_interval, Double m_interval )
         init();
 }
 
-void TuneMSParam::Initialize( )
+void TuneMSConfig::Initialize( )
 {
         Double p_int = 0.048;
         Double m_int = 1.008;
 
-        setMainRowCount(currentDefaultTestingRowCnt);
+        setMainRowCount(currentDefaultTestingRowCnt_);
         Initialize(p_int, m_int);  // Give Pointing and Main Intervals. //
 }
 
@@ -756,7 +782,7 @@ void TuneMSParam::Initialize( )
 //  both for Pointing and Main.
 //-
 
-TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double deltaTime)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double deltaTime)
 {
         casacore::Vector<Double> point;
         point.resize(5);
@@ -768,9 +794,9 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
         //   (on private)
         //-
 
-        if (r_time > 1.0) {
-            printf( "r_time::Exceeded 1.0: %f \n",r_time );
-            assert( r_time < 1.0); 
+        if (r_time__  > 1.0) {
+            printf( "r_time::Exceeded 1.0: %f \n",r_time__ );
+            assert( r_time__  < 1.0); 
         }
  
         //+
@@ -778,7 +804,7 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
         //    dd : in day.
         //-
 
-        Double time  = deltaTime * Interval;
+        Double time  = deltaTime * Interval__;
         Double dd    =  (22 *3600.0 
                          +  5*60 +  41.5 
                          + time  
@@ -799,11 +825,11 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
 
         // prepare five sets // 
 
-        TrajectoryFunction::getInstance().calc( r_time, X2[0], Y2[0] );
-        TrajectoryFunction::getInstance().calc( r_time, X2[1], Y2[1] );
-        TrajectoryFunction::getInstance().calc( r_time, X2[2], Y2[2] );
-        TrajectoryFunction::getInstance().calc( r_time, X2[3], Y2[3] );
-        TrajectoryFunction::getInstance().calc( r_time, X2[4], Y2[4] );
+        TrajectoryFunction::getInstance().calc( r_time__, X2[0], Y2[0] );
+        TrajectoryFunction::getInstance().calc( r_time__, X2[1], Y2[1] );
+        TrajectoryFunction::getInstance().calc( r_time__, X2[2], Y2[2] );
+        TrajectoryFunction::getInstance().calc( r_time__, X2[3], Y2[3] );
+        TrajectoryFunction::getInstance().calc( r_time__, X2[4], Y2[4] );
 
         // Probe the range //
 
@@ -816,8 +842,8 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
         // CAS-8418 New  Interface //
 
         point2.time         = basetime.second();
-        point2.interval     = Interval;
-        point2.relativeTime = r_time;  
+        point2.interval     = Interval__;
+        point2.relativeTime = r_time__;  
 
         // Five different output values. //
         for(uInt n=0;n<5;n++) {
@@ -828,21 +854,21 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
 }
 
 
-TuneMSParam::PseudoPointingData TuneMSParam::pseudoPointingInfoPointing2(Double deltaTime)
+TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime)
 {
     // privide local conditon on private variables //
-      Interval =   pointingIntervalSec_;
-      nRow     =   availableNrowInPointing_; 
-      r_time   =   deltaTime/availableNrowInPointing_;
+      Interval__ =   pointingIntervalSec_;
+      nRow__     =   availableNrowInPointing_; 
+      r_time__   =   deltaTime/availableNrowInPointing_;
              
       return(pseudoPointingBaseInfo(deltaTime));
 }
              
-TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingInfoMain2(Double deltaTime)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime)
 {
     // privide local conditon on private variables //
  
-    Interval = mainIntervalSec_;
+    Interval__ = mainIntervalSec_;
 
     //+
     // Determine number of row of Pointing and Main table.
@@ -850,13 +876,13 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingInfoMain2(Double del
     //-              
     if(pointingIntervalSec_ <= mainIntervalSec_ ) // Ordinary case
     {
-        nRow=  requiredMainTestingRow_;
-        r_time =   deltaTime / nRow ;
+        nRow__   =  requiredMainTestingRow_;
+        r_time__ =   deltaTime / nRow__ ;
     }   
     else   // This case may happen that not all the rows in Pointng are used.
     {
-        nRow = max ( requiredMainTestingRow_ ,  defInerpolationTestMainTableRow_ );
-        r_time =   deltaTime / nRow   ;
+        nRow__   =   max ( requiredMainTestingRow_ ,  defInerpolationTestMainTableRow_ );
+        r_time__ =   deltaTime / nRow__   ;
     } 
 
     return(pseudoPointingBaseInfo(deltaTime));
@@ -895,7 +921,6 @@ public:
       // Constructor //
       PointingTableAccess(String const &MsName, bool WriteAccess =false ) 
       {
-//          printf("MS File [%s] \n", MsName.c_str());
           auto option = casacore::Table::TableOption::Old;
           if(WriteAccess) option = casacore::Table::TableOption::Update;
  
@@ -910,8 +935,7 @@ public:
       ~PointingTableAccess() { }
 
       // Flush and close //
-      void flush() 
-      {
+      void flush()  {
           ms.flush();
           ms.resync();
       }
@@ -921,8 +945,7 @@ public:
       void removeRow(uInt row)     { hPointing.removeRow(row);}
 
       // Duplicate Column //
-      void duplicateColumns()
-      { 
+      void duplicateColumns() { 
           TableDesc  tblDsc = hPointing.tableDesc();
 
           ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
@@ -960,7 +983,7 @@ public:
           flush();
       }
       void fillNewColumns()
-      {   printf ("Filling Data on New columns.(nrow=%d) \n",nrow);
+      {   
           //+
           // Fill empty data
           //-
@@ -1317,11 +1340,11 @@ private:
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
 class PointingTableAccess;
-class MsEdit           
+class MsEdit            
 {
 public:
  
-    TuneMSParam  tuneMS;
+    TuneMSConfig  tuneMS;
 
     MsEdit() {     }   // Current 
 
@@ -1353,8 +1376,8 @@ public:
     // Write (generated) Test Data on Pointing Table //
     // Write (generated) Test Data on MAIN Table //
 
-        void writePseudoOnPointing ( );
-        void writePseudoOnMainTable     (Double dt, String MsName =DefaultLocalMsName);
+        void writePseudoOnPointing  ( );
+        void writePseudoOnMainTable (Double dt );
 
     //+
     // Default File Name
@@ -1542,8 +1565,8 @@ void  MsEdit::writePseudoOnPointing()
 
                 // Calculate Pseudo-Direction as test data //
 
-                TuneMSParam::PseudoPointingData  psd_data2  
-                        = tuneMS.pseudoPointingInfoPointing2(deltaTime); // generated pseudo data. (Pointing) //
+                TuneMSConfig::PseudoPointingData  psd_data  
+                        = tuneMS.pseudoPointingInfoPointing(deltaTime); // generated pseudo data. (Pointing) //
  
                 if(tuneMS.ifCoeffLocTest() )
                 {
@@ -1563,15 +1586,16 @@ void  MsEdit::writePseudoOnPointing()
                     for(uInt cno=0; cno<5; cno++)
                     {
                        // Add offset 
-                          direction[0][0] = psd_data2.position[cno].first  ;
-                          direction[0][1] = psd_data2.position[cno].second ;
+                          direction[0][0] = psd_data.position[cno].first  ;
+                          direction[0][1] = psd_data.position[cno].second ;
                           Dir5[cno] = direction;
                     } 
 
                 }
 
-                // write access //
-                // (CAS-8418: Multiple Antenna supported) use rowA instead of row//
+                //+
+                // write to Column 
+                //-
                 pT.putDirection      (rowA, Dir5[0] );
                 pT.putTarget         (rowA, Dir5[1] );
                 pT.putPointingOffset (rowA, Dir5[2] );
@@ -1583,8 +1607,8 @@ void  MsEdit::writePseudoOnPointing()
                 //  basically FIXED values.
                 //-
 
-                pT.putTime      (rowA, psd_data2.time );     // Time
-                pT.putInterval  (rowA, psd_data2.interval ); // Interval
+                pT.putTime      (rowA, psd_data.time );     // Time
+                pT.putInterval  (rowA, psd_data.interval ); // Interval
 
                 pT.putAntennaId (rowA, ant_id ) ;     // AntennaID 
 
@@ -1621,13 +1645,15 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 //  -  time diffrence = deltaTime * interval 
 //-
 
-void  MsEdit::writePseudoOnMainTable(Double deltaTime, String MsName)
+void  MsEdit::writePseudoOnMainTable(Double deltaTime)
 {
     printf( "   deltaTime =, %f \n", deltaTime );
 
 //******************
 // CAS-8418 CODE 
 //******************
+
+    String MSName = DefaultLocalMsName;
     MainTableAccess   mta(MsName,true);
 
     uInt nrow_ms = mta.getNrow();
@@ -1643,14 +1669,13 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime, String MsName)
 
             // Pseudo Data (TEST DATA );
 
-            TuneMSParam::PseudoPointingData  psd_data2
+            TuneMSConfig::PseudoPointingData  psd_data
                    = tuneMS.pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
-
 
             // Time Set  //
 
-            Double interval = psd_data2.interval;
-            Double time     = psd_data2.time;
+            Double interval = psd_data.interval;
+            Double time     = psd_data.time;
 
             Double SetTime = time + (deltaTime * interval) ; 
 
@@ -1853,33 +1878,40 @@ class TestDirection : public BaseClass
 {
 public:
 
+        // Interpolation Mode //
+
+        bool use_spline = false;
+
         //+ 
         // TestCondition const
         // (Programmer Tunable)
         //-
 
-            // Resources (Tunable from external env.) //
-            uInt  InterpolationDivCount_ = 10;
-            uInt  numAntenna_            = 3;
-            uInt  numPointingColumn_     = 2;
-
             // Listing option
-            bool       fgResultListing = false;
+            bool       fgResultListing_ = false;
             // Convertion option (by setFrame)
-            bool       fgConversion    = false;
+            bool       fgConversion_    = false;
             // Google Test On/OFF
-            bool       fgGoogleTest    = true;
+            bool       fgGoogleTest_    = true;
 
-        // Prepared Antenna in MS //
+        // Interpolation divition Count in 'Delta Time' //
+
+        uInt getInterpolationDivCount() { return deltaTimeDivCount_; }
+   
+        // Prepared Antenna and Pointing-Columns in MS //
 
         void setMaxAntenna(uInt n) {
                  msedit.tuneMS.setMaxAntenna(n); 
                  numAntenna_ = n;  
         }
         void setMaxPointingColumns(uInt n) {
+                 msedit.tuneMS.setMaxPointingColumns(n);
                  numPointingColumn_     = n;
         }
- 
+
+        size_t getMaxAntenna()         { return numAntenna_;}
+        size_t getMaxPointingColumn() { return numPointingColumn_; }
+
         // Pointing Colum List (common definition) //
 
         PointingColumnList pColLis_;
@@ -1933,23 +1965,15 @@ public:
 
         Double getErrorLimit() { return (msedit.tuneMS.getInterpolationErrorLimit());}
 
-        // Current Pointing Column //
-        void setCurrentPointingColumn(uInt no ) {currentPointingColumn = no;       }
-        uInt getCurrentPointingColumn()         { return currentPointingColumn ;     }
-
-        // Current Antenna Select //
-        void setSelectedAntenna(uInt no) {curretSelectedAntenna  = no;       }
-        uInt getSelectedAntenna()        { return curretSelectedAntenna;     }
-
         // Easy Access // 
         void writeOnPointing()
         {
             msedit.writePseudoOnPointing () ;
         }
  
-        void writeOnMain(Double dt, String MsName =DefaultLocalMsName)
+        void writeOnMain(Double dt)
         {
-            msedit.writePseudoOnMainTable (dt, MsName);
+            msedit.writePseudoOnMainTable (dt);
         }
 
 protected:
@@ -1958,9 +1982,9 @@ protected:
      
           casa::MsEdit  msedit;
 
-        // Handle Spline Object , and Coeff Table//
-        SplineInterpolation  *sp ;           // =  calc.getCurrentSplineObj();
-        SplineInterpolation::COEFF coeff ;   // =  sp->getCoeff();
+        // Handle Spline Object , and Coeff Table //
+        SplineInterpolation        *sp ;            // =  calc.getCurrentSplineObj();
+        SplineInterpolation::COEFF coeff ;          // =  sp->getCoeff();
 
         // Add 3 OFFSET Colums ,copied from DIRECTION column. //
 
@@ -2001,9 +2025,13 @@ protected:
              DeleteWorkingMS();
         }
 private:
+
+        // Resources (Tunable from external env.)
+
+          uInt  deltaTimeDivCount_     = 10;
+          uInt  numAntenna_            = 3;
+          uInt  numPointingColumn_     = 2;
  
-           uInt currentPointingColumn = 0; 
-           uInt curretSelectedAntenna = 0;
 };
 
 //-------------------------------------------------
@@ -2054,7 +2082,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
     // setFrame call for "conversion"
     // in CAS-8418, try to examine converted result.
     //-
-        if(fgConversion)
+        if(fgConversion_)
         {
             String frameName = "AZELGEO" ;
             calc.setFrame( frameName );
@@ -2085,7 +2113,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
 
         // Direction by generated/estimated //
 
-          TuneMSParam::PseudoPointingData  gen_out2
+          TuneMSConfig::PseudoPointingData  gen_out2
                   = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + dt );  // dt:Interpolation offset  (sec)
 
           Double generated_1 = gen_out2.position[colNo].first;
@@ -2105,14 +2133,14 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
           if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
 
           // Google Test On/Off
-          if(fgGoogleTest)
+          if(fgGoogleTest_)
           {
 	      EXPECT_LE( absErr_1, msedit.tuneMS.getInterpolationErrorLimit()  ); 
               EXPECT_LE( absErr_2, msedit.tuneMS.getInterpolationErrorLimit()  ); 
           }
 
           // Output List (in One line) On/OFF   //
-          if(fgResultListing) 
+          if(fgResultListing_) 
           {
               printf( "Evaluation,");
               printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
@@ -2149,7 +2177,7 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
     //   - nDiv is given, internd to spacify number of separating count 
     //     between one exact point and the next,  
 
-    uInt nDiv = InterpolationDivCount_; 
+    uInt nDiv = getInterpolationDivCount(); 
     for (uInt loop=0; loop < nDiv; loop ++ )
     {
         //+
@@ -2190,7 +2218,7 @@ TEST_F(TestDirection, InterpolationFull )
 
     vector<bool>   InterpolationMode     = { false, true};
     vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
-    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01, 0.001  };
+    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01   };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2219,11 +2247,13 @@ TEST_F(TestDirection, InterpolationFull )
 
                 // Error Limit
                  Double ErrLimit =0.0;
+                 if( use_spline==true)
+                     if(p_i > m_i )  { ErrLimit = 2E-03; }
+                     else            { ErrLimit = 1E-06; }
+                 else                 
+                     if(p_i > m_i )  { ErrLimit = 1E-02; }
+                     else            { ErrLimit = 1E-04; } 
                
-                 if( use_spline==true) { ErrLimit = 1E-06; }
-                 else                  {  ErrLimit = 1E-04;}
-       
-                 if(p_i > m_i )        {  ErrLimit = 2E-02;}
 
                  printf( "======================================================\n");
                  printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
@@ -2242,7 +2272,7 @@ TEST_F(TestDirection, InterpolationFull )
                  //-
     
                  selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-                 setCondition( 5040,   /*numinTestingRow */      //number of row
+                 setCondition( 5040,   //number of row
                                p_i,    // Pointing Interval
                                m_i,    // Main Interval
                                ErrLimit );  // Error limit 
@@ -2285,6 +2315,7 @@ typedef struct Parm {
 } ParamList;
 
 std::vector<ParamList>
+#if 0
  pList =
 {
     {true, 4000, 0.07,  0.01,  5.0E-03 },
@@ -2309,6 +2340,35 @@ std::vector<ParamList>
     {true, 4095, 0.07,  0.01,  5.0E-03 },
 
 };
+#endif 
+ pList =
+{
+    {true, 5040, 0.048,  0.001,  5.0E-03 },
+    {true, 5040, 0.048,  0.006,  5.0E-03 },
+    {true, 5040, 0.048,  0.012,  5.0E-03 },
+    {true, 5040, 0.048,  1.008,  5.0E-03 },
+
+};
+
+
+ParamList pListS[][10] =
+{
+    {
+      {true, 5040, 0.048,  0.001,  5.0E-03 },
+      {true, 5040, 0.048,  0.006,  5.0E-03 },
+      {true, 5040, 0.048,  0.012,  5.0E-03 },
+      {true, 5040, 0.048,  1.008,  5.0E-03 }
+    },
+
+    {
+      {true, 5040, 0.048,  0.001,  5.0E-03 },
+      {true, 5040, 0.048,  0.006,  5.0E-03 },
+      {true, 5040, 0.048,  0.012,  5.0E-03 },
+      {true, 5040, 0.048,  1.008,  5.0E-03 }
+    },
+ 
+};
+
 
 TEST_F(TestDirection, InterpolationCombiniation )
 {
@@ -2324,6 +2384,9 @@ TEST_F(TestDirection, InterpolationCombiniation )
       uInt usingColumn  = 0;
       uInt usingAntenna = 0;
 
+#if 0
+      bool fg  = pListS[2][1].use_spline;
+#endif 
     // Loop //
     for(uInt n=0; n<pList.size();n++)
     {
@@ -2410,15 +2473,12 @@ TEST_F(TestDirection, InterpolationSingle )
     //   For all regisetered Antenna 
     //-
 
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
+    for(uInt pcol=0; pcol < getMaxPointingColumn() ; pcol++)  // THIS IS NOT A SECURE CODE // 
     {
-        for(uInt ant=0;ant< numAntenna_ ; ant++)
+        for(uInt ant=0;ant< getMaxAntenna() ; ant++)
         {   
             String info = "Col="+std::to_string(pcol)+", Ant="+to_string(ant);
             Description( "Single mode", info );
-
-            // Indicate antenna select. //
-              setSelectedAntenna( ant );
 
             // get currect interval time.. //
               Double p_interval = getPointingInterval();
@@ -2469,12 +2529,9 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     //   for all regisetered Antenna 
     //-
 
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++)  // THIS IS NOT A SECURE CODE // 
+    for(uInt pcol=0; pcol < getMaxPointingColumn() ; pcol++)  // THIS IS NOT A SECURE CODE // 
     {
-        printf("DBG:: Direction Column = %d \n", pcol );
-
-        // Internally indicate Pointing Column to be used
-        setCurrentPointingColumn( pcol );
+        printf("DBG:: calling writeOnPointing() , Direction Column = %d \n", pcol );
 
         // Write Data on Pointing TAble  
         writeOnPointing();
@@ -2495,7 +2552,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     // Poinying-Column and Antenna Loop
     //- 
     PointingColumnList pList;
-    for(uInt pcol=0; pcol <numPointingColumn_; pcol++) 
+    for(uInt pcol=0; pcol < getMaxPointingColumn(); pcol++) 
     {
         String name =pColLis_.name(pcol);
         printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n",name.c_str() );
@@ -2512,7 +2569,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
         //  - b0 indicates an AntenaId , expressed by 0.1 * AntID + 0.1 ;
         //    THESE VALUSEs are build in MsEdit::writePseudoOnPointing(). 
         //*
-        for(uInt ant=0;ant<numAntenna_;ant++)
+        for(uInt ant=0;ant < getMaxAntenna() ;ant++)
         {
             if(false) // Dump (option)//
             {
@@ -2539,14 +2596,14 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
             // Inspection by GoogleTest 
             //-
 
-            Double a0 = coeff[ant][0][0][0];
-            Double b0 = coeff[ant][0][1][0];
-
-            uInt antennaDetected = b0 * 10.0 -0.1;
-            uInt columnDetected  = a0 * 10.0 -0.1;
-
-            if(true)
+            if (true)
             {
+                Double a0 = coeff[ant][0][0][0];
+                Double b0 = coeff[ant][0][1][0];
+
+                uInt antennaDetected = b0 * 10.0 -0.1;
+                uInt columnDetected  = a0 * 10.0 -0.1;
+
                 printf( "DETECTED = %d, %d \n", columnDetected, antennaDetected );
                 EXPECT_EQ( columnDetected, pcol );
                 EXPECT_EQ( antennaDetected, ant );
