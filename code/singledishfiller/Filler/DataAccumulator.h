@@ -636,10 +636,10 @@ private:
                     flag_, record.flag, pol_idx_order);
             record.flag_row = flag_row_(1);
 
-            setTsys1(1, record);
+            setTsys1(0, record);
 
 //      std::cout << "set tcal " << tcal_ << std::endl;
-            setTcal1(1, record);
+            setTcal1(0, record);
 
             record.num_pol = 1;
         } else if (pcorr_type_.size() == 0) {
