@@ -805,17 +805,6 @@ TuneMSParam::PseudoPointingData  TuneMSParam::pseudoPointingBaseInfo(Double delt
         TrajectoryFunction::getInstance().calc( r_time, X2[3], Y2[3] );
         TrajectoryFunction::getInstance().calc( r_time, X2[4], Y2[4] );
 
-        // Intentional Offset (for identify 5 sets)
-
-        if(false)
-        {
-            for(uInt n=0;n<5;n++)
-            {
-                X2[n] += 0.01 * (Double)n;
-                Y2[n] += 0.01 * (Double)n;
-            }
-        }
-
         // Probe the range //
 
         for(uInt n=0;n<5;n++) {
@@ -1887,7 +1876,10 @@ public:
                  msedit.tuneMS.setMaxAntenna(n); 
                  numAntenna_ = n;  
         }
-
+        void setMaxPointingColumns(uInt n) {
+                 numPointingColumn_     = n;
+        }
+ 
         // Pointing Colum List (common definition) //
 
         PointingColumnList pColLis_;
@@ -2198,7 +2190,7 @@ TEST_F(TestDirection, InterpolationFull )
 
     vector<bool>   InterpolationMode     = { false, true};
     vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
-    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01,  };
+    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01, 0.001  };
 
     ErrorMax  maxerr;
     std::vector<Double> r_err = {0.0}; 
@@ -2231,7 +2223,7 @@ TEST_F(TestDirection, InterpolationFull )
                  if( use_spline==true) { ErrLimit = 1E-06; }
                  else                  {  ErrLimit = 1E-04;}
        
-                 if(p_i > m_i )        {  ErrLimit = 1E-02;}
+                 if(p_i > m_i )        {  ErrLimit = 2E-02;}
 
                  printf( "======================================================\n");
                  printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
@@ -2243,6 +2235,7 @@ TEST_F(TestDirection, InterpolationFull )
 
                  // define Number of Antenna prepeared in MS //
                    setMaxAntenna(5);
+                   setMaxPointingColumns(2);
 
                  //+
                  // set Examination Condition (revised by CAS-8418) //
@@ -2294,26 +2287,26 @@ typedef struct Parm {
 std::vector<ParamList>
  pList =
 {
-    {true, 5000, 0.05,  0.01,  5.0E-03 },
-    {true, 5005, 0.05,  0.01,  5.0E-03 },
-    {true, 5010, 0.05,  0.01,  5.0E-03 },
-    {true, 5015, 0.05,  0.01,  5.0E-03 },
-    {true, 5020, 0.05,  0.01,  5.0E-03 },
-    {true, 5005, 0.05,  0.01,  5.0E-03 },
-    {true, 5030, 0.05,  0.01,  5.0E-03 },
-    {true, 5035, 0.05,  0.01,  5.0E-03 },
-    {true, 5040, 0.05,  0.01,  5.0E-03 },
-    {true, 5045, 0.05,  0.01,  5.0E-03 },
-    {true, 5050, 0.05,  0.01,  5.0E-03 },
-    {true, 5055, 0.05,  0.01,  5.0E-03 },
-    {true, 5060, 0.05,  0.01,  5.0E-03 },
-    {true, 5065, 0.05,  0.01,  5.0E-03 },
-    {true, 5070, 0.05,  0.01,  5.0E-03 },
-    {true, 5075, 0.05,  0.01,  5.0E-03 },
-    {true, 5080, 0.05,  0.01,  5.0E-03 },
-    {true, 5085, 0.05,  0.01,  5.0E-03 },
-    {true, 5090, 0.05,  0.01,  5.0E-03 },
-    {true, 5095, 0.05,  0.01,  5.0E-03 },
+    {true, 4000, 0.07,  0.01,  5.0E-03 },
+    {true, 4005, 0.07,  0.01,  5.0E-03 },
+    {true, 4010, 0.07,  0.01,  5.0E-03 },
+    {true, 4015, 0.07,  0.01,  5.0E-03 },
+    {true, 4020, 0.07,  0.01,  5.0E-03 },
+    {true, 4005, 0.07,  0.01,  5.0E-03 },
+    {true, 4030, 0.07,  0.01,  5.0E-03 },
+    {true, 4035, 0.07,  0.01,  5.0E-03 },
+    {true, 4040, 0.07,  0.01,  5.0E-03 },
+    {true, 4045, 0.07,  0.01,  5.0E-03 },
+    {true, 4050, 0.07,  0.01,  5.0E-03 },
+    {true, 4055, 0.07,  0.01,  5.0E-03 },
+    {true, 4060, 0.07,  0.01,  5.0E-03 },
+    {true, 4065, 0.07,  0.01,  5.0E-03 },
+    {true, 4070, 0.07,  0.01,  5.0E-03 },
+    {true, 4075, 0.07,  0.01,  5.0E-03 },
+    {true, 4080, 0.07,  0.01,  5.0E-03 },
+    {true, 4085, 0.07,  0.01,  5.0E-03 },
+    {true, 4090, 0.07,  0.01,  5.0E-03 },
+    {true, 4095, 0.07,  0.01,  5.0E-03 },
 
 };
 
@@ -2351,7 +2344,8 @@ TEST_F(TestDirection, InterpolationCombiniation )
           SetUp();
 
           // define Number of Antenna prepeared in MS //
-          setMaxAntenna(7);
+          setMaxAntenna(5);
+          setMaxPointingColumns(2);
 
           //+
           // set Examination Condition (revised by CAS-8418) //
@@ -2394,6 +2388,7 @@ TEST_F(TestDirection, InterpolationSingle )
     // define Number of Antenna prepeared in MS //
 
       setMaxAntenna(3);
+      setMaxPointingColumns(5);
 
     // set Examination Condition (revised by CAS-8418) //
 
@@ -2449,14 +2444,15 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 
     // define Number of Antenna prepeared in MS //
 
-      setMaxAntenna(5);
+      setMaxAntenna(10);
+      setMaxPointingColumns(5);
 
     // set Examination Condition  //
 
       selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
-      setCondition( 5040,       // number of row
-                    1.0,        // Pointing Interval
-                    1.0,        // Main Interval
+      setCondition( 50400,       // number of row
+                    0.048,        // Pointing Interval
+                    0.001,        // Main Interval
                     5.0E-03 );  // Error limit 
 
     // Prepate Antenna (for Multple-set) //
@@ -2502,7 +2498,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     for(uInt pcol=0; pcol <numPointingColumn_; pcol++) 
     {
         String name =pColLis_.name(pcol);
-        printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n\n",name.c_str() );
+        printf( "DBG::calling setDirectionColumn(Pointing Column = %s) \n",name.c_str() );
 
         calc.setDirectionColumn(name);
 
@@ -2511,29 +2507,50 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
           coeff = sp->getCoeff();
 
         //*
-        // TENTATIVE (working) //
-        // Check if the coeff is expected value.
-        // at the moment only showing values.
+        // Inspection of Table
+        //  - a0 indicates a Pointing Column, expressed by 0.1 * Col + 0.1;
+        //  - b0 indicates an AntenaId , expressed by 0.1 * AntID + 0.1 ;
+        //    THESE VALUSEs are build in MsEdit::writePseudoOnPointing(). 
         //*
         for(uInt ant=0;ant<numAntenna_;ant++)
         {
-            for(uInt i =0; i<10; i++)
+            if(false) // Dump (option)//
             {
-                uInt Index = i;
-                Double a0 = coeff[ant][Index][0][0];
-                Double a1 = coeff[ant][Index][0][1];
-                Double a2 = coeff[ant][Index][0][2];
-                Double a3 = coeff[ant][Index][0][3];
+                for(uInt i =0; i<10; i++)
+                {
+                    uInt Index = i;
+                    Double a0 = coeff[ant][Index][0][0];
+                    Double a1 = coeff[ant][Index][0][1];
+                    Double a2 = coeff[ant][Index][0][2];
+                    Double a3 = coeff[ant][Index][0][3];
 
-                Double b0 = coeff[ant][Index][1][0];
-                Double b1 = coeff[ant][Index][1][1];
-                Double b2 = coeff[ant][Index][1][2];
-                Double b3 = coeff[ant][Index][1][3];
+                    Double b0 = coeff[ant][Index][1][0];
+                    Double b1 = coeff[ant][Index][1][1];
+                    Double b2 = coeff[ant][Index][1][2];
+                    Double b3 = coeff[ant][Index][1][3];
 
-                printf( "COEFF[%d][%d][XY][0-3] = %f,%f,%f,%f,|,",ant, Index, a0,a1,a2,a3  );
-                printf( " %f,%f,%f,%f \n",b0,b1,b2,b3  );
+                    printf( "COEFF[%d][%d][XY][0-3] = %f,%f,%f,%f,|,",ant, Index, a0,a1,a2,a3  );
+                    printf( " %f,%f,%f,%f \n",b0,b1,b2,b3  );
+                }
+                printf( "\n");
             }
-            printf( "\n");
+
+            //+
+            // Inspection by GoogleTest 
+            //-
+
+            Double a0 = coeff[ant][0][0][0];
+            Double b0 = coeff[ant][0][1][0];
+
+            uInt antennaDetected = b0 * 10.0 -0.1;
+            uInt columnDetected  = a0 * 10.0 -0.1;
+
+            if(true)
+            {
+                printf( "DETECTED = %d, %d \n", columnDetected, antennaDetected );
+                EXPECT_EQ( columnDetected, pcol );
+                EXPECT_EQ( antennaDetected, ant );
+            }
         }
     }
 
