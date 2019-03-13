@@ -525,7 +525,7 @@ private:
         }
     }
 
-    void setTsys1(ssize_t start_src, MSDataRecord &record) {
+    void setTsys1(MSDataRecord &record, ssize_t start_src) {
         if (num_chan_ == 1) {
             record.setTsysSize(1, 1);
             record.tsys(0, 0) = tsys_(0, start_src);
@@ -543,7 +543,7 @@ private:
         }
     }
 
-    void setTcal1(ssize_t start_src, MSDataRecord &record) {
+    void setTcal1(MSDataRecord &record, ssize_t start_src) {
         if (num_chan_ == 1) {
             record.setTcalSize(1, 1);
             record.tcal(0, 0) = tcal_(0, start_src);
@@ -619,10 +619,10 @@ private:
                     flag_, record.flag, pol_idx_order);
             record.flag_row = flag_row_(0);
 
-            setTsys1(0, record);
+            setTsys1(record, 0);
 
 //      std::cout << "set tcal " << tcal_ << std::endl;
-            setTcal1(0, record);
+            setTcal1(record, 0);
 
             record.num_pol = 1;
         } else if (isSinglePol1()) {
@@ -636,10 +636,10 @@ private:
                     flag_, record.flag, pol_idx_order);
             record.flag_row = flag_row_(1);
 
-            setTsys1(0, record);
+            setTsys1(record, 0);
 
 //      std::cout << "set tcal " << tcal_ << std::endl;
-            setTcal1(0, record);
+            setTcal1(record, 0);
 
             record.num_pol = 1;
         } else if (pcorr_type_.size() == 0) {
