@@ -64,7 +64,7 @@ namespace casa{
   // 					   const int& spwID, const int& fieldId)
   bool PhaseGrad::ComputeFieldPointingGrad(const Vector<Vector<double> >& pointingOffset,
 					   const CountedPtr<CFBuffer>& cfb,
-					   const VisBuffer2& vb,
+					   const VisBuffer2& ,//vb
 					   const int& row
 					   )
 
@@ -82,32 +82,24 @@ namespace casa{
 	  // }
 	  cachedCFBPtr_p = thisCFB;
 	}
-
-      if (cached_FieldOffset_p.shape()(0) <= vb.nRows())
-	{
-	  cached_FieldOffset_p.resize(vb.nRows(),2,true);
-	}
       //
       // If the pointing or the max. CF size changed, recompute the phase gradient.
       //
       if (
-	  ((fabs(pointingOffset[row][0]-cached_FieldOffset_p(row,0))) > 1e-6) ||
-	  ((fabs(pointingOffset[row][1]-cached_FieldOffset_p(row,1))) > 1e-6) ||
+	  ((fabs(pointingOffset[row][0]-cached_FieldOffset_p[0])) > 1e-6) ||
+	  ((fabs(pointingOffset[row][1]-cached_FieldOffset_p[1])) > 1e-6) ||
 	  (field_phaseGrad_p.shape()[0] < maxCFShape_p[0])           ||
 	  (field_phaseGrad_p.shape()[1] < maxCFShape_p[1])
 	  )
 	{
-	  // cerr << "Computing phase grad " << cached_FieldOffset_p(row,0) << " " << pointingOffset[row][0] << " " 
-	  //      << vb.fieldId()(0) << " " << vb.spectralWindows()(0) << " " << maxCFShape_p[0] << " " << field_phaseGrad_p.shape()[0] 
-	  //      << endl;
 	  int nx=maxCFShape_p(0), ny=maxCFShape_p(1);
 	  double grad;
 	  Complex phx,phy;
 	  Vector<int> convOrigin = maxCFShape_p/2;
 	  
 	  field_phaseGrad_p.resize(nx,ny);
-	  cached_FieldOffset_p(row,0) = pointingOffset[row][0];
-	  cached_FieldOffset_p(row,1) = pointingOffset[row][1];
+	  cached_FieldOffset_p[0] = pointingOffset[row][0];
+	  cached_FieldOffset_p[1] = pointingOffset[row][1];
 	  
 	  for(int ix=0;ix<nx;ix++)
 	    {
