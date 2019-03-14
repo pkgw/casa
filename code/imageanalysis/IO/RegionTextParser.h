@@ -48,15 +48,10 @@ namespace casa {
 // </etymology>
 
 // <synopsis>
-// This class is for parsing and storing regions and annotations from an ascii region file .
-// See the region file format proposal attached to CAS-2285 (https://bugs.nrao.edu/browse/CAS-2285)
+// This class is for parsing and storing regions and annotations from an ascii region (CRTF) file.
+// The format spec can be found at
+// https://casa.nrao.edu/casadocs-devel/stable/imaging/image-analysis/region-file-format
 // </synopsis>
-// <note>
-// This class will create AnnotationBase pointers via new(). It is assumed the caller will
-// make use of these pointers so they are not deleted upon deletion of the object. It is
-// the caller's responsibility to delete them. To do so, call getLines() and loop through
-// the returned casacore::Vector of AsciiRegionLines. For objects of type AsciiRegionLines::ANNOTATION,
-// get the pointer and delete it.
 
 class RegionTextParser {
 
