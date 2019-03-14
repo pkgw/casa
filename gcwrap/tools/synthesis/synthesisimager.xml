@@ -763,17 +763,23 @@ CORRECTED\_DATA and MODEL\_DATA columns
 <description>
 </description>
 <input/>
-<returns type="bool"/>
+<returns type="string"/>
 </method>
 
 <!-- ===================================== -->
 
    <method type="function" name="setweightdensity">
-   <shortdescription>Read in natural gridded wt from disk.</shortdescription>
+   <shortdescription>Load the gridded weight density into image weighting generation  </shortdescription>
 
-<description>
-</description>
-<input/>
+   <description>
+     Load the gridded weight density into image weighting; useful in parallel when weight density is combined into one image and loaded in each process. if no imagename is passed the imagename.weight is loaded 
+   </description>
+   <input>
+     <param type="string" name="type">
+       <description>name of image holding combined weight density</description>
+       <value></value>
+     </param>
+   </input>
 <returns type="bool"/>
 </method>
 
