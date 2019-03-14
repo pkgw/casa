@@ -105,7 +105,7 @@ class ImagerParameters():
                  deconvolver='hogbom',
                  scales=[],
                  nterms=1,
-                 scalebias=0.6,
+                 scalebias=0.0,
                  restoringbeam=[],
 #                 mtype='default',
 

@@ -2559,7 +2559,7 @@ class par(str):
 		a factor = 1 - smallscalebias*scale/max_scale, so that weighted
 		peak flux = peak flux*factor.
 		Typically the values range from 0.2 to 1.0.
-		default: 0.6
+		default: 0.0
 		"""
  
 	@staticmethod

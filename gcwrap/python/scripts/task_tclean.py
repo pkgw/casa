@@ -88,7 +88,7 @@ def tclean(
     deconvolver,#='hogbom',
     scales,#=[],
     nterms,#=1,
-    smallscalebias,#=0.6
+    smallscalebias,#=0.0
 
     ### restoration options
     restoration,

@@ -3014,7 +3014,7 @@ class simutil:
         cleanlast.write('scaletype               = "SAULT"\n')
         cleanlast.write('multiscale              = []\n')
         cleanlast.write('negcomponent            = -1\n')
-        cleanlast.write('smallscalebias          = 0.6\n')
+        cleanlast.write('smallscalebias          = 0.0\n')
         cleanlast.write('interactive             = '+str(interactive)+'\n')
         if interactive:
             cleanstr=cleanstr+",interactive=True"

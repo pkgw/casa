@@ -316,7 +316,7 @@ Bool MultiTermMatrixCleaner::getinvhessian(Matrix<Double> & invhessian)
 
 /* Do the deconvolution */
 Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inputgain, Float userthreshold)
-{
+{ 
   LogIO os(LogOrigin("MultiTermMatrixCleaner", "mtclean()", WHERE));
   if(adbg)os << "SOLVER for Multi-Frequency Synthesis deconvolution" << LogIO::POST;
 
@@ -364,6 +364,7 @@ Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inpu
   
  /********************** START MINOR CYCLE ITERATIONS ***********************/
   //os << "Doing deconvolution iterations..." << LogIO::POST;
+  
   for(itercount_p=0;itercount_p<maxniter_p;itercount_p++)
   {
       globalmaxval_p=-1e+10;
@@ -399,9 +400,9 @@ Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inpu
        {
           if((maxScaleVal_p[scale]*scaleBias_p[scale]) > globalmaxval_p)
           {
-            globalmaxval_p = maxScaleVal_p[scale];
+            globalmaxval_p = maxScaleVal_p[scale]*scaleBias_p[scale];
             globalmaxpos_p = maxScalePos_p[scale];
-           maxscaleindex_p = scale;
+	    maxscaleindex_p = scale;
           }
        }
 
