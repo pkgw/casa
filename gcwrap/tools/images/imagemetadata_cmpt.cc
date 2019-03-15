@@ -35,7 +35,7 @@ bool imagemetadata::close() {
 bool imagemetadata::add(const string& key, const variant& value) {
 	try {
 		_exceptIfDetached();
-		std::auto_ptr<const ValueHolder> vh(casa::toValueHolder(value));
+		std::unique_ptr<const ValueHolder> vh(casa::toValueHolder(value));
 		if (_mdf) {
 		    return _mdf->add(key, *vh);
 		}
@@ -133,7 +133,7 @@ bool imagemetadata::remove(
 bool imagemetadata::set(const string& key, const variant& value) {
 	try {
 		_exceptIfDetached();
-		std::auto_ptr<const ValueHolder> vh(toValueHolder(value));
+		std::unique_ptr<const ValueHolder> vh(toValueHolder(value));
 		return _mdf ? _mdf->set(key, *vh) : _mdc->set(key, *vh);
 	}
 	catch (const AipsError& x) {
