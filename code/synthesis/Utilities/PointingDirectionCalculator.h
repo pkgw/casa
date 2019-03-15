@@ -388,9 +388,9 @@ private:
         bool checkColumn(casacore::MeasurementSet const &ms,
                          casacore::String const &columnName );
 
-        bool activateSplinefromDirectionColumn(casacore::MeasurementSet const &ms,
-                                               DirectionColumnID  DirColNo,
-                                               bool makeActive);
+        bool initializeSplinefromPointingColumn(casacore::MeasurementSet const &ms,
+                                                DirectionColumnID  DirColNo,
+                                                bool makeActive);
 
      //+
      // CAS-8418  doGetDirection(uint row)   
@@ -413,27 +413,11 @@ private:
 };
 
 //+
-// Interpolation Base class (reserved for future)
-//-
-class Interpolation {
-public:
-
-    // Interpolation TYpe
-      enum InterpolationType {
-        LINEAR,
-        SPLINE
-   };
-
-private:
-      casacore::uInt reservedInformaiton; 
-};
-
-//+
 // CAS-8418
 // Spline Interpolation Class
 //-
 
-class SplineInterpolation :public Interpolation  {
+class SplineInterpolation  {
 
 public:
         typedef casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >

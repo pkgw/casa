@@ -195,9 +195,9 @@ private:
 //***************************
 // DEBUG flags
 //***************************
-#if 0
-bool use_spline = false;
-#endif 
+
+    /* nothing at the moment */
+
 //****************************************
 // Execution / Running Enviromnent
 // CASAPATH is the base directory
@@ -206,7 +206,6 @@ bool use_spline = false;
 class RunEnv
 {
 public:
-
     RunEnv()
     {
         //+
@@ -215,19 +214,17 @@ public:
         
         CasaPath        = GetCasaPath( "CASAPATH" );
         CasaMasterPath  = CasaPath + "/data/regression/unittest/"; 
-        UnitTestTMasterFileName = CasaMasterPath + "sdimaging/sdimaging.ms";
 
         printf("RunEnv:: Environment Variable Information -----\n" );
         printf("CASAPATH      :%s \n", CasaPath.c_str());
         printf("CasaMasterPath:%s \n", CasaMasterPath.c_str());
     }
-
-
+    // Data path //
     const String getCasaPath()
     {
         return CasaPath;
     }
-
+    // Template MS path //
     const String getCasaMasterPath()
     {
         return CasaMasterPath;
@@ -262,16 +259,15 @@ private:
 
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
-    String UnitTestTMasterFileName;
 
 };
 
 //************************************** 
 // Programme Wide constant 
 //**************************************
-#if 0
-const String  DefaultLocalMsName =  "./sdimaging-t.ms";
-#endif 
+
+    /* nothing at the moment */
+
 //************************************** 
 // Base TestClass 
 //  for TEST FIXTURE
@@ -280,7 +276,8 @@ class BaseClass : public ::testing::Test
 {
 public:
 
-const String  DefaultLocalMsName =  "./sdimaging-t.ms";
+     // MS fimename for Template //
+     const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 
      // Running Environment //
      RunEnv       env;
@@ -311,9 +308,8 @@ const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 private:
 
      // Test MS copy and delete flag //
-     bool fgCopyMS    = true;
-     bool fgDeleteMS  = false;
- 
+     bool fgCopyMS    = true;	// always TRUE for TestDirection 
+     bool fgDeleteMS  = true;   // set FALSE when inepeting editted MS
 };
 
 //+
@@ -350,18 +346,17 @@ void BaseClass::Description(const String &Title, const String &Param)
 //***************************************************************************
 void BaseClass::CopyDefaultMStoWork()
 {
-    // Src/Dst Path (string) 
-        const String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
+    // Maser MS // 
+        const String master = "sdimaging/sdimaging.ms";
+
+    // Src / Dst Path 
+        const String src = env.getCasaMasterPath() + master;
         const String dst = DefaultLocalMsName;
 
     // Src/Dst Path (Path) 
         casacore::Path        sourcePath(src);
         casacore::Path        targetPath(dst);       
         casacore::Directory   dir_ctrl(sourcePath);
-
-        printf( "Copying Default MeasurementSet for modifed use to [%s] \n" ,dst.c_str() );
-        printf( " - src filespec  : %s \n", src.c_str() );
-        printf( " - dest filespec : %s \n", dst.c_str() );
 
     // Copy File   //
     if(fgCopyMS)
@@ -383,8 +378,6 @@ void BaseClass::DeleteWorkingMS()
 
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
-
-    printf( "Deleting Working MeasurementSet[%s]. \n" ,dst.c_str() );
 
     // Delete File (Recursively done) 
     if (fgDeleteMS)
@@ -544,12 +537,12 @@ static void Function_const(Double r_time, Double& X, Double& Y)
 
 }; // end class
 
-//********************************************************
-// Tuning MS Configulation for various use of Unit Test. 
-//   for Interporation Verification TEST 
+//************************************************************
+// Tuning MS Configulation for testing mainly getDirection() 
+//   for Interporation Verification.
 //  - Generate testing trajectry in Direction
-//  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
-//********************************************************
+//  -  Interval(POINTING, MAIN) tunable. ( in initialize() ).
+//************************************************************
 
 class TuneMSConfig  /*: public BaseClass */ 
 {
@@ -565,98 +558,101 @@ public:
 
     } PseudoPointingData;
  
-    TuneMSConfig() { printf("TuneMSConfig constructor \n" ); /* Minimum SetUp only */  }
+    TuneMSConfig() {  }
 
     // Interval Time //
 
-        Double  getPointingTableInterval() { return pointingIntervalSec_;}
-        Double  getMainTableInterval()     { return mainIntervalSec_;}
+      Double  getPointingTableInterval() { return pointingIntervalSec_;}
+      Double  getMainTableInterval()     { return mainIntervalSec_;}
 
     // Calculation Error Limit //
     
-        void setInterpolationErrorLimit(Double val) { 
-            printf("TuneMSConfig:: set interpolation err. limit = %e \n", val );
-            errorLimit_ = defaultInterpolationErrorLimit_ = val; 
-        }
+      void setInterpolationErrorLimit(Double val) { 
+          printf("TuneMSConfig:: set interpolation err. limit = %e \n", val );
+          errorLimit_ = defaultInterpolationErrorLimit_ = val; 
+      }
 
     // Init and Define Parameters 
 
-        void Initialize();
-        void Initialize( Double, Double);
-        void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt_ = n; }  
+      void Initialize();
+      void Initialize( Double, Double);
+      void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt_ = n; }  
 
     // Pseudo Trace(Direction) for the Test
 
-        PseudoPointingData     pseudoPointingInfoPointing(Double tn);
-        PseudoPointingData     pseudoPointingInfoMain2    (Double tn);
+      PseudoPointingData     pseudoPointingInfoPointing(Double tn);
+      PseudoPointingData     pseudoPointingInfoMain2    (Double tn);
 
     // available POINTING TABLE count //
 
-       uInt getAvailablePointingTestingRow() { return std::round(availableNrowInPointing_); }
+      uInt getAvailablePointingTestingRow() { return std::round(availableNrowInPointing_); }
 
     // required MAIN TABLE count 
 
-       uInt getRequiredMainTestingRow()      { return requiredMainTestingRow_; }
+      uInt getRequiredMainTestingRow()      { return requiredMainTestingRow_; }
 
     //+
     // Numerical Error Statictic 
     //-
  
-        Double getInterpolationErrorLimit() { return errorLimit_;  } ;
+      Double getInterpolationErrorLimit() { return errorLimit_;  } ;
 
-    // Row count (to add) 
+    // Row count to be added (when setting up MS) // 
 
-        uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
-        uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain_);      };
+      uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
+      uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain_);      };
 	
-    // Antenna Count //
+    // prepared Antenna Count //
 
-        uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
-        void setMaxAntenna(uInt n) { prepareMaxAntenna_ = n;  }
+      uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
+      void setMaxAntenna(uInt n) { prepareMaxAntenna_ = n;  }
    
     // Pointing Columns //
 
-        void setMaxPointingColumns(uInt n ) { prepareMaxPointingColumns_ = n; }
+      void setMaxPointingColumns(uInt n ) { prepareMaxPointingColumns_ = n; }
 
-    // Special TEST (new : 8-MAr-29190)
+    // Force to set up special MS for multiple access test(by AntennaID and PointingColumns )
 
-        bool ifCoeffLocTest() { return fgCoeffLocationTest; }
-        void setCoeffLocTest(bool val) { fgCoeffLocationTest = val; }
+      bool ifCoeffLocTest() { return fgCoeffLocationTest; }
+      void setCoeffLocTest(bool val) { fgCoeffLocationTest = val; }  // indicate special traj.func //
 
 private:
-        // initialize  Commmon //
-          void init();
+    // Commmon Initialize//
+      void init();
 
-        //+
-        // create pseudo Pointing Info by Trajectory-function 
-        // return value contains various info 
-        //  => see PseudoPointing
-        //-
+    //+
+    // create pseudo Pointing Info by Trajectory-function 
+    // return value contains various info 
+    //  => see PseudoPointing
+    //-
 
-          PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime);
+      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime);
 
-        //+
-        //  Relative Time (r_time) and Total Time
-        //   for Trajectory Function
-        //-
+    //+
+    //  Relative Time (r_time) and Total Time
+    //   for Trajectory Function
+    //-
 
-          Double  Interval__   = 0.0; 
-          uInt    nRow__       = 0;
-          Double  r_time__     = 0.0;
+      Double  Interval__   = 0.0; 
+      uInt    nRow__       = 0;
+      Double  r_time__     = 0.0;
 
-       // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
+    // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
 
-        const uInt defaultTestingRowCnt_    = 5040 ;
-        uInt currentDefaultTestingRowCnt_   = 5040 ; 
+      # define ExistingRowCount  3843
+      # define RowCountToPrepare 5040
 
-        const uInt defInerpolationTestPointingTableRow_   = 3843;
-        const uInt defInerpolationTestMainTableRow_       = 3843;
+      const uInt defaultTestingRowCnt_    =  RowCountToPrepare; 
+      uInt currentDefaultTestingRowCnt_   =  RowCountToPrepare; 
 
-        // Row Count to execute //
-        uInt requiredMainTestingRow_     = 0;    //   MUST BE SET 
+      const uInt defInerpolationTestPointingTableRow_   = ExistingRowCount;
+      const uInt defInerpolationTestMainTableRow_       = ExistingRowCount;
 
-        Double  requiredNrowInPointing_ = 0;    //   internally calculated
-        Double  availableNrowInPointing_ = 0;    //   internally calculated   
+    // Row Count to execute //
+      uInt requiredMainTestingRow_     = 0;    //   MUST BE SET 
+
+      Double  requiredNrowInPointing_ = 0;    //   internally calculated
+      Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
         Double  extraNrowInPointing_ ;   // calculated when start
         Double extraNrowInMain_ ;       // calculated when start
@@ -882,7 +878,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
         nRow__   =  requiredMainTestingRow_;
         r_time__ =   deltaTime / nRow__ ;
     }   
-    else   // This case may happen that not all the rows in Pointng are used.
+    else   // all the rows in Pointng are used.
     {
         nRow__   =   max ( requiredMainTestingRow_ ,  defInerpolationTestMainTableRow_ );
         r_time__ =   deltaTime / nRow__   ;
@@ -895,21 +891,29 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
 //+ 
 //  Interpolation Error statistics 
 //-
-class ErrorMax 
+class ErrorStat 
 {
 public:
-    ErrorMax() {  MaxErr.resize(2); MaxErr[0]=0.0; MaxErr[1]=0.0;}
+    ErrorStat() {
+        MaxErr.resize(2); MaxErr[0] = MaxErr[1] = 0.0;
+        MinErr.resize(2); MinErr[0] = MaxErr[1] = 0.0;
+    }
     void put( Vector<Double> newval )
     {
         Double v0 = abs(newval[0]);
         Double v1 = abs(newval[1]);
         MaxErr[0] = max(v0, MaxErr[0]); 
         MaxErr[1] = max(v1, MaxErr[1]);
+        MaxErr[0] = min(v0, MinErr[0]);
+        MaxErr[1] = min(v1, MinErr[1]);
+
     }
     std::vector<Double> get() { return MaxErr; }
 private:
 
     std::vector<Double> MaxErr;
+    std::vector<Double> MinErr;
+
 };
 
 //************************************************
@@ -1056,8 +1060,8 @@ public:
           void dump(String fname)
           {
               FILE *fp=fopen( fname.c_str(), "w");
-              Double prevTime =0.0;
-              Double intervalD =0.0;
+              Double prevTime =getTime(0);
+              Double intervalD =getInterval(0);
               for(uInt row=0;row<nrow;row++)
               {
                   uInt   antId    = getAntennaId(row);
@@ -1068,11 +1072,13 @@ public:
                   Vector<Double> Tar = getTarget(row);
                   intervalD = time - prevTime;
                   prevTime  = time;
-                  if(intervalD <  interval * 1.1)  intervalD = 0.0;
  
-                  fprintf(fp, "%d,|,%d,%f,%f,|,%f,%f,|,%f,%f,,%f \n",
+                  String strOpt= "";
+                  if(intervalD > interval *1.01 ) strOpt = " NewLocation";
+
+                  fprintf(fp, "%d,|,%d,%f,%f,|,%f,%f,|,%f,%f,,%f,%s \n",
                               row, antId, time, interval,
-                              Dir[0], Dir[1], Tar[0],Tar[1],intervalD  );
+                              Dir[0], Dir[1], Tar[0],Tar[1],intervalD, strOpt.c_str()  );
               }
               fclose(fp);
           }
@@ -1647,7 +1653,6 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime)
     printf("writing to MAIN, nrow=%d, number of data on each antenna=%d \n", nrow_ms,LoopCnt );
     for (uInt ant_id=0; ant_id < tuneMS.getMaxOfAntenna() ; ant_id++ )
     {
-        printf("DBG:: Ant=%d \n",ant_id);
         for (uInt row=0; row < LoopCnt; row++)
         {
             uInt  rowA = row + (ant_id * LoopCnt);
@@ -1714,12 +1719,10 @@ protected:
 void TestMeasurementSet::test_constructor(String const name)
 {
     // CONSTRUCTOR  //
-
         MeasurementSet ms0( name  );      
         PointingDirectionCalculator calc(ms0);
 
     // Initial brief Inspection //
-   
         printf("# Constuctor Initial Check.  [%s] row =%d\n", name.c_str(),calc.getNrowForSelectedMS()  );
         EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
 }
@@ -2154,7 +2157,7 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
     // Max Error ///
 
       std::vector<Double> reterr;
-      ErrorMax            maxerr;
+      ErrorStat            maxerr;
     
     // Add INTERPOLATION TEST DATA 
 
@@ -2207,7 +2210,7 @@ TEST_F(TestDirection, InterpolationFull )
     vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
     vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01   };
 
-    ErrorMax  maxerr;
+    ErrorStat  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
     //+
@@ -2229,40 +2232,40 @@ TEST_F(TestDirection, InterpolationFull )
             for( uint m=0; m < Main_IntervalList.size(); m++)
             {
                 // Interval // 
-                 Double p_i = Pointing_IntervalList[p];
-                 Double m_i = Main_IntervalList[m];
+                  Double p_i = Pointing_IntervalList[p];
+                  Double m_i = Main_IntervalList[m];
 
                 // Error Limit
-                 Double ErrLimit =0.0;
-                 if( use_spline==true)
-                     if(p_i > m_i )  { ErrLimit = 2E-03; }
-                     else            { ErrLimit = 1E-06; }
-                 else                 
-                     if(p_i > m_i )  { ErrLimit = 1E-02; }
-                     else            { ErrLimit = 1E-04; } 
+                  Double ErrLimit =0.0;
+                  if( use_spline==true)
+                      if(p_i > m_i )  { ErrLimit = 2E-03; }
+                      else            { ErrLimit = 1E-06; }
+                  else                 
+                      if(p_i > m_i )  { ErrLimit = 1E-02; }
+                      else            { ErrLimit = 1E-04; } 
                
 
-                 printf( "======================================================\n");
-                 printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
-                          use_spline , p_i, m_i , ErrLimit );
-                 printf( "======================================================\n");
+                  printf( "======================================================\n");
+                  printf( " Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n", 
+                            use_spline , p_i, m_i , ErrLimit );
+                  printf( "======================================================\n");
 
-                 // Copy Template MS //
-                   SetUp();
+                // Copy Template MS //
+                  SetUp();
 
-                 // define Number of Antenna prepeared in MS //
-                   setMaxAntenna(5);
-                   setMaxPointingColumns(2);
+                // define Number of Antenna prepeared in MS //
+                  setMaxAntenna(5);
+                  setMaxPointingColumns(2);
 
-                 //+
-                 // set Examination Condition (revised by CAS-8418) //
-                 //-
+                //+ 
+                // set Examination Condition (revised by CAS-8418) //
+                //-
     
-                 selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-                 setCondition( 5040,   //number of row
-                               p_i,    // Pointing Interval
-                               m_i,    // Main Interval
-                               ErrLimit );  // Error limit 
+                  selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+                  setCondition( 5040,   //number of row
+                                p_i,    // Pointing Interval
+                                m_i,    // Main Interval
+                                ErrLimit );  // Error limit 
  
                  // Prepate Antenna (for Multple-set) //
                    prepareAntenna();
@@ -2280,7 +2283,7 @@ TEST_F(TestDirection, InterpolationFull )
 
         std::vector<Double>  e = maxerr.get();
         printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-        printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
+        printf ( "GGG       THE WORST Error = %e, %e \n", e[0], e[1] );
         printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
 
     } // End Interpolation Mode 
@@ -2292,7 +2295,6 @@ TEST_F(TestDirection, InterpolationFull )
  - Set of testing parameters are given
 ------------------------------------------------------------------------*/ 
 
-
 typedef struct Parm {
     bool   use_spline;
     Double testCount;
@@ -2301,56 +2303,36 @@ typedef struct Parm {
     Double errLimit;
 } ParamList;
 
-std::vector<ParamList>
-#if 0
- pList =
+std::vector<ParamList>  paramListS[] =
 {
-    {true, 4000, 0.07,  0.01,  5.0E-03 },
-    {true, 4005, 0.07,  0.01,  5.0E-03 },
-    {true, 4010, 0.07,  0.01,  5.0E-03 },
-    {true, 4015, 0.07,  0.01,  5.0E-03 },
-    {true, 4020, 0.07,  0.01,  5.0E-03 },
-    {true, 4005, 0.07,  0.01,  5.0E-03 },
-    {true, 4030, 0.07,  0.01,  5.0E-03 },
-    {true, 4035, 0.07,  0.01,  5.0E-03 },
-    {true, 4040, 0.07,  0.01,  5.0E-03 },
-    {true, 4045, 0.07,  0.01,  5.0E-03 },
-    {true, 4050, 0.07,  0.01,  5.0E-03 },
-    {true, 4055, 0.07,  0.01,  5.0E-03 },
-    {true, 4060, 0.07,  0.01,  5.0E-03 },
-    {true, 4065, 0.07,  0.01,  5.0E-03 },
-    {true, 4070, 0.07,  0.01,  5.0E-03 },
-    {true, 4075, 0.07,  0.01,  5.0E-03 },
-    {true, 4080, 0.07,  0.01,  5.0E-03 },
-    {true, 4085, 0.07,  0.01,  5.0E-03 },
-    {true, 4090, 0.07,  0.01,  5.0E-03 },
-    {true, 4095, 0.07,  0.01,  5.0E-03 },
-
-};
-#endif 
- pList =
-{
-    {true, 5040, 0.048,  0.001,  5.0E-03 },
-    {true, 5040, 0.048,  0.006,  5.0E-03 },
-    {true, 5040, 0.048,  0.012,  5.0E-03 },
-    {true, 5040, 0.048,  1.008,  5.0E-03 },
-
-};
-
-
-ParamList pListS[][10] =
-{
+    // Senario 0 //
     {
       {true, 5040, 0.048,  0.001,  5.0E-03 },
       {true, 5040, 0.048,  0.006,  5.0E-03 },
       {true, 5040, 0.048,  0.012,  5.0E-03 },
-      {true, 5040, 0.048,  1.008,  5.0E-03 }
     },
-
+    // Senario 1 //
     {
-      {true, 5040, 0.048,  0.001,  5.0E-03 },
-      {true, 5040, 0.048,  0.006,  5.0E-03 },
-      {true, 5040, 0.048,  0.012,  5.0E-03 },
+      {true, 4000, 0.07,  0.01,  5.0E-03 },
+      {true, 4005, 0.07,  0.01,  5.0E-03 },
+      {true, 4010, 0.07,  0.01,  5.0E-03 },
+      {true, 4015, 0.07,  0.01,  5.0E-03 },
+      {true, 4020, 0.07,  0.01,  5.0E-03 },
+      {true, 4005, 0.07,  0.01,  5.0E-03 },
+      {true, 4030, 0.07,  0.01,  5.0E-03 },
+      {true, 4035, 0.07,  0.01,  5.0E-03 },
+      {true, 4040, 0.07,  0.01,  5.0E-03 },
+      {true, 4045, 0.07,  0.01,  5.0E-03 },
+      {true, 4050, 0.07,  0.01,  5.0E-03 },
+      {true, 4055, 0.07,  0.01,  5.0E-03 },
+      {true, 4060, 0.07,  0.01,  5.0E-03 },
+      {true, 4065, 0.07,  0.01,  5.0E-03 },
+      {true, 4070, 0.07,  0.01,  5.0E-03 },
+      {true, 4075, 0.07,  0.01,  5.0E-03 },
+      {true, 4080, 0.07,  0.01,  5.0E-03 },
+      {true, 4085, 0.07,  0.01,  5.0E-03 },
+      {true, 4090, 0.07,  0.01,  5.0E-03 },
+      {true, 4095, 0.07,  0.01,  5.0E-03 },
       {true, 5040, 0.048,  1.008,  5.0E-03 }
     },
  
@@ -2362,7 +2344,7 @@ TEST_F(TestDirection, InterpolationCombiniation )
   TestDescription( "Interpolation by Listed condition." );
     // Combiniation List of Pointing Interval and Main Interval //
 
-    ErrorMax  maxerr;
+    ErrorStat  maxerr;
     std::vector<Double> r_err = {0.0}; 
 
     //+
@@ -2371,24 +2353,22 @@ TEST_F(TestDirection, InterpolationCombiniation )
       uInt usingColumn  = 0;
       uInt usingAntenna = 0;
 
-#if 0
-      bool fg  = pListS[2][1].use_spline;
-#endif 
-    // Loop //
-    for(uInt n=0; n<pList.size();n++)
+    // What parameter Set. //
+
+    uInt sno =0; // Programers choise, from above the parameter def. //
+
+    for(uInt n=0; n<paramListS[sno].size();n++)
     {
-          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   ); 
-          printf("DBG:: parameter Set[%d]  starts. \n",n );
+          use_spline       = paramListS[sno][n].use_spline;
+          uInt   testCount = paramListS[sno][n].testCount;
+          Double p_i       = paramListS[sno][n].p_interval;
+          Double m_i       = paramListS[sno][n].m_interval;
+          Double err_limit = paramListS[sno][n].errLimit;
+
           printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
-
-          use_spline       = pList[n].use_spline;
-          uInt   testCount = pList[n].testCount;
-          Double p_i       = pList[n].p_interval;
-          Double m_i       = pList[n].m_interval;
-          Double err_limit = pList[n].errLimit;
-
-          printf( "DBG:: N=%d, Interval (Poinitng, Main) = (%f,%f) \n", 
-                   testCount, p_i, m_i );
+          printf("&&&  parameter Set[%d]  starts. \n",n );
+          printf("&&&   N=%d, Interval (Poinitng, Main) = (%f,%f) \n", testCount, p_i, m_i );
+          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
 
           // Copy Template MS //
           SetUp();
@@ -2436,9 +2416,9 @@ TEST_F(TestDirection, InterpolationSingle )
       use_spline = true;
 
     // define Number of Antenna prepeared in MS //
-
-      setMaxAntenna(3);
-      setMaxPointingColumns(5);
+    // =TUNABLE
+      setMaxAntenna(3);         // more than zero 
+      setMaxPointingColumns(5); // from 1 to 5 
 
     // set Examination Condition (revised by CAS-8418) //
 
@@ -4150,9 +4130,6 @@ int main (int nArgs, char * args [])
  {
 
    // Initialize //
-
-    casa::MSNameList   nameList;
-
 
     ::testing::InitGoogleTest(& nArgs, args);
 

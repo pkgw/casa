@@ -334,33 +334,33 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 //      Once generated and from next time, lately created Obj. is pointed and used.
 //   - from init(), this function is called.
 //   - See indetal in;
-//         activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );  
+//         initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );  
 //-
 
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
         accessorId_ =  DIRECTION;
-        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "TARGET") {
         accessor_ = targetAccessor;
         accessorId_ = TARGET;
-        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
  
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
         accessorId_ = POINTING_OFFSET;
-        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
         accessorId_ = SOURCE_OFFSET;
-        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
 
     } else if (directionColumnName_ == "ENCODER") {
         accessor_ = encoderAccessor;
         accessorId_ = ENCODER;
-        activateSplinefromDirectionColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
 
     } else {
         stringstream ss;
@@ -837,11 +837,11 @@ bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String co
 // - create Spline object from specified Direction column
 // - prepare Coeffient table for calulation. 
 //-
-bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementSet const &ms,
+bool PointingDirectionCalculator::initializeSplinefromPointingColumn(MeasurementSet const &ms,
                                                                     DirectionColumnID  DirColNo, 
                                                                     bool makeActive=true)
 {
-    debuglog << "activateSplinefromDirectionColumn, columNo=" << DirColNo << debugpost;
+    debuglog << "initializeSplinefromPointingColumn, columNo=" << DirColNo << debugpost;
 
     String colName = dirColList[DirColNo] ;
     ACCESSOR acc   = accList[DirColNo] ;
@@ -856,7 +856,7 @@ bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementS
     }
     if( initializeReady_[DirColNo] == true )
     {
-        debuglog << "activateSplinefromDirectionColumn, Normal,already active."  << debugpost;
+        debuglog << "initializeSplinefromPointingColumn, Normal,already active."  << debugpost;
 
         // Change Master pointer  // 
         if(makeActive) currSpline_ = splineObj_[DirColNo].get();
@@ -882,7 +882,7 @@ bool PointingDirectionCalculator::activateSplinefromDirectionColumn(MeasurementS
         // Obj. available //
            initializeReady_[DirColNo] = true;
 
-        debuglog << "activateSplinefromDirectionColumn, Normal End." << debugpost;
+        debuglog << "initializeSplinefromPointingColumn, Normal End." << debugpost;
         return true;
     } 
     else
