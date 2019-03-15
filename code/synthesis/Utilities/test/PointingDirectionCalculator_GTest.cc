@@ -269,8 +269,9 @@ private:
 //************************************** 
 // Programme Wide constant 
 //**************************************
+#if 0
 const String  DefaultLocalMsName =  "./sdimaging-t.ms";
-
+#endif 
 //************************************** 
 // Base TestClass 
 //  for TEST FIXTURE
@@ -278,6 +279,8 @@ const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 class BaseClass : public ::testing::Test
 {
 public:
+
+const String  DefaultLocalMsName =  "./sdimaging-t.ms";
 
      // Running Environment //
      RunEnv       env;
@@ -1028,7 +1031,6 @@ public:
         Array<Double> getEncoder       (uInt row) { return pointingEncoder        .get(row); }
  
       /* IPO */
-
         IPosition getIpo() {return  pointingDirection.shape(0); }
 
       /* Scalor */
@@ -1340,23 +1342,15 @@ private:
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
 class PointingTableAccess;
-class MsEdit            
+class MsEdit              
 {
 public:
  
+    const String  DefaultLocalMsName =  "./sdimaging-t.ms";
+ 
     TuneMSConfig  tuneMS;
 
-    MsEdit() {     }   // Current 
-
-    MsEdit(const String &ms, bool mode=false )
-    {     
-        // CAS-8418
-        unique_ptr<PointingTableAccess>  ptTemp( new PointingTableAccess(ms,mode));
-        unique_ptr<AntennaTableAccess>   anTemp( new AntennaTableAccess(ms,mode));
-        ptTblAcc_ = std::move(ptTemp);
-        anTblAcc_ = std::move(anTemp);
-
-    }
+    MsEdit() { init();  }
 
     // Add or Remove Column (Pointing) ////
    
@@ -1382,8 +1376,7 @@ public:
     //+
     // Default File Name
     //-
-
-        const String MsName = DefaultLocalMsName;  // default (C++11) //
+        String MsName_ ;
 
     //+
     // Buff between table and local buff to write.
@@ -1393,14 +1386,10 @@ public:
         ANTENNADataBuff  AntennaData1;  // for Write
 
 private:
-
-   //+
-   // CAS-8418 
-   //  Prividing easier access on this UT to construct functions
-   //  in this class.  
-   //-
-    std::unique_ptr<casa::PointingTableAccess>     ptTblAcc_;
-    std::unique_ptr<casa::AntennaTableAccess>      anTblAcc_;
+    void init() 
+    {
+         MsName_ = DefaultLocalMsName ;
+    }
 
 };
 
@@ -1413,7 +1402,7 @@ private:
 uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 {
     // CAS-8418 new code //
-    AntennaTableAccess ata(MsName,true);
+    AntennaTableAccess ata(MsName_,true);
     ata.appendRow(addCnt);
     ata.flush();
     uInt nrow = ata.getNrow();
@@ -1439,8 +1428,7 @@ void setData(ANTENNADataBuff &data, uInt id)
 
 void MsEdit::prepareDataToAntennaTable( )
 {
-    String MsName =DefaultLocalMsName;
-    AntennaTableAccess ata(MsName,true);
+    AntennaTableAccess ata(MsName_,true);
 
     uInt nrow_a = ata.getNrow();
     printf( "MsEdit: prepareDataToAntennaTable () current nrow=%d \n", nrow_a);
@@ -1481,12 +1469,12 @@ uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
     // CAS-8418 new code //
     {
-      PointingTableAccess pta(MsName,true);
+      PointingTableAccess pta(MsName_,true);
       pta.appendRow(AddCount);
       pta.flush();
     }
     
-    PointingTableAccess pta(MsName,true);
+    PointingTableAccess pta(MsName_,true);
     uInt nrow = pta.getNrow();
    
     return nrow;
@@ -1505,13 +1493,12 @@ void MsEdit::duplicateNewColumnsFromDirection()
 {
     // CAS-8418 new code //
     { 
-        String MsName = DefaultLocalMsName;
-        PointingTableAccess ata(MsName,true);
+        PointingTableAccess ata(MsName_,true);
         ata.duplicateColumns();
     } /* Once close */ 
 
     {
-        PointingTableAccess ata(MsName,true);
+        PointingTableAccess ata(MsName_,true);
         ata.fillNewColumns();
     }
 } 
@@ -1526,8 +1513,7 @@ void MsEdit::duplicateNewColumnsFromDirection()
 void  MsEdit::writePseudoOnPointing()
 {
     // CAS-8418 CODE 
-    String MsName =DefaultLocalMsName;
-    PointingTableAccess pT( MsName, true);
+    PointingTableAccess pT( MsName_, true);
 
     //+
     //  Loop for each Row,
@@ -1631,7 +1617,7 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 
 // CAS-8418 NEW CODE //
 
-     MainTableAccess   mta(MsName,true);
+     MainTableAccess   mta(MsName_,true);
      mta.appendRow(AddCount);
      uInt nRow = mta.getNrow();
      mta.flush();
@@ -1653,8 +1639,7 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime)
 // CAS-8418 CODE 
 //******************
 
-    String MSName = DefaultLocalMsName;
-    MainTableAccess   mta(MsName,true);
+    MainTableAccess   mta(MsName_,true);
 
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow();
@@ -1979,7 +1964,7 @@ public:
 protected:
 
         // MeasurementSet Editting  //
-     
+        
           casa::MsEdit  msedit;
 
         // Handle Spline Object , and Coeff Table //
@@ -2025,7 +2010,9 @@ protected:
              DeleteWorkingMS();
         }
 private:
-
+        // Default MS name //
+          const String MsName_ = DefaultLocalMsName;
+ 
         // Resources (Tunable from external env.)
 
           uInt  deltaTimeDivCount_     = 10;
