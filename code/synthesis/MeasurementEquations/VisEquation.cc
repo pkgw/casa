@@ -60,6 +60,7 @@ VisEquation::VisEquation() :
   pivot_(VisCal::ALL),  // at the sky
   //  spwOK_(),
   useInternalModel_(false),
+  nVisTotal_(0),
   prtlev_(VISEQPRTLEV)
 {
   if (prtlev()>0) cout << "VE::VE()" << endl;
@@ -140,6 +141,9 @@ void VisEquation::setapply(PtrBlock<VisCal*>& vcin) {
   //  (for currently specified solve/apply types)
   //  TBD: only needed in setsolve?
   //  setFreqDep();
+
+  // Initialize visibility counter
+  nVisTotal_=0;
 
 }
 
@@ -236,6 +240,9 @@ void VisEquation::correct(VisBuffer& vb, Bool trial) {
   // (this is a no-op if no sort necessary)
   vb.sortCorr();
 
+  // Accumulate visibility count
+  nVisTotal_+=(vb.nCorr()*vb.nChannel()*vb.nRow());
+
   // Apply each VisCal in left-to-right order 
   for (Int iapp=0;iapp<napp_;iapp++)
     vc()[iapp]->correct(vb,trial);
@@ -255,6 +262,9 @@ void VisEquation::correct2(vi::VisBuffer2& vb, Bool trial, Bool doWtSp) {
 
   if (napp_==0) throw(AipsError("Nothing to Apply"));
 
+  // Accumulate visibility count
+  nVisTotal_+=(vb.nCorrelations()*vb.nChannels()*vb.nRows());
+
   // Apply each VisCal in left-to-right order 
   for (Int iapp=0;iapp<napp_;iapp++)
     vc()[iapp]->correct2(vb,trial,doWtSp);
@@ -268,6 +278,10 @@ Record VisEquation::actionRec() {
   // Add in each VisCal's record
   for (Int iapp=0;iapp<napp_;iapp++)
     cf.defineRecord(iapp,vc()[iapp]->actionRec());
+
+  // The TOTAL number of visibilities that passed through the VisEquationp
+  cf.define("nVisTotal",nVisTotal_);
+
   return cf;
 }
 
