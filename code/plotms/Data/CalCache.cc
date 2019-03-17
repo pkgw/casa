@@ -189,7 +189,7 @@ void CalCache::setUpCalIter(NewCalTable& selct, Bool readonly) {
   Int nsortcol(4);
   Block<String> columns(nsortcol);
   columns[0]="SCAN_NUMBER";
-  columns[1]="FIELD_ID";   
+  columns[1]="FIELD_ID";
   columns[2]="SPECTRAL_WINDOW_ID";
   columns[3]="TIME";
 

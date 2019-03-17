@@ -1077,7 +1077,7 @@ bool PlotMSCacheBase::isIndexerInitialized( PMS::Axis iteraxis, Bool globalXRang
 }
 
 void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
-		Bool globalYRange, int dataIndex ) {
+		Bool globalYRange, const String& xconnect, bool timeconnect, int dataIndex) {
 	logLoad("Setting up iteration indexing (if necessary), and calculating plot ranges.");
 	Int nIter=0;
 	Vector<Int> iterValues;
@@ -1259,10 +1259,10 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			PMS::axisIsRaDec(currentY_[dataIndex]) );
 	for (Int iter=0;iter<nIter;++iter) {
 		indexer_[dataIndex][iter] = PlotMSIndexerFactory::initIndexer(this,
-					currentX_[dataIndex], currentXData_[dataIndex],
-					currentY_[dataIndex], currentYData_[dataIndex],
-					iteraxis, iterValues(iter), dataIndex,
-					useRaDecIndexer);
+			currentX_[dataIndex], currentXData_[dataIndex],
+			currentY_[dataIndex], currentYData_[dataIndex],
+			iteraxis, iterValues(iter), xconnect, timeconnect,
+			dataIndex, useRaDecIndexer);
 	}
 
 	// Extract global ranges from the indexers
@@ -1317,6 +1317,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 			logWarn("load_cache", ss.str());
 		} 
 	}
+	logLoad("Finished indexing.");
 }
 
 void PlotMSCacheBase::_updateAntennaMask( Int a, Vector<Bool>& antMask,

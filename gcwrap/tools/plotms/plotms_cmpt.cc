@@ -479,6 +479,21 @@ void plotms::setFlaggedSymbol(
         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
+void plotms::setConnect(
+    const string& xconnector, const bool timeconnector,
+	const bool updateImmediately, const int plotIndex)
+{
+    launchApp();
+    Record params;
+    params.define(PlotMSDBusApp::PARAM_XCONNECTOR, xconnector);
+    params.define(PlotMSDBusApp::PARAM_TIMECONNECTOR, timeconnector);
+    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
+    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName(),
+        PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
+}
+
+
 string plotms::getColorAxis(const int plotIndex) 
 {
     launchApp();
