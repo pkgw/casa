@@ -885,6 +885,9 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 
     // WE DO TIME-ISH (OBS,FLD) AXES IN OUTER LOOPS
 
+    // CalTable name might be needed below
+    String ctname=Path(ct_.getPartNames()[0]).baseName().before(".tempMemCalTable");
+    
     NewCalTable obsselCT(ct_);
     // The net CT obs required for the MS obs according to the obsmap
     //   We will create separate interpolator groups for each
@@ -986,10 +989,18 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 	    if (thisCTant<0) thisCTant=thisMSant;
 
 	    // Apply thisCTant selection to CT
-	    this->selectOnCT(antselCT,spwselCT,"","","",String::toString(thisCTant));
+	    try {
+	      this->selectOnCT(antselCT,spwselCT,"","","",String::toString(thisCTant));
+	    }
+	    catch ( MSSelectionNullSelection x ) {
+	      // Log a warning about the missing antenna
+	      logsink_ << LogIO::WARN << "     Found no calibration for MS ant Id=" << thisMSant << " (CT ant Id=" << thisCTant << ")"
+		       << " in MS spw Id=" << thisMSspw << " (CT spw Id=" << thisCTspw << ") (" << ctname << ")"
+		       << LogIO::POST;
+	      // Step to next antenna
+	      continue;
+	    }
 
-	    //  (if null, warn and continue, or throw?)
-	    
 	    // Make the Cal Interpolator (icls is the CL slice index):
 	    CTCalPatchKey ici0(icls,thisCTobs,thisCTfld,thisCTspw,thisCTant);  // all CT indices
 	    CTCalPatchKey ici1(icls,thisCTobs,thisCTfld,thisMSspw,thisMSant);  // spw,ant are MS indices
