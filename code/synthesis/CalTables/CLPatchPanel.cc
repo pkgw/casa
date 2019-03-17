@@ -1021,7 +1021,8 @@ CLPatchPanel::CLPatchPanel(const String& ctname,
 		  else
 		    throw(AipsError("Attempted duplicate MSCalPatchKey!"));
 
-		  // cout << " Patching: MS(" << ims.print() << ") --> CT(" << ici0.print() << ")" << endl;
+		  //if (iMSant==0)
+		  //  cout << " Patching: MS(" << ims.print() << ") --> CT(" << ici0.print() << ")" << endl;
 		  
 		  // Link these obs,fld,ant,spw to the correct results object
 		  //  (as a group over antennas; should move this out of ant loop, really)
@@ -1227,7 +1228,7 @@ Bool CLPatchPanel::MSIndicesOK(casacore::Int msobs, casacore::Int msfld, casacor
   Bool bad=badmsciname_.count(key)>0;
   //  if (bad) {
   //    cout << Path(ct_.tableName()).baseName().before(".tempMem") << " should but can't calibrate: " << key.print() << endl;
-  //  }
+  // }
 
   // Return TRUE if NOT bad
   return !bad;
@@ -1329,6 +1330,9 @@ Bool CLPatchPanel::interpolate(Cube<Float>& resultR, Cube<Bool>& resFlag,
   // Suppled arrays reference the result (if available)
   MSCalPatchKey ires(msobs,msfld,msent,msspw,-1);
 
+
+  //  cout << " Calibrating: MS(" << ires.print() << ")" << endl;
+
   //  cout << "finterp_[ires] = " << finterp_[ires] << endl;
 
   // Trap lack of available calibration for requested obs,fld,intent,spw
@@ -1345,11 +1349,10 @@ Bool CLPatchPanel::interpolate(Cube<Float>& resultR, Cube<Bool>& resFlag,
   lastresadd_(msspw)=msTres_[ires].result_.data();
 
   // Sometimes we need to force the freq interp, even if the time-interp isn't new
-  Bool forceFinterp=false;
+  Bool forceFinterp=false || newcal;
 
-  // The number of requested channels
-  uInt nMSChan=freq.nelements();
-
+  // The follow occurs unnecessarily in mosaics when newcal=false (i.e., when resampleInFreq won't be called below)
+  uInt nMSChan=freq.nelements();    // The number of requested channels
   if (msFres_.count(ires)>0) {
     if (msFres_[ires].result_.nelements()==0 ||
 	msFres_[ires].result(0).ncolumn()!=nMSChan) {
