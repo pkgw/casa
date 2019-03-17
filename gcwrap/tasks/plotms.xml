@@ -947,6 +947,22 @@ Display Parameters
         <value type="bool">False</value>
     </param>
 
+    <param type="string" name="xconnector">
+        <description>Set connector for data points (blank="none"; "line","step")</description>
+        <value />
+		<allowed kind="enum">
+			<value />
+            <value>none</value>
+            <value>line</value>
+            <value>step</value>
+        </allowed>
+    </param>
+    <param type="any" name="timeconnector" subparam="true">
+        <description>Connect points by time rather than x-axis</description>
+        <any type="variant" limittype="bool boolArray"/>
+        <value type="bool">False</value>
+    </param>
+
 
 <!--
 ###############################################################################
@@ -1606,6 +1622,17 @@ Constraints
         <default param="minorwidth"><value type="int">0</value></default>
         <default param="minorstyle"><value type="string" /></default>
         <default param="minorcolor"><value type="string"></value></default>
+      </equals>
+    </when>
+
+    <when param="xconnector">
+      <equals type="string" value="" />
+      <equals type="string" value="none" />
+      <equals type="string" value="line">
+        <default param="timeconnector"><value type="bool">False</value></default>
+      </equals>
+      <equals type="string" value="step">
+        <default param="timeconnector"><value type="bool">False</value></default>
       </equals>
     </when>
 

@@ -72,7 +72,7 @@ def tclean(
     ### PB
     vptable,
     usepointing, #=false
-    mosweight, #=false
+    mosweight, #=True
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
@@ -189,6 +189,10 @@ def tclean(
     ###assign values to the ones passed to tclean and if not defined yet in tclean...
     ###assign them the default value of the constructor
     bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in ImagerParameters.__init__.__func__.__code__.co_varnames[1:-1]}
+    ###default mosweight=True is tripping other gridders as they are not
+    ###expecting it to be true
+    if(bparm['mosweight']==True and bparm['gridder'].find("mosaic") == -1):
+        bparm['mosweight']=False
     paramList=ImagerParameters(**bparm)
 
     # deprecation message

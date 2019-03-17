@@ -2000,24 +2000,43 @@ void SynthesisImagerVi2::unlockMSs()
 
   /// todo : do for full mapper list, and taylor terms.
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  /// todo : do for full mapper list, and taylor terms.
-  
-  Bool SynthesisImagerVi2::setWeightDensity( )
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Bool SynthesisImagerVi2::setWeightDensity( const String& weightimagename)
   {
     LogIO os(LogOrigin("SynthesisImagerVi2", "setWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices(itsMappers.nMappers());
-	for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	  {
-	    Array<Float> arr;
-	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
-	    densitymatrices[fid].reference( arr );
-	    //cout << "Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
+	if(weightimagename.size() !=0){
+	  Table::isReadable(weightimagename, True);
+	  PagedImage<Float> im(weightimagename);
+	  imwgt_p=VisImagingWeight(im);
+	}
+	else{
+	  Int ndensities=1;
+	  if((itsMappers.imageStore(0)->gridwt()->nelements())==5)
+	    ndensities=(itsMappers.imageStore(0)->gridwt())->shape()[4];
+	  Int nx=(itsMappers.imageStore(0)->gridwt())->shape()[0];
+	  Int ny=(itsMappers.imageStore(0)->gridwt())->shape()[1];
+	  Block<Matrix<Float> > densitymatrices(ndensities);
+	  if(((itsMappers.imageStore(0)->gridwt())->shape().nelements())==5){
+	    IPosition blc(Vector<Int>(5,0));
+	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
+	      {
+		densitymatrices[fid].resize();
+		Array<Float> lala;
+		blc[4]=fid;
+		itsMappers.imageStore(0)->gridwt()->getSlice(lala, blc, IPosition(5, nx, ny,1,1,1), True);
+		densitymatrices[fid].reference( lala.reform(IPosition(2, nx, ny)));
+	      }
 	  }
+	  else{
+	    Array<Float> lala;
+	    itsMappers.imageStore(0)->gridwt()->get(lala, True);
+	    densitymatrices[0].reference( lala.reform(IPosition(2, nx, ny)));
+	  }
+	  imwgt_p.setWeightDensity( densitymatrices );
+	}
 
-
-	imwgt_p.setWeightDensity( densitymatrices );
 	vi_p->useImagingWeight(imwgt_p);
 	itsMappers.releaseImageLocks();
 

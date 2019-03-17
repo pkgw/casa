@@ -163,8 +163,13 @@ class SynthesisImager
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbpa=casacore::Quantity(0.0,"deg")  );
 
-  casacore::Bool getWeightDensity();
-  virtual casacore::Bool setWeightDensity();
+  //Stores the weight density in an image. Returns the image name 
+  casacore::String getWeightDensity();
+  //set the weight density to the visibility iterator
+  //the default is to set it from the imagestore griwt() image
+  //Otherwise it will use this image passed here; useful for parallelization to
+  //share one grid to all children process
+  virtual casacore::Bool setWeightDensity(const casacore::String& imagename=casacore::String(""));
 
   //the following get rid of the mappers in this object
   void resetMappers();

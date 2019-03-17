@@ -167,6 +167,7 @@ QwtText QPScaleDraw::label(double value) const {
 		int tprecision = getTickPrecision();
 		if (tprecision >=0) {
 			stringstream ss;
+			if (tprecision > 5) tprecision=5;
 			ss.precision(tprecision);
 			ss << fixed << value;
 			return QString(ss.str().c_str());
