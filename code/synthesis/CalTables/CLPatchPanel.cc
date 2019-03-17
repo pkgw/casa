@@ -1341,11 +1341,6 @@ Bool CLPatchPanel::interpolate(Cube<Float>& resultR, Cube<Bool>& resFlag,
   // Suppled arrays reference the result (if available)
   MSCalPatchKey ires(msobs,msfld,msent,msspw,-1);
 
-
-  //  cout << " Calibrating: MS(" << ires.print() << ")" << endl;
-
-  //  cout << "finterp_[ires] = " << finterp_[ires] << endl;
-
   // Trap lack of available calibration for requested obs,fld,intent,spw
   if (msTres_.count(ires)==0) {
     throw(AipsError("No calibration arranged for "+ires.print()+
