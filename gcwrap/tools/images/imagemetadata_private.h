@@ -1,6 +1,6 @@
 private:
 
-std::auto_ptr<casacore::LogIO> _log;
+std::unique_ptr<casacore::LogIO> _log;
 
 std::shared_ptr<casa::ImageMetaDataRW<casacore::Float> > _mdf;
 std::shared_ptr<casa::ImageMetaDataRW<casacore::Complex> > _mdc;
