@@ -263,8 +263,22 @@ private:
 };
 
 //************************************** 
-// Programme Wide constant 
+// Programme Wide Names and Definition 
 //**************************************
+
+class DefaultNames  {
+
+public:
+    DefaultNames() {};
+    ~DefaultNames() {};
+
+    String DefaultLocalMsName()  { return DefaultLocalMsName_; } 
+    String DefaultRemoteMsName() { return DefaultRemoteMsName_; }
+
+private:
+    const String DefaultLocalMsName_  =  "./sdimaging-t.ms";
+    const String DefaultRemoteMsName_ =  "sdimaging/sdimaging.ms"; 
+};
 
     /* nothing at the moment */
 
@@ -276,8 +290,8 @@ class BaseClass : public ::testing::Test
 {
 public:
 
-     // MS fimename for Template //
-     const String  DefaultLocalMsName =  "./sdimaging-t.ms";
+     // Common Names //
+     DefaultNames names;
 
      // Running Environment //
      RunEnv       env;
@@ -298,7 +312,10 @@ public:
 
     uInt    expectedNrow = 0;   // C++11 feature //
 
-    BaseClass()  { }
+    BaseClass()  { 
+        DefaultLocalMsName_  = names.DefaultLocalMsName(); 
+        DefaultRemoteMsName_ = names.DefaultRemoteMsName();
+    }
 
     ~BaseClass() { }
 
@@ -306,6 +323,9 @@ public:
     void TearDown() { }
 
 private:
+
+     String DefaultLocalMsName_;
+     String DefaultRemoteMsName_;
 
      // Test MS copy and delete flag //
      bool fgCopyMS    = true;	// always TRUE for TestDirection 
@@ -347,11 +367,11 @@ void BaseClass::Description(const String &Title, const String &Param)
 void BaseClass::CopyDefaultMStoWork()
 {
     // Maser MS // 
-        const String master = "sdimaging/sdimaging.ms";
+        const String master    = names.DefaultRemoteMsName();
 
     // Src / Dst Path 
         const String src = env.getCasaMasterPath() + master;
-        const String dst = DefaultLocalMsName;
+        const String dst = names.DefaultLocalMsName();
 
     // Src/Dst Path (Path) 
         casacore::Path        sourcePath(src);
@@ -361,6 +381,9 @@ void BaseClass::CopyDefaultMStoWork()
     // Copy File   //
     if(fgCopyMS)
     {
+        std::cout << "- copying " <<endl;
+        std::cout << "  to " << dst << endl;
+        std::cout << "  from " << src << endl;
         dir_ctrl.copy( targetPath,
                        True,    // Overwrite 
                        True  ); // Users permisssion 
@@ -374,7 +397,7 @@ void BaseClass::CopyDefaultMStoWork()
 
 void BaseClass::DeleteWorkingMS()
 {
-    String dst         = DefaultLocalMsName;
+    String dst         = names.DefaultLocalMsName();
 
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
@@ -382,7 +405,9 @@ void BaseClass::DeleteWorkingMS()
     // Delete File (Recursively done) 
     if (fgDeleteMS)
     {
-         dir_ctrl. removeRecursive(false /*keepDir=False */ );
+        std::cout << "- deleting " << dst << endl;
+
+        dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
 }
 
@@ -397,13 +422,13 @@ class TrajectoryFunction
 
 public:
 
-    typedef enum _Tr_ {
+    typedef enum _Tr_  {
         Simple_linear,        // 0
-        Normalized_linear,    // 1
-        Sinusoid_slow,       // 2
-        Sinusoid_quick,      // 3
-        Sinusoid_hasty,      // 4
-        Harmonics_sinusoid,  // 5
+        Normalized_Linear,    // 1
+        Sinusoid_Slow,       // 2
+        Sinusoid_Quick,      // 3
+        Sinusoid_Hasty,      // 4
+        Harmonics_Sinusoid,  // 5
         Gauss,               // 6   (new 12/11)
         Zero,                // 7
         Const                // 8
@@ -896,7 +921,7 @@ class ErrorStat
 public:
     ErrorStat() {
         MaxErr.resize(2); MaxErr[0] = MaxErr[1] = 0.0;
-        MinErr.resize(2); MinErr[0] = MaxErr[1] = 0.0;
+        MinErr.resize(2); MinErr[0] = MinErr[1] = 0.0;
     }
     void put( Vector<Double> newval )
     {
@@ -904,11 +929,13 @@ public:
         Double v1 = abs(newval[1]);
         MaxErr[0] = max(v0, MaxErr[0]); 
         MaxErr[1] = max(v1, MaxErr[1]);
-        MaxErr[0] = min(v0, MinErr[0]);
-        MaxErr[1] = min(v1, MinErr[1]);
+        MinErr[0] = min(v0, MinErr[0]);
+        MinErr[1] = min(v1, MinErr[1]);
 
     }
-    std::vector<Double> get() { return MaxErr; }
+    std::vector<Double> e_max() { return MaxErr; }
+    std::vector<Double> e_min() { return MinErr; }
+
 private:
 
     std::vector<Double> MaxErr;
@@ -1347,13 +1374,12 @@ private:
 //  - Modifying test-MS
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
-class PointingTableAccess;
-class MsEdit              
+class MsEdit         
 {
 public:
- 
-    const String  DefaultLocalMsName =  "./sdimaging-t.ms";
- 
+
+    DefaultNames   names;
+
     TuneMSConfig  tuneMS;
 
     MsEdit() { init();  }
@@ -1394,7 +1420,7 @@ public:
 private:
     void init() 
     {
-         MsName_ = DefaultLocalMsName ;
+         MsName_ = names.DefaultLocalMsName()  ;
     }
 
 };
@@ -1442,13 +1468,13 @@ void MsEdit::prepareDataToAntennaTable( )
     // Buffer //
     ANTENNADataBuff dt0;
 
-    // Position, Offset  3dim. //
+    // Position, Offset  dim=3 //
     dt0.position.resize(3);
     dt0.offset.resize(3);
-    for(uInt i=0; i<3; i++)
+    for(uInt p=0; p<3; p++)
     {
-        dt0.position[i] = (Double)i * 0.1 + 100050.0 ;
-        dt0.offset[i]   = (Double)i * 0.1 + 50.0 ;
+        dt0.position[p] = (Double)p * 0.1 + 100050.0 ;
+        dt0.offset[p]   = (Double)p * 0.1 + 50.0 ;
     }
 
     // Write records as defined. //
@@ -1534,14 +1560,14 @@ void  MsEdit::writePseudoOnPointing()
     //+
     uInt N = pT.getNrow();
     printf( "DBG:writePseudoOnPointing:: Creating Data on Pointing Table. (Currently nrow=%d)\n",N);
-    for (uInt ant_id=0; ant_id < tuneMS.getMaxOfAntenna() ; ant_id++ )
+    for (uInt ant=0; ant < tuneMS.getMaxOfAntenna() ; ant++ )
     {
             printf( "DBG:writePseudoOnPointing::creating row data ( Ant=%d) data. Loop=%d \n", 
-                     ant_id, LoopCnt );
+                     ant, LoopCnt );
 
             for (uInt row=0; row < LoopCnt; row++)
             {
-                uInt  rowA = row + (ant_id * LoopCnt);
+                uInt  rowA = row + (ant * LoopCnt);
 
                 //+
                 // DIRECTION  
@@ -1569,7 +1595,7 @@ void  MsEdit::writePseudoOnPointing()
                     {   
                         // const value ..// 
                           direction[0][0] = 0.1 + 0.1 * (Double)cno  ;
-                          direction[0][1] = 0.1 + 0.1 * (Double)ant_id;
+                          direction[0][1] = 0.1 + 0.1 * (Double)ant;
                           Dir5[cno] = direction;
                     }
                 }
@@ -1602,7 +1628,7 @@ void  MsEdit::writePseudoOnPointing()
                 pT.putTime      (rowA, psd_data.time );     // Time
                 pT.putInterval  (rowA, psd_data.interval ); // Interval
 
-                pT.putAntennaId (rowA, ant_id ) ;     // AntennaID 
+                pT.putAntennaId (rowA, ant ) ;     // AntennaID 
 
 
             }//end row
@@ -1651,11 +1677,11 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime)
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow();
 
     printf("writing to MAIN, nrow=%d, number of data on each antenna=%d \n", nrow_ms,LoopCnt );
-    for (uInt ant_id=0; ant_id < tuneMS.getMaxOfAntenna() ; ant_id++ )
+    for (uInt ant =0; ant  < tuneMS.getMaxOfAntenna() ; ant ++ )
     {
         for (uInt row=0; row < LoopCnt; row++)
         {
-            uInt  rowA = row + (ant_id * LoopCnt);
+            uInt  rowA = row + (ant  * LoopCnt);
 
             // Pseudo Data (TEST DATA );
 
@@ -1669,7 +1695,7 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime)
 
             Double SetTime = time + (deltaTime * interval) ; 
 
-            mta.  putAntenna  (rowA, ant_id   );      // AntennaID1 (CAS-8418)
+            mta.  putAntenna  (rowA, ant    );      // AntennaID1 (CAS-8418)
             mta.  putAntenna2 (rowA, 0   );           // AntennaID2  always fixed = 0 
 
             mta.  putTime    (rowA, SetTime  );      // Time     (( REvised 10.26))
@@ -1742,12 +1768,12 @@ TEST_F(TestMeasurementSet, variousConstructor )
     MSNameList  MsList;
     TestDescription( "CALC Constructor by various MS " );
 
-    for(uInt n=0; n< MsList.count(); n++)
+    for(uInt m=0; m< MsList.count(); m++)
     {
         FunctionalDescription( "CALC Constructor by various MS", 
-                               std::to_string(n)+". " + MsList.name(n).c_str()  );
-        String name = env.getCasaMasterPath()+ MsList.name(n);
-        if ( MsList.isException(n))
+                               std::to_string(m)+". " + MsList.name(m).c_str()  );
+        String name = env.getCasaMasterPath()+ MsList.name(m);
+        if ( MsList.isException(m))
         {
             EXPECT_ANY_THROW( test_constructor(name) );
         }
@@ -1866,9 +1892,14 @@ class TestDirection : public BaseClass
 {
 public:
 
-        // Interpolation Mode //
+        // Name database //
+          DefaultNames   names;
 
-        bool use_spline = false;
+        // Default Local MS name //
+          String         DefaultLocalMsName;
+ 
+        // Interpolation Mode //
+          bool use_spline = false;
 
         //+ 
         // TestCondition const
@@ -1992,6 +2023,8 @@ protected:
         {
             BaseClass::SetUp();
   
+            DefaultLocalMsName = names.DefaultLocalMsName();
+
             // SetUp Number of Anntena for TEST //
             msedit.tuneMS.setMaxAntenna( numAntenna_ ); 
 
@@ -2013,8 +2046,6 @@ protected:
              DeleteWorkingMS();
         }
 private:
-        // Default MS name //
-          const String MsName_ = DefaultLocalMsName;
  
         // Resources (Tunable from external env.)
 
@@ -2157,7 +2188,7 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
     // Max Error ///
 
       std::vector<Double> reterr;
-      ErrorStat            maxerr;
+      ErrorStat           errstat;
     
     // Add INTERPOLATION TEST DATA 
 
@@ -2183,10 +2214,10 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
         printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
         printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
 
-        maxerr.put(reterr);
+        errstat.put(reterr);
     }
-    std::vector<Double> e_max = maxerr.get();
-
+    std::vector<Double> e_max = errstat.e_max();
+    std::vector<Double> e_min = errstat.e_min();
     printf("----------------------------------------\n");
     printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
     printf("----------------------------------------\n");
@@ -2206,11 +2237,11 @@ TEST_F(TestDirection, InterpolationFull )
   TestDescription( "Interpolation Full-combiniation 1) mode,2) Interval" );
     // Combiniation List of Pointing Interval and Main Interval //
 
+    vector<Double> Pointing_IntervalList = { 0.1 , 0.05, 0.01  };
+    vector<Double> Main_IntervalList     = { 0.2 , 0.1, 0.01   };
     vector<bool>   InterpolationMode     = { false, true};
-    vector<Double> Pointing_IntervalList = { 0.1, 0.05, 0.01  };
-    vector<Double> Main_IntervalList     = { 0.2, 0.1, 0.01   };
 
-    ErrorStat  maxerr;
+    ErrorStat  errstat;
     std::vector<Double> r_err = {0.0}; 
 
     //+
@@ -2219,18 +2250,16 @@ TEST_F(TestDirection, InterpolationFull )
       uInt usingColumn  = 0;
       uInt usingAntenna = 0;
 
-    // Multiple Loop //
-    for(uInt s=0; s<InterpolationMode.size(); s++)
+    // Interval Combeniation  Loop //
+    for( uint p=0; p < Pointing_IntervalList.size(); p++)
     {  
-        // Spline OFF, ON //
-        use_spline = InterpolationMode[s];
-
-       // Combiniation Loop
-       //  5-MAR-2919 ; changed out/in loop var. 
-        for( uint p=0; p < Pointing_IntervalList.size(); p++)
+        for( uint m=0; m < Main_IntervalList.size(); m++)
         {
-            for( uint m=0; m < Main_IntervalList.size(); m++)
+            for(uInt s=0; s<InterpolationMode.size(); s++)
             {
+                // Spline OFF, ON //
+                  use_spline = InterpolationMode[s];
+
                 // Interval // 
                   Double p_i = Pointing_IntervalList[p];
                   Double m_i = Main_IntervalList[m];
@@ -2238,11 +2267,11 @@ TEST_F(TestDirection, InterpolationFull )
                 // Error Limit
                   Double ErrLimit =0.0;
                   if( use_spline==true)
-                      if(p_i > m_i )  { ErrLimit = 2E-03; }
-                      else            { ErrLimit = 1E-06; }
+                      if(p_i > m_i )  { ErrLimit = 5E-03; }
+                      else            { ErrLimit = 2E-06; }
                   else                 
                       if(p_i > m_i )  { ErrLimit = 1E-02; }
-                      else            { ErrLimit = 1E-04; } 
+                      else            { ErrLimit = 2E-06; } 
                
 
                   printf( "======================================================\n");
@@ -2261,8 +2290,9 @@ TEST_F(TestDirection, InterpolationFull )
                 // set Examination Condition (revised by CAS-8418) //
                 //-
     
-                  selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
-                  setCondition( 5040,   //number of row
+//                 selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+                   selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
+                   setCondition( 5040,   //number of row
                                 p_i,    // Pointing Interval
                                 m_i,    // Main Interval
                                 ErrLimit );  // Error limit 
@@ -2277,14 +2307,26 @@ TEST_F(TestDirection, InterpolationFull )
                  // Execute Main-Body , get error info //
                  //-
                    r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
-                   maxerr.put(r_err);
+                   errstat.put(r_err);
+
+                   // Result //
+                   printf( "======================================================\n");
+                   printf( "== Mode[%d] Interval (P=%f,M=%f)  Limit =%f             \n",
+                             use_spline , p_i, m_i , ErrLimit );
+                   printf( "==           Error =(%e, %e, )      \n", r_err[0], r_err[1] );
+                   printf( "======================================================\n");
+
              }
         } // End Interval combiniation
 
-        std::vector<Double>  e = maxerr.get();
+#if 0 // RESERVED :: Statictic information , not exsactly coded //
+
+        std::vector<Double>  emax = errstat.e_max();
+        std::vector<Double>  emin = errstat.e_min();
         printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-        printf ( "GGG       THE WORST Error = %e, %e \n", e[0], e[1] );
+        printf ( "GGG       THE MAX   Error = %e, %e \n", emax[0], emax[1] );
         printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
+#endif 
 
     } // End Interpolation Mode 
 }
@@ -2300,6 +2342,7 @@ typedef struct Parm {
     Double testCount;
     Double p_interval;
     Double m_interval;
+    TrajectoryFunction::Type trFunc;
     Double errLimit;
 } ParamList;
 
@@ -2307,33 +2350,42 @@ std::vector<ParamList>  paramListS[] =
 {
     // Senario 0 //
     {
-      {true, 5040, 0.048,  0.001,  5.0E-03 },
-      {true, 5040, 0.048,  0.006,  5.0E-03 },
-      {true, 5040, 0.048,  0.012,  5.0E-03 },
+      {true, 5040, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  2.0E-05 },
+      {true, 5040, 0.048,  0.006,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 5040, 0.048,  0.012,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 },
     },
     // Senario 1 //
     {
-      {true, 4000, 0.07,  0.01,  5.0E-03 },
-      {true, 4005, 0.07,  0.01,  5.0E-03 },
-      {true, 4010, 0.07,  0.01,  5.0E-03 },
-      {true, 4015, 0.07,  0.01,  5.0E-03 },
-      {true, 4020, 0.07,  0.01,  5.0E-03 },
-      {true, 4005, 0.07,  0.01,  5.0E-03 },
-      {true, 4030, 0.07,  0.01,  5.0E-03 },
-      {true, 4035, 0.07,  0.01,  5.0E-03 },
-      {true, 4040, 0.07,  0.01,  5.0E-03 },
-      {true, 4045, 0.07,  0.01,  5.0E-03 },
-      {true, 4050, 0.07,  0.01,  5.0E-03 },
-      {true, 4055, 0.07,  0.01,  5.0E-03 },
-      {true, 4060, 0.07,  0.01,  5.0E-03 },
-      {true, 4065, 0.07,  0.01,  5.0E-03 },
-      {true, 4070, 0.07,  0.01,  5.0E-03 },
-      {true, 4075, 0.07,  0.01,  5.0E-03 },
-      {true, 4080, 0.07,  0.01,  5.0E-03 },
-      {true, 4085, 0.07,  0.01,  5.0E-03 },
-      {true, 4090, 0.07,  0.01,  5.0E-03 },
-      {true, 4095, 0.07,  0.01,  5.0E-03 },
-      {true, 5040, 0.048,  1.008,  5.0E-03 }
+      {true, 4000, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4005, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4010, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4015, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4020, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4005, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4030, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4035, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4040, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4045, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4050, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4055, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4060, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4065, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4070, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4075, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4080, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4085, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4090, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4095, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 5040, 0.048, 1.008, TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 }
+    },
+    // Senario 2 //
+    {
+      {true, 5040, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-07 },
+      {true, 5040, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-07 },
+      {true, 5040, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Quick,     5.0E-06 },
+      {true, 5040, 0.01,  0.05,  TrajectoryFunction::Type::Harmonics_Sinusoid, 5.0E-06 },
+      {true, 5040, 0.01,  0.05,  TrajectoryFunction::Type::Gauss,              5.0E-06 },
+
     },
  
 };
@@ -2344,7 +2396,7 @@ TEST_F(TestDirection, InterpolationCombiniation )
   TestDescription( "Interpolation by Listed condition." );
     // Combiniation List of Pointing Interval and Main Interval //
 
-    ErrorStat  maxerr;
+    ErrorStat  errstat;
     std::vector<Double> r_err = {0.0}; 
 
     //+
@@ -2355,7 +2407,7 @@ TEST_F(TestDirection, InterpolationCombiniation )
 
     // What parameter Set. //
 
-    uInt sno =0; // Programers choise, from above the parameter def. //
+    uInt sno =1;  // Programers choise, from above the parameter def. //
 
     for(uInt n=0; n<paramListS[sno].size();n++)
     {
@@ -2363,12 +2415,14 @@ TEST_F(TestDirection, InterpolationCombiniation )
           uInt   testCount = paramListS[sno][n].testCount;
           Double p_i       = paramListS[sno][n].p_interval;
           Double m_i       = paramListS[sno][n].m_interval;
+
+          auto   trFunc    = paramListS[sno][n].trFunc;
           Double err_limit = paramListS[sno][n].errLimit;
 
-          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
-          printf("&&&  parameter Set[%d]  starts. \n",n );
+          printf("&&&&&&&&&&&&&&&&&&&&&&6&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+          printf("&&&  parameter Set[%d]  starts. Func=%d\n",n, trFunc );
           printf("&&&   N=%d, Interval (Poinitng, Main) = (%f,%f) \n", testCount, p_i, m_i );
-          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+          printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
 
           // Copy Template MS //
           SetUp();
@@ -2380,7 +2434,8 @@ TEST_F(TestDirection, InterpolationCombiniation )
           //+
           // set Examination Condition (revised by CAS-8418) //
           //-
-            selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+            selectTrajectory( trFunc );
+
             setCondition( testCount,   /*numinTestingRow */      //number of row
                           p_i,    // Pointing Interval
                           m_i,    // Main Interval
@@ -2396,7 +2451,7 @@ TEST_F(TestDirection, InterpolationCombiniation )
           // Execute Main-Body , get error info //
           //-
             r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn, usingAntenna );
-            maxerr.put(r_err);
+            errstat.put(r_err);
     }
 }
 
@@ -2422,7 +2477,8 @@ TEST_F(TestDirection, InterpolationSingle )
 
     // set Examination Condition (revised by CAS-8418) //
 
-      selectTrajectory( TrajectoryFunction::Type::Simple_linear );// Trajectory(Curve) Function
+//    selectTrajectory( TrajectoryFunction::Type::Simple_linear );// Trajectory(Curve) Function
+      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
       setCondition( 5000,       // number of row
                     0.05,          // Pointing Interval
                     0.01,         // Main Interval
@@ -2471,7 +2527,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 
     // define Number of Antenna prepeared in MS //
 
-      setMaxAntenna(10);
+      setMaxAntenna(3);
       setMaxPointingColumns(5);
 
     // set Examination Condition  //
@@ -3154,7 +3210,9 @@ TEST_F(TestDirection, getDirectionExtended )
     // Use DefaultMS as a simple sequence.
     // Use the below to show uv valuses from MS.
 
-    const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
+    MSNameList  mslist;
+    const String MsName = env.getCasaMasterPath() 
+                        + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
 
     // Create Object //
     
@@ -3276,9 +3334,9 @@ protected:
         String  ObservationSel      = "";
         String  UVRangeSel          = "";
         String  MSSelect            = "";
-
+#if 0
         String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-
+#endif 
         TestSelectData()
         {
         }
@@ -3336,7 +3394,10 @@ TEST_F(TestSelectData, Antenna )
 
     // MS name for this Test //
    
-       String name = env.getCasaMasterPath() + DefMsName;
+      MSNameList  mslist;
+      const String name = env.getCasaMasterPath() 
+                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+
        printf( " Used MS is [%s] \n", name.c_str() );
   
     // Create Object //
@@ -3429,7 +3490,10 @@ TEST_F(TestSelectData, Spw )
 
     // MS name for this Test //
 
-        String name = env.getCasaMasterPath() + DefMsName;
+        MSNameList  mslist;
+        const String name = env.getCasaMasterPath()
+                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+
         printf( " Used MS is [%s] \n", name.c_str() );
 
     // Create Object //
@@ -3829,8 +3893,10 @@ TEST_F(TestSelectData, UVRange )
     TestDescription( "selectData (key=UV Range)" );
 
     // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + DefMsName;
+        MSNameList  mslist;
+        const String name = env.getCasaMasterPath()
+                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+ 
         printf( " Used MS is [%s] \n", name.c_str() );
     
     // Create Object //
@@ -3880,8 +3946,10 @@ TEST_F(TestSelectData, MSselect )
     TestDescription( "selectData (key=MS Select)" );
 
     // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + DefMsName;
+        MSNameList  mslist;
+        const String name = env.getCasaMasterPath()
+                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+ 
         printf( " Used MS is [%s] \n", name.c_str() );
     
     // Create Object //
