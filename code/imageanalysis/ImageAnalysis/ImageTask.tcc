@@ -416,6 +416,7 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
     }
     casacore::ImageUtilities::copyMiscellaneous(*outImage, image);
     _doHistory(outImage);
+    // CAS-9267 force metadata to be written to disk, in case of PagedImage
     outImage->flush();
     return outImage;
 }
