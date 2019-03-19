@@ -450,9 +450,15 @@ private:
 
           void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
+        // Coefficient (by SDPosInterpolator)
           casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
           coeff_;
        
+        // Discontinuous Secion Handle//
+
+          casacore::Vector<casacore::Vector<casacore::Double> >   deltaTime_;
+          casacore::Vector<casacore::Vector<bool> >               splineInvalid_;
+
         // Interal Staus (one Spline status)//
  
           bool stsCofficientReady = false;

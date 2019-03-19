@@ -1101,8 +1101,12 @@ public:
                   prevTime  = time;
  
                   String strOpt= "";
-                  if(intervalD > interval *1.01 ) strOpt = " NewLocation";
-
+                  if(intervalD > (interval +0.001) ) strOpt = " gap ";
+                  if(intervalD > 1.0 )     strOpt = " gap over 1.0 sec";
+                  if(intervalD > 3.0 )     strOpt = " gap over 3.0 sec";
+                  if(intervalD > 10.0 )    strOpt = " gap over 10.0 sec";
+                  if(intervalD > 100.0 )   strOpt = " gap over 100.0 sec";
+                  if(intervalD > 200.0 )   strOpt = " gap over 200.0 sec";
                   fprintf(fp, "%d,|,%d,%f,%f,|,%f,%f,|,%f,%f,,%f,%s \n",
                               row, antId, time, interval,
                               Dir[0], Dir[1], Tar[0],Tar[1],intervalD, strOpt.c_str()  );
@@ -1342,6 +1346,38 @@ public:
 
     void putTime    (uInt row, Double dd) { mainTime_col.    put(row, dd );}
     void putInterval(uInt row, Double dd) { mainInterval_col.put(row, dd );}
+
+    // Read (get) 
+    uInt   getAntennaId(uInt row)       { return antenna1_col.      get(row); }
+    Double getTime     (uInt row)       { return mainTime_col.      get(row); }
+    Double getInterval (uInt row)       { return mainInterval_col.  get(row); }
+
+    void dump(String fname)
+    {
+        FILE *fp=fopen( fname.c_str(), "w");
+        Double prevTime =getTime(0);
+        Double intervalD =getInterval(0);
+ 
+        for(uInt row=0;row<nrow;row++)
+        {
+            uInt   antId    = getAntennaId(row);
+            Double time     = getTime(row);
+            Double interval = getInterval(row); 
+               
+            intervalD = time - prevTime;
+            prevTime  = time;
+ 
+            String strOpt= "";
+            if(intervalD > (interval +0.001) ) strOpt = " gap ";
+            if(intervalD > 2.0 )     strOpt = " gap over 2.0 sec";
+            if(intervalD > 3.0 )     strOpt = " gap over 3.0 sec";
+            if(intervalD > 5.0 )     strOpt = " gap over 5.0 sec";
+            if(intervalD > 10.0 )    strOpt = " gap over 10.0 sec";
+            fprintf(fp, "%d,|,%d,%f,%f,%f,|, %s \n",
+                        row, antId, time, interval,intervalD, strOpt.c_str()  );
+        }
+        fclose(fp);
+    }
 
 private:
 
@@ -2283,8 +2319,8 @@ TEST_F(TestDirection, InterpolationFull )
                   SetUp();
 
                 // define Number of Antenna prepeared in MS //
-                  setMaxAntenna(5);
-                  setMaxPointingColumns(2);
+                  setMaxAntenna(1);
+                  setMaxPointingColumns(1);
 
                 //+ 
                 // set Examination Condition (revised by CAS-8418) //
@@ -2391,7 +2427,7 @@ std::vector<ParamList>  paramListS[] =
 };
 
 
-TEST_F(TestDirection, InterpolationCombiniation )
+TEST_F(TestDirection, InterpolationListedItems )
 {
   TestDescription( "Interpolation by Listed condition." );
     // Combiniation List of Pointing Interval and Main Interval //
@@ -2428,7 +2464,7 @@ TEST_F(TestDirection, InterpolationCombiniation )
           SetUp();
 
           // define Number of Antenna prepeared in MS //
-          setMaxAntenna(5);
+          setMaxAntenna(3);
           setMaxPointingColumns(2);
 
           //+
@@ -2669,11 +2705,17 @@ TEST_F(TestDirection, CompareInterpolation )
         String name = env.getCasaMasterPath()+MsList[fno]; 
         printf( "MS[%s] is used. \n",name.c_str() );
 
+        // Dump Pointing
         if(true){
            PointingTableAccess pta(name);
            pta.dump("Pointing_"+std::to_string(fno)+ ".csv" );
         }
-        
+        // Dump Main
+        if(true){
+           MainTableAccess mta(name);
+           mta.dump("Main_"+std::to_string(fno)+ ".csv" );
+        }
+ 
         // Create Object //
         MeasurementSet ms0( name );
         PointingDirectionCalculator calc(ms0);
@@ -2751,6 +2793,7 @@ TEST_F(TestDirection, CompareInterpolation )
         // List, Compare and Examine
         //****************************
         uInt size = DirList1.nrow();
+        printf( "===== Interpolation Comparison Info. (File:%s)===== \n", MsList[fno].c_str() );
         for( uint row=0; row<size; row++)
         {
             Double er1 = DirList2(row,0) - DirList1(row,0);

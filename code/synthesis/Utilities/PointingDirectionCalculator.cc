@@ -1012,6 +1012,9 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
       tmp_time.        resize(numAnt);
       tmp_dir.         resize(numAnt);
 
+      deltaTime_.          resize(numAnt);  
+      splineInvalid_.      resize(numAnt);
+
     // Column handle (only time,direction are needed, others are reserved) //
     
       ROScalarColumn<Double> pointingTime           = columnPointing ->time();
@@ -1037,6 +1040,12 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
           tmp_dir [ant]. resize(size);
           tmp_time[ant]. resize(size);
 
+          // Discont time //
+          deltaTime_     [ant]. resize(size);
+          splineInvalid_ [ant]. resize(size);
+
+          Double  prevTime = pointingTime.get(0);
+
         // for each row // 
         for (uInt row = startPos; row < endPos; row++) 
         {
@@ -1044,25 +1053,57 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
             // resizei (for Dir) //
             tmp_dir[ant][index].resize(2);
-#if 0
-            Double        time    = pointingTime.get(index);
-            MDirection     dir    = my_accessor(*columnPointing, index);
-            Vector<Double> dirVal = dir.getAngle("rad").getValue();
 
-#else       // BUG FIXED //
+            Double        interval= pointingInterval.get(row);
             Double        time    = pointingTime.get(row);
             MDirection     dir    = my_accessor(*columnPointing, row);
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
-#endif 
+
+            // Diff Time //
+            Double         dTime  = time - prevTime;
+                           prevTime = time;
+
             // set on Vector //
+            
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
 
+            // Discont Time //
+            deltaTime_[ant][index] = dTime;
+
+            //+
+            // NEW: CAS-8418: Jump discontiuous section.
+            //  When dT is far greater than the interval, this is
+            //  a discontinuous section. The currve on close to edges 
+            //  may behave unexpected.
+            //-
+#if 0  
+            if(true)
+            {
+                //+
+                // Experiment:   set Invalid Flag
+                //-
+
+                if(dTime > (interval+0.001)  )
+                {
+                    printf( "Set MARK (%d, %d)\n",ant,index);
+                    // Mark //
+                    splineInvalid_[ant][index]=true;
+                }
+                else
+                {
+                     splineInvalid_[ant][index]=false;
+                }
+            }
+#endif             
             // DBG //
             if(showSDPParam)
             {
-                printf("new SDP arg index=%d ant=%d, time=%f, dir=[%f,%f]\n", 
-                       index, ant, time, dirVal[0],dirVal[1]);
+                string  info = "-";
+                if ( dTime > (interval + 0.001) ) info = "Jumped";
+
+                printf("SDP ix=,%d a=,%d,tm=%f,dt=,%f, dir,%f,%f,%s\n", 
+                       index, ant, time, dTime, dirVal[0],dirVal[1], info.c_str() );
             }
         }
     }
@@ -1159,6 +1200,24 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         ss << "Bugcheck. Requested Index is too large." << endl; 
         throw AipsError(ss.str());
     }
+
+    //+
+    // CAS-8418 Discontinuous section 
+    //-
+#if 0
+    printf("calculating Spline Inv(%d,%d)=%u \n",antID, index, splineInvalid_[antID][index] );
+#endif 
+
+#if 0
+    if( splineInvalid_[antID][index]  ) 
+    {
+        Double dt = deltaTime_[antID][index];
+
+        printf("Warning:: Discontinuous Section was detected in calculation. (Ant=%d, index=%d),dt=%f \n",
+                antID, index, dt ); 
+
+    }
+#endif 
   
     // Coefficient //
 
