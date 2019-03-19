@@ -993,7 +993,7 @@ HPX HEALPix grid.  -->
 	    <value type="bool">True</value>
     </param>
 
-    <param type="bool" name="conjbeams" subparam="false">
+    <param type="bool" name="conjbeams" subparam="true">
            <shortdescription>Use conjugate frequency for wideband A-terms</shortdescription>
 <description>Use conjugate frequency for wideband A-terms
 
@@ -1009,10 +1009,11 @@ HPX HEALPix grid.  -->
                        index of -1.4 due to the frequency dependence of the PB [Sault and Wieringa, 1994].  
                        If left uncorrected during gridding, this spectral structure must be modeled 
                        in the minor cycle (using the mtmfs algorithm) to avoid dynamic range limits 
-                       (of a few hundred for a 2:1 bandwidth).
+		       (of a few hundred for a 2:1 bandwidth).
+		       This works for specmode='mfs' and its value is ignored for cubes
 
 </description>
-	    <value type="bool">True</value>
+	    <value type="bool">False</value>
     </param>
 
     <param type="string" name="cfcache" subparam="true">
