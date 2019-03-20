@@ -1297,7 +1297,7 @@ collapsed.done()
             # do stuff with decimated and then close it
             decimated.close()
             
-            # Decimeate by averaging every 7 planes of the input image along axis 2
+            # Decimate by averaging every 7 planes of the input image along axis 2
             decimated = ia.decimate("dec2.im", axis=2, factor=7, method="mean")
             # do stuff with decimated and then close it
             decimated.close()
