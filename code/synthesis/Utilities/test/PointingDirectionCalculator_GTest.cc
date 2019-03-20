@@ -2690,7 +2690,7 @@ TEST_F(TestDirection, CompareInterpolation )
 
     std::vector<String> MsList = {
       "sdimaging/Uranus1.cal.Ant0.spw34.ms",
-      "sdimaging/Uranus2.cal.Ant0.spw34.ms"
+    //  "sdimaging/Uranus2.cal.Ant0.spw34.ms"
     };
 
     // TEST LOOP //
@@ -2789,6 +2789,20 @@ TEST_F(TestDirection, CompareInterpolation )
             printf( "getDirection()::Number of Col = %zu \n", n_col );
         }
 
+
+        //-
+        // DisContinuous setction check
+        //-
+#if 0
+        SplineInterpolation *sp = calc.getCurrentSplineObj();
+        printf(" xxxxxxxxx  Invalid Section xxxxxxxxxx  \n" );
+        uInt N = ms0.pointing().nrow();
+        for( uint row=0; row < N; row++)
+        {
+            int invalid =  sp->ifSplineInvalid(0, row) ;
+            printf ("Spline Section Invalid[%d] = %d  \n", row,   invalid );
+        }
+#endif 
         //****************************
         // List, Compare and Examine
         //****************************

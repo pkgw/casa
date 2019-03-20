@@ -441,6 +441,8 @@ public:
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
         getCoeff() { return coeff_; }
 
+        int  ifSplineInvalid(casacore::uInt ant, casacore::uInt index ) { return splineInvalid_[ant][index];    }
+
 private:
         //  default constructor 
 
@@ -457,7 +459,7 @@ private:
         // Discontinuous Secion Handle//
 
           casacore::Vector<casacore::Vector<casacore::Double> >   deltaTime_;
-          casacore::Vector<casacore::Vector<bool> >               splineInvalid_;
+          casacore::Vector<casacore::Vector<int> >                splineInvalid_;
 
         // Interal Staus (one Spline status)//
  
@@ -469,7 +471,7 @@ private:
         // Programmers Debug Flag //
        
           bool showSDPParam     = false;
-          bool dumpCoeffientTable = false;
+          bool dumpCoeffientTable = true;
 
 };
 

@@ -1043,6 +1043,8 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
           // Discont time //
           deltaTime_     [ant]. resize(size);
           splineInvalid_ [ant]. resize(size);
+          fill( splineInvalid_.begin(),
+                splineInvalid_.end(),  0 );
 
           Double  prevTime = pointingTime.get(0);
 
@@ -1077,7 +1079,7 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
             //  a discontinuous section. The currve on close to edges 
             //  may behave unexpected.
             //-
-#if 0  
+#if 1  
             if(true)
             {
                 //+
@@ -1086,13 +1088,19 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
                 if(dTime > (interval+0.001)  )
                 {
-                    printf( "Set MARK (%d, %d)\n",ant,index);
+#if 0
+                    printf( "Set MARK (%d, %d) around this point. | dt=%f, interval=%f \n",
+                             ant,index, dTime, interval);
+#endif 
                     // Mark //
-                    splineInvalid_[ant][index]=true;
-                }
-                else
-                {
-                     splineInvalid_[ant][index]=false;
+                    splineInvalid_[ant][index-4]= -4;
+                    splineInvalid_[ant][index-3]= -3;
+                    splineInvalid_[ant][index-2]= -2;
+                    splineInvalid_[ant][index-1]= -1;
+                    splineInvalid_[ant][index+0]= 1;
+                    splineInvalid_[ant][index+1]= 2;
+                    splineInvalid_[ant][index+2]= 3;
+                    splineInvalid_[ant][index+3]= 4;
                 }
             }
 #endif             
@@ -1201,23 +1209,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         throw AipsError(ss.str());
     }
 
-    //+
-    // CAS-8418 Discontinuous section 
-    //-
-#if 0
-    printf("calculating Spline Inv(%d,%d)=%u \n",antID, index, splineInvalid_[antID][index] );
-#endif 
-
-#if 0
-    if( splineInvalid_[antID][index]  ) 
-    {
-        Double dt = deltaTime_[antID][index];
-
-        printf("Warning:: Discontinuous Section was detected in calculation. (Ant=%d, index=%d),dt=%f \n",
-                antID, index, dt ); 
-
-    }
-#endif 
   
     // Coefficient //
 
@@ -1231,10 +1222,35 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     Double b2 = coeff_[antID][index][1][2];
     Double b3 = coeff_[antID][index][1][3];
 
-    // Spline Calc //
+   // Spline Calc //
 
     Double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
     Double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
+
+    //+
+    // CAS-8418 Discontinuous section 
+    //-
+
+    if( splineInvalid_[antID][index] !=0 ) 
+    {
+#if 1
+        printf("Warning:: Discontinuous Section was detected in calculation. (Ant=%d, index=%d),flag = %2d \n",
+                antID, index, splineInvalid_[antID][index] ); 
+        printf( "dt = %f \n",dt);
+#endif 
+        //+
+        // Alter to LINEAR 
+        //-
+
+        Double a0p = coeff_[antID][index -1][0][0];
+        Double b0p = coeff_[antID][index -1][1][0];
+  
+        if(true)
+        {
+            Xs = a0p;
+            Ys = b0p;
+        }
+    }
 
     // Return //
 
