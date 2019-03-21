@@ -2345,15 +2345,12 @@ void SynthesisImagerVi2::unlockMSs()
               }
 	      Int nChanWt=wtc.shape()(1);  // Might be 1 (no WtSp)
 
-	      Array<Bool> flagCube(vb->flagCube());
-	      VectorIterator<Bool> flagiter(flagCube);
+	      Cube<Bool> flagCube(vb->flagCube());
 	      for (Int row=0; row<nRow; row++) {
 		if (!rowFlags(row) && a1(row)!=a2(row)) {  // exclude ACs
 
 		  for (Int ich=0;ich<vb->nChannels();++ich) {
-		    Vector<Bool> thisflag(flagiter.vector());
-		    //if(!flag(ich,row)&&(iNatWt>0.0)) {
-		    if(ntrue(thisflag)==0) {  // all correlations UNflagged, this row, ich
+		    if( !flagCube(0,ich,row) && !flagCube(nCorr-1,ich,row)) {  // p-hands unflagged
 
 		      // Accumulate relevant info
 
@@ -2361,15 +2358,16 @@ void SynthesisImagerVi2::unlockMSs()
 		      iNatWt=wtc(0,ich%nChanWt,row)+wtc(nCorr-1,ich%nChanWt,row);
 
 		      iGridWt=2.0f*vb->imagingWeight()(ich,row);
-		      sumNatWt+=(iNatWt);
-		      sumGridWt+=(iGridWt);
-		      sumGridWt2OverNatWt+=(iGridWt*iGridWt/iNatWt);
+
+		      if (iGridWt>0.0 && iNatWt>0.0) {
+			sumNatWt+=(iNatWt);
+			sumGridWt+=(iGridWt);
+			sumGridWt2OverNatWt+=(iGridWt*iGridWt/iNatWt);
+		      }
 		    }
-		    flagiter.next(); // Add trap for pastEnd?
 		  }
 		}
 	      } // row
-
 	    } // vb
 	} // chunks
       
