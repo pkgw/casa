@@ -1177,7 +1177,7 @@ void ImagePolarimetry::_fiddleTimeCoordinate(
 ) const {
     LogIO os(LogOrigin("ImagePolarimetry", __func__, WHERE));
     CoordinateSystem cSys = ie.coordinates();
-    auto_ptr<Coordinate> pC(cSys.coordinate(coord).clone());
+    unique_ptr<Coordinate> pC(cSys.coordinate(coord).clone());
     AlwaysAssert(pC->nPixelAxes()==1,AipsError);
     AlwaysAssert(pC->type()==Coordinate::LINEAR,AipsError);
     auto axisUnits = pC->worldAxisUnits();
