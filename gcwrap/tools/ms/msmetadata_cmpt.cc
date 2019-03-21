@@ -985,7 +985,7 @@ variant* msmetadata::fieldsforsource(int sourceID, bool asnames) {
 
 record* msmetadata::fieldsforsources(bool asnames) {
     _FUNC(
-        auto_ptr<record> ret(new record());
+        unique_ptr<record> ret(new record());
         if (asnames) {
             auto mymap = _msmd->getFieldNamesForSourceMap();
             for (const auto& p: mymap) {
@@ -1541,7 +1541,7 @@ record* msmetadata::scansforfields(int obsid, int arrayid) {
         _checkArrayId(arrayid, true);
         _checkObsId(obsid, true);
         auto fieldToScans = _msmd->getFieldToScansMap();
-        std::auto_ptr<record> ret(new record());
+        std::unique_ptr<record> ret(new record());
         uInt n = fieldToScans.size();
         ArrayKey ak;
         ak.obsID = obsid;
@@ -1604,7 +1604,7 @@ record* msmetadata::scansforspws(int obsid, int arrayid) {
 	    _checkArrayId(arrayid, true);
 	    _checkObsId(obsid, true);
         auto spwToScans = _msmd->getSpwToScansMap();
-		auto_ptr<record> ret(new record());
+		unique_ptr<record> ret(new record());
         uInt n = spwToScans.size();
    		ArrayKey ak;
 	    ak.obsID = obsid;
@@ -1905,7 +1905,7 @@ record* msmetadata::spwsforscans(int obsid, int arrayid) {
 	    _checkArrayId(arrayid, true);
 	    _checkObsId(obsid, true);
         auto scanToSpws = _msmd->getScanToSpwsMap();
-		auto_ptr<record> ret(new record());
+		unique_ptr<record> ret(new record());
 		std::set<ScanKey> allScans;
 		for (const auto& p : scanToSpws) {
 		    allScans.insert(p.first);

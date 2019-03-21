@@ -62,7 +62,7 @@ namespace Minim {
     
     unsigned n = l.NParam();
 
-    std::auto_ptr<   std::vector<double> > res ( new   std::vector<double>( n * n ));
+    std::unique_ptr<   std::vector<double> > res ( new   std::vector<double>( n * n ));
 
     gsl_matrix *  r = GetR(l);
 

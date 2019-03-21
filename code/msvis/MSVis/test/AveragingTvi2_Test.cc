@@ -1182,7 +1182,7 @@ public:
         printf ("+++ Starting SimpleTests ...\n");
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
         tie (msTmp, nRows_p) = createMs (msName);
@@ -1386,7 +1386,7 @@ public:
         printf ("+++ Starting %s ...\n", getName().c_str());
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
         tie (msTmp, nRows_p) = createMs (msName);
@@ -1598,7 +1598,7 @@ public:
         printf ("+++ Starting RowFlaggingTests ...\n");
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
         const Double interval = 1.0;
@@ -1628,16 +1628,16 @@ protected:
         msFactory->setTimeInfo (0, 120, 1);
         msFactory->addSpectralWindows(1); // only on spw for now
 
-        auto_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
+        unique_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
         msFactory->setDataGenerator(MSMainEnums::DATA, rampGenerator.get());
 
         msFactory->setDataGenerator(MSMainEnums::WEIGHT_SPECTRUM,
                                     new GenerateConstant<Float> (1.0));
 
-        auto_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
+        unique_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
         msFactory->setDataGenerator(MSMainEnums::FLAG, generateFalse.get());
 
-        auto_ptr<GenerateAlternatingFlagRows> generateAlternatingFlagRows (new GenerateAlternatingFlagRows());
+        unique_ptr<GenerateAlternatingFlagRows> generateAlternatingFlagRows (new GenerateAlternatingFlagRows());
         msFactory->setDataGenerator(MSMainEnums::FLAG_ROW, generateAlternatingFlagRows.get());
 
         msFactory->setDataGenerator (MSMainEnums::INTERVAL,
@@ -1701,7 +1701,7 @@ public:
         printf ("+++ Starting CubeFlaggingTests ...\n");
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
         tie (msTmp, nRows_p) = createMs (msName);
@@ -1733,7 +1733,7 @@ protected:
         msFactory->setTimeInfo (0, 120, 1);
         msFactory->addSpectralWindows(1); // only on spw for now
 
-        auto_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
+        unique_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
         msFactory->setDataGenerator(MSMainEnums::DATA, rampGenerator.get());
 
         msFactory->setDataGenerator(MSMainEnums::SIGMA, new GenerateConstant<Float> (1.0));
@@ -1741,12 +1741,12 @@ protected:
         msFactory->setDataGenerator(MSMainEnums::WEIGHT_SPECTRUM,
                                     new GenerateConstant<Float> (1.0));
 
-        auto_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
+        unique_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
         msFactory->setDataGenerator(MSMainEnums::FLAG_ROW, generateFalse.get());
 
         msFactory->setDataGenerator(MSMainEnums::TIME_CENTROID, new GenerateTime());
 
-        auto_ptr<GenerateCheckerboardFlagCube>
+        unique_ptr<GenerateCheckerboardFlagCube>
         generateCheckerboardFlagCubes (new GenerateCheckerboardFlagCube());
 
         msFactory->setDataGenerator(MSMainEnums::FLAG, generateCheckerboardFlagCubes.get());
@@ -1815,7 +1815,7 @@ public:
         printf ("+++ Starting WeightingTests ...\n");
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         MeasurementSet * msTmp;
         tie (msTmp, nRows_p) = createMs (msName);
@@ -1860,10 +1860,10 @@ protected:
         msFactory->setDataGenerator(MSMainEnums::WEIGHT,
                                     new GenerateConstant<Float> (0.1));
 
-        auto_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
+        unique_ptr<GenerateRamp> rampGenerator (new GenerateRamp());
         msFactory->setDataGenerator(MSMainEnums::DATA, rampGenerator.get());
 
-        auto_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
+        unique_ptr<GenerateConstant<Bool> > generateFalse (new GenerateConstant<Bool> (false));
         msFactory->setDataGenerator(MSMainEnums::FLAG, generateFalse.get());
         msFactory->setDataGenerator(MSMainEnums::FLAG_ROW, generateFalse.get());
 
@@ -1944,7 +1944,7 @@ public:
         printf ("+++ Starting WeightSelectionTests ...\n");
 
         String msName ("AveragingTvi2.ms");
-        auto_ptr<MeasurementSet> ms;
+        unique_ptr<MeasurementSet> ms;
 
         {
             printf ("... +++ Starting test using normal weight spectrum\n");
@@ -2170,7 +2170,7 @@ public:
                     for(bool withWeightSpec : {false, true})
                     {
                         String msName ("AveragingTvi2.ms");
-                        auto_ptr<MeasurementSet> ms;
+                        unique_ptr<MeasurementSet> ms;
 
                         MeasurementSet * msTmp;
                         const Double interval = 1.0;
@@ -2493,7 +2493,7 @@ public:
 
             printf ("+++ +++ Doing uniform baseline averaging ... \n");
 
-            auto_ptr<MeasurementSet> ms;
+            unique_ptr<MeasurementSet> ms;
 
             MeasurementSet * msTmp;
             tie (msTmp, nRows_p) = createMs (msName, 1, 0);
@@ -2512,7 +2512,7 @@ public:
 
             printf ("+++ +++ Doing nonuniform baseline averaging ... \n");
 
-            auto_ptr<MeasurementSet> ms;
+            unique_ptr<MeasurementSet> ms;
 
             MeasurementSet * msTmp;
 
