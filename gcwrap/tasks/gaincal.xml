@@ -166,7 +166,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 	</param>
 
 	<param type="string" name="solmode">
-		<description>Solving mode: (\'\', \'L1\', \'R\', \'L1R\')</description>
+		<description>Robust solving mode: (\'\', \'L1\', \'R\', \'L1R\')</description>
 		<value></value>
 		<allowed kind="enum">
 			<value></value>
@@ -177,7 +177,7 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 	</param>
 
 	<param type="doubleArray" name="rmsthresh">
-		<description>RMS Threshold sequence.</description>
+		<description>RMS Threshold sequence (for solmode=\'R\' or \'L1R\'; see help)</description>
 		<value></value>
 	</param>
 
