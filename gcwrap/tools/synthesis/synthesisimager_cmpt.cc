@@ -699,22 +699,22 @@ int synthesisimager::updatenchan()
   return rstat;
 }
        
-  bool synthesisimager::getweightdensity()
+  string synthesisimager::getweightdensity()
   {
-    Bool rstat(false);
+    string rstat("");
     
     try {
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->getWeightDensity();
+      rstat=(itsImager->getWeightDensity());
       
     } catch  (AipsError x) {
       RETHROW(x);
     }
     return rstat;
   }
-  bool synthesisimager::setweightdensity()
+  bool synthesisimager::setweightdensity(const std::string& wgtdensity )
   {
     Bool rstat(false);
     
@@ -722,7 +722,7 @@ int synthesisimager::updatenchan()
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->setWeightDensity();
+      itsImager->setWeightDensity(wgtdensity);
       
     } catch  (AipsError x) {
       RETHROW(x);

@@ -28,6 +28,7 @@ def plotms(vis=None,
            customflaggedsymbol=None, flaggedsymbolshape=None,
            flaggedsymbolsize=None, flaggedsymbolcolor=None,
            flaggedsymbolfill=None, flaggedsymboloutline=None,
+           xconnector=None, timeconnector=False,
            plotrange=None,
            title=None, titlefont=None, 
            xlabel=None, xaxisfont=None, ylabel=None, yaxisfont=None,
@@ -37,9 +38,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None, headeritems=None, showatm=None, showtsky=None
-):
-
+           callib=None, headeritems=None, showatm=None, showtsky=None):
 # we'll add these later
 #           extspw=None, extantenna=None,
 #           exttime=None, extscans=None, extfield=None,
@@ -829,7 +828,14 @@ def plotms(vis=None,
                 pm.setFlaggedSymbol(flaggedSymbolShape, flaggedSymbolSize,
                             flaggedSymbolColor, flaggedSymbolFill,
                             flaggedSymbolOutline, False, plotindex, i)
-       
+ 
+        # connect the dots
+        if not xconnector:
+            xconnector = 'none'
+        if not timeconnector:
+            timeconnector = False
+        pm.setConnect(xconnector, timeconnector, False, plotindex)
+
         # Legend
         if not showlegend:
             showlegend = False
