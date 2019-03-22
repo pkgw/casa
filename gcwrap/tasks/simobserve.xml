@@ -366,15 +366,12 @@ observation?
     </param>
 
     <param type="string" name="hourangle" subparam="true">
-<shortdescription>Hour angle of observation center, e.g. -3:00:00, 5h, -4.5</shortdescription>
+<shortdescription>Hour angle of observation center, e.g. -3:00:00, 5h</shortdescription>
 <description>Hour angle of observation center.
                      Subparameter of obsmode='int|sd'
 
                          Examples:
-                         hourangle="-3:00:00", "5h", "-4.5", or
-			 "transit"
-                         A number without units will be interpreted as
-			 hours.
+                         hourangle="-3:00:00", "5h", or "transit"
  </description>
       <value>transit</value>
     </param>

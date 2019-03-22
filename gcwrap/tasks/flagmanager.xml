@@ -7,21 +7,49 @@
 
 <task type="function" name="flagmanager" category="editing">
         <shortdescription>Enable list, save, restore, delete and rename flag version files.</shortdescription>
-        <description>
-        These flag version files are copies of the flag column for a
-        measurement set.  They can be restored to the data set to get
-        back to a previous flag version.  On running importvla, a flag
-        version call 'Original' is automatically produced.
-        </description>
+<description>
+The flag version files are copies of the flag column for a measurement
+set. They can be restored to the data set to get back to a previous
+flag version. On running importvla, a flag version call 'Original' is
+automatically produced. It is recommended to save a flagversion at the
+beginning or after serious editing.
+</description>
         <input>
                 <param type="string" name="vis" mustexist="true">
-                        <description>Name of input visibility file (MS)</description>
+<shortdescription>Name of input visibility file</shortdescription>
+<description>Name of input visibility file
+                     Default: none
+
+                        Example: vis='ngc5921.ms'
+</description>
                         <value></value>
                         <example>vis='ngc5921.ms'</example>
                 </param>
 
                 <param type="string" name="mode">
-                        <description>Operation: list, save, restore, delete, rename</description>
+<shortdescription>Operation: list, save, restore, delete, rename</shortdescription>
+<description>Flag version operation
+                     Default: 'list'
+                     Options: list, save, restore, delete, rename
+
+                     * 'list': it will list in the logger the existing
+		       flag versions of the MS. This option will also
+		       return by default a dictionary containing the
+		       name of the MS, the name of the flag version
+		       and the comment. This information is taken from
+		       the FLAG_VERSION_LIST file inside the
+		       .flagversions directory.
+                     * 'save': will save the FLAG column from vis to a
+		       specified flag file. If the name given in
+		       versionname already exists, the task will give
+		       a warning and rename it to a name with a suffix
+		       '.old.timestamp'. The respective entry in
+		       FLAG_VERSION_LIST will also be updated.
+                     * 'restore': will place the specified flag file
+		       into vis
+                     * 'delete': will delete specified flag file
+                     * 'rename': will rename a specified flag file
+</description>
                         <value>list</value>
                         <allowed kind="enum">
                                 <value>list</value>
@@ -31,22 +59,50 @@
                                 <value>rename</value>
                         </allowed>
                 </param>
-                <param type="string" name="versionname" subparam="true">
-                        <description>Flag version name</description>
+
+<param type="string" name="versionname" subparam="true">
+<shortdescription>Flag version name</shortdescription>
+<description>Flag version name
+                     Default: none
+                     Subparameter of mode='save|restore|delete|rename'
+
+                        Example: versionname='original_data'
+
+                     No imbedded blanks in the versionname
+</description>
+                        <value></value>
+</param>
+
+<param type="string" name="oldname" subparam="true">
+<shortdescription>Flag version to rename</shortdescription>
+<description>Flag version to rename
+                     Default: none
+                     Subparameter of mode='rename'
+</description>
+                        <value></value>
+</param>
+ 
+<param type="string" name="comment" subparam="true">
+<shortdescription>Short description of a versionname</shortdescription>
+<description>Short description of a versionname
+                     Default: none
+                     Subparameter of mode='save|rename'
+
+                        Example: comment='Clip above 1.85'
+                        comment = versionname
+</description>
                         <value></value>
                 </param>
-                <param type="string" name="oldname" subparam="true">
-                        <description>Flag version to rename</description>
-                        <value></value>
-                </param>
-                <param type="string" name="comment" subparam="true">
-                        <description>Short description of a versionname</description>
-                        <value></value>
-                </param>
-                <param type="string" name="merge" subparam="true">
-                        <description>Merge option: replace will save or over-write the flags</description>
+
+<param type="string" name="merge" subparam="true">
+<shortdescription>Merge option: replace will save or over-write the flags</shortdescription>
+                       
+<description>Merge operation
+                     Subparameter of mode='save|restore'
+                     Options: 'or','and', but not recommended for now.
+</description>
                         <value>replace</value>
-                </param>
+</param>
                 <constraints>
                         <when param="mode">
                                 <equals value="list"/>
@@ -73,49 +129,9 @@
 <returns type="void"/>
 
 <example>
+For more information, see the task pages of flagmanager in CASA Docs:
 
-
-        The flag version files are copies of the FLAG column of a
-        Measurement Set. They can be restored to the data set to obtain
-        a previous flag version.  On running importasdm, a flag
-        version called 'Original' is produced by default.  It is recommended to
-        save a flagversion at the beginning or after serious editing.    
-
-        Keyword arguments:
-        vis -- Name of input visibility file
-                default: none. example: vis='ngc5921.ms'
-
-        mode -- Flag version operation
-                default: 'list': it will list in the logger the existing flag versions of the MS.
-                                 This option will also return by default a dictionary containing the
-                                 name of the MS, the name of the flag version and the comment. This 
-                                 information is taken from the FLAG_VERSION_LIST file inside the
-                                 .flagversions directory.
-
-                'save': will save the FLAG column from vis to a specified flag file. If the name given
-                        in versionname already exists, the task will give a warning and rename it 
-                        to a name with a suffix '.old.timestamp'. The respective entry in FLAG_VERSION_LIST 
-                        will also be updated.
-
-                'restore': will place the specified flag file into vis
-
-                'delete': will delete specified flag file
-
-                'rename': will rename a specified flag file
-
-        versionname -- Flag version name
-                default: none; example: versionname='original_data'
-                No imbedded blanks in the versionname
-
-        comment -- Short description of a versionname, when mode is 'save' or 'rename'
-                default: ''; example: comment='Clip above 1.85'
-                comment = versionname
-
-        oldname -- When mode='rename', the flag file to rename
-
-        merge -- Merge operation
-                Options: 'or','and', but not recommended for now.
-
+https://casa.nrao.edu/casadocs/
  </example>
  </task>
  </casaxml>

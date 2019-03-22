@@ -139,7 +139,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
               ['alma.cycle1;0.3arcsec','alma.cycle1.1.cfg','aca.i.cfg']
 
     hourangle -- hour angle of observation e.g. '-3h'
-       * note that if you don't add a unit, it will assume seconds.
 
     totaltime --- total time of observations. This should either be a scalar
          time quantity expressed as a string e.g. '1h', '3600sec', '10min',

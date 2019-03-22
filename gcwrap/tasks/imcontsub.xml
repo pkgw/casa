@@ -15,47 +15,89 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="imcontsub" category="analysis, imaging">
 <shortdescription>Estimates and subtracts continuum emission from an image cube</shortdescription>
+<description>
+Estimates and subtracts continuum emission from an image cube
 
+For each direction pixel (x, y) column in imagename (or a subset
+selected by region and/or box), this estimates the continuum by
+fitting a polynomial to one or more subsets of the channels.  The
+continuum estimate is saved in contfile, and subtracted from imagename
+(or its subset) to make a spectral line estimate, which is saved in
+linefile.
+</description>
 <input>
     <param type="string" name="imagename" mustexist="true" >
-    	<description>Name of the input spectral line image</description>
+<shortdescription>Name of the input spectral line image</shortdescription>
+<description>Input image cube.
+                     Default: none
+
+                        Example: imagename='ngc5921_task.im'
+</description>
     	<value></value>
         <example>inputfile=ngc5921_task.image</example>
     </param>
 
     <param type="string" name="linefile" >
-    	<description>Output continuum-subtracted image file name</description>
+<shortdescription>Output continuum-subtracted image file name</shortdescription>
+<description>Name of continuum-subtracted output spectral line cube
+                     Default: none
+
+                        Example: outline='ngc5921_line.im'
+</description>
     	<value></value>
         <example>outline=ngc5921_line.image</example>
     </param>
 
     <param type="string" name="contfile" >
-    	<description>Output continuum image file name</description>
+<shortdescription>Output continuum image file name</shortdescription>
+<description>Name of output continuum cube
+                     Default: none
+
+                        Example: contfile='ngc5921_cont.im'
+</description>
     	<value></value>
         <example>outcont=ngc5921_cont.image</example>
     </param>
 
     <param type="int" name="fitorder" >
-    	<description>Polynomial order for the continuum estimation</description>
+<shortdescription>Polynomial order for the continuum estimation</shortdescription>
+<description>Polynomial order for the continuum estimation
+                     Default: 0
+
+                        Example: fitorder=2
+</description>
     	<value>0</value>
 	<allowed kind="range"><value range="min">0</value></allowed> 
         <example>fitorder=2</example>
     </param>
+
     <param type="string" name="region">
-        <description>Region selection. Default is to use the full image.</description>
+<shortdescription>Region selection.</shortdescription>
+<description>Region selection. 
+                     Default: '' (use the full image)
+</description>
         <value/>
     </param>
     <param type="any" name="box">
-        <description>Rectangular region to select in direction plane. Default is to use the entire direction plane.</description>
+<shortdescription>Rectangular region to select in direction plane. Default is to use the entire direction plane.</shortdescription>
+<description>Rectangular region to select in direction plane.
+                     Default: '' (use the entire direction plane)
+</description>
         <any type="variant" limittypes="string intArray stringArray"/>
         <value type="string"/>
     </param>
     <param type="string" name="chans" >
-	<description>Channels to use for fitting. Default is to use all channels.</description>
+<shortdescription>Channels to use.</shortdescription>
+<description>Channels to use. 
+                     Default: '' (use all channels)
+</description>
     	<value/>
     </param>
     <param type="string" name="stokes">
-	    <description>Stokes planes to use. Default is to use all Stokes planes.</description>
+<shortdescription>Stokes planes to use.</shortdescription>
+<description>Stokes planes to use.
+                     Default: '' (use all Stokes planes)
+</description>
 	    <value/>
     </param>
 
@@ -67,43 +109,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <example>
-
-  For each (x, y) column in imagename (or a subset selected by region and/or
-  box), this estimates the continuum by fitting a polynomial to one or more
-  subsets of the channels.  The continuum estimate is saved in contfile, and
-  subtracted from imagename (or its subset) to make a spectral line estimate,
-  which is saved in linefile.
-
-  <!-- I can't find any evidence of this 'regions' method of selecting the
-       continuum pixels ever being implemented end-to-end. -->
-  <!-- A graphical interface 'regions' is the most versatile method of
-       selecting the line-free regions.  -->
-
-  Keyword arguments:
-  imagename -- Input image cube
-    Default: none; Example: imagename='ngc5921_task.im'
-  linefile -- Name of output spectral line cube
-    Default: none; Example: outline='ngc5921_line.im'
-  contfile -- Name of output continuum cube
-    Default: none; Example: contfile='ngc5921_cont.im'
-  fitorder -- Polynomial order for the continuum estimation.
-    Default: 0; Example fitorder=2
-  region -- Region selection. Default is
-            to use the full image.
-  box --  Rectangular region to select in direction plane. 
-          for details. Default is to use the entire direction plane.
-  chans -- Channels to use for fitting. 
-           Default is to use all channels.
-           Example: chans='3~6;>40'
-  stokes -- Stokes planes to use. Default is
-            to use all Stokes planes.
-  
-Fit a second order polynomial (fitorder=2) to channels 3-8 and 54-60 
-to an RA x Dec x Frequency x Stokes cube, selecting the Stokes I plane
-
-ch = '3~8, 54~60'
-imcontsub(imagename="myimage.im", linefile="mycontsub.im", fitorder=2, chans=ch, fitorder=2, stokes="I")
-
+FOR MORE INFORMATION, SEE THE TASK PAGES OF IMCONTSUB IN CASA DOCS:
+https://casa.nrao.edu/casadocs/
 </example>
 </task>
 </casaxml>
