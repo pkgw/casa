@@ -7,7 +7,7 @@ import numpy as np
 import pipeline
 
 pathname = os.environ.get('CASAPATH').split()[0]
-rootdatapath = pathname+'/data/regression/pipeline/vla'
+rootdatapath = pathname+'/data/regression/pipeline/vla/'
 
 
 '''Initial VLA pipeline regression
