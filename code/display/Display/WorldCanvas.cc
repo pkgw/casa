@@ -116,13 +116,6 @@ WorldCanvas::~WorldCanvas() {
 	itsPixelCanvas->removeMotionEventHandler(*this);
 	itsPixelCanvas->removePositionEventHandler(*this);
 
-	delete itsMEHListIter;
-	itsMEHListIter = 0;
-	delete itsPEHListIter;
-	itsPEHListIter = 0;
-	delete itsREHListIter;
-	itsREHListIter = 0;
-
 	if (itsOwnDataScaleHandler) {
 		delete itsDataScaleHandler;
 		itsDataScaleHandler = 0;
@@ -147,48 +140,30 @@ WorldCanvas::~WorldCanvas() {
 
 // Add event handlers.
 void WorldCanvas::addRefreshEventHandler(DisplayEH &eh) {
-	itsREHListIter->toEnd();
-	itsREHListIter->addRight(&eh);
+	itsRefreshEHList.push_back(&eh);
 }
 void WorldCanvas::addMotionEventHandler(WCMotionEH &eh) {
-	itsMEHListIter->toEnd();
-	itsMEHListIter->addRight(&eh);
+	itsMotionEHList.push_back(&eh);
 }
 void WorldCanvas::addPositionEventHandler(WCPositionEH &eh) {
-	itsPEHListIter->toEnd();
-	itsPEHListIter->addRight(&eh);
+	itsPositionEHList.push_back(&eh);
 }
 
 // Remove event handlers.
 void WorldCanvas::removeRefreshEventHandler(const DisplayEH &eh) {
-	itsREHListIter->toStart();
-	while (!itsREHListIter->atEnd()) {
-		if (itsREHListIter->getRight() == &eh) {
-			itsREHListIter->removeRight();
-			break;
-		}
-		(*itsREHListIter)++;
-	}
+	std::list<DisplayEH*> orig = itsRefreshEHList;
+    itsRefreshEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsRefreshEHList), [&](DisplayEH *e){return e != &eh;} );
 }
 void WorldCanvas::removeMotionEventHandler(const WCMotionEH &eh) {
-	itsMEHListIter->toStart();
-	while (!itsMEHListIter->atEnd()) {
-		if (itsMEHListIter->getRight() == &eh) {
-			itsMEHListIter->removeRight();
-			break;
-		}
-		(*itsMEHListIter)++;
-	}
+	std::list<WCMotionEH*> orig = itsMotionEHList;
+    itsMotionEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsMotionEHList), [&](WCMotionEH *e){return e != &eh;} );
 }
 void WorldCanvas::removePositionEventHandler(const WCPositionEH &eh) {
-	itsPEHListIter->toStart();
-	while (!itsPEHListIter->atEnd()) {
-		if (itsPEHListIter->getRight() == &eh) {
-			itsPEHListIter->removeRight();
-			break;
-		}
-		(*itsPEHListIter)++;
-	}
+	std::list<WCPositionEH*> orig = itsPositionEHList;
+    itsPositionEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsPositionEHList), [&](WCPositionEH *e){return e != &eh;} );
 }
 
 // Call event handlers.
@@ -198,28 +173,23 @@ void WorldCanvas::callRefreshEventHandlers(const WCRefreshEvent &ev) {
 	if (!(itsPixelCanvas->refreshAllowed())) {
 		return;
 	}
-	itsREHListIter->toStart();
-	while (!itsREHListIter->atEnd()) {
+
+	for ( auto deh : itsRefreshEHList ) {
 		// This list now contains generic DisplayEHs as well (1/02).
 		// Only the true WCRefreshEHs on this list can/should handle
 		// WCRefreshEvents through the old-style 'operator()' interface.
-		WCRefreshEH* refEH=dynamic_cast<WCRefreshEH*>(itsREHListIter->getRight());
+		WCRefreshEH* refEH=dynamic_cast<WCRefreshEH*>(deh);
 		if(refEH != 0) (*refEH)(ev);
-		(*itsREHListIter)++;
 	}
 }
 void WorldCanvas::callMotionEventHandlers(const WCMotionEvent &ev) {
-	itsMEHListIter->toStart();
-	while (!itsMEHListIter->atEnd()) {
-		(*(itsMEHListIter->getRight()))(ev);
-		(*itsMEHListIter)++;
+	for ( auto meh : itsMotionEHList ) {
+		(*meh)(ev);
 	}
 }
 void WorldCanvas::callPositionEventHandlers(const WCPositionEvent &ev) {
-	itsPEHListIter->toStart();
-	while (!itsPEHListIter->atEnd()) {
-		(*(itsPEHListIter->getRight()))(ev);
-		(*itsPEHListIter)++;
+	for ( auto peh : itsPositionEHList ) {
+		(*peh)(ev);
 	}
 }
 
@@ -230,10 +200,10 @@ void WorldCanvas::callPositionEventHandlers(const WCPositionEvent &ev) {
 // be implemented in the future, if found to be desirable.
 
 void WorldCanvas::handleEvent(DisplayEvent& ev) {
-	ConstListIter<DisplayEH*> ehs(&itsRefreshEHList);
 	// avoid itsREHListIter because of recursion issues.
 	// (It might be best to can the member ListIters altogether...)
-	for(ehs.toStart(); !ehs.atEnd(); ehs++) ehs.getRight()->handleEvent(ev);
+    std::list<DisplayEH*> handlers = itsRefreshEHList;    
+    for ( auto handler : handlers ) handler->handleEvent(ev);
 }
 
 
@@ -2544,10 +2514,6 @@ void WorldCanvas::ctorInit() {
 	itsOwnCoordinateHandler = true;
 	itsOwnResampleHandler = true;
 	itsOwnDataScaleHandler = true;
-
-	itsREHListIter = new ListIter<DisplayEH *>(&itsRefreshEHList);
-	itsPEHListIter = new ListIter<WCPositionEH *>(&itsPositionEHList);
-	itsMEHListIter = new ListIter<WCMotionEH *>(&itsMotionEHList);
 
 	itsPixelCanvas->addRefreshEventHandler(*this);
 	itsPixelCanvas->addMotionEventHandler(*this);

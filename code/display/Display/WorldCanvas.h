@@ -30,7 +30,6 @@
 
 #include <list>
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Vector.h>
 #include <display/DisplayEvents/PCRefreshEH.h>
@@ -1269,12 +1268,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Event handler lists and convenient iterators.
 		// <group>
-		casacore::List<DisplayEH *> itsRefreshEHList;
-		casacore::List<WCPositionEH *> itsPositionEHList;
-		casacore::List<WCMotionEH *> itsMotionEHList;
-		mutable casacore::ListIter<DisplayEH *> *itsREHListIter;
-		mutable casacore::ListIter<WCPositionEH *> *itsPEHListIter;
-		mutable casacore::ListIter<WCMotionEH *> *itsMEHListIter;
+		std::list<DisplayEH *> itsRefreshEHList;
+		std::list<WCPositionEH *> itsPositionEHList;
+		std::list<WCMotionEH *> itsMotionEHList;
 		// </group>
 
 		// Other handler lists.
