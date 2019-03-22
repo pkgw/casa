@@ -222,7 +222,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//casacore::List<QtDisplayData*> registeredDDs();
 
 		// return a list of DDs that exist but are not registered on any panel.
-		casacore::List<QtDisplayData*> unregisteredDDs();
+		std::list<QtDisplayData*> unregisteredDDs();
 
 		// retrieve a DD with given name (0 if none).
 		QtDisplayData* dd(const std::string& name);

@@ -1814,11 +1814,10 @@ QtDisplayData* QtDisplayPanelGui::dd( ) {
 }
 
 
-List<QtDisplayData*> QtDisplayPanelGui::unregisteredDDs() {
+std::list<QtDisplayData*> QtDisplayPanelGui::unregisteredDDs() {
 	// return a list of DDs that exist but are not registered on any panel.
 	std::list<QtDisplayPanelGui*> dps(viewer( )->openDPs());
-	List<QtDisplayData*> uDDs;
-	ListIter<QtDisplayData*> uDDsIter( uDDs );
+    std::list<QtDisplayData*> uDDs;
 	DisplayDataHolder::DisplayDataIterator iter = displayDataHolder->beginDD();
 	while ( iter != displayDataHolder->endDD()) {
 		QtDisplayData* dd = (*iter);
@@ -1832,7 +1831,7 @@ List<QtDisplayData*> QtDisplayPanelGui::unregisteredDDs() {
 		}
 
 		if ( !regd ) {
-			uDDsIter.addRight( dd );
+			uDDs.push_back( dd );
 		}
 	}
 	return uDDs;
