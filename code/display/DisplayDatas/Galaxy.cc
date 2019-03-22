@@ -30,7 +30,7 @@
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/MatrixMath.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/PixelCanvas.h>
 
 
@@ -119,11 +119,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 
-	void Star::applyForce(List<void *>& galaxyList, Double timeStep,
+	void Star::applyForce(std::list<void *>& galaxyList, Double timeStep,
 	                      Double /* dampingFactor */) {
 		Galaxy *galaxy;
-		// create iterator and temps
-		ListIter<void *> iter(&galaxyList);
+		// create temps
 		Vector<Double> relPosition(3);
 		Vector<Double> force(3);
 		Double galForce;
@@ -133,9 +132,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		force = 0.0;
 
 		// loop through List
-		while (!iter.atEnd()) {
-			// get next galaxy from List
-			galaxy = (Galaxy *)iter.getRight();
+		for ( auto vp : galaxyList ) {
+			galaxy = (Galaxy *) vp;
 			// get galaxy position relative to this Star
 			relPosition = galaxy->getPosition();
 			distance = 0.0;
@@ -158,9 +156,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					force(i) += relPosition(i)*galForce;
 				}
 			}
-
-
-			iter++;
 		}
 
 		for (i = 0; i < 3; i++) {
@@ -267,8 +262,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		itsSize = 5.0;
 
-		itsStarListIter = new ListIter<void *>(&itsStarList);
-
 		Star *star;
 		Double ringSize;
 		Int starsInRing;
@@ -306,7 +299,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				starVel += itsVelocity;
 
 				star = new Star(starPos, starVel, xSize, ySize);
-				itsStarListIter->addRight((void *) star);
+				itsStarList.push_front(star);
 			}
 		}
 	}
@@ -317,25 +310,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (itsPixelCanvas != 0) {
 			itsPixelCanvas->deleteList(itsDrawList);
 		}
-
-		Star *star;
-
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			delete star;
-			(*itsStarListIter)++;
 		}
-		delete itsStarListIter;
 	}
 
 
 
 
-	void Galaxy::computeStep(List<void *>& galaxyList, Double timeStep,
+	void Galaxy::computeStep(std::list<void *>& galaxyList, Double timeStep,
 	                         Double dampingFactor) {
-		// create iterator and temps
-		ListIter<void *> iter(&galaxyList);
+		// create temps
 		Vector<Double> relPosition(3);
 		Vector<Double> force(3);
 		Double galForce;
@@ -345,9 +331,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		force = 0.0;
 
 		// loop through List
-		while (!iter.atEnd()) {
-			// get next galaxy from List
-			galaxy = (Galaxy *)iter.getRight();
+		for ( auto vp : galaxyList ) {
+
+			galaxy = (Galaxy *) vp;
 
 			// get galaxy position relative to this Star
 			relPosition = (galaxy->getPosition())-itsPosition;
@@ -367,8 +353,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				force += relPosition*galForce;
 			}
 
-
-			iter++;
 		}
 
 
@@ -430,17 +414,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 
-	void Galaxy::applyForceToStars(List<void *>& galaxyList, Double timeStep,
+	void Galaxy::applyForceToStars(std::list<void *>& galaxyList, Double timeStep,
 	                               Double dampingFactor) {
-		Star *star;
 
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			star->applyForce(galaxyList, timeStep, dampingFactor);
-			(*itsStarListIter)++;
 		}
-
 
 	}
 
@@ -449,13 +429,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsPosition = product(rotMatrix, itsPosition);
 		itsVelocity = product(rotMatrix, itsVelocity);
 
-		Star *star;
-
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			star->rotate(rotMatrix);
-			(*itsStarListIter)++;
 		}
 	}
 
@@ -464,13 +440,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		plotMode = newPlotMode;
 		changedPlotMode = true;
 
-		Star *star;
-
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			star->setPlotMode(newPlotMode);
-			(*itsStarListIter)++;
 		}
 	}
 
@@ -518,13 +490,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		changedPlotMode = false;
 
-		Star *star;
-
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			star->draw(pCanvas);
-			(*itsStarListIter)++;
 		}
 	}
 
@@ -553,13 +521,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsYSize = ySize;
 		changedPlotMode = true;
 
-		Star *star;
-
-		itsStarListIter->toStart();
-		while ( !itsStarListIter->atEnd() ) {
-			star = (Star *) itsStarListIter->getRight();
+		for ( void *vp : itsStarList ) {
+			Star *star = (Star *) vp;
 			star->setScale(xSize, ySize);
-			(*itsStarListIter)++;
 		}
 	}
 
