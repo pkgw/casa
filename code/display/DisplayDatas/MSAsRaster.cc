@@ -168,7 +168,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		dispFlags_(),
 		dispFlagsInClr_(),
 		dispNEdits_(),
-		flagEdits_(),
 
 		lsTime_(), leTime_(),  lsvTime_(), levTime_(),
 		useVis_(), dPos_(), axlTm_(), flgdDev_(), goodData_(),
@@ -1663,7 +1662,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				// between, e.g., time slot index and times as stored in the MS
 				// is set up in findRanges_, and changes when the MS selection does.
 
-				if(flagEdits_.len()==0u) {
+				if(flagEdits_.size( ) == 0u) {
 
 					// OK to change MS selections.
 
@@ -1743,7 +1742,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 			if(spwIdsChg) {
 
-				if(flagEdits_.len()==0u) {
+				if(flagEdits_.size( ) == 0u) {
 
 					spwIds_.assign(newSpwIds - uiBase());
 					newRanges = true;
@@ -1786,7 +1785,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 			// The user wants to change the sort.
 
-			if(flagEdits_.len()>0u || nAnt_==1) {	// Change not allowed.
+			if(flagEdits_.size()>0u || nAnt_==1) {	// Change not allowed.
 
 				if(nAnt_==1) cerr<<endl<<"  ***Baseline sort change is not allowed "
 					                 "(or useful) for single dish data.***"<<endl<<endl;
@@ -2423,7 +2422,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// Disp_ must also have been created for the position settings
 			// on other axes.
 
-			if(dispNEdits_ > flagEdits_.len()) dispOK=false;
+			if(dispNEdits_ > flagEdits_.size()) dispOK=false;
 			// Undo of an edit: easiest to re-create
 			// display matrices from scratch here too...
 
@@ -3417,17 +3416,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				edit->shape[ax] = msShape_[ax];
 			}
 
-		ListIter<void*> edits(flagEdits_);
-		edits.toEnd();
+		if ( flagEdits_.size( ) > 0 ) {
 
-		// Check that this edit doesn't exactly repeat the last one.
-		// This better supports the crosshair flagger tool,
-		// which can be dragged to flag everything in its path.
+			FlagEdit_* lastedit = static_cast<FlagEdit_*>(flagEdits_.back( ));
 
-		if(!edits.atStart()) {
-			edits--;
-			FlagEdit_* lastedit = static_cast<FlagEdit_*>(edits.getRight());
 			if(*lastedit==*edit) {
+
 				delete edit;
 
 				// we're ignoring this edit, but may still need to erase the mouse tool
@@ -3440,13 +3434,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 				return;
 			}
-
-			edits.toEnd();
+			
 		}
 
 		// Go ahead and add new edit to the list.
 
-		edits.addRight(edit);
+		flagEdits_.push_back(edit);
 
 		purgeCache();		// (not worth keeping old drawings and trying to
 		// determine if any apply to current edit state).
@@ -3478,15 +3471,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// NB: This routine is for display of the new edits only.  saveEdits_()
 		// is called to save the edits to the MS on disk.
 
-		if(dispNEdits_ >= flagEdits_.len()) return;
+		if(dispNEdits_ >= flagEdits_.size()) return;
 		// up-to-date: nothing to do (should actually be == in this case).
 
-		ListIter<void*> edits(flagEdits_);
-
 		uInt i=0;
-		for(edits.toStart(); !edits.atEnd(); i++, edits++) {
+		for ( void *vp : flagEdits_ ) {
 			if(i<dispNEdits_) continue;	   // skip past previously posted edits.
-			FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+			FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 
 			// First check whether the edit applies to the current display slice
 			// (chosen via animator and sliders).
@@ -3578,7 +3569,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if(dispX_==TIME || dispY_==TIME) dispDevValid_=false;
 		// New edits invalidate the deviation Matrix if Time is on display.
 
-		dispNEdits_ = flagEdits_.len();
+		dispNEdits_ = flagEdits_.size();
 	}  // disp_ is up-to-date with edits now.
 
 
@@ -3589,8 +3580,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// whether there were any edits to save.
 
 
-		ListIter<void*> edits(flagEdits_);
-		Int nEdits=edits.len();
+		Int nEdits = flagEdits_.size( );
 		if(nEdits==0 || !msselValid_) return false;
 
 
@@ -3623,8 +3613,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// indicates baselines applicable to some edit in which
 		// _all_ times apply.
 
-		for(edits.toStart(); !edits.atEnd(); edits++) {
-			FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+		for ( void *vp : flagEdits_ ) {
+			FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 			if(edit.all[TIME]) {
 				if(!alltused) tused=true;  // Set tused all true just for consistency
 				alltused=true;		 // (it won't be needed in this case).
@@ -3688,8 +3678,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			Int spw   = mpos.s(vi.spectralWindow());
 			Int nChan = vi.visibilityShape()(1);
 
-			for(edits.toStart();  !edits.atEnd();  edits++) {
-				FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+			for ( void *vp : flagEdits_ ) {
+				FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 
 				if(edit.appliesToChunk(pol0,nPol, spw,nChan)) doneChunk=false;
 			}
@@ -3791,9 +3781,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					// no edits on this time-baseline combination.
 
 
-					for(edits.toStart();  !edits.atEnd();  edits++) {
+					for( void *vp : flagEdits_ ) {
 
-						FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+						FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 						if(!edit.appChunk) continue;
 
 						// edit applies to current Sp.Win. and at least some of the
@@ -3872,8 +3862,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		IPosition slot(NAXES);  // index into vis_ and flag arrays.
 		Block<Int> s(NAXES), e(NAXES);
-		for(edits.toStart(); !edits.atEnd(); edits++) {
-			FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+		for( void *vp : flagEdits_ ) {
+			FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 			for(Axis ax=0; ax<NAXES; ax++) {
 				edit.getLoopRange(ax, s[ax],e[ax]);
 				s[ax] = max(s[ax]-visStart_[ax], 0);
@@ -4464,9 +4454,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if(v == NO_DATA) return "No Data ";
 
 		String f = flag_(vpos)? "Flagged (" : "";
-		ListIter<void*> edits(flagEdits_);
-		for(edits.toStart(); !edits.atEnd(); edits++) {
-			FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
+
+		for( void *vp : flagEdits_ ) {
+			FlagEdit_& edit = *static_cast<FlagEdit_*>(vp);
 			if(edit.appliesTo(pos)) f = edit.unflag? "" : "flagged (";
 		}
 		String f2 = (f=="")? "" : ")";
@@ -4523,9 +4513,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 						pos[TIME] = tbox + visStart_[TIME];
 
-						for(edits.toStart(); !edits.atEnd(); edits++) {
-							FlagEdit_& edit = *static_cast<FlagEdit_*>(edits.getRight());
-							if(edit.appliesTo(pos)) fbox = !edit.unflag;
+						for ( void *vp : flagEdits_ ) {
+							FlagEdit_ &edit = *static_cast<FlagEdit_*>(vp);
+							if( edit.appliesTo(pos) ) fbox = ! edit.unflag;
 						}
 					}
 
@@ -5077,17 +5067,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// just the last one.  If feedback==true, print a warning message
 		// about discarded edits.
 
-		Int ndeleted=flagEdits_.len();
-		if(ndeleted==0) return false;
+		Int ndeleted = flagEdits_.size();
+		if( ndeleted == 0 ) return false;
 
-		ListIter<void*> edits(flagEdits_);
-		edits.toEnd();
-		while(!edits.atStart()) {
-			edits--;
-			delete static_cast<FlagEdit_*>(edits.getRight());
-			edits.removeRight();
-			if(extent!="all") {
-				ndeleted=1;
+		while ( flagEdits_.size( ) > 0 ) {
+			FlagEdit_ *del = static_cast<FlagEdit_*>(flagEdits_.back( ));
+			flagEdits_.pop_back( );
+			delete del;
+			if ( extent != "all" ) {
+				ndeleted = 1;
 				break;
 			}
 		}

@@ -31,7 +31,6 @@
 
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <display/DisplayDatas/ActiveCaching2dDD.h>
 #include <ms/MeasurementSets.h>
 #include <images/Images/PagedImage.h>
@@ -1319,7 +1318,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 
-		casacore::List<void*> flagEdits_; 	// casacore::List of all the (so-far-unsaved) edits.
+		std::list<void*> flagEdits_; 	// casacore::List of all the (so-far-unsaved) edits.
 		// (<void*> rather than <FlagEdit_*> just to avoid the extra templates)
 
 
