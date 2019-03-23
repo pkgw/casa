@@ -81,7 +81,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//
 		itsPanelDisplay(panDisp),
 		itsPC(0),
-		itsWCLI(0),
 		itsShapes(0),
 		//
 
@@ -107,16 +106,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 			itsPC = itsPanelDisplay->pixelCanvas();
 
-			// Save a copy of the world canvases being used by the paneldisplay
-			itsWCLI = new ListIter<WorldCanvas* >(itsWCs);
-
-			//itsWCLI->toStart();
-
-			itsPanelDisplay->myWCLI->toStart();
-
 			while (!itsPanelDisplay->myWCLI->atEnd()) {
-				itsWCLI->toEnd();
-				itsWCLI->addRight(itsPanelDisplay->myWCLI->getRight());
+				itsWCs.push_back(itsPanelDisplay->myWCLI->getRight());
 				itsPanelDisplay->myWCLI->step();
 			}
 
@@ -136,7 +127,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			itsPC->addPositionEventHandler(*this);
 		}
 
-		if (itsWCLI && itsUseEH) {
+		if ( itsUseEH ) {
 			registerToWCs();
 		}
 		//
@@ -150,18 +141,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			itsPC->removePositionEventHandler(*this);
 		}
 
-		if (itsUseEH && itsWCLI) {
+		if (itsUseEH ) {
 			if (validateWCs()) {
-				itsWCLI->toStart();
-				while (!itsWCLI->atEnd()) {
-					(itsWCLI->getRight())->removeRefreshEventHandler(*this);
-					(*itsWCLI)++;
+				for ( auto wc : itsWCs ) {
+					wc->removeRefreshEventHandler(*this);
 				}
 			} else {
 				// I think it's ok to just ignore this and die quietly.
 			}
 		}
-		delete itsWCLI;
+
 		// Delete any shapes we are looking after
 		for (uInt i=0; i<itsShapes.nelements(); i++) {
 			delete itsShapes[i];
@@ -533,10 +522,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void Annotations::registerToWCs() {
-		itsWCLI->toStart();
-		while (!itsWCLI->atEnd()) {
-			(itsWCLI->getRight())->addRefreshEventHandler(*this);
-			(*itsWCLI)++;
+		for ( auto wc : itsWCs ) {
+			wc->addRefreshEventHandler(*this);
 		}
 	}
 
@@ -713,22 +700,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		// Reset the list
-		itsWCLI->toStart();
-		while (!itsWCLI->atEnd()) {
-			itsWCLI->removeRight();
+		itsWCs.clear( );
+
+		for ( casacore::ConstListIter<WorldCanvas*> iter(itsPanelDisplay->itsWCList); ! iter.atEnd( ); ++iter ) {
+			itsWCs.push_back(iter.getRight( ));
 		}
 
-		itsPanelDisplay->myWCLI->toStart();
-
-		while (!itsPanelDisplay->myWCLI->atEnd()) {
-			if (itsUseEH) {
-				itsPanelDisplay->myWCLI->getRight()->addRefreshEventHandler(*this);
-			}
-			itsWCLI->toEnd();
-			itsWCLI->addRight(itsPanelDisplay->myWCLI->getRight());
-
-			itsPanelDisplay->myWCLI->step();
-
+		if ( itsUseEH ) {
+			for ( auto wc : itsWCs ) wc->addRefreshEventHandler(*this);
 		}
 	}
 
@@ -1074,17 +1053,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	Bool Annotations::validateWCs() {
 		Bool conform = true;
-		if (itsWCLI->len() != itsPanelDisplay->myWCLI->len()) {
+		if ( itsWCs.size( ) != itsPanelDisplay->itsWCList.len( ) ) {
 			return false;
 		} else {
-			itsPanelDisplay->myWCLI->toStart();
-			itsWCLI->toStart();
-			while (!itsWCLI->atEnd() && conform) {
-				conform =
-				    (conform && (itsPanelDisplay->myWCLI->getRight() ==
-				                 itsWCLI->getRight()));
-				(*itsWCLI)++;
-				(*itsPanelDisplay->myWCLI)++;
+			casacore::ConstListIter<WorldCanvas*> pdwc(itsPanelDisplay->itsWCList);
+			for ( auto localwc = itsWCs.begin( );
+				  conform && localwc != itsWCs.end( ) && ! pdwc.atEnd( );
+				  ++localwc, ++pdwc ) {
+				conform = (conform && (*localwc == pdwc.getRight( )));
 			}
 		}
 

@@ -216,6 +216,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::Bool itsGeometrySet;
 
 		// The WorldCanvases which we made, and a convenient iterator.
+		friend class Annotations;
 		casacore::List<WorldCanvas* > itsWCList;
 		//casacore::ListIter<WorldCanvas* >* itsWCLI;
 
