@@ -29,7 +29,7 @@
 #define TRIALDISPLAY_MWCANIMATOR_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 namespace casacore{
 
@@ -120,7 +120,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	private:
 
 		// The list of MultiWCHolders that are connected to this MWCAnimator.
-		casacore::List<MultiWCHolder *> itsMWCHList;
+		std::list<MultiWCHolder *> itsMWCHList;
 
 		// Do we already have this MultiWCHolder registered?
 		casacore::Bool isAlreadyRegistered(const MultiWCHolder &holder);
