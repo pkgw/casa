@@ -31,6 +31,7 @@
 #include <casa/BasicMath/Math.h>
 
 #include <synthesis/MeasurementComponents/DJones.h>
+#include <synthesis/MeasurementComponents/XJones.h>
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 
 #include <gtest/gtest.h>

@@ -176,6 +176,10 @@ public:
   //   (if so, permits pre-solve time-averaging)
   virtual casacore::Bool normalizable()=0;
 
+  // Should data and model be divided by Stokes I model  before average+solve?
+  //   (Nominally false, for now)
+  virtual casacore::Bool divideByStokesIModelForSolve() { return false; };
+
   // Is this type capable of accumulation?  (nominally no)
   virtual casacore::Bool accumulatable() { return false; };
 
@@ -351,6 +355,9 @@ public:
 
   // Retrieve the cal flag info as a record
   virtual casacore::Record actionRec();
+
+  // Retrieve solve-related info via Record
+  virtual casacore::Record solveActionRec();
 
   // Accumulate another VisCal onto this one
   virtual void accumulate(SolvableVisCal* incr,
