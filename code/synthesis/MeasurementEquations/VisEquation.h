@@ -181,7 +181,12 @@ public:
 
   // SolveDataBuffer version
   void differentiate(SolveDataBuffer& sdb);  // VI2
- 
+
+  // Differentiate w.r.t. MODEL Stokes Params
+  //   I.e., _corrupt_ dM/d(I,Q,U,V)
+  //   NB: results stored in the sdb
+  void diffModelStokes(vi::VisBuffer2& vb, std::map<casacore::String,casacore::Cube<casacore::Complex> > dMdS);
+  
   // Report the VisEq's state
   void state();
 
@@ -201,8 +206,11 @@ protected:
   // Detect freq dependence along the Vis Equation
   void setFreqDep();
 
-  // Divide corr data by model 
+  // Divide corr data by model (per correlation)
   void divideCorrByModel(vi::VisBuffer2& vb);
+
+  // Divide corr data by Stokes I model 
+  void divideByStokesIModel(vi::VisBuffer2& vb);
 
 
 private:

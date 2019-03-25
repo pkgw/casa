@@ -82,6 +82,7 @@ plotweather.xml
 plotprofilemap.xml
 partition.xml
 polcal.xml
+polfromgain.xml
 predictcomp.xml
 impv.xml
 rerefant.xml

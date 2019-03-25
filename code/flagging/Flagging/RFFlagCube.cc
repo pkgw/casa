@@ -430,12 +430,12 @@ void RFFlagCube::getMSFlags(uInt it)
       in_flags_flushed = false;
   }
   
-  auto_ptr<FlagVector> fl_row(NULL);
+  unique_ptr<FlagVector> fl_row;
   FlagVector *flr = NULL;
 
   //  FlagVector fl_row;//(flagrow.column(pos_get_flag));
   if (!kiss) {
-      fl_row = auto_ptr<FlagVector>(new FlagVector(flagrow.column(pos_get_flag)));
+      fl_row = unique_ptr<FlagVector>(new FlagVector(flagrow.column(pos_get_flag)));
       flr = fl_row.get();
   }
 

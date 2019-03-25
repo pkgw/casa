@@ -34,6 +34,9 @@
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Vector.h>
 
+#include <images/Images/ImageInterface.h>
+#include<coordinates/Coordinates/DirectionCoordinate.h>
+
 
 
 using namespace casacore;
@@ -425,13 +428,104 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
   }
 
+
+  VisImagingWeight::VisImagingWeight(ImageInterface<Float>& im) : multiFieldMap_p(-1), doFilter_p(false), robust_p(0.0), rmode_p(""), noise_p(Quantity(0.0, "Jy")) {
+
+      LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
+
+
+
+      wgtType_p="uniform";
+      nx_p=im.shape()(0);
+      ny_p=im.shape()(1);
+      DirectionCoordinate dc=im.coordinates().directionCoordinate(0);
+      dc.setWorldAxisUnits(Vector<String>(2, "rad"));
+      Double cellx=dc.increment()(0);
+      Double celly=dc.increment()(1);
+      uscale_p=nx_p*cellx;
+      vscale_p=ny_p*celly;
+      uorigin_p=nx_p/2;
+      vorigin_p=ny_p/2;
+      //Now to recover from image density and other parameters
+      Int nplanes=1;
+      if(im.shape().nelements()==5)
+	nplanes=im.shape()[4];
+      gwt_p.resize(nplanes, True, False);
+      if(im.shape().nelements()==5){
+	  IPosition blc(Vector<Int>(5,0));
+	  for (Int fid=0;fid<nplanes;fid++)
+	    {
+	      gwt_p[fid].resize();
+	      Array<Float> lala;
+	      blc[4]=fid;
+	      im.getSlice(lala, blc, IPosition(5, nx_p, ny_p,1,1,1), True);
+	      gwt_p[fid].reference( lala.reform(IPosition(2, nx_p, ny_p)));
+	    }
+	}
+	else{
+	  Array<Float> lala;
+	  im.get(lala, True);
+	  gwt_p[0].reference( lala.reform(IPosition(2, nx_p, ny_p)));
+	}
+      const TableRecord& rec=im.miscInfo();
+      if(rec.isDefined("d2")){
+	d2_p.resize();
+	rec.get("d2", d2_p);
+	f2_p.resize();
+	rec.get("f2", f2_p);
+	multiFieldMap_p.clear();
+	for(Int k=0; k < nplanes; ++k){
+	  String key;
+	  Int val;
+	  rec.get("key"+String::toString(k), key);
+	  rec.get("val"+String::toString(k), val);
+	  multiFieldMap_p.define(key, val);
+	}
+	
+
+      }
+      
+ }
+
+  
   VisImagingWeight::~VisImagingWeight(){
       for (uInt fid=0; fid < gwt_p.nelements(); ++fid){
           gwt_p[fid].resize();
       }
   }
 
+    Vector<Int> VisImagingWeight::shapeOfdensityGrid(){
+      Vector<Int> retval(3, 0);
+      retval(2)=gwt_p.nelements();
+      if(retval(2) > 0){
+	retval[0]=gwt_p[0].shape()(0);
+	retval[1]=gwt_p[0].shape()(1);
+      }
+      
+      return retval;
+    }
+    void VisImagingWeight::toImageInterface(casacore::ImageInterface<casacore::Float>& im){
 
+      if( wgtType_p != "uniform")
+	throw(AipsError("cannot save weight density for non-Briggs' weighting schemes"));
+      
+      IPosition where=	IPosition(im.shape().nelements(),0);
+      Int lastAx=where.nelements()-1;
+      for (uInt fid=0;fid<gwt_p.nelements(); ++fid){
+	where[lastAx]=fid;
+	im.putSlice(gwt_p[fid], where);
+      }
+      Record rec;
+      rec.define("d2", d2_p);
+      rec.define("f2", f2_p);
+      rec.define("numfield", Int(multiFieldMap_p.ndefined()));
+      for(uInt k=0; k < multiFieldMap_p.ndefined(); ++k){
+	rec.define("key"+String::toString(k), multiFieldMap_p.getKey(k));
+	rec.define("val"+String::toString(k), multiFieldMap_p.getVal(k));
+      }
+      im.setMiscInfo(rec);
+
+    }
   void VisImagingWeight::setFilter(const String& type, const Quantity& bmaj,
 				   const Quantity& bmin, const Quantity& bpa)
   {

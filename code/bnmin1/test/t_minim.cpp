@@ -259,7 +259,7 @@ void QuadPrior()
   qm.c=params[2];
   qm.eval(x, obs);
   
-  std::auto_ptr<QuadObs> qo (new QuadObs( x,obs));
+  std::unique_ptr<QuadObs> qo (new QuadObs( x,obs));
 
   std::vector<double> scratch(3);
   qo->residuals(scratch);

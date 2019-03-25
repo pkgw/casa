@@ -139,6 +139,8 @@ public:
     static const casacore::String PARAM_FLAGGEDSYMBOLCOLOR;   // string
     static const casacore::String PARAM_FLAGGEDSYMBOLFILL;    // string
     static const casacore::String PARAM_FLAGGEDSYMBOLOUTLINE; // bool
+    static const casacore::String PARAM_XCONNECTOR;    // string
+    static const casacore::String PARAM_TIMECONNECTOR; // bool
     
     
     // </group>
