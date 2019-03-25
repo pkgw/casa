@@ -29,7 +29,7 @@
 #ifndef BIMA_FILLMETADATA_H
 #define BIMA_FILLMETADATA_H
 
-#include <casa/Containers/List.h>
+#include <list>
 #include <casa/Containers/OrderedPair.h>
 #include <casa/Containers/OrderedMap.h>
 #include <casa/Containers/HashMap.h>
