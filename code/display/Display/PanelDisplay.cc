@@ -44,6 +44,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	const String PanelDisplay::X_SIZE = "xsize";
 	const String PanelDisplay::Y_SIZE = "ysize";
 
+	// get controlled access to world canvases shared among a number of objects
+	// return value indicates if the operation was possible (in the future it
+	// may be necessary to serialize access so this function may return false
+	// if mutual exclusion prevents access to the world canvas list)
+	bool PanelDisplay::wcsApply( std::function<void(WorldCanvas *)> apply ) {
+		for ( auto wc : itsWCList ) apply(wc);
+		return true;
+	}
+
 // Constructor.
 	PanelDisplay::PanelDisplay(PixelCanvas* pixelcanvas,
 	                           const Int nx, const Int ny,
@@ -52,13 +61,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	                           const Float dx, const Float dy,
 	                           const PanelDisplay::FillOrder order) :
 		MultiWCHolder(),
-		myWCLI(0),
 		itsPixelCanvas(pixelcanvas),
 		itsGeometrySet(false),
 		//itsWCLI(0),
 		//itsWCHLI(0),
 		itsMWCTools( std::shared_ptr<MultiWCTool>( ), uInt(10) ) {
-		myWCLI = new ConstListIter<WorldCanvas* >(itsWCList);
 		//itsWCLI = new ListIter<WorldCanvas* >(itsWCList);
 		//itsWCHLI = new ListIter<WorldCanvasHolder* >(itsWCHList);
 		itslpgm =10;
@@ -83,30 +90,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (itsWCHLI) {
 		  delete itsWCHLI;
 		}*/
-		if (myWCLI) {
-			delete myWCLI;
-		}
 	}
 
 	void PanelDisplay::setAttributes(AttributeBuffer& at) {
-		ListIter<WorldCanvas* >itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
+		for ( auto wc : itsWCList ) {
 			wc->setAttributes(at);
-			(itsWCLI)++;
 		}
 	}
 
 	void PanelDisplay::getAttributeValue(const String& name, Int& newValue) const {
-		ConstListIter<WorldCanvas* > itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			wc->getAttributeValue(name, newValue);
-			//get only the fisrt one - they should all be the same (for now)
-			itsWCLI.toEnd();
-		}
+		if ( itsWCList.size( ) > 0 )
+			itsWCList.front( )->getAttributeValue(name, newValue);
 	}
 
 // Option handling functions.
@@ -402,10 +396,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		                   static_cast<Float>(itsNX);
 		Float yPanelSize = (itsYSize - static_cast<Float>(itsNY - 1) * itsDY) /
 		                   static_cast<Float>(itsNY);
-		ListIter<WorldCanvas* > itsWCLI( itsWCList );
 		ListIter<WorldCanvasHolder* > itsWCHLI( itsWCHList );
 		itsWCHLI.toStart();
-		itsWCLI.toStart();
 
 		// Prepare to synchornize zoom windows and CS master of any new WCs with
 		// existing ones.
@@ -415,10 +407,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		WorldCanvas* wc0 = 0;
 		WorldCanvasHolder* wch0 = 0;
 
-		Bool oldWCexists=(!itsWCLI.atEnd());
+		Bool oldWCexists= (itsWCList.size( ) != 0);
 		if(oldWCexists) {
 
-			wc0 = itsWCLI.getRight();
+			wc0 = itsWCList.front( );
 			wch0 = itsWCHLI.getRight();
 
 			Vector<Double> zoomBlc(2), zoomTrc(2);
@@ -433,11 +425,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		Float y = itsYOrigin + itsYSize - yPanelSize;
+		std::list<WorldCanvas*>::iterator wc_iter = itsWCList.begin( );
 		for (Int i = 0; i < itsNY; i++) {
 			Float x = itsXOrigin;
 			for (Int j = 0; j < itsNX; j++) {
 
-				if(itsWCLI.atEnd()) {
+				if ( wc_iter == itsWCList.end( ) ) {
 
 					// out of WC[H]s--create new ones
 
@@ -445,8 +438,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					                                  x,y, xPanelSize,yPanelSize);
 					WorldCanvasHolder* wch = new WorldCanvasHolder(wc);
 
-					itsWCLI.addRight(wc);
 					itsWCHLI.addRight(wch);
+					itsWCList.insert(wc_iter,wc);
 
 					// (To be fixed): _two identical WCH lists_ are maintained
 					// (an oversight, no doubt).
@@ -469,11 +462,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 					// just recycle / reposition old ones.
 
-					WorldCanvas* wc = itsWCLI.getRight();
-					wc->setWorldCanvasPosition(x,y, xPanelSize,yPanelSize);
+					(*wc_iter)->setWorldCanvasPosition(x,y, xPanelSize,yPanelSize);
+
+					++wc_iter;
 				}
 
-				(itsWCLI)++;
 				(itsWCHLI)++;
 				x += xPanelSize + itsDX;
 			}
@@ -489,11 +482,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			delete wch;
 			wch=0;
 		}
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			itsWCLI.removeRight();
-			delete wc;
-			wc=0;
+		if ( wc_iter != itsWCList.end( ) ) {
+			for ( std::list<WorldCanvas*>::iterator i = wc_iter; i != itsWCList.end( ); ++i ) delete *i;
+			itsWCList.erase( wc_iter, itsWCList.end( ) );
 		}
 
 		updateTools(false,true);	// (restore mouse tools).
@@ -524,15 +515,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// don't increment iterator - removeRight() has that effect!
 		}
 		// 2. delete WorldCanvases.
-		ListIter<WorldCanvas* >itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			itsWCLI.removeRight();
-			delete wc;
-			wc=0;
-			// don't increment iterator - removeRight() has that effect!
-		}
+		std::list<WorldCanvas*> orig = itsWCList;
+		itsWCList.clear( );
+		for ( auto wc : orig ) delete wc;
 		itsGeometrySet = false;
 		// we have remove WorldCanvases from the PixelCanvas, so we should
 		// refresh the entire PixelCanvas.

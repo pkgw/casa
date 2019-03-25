@@ -105,11 +105,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (itsPanelDisplay) {
 
 			itsPC = itsPanelDisplay->pixelCanvas();
-
-			while (!itsPanelDisplay->myWCLI->atEnd()) {
-				itsWCs.push_back(itsPanelDisplay->myWCLI->getRight());
-				itsPanelDisplay->myWCLI->step();
-			}
+			itsPanelDisplay->wcsApply( [&](WorldCanvas *wc) { itsWCs.push_back(wc); } );
 
 		} else {
 			throw (AipsError("Annotations.cc - I got an invalid (null) PanelDisplay!"));
@@ -701,10 +697,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Reset the list
 		itsWCs.clear( );
-
-		for ( casacore::ConstListIter<WorldCanvas*> iter(itsPanelDisplay->itsWCList); ! iter.atEnd( ); ++iter ) {
-			itsWCs.push_back(iter.getRight( ));
-		}
+		itsPanelDisplay->wcsApply( [&](WorldCanvas *wc) { itsWCs.push_back(wc); } );
 
 		if ( itsUseEH ) {
 			for ( auto wc : itsWCs ) wc->addRefreshEventHandler(*this);
@@ -1053,17 +1046,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	Bool Annotations::validateWCs() {
 		Bool conform = true;
-		if ( itsWCs.size( ) != itsPanelDisplay->itsWCList.len( ) ) {
+		size_t pd_wc_count = 0;
+		itsPanelDisplay->wcsApply( [&](WorldCanvas*){ ++pd_wc_count; } );
+		if ( itsWCs.size( ) != pd_wc_count ) {
 			return false;
 		} else {
-			casacore::ConstListIter<WorldCanvas*> pdwc(itsPanelDisplay->itsWCList);
-			for ( auto localwc = itsWCs.begin( );
-				  conform && localwc != itsWCs.end( ) && ! pdwc.atEnd( );
-				  ++localwc, ++pdwc ) {
-				conform = (conform && (*localwc == pdwc.getRight( )));
-			}
+			auto localwc = itsWCs.begin( );
+			itsPanelDisplay->wcsApply( [&](WorldCanvas *pdwc){conform = (conform && (*localwc++ == pdwc));} );
 		}
-
 		return conform;
 	}
 

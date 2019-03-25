@@ -71,10 +71,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		ev.worldCanvas()->pixelCanvas()->setLineWidth(lineWidth());
 
 		ev.worldCanvas()->copyBackBufferToFrontBuffer();
+
 		WorldCanvas* wc = 0;
-		itsPD->myWCLI->toStart();
-		if (!itsPD->myWCLI->atEnd()) {
-			wc = itsPD->myWCLI->getRight();
+		itsPD->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
+		if ( wc != 0 ) {
 			switch(itsDrawAxis) {
 			case 0: {
 				linA(0) = ev.linX();
@@ -207,43 +208,50 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		WCPositionEH* peh = 0;
 		WCPositionEH* peh1 = 0;
 		PanelDisplay* pdisp = 0;
+
 		WorldCanvas* wc = 0;
+
 		pdisp = itsPanelDisplays("xy");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("XYcZY");
 		peh = itsSliceEHs("XYcZY");
 		meh1 = itsSliceEHs("XYcXZ");
 		peh1 = itsSliceEHs("XYcXZ");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
 			wc->addPositionEventHandler(*peh);
 			wc->addMotionEventHandler(*meh1);
 			wc->addPositionEventHandler(*peh1);
 			wc->addMotionEventHandler(*this);
 		}
+
 		pdisp = itsPanelDisplays("zy");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("ZYcXY");
 		peh = itsSliceEHs("ZYcXY");
 		meh1 = itsSliceEHs("ZYcXZ");
 		peh1 = itsSliceEHs("ZYcXZ");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
 			wc->addPositionEventHandler(*peh);
 			wc->addMotionEventHandler(*meh1);
 			wc->addPositionEventHandler(*peh1);
 			wc->addMotionEventHandler(*this);
 		}
+
 		pdisp = itsPanelDisplays("xz");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("XZcXY");
 		peh = itsSliceEHs("XZcXY");
 		meh1 = itsSliceEHs("XZcZY");
 		peh1 = itsSliceEHs("XZcZY");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
 			wc->addPositionEventHandler(*peh);
 			wc->addMotionEventHandler(*meh1);
@@ -251,6 +259,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			wc->addMotionEventHandler(*this);
 		}
 	}
+
 	void SlicePanelDisplay::removeEHs() {
 		WCMotionEH* meh = 0;
 		WCMotionEH* meh1 = 0;
@@ -258,42 +267,48 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		WCPositionEH* peh1 = 0;
 		PanelDisplay* pdisp = 0;
 		WorldCanvas* wc = 0;
+
 		pdisp = itsPanelDisplays("xy");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("XYcZY");
 		peh = itsSliceEHs("XYcZY");
 		meh1 = itsSliceEHs("XYcXZ");
 		peh1 = itsSliceEHs("XYcXZ");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
 			wc->removePositionEventHandler(*peh);
 			wc->removeMotionEventHandler(*meh1);
 			wc->removePositionEventHandler(*peh1);
 			wc->removeMotionEventHandler(*this);
 		}
+
 		pdisp = itsPanelDisplays("zy");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("ZYcXY");
 		peh = itsSliceEHs("ZYcXY");
 		meh1 = itsSliceEHs("ZYcXZ");
 		peh1 = itsSliceEHs("ZYcXZ");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
 			wc->removePositionEventHandler(*peh);
 			wc->removeMotionEventHandler(*meh1);
 			wc->removePositionEventHandler(*peh1);
 			wc->removeMotionEventHandler(*this);
 		}
+
 		pdisp = itsPanelDisplays("xz");
-		pdisp->myWCLI->toStart();
+		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
 		meh = itsSliceEHs("XZcXY");
 		peh = itsSliceEHs("XZcXY");
 		meh1 = itsSliceEHs("XZcZY");
 		peh1 = itsSliceEHs("XZcZY");
-		if (!pdisp->myWCLI->atEnd()) {
-			wc = pdisp->myWCLI->getRight();
+
+		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
 			wc->removePositionEventHandler(*peh);
 			wc->removeMotionEventHandler(*meh1);
@@ -374,16 +389,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	void SlicePanelDisplay::operator()(const WCMotionEvent& ev) {
 		PanelDisplay* pdisp = 0;
 		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
+
 			pdisp = itsPanelDisplays.getVal(i);
-			pdisp->myWCLI->toStart();
-			if (!pdisp->myWCLI->atEnd()) {
-				if (pdisp->myWCLI->getRight() == ev.worldCanvas()) {
+
+			WorldCanvas* wc = 0;
+			pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+
+			if ( wc != 0 ) {
+				if ( wc == ev.worldCanvas() ) {
 					itsActivePD = pdisp;
 					break;
 				}
 			}
 		}
 	}
+
 	void SlicePanelDisplay::precompute() {
 		PanelDisplay* pdisp = 0;
 		MWCAnimator tmpAni;

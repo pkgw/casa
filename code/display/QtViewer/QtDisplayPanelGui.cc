@@ -91,15 +91,15 @@ void display_panel_gui_status::leaveEvent( QEvent * ) {
 }
 
 LinkedCursorEH::LinkedCursorEH( QtDisplayPanelGui *d ) : WCRefreshEH( ), dpg_(d) {
-	ConstListIter<WorldCanvas*>& wcs = *(dpg_->displayPanel( )->panelDisplay( )->myWCLI);
-	for ( wcs.toStart( ); ! wcs.atEnd( ); ++wcs )
-		wcs.getRight( )->addRefreshEventHandler(*this);
+	dpg_->displayPanel( )->panelDisplay( )->wcsApply( [&](WorldCanvas *wc) {
+		wc->addRefreshEventHandler(*this);
+	} );
 }
 
 LinkedCursorEH::~LinkedCursorEH( ) {
-	ConstListIter<WorldCanvas*>& wcs = *(dpg_->displayPanel( )->panelDisplay( )->myWCLI);
-	for ( wcs.toStart( ); ! wcs.atEnd( ); ++wcs )
-		wcs.getRight( )->removeRefreshEventHandler(*this);
+	dpg_->displayPanel( )->panelDisplay( )->wcsApply( [&](WorldCanvas *wc) {
+		wc->removeRefreshEventHandler(*this);
+	} );
 }
 
 void LinkedCursorEH::operator()(const WCRefreshEvent & ev) {
@@ -1690,9 +1690,7 @@ Bool QtDisplayPanelGui::removeDD(QtDisplayData*& qdd) {
 	// remove data as controlling dd from all world canvases
 	if ( displayPanel( ) ) {
 		// upon destruction (called via dtor( )), display panel is already gone...
-		ConstListIter<WorldCanvas*>& wcs = *(displayPanel( )->panelDisplay( )->myWCLI);
-		for ( wcs.toStart( ); ! wcs.atEnd( ); ++wcs )
-			wcs.getRight( )->removeDD(qdd->dd());
+        displayPanel( )->panelDisplay( )->wcsApply( [&](WorldCanvas *wc) { wc->removeDD(qdd->dd()); } );
 	}
 	
 	//In case we are removing the coordinate master.

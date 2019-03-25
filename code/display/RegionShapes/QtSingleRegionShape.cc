@@ -561,13 +561,10 @@ namespace casa {
 			s = (!shape->isWorld() ? RSUtils::PIXEL :
 			     MDirection::showType(shape->worldSystem())).c_str();
 		} else {
-			ConstListIter<WorldCanvas*> wcs = m_manager->panel()->panelDisplay()->
-			                                  myWCLI;
-			if(wcs.len() > 0) {
-				if(wcs.getRight()->hasCS()) {
-					s = MDirection::showType(RSUtils::worldSystem(
-					                             wcs.getRight())).c_str();
-				}
+			WorldCanvas* wc = 0;
+			m_manager->panel()->panelDisplay()->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+			if( wc && wc->hasCS( ) ) {
+				s = MDirection::showType(RSUtils::worldSystem(wc)).c_str();
 			}
 		}
 		if(s.isEmpty()) s = MDirection::showType(MDirection::J2000).c_str();

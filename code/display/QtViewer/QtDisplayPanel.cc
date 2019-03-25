@@ -519,44 +519,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	Bool QtDisplayPanel::worldToLin(Vector<Double> &lin, const Vector<Double> &world) {
+        bool done = false;
 		Bool filled = false;
 		lin.resize(world.nelements( ));
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			if ( filled == false ) {
-				wcs.getRight()->worldToLin(lin,world);
-				filled = true;
-			} else {
-				Vector<Double> tmp((uInt)world.nelements());
-				wcs.getRight()->worldToLin(tmp,world);
-				if ( tmp.nelements() != lin.nelements() )
-					return false;
-				for ( int i=0; i < static_cast<int>(tmp.nelements()); ++i )
-					if ( tmp[i] != lin[i] )
-						return false;
-			}
-		}
+        pd_->wcsApply( [&](WorldCanvas *wc) {
+		                if ( ! done ) {
+                            if ( filled == false ) {
+                                wc->worldToLin(lin,world);
+                                filled = true;
+                            } else {
+                                Vector<Double> tmp((uInt)world.nelements());
+                                wc->worldToLin(tmp,world);
+                                if ( tmp.nelements() != lin.nelements() )
+                                    done = true;
+                                for ( int i=0; i < static_cast<int>(tmp.nelements()); ++i )
+                                    if ( tmp[i] != lin[i] )
+                                        done = true;
+                            }
+                        }
+            } );
+
 		return filled;
 	}
 
-
 	void QtDisplayPanel::installEventHandlers_() {
 		pc_->addPositionEventHandler(*this);
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			wcs.getRight()->addMotionEventHandler(*this);
-		}
+		pd_->wcsApply( [&](WorldCanvas *wc) {
+							wc->addMotionEventHandler(*this);
+			} );
 	}
 
 	void QtDisplayPanel::removeEventHandlers_() {
 		pc_->removePositionEventHandler(*this);
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			wcs.getRight()->removeMotionEventHandler(*this);
-		}
+		pd_->wcsApply( [&](WorldCanvas *wc) {
+							wc->removeMotionEventHandler(*this);
+			} );
 	}
-
-
 
 	void QtDisplayPanel::activate( bool state ) {
 		if ( state == false && cursorBoundaryState == INSIDE_PLOT ) {
@@ -730,25 +728,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		emit trackingInfo(trackingRec);
 	}
 
-
 	Bool QtDisplayPanel::myWC_(const WorldCanvas* wc) {
 		// Utility function for above: is the given wc one belonging
 		// to the main pd_?
 
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		// I don't like using shared iterators (It's not safe), but
-		// it's the only mechanism provided to access the list (no
-		// time to create new PanelDisplay interface at the moment...).
+        bool result = false;
+        pd_->wcsApply( [&](WorldCanvas *w) { if (w == wc) result = true; } );
 
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			if (wc==wcs.getRight()) return true;
-		}
-
-		return false;
+		return result;
 	}
-
-
-
 
 	void QtDisplayPanel::resizeEvent(QResizeEvent* ev) {
 
@@ -2469,13 +2457,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// knows what obsolete rubbishy state that may be in).  (Zoomer will
 		// be used to _restore_ zoom state though...).
 
-		ListIter<WorldCanvas* > wcs = pd_->wcs();
-		// (Who exposed this?  Convenient
-		// here, certainly, (but wtf?...)).
-		wcs.toStart();
-		if(!wcs.atEnd()) {	// (Shouldn't be at end...).
-
-			WorldCanvas* wc = wcs.getRight();
+		WorldCanvas* wc = 0;
+		pd_->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+		if( wc != 0 ) {
 
 			// Save Zoom
 
@@ -2791,10 +2775,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// knows what obsolete rubbishy state that may be in).  (Zoomer will
 		// be used to _restore_ zoom state though...).
 		Vector<Double> blc(2), trc(2);
-		ConstListIter<WorldCanvas* > wcs = pd_->wcs();
-		wcs.toStart();
-		if ( ! wcs.atEnd() ) {
-			WorldCanvas* wc = wcs.getRight();
+		WorldCanvas* wc = 0;
+		pd_->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+		if( wc != 0 ) {
 			blc[0] = wc->linXMin();
 			blc[1] = wc->linYMin();
 			trc[0] = wc->linXMax();
@@ -2830,14 +2813,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				panel_->status( e.getMesg( ), "error" );
 			} catch(...) { }
 		} else if ( type == "ds9 region" ) {
-			ConstListIter<WorldCanvas*> wcl = panelDisplay()->myWCLI;
-			wcl.toStart( );
+            WorldCanvas *wc_ = 0;
+            pd_->wcsApply( [&](WorldCanvas *w ) { if ( wc_ == 0 ) wc_ = w; } );
 			// really need to change this to find the world canvas for the display data that is currently visible...
 			// instead of just taking the first one in the list...  <<<see also QtRegionSource.cc>>>
-			WorldCanvas *wc_ = 0;
-			if(wcl.len() > 0) {
-				wc_ = wcl.getRight( );
-			}
 			if ( wc_ ) {
 				casa::viewer::ds9context context( wc_, toolmgr );
 				casa::viewer::ds9parser parser;
