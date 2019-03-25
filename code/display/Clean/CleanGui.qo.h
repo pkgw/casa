@@ -26,7 +26,11 @@
 #define DISPLAY_CLEANGUI_H_
 
 #include <map>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/types/variant.h>
+#else
+#include <casagrpc/types/variant.h>
+#endif
 #include <QDialog>
 #include <display/Clean/CleanGui.ui.h>
 
@@ -62,7 +66,11 @@ namespace casa {
 
 			// update information for the process currently selected...
 			void refresh( );
+#if ! defined(WITHOUT_DBUS)
 			std::map<std::string,dbus::variant> collect( );
+#else
+			std::map<std::string,grpc::variant> collect( );
+#endif
 
 			// indicate (or unindicate) that values have changed,
 			// and a send is required...

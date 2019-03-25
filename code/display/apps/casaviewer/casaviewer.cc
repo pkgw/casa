@@ -59,7 +59,9 @@
 #include <graphics/X11/X_exit.h>
 */
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/utilities/Diagnostic.h>
+#endif
 #include <display/DisplayErrors.h>
 #include <casacore/casa/System/AppState.h>
 #include <algorithm>
@@ -239,7 +241,9 @@ int main( int argc, const char *argv[] ) {
 #ifndef NO_CRASH_REPORTER
     CrashReporter::initializeFromApplication(argv[0]);
 #endif
+#if ! defined(WITHOUT_DBUS)
 	casa::dbus::diagnostic.argv( argc, argv );
+#endif
 
 	bool server_startup = false;
     bool daemon = false;

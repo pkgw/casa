@@ -60,7 +60,7 @@ private:
 
     VpTests ();
 
-    std::auto_ptr<po::variables_map> vm_p;
+    std::unique_ptr<po::variables_map> vm_p;
 
 };
 
