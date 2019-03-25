@@ -28,7 +28,7 @@
 #define TRIALDISPLAY_SLICEPANELDISPLAY_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <casa/Containers/RecordInterface.h>
 #include <casa/Containers/SimOrdMap.h>
 #include <display/DisplayEvents/DTVisible.h>
