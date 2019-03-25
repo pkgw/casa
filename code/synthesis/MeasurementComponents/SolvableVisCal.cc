@@ -3523,6 +3523,17 @@ Record SolvableVisCal::actionRec() {
   return cf;
 }
 
+Record SolvableVisCal::solveActionRec() {
+
+  // Return empty record
+  //  TBD: consider returning various _generic_ info
+  //  NB: specialization may add particulars via merge
+  Record r;
+  return r;
+}
+
+
+
 
 
 void SolvableVisCal::smooth(Vector<Int>& fields,
