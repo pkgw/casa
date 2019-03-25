@@ -95,8 +95,7 @@ beginning or after serious editing.
                 </param>
 
 <param type="string" name="merge" subparam="true">
-<shortdescription>Merge option: replace will save or over-write the flags</shortdescription>
-                       
+<shortdescription>Merge option: replace will save or over-write the flags</shortdescription>             
 <description>Merge operation
                      Subparameter of mode='save|restore'
                      Options: 'or','and', but not recommended for now.

@@ -258,21 +258,21 @@ gaintable.
 		     'spline', 'nearestflag', 'linearflag',
 		     'cubicflag', 'splineflag'
 
-                     When frequency interpolation is relevant
+                   * When frequency interpolation is relevant
 		     (bandpass solutions, frequency-dependent polcal
 		     solutions, ALMA Tsys) separate time-dependent and
 		     freq-dependent interp types with a comma (freq
-		     _after_ the comma). Specifications for frequency
-		     are ignored when the calibration table has no
-		     channel-dependence. Time-dependent interp options
-		     ending in 'PD' enable a "phase delay" correction
-		     per spw for non-channel-dependent calibration
-		     types.
-                     For multi-obsId datasets, 'perobs' can be
+		     _after_ the comma). 
+                   * Specifications for frequency are ignored when the
+		     calibration table has no channel-dependence. 
+                   * Time-dependent interp options ending in 'PD'
+		     enable a "phase delay" correction per spw for
+		     non-channel-dependent calibration types.
+                   * For multi-obsId datasets, 'perobs' can be
 		     appended to the time-dependent interpolation
 		     specification to enforce obsId boundaries when
 		     interpolating in time. 
-                     Add 'flag' to the freq-dependent interpolation
+                   * Add 'flag' to the freq-dependent interpolation
 		     options to enforce channel-dependent flagging
 		     (rather than interpolation/extrapolation).
 

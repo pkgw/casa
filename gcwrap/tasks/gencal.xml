@@ -118,6 +118,17 @@ Current antenna-based gencal options (caltype) are:
                         </allowed>
 		</param>
 
+
+		<param type="string" name="infile" subparam="true">
+<shortdescription>Input ancilliary file</shortdescription>
+<description>Input ancilliary file
+                    Subparameter of caltype='gc|gceff|tecim'
+                    Default: none
+</description>
+			<value></value>
+		</param>
+
+		
 		<param type="string" name="spw">
 <shortdescription>Select spectral window/channels</shortdescription>		
 <description>Select spectral window/channels
@@ -136,6 +147,7 @@ Current antenna-based gencal options (caltype) are:
 </description>
 			<value></value>
 		</param>
+		
 		<param type="string" name="antenna">
 <shortdescription>Select data based on antenna/baseline</shortdescription>
 <description>Select data based on antenna/baseline
@@ -162,6 +174,7 @@ Current antenna-based gencal options (caltype) are:
 </description>
 			<value></value>
 		</param>
+
 		<param type="string" name="pol">
 <shortdescription>Calibration polarizations(s) selection</shortdescription>
 <description>Polarization selection for specified parameters
@@ -205,15 +218,6 @@ Current antenna-based gencal options (caltype) are:
                      Options: True|False
 </description>
 			<value>True</value>
-		</param>
-
-		<param type="string" name="infile" subparam="true">
-<shortdescription>Input ancilliary file</shortdescription>
-<description>Input ancilliary file
-                    Subparameter of caltype='gc|gceff|tecim'
-                    Default: none
-</description>
-			<value></value>
 		</param>
 
 

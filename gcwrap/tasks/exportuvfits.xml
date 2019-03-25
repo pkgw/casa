@@ -228,6 +228,7 @@ deprecated and removed.
 <shortdescription>Overwrite output file if it exists?</shortdescription>
  <description>Overwrite output file if it exists?
                      Default: False
+                     Options: False|True
 </description>
         <value>False</value>
     </param>
