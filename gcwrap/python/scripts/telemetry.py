@@ -94,7 +94,10 @@ class telemetry:
             self.logger.post("Checking telemetry submission interval")
             self.createStampFile()
             if (self.isSubmitInterval()):
-                self.send('https://casa.nrao.edu/cgi-bin/crash-report.pl')
+                postingUrl = 'https://casa.nrao.edu/cgi-bin/crash-report.pl'
+                if os.environ.has_key('CASA_CRASHREPORT_URL') :
+                    postingUrl = os.environ['CASA_CRASHREPORT_URL']
+                self.send(postingUrl)
                 self.refreshStampFile()
                 self.setNewTelemetryFile()
 
