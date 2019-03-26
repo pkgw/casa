@@ -17,7 +17,10 @@ class telemetry:
         self.setCasaVersion()
         self.setHostId()
         self.logdir = casa['dirs']['rc']
-        self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*.log'
+        self.variantSuffix = ""
+        if len(casa['variant'])>1:
+            self.variantSuffix = "-" + casa['variant']
+        self.logpattern = 'casastats-' + self.casaver + '-' + self.hostid + '*' + self.variantSuffix + '.log'
         self.sendlogpattern = 'casastats-*'+ self.hostid + '*.log'
         self.stampfile = self.logdir + '/telemetry-' + self.hostid + '.stamp'
         self.casa = casa
@@ -72,7 +75,7 @@ class telemetry:
             print 'EnableTelemetry: False'
 
     def setNewTelemetryFile(self):
-        self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + '.log'
+        self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + self.variantSuffix + '.log'
         # Work around the chicken/egg problem with telemetry/logger initialization
         if hasattr(self, 'logger'):
             self.logger.setstatslogfile(self.casa['files']['telemetry-logfile'])
