@@ -227,9 +227,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Also note: _exactly the same list_ (with the same _name_, even)
 		// is maintained on MWCH level (to be fixed).
 
-		casacore::List<WorldCanvasHolder* > itsWCHList;
-
-		//casacore::ListIter<WorldCanvasHolder* >* itsWCHLI;
+		std::list<WorldCanvasHolder* > itsWCHList;
 
 		casacore::SimpleOrderedMap<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
 

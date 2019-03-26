@@ -1804,16 +1804,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		int divisions = max(rowCount, columnCount);
 		float adjustedAxisLabelSize = defaultAxisLabelSize /divisions;
 		//optns.define( QtDisplayData::WEDGE_LABEL_CHAR_SIZE, adjustedAxisLabelSize );
-		List<DisplayData*>* rdds = pd_->displayDatas();
-		if ( rdds -> len() > 0 ) {
-			for (ListIter<DisplayData*> qdds(rdds); !qdds.atEnd(); qdds++) {
-				DisplayData* dd = qdds.getRight();
-				if ( dd != NULL ) {
-					Record optns;
-					optns.define( WCAxisLabeller::LABEL_CHAR_SIZE,  adjustedAxisLabelSize );
-					Record chgdOptions;
-					dd->setOptions( optns, chgdOptions );
-				}
+		for ( auto dd : pd_->displayDatas( ) ) {
+			if ( dd != NULL ) {
+				Record optns;
+				optns.define( WCAxisLabeller::LABEL_CHAR_SIZE,	adjustedAxisLabelSize );
+				Record chgdOptions;
+				dd->setOptions( optns, chgdOptions );
 			}
 		}
 	}

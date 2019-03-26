@@ -59,7 +59,7 @@
 #include <display/DisplayCanvas/WCCSNLAxisLabeller.h>
 #include <display/DisplayDatas/PrincipalAxesDD.h>
 #include <display/functional/elements.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 #include <iostream>
 using namespace std;
