@@ -57,6 +57,8 @@ SolveDataBuffer::SolveDataBuffer() :
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
@@ -73,6 +75,8 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
@@ -95,6 +99,8 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
@@ -309,6 +315,62 @@ void SolveDataBuffer::finalizeResiduals()
 
 }
 
+// Manage working weights
+void SolveDataBuffer::updateWorkingFlags()
+{
+
+  workingFlagCube_p|=residFlagCube_p;
+
+}
+
+
+// Manage working weights
+void SolveDataBuffer::updateWorkingWeights(Bool doL1, Float L1clamp)
+{
+
+  workingWtSpec_p.resize(0,0,0);  // nominally forces implicit use of infocusWtSpec
+  if (doL1) {
+
+    //cout << "****Using L1 weights!!! (" << L1clamp << ") ******" << endl;
+
+    workingWtSpec_p.assign(infocusWtSpec_p);  // init from nominal weights
+    const Cube<Bool>& wFC(this->const_workingFlagCube());   // adaptive access to 
+
+    Cube<Float> Ramp(amplitude(this->residuals()));
+
+    IPosition shRamp(Ramp.shape());
+    Int nCorr=shRamp(0);
+    Int nChan=shRamp(1);
+    Int nRow=shRamp(2);
+
+    // TBD: assert common shapes!
+
+    for (Int irow=0;irow<nRow;++irow) {
+      if (!flagRow()(irow)) {
+	for (Int ich=0;ich<nChan;++ich) {
+	  for (Int icorr=0;icorr<nCorr;++icorr) {
+	    Float& nomWt=workingWtSpec_p(icorr,ich,irow);
+	    Float& Ra=Ramp(icorr,ich,irow);
+	    if (!wFC(icorr,ich,irow) &&  
+		nomWt>0.0 &&
+		Ra>0.0 ) {
+	      nomWt/=sqrt(Ra*Ra+L1clamp);
+	    }
+	    else {
+	      nomWt=0.0;
+	    }
+	  }
+	}
+      }
+    }
+
+  }
+  //  else {
+  //    cout << "****Using nominal weights!!!******" << endl;
+    //infocusWorkingWtSpec_p.reference(infocusWtSpec_p);
+  //}
+
+}
 
 void SolveDataBuffer::reportData()
 {
@@ -754,6 +816,21 @@ void SDBList::finalizeResiduals()
   for (Int i=0;i<nSDB_;++i)
     SDB_[i]->finalizeResiduals();
 }
+
+// Manage working flags
+void SDBList::updateWorkingFlags()
+{
+  for (Int i=0;i<nSDB_;++i)
+    SDB_[i]->updateWorkingFlags();
+}
+
+// Manage working weights
+void SDBList::updateWorkingWeights(casacore::Bool doL1,casacore::Float clamp)
+{
+  for (Int i=0;i<nSDB_;++i)
+    SDB_[i]->updateWorkingWeights(doL1,clamp);
+}
+
 
 void SDBList::reportData()
 {
