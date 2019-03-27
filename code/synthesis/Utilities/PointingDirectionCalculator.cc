@@ -1079,8 +1079,8 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
             //  a discontinuous section. The currve on close to edges 
             //  may behave unexpected.
             //-
-#if 1  
-            if(true)
+
+            if(false)
             {
                 //+
                 // Experiment:   set Invalid Flag
@@ -1088,10 +1088,8 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
 
                 if(dTime > (interval+0.001)  )
                 {
-#if 0
                     printf( "Set MARK (%d, %d) around this point. | dt=%f, interval=%f \n",
                              ant,index, dTime, interval);
-#endif 
                     // Mark //
                     splineInvalid_[ant][index-4]= -4;
                     splineInvalid_[ant][index-3]= -3;
@@ -1103,7 +1101,7 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
                     splineInvalid_[ant][index+3]= 4;
                 }
             }
-#endif             
+
             // DBG //
             if(showSDPParam)
             {
@@ -1231,7 +1229,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     // CAS-8418 Discontinuous section 
     //-
 
-    if( splineInvalid_[antID][index] !=0 ) 
+    if((false) && ( splineInvalid_[antID][index] !=0) ) 
     {
 #if 1
         printf("Warning:: Discontinuous Section was detected in calculation. (Ant=%d, index=%d),flag = %2d \n",

@@ -329,7 +329,7 @@ private:
 
      // Test MS copy and delete flag //
      bool fgCopyMS    = true;	// always TRUE for TestDirection 
-     bool fgDeleteMS  = true;   // set FALSE when inepeting editted MS
+     bool fgDeleteMS  = false;   // set FALSE when inspecting editted MS
 };
 
 //+
@@ -423,7 +423,7 @@ class TrajectoryFunction
 public:
 
     typedef enum _Tr_  {
-        Simple_linear,        // 0
+        Simple_Linear,        // 0
         Normalized_Linear,    // 1
         Sinusoid_Slow,       // 2
         Sinusoid_Quick,      // 3
@@ -616,6 +616,10 @@ public:
 
       uInt getRequiredMainTestingRow()      { return requiredMainTestingRow_; }
 
+    // Adjust Count
+
+      uInt getIntervalRatio() { return intervalRatio_ ; }
+
     //+
     // Numerical Error Statictic 
     //-
@@ -672,6 +676,10 @@ private:
 
       const uInt defInerpolationTestPointingTableRow_   = ExistingRowCount;
       const uInt defInerpolationTestMainTableRow_       = ExistingRowCount;
+
+    // NEW:decrease cnt when dt come close to 1.0 //
+
+      uInt  intervalRatio_ =0 ;
 
     // Row Count to execute //
       uInt requiredMainTestingRow_     = 0;    //   MUST BE SET 
@@ -806,7 +814,7 @@ void TuneMSConfig::Initialize( )
 //  both for Pointing and Main.
 //-
 
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double deltaTime)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime)
 {
         casacore::Vector<Double> point;
         point.resize(5);
@@ -828,7 +836,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double de
         //    dd : in day.
         //-
 
-        Double time  = deltaTime * Interval__;
+        Double time  = rowTime * Interval__;
         Double dd    =  (22 *3600.0 
                          +  5*60 +  41.5 
                          + time  
@@ -842,7 +850,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double de
 
         Double X2[5] = {}; // all clear
         Double Y2[5] = {}; // all clear 
-       
+      
+        //+ 
         //  Trajectory Function execution
         //    (memo) debug function should be build in this class.
         //-
@@ -894,6 +903,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
  
     Interval__ = mainIntervalSec_;
 
+    Double interval_ratio = pointingIntervalSec_  / mainIntervalSec_ ;         
+
     //+
     // Determine number of row of Pointing and Main table.
     // this depends on which total time is longer.
@@ -902,11 +913,15 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
     {
         nRow__   =  requiredMainTestingRow_;
         r_time__ =   deltaTime / nRow__ ;
+
+        intervalRatio_ =1;  // TENTATIVE //
     }   
     else   // all the rows in Pointng are used.
     {
         nRow__   =   max ( requiredMainTestingRow_ ,  defInerpolationTestMainTableRow_ );
         r_time__ =   deltaTime / nRow__   ;
+
+        intervalRatio_ = round(interval_ratio);
     } 
 
     return(pseudoPointingBaseInfo(deltaTime));
@@ -1608,7 +1623,7 @@ void  MsEdit::writePseudoOnPointing()
                 //+
                 // DIRECTION  
                 //   CAS-8418::   1-Feb-2019
-                //   updated to make indivisual value on Direction Columns
+                //   updated to make indivisual value on Pointing Columns
                 //-
                 Double deltaTime = (Double)row  ;    // deltaTime must be [0,1]
                 IPosition Ipo = pT.getIpo();
@@ -1622,7 +1637,7 @@ void  MsEdit::writePseudoOnPointing()
                 TuneMSConfig::PseudoPointingData  psd_data  
                         = tuneMS.pseudoPointingInfoPointing(deltaTime); // generated pseudo data. (Pointing) //
  
-                if(tuneMS.ifCoeffLocTest() )
+                if( tuneMS.ifCoeffLocTest() )
                 {
                     //+
                     // Test Pattern Data 
@@ -1712,9 +1727,10 @@ void  MsEdit::writePseudoOnMainTable(Double deltaTime)
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow();
 
-    printf("writing to MAIN, nrow=%d, number of data on each antenna=%d \n", nrow_ms,LoopCnt );
+    printf("DBG::writing to MAIN, nrow=%d, number of data on each antenna=%d \n", nrow_ms,LoopCnt );
     for (uInt ant =0; ant  < tuneMS.getMaxOfAntenna() ; ant ++ )
     {
+        printf("DBG::writing to MAIN, ant=%d, \n", ant);
         for (uInt row=0; row < LoopCnt; row++)
         {
             uInt  rowA = row + (ant  * LoopCnt);
@@ -2014,9 +2030,14 @@ public:
             msedit.appendRowOnMainTable     ( msedit.tuneMS. getAddInerpolationTestMainTableRow() );
         }
 
-        Double getPointingInterval() { return(msedit.tuneMS.getPointingTableInterval()); }
+        // MS Tune Parameters //
+
+        uInt   getRequiredMainTestingRow() {return msedit.tuneMS.getRequiredMainTestingRow(); }
+
         Double getMainInterval()     { return(msedit.tuneMS.getMainTableInterval()); }
- 
+        Double getPointingInterval() { return(msedit.tuneMS.getPointingTableInterval()); }
+
+        uInt   getIntervalRatio()       { return msedit.tuneMS.getIntervalRatio(); }
 
         Double getErrorLimit() { return (msedit.tuneMS.getInterpolationErrorLimit());}
 
@@ -2096,9 +2117,9 @@ private:
 //     dt : displacement betweeen measure point
 //     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
 //------------------------------------------------
-std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt colNo, uInt ant )
+std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt ant )
 {
-    printf("DBG::TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", dt,colNo, ant);
+    printf("DBG::TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, ant);
 
     const String MsName = DefaultLocalMsName;
 
@@ -2149,7 +2170,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
     //  getDirection()
     //-
         Matrix<Double>  DirList1  = calc.getDirection();
-        size_t   n_row    = DirList1.nrow();
+//        size_t   n_row    = DirList1.nrow();
 
     //+
     // Direction Interpolation
@@ -2159,8 +2180,24 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
     Double absErr_1 = 0.0;
     Double absErr_2 = 0.0;
 
+    //***********************************************************************
+    // when dt come close to 1.0  (27-MAR-2019) 
+    // - Main Loop must be smaller, otherwise 'take final' happens (=Overflow)
+    // - Number of decreasing is up to Interval ratio.
+    //***********************************************************************
+#if 0
+    uInt LoopCnt = n_row-2 ;  
+    uInt LoopCnt = n_row-1 - (getIntervalRatio() -1);
+#else
+    uInt LoopCnt = getRequiredMainTestingRow() - 1 - (getIntervalRatio() -1); 
+printf("DBG9:: requiredRow =%d \n", getRequiredMainTestingRow()  );
+printf("DBG9:: ratio =%d \n", getIntervalRatio() );
+#endif
 
-    uInt LoopCnt = n_row-2;
+/*    printf("DBG:: testDirectionByDeltaTime:: nrow=%zu,getRequiredMainTestingRow()=%u \n", 
+             n_row, getRequiredMainTestingRow() );
+*/
+  
     for (uInt row=0; row < LoopCnt; row++)   
     {
         // Direction(1) by getDirection //
@@ -2171,7 +2208,8 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double dt, uInt col
         // Direction by generated/estimated //
 
           TuneMSConfig::PseudoPointingData  gen_out2
-                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + dt );  // dt:Interpolation offset  (sec)
+                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + div ); 
+                    // dt:Interpolation offset  (sec)
 
           Double generated_1 = gen_out2.position[colNo].first;
           Double generated_2 = gen_out2.position[colNo].second;
@@ -2306,7 +2344,7 @@ TEST_F(TestDirection, InterpolationFull )
                       if(p_i > m_i )  { ErrLimit = 5E-03; }
                       else            { ErrLimit = 2E-06; }
                   else                 
-                      if(p_i > m_i )  { ErrLimit = 1E-02; }
+                      if(p_i > m_i )  { ErrLimit = 1.1E-02; }
                       else            { ErrLimit = 2E-06; } 
                
 
@@ -2319,15 +2357,17 @@ TEST_F(TestDirection, InterpolationFull )
                   SetUp();
 
                 // define Number of Antenna prepeared in MS //
-                  setMaxAntenna(1);
+                  setMaxAntenna(3);
                   setMaxPointingColumns(1);
 
                 //+ 
                 // set Examination Condition (revised by CAS-8418) //
                 //-
-    
-//                 selectTrajectory( TrajectoryFunction::Type::Simple_linear ); 
+#if 1    
+                   selectTrajectory( TrajectoryFunction::Type::Simple_Linear ); 
+#else
                    selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
+#endif 
                    setCondition( 5040,   //number of row
                                 p_i,    // Pointing Interval
                                 m_i,    // Main Interval
@@ -2392,27 +2432,26 @@ std::vector<ParamList>  paramListS[] =
     },
     // Senario 1 //
     {
-      {true, 4000, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4005, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4010, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4015, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4020, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4005, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4030, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4035, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4040, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4045, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4050, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4055, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4060, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4065, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4070, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4075, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4080, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4085, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4090, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 4095, 0.07,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 5040, 0.048, 1.008, TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 }
+      {true, 4000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4005, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4015, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4005, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4035, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4045, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4055, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4065, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4075, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4085, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 4095, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
     },
     // Senario 2 //
     {
@@ -2424,6 +2463,14 @@ std::vector<ParamList>  paramListS[] =
 
     },
  
+    // Senario 3 //
+    {
+      {true, 5040, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
+      {true, 5040, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
+      {true, 5040, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Quick,     5.0E-04 },
+      {true, 5040, 0.05,  0.01,  TrajectoryFunction::Type::Harmonics_Sinusoid, 5.0E-05 },
+      {true, 5040, 0.05,  0.01,  TrajectoryFunction::Type::Gauss,              5.0E-05 },
+    },
 };
 
 
@@ -2439,11 +2486,11 @@ TEST_F(TestDirection, InterpolationListedItems )
     // using following Column and AntennaId 
     //-
       uInt usingColumn  = 0;
-      uInt usingAntenna = 0;
+      uInt usingAntenna = 2;
 
     // What parameter Set. //
 
-    uInt sno =1;  // Programers choise, from above the parameter def. //
+    uInt sno = 0;  // Programers choise, from above the parameter def. //
 
     for(uInt n=0; n<paramListS[sno].size();n++)
     {
@@ -2514,11 +2561,11 @@ TEST_F(TestDirection, InterpolationSingle )
     // set Examination Condition (revised by CAS-8418) //
 
 //    selectTrajectory( TrajectoryFunction::Type::Simple_linear );// Trajectory(Curve) Function
-      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
-      setCondition( 5000,       // number of row
+      selectTrajectory( TrajectoryFunction::Type::Simple_Linear );
+      setCondition( 5040,       // number of row
                     0.05,          // Pointing Interval
                     0.01,         // Main Interval
-                    5E-03  );  // Error limit 
+                    5E-06  );  // Error limit 
 
 
     // Prepate Antenna (for Multple-set) //
