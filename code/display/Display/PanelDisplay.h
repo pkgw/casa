@@ -229,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		std::list<WorldCanvasHolder* > itsWCHList;
 
-		casacore::SimpleOrderedMap<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
+		std::map<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
 
 		// unSetup the Geometry.
 		void unSetupGeometry();

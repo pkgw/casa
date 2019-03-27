@@ -29,6 +29,7 @@
 #ifndef CALIBRATION_NEWCALTABLENUMS_H
 #define CALIBRATION_NEWCALTABLENUMS_H
 
+#include <map>
 #include <casa/aips.h>
 #include <casa/Containers/SimOrdMap.h>
 #include <casa/Containers/Block.h>
@@ -132,9 +133,9 @@ class CTEnums
   
   // Static ordered maps containing field descriptions
   // Enum => Field Name
-  static casacore::SimpleOrderedMap <casacore::Int, casacore::String> theirFieldMap;
+  static std::map <casacore::Int, casacore::String> theirFieldMap;
   // Enum => Basic data type
-  static casacore::SimpleOrderedMap <casacore::Int, casacore::DataType> theirTypeMap;
+  static std::map <casacore::Int, casacore::DataType> theirTypeMap;
 };
 
 

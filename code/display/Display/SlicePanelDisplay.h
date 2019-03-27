@@ -140,8 +140,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void precompute();
 
 	private:
-		casacore::SimpleOrderedMap<casacore::String, PanelDisplay* > itsPanelDisplays;
-		casacore::SimpleOrderedMap<casacore::String, SliceEH* > itsSliceEHs;
+		std::map<casacore::String, PanelDisplay* > itsPanelDisplays;
+		std::map<casacore::String, SliceEH* > itsSliceEHs;
 		PanelDisplay* itsActivePD;
 		void installEHs();
 		void removeEHs();

@@ -73,7 +73,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   typedef unsigned long long ooLong; 
 
   WPConvFunc::WPConvFunc(const Double minW, const Double maxW, const Double rmsW):
-   convFunctionMap_p(-1), 
    actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), minW_p(minW), maxW_p(maxW), rmsW_p(rmsW) {
    //
   }
@@ -83,7 +82,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  WPConvFunc::WPConvFunc(const RecordInterface& rec):convFunctionMap_p(-1), 
+  WPConvFunc::WPConvFunc(const RecordInterface& rec):
    actualConvIndex_p(-1), convSize_p(0), convSupport_p(0){
     String error;
     if (!fromRecord(error, rec)) {
@@ -91,7 +90,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
   
   }
-  WPConvFunc::WPConvFunc(const WPConvFunc& other): convFunctionMap_p(-1), 
+  WPConvFunc::WPConvFunc(const WPConvFunc& other):
    actualConvIndex_p(-1), convSize_p(0), convSupport_p(0){
 
     operator=(other);
@@ -929,19 +928,19 @@ Bool WPConvFunc::checkCenterPix(const ImageInterface<Complex>& image){
   oos << ny_p << "_"<< fabs(incr(1));
   String imageKey(oos);
 
-  if(convFunctionMap_p.ndefined() == 0){
-    convFunctionMap_p.define(imageKey, 0);    
+  if(convFunctionMap_p.size( ) == 0){
+    convFunctionMap_p.insert(std::pair<casacore::String, casacore::Int>(imageKey, 0));
     actualConvIndex_p=0;
     return false;
   }
    
-  if(!convFunctionMap_p.isDefined(imageKey)){
-    actualConvIndex_p=convFunctionMap_p.ndefined();
-    convFunctionMap_p.define(imageKey,actualConvIndex_p);
+  if( convFunctionMap_p.find(imageKey) == convFunctionMap_p.end( ) ){
+    actualConvIndex_p=convFunctionMap_p.size( );
+    convFunctionMap_p.insert(std::pair<casacore::String, casacore::Int>(imageKey,actualConvIndex_p));
     return false;
   }
   else{
-    actualConvIndex_p=convFunctionMap_p(imageKey);
+    actualConvIndex_p=convFunctionMap_p[imageKey];
     convFunc_p.resize(); // break any reference
     convFunc_p.reference(*convFunctions_p[actualConvIndex_p]);
     convSupport_p.resize();
@@ -958,11 +957,12 @@ Bool WPConvFunc::toRecord(RecordInterface& rec){
   Int numConv=convFunctions_p.nelements();
   try{
     rec.define("numconv", numConv);
-    for (Int k=0; k < numConv; ++k){
+    auto convptr = convFunctionMap_p.begin( );
+    for (Int k=0; k < numConv; ++k, ++convptr){
       rec.define("convfunctions"+String::toString(k), *(convFunctions_p[k]));
       rec.define("convsupportblock"+String::toString(k), *(convSupportBlock_p[k]));
-      rec.define("key"+String::toString(k),convFunctionMap_p.getKey(k));
-      rec.define("val"+String::toString(k), convFunctionMap_p.getVal(k));
+      rec.define("key"+String::toString(k), convptr->first);
+      rec.define("val"+String::toString(k), convptr->second);
     }
     rec.define("convsizes", convSizes_p);
     rec.define("actualconvIndex",actualConvIndex_p);
@@ -990,7 +990,7 @@ Bool WPConvFunc::toRecord(RecordInterface& rec){
     rec.get("numconv", numConv);
     convFunctions_p.resize(numConv, true, false);
     convSupportBlock_p.resize(numConv, true, false);
-    convFunctionMap_p=SimpleOrderedMap<String, Int>(-1);
+    convFunctionMap_p.clear( );
     for (Int k=0; k < numConv; ++k){
       convFunctions_p[k]=new Cube<Complex>();
       convSupportBlock_p[k]=new Vector<Int>();
@@ -1000,7 +1000,7 @@ Bool WPConvFunc::toRecord(RecordInterface& rec){
       Int val;
       rec.get("key"+String::toString(k), key);
       rec.get("val"+String::toString(k), val);
-      convFunctionMap_p.define(key,val);
+      convFunctionMap_p.insert(std::pair<casacore::String, casacore::Int>(key,val));
     }
     rec.get("convsizes", convSizes_p);
     rec.get("actualconvIndex",actualConvIndex_p);

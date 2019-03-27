@@ -149,7 +149,7 @@ public:
   // Parameters for raw phase removal from another spw
   //VisSet* rawvs_p;
   //casacore::Bool rawPhaseRemoval_p;
-  casacore::SimpleOrderedMap<casacore::String, casacore::Int> timeValueMap_p;
+  std::map<casacore::String, casacore::Int> timeValueMap_p;
   casacore::Matrix<casacore::Double> rawPhase_p;
 
   // Solution timestamp

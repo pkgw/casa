@@ -170,35 +170,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // end SliceEH
 
 	SlicePanelDisplay::SlicePanelDisplay(PixelCanvas* pcanvas) :
-		itsPanelDisplays(static_cast<PanelDisplay* >(0), uInt(4)),
-		itsSliceEHs(static_cast<SliceEH* >(0), uInt(4)),
 		itsActivePD(0) {
-		itsPanelDisplays.define("xy",new PanelDisplay(pcanvas,1,1,0.0,0.5,0.5,0.5));
-		itsPanelDisplays.define("zy",new PanelDisplay(pcanvas,1,1,0.5,0.5,0.5,0.5));
-		itsPanelDisplays.define("xz",new PanelDisplay(pcanvas,1,1,0.0,0.0,0.5,0.5));
-		itsSliceEHs.define("ZYcXY", new SliceEH(itsPanelDisplays("xy"),0,1));
-		itsSliceEHs.define("XZcXY", new SliceEH(itsPanelDisplays("xy"),1,0));
-		itsSliceEHs.define("XYcZY", new SliceEH(itsPanelDisplays("zy"),0,1));
-		itsSliceEHs.define("XZcZY", new SliceEH(itsPanelDisplays("zy"),0,2));
-		itsSliceEHs.define("XYcXZ", new SliceEH(itsPanelDisplays("xz"),1,0));
-		itsSliceEHs.define("ZYcXZ", new SliceEH(itsPanelDisplays("xz"),1,3));
+		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("xy",new PanelDisplay(pcanvas,1,1,0.0,0.5,0.5,0.5)));
+		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("zy",new PanelDisplay(pcanvas,1,1,0.5,0.5,0.5,0.5)));
+		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("xz",new PanelDisplay(pcanvas,1,1,0.0,0.0,0.5,0.5)));
+        itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("ZYcXY", new SliceEH(itsPanelDisplays["xy"],0,1)));
+		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XZcXY", new SliceEH(itsPanelDisplays["xy"],1,0)));
+		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XYcZY", new SliceEH(itsPanelDisplays["zy"],0,1)));
+		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XZcZY", new SliceEH(itsPanelDisplays["zy"],0,2)));
+        itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XYcXZ", new SliceEH(itsPanelDisplays["xz"],1,0)));
+		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("ZYcXZ", new SliceEH(itsPanelDisplays["xz"],1,3)));
 		installEHs();
-		itsActivePD = itsPanelDisplays("xy");
+		itsActivePD = itsPanelDisplays["xy"];
 	}
 
 	SlicePanelDisplay::~SlicePanelDisplay() {
 		removeEHs();
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			PanelDisplay* pdisp = itsPanelDisplays.getVal(i);
-			if (pdisp) {
-				delete pdisp;
-			}
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			PanelDisplay* pdisp = iter->second;
+			if (pdisp) delete pdisp;
 		}
-		for (uInt i=0; i < itsSliceEHs.ndefined(); i++) {
-			SliceEH* seh = itsSliceEHs.getVal(i);
-			if (seh) {
-				delete seh;
-			}
+		for (auto iter = itsSliceEHs.begin( ); iter != itsSliceEHs.end( ); ++iter) {
+			SliceEH* seh = iter->second;
+			if (seh) delete seh;
 		}
 	}
 
@@ -211,13 +205,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		WorldCanvas* wc = 0;
 
-		pdisp = itsPanelDisplays("xy");
+		pdisp = itsPanelDisplays["xy"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("XYcZY");
-		peh = itsSliceEHs("XYcZY");
-		meh1 = itsSliceEHs("XYcXZ");
-		peh1 = itsSliceEHs("XYcXZ");
+		meh = itsSliceEHs["XYcZY"];
+		peh = itsSliceEHs["XYcZY"];
+		meh1 = itsSliceEHs["XYcXZ"];
+		peh1 = itsSliceEHs["XYcXZ"];
 
 		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
@@ -227,13 +221,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			wc->addMotionEventHandler(*this);
 		}
 
-		pdisp = itsPanelDisplays("zy");
+		pdisp = itsPanelDisplays["zy"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("ZYcXY");
-		peh = itsSliceEHs("ZYcXY");
-		meh1 = itsSliceEHs("ZYcXZ");
-		peh1 = itsSliceEHs("ZYcXZ");
+		meh = itsSliceEHs["ZYcXY"];
+		peh = itsSliceEHs["ZYcXY"];
+		meh1 = itsSliceEHs["ZYcXZ"];
+		peh1 = itsSliceEHs["ZYcXZ"];
 
 		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
@@ -243,13 +237,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			wc->addMotionEventHandler(*this);
 		}
 
-		pdisp = itsPanelDisplays("xz");
+		pdisp = itsPanelDisplays["xz"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("XZcXY");
-		peh = itsSliceEHs("XZcXY");
-		meh1 = itsSliceEHs("XZcZY");
-		peh1 = itsSliceEHs("XZcZY");
+		meh = itsSliceEHs["XZcXY"];
+		peh = itsSliceEHs["XZcXY"];
+		meh1 = itsSliceEHs["XZcZY"];
+		peh1 = itsSliceEHs["XZcZY"];
 
 		if ( wc != 0 ) {
 			wc->addMotionEventHandler(*meh);
@@ -268,13 +262,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		PanelDisplay* pdisp = 0;
 		WorldCanvas* wc = 0;
 
-		pdisp = itsPanelDisplays("xy");
+		pdisp = itsPanelDisplays["xy"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("XYcZY");
-		peh = itsSliceEHs("XYcZY");
-		meh1 = itsSliceEHs("XYcXZ");
-		peh1 = itsSliceEHs("XYcXZ");
+		meh = itsSliceEHs["XYcZY"];
+		peh = itsSliceEHs["XYcZY"];
+		meh1 = itsSliceEHs["XYcXZ"];
+		peh1 = itsSliceEHs["XYcXZ"];
 
 		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
@@ -284,13 +278,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			wc->removeMotionEventHandler(*this);
 		}
 
-		pdisp = itsPanelDisplays("zy");
+		pdisp = itsPanelDisplays["zy"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("ZYcXY");
-		peh = itsSliceEHs("ZYcXY");
-		meh1 = itsSliceEHs("ZYcXZ");
-		peh1 = itsSliceEHs("ZYcXZ");
+		meh = itsSliceEHs["ZYcXY"];
+		peh = itsSliceEHs["ZYcXY"];
+		meh1 = itsSliceEHs["ZYcXZ"];
+		peh1 = itsSliceEHs["ZYcXZ"];
 
 		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
@@ -300,13 +294,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			wc->removeMotionEventHandler(*this);
 		}
 
-		pdisp = itsPanelDisplays("xz");
+		pdisp = itsPanelDisplays["xz"];
 		pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
 
-		meh = itsSliceEHs("XZcXY");
-		peh = itsSliceEHs("XZcXY");
-		meh1 = itsSliceEHs("XZcZY");
-		peh1 = itsSliceEHs("XZcZY");
+		meh = itsSliceEHs["XZcXY"];
+		peh = itsSliceEHs["XZcXY"];
+		meh1 = itsSliceEHs["XZcZY"];
+		peh1 = itsSliceEHs["XZcZY"];
 
 		if ( wc != 0 ) {
 			wc->removeMotionEventHandler(*meh);
@@ -318,34 +312,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void  SlicePanelDisplay::refresh(const Display::RefreshReason& reason) {
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			itsPanelDisplays.getVal(i)->refresh(reason);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			iter->second->refresh(reason);
 		}
 	}
 
 	void SlicePanelDisplay::hold() {
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			itsPanelDisplays.getVal(i)->hold();
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			iter->second->hold();
 		}
 	}
 
 	void SlicePanelDisplay::release() {
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			itsPanelDisplays.getVal(i)->release();
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			iter->second->release();
 		}
 	}
 
 
 	void SlicePanelDisplay::enableTools() {
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			PanelDisplay* pdisp = itsPanelDisplays.getVal(i);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			PanelDisplay* pdisp = iter->second;
 			pdisp->enableTools();
 		}
 	}
 
 	void SlicePanelDisplay::disableTools() {
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			PanelDisplay* pdisp = itsPanelDisplays.getVal(i);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			PanelDisplay* pdisp = iter->second;
 			pdisp->disableTools();
 		}
 	}
@@ -353,13 +347,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	void SlicePanelDisplay::setToolKey(const String& toolname,
 	                                   const Display::KeySym& keysym) {
 		if (toolname == "slice") {
-			for (uInt i=0; i < itsSliceEHs.ndefined(); i++) {
-				itsSliceEHs.getVal(i)->matchKey(keysym);
+			for (auto iter = itsSliceEHs.begin( ); iter != itsSliceEHs.end( ); ++iter) {
+				iter->second->matchKey(keysym);
 			}
 			return;
 		}
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			PanelDisplay* pdisp = itsPanelDisplays.getVal(i);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			PanelDisplay* pdisp = iter->second;
 			pdisp->setToolKey(toolname, keysym);
 		}
 	}
@@ -369,8 +363,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// distribute
 		Bool needRefresh = false;
 		PanelDisplay* pdisp = 0;
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			pdisp = itsPanelDisplays.getVal(i);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			pdisp = iter->second;
 			needRefresh = pdisp->setOptions(rec,out);
 			//pdisp->refresh();
 		}
@@ -379,18 +373,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	Record SlicePanelDisplay::getOptions() const {
 		// driven by the XY panel
-		return itsPanelDisplays("xy")->getOptions();
+        auto ptr = itsPanelDisplays.find("xy");
+		return ptr->second->getOptions();
 	}
 
 	PanelDisplay* SlicePanelDisplay::getPanelDisplay(const String& pdname) {
-		return *itsPanelDisplays.isDefined(pdname);
+        auto pdptr = itsPanelDisplays.find(pdname);
+        return pdptr != itsPanelDisplays.end( ) ? pdptr->second : 0;
 	}
 
 	void SlicePanelDisplay::operator()(const WCMotionEvent& ev) {
 		PanelDisplay* pdisp = 0;
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
 
-			pdisp = itsPanelDisplays.getVal(i);
+			pdisp = iter->second;
 
 			WorldCanvas* wc = 0;
 			pdisp->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
@@ -408,8 +404,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		PanelDisplay* pdisp = 0;
 		MWCAnimator tmpAni;
 		uInt length = 0;
-		for (uInt i=0; i < itsPanelDisplays.ndefined(); i++) {
-			pdisp = itsPanelDisplays.getVal(i);
+		for (auto iter = itsPanelDisplays.begin( ); iter != itsPanelDisplays.end( ); ++iter) {
+			pdisp = iter->second;
 			tmpAni.addMWCHolder(*pdisp);
 			length = pdisp->zLength();
 			for (uInt k = 0; k < length; k++) {

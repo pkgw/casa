@@ -62,12 +62,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	                           const PanelDisplay::FillOrder order) :
 		MultiWCHolder(),
 		itsPixelCanvas(pixelcanvas),
-		itsGeometrySet(false),
-		//itsWCLI(0),
-		//itsWCHLI(0),
-		itsMWCTools( std::shared_ptr<MultiWCTool>( ), uInt(10) ) {
-		//itsWCLI = new ListIter<WorldCanvas* >(itsWCList);
-		//itsWCHLI = new ListIter<WorldCanvasHolder* >(itsWCHList);
+		itsGeometrySet(false) {
+
 		itslpgm =10;
 		itsrpgm = 1; //4
 		itstpgm = 1; //4
@@ -79,8 +75,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	PanelDisplay::~PanelDisplay() {
 		unSetupGeometry();
 		// cleanup Tools
-		while (itsMWCTools.ndefined() > 0u) {
-			String key = itsMWCTools.getKey(0u);
+		while (itsMWCTools.size() > 0u) {
+			String key = itsMWCTools.begin( )->first;
 			removeTool(key);
 		}
 		itsMWCTools.clear();
@@ -538,7 +534,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	Bool PanelDisplay::hasTools() {
-		if (itsMWCTools.ndefined() > 0) {
+		if (itsMWCTools.size() > 0) {
 			return true;
 		} else {
 			return false;
@@ -547,44 +543,44 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	void PanelDisplay::updateTools(Bool remove, Bool add) {
-		if (itsMWCTools.ndefined() == 0) {
+		if (itsMWCTools.size() == 0) {
 			return;
 		}
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
 			if (remove) {
-				itsMWCTools.getVal(i)->removeWorldCanvases(this);
+				iter->second->removeWorldCanvases(this);
 			}
 			if (add) {
-				itsMWCTools.getVal(i)->addWorldCanvases(this);
+				iter->second->addWorldCanvases(this);
 			}
 		}
 	}
 
 	void PanelDisplay::disableTools() {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			itsMWCTools.getVal(i)->disable( );
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			iter->second->disable( );
 		}
 	}
 
 	void PanelDisplay::enableTools() {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			itsMWCTools.getVal(i)->enable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			iter->second->enable();
 		}
 	}
 
 	void PanelDisplay::enableTool(const String& toolname) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->enable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->enable();
 				break;
 			}
 		}
 	}
 
 	void PanelDisplay::disableTool(const String& toolname) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->disable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->disable();
 				break;
 			}
 		}
@@ -592,32 +588,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void PanelDisplay::setToolKey(const String& toolname,
 	                              const Display::KeySym& keysym) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->setKey(keysym);
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->setKey(keysym);
 				break;
 			}
 		}
 	}
 
 	void PanelDisplay::addTool(const String& key, const std::shared_ptr<MultiWCTool> &value) {
-		if (!itsMWCTools.isDefined(key)) {
-			itsMWCTools.define(key, value);
+        auto wcptr = itsMWCTools.find(key);
+		if ( wcptr == itsMWCTools.end( ) ) {
+			itsMWCTools.insert(std::pair<casacore::String, std::shared_ptr<MultiWCTool> >(key, value));
 			value->addWorldCanvases(this);
 		}
 	}
 
 	void PanelDisplay::removeTool(const String& key) {
-		if(!itsMWCTools.isDefined(key)) return;
-		std::shared_ptr<MultiWCTool> tool = itsMWCTools(key);
-		itsMWCTools.remove(key);
+        auto wcptr = itsMWCTools.find(key);
+		if(wcptr == itsMWCTools.end( )) return;
+		std::shared_ptr<MultiWCTool> tool = wcptr->second;
+		itsMWCTools.erase(wcptr);
 		if ( tool.get( ) == 0 ) return;
 		tool->removeWorldCanvases(this);
 	}
 
 	const std::shared_ptr<MultiWCTool> PanelDisplay::getTool(const String& key) {
-		if(!itsMWCTools.isDefined(key)) return std::shared_ptr<MultiWCTool>( );
-		return itsMWCTools(key);
+        auto wcptr = itsMWCTools.find(key);
+		if(wcptr == itsMWCTools.end( )) return std::shared_ptr<MultiWCTool>( );
+		return wcptr->second;
 	}
 
 	float PanelDisplay::getDrawUnit(  ) const {
