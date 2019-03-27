@@ -46,20 +46,6 @@
 			<value></value>
 		</param>
 
-		<param type="any" name="accumtime" subparam="true">
-			<any type="variant" limittypes="double int"/>
-<shortdescription>Time-interval when create cumulative table</shortdescription>
-<description>The time separation when making tablein.
-                     Subparameter of tablein
-                     Default: 1.0  (1 second)
-
-                     Note: This time should not be less than the
-		     visibility sampling time, but should be less than
-		     about 30% of a typical scan length.
-</description>
-			<value type="double">1.0</value>
-		</param>
-
 
 		<param type="string" name="incrtable">
 <shortdescription>Input incremental calibration table to add</shortdescription>
@@ -145,6 +131,19 @@ gaintable.
 </description>
 			<value>linear</value>
 		</param>
+        <param type="any" name="accumtime" subparam="true">
+            <any type="variant" limittypes="double int"/>
+<shortdescription>Time-interval when create cumulative table</shortdescription>
+<description>The time separation when making tablein.
+                     Subparameter of tablein
+                     Default: 1.0  (1 second)
+
+                     Note: This time should not be less than the
+             visibility sampling time, but should be less than
+             about 30% of a typical scan length.
+</description>
+            <value type="double">1.0</value>
+        </param>
 
 		<param type="intArray" name="spwmap">
 <shortdescription>Spectral window combinations to apply</shortdescription>
