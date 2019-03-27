@@ -1151,13 +1151,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //use new noise calc.
     //Bool useoldstats(False);
  
+    // at this point tempres has pbmask applied
+    LatticeExpr<Bool> pbmask(tempres->pixelMask());
+
     Record thestats = calcImageStatistics(*tempres, LELmask, region_ptr, robust);
     Array<Double> maxs, mins, rmss, mads;
     thestats.get(RecordFieldId("max"), maxs);
     thestats.get(RecordFieldId("rms"), rmss);
-    //test test test
-    // at this point tempres has pbmask applied
-    LatticeExpr<Bool> pbmask(tempres->pixelMask());
 
     Record thenewstats; 
     if (!(iterdone==0 && robuststatsrec.nfields()) ) { // this is an indirect way to check if initial stats by nsigma threshold is already run.
@@ -1235,6 +1235,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   Record SDMaskHandler::calcImageStatistics(ImageInterface<Float>& res, String& LELmask,  Record* regionPtr, const Bool robust )
   { 
+    LogIO os( LogOrigin("SDMaskHandler","calcImageStatistics",WHERE) );
     TempImage<Float>* tempres = new TempImage<Float>(res.shape(), res.coordinates(), memoryToUse()); 
     Array<Float> resdata;
     //
@@ -1262,6 +1263,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     imcalc.setAxes(axes);
     imcalc.setRobust(robust);
     Record thestats = imcalc.statistics();
+
     //cerr<<"thestats="<<thestats<<endl;
     //Array<Double> max, min, rms, mad;
     //thestats.get(RecordFieldId("max"), max);
@@ -1579,6 +1581,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //}
     if (nfalse(pbmask.getMask())) {
       os<<LogIO::DEBUG1<<"has pbmask..."<<LogIO::POST;
+      os<<LogIO::DEBUG1<<"-> nfalse(pbmask)="<<nfalse(pbmask.getMask())<<LogIO::POST;
     }
    
     // do stats on a whole cube at once for each algrithms
@@ -1834,7 +1837,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         theOutStatRec.define("median", outMdns);
       }
     }
-   
+    
     return theOutStatRec;
   }
 
