@@ -525,7 +525,11 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None,
 
         outpathdir = os.path.realpath(os.path.dirname(outfile))
         outpathfile = outpathdir + os.path.sep + os.path.basename(outfile)
-        if do_save_inputs and outpathfile not in casa['state']['unwritable'] and outpathdir not in casa['state']['unwritable']:
+        # Note the casa['state']['unwritable'] - state in the global casa dict that can
+        # be initialized in previous function calls
+        do_save_inputs = (do_save_inputs and outpathfile not in casa['state']['unwritable']
+                          and outpathdir not in casa['state']['unwritable'])
+        if do_save_inputs:
             try:
                 taskparameterfile=open(outfile,'w')
                 print >>taskparameterfile, '%-15s    = "%s"'%('taskname', taskname)

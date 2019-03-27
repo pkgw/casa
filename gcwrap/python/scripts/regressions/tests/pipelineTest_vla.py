@@ -24,7 +24,7 @@ def data():
 def run( fetch=False ):
 
     #####locate the regression script
-    lepath=locatescript('pipelineTest_regression.py')
+    lepath=locatescript('pipelineTest_regression_vla.py')
     print 'Script used is ',lepath
     gl['regstate']=True
     execfile(lepath, gl)
