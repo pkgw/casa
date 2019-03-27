@@ -37,8 +37,12 @@
 #include <synthesis/MeasurementComponents/DJones.h>
 #include <synthesis/MeasurementComponents/KJones.h>
 #include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
+#include <synthesis/MeasurementEquations/VisEquation.h>
+#include <synthesis/MeasurementComponents/VisCalSolver2.h>
 
 #include <gtest/gtest.h>
+
+#include "VisCalTestBase_GT.h"
 
 #define SHOWSTATE false
 using namespace casacore;
@@ -350,5 +354,293 @@ TEST_F(VisCalTest, GJonesSpecifyTest) {
 
   Table::deleteTable("refant_flex.G");
   Table::deleteTable("refant_strict.G");
+
+}
+
+
+
+class GJonesSolveTest : public VisCalTestBase {
+
+public:
+
+  Cube<Complex> g;
+
+  GJonesSolveTest() :
+    VisCalTestBase(1,1,1,10,4,1,1,false,"circ"),
+    g(2,1,nAnt,Complex(1.0))
+  {
+    /*
+    for (Int iant=0;iant<nAnt;++iant) {
+      Float P(iant*C::pi/2);
+      //g(0,0,iant)=(1.0+iant*0.01)*Complex(cos(P),sin(P));
+      //g(1,0,iant)=(1.0-iant*0.01)*Complex(cos(P),sin(-P));
+      g(0,0,iant)=Complex(cos(P),sin(P));
+      g(1,0,iant)=Complex(cos(P),sin(-P));
+    }
+    */
+
+    summary("GJonesSolveTest");
+    cout << "g = " << g << endl;
+  }
+
+};
+
+
+TEST_F(GJonesSolveTest, Test1) {
+
+  // Apply-able Xf
+  GJones Gapp(msmc);
+  Gapp.setApply();
+
+  for (Int ispw=0;ispw<nSpw;++ispw) { 
+    Gapp.setMeta(0,1,0.0,
+                 ispw,ssvp.freqs(ispw),
+                 nChan);
+    Gapp.sizeApplyParCurrSpw(nChan);
+    
+    Gapp.setApplyParCurrSpw(g,true,false);  // correct below will corrupt
+  }
+  //Gapp.state();
+
+
+  Record solvePar;
+  solvePar.define("table",String("test.G"));
+  solvePar.define("solint",String("inf"));
+  solvePar.define("combine",String(""));
+  solvePar.define("minblperant",3);
+  solvePar.define("solmode",String(""));
+  //Vector<Double> rmsth(std::vector<Float>({3.0,2.5}));
+  //solvePar.define("rmsthresh",rmsth);
+  Vector<Int> refant(1,0); solvePar.define("refant",refant);
+
+  //cout << "solvePar= " << solvePar << endl;
+
+  Vector<String> solmodes(4,"");
+  solmodes(0)="";
+  solmodes(1)="L1";
+  solmodes(2)="R";
+  solmodes(3)="L1R";
+
+
+  cerr << "-----------" << endl;
+
+  for (Int ism=0;ism<4;++ism) {
+
+    cerr << "solmode=\"" << solmodes(ism) <<"\"" << endl;
+
+  solvePar.define("solmode",solmodes(ism));
+
+  GJones Gsol(msmc);
+  Gsol.setSolve(solvePar);
+  //  Gsol.state();
+  Gsol.createMemCalTable2();
+
+
+  for (vi2.originChunks();vi2.moreChunks();vi2.nextChunk()) {
+    for (vi2.origin();vi2.more();vi2.next()) {
+
+      Int ispw=vb2->spectralWindows()(0);
+      Int obsid(vb2->observationId()(0));
+      Int scan(vb2->scan()(0));
+      Double timestamp(vb2->time()(0));
+      Int fldid(vb2->fieldId()(0));
+      Vector<Double> freqs(vb2->getFrequencies(0));
+      Vector<Int> a1(vb2->antenna1());
+      Vector<Int> a2(vb2->antenna2());
+
+      vb2->resetWeightsUsingSigma();
+
+      Cube<Complex> vC(vb2->visCube());
+      Float onedeg(C::pi/180.0);
+      vC*=Complex(cos(onedeg),sin(onedeg));
+
+      //vC(0,0,6)*=Complex(0.0,sin(C::pi/2.0));
+      //vC(0,0,26)*=Complex(-1.0,0.0);
+      vC(0,0,6)*=0.5;
+      vC(0,0,11)*=2.0;
+      vC(0,0,17)*=2.0;
+      vC(0,0,18)*=0.5;
+      vC(0,0,35)*=1.9;
+      vC(0,0,44)*=1.03;
+
+
+      vb2->setVisCubeCorrected(vC);
+      vb2->setFlagCube(vb2->flagCube());
+
+      Gapp.setMeta(obsid,scan,timestamp,
+                   ispw,freqs,
+                   fldid);
+      Gapp.correct2(*vb2,false,false,false);  // (trial?,doWtSp?,dosync?)
+
+      /*
+      Int nrow=vb2->nRows();
+      Double t0(86400.0*floor(timestamp/86400.0));
+      for (Int irow=0;irow<nrow;++irow) {
+      cout << iros << " time=" << timestamp-t0 
+	     << " BL=" << a1[irow] << "-" << a2[irow] 
+	     << " vCC=" << vb2->visCubeCorrected()(Slice(),Slice(0),Slice(irow)).nonDegenerate() << endl;
+      }
+      */
+      SDBList sdbs;
+      sdbs.add(*vb2);
+      sdbs.enforceSolveWeights(Gsol.phandonly());
+
+      // Use syncSolveMeta here??
+      
+      // Setup meta & sizes for the solve
+      Gsol.setMeta(sdbs.aggregateObsId(),
+		   sdbs.aggregateScan(),
+		   sdbs.aggregateTime(),
+		   sdbs.aggregateSpw(),
+		   sdbs.freqs(),
+		   sdbs.aggregateFld());
+      
+      Gsol.setOrVerifyCTFrequencies(sdbs.aggregateSpw());
+      Gsol.sizeSolveParCurrSpw(sdbs.nChannels()); 
+      //Gsol.state();
+      
+
+      Gsol.guessPar(sdbs);
+      //cout << "solvePar() = " << Gsol.solveCPar()  << endl;
+
+      // Munge LL flags _after_ guess, so L solutions are "correct"
+      if (solmodes(ism)!="") {
+	Cube<Bool> flc(sdbs(0).flagCube());
+	flc(3,0,6)=true;
+	flc(3,0,11)=true;
+	flc(3,0,17)=true;
+	flc(3,0,18)=true;
+	flc(3,0,35)=true;
+	flc(3,0,44)=true;
+      }
+
+      VisEquation ve;
+      ve.setsolve(Gsol);
+      VisCalSolver2 vcs(Gsol.solmode(),Gsol.rmsthresh());
+
+      Bool good=vcs.solve(ve,Gsol,sdbs);
+      //cout << "good=" << good << endl;
+      ASSERT_TRUE(good);
+
+      //      Gsol.applyRefAnt();
+      
+      //cout << "solvePar() = " << Gsol.solveCPar()  << endl;
+      //cout << "solveParErr() = " << Gsol.solveParErr()  << endl;
+
+      // Form phase and amp
+      Cube<Complex> soln;
+      soln.assign(Gsol.solveCPar());
+      for (Int i=0;i<2;++i) {
+	Complex Cph=soln(i,0,0);
+	Cph/=abs(Cph);
+	Cube<Complex> solnsl(soln(Slice(i,1,1),Slice(),Slice()));
+	solnsl/=Cph;
+      }
+      Matrix<Float> Gamp(amplitude(soln).nonDegenerate());
+      Matrix<Float> Gpha(phase(soln).nonDegenerate()*180.0/C::pi);
+
+      //cout << "amplitudes=" << amplitude(Gsol.solveCPar())  << endl;
+      //cout << "phases    =" << phase(soln)*180.0/C::pi  << endl;
+
+      //cout << "amplitudes=" << Gamp << endl;
+      //cout << "phases    =" << Gpha << endl;
+
+      //cout << "Residuals: " << amplitude(sdbs(0).residuals()) << endl;
+
+      // Form R/L ratio for testing
+      Vector<Complex> L(soln(Slice(1),Slice(),Slice()).nonDegenerate());
+      Vector<Complex> RoL(soln(Slice(0),Slice(),Slice()).nonDegenerate());
+      RoL/=L;
+      RoL-=Complex(1.0);
+      Vector<Float> Arol(amplitude(RoL));
+      Float maxArol(max(Arol));
+      
+      //cout << " R/L = " << Arol
+      //<< " max = " << maxArol
+      //	   << endl;
+
+
+      if (solmodes(ism)=="") {
+	// This is the traditional solution
+
+	// Expecting L solutions to be correct, R solutions to be no worse than 10% off
+
+	// Find peak absolute amp resid
+	Gamp-=1.0f;
+	Gamp=abs(Gamp);
+	Vector<Float> maxAresid(partialMaxs(Gamp,IPosition(1,1)));
+
+	//cout << "Gamp_resid = " << Gamp << endl;
+	cerr << "max(Gamp_resid) = " << maxAresid  << " ([0.1,1e-4])" << endl;
+	EXPECT_TRUE(maxAresid(0)<0.1);
+	EXPECT_TRUE(maxAresid(1)<1e-4);
+
+	// Find peak absolute phase resid (deg)
+	for (Int iant=1;iant<nAnt;++iant) {
+	  Vector<Float> Piant(Gpha(Slice(),Slice(iant,1,1)));
+	  Piant+=Float(iant*0.2);
+	}
+	Vector<Float> maxPresid(partialMaxs(Gpha,IPosition(1,1)));
+
+	//cout << "Gpha_resid = " << Gpha << endl;
+	cerr << "max(Gpha_resid) = " << maxPresid  << " ([0.02,1e-5])"  << endl;
+	EXPECT_TRUE(maxPresid(0)<0.02);
+	EXPECT_TRUE(maxPresid(1)<1e-5);
+
+	// Test max R/L
+	cerr << "maxArol = " << maxArol << " (0.1)" << endl;
+	EXPECT_TRUE(maxArol<0.1f);
+
+
+      }
+      if (solmodes(ism).contains("R")) {
+	Matrix<Bool> wFl(sdbs(0).const_workingFlagCube().nonDegenerate());
+
+	//cout << "flags=" << boolalpha << wFl  << endl;
+	cerr << "ntrue(flags)=" << ntrue(wFl) << " (12)" << endl;
+	EXPECT_TRUE(ntrue(wFl)==12);
+
+	EXPECT_TRUE(wFl(0,6));
+	EXPECT_TRUE(wFl(0,11));
+	EXPECT_TRUE(wFl(0,17));
+	EXPECT_TRUE(wFl(0,18));
+	EXPECT_TRUE(wFl(0,35));
+	EXPECT_TRUE(wFl(0,44));
+
+	if (solmodes(ism).contains("L1")) {
+	  Matrix<Float> wWt(sdbs(0).const_workingWtSpec().nonDegenerate());
+	  
+	  //cout << "wts=" << wWt << endl;
+	  EXPECT_EQ(wWt(0,6),0.0f);
+	  EXPECT_EQ(wWt(0,11),0.0f);
+	  EXPECT_EQ(wWt(0,17),0.0f);
+	  EXPECT_EQ(wWt(0,18),0.0f);
+	  EXPECT_EQ(wWt(0,35),0.0f);
+	  EXPECT_EQ(wWt(0,44),0.0f);
+	}
+	
+      }
+      
+      // Test max R/L by mode
+      if (solmodes(ism)=="L1") {
+	cerr << "maxArol = " << maxArol << " (3e-3)" << endl;
+	EXPECT_TRUE(maxArol<3e-3);
+      }
+      if (solmodes(ism)=="R") {
+	cerr << "maxArol = " << maxArol << " (1e-6)" << endl;
+	EXPECT_TRUE(maxArol<1e-6);
+      }
+      if (solmodes(ism)=="L1R") {
+	cerr << "maxArol = " << maxArol << " (5e-7)" << endl;
+	EXPECT_TRUE(maxArol<5e-7);
+      }
+
+    }
+  }
+
+      cerr << "-----------" << endl;
+
+  } // solmodes
+
 
 }

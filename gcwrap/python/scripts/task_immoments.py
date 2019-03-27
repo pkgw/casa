@@ -98,11 +98,13 @@ def immoments(
     casalog.origin('immoments')
     _myia = iatool()
     try:
+        if (len(outfile) == 0):
+            raise Exception, "outfile must be specified" 
         _myia.dohistory(False)
         # First check to see if the output file exists.  If it
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
-        if ( len( outfile ) > 0 and os.path.exists( outfile ) ):
+        if os.path.exists(outfile):
             raise Exception, 'Output file, '+outfile+\
               ' exists. immoment can not proceed, please\n'\
               'remove it or change the output file name.'
@@ -134,9 +136,8 @@ def immoments(
         except Exception, instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, x:
-        _myia.done()
-        print '*** Error ***: ' + str(x)
+    except Exception, instance:
+        casalog.post('*** Error *** ' + str(instance), 'SEVERE') 
         raise
     finally:
         _myia.done()

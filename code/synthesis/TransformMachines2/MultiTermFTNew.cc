@@ -624,7 +624,17 @@ void MultiTermFTNew::finalizeToSkyNew(Bool dopsf,
     tmp.copyData(le);
     return true;
   }
-  
+  //
+  // Set the supplied CFCache for all internal FTMs if they do use CFCache mechanism
+  //
+  void MultiTermFTNew::setCFCache(casacore::CountedPtr<CFCache>& cfc, const casacore::Bool resetCFC)
+  {
+    for (unsigned int i=0;i<subftms_p.nelements();i++)
+      {
+	if (subftms_p[i]->isUsingCFCache())
+	  subftms_p[i]->setCFCache(cfc,resetCFC);
+      }
+  }
   
 
   //---------------------------------------------------------------------------------------------------

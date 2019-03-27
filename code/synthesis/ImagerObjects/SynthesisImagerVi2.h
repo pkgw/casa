@@ -61,8 +61,11 @@ public:
 	      const casacore::Quantity& filterbmaj=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbpa=casacore::Quantity(0.0,"deg")  );
-  
-  casacore::Bool setWeightDensity();
+  //set the weight density to the visibility iterator
+  //the default is to set it from the imagestore griwt() image
+  //Otherwise it will use this image passed here; useful for parallelization to
+  //share one grid to all children process
+  casacore::Bool setWeightDensity(const casacore::String& imagename=casacore::String(""));
   void predictModel();
   virtual void makeSdImage(casacore::Bool dopsf=false);
   ///This should replace makeSDImage and makePSF etc in the long run

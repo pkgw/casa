@@ -237,6 +237,11 @@ public:
   virtual casacore::String typeName()     { return "G Jones"; };
   virtual casacore::String longTypeName() { return "G Jones (electronic Gain)"; };
 
+  // Local setSolve
+  //  (parses solmode)
+  using SolvableVisJones::setSolve;
+  virtual void setSolve(const casacore::Record& solve);
+
   // Type of Jones matrix according to nPar()
   virtual Jones::JonesType jonesType() { return Jones::Diagonal; };
 

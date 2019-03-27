@@ -6,20 +6,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-
-<!-- This is the task interface to ia.imagecalc(), but ...    -->
-<!-- we use the standard region selection rather then use     -->
-<!-- the selection methods allowed in the lattice expression  -->
-<!-- language.  Although we don't stop the users from trying. -->
-<!--                                                          -->
-<!-- TODO                                                     -->
-<!--   - Crystal wanted different masks for different inputs  -->
-<!--     but unlikely that its really needed.                 -->
-<!--   - Add an "overwrite" output file parameter             -->
-<!--   - Add polygon and circle region selection              -->
-<!--   - In general bring data selection to the full level    -->
-<!--     proposed.                                            -->
-
 <task type="function" name="immath" category="analysis">
 
 <shortdescription>Perform math operations on images</shortdescription>
@@ -34,13 +20,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value type="string"></value>
     </param>
 	<param type="string" name="mode">
-		<description>mode for math operation (evalexpr, spix, pola, poli)</description>
+		<description>mode for math operation (evalexpr, spix, pola, poli, lpoli, tpoli)</description>
 		<value>evalexpr</value>
             <allowed kind="enum">
             <value>evalexpr</value>
             <value>spix</value>
             <value>pola</value>
             <value>poli</value>
+            <value>lpoli</value>
+            <value>tpoli</value>
         </allowed>
 		<example>'evalexpr', 'spix', 'pola', or 'poli' </example>
 	</param>
@@ -97,6 +85,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <description>An image name from which metadata should be copied. The input can be either an image listed under imagename or any other image on disk. Leaving this parameter unset may copy header metadata from any of the input images, which one is not guaranteed. </description>
         <value/>
     </param>
+    <param type="string" name="prec">
+        <description>Precision for the output image pixels if mode="evalexpr" or "spix". "float" or "double" (minimum match supported)</description>
+        <value>float</value>
+    </param>
 	<constraints>
         <when param="mode">
             <equals value="evalexpr">
@@ -104,6 +96,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 <default param="varnames"><value>""</value></default>
             </equals>
             <equals value="poli">
+                <default param="sigma"><value>"0.0mJy/beam"</value></default>
+            </equals>
+            <equals value="lpoli">
+                <default param="sigma"><value>"0.0mJy/beam"</value></default>
+            </equals>
+            <equals value="tpoli">
                 <default param="sigma"><value>"0.0mJy/beam"</value></default>
             </equals>
 		    <equals value="pola">
@@ -372,7 +370,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     conceivably instances where the temporary images may not be automatically deleted. It is generally
     safe to delete them by hand, assuming no immath instance is currently in progress.
 
-    The hope and plan is that the necessity of these images will decrease in the future (ie the computations
+    The hope and plan is that the necessity of these images will decrease in the future (i.e. the computations
     will require only RAM and not temporary persistent storage of intermediate results).
 
  

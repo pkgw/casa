@@ -7,10 +7,13 @@ import fnmatch
 import os
 from casac import casac
 import __casac__
+import atexit
+import datetime
 
 def logShutdown():
     if (casa['state']['telemetry-enabled'] == True):
-        casalog.poststat("Stop CASA")
+        casalog.origin("CASAStop")
+        casalog.poststat("Stopping CASA at: " + str(datetime.datetime.now()) + " Version " + casa['build']['version'] + " Platform: " + platform.platform() +  " Start time: " + casa['state']['telemetry-starttime'])
 
 casa['state']['telemetry-enabled'] = ${TELEMETRY_DEFAULT}
 
@@ -37,5 +40,5 @@ if (casa['flags'].telemetry == True):
     casa['state']['telemetry-enabled'] = True
 
 if (casa['state']['telemetry-enabled'] == True):
-    add_shutdown_hook(logShutdown)
+    atexit.register(logShutdown)
     casatelemetry = telemetry(casa)

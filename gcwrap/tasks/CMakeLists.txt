@@ -82,6 +82,7 @@ plotweather.xml
 plotprofilemap.xml
 partition.xml
 polcal.xml
+polfromgain.xml
 predictcomp.xml
 impv.xml
 rerefant.xml
@@ -94,6 +95,7 @@ sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
 tsdimaging.xml
+sdpolaverage.xml
 sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml

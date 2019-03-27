@@ -29,6 +29,7 @@
 #include <synthesis/MeasurementComponents/MSMetaInfoForCal.h>
 #include <synthesis/MeasurementComponents/StandardVisCal.h>
 #include <synthesis/MeasurementComponents/DJones.h>
+#include <synthesis/MeasurementComponents/XJones.h>
 #include <synthesis/MeasurementComponents/GSpline.h>
 #include <synthesis/MeasurementComponents/BPoly.h>
 #include <synthesis/MeasurementComponents/EJones.h>
@@ -498,6 +499,17 @@ SolvableVisCal* createSolvableVisCal(const String& type, const MSMetaInfoForCal&
   else if (uptype=="GLINXPHF" || uptype=="GLINXPHF JONES" ||
 	   uptype=="XYF+QU")
     return new GlinXphfJones(msmc);
+
+  else if (uptype=="XPARANG" || uptype=="XPARANG JONES" ||
+	   uptype=="XPARANG+QU")
+    return new XparangJones(msmc);
+
+  else if (uptype=="XFPARANG" || uptype=="XFPARANG JONES" ||
+	   uptype=="XFPARANG+QU")
+    return new XfparangJones(msmc);
+
+  else if (uptype=="POSANG" || uptype=="POSANG JONES")
+    return new PosAngJones(msmc);
 
   else if (uptype=="KMBD" || uptype=="KMBD JONES")
     return new KMBDJones(msmc);

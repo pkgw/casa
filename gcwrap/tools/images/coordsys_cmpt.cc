@@ -594,7 +594,7 @@ record* coordsys::findaxis(
 			_csys->findPixelAxis(coordinate, axisInCoordinate, axis);
 		}
 
-		std::auto_ptr<record> out(new record());
+		std::unique_ptr<record> out(new record());
 		(*out)["coordinate"] = coordinate;
 		(*out)["axisincoordinate"] = axisInCoordinate;
 		return out.release();
@@ -3177,7 +3177,7 @@ std::vector<std::string> coordsys::units(
 			return fromVectorString(units);
 		}
 		else {
-			std::auto_ptr<record> rec(
+			std::unique_ptr<record> rec(
 				findcoordinate (cordtype, 0)
 			);
 			std::vector<int> pixelaxes = rec->find("pixel")->second.toIntVec();

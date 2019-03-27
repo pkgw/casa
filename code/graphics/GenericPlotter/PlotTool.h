@@ -235,6 +235,7 @@ enum ToolCode {
     SUBTRACT_TOOL,   
     ZOOM_TOOL, 
     PAN_TOOL, 
+    FLAGALL_TOOL,
     NONE_TOOL
 };
     
@@ -607,6 +608,74 @@ INHERITANCE_POINTER(PlotTrackerTool, PlotTrackerToolPtr, PlotMouseTool,
                     PlotMouseToolPtr, PlotTool, PlotToolPtr)
 
 
+// A PlotFlagAllTool is a concrete subclass of PlotMouseTool that handles
+// one-click data flag functionality.
+// PlotFlagAllTool is responsible for:
+// 1) the behavior described above
+class PlotFlagAllTool : public virtual PlotMouseTool {
+public:
+    // enum for canvas state
+    enum PPFlagType {
+      PPFLAG_FLAG,
+      PPFLAG_UNFLAG,
+      PPFLAG_NONE
+    };
+
+    // Constructor which takes the tool's coordinate system.
+    PlotFlagAllTool(PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Constructor which takes the tool's axes and coordinate system.
+    PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+                   PlotCoordinate::System system = PlotCoordinate::WORLD);
+
+    // Destructor.
+    virtual ~PlotFlagAllTool();
+
+    // Implements PlotMouseTool::handleMouseEvent().
+    virtual void handleMouseEvent(const PlotEvent& event);
+
+    // Sets the attributes for updating background
+    virtual void setUpdateBackground(bool on = true);
+
+    // Inquiry if update of background is active
+    virtual bool isUpdateBackgroundActive();
+
+    // Manipulate mark
+    void clearMark();
+
+    // Inquiry if it is marked
+    bool isMarkedForFlag() const;
+    bool isMarkedForUnflag() const;
+
+    // Inquiry if bgcolor is changed
+    bool isBackgroundColorChanged() const;
+
+    //
+    void setAllFlagged();
+
+protected:
+    // boolean flag for whether update of background is active
+    bool m_draw;
+
+    // boolean flag for background color
+    bool m_bgcolor_changed;
+
+    // boolean flag for whether canvas is marked for flag
+    PlotFlagAllTool::PPFlagType m_marked;
+
+    // keep default background setting
+    PlotAreaFillPtr m_defaultBackground;
+
+private:
+    // internal methods for shared operations
+    void markAsFlag();
+    void markAsUnflag();
+
+};
+INHERITANCE_POINTER(PlotFlagAllTool, PlotFlagAllToolPtr, PlotMouseTool,
+                    PlotMouseToolPtr, PlotTool, PlotToolPtr)
+
+
 ///////////////////////////////
 // TOOL NOTIFICATION CLASSES //
 ///////////////////////////////
@@ -813,6 +882,7 @@ public:
     PlotStandardMouseToolGroup(PlotSelectToolPtr selectTool,
                                PlotZoomToolPtr zoomTool,
                                PlotPanToolPtr panTool,
+                               PlotFlagAllToolPtr flagAllTool,
                                PlotTrackerToolPtr trackerTool,
                                ToolCode activeTool = NONE_TOOL);
     
@@ -837,12 +907,20 @@ public:
     std::vector<PlotRegion> getSelectedRects();
     void clearSelectedRects();
 
+    // methods related to per-panel flag mode
+    void clearMark();
+    bool isMarkedForFlag();
+    bool isMarkedForUnflag();
+    bool isBackgroundColorChanged();
+    void setAllFlagged();
+
     // Provides access to the individual tools.  Note: this should be avoided
     // if possible.
     // <group>
     PlotSelectToolPtr selectTool();
     PlotZoomToolPtr zoomTool();
     PlotPanToolPtr panTool();
+    PlotFlagAllToolPtr flagAllTool();
     PlotTrackerToolPtr trackerTool();
     // </group>
     

@@ -54,4 +54,27 @@ protected:
     void initReferenceConfiguration(casacore::Record &configuration);
 };
 
+class PhaseShiftingTVISpwChannTest: public MsFactoryTVITester {
+
+public:
+
+    PhaseShiftingTVISpwChannTest();
+
+    void createTVIs();
+
+    void useMSSelection(bool use);
+
+    void addPassThroughTVI(bool use);
+
+    void addExtraHanningTVI(bool use);
+
+protected:
+
+    bool useMSSelection_p;
+
+    bool addPassThroughTVI_p;
+
+    bool addExtraHanningTVI_p;
+};
+
 #endif /* PhaseShiftingTVITest_H_ */

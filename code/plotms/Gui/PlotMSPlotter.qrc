@@ -19,6 +19,7 @@
         <file>images/stack_forward.png</file>
         <file>images/unflag.png</file>
         <file>images/zoom.png</file>
+        <file>images/panelflag.png</file>
     </qresource>
     <qresource prefix="/images" >
         <file>images/plotms.png</file>

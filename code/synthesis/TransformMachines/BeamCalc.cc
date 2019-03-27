@@ -1321,7 +1321,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1352,8 +1353,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1381,7 +1382,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1412,8 +1414,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1467,12 +1469,13 @@ namespace casa{
   
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    // not used
+    // Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant, x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -1730,12 +1733,12 @@ namespace casa{
   //
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap, const Int& whichPoln)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    //Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant;//x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];

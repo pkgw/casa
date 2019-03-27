@@ -2206,109 +2206,114 @@ VisibilityIteratorImpl2::determineChannelSelection(
 Int
 VisibilityIteratorImpl2::getPolarizationId(Int spectralWindowId, Int msId) const
 {
-	ThrowIf(msId != this->msId(),
-	        String::format("Requested MS number is %d but current is %d", msId,
-	                       this->msId()));
+    ThrowIf(msId != this->msId(),
+        String::format("Requested MS number is %d but current is %d", msId,
+                       this->msId()));
 
-	const ROScalarColumn<Int> & spwIds =
-		subtableColumns_p->dataDescription().spectralWindowId();
+    auto & ddCols = subtableColumns_p->dataDescription();
+    auto nSpw = subtableColumns_p->spectralWindow().nrow();
 
-	// This will break if the same spectral window is referenced by two
-	// different data_descrption IDs.  Ideally, this whole thing should be
-	// reworked to used DDIDs with spectral window ID only used internally.
+    // This will break if the same spectral window is referenced by two
+    // different data_descrption IDs.  Ideally, this whole thing should be
+    // reworked to used DDIDs with spectral window ID only used internally.
+    Int polID = -1;
+    for (uInt idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
+        if(ddCols.spectralWindowId()(idd) == spectralWindowId)
+            polID = ddCols.polarizationId()(idd);
+    }
 
-	for (uInt i = 0; i < spwIds.nrow(); i++) {
-		if (spwIds(i) == spectralWindowId) {
-			return subtableColumns_p->dataDescription().polarizationId()(i);
-		}
-	}
+    // If the SPW is not found in the DD it will return -1, rather than failing.
+    // This can happen for the so-called phantom SPWs. See CAS-11734
+    if(spectralWindowId < (Int)nSpw)
+        return polID;
 
-	ThrowIf(true, String::format(
-		        "Could not find entry for spectral window id"
-		        "%d in data_description in MS #%d", spectralWindowId, msId));
+    // spectralWindowId is not present in subtables 
+    ThrowIf(true, String::format(
+            "Could not find entry for spectral window id"
+            "%d in spectral_window in MS #%d", spectralWindowId, msId));
 
-	return -1; // Can't get here so make the compiler happy
+    return -1; // Can't get here so make the compiler happy
 }
 
 
 vi::ChannelSelector *
 VisibilityIteratorImpl2::makeChannelSelectorC(
-	const FrequencySelection & selectionIn,
-	Double time,
-	Int msId,
-	Int spectralWindowId,
-	Int polarizationId) const
+    const FrequencySelection & selectionIn,
+    Double time,
+    Int msId,
+    Int spectralWindowId,
+    Int polarizationId) const
 {
-	const FrequencySelectionUsingChannels & selection =
-		dynamic_cast<const FrequencySelectionUsingChannels &>(selectionIn);
+    const FrequencySelectionUsingChannels & selection =
+    dynamic_cast<const FrequencySelectionUsingChannels &>(selectionIn);
 
-	if (selection.refinementNeeded()) {
-		auto spwcFetcher =
-			[this, msId]
-			(int spwId, double lowerFrequency, double upperFrequency)
-			{
-				const SpectralWindowChannels & spwChannels =
-				getSpectralWindowChannels(msId, spwId);
-				return spwChannels.getIntersection(
-					lowerFrequency, upperFrequency);
-			};
-		selection.applyRefinement(spwcFetcher);
-	}
+    if (selection.refinementNeeded())
+    {
+        auto spwcFetcher =
+            [this, msId]
+            (int spwId, double lowerFrequency, double upperFrequency)
+            {
+                const SpectralWindowChannels & spwChannels =
+                getSpectralWindowChannels(msId, spwId);
+                return spwChannels.getIntersection(
+                    lowerFrequency, upperFrequency);
+            };
+            selection.applyRefinement(spwcFetcher);
+    }
 
-	vector<Slice> frequencySlices;
+    vector<Slice> frequencySlices;
 
-	// Iterate over all of the frequency selections for the specified spectral
-	// window and collect them into a vector of Slice objects.
+    // Iterate over all of the frequency selections for the specified spectral
+    // window and collect them into a vector of Slice objects.
+    for (FrequencySelectionUsingChannels::const_iterator i = selection.begin();
+         i != selection.end(); i++)
+    {
 
-	for (FrequencySelectionUsingChannels::const_iterator i = selection.begin();
-	     i != selection.end();
-	     i++) {
+        frequencySlices.push_back(i->getSlice());
+    }
 
-		frequencySlices.push_back(i->getSlice());
-	}
+    if (frequencySlices.empty())
+    {
+        // And empty selection implies all channels
+        Int nChannels =
+            subtableColumns_p->spectralWindow().numChan()(spectralWindowId);
+        frequencySlices.push_back(Slice(0, nChannels, 1));
+    }
 
-	if (frequencySlices.empty()) {
+    ChannelSlicer slices(2);
 
-		// And empty selection implies all channels
+    // Install the polarization selections
+    if(polarizationId != -1)
+    {
+        Vector<Slice> correlationSlices =
+            selection.getCorrelationSlices(polarizationId);
 
-		Int nChannels =
-			subtableColumns_p->spectralWindow().numChan()(spectralWindowId);
-		frequencySlices.push_back(Slice(0, nChannels, 1));
-	}
+        if (correlationSlices.empty())
+        {
+            Int nCorrelations =
+                subtableColumns_p->polarization().numCorr().get(polarizationId);
+            correlationSlices = Vector<Slice>(1, Slice(0, nCorrelations));
+        }
 
-	ChannelSlicer slices(2);
+        slices.setSubslicer(0, ChannelSubslicer(correlationSlices));
 
-	// Install the polarization selections
+    }
 
-	Vector<Slice> correlationSlices =
-		selection.getCorrelationSlices(polarizationId);
-	if (correlationSlices.empty()) {
+    // Create and install the frequency selections
+    ChannelSubslicer frequencyAxis(frequencySlices.size());
+    for (Int i = 0; i <(int) frequencySlices.size(); i++)
+    {
+        frequencyAxis.setSlice(i, frequencySlices[i]);
+    }
 
-		Int nCorrelations =
-			subtableColumns_p->polarization().numCorr().get(polarizationId);
+    slices.setSubslicer(1, frequencyAxis);
 
-		correlationSlices = Vector<Slice>(1, Slice(0, nCorrelations));
-	}
+    // Package up the result and return it.
+    ChannelSelector *result =
+    new ChannelSelector(time, msId, spectralWindowId, polarizationId,
+                        slices);
 
-	slices.setSubslicer(0, ChannelSubslicer(correlationSlices));
-
-	// Create and install the frequency selections
-
-	ChannelSubslicer frequencyAxis(frequencySlices.size());
-
-	for (Int i = 0; i <(int) frequencySlices.size(); i++) {
-		frequencyAxis.setSlice(i, frequencySlices[i]);
-	}
-
-	slices.setSubslicer(1, frequencyAxis);
-
-	// Package up the result and return it.
-
-	ChannelSelector *result =
-		new ChannelSelector(time, msId, spectralWindowId, polarizationId,
-		                    slices);
-
-	return result;
+    return result;
 }
 
 ChannelSelector *

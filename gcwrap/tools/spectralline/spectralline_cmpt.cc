@@ -122,8 +122,8 @@ spectralline* spectralline::search(
 	const bool includeRRLs, const bool onlyRRLs,
 	const bool verbose, const string& logfile, const bool append
 ) {
-	std::auto_ptr<spectralline> tool;
-	std::auto_ptr<SplatalogueTable> table;
+	std::unique_ptr<spectralline> tool;
+	std::unique_ptr<SplatalogueTable> table;
 
 	try {
 		if (_detached()) {
