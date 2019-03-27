@@ -7,7 +7,7 @@ import numpy as np
 import pipeline
 
 pathname = os.environ.get('CASAPATH').split()[0]
-rootdatapath = pathname+'/data/regression/pipeline/'
+rootdatapath = pathname+'/data/regression/pipeline/vla/'
 
 
 '''Initial VLA pipeline regression
@@ -16,6 +16,7 @@ rootdatapath = pathname+'/data/regression/pipeline/'
    Update April 20, 2018
    Update June  01, 2018
    Update Feb   22, 2019   Added imaging statistics
+   Update March 18, 2019   Switched to new data directory
 '''
 
 THISHOME  = "working/"
