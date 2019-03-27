@@ -307,21 +307,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   casacore::String asdmDir_p; // ASDM output directory name
 
-  casacore::SimpleOrderedMap <casacore::String, asdm::Tag> asdmStationId_p;  
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmAntennaId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmSpectralWindowId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmPolarizationId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmProcessorId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmFieldId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmEphemerisId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmDataDescriptionId_p;
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmStateId_p;
-  casacore::SimpleOrderedMap <casacore::uInt, asdm::Tag> asdmConfigDescriptionId_p; // maps from casacore::MS Main rows
-  casacore::SimpleOrderedMap <casacore::Int, asdm::Tag> asdmSBSummaryId_p; // maps from casacore::MS Observation Id + 10000*SpwId
-  casacore::SimpleOrderedMap <casacore::Double, asdm::Tag> asdmExecBlockId_p; // maps from casacore::MS Main timestamps 
-  casacore::SimpleOrderedMap <casacore::Int, int> asdmFeedId_p; // ASDM feed id is not a Tag
-  casacore::SimpleOrderedMap <casacore::Int, int> asdmSourceId_p; // neither is the source id
-  casacore::SimpleOrderedMap <asdm::Tag, int> asdmPointingModelId_p; // maps ASDM Antenna Id to dummy pointing model
+  std::map <casacore::String, asdm::Tag> asdmStationId_p;  
+  std::map <casacore::Int, asdm::Tag> asdmAntennaId_p;
+  std::map <casacore::Int, asdm::Tag> asdmSpectralWindowId_p;
+  std::map <casacore::Int, asdm::Tag> asdmPolarizationId_p;
+  std::map <casacore::Int, asdm::Tag> asdmProcessorId_p;
+  std::map <casacore::Int, asdm::Tag> asdmFieldId_p;
+  std::map <casacore::Int, asdm::Tag> asdmEphemerisId_p;
+  std::map <casacore::Int, asdm::Tag> asdmDataDescriptionId_p;
+  std::map <casacore::Int, asdm::Tag> asdmStateId_p;
+  std::map <casacore::uInt, asdm::Tag> asdmConfigDescriptionId_p; // maps from casacore::MS Main rows
+  std::map <casacore::Int, asdm::Tag> asdmSBSummaryId_p; // maps from casacore::MS Observation Id + 10000*SpwId
+  std::map <casacore::Double, asdm::Tag> asdmExecBlockId_p; // maps from casacore::MS Main timestamps 
+  std::map <casacore::Int, int> asdmFeedId_p; // ASDM feed id is not a Tag
+  std::map <casacore::Int, int> asdmSourceId_p; // neither is the source id
+  std::map <asdm::Tag, int> asdmPointingModelId_p; // maps ASDM Antenna Id to dummy pointing model
 
   std::vector< std::vector< casacore::Bool > > skipCorr_p; // skipCorr_p[j][PolId] indicates that correlation 
                                        // product j for POLARIZATION_ID PolId should not 

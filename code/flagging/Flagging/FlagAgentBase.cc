@@ -50,7 +50,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // NOTE: We have to initialize the polarizationList_p here, which is a OrderedMap<Int, Vector<Int> >
 // because otherwise the compiler complains because we are calling a theoretical default constructor
 // OrderedMap() that does not exist.
-FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iterationApproach, Bool writePrivateFlagCube, Bool flag): polarizationList_p(Vector<Int>(0))
+FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iterationApproach, Bool writePrivateFlagCube, Bool flag)
 {
 	// Initialize logger
 	if (config.fieldNumber ("loglevel") >= 0)
@@ -863,8 +863,8 @@ FlagAgentBase::setDataSelection(Record config)
 
 					// NOTE: casa::LogIO does not support outstream from OrderedMap<Int, Vector<Int> > objects yet
 					ostringstream polarizationListToPrint (ios::in | ios::out);
-					polarizationListToPrint << polarizationList_p;
-
+                    for ( auto iter = polarizationList_p.begin( ); iter != polarizationList_p.end( ); ++iter )
+                        polarizationListToPrint << iter->first << "=" << iter->second << " ";
 					*logger_p << LogIO::DEBUG1 << " correlation selection is " << polarizationSelection_p << LogIO::POST;
 					*logger_p << LogIO::DEBUG1 << " correlation ids are " << polarizationListToPrint.str() << LogIO::POST;
 				}
@@ -1729,7 +1729,7 @@ FlagAgentBase::generatePolarizationIndex(uInt nPolarizations)
 		// it from the RW Visibility Iterator which is always a conventional one
 		// (not asyn I/O which does not implement it)
 		Int polId = visibilityBuffer_p->polarizationId();
-		Vector<Int> polarizations = polarizationList_p(polId);
+		Vector<Int> polarizations = polarizationList_p.at(polId);
 
 		// Get accepted polarizations
 		for (uInt polarization_i=0;polarization_i<nPolarizations;polarization_i++)

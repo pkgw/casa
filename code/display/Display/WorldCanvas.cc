@@ -99,7 +99,6 @@ WorldCanvas::WorldCanvas(PixelCanvas * pc,
   itsHeldReason(Display::BackCopiedToFront),
   itsCoordinateSystem(0),
   itsGrabbing(false),
-  images_(0,16),
   itsCSmaster(0) {
 	setWorldCanvasPosition(xOrigin, yOrigin, xSize, ySize);
 	ctorInit();
@@ -1752,7 +1751,10 @@ void WorldCanvas::drawImage(const Vector<Double> &blc,
 
 	if (!worldToPix(pBlc, wBlc)) {	// (Shouldn't happen)
 		delete im;
-		if(drawObj!=0) images_.remove(drawObj);
+		if(drawObj!=0) {
+            auto found = images_.find(drawObj);
+            if ( found != images_.end( ) ) images_.erase(found);
+        }
 		return;
 	}
 
@@ -1816,13 +1818,13 @@ WorldCanvas::ColorIndexedImage_* WorldCanvas::getClearedColorIndexedImage(
 
 	ColorIndexedImage_* im;
 
-	if(drawObj!=0 && images_.isDefined(drawObj)) {
-		im = images_(drawObj);		// Retrieve existing cached image
+	if( drawObj != 0 && images_.find(drawObj) != images_.end( ) ) {
+		im = images_[drawObj];		// Retrieve existing cached image
 		im->clear();
 	}			// and clear it for reuse.
 	else {
 		im = new ColorIndexedImage_;	// create new color-indexed image.
-		if(drawObj!=0) images_.define(drawObj, im);
+		if( drawObj != 0 ) images_.insert(std::pair<void*, ColorIndexedImage_*>(drawObj, im));
 	}
 	// cache it, if caller wishes.
 	return im;
@@ -1836,9 +1838,9 @@ Bool WorldCanvas::redrawIndexedImage(void* drawObj,
 	// Redraw from color-indexed image cache, if possible (speeds up
 	// colormap-only changes considerably).
 
-	if(!images_.isDefined(drawObj)) return false;	// No such image.
+	if( images_.find(drawObj) == images_.end( ) ) return false;	// No such image.
 
-	ColorIndexedImage_* im = images_(drawObj);
+	ColorIndexedImage_* im = images_[drawObj];
 
 	if( reason != Display::ColorTableChange ||
 			im->colormapSize != itsPixelCanvas->getColormapSize() ) {
@@ -1860,17 +1862,17 @@ Bool WorldCanvas::removeIndexedImage(void* drawObj) {
 	// Remove a color-indexed image from the cache, if any.  Return value
 	// indicates whether there was anything to remove.
 
-	if(!images_.isDefined(drawObj)) return false;
-	delete images_(drawObj);
-	images_.remove(drawObj);
+    auto found = images_.find(drawObj);
+	if( found == images_.end( ) ) return false;
+	delete found->second;
+	images_.erase(found);
 	return true;
 }
 
 
 void WorldCanvas::clearColormapChangeCache() {
 	// Clear the whole colormap change cache (see images_, below).
-
-	for(uInt i=0; i<images_.ndefined(); i++) delete images_.getVal(i);
+	for( auto pair : images_ ) delete pair.second;
 	images_.clear();
 }
 

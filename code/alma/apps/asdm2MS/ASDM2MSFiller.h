@@ -60,7 +60,6 @@
 #include <casa/Arrays/ArrayUtil.h>
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/Containers/Block.h>
-#include <casa/Containers/OrderedMap.h>
 #include <measures/Measures/MPosition.h>
 #include <measures/Measures/MBaseline.h>
 #include <measures/Measures/Muvw.h>

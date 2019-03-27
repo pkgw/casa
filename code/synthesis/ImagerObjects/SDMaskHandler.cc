@@ -24,6 +24,7 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id$
+#include <stack>
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/OS/HostInfo.h>
 #include <components/ComponentModels/SkyComponent.h>
@@ -4012,7 +4013,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                        Array<Float>& lablatarr)
 
   {
-    Stack<IPosition> mystack;
+    std::stack<IPosition> mystack;
     IPosition inshape = inlatarr.shape();
     Int nrow = inshape(0);
     Int ncol = inshape(1);
@@ -4027,7 +4028,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition curloc;
     mystack.push(loc);
     while (!mystack.empty()) {
-      curloc = mystack.popVal(); 
+      curloc = mystack.top();
+      mystack.pop( );
       //cerr<<"curloc="<<curloc<<" cur_label="<<cur_label<<endl;
       lablatarr(curloc) = Float(cur_label);
       Vector<IPosition> loclist = defineNeighbors(curloc, nrow, ncol);

@@ -23,7 +23,7 @@
 #ifndef FlagAgentBase_H_
 #define FlagAgentBase_H_
 
-#include <casa/Containers/OrderedMap.h>
+#include <map>
 // needed for antennaPairMap, polarizationMap, VisMapper, FlagMapper, etc. which should
 // probably be split from the rather large FlagDataHandler.h
 #include <flagging/Flagging/FlagDataHandler.h>
@@ -381,7 +381,7 @@ private:
 	casacore::Matrix<casacore::Int> baselineList_p;
 	casacore::Matrix<casacore::Double> uvwList_p;
 	casacore::Bool uvwUnits_p;
-	casacore::OrderedMap<casacore::Int, casacore::Vector<casacore::Int> > polarizationList_p;
+    std::map<casacore::Int, casacore::Vector<casacore::Int> > polarizationList_p;
 	casacore::Vector<casacore::Int> observationList_p;
 	casacore::Vector<casacore::Int> scanIntentList_p;
 

@@ -28,11 +28,11 @@
 #ifndef MSVIS_VISIBILITYITERATORIMPL_H
 #define MSVIS_VISIBILITYITERATORIMPL_H
 
+#include <stack>
 #include <casa/aips.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
 #include <casa/Arrays/Slicer.h>
-#include <casa/Containers/Stack.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <measures/Measures/Stokes.h>
 #include <measures/Measures/MeasConvert.h>
@@ -952,7 +952,7 @@ protected:
     casacore::Double                  timeInterval_p;
     casacore::Vector<casacore::Double>          time_p;
     casacore::Bool                    useSlicer_p;
-    casacore::Stack<VisBuffer *>      vbStack_p;   // casacore::Stack of VisBuffer objects
+    std::stack<VisBuffer *>      vbStack_p;   // casacore::Stack of VisBuffer objects
     Velocity                velocity_p;
     casacore::Slicer                  weightSlicer_p;
 

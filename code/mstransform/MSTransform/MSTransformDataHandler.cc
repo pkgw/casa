@@ -735,14 +735,13 @@ Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
 	if (areSelecting)
 	{
 		// Get the corr indices as an ordered map
-		OrderedMap<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
+        std::map<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
 
 		// Iterate over the ordered map to fill the vector maps
-		ConstMapIter<Int, Vector<Vector<Int> > > mi(corrmap);
-		for (mi.toStart(); !mi.atEnd(); ++mi)
+		for ( auto mi = corrmap.begin( ); mi != corrmap.end( ); ++mi)
 		{
-			Int pol = mi.getKey();
-			outToIn[pol] = mi.getVal()[0];
+			Int pol = mi->first;
+			outToIn[pol] = mi->second[0];
 		}
 	}
 	else

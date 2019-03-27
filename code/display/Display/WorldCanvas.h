@@ -1369,7 +1369,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// to redrawIndexedImage() in order to reuse the image.
 		//# This mechanism attempts to avoid some erroneous reuses of
 		//# 'itsCachedImage' among different DDs (bugs 4937, 5032).   (dk 3/05)
-		casacore::SimpleOrderedMap<void*, ColorIndexedImage_*> images_;
+        std::map<void*, ColorIndexedImage_*> images_;
 
 		// Retrieve an indexed image to write onto.  Used (exclusively) by
 		// WC::drawImage().  If one exists in the cache under this objId key,

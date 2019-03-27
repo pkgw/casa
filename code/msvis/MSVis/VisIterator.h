@@ -33,7 +33,6 @@
 #include <casa/Arrays/Cube.h>
 #include <casa/Arrays/Slicer.h>
 #include <casa/Containers/Stack.h>
-#include <casa/Containers/OrderedMap.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <measures/Measures/Stokes.h>
 #include <measures/Measures/MeasConvert.h>
