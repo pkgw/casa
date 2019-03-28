@@ -190,6 +190,7 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                     _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
                 }
                 start[1] = row[1];
+                ThrowIf(start[1] < 0, "Invalid channel selection in spw " + String::toString(spw));
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
