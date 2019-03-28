@@ -1463,7 +1463,7 @@ HPX HEALPix grid.  -->
 <!--============================================== -->
 
     <param type="string" name="weighting">
-           <shortdescription>Weighting scheme (natural,uniform,briggs)</shortdescription>
+           <shortdescription>Weighting scheme (natural,uniform,briggs, briggsabs)</shortdescription>
 <description>Weighting scheme (natural,uniform,briggs,superuniform,radial)
 
                        During gridding of the dirty or residual image, each visibility value is
