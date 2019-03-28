@@ -25,7 +25,7 @@ def polcal(vis=None,caltable=None,
                         raise Exception, 'Visibility data set not found - please verify the name'
 
 		# Do data selection according to selectdata
-		casalog.post("NB: gaincal automatically excludes auto-correlations.")
+		casalog.post("NB: polcal automatically excludes auto-correlations.")
 		if (selectdata):
 			# insist no ACs
 			if len(msselect)>0:
@@ -115,7 +115,16 @@ def polcal(vis=None,caltable=None,
 			      apmode='ap',phaseonly=phaseonly,append=append)
 
 		mycb.solve()
+		
+		# retrieve activity record; may contain Stoke solution info
+		actrec=mycb.activityrec()
+
 		mycb.close()
+
+		if poltype=='Xfparang+QU' and actrec.has_key('fStokes'):
+			casalog.post("NB: Returning dictionary containing fractional Stokes results.")
+			return actrec['fStokes']
+
 
 	except Exception, instance:
 		print '*** Error ***', instance

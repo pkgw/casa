@@ -1,4 +1,4 @@
-//# DJones.h: Declaration of standard Polarization Calibration types
+//# XJones.h: Cross-hand phase calibration
 //# Copyright (C) 1996,1997,2000,2001,2002,2003,2011
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,8 +25,8 @@
 //#
 //#
 
-#ifndef SYNTHESIS_DJONES_H
-#define SYNTHESIS_DJONES_H
+#ifndef SYNTHESIS_XJONES_H
+#define SYNTHESIS_XJONES_H
 
 #include <casa/aips.h>
 #include <casa/Containers/Record.h>
@@ -41,250 +41,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Forward declarations
 class VisEquation;
-
-// **********************************************************
-//  DJones
-//
-
-class DJones : public SolvableVisJones {
-public:
-
-  // Constructor
-  DJones(VisSet& vs);
-  DJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DJones(const MSMetaInfoForCal& msmc);
-  DJones(const casacore::Int& nAnt);
-
-  virtual ~DJones();
-
-  // Local setapply
-  using SolvableVisJones::setApply;
-  virtual void setApply(const casacore::Record& apply);
-
-  // D-specific solve setup
-  using SolvableVisJones::setSolve;
-  void setSolve(const casacore::Record& solvepar);
-
-  // Return the type enum
-  virtual Type type() { return VisCal::D; };
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Dgen Jones"; };
-  virtual casacore::String longTypeName() { return "Dgen Jones (instrumental polarization"; };
-
-  // Type of Jones matrix according to nPar()
-  //   Do GENERAL matrix algebra
-  virtual Jones::JonesType jonesType() { return Jones::General; };
-
-  // We can solve for polarization with D
-  virtual casacore::Int solvePol() { return solvePol_; };
-
-  // Specialization that conditions raw data & model for OTF pol solving
-  virtual void setUpForPolSolve(vi::VisBuffer2& vb);
-
-  // Hazard a guess at parameters
-  virtual void guessPar(VisBuffer& vb);
-  virtual void guessPar(SDBList& sdbs);
-
-  // Update the parameters from solving
-  //  (in linear approx, we always set the source update to zero, for now!)
-  virtual void updatePar(const casacore::Vector<casacore::Complex> dCalPar,
-			 const casacore::Vector<casacore::Complex> dSrcPar);
-
-  // SNR is 1/err for D-terms (?)
-  virtual void formSolveSNR();
-
-  // D-specific post-solve stuff
-  virtual void globalPostSolveTinker();
-
-  // D-specific reReference
-  // TBD: non-triv impl
-  virtual void reReference() { cout << "reReference!" << endl;};
-
-  virtual void applyRefAnt();
-
-  // Method to list the D results
-  virtual void logResults();
-
-  virtual void createCorruptor(const VisIter& vi, 
-			       const casacore::Record& simpar, 
-			       const casacore::Int nSim);
-protected:
-
-  // D has two casacore::Complex parameters
-  virtual casacore::Int nPar() { return 2; };
-
-  // Jones matrix elements are trivial?
-  //  true if GenLinear, false if General
-  virtual casacore::Bool trivialJonesElem() { return (jonesType()==Jones::GenLinear); };  
-  // dD/dp are trivial
-  virtual casacore::Bool trivialDJ() { return true; };
-
-  // Non-trivial Jones matrix calculation
-  virtual void calcOneJones(casacore::Vector<casacore::Complex>& mat, casacore::Vector<casacore::Bool>& mOk,
-			    const casacore::Vector<casacore::Complex>& par, const casacore::Vector<casacore::Bool>& pOk);
-
-  // Initialize trivial dJs
-  virtual void initTrivDJ();
-
-private:
-
-  casacore::Int solvePol_;
-  DJonesCorruptor *dcorruptor_p;
-  
-
-  
-};
-
-// **********************************************************
-//  DfJones (freq-dep D)  (general)
-//
-
-class DfJones : public DJones {
-public:
-
-  // Constructor
-  DfJones(VisSet& vs);
-  DfJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DfJones(const MSMetaInfoForCal& msmc);
-  DfJones(const casacore::Int& nAnt);
-
-  virtual ~DfJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Dfgen Jones"; };
-  virtual casacore::String longTypeName() { return "Dfgen Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-  
-};
-
-
-
-// **********************************************************
-//  DlinJones   (linearized DJones)
-//
-
-class DlinJones : public DJones {
-public:
-
-  // Constructor
-  DlinJones(VisSet& vs);
-  DlinJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DlinJones(const MSMetaInfoForCal& msmc);
-  DlinJones(const casacore::Int& nAnt);
-
-  virtual ~DlinJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "D Jones"; };
-  virtual casacore::String longTypeName() { return "D Jones (instrumental polarization"; };
-
-  // Type of Jones matrix according to nPar()
-  //  Do linearized matrix algebra
-  virtual Jones::JonesType jonesType() { return Jones::GenLinear; };
-
-};
-
-// **********************************************************
-//  DflinJones (freq-dep, linearized DJones)
-//
-
-class DflinJones : public DlinJones {
-public:
-
-  // Constructor
-  DflinJones(VisSet& vs);
-  DflinJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DflinJones(const MSMetaInfoForCal& msmc);
-  DflinJones(const casacore::Int& nAnt);
-
-  virtual ~DflinJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "Df Jones"; };
-  virtual casacore::String longTypeName() { return "Df Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-
-};
-
-// **********************************************************
-//  DllsJones   (LLS DJones solve, General apply)
-//
-
-
-class DllsJones : public DJones {
-public:
-
-  // Constructor
-  DllsJones(VisSet& vs);
-  DllsJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DllsJones(const MSMetaInfoForCal& msmc);
-  DllsJones(const casacore::Int& nAnt);
-
-
-  virtual ~DllsJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "DLLS Jones"; };
-  virtual casacore::String longTypeName() { return "DLLS Jones (instrumental polarization)"; };
-
-  // Type of Jones matrix 
-  virtual Jones::JonesType jonesType() { return Jones::General; };
-
-  // Dlin now uses generic gather, but solves for itself per solution
-  virtual casacore::Bool useGenericGatherForSolve() { return true; };
-  virtual casacore::Bool useGenericSolveOne() { return false; }
-
-  // Local implementation of selfSolveOne (generalized signature)
-  //   call solveOneVB with the first (and only?) VB
-  virtual void selfSolveOne(VisBuffGroupAcc& vbga) { this->solveOneVB(vbga(0)); };
-  virtual void selfSolveOne(SDBList& sdbs) { this->solveOne(sdbs); };
-
-
-protected:
-
-  // LSQ Solver for 1 VB
-  virtual void solveOneVB(const VisBuffer& vb);
-  virtual void solveOneSDB(SolveDataBuffer& sdb);
-
-  // LSQ Solver for an SDBList (which may contain multiple SDBs over time/spw)
-  virtual void solveOne(SDBList& sdbs);
-
-
-};
-
-// **********************************************************
-//  DfllsJones (freq-dep, LLS DJones solve, General apply)
-//
-
-class DfllsJones : public DllsJones {
-public:
-
-  // Constructor
-  DfllsJones(VisSet& vs);
-  DfllsJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
-  DfllsJones(const MSMetaInfoForCal& msmc);
-  DfllsJones(const casacore::Int& nAnt);
-
-  virtual ~DfllsJones();
-
-  // Return type name as string
-  virtual casacore::String typeName()     { return "DfLLS Jones"; };
-  virtual casacore::String longTypeName() { return "DfLLS Jones (frequency-dependent instrumental polarization"; };
-
-  // This is the freq-dep version of D 
-  //   (this is the ONLY fundamental difference from D)
-  virtual casacore::Bool freqDepPar() { return true; };
-
-};
-
-/*
 
 // **********************************************************
 //  X: position angle calibration (for circulars!)
@@ -353,7 +109,7 @@ private:
 
 
 // **********************************************************
-//  X: position angle calibration (for circulars!)
+//  X: Cross-hand phase (generic) 
 //
 class XJones : public SolvableVisJones {
 public:
@@ -460,7 +216,200 @@ protected:
 };
 
 
-// X-Y phase 
+// Cross-hand phase solved from data with parang coverage
+class XparangJones : public XJones {
+public:
+
+  // Constructor
+  XparangJones(VisSet& vs);
+  XparangJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
+  XparangJones(const MSMetaInfoForCal& msmc);
+  XparangJones(const casacore::Int& nAnt);
+
+  virtual ~XparangJones();
+
+  // Return the type enum  (position UPSTREAM of D, not downstream like G)
+  virtual Type type() { return VisCal::X; };
+
+  // Return type name as string
+  virtual casacore::String typeName()     { return "Xparang Jones"; };
+  virtual casacore::String longTypeName() { return "Xparang Jones (parang-dep X)"; };
+
+  // Local setapply  (unsets calWt)
+  using SolvableVisJones::setApply;
+  virtual void setApply(const casacore::Record& apply);
+
+  // NOT FreqDep
+  virtual casacore::Bool freqDepPar() { return false; };
+
+  // Requires cross-hands!
+  virtual casacore::Bool phandonly() { return false; };
+
+  // XparangJones specialization
+  virtual casacore::Bool useGenericGatherForSolve() { return true; }; 
+  virtual casacore::Bool useGenericSolveOne() { return false; }
+
+  virtual void selfGatherAndSolve(VisSet& vs, VisEquation& ve);
+
+  // Handle trivial vbga generated by generic gather-for-solve
+  virtual void selfSolveOne(VisBuffGroupAcc& vbga);
+  virtual void selfSolveOne(SDBList& sdbs);
+
+  // Write QU info into table keywords
+  virtual void globalPostSolveTinker();
+
+  // Override for returning Q,U info via Record
+  virtual casacore::Record solveActionRec();
+
+  // Overide model division stuff...
+  virtual casacore::Bool normalizable() { return false; };
+  virtual casacore::Bool divideByStokesIModelForSolve() { return true; };
+
+protected:
+
+  // X has just 1 complex parameter, storing a phase
+  virtual casacore::Int nPar() { return 1; };
+
+  // Solver for one VB, that collapses baselines and cross-hands first,
+  //  then solves for XY-phase and QU
+  virtual void solveOneVB(const VisBuffer& vb);
+  virtual void solveOne(SDBList& sdbs);
+
+  // Derived QU_ info
+  casacore::Matrix<casacore::Float> QU_;
+
+  // Activity record
+  casacore::Record QURec_;
+
+};
+
+
+
+// Freq-dep cross-hand phase
+class XfparangJones : public XparangJones {
+public:
+
+  // Constructor
+  XfparangJones(VisSet& vs);
+  XfparangJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
+  XfparangJones(const MSMetaInfoForCal& msmc);
+  XfparangJones(const casacore::Int& nAnt);
+
+
+  virtual ~XfparangJones();
+  // Return type name as string
+  // Return type name as string
+  virtual casacore::String typeName()     { return "Xfparang Jones"; };
+  virtual casacore::String longTypeName() { return "Xfparang Jones (X-Y phase)"; };
+
+  // This is the freq-dep version of XparangJones
+  //   (this is the ONLY fundamental difference from XparangJones)
+  virtual casacore::Bool freqDepPar() { return true; };
+
+
+};
+
+
+// **********************************************************
+//  PosAng: Basis-agnostic position angle
+//
+class PosAngJones : public XJones {
+public:
+
+  // Constructor
+  PosAngJones(VisSet& vs);
+  PosAngJones(casacore::String msname,casacore::Int MSnAnt,casacore::Int MSnSpw);
+  PosAngJones(const MSMetaInfoForCal& msmc);
+  PosAngJones(const casacore::Int& nAnt);
+
+  virtual ~PosAngJones();
+
+  // PosAng had casacore::Float parameter
+  virtual VisCalEnum::VCParType parType() { return VisCalEnum::REAL; };
+
+  // Return the type enum (this is its position in the ME)
+  virtual Type type() { return VisCal::C; };
+
+  // Return type name as string
+  virtual casacore::String typeName()     { return "PosAng Jones"; };
+  virtual casacore::String longTypeName() { return "PosAng Jones (antenna-based)"; };
+
+  // Type of Jones matrix (basis-sensitive)
+  virtual Jones::JonesType jonesType() { return jonestype_; };
+
+  // FreqDep
+  virtual casacore::Bool freqDepPar() { return true; };
+
+  // Local setApply
+  using XJones::setApply;
+  virtual void setApply(const casacore::Record& apply);
+
+  // Local setSolve
+  using XJones::setSolve;
+  void setSolve(const casacore::Record& solvepar);
+
+  // PosAng is NOT normalizable by the model (per correlation)
+  virtual casacore::Bool normalizable() { return false; };
+  // ...but we can divide by the I model!
+  virtual casacore::Bool divideByStokesIModelForSolve() { return true; };
+
+  // X generically gathers, but solves for itself per solution
+  virtual casacore::Bool useGenericGatherForSolve() { return true; };
+  virtual casacore::Bool useGenericSolveOne() { return false; }
+
+  // Actually do the solve on ths SDBs
+  virtual void selfSolveOne(SDBList& sdbs) { this->solveOne(sdbs); };
+
+
+protected:
+
+  // PosAng has just 1 float parameter, storing an angle
+  virtual casacore::Int nPar() { return 1; };
+
+  // Jones matrix elements are NOT trivial
+  virtual casacore::Bool trivialJonesElem() { return false; };
+
+  // Detect basis for this vb
+  virtual void syncMeta(const VisBuffer& vb);
+  virtual void syncMeta2(const vi::VisBuffer2& vb);
+
+  // Calculate the PosAng matrix for all ants
+  //  Don't use XJones::calcAllJones!!
+  virtual void calcAllJones(); //  { VisJones::calcAllJones(); };
+
+  // Calculate a single PosAngJones matrix 
+  virtual void calcOneJonesRPar(casacore::Vector<casacore::Complex>& mat, casacore::Vector<casacore::Bool>& mOk,
+                            const casacore::Vector<casacore::Float>& par, const casacore::Vector<casacore::Bool>& pOk );
+
+  virtual void solveOne(SDBList& sdbs);
+
+private:
+
+  // X gathers/solves for itself 
+  virtual void selfGatherAndSolve(VisSet& vs, VisEquation& ve) { newselfSolve(vs,ve); };
+  virtual void newselfSolve(VisSet& , VisEquation& ) { throw(casacore::AipsError("PosAngJones::newselfsolve(vs,ve) NYI")); };  // new supports combine
+
+  // When genericall gathering, solve using first VB only in VBGA
+  virtual void selfSolveOne(VisBuffGroupAcc& vbga) { this->solveOneVB(vbga(0)); };
+
+  // Solve in one VB for the position angle
+  virtual void solveOneVB(const VisBuffer& ) { throw(casacore::AipsError("PosAngJones::solveOneVB(vb) NYI")); };
+  virtual void solveOneSDB(SolveDataBuffer& ) { throw(casacore::AipsError("PosAngJones::solveOneSDB(sdb) NYI")); };
+
+  // We sense basis in setMeta, and this sets the matrix type
+  Jones::JonesType jonestype_;
+
+};
+
+
+
+
+
+
+
+
+
+// X-Y phase for ALMA -- ORIGINAL ad hoc version as GJones specialization, but in Xf position
 class GlinXphJones : public GJones {
 public:
 
@@ -541,7 +490,7 @@ public:
 
 };
 
-*/
+
 
 
 } //# NAMESPACE CASA - END
