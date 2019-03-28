@@ -3,8 +3,8 @@
 private:
 
 
-std::auto_ptr<casacore::LogIO> _log;
-std::auto_ptr<casacore::Function<casacore::Double, casacore::Double> > _functional;
+std::unique_ptr<casacore::LogIO> _log;
+std::unique_ptr<casacore::Function<casacore::Double, casacore::Double> > _functional;
 
 functional(
 	casacore::Polynomial<casacore::Double>*& function

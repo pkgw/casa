@@ -5892,7 +5892,7 @@ record* image::statistics(
 }
 
 template <class T> record* image::_statistics(
-    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    std::unique_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
     const vector<int>& axes, const variant& region,
     const variant& mask, const vector<double>& includepix,
     const vector<double>& excludepix, bool list, bool force, bool disk,

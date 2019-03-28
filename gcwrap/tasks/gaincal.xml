@@ -165,6 +165,22 @@ Previous calibrations (egs. bandpass) should be applied on the fly.
 		</allowed>
 	</param>
 
+	<param type="string" name="solmode">
+		<description>Robust solving mode: (\'\', \'L1\', \'R\', \'L1R\')</description>
+		<value></value>
+		<allowed kind="enum">
+			<value></value>
+			<value>L1</value>
+			<value>L1R</value>
+			<value>R</value>
+		</allowed>
+	</param>
+
+	<param type="doubleArray" name="rmsthresh">
+		<description>RMS Threshold sequence (for solmode=\'R\' or \'L1R\'; see help)</description>
+		<value></value>
+	</param>
+
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
