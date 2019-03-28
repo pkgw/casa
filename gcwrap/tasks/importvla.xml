@@ -14,7 +14,6 @@ importvla(archivefiles=None,vis=None,
               autocorr=None,antnamescheme=None,
               async=None):
   <shortdescription>Import VLA archive file(s) to a measurement set</shortdescription>
-
 <description>
 Imports an arbitrary number of VLA archive-format data sets into a
 casa measurement set.  If more than one band is present, they will be
@@ -194,6 +193,6 @@ frequencies specified via wavelength or band.
    <example>
 FOR MORE INFORMATION, SEE THE TASK PAGES OF IMPORTVLA IN CASA DOCS:
 https://casa.nrao.edu/casadocs/
-      </example>
+   </example>
 </task>
 </casaxml>

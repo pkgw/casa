@@ -8,12 +8,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <task type="function" name="blcal" category="calibration">
 <shortdescription>Calculate a baseline-based calibration solution (gain or bandpass)</shortdescription>
 <description>
-        This task determines a baseline by baseline gain (time) or
-	bandpass (freq) for all baseline pairs in the data set.   For
-	the usual antenna-based calibration of interferometric data,
-	this task gaincal is recommended, even with only one to three
-	baselines.  For arrays with closure errors, use blcal.
-
+This task determines a baseline by baseline gain (time) or bandpass
+(freq) for all baseline pairs in the data set. For the usual
+antenna-based calibration of interferometric data, this task gaincal
+is recommended, even with only one to three baselines.  For arrays
+with closure errors, use blcal.
 </description>
 <input>
 	<param type="string" name="vis" mustexist="true">

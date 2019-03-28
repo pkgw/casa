@@ -7,8 +7,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <task type="function" name="importnro" category="single dish, import/export" >
-
-  <shortdescription>Convert NOSTAR data into a CASA visibility file (MS)</shortdescription>
+<shortdescription>Convert NOSTAR data into a CASA visibility file (MS)</shortdescription>
 <description>
 Task importnro enables one to convert the data obtained with the
 NRO45m telescope into the CASA MS2 format. At this moment, only the

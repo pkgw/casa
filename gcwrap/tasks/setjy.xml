@@ -6,9 +6,8 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="setjy" category="modeling, calibration">
-	<shortdescription>Fills the model column with the visibilities of a calibrator</shortdescription>
-
-	<description>
+<shortdescription>Fills the model column with the visibilities of a calibrator</shortdescription>
+<description>
 This task places the model visibility amp and phase associated with a
 specified clean components image into the model column of the data
 set.  The flux density (I,Q,U,V) for a point source calibrator can be
@@ -29,9 +28,7 @@ parameter.
 The location of the models is system dependent:  At the AOC, the
 models are in the directory::/usr/lib/casapy/data/nrao/VLA/CalModels/
 3C286_L.im (egs).
-
-
-	</description>
+</description>
 	<input>
           <!-- No longer have mustexist="true", because vis is not used when
                listmodimages is true.  -->
@@ -303,40 +300,6 @@ models for Solar System objects
 		  <value>False</value>
 		</param>
 
-                <param type="string" name="interpolation" subparam="true">
-<shortdescription>Method to be used to interpolate in time</shortdescription>
-<description>Method to be used to interpolate in time for the time
-variable sources (3C48,3C138,3C147).
-                     Subparameter of standard="Perley-Butler 2013",
-		     and "Perley-Butler 2017" 
-                     Default: 'nearest'
-                     Options: 'nearest|linear|cubic|spline'
-
-                     This parameter is ignored for other non-variable
-		     sources in the standard.
-</description>
-                        <value>nearest</value>
-                   <allowed kind="enum">
-                     <value>nearest</value>
-                     <value>linear</value>
-                     <value>cubic</value>
-                     <value>spline</value>
-                     <value></value>
-                   </allowed>
-                </param>  
-
-                <param type="bool" name="useephemdir" subparam="true">
-<shortdescription>Use directions in the ephemeris table</shortdescription>
-<description>Use directions in the ephemeris table for the solar
-system object?
-                     Subparameter of standard="Butler-JPL-Horizons
-		     2012",
-                     Default: False
-                     Options: False|True
-</description>
-                        <value>False</value>
-                </param> 
-
 		<param type="any" name="fluxdensity" subparam="true">
 			<any type="variant" limittypes="int intArray doubleArray"/>
 <shortdescription>Specified flux density in Jy [I,Q,U,V]; (-1 will lookup values)</shortdescription>
@@ -502,6 +465,40 @@ polarization angle (in radians)
  </description>
                        <value type="record"></value>
                 </param>
+
+                <param type="bool" name="useephemdir" subparam="true">
+<shortdescription>Use directions in the ephemeris table</shortdescription>
+<description>Use directions in the ephemeris table for the solar
+system object?
+                     Subparameter of standard="Butler-JPL-Horizons
+		     2012",
+                     Default: False
+                     Options: False|True
+</description>
+                        <value>False</value>
+                </param> 
+
+                <param type="string" name="interpolation" subparam="true">
+<shortdescription>Method to be used to interpolate in time</shortdescription>
+<description>Method to be used to interpolate in time for the time
+variable sources (3C48,3C138,3C147).
+                     Subparameter of standard="Perley-Butler 2013",
+		     and "Perley-Butler 2017" 
+                     Default: 'nearest'
+                     Options: 'nearest|linear|cubic|spline'
+
+                     This parameter is ignored for other non-variable
+		     sources in the standard.
+</description>
+                        <value>nearest</value>
+                   <allowed kind="enum">
+                     <value>nearest</value>
+                     <value>linear</value>
+                     <value>cubic</value>
+                     <value>spline</value>
+                     <value></value>
+                   </allowed>
+                </param>  
 
 		<param type="bool" name="usescratch">
 <shortdescription>Will create if necessary and use the MODEL_DATA </shortdescription>

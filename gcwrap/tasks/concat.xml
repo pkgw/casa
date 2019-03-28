@@ -8,7 +8,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <task type="function" name="concat" category="utility, manipulation">
 <shortdescription>Concatenate several visibility data sets.</shortdescription>
 <description>
-
 The list of data sets given in the vis argument are chronologically
 concatenated into an output data set in concatvis, i.e. the data sets
 in vis are first ordered by the time of their earliest integration and
@@ -31,7 +30,6 @@ with no input columns.
 
 Each appended dataset is assigned a new observation id (provided the
 entries in the observation table are indeed different).
-
 </description> 
 
 

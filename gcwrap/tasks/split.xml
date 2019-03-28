@@ -7,23 +7,20 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="split" category="manipulation">
      <shortdescription>Create a visibility subset from an existing visibility set</shortdescription>
-
 <description>
-        Split is the general purpose program to make a new data set
-	that is a subset or averaged form of an existing data
-	set. General selection parameters are included, and one or all
-	of the various data columns (DATA, LAG_DATA and/or FLOAT_DATA,
-	MODEL_DATA and/or CORRECTED_DATA) can be selected.
+Split is the general purpose program to make a new data set that is a
+subset or averaged form of an existing data set. General selection
+parameters are included, and one or all of the various data columns
+(DATA, LAG_DATA and/or FLOAT_DATA, MODEL_DATA and/or CORRECTED_DATA)
+can be selected.
 
-        Split is often used after the initial calibration of the data
-	to make a smaller Measurement Set with only the data that will
-	be used in further flagging, imaging and/or self-calibration.
-	Split can average over frequency (channels) and time
-	(integrations).
+Split is often used after the initial calibration of the data to make
+a smaller Measurement Set with only the data that will be used in
+further flagging, imaging and/or self-calibration. Split can average
+over frequency (channels) and time (integrations).
 	
-        The split task uses the MSTransform framework
-	underneath. Split also supports the Multi-MS (MMS) format as
-	input. 
+The split task uses the MSTransform framework underneath. Split also
+supports the Multi-MS (MMS) format as input.
 </description>
 
 <input>

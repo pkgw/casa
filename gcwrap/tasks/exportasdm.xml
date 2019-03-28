@@ -10,7 +10,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
   <shortdescription>Convert a CASA visibility file (MS) into an ALMA or EVLA Science Data Model</shortdescription>
 <description>
-
+Convert a CASA visibility file (MS) into an ALMA or EVLA Science Data Model
 </description>
   <input>
 
@@ -133,9 +133,11 @@ exec block) in the output ASDM
   <returns type="bool"/>
 
   <example>
+
 For more information, see the task pages of exportasdm in CASA Docs:
 
 https://casa.nrao.edu/casadocs/
+
   </example>
 
 </task>

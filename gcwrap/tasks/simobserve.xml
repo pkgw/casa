@@ -6,29 +6,27 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   
 <task type="function" name="simobserve" category="simulation">
-
-  <shortdescription>visibility simulation task</shortdescription>
-
-  <description>
-    This task simulates interferometric or total power measurment sets 
-    It is currently optimized for JVLA and ALMA, although many observatories
-    are included, and adding your own is simply a matter of providing an
-    antenna location file (see below). 
+<shortdescription>visibility simulation task</shortdescription>
+<description>
+This task simulates interferometric or total power measurment sets. It
+is currently optimized for JVLA and ALMA, although many observatories
+are included, and adding your own is simply a matter of providing an
+antenna location file (see below).
     
-    simobserve is meant to work in conjunction with the simanalyze task - 
-    Calling simobserve one more times will produce simulated measurement
-    set(s), which are then gridded, inverted and deconvolved into output
-    simulated images using simanalyze. 
+simobserve is meant to work in conjunction with the simanalyze
+task. Calling simobserve one more times will produce simulated
+measurement set(s), which are then gridded, inverted and deconvolved
+into output simulated images using simanalyze.
     
-    ALMA users are encouraged to use the simalma task, which provides 
-    additional information on the multiple simobserve and simanalyze 
-    calls required to simulate an ALMA observation which may consist of 
-    12m interferometric, 7m interferometric, and 12m total power data.
+ALMA users are encouraged to use the simalma task, which provides
+additional information on the multiple simobserve and simanalyze calls
+required to simulate an ALMA observation which may consist of 12m
+interferometric, 7m interferometric, and 12m total power data.
     
-    More information and examples are availible at 
-     http://casaguides.nrao.edu/index.php?title=Simulating_Observations_in_CASA
-    Please contact CASA experts with any questions.
-
+More information and examples are availible at 
+http://casaguides.nrao.edu/index.php?title=Simulating_Observations_in_CASA
+Please contact the Helpdesk with any questions (see
+https://casa.nrao.edu/help_desk_all.shtml)
 </description>
 <example>
   </example>
@@ -322,6 +320,19 @@ observation?
 <!--*************************************************************-->
 <!--  observe always reads from $project.skymodel file now -->
 
+
+    <param type="string" name="caldirection" subparam="true">
+<shortdescription>pt source calibrator [experimental]</shortdescription>
+<description>pt source calibrator [experimental]</description>
+      <value type="string"></value>
+    </param>
+
+    <param type="string" name="calflux" subparam="true">
+<shortdescription>pt source calibrator flux [experimental]</shortdescription>
+<description>pt source calibrator flux [experimental]</description>
+      <value>1Jy</value>
+    </param>
+
     <param type="string" name="obsmode">
 <shortdescription>Observation mode to simulate [int(interferometer)|sd(singledish)|(none)]</shortdescription>
 <description>Observation mode to simulate
@@ -438,19 +449,6 @@ it'll do them for the same amount of time -->
 </description>
       <value>LSRK</value>
     </param>
-
-    <param type="string" name="caldirection" subparam="true">
-<shortdescription>pt source calibrator [experimental]</shortdescription>
-<description>pt source calibrator [experimental]</description>
-      <value type="string"></value>
-    </param>
-
-    <param type="string" name="calflux" subparam="true">
-<shortdescription>pt source calibrator flux [experimental]</shortdescription>
-<description>pt source calibrator flux [experimental]</description>
-      <value>1Jy</value>
-    </param>
-
 
 
 

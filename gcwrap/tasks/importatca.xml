@@ -12,15 +12,14 @@ importatca(files=None,vis=None,
               lowfreq=None,highfreq=None,fields=None,
               edge=None,
               async=None):
-  <shortdescription>Import ATCA RPFITS file(s) to a measurement set</shortdescription>
- 
-  <description>
+<shortdescription>Import ATCA RPFITS file(s) to a measurement set</shortdescription>
+ <description>
 Imports an arbitrary number of ATCA RPFITS format data sets into a
 casa measurement set.  If more than one band is present, they will be
 put in the same measurement set but in a separate spectral window.
 The task will handle both old ATCA and new CABB (after April 2009)
 archive data.
-   </description>
+</description>
    <input>
 	   <param type="stringArray" name="files" mustexist="false">
 <shortdescription>Name of input ATCA RPFits file(s)</shortdescription>

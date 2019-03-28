@@ -7,7 +7,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="cvel2" category="manipulation" visibility="experimental">
      <shortdescription>Regrid an MS or MMS to a new spectral window, channel structure or frame</shortdescription>
-
 <description>
 The intent of cvel2 is to transform channel labels and the
 visibilities to a spectral reference frame which is appropriate for

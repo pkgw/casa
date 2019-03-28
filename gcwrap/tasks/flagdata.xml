@@ -267,30 +267,120 @@ information, see the task pages of flagdata in CASA Docs
                 </allowed>
             </param>
 
+             <!-- MANUAL parameters -->
+            <param type="bool" name="autocorr" subparam="true">
+<shortdescription>Flag only the auto-correlations?</shortdescription>
+<description>Flag only the auto-correlations?
+                     Subparameter of mode='manual'
+                     Default: False
+                     Options: False|True
 
-            <!-- SELECTION parameters -->
-            <param type="any" name="field" subparam="true">
-<shortdescription>Select field using field id(s) or field name(s)</shortdescription>
-<description>Select field using field id(s) or field name(s)
-                     Default: '' (all fields)
-                     
-                     Use 'go listobs' to obtain the list id's or
-		     names. If field string is a non-negative integer,
-		     it is assumed a field index,  otherwise, it is
-		     assumed a field name.
-
-                        Examples:
-                        field='0~2'; field ids 0,1,2
-                        field='0,4,5~7'; field ids 0,4,5,6,7
-                        field='3C286,3C295'; field named 3C286 and
-			3C295
-                        field = '3,4C*'; field id 3, all names
-			starting with 4C
+                     NOTE: this parameter is only active when set to
+		     True. If set to False it does NOT mean "do not
+		     flag auto-correlations". When set to True, it
+		     will only flag data from a processor of type
+		     CORRELATOR. 
 </description>
-                <any type="variant" limittypes="string stringArray" />
-                <value type="string" />
+                  <value type="bool">False</value>
+            </param>
+ 
+            <!-- LIST parameters -->
+            <param type="any" name="inpfile" subparam="true">
+<shortdescription>Input ASCII file, list of files or Python list of strings with flag commands.</shortdescription>
+<description>Input ASCII file, list of files or Python list of strings
+with flag commands.
+                     Subparameter of mode='list'
+                     Default: ''
+                     Options: [] with flag commands or 
+                              [] with filenames or 
+                              '' with a filename.
+
+                     The parser will be strict and accept only valid
+		     flagdata parameters in the list. The parser
+		     evaluates the commands in the list and considers
+		     only existing Python types.It will check each
+		     parameter name and type and exit with an error if
+		     any of them is wrong. 
+
+                     NOTE: There should be no whitespace between
+		     KEY=VALUE since the parser first breaks command
+		     lines on whitespace, then on "=". Use only one
+		     whitespace to separate the parameters (no
+		     commas).
+</description>
+                <any type="variant" limittypes="string stringArray"/>
+                <value type="string"></value>
             </param>
 
+            <param type="any" name="reason" subparam="true">
+<shortdescription>Select by REASON types</shortdescription>
+<description>Select flag commands based on REASON(s)
+                     Subparameter of mode='list'
+                     Default: 'any' (all flags regardless of reason)
+                     Can be a string, or list of strings
+
+                        Examples: 
+                        reason='FOCUS_ERROR'
+                        reason=['FOCUS_ERROR','SUBREFLECTOR_ERROR']
+
+                     If inpfile is a list of files, the reasons given
+		     in this parameter will apply to all the files.
+
+                     NOTE: what is within the string is literally
+		     matched, e.g. reason='' matches only blank
+		     reasons, and reason =
+		     'FOCUS_ERROR,SUBREFLECTOR_ERROR' matches this
+		     compound reason string only.
+</description>
+                        <any type="variant" limittypes="string stringArray"/>
+                        <value type="string">any</value>
+            </param>
+            <param type="any" name="tbuff" subparam="true">
+<shortdescription>List of time buffers (sec) to pad timerange in flag commands</shortdescription>
+<description>A time buffer or list of time buffers to pad the
+timerange parameters in flag commands.
+                     Subparameter of mode='list'
+                     Default: 0.0 (it will not apply any time padding)
+
+                     When a list of 2 time buffers is given, it will
+		     subtract the first value from the lower time and
+		     the second value will be added to the upper time
+		     in the range. The 2 time buffer values can be
+		     different, allowing to have an irregular time
+		     buffer padding to time ranges. If the list
+		     contains only one time buffer, it will use it to
+		     subtract from t0 and add to t1. If more than one
+		     list of input files is given, tbuff will apply to
+		     all of the flag commands that have timerange
+		     parameters in the files. Each tbuff value should
+		     be a Float number given in seconds.
+
+                        Examples:
+                        tbuff=[0.5, 0.8]                   
+                        inpfile=['online.txt','userflags.txt']
+
+                        The timeranges in the online.txt file are
+			first converted to seconds. Then, 0.5 is
+			subtracted from t0 and 0.8 is added to t1,
+			where t0 and t1 are the two intervals given in
+			timerange. Similarly, tbuff will be applied to
+			any timerange in userflags.txt. 
+
+                     IMPORTANT: This parameter assumes that timerange
+		     = t0 ~ t1, therefore it will not work if only t0
+		     or t1 is given.
+
+                     NOTE: The most common use-case for tbuff is to
+		     apply the online flags that are created by
+		     importasdm when savecmds=True. The value of a
+		     regular time buffer should be
+		     tbuff=0.5*max(integration time).
+</description>
+                    <any type="variant" limittypes="double doubleArray" />
+                    <value type="double">0.0</value>
+            </param>
+
+            <!-- SELECTION parameters -->
             <param type="any" name="spw" subparam="true">
 <shortdescription>Select spectral window/channels</shortdescription>		
 <description>Select spectral window/channels
@@ -314,6 +404,28 @@ information, see the task pages of flagdata in CASA Docs
 		     flagged by the autoflag algorithms. For example,
 		     if spectral-lines fall in channels 6~9, set the
 		     selection range to spw='0:0~5;10~63'.
+</description>
+                <any type="variant" limittypes="string stringArray" />
+                <value type="string" />
+            </param>
+
+            <param type="any" name="field" subparam="true">
+<shortdescription>Select field using field id(s) or field name(s)</shortdescription>
+<description>Select field using field id(s) or field name(s)
+                     Default: '' (all fields)
+                     
+                     Use 'go listobs' to obtain the list id's or
+		     names. If field string is a non-negative integer,
+		     it is assumed a field index,  otherwise, it is
+		     assumed a field name.
+
+                        Examples:
+                        field='0~2'; field ids 0,1,2
+                        field='0,4,5~7'; field ids 0,4,5,6,7
+                        field='3C286,3C295'; field named 3C286 and
+			3C295
+                        field = '3,4C*'; field id 3, all names
+			starting with 4C
 </description>
                 <any type="variant" limittypes="string stringArray" />
                 <value type="string" />
@@ -473,134 +585,8 @@ information, see the task pages of flagdata in CASA Docs
                 <value type="string" />
             </param>
 
-
-             <!-- MANUAL parameters -->
-            <param type="bool" name="autocorr" subparam="true">
-<shortdescription>Flag only the auto-correlations?</shortdescription>
-<description>Flag only the auto-correlations?
-                     Subparameter of mode='manual'
-                     Default: False
-                     Options: False|True
-
-                     NOTE: this parameter is only active when set to
-		     True. If set to False it does NOT mean "do not
-		     flag auto-correlations". When set to True, it
-		     will only flag data from a processor of type
-		     CORRELATOR. 
-</description>
-                  <value type="bool">False</value>
-            </param>
- 
-            <!-- LIST parameters -->
-            <param type="any" name="inpfile" subparam="true">
-<shortdescription>Input ASCII file, list of files or Python list of strings with flag commands.</shortdescription>
-<description>Input ASCII file, list of files or Python list of strings
-with flag commands.
-                     Subparameter of mode='list'
-                     Default: ''
-                     Options: [] with flag commands or 
-                              [] with filenames or 
-                              '' with a filename.
-
-                     The parser will be strict and accept only valid
-		     flagdata parameters in the list. The parser
-		     evaluates the commands in the list and considers
-		     only existing Python types.It will check each
-		     parameter name and type and exit with an error if
-		     any of them is wrong. 
-
-                     NOTE: There should be no whitespace between
-		     KEY=VALUE since the parser first breaks command
-		     lines on whitespace, then on "=". Use only one
-		     whitespace to separate the parameters (no
-		     commas).
-</description>
-                <any type="variant" limittypes="string stringArray"/>
-                <value type="string"></value>
-            </param>
-
-            <param type="any" name="reason" subparam="true">
-<shortdescription>Select by REASON types</shortdescription>
-<description>Select flag commands based on REASON(s)
-                     Subparameter of mode='list'
-                     Default: 'any' (all flags regardless of reason)
-                     Can be a string, or list of strings
-
-                        Examples: 
-                        reason='FOCUS_ERROR'
-                        reason=['FOCUS_ERROR','SUBREFLECTOR_ERROR']
-
-                     If inpfile is a list of files, the reasons given
-		     in this parameter will apply to all the files.
-
-                     NOTE: what is within the string is literally
-		     matched, e.g. reason='' matches only blank
-		     reasons, and reason =
-		     'FOCUS_ERROR,SUBREFLECTOR_ERROR' matches this
-		     compound reason string only.
-</description>
-                        <any type="variant" limittypes="string stringArray"/>
-                        <value type="string">any</value>
-            </param>
-            <param type="any" name="tbuff" subparam="true">
-<shortdescription>List of time buffers (sec) to pad timerange in flag commands</shortdescription>
-<description>A time buffer or list of time buffers to pad the
-timerange parameters in flag commands.
-                     Subparameter of mode='list'
-                     Default: 0.0 (it will not apply any time padding)
-
-                     When a list of 2 time buffers is given, it will
-		     subtract the first value from the lower time and
-		     the second value will be added to the upper time
-		     in the range. The 2 time buffer values can be
-		     different, allowing to have an irregular time
-		     buffer padding to time ranges. If the list
-		     contains only one time buffer, it will use it to
-		     subtract from t0 and add to t1. If more than one
-		     list of input files is given, tbuff will apply to
-		     all of the flag commands that have timerange
-		     parameters in the files. Each tbuff value should
-		     be a Float number given in seconds.
-
-                        Examples:
-                        tbuff=[0.5, 0.8]                   
-                        inpfile=['online.txt','userflags.txt']
-
-                        The timeranges in the online.txt file are
-			first converted to seconds. Then, 0.5 is
-			subtracted from t0 and 0.8 is added to t1,
-			where t0 and t1 are the two intervals given in
-			timerange. Similarly, tbuff will be applied to
-			any timerange in userflags.txt. 
-
-                     IMPORTANT: This parameter assumes that timerange
-		     = t0 ~ t1, therefore it will not work if only t0
-		     or t1 is given.
-
-                     NOTE: The most common use-case for tbuff is to
-		     apply the online flags that are created by
-		     importasdm when savecmds=True. The value of a
-		     regular time buffer should be
-		     tbuff=0.5*max(integration time).
-</description>
-                    <any type="variant" limittypes="double doubleArray" />
-                    <value type="double">0.0</value>
-            </param>
                                   
             <!-- CLIP parameters -->
-<param type="any" name="datacolumn" subparam="true">
-<shortdescription>Data column on which to operate (data,corrected,model,weight,etc.)</shortdescription>
-<description>Data column to image (data or observed, corrected)
-                     Subparameter of mode='clip|tfcrop|rflag'
-                     Default:'corrected'
-                     
-                     If 'corrected' does not exist, it will use 'data'
-		     instead
-</description>
-                <any type="variant" limittypes="string stringArray" />
-                <value type="string">DATA</value>
-            </param>
-
             <param type="any" name="clipminmax" subparam="true">
 <shortdescription>Range to use for clipping</shortdescription>
 <description>Range to use for clipping
@@ -615,6 +601,19 @@ timerange parameters in flag commands.
                 <value type="doubleArray"></value>
             </param>
             
+<param type="any" name="datacolumn" subparam="true">
+<shortdescription>Data column on which to operate (data,corrected,model,weight,etc.)</shortdescription>
+<description>Data column to image (data or observed, corrected)
+                     Subparameter of mode='clip|tfcrop|rflag'
+                     Default:'corrected'
+                     
+                     If 'corrected' does not exist, it will use 'data'
+		     instead
+</description>
+                <any type="variant" limittypes="string stringArray" />
+                <value type="string">DATA</value>
+            </param>
+
             <param type="any" name="clipoutside" subparam="true">
 <shortdescription>Clip outside the range, or within it</shortdescription>
 <description>Clip outside the range?
@@ -1853,9 +1852,11 @@ save to FLAG_CMD
         </input>
 <returns type="void"/>
 <example>
+
 For more information, see the task pages of flagdata in CASA Docs:
 
 https://casa.nrao.edu/casadocs/
+
 </example>
 
 

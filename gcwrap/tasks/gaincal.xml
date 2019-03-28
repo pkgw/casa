@@ -8,18 +8,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <task type="function" name="gaincal" category="calibration">
 <shortdescription>Determine temporal gains from calibrator observations</shortdescription>
 <description>
+The complex gains for each antenna/spwid are determined from the data
+column (raw data) divided by the model column. The gains can be
+obtained for a specified solution interval, spw combination and field
+combination. The GSPLINE spline (smooth) option is still under
+development.
 
-      The complex gains for each antenna/spwid are determined from the
-      data column (raw data) divided by the model column.  The gains
-      can be obtained for a specified solution interval, spw
-      combination and field combination.  The GSPLINE spline (smooth)
-      option is still under development.
-
-      Previous calibrations (egs, bandpass, opacity, parallactic
-      angle) can be applied on the fly.  At present with
-      dual-polarized data, both polarizations must be unflagged for
-      any solution to be obtained.
-
+Previous calibrations (egs, bandpass, opacity, parallactic angle) can
+be applied on the fly. At present with dual-polarized data, both
+polarizations must be unflagged for any solution to be obtained.
 </description>
 <input>
 	<param type="string" name="vis" mustexist="true">

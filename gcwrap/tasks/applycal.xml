@@ -403,9 +403,11 @@ gaintable.
    </constraints>
 </input>
 <example>
-For more information, see the task pages of accor in CASA Docs:
+
+For more information, see the task pages of applycal in CASA Docs:
 
 https://casa.nrao.edu/casadocs/
+
 </example> 
 
 </task>

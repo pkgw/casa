@@ -12,12 +12,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <shortdescription>Changes FIELD and SOURCE table entries based on user-provided direction or POINTING table, optionally fixes the UVW coordinates</shortdescription>
 <description>
-        This task's main purpose is to correct observations which were
-	performed with correct pointing and correlation but for which
-	incorrect direction information was entered in the FIELD and
-	SOURCE table of the MS. If you actually want to change the
-	phase center of the visibilties in an MS, you should use task
-	fixvis.
+This task's main purpose is to correct observations which were
+performed with correct pointing and correlation but for which
+incorrect direction information was entered in the FIELD and SOURCE
+table of the MS. If you actually want to change the phase center of
+the visibilties in an MS, you should use task fixvis.
 </description>
 
 <input>
@@ -123,9 +122,11 @@ timestamp
 </input>
 
 <example>
+
 For more information, see the task pages of fixplanets in CASA Docs:
 
 https://casa.nrao.edu/casadocs/
+
 </example>
 
 </task>

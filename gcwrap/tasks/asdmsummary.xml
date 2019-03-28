@@ -10,8 +10,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <task type="function" name="asdmsummary" category="information">
 
   <shortdescription>Summarized description of an ASDM dataset.</shortdescription>
-
-  <description>Given an ASDM directory, this task will print, to the CASA log, information about the content of the dataset contained in that directory (down to the level of a subscan).</description>
+ <description>
+Given an ASDM directory, this task will print, to the CASA log,
+information about the content of the dataset contained in that
+directory (down to the level of a subscan).
+</description>
 
   <input>
 
@@ -32,11 +35,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <returns type="void"/>
 
   <example>
-
-For more information, see the task pages of flagcmd in CASA Docs:
+For more information, see the task pages of asdmsummary in CASA Docs:
 
 https://casa.nrao.edu/casadocs/
-
   </example>
 
 </task>

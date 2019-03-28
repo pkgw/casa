@@ -7,8 +7,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <task type="function" name="importasdm" category="import/export" >
-
-  <shortdescription>Convert an ALMA Science Data Model observation into a CASA visibility file (MS)</shortdescription>
+<shortdescription>Convert an ALMA Science Data Model observation into a CASA visibility file (MS)</shortdescription>
 <description>
 Convert an ALMA Science Data Model observation into a CASA visibility
 file (MS)

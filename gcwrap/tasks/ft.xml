@@ -7,7 +7,7 @@
 
 <task type="function" name="ft" category="imaging, calibration">
 	<shortdescription>Insert a source model as a visibility set</shortdescription>
-	<description>
+<description>
 A source model (souce.model image) or components list is converted
 into model visibilities that is inserted into the MODEL_DATA column or
 alternatively is stored  in the header of the MS to be served on the
@@ -18,8 +18,7 @@ available, which are 3C48, 3C138, 3C147, 3C286 at 1.4, 5.0, 8.4, 15,
 22, 43 GHz.  Their location is site dependent.  In Charlottesville and
 Socorro, the models are in
 /usr/lib(lib64)/casapy/data/nrao/VLA/CalModels.
-
-	</description>
+</description>
 	<input>
 		<param type="string" name="vis" mustexist="true">
 <shortdescription>Name of input visibility file</shortdescription>

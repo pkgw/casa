@@ -7,7 +7,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <task type="function" name="importasap" category="single dish, import/export" >
-
   <shortdescription>Convert ASAP Scantable data  into a CASA visibility file (MS)</shortdescription>
 <description>
 Convert ASAP Scantable data  into a CASA visibility file (MS)
