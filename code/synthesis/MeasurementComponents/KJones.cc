@@ -1675,22 +1675,28 @@ void KAntPosJones::setCallib(const Record& callib,
   newcallib.define("calwt",Bool(callib.asBool("calwt")));
   newcallib.define("tablename",String(callib.asString("tablename")));
 
-  Record thiscls;
-  thiscls=callib.asRecord("0");  // copy
-  thiscls.removeField("spwmap");
-  thiscls.define("spwmap",Vector<Int>(nSpw(),0));
-  newcallib.defineRecord("0",thiscls);
+  // Loop over separate callib slices, if any 
+  //  (formally, probably not needed, but some pipelines are redundant, e.g., over fields groups)
+  for (uInt icls=0;icls<callib.nfields();++icls) {
+    //cout << icls << " name=" << callib.name(icls) << " type=" << callib.type(icls) << " isRecord=" << (callib.type(icls)==TpRecord) << endl;
+    if (callib.type(icls)==TpRecord) {
+      Record thiscls;
+      String slname(callib.name(icls));
+      thiscls=callib.asRecord(slname);  // copy
+      thiscls.removeField("spwmap");
+      thiscls.define("spwmap",Vector<Int>(nSpw(),0));
+      newcallib.defineRecord(slname,thiscls);
+    }
+  }
 
   // Call generic to do conventional things
   SolvableVisCal::setCallib(newcallib,selms);
-  //  SolvableVisCal::setCallib(callib,selms);
 
   if (calWt()) 
     logSink() << " (" << this->typeName() << ": Enforcing calWt()=false for phase/delay-like terms)" << LogIO::POST;
 
   // Enforce calWt() = false for delays
   calWt()=false;
-
 
   // Force spwmap to all 0  (antpos is not spw-dep)
   //  NB: this is required before calling parents, because
