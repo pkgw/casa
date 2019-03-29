@@ -29,7 +29,7 @@ namespace LibAIR2 {
       supplied radiometers is taken.
 
    */
-  std::auto_ptr<Radiometer> MergeRadiometers( std::vector<const Radiometer *> & vr);
+  std::unique_ptr<Radiometer> MergeRadiometers( std::vector<const Radiometer *> & vr);
 
 }
 

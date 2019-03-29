@@ -22,17 +22,71 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
+#include <casa/Exceptions/Error.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/synthesis/ImagerControl.h>
-#include <display/Clean/ConfirmStop.ui.h>
 #include <casadbus/utilities/io.h>
+typedef casa::dbus::variant variant_t;
+#else
+#include <map>
+#include <casagrpc/types/variant.h>
+typedef casa::grpc::variant variant_t;
+namespace casa {
+    class ImagerControl {
+    public:
+        static std::string name( ) { return "SynthesisImager"; }
+
+        ImagerControl( const std::string &con ) {
+            fprintf( stderr, "ImagerControl(%s)\n", con.c_str( ) );
+            fflush(stderr);
+        }
+
+        bool incrementController( ) {
+            fprintf(stderr,"ImagerControl::incrementController( )\n");
+            fflush(stderr);
+            return false;
+        }
+        bool decrementController( ) {
+            fprintf(stderr,"ImagerControl::decrementController( )\n");
+            fflush(stderr);
+            return false;
+        }
+        void changePauseFlag( const bool & ) {
+            fprintf(stderr,"ImagerControl::changePauseFlag( const bool & )\n");
+            fflush(stderr);
+        }
+        void changeStopFlag( const bool & ) {
+            fprintf(stderr,"ImagerControl::changeStopFlag( const bool & )\n");
+            fflush(stderr);
+        }
+        void controlUpdate(const std::map<std::string,grpc::variant>&) {
+            fprintf(stderr,"ImagerControl::controlUpdate(const std::map<std::string,grpc::variant>&)\n");
+            fflush(stderr);
+        }
+        std::map<std::string,grpc::variant> getDetails( ) {
+            fprintf(stderr,"ImagerControl::getDetails( )\n");
+            fflush(stderr);
+            return std::map<std::string,grpc::variant>( );
+        }
+        std::string getDescription( ) {
+            fprintf(stderr,"ImagerContro::getDescription( )\n");
+            fflush(stderr);
+            return std::string( );
+        }
+    };
+}
+#endif
+#include <display/Clean/ConfirmStop.ui.h>
 #include <display/Clean/CleanGui.qo.h>
 #include <iostream>
 #include <iomanip>
 #include <iterator>
 #include <QDebug>
 #define DEBUG 1
+
 using namespace casacore;
+
 namespace casa {
 
 	namespace viewer {
@@ -64,6 +118,7 @@ namespace casa {
 
 			QTreeWidgetItem *current_item = 0;
 			try {
+#if ! defined(WITHOUT_DBUS)
 				casa::DBusSession &session = casa::DBusSession::instance( );
 				typedef std::vector<std::string> namelist_t;
 				namelist_t names = session.listNames( );
@@ -73,12 +128,12 @@ namespace casa {
 #endif
 				for ( namelist_t::iterator it = names.begin( ); it != names.end( ); ++it ) {
 #if DEBUG
-					cout << std::setw(25) << "<CleanGui::CleanGui>:" << std::setw(50) << it->c_str( ) << 
+					std::cout << std::setw(25) << "<CleanGui::CleanGui>:" << std::setw(50) << it->c_str( ) << 
 						std::setw(50) << ImagerControl::interface_name( );
 #endif
 					if ( it->compare( 0, ImagerControl::interface_name( ).size( ), ImagerControl::interface_name( ) ) == 0 ) {
 #if DEBUG
-						cout << std::setw(7) << "(yes)" << endl;
+						std::cout << std::setw(7) << "(yes)" << std::endl;
 #endif
 						std::string value = *it;
 						value.erase( 0, ImagerControl::interface_name( ).size( ) );
@@ -88,9 +143,13 @@ namespace casa {
 						item->setCheckState( 0, Qt::Unchecked );
 					}
 #if DEBUG
-					else { cout << std::setw(7) << "(no)" << endl; }
+					else { std::cout << std::setw(7) << "(no)" << std::endl; }
 #endif
 				}
+#else
+				fprintf( stderr, "POINT WHERE DBUS WAS USED TO CONNECT TO RUNNING INTERACTIVE CLEAN\n" );
+				fflush( stderr );
+#endif
 			} catch( ... ) { }
 
 			//****
@@ -257,7 +316,7 @@ namespace casa {
 						ic = 0;
 					}
 #ifdef DEBUG
-					cout << "<CleanGui::selection_change>: creating imager control object:\t" << ImagerControl::name( ) + process_id.toStdString( ) << endl;
+					std::cout << "<CleanGui::selection_change>: creating imager control object:\t" << ImagerControl::name( ) + process_id.toStdString( ) << std::endl;
 #endif
 					ic = new ImagerControl( "edu.nrao.casa." + ImagerControl::name( ) + process_id.toStdString( ) );
 					current_process_index = index;
@@ -283,19 +342,25 @@ namespace casa {
 #if DEBUG
 				fprintf( stderr, "<CleanGui::refresh>: getting details...\n" );
 #endif
-				typedef std::map<std::string,dbus::variant> details_t;
+				typedef std::map<std::string,variant_t> details_t;
 				details_t details = ic->getDetails( );
 #if DEBUG
+#if ! defined(WITHOUT_DBUS)
 				std::ostream_iterator<std::string> out( cerr, ", " );
+
 				std::transform( details.begin( ), details.end( ), out,
-				                (std::string (*)(const std::pair<std::string,dbus::variant>&)) dbus::asString );
+				                (std::string (*)(const std::pair<std::string,variant_t>&)) dbus::asString );
 				fflush(stderr);  //*** catches cerr too...
+#else
+                fprintf( stderr, "INSERT DICTIONARY DUMP HERE\n" );
+                fflush(stderr);
+#endif
 #endif
 				/***********************************************************************
 				******  Is interaction currently enabled?                         ******
 				***********************************************************************/
 				details_t::iterator it = details.find("interactivemode");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::BOOL ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::BOOL ) {
 					if ( it->second.getBool( ) ) {
 						interactive_label->setText("interactive");
 					} else {
@@ -306,7 +371,7 @@ namespace casa {
 				******  Fill in the threshold...                                  ******
 				***********************************************************************/
 				it = details.find("threshold");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::DOUBLE ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::DOUBLE ) {
 					double threshold = it->second.getDouble( );
 					QString val = QString::number(threshold);
 					threshold_entry->setText(val);
@@ -319,7 +384,7 @@ namespace casa {
 				******  Fill in the niter...                                      ******
 				***********************************************************************/
 				it = details.find("niter");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::INT ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::INT ) {
 					int niter = it->second.getInt( );
 					QString val = QString::number(niter);
 					niter_entry->setText(val);
@@ -339,7 +404,7 @@ namespace casa {
 				******  Fill in cycle niter...                                    ******
 				***********************************************************************/
 				it = details.find("cycleniter");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::INT ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::INT ) {
 					int niter = it->second.getInt( );
 					QString val = QString::number(niter);
 					cycle_niter_entry->setText(val);
@@ -353,7 +418,7 @@ namespace casa {
 				******  Fill in cycle threshold...                                ******
 				***********************************************************************/
 				it = details.find("cyclethreshold");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::DOUBLE ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::DOUBLE ) {
 					double threshold = it->second.getDouble( );
 					QString val = QString::number(threshold);
 					cycle_threshold_entry->setText(val);
@@ -367,7 +432,7 @@ namespace casa {
 				******  Fill in interactive niter...                              ******
 				***********************************************************************/
 				it = details.find("interactiveniter");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::INT ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::INT ) {
 					int niter = it->second.getInt( );
 					QString val = QString::number(niter);
 					interactive_niter_entry->setText(val);
@@ -381,7 +446,7 @@ namespace casa {
 				******  Fill in interactive threshold...                          ******
 				***********************************************************************/
 				it = details.find("interactivethreshold");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::DOUBLE ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::DOUBLE ) {
 					double threshold = it->second.getDouble( );
 					QString val = QString::number(threshold);
 					interactive_threshold_entry->setText(val);
@@ -395,7 +460,7 @@ namespace casa {
 				******  Fill in cycle factor entry...                             ******
 				***********************************************************************/
 				it = details.find("cyclefactor");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::DOUBLE ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::DOUBLE ) {
 					double factor = it->second.getDouble( );
 					QString val = QString::number(factor);
 					cycle_factor_entry->setText(val);
@@ -410,7 +475,7 @@ namespace casa {
 				******  Fill in loop gain entry...                                ******
 				***********************************************************************/
 				it = details.find("loopgain");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::DOUBLE ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::DOUBLE ) {
 					double gain = it->second.getDouble( );
 					QString val = QString::number(gain);
 					loop_gain_entry->setText(val);
@@ -424,7 +489,7 @@ namespace casa {
 				******  Fill in current clean state...                            ******
 				***********************************************************************/
 				it = details.find("cleanstate");
-				if ( it != details.end( ) && it->second.type( ) == dbus::variant::STRING ) {
+				if ( it != details.end( ) && it->second.type( ) == variant_t::STRING ) {
 					std::string state = it->second.getString( );
 					clean_state_label->setText(QString::fromStdString(state));
 					if ( state == "paused" ) {
@@ -455,11 +520,11 @@ namespace casa {
 
 		}
 
-		std::map<std::string,dbus::variant> CleanGui::collect( ) {
-			typedef std::map<std::string,dbus::variant> details_t;
+		std::map<std::string,variant_t> CleanGui::collect( ) {
+			typedef std::map<std::string,variant_t> details_t;
 			details_t result;
 #if DEBUG
-			cerr << "CleanGui::collect( )\n" << endl;
+			cerr << "CleanGui::collect( )\n" << std::endl;
 #endif
 			try {
 				/***********************************************************************

@@ -24,7 +24,7 @@ namespace casacore {
 namespace casa {
 namespace vi {
 
-class Pointing;
+struct Pointing;
 class PointingDirectionCache;
 class PointingSource;
 

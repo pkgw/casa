@@ -541,12 +541,15 @@ bool PlotMSPlot::updateCache() {
 }
 
 void PlotMSPlot::checkColoraxis(String caltype, PMS_PP_Display* display) {
-	// check coloraxis for cal tables
-	if (caltype.empty())
+	// check coloraxis for cal tables, xconnect for MS
+	if (caltype.empty()) {
+		if (display->xConnect() != "none")
+			logMessage("WARNING: Connecting points is implemented for calibration tables only");
 		return;
+	}
 	PMS::Axis coloraxis = display->colorizeAxis();
 	if (coloraxis==PMS::INTENT) {
-        logMessage("WARNING: Cannot colorize Intent for cal tables.\nTurning off colorize.");
+		logMessage("WARNING: Cannot colorize Intent for cal tables.\nTurning off colorize.");
 		display->setColorize(false, PMS::NONE);
 		return;
 	}
@@ -653,7 +656,34 @@ bool PlotMSPlot::updateDisplay() {
 				String caltype = itsCache_->calType();
 				checkColoraxis(caltype, display);
 				bool colorizeChanged = itsCache_->indexer(row,col).colorize(display->colorizeFlag(), display->colorizeAxis());
-				if (nIter > 0 && colorizeChanged )
+
+				// Set xconnector in indexer and plot;
+				// time connector changes indexer only
+				String xconnector = display->xConnect();
+				bool connectorChanged(false);
+				if (itsCache_->cacheType()==PlotMSCacheBase::CAL) {
+					bool timeconnector = display->timeConnect();
+					connectorChanged = itsCache_->indexer(row,col).setConnect(xconnector, timeconnector);
+					if (xconnector == "none") {
+						plot->setLinesShown(false);
+						plot->setMaskedLinesShown(false);
+					} else {
+						// only connect symbols being plotted
+						if (symbolUnmasked->symbol() != PlotSymbol::NOSYMBOL) {
+							plot->setLinesShown(true);
+							plot->setLine(symbolUnmasked->getColor());
+						}
+						if (symbolMasked->symbol() != PlotSymbol::NOSYMBOL) {
+							plot->setMaskedLinesShown(true);
+							plot->setMaskedLine(symbolMasked->getColor());
+						}
+						bool step = (xconnector == "step");
+						plot->setLinesStep(step);
+						plot->setMaskedLinesStep(step);
+					}
+				}
+
+				if ((nIter > 0) && (colorizeChanged || connectorChanged))
 					plot->dataChanged();
 
 				// Set item axes
@@ -757,6 +787,7 @@ void PlotMSPlot::clearPlotData() {
 bool PlotMSPlot::updateIndexing() {
 	PMS_PP_Iteration *iter = itsParams_.typedGroup<PMS_PP_Iteration>();
 	PMS_PP_Axes* axes = itsParams_.typedGroup<PMS_PP_Axes>();
+	PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
 	bool globalX = iter->isGlobalScaleX();
 	bool globalY = iter->isGlobalScaleY();
 	PMS::Axis iterAxis = iter->iterationAxis();
@@ -779,8 +810,11 @@ bool PlotMSPlot::updateIndexing() {
 	if ( requiredUpdate ){
 		itsCache_->clearRanges();
 		//Set up the indexer.
-		for ( int i = 0; i < dataCount; i++ )
-			itsCache_->setUpIndexer(iterAxis, globalX, globalY, i);
+		for ( int i = 0; i < dataCount; i++ ) {
+	        String xconnect(disp->xConnect());
+	        bool timeconnect(disp->timeConnect());
+			itsCache_->setUpIndexer(iterAxis, globalX, globalY, xconnect, timeconnect, i);
+        }
 	}
 	return true;
 }
@@ -1158,15 +1192,24 @@ bool PlotMSPlot::parametersHaveChanged_(const PlotMSWatchedParameters &p,
 	const PMS_PP_MSData *data = itsParams_.typedGroup<PMS_PP_MSData>();
 	const PMS_PP_Iteration *iter = itsParams_.typedGroup<PMS_PP_Iteration>();
 	const PMS_PP_Axes *axes = itsParams_.typedGroup<PMS_PP_Axes>();
-	if(data == NULL || iter == NULL || axes == NULL )
+	const PMS_PP_Display *display = itsParams_.typedGroup<PMS_PP_Display>();
+	if(data == NULL || iter == NULL || axes == NULL || display == NULL)
 		return true;
+
+	bool isConnected(false);
+	std::vector<String> connects = display->xConnects();
+	for (size_t i=0; i<connects.size(); ++i) {
+		if (connects[i]=="line" || connects[i]=="step")
+			isConnected = true;
+    }
 
 	itsTCLParams_.releaseWhenDone = releaseWhenDone;
 	itsTCLParams_.updateCanvas = (updateFlag & PMS_PP::UPDATE_AXES) ||
 			(updateFlag & PMS_PP::UPDATE_CACHE) ||
 			(updateFlag & PMS_PP::UPDATE_CANVAS) ||
 			(updateFlag & PMS_PP::UPDATE_ITERATION) ||
-			(updateFlag & PMS_PP::UPDATE_MSDATA) || !data->isSet();
+			(updateFlag & PMS_PP::UPDATE_MSDATA) ||
+			isConnected || !data->isSet();
 
 	itsTCLParams_.updateDisplay = updateFlag & PMS_PP::UPDATE_DISPLAY;
 	itsTCLParams_.endCacheLog = false;
@@ -1266,8 +1309,6 @@ bool PlotMSPlot::parametersHaveChanged_(const PlotMSWatchedParameters &p,
 			cacheLoaded_(false);
 			handled = false;
 		}
-	} else {
-		cacheLoaded_(false);
 	}
 	return handled;
 }
@@ -1761,7 +1802,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		if ( axesParams->xRangeSet() ){
 			// Custom axes ranges set by user
 			canvas->setAxisRange(cx, axesParams->xRange());
-		} else if (xPtsToPlot && !iterParams->isGlobalScaleX()) {
+		} else if (xPtsToPlot) {
 			setAxisRange(x, cx, xmin, xmax, canvas);
 			if (PMS::axisIsUV(x)) {
 				xIsUV = true;
@@ -1776,8 +1817,15 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			if ( axesParams->yRangeSet(i) ){
 				// Custom axes ranges set by user
 				canvas->setAxisRange(cy, axesParams->yRange(i));
-			} else if (yPtsToPlot && !iterParams->isGlobalScaleY()) {
+			} else if (yPtsToPlot) {
 				PMS::Axis y = cacheParams->yAxis(i);
+				// add margin if showAtm so overlay doesn't overlap plot
+				if ((cacheParams->showAtm() && y!=PMS::ATM) ||
+					(cacheParams->showTsky() && y!=PMS::TSKY)) {
+					ymax += (ymax-ymin)*0.5;
+					pair<double, double> ybounds = make_pair(ymin, ymax);
+					canvas->setAxisRange(cy, ybounds);
+				}
 				setAxisRange(y, cy, ymin, ymax, canvas);
 				if (PMS::axisIsUV(y) && xIsUV) {
 					// set x and y ranges equally
@@ -1789,7 +1837,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					makeSquare = true;
 					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
 						waveplot=true;
-				}
+                } else if (y==PMS::ATM || y==PMS::TSKY) {
+                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+                    pair<double,double> atmrange;
+                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
+                    else atmrange = make_pair(0, ymax+0.1);
+                    canvas->setAxisRange(cy, atmrange);
+                }
 			}
 		}
 	}

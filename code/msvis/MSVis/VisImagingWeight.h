@@ -37,6 +37,7 @@ namespace casacore{
 
 template<class T> class Matrix;
 template<class T> class Vector;
+ template<class T> class ImageInterface;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -95,15 +96,17 @@ class ROVisibilityIterator;
                                const casacore::Double robust, const casacore::Int nx, const casacore::Int ny,
                                const casacore::Quantity& cellx, const casacore::Quantity& celly,
 		      const casacore::Int uBox, const casacore::Int vBox, const casacore::Bool multiField=false);
-
+     ///Construct uniform weight density from save grid on an image
+     VisImagingWeight(casacore::ImageInterface<casacore::Float>& densityImages) ;
      virtual ~VisImagingWeight();
 
 
      // reference semantically = operator
      VisImagingWeight& operator=(const VisImagingWeight& imwgt);
 
-
-
+     //you have to make sure the imageinterface passed has the shape of gwt
+     //on the first 2 axex and last axis
+     virtual void toImageInterface(casacore::ImageInterface<casacore::Float>& im);
      // casacore::Function to calculate the  uniform style weights, include Brigg's for example
      // imagingWeight should be sized by (nchan, row) already
      // The fieldid and msid parameters must correspond to what VisBuffer  or VisIter fieldId() and msId() returns
@@ -151,6 +154,8 @@ class ROVisibilityIterator;
      // Form corr-indep weight by averaging parallel-hand weights
      void unPolChanWeight(casacore::Matrix<casacore::Float>& chanRowWt, const casacore::Cube<casacore::Float>& corrChanRowWt) const;
 
+     casacore::Vector<casacore::Int> shapeOfdensityGrid();
+     
     private:
      void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
      casacore::SimpleOrderedMap <casacore::String, casacore::Int> multiFieldMap_p;
