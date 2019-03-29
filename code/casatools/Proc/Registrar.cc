@@ -98,7 +98,7 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
         std::unique_ptr<Server> server;
         std::unique_ptr<grpcRegistrar> reg;
         ~grpcState( ) {
-            fprintf(stdout, "stopping registry\n");
+            if (getenv("GRPC_DEBUG")) fprintf(stdout, "stopping registry\n");
             fflush(stdout);
             if ( server ) server->Shutdown( );
         }
@@ -132,7 +132,7 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
             // if an available port can be found, selected_port is set to a value greater than zero
             snprintf(address_buf,sizeof(address_buf),address_template,selected_port);
             uri_ = address_buf;
-            std::cout << "registry available at " << uri_ << std::endl;
+            if (getenv("GRPC_DEBUG")) std::cout << "registry available at " << uri_ << std::endl;
             grpc_state = (void*) state;
         } else delete state;
 

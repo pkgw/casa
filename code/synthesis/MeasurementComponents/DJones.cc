@@ -1130,7 +1130,7 @@ DfllsJones::~DfllsJones() {
   if (prtlev()>2) cout << "Dflls::~Dflls()" << endl;
 }
 
-
+/*
 
 // **********************************************************
 //  XMueller: positiona angle for circulars
@@ -1414,11 +1414,11 @@ void XMueller::solveOneVB(const VisBuffer& vb) {
     } // !flagRow
   } // row
   
-/*
-  cout << "spw = " << currSpw() << endl;
-  cout << " rl = " << rl << " " << arg(rl)*180.0/C::pi << endl;
-  cout << " lr = " << lr << " " << arg(lr)*180.0/C::pi << endl;
-*/
+
+//  cout << "spw = " << currSpw() << endl;
+//  cout << " rl = " << rl << " " << arg(rl)*180.0/C::pi << endl;
+//  cout << " lr = " << lr << " " << arg(lr)*180.0/C::pi << endl;
+
 
     // combine lr with rl
   rl+=conj(lr);
@@ -1695,7 +1695,7 @@ void XJones::solveOneVB(const VisBuffer& vb) {
 
   Int nChan=vb.nChannel();
 
-  Complex d,md;
+  Complex d;
   Float wt;
   Vector<DComplex> rl(nChan,0.0),lr(nChan,0.0);
   Double sumwt(0.0);
@@ -1805,7 +1805,7 @@ void XJones::solveOneSDB(SolveDataBuffer& sdb) {
 
   Int nChan=sdb.nChannels();
 
-  Complex d,md;
+  Complex d;
   Float wt;
   Vector<DComplex> rl(nChan,0.0),lr(nChan,0.0);
   Double sumwt(0.0);
@@ -1918,7 +1918,7 @@ void XJones::solveOne(SDBList& sdbs) {
 
   Int nChan=sdbs.nChannels();
 
-  Complex d,md;
+  Complex d;
   Float wt;
   Vector<DComplex> rl(nChan,0.0),lr(nChan,0.0);
   Double sumwt(0.0);
@@ -2746,7 +2746,7 @@ GlinXphfJones::~GlinXphfJones() {
   if (prtlev()>2) cout << "GlinXphf::~GlinXphf()" << endl;
 }
 
-
+*/
 
 
 

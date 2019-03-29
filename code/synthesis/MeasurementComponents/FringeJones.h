@@ -115,12 +115,12 @@ private:
     casacore::Int nt_;
     casacore::Int nPadT_;
     casacore::Int nChan_;
-    casacore::Int nSPWChan_;
+    //casacore::Int nSPWChan_;
     casacore::Int nPadChan_;
     casacore::Int nElem_;
     casacore::Double dt_, f0_, df_, df_all_;
-    casacore::Double t0_, t1_;
-    casacore::Double padBW_;
+    //casacore::Double t0_, t1_;
+    //casacore::Double padBW_;
     casacore::Array<casacore::Complex> Vpad_;
     casacore::Array<casacore::Int> xcount_;
     casacore::Array<casacore::Float> sumw_;
@@ -234,9 +234,8 @@ public:
   virtual casacore::Bool useGenericGatherForSolve() { return true; };
   virtual casacore::Bool useGenericSolveOne() { return false; }
 
-  // Override G here; nothing to do for K, for now
-  //   TBD: refant apply, etc.
-  virtual void globalPostSolveTinker() {};
+  // Post solve tinkering
+  virtual void globalPostSolveTinker();
 
   // Local implementation of selfSolveOne (generalized signature)
   // virtual void selfSolveOne(VisBuffGroupAcc& vbga);
@@ -251,7 +250,12 @@ public:
   virtual casacore::Bool& globalSolve() { return globalSolve_; } 
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
+  
+  // Apply reference antenna
+  virtual void applyRefAnt();
 
+  virtual casacore::Int& refant() { return refant_; }
+  
 protected:
 
   // phase, delay, rate
@@ -281,6 +285,7 @@ private:
   virtual CTTIFactoryPtr cttifactoryptr() { return &CTRateAwareTimeInterp1::factory; };
   void calculateSNR(casacore::Int, DelayRateFFT);
 
+  casacore::Int refant_; // Override
   casacore::Bool zeroRates_;
   casacore::Bool globalSolve_;
   casacore::Array<casacore::Double> delayWindow_;

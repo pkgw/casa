@@ -96,7 +96,7 @@ private:
 
   casacore::Int lastIndex_p;
 
-  casacore::Int nRows_p;
+  // casacore::Int nRows_p;
 
   casacore::Int getIndex(const casacore::ROMSPointingColumns& mspc, const casacore::Double& time);
 

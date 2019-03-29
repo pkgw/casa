@@ -72,9 +72,50 @@ VisCalSolver2::VisCalSolver2() :
   grad_(),hess_(),
   lambda_(2.0),
   optstep_(True),
+  doL1_(false),
+  L1clamp_(0),
+  doRMSThresh_(false),
+  RMSThresh_(0),
+  nRMSThresh_(0),
   prtlev_(VCS2_PRTLEV)
 {
   if (prtlev()>0) cout << "VCS2::VCS2()" << endl;
+}
+
+VisCalSolver2::VisCalSolver2(String solmode, Vector<Float>& rmsthresh) :
+  SDBs_(NULL),
+  ve_(NULL),
+  svc_(NULL),
+  nPar_(0),
+  maxIter_(50),
+  chiSq_(0.0),
+  chiSqV_(4,0.0),
+  lastChiSq_(0.0),dChiSq_(0.0),
+  sumWt_(0.0),sumWtV_(4,0.0),nWt_(0),
+  cvrgcount_(0),
+  par_(), parOK_(), parErr_(), lastPar_(),
+  dpar_(), 
+  grad_(),hess_(),
+  lambda_(2.0),
+  optstep_(True),
+  doL1_(false),
+  L1clamp_(std::vector<Float>({5e-3, 5e-4, 5e-5})),
+  doRMSThresh_(false),
+  RMSThresh_(rmsthresh),  // 
+  nRMSThresh_(rmsthresh.nelements()),
+  prtlev_(VCS2_PRTLEV)
+{
+  if (prtlev()>0) cout << "VCS2::VCS2(solmode)" << endl;
+
+  if (solmode.contains("L1")) doL1_=true;
+  if (solmode.contains("R")) doRMSThresh_=true;
+
+  if (doRMSThresh_ && nRMSThresh_==0) {
+    doRMSThresh_=false;
+    //RMSThresh_=Vector<Float>(std::vector<Float>({7.0,5.0,4.0,3.5,3.0,2.8,2.6,2.4,2.2}));
+    //nRMSThresh_=RMSThresh_.nelements();
+  }
+
 }
 
 VisCalSolver2::~VisCalSolver2() 
@@ -82,10 +123,15 @@ VisCalSolver2::~VisCalSolver2()
   if (prtlev()>0) cout << "VCS2::~VCS2()" << endl;
 }
 
-// New VisBuffGroupAcc version
+
+// New SDBList version
 Bool VisCalSolver2::solve(VisEquation& ve, SolvableVisCal& svc, SDBList& sdbs) {
 
-  if (prtlev()>1) cout << "VCS2::solve(,,VBGA)" << endl;
+  // If L1 and/or outlier flagging requested, call specialize method
+  if (doL1_ || doRMSThresh_)
+    return solveL1R(ve,svc,sdbs);
+
+  if (prtlev()>1) cout << "VCS2::solve(,,SDBs)" << endl;
 
   /*
   LogSink logsink;
@@ -235,6 +281,207 @@ Bool VisCalSolver2::solve(VisEquation& ve, SolvableVisCal& svc, SDBList& sdbs) {
   return False;
     
 }
+
+// New L1(R)-capable version
+Bool VisCalSolver2::solveL1R(VisEquation& ve, SolvableVisCal& svc, SDBList& sdbs) {
+
+  if (prtlev()>1) cout << "VCS2::solve(,,SDBs)" << endl;
+
+  /*
+  LogSink logsink;
+  {
+    LogMessage message(LogOrigin("VisCalSolver2", "solve"));
+    ostringstream o; o<<"Beginning solve...";
+    message.message(o);
+    logsink.post(message);
+  }
+  */
+  // Pointers to local ve,svc
+  ve_=&ve;
+  svc_=&svc;
+  SDBs_=&sdbs;
+
+  // Verify that VisEq has the correct svc:
+  // TBD?
+
+  // Initialize everything 
+  initSolve();
+
+  Vector<Float> steplist(maxIter_+2,0.0);
+  Vector<Float> rsteplist(maxIter_+2,0.0);
+
+  // Verify Data's validity for solve w.r.t. baselines available
+  //   (this sets parOK() on per-antenna basis (for focusChan)
+  //    based on data weights and baseline participation)
+  Bool oktosolve = svc_->verifyConstraints(*SDBs_);
+
+  if (oktosolve) {
+    
+    // Tweak guess in L1 case, to avoid degeneracy...
+    if (doL1_)
+      par()*=Complex(1.0001,0.0);
+  
+    if (prtlev()>1) cout << "First guess:" << endl
+			 << "amp = " << amplitude(par()) << endl
+			 << "pha = " << phase(par()) 
+			 << endl;
+
+    // Iterate solution
+    Int iter(0);
+    Bool done(False);
+    Bool applyWorkingFlags(false);
+    Int L1iter(0), IRiter(0);
+    while (!done) {
+      
+      if (prtlev()>2) cout << " Beginning iteration " << iter 
+			   << "---------------------------------" << endl;
+      
+      // Differentiate the VB and get current Chi2
+      differentiate2();
+
+      if (doRMSThresh_ && applyWorkingFlags) {
+	SDBs_->updateWorkingFlags();
+	applyWorkingFlags=false;   // must be explicitly triggered below
+      }
+
+      // Set up working weights
+      if (doL1_)
+	SDBs_->updateWorkingWeights(doL1_,L1clamp_(L1iter));
+      else
+	SDBs_->updateWorkingWeights(false);
+
+
+      chiSquare2();
+      if (chiSq()==0.0) {
+	cout << "CHI2 IS SPURIOUSLY ZERO!*************************************" << endl;
+	//cout << "R() = " << R() << endl;
+	//	cout << "sum(wtmat) = " << sum(wtmat) << endl;
+	return False;
+      }
+
+      dChiSq() = chiSq()-lastChiSq();
+
+      //cout << "iter=" << iter << " X2=" << chiSq() << " dX2=" << dChiSq() << " dX2/X2=" << dChiSq()/chiSq(); // << endl;
+      
+      // Continuue if we haven't converged
+      if (!converged()) {
+	
+	//if (dChiSq()<=0.0) {
+	if (true || dChiSq()<=0.0) {
+	  // last step was good...
+	  lastChiSq()=chiSq();
+	  
+	  // so accumulate new grad/hess...
+	  accGradHess2();
+	  
+	  //...and adjust lambda downward
+	  //	lambda()/=2.0;
+	  //	lambda()=0.8;
+	  lambda()=1.0;
+	}
+	else {
+	  //	  cout << "reverting..." << chiSq() << " " << dChiSq() << " (" << iter << ")" << endl;
+	  // last step was bad, revert to previous 
+	  revert();
+	  //...with a larger lambda
+	  //	lambda()*=4.0;
+	  lambda()=1.0;
+	}
+	
+	// Solve for the parameter step
+	solveGradHess();
+	
+	// Remember curr pars
+	lastPar()=par();
+
+	// Refine the step size by exploring chi2 in the
+	//  gradient direction
+	if (optstep_ && !doL1_) //  && cvrgcount_>=3)
+	  optStepSize2();
+	
+	// Update current parameters (saves a copy of them)
+	updatePar();
+
+	steplist(iter)=max(amplitude(dpar()));
+	rsteplist(iter)=max(amplitude(dpar())/amplitude(par()));
+
+	//cout << "  rstep=" << rsteplist(iter) << endl;
+
+      }
+      else {
+
+	// Convergence means we're done, NOMINALLY
+	done=True;
+
+	// Override convergence if we need to solve again with
+	//  revised weight/flag conditions for robustness
+	if (doL1_ && L1iter<Int(L1clamp_.nelements())-1) {
+	  //cout << "*~*~*~*~*~*~* Converged w/ L1clamp = " << L1clamp_(L1iter) << " *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+	  done=false;
+	  ++L1iter;
+	  iter=-1;
+	  cvrgcount_=0;
+	  lastChiSq()=DBL_MAX;
+	}
+	else if (doRMSThresh_ && IRiter<nRMSThresh_) {
+	  //cout << "*~*~*~*~*~*~* Applying RMSThresh = " << RMSThresh_(IRiter) << " *~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*~*" << endl;
+	  RMSThresh(IRiter);
+	  ++IRiter;
+	  applyWorkingFlags=true;  // force apply of the RMSThresh'd flags at the top of loop _after_ differentiation
+	  done=false;
+	  L1iter=0;
+	  iter=-1;
+	  cvrgcount_=0;
+	  lastChiSq()=DBL_MAX;
+	}
+
+	// If still done (robustness options absent or exhausted), escape solve loop
+	if (done) {
+
+	  if (prtlev()>0) {
+	    cout << "par()=" << par() << endl;
+	  }
+
+	  /*
+	  cout << " good pars=" << ntrue(parOK())
+	       << " iterations=" << iter << endl
+	       << " steps=" << steplist(IPosition(1,0),IPosition(1,iter)) 
+	       << endl
+	       << " rsteps=" << rsteplist(IPosition(1,0),IPosition(1,iter)) 
+	       << endl;
+	  */
+
+	  // Get parameter errors:
+	  accGradHess2();
+	  getErrors();
+	  
+	  // Return, signaling success if at least 1 good solution
+	  return (ntrue(parOK())>0);
+	}
+
+      }  // converged?
+      
+      // Escape iteration loop via iteration limit
+      if (iter==maxIter()) {
+	cout << "Reached iteration limit: " << iter << " iterations.  " << endl;
+	//	cout << " good pars = " << ntrue(parOK())
+	//	     << "  steps = " << steplist
+	//	     << endl;
+	done=True;
+      }
+      
+      // Advance iteration counter
+      iter++;
+    }
+    
+  }
+  else {
+    cout << " Insufficient unflagged antennas to proceed with this solve." << endl;
+  }
+
+  return False;
+    
+}
   
 void VisCalSolver2::initSolve() {
     
@@ -339,8 +586,11 @@ void VisCalSolver2::chiSquare2() {
 
     // Current SDB
     SolveDataBuffer& sdb(sdbs()(isdb));
-
     R.reference(sdb.residuals());
+
+    // _const_ access to working flags and weights
+    const Cube<Bool>& wFC(sdb.const_workingFlagCube());
+    const Cube<Float>& wWS(sdb.const_workingWtSpec());
 
     // Shapes for iteration
     IPosition shR(R.shape());
@@ -355,8 +605,10 @@ void VisCalSolver2::chiSquare2() {
       if (!sdb.flagRow()(irow)) {
 	for (Int ich=0;ich<nChan;++ich) {
 	  for (Int icorr=0;icorr<nCorr;++icorr) {
-	    if (!sdb.residFlagCube()(icorr,ich,irow)) { 
-	      Float& wt(sdb.infocusWtSpec()(icorr,ich,irow));
+	    //if (!sdb.residFlagCube()(icorr,ich,irow)) {    // OLD: residFlagCube
+	    const Bool& fl(wFC(icorr,ich,irow));             // NEW: workingFlagCube  CORRECT?
+	    if (!fl) {      
+	      const Float& wt(wWS(icorr,ich,irow));
 	      if (wt>0.0) {
 		Complex& Ri(R(icorr,ich,irow));
 
@@ -376,11 +628,129 @@ void VisCalSolver2::chiSquare2() {
 
   } // isdb
 
+  //cout << "chiSqV() = " << chiSqV() << endl;
+
   // Totals over corrs
   chiSq()=sum(chiSqV());  
   sumWt()=sum(sumWtV());  
 
 }
+
+// RMS calculation (for thresholding)
+void VisCalSolver2::RMSThresh(Int RejIter) {
+
+  if (prtlev()>2) cout << "   VCS2::RMS(SDB version)" << endl;
+
+  const Float threshold(RMSThresh_(RejIter));
+  Bool dolog=(RejIter==nRMSThresh_-1);
+
+  // TBD: per-ant/bln chiSq?
+
+  Int nCorr=sdbs().nCorrelations();
+  Vector<Double> xxV(nCorr,0.0);
+  Vector<Double> sWtV(nCorr,0.0);
+
+  Cube<Complex> R;
+
+  // Loop over SDBs
+  for (Int isdb=0;isdb<sdbs().nSDB();++isdb) {
+
+    // Current SDB
+    SolveDataBuffer& sdb(sdbs()(isdb));
+    R.reference(sdb.residuals());
+
+    // Shapes for iteration
+    IPosition shR(R.shape());
+    Int nCorr=shR(0);
+    Int nChan=shR(1);
+    Int nRow=shR(2);
+
+    const Cube<Bool>& wFC(sdb.const_workingFlagCube());
+
+    // Simple indexed accumulation of XX
+    Double xx0(0.0);
+    for (Int irow=0;irow<nRow;++irow) { 
+      if (!sdb.flagRow()(irow)) {
+	for (Int ich=0;ich<nChan;++ich) {
+	  for (Int icorr=0;icorr<nCorr;++icorr) {
+	    if (!wFC(icorr,ich,irow)) { 
+	      Float& wt(sdb.infocusWtSpec()(icorr,ich,irow));
+	      if (wt>0.0) {
+		Complex& Ri(R(icorr,ich,irow));
+		
+		// This element's contribution
+		xx0=Double(wt*real(Ri*conj(Ri)));  //  cf:  square(abs(R))?  
+		
+		// Accumulate per-corr
+		xxV(icorr)+=xx0;
+		sWtV(icorr)+=wt;
+	      }	 // wt>0     
+	    } // !flag
+	  } // icorr
+	} // ich
+      } // !flagRow
+    } // irow
+    
+  } // isdb
+
+  Vector<Float> rmsV(nCorr,0.0);
+  for (Int icorr=0;icorr<nCorr;++icorr) {
+    if (sWtV(icorr)>0.0)
+      rmsV(icorr)=Float(sqrt(xxV(icorr)/sWtV(icorr)));
+  }
+
+  // Now Apply the threshold
+
+  LogIO logsink;
+
+  // Loop over SDBs
+  for (Int isdb=0;isdb<sdbs().nSDB();++isdb) {
+
+    // Current SDB
+    SolveDataBuffer& sdb(sdbs()(isdb));
+    R.reference(sdb.residuals());
+
+    // Initialize wFC afresh
+    sdb.workingFlagCube().resize(0,0,0);
+    sdb.workingFlagCube().assign(sdb.residFlagCube());
+
+    // Shapes for iteration
+    IPosition shR(R.shape());
+    Int nCorr=shR(0);
+    Int nChan=shR(1);
+    Int nRow=shR(2);
+
+    for (Int irow=0;irow<nRow;++irow) { 
+      if (!sdb.flagRow()(irow)) {
+	for (Int ich=0;ich<nChan;++ich) {
+	  for (Int icorr=0;icorr<nCorr;++icorr) {
+	    if (!sdb.residFlagCube()(icorr,ich,irow)) { 
+	      Float& wt(sdb.infocusWtSpec()(icorr,ich,irow));
+	      if (wt>0.0) {
+		Float Ra(abs(R(icorr,ich,irow)));
+		if (Ra>(threshold*rmsV(icorr))) {
+		  sdb.workingFlagCube()(icorr,ich,irow)=true;
+		  //sdb.workingWtSpec()(icorr,ich,irow)=0.0;
+		  
+		  if (dolog) // only on last go-round, report what baselines have been flagged
+		    logsink << "Rejected outlier at: " << MVTime(sdb.time()(irow)/C::day).string(MVTime::YMD,7)
+			    << " spw=" << sdb.spectralWindow()(irow) 
+			    << " BL=" << sdb.antenna1()(irow) << "-" << sdb.antenna2()(irow)
+			    << " corr=" << icorr
+			    << ":  residual=" << Ra/rmsV(icorr) << "sigma" << " (threshold=" << threshold << ")" << LogIO::POST;
+
+		}
+	      }	 // wt>0     
+	    } // !flag
+	  } // icorr
+	} // ich
+      } // !flagRow
+    } // irow
+    
+  } // isdb
+
+}
+
 
 
 Bool VisCalSolver2::converged() {
@@ -465,6 +835,9 @@ void VisCalSolver2::accGradHess2() {
     R.reference(sdb.residuals());
     dR.reference(sdb.diffResiduals());
     
+    const Cube<Float>& wWS(sdb.const_workingWtSpec());
+    const Cube<Bool>& wFC(sdb.const_workingFlagCube());
+
     IPosition dRip(dR.shape());
     
     Int nRow(dRip(3));
@@ -479,8 +852,10 @@ void VisCalSolver2::accGradHess2() {
 	Int a2i= nParPerAnt*sdb.antenna2()(irow);
 	for (Int ichan=0;ichan<nChan;++ichan) {
 	  for (int icorr=0;icorr<nCorr;++icorr) {
-	    if (!sdb.residFlagCube()(icorr,ichan,irow)) {
-	      Float& wt(sdb.infocusWtSpec()(icorr,ichan,irow));
+	    //if (!sdb.residFlagCube()(icorr,ichan,irow)) {  // OLD: residFlagCube
+	    const Bool& fl(wFC(icorr,ichan,irow));             // NEW: workingFlagCube  CORRECT?
+	    if (!fl) {      
+	      const Float& wt(wWS(icorr,ichan,irow));
 	      if (wt>0.0) {
 		Complex& Ri(R(icorr,ichan,irow));
 		for (Int ipar=0;ipar<nParPerAnt;++ipar) {

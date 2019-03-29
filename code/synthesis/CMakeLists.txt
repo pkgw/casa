@@ -239,6 +239,7 @@ casa_add_library( synthesis
  MeasurementComponents/ConvFuncDiskCache.cc
  MeasurementComponents/CSCleanImageSkyModel.cc
  MeasurementComponents/DJones.cc
+ MeasurementComponents/XJones.cc
  MeasurementComponents/EJones.cc
  MeasurementComponents/EPJones.cc
  MeasurementComponents/EVLASwPow.cc
@@ -880,13 +881,13 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSkipChannels.c
 
 
 
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
 #casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tStatWtTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
-casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
-casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
+casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
 
 casa_add_google_test( MODULES synthesis SOURCES ImagerObjects/test/SDMaskHandler_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalibraterSolve_GT.cc )
@@ -895,6 +896,7 @@ casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalS
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tAccorJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tDJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tXJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tEJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tFringeJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGlinXphJones_GT.cc )

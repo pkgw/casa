@@ -66,7 +66,7 @@ namespace casa {
 			  casacore::Double& sumWt,casacore::Int negate=0, casacore::Int weighted=1);
     casacore::Double getGOF(const VisBuffer& residual,casacore::Int& whichPol, casacore::Double& sumWt,const char *msg="");
 
-    casacore::Int maxIter,maxParams;
+    casacore::Int /*maxIter,*/ maxParams;
     
     VisBuffer residual_p,gradient0_p,gradient1_p;
     casacore::Matrix<casacore::Bool> flags;

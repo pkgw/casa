@@ -44,39 +44,11 @@ main (int nArgs, char * args [])
 
     return RUN_ALL_TESTS();
 
-using namespace casacore;
-//    using namespace casa::vi::test;
-//
-//    Tester tester;
-//
-//    bool allPassed = tester.doTests (nArgs, args);
-//
-//    CopyMs msCopier;
-//    msCopier.doit ("ngc5921.ms");
-//    return 0;
-//
-////    MsFactory msf ("test.ms");
-////
-////    casa::MeasurementSet * ms;
-////    int nRows;
-////    std::tie (ms, nRows) = msf.createMs ();
-////
-////    printMs (ms);
-//
-//    return allPassed ? 0 : 1;
 }
 
 using namespace casacore;
 namespace casa {
 namespace vi {
-
-//    VisibilityIteratorImpl2 (VisibilityIterator2 * rovi,
-//                             const Block<MeasurementSet> & mss,
-//                             const Block<Int> & sortColumns,
-//                             Bool addDefaultSortCols,
-//                             Double timeInterval,
-//                             VisBufferType vbType,
-//                             Bool isWritable);
 
 
 VisibilityIterator2 *
@@ -1435,120 +1407,6 @@ PerformanceComparator::sweepViOld (ROVisibilityIterator & vi)
     return sum;
 }
 
-//  MeasurementSet* SubMS::setupMS(const String& MSFileName, const Int nchan,
-//                                 const Int nCorr, const String& telescop,
-//                                 const Vector<MS::PredefinedColumns>& colNames,
-//                                 const Int obstype,
-//                                 const Bool compress,
-//				 const asdmStManUseAlternatives asdmStManUse)
-
-void
-CopyMs::copySubtables (MeasurementSet * newMs, const MeasurementSet * oldMs)
-{
-    SubMS::copyCols (newMs->antenna(), oldMs->antenna (), true);
-    SubMS::copyCols (newMs->dataDescription(), oldMs->dataDescription (), true);
-    if (! newMs->doppler().isNull()){
-        SubMS::copyCols (newMs->doppler(), oldMs->doppler (), true);
-    }
-    SubMS::copyCols (newMs->feed(), oldMs->feed (), true);
-    SubMS::copyCols (newMs->field(), oldMs->field (), true);
-    SubMS::copyCols (newMs->flagCmd(), oldMs->flagCmd (), true);
-    if (! newMs->freqOffset().isNull()){
-        SubMS::copyCols (newMs->freqOffset(), oldMs->freqOffset (), true);
-    }
-    SubMS::copyCols (newMs->history(), oldMs->history (), true);
-    TableCopy::copyRows (newMs->observation(), oldMs->observation (), true);
-    setupNewPointing (newMs);
-    SubMS::copyCols (newMs->pointing(), oldMs->pointing (), true);
-    SubMS::copyCols (newMs->polarization(), oldMs->polarization (), true);
-    SubMS::copyCols (newMs->processor(), oldMs->processor (), true);
-    if (! newMs->source().isNull()){
-        TableCopy::copyRows (newMs->source(), oldMs->source (), true);
-    }
-    SubMS::copyCols (newMs->spectralWindow(), oldMs->spectralWindow (), true);
-    SubMS::copyCols (newMs->state(), oldMs->state (), true);
-    if (! newMs->sysCal().isNull()){
-        SubMS::copyCols (newMs->sysCal(), oldMs->sysCal (), true);
-    }
-    if (! newMs->weather().isNull()){
-        SubMS::copyCols (newMs->weather(), oldMs->weather (), true);
-    }
-}
-
-void
-CopyMs::setupNewPointing(MeasurementSet * newMs)
-{
-  // Swiped from SubMs so I could get past this problem.
-
-  SetupNewTable pointingSetup(newMs->pointingTableName(),
-                              MSPointing::requiredTableDesc(), Table::New);
-  // POINTING can be large, set some sensible defaults for storageMgrs
-  IncrementalStMan ismPointing ("ISMPointing");
-  StandardStMan ssmPointing("SSMPointing", 32768);
-  pointingSetup.bindAll(ismPointing, true);
-  pointingSetup.bindColumn(MSPointing::columnName(MSPointing::DIRECTION),
-                           ssmPointing);
-  pointingSetup.bindColumn(MSPointing::columnName(MSPointing::TARGET),
-                           ssmPointing);
-  pointingSetup.bindColumn(MSPointing::columnName(MSPointing::TIME),
-                           ssmPointing);
-  newMs->rwKeywordSet().defineTable(MS::keywordName(MS::POINTING),
-                                     Table(pointingSetup));
-  newMs->initRefs();
-}
-
-
-void
-CopyMs::doit (const String & oldMsName)
-{
-    casacore::MeasurementSet oldMs (oldMsName);
-
-    String newMsName = String::format ("%s.copy", oldMsName.c_str());
-
-    system (String::format ("test -d %s && rm -rf %s", newMsName.c_str(), newMsName.c_str()).c_str());
-    system ("casapy --nogui -c \"execfile('/home/orion/casa/trunk/code/msvis/MSVis/test/makeEmptyCopy.py')\"");
-
-
-//    subMs.setmsselect("", "", "", "0");
-//
-//    String all ("ALL");
-//    Bool ok = subMs.makeSubMS(newMsName, all);
-//    ThrowIf (! ok, "Method makeSubMS failed");
-
-
-    MeasurementSet newMs (newMsName, Table::Update);
-//    uInt nRows = newMs.nrow();
-//    Vector<uInt> allRows (nRows);
-//    for (uInt i = 0; i < nRows; i++) allRows [i] = i;
-//    newMs.removeRow (allRows);
-
-
-//    MeasurementSet * newMs = SubMS::setupMS (newMsName, nChannels, nCorrelations, "VLA",
-//                                             columnNames);
-//    // SubMS::createSubtables(* newMs, Table::New);
-//
-//    newMs->closeSubTables();
-//
-//    copySubtables (newMs, & oldMs);
-
-    //SetupNewTable newSetup (newMsName, oldMs.tableDesc(), Table::NewNoReplace);
-
-    //casa::MeasurementSet newMs (newSetup, 0, false);
-    //newMs.createDefaultSubtables(Table::NewNoReplace);
-
-    VisibilityIterator2 * vi = VisibilityIterator2::copyingViFactory (oldMs, newMs);
-    VisBuffer2 * vb = vi->getVisBuffer ();
-
-    for (vi->originChunks (); vi->moreChunks (); vi->nextChunk ()){
-        for (vi->origin (); vi->more (); vi->next()){
-
-            vb->writeChangesBack ();
-        }
-    }
-
-    newMs.flush();
-}
-
 MultipleMss::MultipleMss () : TestWidget ("MultipleMss"), nMss_p (3) {}
 
 std::tuple <Block<const MeasurementSet *>, Int, Bool>
@@ -1772,6 +1630,72 @@ void SubtablePropagation::checkSubtables ()
 
 }
 
+PhantomSPWCheck::IntermediateTVI::IntermediateTVI(ViImplementation2 *inputVii) :
+    TransformingVi2(inputVii)
+{
+    for(int ispw = 0; ispw < inputVii->nSpectralWindows(); ++ispw)
+    {
+        auto channels = inputVii->getChannels(0.0, -1, ispw, 0);
+        if(ispw == 1)
+            spw1Channels = channels.tovector();
+    }
+}
+
+std::tuple <MeasurementSet *, Int, Bool>
+PhantomSPWCheck::createMs ()
+{
+    // Create a very simple MS
+    nAntennas_p = 10;
+    spwDef_p.push_back(std::make_tuple("spw1", 5, 0., 100., "LL RR RL LR"));
+
+    msf_p = std::move(
+        std::unique_ptr<MsFactory>(
+            new MsFactory(String::format("%s/PhantomSPWCheck.ms", tmpdir))));
+    msf_p->setIncludeAutocorrelations(true);
+    msf_p->addSpectralWindow("spw1", 5, 0., 100., "LL RR RL LR");
+
+    msf_p->addAntennas(nAntennas_p);
+
+    pair<MeasurementSet *, Int> p = msf_p->createMs ();
+
+    // Add a SPW to the SPW subtable that is not referenced in the DD subtable.
+    // This is similar to the "phantom" WVR SPW entries in ALMA data.
+    MSSpectralWindow & spwTable = p.first->spectralWindow();
+    spwTable.addRow(spwTable.nrow(), 1);
+    MSSpWindowColumns spwCols(spwTable);
+    std::vector<double> chanFreq{100., 200};
+    std::vector<double> chanWidth{20., 10};
+    spwCols.chanFreq().put(1, Vector<double>(chanFreq));
+    spwCols.chanWidth().put(1, Vector<double>(chanWidth));
+    spwCols.numChan().put(1, 2);
+    p.first->flush(true);
+    return std::make_tuple (p.first, p.second, false);
+}
+
+void PhantomSPWCheck::checkGetChannels ()
+{
+    SCOPED_TRACE("Checking getChannels");
+    MeasurementSet * ms;
+    int nRows;
+    bool writableVi;
+    std::tie (ms, nRows, writableVi) = createMs ();
+
+    // The constructor of IntermediateTVI already calls
+    // the getChannels() function.
+    VisibilityIterator2 diskLayerVi(*ms, SortColumns(), writableVi);
+    IntermediateTVI * interVi = new IntermediateTVI(diskLayerVi.getImpl());
+
+    // Check that the SPW subtable seen by interVi is correct
+    // with respect to the phantom SPW.
+    std::vector<int> expectedChannels{0, 1};
+    ASSERT_EQ(interVi->spw1Channels, expectedChannels);
+    std::vector<double> expectedFreqs{100., 200.};
+    ASSERT_EQ(interVi->spectralWindowSubtablecols().chanFreq()(1).tovector(), expectedFreqs);
+    std::vector<double> expectedWidths{20., 10.};
+    ASSERT_EQ(interVi->spectralWindowSubtablecols().chanWidth()(1).tovector(), expectedWidths);
+    ASSERT_EQ(interVi->spectralWindowSubtablecols().numChan()(1), 2);
+}
+
 TEST_F (BasicChannelSelection, DoBasicChannelSelection)
 {
     ASSERT_NO_FATAL_FAILURE (sweepMs ());
@@ -1811,6 +1735,10 @@ TEST_F (Weighting, DoWeighting)
 TEST_F (SubtablePropagation, CheckSubtables)
 {
     checkSubtables ();
+}
+TEST_F (PhantomSPWCheck, checkGetChannels)
+{
+    checkGetChannels ();
 }
 
 } // end namespace test

@@ -27,7 +27,7 @@
 //# $Id$
 
 #ifndef SYNTHESIS_SDALGORITHMAASPCLEAN_H
-#define SYNTHESIS_SDALGORITAASPCLEAN_H
+#define SYNTHESIS_SDALGORITHMAASPCLEAN_H
 
 #include <ms/MeasurementSets/MeasurementSet.h>
 //#include <synthesis/MeasurementComponents/SkyModel.h>

@@ -111,10 +111,12 @@ class SIImageStore
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Complex> > backwardGrid(casacore::uInt term=0);
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > sumwt(casacore::uInt term=0);
 
+
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > alpha(){throw(casacore::AipsError("No Alpha for 1 term"));};
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > beta(){throw(casacore::AipsError("No Beta for 1 term"));};
-
-  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > gridwt(casacore::uInt term=0);
+  ///Gridwgt is for weight density sharing (Brigg's) thus only term 0 is done
+  //default will be just 1 plane of densities for all fields
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > gridwt(casacore::IPosition newshape=casacore::IPosition(0));
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > pb(casacore::uInt term=0);
   virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > imagepbcor(casacore::uInt term=0);
 
@@ -260,7 +262,7 @@ protected:
   void removeMask(casacore::CountedPtr<casacore::ImageInterface<casacore::Float> >im);
   void rescaleResolution(casacore::Int chan, casacore::ImageInterface<casacore::Float>& subResidual, const casacore::GaussianBeam& newbeam, const casacore::GaussianBeam& oldbeam);
 
-  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask,
+  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask, const casacore::Lattice<casacore::Bool>& pixmask,
 			 casacore::Float& maxAbs, casacore::Float& maxAbsMask, casacore::Float& minAbs, casacore::Float& minAbsMask );
 
 

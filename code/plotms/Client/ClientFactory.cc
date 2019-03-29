@@ -26,6 +26,7 @@
 //# $Id: $
 
 #include "ClientFactory.h"
+
 #include <plotms/PlotMS/PlotMS.h>
 #include <plotms/Client/Client.h>
 #include <plotms/Gui/PlotMSPlotter.qo.h>

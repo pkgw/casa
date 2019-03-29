@@ -79,6 +79,28 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////////
+// PhaseShiftingTVILayerFactory class  (for _recursive_ layering)
+//////////////////////////////////////////////////////////////////////////
+
+class PhaseShiftingTVILayerFactory : public ViiLayerFactory
+{
+
+public:
+
+  PhaseShiftingTVILayerFactory(casacore::Record &configuration);
+
+  virtual ~PhaseShiftingTVILayerFactory() {};
+
+protected:
+
+  
+  virtual ViImplementation2 * createInstance(ViImplementation2* vii0) const;
+
+  const casacore::Record configuration_p;
+
+};
+
+//////////////////////////////////////////////////////////////////////////
 // PhaseShiftingTransformEngine class
 //////////////////////////////////////////////////////////////////////////
 
