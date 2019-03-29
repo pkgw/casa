@@ -56,6 +56,7 @@
 #include <measures/Measures/MFrequency.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <ms/MeasurementSets/MSAntennaColumns.h>
+#include <ms/MSOper/MSMetaData.h>
 
 #include <casa/Logging/LogMessage.h>
 #include <casa/Logging/LogSink.h>
@@ -92,6 +93,18 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 	Table::TableOption tabopt(Table::Old);
 	MeasurementSet* inputMS = new MeasurementSet(filename_, TableLock(TableLock::AutoLocking), tabopt);
 	getNamesFromMS(*inputMS);
+
+	// If plotting antennas directions, verify that feature is supported for the input MS
+	auto loadAntDir = std::find_if(loadAxes.begin(),loadAxes.end(),PMS::axisIsRaDec) != loadAxes.end();
+	if (loadAntDir) {
+		auto ok = pointingsPlotSupported(inputMS);
+		if (not ok){
+			String errMsg("Plotting antennas directions is irrelevant or not supported for this MS.");
+			logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, errMsg);
+			delete inputMS;
+			loadError(errMsg);
+		}
+	}
 
 	// Apply selections to MS to create selection MS and channel/correlation selections
 	Vector<Vector<Slice> > chansel;
@@ -2250,6 +2263,46 @@ Vector<Double> MSCache::calcVelocity(vi::VisBuffer2* vb) {
 			transformations_.veldef());
 	outVel /= 1.0e3;  // in km/s
 	return outVel;
+}
+
+bool MSCache::pointingsPlotSupported(const MeasurementSet* const &ms){
+	// MS must have a non empty pointing table
+	const auto & pointingTable = ms->pointing();
+	if (pointingTable.nrow() == 0 ) {
+		logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, "Plotting antennas directions is irrelevant when the pointing table is empty.");
+		return false;
+	}
+
+	// Telescope must have been validated for this feature (CAS-8087)
+	Float noMetaDataCache = -1.0;
+	MSMetaData msmd(ms,noMetaDataCache);
+	vector<String> observatoryNames {msmd.getObservatoryNames()};
+	bool isValidated = false;
+	for (const auto & observatoryName : observatoryNames) {
+		if (	observatoryName == "ALMA" ||
+				observatoryName == "ASTE" ||
+				observatoryName == "NRO"
+			)
+		{
+			isValidated = true;
+			continue;
+		}
+		else {
+			isValidated = false;
+			String warnMsg;
+			if (observatoryName == "EVLA" ) {
+				warnMsg  = "Plotting " + observatoryName + "'s antennas directions requires telescope-specific processing,\n";
+				warnMsg += "which is currently not implemented";
+			}
+			else {
+				warnMsg = "Plotting antennas directions has not been validated for observatory: ";
+				warnMsg += observatoryName;
+			}
+			logWarn(PMS::LOG_ORIGIN_LOAD_CACHE, warnMsg);
+			break;
+		}
+	}
+	return isValidated;
 }
 
 void MSCache::loadPageHeaderCache(const casacore::MeasurementSet& selectedMS){

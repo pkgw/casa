@@ -103,6 +103,10 @@ public:
   void initResidWithModel();
   void finalizeResiduals();
 
+  // Manage working weights
+  void updateWorkingFlags();
+  void updateWorkingWeights(casacore::Bool, casacore::Float clamp=0.0);
+
   // Delete the workspaces
   void cleanUp();
 
@@ -152,6 +156,17 @@ public:
 
   casacore::Cube<casacore::Complex>& infocusModelVisCube() { return infocusModelVisCube_p; };
   const casacore::Cube<casacore::Complex>& infocusModelVisCube() const {return infocusModelVisCube_p;};
+
+  // Working weights and flags
+  //  const versions return infocus versions if working versions are empty!
+  casacore::Cube<casacore::Float>& workingWtSpec() { return workingWtSpec_p;};
+  const casacore::Cube<casacore::Float>& const_workingWtSpec() const { return (workingWtSpec_p.nelements()==0 ? infocusWtSpec() : workingWtSpec_p); };
+  casacore::Cube<casacore::Bool>& workingFlagCube() { return workingFlagCube_p; };
+  const casacore::Cube<casacore::Bool>& const_workingFlagCube() const { return (workingFlagCube_p.nelements()==0 ? 
+										(residFlagCube_p.nelements()==0 ? 
+										 infocusFlagCube() : residFlagCube()) : workingFlagCube_p); };
+									       
+
 
   // Workspace for the residual visibilities
   casacore::Cube<casacore::Complex>& residuals() { return residuals_p; };
@@ -211,6 +226,9 @@ private:
   casacore::Cube<casacore::Float> infocusWtSpec_p;
   casacore::Cube<casacore::Complex> infocusVisCube_p;
   casacore::Cube<casacore::Complex> infocusModelVisCube_p;
+
+  casacore::Cube<casacore::Bool> workingFlagCube_p;
+  casacore::Cube<casacore::Float> workingWtSpec_p;
 
   casacore::Cube<casacore::Complex> residuals_p;
   casacore::Cube<casacore::Bool> residFlagCube_p;
@@ -281,6 +299,11 @@ public:
   void finalizeResiduals();
   //  NB: disable for now, may not be needed...
   //  void divideCorrByModel();
+
+
+  // Manage working flags and weights
+  void updateWorkingFlags();
+  void updateWorkingWeights(casacore::Bool doL1=false,casacore::Float clamp=0.0);
 
   // Print out data, weights, flags for debugging purposes
   void reportData();

@@ -158,6 +158,8 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   solved_(false),
   byCallib_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -227,6 +229,8 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   solved_(false),
   byCallib_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -298,6 +302,8 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   solved_(False),
   byCallib_(False),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -364,6 +370,8 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   minblperant_(4),
   solved_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -4302,13 +4310,16 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
   cout << "  calTableName() = " << calTableName() << endl;
   cout << "  calTableSelect() = " << calTableSelect() << endl;
   cout << "  apmode() = " << apmode() << endl;
+  cout << "  phandonly() = " << phandonly() << endl;
   cout << "  tInterpType() = " << tInterpType() << endl;
   cout << "  fInterpType() = " << fInterpType() << endl;
   cout << "  spwMap() = " << spwMap() << endl;
   cout << "  refantmode() = " << refantmode() << endl;
   cout << "  refant() = " << refant() << endl;
   cout << "  refantlist() = " << refantlist() << endl;
-  
+  cout << "  solmode = " << solmode() << endl;
+  cout << "  rmsthresh = " << rmsthresh() << endl;
+
   cout << "  solveCPar().shape()   = " << solveCPar().shape() 
        << " (" << solveCPar().data() << ")" << endl;
   cout << "  solveRPar().shape()   = " << solveRPar().shape() 
