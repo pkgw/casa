@@ -46,6 +46,7 @@ void MSCalEnums::initMaps ()
 //
   if ( theirFieldMap.size( ) == 0 ) {
       theirFieldMap = {
+          {ANTENNA1, "ANTENNA1"},
           {ANTENNA2, "ANTENNA2"},
           { FEED1, "FEED1" },
           { FEED2, "FEED2" },
