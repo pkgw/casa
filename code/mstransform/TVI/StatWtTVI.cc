@@ -1415,12 +1415,14 @@ void StatWtTVI::summarizeFlagging() const {
     if (_nOrigFlaggedPts == _nTotalPts) {
         log << LogIO::WARN << "IT APPEARS THAT ALL THE DATA IN THE INPUT "
             << "MS/SELECTION WERE FLAGGED PRIOR TO RUNNING STATWT"
-            << std::endl << LogIO::POST;
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
     }
     else if (_nOrigFlaggedPts + _nNewFlaggedPts == _nTotalPts) {
         log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE "
             "IN THE REQUESTED SELECTION THAT WASN'T ORIGINALLY FLAGGED"
-            << std::endl << LogIO::POST;
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
     }
     String col0 = "SPECTRAL_WINDOW";
     String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";
