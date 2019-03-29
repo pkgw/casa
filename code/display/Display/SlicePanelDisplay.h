@@ -30,7 +30,6 @@
 #include <casa/aips.h>
 #include <list>
 #include <casa/Containers/RecordInterface.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/DisplayEvents/DTVisible.h>
 #include <display/Display/DisplayEnums.h>
 #include <display/DisplayEvents/WCPositionEH.h>

@@ -31,7 +31,6 @@
 
 #include <map>
 #include <casa/aips.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <casa/Containers/Block.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/BasicSL/String.h>

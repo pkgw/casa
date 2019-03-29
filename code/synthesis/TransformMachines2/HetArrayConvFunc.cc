@@ -33,7 +33,6 @@
 #include <casa/Arrays/Slice.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <scimath/Mathematics/FFTServer.h>
 #include <measures/Measures/MeasTable.h>
 #include <scimath/Mathematics/MathFunc.h>

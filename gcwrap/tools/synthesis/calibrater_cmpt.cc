@@ -18,7 +18,6 @@
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/Record.h>
 #include <casa/Containers/RecordDesc.h>
-#include <casa/Containers/SimOrdMap.h>
 
 #include <casa/Quanta/QC.h>
 #include <casa/Utilities/Regex.h>

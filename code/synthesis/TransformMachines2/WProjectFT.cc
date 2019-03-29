@@ -47,7 +47,6 @@
 #include <images/Images/ImageInterface.h>
 #include <images/Images/PagedImage.h>
 #include <casa/Containers/Block.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <casa/Containers/Record.h>
 #include <casa/Arrays/ArrayLogical.h>
 #include <casa/Arrays/ArrayMath.h>

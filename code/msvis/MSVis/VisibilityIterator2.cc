@@ -11,7 +11,6 @@
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Slicer.h>
 #include <casa/BasicSL/String.h>
-#include <casa/Containers/Stack.h>
 #include <casa/Quanta/MVDoppler.h>
 #include <casa/aips.h>
 #include <casa/System/AipsrcValue.h>

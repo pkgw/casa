@@ -31,7 +31,6 @@
 #include <list>
 #include <casa/aips.h>
 #include <casa/Containers/RecordInterface.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/Utilities/DisplayOptions.h>
 #include <display/Display/MultiWCHolder.h>
 #include <display/Display/DisplayEnums.h>

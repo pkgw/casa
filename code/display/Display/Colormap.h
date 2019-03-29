@@ -33,7 +33,6 @@
 #include <map>
 #include <casa/aips.h>
 #include <casa/Containers/BlockIO.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <casa/BasicSL/String.h>
 
 namespace casacore{

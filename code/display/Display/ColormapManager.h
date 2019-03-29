@@ -30,7 +30,6 @@
 
 #include <map>
 #include <casa/aips.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/Display/Colormap.h>
 
 //# Forward declarations
