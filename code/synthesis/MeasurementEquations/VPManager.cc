@@ -372,9 +372,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec);
@@ -441,9 +440,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -512,9 +510,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -587,9 +584,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -656,9 +652,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -727,9 +722,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -797,9 +791,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -841,9 +834,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -936,9 +928,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -966,9 +957,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     if(dopb){
         auto key = rec.asString(rec.fieldNumber("telescope"));
-        auto ptr = vplistdefaults_p.find(key);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
