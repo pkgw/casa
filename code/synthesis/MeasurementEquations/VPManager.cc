@@ -371,7 +371,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec);
@@ -437,7 +440,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
     
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -505,7 +511,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -577,7 +586,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -643,7 +655,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -711,7 +726,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -778,7 +796,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -819,7 +840,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("antennanames", antennaNames);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -911,7 +935,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -938,7 +965,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("antresppath", tablepath);
     
     if(dopb){
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields()));
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        auto ptr = vplistdefaults_p.find(key);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
+        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields()));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -988,6 +1018,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       vplistdefaults_p.erase(vpiter);
     }
     if(vplistfield>-2){ // (-2 means don't set a default)
+        auto ptr = vplistdefaults_p.find(antennaDesc);
+        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
         vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(antennaDesc,vplistfield));
     }
 
