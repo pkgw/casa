@@ -95,7 +95,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(Int pbtype = static_cast<Int>(PBMath::DEFAULT) + 1;
 	pbtype < static_cast<Int>(PBMath::NONE); ++pbtype){
       PBMath::nameCommonPB(static_cast<PBMath::CommonPB>(pbtype), telName);
-      vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,-1));
+      if ( vplistdefaults_p.find(telName) != vplistdefaults_p.end( ) ) vplistdefaults_p[telName] = -1;
+      else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,-1));
     }
 
     // check for available AntennaResponses tables in the Observatories table
@@ -141,7 +142,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    vplistdefaults_p.erase(vpiter);	    
 	  }
-	  vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,vplist_p.nfields())); 
+	  if ( vplistdefaults_p.find(telName) != vplistdefaults_p.end( ) ) vplistdefaults_p[telName] = vplist_p.nfields();
+	  else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,vplist_p.nfields())); 
 	  rec.define("dopb", true);
 	  
 	  vplist_p.defineRecord(vplist_p.nfields(), rec);
@@ -239,7 +241,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   << LogIO::POST;
 	return false;
       }
-      tempvplistdefaults.insert(std::pair<casacore::String, casacore::Int >(telcol2(k), vplistnum));
+      if ( tempvplistdefaults.find(telcol2(k)) != tempvplistdefaults.end( ) ) tempvplistdefaults[telcol2(k)] = vplistnum;
+      else tempvplistdefaults.insert(std::pair<casacore::String, casacore::Int >(telcol2(k), vplistnum));
     }
 
     // overwrite existing information
@@ -1008,9 +1011,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       vplistdefaults_p.erase(vpiter);
     }
     if(vplistfield>-2){ // (-2 means don't set a default)
-        auto ptr = vplistdefaults_p.find(antennaDesc);
-        if ( ptr != vplistdefaults_p.end( ) ) vplistdefaults_p.erase(ptr);
-        vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(antennaDesc,vplistfield));
+        if ( vplistdefaults_p.find(antennaDesc) != vplistdefaults_p.end( ) ) vplistdefaults_p[antennaDesc] = vplistfield;
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(antennaDesc,vplistfield));
     }
 
     return true;
