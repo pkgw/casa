@@ -395,7 +395,10 @@ solve
 	</param>
 
 	<param type="string" name="solmode">
-		<description>Robust solving mode: (\'\', \'L1\', \'R\', \'L1R\')</description>
+<shortdescription>Robust solving mode: (\'\', \'L1\', \'R\',\'L1R\')</shortdescription>	
+<description>Robust solving mode: 
+                     Options: '', 'L1', 'R', 'L1R'
+</description>
 		<value></value>
 		<allowed kind="enum">
 			<value></value>
@@ -406,7 +409,13 @@ solve
 	</param>
 
 	<param type="doubleArray" name="rmsthresh">
-		<description>RMS Threshold sequence (for solmode=\'R\' or \'L1R\'; see help)</description>
+<shortdescription>RMS Threshold sequence (for solmode=\'R\' or \'L1R\'; see help)</shortdescription>
+<description>RMS Threshold sequence
+                     Subparameter of solmode='R' or 'L1R'
+
+                     See CASA Docs for more information
+		     (https://casa.nrao.edu/casadocs/)
+</description>
 		<value></value>
 	</param>
 
