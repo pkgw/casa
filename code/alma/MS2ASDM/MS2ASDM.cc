@@ -1113,7 +1113,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-          asdmStationId_p.insert(std::pair<casacore::String, asdm::Tag>(String(name), tR->getStationId()));
+          asdmStationId_p[String(name)] = tR->getStationId();
       }
       else{
 	os << LogIO::SEVERE << "Duplicate station in MS Antenna table: " << irow << LogIO::POST;
@@ -1182,7 +1182,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-          asdmAntennaId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getAntennaId()));
+          asdmAntennaId_p[irow] = tR->getAntennaId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Antenna table :" << irow << LogIO::POST;
@@ -1274,7 +1274,7 @@ namespace casa {
 
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-          asdmSpectralWindowId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getSpectralWindowId()));
+          asdmSpectralWindowId_p[irow] = tR->getSpectralWindowId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Spectral Window table :" << irow << LogIO::POST;
@@ -1380,7 +1380,7 @@ namespace casa {
 	}
 	if( asdmSourceId_p.find(sId) == asdmSourceId_p.end( ) ){
 	  int souId = tR2->getSourceId();
-	  asdmSourceId_p.insert(std::pair<casacore::Int, int>(sId, souId));
+	  asdmSourceId_p[sId] = souId;
 	}
       } // end loop over source table
     } // id if source table exists
@@ -1540,7 +1540,7 @@ namespace casa {
 
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-          asdmPolarizationId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getPolarizationId()));
+          asdmPolarizationId_p[irow] = tR->getPolarizationId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Polarization table :" << irow << LogIO::POST;
@@ -1778,7 +1778,7 @@ namespace casa {
 
 	if(tR2 == tR){ // adding this row caused a new tag to be defined
 	  // enter tag into the map
-        asdmProcessorId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getProcessorId()));
+        asdmProcessorId_p[irow] = tR->getProcessorId();
 	}
 	else{
 	  os << LogIO::WARN << "Duplicate row in MS Processor table :" << irow << LogIO::POST;
@@ -1801,7 +1801,7 @@ namespace casa {
       tR = tT.newRow(modeId, processorType, processorSubType);
       tT.add(tR);
       // enter tag into the map connecting it to "-1"
-      asdmProcessorId_p.insert(std::pair<casacore::Int, asdm::Tag>(-1, tR->getProcessorId()));
+      asdmProcessorId_p[-1] = tR->getProcessorId();
     } // end if
 
     EntityId theUid(getCurrentUid());
@@ -1924,7 +1924,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-          asdmFieldId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getFieldId()));
+          asdmFieldId_p[irow] = tR->getFieldId();
       }
       else{
 	if(sId == tR2->getSourceId()){ // if also the Source ID agrees, we really have a duplication
@@ -1937,7 +1937,7 @@ namespace casa {
 	if(tR2 == tR){ // adding this row caused a new tag to be defined
 	  os << LogIO::WARN << "Duplicate row in MS Field table :" << irow << endl
 	     << "   appended \"_B\" to field name for second occurrence. New field name: " << fieldName << LogIO::POST;
-	  asdmFieldId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getFieldId()));
+	  asdmFieldId_p[irow] = tR->getFieldId();
 	}
 	else{
 	  os << LogIO::SEVERE << "Duplicate row in MS Field table :" << irow << LogIO::POST;
@@ -2173,7 +2173,7 @@ namespace casa {
       }
       else{
 	// enter id into the map
-	asdmFeedId_p.insert(std::pair<int,int>(fId, asdmFId));
+	asdmFeedId_p[fId] = asdmFId;
       }
 
       // add the same row for the remaining SPW Ids in the vector accumulated above
@@ -2237,7 +2237,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmDataDescriptionId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR->getDataDescriptionId()));
+	asdmDataDescriptionId_p[irow] = tR->getDataDescriptionId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS DataDesc table :" << irow << LogIO::POST;
@@ -2337,7 +2337,7 @@ namespace casa {
       // add the new row to the table
       tT.add(tR);
       // enter tag into the map
-      asdmStateId_p.insert(std::pair<casacore::Int, asdm::Tag>(-1, tR->getStateId()));
+      asdmStateId_p[-1] = tR->getStateId();
     }
     else{ // MS State table exists
       for(uInt irow=0; irow<state().nrow(); irow++){
@@ -2377,7 +2377,7 @@ namespace casa {
 	
 	tR2 = tT.add(tR);
 	// enter tag into the map
-	asdmStateId_p.insert(std::pair<casacore::Int, asdm::Tag>(irow, tR2->getStateId()));
+	asdmStateId_p[irow] = tR2->getStateId();
 	if(tR2 != tR){ // adding this row did not cause a new tag to be defined
 	  os << LogIO::WARN << "Duplicate row in MS State table :" << irow << LogIO::POST;
 	}
@@ -2446,7 +2446,7 @@ namespace casa {
 	    feedIdV.push_back(f1Id);
 	    nRecV.push_back(feed().numReceptors()(f1Id)); 
 	    nChanV.push_back(spectralWindow().numChan()(spwId));
-	    antennaDone.insert(std::pair<Int, Int>(aId, f1Id));
+	    antennaDone[aId] = f1Id;
 	  }
 	  aId = antenna2()(irow);
 	  //   if info for given antenna not yet filled
@@ -2458,7 +2458,7 @@ namespace casa {
 	    feedIdV.push_back(f2Id);
 	    nRecV.push_back(feed().numReceptors()(f2Id)); 
 	    nChanV.push_back(spectralWindow().numChan()(spwId));
-	    antennaDone.insert(std::pair<Int, Int>(aId, f2Id));
+	    antennaDone[aId] = f2Id;
 	  }
 	  irow++;
 	} // end while
@@ -3130,7 +3130,7 @@ namespace casa {
 	  
 	  tR2 = tT.add(tR);
 	  Tag newTag = tR2->getConfigDescriptionId();
-	  asdmConfigDescriptionId_p.insert(std::pair<casacore::uInt, asdm::Tag>(mainTabRow, newTag));
+	  asdmConfigDescriptionId_p[mainTabRow] = newTag;
 	  if(verbosity_p>1){
 	    cout << "Defined conf desc id for main table row " << mainTabRow << endl;
 	  }
@@ -3360,7 +3360,7 @@ namespace casa {
 	fId = firstFieldIdFromObsId[obsId];
       }
       else{
-	firstFieldIdFromObsId.insert(std::pair<Int, Int>(obsId,fId));
+	firstFieldIdFromObsId[obsId] = fId;
       } 
       ////MDirection theFieldDir = field().phaseDirMeas(fId,0);
       ////centerDirection.push_back( theFieldDir.getAngle( unitASDMAngle() ).getValue()(0) ); // RA
@@ -3394,7 +3394,7 @@ namespace casa {
 	     << "(MS Main table row " << mainTabRow << ")" << LogIO::POST;
 	}
 	else{
-        asdmSBSummaryId_p.insert(std::pair<casacore::Int, asdm::Tag>(sbKey, sBSummaryTag));
+        asdmSBSummaryId_p[sbKey] = sBSummaryTag;
 	}
       }
 
@@ -3410,22 +3410,16 @@ namespace casa {
 				      (antenna().positionMeas()(antenna2()(mainTabRow))).getValue()
 				      ).getLength().getValue(unitASDMLength());
 	if(baseLine>maxBaseline.at(sBSummaryTag)){
-        auto ptr = maxBaseline.find(sBSummaryTag);
-        maxBaseline.erase(ptr);
-        maxBaseline.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, baseLine));
+        maxBaseline[sBSummaryTag] = baseLine;
 	}
 	else if(baseLine<minBaseline.at(sBSummaryTag)){
-        auto ptr = minBaseline.find(sBSummaryTag);
-        minBaseline.erase(ptr);
-        minBaseline.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, baseLine));
+        minBaseline[sBSummaryTag] = baseLine;
 	}
 
 	// is the exec block complete?
 	Double endT = timestampEndSecs(mainTabRow);
 	if(endT > execBlockEndTime.at(sBSummaryTag)){ // integration intervals may be different for different DD Ids, take max endT
-        auto ptr = execBlockEndTime.find(sBSummaryTag);
-        execBlockEndTime.erase(ptr);
-        execBlockEndTime.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, endT));
+        execBlockEndTime[sBSummaryTag] = endT;
 	}
 	if(verbosity_p>2){
 	  cout << "interval = " << endT - execBlockStartTime.at(sBSummaryTag) << ", duration == " <<  durationSecs << endl;
@@ -3497,7 +3491,7 @@ namespace casa {
 	    os << LogIO::SEVERE << "Internal error: attempt to store duplicate exec block row." << LogIO::POST;
 	    return false;
 	  }
-	  asdmExecBlockId_p.insert(std::pair<casacore::Double, asdm::Tag>(execBlockStartTime.at(sBSummaryTag), tER->getExecBlockId()));
+	  asdmExecBlockId_p[execBlockStartTime.at(sBSummaryTag)] = tER->getExecBlockId();
 
 	  if(verbosity_p>2){
 	    cout << "eblock id defined in loop 1 for start time " << setprecision(13) << execBlockStartTime.at(sBSummaryTag) << endl;
@@ -3533,8 +3527,8 @@ namespace casa {
               }
           }
 
-          execBlockStartTime.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, timestampStartSecs(mainTabRow)));
-          execBlockEndTime.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, timestampEndSecs(mainTabRow))); // will be updated
+          execBlockStartTime[sBSummaryTag] = timestampStartSecs(mainTabRow);
+          execBlockEndTime[sBSummaryTag] = timestampEndSecs(mainTabRow); // will be updated
 
 	Int oldNum = 0;
     auto numptr = execBlockNumber.find(sBSummaryTag);
@@ -3543,13 +3537,13 @@ namespace casa {
         oldNum = numptr->second;
         execBlockNumber.erase(numptr);
 	}
-	execBlockNumber.insert(std::pair<asdm::Tag, Int>(sBSummaryTag, oldNum + 1)); // sequential numbering starting at 1
+	execBlockNumber[sBSummaryTag] = oldNum + 1; // sequential numbering starting at 1
 
 	if(verbosity_p>2){
 	  cout << "eblock number " << oldNum + 1 << " defined for start time " << setprecision (9) << timestampStartSecs(mainTabRow) << endl;
 	}
 
-	obsIdFromSBSum.insert(std::pair<asdm::Tag, Int>(sBSummaryTag, obsId)); // remember the obsId for this exec block
+	obsIdFromSBSum[sBSummaryTag] = obsId; // remember the obsId for this exec block
 	
 	if( asdmConfigDescriptionId_p.find(mainTabRow) == asdmConfigDescriptionId_p.end( ) ){
 	  os << LogIO::SEVERE << "Internal error: undefined config description id for MS main table row "
@@ -3562,14 +3556,14 @@ namespace casa {
 	     << mainTabRow << LogIO::POST;
 	  return false;
 	}
-	correspConfigDescRow.insert(std::pair<asdm::Tag, asdm::ConfigDescriptionRow*>(sBSummaryTag, cDR)); // remember the config description row for this exec block
+	correspConfigDescRow[sBSummaryTag] = cDR; // remember the config description row for this exec block
 
 	// start accumulation of min and max baseline
 	Double bLine = MVBaseline( (antenna().positionMeas()(antenna1()(mainTabRow))).getValue(),
 				   (antenna().positionMeas()(antenna2()(mainTabRow))).getValue()
 				   ).getLength().getValue(unitASDMLength());
-	minBaseline.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, bLine));
-	maxBaseline.insert(std::pair<asdm::Tag, Double>(sBSummaryTag, bLine));
+	minBaseline[sBSummaryTag] = bLine;
+	maxBaseline[sBSummaryTag] = bLine;
       }
       // skip rest of this timestamp
       Double tStamp = time()(mainTabRow);
@@ -3652,7 +3646,7 @@ namespace casa {
 	os << LogIO::SEVERE << "Internal error: attempt to store duplicate exec block row." << LogIO::POST;
 	return false;
       }
-      asdmExecBlockId_p.insert(std::pair<casacore::Double, asdm::Tag>(execBlockStartTime.at(sBSummaryTag), tER->getExecBlockId()));
+      asdmExecBlockId_p[execBlockStartTime.at(sBSummaryTag)] = tER->getExecBlockId();
 
       if(verbosity_p>2){
 	cout << "eblock id defined in loop 2 for start time " << setprecision(13) << execBlockStartTime.at(sBSummaryTag) << endl;
@@ -3861,7 +3855,7 @@ namespace casa {
 	      timestampStartSecs(irow) < subScanEnd){
 	  Int ddId = dataDescId()(irow);
 	  if(subScanDDIdStartRows.find(ddId) == subScanDDIdStartRows.end( )){
-          subScanDDIdStartRows.insert(std::pair< Int, uInt >(ddId, irow));    // memorize their start rows
+          subScanDDIdStartRows[ddId] = irow;    // memorize their start rows
 	  }
 	  irow++;
 	}
@@ -3879,15 +3873,12 @@ namespace casa {
 	    Int ddId = dataDescId()(irow2);
 	    Int fId = fieldId()(irow2);
 	    if(ddId == theDDId){
-            auto erptr = subScanEndRows.find(fId);
-            if( erptr != subScanEndRows.end( ) ){
-                subScanEndRows.erase(erptr);
-                subScanEndRows.insert(std::pair< Int, uInt >(fId, irow2));    // update end row
+            if( subScanEndRows.find(fId) != subScanEndRows.end( ) ){
+                subScanEndRows[fId] = irow2;    // update end row
             }
-            auto srptr = subScanStartRows.find(fId);
-            if( srptr == subScanStartRows.end( ) ){
-                subScanStartRows.insert(std::pair< Int, uInt >(fId, irow2));    // memorize their start rows
-                subScanEndRows.insert(std::pair< Int, uInt >(fId, irow2));    // and end rows
+            if( subScanStartRows.find(fId) == subScanStartRows.end( ) ){
+                subScanStartRows[fId] = irow2;    // memorize their start rows
+                subScanEndRows[fId] = irow2;    // and end rows
             }
 	    }
 	    irow2++;
@@ -4084,7 +4075,7 @@ namespace casa {
 
 	tR2 = tT.add(tR);
 	if(asdmPointingModelId_p.find(antennaId) == asdmPointingModelId_p.end( )){
-        asdmPointingModelId_p.insert(std::pair<asdm::Tag, int>(antennaId, tR2->getPointingModelId() ));
+        asdmPointingModelId_p[antennaId] = tR2->getPointingModelId();
 	}
 
       } // end loop over receptors
