@@ -488,14 +488,14 @@ static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
 static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
 {   
     
-    X = 2.0 * cos( 10* 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 10*  2.0*M_PI  * r_time );
+    X = 2.0 * cos( 8.0* 2.0*M_PI  * r_time );
+    Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
     return;
 }   
 
 static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
 {
-    double FREQ= 100.0; 
+    double FREQ= 32.0; 
     X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
     Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
     return;
@@ -2330,36 +2330,27 @@ typedef struct Parm {
 
 std::vector<ParamList>  paramListS[] =
 {
-    // Senario 0 //
+    // Senario 0 (Big Ratio) //
     {
       {true, 0,1260, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  1.0E-02 },
       {true, 0,1260, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 },
     },
-    // Senario 1 //
+    // Senario 1 (Test Count Dependency) //
     {
-      {true, 0,2000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2005, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2015, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2005, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2035, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2045, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2055, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2065, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2075, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2085, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2095, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2000, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2010, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2020, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2030, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2040, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2050, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2060, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2070, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2080, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2090, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,2095, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
     },
 
-    // Senario 2 //
+    // Senario 2 (all AntenaID) //
     {
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
       {true, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
@@ -2369,19 +2360,15 @@ std::vector<ParamList>  paramListS[] =
       {true, 2,1260, 0.01,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
     },
 
-    // Senario 3 //
+    // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
     {
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Quick,     5.0E-05 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Harmonics_Sinusoid, 5.0E-05 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Gauss,              5.0E-06 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,      5.0E-06 },
+      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Quick,     1.0E-02 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Harmonics_Sinusoid, 5.0E-04 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Gauss,              5.0E-05 },
-    },
+      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Quick,     2.0E-02 },
+    }
 };
 
 
@@ -2395,7 +2382,7 @@ TEST_F(TestDirection, InterpolationListedItems )
 
     //+
     // Programmer Selectable
-    // What parameter Set. 
+    //  select parameter Set. 
     //-
       uInt start_sn =0;
       uInt end_sn   =3;
@@ -2409,8 +2396,9 @@ TEST_F(TestDirection, InterpolationListedItems )
 
       uInt usingColumn  = 0;
 
-   for (uInt sno = start_sn;  sno <= end_sn ;sno++) // Select Senario //
+    for (uInt sno = start_sn;  sno <= end_sn ;sno++) // Select Senario //
     {
+        Description( "by Listed Condition ", "sno="+std::to_string(sno));
         for(uInt n=0; n<paramListS[sno].size();n++)
         {
             uInt usingAntenna= paramListS[sno][n].antenna;

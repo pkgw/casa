@@ -298,10 +298,10 @@ public:
     // please change this field in Constructor.
     void setSplineInterpolation(bool mode) {useSplineInterpolation_ = mode;};
 
-    // Spline Object handle
+    // Spline Object handle (on Debug)
     casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
 
-    // Curret Direction column (=accessor in this source )
+    // Curret Direction column (=accessor in this source) (on Debug)
 
     DirectionColumnID  getCurretAccessorId()  { return  accessorId_ ; };
 
@@ -362,9 +362,9 @@ private:
 
     PointingDirectionCalculator();
 
-//***************************
+//+
 // CAS-8418 Spline Extended
-//***************************
+//-
 
      // Spline Type //
         bool useSplineInterpolation_    = true;      // default: Use Spline if TRUE
@@ -372,7 +372,7 @@ private:
      // Current Spline Object (active, work with Direction Column)
         casa::SplineInterpolation                     *currSpline_;   
 
-     // Spline Object for each Direction-Column //
+     // Spline Object for each Direction-Column 
         std::unique_ptr<casa::SplineInterpolation>     splineObj_[5];
 
      // Internal conditions to check limitted service.  
@@ -388,6 +388,7 @@ private:
         bool checkColumn(casacore::MeasurementSet const &ms,
                          casacore::String const &columnName );
 
+     // Initialize Coefficient and others  
         bool initializeSplinefromPointingColumn(casacore::MeasurementSet const &ms,
                                                 DirectionColumnID  DirColNo,
                                                 bool makeActive);
@@ -406,7 +407,8 @@ private:
      //   - see doGetDirection() in detail.  
      //-
      
-     // The Old and the New // 
+     // The Old and the New ,
+     //  If old method is needed , rename as follows and change the wrapper. 
         casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline/inear
 
@@ -436,12 +438,10 @@ public:
 
         bool isCoefficientReady()   {return stsCofficientReady; }
        
-        // Inspect Coeff normally reffered by Pointing Column/AntenaID 
+        // Programmers API:: Coefficient Table access // 
 
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
         getCoeff() { return coeff_; }
-
-        int  ifSplineInvalid(casacore::uInt ant, casacore::uInt index ) { return splineInvalid_[ant][index];    }
 
 private:
         //  default constructor 
@@ -452,15 +452,10 @@ private:
 
           void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
 
-        // Coefficient (by SDPosInterpolator)
+        // Coefficient (set up by SDPosInterpolator)
           casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
           coeff_;
        
-        // Discontinuous Secion Handle//
-
-          casacore::Vector<casacore::Vector<casacore::Double> >   deltaTime_;
-          casacore::Vector<casacore::Vector<int> >                splineInvalid_;
-
         // Interal Staus (one Spline status)//
  
           bool stsCofficientReady = false;

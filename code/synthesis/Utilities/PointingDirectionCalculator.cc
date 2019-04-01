@@ -46,7 +46,7 @@
 #include <measures/Measures/MPosition.h>
 #include <measures/Measures/MEpoch.h>
 #include <measures/Measures/MDirection.h>
-// NEW //
+// CAS-8418 NEW //
 #include <synthesis/Utilities/SDPosInterpolator.h>
 
 using namespace casacore;
@@ -165,7 +165,6 @@ PointingDirectionCalculator::PointingDirectionCalculator(
       /*CAS-8418*/ coefficientReady_(5,false),          // Spline Coefficient Ready
       /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
 { 
-
 // -- original code -- //
     accessor_ = directionAccessor;
 
@@ -307,7 +306,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
-#if 0   // Old code //
+#if 0   // CAS-8418:: Old code //
 
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
@@ -369,14 +368,15 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
     }
 
     //+
-    // Limmited service, force to use traditional Linear Interpolation. 
+    // CAS:8418::Limmited service,
+    // when indeicated by flag,force to use traditional Linear Interpolation. 
     //-
 
      if (getCurrentSplineObj()->isCoefficientReady() == false )
      {
          LogIO os(LogOrigin("PointingDirectionCalculator", "doGetDirection(i)", WHERE));
          os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA,  \n"
-                           << "forced to Linear Interpolation " << LogIO::POST;
+                           << "forced to use Linear Interpolation " << LogIO::POST;
          useSplineInterpolation_ = false;
      }
 
@@ -497,20 +497,15 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     debuglog << "done getDirection" << debugpost;
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
-////////////////////////////////////////
-// Reforming goGetdiretion [TENTATIVE]
-// 
-// - Switch to old doGetdirection() for tracable test
-//   and to new doGetdirection() that includes Spline.
-// - Accuracy(=Uncertainity) Test must be possible.
-// - At the moment, this is trial.
-//
-///////////////////////////////////////
-
+//-------------------------
+// doGetdiretion [wraper]
+// - Capable of switching to old doGetdirection() for tracable test
+// - Accuracy(=Uncertainity) Test by old and new is possible.
+//------------------------
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
     // In case Old source is needed, please locate Org.source and
-    // make a link here.
+    // select select statement for your debug. 
 
     return (doGetDirectionNew(irow));
 }
@@ -553,9 +548,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         debuglog << "linear interpolation " << debugpost;
 
         //+
-        // Copied from original (same logic)
-        // - checcking Reference type.
-        // - If needed , make conversion. 
+        // Following section was copied from original (same logic)
         //-
 
         Double t0 = pointingTimeUTC_[index - 1];
@@ -586,7 +579,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         }
 
         //+
-        // CAS-8418::  Spline Interpolation
+        // CAS-8418::  Spline Interpolation section.
         //   using original var. see above for t0,t1,dt and nrowPointing.
         //-
 
@@ -612,8 +605,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
         }
 
         //+
-        // Limittedly use Linear Interpolation.
-        //  In any case when Spline is incapable of.
+        // In limmited case, use Linear Interpolation.
         //-
         Vector<Double> interpolated(2);
         if(useSplineInterpolation_)
@@ -634,6 +626,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
           direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
         
     }
+    // CAS-8418:: following section is same as original //
     debuglog << "direction = "
             << direction.getAngle("rad").getValue() << " (unit rad reference frame "
             << direction.getRefString()
@@ -1012,9 +1005,6 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
       tmp_time.        resize(numAnt);
       tmp_dir.         resize(numAnt);
 
-      deltaTime_.          resize(numAnt);  
-      splineInvalid_.      resize(numAnt);
-
     // Column handle (only time,direction are needed, others are reserved) //
     
       ROScalarColumn<Double> pointingTime           = columnPointing ->time();
@@ -1040,14 +1030,6 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
           tmp_dir [ant]. resize(size);
           tmp_time[ant]. resize(size);
 
-          // Discont time //
-          deltaTime_     [ant]. resize(size);
-          splineInvalid_ [ant]. resize(size);
-          fill( splineInvalid_.begin(),
-                splineInvalid_.end(),  0 );
-
-          Double  prevTime = pointingTime.get(0);
-
         // for each row // 
         for (uInt row = startPos; row < endPos; row++) 
         {
@@ -1061,56 +1043,11 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
             MDirection     dir    = my_accessor(*columnPointing, row);
             Vector<Double> dirVal = dir.getAngle("rad").getValue();
 
-            // Diff Time //
-            Double         dTime  = time - prevTime;
-                           prevTime = time;
-
             // set on Vector //
             
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
 
-            // Discont Time //
-            deltaTime_[ant][index] = dTime;
-
-            //+
-            // NEW: CAS-8418: Jump discontiuous section.
-            //  When dT is far greater than the interval, this is
-            //  a discontinuous section. The currve on close to edges 
-            //  may behave unexpected.
-            //-
-
-            if(false)
-            {
-                //+
-                // Experiment:   set Invalid Flag
-                //-
-
-                if(dTime > (interval+0.001)  )
-                {
-                    printf( "Set MARK (%d, %d) around this point. | dt=%f, interval=%f \n",
-                             ant,index, dTime, interval);
-                    // Mark //
-                    splineInvalid_[ant][index-4]= -4;
-                    splineInvalid_[ant][index-3]= -3;
-                    splineInvalid_[ant][index-2]= -2;
-                    splineInvalid_[ant][index-1]= -1;
-                    splineInvalid_[ant][index+0]= 1;
-                    splineInvalid_[ant][index+1]= 2;
-                    splineInvalid_[ant][index+2]= 3;
-                    splineInvalid_[ant][index+3]= 4;
-                }
-            }
-
-            // DBG //
-            if(showSDPParam)
-            {
-                string  info = "-";
-                if ( dTime > (interval + 0.001) ) info = "Jumped";
-
-                printf("SDP ix=,%d a=,%d,tm=%f,dt=,%f, dir,%f,%f,%s\n", 
-                       index, ant, time, dTime, dirVal[0],dirVal[1], info.c_str() );
-            }
         }
     }
 
@@ -1126,7 +1063,6 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
         if ((st < 4)||(s1 < 4))
         {
           // Warning .. //
-
             LogIO os(LogOrigin("SplineInterpolation", "init()", WHERE));
             os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA, must be ge. 4 \n" 
                << "Alternatively, Linear Interpolation will be used. " << LogIO::POST;
@@ -1140,11 +1076,9 @@ void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_acces
     // SDPosInterpolator Objct 
     //   - calulate Coefficient Table - 
     //-
-
       SDPosInterpolator  sdp (tmp_time, tmp_dir);
    
     // Obtain Coeff (copy object) //
-
       coeff_ = sdp.getSplineCoeff();
 
     // Table Active ..
@@ -1207,7 +1141,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         throw AipsError(ss.str());
     }
 
-  
     // Coefficient //
 
     Double a0 = coeff_[antID][index][0][0];
@@ -1224,31 +1157,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
     Double Xs =  (((0* dt + a3)*dt + a2)*dt + a1)*dt + a0;
     Double Ys =  (((0* dt + b3)*dt + b2)*dt + b1)*dt + b0;
-
-    //+
-    // CAS-8418 Discontinuous section 
-    //-
-
-    if((false) && ( splineInvalid_[antID][index] !=0) ) 
-    {
-#if 1
-        printf("Warning:: Discontinuous Section was detected in calculation. (Ant=%d, index=%d),flag = %2d \n",
-                antID, index, splineInvalid_[antID][index] ); 
-        printf( "dt = %f \n",dt);
-#endif 
-        //+
-        // Alter to LINEAR 
-        //-
-
-        Double a0p = coeff_[antID][index -1][0][0];
-        Double b0p = coeff_[antID][index -1][1][0];
-  
-        if(true)
-        {
-            Xs = a0p;
-            Ys = b0p;
-        }
-    }
 
     // Return //
 
