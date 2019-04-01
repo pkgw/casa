@@ -994,7 +994,7 @@ HPX HEALPix grid.  -->
 	    <value type="bool">True</value>
     </param>
 
-    <param type="bool" name="conjbeams" subparam="false">
+    <param type="bool" name="conjbeams" subparam="true">
            <shortdescription>Use conjugate frequency for wideband A-terms</shortdescription>
 <description>Use conjugate frequency for wideband A-terms
 
@@ -1041,7 +1041,7 @@ HPX HEALPix grid.  -->
 	    <value type="string"></value>
     </param>
 
-    <param type="bool" name="dopointing" subparam="false">
+    <param type="bool" name="dopointing" subparam="true">
      <shortdescription>The parameter makes the gridder utilize the pointing table phase directions while computing the residual image.</shortdescription>
 <description>The dopointing flag informs the gridder that it should utilize the pointing table
 to use the correct direction in which the antenna is pointing with respect to the pointing phasecenter. </description>
