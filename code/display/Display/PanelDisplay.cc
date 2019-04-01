@@ -599,7 +599,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	void PanelDisplay::addTool(const String& key, const std::shared_ptr<MultiWCTool> &value) {
         auto wcptr = itsMWCTools.find(key);
 		if ( wcptr == itsMWCTools.end( ) ) {
-			itsMWCTools.insert(std::pair<casacore::String, std::shared_ptr<MultiWCTool> >(key, value));
+			itsMWCTools[key] = value;
 			value->addWorldCanvases(this);
 		}
 	}

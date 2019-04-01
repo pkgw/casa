@@ -1824,7 +1824,7 @@ WorldCanvas::ColorIndexedImage_* WorldCanvas::getClearedColorIndexedImage(
 	}			// and clear it for reuse.
 	else {
 		im = new ColorIndexedImage_;	// create new color-indexed image.
-		if( drawObj != 0 ) images_.insert(std::pair<void*, ColorIndexedImage_*>(drawObj, im));
+		if( drawObj != 0 ) images_[drawObj] = im;
 	}
 	// cache it, if caller wishes.
 	return im;

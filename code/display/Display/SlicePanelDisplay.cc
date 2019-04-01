@@ -171,15 +171,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	SlicePanelDisplay::SlicePanelDisplay(PixelCanvas* pcanvas) :
 		itsActivePD(0) {
-		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("xy",new PanelDisplay(pcanvas,1,1,0.0,0.5,0.5,0.5)));
-		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("zy",new PanelDisplay(pcanvas,1,1,0.5,0.5,0.5,0.5)));
-		itsPanelDisplays.insert(std::pair<casacore::String, PanelDisplay* >("xz",new PanelDisplay(pcanvas,1,1,0.0,0.0,0.5,0.5)));
-        itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("ZYcXY", new SliceEH(itsPanelDisplays["xy"],0,1)));
-		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XZcXY", new SliceEH(itsPanelDisplays["xy"],1,0)));
-		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XYcZY", new SliceEH(itsPanelDisplays["zy"],0,1)));
-		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XZcZY", new SliceEH(itsPanelDisplays["zy"],0,2)));
-        itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("XYcXZ", new SliceEH(itsPanelDisplays["xz"],1,0)));
-		itsSliceEHs.insert(std::pair<casacore::String, SliceEH* >("ZYcXZ", new SliceEH(itsPanelDisplays["xz"],1,3)));
+		itsPanelDisplays["xy"] = new PanelDisplay(pcanvas,1,1,0.0,0.5,0.5,0.5);
+		itsPanelDisplays["zy"] = new PanelDisplay(pcanvas,1,1,0.5,0.5,0.5,0.5);
+		itsPanelDisplays["xz"] = new PanelDisplay(pcanvas,1,1,0.0,0.0,0.5,0.5);
+		itsSliceEHs["ZYcXY"] =	new SliceEH(itsPanelDisplays["xy"],0,1);
+		itsSliceEHs["XZcXY"] =	new SliceEH(itsPanelDisplays["xy"],1,0);
+		itsSliceEHs["XYcZY"] =	new SliceEH(itsPanelDisplays["zy"],0,1);
+		itsSliceEHs["XZcZY"] =	new SliceEH(itsPanelDisplays["zy"],0,2);
+		itsSliceEHs["XYcXZ"] =	new SliceEH(itsPanelDisplays["xz"],1,0);
+		itsSliceEHs["ZYcXZ"] =	new SliceEH(itsPanelDisplays["xz"],1,3);
 		installEHs();
 		itsActivePD = itsPanelDisplays["xy"];
 	}

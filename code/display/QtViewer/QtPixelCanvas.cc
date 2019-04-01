@@ -1079,7 +1079,7 @@ namespace casa {
 
 		for(drawListNo_=0; validList(drawListNo_); drawListNo_++) {}
 		// Find first unused drawlist number.
-		drawlists_.insert(std::pair<casacore::uInt, void*>(drawListNo_, drawList_));
+		drawlists_[drawListNo_] = drawList_;
 		// Save new drawlist in the cache.
 		return drawListNo_;
 	}

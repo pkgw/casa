@@ -56,7 +56,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				// new colormap
 				ColormapInfo *mi = new ColormapInfo(cmap, weight, 0, 0);
 				mi->ref();
-				itsInfoMap.insert(std::pair<const Colormap *, ColormapInfo *>(cmap, mi));
+				itsInfoMap[cmap] = mi;
 				redistributeColormaps();
 			}
 			// now tell the cmap that it is used by the PixelCanvasColorTable

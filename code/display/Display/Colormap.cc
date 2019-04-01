@@ -147,7 +147,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			itsPCColorTables[pcctbl] = itsPCColorTables[pcctbl] + 1;
 		} else {
 			// new definition, referenced once
-			itsPCColorTables.insert(std::pair<PixelCanvasColorTable *, casacore::uInt>(pcctbl, 1));
+			itsPCColorTables[pcctbl] = 1;
 		}
 	}
 
