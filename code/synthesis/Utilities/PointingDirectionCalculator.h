@@ -420,10 +420,10 @@ private:
 //-
 
 class SplineInterpolation  {
-
 public:
-        typedef casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
-        COEFF;
+        // Coefficient table typedef //
+          typedef casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
+          COEFF;
 
         // Constructor 
           SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
@@ -438,7 +438,7 @@ public:
 
         bool isCoefficientReady()   {return stsCofficientReady; }
        
-        // Programmers API:: Coefficient Table access // 
+        // Programmers API:: for Coefficient Table access // 
 
         casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
         getCoeff() { return coeff_; }
@@ -463,10 +463,11 @@ private:
         // debug routune //
           void dumpCsvCoeff();
 
-        // Programmers Debug Flag //
-       
-          bool showSDPParam     = false;
-          bool dumpCoeffientTable = true;
+        //*
+        // Programmers Debug Flag 
+        //* 
+          bool showSDPParam       = false;  // RESERVED (when checking SDPos behabvior)
+          bool dumpCoeffientTable = false;  // This enables to dump Coefficient Table 
 
 };
 
