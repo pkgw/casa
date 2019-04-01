@@ -1419,7 +1419,7 @@ void StatWtTVI::summarizeFlagging() const {
         log << LogIO::NORMAL << std::endl << LogIO::POST;
     }
     else if (_nOrigFlaggedPts + _nNewFlaggedPts == _nTotalPts) {
-        log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE "
+        log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE DATA "
             "IN THE REQUESTED SELECTION THAT WASN'T ORIGINALLY FLAGGED"
             << LogIO::POST;
         log << LogIO::NORMAL << std::endl << LogIO::POST;
