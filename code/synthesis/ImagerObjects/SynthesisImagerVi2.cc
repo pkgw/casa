@@ -2314,6 +2314,113 @@ void SynthesisImagerVi2::unlockMSs()
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  Record SynthesisImagerVi2::apparentSensitivity() 
+  {
+    LogIO os(LogOrigin("SynthesisImagerVi2", "apparentSensitivity()", WHERE));
+    
+    Record outrec;
+    try {
+
+      os << LogIO::NORMAL // Loglevel INFO
+	 << "Calculating apparent sensitivity from MS weights, as modified by gridding weight function"
+	 << LogIO::POST;
+      os << LogIO::NORMAL // Loglevel INFO
+	 << "(assuming that MS weights have correct scale and units)"
+	 << LogIO::POST;
+      
+      Double sumNatWt=0.0;
+      Double sumGridWt=0.0;
+      Double sumGridWt2OverNatWt=0.0;
+    
+      Float iNatWt(0.0),iGridWt(0.0);
+      
+      vi::VisBuffer2* vb = vi_p->getVisBuffer();
+      vi_p->originChunks();
+      vi_p->origin();
+      
+      // Discover if weightSpectrum non-trivially available
+      Bool doWtSp=vi_p->weightSpectrumExists();
+
+      //////
+      for(vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
+	{
+	  for (vi_p->origin(); vi_p->more(); vi_p->next())
+	    {
+	      Int nRow=vb->nRows();
+	      const Vector<Bool>& rowFlags(vb->flagRow());
+
+	      const Vector<Int>& a1(vb->antenna1()), a2(vb->antenna2());
+
+              // Extract weights correctly (use WEIGHT_SPECTRUM, if available)
+	      Int nCorr=vb->nCorrelations();
+              Matrix<Float> wtm;
+              Cube<Float> wtc;
+              if (doWtSp)
+                // WS available [nCorr,nChan,nRow]
+                wtc.reference(vb->weightSpectrum());       
+              else {
+                // WS UNavailable weight()[nCorr,nRow] --> [nCorr,nChan,nRow]
+                wtc.reference(vb->weight().reform(IPosition(3,nCorr,1,nRow)));  // unchan'd weight as single-chan
+              }
+	      Int nChanWt=wtc.shape()(1);  // Might be 1 (no WtSp)
+
+	      Cube<Bool> flagCube(vb->flagCube());
+	      for (Int row=0; row<nRow; row++) {
+		if (!rowFlags(row) && a1(row)!=a2(row)) {  // exclude ACs
+
+		  for (Int ich=0;ich<vb->nChannels();++ich) {
+		    if( !flagCube(0,ich,row) && !flagCube(nCorr-1,ich,row)) {  // p-hands unflagged
+
+		      // Accumulate relevant info
+
+		      // Simple sum of p-hand for now
+		      iNatWt=wtc(0,ich%nChanWt,row)+wtc(nCorr-1,ich%nChanWt,row);
+
+		      iGridWt=2.0f*vb->imagingWeight()(ich,row);
+
+		      if (iGridWt>0.0 && iNatWt>0.0) {
+			sumNatWt+=(iNatWt);
+			sumGridWt+=(iGridWt);
+			sumGridWt2OverNatWt+=(iGridWt*iGridWt/iNatWt);
+		      }
+		    }
+		  }
+		}
+	      } // row
+	    } // vb
+	} // chunks
+      
+      if (sumNatWt==0.0) {
+	os << "Cannot calculate sensitivity: sum of selected natural weights is zero" << LogIO::EXCEPTION;
+      }
+      if (sumGridWt==0.0) {
+	os << "Cannot calculate sensitivity: sum of gridded weights is zero" << LogIO::EXCEPTION;
+      }
+
+      Double effSensitivity = sqrt(sumGridWt2OverNatWt)/sumGridWt;
+
+      Double natSensitivity = 1.0/sqrt(sumNatWt);
+      Double relToNat=effSensitivity/natSensitivity;
+
+      os << LogIO::NORMAL << "RMS Point source sensitivity  : " // Loglevel INFO
+	 << effSensitivity      //  << " Jy/beam"       // actually, units are arbitrary
+	 << LogIO::POST;
+      os << LogIO::NORMAL // Loglevel INFO
+	 << "Relative to natural weighting : " << relToNat << LogIO::POST;
+
+      // Fill output Record
+      outrec.define("relToNat",relToNat);
+      outrec.define("effSens",effSensitivity);
+
+    } catch (AipsError x) {
+      throw(x);
+      return outrec;
+    } 
+    return outrec;
+
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   Bool SynthesisImagerVi2::makePB()
   {
       LogIO os( LogOrigin("SynthesisImagerVi2","makePB",WHERE) );

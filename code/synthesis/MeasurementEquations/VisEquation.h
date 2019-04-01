@@ -243,6 +243,10 @@ private:
   casacore::Bool useInternalModel_;
   casacore::Vector<casacore::Float> stokesModel_;
 
+  // Keep count of total visibilities processed
+  //  NB: this is Sum-over-spws(ncorr*nchan*nrow)
+  casacore::Int nVisTotal_;
+
   // Diagnostic print level
   casacore::Int prtlev_;
 

@@ -485,6 +485,17 @@ Define the image coordinate systems and shapes.
 </method>
 
 <!-- ===================================== -->
+
+
+   <method type="function" name="apparentsens">
+   <shortdescription>Calculate apparent aggregate sensitivity in the selected visibilities</shortdescription>
+
+<description>
+</description>
+<returns type="record"/>
+</method>
+
+<!-- ===================================== -->
    <method type="function" name="predictmodel">
    <shortdescription>Predict model visibilities.</shortdescription>
 

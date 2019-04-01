@@ -93,14 +93,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 class VisCalSolver2 {
 public:
 
-  // Constructor currently generic
+  // Constructor
   VisCalSolver2();
+  VisCalSolver2(casacore::String solmode,
+		casacore::Vector<casacore::Float>& rmsthresh);
   
   // Destructor
   ~VisCalSolver2();
 
   // Do the solve
   bool solve(VisEquation& viseq, SolvableVisCal& svc, SDBList& sdbs);
+
+  // L1R-capable version
+  bool solveL1R(VisEquation& viseq, SolvableVisCal& svc, SDBList& sdbs);
 
 protected:
 
@@ -144,6 +149,9 @@ protected:
 
   // Calculate residuals (incl. diff'd) and chi2 
   void chiSquare2();
+
+  // Apply RMS threshold to current residuals
+  void RMSThresh(casacore::Int RejIter);
 
   // Check for convergence
   bool converged();
@@ -212,6 +220,15 @@ private:
 
   // Step optimization toggle
   bool optstep_;
+
+  // Control L1 solution
+  bool doL1_;
+  casacore::Vector<casacore::Float> L1clamp_;
+
+  // Control iterative rejection
+  bool doRMSThresh_;
+  casacore::Vector<casacore::Float> RMSThresh_;
+  int nRMSThresh_;
 
   // Diagnostic print level
   int prtlev_;
