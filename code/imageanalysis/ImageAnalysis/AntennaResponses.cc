@@ -627,8 +627,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(rval){
       antTypes.resize(antTypeMap.size( ));
-      for( auto iter = antTypeMap.begin( ); iter != antTypeMap.end( ); ++iter ){
-        antTypes(i) = iter->first;
+      uInt count = 0;
+      for( auto iter = antTypeMap.begin( ); iter != antTypeMap.end( ); ++iter, ++count ){
+        antTypes(count) = iter->first;
       }
     }
 
