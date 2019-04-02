@@ -253,16 +253,16 @@ protected:
 	void indigen(std::vector<casacore::uInt> &index, casacore::uInt size);
 
 	// For checking ids
-	bool find(casacore::Vector<casacore::Int> &validRange, casacore::Int element);
+	bool find(const casacore::Vector<casacore::Int> &validRange, casacore::Int element);
 
 	// For checking ranges
-	bool find(casacore::Matrix<casacore::Double> &validRange, casacore::Double element);
+	bool find(const casacore::Matrix<casacore::Double> &validRange, casacore::Double element);
 
 	// For checking pairs
-	bool find(casacore::Matrix<casacore::Int> &validPairs, casacore::Int element1, casacore::Int element2);
+	bool find(const casacore::Matrix<casacore::Int> &validPairs, casacore::Int element1, casacore::Int element2);
 
 	// For checking columns
-	bool find(casacore::Block<int> &columns, int col);
+	bool find(const casacore::Block<int> &columns, int col);
 
 	// Check if a given number is nan (for visibilities,gains and Tsys primarily)
 	bool isNaN(casacore::Double number);
