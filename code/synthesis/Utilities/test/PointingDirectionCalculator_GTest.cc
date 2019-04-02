@@ -209,26 +209,22 @@ public:
 
 private:
     
-    String GetCasaPath(const String &pathname )
+    String GetCasaPath(const String &pathname ) 
     {
-        if (casacore::EnvironmentVariable::isDefined(pathname)) 
-        {
+        if (casacore::EnvironmentVariable::isDefined(pathname)){
             string casapath = casacore::EnvironmentVariable::get(pathname);
             size_t endindex = casapath.find(" ");
-            if (endindex != string::npos)
-            {
+            if (endindex != string::npos){
                 string casaroot = casapath.substr(0, endindex);
                 cout << pathname << "=" << casaroot << endl;
                 return (casaroot);
             } 
-            else 
-            {
+            else {
                 cout << "hit npos" << endl;
                 return "/hoge/";
             }
         } 
-        else 
-        {
+        else {
             cout << "ERROR: Specified path " << pathname  << " is not defined" << endl;
             return "";
         }
@@ -2313,8 +2309,8 @@ std::vector<ParamList>  paramListS[] =
 {
     // Senario 0 (Big Ratio) //
     {
-      {true, 0,1260, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  1.0E-02 },
-      {true, 0,1260, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 },
+      {true, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  1.0E-02 },
+      {true, 0,2520, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 },
     },
     // Senario 1 (Test Count Dependency) //
     {
