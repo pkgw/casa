@@ -51,13 +51,13 @@ public:
   /** The basic class constructor, with the elevation angle corresponding to the measurement, and the measurements themselves
    in the channels of the water vapor radiometer system  */
   WVRMeasurement(const Angle &elevation,
-                 const std::vector<Temperature> &measuredSkyBrightness);
+                 const vector<Temperature> &measuredSkyBrightness);
   /** A more general class constructor, with the elevation angle corresponding to the measurement, the measurements themselves
    in the channels of the water vapor radiometer system, the fitted values in those channels and the sigma of the fit. This
    constructor is not intended to be used by the user, but by water vapor retrieval procedures inside the SkyStatus class */
   WVRMeasurement(const Angle &elevation,
-                 const std::vector<Temperature> &measuredSkyBrightness,
-                 const std::vector<Temperature> &fittedSkyBrightness,
+                 const vector<Temperature> &measuredSkyBrightness,
+                 const vector<Temperature> &fittedSkyBrightness,
                  const Length &retrievedWaterVaporColumn,
                  const Temperature &sigma_fittedSkyBrightness);
 
@@ -69,11 +69,11 @@ public:
   /** Accessor to air mass */
    double getAirMass() const { return 1.0 / sin(elevation_.get()); }
   /** Accessor to measured sky brightness temperature */
-   std::vector<Temperature> getmeasuredSkyBrightness() const { return v_measuredSkyBrightness_; }
+   vector<Temperature> getmeasuredSkyBrightness() const { return v_measuredSkyBrightness_; }
   /** Accessor to fitted sky brightness temperatures */
-   std::vector<Temperature> getfittedSkyBrightness() const { return v_fittedSkyBrightness_; }
+   vector<Temperature> getfittedSkyBrightness() const { return v_fittedSkyBrightness_; }
   /** Setter of fitted sky brightness temperatures */
-   void setfittedSkyBrightness(const std::vector<Temperature> &a) { v_fittedSkyBrightness_ = a; }
+   void setfittedSkyBrightness(const vector<Temperature> &a) { v_fittedSkyBrightness_ = a; }
   /** Accessor to retrieved water vapor column */
    Length getretrievedWaterVaporColumn() const { return retrievedWaterVaporColumn_; }
   /** Setter of retrieved water vapor column */
@@ -85,7 +85,7 @@ public:
 
 protected:
   Angle elevation_;
-  std::vector<Temperature> v_measuredSkyBrightness_;
+  vector<Temperature> v_measuredSkyBrightness_;
   vector<Temperature> v_fittedSkyBrightness_; // !< Fitted sky brightness temperatures over all WVR channels for each event
   Length retrievedWaterVaporColumn_; // !< Retrieved zenith water vapor column for each event
   Temperature sigma_fittedSkyBrightness_; // !< Sigma on the fitted sky brightness temperatures (average sigma over the WVR channels for each event).
