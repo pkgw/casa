@@ -155,7 +155,6 @@ private:
 };
 
 //+
-// CAS-8418 added
 // Direction Column List
 //-
 class PointingColumnList 
@@ -411,7 +410,8 @@ public:
         Harmonics_Sinusoid,  // 5
         Gauss,               // 6   
         Zero,                // 7
-        Const                // 8
+        Const,               // 8
+        Spline_Special
     } Type;
 
     // num(size) of function def. //
@@ -524,6 +524,66 @@ static void Function_const(Double r_time, Double& X, Double& Y)
     Y = 1.0 + 0.0*r_time;
     return;
 }
+static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
+{
+    // Border //
+
+    double c1 = 0.1;
+    double c2 = 0.3;
+    double c3 = 1.0 - c2;
+    double c4 = 1.0 - c1;
+
+    double a1 = -1.0/c1;
+
+    double a2 = 1.0 /(c1*(c2-c1));
+    double b2 = (c1-c2)/(4*c1);
+    
+    double m = 0.5 -c2;
+    double a3 = 1.0/2.0/(m*m)/c1;
+    double b3 = 1.0/(2.0*c1);
+
+    double a4 = -a2;
+    double b4 = -b2;
+   
+    double a5 = a1;
+
+    X = Y = 0.0;
+
+    if( r_time <= c1 )
+    {
+        double f = a1 * (r_time - c1);     
+        X = Y = f;
+    }
+    else
+    if( r_time <= c2 )
+    {
+        double x = r_time - (c1+c2)/2.0;
+        double f = a2 * x*x + b2;
+        X = Y = f;
+    }
+    else
+    if( r_time <= c3 )
+    {
+        double x = r_time -0.5;
+        double f = a3* x*x*x - b3*x;
+        X = Y = f;
+    }
+    else
+    if( r_time <= c4 )
+    {
+        double x = r_time -(c3+c4)/2.0;
+        double f = a4 * x*x + b4;
+        X = Y = f;
+    }
+    else
+    {
+        double f = a5 *(r_time -c4);  
+        X = Y = f;
+    }
+
+    return;
+}
+
 
     // Function Table //
     std::vector<FUNCTYPE>  fpTrajectoryfunc
@@ -536,7 +596,8 @@ static void Function_const(Double r_time, Double& X, Double& Y)
         Function_harmonics_sinusoid,  // 5
         Function_gauss,               // 6   (new 12/11)
         Function_zero,                 // 7
-        Function_const                 // 8
+        Function_const,                // 8
+        Function_SplineSpecial         // 9
     };   
 
  
@@ -682,7 +743,7 @@ private:
          Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
     // Number of Antenna , Number of avilable Pointing Columns
-    //   to prepeare for the Test, (CAS-8418)  
+    //   to prepeare for the Test  
 
         uInt prepareMaxAntenna_         = 1;    // Tunable //
         uInt prepareMaxPointingColumns_ = 1;    // Tunable //
@@ -728,7 +789,7 @@ void TuneMSConfig::init()
         //+
         // Optimize Row Count
         //   - when required row is insufficient, set adding count and expand MS later. 
-        //   - when multiple-antenna is used number of tables are increased as below.(CAS-8418)
+        //   - when multiple-antenna is used number of tables are increased as below.
         // (bug fix)
         //    7-MAR-2019 prepareMaxAntenna_ was applied for exact row control.
         //-
@@ -1583,7 +1644,6 @@ void  MsEdit::writePseudoOnPointing()
                 uInt  rowA = row + (ant * LoopCnt);
 
                 //+
-                // DIRECTION  
                 //   CAS-8418::   1-Feb-2019
                 //   updated to make indivisual value on Pointing Columns
                 //-
@@ -2087,7 +2147,7 @@ protected:
         //*
           bool dumpPointingTbl =  false;
           bool dumpMainTbl     =  false;
-          bool showResult      =  false;
+          bool showResult      =  true;
  
 private:
 
@@ -2122,7 +2182,6 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
     // selectData on generated MS
     //  Antenna name is ANT0, ANT1, AT2
     //-
-   
         const String AntSel = "ZZ0" + std::to_string(ant)+ "&&ZZ00"; 
 
         calc.selectData( AntSel,  "","","","","","","","","" );
@@ -2151,7 +2210,6 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
     //  getDirection()
     //-
         Matrix<Double>  DirList1  = calc.getDirection();
-//      size_t   n_row    = DirList1.nrow();
 
     //+
     // Direction Interpolation
@@ -2270,13 +2328,22 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
 
     return e_max; 
 }
-/*-----------------------------------------------------------------------
-   Interporatio Test in getDirection()  
-   FULL combiniation of Interval Times and spline mode.
+/*-------------------------------------------------------------------------------
+  TEST FIXTUE:
 
- - Use Combiniation of Pointing table Interval and Main table Interval
- - Capable of selecting curve fucntion for simulated pointing trajectry
-  ----------------------------------------------------------------------*/
+   Interporatio Test in getDirection()  as;
+
+   (1) InterpolationListedItems performs works on Listed Parameter.
+   (2) InterpolationSingle      performs single condition on
+                        multiple antenna and multiple pointing columns 
+   (3) CoefficientOnColumnAndAntenna examines wheather spline coefficients  
+                        by Antenna and Pointing-Column are normally stored.
+   (4) CompareInterpolation   examins to compare two results by
+                        Linear and Spline interpolation. 
+   (5) setDirectionColumn  probes wheather spline interpolation initialization is 
+                        performed based on a specified Poining-Column.
+
+  -----------------------------------------------------------------------------*/
  
 TEST_F(TestDirection, InterpolationFull )
 {
@@ -2309,42 +2376,47 @@ std::vector<ParamList>  paramListS[] =
 {
     // Senario 0 (Big Ratio) //
     {
-      {true, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  1.0E-02 },
-      {true, 0,2520, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-03 },
+      {true,  0,2000, 1.0,  1.0	  ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
+      {false, 0,2000, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
+
+      {true,  0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
+      {false, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
+
+      {true,  0,1510, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.1E-08 },
+      {false, 0,1510, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.1E-08 },
+
     },
     // Senario 1 (Test Count Dependency) //
     {
-      {true, 0,2000, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2010, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2020, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2030, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2040, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2050, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2060, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2070, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2080, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2090, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,2095, 0.04,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1530, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1540, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1550, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1560, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1595, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
     },
 
     // Senario 2 (all AntenaID) //
     {
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
-      {true, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
-      {true, 2,1260, 0.05,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
-      {true, 1,1260, 0.01,  0.05,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
-      {true, 2,1260, 0.01,  0.01,  TrajectoryFunction::Type::Simple_Linear,  5.0E-06 },
+      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, 2,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
     },
 
     // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
     {
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Quick,     5.0E-05 },
+      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Spline_Special,     5.0E-05 },
+
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Quick,     2.0E-02 },
+      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,     2.0E-02 },
     }
 };
 
@@ -2372,10 +2444,11 @@ TEST_F(TestDirection, InterpolationListedItems )
             auto   trFunc    = paramListS[sno][n].trFunc;
             Double err_limit = paramListS[sno][n].errLimit;
 
-            printf("&&&&&&&&&&&&&&&&&&&&&&6&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+            printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
             printf("&&&  parameter Set[%d]  starts. Ant=%d Func=%d\n",n, usingAntenna, trFunc );
-            printf("&&&   N=%d, Interval (Poinitng, Main) = (%f,%f) \n", testCount, p_i, m_i );
-            printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+            printf("&&&    Spline=%d, N=%d, \n" , use_spline, testCount );
+            printf("&&&    Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
+            printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
 
             // Copy Template MS //
               SetUp();
@@ -2667,20 +2740,18 @@ TEST_F(TestDirection, CompareInterpolation )
         //******************
         if(true)
         {
-     
             // Set Interporation Mode //
-         
-            calc.setSplineInterpolation(false);
+              calc.setSplineInterpolation(false);
         
             //+
             //  getDirection()
             //-
           
-            Description("calling getDirection()" ,"#1" );
+              Description("calling getDirection()" ,"#1" );
          
-            DirList1  = calc.getDirection();
-            size_t   n_col    = DirList1.ncolumn();
-            size_t   n_row    = DirList1.nrow();
+              DirList1  = calc.getDirection();
+              size_t   n_col    = DirList1.ncolumn();
+              size_t   n_row    = DirList1.nrow();
          
             printf( "getDirection()::Number of Row = %zu \n", n_row );
             printf( "getDirection()::Number of Col = %zu \n", n_col );
@@ -2744,7 +2815,7 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
     // Inspect Coefficient Table //
     ASSERT_EQ( sp->isCoefficientReady(), true );
 
-    printf( "SplinCofficient in Pointing Column[%d] GTest OK.\n",Id);
+    printf( "Spline Cofficient by Pointing Column[%d] = GTest OK.\n",Id);
 }
 
 //------------------------------
@@ -3084,6 +3155,7 @@ TEST_F(TestDirection, Matrixshape )
 }
 
 /*------------------------------------
+ Standard Sequence Test.
   getDirection () and MovingSource()
  -------------------------------------*/
 TEST_F(TestDirection, getDirection1 )
@@ -3269,9 +3341,11 @@ TEST_F(TestDirection, getDirectionExtended )
         casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
         String strMovDir = MovDir.toString();
 
-        printf(    "Dir at, %d, %f,%f, [Mov:%s], uv=, %f,%f,%f  \n",  
-                row, Val_1, Val_2, strMovDir.c_str(), 
-                u, v, w );
+        if(true){
+            printf(    "Dir at, %d, %f,%f, [Mov:%s], uv=, %f,%f,%f  \n",  
+                    row, Val_1, Val_2, strMovDir.c_str(), 
+                    u, v, w );
+        }
     }
 }
 
@@ -3442,7 +3516,6 @@ TEST_F(TestSelectData, Antenna )
         //-
 
         return;
-        
 }
 
 /*------------------------------------------
@@ -3898,8 +3971,6 @@ TEST_F(TestSelectData, UVRange )
 
         EXPECT_EQ ((uInt)540, nrow);
 
-
-
 }
 
 /*------------------------------------------
@@ -4066,35 +4137,24 @@ const std::vector<FrameTypeList> DefinedFrametypes
   -----------------------------------------------*/
 
 void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, uInt n_frame )
-
 {
-    //+
-    // Test setFrame (Str) 
-    //   No Exception is expected all the time 
-    //-
+    // setFrame call (No exception is expected) //
 
       EXPECT_NO_THROW( calc.setFrame( DefinedFrametypes[n_frame].name ));
 
-    //+
-    // Durection Type 
-    //  converting to string form to compare.
-    //  output text must contain the specified KEY.
-    //-  
-
-         // Direction Type //
+    // Get Direction Typeby String  //
   
-       casacore::MDirection DirType  = calc.getDirectionType();
+      casacore::MDirection DirType  = calc.getDirectionType();
  
-          printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
-          printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
+      printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
+      printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
+   
+      String converted = DirType.toString();
+      String sub_str   = DefinedFrametypes[n_frame].name;
 
+    // GTEST :: Check SubString // 
         
-        String converted = DirType.toString();
-        String sub_str   = DefinedFrametypes[n_frame].name;
-
-        // GTEST :: Check SubString // 
-        
-    Description( "Checking frame sub-string. ",DirType.toString().c_str() );
+      Description( "Checking frame sub-string. ",DirType.toString().c_str() );
 
     // Some of them are not supported and throw Exception //
 
@@ -4150,26 +4210,22 @@ TEST_F(TestSetFrame, setFrame )
 
 }  // END namespace
 
-/************************************************
-   Unit Test Main (google test)
+/**********************************************************************
+ Unit Test Main (google test)
     - Based on instructed Template for GTest.
     - Such minimum statements are recommended.
-(Note) Interpolation Test completed 
 (History) 
--  12/7 Merged master (to get new CMakeList)
--  12/7 Added initialize (CAS-12114,old 11427-2)
- *************************************************/
+-  7-DEC-18: Merged master (to get new CMakeList)
+-  7-DEC-18: Added initialize (CAS-12114,old 11427-2)
+-  4-APR-19: Internal Feature freazed. 
+             Ommiteed some test conditions to finish within 3 min.
+ **********************************************************************/
 
 int main (int nArgs, char * args [])
  {
-
    // Initialize //
-
     ::testing::InitGoogleTest(& nArgs, args);
-
    // Run Test //
-
     return (RUN_ALL_TESTS()) ;
-
 }
 
