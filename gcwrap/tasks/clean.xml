@@ -19,8 +19,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <task type="function" name="clean" category="imaging">
 
   <shortdescription>Invert and deconvolve images with selected algorithm</shortdescription>
+<description>
+CLEAN WILL BE DEPRECATED IN THE NEAR FUTURE - PLEASE USE TCLEAN
+INSTEAD. 
 
-  <description>Form images from visibilities. Handles continuum and spectral line cubes.</description>
+All major functionality of clean is present in tclean via a modified
+interface along with additional algorithmic options.
+
+Task description: Form images from visibilities. Handles continuum and
+spectral line cubes.
+</description>
 
   <input>
 

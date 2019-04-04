@@ -23,6 +23,7 @@
 #include <mstransform/MSTransform/MSTransformManager.h>
 
 #include <mstransform/TVI/PolAverageTVI.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
 #include <limits>
 
@@ -182,6 +183,10 @@ void MSTransformManager::initialize()
 	polAverage_p = false;
 	polAverageConfig_p = Record();
 
+	// Pointings interpolation
+	pointingsInterpolation_p = false;
+	pointingsInterpolationConfig_p = Record();
+
 	// Weight Spectrum parameters
 	usewtspectrum_p = false;
 	spectrumTransformation_p = false;
@@ -313,6 +318,7 @@ void MSTransformManager::configure(Record &configuration)
 	parseUVContSubParams(configuration);
 	setSpwAvg(configuration);
 	parsePolAvgParams(configuration);
+	parsePointingsInterpolationParams(configuration);
 
 
 	return;
@@ -610,77 +616,77 @@ void MSTransformManager::parseDataSelParams(Record &configuration)
 // -----------------------------------------------------------------------
 void MSTransformManager::parseChanAvgParams(Record &configuration)
 {
-	int exists = -1;
+    int exists = -1;
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanaverage");
-	if (exists >= 0)
-	{
-		configuration.get (exists, channelAverage_p);
-		if (channelAverage_p)
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Channel average is activated" << LogIO::POST;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		return;
-	}
+    exists = -1;
+    exists = configuration.fieldNumber ("chanaverage");
+    if (exists >= 0)
+    {
+        configuration.get (exists, channelAverage_p);
+        if (channelAverage_p)
+        {
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Channel average is activated" << LogIO::POST;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else
+    {
+        return;
+    }
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanbin");
-	if (exists >= 0)
-	{
-		if ( configuration.type(exists) == casacore::TpInt )
-		{
-			Int freqbin;
-			configuration.get (exists, freqbin);
+    exists = -1;
+    exists = configuration.fieldNumber ("chanbin");
+    if (exists >= 0)
+    {
+        if ( configuration.type(exists) == casacore::TpInt )
+        {
+            Int freqbin;
+            configuration.get (exists, freqbin);
 
-			if (freqbin < 2)
-			{
-				logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-						<< "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
-				channelAverage_p = False;
-			}
-			else
-			{
-				freqbin_p = Vector<Int>(1,freqbin);
+            if (freqbin < 2)
+            {
+                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+						        << "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
+                channelAverage_p = False;
+            }
+            else
+            {
+                freqbin_p = Vector<Int>(1,freqbin);
 
-			}
-		}
-		else if ( configuration.type(exists) == casacore::TpArrayInt)
-		{
-		    if(combinespws_p)
-		        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-		                 << "If SPW combination is active, "
-		                 "chabin cannot be an array" << LogIO::EXCEPTION;
-		        
-			configuration.get (exists, freqbin_p);
-		}
-		else
-		{
-			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
-		}
+            }
+        }
+        else if ( configuration.type(exists) == casacore::TpArrayInt)
+        {
+            if(combinespws_p)
+                logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+                << "If SPW combination is active, "
+                "chabin cannot be an array" << LogIO::EXCEPTION;
 
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel bin is " << freqbin_p << LogIO::POST;
-	}
-	else
-	{
-		logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
-		channelAverage_p = false;
-		return;
-	}
+            configuration.get (exists, freqbin_p);
+        }
+        else
+        {
+            logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
+        }
 
-	// jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
-	/*
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel bin is " << freqbin_p << LogIO::POST;
+    }
+    else
+    {
+        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
+        channelAverage_p = false;
+        return;
+    }
+
+    // jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
+    /*
 	exists = configuration.fieldNumber ("useweights");
 	if (exists >= 0)
 	{
@@ -706,9 +712,9 @@ void MSTransformManager::parseChanAvgParams(Record &configuration)
 			useweights_p = String("flags");
 		}
 	}
-	*/
+     */
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -1262,6 +1268,14 @@ void MSTransformManager::parsePolAvgParams(Record &configuration)
   }
 }
 
+void MSTransformManager::parsePointingsInterpolationParams(casacore::Record &configuration){
+	String key("pointingsinterpolation");
+	Bool exists = configuration.isDefined(key);
+	if (exists) {
+		pointingsInterpolation_p = configuration.asBool(key);
+	}
+}
+
 // -----------------------------------------------------------------------
 // Method to open the input MS, select the data and create the
 // structure of the output MS filling the auxiliary tables.
@@ -1290,6 +1304,10 @@ void MSTransformManager::open()
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
 	
+
+	// Check whether the MS has correlator pre-averaging and we are smoothing or averaging
+	checkCorrelatorPreaveraging();
+
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -2012,360 +2030,361 @@ void MSTransformManager::initDataSelectionParams()
 {
     MSSelection mssel;
 
-	if (reindex_p)
-	{
-		if (!observationSelection_p.empty())
-		{
-			mssel.setObservationExpr(observationSelection_p);
-			Vector<Int> observationList = mssel.getObservationList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Observations Ids are " << observationList << LogIO::POST;
+    if (reindex_p)
+    {
+        if (!observationSelection_p.empty())
+        {
+            mssel.setObservationExpr(observationSelection_p);
+            Vector<Int> observationList = mssel.getObservationList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Observations Ids are " << observationList << LogIO::POST;
 
-			for (uInt index=0; index < observationList.size(); index++)
-			{
-				inputOutputObservationIndexMap_p[observationList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < observationList.size(); index++)
+            {
+                inputOutputObservationIndexMap_p[observationList(index)] = index;
+            }
+        }
 
-		if (!arraySelection_p.empty())
-		{
-			mssel.setArrayExpr(arraySelection_p);
-			Vector<Int> arrayList = mssel.getSubArrayList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Arrays Ids are " << arrayList << LogIO::POST;
+        if (!arraySelection_p.empty())
+        {
+            mssel.setArrayExpr(arraySelection_p);
+            Vector<Int> arrayList = mssel.getSubArrayList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Arrays Ids are " << arrayList << LogIO::POST;
 
-			for (uInt index=0; index < arrayList.size(); index++)
-			{
-				inputOutputArrayIndexMap_p[arrayList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < arrayList.size(); index++)
+            {
+                inputOutputArrayIndexMap_p[arrayList(index)] = index;
+            }
+        }
 
-		if (!scanSelection_p.empty())
-		{
-			mssel.setScanExpr(scanSelection_p);
-			Vector<Int> scanList = mssel.getScanList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Scans Ids are " << scanList << LogIO::POST;
+        if (!scanSelection_p.empty())
+        {
+            mssel.setScanExpr(scanSelection_p);
+            Vector<Int> scanList = mssel.getScanList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Scans Ids are " << scanList << LogIO::POST;
 
-			for (uInt index=0; index < scanList.size(); index++)
-			{
-				inputOutputScanIndexMap_p[scanList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < scanList.size(); index++)
+            {
+                inputOutputScanIndexMap_p[scanList(index)] = index;
+            }
+        }
 
-		if (!scanIntentSelection_p.empty())
-		{
-			mssel.setStateExpr(scanIntentSelection_p);
-			Vector<Int> scanIntentList = mssel.getStateObsModeList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Scans Intents Ids are " << scanIntentList << LogIO::POST;
+        if (!scanIntentSelection_p.empty())
+        {
+            mssel.setStateExpr(scanIntentSelection_p);
+            Vector<Int> scanIntentList = mssel.getStateObsModeList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Scans Intents Ids are " << scanIntentList << LogIO::POST;
 
-			for (uInt index=0; index < scanIntentList.size(); index++)
-			{
-				inputOutputScanIntentIndexMap_p[scanIntentList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < scanIntentList.size(); index++)
+            {
+                inputOutputScanIntentIndexMap_p[scanIntentList(index)] = index;
+            }
+        }
 
-		if (!fieldSelection_p.empty())
-		{
-			mssel.setFieldExpr(fieldSelection_p);
-			Vector<Int> fieldList = mssel.getFieldList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Fields Ids are " << fieldList << LogIO::POST;
+        if (!fieldSelection_p.empty())
+        {
+            mssel.setFieldExpr(fieldSelection_p);
+            Vector<Int> fieldList = mssel.getFieldList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Fields Ids are " << fieldList << LogIO::POST;
 
-			for (uInt index=0; index < fieldList.size(); index++)
-			{
-				inputOutputFieldIndexMap_p[fieldList(index)] = index;
-			}
-		}
-	}
+            for (uInt index=0; index < fieldList.size(); index++)
+            {
+                inputOutputFieldIndexMap_p[fieldList(index)] = index;
+            }
+        }
+    }
 
 
-	if (!spwSelection_p.empty())
-	{
-		mssel.setSpwExpr(spwSelection_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+    if (!spwSelection_p.empty())
+    {
+        mssel.setSpwExpr(spwSelection_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-		// Get the DD IDs of this spw selection
-		Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
+        // Get the DD IDs of this spw selection
+        Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
 
-		// Take into account the polarization selections
-		if (!polarizationSelection_p.empty()){
-			mssel.setPolnExpr(polarizationSelection_p.c_str());
-			Vector<Int> polddi = mssel.getDDIDList(inputMs_p);
-			if (polddi.size() > 0){
-				// make an intersection
-				Vector<Int> commonDDI = set_intersection(spwddi, polddi);
-				uInt nddids = commonDDI.size();
-				if (nddids > 0){
-					spwddi.resize(nddids);
-					for (uInt ii = 0; ii < nddids; ++ii){
-						spwddi[ii] = commonDDI[ii];
-					}
-				}
-			}
-		}
+        // Take into account the polarization selections
+        if (!polarizationSelection_p.empty()){
+            mssel.setPolnExpr(polarizationSelection_p.c_str());
+            Vector<Int> polddi = mssel.getDDIDList(inputMs_p);
+            if (polddi.size() > 0){
+                // make an intersection
+                Vector<Int> commonDDI = set_intersection(spwddi, polddi);
+                uInt nddids = commonDDI.size();
+                if (nddids > 0){
+                    spwddi.resize(nddids);
+                    for (uInt ii = 0; ii < nddids; ++ii){
+                        spwddi[ii] = commonDDI[ii];
+                    }
+                }
+            }
+        }
 
-		uInt nddi = spwddi.size();
-		Int ddid;
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Selected SPWs Ids are " << spwchan << LogIO::POST;
-		// Example of MS with repeated SPW ID in DD table:
-		// DD	POL		SPW
-		//	0	0		0 (RR)
-		//	1	1		0 (LL)
-		//	2	2		1 (RR,LL)
-		//	3	3		2 (RR,LL,RL,LR)
-		// example of selection: spw=0,1 correlation=RR, so selected DDs are
-		//	DD	POL		SPW
-		//	0	0		0
-		//	2	2		1
+        uInt nddi = spwddi.size();
+        Int ddid;
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Selected SPWs Ids are " << spwchan << LogIO::POST;
+        // Example of MS with repeated SPW ID in DD table:
+        // DD	POL		SPW
+        //	0	0		0 (RR)
+        //	1	1		0 (LL)
+        //	2	2		1 (RR,LL)
+        //	3	3		2 (RR,LL,RL,LR)
+        // example of selection: spw=0,1 correlation=RR, so selected DDs are
+        //	DD	POL		SPW
+        //	0	0		0
+        //	2	2		1
 
-		// Do the mapping of DD between input and output
-		if (reindex_p)
-		{
-			for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
-			{
-				// Get dd id and set the input-output dd map
-				// This will only be used to write the DD ids in the main table
-				ddid = spwddi[selection_ii];
-				inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
-			}
-		}
+        // Do the mapping of DD between input and output
+        if (reindex_p)
+        {
+            for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
+            {
+                // Get dd id and set the input-output dd map
+                // This will only be used to write the DD ids in the main table
+                ddid = spwddi[selection_ii];
+                inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
+            }
+        }
 
-	    IPosition shape = spwchan.shape();
-	    uInt nSelections = shape[0];
-		Int spw,channelStart,channelStop,channelStep,channelWidth;
-		if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
+        IPosition shape = spwchan.shape();
+        uInt nSelections = shape[0];
+        Int spw,channelStart,channelStop,channelStep,channelWidth;
+        if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
 
-		// Do the spw mapping between input and output
-		uInt outputSpwIndex = 0;
-		for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-		{
-			// Get spw id and set the input-output spw map
-			spw = spwchan(selection_i,0);
+        // Do the spw mapping between input and output
+        uInt outputSpwIndex = 0;
+        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
+        {
+            // Get spw id and set the input-output spw map
+            spw = spwchan(selection_i,0);
 
-			// Set the channel selection ()
-			channelStart = spwchan(selection_i,1);
-			channelStop = spwchan(selection_i,2);
-			channelStep = spwchan(selection_i,3);
-			channelWidth = channelStop-channelStart+1;
-			channelSelector_p->add (spw, channelStart, channelWidth,channelStep);
+            // Set the channel selection ()
+            channelStart = spwchan(selection_i,1);
+            channelStop = spwchan(selection_i,2);
+            channelStep = spwchan(selection_i,3);
+            channelWidth = channelStop-channelStart+1;
+            channelSelector_p->add (spw, channelStart, channelWidth,channelStep);
 
-			if (numOfSelChanMap_p.find(spw) == numOfSelChanMap_p.end())
-			{
-				if (reindex_p)
-				{
-					inputOutputSPWIndexMap_p[spw] = outputSpwIndex + ddiStart_p;
+            if (numOfSelChanMap_p.find(spw) == numOfSelChanMap_p.end())
+            {
+                if (reindex_p)
+                {
+                    inputOutputSPWIndexMap_p[spw] = outputSpwIndex + ddiStart_p;
 
-					outputInputSPWIndexMap_p[outputSpwIndex] = spw;
-				}
+                    outputInputSPWIndexMap_p[outputSpwIndex] = spw;
+                }
 
-				numOfSelChanMap_p[spw] = channelWidth;
+                numOfSelChanMap_p[spw] = channelWidth;
 
-				outputSpwIndex ++;
+                outputSpwIndex ++;
 
-				inputOutputChanIndexMap_p[spw].clear(); // Accesing the vector creates it
-			}
-			else
-			{
-				numOfSelChanMap_p[spw] += channelWidth;
-			}
+                inputOutputChanIndexMap_p[spw].clear(); // Accesing the vector creates it
+            }
+            else
+            {
+                numOfSelChanMap_p[spw] += channelWidth;
+            }
 
-			for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
-			{
-				inputOutputChanIndexMap_p[spw].push_back(inpChan);
-			}
-		}
-		
-	}
+            for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
+            {
+                inputOutputChanIndexMap_p[spw].push_back(inpChan);
+            }
+        }
+    }
 
-	// jagonzal: must fill numOfSelChanMap_p
-	else
-	{
-		spwSelection_p = "*";
-		mssel.setSpwExpr(spwSelection_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+    // jagonzal: must fill numOfSelChanMap_p
+    else
+    {
+        spwSelection_p = "*";
+        mssel.setSpwExpr(spwSelection_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-	    IPosition shape = spwchan.shape();
-	    uInt nSelections = shape[0];
-		Int spw,channelStart,channelStop,channelWidth;
-		for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-		{
-			// Get spw id and set the input-output spw map
-			spw = spwchan(selection_i,0);
+        IPosition shape = spwchan.shape();
+        uInt nSelections = shape[0];
+        Int spw,channelStart,channelStop,channelWidth;
+        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
+        {
+            // Get spw id and set the input-output spw map
+            spw = spwchan(selection_i,0);
 
-			// Set the channel selection ()
-			channelStart = spwchan(selection_i,1);
-			channelStop = spwchan(selection_i,2);
-			channelWidth = channelStop-channelStart+1;
-			numOfSelChanMap_p[spw] = channelWidth;
-		}
+            // Set the channel selection ()
+            channelStart = spwchan(selection_i,1);
+            channelStop = spwchan(selection_i,2);
+            channelWidth = channelStop-channelStart+1;
+            numOfSelChanMap_p[spw] = channelWidth;
+        }
 
-		// CAS-8631: Even w/o spw selection MSTransformDataHandler sets spws selection to *
-		//           in order to obtain the SPW-DDI list. It turns out that sometimes the
-		//           output DDI sub-table is resorted, for instance in case of non-monotonic
-		//           DDI-SPW relation,  therefore it is necessary to map input-output DDIS
-		if (reindex_p)
-		{
-			Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
+        // CAS-8631: Even w/o spw selection MSTransformDataHandler sets spws selection to *
+        //           in order to obtain the SPW-DDI list. It turns out that sometimes the
+        //           output DDI sub-table is resorted, for instance in case of non-monotonic
+        //           DDI-SPW relation,  therefore it is necessary to map input-output DDIS
+        if (reindex_p)
+        {
+            Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
 
-			Int ddid;
-			uInt nddi = spwddi.size();
-			for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
-			{
-				// Get dd id and set the input-output dd map
-				// This will only be used to write the DD ids in the main table
-				ddid = spwddi[selection_ii];
-				inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
-			}
-		}
+            Int ddid;
+            uInt nddi = spwddi.size();
+            for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
+            {
+                // Get dd id and set the input-output dd map
+                // This will only be used to write the DD ids in the main table
+                ddid = spwddi[selection_ii];
+                inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
+            }
+        }
 
-		spwSelection_p = "";
-	}
+        spwSelection_p = "";
+    }
 
-	// If we have channel average we have to populate the freqbin map
-	if (channelAverage_p)
-	{
-		if (!spwSelection_p.empty())
-		{
-			mssel.setSpwExpr(spwSelection_p);
-		}
-		else
-		{
-			mssel.setSpwExpr("*");
-		}
+    // If we have channel average we have to populate the freqbin map
+    if (channelAverage_p)
+    {
+        if (!spwSelection_p.empty())
+        {
+            mssel.setSpwExpr(spwSelection_p);
+        }
+        else
+        {
+            mssel.setSpwExpr("*");
+        }
 
-		//Vector<Int> spwList = mssel.getSpwList(inputMs_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+        //Vector<Int> spwList = mssel.getSpwList(inputMs_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-		// jagonzal (CAS-7149): Have to remove duplicates: With multiple pols per SPW
-		// each SPWId appears various (see times test_chanavg_spw_with_diff_pol_shape)
-		vector<Int> noDupSpwList;
-		for (uInt idx=0;idx < spwchan.nrow(); idx++)
-		{
-			if (find(noDupSpwList.begin(),noDupSpwList.end(),spwchan(idx,0)) == noDupSpwList.end())
-			{
-				noDupSpwList.push_back(spwchan(idx,0));
-			}
-		}
+        // jagonzal (CAS-7149): Have to remove duplicates: With multiple pols per SPW
+        // each SPWId appears various (see times test_chanavg_spw_with_diff_pol_shape)
+        vector<Int> noDupSpwList;
+        for (uInt idx=0;idx < spwchan.nrow(); idx++)
+        {
+            if (find(noDupSpwList.begin(),noDupSpwList.end(),spwchan(idx,0)) == noDupSpwList.end())
+            {
+                noDupSpwList.push_back(spwchan(idx,0));
+            }
+        }
 
-		//spwList.resize(noDupSpwList.size());
-		//for (uInt idx=0;idx < noDupSpwList.size(); idx++) spwList(idx) = noDupSpwList[idx];
-		Vector<Int> spwList = noDupSpwList;
+        //spwList.resize(noDupSpwList.size());
+        //for (uInt idx=0;idx < noDupSpwList.size(); idx++) spwList(idx) = noDupSpwList[idx];
+        Vector<Int> spwList = noDupSpwList;
 
-		if (freqbin_p.size() == 1)
-		{
-		    if(combinespws_p)
-		    {
-		        uInt spwAfterComb = 0;
-		        freqbinMap_p[spwAfterComb] = freqbin_p(spwAfterComb);
-		    }
-		    else
-		    {
-		        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-		        Int freqbin = freqbin_p(0);
-		        freqbin_p.resize(spwList.size(),True);
-		        freqbin_p = freqbin;
+        if (freqbin_p.size() == 1)
+        {
+            if(combinespws_p)
+            {
+                uInt spwAfterComb = 0;
+                freqbinMap_p[spwAfterComb] = freqbin_p(spwAfterComb);
+            }
+            else
+            {
+                // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                Int freqbin = freqbin_p(0);
+                freqbin_p.resize(spwList.size(),True);
+                freqbin_p = freqbin;
 
-		        for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
-		        {
-		            freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
+                {
+                    freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
 
-		            // jagonzal (new WEIGHT/SIGMA convention)
-		            // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
-		            if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
-		            {
-		                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-							     << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
-							     << " for SPW " << spwList(spw_i)
-							     << " is smaller than specified chanbin " << freqbin_p(0) << endl
-							     << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
-							     << " for SPW " << spwList(spw_i)
-							     << LogIO::POST;
-		                freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-		                newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-		                // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-		                freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
-		            }
-		            else
-		            {
-		                newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
-		            }
-		        }
-		    }
-		}
-		else
-		{
-			if (spwList.size() != freqbin_p.size())
-			{
-				logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-						<< "Number of frequency bins ( "
-						<< freqbin_p.size() << " ) different from number of selected spws ( "
-						<< spwList.size() << " )" << LogIO::POST;
-			}
-			else
-			{
-				for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
-				{
-					freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
-					// jagonzal (new WEIGHT/SIGMA convention)
-					// jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
-					if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
-					{
-						logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-								<< "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
-								<< " for SPW " << spwList(spw_i)
-								<< " is smaller than specified chanbin " << freqbin_p(spw_i) << endl
-								<< "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
-								<< " for SPW " << spwList(spw_i)
-								<< LogIO::POST;
-						newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-						// jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-						freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
-					}
-					else
-					{
-						newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(spw_i);
-					}
-				}
-			}
-		}
-	}
+                    // jagonzal (new WEIGHT/SIGMA convention)
+                    // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
+                    if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
+                    {
+                        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+							             << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
+							                                                                    << " for SPW " << spwList(spw_i)
+							                                                                    << " is smaller than specified chanbin " << freqbin_p(0) << endl
+							                                                                    << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
+							                                                                                                                  << " for SPW " << spwList(spw_i)
+							                                                                                                                  << LogIO::POST;
+                        freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                        freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
+                    }
+                    else
+                    {
+                        newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (spwList.size() != freqbin_p.size())
+            {
+                logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+						        << "Number of frequency bins ( "
+						        << freqbin_p.size() << " ) different from number of selected spws ( "
+						        << spwList.size() << " )" << LogIO::POST;
+            }
+            else
+            {
+                for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
+                {
+                    freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                    // jagonzal (new WEIGHT/SIGMA convention)
+                    // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
+                    if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
+                    {
+                        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+								        << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
+								                                                               << " for SPW " << spwList(spw_i)
+								                                                               << " is smaller than specified chanbin " << freqbin_p(spw_i) << endl
+								                                                               << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
+								                                                                                                             << " for SPW " << spwList(spw_i)
+								                                                                                                             << LogIO::POST;
+                        newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                        freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
+                    }
+                    else
+                    {
+                        newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                    }
+                }
+            }
+        }
+    }
 
-	if (!polarizationSelection_p.empty())
-	{
-		mssel.setPolnExpr(polarizationSelection_p.c_str());
-		Vector <Vector <Slice> > correlationSlices;
-		mssel.getCorrSlices(correlationSlices,inputMs_p);
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Selected correlations are " << correlationSlices << LogIO::POST;
+    if (!polarizationSelection_p.empty())
+    {
+        mssel.setPolnExpr(polarizationSelection_p.c_str());
+        Vector <Vector <Slice> > correlationSlices;
+        mssel.getCorrSlices(correlationSlices,inputMs_p);
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Selected correlations are " << correlationSlices << LogIO::POST;
 
-		if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
+        if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
 
-		channelSelector_p->addCorrelationSlices(correlationSlices);
+        channelSelector_p->addCorrelationSlices(correlationSlices);
 
-		// Get the DDs related to the polarization selection
-		// when there is no spw selection
-		if (spwSelection_p.empty() and reindex_p)
-		{
-			Vector<Int> polddids = mssel.getDDIDList(inputMs_p);
+        // Get the DDs related to the polarization selection
+        // when there is no spw selection
+        if (spwSelection_p.empty() and reindex_p)
+        {
+            std::vector<Int> polddids = mssel.getDDIDList(inputMs_p).tovector();
+            // The output from MSSelection might not be sorted
+            std::sort(polddids.begin(), polddids.end());
 
-			// Make the in/out DD mapping
-			uInt nddids = polddids.size();
-			Int dd;
-			for(uInt ii=0;ii<nddids;ii++)
-			{
-				// Get dd id and set the input-output dd map
-				dd = polddids[ii];
-				inputOutputDDIndexMap_p[dd] = ii + ddiStart_p;
-			}
+            // Make the in/out DD mapping
+            uInt nddids = polddids.size();
+            Int dd;
+            for(uInt ii=0;ii<nddids;ii++)
+            {
+                // Get dd id and set the input-output dd map
+                dd = polddids[ii];
+                inputOutputDDIndexMap_p[dd] = ii + ddiStart_p;
+            }
 
-		}
+        }
 
-	}
+    }
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -3022,10 +3041,24 @@ void MSTransformManager::separateSpwSubtable()
 						spwCols.dopplerId().put(rowIndex,spwCols.dopplerId()(0));
 					}
 
-					if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
-					{
-						spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
-					}
+                    if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
+                    {
+                        spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+                    {
+                        ScalarColumn<String> swfCol(spwTable, "SDM_WINDOW_FUNCTION");
+                        swfCol.put(rowIndex, swfCol(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+                    {
+                        ScalarColumn<Int> snbCol(spwTable, "SDM_NUM_BIN");
+                        snbCol.put(rowIndex, snbCol(0));
+                    }
 
 				}
 
@@ -4889,6 +4922,45 @@ void MSTransformManager::checkSPWChannelsKnownLimitation()
   }
 }
 
+/**
+ * Early check to issue a warning if the data was preaveraged
+ * by the correlator ans we are performing a further
+ * smoothing and average.
+ */
+void MSTransformManager::checkCorrelatorPreaveraging()
+{
+  std::string spwPreaveraged;
+  if (hanningSmooth_p || channelAverage_p)
+  {
+    auto spwTable = inputMs_p->spectralWindow();
+    ROMSSpWindowColumns spwColumns(spwTable);
+    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+    {
+      auto nrows = spwColumns.nrow();
+      auto effBWCol = spwColumns.effectiveBW();
+      auto chanWidthCol = spwColumns.chanWidth();
+      ScalarColumn<String> windowFunctionCol(spwTable, "SDM_WINDOW_FUNCTION");
+      ScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
+      for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
+      {
+        auto numBin =  numBinCol(spwIdx);
+        auto windowFunction = windowFunctionCol(spwIdx);
+        if(windowFunction != "UNKNOWN" && numBin != 1)
+          spwPreaveraged += std::to_string(spwIdx)+" ";
+      }
+    }
+  }
+
+  if(spwPreaveraged != "")
+    logger_p << LogIO::WARN<<LogOrigin("MSTransformManager", __func__) <<
+        "The data has already been preaveraged by the correlator but "
+        "further smoothing or averaging has been requested. "
+        "Preaveraged SPWs are: "<<spwPreaveraged<<LogIO::POST;
+}
+
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
@@ -5478,7 +5550,7 @@ void MSTransformManager::generateIterator()
 	if (interactive_p) isWritable = true;
 
 	// Prepare time average parameters (common for all cases)
-	vi::AveragingParameters *timeavgParams = NULL;
+	std::shared_ptr<vi::AveragingParameters> timeavgParams = nullptr;
 	if (timeAverage_p)
 	{
 		if (maxuvwdistance_p > 0)
@@ -5490,9 +5562,9 @@ void MSTransformManager::generateIterator()
 		{
 			timeAvgOptions_p |= vi::AveragingOptions::phaseShifting;
 		}
-
-		timeavgParams = new vi::AveragingParameters(timeBin_p, 0, vi::SortColumns(sortColumns_p, false),
-													timeAvgOptions_p, maxuvwdistance_p,NULL,isWritable,dx_p,dy_p);
+		timeavgParams = std::make_shared<vi::AveragingParameters>
+                    (timeBin_p, .0, vi::SortColumns(sortColumns_p, false),
+                     timeAvgOptions_p, maxuvwdistance_p, nullptr, isWritable, dx_p, dy_p);
 	}
 
 	// Calibrating VI
@@ -5557,7 +5629,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration file spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams.get()));
 			}
 	        // By callib Record
 	        else if (callibRec_p.nfields() > 0)
@@ -5566,7 +5638,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration record spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams.get()));
 			}
             else // scalar
             {
@@ -5590,6 +5662,11 @@ void MSTransformManager::generateIterator()
 			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
 			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
 			}
+			// Pointings Interpolator VI
+			else if (pointingsInterpolation_p) {
+			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+			}
 			// Plain VI
 			else
 			{
@@ -5610,11 +5687,16 @@ void MSTransformManager::generateIterator()
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(*timeavgParams, selectedInputMs_p));
 	}
-  // Polarization Averaging VI
-  else if (polAverage_p) {
-    visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
-        vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
-  }
+	// Polarization Averaging VI
+	else if (polAverage_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
+	// VI interpolating pointing directions
+	else if (pointingsInterpolation_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
 	// Plain VI
 	else
 	{

@@ -93,6 +93,7 @@ scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
 scripts/task_accor.py
 scripts/task_accum.py
+scripts/task_apparentsens.py
 scripts/task_applycal.py
 scripts/task_asdmsummary.py
 scripts/task_bandpass.py
@@ -175,6 +176,7 @@ scripts/task_plotweather.py
 scripts/task_plotprofilemap.py
 scripts/task_oldsplit.py
 scripts/task_polcal.py
+scripts/task_polfromgain.py
 scripts/task_predictcomp.py
 scripts/task_rerefant.py
 scripts/task_rmfit.py
@@ -186,6 +188,7 @@ scripts/task_sdfixscan.py
 scripts/task_sdgaincal.py
 scripts/task_sdimaging.py
 scripts/task_tsdimaging.py
+scripts/task_sdpolaverage.py
 scripts/task_sdsidebandsplit.py
 scripts/task_sdsmooth.py
 scripts/task_setjy.py

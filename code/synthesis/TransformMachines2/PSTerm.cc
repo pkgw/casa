@@ -43,10 +43,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		    const Vector<Double>& uvOffset,
 		    const Double& psScale)
   {
-    psCtor_p   = new ConvolveGridder<Double, Complex>(shape, uvScale, uvOffset, "SF");
+    shape_p = shape;
+    uvScale_p=uvScale;
+    uvOffset_p = uvOffset;
+    psScale_p = psScale;
+    
+    psCtor_p   = new ConvolveGridder<Double, Complex>(shape_p, uvScale_p, uvOffset_p, "SF");
     sampling_p = (*psCtor_p).cSupport();
     support_p  = (*psCtor_p).cSampling();
-    psScale_p=psScale;
+  }
+  void PSTerm::reinit(const IPosition shape, 
+		      const Vector<Double>& uvScale,
+		      const Vector<Double>& uvOffset,
+		      const Double& psScale)
+  {
+    if (shape.nelements() > 0) shape_p = shape;
+    if (uvScale.nelements() > 0) uvScale_p=uvScale;
+    if (uvOffset.nelements() > 0) uvOffset_p = uvOffset;
+    if (psScale > 0) psScale_p = psScale;
+    
+    psCtor_p   = new ConvolveGridder<Double, Complex>(shape_p, uvScale_p, uvOffset_p, "SF");
+    sampling_p = (*psCtor_p).cSupport();
+    support_p  = (*psCtor_p).cSampling();
   }
   //
   //-------------------------------------------------------------------------

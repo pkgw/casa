@@ -464,8 +464,8 @@ class SourceRow;
 	
  * <TR>
  * <TD> parallax</TD> 
- * <TD> std::vector<std::vector<Angle > > </TD>
- * <TD>  numFreq, 2  </TD>
+ * <TD> std::vector<Angle > </TD>
+ * <TD>  numFreq  </TD>
  * <TD>&nbsp; the sizes of source (one pair of values per frequency). </TD>
  * </TR>
 	

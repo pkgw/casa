@@ -36,14 +36,14 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 ConvolutionTVI::ConvolutionTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	// Parse and check configuration parameters
 	// Note: if a constructor finishes by throwing an exception, the memory
 	// associated with the object itself is cleaned up — there is no memory leak.
 	if (not parseConfiguration(configuration))
 	{
-		throw AipsError("Error parsing ChannelAverageTVI configuration");
+		throw AipsError("Error parsing ConvolutionTVI configuration");
 	}
 
 	initialize();
@@ -68,13 +68,13 @@ Bool ConvolutionTVI::parseConfiguration(const Record &configuration)
 		{
 			convCoeff_p.resize(0,false);
 			convCoeff_p = configuration.asArrayFloat( exists );
-			logger_p << LogIO::NORMAL << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			logger_p << LogIO::NORMAL << LogOrigin("ConvolutionTVI", __FUNCTION__)
 					<< "Kernel is " << convCoeff_p << LogIO::POST;
 		}
 		else
 		{
 			ret = false;
-			logger_p << LogIO::SEVERE << LogOrigin("ChannelAverageTVI", __FUNCTION__)
+			logger_p << LogIO::SEVERE << LogOrigin("ConvolutionTVI", __FUNCTION__)
 					<< "Wrong format of kernel parameter (only float/double/int arrays are supported) "
 					<< LogIO::POST;
 		}

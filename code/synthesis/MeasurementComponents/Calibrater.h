@@ -135,11 +135,11 @@ class Calibrater
                  const casacore::String& radius="",
                  const casacore::Bool smooth=true,
                  const casacore::Bool zerorates=false,
-       const casacore::Bool globalsolve=true,
-       const casacore::Int weightfactor=2,
-       const casacore::Int maxits=100,
+		 const casacore::Bool globalsolve=true,
        const casacore::Vector<casacore::Double>& delaywindow=casacore::Vector<casacore::Double>(), 
-       const casacore::Vector<casacore::Double>& ratewindow=casacore::Vector<casacore::Double>()
+       const casacore::Vector<casacore::Double>& ratewindow=casacore::Vector<casacore::Double>(),
+		 const casacore::String& solmode="",
+		 const casacore::Vector<casacore::Double>& rmsthresh=casacore::Vector<casacore::Double>()
 );
 
   // Arrange to solve for BPOLY (using casacore::MSSelection syntax)
@@ -368,7 +368,7 @@ class Calibrater
 
   // casacore::MSSelection object
   casacore::MSSelection* mss_p;
-  vi::FrequencySelections* frequencySelections_p;
+  std::shared_ptr<vi::FrequencySelections> frequencySelections_p;
 
   // Meta-info server for calibration
   MSMetaInfoForCal* msmc_p;

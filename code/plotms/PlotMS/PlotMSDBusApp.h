@@ -76,6 +76,10 @@ public:
     static const casacore::String PARAM_CLEARSELECTIONS; // bool
     static const casacore::String PARAM_DATACOLUMN_X; // String
     static const casacore::String PARAM_DATACOLUMN_Y; // String
+    static const casacore::String PARAM_FRAME_X; // String
+    static const casacore::String PARAM_FRAME_Y; // String
+    static const casacore::String PARAM_INTERP_X; // String
+    static const casacore::String PARAM_INTERP_Y; // String
     static const casacore::String PARAM_FILENAME; // String
     static const casacore::String PARAM_FLAGGING; // Record
     static const casacore::String PARAM_HEIGHT; // int or uInt
@@ -135,6 +139,8 @@ public:
     static const casacore::String PARAM_FLAGGEDSYMBOLCOLOR;   // string
     static const casacore::String PARAM_FLAGGEDSYMBOLFILL;    // string
     static const casacore::String PARAM_FLAGGEDSYMBOLOUTLINE; // bool
+    static const casacore::String PARAM_XCONNECTOR;    // string
+    static const casacore::String PARAM_TIMECONNECTOR; // bool
     
     
     // </group>

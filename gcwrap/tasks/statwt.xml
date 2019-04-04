@@ -42,6 +42,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value/>
             <example>"1"</example>
         </param>
+        <param type="string" name="scan" subparam="true">
+            <description>Select data by scan numbers.</description>
+            <value/>
+            <example>"5"</example>
+        </param>
         <param type="string" name="combine">
             <description>Ignore changes in these columns (scan, field, and/or state) when aggregating samples to compute weights. The value "corr" is also supported to aggregate samples across correlations.</description>
             <value/>
@@ -100,10 +105,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <example>10</example>
         </param>
         <param type="string" name="fitspw">
-                <description>Channels to include in the computation of weights. Specified as an MS select channel selection string.</description>
-                <value/>
-                <example>"0:5~30"</example>
-            </param>
+            <description>Channels to include in the computation of weights. Specified as an MS select channel selection string.</description>
+            <value/>
+            <example>"0:5~30"</example>
+        </param>
+        <param type="bool" name="excludechans">
+            <description>If True: invert the channel selection in fitspw and exclude the fitspw selection from the computation of the weights.</description>
+            <value>False</value>
+            <example>True</example>
+        </param>
         <param type="doubleArray" name="wtrange">
             <description>Range of acceptable weights. Data with weights outside this range will be flagged. Empty array (default) means all weights are good.</description>
             <value/>
@@ -132,6 +142,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                     <default param="observation"><value>""</value></default>
                     <default param="intent"><value>""</value></default>
                     <default param="array"><value>""</value></default>
+                    <default param="scan"><value>""</value></default>
                 </equals>
             </when>
             <when param="statalg">

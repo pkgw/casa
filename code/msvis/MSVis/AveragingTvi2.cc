@@ -2630,7 +2630,7 @@ void AveragingTvi2::writeFlag (const Cube<Bool> & flag)
 				{
 					for (uInt corr_i=0;corr_i<flagCubeMapped.shape()(0);corr_i++)
 					{
-						if (flag(corr_i,chan_i,index)) flagCubeMapped(corr_i,chan_i,row) = true;
+						flagCubeMapped(corr_i,chan_i,row) = flag(corr_i,chan_i,index);
 					}
 				}
 			}

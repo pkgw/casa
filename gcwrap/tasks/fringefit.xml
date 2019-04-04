@@ -103,11 +103,6 @@ Previous calibrations should be applied on the fly.
 		<value>True</value>
 	</param>
 
-   <param type="int" name="weightfactor">
-		<description>Exponent for weights in least-squares part of fringe-fitting</description>
-		<value>2</value>
-	</param>
-
    <param type="doubleArray" name="delaywindow">
 		<description>Constrain FFT delay search to a window; a two-element list, units of nanoseconds</description>
 		<value></value>
@@ -117,12 +112,7 @@ Previous calibrations should be applied on the fly.
 		<description>Constrain FFT rate search to a window; a two-element list, units of seconds per second</description>
 		<value></value>
 	</param>
-
-   <param type="int" name="maxits">
-		<description>Maximum number of iterations for least-squares solver</description>
-		<value>100</value>
-	</param>
-
+   
 	<param type="bool" name="append">
 		<description>Append solutions to the (existing) table</description>
 		<value>False</value>
@@ -312,7 +302,6 @@ Previous calibrations should be applied on the fly.
 
 		delaywindow -- Constrain FFT delay search to a window
       ratewindow -- Constrain FFT rate search to a window
-      weightfactor -- Choose exponent to apply to weights in
       least-squares routine. 0 => off, 1 => weight ^ -1, 2 => weight ^ -2
       
       --- Other calibrations to apply on the fly before determining

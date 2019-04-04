@@ -86,7 +86,7 @@ namespace Minim {
 
   Minimiser::Minimiser (Minim::Minimisable &pm) : 
     ModelDesc(pm),
-    iter(0) , m(pm) ,
+    /* iter(0) ,*/ m(pm) ,
     MonitorChi_stride(1) , 
     MonitorChi_cno(0)
   {

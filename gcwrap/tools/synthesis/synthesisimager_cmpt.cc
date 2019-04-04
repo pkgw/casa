@@ -292,7 +292,7 @@ synthesisimager::setimage(const std::string& imagename,
 			     const std::string& cfcache,//  = "",
 			     const bool dopointing,// = false,
 			     const bool dopbcorr,//   = true,
-			     const bool conjbeams,//  = true,
+			     const bool conjbeams,//  = false,
 			     const float computepastep,         //=360.0
 			     const float rotatepastep          //=5.0
 			     )
@@ -465,6 +465,24 @@ bool synthesisimager::setweighting(const std::string& type,
     }
     return rstat;
   }
+
+
+  casac::record* synthesisimager::apparentsens()
+  {
+    casac::record* rstat(0);
+    try{ 
+
+      itsImager = makeSI();
+      itsImager->makePSF();
+      rstat = fromRecord( itsImager->apparentSensitivity() );
+
+    } catch (AipsError x) { 
+      RETHROW(x);
+    }
+    return rstat;
+  }
+
+
 
   bool synthesisimager::drygridding(const std::vector<std::string>& cfList)
   {
@@ -681,22 +699,22 @@ int synthesisimager::updatenchan()
   return rstat;
 }
        
-  bool synthesisimager::getweightdensity()
+  string synthesisimager::getweightdensity()
   {
-    Bool rstat(false);
+    string rstat("");
     
     try {
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->getWeightDensity();
+      rstat=(itsImager->getWeightDensity());
       
     } catch  (AipsError x) {
       RETHROW(x);
     }
     return rstat;
   }
-  bool synthesisimager::setweightdensity()
+  bool synthesisimager::setweightdensity(const std::string& wgtdensity )
   {
     Bool rstat(false);
     
@@ -704,7 +722,7 @@ int synthesisimager::updatenchan()
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->setWeightDensity();
+      itsImager->setWeightDensity(wgtdensity);
       
     } catch  (AipsError x) {
       RETHROW(x);

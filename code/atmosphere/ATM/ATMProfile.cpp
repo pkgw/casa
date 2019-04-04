@@ -150,7 +150,7 @@ AtmProfile::AtmProfile(const Length &altitude,
   newBasicParam_ = true;
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,
@@ -224,7 +224,7 @@ AtmProfile::AtmProfile(const vector<Length> &v_layerBoundaries,
   initBasicAtmosphericParameterThresholds();
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,
@@ -304,7 +304,7 @@ AtmProfile::AtmProfile(const vector<Length> &v_layerBoundaries,
   initBasicAtmosphericParameterThresholds();
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,
@@ -343,7 +343,7 @@ AtmProfile::AtmProfile(const Length &altitude,
   initBasicAtmosphericParameterThresholds();
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,
@@ -385,7 +385,7 @@ AtmProfile::AtmProfile(const Length &altitude,
   initBasicAtmosphericParameterThresholds();
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,
@@ -433,7 +433,7 @@ AtmProfile::AtmProfile(const Length &altitude,
   initBasicAtmosphericParameterThresholds();
 }
 
-AtmProfile::AtmProfile(const Length &altitude,
+AtmProfile::AtmProfile(const Length &,
 		       const vector<Length> &v_layerThickness,
                        const vector<Pressure> &v_layerPressure,
                        const vector<Temperature> &v_layerTemperature,

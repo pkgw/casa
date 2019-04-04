@@ -246,7 +246,7 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     FJapp.setApplyParCurrSpw(fpar,true,false);  // don't invert
   }
   FringeJones FJsol(VisCalTestBase::msmc);
-  FJsol.setPrtlev(7);
+  // FJsol.setPrtlev(7);
   Record solvePar;
   solvePar.define("table",String("test.Fringe"));  // not used
   solvePar.define("solint",String("inf"));
@@ -255,7 +255,9 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   refant(IPosition(1, 0)) = 12;
   refant(IPosition(1, 1)) = 0;
   refant(IPosition(1, 2)) = 1;
-  cerr << "Refant " << refant << endl;
+  if (FRINGEJONES_TEST_VERBOSE) {
+      cerr << "Refant " << refant << endl;
+  }
   solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
   solvePar.define("weightfactor", 2);
@@ -331,6 +333,7 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     cerr << "delay2 results " << p(4,1) << endl;
     cerr << "rate1 results " << p(2,1) << endl;
     cerr << "rate2 results " << p(5,1) << endl;
+    cerr << "Parameters out: " << p << endl;
   }
   ASSERT_TRUE(allNearAbs(p(1, 1), delay1, 2e-2));
   ASSERT_TRUE(allNearAbs(p(4, 1), delay2, 2e-2));
@@ -339,6 +342,5 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   ASSERT_TRUE(allNearAbs(p(5, 1), rate2, 1e-5));
 
   ASSERT_TRUE(FJsol.refant()==0);
-  // cerr << "Parameters out: " << p << endl;
   
 }
