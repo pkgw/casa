@@ -103,12 +103,19 @@ public:
   void initResidWithModel();
   void finalizeResiduals();
 
+  // Manage working weights
+  void updateWorkingFlags();
+  void updateWorkingWeights(casacore::Bool, casacore::Float clamp=0.0);
+
   // Delete the workspaces
   void cleanUp();
 
+  // Return pol basis
+  casacore::String polBasis() const;
 
   // VB2-like data access methods (mostly const)
   casacore::Int nRows() const { return vb_->nRows(); };
+  casacore::Int nAntennas() const { return nAnt_; };  // stored on ctor
   const casacore::Vector<int>& observationId() const { return vb_->observationId(); };
   const casacore::Vector<casacore::Int>& arrayId() const { return vb_->arrayId(); };
   const casacore::Vector<casacore::Int>& antenna1() const { return vb_->antenna1(); };
@@ -120,7 +127,7 @@ public:
   const casacore::Vector<casacore::Double>& timeCentroid() const { return vb_->timeCentroid(); };
   const casacore::Vector<casacore::Int>& fieldId() const { return vb_->fieldId(); };
   casacore::Int nChannels() const { return vb_->nChannels(); };
-  const casacore::Vector<casacore::Double>& freqs() const { return freqs_; };
+  const casacore::Vector<casacore::Double>& freqs() const { return freqs_; };  // stored on ctor
   casacore::Int nCorrelations() const { return vb_->nCorrelations(); };
   const casacore::Cube<casacore::Complex>& visCubeModel() const { return vb_->visCubeModel(); };
   const casacore::Cube<casacore::Complex>& visCubeCorrected() const { return vb_->visCubeCorrected(); };
@@ -150,6 +157,17 @@ public:
   casacore::Cube<casacore::Complex>& infocusModelVisCube() { return infocusModelVisCube_p; };
   const casacore::Cube<casacore::Complex>& infocusModelVisCube() const {return infocusModelVisCube_p;};
 
+  // Working weights and flags
+  //  const versions return infocus versions if working versions are empty!
+  casacore::Cube<casacore::Float>& workingWtSpec() { return workingWtSpec_p;};
+  const casacore::Cube<casacore::Float>& const_workingWtSpec() const { return (workingWtSpec_p.nelements()==0 ? infocusWtSpec() : workingWtSpec_p); };
+  casacore::Cube<casacore::Bool>& workingFlagCube() { return workingFlagCube_p; };
+  const casacore::Cube<casacore::Bool>& const_workingFlagCube() const { return (workingFlagCube_p.nelements()==0 ? 
+										(residFlagCube_p.nelements()==0 ? 
+										 infocusFlagCube() : residFlagCube()) : workingFlagCube_p); };
+									       
+
+
   // Workspace for the residual visibilities
   casacore::Cube<casacore::Complex>& residuals() { return residuals_p; };
   const casacore::Cube<casacore::Complex>& residuals() const {return residuals_p;};
@@ -178,9 +196,17 @@ private:
   // The underlying VisBuffer2
   vi::VisBuffer2* vb_;
 
+  // The number of antennas 
+  casacore::Int nAnt_;
+
   // The frequencies
   //  Currently, assumed uniform over rows
   casacore::Vector<double> freqs_;
+
+  // The correlation types
+  //  Currently, assumed uniform over rows
+  //  (private; used only by polBasis, currently)
+  casacore::Vector<int> corrs_;
 
   // The feedPa
   //  Currently, assumed uniform (per antenna) over rows
@@ -201,9 +227,14 @@ private:
   casacore::Cube<casacore::Complex> infocusVisCube_p;
   casacore::Cube<casacore::Complex> infocusModelVisCube_p;
 
+  casacore::Cube<casacore::Bool> workingFlagCube_p;
+  casacore::Cube<casacore::Float> workingWtSpec_p;
+
   casacore::Cube<casacore::Complex> residuals_p;
   casacore::Cube<casacore::Bool> residFlagCube_p;
   casacore::Array<casacore::Complex> diffResiduals_p;
+
+
 };
 
 
@@ -234,10 +265,16 @@ public:
   double aggregateTime() const;
   double aggregateTimeCentroid() const;
 
+  // Return pol basis
+  casacore::String polBasis() const;
+
+  // How many antennas 
+  //   Currently, this insists on uniformity over all SDBs
+  int nAntennas() const;
+
   // How man correlations
   //   Currently, this insists on uniformity over all SDBs
   int nCorrelations() const;
-
 
   // How many data chans?
   //   Currently, this insists on uniformity over all SDBs
@@ -263,8 +300,18 @@ public:
   //  NB: disable for now, may not be needed...
   //  void divideCorrByModel();
 
+
+  // Manage working flags and weights
+  void updateWorkingFlags();
+  void updateWorkingWeights(casacore::Bool doL1=false,casacore::Float clamp=0.0);
+
   // Print out data, weights, flags for debugging purposes
   void reportData();
+  
+  // Extend baseline-dependent flags to all SDBs in the list
+  //  This uniformizes the baseline-dependent flags
+  //  NB: Cross-hands only, for now!
+  void extendBaselineFlags();
 
 private:
 

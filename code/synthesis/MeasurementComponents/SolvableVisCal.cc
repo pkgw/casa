@@ -158,6 +158,8 @@ SolvableVisCal::SolvableVisCal(VisSet& vs) :
   solved_(false),
   byCallib_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -227,6 +229,8 @@ SolvableVisCal::SolvableVisCal(String msname,Int MSnAnt,Int MSnSpw) :
   solved_(false),
   byCallib_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -298,6 +302,8 @@ SolvableVisCal::SolvableVisCal(const MSMetaInfoForCal& msmc) :
   solved_(False),
   byCallib_(False),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -364,6 +370,8 @@ SolvableVisCal::SolvableVisCal(const Int& nAnt) :
   minblperant_(4),
   solved_(false),
   apmode_(""),
+  solmode_(""),
+  rmsthresh_(0),
   usolint_("inf"),
   solint_("inf"),
   solTimeInterval_(DBL_MAX),
@@ -3515,6 +3523,17 @@ Record SolvableVisCal::actionRec() {
   return cf;
 }
 
+Record SolvableVisCal::solveActionRec() {
+
+  // Return empty record
+  //  TBD: consider returning various _generic_ info
+  //  NB: specialization may add particulars via merge
+  Record r;
+  return r;
+}
+
+
+
 
 
 void SolvableVisCal::smooth(Vector<Int>& fields,
@@ -3644,12 +3663,12 @@ void SolvableVisCal::calcParByCLPP() {
 
     if (freqDepPar()) {
       // Call w/ freq-dep
-      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),currFreq());
+      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),currFreq());
     }
     else {
       // Call w/ fiducial freq for phase-delay correction
       Double freq=1.0e9*currFreq()(currFreq().nelements()/2);
-      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),freq);
+      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),freq);
     }
     break;
   }
@@ -3657,10 +3676,10 @@ void SolvableVisCal::calcParByCLPP() {
     // Interpolate solution   
     if (freqDepPar()) {
       // Call w/ freq-dep
-      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),currFreq());
+      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),currFreq());
     }
     else {
-      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),-1.0);
+      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),-1.0);
     }
     break;
   }
@@ -3670,7 +3689,7 @@ void SolvableVisCal::calcParByCLPP() {
   }
 
   // TBD: signal failure to find calibration??  (e.g., for a spw?)
-  
+
   // Parameters now (or still) valid (independent of newcal!!)
   validateP();
 
@@ -4291,13 +4310,16 @@ void SolvableVisCal::stateSVC(const Bool& doVC) {
   cout << "  calTableName() = " << calTableName() << endl;
   cout << "  calTableSelect() = " << calTableSelect() << endl;
   cout << "  apmode() = " << apmode() << endl;
+  cout << "  phandonly() = " << phandonly() << endl;
   cout << "  tInterpType() = " << tInterpType() << endl;
   cout << "  fInterpType() = " << fInterpType() << endl;
   cout << "  spwMap() = " << spwMap() << endl;
   cout << "  refantmode() = " << refantmode() << endl;
   cout << "  refant() = " << refant() << endl;
   cout << "  refantlist() = " << refantlist() << endl;
-  
+  cout << "  solmode = " << solmode() << endl;
+  cout << "  rmsthresh = " << rmsthresh() << endl;
+
   cout << "  solveCPar().shape()   = " << solveCPar().shape() 
        << " (" << solveCPar().data() << ")" << endl;
   cout << "  solveRPar().shape()   = " << solveRPar().shape() 

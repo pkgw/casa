@@ -165,8 +165,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                   usePeakRes = itsMinorCyclePeakResidual; 
                 }
 		else{usePeakRes = itsPeakResidual; }
+
                 // for debugging, remove it later
-                os<<LogIO::DEBUG1<<"cleanComplete-- itsCycleThreshold="<<itsCycleThreshold<<LogIO::POST;
+                os<<LogIO::DEBUG1<<"cleanComplete-- itsCycleThreshold without itsThreshold limit="<<itsCycleThreshold<<LogIO::POST;
                 
 		//		cout << "itsMajorDone="<<itsMajorDone<<" itsIterDone="<<itsIterDone<< " itsInitPeakResidual="<<itsInitPeakResidual<<" itsPeakResidual="<<itsPeakResidual <<" itsPrevPeakResidual : " <<  itsPrevPeakResidual << " itsStopFlag="<<itsStopFlag<<endl;
 
@@ -177,9 +178,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  }
                 // for debugging, remove it later
                 os <<LogIO::DEBUG1<<"itsThreshold="<<itsThreshold<<" itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
-                os <<LogIO::DEBUG1<<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<LogIO::POST;
+                os <<LogIO::DEBUG1<<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<" itsPrevPeakRes="<<itsPrevPeakResidual<<LogIO::POST;
                 os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
-
 		/// This may interfere with some other criterion... check.
                 Float tol = 0.01; // threshold test torelance (CAS-11278)
 		if ( itsMajorDone==0 && itsIterDone==0 )

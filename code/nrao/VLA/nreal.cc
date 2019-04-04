@@ -189,7 +189,11 @@ int olopen_(int *unit_no, char *filename, int /*charCount*/)
       visDataFile = getTodaysFile(getVisDir(), visDataFile, 0);
       timeData = fopen("/home/vis-serv-mirror/vladata/lastdata", "r");
       if(timeData){
-        fscanf(timeData, "%ld %ld %zd", &lastMJAD, &lastTick, &lastOffset);
+#ifdef __APPLE__
+         fscanf(timeData, "%ld %ld %lld", &lastMJAD, &lastTick, &lastOffset);
+#else
+         fscanf(timeData, "%ld %ld %zd", &lastMJAD, &lastTick, &lastOffset);
+#endif
          MJAD = lastMJAD;
       }
       gethostname(iAm, 81);
@@ -284,11 +288,19 @@ int diskread_(int */*unit_no*/, char *buffer)
    /*free(tmTime);*/
    if(timeData){
       rewind(timeData);
+#ifdef __APPLE__
+      fscanf(timeData, "%ld %ld %lld", &MJAD, &lastTick, &lastOffset);
+#else
       fscanf(timeData, "%ld %ld %zd", &MJAD, &lastTick, &lastOffset);
+#endif
    }
    if(hostLog){
       rewind(hostLog);
+#ifdef __APPLE__
+      fprintf(hostLog, "%ld %ld %lld\n", MJAD, lastTick, lastOffset);
+#else
       fprintf(hostLog, "%ld %ld %zd\n", MJAD, lastTick, lastOffset);
+#endif
    }
    /* Now we check that we're at the end of file and try again after a bit */
    /* Double check there is enough data to read */
