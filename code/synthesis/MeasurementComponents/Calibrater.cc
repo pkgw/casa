@@ -790,7 +790,9 @@ Bool Calibrater::setsolve (const String& type,
                            const Bool zerorates,
                            const Bool globalsolve,
                            const Vector<Double>& delaywindow, 
-                           const Vector<Double>& ratewindow
+                           const Vector<Double>& ratewindow,
+			   const String& solmode,
+			   const Vector<Double>& rmsthresh
     )
 {
   
@@ -814,6 +816,8 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("cfcache", TpString);
   solveparDesc.addField ("painc", TpDouble);
   solveparDesc.addField ("fitorder", TpInt);
+  solveparDesc.addField ("solmode", TpString);
+  solveparDesc.addField ("rmsthresh", TpArrayDouble);
 
   // fringe-fit specific fields
   solveparDesc.addField ("zerorates", TpBool);
@@ -849,6 +853,8 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("globalsolve", globalsolve);
   solvepar.define ("delaywindow", delaywindow);
   solvepar.define ("ratewindow", ratewindow);
+  solvepar.define ("solmode", solmode);
+  solvepar.define ("rmsthresh", rmsthresh);
   
   
   String uptype=type;
@@ -3380,7 +3386,7 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       if (svc_p->useGenericSolveOne()) {
 
         // We'll use the generic solver                                                                                     
-        VisCalSolver2 vcs;
+        VisCalSolver2 vcs(svc_p->solmode(),svc_p->rmsthresh());
 
         // Guess from the data                                                                                              
         svc_p->guessPar(sdbs);

@@ -141,6 +141,8 @@ public:
   inline casacore::Vector<casacore::Int>& refantlist()     { return urefantlist_; };
   inline casacore::Int&         minblperant()    { return minblperant_; };
   inline casacore::String&      apmode()         { return apmode_; };
+  inline casacore::String&      solmode()        { return solmode_; };
+  inline casacore::Vector<casacore::Float>& rmsthresh()      { return rmsthresh_; };
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
@@ -615,6 +617,10 @@ private:
 
   // Solving mode
   casacore::String apmode_;
+
+  // Solver iteration mode
+  casacore::String solmode_;
+  casacore::Vector<casacore::Float> rmsthresh_;
 
   // User-specified full solint string
   casacore::String usolint_;

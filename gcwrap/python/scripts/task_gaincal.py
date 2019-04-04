@@ -10,7 +10,7 @@ def gaincal(vis=None,caltable=None,
 	    solint=None,combine=None,preavg=None,
 	    refant=None,refantmode=None,minblperant=None,
 	    minsnr=None,solnorm=None,normtype=None,
-	    gaintype=None,smodel=None,calmode=None,append=None,
+	    gaintype=None,smodel=None,calmode=None,solmode=None,rmsthresh=None,append=None,
 	    splinetime=None,npointaver=None,phasewrap=None,
 	    docallib=None,callib=None,
 	    gaintable=None,gainfield=None,interp=None,spwmap=None,
@@ -123,14 +123,15 @@ def gaincal(vis=None,caltable=None,
 				      minblperant=minblperant,
 				      solnorm=solnorm,normtype=normtype,
 				      minsnr=minsnr,table=caltable,
-				      apmode=calmode,phaseonly=phaseonly,append=append)
+				      apmode=calmode,solmode=solmode,rmsthresh=rmsthresh,
+				      phaseonly=phaseonly,append=append)
 		elif (gaintype=='T'):
 			mycb.setsolve(type='T',t=solint,combine=combine,preavg=preavg,
 				      refant=refant,refantmode=refantmode,
 				      minblperant=minblperant,
 				      solnorm=solnorm,normtype=normtype,
 				      minsnr=minsnr,table=caltable,
-				      apmode=calmode,phaseonly=phaseonly,append=append)
+				      apmode=calmode,solmode=solmode,rmsthresh=rmsthresh,phaseonly=phaseonly,append=append)
 		elif (gaintype=='K' or gaintype=='KCROSS' or gaintype=='XY+QU' or gaintype=='XYf+QU'):
 			mycb.setsolve(type=gaintype,t=solint,combine=combine,preavg=preavg,refant=refant,
 				      minblperant=minblperant,
