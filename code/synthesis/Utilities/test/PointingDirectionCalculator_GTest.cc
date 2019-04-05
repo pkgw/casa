@@ -148,8 +148,6 @@ private:
         {false, "sdimaging/selection_spw_unifreq.ms"    },
         {true, ".sis14_twhya_calibrated_flagged.ms"     },
         {true, ".sis14_twhya_calibrated_flagged-t.ms"   },
-        {true,  "sdimaging/hogehoge.ms"                 },
-        {true,  "sdimaging/hogehoge.ms"                 },  // Extra Hoge for self-degbug .
  
     };
 };
@@ -2135,7 +2133,7 @@ protected:
           uInt usingColumn_  = 0;         // used Column(ID) in this test.
 
         // Number of Devide Count   
-          const uInt  deltaTimeDivCount_     = 10;
+          const uInt  deltaTimeDivCount_     = 3;
         
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
@@ -2380,10 +2378,7 @@ std::vector<ParamList>  paramListS[] =
       {false, 0,2000, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
 
       {true,  0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
-      {false, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
-
-      {true,  0,1510, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.1E-08 },
-      {false, 0,1510, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  5.1E-08 },
+      {true,  0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  6.1E-08 },
 
     },
     // Senario 1 (Test Count Dependency) //
@@ -2828,7 +2823,8 @@ TEST_F(TestDirection, setDirectionColumn  )
     expectedNrow = pdc->getNrowForSelectedMS();
     EXPECT_NE((uInt)0, expectedNrow );
 
-    for( uInt n=0; n<2;n++ ) 	// 2 Times. run .../
+    uInt Count =1 ;		// Debug option to check memory leak etc. //
+    for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
     {
         for(size_t k=0; k < pColLis_.size(); k++)
         {     
