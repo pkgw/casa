@@ -99,10 +99,8 @@ namespace casa{
 
     casacore::Bool findSupport(casacore::Array<casacore::Complex>&, casacore::Float& ,casacore::Int&, casacore::Int&) 
     {throw(casacore::AipsError("IlluminationConvFunc::findSupport() not implemented"));};
-    /* virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /\*image*\/, */
-    /* 								  const VisBuffer2& /\*vb*\/, const casacore::Bool& /\*doPointing*\/) */
-    virtual casacore::Vector< casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
-								  const VisBuffer2& /*vb*/, const casacore::Bool& /*doPointing*/)
+    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
+					      const VisBuffer2& /*vb*/)
     {throw(casacore::AipsError("IlluminationConvFunc::findPointingOffset() not implemented"));};
     //virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VBRow2CFBMapType& /*theMap*/)
     virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VB2CFBMap& /*theMap*/)
@@ -121,6 +119,10 @@ namespace casa{
       {throw(casacore::AipsError("IlluminationConvFunc::makeAverageRes() called"));};
 
 		  
+    virtual casacore::Vector< casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
+								  const VisBuffer2& /*vb*/, const casacore::Bool& /*doPointing*/)
+    {throw(casacore::AipsError("IlluminationConvFunc::findPointingOffset() not implemented"));};
+
   private:
     ExpCache<CF_TYPE> ExpTable;
     CExp3<CF_TYPE> CExpTable;

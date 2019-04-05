@@ -58,7 +58,6 @@
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/EVLAAperture.h>
-//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 
 //#define CONVSIZE (1024*2)
 // #define OVERSAMPLING 2
@@ -136,7 +135,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							    const Bool aTermOn,
 							    const Bool psTermOn,
 							    const Bool wTermOn,
-							    const Bool mTermOn,
+							    const Bool,// mTermOn,
 							    const Bool wbAWP,
 							    const Bool conjBeams)
   {
@@ -157,10 +156,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CountedPtr<ConvolutionFunction> awConvFunc;
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
     //if ((ftmName=="mawprojectft") || (mTermOn))
-    // if (mTermOn)
-    //   awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-    // else
-    //   awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
 
     awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     return awConvFunc;
@@ -190,7 +185,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    //doPointing=1; 
+    doPointing=1; 
 
     maxConvSupport=-1;  
     //
@@ -1161,7 +1156,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (!paChangeDetector.changed(vb,0)) return;
     Int cfSource=CFDefs::NOTCACHED;
     CoordinateSystem ftcoords;
-    //Bool doPointing=false;
     // Think of a generic call to get the key-values.  And a
     // overloadable method (or an externally supplied one?) to convert
     // the values to key-ids.  That will ensure that AWProjectFT
@@ -1173,11 +1167,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     visResampler_p->setFreqMaps(expandedSpwFreqSel_p,expandedSpwConjFreqSel_p);
 
     lastPAUsedForWtImg = currentCFPA = pa;
-    // cerr <<"AWPFT:fCF doPointing: "<<doPointing<<endl;
-    
-    
-    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(image,vb,doPointing));
 
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(image,vb, doPointing));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
     // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
@@ -2462,7 +2453,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     vbs.conjBeams_p=conjBeams_p;
 
     //timer_p.mark();
-    //    cerr<<"AWP:setupVBStore doPointing:"<< doPointing<<endl;
+
     Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
@@ -2527,9 +2518,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // 					       vbSpw, vbFieldID))
       
 
+      // WRONG --  WE NEED NOT CALL THIS.  DELETE THIS?
+      //      vb2CFBMap_p->phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,(*vb2CFBMap_p)[0],vb,0);
 
+      // visResampler_p->setFieldPhaseGrad(vb2CFBMap_p->phaseGrad_p->getFieldPointingGrad());
 
-      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vbRow2CFBMap_p)[0],vb))
+      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vb2CFBMap_p)[0],vb))
       // 	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
     }
     //
@@ -2552,7 +2546,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 		 << endl;
     // 	  }
     visResampler_p->setVB2CFMap(vb2CFBMap_p);
-    visResampler_p->setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(0));
 
     
     // The following code is required only for GPU or multi-threaded

@@ -84,7 +84,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	wbAWP_p=false;
       }
     
-    // pixFieldGrad_p.resize(2);pixFieldGrad_p=0.0;
     pixFieldGrad_p.resize(2);pixFieldGrad_p(0)=0.0; pixFieldGrad_p(1)=0.0;
   }
 
@@ -139,22 +138,6 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //
   //----------------------------------------------------------------------
   //
-  Vector<Vector<Double> > AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
-						const VisBuffer2& vb, const Bool& doPointing)
-  {
-    Assert(po_p.null()==False && "Pointingoffset call has not been initialized in AWProjectFT call being made");
-        return po_p->findPointingOffset(image,vb,doPointing);
-    //    if (!doPointing) 
-    //      {cerr<<"AWCF: Using mosaic pointing \n";return po_p->findMosaicPointingOffset(image,vb);}
-    //    else
-    //      {cerr<<"AWCF: Using antenna pointing table \n";return po_p->findAntennaPointingOffset(image,vb);}
-  }
-
-
-    //
-    //---------------------------------------------------------------
-    //
-
   void AWConvFunc::makeConjPolAxis(CoordinateSystem& cs,
 				   Int conjStokes_in)
   {
@@ -2076,5 +2059,26 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     else os=psTerm.getOversampling();
     return os;
   }
+
+
+
+
+
+  //
+  //----------------------------------------------------------------------
+  //
+  Vector<Vector<Double> > AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
+						const VisBuffer2& vb, const Bool& doPointing)
+  {
+    Assert(po_p.null()==False && "Pointingoffset call has not been initialized in AWProjectFT call being made");
+        return po_p->findPointingOffset(image,vb,doPointing);
+    //    if (!doPointing) 
+    //      {cerr<<"AWCF: Using mosaic pointing \n";return po_p->findMosaicPointingOffset(image,vb);}
+    //    else
+    //      {cerr<<"AWCF: Using antenna pointing table \n";return po_p->findAntennaPointingOffset(image,vb);}
+  }
+
+
+
 };
 };

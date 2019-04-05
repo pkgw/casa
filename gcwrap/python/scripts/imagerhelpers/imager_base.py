@@ -96,7 +96,7 @@ class PySynthesisImager:
         exists=False;
         if (not (cfCacheName == '')):
             exists = (os.path.exists(cfCacheName) and os.path.isdir(cfCacheName));
-#        print "####dopointing",self.allgridpars["0"]["dopointing"];
+
         for fld in range(0,self.NF):
             #print "self.allimpars=",self.allimpars,"\n"
             self.SItool.defineimage( self.allimpars[str(fld)] , self.allgridpars[str(fld)] )

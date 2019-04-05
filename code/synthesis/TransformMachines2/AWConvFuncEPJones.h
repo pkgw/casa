@@ -30,6 +30,15 @@
 #define SYNTHESIS_TRANSFORM2_AWCONVFUNCEPJONES_H
 
 #include <synthesis/TransformMachines2/AWConvFunc.h>
+#include <coordinates/Coordinates/DirectionCoordinate.h>
+#include <synthesis/TransformMachines2/PSTerm.h>
+#include <synthesis/TransformMachines2/WTerm.h>
+#include <synthesis/TransformMachines2/ATerm.h>
+#include <images/Images/ImageInterface.h>
+#include <images/Images/TempImage.h>
+#include <casa/Logging/LogIO.h>
+#include <casa/Logging/LogSink.h>
+#include <casa/Logging/LogOrigin.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
   namespace refim{
@@ -43,12 +52,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      const casacore::CountedPtr<PSTerm> psTerm,
 		      const casacore::CountedPtr<WTerm> wTerm,
 		      const casacore::Bool wbAWP=false,
-		      const casacore::Bool conjPB=true):
+		      const casacore::Bool conjPB=casacore::True):
       AWConvFunc(ATerm,psTerm,wTerm,wbAWP, conjPB)
     {};
     ~AWConvFuncEPJones() {};
     AWConvFuncEPJones& operator=(const AWConvFuncEPJones& other);
 
+    // MosaicFT related
     virtual void makeConvFunction(const casacore::ImageInterface<casacore::Complex>& image,
 				  const VisBuffer2& vb,
 				  const casacore::Int wConvSize,

@@ -60,7 +60,6 @@
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 
 #include <synthesis/TransformMachines2/AWConvFunc.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/ATerm.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/VB2CFBMap.h>

@@ -326,9 +326,9 @@ using namespace casa::vi;
 						      const casacore::Float& diameter=25.0);
     // casacore::RigidVector<casacore::Int, 3> setParams(const casacore::Int& inu, const casacore::Int& iw, const casacore::Int& muellerElement,
     // 				  const casacore::TableRecord& miscInfo);
-    void setPointingOffset(const casacore::Vector<casacore::Vector<casacore::Double> > & offset) 
+    void setPointingOffset(const casacore::Vector<casacore::Vector<casacore::Double> >& offset) 
     {pointingOffset_p.assign(offset);};
-    casacore::Vector<casacore::Vector<casacore::Double> >getPointingOffset() {return pointingOffset_p;};
+    casacore::Vector<casacore::Vector<casacore::Double> > getPointingOffset() {return pointingOffset_p;};
     //
     // Also set the size of the CF in x and y.
     //
@@ -426,7 +426,7 @@ using namespace casa::vi;
     MuellerMatrixType muellerMask_p;
     
     casacore::Int nPol_p, nChan_p, nW_p, maxXSupport_p, maxYSupport_p;
-    casacore::Vector<casacore::Vector<casacore::Double> >pointingOffset_p;
+    casacore::Vector<casacore::Vector<casacore::Double> > pointingOffset_p;
     casacore::Cube<casacore::Int> cfHitsStats;
     casacore::Bool freqNdxMapsReady_p;
     casacore::Vector<casacore::Vector<casacore::Int> > freqNdxMap_p, conjFreqNdxMap_p;

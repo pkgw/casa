@@ -32,9 +32,9 @@
 #include <measures/Measures/MeasTable.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <synthesis/TransformMachines2/PointingOffsets.h>
-#include <casa/Logging/LogIO.h>
-#include <casa/Logging/LogSink.h>
-#include <casa/Logging/LogOrigin.h>
+// #include <casa/Logging/LogIO.h>
+// #include <casa/Logging/LogSink.h>
+// #include <casa/Logging/LogOrigin.h>
 
 using namespace casacore;
 namespace casa{
@@ -49,7 +49,6 @@ namespace casa{
       {
 	imageDC_p = other.imageDC_p;
 	imageObsInfo_p = other.imageObsInfo_p;
-	doPointing_p = other.doPointing_p;
       }
     return *this;
   }
@@ -145,6 +144,26 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
+  Vector< Vector<Double> > PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
+						   const VisBuffer2& vb, const Bool doPointing)
+  {
+    setDoPointing(doPointing);
+    if (!doPointing) 
+      { 
+	
+	return findMosaicPointingOffset(image,vb,doPointing);
+	
+			
+      }
+    else 
+      {
+	return findAntennaPointingOffset(image,vb,doPointing);
+	
+      }
+  }
+  //
+  //----------------------------------------------------------------------
+  //
   Vector<double> PointingOffsets::gradPerPixel(const Vector<double>& p)
   {
     Vector<double> gPP(2);
@@ -165,26 +184,26 @@ namespace casa{
   {
     thePix_p.resize(2);
 
-     //    if(dc_p.directionType() !=  MDirection::castType(vb.direction1()(0).getRef().getType())){
-    if(dc_p.directionType() !=  MDirection::castType(dir1.getRef().getType()))
-      {
-      //pointToPix_p.setModel(theDir);
+    // //    if(dc_p.directionType() !=  MDirection::castType(vb.direction1()(0).getRef().getType())){
+    // if(dc_p.directionType() !=  MDirection::castType(dir1.getRef().getType()))
+    //   {
+    //   //pointToPix_p.setModel(theDir);
       
-      MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
-      //cout << "Ref " << vb.direction1()(0).getRefString() << " ep "
-      //<< timenow.getRefString() << " time " <<
-      //MVTime(timenow.getValue().getTime()).string(MVTime::YMD) <<
-      //endl;
-      pointFrame_p.resetEpoch(timenow);
-      //////////////////////////
-      //pointToPix holds pointFrame_p by reference...
-      //thus good to go for conversion
-      direction1_p=pointToPix_p(dir1);
-      direction2_p=pointToPix_p(dir2);
-      dc_p.toPixel(thePix_p, direction1_p);
+    //   MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
+    //   //cout << "Ref " << vb.direction1()(0).getRefString() << " ep "
+    //   //<< timenow.getRefString() << " time " <<
+    //   //MVTime(timenow.getValue().getTime()).string(MVTime::YMD) <<
+    //   //endl;
+    //   pointFrame_p.resetEpoch(timenow);
+    //   //////////////////////////
+    //   //pointToPix holds pointFrame_p by reference...
+    //   //thus good to go for conversion
+    //   direction1_p=pointToPix_p(dir1);
+    //   direction2_p=pointToPix_p(dir2);
+    //   dc_p.toPixel(thePix_p, direction1_p);
 
-     }
-    else
+    // }
+    // else
       {
       direction1_p=dir1;
       direction2_p=dir2;
@@ -198,24 +217,6 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  Vector< Vector<Double> > PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
-						   const VisBuffer2& vb, const Bool doPointing)
-  {
-    setDoPointing(doPointing);
-    if (!doPointing) 
-      { 
-	
-	return findMosaicPointingOffset(image,vb,doPointing);
-	
-			
-      }
-    else 
-      {
-	return findAntennaPointingOffset(image,vb,doPointing);
-	
-      }
-  }
-
   void PointingOffsets::storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage,
 					 const VisBuffer2& vb) 
   {

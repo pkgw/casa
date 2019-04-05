@@ -49,7 +49,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PhaseGrad
   {
   public:
-    PhaseGrad():field_phaseGrad_p(), antenna_phaseGrad_p(), cachedCFBPtr_p(NULL), maxCFShape_p(2,0)
+    PhaseGrad():field_phaseGrad_p(), antenna_phaseGrad_p(), cachedCFBPtr_p(NULL), maxCFShape_p(2)
     {cached_FieldOffset_p[0] = cached_FieldOffset_p[1] = cached_AntennaOffset_p[0] = cached_AntennaOffset_p[1] = 0;}
 
     ~PhaseGrad() {};
@@ -67,7 +67,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				  const casacore::CountedPtr<CFBuffer>& cfb,
 				  const vi::VisBuffer2& vb,
 				  const int& row);
-    
     // bool ComputeFieldPointingGrad(const casacore::Vector<double>& pointingOffset,
     // 				  const casacore::Vector<int>&cfShape,
     // 				  const casacore::Vector<int>& convOrigin,

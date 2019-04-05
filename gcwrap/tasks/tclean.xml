@@ -815,7 +815,6 @@ HPX HEALPix grid.  -->
 	      <value>imagemosaic</value>
 	      <value>awproject</value>
 	      <value>awprojectft</value>
-	      <value>awp</value>
 	    </allowed>
     </param>
 
@@ -936,7 +935,7 @@ HPX HEALPix grid.  -->
 </description>
 	    <value type="bool">False</value>
     </param>
-    <param type="bool" name="mosweight" subparam="false">
+    <param type="bool" name="mosweight" subparam="true">
            <shortdescription>Indepently weight each field in a mosaic</shortdescription>
 <description>When doing Brigg's style weighting (including uniform) to perform the weight density calculation for each field indepedently if True. If False the weight density is calculated from the average uv distribution of all the fields.
 </description>
@@ -2609,6 +2608,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
 	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
 	 <default param="mosweight"><value>False</value></default>
@@ -2624,20 +2624,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 	 <default param="rotatepastep"><value>360.0</value></default>
 	 <default param="wbawp"><value>False</value></default>
 	 <default param="mosweight"><value>False</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
-	 <default param="dopointing"><value>False</value></default>
-       </equals>
-       <equals type="string" value="awp">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="psterm"><value>False</value></default>
-	 <default param="aterm"><value>True</value></default>
-	 <default param="cfcache"><value>""</value></default>
-	 <default param="computepastep"><value>360.0</value></default>
-	 <default param="rotatepastep"><value>360.0</value></default>
-	 <default param="wbawp"><value>False</value></default>
-	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
 	 <default param="dopointing"><value>False</value></default>

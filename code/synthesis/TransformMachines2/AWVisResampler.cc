@@ -362,7 +362,7 @@ namespace casa{
 					const Int& spwID, const Int& fieldId)
   {
     //cout << "# " << cfRefFreq << " " << imRefFreq << endl;
-    cerr << pointingOffset << " " << cached_PointingOffset_p << endl;
+    //cerr << pointingOffset << " " << cached_PointingOffset_p << endl;
 
     if (
     	((fabs(pointingOffset[0]-cached_PointingOffset_p[0])) > 1e-6) ||
@@ -448,8 +448,9 @@ namespace casa{
     Complex phasor, nvalue, wt;
     Complex norm;
     Vector<Int> cfShape;
-    // cfShape=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
-    Vector<Int> convOrigin;// = (cfShape)/2;
+    cfShape=(*vb2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
+
+    Vector<Int> convOrigin = (cfShape)/2;
     Double cfRefFreq;
     //    Double cfScale=1.0;
 
@@ -480,8 +481,7 @@ namespace casa{
 
     Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
     Double fIncr, wIncr;
-    //    CFBuffer& cfb = (*(*vbRow2CFBMap_p)[0]);
-
+    CFBuffer& cfb = (*(*vb2CFBMap_p)[0]);
     // CFBStruct cfbst;
     // cfb.getAsStruct(cfbst);
     // for(int ii=0;ii<vbs.cfBSt_p.shape[0];ii++)
@@ -498,8 +498,8 @@ namespace casa{
 
 
 
-    // cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
-    // Vector<Double> pointingOffset(cfb.getPointingOffset());
+    cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
+    Vector<Vector<Double> > pointingOffset(cfb.getPointingOffset());
     //    runTimeG1_p += timer_p.real();
 
     nw = wVals.nelements();
@@ -530,10 +530,10 @@ namespace casa{
 	endChan = nDataChan;
       }
 
-   // Bool finitePointingOffsets=(
-   // 			      (fabs(pointingOffset(0))>0) ||  
-   // 			      (fabs(pointingOffset(1))>0)
-   // 			      );
+   Bool finitePointingOffsets=(
+			       (fabs(pointingOffset(0)(0))>0) ||  
+			       (fabs(pointingOffset(0)(1))>0)
+			      );
    //   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();
@@ -544,20 +544,12 @@ namespace casa{
    for(Int irow=rbeg; irow< rend; irow++){   
       //      if ((vbs.uvw_p.nelements() == 0)) 
       //if (accumCFs) if (allTrue(allPolNChanDone_l)) break;
-    CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
-    setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
-    // if (cached_phaseGrad_p.shape().product()==0)
-    //   cerr << "#### " << irow << " " << endl;
-    cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
-    Vector<Vector<Double> > pointingOffset(cfb.getPointingOffset());
       
-   Bool finitePointingOffsets=(
-			       (fabs(pointingOffset(0)(0))>0) ||  
-			       (fabs(pointingOffset(0)(1))>0)
-			      );
-
       if(!(*(rowFlag_ptr+irow)))
 	{   
+	  //	  setFieldPhaseGrad(vb2CFBMap_p->phaseGradCalculator_p->getFieldPointingGrad());
+	  setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
+	  cfb = (*(*vb2CFBMap_p)[irow]);
 	  for(Int ichan=startChan; ichan< endChan; ichan++)
 	    {
 	      if (*(imgWts_ptr + ichan+irow*nDataChan)!=0.0) 
@@ -734,11 +726,11 @@ namespace casa{
     
     Vector<Complex> norm(4,0.0);
     Complex phasor, nvalue;
-    Vector<Int> cfShape;//=(*vbRow2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
-    Vector<Int> convOrigin;// = (cfShape)/2;
-
-    Vector<Vector<Double> >pointingOffset(((*vb2CFBMap_p)[0])->getPointingOffset());
-
+    Vector<Int> cfShape=(*vb2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
+    Vector<Vector<Double> > pointingOffset(((*vb2CFBMap_p)[0])->getPointingOffset());
+    
+    //    Vector<Int> convOrigin = (cfShape-1)/2;
+    Vector<Int> convOrigin = (cfShape)/2;
     Double cfRefFreq;//cfScale=1.0
     //    Int wndx = 0, fndx=0;
     
@@ -789,10 +781,9 @@ namespace casa{
 
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
-	//	CFBuffer& cfb = (*(*vbRow2CFBMap_p)[irow]);
-	CFBuffer& cfb = *(vb2CFBMap_p->getCFB(0));
+	//setFieldPhaseGrad(vb2CFBMap_p->phaseGradCalculator_p->getFieldPointingGrad());
 	setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
-
+	CFBuffer& cfb = (*(*vb2CFBMap_p)[irow]);
 	Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
 	Double fIncr, wIncr;
 	cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);

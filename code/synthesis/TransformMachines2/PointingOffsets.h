@@ -44,7 +44,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PointingOffsets 
   {
   public:
-    PointingOffsets(const int& convOversampling):epJ_p(),doPointing_p(false)  {convOversampling_p = convOversampling;}
+    PointingOffsets(const int& convOversampling):epJ_p(), doPointing_p(false)  {convOversampling_p = convOversampling;}
     ~PointingOffsets() {};
     PointingOffsets& operator=(const PointingOffsets& other);
 
@@ -58,14 +58,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 								  const vi::VisBuffer2& vb, const casacore::Bool doPointing=false);
 
-    //casacore::Vector<double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-    //						const vi::VisBuffer2& vb);
-
     casacore::Vector<double> gradPerPixel(const casacore::Vector<double>& p);
     casacore::Vector<casacore::Double>& toPix(const vi::VisBuffer2& vb, 
 					      const casacore::MDirection& dir1, const casacore::MDirection& dir2);
     void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage, const vi::VisBuffer2& vb);
+
     void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
+
   private:
 
     casacore::Vector<double> thePix_p, pixFieldGrad_p;
@@ -82,6 +81,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::MDirection direction2_p;
     casacore::CountedPtr<SolvableVisJones> epJ_p;
     bool doPointing_p;
+
   };
   //
   //-------------------------------------------------------------------------------------------
