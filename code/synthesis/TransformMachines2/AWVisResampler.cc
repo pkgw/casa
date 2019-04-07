@@ -448,9 +448,9 @@ namespace casa{
     Complex phasor, nvalue, wt;
     Complex norm;
     Vector<Int> cfShape;
-    cfShape=(*vb2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
+    // cfShape=(*vb2CFBMap_p)[0]->getStorage()(0,0,0)->getStorage()->shape().asVector();
 
-    Vector<Int> convOrigin = (cfShape)/2;
+    Vector<Int> convOrigin;// = (cfShape)/2;
     Double cfRefFreq;
     //    Double cfScale=1.0;
 
@@ -482,6 +482,7 @@ namespace casa{
     Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
     Double fIncr, wIncr;
     CFBuffer& cfb = (*(*vb2CFBMap_p)[0]);
+    bool finitePointingOffsets=cfb.finitePointingOffsets();
     // CFBStruct cfbst;
     // cfb.getAsStruct(cfbst);
     // for(int ii=0;ii<vbs.cfBSt_p.shape[0];ii++)
@@ -499,7 +500,7 @@ namespace casa{
 
 
     cfb.getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
-    Vector<Vector<Double> > pointingOffset(cfb.getPointingOffset());
+    //    Vector<Vector<Double> > pointingOffset(cfb.getPointingOffset());
     //    runTimeG1_p += timer_p.real();
 
     nw = wVals.nelements();
@@ -530,10 +531,10 @@ namespace casa{
 	endChan = nDataChan;
       }
 
-   Bool finitePointingOffsets=(
-			       (fabs(pointingOffset(0)(0))>0) ||  
-			       (fabs(pointingOffset(0)(1))>0)
-			      );
+   // Bool finitePointingOffsets=(
+   // 			       (fabs(pointingOffset(0)(0))>0) ||  
+   // 			       (fabs(pointingOffset(0)(1))>0)
+   // 			      );
    //   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();

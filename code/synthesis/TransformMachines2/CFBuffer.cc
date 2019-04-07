@@ -712,8 +712,16 @@ namespace casa{
     
     return maxCFSize_p;
   }
+  //
+  //----------------------------------------------------------------------
+  //
+  bool CFBuffer::finitePointingOffsets()
+  {
+    return ((fabs(pointingOffset_p(0)(0))>0) ||  
+	    (fabs(pointingOffset_p(0)(1))>0));
 
-
+  }
+  
 } // end casa namespace
 
 

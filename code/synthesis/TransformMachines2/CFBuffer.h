@@ -408,6 +408,7 @@ using namespace casa::vi;
     casacore::IPosition getShape() {return cfCells_p.shape();}
 
     int getMaxCFSize();
+    bool finitePointingOffsets();
     //
     //============================= Protected Parts ============================
     //------------------------------------------------------------------
