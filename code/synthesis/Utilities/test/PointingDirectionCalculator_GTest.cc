@@ -619,7 +619,7 @@ public:
         Double interval;
         Double relativeTime;
     
-        std::pair<Double,Double> position[5];
+        std::pair<Double,Double> position[PointingDirectionCalculator::PtColID::nItems];
 
     } PseudoPointingData;
  
@@ -849,8 +849,10 @@ void TuneMSConfig::Initialize( )
 
 TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime)
 {
+        uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
+
         casacore::Vector<Double> point;
-        point.resize(5);
+        point.resize(DirColCount);
 
         PseudoPointingData  point2; 
 
@@ -881,8 +883,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         // Designed Function of POINITNG location
         //-
 
-        Double X2[5] = {}; // all clear
-        Double Y2[5] = {}; // all clear 
+        Double X2[DirColCount] = {}; // all clear
+        Double Y2[DirColCount] = {}; // all clear 
       
         //+ 
         //  Trajectory Function execution
@@ -890,16 +892,20 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         //-
 
         // prepare five sets // 
-
+#if 0
         TrajectoryFunction::getInstance().calc( r_time__, X2[0], Y2[0] );
         TrajectoryFunction::getInstance().calc( r_time__, X2[1], Y2[1] );
         TrajectoryFunction::getInstance().calc( r_time__, X2[2], Y2[2] );
         TrajectoryFunction::getInstance().calc( r_time__, X2[3], Y2[3] );
         TrajectoryFunction::getInstance().calc( r_time__, X2[4], Y2[4] );
-
+#else
+        for(uInt n=0;n<DirColCount;n++) {
+            TrajectoryFunction::getInstance().calc( r_time__, X2[n], Y2[n] );
+        }
+#endif 
         // Probe the range //
 
-        for(uInt n=0;n<5;n++) {
+        for(uInt n=0;n<DirColCount;n++) {
 	    assert( abs(X2[n]) <=  M_PI );
             assert( abs(Y2[n]) <=  M_PI/2.0 );
         }
@@ -912,7 +918,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         point2.relativeTime = r_time__;  
 
         // Five different output values. //
-        for(uInt n=0;n<5;n++) {
+        for(uInt n=0;n<DirColCount;n++) {
             point2.position[n] = make_pair(X2[n],Y2[n]);
         }        
 
@@ -1635,6 +1641,7 @@ void  MsEdit::writePseudoOnPointing()
     //+
 
     //  uInt N = pT.getNrow();
+    uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
     for (uInt ant=0; ant < tuneMS.getMaxOfAntenna() ; ant++ )
     {
             for (uInt row=0; row < LoopCnt; row++)
@@ -1655,7 +1662,7 @@ void  MsEdit::writePseudoOnPointing()
                   Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
                   Vector< Array<Double>  > Dir5;
-                  Dir5.resize(5);
+                  Dir5.resize(DirColCount);
 
                 // Calculate Pseudo-Direction based on timeOnPoint //
 
@@ -1667,7 +1674,7 @@ void  MsEdit::writePseudoOnPointing()
                     //+
                     // Test Pattern Data 
                     //-
-                    for(uInt cno=0; cno<5; cno++)
+                    for(uInt cno=0; cno<DirColCount; cno++)
                     {   
                         // const value ..// 
                           direction[0][0] = 0.1 + 0.1 * (Double)cno  ;
@@ -1677,7 +1684,7 @@ void  MsEdit::writePseudoOnPointing()
                 }
                 else  // Ordinary cases... // 
                 {
-                    for(uInt cno=0; cno<5; cno++)
+                    for(uInt cno=0; cno<DirColCount; cno++)
                     {
                        // Add offset 
                           direction[0][0] = psd_data.position[cno].first  ;
@@ -1690,11 +1697,11 @@ void  MsEdit::writePseudoOnPointing()
                 //+
                 // write to Column 
                 //-
-                pT.putDirection      (rowA, Dir5[0] );
-                pT.putTarget         (rowA, Dir5[1] );
-                pT.putPointingOffset (rowA, Dir5[2] );
-                pT.putSourceOffset   (rowA, Dir5[3] );
-                pT.putEncoder        (rowA, Dir5[4] );
+                pT.putDirection      (rowA, Dir5[PointingDirectionCalculator::PtColID::DIRECTION] );
+                pT.putTarget         (rowA, Dir5[PointingDirectionCalculator::PtColID::TARGET] );
+                pT.putPointingOffset (rowA, Dir5[PointingDirectionCalculator::PtColID::POINTING_OFFSET] );
+                pT.putSourceOffset   (rowA, Dir5[PointingDirectionCalculator::PtColID::SOURCE_OFFSET] );
+                pT.putEncoder        (rowA, Dir5[PointingDirectionCalculator::PtColID::ENCODER] );
 
                 //+ 
                 // New Time (shifted)  (this  activates interporation)
@@ -2496,7 +2503,7 @@ TEST_F(TestDirection, InterpolationSingle )
     // define Number of Antenna prepeared in MS //
     // =TUNABLE
       setMaxAntenna(1);         // more than zero 
-      setMaxPointingColumns(5); // from 1 to 5 
+      setMaxPointingColumns(4); // from 1 to 5 (see  PtColID::nItems;) 
 
     // set Examination Condition (revised by CAS-8418) //
 
@@ -2554,7 +2561,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     // define Number of Antenna prepeared in MS //
 
       setMaxAntenna(3);
-      setMaxPointingColumns(5);
+      setMaxPointingColumns(PointingDirectionCalculator::PtColID::nItems);
 
     // set Examination Condition  //
 
@@ -2982,7 +2989,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
         FunctionalDescription("BUG-TEST by assert()" , "setDirectionColumn+ getDirection, without setMovingSource");
 
 
-        for(uInt k=0; k<5; k++)
+        for(uInt k=0; k<PointingDirectionCalculator::PtColID::nItems; k++)
         {
             Description("Column Name" , pColLis_.name(k) );
             EXPECT_NO_THROW( calc.setDirectionColumn( pColLis_.name(k) ) );

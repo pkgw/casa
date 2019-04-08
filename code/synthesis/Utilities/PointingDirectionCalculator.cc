@@ -31,6 +31,8 @@
 #include <iomanip>
 
 #include <synthesis/Utilities/PointingDirectionCalculator.h>
+#include <memory>  // for unique_ptr<> 
+#include <utility> // for std::pair
 
 #include <casa/aipstype.h>
 #include <casa/Exceptions/Error.h>
@@ -161,8 +163,8 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
       /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
-      /*CAS-8418*/ initializeReady_(5,false),           // Spline initialization Ready
-      /*CAS-8418*/ coefficientReady_(5,false),          // Spline Coefficient Ready
+      /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
+      /*CAS-8418*/ coefficientReady_(PointingDirectionCalculator::PtColID::nItems,false), // Spline Coefficient Ready
       /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
 { 
 // -- original code -- //
@@ -333,33 +335,33 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 //      Once generated and from next time, lately created Obj. is pointed and used.
 //   - from init(), this function is called.
 //   - See indetal in;
-//         initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );  
+//         initializeSplinefromPointingColumn(*originalMS_, accessorId_ );  
 //-
 
     if (directionColumnName_ == "DIRECTION") {
         accessor_ = directionAccessor;
         accessorId_ =  DIRECTION;
-        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
 
     } else if (directionColumnName_ == "TARGET") {
         accessor_ = targetAccessor;
         accessorId_ = TARGET;
-        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
  
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
         accessorId_ = POINTING_OFFSET;
-        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
 
     } else if (directionColumnName_ == "SOURCE_OFFSET") {
         accessor_ = sourceOffsetAccessor;
         accessorId_ = SOURCE_OFFSET;
-        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
 
     } else if (directionColumnName_ == "ENCODER") {
         accessor_ = encoderAccessor;
         accessorId_ = ENCODER;
-        initializeSplinefromPointingColumn(*originalMS_, accessorId_, true );
+        initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
 
     } else {
         stringstream ss;
@@ -812,7 +814,7 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
 std::vector<string>   dirColList
 = { "DIRECTION","TARGET","POINTING_OFFSET","SOURCE_OFFSET","ENCODER" };
 
-std::vector<ACCESSOR> accList
+std::vector<PointingDirectionCalculator::ACCESSOR> accList
 = {  directionAccessor, targetAccessor,pointingOffsetAccessor,
    sourceOffsetAccessor, encoderAccessor };
 
@@ -831,32 +833,40 @@ bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String co
 // - prepare Coeffient table for calulation. 
 //-
 bool PointingDirectionCalculator::initializeSplinefromPointingColumn(MeasurementSet const &ms,
-                                                                    DirectionColumnID  DirColNo, 
-                                                                    bool makeActive=true)
+                                     PointingDirectionCalculator::PtColID  DirColNo )
 {
     debuglog << "initializeSplinefromPointingColumn, columNo=" << DirColNo << debugpost;
 
     String colName = dirColList[DirColNo] ;
-    ACCESSOR acc   = accList[DirColNo] ;
+    PointingDirectionCalculator::ACCESSOR acc   = accList[DirColNo] ;
 
-    // Column Range check //
-    if( DirColNo >= initializeReady_.size())
+    //+
+    // Column Range check 
+    //-
+    if( DirColNo >PointingDirectionCalculator::PtColID::nItems )
     {
         stringstream ss;
         ss << "Bugcheck. No column on Pointing Table." << endl;
         throw AipsError(ss.str());
         return false;  // Bad Param //
     }
+
+    //+
+    // CASE 1: Spline Object is ready.
+    //-
     if( initializeReady_[DirColNo] == true )
     {
         debuglog << "initializeSplinefromPointingColumn, Normal,already active."  << debugpost;
 
-        // Change Master pointer  // 
-        if(makeActive) currSpline_ = splineObj_[DirColNo].get();
-
+        // SWITCH Master pointer  // 
+        currSpline_ = splineObj_[DirColNo].get();
+ 
         return true;   // Servece already OK //
     }
-    if(checkColumn(ms, colName  ))
+    //+
+    // CASE 2: New Direction Colomn, initialize Spline Obj. 
+    //-
+    if(checkColumn(ms, colName))
     {
         debuglog << "Spline Obj:: attempt to construct by " << colName.c_str() << debugpost;
 
@@ -870,7 +880,7 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
           splineObj_[DirColNo] = std::move(spTemp);
 
         // copy to Master pointer, if this is desired.  // 
-          if(makeActive) currSpline_ = splineObj_[DirColNo].get();
+          currSpline_ = splineObj_[DirColNo].get();
 
         // Obj. available //
            initializeReady_[DirColNo] = true;
@@ -878,12 +888,15 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
         debuglog << "initializeSplinefromPointingColumn, Normal End." << debugpost;
         return true;
     } 
-    else
-    {
-         stringstream ss;
-         ss << "Bugcheck. No column on Pointing Table." << endl;
-         throw AipsError(ss.str());
-    }
+    
+    //+
+    // Initialize Faiure.
+    //-
+  
+    stringstream ss;
+    ss << "FAILED:: No spline obj, atempted to make. No column on Pointing Table." << endl;
+    throw AipsError(ss.str());
+   
 }
 
 //***************************************************
@@ -975,15 +988,16 @@ void AntennaBoundary::showTable()
 //***************************************************
 
 // constructor (for each accessor) //
-SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, ACCESSOR accessor ) 
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, 
+                                         PointingDirectionCalculator::ACCESSOR accessor ) 
 {
     stsCofficientReady  = false;
-  
     init(ms, accessor);
 }
 
 // initialize //
-void SplineInterpolation::init(MeasurementSet const &ms, ACCESSOR const my_accessor)
+void SplineInterpolation::init(MeasurementSet const &ms, 
+                               PointingDirectionCalculator::ACCESSOR const my_accessor)
 {
     // Antenna Bounday //
 
@@ -1168,4 +1182,5 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     return outval;
 
 }
+ 
 }  //# NAMESPACE CASA - END

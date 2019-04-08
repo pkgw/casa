@@ -48,6 +48,8 @@
 #include <tables/Tables/ScalarColumn.h>
 
 #include <synthesis/Utilities/SDPosInterpolator.h>
+#include <memory>  // for unique_ptr<> 
+#include <utility> // for std::pair
 
 namespace casa {
 
@@ -124,22 +126,21 @@ namespace casa {
 // </todo>
 ///
 
-//+
-//  CAS-8418:
-//    typedef of accessor_ and 
-//    Direction column types.
-//-
-typedef 
-casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
-                                       casacore::uInt rownr);
-typedef
-enum DC_ { DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER } DirectionColumnID;
-
 class SplineInterpolation;       // CAS-8418 Forward Reference //
 class DirectionColumnsAccessor;  // CAS-8418 Forward Reference //
 
 class PointingDirectionCalculator {
 public:
+
+    //+
+    //  CAS-8418:  typedef of accessor_ and  Direction column types.
+    //-
+    typedef 
+    casacore::MDirection (*ACCESSOR)(  casacore::ROMSPointingColumns &pointingColumns,
+                                       casacore::uInt rownr);
+    typedef
+    enum DC_ { DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER, nItems} PtColID;
+
     // Enumerations for memory layout of the output pointing direction array.
     // User should select the layout according to an usercase of this class.
     enum MatrixShape {
@@ -154,7 +155,7 @@ public:
     //-
    
 //+
-//  CAS-8418 Extension.
+
 //   Create Spline five Objects on PointingDirectionCalculator.
 //
 //   - The setDirectionColumn(name) performs all the initialization and make Coefficient table.
@@ -304,7 +305,7 @@ public:
 
     // Curret Direction column (=accessor in this source) (on Debug)
 
-    DirectionColumnID  getCurretAccessorId()  { return  accessorId_ ; };
+    PtColID  getCurretAccessorId()  { return  accessorId_ ; };
 
     // Spline device status (Only for Debug) //
 
@@ -367,14 +368,14 @@ private:
 // CAS-8418 Spline Extended
 //-
 
-     // Spline Type //
-        bool useSplineInterpolation_    = true;      // default: Use Spline if TRUE
+     // Spline Type , Initialized in Constructor. 'true' enables Spline Interpoation. //
+        bool useSplineInterpolation_ ;      
 
-     // Current Spline Object (active, work with Direction Column)
-        casa::SplineInterpolation                     *currSpline_;   
+     // Current Spline Object (become active with specified Direction Column)
+        casa::SplineInterpolation                     *currSpline_ = nullptr;   
 
      // Spline Object for each Direction-Column 
-        std::unique_ptr<casa::SplineInterpolation>     splineObj_[5];
+        std::unique_ptr<casa::SplineInterpolation>     splineObj_[PtColID::nItems];
 
      // Internal conditions to check limitted service.  
         casacore::Vector<bool>                         initializeReady_  ;
@@ -382,7 +383,7 @@ private:
 
      // Accessor ID (See typedef above. ) 
 
-        DirectionColumnID   accessorId_ ;
+        PtColID   accessorId_ ;
  
      // creating temporary Spline object (in construction)
 
@@ -391,8 +392,7 @@ private:
 
      // Initialize Coefficient and others  
         bool initializeSplinefromPointingColumn(casacore::MeasurementSet const &ms,
-                                                DirectionColumnID  DirColNo,
-                                                bool makeActive);
+                                                PtColID  colNo );
 
 //+
 // CAS-8418  doGetDirection(uint row)   
@@ -419,11 +419,18 @@ public:
           COEFF;
 
         // Constructor 
-          SplineInterpolation(casacore::MeasurementSet const &ms, ACCESSOR acc );
+          SplineInterpolation(casacore::MeasurementSet const &ms, PointingDirectionCalculator::ACCESSOR acc );
 
-         ~SplineInterpolation() { };
+         ~SplineInterpolation() {
+#if 0
+             printf("YYYYYYYYYYYYYYYYYYYYYY\n");
+             printf(" SPLINE OBJ. GONE\n");
+             printf("YYYYYYYYYYYYYYYYYYYYYY\n");
+#endif 
+         };
 
         // Calculate function //
+
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
                                                        casacore::uInt AntennaID =0);
@@ -443,7 +450,8 @@ private:
 
         //  constructor sub. 
 
-          void init( casacore::MeasurementSet const &ms, ACCESSOR const my_accessor);
+          void init( casacore::MeasurementSet const &ms, 
+                     PointingDirectionCalculator::ACCESSOR const my_accessor);
 
         // Coefficient (set up by SDPosInterpolator)
           casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
