@@ -40,7 +40,7 @@ information, see the task pages of flagdata in CASA Docs
             </param>
 
             <param type="string" name="mode">
-<shortdescription>Flagging mode</shortdescription>
+<shortdescription>Flagging mode (list/manual/clip/quack/shadow/elevation/tfcrop/rflag/antint/extent/unflag/summary)</shortdescription>
 <description>Flagging mode
                      Default: 'manual'
                      Options: 'list', 'manual', 'clip', 'quack',
