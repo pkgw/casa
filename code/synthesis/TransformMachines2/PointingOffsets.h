@@ -29,11 +29,12 @@
 #ifndef SYNTHESIS_TRANSFORM2_POINTINGOFFSETS_H
 #define SYNTHESIS_TRANSFORM2_POINTINGOFFSETS_H
 
+#include <synthesis/MeasurementComponents/SolvableVisCal.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 #include <images/Images/ImageInterface.h>
+#include <msvis/MSVis/VisBufferUtil.h>
 #include <images/Images/TempImage.h>
 #include <msvis/MSVis/VisBuffer2.h>
-#include <synthesis/MeasurementComponents/SolvableVisCal.h>
 
 class SolvableVisJones;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -44,7 +45,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PointingOffsets 
   {
   public:
-    PointingOffsets(const int& convOversampling):epJ_p(), doPointing_p(false)  {convOversampling_p = convOversampling;}
+    PointingOffsets(const int& convOversampling):epJ_p(), doPointing_p(false),vbUtils_p() {convOversampling_p = convOversampling;}
     ~PointingOffsets() {};
     PointingOffsets& operator=(const PointingOffsets& other);
 
@@ -81,7 +82,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::MDirection direction2_p;
     casacore::CountedPtr<SolvableVisJones> epJ_p;
     bool doPointing_p;
-
+    VisBufferUtil vbUtils_p;
   };
   //
   //-------------------------------------------------------------------------------------------

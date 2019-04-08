@@ -284,14 +284,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // EVLA and ALMA, this is not useful.  Leaving it hear for now....
     //
     casacore::Bool reindex(const casacore::Vector<casacore::Int>& in, casacore::Vector<casacore::Int>& out,
-		 const casacore::Double& sinDPA, const casacore::Double& cosDPA,
-		 const casacore::Vector<casacore::Int>& Origin, const casacore::Vector<casacore::Int>& size);
+			   const casacore::Double& sinDPA, const casacore::Double& cosDPA,
+			   const casacore::Vector<casacore::Int>& Origin, const casacore::Vector<casacore::Int>& size);
 
- casacore::Complex* getConvFunc_p(const double& vbPA,
+    casacore::Complex* getConvFunc_p(const double& vbPA,
 				     casacore::Vector<casacore::Int>& cfShape,
 				     casacore::Vector<int>& support,
 				     int& muellerElement,
-				     CFBuffer& cfb,
+				     CountedPtr<CFBuffer>& cfb,
 				     casacore::Double& wVal, casacore::Int& fndx, 
 				     casacore::Int& wndx,
 				     PolMapType& mNdx, PolMapType& conjMNdx,

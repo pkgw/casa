@@ -27,11 +27,11 @@
 //# $Id$
 //
 
-#include <msvis/MSVis/VisBufferUtil.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
 #include <measures/Measures/MeasTable.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <synthesis/TransformMachines2/PointingOffsets.h>
+#include <synthesis/TransformMachines/SynthesisError.h>
 // #include <casa/Logging/LogIO.h>
 // #include <casa/Logging/LogSink.h>
 // #include <casa/Logging/LogOrigin.h>
@@ -55,110 +55,71 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<casacore::Vector<double> >PointingOffsets::findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-								     const VisBuffer2& vb, const casacore::Bool& doPointing)
+  Vector<Vector<double> >PointingOffsets::findMosaicPointingOffset(const ImageInterface<Complex>& image,
+								   const VisBuffer2& vb, const Bool& doPointing)
   {
-    VisBufferUtil vbUtils;
-    //cerr << "#######: Using Mosaic Field pointing offsets" <<endl;
     storeImageParams(image,vb);
     //where in the image in pixels is this pointing
     pixFieldGrad_p.resize(2);
     int antId,numRow;
     antId = 0;
     numRow = 0;
-    casacore::Vector<casacore::Vector<double> >pixFieldGrad_l;
+    Vector<Vector<double> >pixFieldGrad_l;
     pixFieldGrad_l.resize(1);
-    MDirection dir = vbUtils.getPointingDir(vb,antId,numRow,doPointing);
-    //cerr << "VBDir: " << dir<< endl;
+    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,doPointing);
     thePix_p = toPix(vb, dir, dir);
 
     pixFieldGrad_p = gradPerPixel(thePix_p);
-    //    MDirection fieldDir=direction1_p;
-    //shift from center
-    //pixFieldGrad_p(0) = pixFieldGrad_p(0) - double(nx_p / 2);
-    //pixFieldGrad_p(1) = pixFieldGrad_p(1) - double(ny_p / 2);
-
-    //Int convSampling=getOversampling(*psTerm_p,*wTerm_p,*aTerm_p);
-
-    //phase gradient per pixel to apply
-    //pixFieldGrad_p(0) = -pixFieldGrad_p(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
-    //pixFieldGrad_p(1) = -pixFieldGrad_p(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
     pixFieldGrad_l(0)=(pixFieldGrad_p);
-    //pixFieldGrad_l(1)=(pixFieldGrad_p);
+
     return pixFieldGrad_l;
   };
   //
   //----------------------------------------------------------------------
   //
-  casacore::Vector<casacore::Vector<double> > PointingOffsets::findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-								      const vi::VisBuffer2& vb, const casacore::Bool& doPointing)
+  Vector<Vector<double> > PointingOffsets::findAntennaPointingOffset(const ImageInterface<Complex>& image,
+								     const vi::VisBuffer2& vb, const Bool& doPointing)
   {
-    casacore::Vector< casacore::Vector<double> >antOffsets;
+    Vector<Vector<double> >antOffsets;
     storeImageParams(image,vb);
-    VisBufferUtil vbUtils;
-    const casacore::Vector<casacore::Int>& antID1 = vb.antenna1();
-    const casacore::Vector<casacore::Int>& antID2 = vb.antenna2();
-    int numRow_p = vb.nRows();
-    antOffsets.resize(numRow_p); // The array is resized to fit for a given vb
-    for (int irow=0; irow<numRow_p;irow++)
+
+    if (epJ_p.null())
       {
-	MDirection antDir1 =vbUtils.getPointingDir(vb, antID1[irow], irow, doPointing); 
-	MDirection antDir2 =vbUtils.getPointingDir(vb, antID2[irow], irow, doPointing); 
-	
-	MVDirection vbdir=vb.direction1()(0).getValue();	
-	casacore::Vector<double> thePixDir1_l, thePixDir2_l;
-	thePixDir1_l = toPix(vb, antDir1, vbdir);
-	thePixDir2_l = toPix(vb, antDir2, vbdir);
-	thePix_p = (thePixDir1_l + thePixDir2_l)/2.;
-	antOffsets(irow) = gradPerPixel(thePix_p);
-	//cerr<<"Antenna 1:"<<antID1[irow]<<" AntDir1:"<<antDir1<<" AntDir2:"<<antDir2<<endl;
+	int numRow_p = vb.nRows();
+	antOffsets.resize(numRow_p); // The array is resized to fit for a given vb
+	for (int irow=0; irow<numRow_p;irow++)
+	  {
+	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, doPointing); 
+	    MDirection antDir2 =vbUtils_p.getPointingDir(vb, vb.antenna2()[irow], irow, doPointing); 
+	    
+	    MVDirection vbdir=vb.direction1()(0).getValue();	
+	    casacore::Vector<double> thePixDir1_l, thePixDir2_l;
+	    thePixDir1_l = toPix(vb, antDir1, vbdir);
+	    thePixDir2_l = toPix(vb, antDir2, vbdir);
+	    thePix_p = (thePixDir1_l + thePixDir2_l)/2.;
+	    antOffsets(irow) = gradPerPixel(thePix_p);
+	  }
       }
-    // int antId,numRow;
-    // antId = 0;
-    // numRow = 0;
-    
-    // MDirection antDir =vbUtils.getPointingDir(vb, antId, numRow, doPointing); 
-    // //cerr << "AntDir="<<antDir << endl;
-    // thePix_p = toPix(vb, antDir, antDir);
-    // antOffsets = gradPerPixel(thePix_p);
-
-    // // if (epJ_p.isNull())
-    {
-      //cerr << "#######: Using POINTING subtable to get antenna pointing offsets" << endl;
-    
-      //	VisBufferUtil vbUtils;
-
-      //int vbrow=0;
-      //int nant = vb.subtableColumns().antenna().nrow();
-      //antOffsets.resize(nant);
-      //for (int antid=0;antid<nant; antid++)
-     	  {
-	    //    MVDirection antdir=vbUtils.getPointingDir(vb, antid, vbrow).getValue();
-     	    //    MVDirection vbdir=vb.direction1()(0).getValue();
-     	    //antOffsets[antid]=antdir.separation(vbdir);
-     	  }
+    else
+      {
+	throw(SynthesisFTMachineError("PointingOffsets::findAntennaPointingOffset(): Antenna pointing CalTable support not yet implemented"));
       }
-    //cerr<<"Antenna offset :"<<antOffsets<<endl;
-      return antOffsets;
+    return antOffsets;
   }
   //
   //----------------------------------------------------------------------
   //
   Vector< Vector<Double> > PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
-						   const VisBuffer2& vb, const Bool doPointing)
+							       const VisBuffer2& vb, const Bool doPointing)
   {
     setDoPointing(doPointing);
     if (!doPointing) 
       { 
-	
 	return findMosaicPointingOffset(image,vb,doPointing);
-	
-			
       }
     else 
       {
 	return findAntennaPointingOffset(image,vb,doPointing);
-	
       }
   }
   //
@@ -183,17 +144,11 @@ namespace casa{
 					 const MDirection& dir2) 
   {
     thePix_p.resize(2);
-
-    //    if(dc_p.directionType() !=  MDirection::castType(vb.direction1()(0).getRef().getType())){
     if(dc_p.directionType() !=  MDirection::castType(dir1.getRef().getType()))
       {
       //pointToPix_p.setModel(theDir);
       
       MEpoch timenow(Quantity(vb.time()(0), timeUnit_p), timeMType_p);
-      //cout << "Ref " << vb.direction1()(0).getRefString() << " ep "
-      //<< timenow.getRefString() << " time " <<
-      //MVTime(timenow.getValue().getTime()).string(MVTime::YMD) <<
-      //endl;
       pointFrame_p.resetEpoch(timenow);
       //////////////////////////
       //pointToPix holds pointFrame_p by reference...
@@ -217,7 +172,7 @@ namespace casa{
   //
   //----------------------------------------------------------------------
   //
-  void PointingOffsets::storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage,
+  void PointingOffsets::storeImageParams(const ImageInterface<Complex>& iimage,
 					 const VisBuffer2& vb) 
   {
     //image signature changed...rather simplistic for now
