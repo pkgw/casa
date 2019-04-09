@@ -301,11 +301,11 @@ public:
 
     // Spline Object handle (on Debug)
 
-    casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
+    inline casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
 
     // Curret Direction column (=accessor in this source) (on Debug)
 
-    PtColID  getCurretAccessorId()  { return  accessorId_ ; };
+    inline PtColID  getCurretAccessorId()  { return  accessorId_ ; };
 
     // Spline device status (Only for Debug) //
 
@@ -400,9 +400,9 @@ private:
 //   - Performs Spline-Interpolation.
 //   - In case number of pointing data is insfficient, alternatively uses Linea-Interpolation.
 //   - Logic is mostly same as the old one, new calculation was inserted.
+//   ** Separation running path  (9-APR-2019) **
   
- //  ** If old method is needed , rename as follows and change the wrapper. 
-        casacore::Vector<casacore::Double> doGetDirectionNishie(casacore::uInt irow);// UNDER COSNTRUCTION 
+        casacore::Vector<casacore::Double> doGetDirectionNew2(casacore::uInt irow);// running path separated. 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline/inear
 
 };

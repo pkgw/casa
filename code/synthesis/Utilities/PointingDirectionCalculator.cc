@@ -162,10 +162,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
-      /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
-      /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
-      /*CAS-8418*/ coefficientReady_(PointingDirectionCalculator::PtColID::nItems,false), // Spline Coefficient Ready
-      /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
+  /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
+  /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
+  /*CAS-8418*/ coefficientReady_(PointingDirectionCalculator::PtColID::nItems,false), // Spline Coefficient Ready
+  /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
 { 
 // -- original code -- //
     accessor_ = directionAccessor;
@@ -499,18 +499,21 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     debuglog << "done getDirection" << debugpost;
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
-//-------------------------
+//----------------------------------------------------------
 // doGetdiretion [wraper]
-// - Capable of switching to old doGetdirection() for tracable test
-// - Accuracy(=Uncertainity) Test by old and new is possible.
-//------------------------
+// - located NEW , NEW2
+// - NEW2 has separated internal path for LINEAR and SPLINE
+//-----------------------------------------------------------
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
 {
     // In case Old source is needed, please locate Org.source and
     // select select statement for your debug. 
 
-    return (doGetDirectionNishie(irow));
-//    return (doGetDirectionNew(irow));
+#if 1
+    return (doGetDirectionNew2(irow));
+#else
+    return (doGetDirectionNew(irow));
+#endif 
 }
 
 //----------------------------------
@@ -629,12 +632,17 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
           direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
         
     }
-    // CAS-8418:: following section is same as original //
+
+    // CAS-8418:: Linear/Spline common path, same as original code  //
+
     debuglog << "direction = "
             << direction.getAngle("rad").getValue() << " (unit rad reference frame "
             << direction.getRefString()
             << ")" << debugpost;
-    Vector<Double> outVal(2);
+
+    // return Value //
+      Vector<Double> outVal(2);
+
     if (direction.getRefString() == MDirection::showType(directionType_)) {
         outVal = direction.getAngle("rad").getValue();
     } else {
@@ -651,7 +659,10 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     return outVal;
 }
 
-Vector<Double> PointingDirectionCalculator::doGetDirectionNishie(uInt irow) {
+Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
+
+// sec:1 Linear / Spline common//
+
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
             timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
@@ -685,84 +696,93 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNishie(uInt irow) {
     } else {
         debuglog << "linear interpolation " << debugpost;
 
-        //+
-        // Following section was copied from original (same logic)
-        //-
+        // commonl used result buffer .. //
+          Vector<Double> interpolated(2);
 
-        Double t0 = pointingTimeUTC_[index - 1];
-        Double t1 = pointingTimeUTC_[index];
-        Double dt = t1 - t0;
-
-        debuglog << "Interpolate between " << setprecision(16) << index - 1
-                << " (" << t0 << ") and " << index << " (" << t1 << ")"
-                << debugpost;
-        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
-        MDirection dir2 = accessor_(*pointingColumns_, index);
-
-        String dirRef1 = dir1.getRefString();
-        String dirRef2 = dir2.getRefString();
+        if(useSplineInterpolation_)     // SPLINE //
+        {
+            //+
+            // CAS-8418::  Spline Interpolation section.
+            //-
+  
+            uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
  
-        MDirection::Types refType1, refType2;
-        MDirection::getType(refType1, dirRef1);
-        MDirection::getType(refType2, dirRef2);
+            Double t0 = pointingTimeUTC_[index - 1];
+            Double dtime =  (currentTime - t0) ;
+ 
+            // determin section on 'uIndex'
+            //  please refer exact return code of binarySearch() 
+ 
+            uInt uIndex;
+            if( index >=1 ){
+                uIndex = index-1;
+            } else if (index > (Int)(nrowPointing-1) ) {
+                 uIndex = nrowPointing-1;
+            } else  {
+                 stringstream ss; ss  << "BUGCHECK, never come here. "  << endl;
+                 throw AipsError( ss.str() );
+            }
 
-        debuglog << "dirRef1 = " << dirRef1 << " ("
-                << MDirection::showType(refType1) << ")" << debugpost;
+            //+
+            // Execute Interpolation 
+            //-
+              interpolated = getCurrentSplineObj()-> calculate(uIndex, dtime, antID );
 
-        if (dirRef1 != dirRef2) {
-            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
-                    *(referenceFrame_.position()));
-            dir2 = MDirection::Convert(dir2,
-                    MDirection::Ref(refType1, referenceFrameLocal))();
+            // obtain refType1 (original copied)//
+
+              MDirection         dir1 = accessor_(*pointingColumns_, index - 1);
+              String             dirRef1 = dir1.getRefString();
+              MDirection::Types  refType1;
+              MDirection::getType(refType1, dirRef1);
+
+            // LINEAR/SPLINE common 
+            // Convert the interpolated diretion from MDirection to Vector //
+              direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
         }
-
-        //+
-        // CAS-8418::  Spline Interpolation section.
-        //   using original var. see above for t0,t1,dt and nrowPointing.
-        //-
-
-        uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
-        Double dtime =  (currentTime - t0) ;
-
-        // determin section on 'uIndex'
-        //  please refer exact return code of binarySearch() 
-            
-        uInt uIndex;
-        if( index >=1 )
-        {  
-            uIndex = index-1;
-        }
-        else if (index > (Int)(nrowPointing-1) )
+        else // LINEAR //
         {
-            uIndex = nrowPointing-1;
-        }
-        else // Out of Range //
-        { 
-            stringstream ss; ss  << "BUGCHECK, never come here. "  << endl;
-            throw AipsError( ss.str() ); 
-        }
+            Double t0 = pointingTimeUTC_[index - 1];
+            Double t1 = pointingTimeUTC_[index];
+            Double dt = t1 - t0;
 
-        //+
-        // In limmited case, use Linear Interpolation.
-        //-
-        Vector<Double> interpolated(2);
-        if(useSplineInterpolation_)
-        {
-            // getCurrentSplineObj() referes, current Spline Obj. //
-            interpolated = getCurrentSplineObj()-> calculate(uIndex, dtime, antID );
-        }
-        else // Linear (copied from original) //
-        {
+            debuglog << "Interpolate between " << setprecision(16) << index - 1
+                  << " (" << t0 << ") and " << index << " (" << t1 << ")"
+                  << debugpost;
+
+            MDirection dir1 = accessor_(*pointingColumns_, index - 1);
+            MDirection dir2 = accessor_(*pointingColumns_, index);
+
+            // obtain Ref type //
+            String dirRef1 = dir1.getRefString();
+            String dirRef2 = dir2.getRefString();
+ 
+            MDirection::Types refType1, refType2;
+            MDirection::getType(refType1, dirRef1);
+            MDirection::getType(refType2, dirRef2);
+ 
+            debuglog << "dirRef1 = " << dirRef1 << " ("
+                    << MDirection::showType(refType1) << ")" << debugpost;
+
+            if (dirRef1 != dirRef2) {
+                MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
+                         *(referenceFrame_.position()));
+                dir2 = MDirection::Convert(dir2,
+                         MDirection::Ref(refType1, referenceFrameLocal))();
+            }
+ 
             Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
             Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
             Vector<Double> scanRate = dirVal2 - dirVal1;
-
+            
             interpolated = dirVal1 + scanRate * (currentTime - t0) / dt;
+
+            // LINEAR/SPLINE common 
+            // Convert the interpolated diretion from MDirection to Vector //
+              direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
+   
         }
 
-        // Convert the interpolated diretion from MDirection to Vector //
-          direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
-        
+ 
     }
     // CAS-8418:: following section is same as original //
     debuglog << "direction = "
