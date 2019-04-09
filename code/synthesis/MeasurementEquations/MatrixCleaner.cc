@@ -486,6 +486,20 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
   itsStrengthOptimum=0.0;
   IPosition positionOptimum(model.shape().nelements(), 0);
   os << "Starting iteration"<< LogIO::POST;
+  
+  //
+  Int nx=model.shape()(0);
+  Int ny=model.shape()(1);
+  IPosition gip; 
+  gip = IPosition(2,nx,ny);  
+  casacore::Block<casacore::Matrix<casacore::Float> > vecWork_p;
+  vecWork_p.resize(nScalesToClean);
+  
+  for(Int i=0;i<nScalesToClean;i++) 
+   {
+	  vecWork_p[i].resize(gip);
+   }
+  //
 
   itsIteration = itsStartingIter;
   for (Int ii=itsStartingIter; ii < itsMaxNiter; ii++) {
@@ -500,16 +514,17 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
       for (scale=0; scale<nScalesToClean; ++scale) {
 	// Find absolute maximum for the dirty image
 	//	cout << "in omp loop for scale : " << scale << " : " << blcDirty << " : " << trcDirty << " :: " << itsDirtyConvScales.nelements() << endl;
-	Matrix<Float> dirtySub=(itsDirtyConvScales[scale])(blcDirty,trcDirty);
+        Matrix<Float> work = (vecWork_p[scale])(blcDirty,trcDirty);   
+	work = 0.0;
+	work = work + (itsDirtyConvScales[scale])(blcDirty,trcDirty);
 	maxima(scale)=0;
 	posMaximum[scale]=IPosition(model.shape().nelements(), 0);
 	
-	
 	if (!itsMask.null()) {
-	  findMaxAbsMask(dirtySub, (scaleMaskSubs[scale]),
+	  findMaxAbsMask(vecWork_p[scale], itsScaleMasks[scale],
 				maxima(scale), posMaximum[scale]);
 	} else {
-	  findMaxAbs(dirtySub, maxima(scale), posMaximum[scale]);
+	  findMaxAbs(vecWork_p[scale], maxima(scale), posMaximum[scale]);
 	}
 	
 	// Remember to adjust the position for the window and for 
@@ -518,7 +533,9 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
 	//cout << "posmax " << posMaximum[scale] << " blcdir " << blcDirty << endl;
 	maxima(scale)/=maxPsfConvScales(scale);
 	maxima(scale) *= scaleBias(scale);
-	posMaximum[scale]+=blcDirty;
+	maxima(scale) *= (itsDirtyConvScales[scale])(posMaximum[scale]); //makes maxima(scale) positive to ensure correct scale is selected in itsStrengthOptimum for loop (next for loop).
+	
+	//posMaximum[scale]+=blcDirty;
 	
       }
     }//End parallel section
@@ -529,6 +546,9 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
         positionOptimum=posMaximum[scale];
       }
     }
+    
+    itsStrengthOptimum /= scaleBias(optimumScale); 
+    itsStrengthOptimum /=  (itsDirtyConvScales[optimumScale])(posMaximum[optimumScale]); 
 
     AlwaysAssert(optimumScale<nScalesToClean, AipsError);
 
@@ -671,6 +691,9 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
 	    
       }
     }//End parallel
+    
+     blcDirty = blc;
+     trcDirty = trc;
   }
   // End of iteration
 
@@ -827,7 +850,7 @@ void MatrixCleaner::defineScales(const Vector<Float>& scaleSizes){
 }
 
 void MatrixCleaner::makePsfScales(){
-  LogIO os(LogOrigin("MatrixCleaner", "mkePsfScales()", WHERE));
+  LogIO os(LogOrigin("MatrixCleaner", "makePsfScales()", WHERE));
   if(itsNscales < 1)
     throw(AipsError("Scales have to be set"));
   if(itsXfr.null())
@@ -850,7 +873,7 @@ void MatrixCleaner::makePsfScales(){
     os << "Calculating convolutions for scale " << scale << LogIO::POST;
     //PSF * scale
     itsPsfConvScales[scale] = Matrix<Float>(psfShape_p);
-    cWork=((*itsXfr)*(itsScaleXfrs[scale]));
+    cWork=((*itsXfr)*(itsScaleXfrs[scale])*(itsScaleXfrs[scale]));
     //cout << "shape "  << cWork.shape() << "   " << itsPsfConvScales[scale].shape() << endl;
 
     fft.fft0((itsPsfConvScales[scale]), cWork, false);
@@ -865,7 +888,7 @@ void MatrixCleaner::makePsfScales(){
       
       // PSF *  scale * otherscale
       itsPsfConvScales[index(scale,otherscale)] =Matrix<Float>(psfShape_p);
-      cWork=((*itsXfr)*conj(itsScaleXfrs[scale])*(itsScaleXfrs[otherscale]));
+      cWork=((*itsXfr)*(itsScaleXfrs[scale])*(itsScaleXfrs[otherscale]));
       fft.fft0(itsPsfConvScales[index(scale,otherscale)], cWork, false);
       //For some reason this complex->real fft  does not need a flip ...may be because conj(a)*a is real
       //fft.flip(*itsPsfConvScales[index(scale,otherscale)], false, false);
@@ -1213,6 +1236,37 @@ Bool MatrixCleaner::makeScaleMasks()
 	" since it is too large to fit within the mask" << LogIO::POST;
     }
     
+  }
+  
+   Int nx=itsScaleMasks[0].shape()(0);
+   Int ny=itsScaleMasks[0].shape()(1);
+
+   /* Set the edges of the masks according to the scale size */
+   // Set the values OUTSIDE the box to zero....
+  for(Int scale=0;scale<itsNscales;scale++)
+  {
+      Int border = (Int)(itsScaleSizes[scale]*1.5);
+      // bottom
+      IPosition blc1(2, 0 , 0 );
+      IPosition trc1(2,nx-1, border );
+      IPosition inc1(2, 1);
+      LCBox::verify(blc1,trc1,inc1,itsScaleMasks[scale].shape());
+      (itsScaleMasks[scale])(blc1,trc1) = 0.0;
+      // top
+      blc1[0]=0; blc1[1]=ny-border-1;
+      trc1[0]=nx-1; trc1[1]=ny-1;
+      LCBox::verify(blc1,trc1,inc1,itsScaleMasks[scale].shape());
+      (itsScaleMasks[scale])(blc1,trc1) = 0.0;
+      // left
+      blc1[0]=0; blc1[1]=border;
+      trc1[0]=border; trc1[1]=ny-border-1;
+      LCBox::verify(blc1,trc1,inc1,itsScaleMasks[scale].shape());
+      (itsScaleMasks[scale])(blc1,trc1) = 0.0;
+      // right
+      blc1[0]=nx-border-1; blc1[1]=border;
+      trc1[0]=nx; trc1[1]=ny-border-1;
+      LCBox::verify(blc1,trc1,inc1,itsScaleMasks[scale].shape());
+      (itsScaleMasks[scale])(blc1,trc1) = 0.0;
   }
 
   return true;

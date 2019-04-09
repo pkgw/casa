@@ -183,8 +183,8 @@ class test_onefield(testref_base):
      def test_onefield_multiscale(self):
           """ [onefield] Test_Onefield_multiscale : mfs with multiscale minor cycle """
           self.prepData('refim_eptwochan.ms')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',niter=10,deconvolver='multiscale',scales=[0,20,40,100],interactive=0,parallel=self.parallel,smallscalebias=0.6)
-          report=self.th.checkall(ret=ret, peakres=1.28, modflux=2.87, iterdone=10, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image',self.img+'.model'], imval=[(self.img+'.psf',1.0,[100,100,0,0])])
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=200,cell='8.0arcsec',niter=10,deconvolver='multiscale',scales=[0,20,40,100],interactive=0,parallel=self.parallel,smallscalebias=0.0)
+          report=self.th.checkall(ret=ret, peakres=0.823 , modflux=3.816, iterdone=10, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image',self.img+'.model'], imval=[(self.img+'.psf',1.0,[100,100,0,0])])
           self.checkfinal(pstr=report)
 
      def test_onefield_mtmfs(self):
@@ -554,7 +554,6 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report1+report2+report3)
 
-          
      def test_iterbot_cube_tol(self): 
           """ [iterbot] Test_Iterbot_cube_tol :threshold test to allow a tolerance (1/100)  (verification of CAS-11278 fix) """
           self.prepData('refim_point_withline.ms')
