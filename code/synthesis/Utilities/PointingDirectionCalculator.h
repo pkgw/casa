@@ -127,7 +127,7 @@ namespace casa {
 ///
 
 class SplineInterpolation;       // CAS-8418 Forward Reference //
-class DirectionColumnsAccessor;  // CAS-8418 Forward Reference //
+// class DirectionColumnsAccessor;  // CAS-8418 Forward Reference //
 
 class PointingDirectionCalculator {
 public:
@@ -402,7 +402,7 @@ private:
 //   - Logic is mostly same as the old one, new calculation was inserted.
   
  //  ** If old method is needed , rename as follows and change the wrapper. 
-        casacore::Vector<casacore::Double> doGetDirectionOrg(casacore::uInt irow); // Org::Lenear only 
+        casacore::Vector<casacore::Double> doGetDirectionNishie(casacore::uInt irow);// UNDER COSNTRUCTION 
         casacore::Vector<casacore::Double> doGetDirectionNew(casacore::uInt irow); // New::Spline/inear
 
 };
@@ -421,13 +421,7 @@ public:
         // Constructor 
           SplineInterpolation(casacore::MeasurementSet const &ms, PointingDirectionCalculator::ACCESSOR acc );
 
-         ~SplineInterpolation() {
-#if 0
-             printf("YYYYYYYYYYYYYYYYYYYYYY\n");
-             printf(" SPLINE OBJ. GONE\n");
-             printf("YYYYYYYYYYYYYYYYYYYYYY\n");
-#endif 
-         };
+         ~SplineInterpolation() {    }
 
         // Calculate function //
 
@@ -464,12 +458,6 @@ private:
         // Coeff debug in csv. //
           void dumpCsvCoeff();
 
-        //*
-        // Programmers Debug Flag 
-        //* 
-          bool showSDPParam       = false;  // RESERVED (when checking SDPos behabvior)
-          bool dumpCoeffientTable = false;  // This enables to dump Coefficient Table 
-
 };
 
 //+
@@ -495,9 +483,6 @@ private:
        // Pointing Table handle
          casacore::MSPointing hPointing_; 
  
-       // Programmer's Debug //
-         void showTable() ;
-         bool showAntennaTable =false;
 };
 
 
