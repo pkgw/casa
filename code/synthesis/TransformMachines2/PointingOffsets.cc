@@ -66,7 +66,7 @@ namespace casa{
     numRow = 0;
     Vector<Vector<double> >pixFieldGrad_l;
     pixFieldGrad_l.resize(1);
-    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,doPointing);
+    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,MDirection::J2000,doPointing);
     thePix_p = toPix(vb, dir, dir);
 
     pixFieldGrad_p = gradPerPixel(thePix_p);
@@ -89,15 +89,16 @@ namespace casa{
 	antOffsets.resize(numRow_p); // The array is resized to fit for a given vb
 	for (int irow=0; irow<numRow_p;irow++)
 	  {
-	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, doPointing); 
-	    MDirection antDir2 =vbUtils_p.getPointingDir(vb, vb.antenna2()[irow], irow, doPointing); 
+	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, dc_p.directionType(), doPointing); 
+	    MDirection antDir2 =vbUtils_p.getPointingDir(vb, vb.antenna2()[irow], irow, dc_p.directionType(), doPointing); 
 	    
-	    MVDirection vbdir=vb.direction1()(0).getValue();	
+	    //	    MVDirection vbdir=vb.direction1()(0).getValue();	
 	    casacore::Vector<double> thePixDir1_l, thePixDir2_l;
-	    thePixDir1_l = toPix(vb, antDir1, vbdir);
-	    thePixDir2_l = toPix(vb, antDir2, vbdir);
+	    thePixDir1_l = toPix(vb, antDir1, antDir2);
+	    thePixDir2_l = toPix(vb, antDir2, antDir1);
 	    thePix_p = (thePixDir1_l + thePixDir2_l)/2.;
 	    antOffsets(irow) = gradPerPixel(thePix_p);
+	    //cerr << irow << " " << antOffsets[irow]<< endl;
 	  }
       }
     else
@@ -156,6 +157,7 @@ namespace casa{
       direction1_p=pointToPix_p(dir1);
       direction2_p=pointToPix_p(dir2);
       dc_p.toPixel(thePix_p, direction1_p);
+      //cerr<<" thePix_P from one: "<<thePix_p<< " " << dir1.getRef().getType()<<endl;
 
     }
     else
@@ -163,7 +165,8 @@ namespace casa{
       direction1_p=dir1;
       direction2_p=dir2;
       dc_p.toPixel(thePix_p, dir1);
-    }
+      //cerr<<" thePix_P from two: "<<thePix_p<< " " << dir1.getRef().getType()<<endl;
+      }
     // Return the internal variable, just to make code more readable
     // at the place of the call.
     return thePix_p;

@@ -175,6 +175,7 @@ namespace refim{ //namespace for imaging refactor
       casacore::CountedPtr<casacore::TempImage<casacore::Float> > convWeightImage_p;
       casacore::String bandName_p;
       casacore::CountedPtr<VisBufferUtil> vbutil_p;
+      casacore::Bool usePointingTable_p;
     private:
       casacore::Bool checkPBOfField(const vi::VisBuffer2& vb);
       void addPBToFlux(const vi::VisBuffer2& vb);
@@ -195,8 +196,7 @@ namespace refim{ //namespace for imaging refactor
       casacore::Block<casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSizes_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
       casacore::Matrix<casacore::Bool> pointingPix_p;
-      VisBufferUtil vbUtil_p;
-      casacore::Bool usePointingTable_p;
+      
     };
   }; //end of refim namespace
 };// end of namespace
