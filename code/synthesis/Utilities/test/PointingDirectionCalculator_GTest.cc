@@ -2507,8 +2507,9 @@ TEST_F(TestDirection, InterpolationSingle )
 
     // set Examination Condition (revised by CAS-8418) //
 
+      uInt numRow = 1000;
       selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
-      setCondition( 1000,       // number of row
+      setCondition( numRow,       // number of row
                     0.05,          // Pointing Interval
                     0.01,         // Main Interval
                     8E-06  );  // Error limit 
@@ -2824,11 +2825,49 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 // Revised Edition (CAS-8418)
 //  (replaced from old to new)
 //------------------------------
+
+
+void showTime()
+{
+    struct timespec ts;
+    clock_getres(CLOCK_REALTIME, &ts);
+    clock_gettime(CLOCK_REALTIME, &ts);
+    printf("time:    %10ld.%09ld CLOCK_REALTIME\n", ts.tv_sec, ts.tv_nsec);
+}
+
 TEST_F(TestDirection, setDirectionColumn  )
 {
-    start(DefaultLocalMsName);
-    expectedNrow = pdc->getNrowForSelectedMS();
-    EXPECT_NE((uInt)0, expectedNrow );
+
+    // =TUNABLE
+      setMaxAntenna(3);         // more than zero 
+      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
+
+    // set Examination Condition (revised by CAS-8418) //
+ 
+      uInt numRow = 1000;
+      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
+      setCondition( numRow,       // number of row
+                     0.01,          // Pointing Interval
+                     0.01,         // Main Interval
+                     8E-06  );  // Error limit 
+ 
+ 
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+ 
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
+
+    // Add INTERPOLATION TEST DATA 
+      writeOnPointing();
+
+    // Easy Access //
+
+      start(DefaultLocalMsName);
+      expectedNrow = pdc->getNrowForSelectedMS();
+      EXPECT_NE((uInt)0, expectedNrow );
+
+    showTime();
 
     uInt Count =1 ;		// Debug option to check memory leak etc. //
     for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
@@ -2843,6 +2882,8 @@ TEST_F(TestDirection, setDirectionColumn  )
             inspectAccessor(*pdc);
         }
     }    
+
+    showTime();
 }
 /*----------------------------------------------------------
   getDirection() and MovingSourceCorrection
