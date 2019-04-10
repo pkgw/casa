@@ -727,15 +727,13 @@ namespace casa{
     //    Vector<Int> convOrigin = (cfShape-1)/2;
     Vector<Int> convOrigin = (cfShape)/2;
     Double cfRefFreq;//cfScale=1.0
-    //    Int wndx = 0, fndx=0;
     
     rbeg=0;
     rend=vbs.nRow_p;
     rbeg = vbs.beginRow_p;
     rend = vbs.endRow_p;
     nx       = grid.shape()[0]; ny        = grid.shape()[1];
-    //nw       = cfShape[2];
-    nGridPol = grid.shape()[2]; nGridChan = grid.shape()[3];
+     nGridPol = grid.shape()[2]; nGridChan = grid.shape()[3];
     
     nDataPol  = vbs.flagCube_p.shape()[0];
     nDataChan = vbs.flagCube_p.shape()[1];
@@ -770,50 +768,32 @@ namespace casa{
     Double vbPA = vbs.paQuant_p.getValue("rad");
     //    Int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
 
+    Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
+    Double fIncr, wIncr;
+    cfb->getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
+    nw = wVals.nelements();
+    //	nCFFreq = fVals.nelements()-1;
+
     for(Int irow=rbeg; irow<rend; irow++) {
       if(!rowFlag[irow]) {
 	//setFieldPhaseGrad(vb2CFBMap_p->phaseGradCalculator_p->getFieldPointingGrad());
 	setFieldPhaseGrad(vb2CFBMap_p->getCFPhaseGrad(irow));
 	cfb = (*vb2CFBMap_p)[irow];
-	Vector<Double> wVals, fVals; PolMapType mVals, mNdx, conjMVals, conjMNdx;
-	Double fIncr, wIncr;
-	cfb->getCoordList(fVals,wVals,mNdx, mVals, conjMNdx, conjMVals, fIncr, wIncr);
-	nw = wVals.nelements();
-	//	nCFFreq = fVals.nelements()-1;
 	
 	for (Int ichan=0; ichan < nDataChan; ichan++) {
 	  achan=chanMap_p[ichan];
 	  
 	  if((achan>=0) && (achan<nGridChan)) {
-	    //	    lambda = C::c/freq[ichan];
 	    Double dataWVal = (vbs.vb_p->uvw()(2,irow));
 	    Int wndx = cfb->nearestWNdx(abs(dataWVal)*freq[ichan]/C::c);
-	    //Int fndx = cfb.nearestFreqNdx(freq[ichan]);
 	    Int fndx = cfb->nearestFreqNdx(vbSpw,ichan);
-
-	    //	    cerr << "DG: " << fndx << " " << wndx << " " << ichan << " " << vbSpw << " " << freq[ichan] << endl;
-	    
-	    //	    cerr << "Grid: " << ichan << " " << freq[ichan] << " " << fndx << endl;
-	    
-	    // if (nw > 1) wndx=SynthesisUtils::nint((dataWVal*freq[ichan]/C::c)/wIncr-1);
-	    // if (nCFFreq > 0) fndx = SynthesisUtils::nint((freq[ichan])/fIncr-1);
 	    Float s;
-	    // CoordinateSystem cs; 
-	    // cfb.getParams(cs,s,support(0),support(1),0,wndx,0);
+
 	    cfb->getParams(cfRefFreq,s,support(0),support(1),fndx,wndx,0);
 	    sampling(0) = sampling(1) = SynthesisUtils::nint(s);
 	    
-	    //cfScale = cfRefFreq/freq[ichan];
-	    
-	    // sampling[0] = SynthesisUtils::nint(sampling[0]*cfScale);
-	    // sampling[1] = SynthesisUtils::nint(sampling[1]*cfScale);
-	    // support[0]  = SynthesisUtils::nint(support[0]/cfScale);
-	    // support[1]  = SynthesisUtils::nint(support[1]/cfScale);
-	    
 	    sgrid(pos,loc,off,phasor,irow,uvw,dphase_p[irow],freq[ichan],
 		  uvwScale_p,offset_p,sampling);
-	    
-	    //	    iloc[2]=max(0, min(nw, loc[2]));
 	    
 	    Bool isOnGrid;
 	    //  if ((isOnGrid=onGrid(nx, ny, nw, loc, support)))
@@ -853,7 +833,6 @@ namespace casa{
 			      // Set the polarization plane of the gridded data to use for predicting with the CF from mCols column
 			      visGridElement=(int)(muellerElement%nDataPol);
 			      igrdpos[2]=polMap_p[visGridElement];
-			      //cerr << "DG: " << mCol << "-->" << visGridElement << "-->" << ipol << " " << polMap_p[ipol] << " " << polMap_p[visGridElement] << endl;
 			      //
 			      // Compute the incrmenets and center pixel for the current CF
 			      //

@@ -66,7 +66,7 @@ namespace casa{
     numRow = 0;
     Vector<Vector<double> >pixFieldGrad_l;
     pixFieldGrad_l.resize(1);
-    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,MDirection::J2000,doPointing);
+    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,dc_p.directionType(),doPointing);
     thePix_p = toPix(vb, dir, dir);
 
     pixFieldGrad_p = gradPerPixel(thePix_p);
@@ -132,8 +132,8 @@ namespace casa{
     gPP(0) = p(0) - double(nx_p/2);
     gPP(1) = p(1) - double(ny_p/2);
 
-    gPP(0) = -gPP(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
-    gPP(1) = -gPP(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
+    gPP(0) = gPP(0)*2.0*C::pi/double(nx_p)/double(convOversampling_p);
+    gPP(1) = gPP(1)*2.0*C::pi/double(ny_p)/double(convOversampling_p);
 
     return gPP;
   }
