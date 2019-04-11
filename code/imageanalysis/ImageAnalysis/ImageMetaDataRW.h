@@ -1,4 +1,3 @@
-//# ImageMetaData.h: Meta information for Images
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -25,13 +24,12 @@
 //#
 //# $Id$
 
-#ifndef IMAGES_IMAGEMETADATARW_H
-#define IMAGES_IMAGEMETADATARW_H
+#ifndef IMAGEANALYSIS_IMAGEMETADATARW_H
+#define IMAGEANALYSIS_IMAGEMETADATARW_H
 
 #include <imageanalysis/ImageAnalysis/ImageMetaDataBase.h>
 
 #include <casa/aips.h>
-
 #include <memory>
 
 namespace casa {
@@ -75,14 +73,13 @@ namespace casa {
 // classes with these methods.
 // </motivation>
 
-class ImageMetaDataRW : public ImageMetaDataBase {
+template <class T> class ImageMetaDataRW : public ImageMetaDataBase<T> {
 
 public:
 
     ImageMetaDataRW() = delete;
 
-    ImageMetaDataRW(SPIIF image);
-    ImageMetaDataRW(SPIIC image);
+    ImageMetaDataRW(SPIIT image);
 
     // remove, if possible, the specified parameter. Returns true if removal
     // was successful.
@@ -105,11 +102,6 @@ public:
     void setCsys(const casacore::Record& coordinates);
 
 protected:
-
-    SPCIIF _getFloatImage() const {return _floatImage;}
-
-    SPCIIC _getComplexImage() const {return _complexImage;}
-
     const casacore::ImageInfo& _getInfo() const;
 
     const casacore::CoordinateSystem& _getCoords() const;
@@ -124,7 +116,7 @@ protected:
 
     casacore::String _getImType() const;
 
-    vector<casacore::Quantity> _getIncrements() const;
+    std::vector<casacore::Quantity> _getIncrements() const;
 
     casacore::Vector<casacore::String> _getMasks() const;
 
@@ -153,8 +145,7 @@ protected:
     casacore::Vector<casacore::String> _getStokes() const;
 
 private:
-    SPIIF _floatImage;
-    SPIIC _complexImage;
+    SPIIT _image;
 
     // These are mutable because they are only to be set once and
     // then cached. If this contract is broken, and they are set elsewhere
@@ -167,7 +158,7 @@ private:
     mutable casacore::GaussianBeam _beam;
     mutable casacore::Vector<casacore::String> _axisNames, _axisUnits;
     mutable casacore::Vector<casacore::Double> _refPixel;
-    mutable vector<casacore::Quantity> _refVal, _increment;
+    mutable std::vector<casacore::Quantity> _refVal, _increment;
     mutable casacore::Record _header, _stats;
 
     std::unique_ptr<casacore::CoordinateSystem> _makeCoordinateSystem(
@@ -196,20 +187,24 @@ private:
 
     casacore::Bool _isWritable() const;
 
-    template <class T, class U> void _modHistory(
+    template <class U, class V> void _modHistory(
         const casacore::String& func, const casacore::String& keyword,
-        const T& oldVal, const U& newVal
+        const U& oldVal, const V& newVal
     );
 
-    template <class T> void _addHistory(
-        const casacore::String& func, const casacore::String& keyword, const T& newVal
+    template <class U> void _addHistory(
+        const casacore::String& func, const casacore::String& keyword, const U& newVal
     );
 
     void _toHistory(const casacore::String& origin, const casacore::String& record);
 
-    template <class T> static casacore::String _quotify(const T& val);
+    template <class U> static casacore::String _quotify(const U& val);
 };
 
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/ImageMetaDataRW.tcc>
+#endif //# AIPS_NO_TEMPLATE_SRC
 
 #endif

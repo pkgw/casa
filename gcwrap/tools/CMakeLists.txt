@@ -84,6 +84,7 @@ casa_add_library( tools
  calanalysis/calanalysis_cmpt.cc
  calibrater/calplot_cmpt.cc
  casa/logsink_cmpt.cc
+ casa/telemetryhelper_cmpt.cc
  casa/quanta_cmpt.cc
  casa/TSLogSink.cc
  components/componentlist_cmpt.cc
@@ -117,9 +118,11 @@ casa_add_library( tools
  synthesis/linearmosaic_cmpt.cc
  synthesis/CalTables/PlotCal.cc
  synthesis/parallelimager_cmpt.cc
+ synthesis/sidebandseparator_cmpt.cc
  synthesis/simulator_cmpt.cc
  synthesis/synthesisimager_cmpt.cc
  synthesis/synthesisdeconvolver_cmpt.cc
+ synthesis/synthesismaskhandler_cmpt.cc
  synthesis/synthesisnormalizer_cmpt.cc
  synthesis/synthesisimstore_cmpt.cc
  synthesis/synthesisiterbot_cmpt.cc
@@ -157,6 +160,7 @@ casa_add_tools( tools_swig tools_sources tools_py
  calanalysis/calanalysis.xml
  calibrater/calplot.xml
  casa/logsink.xml
+ casa/telemetryhelper.xml
  casa/quanta.xml
  components/componentlist.xml
  #flagging/flagger.xml
@@ -185,9 +189,11 @@ casa_add_tools( tools_swig tools_sources tools_py
  synthesis/imager.xml
  synthesis/linearmosaic.xml
  synthesis/parallelimager.xml
+ synthesis/sidebandseparator.xml
  synthesis/simulator.xml
  synthesis/synthesisimager.xml
  synthesis/synthesisdeconvolver.xml
+ synthesis/synthesismaskhandler.xml
  synthesis/synthesisnormalizer.xml
  synthesis/synthesisimstore.xml
  synthesis/synthesisiterbot.xml
@@ -205,6 +211,12 @@ include_directories( ${CMAKE_CURRENT_BINARY_DIR} )
 # for generated C++ bindings
 
 add_definitions( -pthread -fno-strict-aliasing -DNDEBUG ) # may or may not be necessary for compiling python modules
+
+if (${CMAKE_VERSION} VERSION_GREATER "3.11")
+  set_source_files_properties(${tools_sources}} PROPERTIES
+      GENERATED TRUE
+  )
+endif()
 
 add_custom_target( generated_sources SOURCES ${tools_sources} ${tools_swig} )
 add_custom_target( generated_py SOURCES ${tools_py} )
@@ -226,4 +238,3 @@ foreach(_tool ${tools_py} )
    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
 	               DESTINATION lib/python${PYTHONV}/__casac__ )
 endforeach()
-

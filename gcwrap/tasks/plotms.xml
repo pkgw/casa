@@ -8,37 +8,35 @@
 <shortdescription>A plotter/interactive flagger for visibility data.</shortdescription>
 
 <returns type="void" />
-	
+
 <description>
 
-        Task for plotting and interacting with visibility
-        data.  Limited support for caltable plotting is also
-        included as of CASA v4.1.
+		Task for plotting and interacting with visibility data and
+		calibration tables.
 
-        A variety of axes choices (including data column) along 
-        with MS selection and averaging options are provided for data 
-        selection.  Flag extension parameters are also available for
-        flagging operations in the plotter.
+		Plotms provides a variety of axis choices (including data column)
+		along with selection, averaging, and transformation options for
+		MeasurementSets.  Flag extension parameters are also available for
+		interactive flagging operations in the plotter.
         
-        All of the provided parameters can also be set using the GUI once
-        the application has been launched.  Additional and more specific
-        operations are available through the GUI and/or through the plotms
-        tool (pm).
+		All of the provided parameters can also be set using the GUI once
+		the application has been launched or through the plotms tool (pm).
 
-        Most basic functions (plotting, iteration, locate, flagging)
-        will work for most CalTables. Parameterized CalTables
-        (delays, antpos, gaincurve, opacity), will, at best, currently 
-        just plot the simple parameters contained in the
-        table, not the effective amplitudes or phases sampled at
-        observing times, frequencies etc.  BPOLY and GSPLINE tables
-        are not yet supported.   Features currently unsupported for
-        CalTables include Averaging, Transformations (velocity 
-        conversions, etc.), and some details of selection (channel and 
-        polarization selection are not yet enabled) and axes choices 
-        (geometry options are not yet enabled).  In the plotms gui,
-        many options irrelevant for CalTables are not yet hidden when
-        interacting with a CalTable, and such settings will be ignored
-        (when benign) or cause an error message.
+		Most of the basic plotms functions will work for calibration tables.
+		The correlation selection string may be used to select polarization
+		in a cal table, including ratio plots ("/").  The antenna selection
+		string is used to select antenna1 only, rather than baselines as in
+		an MS. When plotting parameterized CalTables, such as delays, antpos,
+		gaincurve, or opacity, plotms will currently just plot the simple
+		parameters contained in the table, not the effective amplitudes or
+		phases sampled at observing times, frequencies etc.  BPOLY and
+		GSPLINE tables are supported but interactive flagging is not allowed.
+		Features currently unsupported for CalTables include averaging,
+		transformations (velocity conversions, etc.), and some axis and
+		selection options which do not exist in these tables. In the plotms
+		GUI, many options irrelevant for CalTables are not hidden when
+		interacting with a CalTable, and such settings will be ignored (when
+		benign) or cause an error message.
         
 </description>
 
@@ -50,7 +48,7 @@ MS Parameters
 ###############################################################################
 -->
   <param type="string" name="vis" kind="ms">
-    <description>Input MS (or CalTable) (blank for none)</description>
+    <description>Input MS or CalTable (blank for none)</description>
     <value />
   </param>
   
@@ -58,12 +56,12 @@ MS Parameters
   
   <param type="int" name="gridrows">
     <description>Number of subplot rows</description>
-  	<value>1</value>
+    <value>1</value>
   </param>
   
   <param type="int" name="gridcols">
     <description>Number of subplot columns</description>
-  	<value>1</value>
+    <value>1</value>
   </param>
   
    <param type="int" name="rowindex">
@@ -76,11 +74,11 @@ MS Parameters
        <value>0</value>
    </param>
   
-  <param type="int" name="plotindex">
-    	<description>Index to address a subplot (0-based)</description>
-    	<value>0</value>
-  	</param>
- 
+   <param type="int" name="plotindex">
+       <description>Index to address a subplot (0-based)</description>
+       <value>0</value>
+   </param>
+
 
   <param type="string" name="xaxis">
     <description>Plot x-axis (blank for default/current)</description>
@@ -193,6 +191,10 @@ MS Parameters
       <value>Ant-Azimuth</value>
       <value>ant-elevation</value>
       <value>Ant-Elevation</value>
+      <value>ant-ra</value>
+      <value>Ant-RA</value>
+      <value>ant-dec</value>
+      <value>Ant-DEC</value>
       <value>ant-parang</value>
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
@@ -228,6 +230,9 @@ MS Parameters
       <value>SNR</value>
       <value>tec</value>
       <value>TEC</value>
+      <value>antpos</value>
+      <value>Antenna Positions</value>
+      <value>antenna positions</value>
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>
@@ -235,24 +240,55 @@ MS Parameters
     </allowed>
   </param>
   
-    <param type="string" name="xdatacolumn" subparam="true">
-      <description>Data column to use for x-axis (blank for default/current).  Note that residuals are complex (vector) differences or ratios.</description>
+    <param type="string" name="xdatacolumn" subparam="true" >
+      <description>Data column to use for x-axis (blank for default/current).  Note that unspecified residuals are complex (vector) differences or ratios.</description>
       <value />
       <allowed kind="enum">
         <value />
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
-    </param>    
+    </param>
     
-  <param type="any" name="yaxis">    
+    <param type="string" name="xframe" subparam="true">
+      <description>Coordinate frame to use for x-axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>icrs</value>
+        <value>j2000</value>
+        <value>azelgeo</value>
+      </allowed>
+    </param>
+    
+    <param type="string" name="xinterp" subparam="true">
+      <description>Interpolation method for x-axis</description>
+      <value />
+      <allowed kind="enum">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+    
+    
+  <param type="any" name="yaxis">
   <description>Plot y-axis (blank for default/current)</description>
   <any type="variant" limittype="string stringArray"/>
    <value type="string" />
@@ -365,6 +401,10 @@ MS Parameters
       <value>Ant-Azimuth</value>
       <value>ant-elevation</value>
       <value>Ant-Elevation</value>
+      <value>ant-ra</value>
+      <value>Ant-RA</value>
+      <value>ant-dec</value>
+      <value>Ant-DEC</value>
       <value>ant-parang</value>
       <value>ant-parangle</value>
       <value>ant-parallacticangle</value>
@@ -400,15 +440,21 @@ MS Parameters
       <value>SNR</value>
       <value>tec</value>
       <value>TEC</value>
+      <value>antpos</value>
+      <value>Antenna Positions</value>
+      <value>antenna positions</value>
       <value>radialvelocity</value>
       <value>Radial Velocity</value>
       <value>rho</value>
       <value>Distance</value>
+      <value>ra</value>
+      <value>RA</value>
+      <value>Right Ascension</value>
     </allowed>
     </param>
     
-    <param type="any" name="ydatacolumn" subparam="true">
-      <description>Data column to use for y-axis (blank for default/current). Note that residuals are complex (vector) differences or ratios.</description>
+    <param type="any" name="ydatacolumn" subparam="true" >
+      <description>Data column to use for y-axis (blank for default/current). Note that unspecified residuals are complex (vector) differences or ratios.</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string"/>
       <allowed kind="enum" type="string">
@@ -416,17 +462,50 @@ MS Parameters
         <value>data</value>
         <value>corrected</value>
         <value>model</value>
+        <value>float</value>
         <value>residual</value>
         <value>corrected-model</value>
+        <value>corrected-model_vector</value>
+        <value>corrected-model_scalar</value>
         <value>data-model</value>
-        <value>data/model</value>
+        <value>data-model_vector</value>
+        <value>data-model_scalar</value>
         <value>corrected/model</value>
-        <value>float</value>
+        <value>corrected/model_vector</value>
+        <value>corrected/model_scalar</value>
+        <value>data/model</value>
+        <value>data/model_vector</value>
+        <value>data/model_scalar</value>
       </allowed>
     </param>
     
-    <param type="any" name="yaxislocation" subparam="true">
-      <description>Left or right y-axis for the data (blank for default)</description>
+    <param type="any" name="yframe" subparam="true">
+      <description>Coordinate frame to use for y-axis</description>
+      <any type="variant" limittype='string stringArray'/>
+      <value type="string"/>
+      <allowed kind="enum" type="string">
+        <value />
+        <value>icrs</value>
+        <value>j2000</value>
+        <value>azelgeo</value>
+      </allowed>
+    </param>
+    
+    <param type="any" name="yinterp" subparam="true">
+      <description>Interpolation method for y-axis</description>
+      <any type="variant" limittype='string stringArray'/>
+      <value type="string"/>
+      <allowed kind="enum" type="string">
+        <value />
+        <value>nearest</value>
+        <value>linear</value>
+        <value>cubic</value>
+      </allowed>
+    </param>
+    
+    
+    <param type="any" name="yaxislocation" subparam="false">
+      <description>Location of the y-axis (blank for default: left)</description>
       <any type="variant" limittype='string stringArray'/>
       <value type="string" />
       <allowed kind="enum" type="string">
@@ -444,12 +523,12 @@ MS Selection parameters
 -->
 
   <param type="bool" name="selectdata">
-    <description>Data selection parameters</description>
+    <description>Enable data selection parameters</description>
     <value>True</value>
   </param>
   
     <param type="string" name="field" subparam="true">
-      <description>Field names or field index numbers (blank for all)</description>
+      <description>Field names or ids (blank for all)</description>
       <value />
     </param>
     
@@ -469,7 +548,7 @@ MS Selection parameters
     </param>
     
     <param type="string" name="antenna" subparam="true">
-      <description>Antenna/baselines (blank for all)</description>
+      <description>Baseline/antenna names or ids (blank for all)</description>
       <value />
     </param>
     
@@ -479,7 +558,7 @@ MS Selection parameters
     </param>
     
     <param type="string" name="correlation" subparam="true">
-      <description>Correlations (blank for all)</description>
+      <description>Correlations/polarizations (blank for all)</description>
       <value />
     </param>
     
@@ -505,7 +584,7 @@ MS Selection parameters
     </param>
 
     <param type="string" name="msselect" subparam="true">
-      <description>MS selection (blank for all)</description>
+      <description>MSSelection TaQL string (blank for none)</description>
       <value />
     </param>
 
@@ -517,7 +596,7 @@ MS Averaging Parameters
 -->
 
   <param type="bool" name="averagedata">
-    <description>Data averaging parameters</description>
+    <description>Enable data averaging parameters</description>
     <value>True</value>
   </param>
   
@@ -569,7 +648,7 @@ MS Data Transformation Parameters
 -->
 
   <param type="bool" name="transform">
-    <description>Transform data in various ways</description>
+    <description>Enable data transformations</description>
     <value>True</value>
   </param>
 
@@ -622,7 +701,7 @@ Flag Extension Parameters
 -->
 
   <param type="bool" name="extendflag">
-    <description>Extend flagging to other data points</description>
+    <description>Extend flagging to other data points not plotted</description>
     <value>False</value>
   </param>
     
@@ -705,22 +784,22 @@ Iteration Parameters
    </param>
 
    <param type="bool" name="xselfscale" subparam="true">
-       <description>Iterated plots share a common x-axis label per column</description>
+       <description>When True, iterated plots have a common x-axis range (scale).</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="yselfscale" subparam="true">
-       <description>Iterated plots share a common y-axis label per row</description>
+       <description>When True, iterated plots have a common y-axis range (scale).</description>
        <value>False</value>
    </param>
    
    <param type="bool" name="xsharedaxis" subparam="true">
-       <description>Iterated plots share a common x-axis. Must also set xselfscale=True.</description>
+       <description>Iterated plots on a grid share a common external x-axis per column. Must also set xselfscale=True and gridrows>1.</description>
        <value>False</value>
    </param>
 
    <param type="bool" name="ysharedaxis" subparam="true">
-       <description>Iterated plots share a common y-axis. Must also set yselfscale=True.</description>
+       <description>Iterated plots on a grid share a common external y-axis per row. Must also set yselfscale=True and gridcols>1.</description>
        <value>False</value>
    </param>
 
@@ -733,7 +812,7 @@ Display Parameters
    
     
     <param type="any" name="customsymbol">
-        <description>Set a custom symbol(s) for unflagged points</description>
+        <description>Enable custom symbol(s) for unflagged points</description>
          <any type="variant" limittype="bool boolArray"/>
         <value>False</value>
     </param>
@@ -759,7 +838,7 @@ Display Parameters
     </param>
 
     <param type="any" name="symbolcolor" subparam="true">
-        <description>Color of plotted unflagged symbols</description>
+        <description>Color (name or hex code) of plotted unflagged symbols</description>
          <any type="variant" limittype="string stringArray"/>
         <value type="string">0000ff</value>
     </param>
@@ -778,13 +857,13 @@ Display Parameters
     </param>
 
     <param type="any" name="symboloutline" subparam="true">
-        <description>Selects outlining plotted unflagged points</description>
+        <description>Outline plotted unflagged symbols</description>
          <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
 
     <param type="any" name="coloraxis">
-        <description>Selects which data to use for colorizing</description>
+        <description>Selects data axis for colorizing</description>
         <any type="variant" limittype="string stringArray"/>
         <value type="string" />
         <allowed kind="enum" type="string">
@@ -818,7 +897,7 @@ Display Parameters
     </param>
 
     <param type="any" name="customflaggedsymbol">
-        <description>Set a custom plot symbol for flagged points</description>
+        <description>Enable custom symbol(s) for flagged points</description>
         <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
@@ -844,7 +923,7 @@ Display Parameters
     </param>
 
     <param type="any" name="flaggedsymbolcolor" subparam="true">
-        <description>Color of plotted flagged symbols</description>
+        <description>Color (name or hex code) of plotted flagged symbols</description>
         <any type="variant" limittype="string stringArray"/>
         <value type="string">ff0000</value>
     </param>
@@ -863,7 +942,23 @@ Display Parameters
     </param>
 
     <param type="any" name="flaggedsymboloutline" subparam="true">
-        <description>Selects outlining plotted flagged points</description>
+        <description>Outline plotted flagged symbols</description>
+        <any type="variant" limittype="bool boolArray"/>
+        <value type="bool">False</value>
+    </param>
+
+    <param type="string" name="xconnector">
+        <description>Set connector for data points (blank="none"; "line","step")</description>
+        <value />
+		<allowed kind="enum">
+			<value />
+            <value>none</value>
+            <value>line</value>
+            <value>step</value>
+        </allowed>
+    </param>
+    <param type="any" name="timeconnector" subparam="true">
+        <description>Connect points by time rather than x-axis</description>
         <any type="variant" limittype="bool boolArray"/>
         <value type="bool">False</value>
     </param>
@@ -875,44 +970,44 @@ Plot range Parameter
 ###############################################################################
 -->
 
-    <param type="doubleArray" name="plotrange">cd
+    <param type="doubleArray" name="plotrange">
         <description>Plot axes ranges: [xmin,xmax,ymin,ymax]</description>
         <value />
     </param>
 
 <!--
 ###############################################################################
-Label Paramlegeters
+Label Parameters
 ###############################################################################
 -->
 
   <param type="string" name="title">    
-    <description>Title written along top of plot</description>
+    <description>Title at top of plot</description>
     <value />
   </param>
   
   <param type="int" name="titlefont">
-    <description>Font for plot title</description>
+    <description>Font size for plot title</description>
     <value>0</value>
   </param>
 
   <param type="string" name="xlabel">    
-    <description>Text for horizontal axis. Blank for default.</description>
+    <description>Text for horizontal x-axis. Blank for default.</description>
     <value />
   </param>
   
   <param type="int" name="xaxisfont">
-    <description>Font for plot x-axis</description>
+    <description>Font size for x-axis label</description>
     <value>0</value>
   </param>
 
   <param type="string" name="ylabel">    
-    <description>Text for vertical axis. Blank for default.</description>
+    <description>Text for vertical y-axis. Blank for default.</description>
     <value />
   </param>
 
   <param type="int" name="yaxisfont">
-    <description>Font for plot y-axis</description>
+    <description>Font size for y-axis label</description>
     <value>0</value>
   </param>
 
@@ -925,7 +1020,7 @@ Canvas Parameters
 
 
 <param type="bool" name="showmajorgrid" subparam="false">
-    <description>Show major grid lines (horiz and vert)</description>
+    <description>Show major grid lines</description>
     <value>False</value>
 </param>
 
@@ -946,14 +1041,14 @@ Canvas Parameters
 </param>
 
 <param type="string" name="majorcolor" subparam="true">
-    <description>Color as name or hex code of major grid lines</description>
+    <description>Color (name or hex code) of major grid lines</description>
     <value>B0B0B0</value>
 </param>
 
 
 
 <param type="bool" name="showminorgrid" subparam="false">
-    <description>Show minor grid lines (horiz and vert)</description>
+    <description>Show minor grid lines</description>
     <value>False</value>
 </param>
 
@@ -974,7 +1069,7 @@ Canvas Parameters
 </param>
 
 <param type="string" name="minorcolor" subparam="true">
-    <description>Color as name or hex code of minor grid lines</description>
+    <description>Color (name or hex code) of minor grid lines</description>
     <value>D0D0D0</value>
 </param>
 
@@ -985,10 +1080,10 @@ Canvas Parameters
 </param>
 
 <param type="string" name="legendposition" subparam="true">
-    <description>Legend position.</description>
+    <description>Legend position, default upperRight.</description>
     <value></value>
     <allowed kind="enum">
-    	<value />
+        <value />
         <value>upperRight</value>
         <value>upperLeft</value>
         <value>lowerRight</value>
@@ -1013,7 +1108,7 @@ Export plot as image Parameters
     </param>
 
     <param type="string" name="expformat" subparam="true">
-        <description>Export format type. If not provided, plotfile extension will be used.</description>
+        <description>Export format type. If not provided, plotfile extension will be used to determine type.</description>
         <allowed kind="enum">
             <value />
             <value>jpg</value>
@@ -1024,8 +1119,13 @@ Export plot as image Parameters
         </allowed>
     </param>
 
+     <param type="bool" name="verbose" subparam="true">
+         <description>Include metadata in text export</description>
+         <value>True</value>
+     </param>
+
     <param type="string" name="exprange" subparam="true">
-        <description>Range of iteration plots to export</description>
+        <description>Range of iteration plots to export, one plotfile per page.  Multipage pdf exports are not supported.</description>
         <allowed kind="enum">
             <value />
             <value>current</value>
@@ -1042,11 +1142,11 @@ Export plot as image Parameters
          <value>-1</value>
      </param>
      <param type="int" name="width" subparam="true">
-         <description>Width of exported plot</description>
+         <description>Width in pixels of exported plot</description>
          <value>-1</value>
      </param>
      <param type="int" name="height" subparam="true">
-         <description>Height of exported plot</description>
+         <description>Height in pixels of exported plot</description>
          <value>-1</value>
      </param>
      <param type="bool" name="overwrite" subparam="true">
@@ -1059,20 +1159,34 @@ Export plot as image Parameters
 ###############################################################################
 -->
      <param type="bool" name="showgui">
-         <description>Show GUI</description>
-         <value>True</value>
+        <description>Show GUI</description>
+        <value>True</value>
      </param>
      
      <param type="bool" name="clearplots" subparam="true">
-     	<description>Remove any existing plots so new ones can replace them.</description>
-     	<value>True</value>
+        <description>Remove any existing plots so new ones can replace them.</description>
+        <value>True</value>
      </param>
      
      <param type="stringArray" name="callib">
-     	<description>Calibration library string or filename for on-the-fly calibration.</description>
+        <description>Calibration library string or filename for on-the-fly calibration.</description>
         <value></value>
      </param>
      
+     <param type="string" name="headeritems" >
+        <description>Comma-separated list of pre-defined page header items.</description>
+        <value></value>
+     </param>
+
+     <param type="bool" name="showatm">
+        <description>Compute and overlay the atmospheric transmission curve</description>
+        <value>False</value>
+     </param>
+     
+     <param type="bool" name="showtsky">
+        <description>Compute and overlay the sky temperature curve</description>
+        <value>False</value>
+     </param>
      
 <!--
 ###############################################################################
@@ -1199,6 +1313,14 @@ Constraints
       <equals type="string" value="imaginary">
         <default param="xdatacolumn"><value type="string" /></default>
       </equals>
+      <equals type="string" value="ant-ra">
+        <default param="xframe"><value type="string" /></default>
+        <default param="xinterp"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-dec">
+        <default param="xframe"><value type="string" /></default>
+        <default param="xinterp"><value type="string" /></default>
+      </equals>
       <equals value="scan"/>
        <equals value="Scan"/>
       <equals value="field"/>
@@ -1260,6 +1382,7 @@ Constraints
       <equals value="observation"/>
       <equals value="intent"/>
       <equals value="feed"/>
+      <equals value="ra"/>
     </when>
 
     
@@ -1282,6 +1405,14 @@ Constraints
       </equals>
       <equals type="string" value="imaginary">
         <default param="ydatacolumn"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-ra">
+        <default param="yframe"><value type="string" /></default>
+        <default param="yinterp"><value type="string" /></default>
+      </equals>
+      <equals type="string" value="ant-dec">
+        <default param="yframe"><value type="string" /></default>
+        <default param="yinterp"><value type="string" /></default>
       </equals>
       <equals value="scan"/>
        <equals value="Scan"/>
@@ -1408,7 +1539,7 @@ Constraints
             <default param="ysharedaxis"><value>False</value></default>
         </notequals>
     </when>
- 	<!--<when param="exprange">
+    <!--<when param="exprange">
         <notequals type="string" value="">
         </notequals>
     </when> -->
@@ -1457,6 +1588,7 @@ Constraints
     <when param="plotfile">
         <notequals type="string" value="">
             <default param="expformat"><value type="string"/></default>
+            <default param="verbose"><value type="bool">True</value></default>
             <default param="exprange"><value type="string"/></default>
             <default param="highres"><value type="bool">False</value></default>
             <default param="dpi"><value type="int">-1</value></default>
@@ -1467,9 +1599,9 @@ Constraints
     </when>
     
     <when param="showgui">
-    	<equals type="bool" value="True">
-    		<default param="clearplots"><value type="bool">True</value></default>
-    	</equals>
+        <equals type="bool" value="True">
+            <default param="clearplots"><value type="bool">True</value></default>
+        </equals>
         <equals type="bool" value="False">
             <default param="clearplots"><value type="bool">True</value></default>
         </equals>
@@ -1490,6 +1622,17 @@ Constraints
         <default param="minorwidth"><value type="int">0</value></default>
         <default param="minorstyle"><value type="string" /></default>
         <default param="minorcolor"><value type="string"></value></default>
+      </equals>
+    </when>
+
+    <when param="xconnector">
+      <equals type="string" value="" />
+      <equals type="string" value="none" />
+      <equals type="string" value="line">
+        <default param="timeconnector"><value type="bool">False</value></default>
+      </equals>
+      <equals type="string" value="step">
+        <default param="timeconnector"><value type="bool">False</value></default>
       </equals>
     </when>
 
@@ -1550,15 +1693,15 @@ Constraints
     vis -- input MS or CalTable
            default: ''  (will merely launch the gui)
     gridrows -- Number of subplot rows
-    				default: 1 
+                    default: 1 
     gridcols -- Number of subplot columns
-    				default: 1
+                    default: 1
     rowindex -- Row location of the subplot (0-based).
                     default: 0
     colindex -- Column location of the subplot (0-based).
                     default: 0
     plotindex -- Index to address a subplot (0-based). 
-    				default: 0                         
+                    default: 0                         
     xaxis, yaxis -- what to plot on the two axes
                     default: '' (defaults are xaxis='time',
                                  yaxis='amp' on first execution;
@@ -1609,6 +1752,8 @@ Constraints
                  'ant'='antenna'
                  'ant-azimuth' 
                  'ant-elevation'
+                 'ant-ra'
+                 'ant-dec'
                  'ant-parang'='ant-parangle'
                Calibration:
                  'gainamp'='gamp'
@@ -1784,13 +1929,13 @@ Constraints
                 default: '' (no iteration)
                 options: 'scan','field','spw','baseline','antenna','time','corr',''
       &gt;&gt;&gt; iteraxis expandable parameters
-        xselfscale -- If true, iterated plots should share a common x-axis label per column.
-        yselfscale -- If true, iterated plots should share a common y-axis label per row.
-                      default: false, which will scale all plots globally
-        xsharedaxis -- If true, iterated plots should share a common x-axis (must also set xselfscale=True) 
-        			  default: false, each plot will have its own x-axis.
-        ysharedaxis -- If true, iterated plots should share a common y-axis (must also set yselfscale=True)
-        			  default: false, each plot will have its own y-axis.              
+        xselfscale -- When True, iterated plots have a common x-axis range (scale).
+        yselfscale -- When True, iterated plots have a common y-axis range (scale).
+                      default: false, which will scale all plots individually
+        xsharedaxis -- Iterated plots on a grid share a common external x-axis per column (must also set xselfscale=True and gridcols>1) 
+                      default: false, each plot will have its own x-axis.
+        ysharedaxis -- Iterated plots on a grid share a common external y-axis per row (must also set yselfscale=True and gridrows>1)
+                      default: false, each plot will have its own y-axis.              
 
     customsymbol -- If true, use a custom symbol for drawing unflagged points
                     default: False
@@ -1851,14 +1996,14 @@ Constraints
                  default: 0 (autosize)
     
     
-    showmajorgrid  -- show major grid lines (horiz and vert.)
+    showmajorgrid  -- show major grid lines 
                   default: False
       &gt;&gt;&gt;  showmajorgrid expandable parameters
         majorwidth  -- line width in pixels of major grid lines
         majorstyle  -- major grid line style: solid dash dot none
         majorcolor  -- color in hex code of major grid lines
 
-    showminorgrid  -- show minor grid lines (horiz and vert.)
+    showminorgrid  -- show minor grid lines
                   default: False
       &gt;&gt;&gt;  showminorgrid expandable parameters
         minorwidth  --  line width in pixels of minor grid lines
@@ -1871,9 +2016,11 @@ Constraints
         expformat -- export format type; if 'txt' is used an ASCII dump of the plotted points is generated (also available in the export tab)
                      default:  ''   (plotfile extension will be used)
                      options: 'jpg', 'png', 'ps', 'pdf', 'txt'
+        verbose -- when export format is 'txt', print metadata for x and y values
+                   default: True 
         exprange -- pages to export for iteration plots
-        			default:   ''
-        			options: 'current', 'all'             
+                    default:   ''
+                    options: 'current', 'all'             
         highres -- use high resolution in exported plot 
                    default: False (use screen resolution)
         dpi -- DPI of exported plot
@@ -1890,6 +2037,15 @@ Constraints
     
     showgui - Whether or not to display the plotting GUI
               default: True
+              
+    headeritems -- append header items specific to this plot to the current list
+                of page header items.
+                Comma-separated string of header item selection keywords.
+                Allowed keywords: 'obsdate','obstime','filename','projid',
+                                  'targname','targdir','telescope','observer',
+                                  'ycolumn'
+                default: ''
+                example: 'filename,projid,targname'
 
 <!--
 

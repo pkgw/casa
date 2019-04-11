@@ -1,13 +1,19 @@
 #include <set>
 #include <stdio.h>
 #include <iostream>
-using namespace std;
 #include <stdlib.h> // for atoi()
-#include "Error.h"
-#include "DataDescriptionsSet.h"
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/DataDescriptionsSet.h>
 
-#include <StokesParameter.h>
-#include <PolarizationType.h>
+#include <alma/Enumtcl/StokesParameter.h>
+#include <alma/Enumtcl/PolarizationType.h>
+
+using namespace asdm;
+using namespace std;
+
+using namespace AtmPhaseCorrectionMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
 
 namespace sdmbin {
 
@@ -161,124 +167,11 @@ namespace sdmbin {
 	v_pairDataDescriptionId_.push_back(false);
       }
     }else{                                       // Case when there are both auto and cross-correlations
-#if 1
       for(unsigned int n=0; n<numDataDescription_; n++){
 	v_crossDataDescriptionId_.push_back(v_dataDescriptionIdArray[n]);
 	v_autoDataDescriptionId_.push_back(v_dataDescriptionIdArray[n]);
 	v_pairDataDescriptionId_.push_back(true);
       }
-#else
-      if(coutest)cout << "Auto and cross-correlations use-case " << endl;
-      vector<PolarizationRow*>          v_polPtr = datasetPtr_->getPolarization().get();
-      vector<StokesParameter>           v_corrType, v_corrTyp;
-      vector<vector<PolarizationType> > vv_corrProduct, vv_corrProd;
-      vector<PolarizationType>          v_autoProduct;
-      Tag                               autoPolarizationId;
-      bool                              autoPolar;
-      Tag                               ddId;
-      DataDescriptionRow*               ddRowPtr;
-      Enum<SidebandProcessingMode>      e_sbpm;
-      Tag                               spwId;
-      set<Tag>                          s_imspwId;
-      set<Tag>::iterator                it, itf, ite;
-
-      for(unsigned int n=0; n<numDataDescription_; n++){                                   // for every input data description
-
-	// for the cross correlations:
-	v_crossDataDescriptionId_.push_back(v_dataDescriptionIdArray[n]);
-
-	spwId =  v_spwr[n]->getSpectralWindowId();            
-	if (coutest) cout<<spwId.toString()<<endl;
-	itf   =  s_imspwId.find(spwId);                
-	ite   =  s_imspwId.end();
-	
-	if(itf==ite){
-
-	  if (coutest) cout<<"SidebandProcessingMode: "<<e_sbpm.str()<<endl;
-	  e_sbpm = v_spwr[n]->getSidebandProcessingMode();    
-	  if(e_sbpm[PHASE_SWITCH_SEPARATION]){
-	    if(v_spwr[n]->isImageSpectralWindowIdExists())
-	      s_imspwId.insert(v_spwr[n]->getSpectralWindowId());
-	    else{
-	      Error(WARNING,(char *) "90deg. phase switching requires to declare the image\n %s",
-		    "sideband in the definition of the SpectralWindow");
-	      Error(SERIOUS,(char *)"The definition of the image sideband is missing");
-	    }
-	  }
-	  
-	  // for the auto correlations:
-	  v_corrTyp.clear();
-	  //cout << v_corrTyp.size() << endl;
-	  v_corrTyp  = rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getPolarizationUsingPolOrHoloId()->getCorrType();
-	  vv_corrProd = rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getPolarizationUsingPolOrHoloId()->getCorrProduct();
-	  v_autoProduct.clear();
-	  autoPolar = false;
-	  for(unsigned int j=0; j<v_polPtr.size(); j++){                            // for every row in the Polarization table
-	    if (coutest) cout << "index in Polarization table = " << j << endl;
-	    if(v_polPtr[j]->getNumCorr()<=4){                                       //  this row could be for an auto-correlation
-	      vv_corrProduct = v_polPtr[j]->getCorrProduct();
-	      v_corrType = v_polPtr[j]->getCorrType();
-	      // 	      EnumSet<StokesParameter> es; es.set(v_corrTyp); cout<<es.str()<<endl;
-	      if(v_corrTyp.size()==4){                                             //  all 4 pol products in interfero mode
-		if(vv_corrProduct.size()==3){                                       //     case of 3 prod, XX, XY and YY ==> single-dish  
-		  autoPolarizationId = v_polPtr[j]->getPolarizationId();
-		  autoPolar = true;
-		  break;
-		}
-	      }else{
-		if(vv_corrProduct==vv_corrProd){
-		  if (v_corrType == v_corrTyp) { 
-		    autoPolarizationId = v_polPtr[j]->getPolarizationId();
-		    break;
-		  }
-		}
-		// 		for(int i=0; i<vv_corrProduct.size(); i++){                         // we need to know if it is XX or YY or both
-		// 		  // cout << "     " << Enum<PolarizationType>(vv_corrProduct[0][i]).str() 
-		// // 		       << " compared with "<< Enum<PolarizationType>(vv_corrProduct[1][i]).str() << endl;
-		// 		  if(vv_corrProduct[i][0]==vv_corrProduct[i][1])                    //  this is an auto-product XX or YY (RR or LL)
-		// 		    v_autoProduct.push_back(vv_corrProduct[i][0]);
-	      
-		// 		  cout << v_autoProduct.size() << endl;
-		// 		}
-		// 		autoPolar=true;
-		// 		for(unsigned int i=0; i<v_autoProduct.size(); i++)
-		// 		  if(v_autoProduct[i]!=vv_corrProd[i][0])autoPolar=false;
-		// 		if(autoPolar){
-		// 		  autoPolarizationId = v_polPtr[j]->getPolarizationId();
-		// 		  break;
-		// 		}
-	      }
-	    }
-	  }
-	  if (coutest) cout << "autoPolarizationId=" << autoPolarizationId.toString() << endl;
-	  if (coutest) cout << "spectralWindowId=" << rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getSpectralWindowId().toString() << endl;
-	  if (autoPolarizationId.toString()=="null_0")
-	    Error(FATAL,(char *)"Missing row in the Polarization table for autocorrelation data.");
-	  if (coutest) cout << "Looking for a DataDescription row with polarizationId == "
-			    << autoPolarizationId.toString()
-			    << " and spectralWindowId = "
-			    << (rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getSpectralWindowId()).toString()
-			    << endl;
-	  ddRowPtr = rddSet.lookup( autoPolarizationId, 
-				    rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getSpectralWindowId());
-	  if (ddRowPtr == (DataDescriptionRow *) 0) {
-	    ostringstream oss;
-	    oss << "Could not find a row in the DataDescription table with 'polarizationId=" << autoPolarizationId.toString()
-		<< "' and 'spectralWindowId=" << (rddSet.getRowByKey(v_dataDescriptionIdArray[n])->getSpectralWindowId()).toString()
-		<< "'.";
-	    Error(FATAL, oss.str());
-	  }
-	  ddId = ddRowPtr->getDataDescriptionId();
-	  v_autoDataDescriptionId_.push_back(ddId);
-	  v_pairDataDescriptionId_.push_back(true);
-	  if(coutest)cout << "dataDesc cross-corr="<< v_crossDataDescriptionId_[n].toString()
-			  << " dataDescr auto-corr=" << v_autoDataDescriptionId_[n].toString() << endl;
-	}
-	else{
-	  v_pairDataDescriptionId_.push_back(false);   // this crossDataDescriptionId is not associated to an autoDescriptionId
-	}
-      }
-#endif
     }
     // set the number of data and the sizes in number of primitive data type (PDT) values.
     size();
@@ -397,7 +290,7 @@ namespace sdmbin {
     sumCrossSize_ = 0;
     unsigned long dataSize, numVis, numAuto, nv;
     unsigned long numAutoPol;
-    int k;
+    // int k;   // set in old code, but never actually used, kept in the event I work out what it was originally for and need it
     for(unsigned int ndd=0; ndd<numDataDescription_; ndd++){
       nv = v_numChan_[ndd] * v_numBin_[ndd]; 
       if(correlationMode_!=CROSS_ONLY){   // case there are auto data
@@ -435,10 +328,11 @@ namespace sdmbin {
 	if(coutest)cout << "numChan=    " << v_numChan_[ndd] << endl;
 	if(coutest)cout << "numPol=     " << v_numPol_[ndd]  << endl;
 	if(coutest)cout << "numBin=     " << v_numBin_[ndd]  << endl;
-	k = 1;
-	if(e_cm_[CROSS_ONLY])k=0;                                     // case with only cross-correlations
+	// k = 1;   // see note above where it was originally declared, set but not used
+	// if(e_cm_[CROSS_ONLY])k=0;                                     // case with only cross-correlations, set but not used
 	v_cumulCrossSize_.push_back(sumCrossSize_);
-	numVis = nv*v_numPol_[ndd]*numApc_;                 if(coutest) cout << "numVis=     " << numVis << endl;
+	numVis = nv*v_numPol_[ndd]*numApc_;                 
+	if(coutest) cout << "numVis=     " << numVis << endl;
 	v_numCrossData_.push_back(numVis);                            // number of complex visibilities
 	dataSize = numVis*2;                                          // a complex is composed of 2 primitive data type values
 	v_crossSize_.push_back(dataSize);
@@ -467,7 +361,7 @@ namespace sdmbin {
     return sumMetaDataIndex_;
   }
 
-  unsigned int DataDescriptionsSet::metaDataIndex( unsigned int ndd) { // throw(Error){
+  unsigned int DataDescriptionsSet::metaDataIndex( unsigned int ndd) {
     if((unsigned int)ndd>=v_metaDataIndex_.size())
       Error(FATAL,(char *) "The dataDescription index index must be smaller than %d",
 	    v_metaDataIndex_.size());
@@ -500,7 +394,7 @@ namespace sdmbin {
     return numData;
   }
 
-  unsigned long DataDescriptionsSet::getNumCrossData(Tag crossDataDescriptionId)  { // throw (Error){
+  unsigned long DataDescriptionsSet::getNumCrossData(Tag crossDataDescriptionId)  {
     int m=-1;
     for(unsigned int n=0; n<v_crossDataDescriptionId_.size(); n++)
       if(crossDataDescriptionId==v_crossDataDescriptionId_[n])m=n;
@@ -520,7 +414,7 @@ namespace sdmbin {
     return numData;
   }
 
-  Tag         DataDescriptionsSet::getAutoDataDescriptionId(Tag crossDataDescriptionId) { // throw(Error){
+  Tag         DataDescriptionsSet::getAutoDataDescriptionId(Tag crossDataDescriptionId) {
 
     for(unsigned int ndd=0; ndd<v_crossDataDescriptionId_.size(); ndd++){
       if(crossDataDescriptionId==v_crossDataDescriptionId_[ndd])
@@ -547,20 +441,20 @@ namespace sdmbin {
     return v_basebandSet_.size();
   }
 
-  unsigned int DataDescriptionsSet::getNumChan(unsigned int ndd) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumChan(unsigned int ndd) {
     if((unsigned int)ndd>=v_numChan_.size())
       Error(SERIOUS,(char *) "The dataDescription number exceeds %d",
 	    v_numChan_.size());
     return v_numChan_[ndd];
   }
 
-  unsigned int DataDescriptionsSet::getNumPol(unsigned int basebandIndex) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumPol(unsigned int basebandIndex) {
     if(basebandIndex>=v_basebandSet_.size())Error(FATAL,(char *) "No baseband with this index");
 
     return getNumPol(v_basebandSet_[basebandIndex]);
   }
 
-  unsigned int DataDescriptionsSet::getNumPol(BasebandName basebandName) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumPol(BasebandName basebandName) {
 
 
     unsigned int numpp=0;
@@ -581,13 +475,13 @@ namespace sdmbin {
     return numpp;
   }
 
-  unsigned int DataDescriptionsSet::getNumSdPol(unsigned int basebandIndex) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumSdPol(unsigned int basebandIndex) {
     if(basebandIndex>=v_basebandSet_.size())Error(FATAL, (char *) "No baseband with this index");
 
     return getNumSdPol(v_basebandSet_[basebandIndex]);
   }
 
-  unsigned int DataDescriptionsSet::getNumSdPol(BasebandName basebandName) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumSdPol(BasebandName basebandName) {
 
     int numpp=0;
   
@@ -612,7 +506,7 @@ namespace sdmbin {
     return numpp;
   }
 
-  unsigned int DataDescriptionsSet::getNumSpw(unsigned int basebandIndex) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNumSpw(unsigned int basebandIndex) {
     if(basebandIndex>=v_basebandSet_.size())Error(FATAL,(char *) "No baseband with this index");
     return v_basebandSet_.size() ;
   }
@@ -625,13 +519,13 @@ namespace sdmbin {
     return itbbnddpf->second.size();
   }
 
-  unsigned int DataDescriptionsSet::getNdd(unsigned int basebandIndex, unsigned int i) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNdd(unsigned int basebandIndex, unsigned int i) {
     if(basebandIndex>=v_basebandSet_.size())Error(FATAL,(char *) "No baseband with this index");
 
     return getNdd(v_basebandSet_[basebandIndex],i);
   }
 
-  unsigned int DataDescriptionsSet::getNdd(BasebandName basebandName, unsigned int i) { // throw(Error){
+  unsigned int DataDescriptionsSet::getNdd(BasebandName basebandName, unsigned int i) {
 
     map<BasebandName,vector<DataDescParams> >::iterator 
       itbbnddpf=m_bn_v_ddp_.find(basebandName),
@@ -656,14 +550,14 @@ namespace sdmbin {
     return sumCrossSize_;
   }
 
-  BasebandName      DataDescriptionsSet::getBasebandName(unsigned int ndd) { // throw (Error){
+  BasebandName      DataDescriptionsSet::getBasebandName(unsigned int ndd) {
     if(ndd>v_basebandName_.size()-1)
       Error(SERIOUS,(char *) "The dataDescription index index must be smaller than %d",
 	    v_basebandName_.size());
     return v_basebandName_[ndd];
   }
 
-  unsigned int      DataDescriptionsSet::getBasebandIndex(unsigned int ndd) { // throw(Error){
+  unsigned int      DataDescriptionsSet::getBasebandIndex(unsigned int ndd) {
     if(ndd>v_basebandName_.size()-1)
       Error(SERIOUS,(char *) "The dataDescription index index must be smaller than %d",
 	    v_basebandName_.size());
@@ -681,7 +575,7 @@ namespace sdmbin {
     return numDataDescription_;
   }
 
-  unsigned int    DataDescriptionsSet::getDataDescriptionIndex( Tag dataDescriptionId) { // throw(Error){
+  unsigned int    DataDescriptionsSet::getDataDescriptionIndex( Tag dataDescriptionId) {
     int ndd = -1;
     for(unsigned int n=0; n<numDataDescription_; n++)
       if(dataDescriptionId==v_dataDescriptionIdArray_[n])ndd=n; // numbers are 1 based
@@ -690,15 +584,6 @@ namespace sdmbin {
 		     dataDescriptionId.toString().c_str());
     return ndd;
   }
-
-
-  // unsigned int    DataDescriptionsSet::numBin(unsigned int ndd) { // throw(Error){
-  //   // if(ndd>=v_basebandName_.size())
-  //   //   Error(SERIOUS,"The dataDescription index must be smaller than %d",
-  //   // 	    v_basebandName_.size());
-  //   return v_numBin_[ndd];  
-  // }
-
 
   unsigned int    DataDescriptionsSet::numApc(){
     return es_apc_.count();
@@ -713,7 +598,7 @@ namespace sdmbin {
     return e_apc;
   }
 
-  unsigned int             DataDescriptionsSet::atmPhaseCorrectionIndex(AtmPhaseCorrection apc) { // throw (Error){
+  unsigned int             DataDescriptionsSet::atmPhaseCorrectionIndex(AtmPhaseCorrection apc) {
     for(unsigned int n=0; n<v_atmPhaseCorrection_.size(); n++)
       if(v_atmPhaseCorrection_[n]==apc)return n;
     Enum<AtmPhaseCorrection> e_apc=apc;
@@ -721,14 +606,14 @@ namespace sdmbin {
     return 0;
   }
 
-  unsigned int    DataDescriptionsSet::numPol(unsigned int ndd) { // throw(Error){
+  unsigned int    DataDescriptionsSet::numPol(unsigned int ndd) {
     if((unsigned int)ndd>=v_numPol_.size())
       Error(SERIOUS,(char *) "The dataDescription index index must be smaller than %d",
 	    v_numPol_.size());
     return v_numPol_[ndd];
   }
 
-  unsigned int    DataDescriptionsSet::numSdPol(unsigned int ndd) { // throw(Error){
+  unsigned int    DataDescriptionsSet::numSdPol(unsigned int ndd) {
     if(e_cm_[CROSS_ONLY])return 0;
     if(ndd>=v_numPol_.size())
       Error(SERIOUS,(char *) "The dataDescription index index must be smaller than %d",
@@ -738,17 +623,17 @@ namespace sdmbin {
     return 3;                                        // could be 2 but dropping XY not supported yet!
   }
 
-  unsigned int  DataDescriptionsSet::numChan(unsigned int ndd) { // throw(Error){
+  unsigned int  DataDescriptionsSet::numChan(unsigned int ndd) {
     //if(ndd<0)Error(FATAL,(char *) "DataDescription index must be 0 based");
     return v_numChan_[ndd];
   }
 
-  Tag DataDescriptionsSet::getSpwId(unsigned int ndd) { // throw (Error){
+  Tag DataDescriptionsSet::getSpwId(unsigned int ndd) {
     //if(ndd<0)Error(FATAL,(char *) "DataDescription index must be 0 based");
     return v_spwId_[ndd];
   }
 
-  Frequency DataDescriptionsSet::totBandwidth(unsigned int ndd) { // throw(Error){
+  Frequency DataDescriptionsSet::totBandwidth(unsigned int ndd) {
     //if(ndd<0)Error(FATAL,(char *) "DataDescription index must be 0 based");
     if(ndd>=numDataDescription_){
       Error(SERIOUS,(char *) "The index for a DataDescriptions cannot exceed %d",
@@ -760,7 +645,7 @@ namespace sdmbin {
   }
 
 
-  int               DataDescriptionsSet::numAutoData(unsigned int ndd) { // throw(Error){
+  int               DataDescriptionsSet::numAutoData(unsigned int ndd) {
     //if( ndd <= 0)Error(FATAL, (char *) "DataDescription index must be 0 based");
     if(v_numAutoData_.size()==0){
       Error(WARNING, (char *) "no auto data expected");
@@ -772,7 +657,7 @@ namespace sdmbin {
     return v_numAutoData_[ndd];
   }
 
-  unsigned int      DataDescriptionsSet::numCrossData(unsigned int ndd) { // throw(Error){
+  unsigned int      DataDescriptionsSet::numCrossData(unsigned int ndd) {
     if(!v_numCrossData_.size()){
       Error(WARNING, (char *) "no cross data expected");
       return 0;

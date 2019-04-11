@@ -27,13 +27,13 @@ class MPIMonitorServer:
         if not MPIEnvironment.is_mpi_enabled:
             msg = "MPI is not enabled"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg
+            raise Exception(msg)
         
         # Check if MPIMonitorServer can be instantiated
         if MPIEnvironment.is_mpi_client:
             msg = "MPIMonitorServer cannot be instantiated at master MPI process"
             casalog.post(msg,"SEVERE",casalog_call_origin)
-            raise Exception,msg  
+            raise Exception(msg)
         
         # Check whether we already have a MPIMonitorServer singleton instance
         if MPIMonitorServer.__instance is None:
@@ -221,7 +221,7 @@ class MPIMonitorServer:
             if keyword is None:
                 return dict(self.__status)
             # If keyword is provided check existence and return the mapped value
-            elif self.__status.has_key(keyword):
+            elif keyword in self.__status:
                 return self.__status[keyword]
             else:
                 casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)
@@ -231,7 +231,7 @@ class MPIMonitorServer:
             
             casalog_call_origin = "MPIMonitorServer::set_status"
 
-            if self.__status.has_key(keyword):
+            if keyword in self.__status:
                 self.__status[keyword] = value
             else:
                 casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)          

@@ -51,9 +51,11 @@
 #include <casa/Logging/LogSink.h>
 #include <casa/Logging/LogIO.h>
 #include <casa/OS/Timer.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -70,6 +72,34 @@ class VisEquation;
 class SolveDataBuffer;
 class SDBList;
 
+
+class SolNorm {
+
+public:
+
+  enum Type { MEAN, MEDIAN, UNKNOWN };
+
+  SolNorm(casacore::Bool donorm=false, casacore::String normtype=casacore::String("mean"));
+  SolNorm(const SolNorm& other);
+
+  inline casacore::Bool donorm() const { return donorm_; };
+  inline Type normtype() const { return normtype_; };
+  inline casacore::String normtypeString() const { return normTypeAsString(normtype_); };
+
+  void report();
+
+private:
+
+  // data 
+  casacore::Bool donorm_;
+  Type normtype_;
+
+  static Type normTypeFromString(casacore::String name);
+  static casacore::String normTypeAsString(Type type);
+
+  
+};
+ 
 class SolvableVisCal : virtual public VisCal {
 public:
 
@@ -83,6 +113,9 @@ public:
     casacore::Vector<casacore::Double> fitfd;
     casacore::Vector<casacore::Double> fitfderr;
     casacore::Vector<casacore::Double> fitreffreq;
+    //casacore::Matrix<casacore::Double> covarmat;
+    //casacore::PtrBlock<casacore::Matrix<casacore::Double>* >  covarmat;
+    casacore::Vector<casacore::Matrix<casacore::Double> >  covarmat;
   } fluxScaleStruct;
 
 
@@ -103,14 +136,18 @@ public:
   inline casacore::String&      tInterpType()    { return tInterpType_; };
   inline casacore::String&      fInterpType()    { return fInterpType_; };
   inline casacore::Vector<casacore::Int>& spwMap()         { return spwMap_; };
+  inline casacore::String&      refantmode()     { return refantmode_; };
   inline casacore::Int&         refant()         { return refantlist()(0); };
   inline casacore::Vector<casacore::Int>& refantlist()     { return urefantlist_; };
   inline casacore::Int&         minblperant()    { return minblperant_; };
   inline casacore::String&      apmode()         { return apmode_; };
+  inline casacore::String&      solmode()        { return solmode_; };
+  inline casacore::Vector<casacore::Float>& rmsthresh()      { return rmsthresh_; };
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
-  inline casacore::Bool&        solnorm()        { return solnorm_;};
+  inline const SolNorm&         solNorm()        { return solnorm_;};
+  inline casacore::Bool         solnorm()        { return solnorm_.donorm();};
   inline casacore::Float&       minSNR()         { return minSNR_; };
 
   inline casacore::String&      combine()        { return combine_; };
@@ -140,6 +177,10 @@ public:
   // Does normalization by MODEL_DATA commute with this VisCal?
   //   (if so, permits pre-solve time-averaging)
   virtual casacore::Bool normalizable()=0;
+
+  // Should data and model be divided by Stokes I model  before average+solve?
+  //   (Nominally false, for now)
+  virtual casacore::Bool divideByStokesIModelForSolve() { return false; };
 
   // Is this type capable of accumulation?  (nominally no)
   virtual casacore::Bool accumulatable() { return false; };
@@ -217,9 +258,10 @@ public:
   // Time-dep solution interval  (VI2)
   inline double solTimeInterval() const { return solTimeInterval_; };
 
-  // Freq-dep solint values 
+  // Freq-dep solint values (const?!)
   inline casacore::Double& fintervalHz() { return fintervalHz_; };
   inline casacore::Double& fintervalCh() { return fintervalCh_(currSpw()); };  // for current Spw
+  const inline casacore::Vector<casacore::Double>& fintervalChV() { return fintervalCh_; };  // all spws
   casacore::Matrix<casacore::Int> chanAveBounds()  { return chanAveBounds_(currSpw()); }; // for current Spw
   casacore::Matrix<casacore::Int> chanAveBounds(casacore::Int spw)  { return chanAveBounds_(spw); }; 
 
@@ -229,11 +271,24 @@ public:
   inline virtual casacore::Cube<casacore::Bool>&    solveParOK()  {return (*solveParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParErr() {return (*solveParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveParSNR() {return (*solveParSNR_[currSpw()]);};
+
   inline virtual casacore::Cube<casacore::Complex>& solveAllCPar()   {return (*solveAllCPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float>&   solveAllRPar()   {return (*solveAllRPar_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Bool>&    solveAllParOK()  {return (*solveAllParOK_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParErr() {return (*solveAllParErr_[currSpw()]);};
   inline virtual casacore::Cube<casacore::Float> &  solveAllParSNR() {return (*solveAllParSNR_[currSpw()]);};
+
+  // Access to per-spw solution parameters and matrices
+  inline virtual void solveAllCPar(casacore::Int spw, casacore::Cube<casacore::Complex>& cparSpw)
+  	{ if (spw<nSpw()) cparSpw = (*solveAllCPar_[spw]);}
+  inline virtual void solveAllRPar(casacore::Int spw, casacore::Cube<casacore::Float>& rparSpw)
+    { if (spw<nSpw()) rparSpw = (*solveAllRPar_[spw]);}
+  inline virtual void solveAllParOK(casacore::Int spw, casacore::Cube<casacore::Bool>& parokSpw)
+    { if (spw<nSpw()) parokSpw = (*solveAllParOK_[spw]);}
+  inline virtual void solveAllParErr(casacore::Int spw, casacore::Cube<casacore::Float>& parerrSpw) 
+    { if (spw<nSpw()) parerrSpw = (*solveAllParErr_[spw]);}
+  inline virtual void solveAllParSNR(casacore::Int spw, casacore::Cube<casacore::Float>& parsnrSpw) 
+    { if (spw<nSpw()) parsnrSpw = (*solveAllParSNR_[spw]);}
 
   // Access to source pol parameters
   inline casacore::Vector<casacore::Complex>& srcPolPar() { return srcPolPar_; };
@@ -243,7 +298,6 @@ public:
   casacore::Bool syncSolveMeta(VisBuffer& vb, const casacore::Int& fieldId);
   casacore::Bool syncSolveMeta(VisBuffGroupAcc& vbga);
   void syncSolveMeta(SDBList& sdbs);  // VI2   (valid data now checked elsewhere)
-
   // Provide for override of currScan and currObs
   void overrideObsScan(casacore::Int obs, casacore::Int scan);
 
@@ -304,6 +358,9 @@ public:
   // Retrieve the cal flag info as a record
   virtual casacore::Record actionRec();
 
+  // Retrieve solve-related info via Record
+  virtual casacore::Record solveActionRec();
+
   // Accumulate another VisCal onto this one
   virtual void accumulate(SolvableVisCal* incr,
 			  const casacore::Vector<casacore::Int>& fields)=0;
@@ -327,6 +384,12 @@ public:
 
   // New spwOK
   virtual casacore::Bool spwOK(casacore::Int ispw);
+
+  //Is VB OK for calibration? 
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb);
+
+  // Calibration available?
+  virtual casacore::Bool calAvailable(vi::VisBuffer2&);
 
   // Post solve tinkering (generic version)
   virtual void globalPostSolveTinker();
@@ -444,6 +507,9 @@ protected:
   // Set matrix channelization according to a VisSet
   virtual void setSolveChannelization(VisSet& vs);
 
+  // Convert Hz to Ch in fsolint
+  virtual void convertHzToCh();
+
   // Calculate chan averaging bounds
   virtual void setFracChanAve();
 
@@ -468,9 +534,9 @@ protected:
   virtual void stateSVC(const casacore::Bool& doVC);
 
   // Normalize a (complex) solution array (generic)
-  void normSolnArray(casacore::Array<casacore::Complex>& sol,
-		     const casacore::Array<casacore::Bool>& solOK,
-		     const casacore::Bool doPhase=false);
+  casacore::Complex normSolnArray(casacore::Array<casacore::Complex>& sol,
+				  const casacore::Array<casacore::Bool>& solOK,
+				  const casacore::Bool doPhase=false);
 
   virtual casacore::Float calcPowerNorm(casacore::Array<casacore::Float>& amp, const casacore::Array<casacore::Bool>& ok)=0;
 
@@ -517,6 +583,10 @@ private:
   // Delete pointers
   void deleteSVC();
 
+  // Pointer to CTTimeInterp1 factory method (generic)
+  // SVC specializations may choose to specialize CTTimeInterp1, as needed,
+  //   and override this method accordingly (e.g., see FringeJones.h)
+  virtual CTTIFactoryPtr cttifactoryptr() { return &CTTimeInterp1::factory; };
 
   // Cal table name
   casacore::String calTableName_;
@@ -529,6 +599,9 @@ private:
 
   // Spw mapping
   casacore::Vector<casacore::Int> spwMap_;
+
+  // Refant mode
+  casacore::String refantmode_;
 
   // Refant
   casacore::Vector<casacore::Int> urefantlist_;
@@ -544,6 +617,10 @@ private:
 
   // Solving mode
   casacore::String apmode_;
+
+  // Solver iteration mode
+  casacore::String solmode_;
+  casacore::Vector<casacore::Float> rmsthresh_;
 
   // User-specified full solint string
   casacore::String usolint_;
@@ -569,7 +646,7 @@ private:
   casacore::Double preavg_;
 
   // Do solution normalization after a solve
-  casacore::Bool solnorm_;
+  SolNorm solnorm_;
 
   // SNR threshold
   casacore::Float minSNR_;
@@ -942,8 +1019,10 @@ private:
        wTotal_p, wPreAnt_p;
 
   //for plotting
+#if ! defined(WITHOUT_DBUS)
   PlotServerProxy* plotter_;
   casacore::Vector<dbus::variant> panels_id_;
+#endif
 
 };
 

@@ -73,7 +73,6 @@
 #include <casa/System/ProgressMeter.h>
 
 #include <memory>
-using std::auto_ptr;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -423,12 +422,8 @@ void SkyEquation::predict(Bool incremental,  MS::PredefinedColumns Type) {
 }
 
 //----------------------------------------------------------------------
-void SkyEquation::gradientsChiSquared(const Matrix<Bool>& required,
-				      SkyJones& sj) {
-  // Keep compiler happy
-  if(&sj) {};
-  if(&required) {};
-
+void SkyEquation::gradientsChiSquared(const Matrix<Bool>&,
+				      SkyJones&) {
   throw(AipsError("SkyEquation:: solution for SkyJones not yet implemented"));
 }
 
@@ -1293,6 +1288,24 @@ Bool SkyEquation::changedSkyJonesBuffer
   }
   return didChange;
 };
+
+
+void SkyEquation::setPhaseCenterTime(const Double time){
+
+  if(cft_)
+    cft_->setPhaseCenterTime(time);
+  if(ft_)
+    ft_->setPhaseCenterTime(time);
+  if(ift_)
+    ift_->setPhaseCenterTime(time);
+}
+Double SkyEquation::getPhaseCenterTime(){
+  if(cft_)
+    return cft_->getPhaseCenterTime();
+  if(ft_)
+    return ft_->getPhaseCenterTime();
+  return -1.0;
+}
 
 // Reset all of the SkyJones to initial state
 void SkyEquation::resetSkyJones() 

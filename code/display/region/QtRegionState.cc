@@ -37,6 +37,12 @@
 #include <QFileDialog>
 #include <display/DisplayErrors.h>
 
+#if QT_VERSION >= 0x050000
+#define UnicodeUTF8 0
+#else
+#define UnicodeUTF8 QApplication::UnicodeUTF8
+#endif
+
 using namespace casacore;
 namespace casa {
 	namespace viewer {
@@ -113,7 +119,7 @@ namespace casa {
 
 			text_position->setWrapping(true);
 
-			region_type->setText(QApplication::translate("QtRegionState", n.toAscii( ).constData( ), 0, QApplication::UnicodeUTF8));
+			region_type->setText(QApplication::translate("QtRegionState", n.toLatin1( ).constData( ), 0, UnicodeUTF8));
 
 			csys_box->hide( );
 
@@ -241,7 +247,7 @@ namespace casa {
 		}
 
 		void QtRegionState::reset( const QString &n, Region *r ) {
-			region_type->setText(QApplication::translate("QtRegionState", n.toAscii( ).constData( ), 0, QApplication::UnicodeUTF8));
+			region_type->setText(QApplication::translate("QtRegionState", n.toLatin1( ).constData( ), 0, UnicodeUTF8));
 			region_ = r;
 
 			int z_max = region_->numFrames( );
@@ -268,7 +274,7 @@ namespace casa {
 			updateStatistics( region( )->statistics( ) );
 		}
 
-		void QtRegionState::updateStatistics( std::list<SHARED_PTR<RegionInfo> > *stats ) {
+		void QtRegionState::updateStatistics( std::list<std::shared_ptr<RegionInfo> > *stats ) {
 			if ( stats == 0 || stats->size() == 0 ) {
 				if ( pre_dd_change_statistics_count != -1 ) clearStatistics( );
 				pre_dd_change_statistics_count = -1;
@@ -298,7 +304,7 @@ namespace casa {
 			int firstIndex = 0;
 			QtRegionStats *first = dynamic_cast<QtRegionStats*>(statistics_group->widget(firstIndex));
 			if ( first == 0 ) throw internal_error( );
-			std::list<SHARED_PTR<RegionInfo> >::iterator stat_iter = stats->begin();
+			std::list<std::shared_ptr<RegionInfo> >::iterator stat_iter = stats->begin();
 			if ( (*stat_iter)->list( ) ) {
 				if ( first->updateStatisticsInfo( *stat_iter ) == false ){
 					statisticsUpdate( first, *stat_iter );
@@ -338,7 +344,7 @@ namespace casa {
 			pre_dd_change_statistics_count = -1;
 		}
 
-		void QtRegionState::statisticsUpdate( QtRegionStats *regionStats, SHARED_PTR<casa::viewer::RegionInfo> regionInfo ) {
+		void QtRegionState::statisticsUpdate( QtRegionStats *regionStats, std::shared_ptr<casa::viewer::RegionInfo> regionInfo ) {
 			if ( region_->type( ) != region::PolylineRegion &&
 			        region_->type( ) != region::PVLineRegion ) {
 				regionStats->updateStatistics( regionInfo );
@@ -359,7 +365,7 @@ namespace casa {
 			}
 		}
 
-		void QtRegionState::updateCenters( std::list<SHARED_PTR<RegionInfo> > *centers ) {
+		void QtRegionState::updateCenters( std::list<std::shared_ptr<RegionInfo> > *centers ) {
 			// check if something can be done at all
 			if ( centers == 0 || centers->size() == 0 ) return;
 
@@ -385,7 +391,7 @@ namespace casa {
 			int num = centers_group->count( );
 			QtRegionStats *first = dynamic_cast<QtRegionStats*>(centers_group->widget(0));
 			if ( first == 0 ) throw internal_error( );
-			std::list<SHARED_PTR<RegionInfo> >::iterator center_iter = centers->begin();
+			std::list<std::shared_ptr<RegionInfo> >::iterator center_iter = centers->begin();
 			if ( (*center_iter)->list( ) ) {
 				if ( first->updateStatisticsInfo( *center_iter ) == false )
 					statisticsUpdate( first, *center_iter );
@@ -671,7 +677,7 @@ namespace casa {
 			if ( fi.exists( ) ) {
 				const int buffer_size = 1024;
 				char buffer[buffer_size];
-				FILE *fh = fopen( txt.toAscii( ).constData( ), "r" );
+				FILE *fh = fopen( txt.toLatin1( ).constData( ), "r" );
 				if ( fh ) {
 					if (fgets( buffer, buffer_size-1, fh )) {
 						const char ds9header[] = "# Region file format: DS9";
@@ -692,7 +698,7 @@ namespace casa {
 			QString path = load_filename->text( );
 			if ( path == "" ) {
 #if QT_VERSION >= 0x040700
-				load_filename->setPlaceholderText(QApplication::translate("QtRegionState", "please enter a file name or use 'browse' button", 0, QApplication::UnicodeUTF8));
+				load_filename->setPlaceholderText(QApplication::translate("QtRegionState", "please enter a file name or use 'browse' button", 0, UnicodeUTF8));
 #endif
 				load_now->setFocus(Qt::OtherFocusReason);
 				return;
@@ -721,13 +727,13 @@ namespace casa {
 			}
 
 			if ( found ) {
-				int fd = open( path.toAscii( ).constData( ), O_RDONLY );
+				int fd = open( path.toLatin1( ).constData( ), O_RDONLY );
 				if ( fd == -1 ) {
-					char *buf = (char*) malloc((strlen(path.toAscii( ).constData( )) + 50) * sizeof(char));
-					sprintf( buf, "could not read %s", path.toAscii( ).constData( ) );
+					char *buf = (char*) malloc((strlen(path.toLatin1( ).constData( )) + 50) * sizeof(char));
+					sprintf( buf, "could not read %s", path.toLatin1( ).constData( ) );
 					load_filename->clear( );
 #if QT_VERSION >= 0x040700
-					load_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, QApplication::UnicodeUTF8));
+					load_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, UnicodeUTF8));
 #endif
 					load_now->setFocus(Qt::OtherFocusReason);
 					free(buf);
@@ -736,11 +742,11 @@ namespace casa {
 					::close(fd);
 				}
 			} else {
-				char *buf = (char*) malloc((strlen(path.toAscii( ).constData( )) + 50) * sizeof(char));
-				sprintf( buf, "file '%s' does not exist", path.toAscii( ).constData( ) );
+				char *buf = (char*) malloc((strlen(path.toLatin1( ).constData( )) + 50) * sizeof(char));
+				sprintf( buf, "file '%s' does not exist", path.toLatin1( ).constData( ) );
 				load_filename->clear( );
 #if QT_VERSION >= 0x040700
-				load_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, QApplication::UnicodeUTF8));
+				load_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, UnicodeUTF8));
 #endif
 				load_now->setFocus(Qt::OtherFocusReason);
 				free(buf);
@@ -769,7 +775,7 @@ namespace casa {
 			QString path = save_filename->text( );
 			if ( path == "" ) {
 #if QT_VERSION >= 0x040700
-				save_filename->setPlaceholderText(QApplication::translate("QtRegionState", "please enter a file name or use 'browse' button", 0, QApplication::UnicodeUTF8));
+				save_filename->setPlaceholderText(QApplication::translate("QtRegionState", "please enter a file name or use 'browse' button", 0, UnicodeUTF8));
 #endif
 				save_now->setFocus(Qt::OtherFocusReason);
 				return;
@@ -778,24 +784,24 @@ namespace casa {
 			QString name = default_extension(path);
 
 			bool do_unlink = false;
-			int fd = open( name.toAscii( ).constData( ), O_WRONLY | O_APPEND );
+			int fd = open( name.toLatin1( ).constData( ), O_WRONLY | O_APPEND );
 			if ( fd == -1 ) {
-				fd = open( name.toAscii( ).constData( ), O_WRONLY | O_APPEND | O_CREAT, 0644 );
+				fd = open( name.toLatin1( ).constData( ), O_WRONLY | O_APPEND | O_CREAT, 0644 );
 				if ( fd != -1 ) do_unlink = true;
 			}
 			if ( fd == -1 ) {
-				char *buf = (char*) malloc((strlen(name.toAscii( ).constData( )) + 50) * sizeof(char));
-				sprintf( buf, "unable to write to %s", name.toAscii( ).constData( ) );
+				char *buf = (char*) malloc((strlen(name.toLatin1( ).constData( )) + 50) * sizeof(char));
+				sprintf( buf, "unable to write to %s", name.toLatin1( ).constData( ) );
 				save_filename->clear( );
 #if QT_VERSION >= 0x040700
-				save_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, QApplication::UnicodeUTF8));
+				save_filename->setPlaceholderText(QApplication::translate("QtRegionState", buf, 0, UnicodeUTF8));
 #endif
 				save_now->setFocus(Qt::OtherFocusReason);
 				free(buf);
 				return;
 			} else {
 				::close(fd);
-				if ( do_unlink ) unlink(name.toAscii( ).constData( ));
+				if ( do_unlink ) unlink(name.toLatin1( ).constData( ));
 			}
 
 			QString what( save_current_region->isChecked( ) ? "current" :
@@ -1093,7 +1099,7 @@ namespace casa {
 		void QtRegionState::noOutputNotify( ) {
 			save_filename->clear( );
 #if QT_VERSION >= 0x040700
-			save_filename->setPlaceholderText(QApplication::translate("QtRegionState", "no regions were selected for output...", 0, QApplication::UnicodeUTF8));
+			save_filename->setPlaceholderText(QApplication::translate("QtRegionState", "no regions were selected for output...", 0, UnicodeUTF8));
 #endif
 			save_now->setFocus(Qt::OtherFocusReason);
 		}

@@ -80,7 +80,11 @@ def jm_sunEL(mytime):
 ## gets and plots data from the weather table of the given MS
 def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
     myMS=vis
-    if plotName == '': plotName = myMS+'.plotweather.png'
+    if plotName == '':
+        if myMS.endswith("/"):
+            plotName = myMS + myMS.rstrip("/") + '.plotweather.png'
+        else:
+            plotName = myMS + '.plotweather.png'
 
     # check for weather table
 
@@ -94,6 +98,7 @@ def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
 
         except:
             print 'could not open weather table, using seasonal model only and turning off plots'
+            tb.close()
             WEATHER_table_exists = False
             doPlot=False
             seasonal_weight = 1.0
@@ -130,7 +135,7 @@ def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
         ms.open(myMS)
         mytime_range = ms.range(["time"])
         mytime = [mytime_range['time'][0]]
-
+        ms.close()
 
     ##calculate the elevation of the sun
     sunEL=[]
@@ -237,7 +242,10 @@ def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
     for i in range(len(spwFreqs)):
         mysearch=(pl.array(freqs)-spwFreqs[i])**2
         hits=pl.find(mysearch == min(mysearch))
-        if len(hits) > 1: hits=hits[0]
+        # Fix deprecation warning: could be array of 1
+        #if len(hits) > 1: hits=hits[0]
+        if not isinstance(hits, int):
+            hits = hits[0]
         tau_interp = (pl.array(coef0[hits-2:hits+2])+pl.array(coef1[hits-2:hits+2])*pl.mean(myPWV)) * 1e-1  #percent
         tau_F = pl.interp(spwFreqs[i],freqs[hits-2:hits+2],tau_interp)
         meanTau.append(pl.mean(tau_F*.01))  #nepers

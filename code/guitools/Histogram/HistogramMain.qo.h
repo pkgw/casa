@@ -25,7 +25,7 @@
 #ifndef HISTOGRAMMAIN_QO_H
 #define HISTOGRAMMAIN_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <images/Images/PagedImage.h>
 #include <casa/aipstype.h>
 #include <guitools/Histogram/HistogramMain.ui.h>
@@ -65,7 +65,7 @@ public:
      */
     HistogramMain(bool showFileLoader, bool fitControls, bool rangeControls,
     		bool plotModeControls, QWidget *parent);
-    bool setImage(SHARED_PTR<const casacore::ImageInterface<float> > img );
+    bool setImage(std::shared_ptr<const casacore::ImageInterface<float> > img );
     bool setImageRegion( casacore::ImageRegion* imageRegion, int id );
     std::pair<double,double> getRange() const;
     void deleteImageRegion( int id );
@@ -96,7 +96,7 @@ private slots:
 private:
 	HistogramMain( const HistogramMain& histMain );
 	HistogramMain& operator=( const HistogramMain& histMain );
-	bool generateImage( const QString& imagePath, SHARED_PTR<const casacore::ImageInterface<float> > image );
+	bool generateImage( const QString& imagePath, std::shared_ptr<const casacore::ImageInterface<float> > image );
 
     ImageLoader fileLoader;
     SaveHistogramWidget histogramSaver;

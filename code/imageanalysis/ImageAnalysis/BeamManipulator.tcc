@@ -61,10 +61,8 @@ template <class T> void BeamManipulator<T>::rotate(
 ) {
    	ImageInfo ii = _image->imageInfo();
     ImageBeamSet oBeams = ii.getBeamSet();
-    cout << "orig " << oBeams.getMinAreaBeam() << endl;
     rotate(angle);
     ImageBeamSet beams = _image->imageInfo().getBeamSet();
-    cout << "final " << beams.getMinAreaBeam() << endl;
     vector<String> msgs;
     ostringstream oss;
     auto name = _image->name();
@@ -141,7 +139,7 @@ template <class T> void BeamManipulator<T>::set(
 			rec.isDefined("beams") && rec.isDefined("nChannels")
 			&& rec.isDefined("nStokes")
 		) {
-			ImageMetaData md(_image);
+			ImageMetaData<T> md(_image);
 			casacore::uInt nChanIm = md.nChannels();
 			casacore::uInt nStokesIm = md.nStokes();
 			casacore::uInt nChanBeam = rec.asuInt("nChannels");
@@ -198,7 +196,7 @@ template <class T> void BeamManipulator<T>::set(
 					<< "but no plane (channel/polarization) was specified. All beams will be set "
 					<< "equal to the specified beam." << casacore::LogIO::POST;
 			}
-			ImageMetaData md(_image);
+			ImageMetaData<T> md(_image);
 			ii.setAllBeams(
 				md.nChannels(), md.nStokes(),
 				casacore::GaussianBeam(bmajor, bminor, bpa)
@@ -216,7 +214,7 @@ template <class T> void BeamManipulator<T>::set(
 					<< "a set of per plane beams, each equal to the specified beam, "
 					<< "will be created." << casacore::LogIO::POST;
 			}
-			ImageMetaData md(_image);
+			ImageMetaData<T> md(_image);
 			ii.setAllBeams(
 				md.nChannels(), md.nStokes(),
 				casacore::GaussianBeam(bmajor, bminor, bpa)

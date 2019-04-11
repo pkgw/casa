@@ -32,41 +32,26 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DataDescriptionRow.h>
-#include <DataDescriptionTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DataDescriptionRow.h>
+#include <alma/ASDM/DataDescriptionTable.h>
 
-#include <PolarizationTable.h>
-#include <PolarizationRow.h>
+#include <alma/ASDM/PolarizationTable.h>
+#include <alma/ASDM/PolarizationRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
-	
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-using asdm::ASDM;
-using asdm::DataDescriptionRow;
-using asdm::DataDescriptionTable;
+#include <alma/ASDM/PulsarTable.h>
+#include <alma/ASDM/PulsarRow.h>
+#include <alma/ASDM/Parser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
-using asdm::PolarizationTable;
-using asdm::PolarizationRow;
-
-using asdm::SpectralWindowTable;
-using asdm::SpectralWindowRow;
-
-
-#include <Parser.h>
-using asdm::Parser;
-
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
- 
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+using namespace std;
 
 namespace asdm {
 	DataDescriptionRow::~DataDescriptionRow() {
@@ -138,8 +123,13 @@ namespace asdm {
   	
 
 	
-		
-	
+		x->pulsarIdExists = pulsarIdExists;
+
+
+
+
+
+		x->pulsarId = pulsarId.toIDLTag();
 
 	
 
@@ -154,6 +144,8 @@ namespace asdm {
 		x.dataDescriptionId = dataDescriptionId.toIDLTag();
 		x.polOrHoloId = polOrHoloId.toIDLTag();
 		x.spectralWindowId = spectralWindowId.toIDLTag();	
+		x.pulsarIdExists = pulsarIdExists;
+		x.pulsarId = pulsarId.toIDLTag();
 	}
 #endif
 	
@@ -202,7 +194,14 @@ namespace asdm {
 	
 
 	
+		pulsarIdExists = x.pulsarIdExists;
+		if (x.pulsarIdExists) {
+
+
+		setPulsarId(Tag (x.pulsarId));
+
 		
+		}
 	
 
 	
@@ -252,7 +251,13 @@ namespace asdm {
 
 	
 		
-	
+		if (pulsarIdExists) {
+
+		
+		Parser::toXML(pulsarId, "pulsarId", buf);
+
+
+		}
 
 	
 
@@ -299,7 +304,11 @@ namespace asdm {
 		
 	
 
-	
+		if (row.isStr("<pulsarId>")) {
+
+			setPulsarId(Parser::getTag("pulsarId","Pulsar",rowDoc));
+
+		}
 		
 	
 
@@ -335,7 +344,13 @@ namespace asdm {
 	
 
 
+	eoss.writeBoolean(pulsarIdExists);
+	if (pulsarIdExists) {
+
+	pulsarId.toBin(eoss);
+
 	
+	}
 	
 	}
 	
@@ -369,8 +384,18 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 	
 }
+void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 
-		
+
+		pulsarIdExists = eis.readBoolean();
+		if (pulsarIdExists) {
+
+
+			pulsarId = Tag::fromBin(eis);
+
+
+		}
+}
 	
 	DataDescriptionRow* DataDescriptionRow::fromBin(EndianIStream& eis, DataDescriptionTable& table, const vector<string>& attributesSeq) {
 		DataDescriptionRow* row = new  DataDescriptionRow(table);
@@ -422,7 +447,13 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	}
 	
 
-		
+	// Convert a string into an Tag
+	void DataDescriptionRow::pulsarIdFromText(const string & s) {
+		pulsarIdExists = true;
+
+		pulsarId = ASDMValuesParser::parse<Tag>(s);
+
+	}	
 	
 	void DataDescriptionRow::fromText(const std::string& attributeName, const std::string&  t) {
 		map<string, DataDescriptionAttributeFromText>::iterator iter;
@@ -540,6 +571,54 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
 	
 
+        /**
+         * The attribute pulsarId is optional. Return true if this attribute exists.
+         * @return true if and only if the pulsarId attribute exists. 
+         */
+        bool DataDescriptionRow::isPulsarIdExists() const {
+                return pulsarIdExists;
+        }
+
+
+
+        /**
+         * Get pulsarId, which is optional.
+         * @return pulsarId as Tag
+         * @throw IllegalAccessException If pulsarId does not exist.
+         */
+        Tag DataDescriptionRow::getPulsarId() const  {
+                if (!pulsarIdExists) {
+                        throw IllegalAccessException("pulsarId", "DataDescription");
+                }
+
+                return pulsarId;
+        }
+
+
+        /**
+         * Set pulsarId with the specified Tag.
+         * @param pulsarId The Tag value to which pulsarId is to be set.
+         
+        
+         */
+        void DataDescriptionRow::setPulsarId (Tag pulsarId) {
+
+                this->pulsarId = pulsarId;
+
+                pulsarIdExists = true;
+
+        }
+
+
+        /**
+         * Mark pulsarId, which is an optional field, as non-existent.
+         */
+        void DataDescriptionRow::clearPulsarId () {
+                pulsarIdExists = false;
+        }
+
+
+
 
 	//////////////////////////////////////
 	// Links Attributes getters/setters //
@@ -582,6 +661,21 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	 
 
 	
+        /**
+         * Returns the pointer to the row in the DataDescription table having DataDescription.pulsarId == pulsarId
+         * @return a DataDescriptionRow*
+         * 
+         
+         * throws IllegalAccessException
+         
+         */
+         PulsarRow* DataDescriptionRow::getPulsarUsingPulsarId() {
+
+                if (!pulsarIdExists)
+                        throw IllegalAccessException();
+
+                return table.getContainer().getPulsar().getRowByKey(pulsarId);
+         }
 
 	
 	/**
@@ -613,7 +707,7 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	 fromBinMethods["dataDescriptionId"] = &DataDescriptionRow::dataDescriptionIdFromBin; 
 	 fromBinMethods["polOrHoloId"] = &DataDescriptionRow::polOrHoloIdFromBin; 
 	 fromBinMethods["spectralWindowId"] = &DataDescriptionRow::spectralWindowIdFromBin; 
-		
+	 fromBinMethods["pulsarId"] = &DataDescriptionRow::pulsarIdFromBin;	
 	
 	
 	
@@ -631,7 +725,7 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	fromTextMethods["spectralWindowId"] = &DataDescriptionRow::spectralWindowIdFromText;
 		 
 	
-
+	fromTextMethods["pulsarId"] = &DataDescriptionRow::pulsarIdFromText;
 		
 	}
 	
@@ -661,15 +755,20 @@ void DataDescriptionRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 			spectralWindowId = row.spectralWindowId;
 		
-		
-		
+			if (row.pulsarIdExists) {
+				pulsarId = row.pulsarId;
+				pulsarIdExists = true;
+			}
+			else
+				pulsarIdExists = false;
+			
 		
 		}
 		
 		 fromBinMethods["dataDescriptionId"] = &DataDescriptionRow::dataDescriptionIdFromBin; 
 		 fromBinMethods["polOrHoloId"] = &DataDescriptionRow::polOrHoloIdFromBin; 
 		 fromBinMethods["spectralWindowId"] = &DataDescriptionRow::spectralWindowIdFromBin; 
-			
+		 fromBinMethods["pulsarId"] = &DataDescriptionRow::pulsarIdFromBin;	
 	
 			
 	}

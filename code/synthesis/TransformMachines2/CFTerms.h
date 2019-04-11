@@ -111,7 +111,6 @@ namespace casa{
     virtual casacore::Int getConvSize() = 0;
     virtual void setConvSize(const casacore::Int val) = 0;
     virtual casacore::Int getOversampling() = 0;
-    virtual void setOversampling(const casacore::Int val) = 0;
 
     virtual casacore::Float getConvWeightSizeFactor() = 0;
     virtual casacore::Float getSupportThreshold() = 0;
@@ -133,11 +132,15 @@ namespace casa{
 
     virtual casacore::Bool rotationallySymmetric() = 0;
 
+    void setBandName(const casacore::String& bandName) {bandName_p = bandName;};
+    casacore::String& getBandName() {return bandName_p;};
+
   protected:
     casacore::LogIO& logIO() {return logIO_p;}
     casacore::LogIO logIO_p;
     casacore::Vector<casacore::Int> polMap_p_base;
     OpCodes opCode_p;
+    casacore::String telescopeName_p, bandName_p;
   };
 
   }///refim

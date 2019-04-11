@@ -157,6 +157,7 @@ class VisBuffer {
     friend class VisBufferAsyncWrapper; // for async i/o
     friend class ViReadImplAsync; // for async I/O
     friend class SIMapperCollection; //for SIimager as we need access to casacore::MS object
+    friend class VisModelData;  // need access to ms to recover the model rec
 
 public:
     // Create empty VisBuffer you can assign to or attach.
@@ -466,7 +467,8 @@ public:
     virtual casacore::MDirection phaseCenter() const {
         return This->phaseCenter();
     }
-
+    virtual const casacore::MDirection phaseCenter(const casacore::Int fieldId, const casacore::Double time=-1.0) const;
+    virtual const casacore::MDirection phaseCenter(const casacore::Double time) const;
     virtual casacore::Int polFrame() const {
         return polFrameOK_p ? polFrame_p : This->fillPolFrame();
     }

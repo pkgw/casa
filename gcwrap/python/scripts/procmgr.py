@@ -1,9 +1,11 @@
+import os
+import sys
+import subprocess
+from subprocess import Popen
 from enum import Enum
 from time import sleep, localtime, strftime
-from subprocess import Popen, PIPE
 from threading import Thread
-import sys
-import os
+import crashrpt_conf
 
 from casa_shutdown import add_shutdown_hook
 
@@ -47,9 +49,12 @@ class procmgr(Thread):
                     #print "%s => proc %s is being stopped" % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.tag)
                     try:
                         self.__proc.terminate()
-                        self.__watchdog.terminate()
-                        self.__proc.kill()
-                        self.__watchdog.kill()
+                        sleep(0.5)
+                        if self.__proc.poll( ) is None:
+                            print "%s => proc %s is being killed" % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.tag)
+                            self.__proc.kill()
+                        if self.__watchdog.poll( ) is None:
+                            self.__watchdog.kill()
                     except OSError:
                         pass
 
@@ -64,19 +69,24 @@ class procmgr(Thread):
             self.stop( )
             #print "%s => proc %s is being started" % (strftime("%y-%m-%d %H:%M:%S", localtime()), self.tag)
             if self.__output_option is output_option.PIPE:
-                out = PIPE
+                out = subprocess.PIPE
             elif self.__output_option is output_option.STDOUT:
-                out = os.fdopen(sys.stdout.fileno(), 'a', 0)
+                try:
+                    out = os.fdopen(sys.stdout.fileno(), 'a', 0)
+                except:
+                    # nose likes to wedge their own "nose.plugins.xunit.Tee" object into
+                    # sys.stdout... unfortunately, it does not have 'fileno( )' et al.
+                    out = os.fdopen(1,'a',0)
             else:
                 out = file(os.devnull,'a')
-            self.__proc = Popen( self.__cmd, stderr=out , stdout=out, stdin=PIPE )
-            self.__watchdog = Popen( [ '/bin/bash','-c', 
+            self.__proc = Popen( self.__cmd, stderr=out, stdout=out, stdin=subprocess.PIPE )
+            self.__watchdog = Popen( [ '/bin/bash','-c',
                                        'while kill -0 %d > /dev/null 2>&1; do sleep 1; kill -0 %d > /dev/null 2>&1 || kill -9 %d > /dev/null 2>&1; done' % \
                                      (self.__proc.pid, os.getpid( ), self.__proc.pid) ] )
 
             self.stdin = self.__proc.stdin
             self.pid = self.__proc.pid
-      
+
             if self.__output_option is output_option.PIPE:
                 self.stdout = self.__proc.stdout
                 self.stderr = self.__proc.stderr
@@ -94,6 +104,7 @@ class procmgr(Thread):
         self.__procs = { }
         self.__running = True
         add_shutdown_hook(self.shutdown)
+        add_shutdown_hook(self.removeCrashReporterDir)
 
     def running(self, tag):
         """tag: process identifier to check
@@ -125,7 +136,7 @@ class procmgr(Thread):
         if self.__running == False: return None
         if self.__procs.has_key( tag ):
             return self.__procs[tag]
-        return None        
+        return None
 
     def shutdown(self):
         """stops all managed processes"""
@@ -133,6 +144,14 @@ class procmgr(Thread):
             for p in self.__procs:
                 self.__procs[p].stop( )
         self.__running = False
+
+    def removeCrashReporterDir(self):
+        temporaryDirectory = crashrpt_conf.temporaryDirectory
+        if os.path.exists(temporaryDirectory):
+            try:
+                os.rmdir(temporaryDirectory)
+            except:
+                print "Couldn't remove " + temporaryDirectory
 
     def __delitem__(self, key):
         print "you cannot stop processes this way"
@@ -147,4 +166,3 @@ class procmgr(Thread):
     def run(self):
         while self.__running:
             sleep(10)
-

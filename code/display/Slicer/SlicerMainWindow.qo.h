@@ -26,7 +26,7 @@
 #ifndef SLICER_MAINWINDOW_QO_H
 #define SLICER_MAINWINDOW_QO_H
 
-#include <QtGui/QMainWindow>
+#include <QMainWindow>
 #include <display/Slicer/SlicerMainWindow.ui.h>
 #include <display/Slicer/SlicePlot.qo.h>
 
@@ -52,7 +52,7 @@ namespace casa {
 		void addPolyLine(  int regionId, viewer::region::RegionChanges regionChanges,
 		                   const QList<double> & worldX, const QList<double> & worldY,
 		                   const QList<int> &pixelX, const QList<int> & pixelY, const QString& colorName );
-		void setImage( SHARED_PTR<casacore::ImageInterface<float> > img );
+		void setImage( std::shared_ptr<casacore::ImageInterface<float> > img );
 		bool setRegionSelected( int regionId, bool selected );
 		void setCurveColor( int id, const QString& color );
 		void updatePositionInformation( int id, const QVector<casacore::String>& info );

@@ -28,9 +28,17 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include <boost/regex.hpp>
-#include <boost/tokenizer.hpp>
+
+#ifndef WITHOUT_BOOST
+// regex not currently used here, in commented out code
+//#include <boost/regex.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/tokenizer.hpp>
+#else
+//#include <regex>
+#include <alma/ASDM/Misc.h>
+#endif
+
 
 namespace asdm {
   /**
@@ -96,9 +104,7 @@ namespace asdm {
       T result;
       iss.clear();
       iss.str(s);
-      //char c;
       READ(result);
-      //if ( c == ' ' ) iss.putback(c);list.tcc
       return result;
     }
 
@@ -304,7 +310,12 @@ namespace asdm {
     static std::vector<std::string> parseQuoted(const std::string& s);
 
   private:
-    static boost::regex quotedStringRegex;
+    // this value is not currently used anywhere
+    //#ifndef WITHOUT_BOOST
+    //    static boost::regex quotedStringRegex;
+    //#else
+    //    static std::regex quotedStringRegex;
+    //#endif
 
   };
 
@@ -329,8 +340,12 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
      
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
+#ifndef WITHOUT_BOOST
     std::vector<std::string> result = parseQuoted(boost::trim_left_copy(remains));
+#else
+    std::vector<std::string> result = parseQuoted(asdm::ltrim_copy(remains));
+#endif
     if (nvalue > (int) result.size()) {
       oss.str("");
       oss << "Error while reading the string to be parsed : '" << iss.str() << "'.";
@@ -367,8 +382,12 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
 
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
+#ifndef WITHOUT_BOOST
     std::vector<std::string> v_s = parseQuoted(boost::trim_left_copy(remains));
+#else
+    std::vector<std::string> v_s = parseQuoted(asdm::ltrim_copy(remains));
+#endif
     if (nvalue1 * nvalue2 > (int) v_s.size()) {
       oss.str("");
       oss << "Error while reading the string to be parsed : '" << iss.str() << "'.";
@@ -420,8 +439,12 @@ namespace asdm {
       throw ASDMValuesParserException(oss.str());
     }
 
-    string remains; getline(iss,remains); 
+    std::string remains; getline(iss,remains); 
+#ifndef WITHOUT_BOOST
     std::vector<std::string> v_s = parseQuoted(boost::trim_left_copy(remains));
+#else
+    std::vector<std::string> v_s = parseQuoted(asdm::ltrim_copy(remains));
+#endif
     if (nvalue1 * nvalue2 * nvalue3 > (int) v_s.size()) {
       oss.str("");
       oss << "Error while reading the string to be parsed : '" << iss.str() << "'.";
@@ -441,13 +464,60 @@ namespace asdm {
   }
   
   inline std::vector<std::string> ASDMValuesParser::parseQuoted(const std::string& s) {
-    string separator1("\\");// let quoted arguments escape themselves
-    string separator2(" "); // split on spaces
-    string separator3("\"");// let it have quoted arguments
+#ifndef WITHOUT_BOOST
+    std::string separator1("\\");// let quoted arguments escape themselves
+    std::string separator2(" "); // split on spaces
+    std::string separator3("\"");// let it have quoted arguments
     
     boost::escaped_list_separator<char> els(separator1,separator2,separator3);
     boost::tokenizer<boost::escaped_list_separator<char> > tok(s, els);
     std::vector<std::string> result(tok.begin(), tok.end());
+#else
+    // there is no c++ equivalent to the boost tokenizer, parse the start by character
+    std::vector<std::string> result;
+
+    // an empty string has no tokens
+    if (s.empty()) {
+      return result;
+    }
+
+    std::string token;
+    std::string nullString;
+
+    bool quoted, escaped;
+    quoted = escaped = false;
+
+    for (std::string::const_iterator it=s.begin(); it!=s.end(); ++it) {
+      if (escaped) {
+	token += *it;
+	escaped = false;
+      } else {
+	if (*it=='\\') {
+	  escaped = true;
+	} else {
+	  if (quoted) {
+	    if (*it=='\"') {
+	      quoted = false;
+	    } else {
+	      token += *it;
+	    }
+	  } else {
+	    if (*it == ' ') {
+	      result.push_back(token);
+	      token = nullString;
+	    } else {
+	      if (*it=='\"') {
+		quoted = true;
+	      } else {
+		token += *it;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    result.push_back(token);
+#endif
     return result;
   }  
 } // End namespace asdm.

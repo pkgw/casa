@@ -41,31 +41,27 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -74,15 +70,15 @@
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-#include "CSBType.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CReceiverBand.h>
+	
+
+	
+#include <alma/Enumerations/CSBType.h>
 	
 
 	
@@ -100,25 +96,29 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -137,7 +137,7 @@ class SBSummaryRow;
  * Characteristics of the Scheduling Block that has been executed. Much of the  data here is reproduced from the Scheduling block itself.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SBSummary </CAPTION>
@@ -208,7 +208,7 @@ class SBSummaryRow;
  * </TR>
 	
  * <TR>
- * <TD> numObservingMode </TD> 
+ * <TD> numObservingMode (numObservingMode)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of observing modes. </TD>
@@ -216,20 +216,20 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> observingMode </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numObservingMode </TD> 
  * <TD> &nbsp;the observing modes. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numberRepeats </TD> 
+ * <TD> numberRepeats (numberRepeats)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of repeats. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numScienceGoal </TD> 
+ * <TD> numScienceGoal (numScienceGoal)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scientific goals. </TD>
@@ -237,13 +237,13 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> scienceGoal </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScienceGoal </TD> 
  * <TD> &nbsp;the scientific goals. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numWeatherConstraint </TD> 
+ * <TD> numWeatherConstraint (numWeatherConstraint)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of weather constraints. </TD>
@@ -251,7 +251,7 @@ class SBSummaryRow;
 	
  * <TR>
  * <TD> weatherConstraint </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numWeatherConstraint </TD> 
  * <TD> &nbsp;the weather constraints. </TD>
  * </TR>
@@ -261,21 +261,21 @@ class SBSummaryRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> centerDirection </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> centerDirection</TD> 
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the representative target direction. </TD>
  * </TR>
 	
  * <TR>
- * <TD> centerDirectionCode </TD> 
+ * <TD> centerDirectionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the direction reference frame associated with centerDirection. </TD>
  * </TR>
 	
  * <TR>
- * <TD> centerDirectionEquinox </TD> 
+ * <TD> centerDirectionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the equinox associated to centerDirectionReferenceCode (if needed). </TD>
@@ -446,7 +446,7 @@ public:
  	 * @param weatherConstraint
 	
      */
-	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint);
+	SBSummaryRow *newRow(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint);
 	
 
 
@@ -557,7 +557,7 @@ public:
  	 * @param weatherConstraint
  	 		 
  	 */
-	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, vector<string > observingMode, int numberRepeats, int numScienceGoal, vector<string > scienceGoal, int numWeatherConstraint, vector<string > weatherConstraint); 
+	SBSummaryRow* lookup(EntityRef sbSummaryUID, EntityRef projectUID, EntityRef obsUnitSetUID, double frequency, ReceiverBandMod::ReceiverBand frequencyBand, SBTypeMod::SBType sbType, Interval sbDuration, int numObservingMode, std::vector<std::string > observingMode, int numberRepeats, int numScienceGoal, std::vector<std::string > scienceGoal, int numWeatherConstraint, std::vector<std::string > weatherConstraint); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -583,6 +583,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

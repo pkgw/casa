@@ -41,38 +41,24 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-#include "CBasebandName.h"
-	
-
-	
-#include "CNetSideband.h"
-	
 
 	
 
 	
-
-	
-#include "CSidebandProcessingMode.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-
-	
-#include "CWindowFunction.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 	
@@ -82,11 +68,13 @@
 	
 
 	
-
+#include <alma/Enumerations/CSidebandProcessingMode.h>
 	
 
 	
-#include "CCorrelationBit.h"
+
+	
+#include <alma/Enumerations/CWindowFunction.h>
 	
 
 	
@@ -100,7 +88,21 @@
 	
 
 	
-#include "CFrequencyReferenceCode.h"
+#include <alma/Enumerations/CCorrelationBit.h>
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 	
 
 	
@@ -118,23 +120,23 @@
 	
 
 	
-#include "CSpectralResolutionType.h"
+#include <alma/Enumerations/CSpectralResolutionType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -153,7 +155,7 @@ class SpectralWindowRow;
  * Spectral window description. The convention in ALMA is to describe the  frequency axis in the topocentric reference frame. If this is not  the case (for instance if active Doppler tracking is implemented) then  \texttt{measFreqRef} should be set accordingly.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SpectralWindow </CAPTION>
@@ -189,7 +191,7 @@ class SpectralWindowRow;
  * </TR>
 	
  * <TR>
- * <TD> numChan </TD> 
+ * <TD> numChan (numChan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequency channels. </TD>
@@ -228,161 +230,168 @@ class SpectralWindowRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> chanFreqStart </TD> 
+ * <TD> numBin(numBin)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; the number of channels used in any post-FFT averaging. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> chanFreqStart</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the frequency of the first channel. </TD>
  * </TR>
 	
  * <TR>
- * <TD> chanFreqStep </TD> 
+ * <TD> chanFreqStep</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the increment between two successive frequencies. </TD>
  * </TR>
 	
  * <TR>
- * <TD> chanFreqArray </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> chanFreqArray</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan  </TD>
  * <TD>&nbsp; the frequencies defined as an array (\texttt{numChan} values). </TD>
  * </TR>
 	
  * <TR>
- * <TD> chanWidth </TD> 
+ * <TD> chanWidth</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the width of the frequency channel (supposedly constant). </TD>
+ * <TD>&nbsp; the nominal channel width. </TD>
  * </TR>
 	
  * <TR>
- * <TD> chanWidthArray </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> chanWidthArray</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; Array of channel widths </TD>
+ * <TD>&nbsp; Array of channel widths. </TD>
  * </TR>
 	
  * <TR>
- * <TD> correlationBit </TD> 
+ * <TD> correlationBit</TD> 
  * <TD> CorrelationBitMod::CorrelationBit </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the number of bits used in the signal representation. </TD>
  * </TR>
 	
  * <TR>
- * <TD> effectiveBw </TD> 
+ * <TD> effectiveBw</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the effective noise bandwidth. </TD>
  * </TR>
 	
  * <TR>
- * <TD> effectiveBwArray </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> effectiveBwArray</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; array of effective bandwidths (one value per channel). </TD>
+ * <TD>&nbsp; array of effective bandwidths. </TD>
  * </TR>
 	
  * <TR>
- * <TD> freqGroup </TD> 
+ * <TD> freqGroup</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the frequency group number. </TD>
  * </TR>
 	
  * <TR>
- * <TD> freqGroupName </TD> 
- * <TD> string </TD>
+ * <TD> freqGroupName</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the frequency group name. </TD>
  * </TR>
 	
  * <TR>
- * <TD> lineArray </TD> 
- * <TD> vector<bool > </TD>
+ * <TD> lineArray</TD> 
+ * <TD> std::vector<bool > </TD>
  * <TD>  numChan  </TD>
  * <TD>&nbsp; indicates lines (true) versus baselines (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> measFreqRef </TD> 
+ * <TD> measFreqRef</TD> 
  * <TD> FrequencyReferenceCodeMod::FrequencyReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the reference frame of the frequencies. </TD>
  * </TR>
 	
  * <TR>
- * <TD> name </TD> 
- * <TD> string </TD>
+ * <TD> name</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; a name for this spectral window. </TD>
  * </TR>
 	
  * <TR>
- * <TD> oversampling </TD> 
+ * <TD> oversampling</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; data are "oversampled" (true) or not (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> quantization </TD> 
+ * <TD> quantization</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; a quantization correction has been applied (true) or not applied (false). </TD>
  * </TR>
 	
  * <TR>
- * <TD> refChan </TD> 
+ * <TD> refChan</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the reference channel "number". </TD>
  * </TR>
 	
  * <TR>
- * <TD> resolution </TD> 
+ * <TD> resolution</TD> 
  * <TD> Frequency </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; the half power frequency resolution (supposedly constant for all the channels). </TD>
+ * <TD>&nbsp; the effective spectral resolution of one channel (see note). </TD>
  * </TR>
 	
  * <TR>
- * <TD> resolutionArray </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> resolutionArray</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numChan  </TD>
- * <TD>&nbsp; the frequency resolutions (possibly variable )(one value per channel). </TD>
+ * <TD>&nbsp; the array of frequency resolution. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numAssocValues </TD> 
+ * <TD> numAssocValues(numAssocValues)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of associated values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocNature </TD> 
- * <TD> vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
+ * <TD> assocNature</TD> 
+ * <TD> std::vector<SpectralResolutionTypeMod::SpectralResolutionType > </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; the natures of the associations with the rows refered to by assocSpectralWindowId. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocSpectralWindowId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> assocSpectralWindowId</TD> 
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAssocValues  </TD>
  * <TD>&nbsp; refers to a collection of associated rows in the table. </TD>
  * </TR>
 	
  * <TR>
- * <TD> imageSpectralWindowId </TD> 
+ * <TD> imageSpectralWindowId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a unique row in the table (image sideband description). </TD>
  * </TR>
 	
  * <TR>
- * <TD> dopplerId </TD> 
+ * <TD> dopplerId</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a collection of rows in DopplerTable. </TD>
@@ -662,6 +671,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

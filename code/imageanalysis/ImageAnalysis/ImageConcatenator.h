@@ -38,7 +38,6 @@ template <class T> class ImageConcat;
 
 namespace casa {
 
-
 template <class T>  class ImageConcatenator : public ImageTask<T> {
 	// <summary>
 	// Top level interface for concatenating images
@@ -60,17 +59,17 @@ template <class T>  class ImageConcatenator : public ImageTask<T> {
 
 public:
 
-	// <src>image</src> should be the first image in the list of images to be concatenated.
+	// <src>image</src> should be the first image in
+    // the list of images to be concatenated.
 	ImageConcatenator(
-		SPCIIT image,
-		const casacore::String& outname, casacore::Bool overwrite
+		SPCIIT image, const casacore::String& outname, casacore::Bool overwrite
 	);
 
 	// destructor
 	~ImageConcatenator();
 
 	// Perform the concatenation.
-	SPIIT concatenate(const vector<casacore::String>& imageNames);
+	SPIIT concatenate(const std::vector<casacore::String>& imageNames);
 
 	// Set the axis along which to do the concatenation. A negative value
 	// of <src>axis</src> means use the spectral axis. An exception is thrown
@@ -90,8 +89,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(0);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(0);
  	}
 
 private:
@@ -102,13 +101,17 @@ private:
 	// disallow default constructor
 	ImageConcatenator();
 
-	// returns true if world coordinate values increase with pixel coordinate values
+	// returns true if world coordinate values increase
+	// with pixel coordinate values
 	casacore::Bool _minMaxAxisValues(
 		casacore::Double& min, casacore::Double& max, casacore::uInt ndim,
 		const casacore::CoordinateSystem& csys, const casacore::IPosition& shape
 	) const;
 
-	void _addImage(std::unique_ptr<casacore::ImageConcat<T> >& pConcat, const casacore::String& name) const;
+	void _addImage(
+	    std::unique_ptr<casacore::ImageConcat<T> >& pConcat,
+	    const casacore::String& name
+	) const;
 
 };
 }

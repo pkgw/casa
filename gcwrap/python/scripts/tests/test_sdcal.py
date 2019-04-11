@@ -1,1448 +1,2193 @@
 import os
 import sys
 import shutil
+import re
+import numpy
+import math
+import contextlib
+
 from __main__ import default
 from tasks import *
 from taskinit import *
 import unittest
-import sha
-import time
-import numpy
-import re
-import string
-from casa_stack_manip import stack_frame_find
+#
+import listing
+import sdutil
+
+from sdcal import sdcal
+from partition import partition
 
 try:
-    import selection_syntax
+    from testutils import copytree_ignore_subversion
 except:
-    import tests.selection_syntax as selection_syntax
-
-# to rethrow exception 
-g = stack_frame_find( )
-g['__rethrow_casa_exceptions'] = True
-from sdcalold import sdcalold
-import asap as sd
-
-#
-# Unit test of sdcalold task.
-# 
-
-###
-# Base class for sdcalold unit test
-###
-class sdcalold_unittest_base:
-    """
-    Base class for sdcalold unit test
-    """
-    taskname='sdcalold'
-    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdcal/'
-    tolerance=1.0e-15
-
-    def _checkfile( self, name ):
-        isthere=os.path.exists(name)
-        self.assertEqual(isthere,True,
-                         msg='output file %s was not created because of the task failure'%(name))
-        
-
-    def _getspectra( self, name ):
-        isthere=os.path.exists(name)
-        self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
-        tb.open(name)
-        sp=tb.getcol('SPECTRA').transpose()
-        tb.close()
-        return sp
-
-    def _getflags( self, name ):
-        isthere=os.path.exists(name)
-        self.assertEqual(isthere,True,
-                         msg='file %s does not exist'%(name))        
-        tb.open(name)
-        cflag=tb.getcol('FLAGTRA').transpose()
-        rflag=tb.getcol('FLAGROW')
-        tb.close()
-        return cflag, rflag
-
-    def _checkshape( self, sp, ref ):
-        # check array dimension 
-        self.assertEqual( sp.ndim, ref.ndim,
-                          msg='array dimension differ' )
-        # check number of spectra
-        self.assertEqual( sp.shape[0], ref.shape[0],
-                          msg='number of spectra differ' )
-        # check number of channel
-        self.assertEqual( sp.shape[1], ref.shape[1],
-                          msg='number of channel differ' )
-
-    def _diff(self, sp, ref):
-        diff=abs((sp-ref)/ref)
-        idx=numpy.argwhere(numpy.isnan(diff))
-        #print idx
-        if len(idx) > 0:
-            diff[idx]=sp[idx]
-        return diff
-        
-
-###
-# Base class for calibration test
-###
-class sdcalold_caltest_base(sdcalold_unittest_base):
-    """
-    Base class for calibration test
-    """
-    reffile=''
-    postfix='.cal.asap'
-
-    def _comparecal( self, name ):
-        self._checkfile(name)
-        sp=self._getspectra(name)
-        spref=self._getspectra(self.reffile)
-
-        self._checkshape( sp, spref )
-        
-        for irow in xrange(sp.shape[0]):
-            diff=self._diff(sp[irow],spref[irow])
-            retval=numpy.all(diff<0.01)
-            maxdiff=diff.max()
-            self.assertEqual( retval, True,
-                             msg='calibrated result is wrong (irow=%s): maxdiff=%s'%(irow,diff.max()) )
-        del sp, spref
-
-###
-# Base class for edgemarker testing
-###
-class sdcalold_edgemarker_base(sdcalold_unittest_base):
-    """
-    Base class for edgemarker testing
-    """
-    def _readref( self, name ):
-        f = open( name, 'r' )
-        lines = f.readlines()
-        f.close()
-
-        ret = []
-        nline = len(lines)
-        for line in lines:
-            s = line.split()
-            ret.append( [float(s[0]),float(s[1])] )
-        return numpy.array(ret).transpose()
+    from tests.testutils import copytree_ignore_subversion
     
-    def _checkmarker( self, name, refdata ):
-        # refdata shape is (2,noff)
-        noff = refdata.shape[1]
-        tb.open(name)
-        tsel = tb.query('SRCTYPE==1')
-        nrow = tsel.nrows()
-        self.assertTrue( nrow > 0,
-                         msg='data doesn\'t have OFF spectra' )
-        dir = tsel.getcol('DIRECTION')
-        tsel.close()
-        tb.close()
-        
-        self.assertEqual( 2*noff, dir.shape[1], # refdata store only POLNO==0
-                          msg='number of OFF differ: %s (should be %s)'%(dir.shape[1],2*noff) )
+@contextlib.contextmanager
+def mmshelper(vis, separationaxis='auto'):
+    outputvis = vis.rstrip('/') + '.mms'
+    os.system('rm -rf {0}*'.format(outputvis))
+    try:
+        partition(vis=vis, outputvis=outputvis, separationaxis=separationaxis)
+        if os.path.exists(outputvis):
+            yield outputvis
+        else:
+            yield None
+    finally:
+        os.system('rm -rf {0}*'.format(outputvis))
 
-        for irow in xrange(2*noff):
-            idx = int(irow) / 2
-            diff = self._diff( dir[:,irow], refdata[:,idx] )
-            self.assertEqual( numpy.all(diff<0.01), True,
-                              msg='direction for OFF differ (irow=%s): [%s,%s] (should be [%s,%s])'%(irow,dir[0,irow],dir[1,irow],refdata[0,idx],refdata[1,idx]) )
+class sdcal_test(unittest.TestCase):
 
-###
-# Test on bad parameter settings
-###
-class sdcalold_test0(sdcalold_unittest_base,unittest.TestCase):
     """
-    Test on bad parameter setting
+    Unit test for task sdcal.
+
+    The list of tests:
+    test00	--- default parameters (raises an error)
+    test01	--- spwmap comprising list
+    test02	--- spwmap comprising dictionary
+    test03	--- spwmap comprising others
+    test04	--- there is no infile
+    test05
     """
-    # Input and output names
-    rawfile='calpsGBT.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test0'
-    outfile=prefix+'.asap'
+
+    # Data path of input
+    datapath=os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/tsdcal/'
+
+    # Input 
+    infile1 = 'uid___A002_X6218fb_X264.ms.sel'
+    infiles = [infile1]
+    tsystable = 'out.cal'
 
     def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-
-        default(sdcalold)
+        for infile in self.infiles:
+            if os.path.exists(infile):
+                shutil.rmtree(infile)
+            shutil.copytree(self.datapath+infile, infile)		
+        default(sdcal)
 
     def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        os.system( 'rm -rf '+self.prefix+'*' )
+        for infile in self.infiles:
+            if (os.path.exists(infile)):
+                shutil.rmtree(infile)
+                
+        if os.path.exists(self.tsystable):
+            shutil.rmtree(self.tsystable)
 
-    def test000(self):
-        """Test 000: Default parameters"""
-        # argument verification error
-        self.res=sdcalold()
-        self.assertFalse(self.res)
+    def _compareOutFile(self,out,reference):
+        self.assertTrue(os.path.exists(out))
+        self.assertTrue(os.path.exists(reference),msg="Reference file doesn't exist: "+reference)
+        self.assertTrue(listing.compare(out,reference),'New and reference files are different. %s != %s. '%(out,reference))
+
+    def test00(self):
+        """Test00:Check the identification of TSYS_SPECTRuM and FPARAM"""
+
+        tid = "00"
+        infile = self.infile1
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
+        compfile1=infile+'/SYSCAL'
+        compfile2=self.tsystable
+
+        tb.open(compfile1)
+        subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
+        tsys1=subt1.getcol('TSYS_SPECTRUM')
+        tb.close()
+        subt1.close()
+
+        tb.open(compfile2)
+        subt2=tb.query('', sortlist='ANTENNA1, TIME, SPECTRAL_WINDOW_ID', columns='FPARAM, FLAG')
+        tsys2=subt2.getcol('FPARAM')
+        flag=subt2.getcol('FLAG')
+
+        tb.close()
+        subt2.close()
+
+        if (tsys1 == tsys2).all():
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM extracted with sdcal', tsys2.shape  
+            print 'Both tables are identical.'
+        else:
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM of the extraction with sdcal', tsys2.shape
+            print 'Both tables are not identical.'
+
+        if flag.all()==0:
+            print 'ALL FLAGs are set to zero.'
+
+
+    def test00M(self):
+        """Test00M:Check the identification of TSYS_SPECTRuM and FPARAM (MMS)"""
+
+        tid = "00M"
+        infile = self.infile1
+        with mmshelper(infile) as mvis:
+            self.assertTrue(mvis is not None)
+            sdcal(infile=mvis, calmode='tsys', outfile=self.tsystable)
+        compfile1=infile+'/SYSCAL'
+        compfile2=self.tsystable
+
+        tb.open(compfile1)
+        subt1=tb.query('', sortlist='ANTENNA_ID, TIME, SPECTRAL_WINDOW_ID', columns='TSYS_SPECTRUM')
+        tsys1=subt1.getcol('TSYS_SPECTRUM')
+        tb.close()
+        subt1.close()
+
+        tb.open(compfile2)
+        subt2=tb.query('', sortlist='ANTENNA1, TIME, SPECTRAL_WINDOW_ID', columns='FPARAM, FLAG')
+        tsys2=subt2.getcol('FPARAM')
+        flag=subt2.getcol('FLAG')
+
+        tb.close()
+        subt2.close()
+
+        if (tsys1 == tsys2).all():
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM extracted with sdcal', tsys2.shape  
+            print 'Both tables are identical.'
+        else:
+            print ''
+            print 'The shape of the MS/SYSCAL/TSYS_SPECTRUM', tsys1.shape
+            print 'The shape of the FPARAM of the extraction with sdcal', tsys2.shape
+            print 'Both tables are not identical.'
+
+        if flag.all()==0:
+            print 'ALL FLAGs are set to zero.'
+
+
+    def test01(self):
+        """Test01: weight = 1/(SIGMA**2) X 1/(FPARAM_ave**2) dictionary version"""
+        #focus on antenna1=0, data_disk_id=1
+        #spwmap_dict={1:[1],3:[3],5:[5],7:[7]}
+
         
-    def test001(self):
-        """Test 001: Invalid calibration mode"""
-        # argument verification error
-        self.res=sdcalold(infile=self.rawfile,calmode='invalid',outfile=self.outfile)
-        self.assertFalse(self.res)
+        tid = "01"
+        infile = self.infile1
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)        
+        #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
+        #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
+        
+        spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, outfile='')
+        
+                
+        tb.open(infile)
+        sigma00=tb.getcol('SIGMA')[0][0]
+        sigma10=tb.getcol('SIGMA')[1][0]
+        weight00=tb.getcol('WEIGHT')[0][0]
+        weight10=tb.getcol('WEIGHT')[1][0]
+        tb.close()
+        
+        tb.open(self.tsystable)
+        sum_fparam0=0
+        sum_fparam1=0
+        for i in range(128):
+            sum_fparam0 += tb.getvarcol('FPARAM')['r1'][0][i][0]
+            sum_fparam1 += tb.getvarcol('FPARAM')['r1'][1][i][0]
+        fparam0_ave=sum_fparam0/128.0
+        fparam1_ave=sum_fparam1/128.0
+        print 'fparam_average_r1_0', fparam0_ave
+        print 'fparam_average_r1_1', fparam1_ave
+        print 'SIGMA00 ', sigma00
+        print 'SIGMA10 ', sigma10
+        print 'WEIGHT00 ', weight00
+        print 'WEIGHT10 ', weight10
+        answer0 = 1/(sigma00**2)*1/(fparam0_ave**2) 
+        answer1 = 1/(sigma10**2)*1/(fparam1_ave**2) 
+        print 'pol0: 1/SIGMA**2 X 1/(FPARAM_ave)**2', answer0
+        print 'pol1: 1/SIGMA**2 X 1/(FPARAM_ave)**2', answer1
+        diff0_percent=(weight00-answer0)/weight00*100
+        diff1_percent=(weight10-answer1)/weight10*100
+        print 'difference between fparam_r1_0 and weight00', diff0_percent, '%' 
+        print 'difference between fparam_r1_1 and weight10', diff1_percent, '%'
+        tb.close()
+            
+        
+    def test02(self):
+        """Test02: weight = 1/(SIGMA**2) X 1/(FPARAM_ave**2) list version"""
+        #focus on antenna1=0, data_disk_id=1
+        #spwmap_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
-    def test002(self):
-        """Test 002: Specify existing output file name with overwrite=False"""
-        outfile='calpsGBT.cal.asap'
-        if (not os.path.exists(outfile)):
-            shutil.copytree(self.datapath+outfile, outfile)
+        
+        tid = "02"
+        infile = self.infile1
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)        
+        spwmap_list=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+        #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
+        
+        #spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable=self.tsystable, outfile='')
+        
+                
+        tb.open(infile)
+        sigma00=tb.getcol('SIGMA')[0][0]
+        sigma10=tb.getcol('SIGMA')[1][0]
+        weight00=tb.getcol('WEIGHT')[0][0]
+        weight10=tb.getcol('WEIGHT')[1][0]
+        tb.close()
+        
+        tb.open(self.tsystable)
+        sum_fparam0=0
+        sum_fparam1=0
+        for i in range(128):
+            sum_fparam0 += tb.getvarcol('FPARAM')['r1'][0][i][0]
+            sum_fparam1 += tb.getvarcol('FPARAM')['r1'][1][i][0]
+        fparam0_ave=sum_fparam0/128.0
+        fparam1_ave=sum_fparam1/128.0
+        print 'fparam_average_r1_0', fparam0_ave
+        print 'fparam_average_r1_1', fparam1_ave
+        print 'SIGMA00 ', sigma00
+        print 'SIGMA10 ', sigma10
+        print 'WEIGHT00 ', weight00
+        print 'WEIGHT10 ', weight10
+        answer0 = 1/(sigma00**2)*1/(fparam0_ave**2) 
+        answer1 = 1/(sigma10**2)*1/(fparam1_ave**2) 
+        print 'pol0: 1/SIGMA**2 X 1/(FPARAM_ave)**2', answer0
+        print 'pol1: 1/SIGMA**2 X 1/(FPARAM_ave)**2', answer1
+        diff0_percent=(weight00-answer0)/weight00*100
+        diff1_percent=(weight10-answer1)/weight10*100
+        print 'difference between fparam_r1_0 and weight00', diff0_percent, '%' 
+        print 'difference between fparam_r1_1 and weight10', diff1_percent, '%'
+        tb.close()
+        
+
+        #print type(fparam_dict)
+        #print 'shape of fparam'
+        #print 'shape of fparam_dict['r29']', fparam_dict['r29'].shape
+        #print fparam_dict['r29'][0]
+        #print fparam_dict['r29'][1]
+        #tb.close()
+
+        #tb.open(infile)
+
+        #data_dict=tb.getvarcol('DATA')
+
+        #subt=tb.query('', sortlist='ANTENNA1, TIME, SPECTRAL_WINDOW_ID', columns='FPARAM, DATA') 
+        #data=subt2.getcol('DATA')
+        #fparam=subt2.getcol('FPARAM')
+        #print data[0]
+        #print data[1]
+        #print fparam[0]
+        #print fparam[1]
+
+        #subt_dict=tb.query('', sortlist='ANTENNA1, TIME', columns='WEIGHT, CORRECTED_DATA')
+        #weight_dict = subt_dict.getcol('WEIGHT')
+        #weight_dict=tb.getvarcol('WEIGHT')
+        #print type(weight_dict)
+        #print weight_dict['r69']
+        #print weight_dict['r69'][0]
+        #print weight_dict['r69'][1]
+        #print weight_dict
+        
+        #corrected_data_dict = subt_dict.getcol('CORRECTED_DATA')
+        #tb.close()
+        #subt_dict.close()
+
+        #sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable='tsys.cal', outfile='')
+        #tb.open(infile)
+        #subt_list=tb.query('', sortlist='ANTENNA1, TIME, SPECTRAL_WINDOW_ID', columns='WEIGHT, CORRECTED_DATA')
+        #weight_list = subt_list.getcol('WEIGHT')
+        #corrected_data_list = subt_list.getcol('CORRECTED_DATA')
+        #tb.close()
+        #subt_list.close()
+
+        #sdcal(infile=infile, calmode='apply', spwmap=spwmap_list, applytable='tsys.cal', outfile='')
+
+
+        #print 'dict:', spwmap
+        #print 'list:', spwmap
+        #if spwmap.all()==spwmap_dict.all():
+        #    Spwmap is able to cope with dictionary and list.
+        #print spwmap.all()==spwmap_dict.all()
+
+
+    def test03(self):
+        """Test03: Validation of CORRECTED_DATA = DATA X FPARAM (spwmap={1:[1], 3:[3], 5:[5], 7:[7]})""" 
+
+        tid ="03"
+        infile=self.infile1
+        tsysfile=self.tsystable
+        
+        
+        #tsys table is produced 
+        sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
+        #spwmap=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
+        spwmap={1:[1],3:[3],5:[5],7:[7]}
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)
+        #sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile, outfile='')
+    
+       
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile)
+       
+                
+        tb.open(infile)
+        corrected_data=tb.getvarcol('CORRECTED_DATA')['r1'][0][0][0]
+        data=tb.getvarcol('DATA')['r1'][0][0][0]
+        tb.close()
+
+         
+        tb.open(tsysfile)
+        fparam= tb.getvarcol('FPARAM')['r1'][0][0][0]
+        tb.close()
+                
+        print "CORRECTED_DATA", corrected_data
+        print "DATA", data
+        print "FPARAM", fparam
+        diff = corrected_data.real - (data.real*fparam)
+        diff_per = (diff/corrected_data.real)*100 
+        print "difference between CORRECTED_DATA and DATA X FPARAM", diff_per, "%" 
+    
+       
+    def test04(self):
+        """Test04: Validation of CORRECTED_DATA = DATA X FPARAM 
+        (spwmap={1:[9], 3:[11], 5:[13], 7:[15]})
+        antanna1=0, DATA_DISC_ID=9, FPARAM_average
+        """
+        
+        
+        tid ="04"
+        infile=self.infile1
+        tsysfile=self.tsystable
+    
+        #tsys table is produced 
+        sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
+        #spwmap=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
+        spwmap={1:[9],3:[11],5:[13],7:[15]}
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)
+        #sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile, outfile='')       
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile)       
+             
+        tb.open(infile)
+        corrected_data=tb.getvarcol('CORRECTED_DATA')['r2'][0][0][0]
+        data=tb.getvarcol('DATA')['r2'][0][0][0]
+        tb.close()
+         
+        tb.open(tsysfile)
+        sum_fparam=0
+        for i in range(128):
+            fparam= tb.getvarcol('FPARAM')['r1'][0][i][0]
+            sum_fparam += fparam
+        fparam_ave=sum_fparam/128.0    
+        tb.close()
+                
+        print "CORRECTED_DATA", corrected_data
+        print "DATA", data
+        print "FPARAM average(128ch)", fparam_ave
+        diff = corrected_data.real - (data.real*fparam_ave)
+        diff_per = (diff/corrected_data.real)*100 
+        print "difference between CORRECTED_DATA and DATA X FPARAM_average(128)", diff_per, "%" 
+    
+
+
+    def test05(self):
+        """Test05: Validation of CORRECTED_DATA = DATA X FPARAM 
+        (spwmap={1:[9], 3:[11], 5:[13], 7:[15]})
+        antanna1=0, DATA_DISC_ID=9, FPARAM_average
+        """
+        print '' 
+        
+        tid ="05"
+        infile=self.infile1
+        tsysfile=self.tsystable
+    
+        #tsys table is produced 
+        sdcal(infile=infile, calmode='tsys', outfile=tsysfile)
+        #spwmap=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
+        spwmap={1:[9],3:[11],5:[13],7:[15]}
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)
+        #sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile, outfile='')       
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap, applytable=tsysfile)       
+             
+        tb.open(infile)
+        corrected_data=tb.getvarcol('CORRECTED_DATA')['r2'][0][0][0]
+        data=tb.getvarcol('DATA')['r2'][0][0][0]
+        tb.close()
+         
+        tb.open(tsysfile)
+        fparam= tb.getvarcol('FPARAM')['r1'][0][0][0]
+        tb.close()
+                
+        print "CORRECTED_DATA", corrected_data
+        print "DATA", data
+        print "FPARAM", fparam
+        diff = corrected_data.real - (data.real*fparam)
+        diff_per = (diff/corrected_data.real)*100 
+        print "difference between CORRECTED_DATA and DATA X FPARAM", diff_per, "%" 
+    
+
+
+    def test06(self):
+        """Test06: weight_spectrum = 1/(SIGMA**2) X 1/(FPARAMx**2) dictionary version"""
+        #focus on antenna1=0, data_disk_id=1
+        #spwmap_dict={1:[1],3:[3],5:[5],7:[7]}
+
+        
+        tid = "06"
+        infile = self.infile1
+        sdcal(infile=infile, calmode='tsys', outfile=self.tsystable)
+        initweights(vis=infile, wtmode='nyq', dowtsp=True)        
+        #spwmap_list=[0,1,2,3,4,5,6,7,8,1,10,3,12,5,14,7,16]
+        #spwmap_dict={1:[9],3:[11],5:[13],7:[15]}
+        
+        spwmap_dict={1:[1],3:[3],5:[5],7:[7]}        
+        sdcal(infile=infile, calmode='apply', spwmap=spwmap_dict, applytable=self.tsystable, interp='nearest', outfile='')
+        
+        row=0
+        eps = 1.0e-1
+
+        tb.open(infile)
+        sigma=tb.getcell('SIGMA', row)
+        weight_spectrum=tb.getcell('WEIGHT_SPECTRUM', row)
+        total_ch=tb.getcell('WEIGHT_SPECTRUM',row).shape[1]
+        tb.close()
+        
+        tb.open(self.tsystable)
+        fparam=tb.getcell('FPARAM', row)
+        for ch in range(total_ch):
+            #print 'SIGMA00 ', sigma[0]
+            #print 'SIGMA10 ', sigma[1]
+            #print 'WEIGHT_SPECTRUM00 ', weight_spectrum[0][ch]
+            #print 'WEIGHT_SPECTRUM10 ', weight_spectrum[1][ch]
+            answer0 = 1/(sigma[0]**2)*1/(fparam[0][ch]**2) 
+            answer1 = 1/(sigma[1]**2)*1/(fparam[1][ch]**2) 
+            #print 'pol0: 1/SIGMA**2 X 1/(FPARAM)**2', answer0
+            #print 'pol1: 1/SIGMA**2 X 1/(FPARAM)**2', answer1i
+            diff0=weight_spectrum[0][ch]-answer0
+            diff1=weight_spectrum[1][ch]-answer1
+            diff0_percent= diff0/weight_spectrum[0][ch]*100
+            diff1_percent= diff1/weight_spectrum[1][ch]*100
+
+            #diff0_percent=(weight_spectrum[0][ch]-answer0)/weight_spectrum[0][ch]*100
+            #diff1_percent=(weight_spectrum[1][ch]-answer1)/weight_spectrum[1][ch]*100
+            print ''
+            print 'pol0 & pol1 ch '+ str(ch)+ ': diff between 1/SIGMA**2 X 1/(FPARAM['+str(ch)+'])**2 and WEIGHT_SPECTRUM['+ str(ch)+']' , diff0, diff1
+            print diff0_percent, '%', diff1_percent, '%'
+            #self.assertTrue(diff0 < eps, msg='The error is small enough')
+        tb.close()
+            
+
+
+
+
+class sdcal_test_base(unittest.TestCase):
+    """
+    Base class for sdcal unit test.
+    The following attributes/functions are defined here.
+
+        datapath
+        decorators (invalid_argument_case, exception_case)
+    """
+    # Data path of input
+    datapath=os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/tsdcal/'
+
+    # Input
+    infile = 'uid___A002_X6218fb_X264.ms.sel'
+    applytable = infile + '.sky'
+    
+    # task execution result
+    result = None
+    
+    # decorators
+    @staticmethod
+    def invalid_argument_case(func):
+        """
+        Decorator for the test case that is intended to fail
+        due to invalid argument.
+        """
+        import functools
+        @functools.wraps(func)
+        def wrapper(self):
+            func(self)
+            self.assertFalse(self.result, msg='The task must return False')
+        return wrapper
+
+    @staticmethod
+    def exception_case(exception_type, exception_pattern):
+        """
+        Decorator for the test case that is intended to throw
+        exception.
+
+            exception_type: type of exception
+            exception_pattern: regex for inspecting exception message 
+                               using re.search
+        """
+        def wrapper(func):
+            import functools
+            @functools.wraps(func)
+            def _wrapper(self):
+                self.assertTrue(len(exception_pattern) > 0, msg='Internal Error')
+                with self.assertRaises(exception_type) as ctx:
+                    func(self)
+                    self.fail(msg='The task must throw exception')
+                the_exception = ctx.exception
+                message = the_exception.message
+                self.assertIsNotNone(re.search(exception_pattern, message), msg='error message \'%s\' is not expected.'%(message))
+            return _wrapper
+        return wrapper
+
+    def _setUp(self, files, task):
+        for f in files:
+            if os.path.exists(f):
+                shutil.rmtree(f)
+            copytree_ignore_subversion(self.datapath, f)
+
+        default(task)
+
+    def _tearDown(self, files):
+        for f in files:
+            if os.path.exists(f):
+                shutil.rmtree(f)
+                
+class sdcal_test_ps(sdcal_test_base):   
+    """
+    Unit test for task sdcal (position switchsky calibration).
+
+    The list of tests:
+    test_ps00 --- default parameters (raises an error)
+    test_ps01 --- invalid calibration type
+    test_ps02 --- invalid selection (empty selection result)
+    test_ps03 --- outfile exists (overwrite=False)
+    test_ps04 --- empty outfile
+    test_ps05 --- position switch calibration ('ps')
+    test_ps06 --- position switch calibration ('ps') with data selection
+    test_ps07 --- outfile exists (overwrite=True)
+    test_ps08 --- inappropriate calmode ('otfraster')
+    """
+    invalid_argument_case = sdcal_test_base.invalid_argument_case
+    exception_case = sdcal_test_base.exception_case
+    
+    @property
+    def outfile(self):
+        return self.applytable
+
+    def setUp(self):
+        self._setUp([self.infile], sdcal)
+
+    def tearDown(self):
+        self._tearDown([self.infile, self.outfile])
+
+    def normal_case(**kwargs):
+        """
+        Decorator for the test case that is intended to verify
+        normal execution result.
+
+        selection --- data selection parameter as dictionary
+
+        Here, expected result is as follows:
+            - total number of rows is 12
+            - number of antennas is 2
+            - number of spectral windows is 2
+            - each (antenna,spw) pair has 3 rows
+            - expected sky data is a certain fixed value except completely
+              flagged channels
+              ANT, SPW, SKY
+              0     9   [1.0, 2.0, 3.0]
+              1     9   [7.0, 8.0, 9.0]
+              0    11   [4.0, 5.0, 6.0]
+              1    11   [10.0, 11.0, 12.0]
+            - channels 0~10 are flagged, each integration has sprious
+              ANT, SPW, SKY
+              0     9   [(511,512), (127,128), (383,384)]
+              1     9   [(511,512), (127,128), (383,384)]
+              0    11   [(511,512), (127,128), (383,384)]
+              1    11   [(511,512), (127,128), (383,384)]
+        """
+        def wrapper(func):
+            import functools
+            @functools.wraps(func)
+            def _wrapper(self):
+                func(self)
+
+                # sanity check
+                self.assertIsNone(self.result, msg='The task must complete without error')
+                self.assertTrue(os.path.exists(self.outfile), msg='Output file is not properly created.')
+
+                # verifying nrow
+                if len(kwargs) == 0:
+                    expected_nrow = 12
+                    antenna1_selection = None
+                    spw_selection = None
+                else:
+                    myms = gentools(['ms'])[0]
+                    myargs = kwargs.copy()
+                    if not myargs.has_key('baseline'):
+                        with sdutil.tbmanager(self.infile) as tb:
+                            antenna1 = numpy.unique(tb.getcol('ANTENNA1'))
+                            myargs['baseline'] = '%s&&&'%(','.join(map(str,antenna1)))
+                    a = myms.msseltoindex(self.infile, **myargs)
+                    antenna1_selection = a['antenna1']
+                    spw_selection = a['spw']
+                    expected_nrow = 3 * len(spw_selection) * len(antenna1_selection)
+                with sdutil.tbmanager(self.outfile) as tb:
+                    self.assertEqual(tb.nrows(), expected_nrow, msg='Number of rows mismatch (expected %s actual %s)'%(expected_nrow, tb.nrows()))
+
+                # verifying resulting sky spectra
+                expected_value = {0: {9: [1., 2., 3.],
+                                      11: [4., 5., 6.]},
+                                  1: {9: [7., 8., 9.],
+                                      11: [10., 11., 12.]}}
+                eps = 1.0e-6
+                for (ant,d) in expected_value.items():
+                    if antenna1_selection is not None and ant not in antenna1_selection:
+                        continue
+                    for (spw,val) in d.items():
+                        if spw_selection is not None and spw not in spw_selection:
+                            continue
+                        #print ant, spw, val
+                        construct = lambda x: '%s == %s'%(x)
+                        taql = ' && '.join(map(construct,[('ANTENNA1',ant), ('SPECTRAL_WINDOW_ID',spw)]))
+                        with sdutil.table_selector(self.outfile, taql) as tb:
+                            nrow = tb.nrows()
+                            self.assertEqual(nrow, 3, msg='Number of rows mismatch')
+                            for irow in xrange(tb.nrows()):
+                                expected = val[irow]
+                                self.assertGreater(expected, 0.0, msg='Internal Error')
+                                fparam = tb.getcell('FPARAM', irow)
+                                flag = tb.getcell('FLAG', irow)
+                                message_template = lambda x,y: 'Unexpected %s for antenna %s spw %s row %s (expected %s)'%(x,ant,spw,irow,y)
+                                self.assertTrue(all(flag[:,:10].flatten() == True), msg=message_template('flag status', True))
+                                self.assertTrue(all(flag[:,10:].flatten() == False), msg=message_template('flag status', False))
+                                fparam_valid = fparam[flag == False]
+                                error = abs((fparam_valid - expected) / expected) 
+                                self.assertTrue(all(error < eps), msg=message_template('sky data', expected))
+            return _wrapper
+        return wrapper
+            
+    
+    @invalid_argument_case
+    def test_ps00(self):
+        """
+        test_ps00 --- default parameters (raises an error)
+        """
+        self.result = sdcal()
+
+    @invalid_argument_case
+    def test_ps01(self):
+        """
+        test_ps01 --- invalid calibration type
+        """
+        self.result = sdcal(infile=self.infile, calmode='invalid_type', outfile=self.outfile)
+
+    @exception_case(RuntimeError, 'Spw Expression: No match found for 99,')
+    def test_ps02(self):
+        """
+        test_ps02 --- invalid selection (invalid spw selection)
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', spw='99', outfile=self.outfile)
+
+    @exception_case(RuntimeError, '^overwrite is False and output file exists:')
+    def test_ps03(self):
+        """
+        test_ps03 --- outfile exists (overwrite=False)
+        """
+        # copy input to output
+        shutil.copytree(self.infile, self.outfile)
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile, overwrite=False)
+
+    @exception_case(RuntimeError, 'Output file name must be specified\.')
+    def test_ps04(self):
+        """
+        test_ps04 --- empty outfile 
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile='', overwrite=False)
+
+    @normal_case()
+    def test_ps05(self):
+        """
+        test_ps05 --- position switch calibration ('ps')
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile)
+
+    @normal_case()
+    def test_ps05M(self):
+        """
+        test_ps05M --- position switch calibration ('ps') for MMS
+        """
+        with mmshelper(vis=self.infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.result = sdcal(infile=mvis, calmode='ps', outfile=self.outfile)
+
+    @normal_case(spw='9')
+    def test_ps06(self):
+        """
+        test_ps06 --- position switch calibration ('ps') with data selection
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', spw='9', outfile=self.outfile)
+
+    @normal_case()
+    def test_ps07(self):
+        """
+        test_ps07 --- outfile exists (overwrite=True)
+        """
+        # copy input to output
+        shutil.copytree(self.infile, self.outfile)
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile, overwrite=True)
+
+    @exception_case(RuntimeError, "Error in Calibrater::solve")
+    def test_ps08(self):
+        """
+        test_ps08 --- inappropriate calmode ('otfraster')
+        """
+        # the data doesn't an OTF raster scan so that unexpected behavior may happen
+        # if calmode is 'otfraster'
+        # in this case, gap detection detects the row having only one integration
+        # due to irregular time stamp distribution and causes the "Too many edge
+        # points" error
+        self.result = sdcal(infile=self.infile, outfile=self.outfile, calmode='otfraster')
+
+
+class sdcal_test_otfraster(sdcal_test_base):   
+    """
+    Unit test for task sdcal (OTF raster sky calibration).
+    Since basic test case is covered by sdcal_test_ps, only
+    tests specific to otfraster calibration are defined here.
+
+    The list of tests:
+    test_otfraster00 --- invalid fraction (non numeric value)
+    test_otfraster01 --- too many edge points (fraction 0.5)
+    test_otfraster02 --- too many edge points (fraction '50%')
+    test_otfraster03 --- too many edge points (noff 100000)
+    ###test_otfraster04 --- negative edge points 
+    ###test_otfraster05 --- zero edge points 
+    test_otfraster06 --- inappropriate calibration mode ('ps')
+    test_otfraster07 --- OTF raster calibration ('otfraster') with default setting
+    test_otfraster08 --- OTF raster calibration ('otfraster') with string fraction (numeric value)
+    test_otfraster09 --- OTF raster calibration ('otfraster') with string fraction (percentage)
+    test_otfraster10 --- OTF raster calibration ('otfraster') with numeric fraction 
+    test_otfraster11 --- OTF raster calibration ('otfraster') with auto detection
+    test_otfraster12 --- OTF raster calibration ('otfraster') with custom noff
+    test_otfraster13 --- check if noff takes priority over fraction
+    """
+    invalid_argument_case = sdcal_test_base.invalid_argument_case
+    exception_case = sdcal_test_base.exception_case
+    infile = 'uid___A002_X6218fb_X264.ms.sel.otfraster'
+    
+    @staticmethod
+    def calculate_expected_value(table, numedge=1):
+        expected_value = {}
+        with sdutil.tbmanager(table) as tb:
+            antenna_list = numpy.unique(tb.getcol('ANTENNA1'))
+            ddid_list = numpy.unique(tb.getcol('DATA_DESC_ID'))
+        with sdutil.tbmanager(os.path.join(table,'DATA_DESCRIPTION')) as tb:
+            dd_spw_map = tb.getcol('SPECTRAL_WINDOW_ID')
+        for antenna in antenna_list:
+            expected_value[antenna] = {}
+            for ddid in ddid_list:
+                spw = dd_spw_map[ddid]
+                taql = 'ANTENNA1 == %s && ANTENNA2 == %s && DATA_DESC_ID == %s'%(antenna,antenna,ddid)
+                with sdutil.tbmanager(table) as tb:
+                    try:
+                        tsel = tb.query(taql, sortlist='TIME')
+                        time_list = tsel.getcol('TIME')
+                        data = tsel.getcol('DATA').real
+                        flag = tsel.getcol('FLAG')
+                    finally:
+                        tsel.close()
+                #print 'time_list', time_list
+                if len(time_list) < 2:
+                    continue
+                data_list = []
+                time_difference = time_list[1:] - time_list[:-1]
+                #print 'time_difference', time_difference
+                gap_threshold = numpy.median(time_difference) * 5
+                #print 'gap_threshold', gap_threshold
+                gap_list = numpy.concatenate(([0], numpy.where(time_difference > gap_threshold)[0]+1))
+                if gap_list[-1] != len(time_list):
+                    gap_list = numpy.concatenate((gap_list, [len(time_list)]))
+                #print 'gap_list', gap_list
+                for i in xrange(len(gap_list)-1):
+                    start = gap_list[i]
+                    end = gap_list[i+1]
+                    raster_data = data[:,:,start:end]
+                    raster_flag = flag[:,:,start:end]
+                    raster_row = numpy.ma.masked_array(raster_data, raster_flag)
+                    left_edge = raster_row[:,:,:numedge].mean(axis=2)
+                    right_edge = raster_row[:,:,-numedge:].mean(axis=2)
+                    data_list.extend([left_edge, right_edge])
+                expected_value[antenna][spw] = data_list
+                #print 'antenna', antenna, 'spw', spw, 'len(data_list)', len(data_list)
+                    
+        return expected_value
+
+    @property
+    def outfile(self):
+        return self.applytable
+
+    def setUp(self):
+        self._setUp([self.infile], sdcal)
+
+    def tearDown(self):
+        self._tearDown([self.infile, self.outfile])
+
+    def normal_case(numedge=1, **kwargs):
+        """
+        Decorator for the test case that is intended to verify
+        normal execution result.
+
+        numedge --- expected number of edge points
+        selection --- data selection parameter as dictionary
+
+        Here, expected result is as follows:
+            - total number of rows is 24
+            - number of antennas is 2
+            - number of spectral windows is 2
+            - each (antenna,spw) pair has 6 rows
+        """
+        def wrapper(func):
+            import functools
+            @functools.wraps(func)
+            def _wrapper(self):
+                func(self)
+
+                # sanity check
+                self.assertIsNone(self.result, msg='The task must complete without error')
+                self.assertTrue(os.path.exists(self.outfile), msg='Output file is not properly created.')
+
+                # verifying nrow
+                if len(kwargs) == 0:
+                    expected_nrow = 24
+                    antenna1_selection = None
+                    spw_selection = None
+                else:
+                    myms = gentools(['ms'])[0]
+                    myargs = kwargs.copy()
+                    if not myargs.has_key('baseline'):
+                        with sdutil.tbmanager(self.infile) as tb:
+                            antenna1 = numpy.unique(tb.getcol('ANTENNA1'))
+                            myargs['baseline'] = '%s&&&'%(','.join(map(str,antenna1)))
+                    a = myms.msseltoindex(self.infile, **myargs)
+                    antenna1_selection = a['antenna1']
+                    spw_selection = a['spw']
+                    expected_nrow = 6 * len(spw_selection) * len(antenna1_selection)
+                with sdutil.tbmanager(self.outfile) as tb:
+                    self.assertEqual(tb.nrows(), expected_nrow, msg='Number of rows mismatch (expected %s actual %s)'%(expected_nrow, tb.nrows()))
+
+                # verifying resulting sky spectra
+                eps = 1.0e-6
+                expected_value = sdcal_test_otfraster.calculate_expected_value(self.infile, numedge)
+                for (ant,d) in expected_value.items():
+                    if antenna1_selection is not None and ant not in antenna1_selection:
+                        continue
+                    for (spw,val) in d.items():
+                        if spw_selection is not None and spw not in spw_selection:
+                            continue
+                        #print ant, spw, val
+                        construct = lambda x: '%s == %s'%(x)
+                        taql = ' && '.join(map(construct,[('ANTENNA1',ant), ('SPECTRAL_WINDOW_ID',spw)]))
+                        with sdutil.table_selector(self.outfile, taql) as tb:
+                            nrow = tb.nrows()
+                            self.assertEqual(nrow, 6, msg='Number of rows mismatch')
+                            for irow in xrange(tb.nrows()):
+                                expected = val[irow]
+                                fparam = tb.getcell('FPARAM', irow)
+                                flag = tb.getcell('FLAG', irow)
+                                self.assertEqual(expected.shape, fparam.shape, msg='Shape mismatch for antenna %s spw %s row %s (expected %s actual %s)'%(ant,spw,irow,list(expected.shape),list(fparam.shape)))
+                                npol,nchan = expected.shape
+                                for ipol in xrange(npol):
+                                    for ichan in xrange(nchan):
+                                        message_template = lambda x,y,z: 'Unexpected %s for antenna %s spw %s row %s pol %s channel %s (expected %s actual %s)'%(x,ant,spw,irow,ipol,ichan,y,z)
+                                        _flag = flag[ipol,ichan]
+                                        _mask = expected.mask[ipol,ichan]
+                                        _expected = expected.data[ipol,ichan]
+                                        _fparam = fparam[ipol,ichan]
+                                        self.assertEqual(_mask, _flag, msg=message_template('FLAG',_mask,_flag))
+                                        if _mask is True:
+                                            self.assertEqual(0.0, _fparam, msg=message_template('FPARAM',0.0,_fparam))
+                                        elif abs(_expected) < eps:
+                                            self.assertLess(abs(_fparam), eps, msg=message_template('FPARAM',_expected,_fparam))
+                                        else:
+                                            diff = abs((_fparam - _expected) / _expected)
+                                            self.assertLess(diff, eps, msg=message_template('FPARAM',_expected,_fparam))
+                                #self.assertTrue(all(flag[:,:10].flatten() == True), msg=message_template('flag status', True))
+                                #self.assertTrue(all(flag[:,10:].flatten() == False), msg=message_template('flag status', False))
+                                #fparam_valid = fparam[flag == False]
+                                #error = abs((fparam_valid - expected) / expected) 
+                                #self.assertTrue(all(error < eps), msg=message_template('sky data', expected))
+            return _wrapper
+        return wrapper
+
+    @exception_case(RuntimeError, '^Invalid fraction value \(.+\)$')
+    def test_otfraster00(self):
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction='auto')
+
+    @exception_case(ValueError, '^Too many edge points\. fraction must be < 0.5\.$')
+    def test_otfraster01(self):
+        """
+        test_otfraster01 --- too many edge points (fraction 0.5)
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction=0.5)
+
+    @exception_case(ValueError, '^Too many edge points\. fraction must be < 0.5\.$')
+    def test_otfraster02(self):
+        """
+        test_otfraster02 --- too many edge points (fraction 50%)
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction='50%')
+
+    @exception_case(RuntimeError, 'Error in Calibrater::solve')
+    def test_otfraster03(self):
+        """
+        test_otfraster03 --- too many edge points (noff 100000)
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', noff=10000)
+
+    #@exception_case(RuntimeError, 'Error in Calibrater::solve')
+    #def test_otfraster04(self):
+    #    """
+    #    test_otfraster04 --- negative edge points
+    #    """
+    #    self.result = sdcal(infile=self.infile, outfile=self.outfile,
+    #                         calmode='otfraster', noff=-3)
+
+    #@exception_case(RuntimeError, 'Error in Calibrater::solve')
+    #def test_otfraster05(self):
+    #    """
+    #    test_otfraster05 --- zero edge points
+    #    """
+    #    self.result = sdcal(infile=self.infile, outfile=self.outfile,
+    #                         calmode='otfraster', noff=0)
+
+    @exception_case(RuntimeError, 'Error in Calibrater::solve')
+    def test_otfraster06(self):
+        """
+        test_otfraster06 --- inappropriate calibration mode ('ps')
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='ps')
+    @normal_case(numedge=1)
+    def test_otfraster07(self):
+        """
+        test_otfraster07 --- OTF raster calibration ('otfraster') with default setting
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster')
+
+    @normal_case(numedge=1)
+    def test_otfraster07M(self):
+        """
+        test_otfraster07M --- OTF raster calibration ('otfraster') with default setting (MMS)
+        """
+        with mmshelper(vis=self.infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.result = sdcal(infile=mvis, outfile=self.outfile,
+                                calmode='otfraster')
+
+    @normal_case(numedge=2)
+    def test_otfraster08(self):
+        """
+        test_otfraster08 --- OTF raster calibration ('otfraster') with string fraction (numeric value)
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction='0.3')
+
+    @normal_case(numedge=2)
+    def test_otfraster09(self):
+        """
+        test_otfraster09 --- OTF raster calibration ('otfraster') with string fraction (percentage)
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction='30%')
+
+    @normal_case(numedge=2)
+    def test_otfraster10(self):
+        """
+        test_otfraster10 --- OTF raster calibration ('otfraster') with numeric fraction
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction=0.3)
+
+    @normal_case(numedge=2)
+    def test_otfraster11(self):
+        """
+        test_otfraster11 --- OTF raster calibration ('otfraster') with auto detection
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction=0, noff=0)
+
+    @normal_case(numedge=3)
+    def test_otfraster12(self):
+        """
+        test_otfraster12 --- OTF raster calibration ('otfraster') with custom noff
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', noff=3)
+
+    @normal_case(numedge=3)
+    def test_otfraster13(self):
+        """
+        test_otfraster13 --- check if noff takes priority over fraction
+        """
+        self.result = sdcal(infile=self.infile, outfile=self.outfile,
+                             calmode='otfraster', fraction='90%', noff=3)
+
+def assert_true(condition,err_msg):
+    """Assertion not optimized away -contrary to Python assert- when Python interpreter is run in optimized mode (__debug__=False)"""
+    if not condition:
+        raise RuntimeError(err_msg)
+        
+class CasaTableChecker:
+    """Base class for OTF mode checkers"""
+    def __init__(self,tbl_path): 
+        self.tb = gentools(['tb'])[0]  
+        self.path = tbl_path
+        self.tb.open(self.path) # Raises RuntimeError on failure
+        assert self.tb.ok()
+    def __del__(self):
+        self.tb.close()
+        
+class MsCalTableChecker(CasaTableChecker):
+    """OTF mode checker: checking equality of 2 ms_caltable fparam columns within specified tolerance"""
+    def __init__(self,tbl_path,tol=1e-6):
+        CasaTableChecker.__init__(self, tbl_path)
+        assert_true('FPARAM' in self.tb.colnames(),
+                   str(self.path) + ': FPARAM column missing')
+        self.fparam = self.tb.getcol('FPARAM')
+        self.tol=tol
+    def __eq__(self,other):
+        assert_true(self.fparam.shape == other.fparam.shape,
+                   'FPARAM columns: shape mismatch: expected {expected} result {result}'.format(expected=self.fparam.shape, result=other.fparam.shape))
+        assert_true(numpy.allclose(self.fparam,other.fparam,atol=self.tol,rtol=0.0),
+                   'FPARAM columns: error exceeds tolerance='+str(self.tol))
+        return True
+    def __del__(self):
+        CasaTableChecker.__del__(self)
+        
+class MsCorrectedDataChecker(CasaTableChecker):
+    """OTF mode checker: checking equality of 2 ms corrected_data columns within specified tolerance"""
+    def __init__(self,tbl_path,convert_to_kelvin=False,tol_real=1e-6):
+        CasaTableChecker.__init__(self, tbl_path)
+        self.tol_real = tol_real
+        assert_true('CORRECTED_DATA' in self.tb.colnames(),
+                   str(self.path) + ': CORRECTED_DATA column missing')
+        self.cdata = self.tb.getcol('CORRECTED_DATA')
+        if convert_to_kelvin:
+            tbl_syscal = gentools(['tb'])[0]  
+            tbl_syscal.open(os.path.join(tbl_path,'SYSCAL'))
+            tsys_spectrum = tbl_syscal.getcol('TSYS_SPECTRUM')
+            self.cdata = tsys_spectrum * self.cdata
+            tbl_syscal.close()
+            
+    def __eq__(self,other):
+        assert_true(self.cdata.shape == other.cdata.shape,
+                   'CORRECTED_DATA: shape: mismatch')
+        assert_true((self.cdata.imag == other.cdata.imag).all(),
+                   'CORRECTED_DATA: imaginary part: mismatch')
+        assert_true(numpy.allclose(self.cdata.real,other.cdata.real,atol=self.tol_real,rtol=0.0),
+                   'CORRECTED_DATA: real part: error exceeds tolerance='+str(self.tol_real))
+        return True
+    def __del__(self):
+        CasaTableChecker.__del__(self)
+          
+        
+class sdcal_test_otf(unittest.TestCase):   
+    """
+    Unit tests for task sdcal,
+    sky calibration mode = 'otf' : On-The-Fly (OTF) *non-raster* 
+
+    The list of tests:
+    Test       | Input            | Edges    | Calibration 
+    Name       | MS               | Fraction | Mode
+    ==========================================================================
+    test_otf01 | squares.dec60_cs | 10%      | otf
+    test_otf02 | squares.dec60_cs | 20%      | otf
+    test_otf03 | lissajous        | 10%      | otf    
+    test_otf04 | lissajous        | 20%      | otf    
+    test_otf05 | squares.dec60_cs | 10%      | otf,apply
+    test_otf06 | lissajous        | 10%      | apply  
+    test_otf07 | lissajous        | 10%      | otf,tsys,apply     
+    """
+    
+    # Required checkers:
+    # - compare 2 calibration tables
+    # - compare 2 corrected data
+    datapath=os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/tsdcal/'
+    ref_datapath=os.path.join(datapath,'otf_reference_data')
+    sdcal_params = {}
+    current_test_params = {}
+        
+    def setup(self):
+        # Copy input MS into current directory
+        infile = self.sdcal_params['infile']
+        if os.path.exists(infile):
+            shutil.rmtree(infile)
+        copytree_ignore_subversion(self.datapath, infile)
+        # Delete output calibration table if any
+        if 'outfile' in self.sdcal_params :
+            outfile = self.sdcal_params['outfile']
+            if os.path.exists(outfile):
+                shutil.rmtree(outfile)
+        # Compute reference calibrated ms if required
+        if 'compute_ref_ms' in self.current_test_params:
+            # Create a second copy of input MS
+            ref_ms_name = 'ref_'+infile
+            if os.path.exists(ref_ms_name):
+                shutil.rmtree(ref_ms_name)
+            shutil.copytree(src=infile,dst=ref_ms_name)
+            # Calibrate it using current test caltable
+            sdcal(infile=ref_ms_name,calmode='apply',applytable=self.ref_caltable())
+            # Update test params
+            self.current_test_params['ref_calibrated_ms'] = ref_ms_name
+            
+    def tearDown(self):
+        casalog.post("tearDown")
+        infile = self.sdcal_params['infile']
+        if os.path.exists(infile):
+            shutil.rmtree(infile)
+        if 'outfile' in self.sdcal_params:
+            outfile = self.sdcal_params['outfile']
+            if os.path.exists(outfile):
+                shutil.rmtree(outfile)
+        if 'compute_ref_ms' in self.current_test_params:
+            ref_ms_name = self.ref_calibrated_ms()
+            if os.path.exists(ref_ms_name):
+                shutil.rmtree(ref_ms_name)
+            
+            
+    def run_sdcal(self):
+        self.setup()
+        sdcal(**self.sdcal_params)
+        
+    def ref_caltable(self):
+        assert_true('ref_caltable' in self.current_test_params,'sdcal_test_otf internal error')
+        return os.path.join(self.ref_datapath,self.current_test_params['ref_caltable'])
+    
+    def ref_calibrated_ms(self):
+        assert_true('ref_calibrated_ms' in self.current_test_params,'sdcal_test_otf internal error')
+        ref_ms_name = self.current_test_params['ref_calibrated_ms']
+        if 'compute_ref_ms' in self.current_test_params:
+            return ref_ms_name
+        else:
+            return os.path.join(self.ref_datapath,ref_ms_name)
+    
+    def test_otf01(self):
+        """
+        test_otf01 --- Compute calibration table. calmode='otf' ms=squares.dec60_cs.ms
+        """
+        self.sdcal_params = {
+            'infile':'squares.dec60_cs.ms',
+            'calmode':'otf',
+            'outfile':'test_otf01.ms_caltable'
+        }
+        self.current_test_params = {
+            'ref_caltable':'squares.dec60_cs.edges_fraction_0.1.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.run_sdcal()
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+        
+    def test_otf02(self):
+        """
+        test_otf02 --- Compute calibration table. calmode='otf' ms=squares.dec60_cs.ms edges_fraction=20%
+        """
+        self.sdcal_params = {
+            'infile':'squares.dec60_cs.ms',
+            'calmode':'otf',
+            'outfile':'test_otf02.ms_caltable',
+            'fraction':0.2
+        }
+        self.current_test_params = {
+            'ref_caltable':'squares.dec60_cs.edges_fraction_0.2.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.run_sdcal()
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+
+    def test_otf03(self):
+        """
+        test_otf03 --- Compute calibration table. calmode='otf' ms=lissajous.ms
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'otf',
+            'outfile':'test_otf03.ms_caltable'
+        }
+        self.current_test_params = {
+            'ref_caltable':'lissajous.edges_new_fraction_0.1.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.run_sdcal()
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+
+    def test_otf03M(self):
+        """
+        test_otf03 --- Compute calibration table. calmode='otf' ms=lissajous.ms (MMS)
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'otf',
+            'outfile':'test_otf03.ms_caltable'
+        }
+        self.current_test_params = {
+            'ref_caltable':'lissajous.edges_new_fraction_0.1.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.setup()
+        infile = self.sdcal_params['infile']
+        with mmshelper(vis=infile) as mvis:
+            self.assertTrue(mvis is not None)
+            self.sdcal_params['infile'] = mvis
+            sdcal(**self.sdcal_params)
+            self.sdcal_params['infile'] = infile
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+
+    def test_otf04(self):
+        """
+        test_otf04 --- Compute calibration table. calmode='otf' ms=lissajous.ms edges_fraction=20%
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'otf',
+            'outfile':'test_otf04.ms_caltable',
+            'fraction':'20%'
+        }
+        self.current_test_params = {
+            'ref_caltable':'lissajous.edges_new_fraction_0.2.ms_caltable'
+        }
+        expected_result = MsCalTableChecker(self.ref_caltable())
+        self.run_sdcal()
+        sdcal_result = MsCalTableChecker(self.sdcal_params['outfile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics 
+        
+    def test_otf05(self):
+        """
+        test_otf05 --- Sky calibration. calmode='otf,apply' ms=squares.dec60_cs.ms
+        """
+        self.sdcal_params = {
+            'infile':'squares.dec60_cs.ms',
+            'calmode':'otf,apply'
+        }
+        self.current_test_params = {
+            'ref_caltable':'squares.dec60_cs.edges_fraction_0.1.ms_caltable',
+            'compute_ref_ms':True
+        }
+        self.run_sdcal()
+        expected_result = MsCorrectedDataChecker(self.ref_calibrated_ms())
+        sdcal_result = MsCorrectedDataChecker(self.sdcal_params['infile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+        
+    def test_otf06(self):
+        """
+        test_otf06 --- Sky calibration reusing caltable pre-computed with calmode='otf'. calmode='apply' ms=lissajous.ms
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'apply',
+            'applytable':os.path.join(self.ref_datapath,'lissajous.edges_new_fraction_0.1.ms_caltable')
+        }
+        self.current_test_params = {
+            # new reference data after George's CTTimeInterp1 fix
+            #'ref_calibrated_ms':'lissajous.edges_new_fraction_0.1.sky.ms'
+            'ref_calibrated_ms':'lissajous.edges_after4.7_fraction_0.1.sky.ms'
+        }
+        expected_result = MsCorrectedDataChecker(self.ref_calibrated_ms())
+        self.run_sdcal()
+        sdcal_result = MsCorrectedDataChecker(self.sdcal_params['infile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics
+
+    def test_otf07(self):
+        """
+        test_otf07 --- Sky calibration + Tsys conversion, composite calmode='otf,tsys,apply'. ms=lissajous.ms
+        """
+        self.sdcal_params = {
+            'infile':'lissajous.ms',
+            'calmode':'otf,tsys,apply',
+        }
+        self.current_test_params = {
+            # new reference data after George's CTTimeInterp1 fix
+            #'ref_calibrated_ms':'lissajous.edges_new_fraction_0.1.sky.ms'
+            'ref_calibrated_ms':'lissajous.edges_after4.7_fraction_0.1.sky.ms'
+        }
+        expected_result = MsCorrectedDataChecker(self.ref_calibrated_ms(),convert_to_kelvin=True)
+        self.run_sdcal()
+        sdcal_result = MsCorrectedDataChecker(self.sdcal_params['infile'])
+        self.assertEqual(sdcal_result,expected_result) # AlmostEqual semantics            
+    
+
+class sdcal_test_otf_ephem(unittest.TestCase):
+    """
+    Unit tests for task sdcal,
+    sky calibration mode = 'otf' : On-The-Fly (OTF) *non-raster* 
+    
+    Test cases for ephemeris objects are defined in this class.
+
+    The list of tests:
+    Test            | Input            | Edges    | Calibration 
+    Name            | MS               | Fraction | Mode
+    ==========================================================================
+    test_otfephem01 | otf_ephem.ms     | 10%      | otf
+    test_otfephem02 | otf_ephem.ms     | 10%      | otf,apply
+    """
+    
+    datapath=os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/tsdcal/'
+    infile = 'otf_ephem.ms'
+    outfile = infile + '.otfcal'
+        
+    def setUp(self):
+        if os.path.exists(self.infile):
+            shutil.rmtree(self.infile)
+        copytree_ignore_subversion(self.datapath, self.infile)
+
+        default(sdcal)
+
+    def tearDown(self):
+        to_be_removed = [self.infile, self.outfile]
+        for f in to_be_removed:
+            if os.path.exists(f):
+                shutil.rmtree(f)
+                
+    def check_ephem(self, vis):
+        with sdutil.tbmanager(os.path.join(vis, 'SOURCE')) as tb:
+            names = tb.getcol('NAME')
+        self.assertEqual(len(names), 1)
+        me = gentools(['me'])[0]
+        direction_refcodes = me.listcodes(me.direction())
+        ephemeris_codes = direction_refcodes['extra']
+        self.assertIn(names[0].upper(), ephemeris_codes)
+        
+    def check_fresh_ms(self, vis):
+        with sdutil.tbmanager(vis) as tb:
+            colnames = tb.colnames()
+            
+        self.assertNotIn('CORRECTED_DATA', colnames)
+        
+    def check_caltable(self, caltable):
+        with sdutil.tbmanager(caltable) as tb:
+            data = tb.getcol('FPARAM')
+        
+        self.assertEqual(data.shape, (2, 1, 10))
+        self.assertTrue(numpy.all(data == 1.0))
+    
+    def check_corrected(self, vis):
+        with sdutil.tbmanager(vis) as tb:
+            data = tb.getcol('CORRECTED_DATA')
+            nrow = tb.nrows()
+            
+        self.assertEqual(nrow, 40)
+        
+        real = data.real
+        expected = numpy.ones(real.shape, dtype=numpy.float64)
+        for irow in xrange(nrow):
+            if irow % 4 == 3:
+                expected[:,:,irow] = 0.0
+        self.assertTrue(numpy.all(real == expected))
+        
+        imag = data.imag
+        self.assertTrue(numpy.all(imag == 0))
+        
+                
+    def test_otfephem01(self):
+        """test_otfephem01: Sky calibration of 'otf' mode for ephemeris object"""
+        self.check_ephem(self.infile)
+        self.assertFalse(os.path.exists(self.outfile))
+        sdcal(infile=self.infile, outfile=self.outfile, calmode='otf')
+        self.check_caltable(self.outfile)
+        
+    def test_otfephem02(self):
+        """test_otfephem02: On-the-fly application of 'otf' calibration mode for ephemeris object"""
+        self.check_ephem(self.infile)
+        self.check_fresh_ms(self.infile)
+        sdcal(infile=self.infile, calmode='otf,apply')
+        self.check_corrected(self.infile)
+       
+    
+    
+# interpolator utility for testing
+class Interpolator(object):
+    @staticmethod
+    def __interp_freq_linear(data, flag):
+        outdata = data.copy()
+        outflag = flag
+        npol, nchan = outdata.shape
+        for ipol in xrange(npol):
+            valid_chans = numpy.where(outflag[ipol,:] == False)[0]
+            if len(valid_chans) == 0:
+                continue
+            for ichan in xrange(nchan):
+                if outflag[ipol,ichan] == True:
+                    #print '###', ipol, ichan, 'before', data[ipol,ichan]
+                    if ichan <= valid_chans[0]:
+                        outdata[ipol,ichan] = data[ipol,valid_chans[0]]
+                    elif ichan >= valid_chans[-1]:
+                        outdata[ipol,ichan] = data[ipol,valid_chans[-1]]
+                    else:
+                        ii = abs(valid_chans - ichan).argmin()
+                        if valid_chans[ii] - ichan > 0:
+                            ii -= 1
+                        i0 = valid_chans[ii]
+                        i1 = valid_chans[ii+1]
+                        outdata[ipol,ichan] = ((i1 - ichan) * data[ipol,i0] + (ichan - i0) * data[ipol,i1]) / (i1 - i0)
+                    #print '###', ipol, ichan, 'after', data[ipol,ichan]
+        return outdata, outflag
+
+    @staticmethod
+    def interp_freq_linear(data, flag):
+        outflag = flag.copy()
+        outflag[:] = False
+        outdata, outflag = Interpolator.__interp_freq_linear(data, outflag)
+        return outdata, outflag
+        
+    @staticmethod
+    def interp_freq_nearest(data, flag):
+        outdata = data.copy()
+        outflag = flag
+        npol, nchan = outdata.shape
+        for ipol in xrange(npol):
+            valid_chans = numpy.where(outflag[ipol,:] == False)[0]
+            if len(valid_chans) == 0:
+                continue
+            for ichan in xrange(nchan):
+                if outflag[ipol,ichan] == True:
+                    #print '###', ipol, ichan, 'before', data[ipol,ichan]
+                    if ichan <= valid_chans[0]:
+                        outdata[ipol,ichan] = data[ipol,valid_chans[0]]
+                    elif ichan >= valid_chans[-1]:
+                        outdata[ipol,ichan] = data[ipol,valid_chans[-1]]
+                    else:
+                        ii = abs(valid_chans - ichan).argmin()
+                        outdata[ipol,ichan] = data[ipol,valid_chans[ii]]
+                    #print '###', ipol, ichan, 'after', data[ipol,ichan]
+        return outdata, outflag
+
+    @staticmethod
+    def interp_freq_linearflag(data, flag):
+        # NOTE
+        # interpolation/extrapolation of flag along frequency axis is
+        # also needed for linear interpolation. Due to this, number of
+        # flag channels will slightly increase and causes different
+        # behavior from existing scantable based single dish task
+        # (sdcal2).
+        #
+        # It appears that effective flag at a certain channel is set to
+        # the flag at previous channels (except for channel 0).
+        #
+        # 2015/02/26 TN
+        npol,nchan = flag.shape
+        #print '###BEFORE', flag[:,:12]
+        outflag = flag.copy()
+        for ichan in xrange(nchan-1):
+            outflag[:,ichan] = numpy.logical_or(flag[:,ichan], flag[:,ichan+1])
+        outflag[:,1:] = outflag[:,:-1]
+        outflag[:,-1] = flag[:,-2]
+        #print '###AFTER', outflag[:,:12]
+
+        outdata, outflag = Interpolator.__interp_freq_linear(data, outflag)
+        return outdata, outflag
+
+    @staticmethod
+    def interp_freq_nearestflag(data, flag):
+        outdata, outflag = Interpolator.interp_freq_nearest(data, flag)
+        return outdata, outflag
+
+    def __init__(self, table, finterp='linear'):
+        self.table = table
+        self.taql = ''
+        self.time = None
+        self.data = None
+        self.flag = None
+        self.exposure = None
+        self.finterp = getattr(Interpolator,'interp_freq_%s'%(finterp.lower()))
+        print 'self.finterp:', self.finterp.__name__
+
+    def select(self, antenna, spw):
+        self.taql = 'ANTENNA1 == %s && ANTENNA2 == %s && SPECTRAL_WINDOW_ID == %s'%(antenna, antenna, spw)
+        with sdutil.table_selector(self.table, self.taql) as tb:
+            self.time = tb.getcol('TIME')
+            self.data = tb.getcol('FPARAM')
+            self.flag = tb.getcol('FLAG')
+            self.exposure = tb.getcol('INTERVAL')
+
+    def interpolate(self, t):
+        raise Exception('Not implemented')
+
+    def weightscale_linear(self, dt_on, dt_off0, dt_off1=None, t_on=None, t_off0=None, t_off1=None):
+        if dt_off1 is None:
+            return self.weightscale_nearest(dt_on, dt_off0)
+        else:
+            delta = t_off1 - t_off0
+            delta0 = t_on - t_off0
+            delta1 = t_off1 - t_on
+            sigmasqscale = 1.0 + dt_on / (delta * delta) * (delta1 * delta1 / dt_off0 + delta0 * delta0 / dt_off1) 
+            return 1.0 / sigmasqscale 
+
+    def weightscale_nearest(self, dt_on, dt_off):
+        return dt_off / (dt_on + dt_off)
+
+class LinearInterpolator(Interpolator):
+    def __init__(self, table, finterp='linear'):
+        super(LinearInterpolator, self).__init__(table, finterp)
+
+    def interpolate(self, t, tau):
+        dt = self.time - t
+        index = abs(dt).argmin()
+        if dt[index] > 0.0:
+            index -= 1
+        if index < 0:
+            ref = self.data[:,:,0].copy()
+            weightscale = self.weightscale_linear(tau, self.exposure[0])
+        elif index >= len(self.time) - 1:
+            ref = self.data[:,:,-1].copy()
+            weightscale = self.weightscale_linear(tau, self.exposure[-1])
+        else:
+            t0 = self.time[index]
+            t1 = self.time[index+1]
+            d0 = self.data[:,:,index]
+            d1 = self.data[:,:,index+1]
+            dt0 = t - t0
+            dt1 = t1 - t
+            dt2 = t1 - t0
+            ref = (dt1 * d0 + dt0 * d1) / dt2
+            tau0 = self.exposure[index]
+            tau1 = self.exposure[index+1]
+            weightscale = self.weightscale_linear(tau, tau0, tau1, t, t0, t1)
+        flag = self.interpolate_flag(t)
+        ref, refflag = self.finterp(ref, flag)
+                               
+        return ref, refflag, weightscale
+    
+    def interpolate_flag(self, t):
+        dt = self.time - t
+        index = abs(dt).argmin()
+        if dt[index] > 0.0:
+            index -= 1
+        if index < 0:
+            flag = self.flag[:,:,0].copy()
+        elif index >= len(self.time) - 1:
+            flag = self.flag[:,:,-1].copy()
+        else:
+            f0 = self.flag[:,:,index]
+            f1 = self.flag[:,:,index+1]
+            flag = numpy.logical_or(f0, f1)
+
+        return flag
+
+class NearestInterpolator(Interpolator):
+    def __init__(self, table, finterp='nearest'):
+        super(NearestInterpolator, self).__init__(table, finterp)
+
+    def interpolate(self, t, tau):
+        dt = self.time - t
+        index = abs(dt).argmin()
+        weightscale = self.weightscale_nearest(tau, self.exposure[index])
+        ref, refflag = self.finterp(self.data[:,:,index].copy(), self.flag[:,:,index].copy())
+        return ref, refflag, weightscale
+
+    
+class sdcal_test_apply(sdcal_test_base):
+    
+    """
+    Unit test for task sdcal (apply tables).
+
+    The list of tests:
+    test_apply_sky00 --- empty applytable
+    test_apply_sky01 --- empty applytable (list ver.)
+    test_apply_sky02 --- empty applytable list 
+    test_apply_sky03 --- unexisting applytable
+    test_apply_sky04 --- unexisting applytable (list ver.)
+    test_apply_sky05 --- invalid selection (empty selection result)
+    test_apply_sky06 --- invalid interp value
+    test_apply_sky07 --- invalid applytable (not caltable)
+    test_apply_sky08 --- apply data (linear) 
+    test_apply_sky09 --- apply selected data
+    test_apply_sky10 --- apply data (nearest)
+    test_apply_sky11 --- apply data (linearflag for frequency interpolation)
+    test_apply_sky12 --- apply data (nearestflag for frequency interpolation)
+    test_apply_sky13 --- apply data (string applytable input)
+    test_apply_sky14 --- apply data (interp='')
+    test_apply_sky15 --- check if WEIGHT_SPECTRUM is updated properly when it exists
+    test_apply_sky16 --- apply both sky table and Tsys table simultaneously
+    test_apply_composite00 --- on-the-fly application of sky table ('ps,apply')
+    test_apply_composite01 --- on-the-fly application of sky table with existing Tsys table
+    test_apply_composite02 --- on-the-fly application of sky and tsys tables ('ps,tsys,apply')
+    test_apply_composite03 --- on-the-fly application of sky table ('otfraster,apply')
+    """
+    invalid_argument_case = sdcal_test_base.invalid_argument_case
+    exception_case = sdcal_test_base.exception_case
+    
+    @property
+    def nrow_per_chunk(self):
+        # number of rows per antenna per spw is 18
+        return 18
+
+    @property
+    def eps(self):
+        # required accuracy is 2.0e-4
+        return 3.0e-4
+    
+    def setUp(self):
+        self._setUp([self.infile, self.applytable], sdcal)
+
+
+    def tearDown(self):
+        self._tearDown([self.infile, self.applytable])
+
+    def check_weight(self, inweight, outweight, scale):
+        #print 'inweight', inweight
+        #print 'outweight', outweight
+        #print 'scale', scale
+        # shape check
+        self.assertEqual(inweight.shape, outweight.shape, msg='')
+        
+        # weight should not be zero
+        self.assertFalse(any(inweight.flatten() == 0.0), msg='')
+        self.assertFalse(any(outweight.flatten() == 0.0), msg='')
+
+        # check difference
+        expected_weight = inweight * scale
+        diff = abs((outweight - expected_weight) / expected_weight)
+        self.assertTrue(all(diff.flatten() < self.eps),
+                        msg='')
+
+    
+    def normal_case(interp='linear', tsys=1.0, **kwargs):
+        """
+        Decorator for the test case that is intended to verify
+        normal execution result.
+
+        interp --- interpolation option ('linear', 'nearest', '*flag')
+                   comma-separated list is allowed and it will be
+                   interpreted as '<interp for time>,<intep for freq>'
+        tsys --- tsys scaling factor
+        selection --- data selection parameter as dictionary
+        """
+        def wrapper(func):
+            import functools
+            @functools.wraps(func)
+            def _wrapper(self):
+                # data selection 
+                myms = gentools(['ms'])[0]
+                myargs = kwargs.copy()
+                if not myargs.has_key('baseline'):
+                    with sdutil.tbmanager(self.infile) as tb:
+                        antenna1 = numpy.unique(tb.getcol('ANTENNA1'))
+                        myargs['baseline'] = '%s&&&'%(','.join(map(str,antenna1)))
+                a = myms.msseltoindex(self.infile, **myargs)
+                antennalist = a['antenna1']
+                with sdutil.tbmanager(self.applytable) as tb:
+                    spwlist = numpy.unique(tb.getcol('SPECTRAL_WINDOW_ID'))
+                with sdutil.tbmanager(os.path.join(self.infile, 'DATA_DESCRIPTION')) as tb:
+                    spwidcol = tb.getcol('SPECTRAL_WINDOW_ID').tolist()
+                    spwddlist = map(spwidcol.index, spwlist)
+                if len(a['spw']) > 0:
+                    spwlist = list(set(spwlist) & set(a['spw']))
+                    spwddlist = map(spwidcol.index, spwlist)
+
+                # preserve original flag and weight
+                flag_org = {}
+                weight_org = {}
+                weightsp_org = {}
+                for antenna in antennalist:
+                    flag_org[antenna] = {}
+                    weight_org[antenna] = {}
+                    weightsp_org[antenna] = {}
+                    for (spw,spwdd) in zip(spwlist,spwddlist):
+                        taql = 'ANTENNA1 == %s && ANTENNA2 == %s && DATA_DESC_ID == %s'%(antenna, antenna, spwdd)
+                        with sdutil.table_selector(self.infile, taql) as tb:
+                            flag_org[antenna][spw] = tb.getcol('FLAG')
+                            weight_org[antenna][spw] = tb.getcol('WEIGHT')
+                            if 'WEIGHT_SPECTRUM' in tb.colnames() and tb.iscelldefined('WEIGHT_SPECTRUM', 0):
+                                #print 'WEIGHT_SPECTRUM is defined for antenna %s spw %s'%(antenna, spw)
+                                weightsp_org[antenna][spw] = tb.getcol('WEIGHT_SPECTRUM')
+                            #else:
+                            #    print 'WEIGHT_SPECTRUM is NOT defined for antenna %s spw %s'%(antenna, spw)
+                                
+                # execute test
+                func(self)
+
+                # sanity check
+                self.assertIsNone(self.result, msg='The task must complete without error')
+                # verify if CORRECTED_DATA exists
+                with sdutil.tbmanager(self.infile) as tb:
+                    self.assertTrue('CORRECTED_DATA' in tb.colnames(), msg='CORRECTED_DATA column must be created after task execution!')
+
+                # parse interp
+                pos = interp.find(',')
+                if pos == -1:
+                    tinterp = interp.lower()
+                    finterp = 'linearflag'
+                else:
+                    tinterp = interp[:pos].lower()
+                    finterp = interp[pos+1:]
+                if len(tinterp) == 0:
+                    tinterp = 'linear'
+                if len(finterp) == 0:
+                    finterp = 'linearflag'
+                    
+                # CAS-10772
+                # Linear flag interpolation along spectral axis behaves like "nearest" if science and 
+                # calibrater data have same set of frequency channels. This is always true for single 
+                # dish sky calibration. 
+                # So, finterp option for flags should always be 'nearestflag'.
+                if finterp == 'linearflag':
+                    finterp = 'nearestflag'
+                
+                # result depends on interp
+                print 'Interpolation option:', tinterp, finterp
+                self.assertTrue(tinterp in ['linear', 'nearest'], msg='Internal Error')
+                if tinterp == 'linear':
+                    interpolator = LinearInterpolator(self.applytable, finterp)
+                else:
+                    interpolator = NearestInterpolator(self.applytable, finterp)
+                for antenna in antennalist:
+                    for (spw,spwdd) in zip(spwlist,spwddlist):
+                        interpolator.select(antenna, spw)
+                        taql = 'ANTENNA1 == %s && ANTENNA2 == %s && DATA_DESC_ID == %s'%(antenna, antenna, spwdd)
+                        with sdutil.table_selector(self.infile, taql) as tb:
+                            self.assertEqual(tb.nrows(), self.nrow_per_chunk, msg='Number of rows mismatch in antenna %s spw %s'%(antenna, spw))
+                            if weightsp_org[antenna].has_key(spw):
+                                has_weightsp = True
+                                
+                            else:
+                                has_weightsp = False
+                            for irow in xrange(tb.nrows()):
+                                t = tb.getcell('TIME', irow)
+                                dt = tb.getcell('INTERVAL', irow)
+                                data = tb.getcell('DATA', irow)
+                                outflag = tb.getcell('FLAG', irow)
+                                corrected = tb.getcell('CORRECTED_DATA', irow)
+                                ref, calflag, weightscale = interpolator.interpolate(t, dt)
+                                inflag = flag_org[antenna][spw][:,:,irow]
+                                expected = tsys * (data - ref) / ref
+                                expected_flag = numpy.logical_or(inflag, calflag)
+
+                                # weight test
+                                self.assertEqual(tb.iscelldefined('WEIGHT_SPECTRUM', irow), has_weightsp,
+                                                 msg='')
+                                inweight = weight_org[antenna][spw][:,irow]
+                                outweight = tb.getcell('WEIGHT', irow)
+                                tsyssq = tsys * tsys
+                                if has_weightsp:
+                                    # Need to check WEIGHT_SPECTRUM
+                                    inweightsp = weightsp_org[antenna][spw][:,:,irow]
+                                    outweightsp = tb.getcell('WEIGHT_SPECTRUM', irow)
+
+                                    self.check_weight(inweight, outweight, weightscale / tsyssq)
+                                    self.check_weight(inweightsp, outweightsp, weightscale / tsyssq)
+                                else:
+                                    self.check_weight(inweight, outweight, weightscale / tsyssq)
+                                
+                                #print 'antenna', antenna, 'spw', spw, 'row', irow
+                                #print 'inflag', inflag[:,:12], 'calflag', calflag[:,:12], 'expflag', expected_flag[:,:12], 'outflag', outflag[:,:12]
+                                #print 'ref', ref[:,126:130], 'data', data[:,126:130], 'expected', expected[:,126:130], 'corrected', corrected[:,126:130]
+                                
+                                self.assertEqual(corrected.shape, expected.shape, msg='Shape mismatch in antenna %s spw %s row %s (expeted %s actual %s)'%(antenna,spw,irow,list(expected.shape),list(corrected.shape)))
+                                npol, nchan = corrected.shape
+
+                                # verify data
+                                diff = numpy.ones(expected.shape,dtype=float)
+                                small_data = numpy.where(abs(expected) < 1.0e-7)
+                                diff[small_data] = abs(corrected[small_data] - expected[small_data])
+                                regular_data = numpy.where(abs(expected) >= 1.0e-7)
+                                diff[regular_data] = abs((corrected[regular_data] - expected[regular_data]) / expected[regular_data])
+                                self.assertTrue(all(diff.flatten() < self.eps), msg='Calibrated result differ in antenna %s spw %s row %s (expected %s actual %s diff %s)'%(antenna,spw,irow,expected,corrected,diff))
+                                
+                                
+                                
+                                # verify flag
+                                self.assertTrue(all(outflag.flatten() == expected_flag.flatten()), msg='Resulting flag differ in antenna%s spw %s row %s (expected %s actual %s)'%(antenna,spw,irow,expected_flag,outflag))
+                    
+            return _wrapper
+        return wrapper
+
+    @exception_case(Exception, 'Applytable name must be specified.')
+    def test_apply_sky00(self):
+        """
+        test_apply_sky00 --- empty applytable
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable='')
+
+    @exception_case(Exception, 'Applytable name must be specified.')
+    def test_apply_sky01(self):
+        """
+        test_apply_sky01 --- empty applytable (list ver.)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[''])
+
+    @exception_case(Exception, 'Applytable name must be specified.')
+    def test_apply_sky02(self):
+        """
+        test_apply_sky02 --- empty applytable list
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[])
+
+    @exception_case(Exception, "^Table doesn't exist:")
+    def test_apply_sky03(self):
+        """
+        test_apply_sky03 --- unexisting applytable
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable='notexist.sky')
+
+    @exception_case(Exception, "^Table doesn't exist:")
+    def test_apply_sky04(self):
+        """
+        test_apply_sky04 --- unexisting applytable (list ver.)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=['notexist.sky'])
+
+    @exception_case(RuntimeError, 'Spw Expression: No match found for 99')
+    def test_apply_sky05(self):
+        """
+        test_apply_sky05 --- invalid selection (empty selection result)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', spw='99', applytable=[self.applytable])
+    
+    #@exception_case(RuntimeError, '^Unknown interptype: \'.+\'!! Check inputs and try again\.$')
+    @exception_case(RuntimeError, 'Error in Calibrater::setapply.')
+    def test_apply_sky06(self):
+        """
+        test_apply_sky06 --- invalid interp value
+        """
+        # 'sinusoid' interpolation along time axis is not supported
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='sinusoid')
+    
+    @exception_case(RuntimeError, '^Applytable \'.+\' is not a caltable format$')
+    def test_apply_sky07(self):
+        """
+        test_apply_sky07 --- invalid applytable (not caltable)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.infile], interp='linear')
+
+    @normal_case()
+    def test_apply_sky08(self):
+        """
+        test_apply_sky08 --- apply data (linear)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear')
+
+    @normal_case()
+    def test_apply_sky08M(self):
+        """
+        test_apply_sky08M --- apply data (linear) for MMS
+        """
+        self.skipTest('Skip test_apply_sky08M until calibrator tool supports processing MMS on serial casa')
+        #self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear')
+
+    @normal_case(spw='9')
+    def test_apply_sky09(self):
+        """
+        test_apply_sky09 --- apply selected data
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], spw='9', interp='linear')
+
+    @normal_case(interp='nearest')
+    def test_apply_sky10(self):
+        """
+        test_apply_sky10 --- apply data (nearest)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='nearest')
+
+    @normal_case(interp='linear,linearflag')
+    def test_apply_sky11(self):
+        """
+        test_apply_sky11 --- apply data (linearflag for frequency interpolation)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear,linearflag')
+        
+    @normal_case(interp='linear,nearestflag')
+    def test_apply_sky12(self):
+        """
+        test_apply_sky12 --- apply data (nearestflag for frequency interpolation)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=[self.applytable], interp='linear,nearestflag')
+        
+    @normal_case(interp='linear')
+    def test_apply_sky13(self):
+        """
+        test_apply_sky13 --- apply data (string applytable input)
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=self.applytable, interp='linear')
+
+    @normal_case(interp='')
+    def test_apply_sky14(self):
+        """
+        test_apply_sky14 --- apply data (interp='')
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=self.applytable, interp='')
+
+    def fill_weightspectrum(func):
+        import functools
+        @functools.wraps(func)
+        def wrapper(self):
+            with sdutil.tbmanager(self.infile, nomodify=False) as tb:
+                self.assertTrue('WEIGHT_SPECTRUM' in tb.colnames(), msg='Internal Error')
+                nrow = tb.nrows()
+                for irow in xrange(nrow):
+                    w = tb.getcell('WEIGHT', irow)
+                    wsp = numpy.ones(tb.getcell('DATA', irow).shape, dtype=float)
+                    for ipol in xrange(len(w)):
+                        wsp[ipol,:] = w[ipol]
+                    tb.putcell('WEIGHT_SPECTRUM', irow, wsp)
+                    self.assertTrue(tb.iscelldefined('WEIGHT_SPECTRUM', irow), msg='Internal Error')
+            func(self)
+        return wrapper
+
+    @fill_weightspectrum
+    @normal_case(interp='linear')
+    def test_apply_sky15(self):
+        """
+        test_apply_sky15 --- check if WEIGHT_SPECTRUM is updated properly when it exists
+        """
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=self.applytable, interp='linear')
+
+    def modify_tsys(func):
+        import functools
+        @functools.wraps(func)
+        def wrapper(self):
+            with sdutil.tbmanager(os.path.join(self.infile,'SYSCAL'), nomodify=False) as tb:
+                tsel = tb.query('SPECTRAL_WINDOW_ID IN [1,3]', sortlist='ANTENNA_ID,SPECTRAL_WINDOW_ID,TIME')
+                try:
+                    nrow = tsel.nrows()
+                    tsys = 100.0
+                    for irow in xrange(nrow):
+                        tsys_spectrum = tsel.getcell('TSYS_SPECTRUM', irow)
+                        tsys_spectrum[:] = 100.0
+                        tsel.putcell('TSYS_SPECTRUM', irow, tsys_spectrum)
+                        #tsys += 100.0
+                finally:
+                    tsel.close()
+            func(self)
+        return wrapper
+
+    @normal_case()
+    def test_apply_composite00(self):
+        """
+        test_apply_composite00 --- on-the-fly application of sky table ('ps,apply')
+        """
+        sdcal(infile=self.infile, calmode='ps,apply')
+
+    @modify_tsys
+    @normal_case(tsys=100.0)
+    def test_apply_composite01(self):
+        """
+        test_apply_composite01 --- on-the-fly application of sky table with existing Tsys table
+        """
+        # generate Tsys table
+        tsystable = self.infile.rstrip('/') + '.tsys'
+
         try:
-            self.res=sdcalold(infile=self.rawfile,outfile=outfile,overwrite=False)
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            pos=str(e).find('Output file \'%s\' exists.'%(outfile))
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
+            # generate Tsys table
+            sdcal(infile=self.infile, calmode='tsys', outfile=tsystable)
+            
+            # apply
+            sdcal(infile=self.infile, calmode='ps,apply', applytable=tsystable,
+                   spwmap={1:[9], 3:[11]})
         finally:
-            os.system( 'rm -rf %s'%outfile )        
+            if os.path.exists(tsystable):
+                shutil.rmtree(tsystable)
 
+    @modify_tsys
+    @normal_case(tsys=100.0)
+    def test_apply_composite02(self):
+        """
+        test_apply_composite02 --- on-the-fly application of sky and tsys tables ('ps,tsys,apply')
+        """
+        sdcal(infile=self.infile, calmode='ps,tsys,apply',
+               spwmap={1:[9], 3:[11]})
 
+    @modify_tsys
+    @normal_case(tsys=100.0)
+    def test_apply_composite03(self):
+        """
+        test_apply_composite03 --- on-the-fly application of sky table ('otfraster,apply')
+        """
+        sdcal(infile=self.infile, calmode='tsys,apply', applytable=self.applytable,
+               spwmap={1:[9], 3:[11]})
 
-###
-# Test GBT position switch calibration 
-###
-class sdcalold_test1(sdcalold_caltest_base,unittest.TestCase):
+class sdcal_test_single_polarization(sdcal_test_base):   
     """
-    Test GBT position switch calibration 
+    Unit test for task sdcal (calibration/application of single-polarization data).
+
+    The list of tests:
+    test_single_pol_ps --- generate caltable for single-polarization data
+    test_single_pol_apply --- apply caltable to single-polarization data
+    test_single_pol_apply_composite --- on-the-fly calibration/application on single-polarization data
+    """
+    datapath = os.environ.get('CASAPATH').split()[0]+ '/data/regression/unittest/singledish/'
+    # Input
+    infile = 'analytic_spectra.ms'
+    #applytable = infile + '.sky'
     
-    Data is taken from OrionS_rawACSmod and created by the following
-    script:
-
-    asap_init()
-    s=sd.scantable('OrionS_rawACSmod',average=False)
-    sel=sd.selector()
-    sel.set_ifs([0])
-    sel.set_scans([20,21,22,23])
-    s.set_selection(sel)
-    s.save('calpsGBT.asap','ASAP')
-
-    In addition, unnecessary TCAL rows were removed.
-    """
-    # Input and output names
-    rawfile='calpsGBT.asap'
-    reffile='calpsGBT.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test1'
-    calmode='ps'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        if (not os.path.exists(self.reffile)):
-            shutil.copytree(self.datapath+self.reffile, self.reffile)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        if (os.path.exists(self.reffile)):
-            shutil.rmtree(self.reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def test100(self):
-        """Test 100: test to calibrate data (GBT position switch)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,tau=0.09,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname)
-
-###
-# Test GBT nodding calibration 
-###
-class sdcalold_test2(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test GBT nodding calibration 
-    
-    Data is taken from IRC+10216_rawACSmod and created by the following
-    script:
-
-    asap_init()
-    s=sd.scantable('IRC+10216_rawACSmod',average=False)
-    sel=sd.selector()
-    sel.set_scans([229,230])
-    sel.set_ifs([3])
-    sel.set_cycles([0,1])
-    s.set_selection(sel)
-    s.save('calnodGBT.asap','ASAP')
-
-    In addition, unnecessary TCAL rows were removed.
-    """
-    # Input and output names
-    rawfile='calnodGBT.asap'
-    reffile='calnodGBT.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test2'
-    calmode='nod'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        if (not os.path.exists(self.reffile)):
-            shutil.copytree(self.datapath+self.reffile, self.reffile)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        if (os.path.exists(self.reffile)):
-            shutil.rmtree(self.reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def test200(self):
-        """Test 200: test to calibrate data (GBT nod)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,tau=0.09,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname)
-
-###
-# Test GBT frequency switch calibration 
-###
-class sdcalold_test3(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test GBT frequency switch calibration 
-    
-    Data is taken from FLS3_all_newcal_SP and created by the following
-    script:
-
-    asap_init()
-    sd.rc('scantable',storage='disk')
-    s=sd.scantable('FLS3_all_newcal_SP',average=False)
-    sel=sd.selector()
-    sel.set_scans([14914])
-    sel.set_cycles([0,1])
-    s.set_selection(sel)
-    s.save('calfsGBT.asap','ASAP')
-
-    In addition, unnecessary TCAL rows were removed.
-    """
-    # Input and output names
-    rawfile='calfsGBT.asap'
-    reffile='calfsGBT.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test3'
-    calmode='fs'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        if (not os.path.exists(self.reffile)):
-            shutil.copytree(self.datapath+self.reffile, self.reffile)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        if (os.path.exists(self.reffile)):
-            shutil.rmtree(self.reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def test300(self):
-        """Test 300: test to calibrate data (GBT frequency switch)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname)
-        
-###
-# Test quotient
-###
-class sdcalold_test4(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test quotient.
-    
-    Data is taken from MOPS.rpf, which is included in ASAP package
-    for testing, and created by the following script:
-
-    asap_init()
-    s=sd.scantable('MOPS.rpf',average=False)
-    sel=sd.selector()
-    sel.set_cycles([0,1])
-    s.set_selection(sel)
-    s.save('quotient.asap','ASAP')
-
-    """
-    # Input and output names
-    rawfile='quotient.asap'
-    reffile='quotient.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test4'
-    calmode='quotient'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        if (not os.path.exists(self.reffile)):
-            shutil.copytree(self.datapath+self.reffile, self.reffile)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        if (os.path.exists(self.reffile)):
-            shutil.rmtree(self.reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def test400(self):
-        """Test 400: test to calibrate data (quotient)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname)
-
-###
-# Test ALMA position switch calibration
-###
-class sdcalold_test5(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test ALMA position switch calibration (OTF raster with OFF scan)
-    
-    Data is taken from uid___A002_X8ae1b_X1 (DV01) and created by 
-    the following script:
-
-    asap_init()
-    sd.splitant('uid___A002_X8ae1b_X1') # to split data by antenna
-    s=sd.scantable('uid___A002_X8ae1b.DV01.asap',average=False)
-    sel=sd.selector()
-    sel.set_ifs([2])
-    sel.set_cycles([20,118,205])
-    s.set_selection(sel)
-    s.save('calpsALMA.asap','ASAP')
-
-    """
-    # Input and output names
-    rawfile='calpsALMA.asap'
-    reffile='calpsALMA.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'Test5'
-    calmode='ps'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        if (not os.path.exists(self.reffile)):
-            shutil.copytree(self.datapath+self.reffile, self.reffile)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        if (os.path.exists(self.reffile)):
-            shutil.rmtree(self.reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def test500(self):
-        """Test 500: test to calibrate data (ALMA position switch)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname)
-
-
-###
-# Test edgemarker
-###
-class sdcalold_test_edgemarker_generic(sdcalold_edgemarker_base,unittest.TestCase):
-    """
-    Test edgemarker function that is available for calmode='otf'. 
-
-    Here, data will not be calibrated and only edge marking process
-    will be executed. 
-    """
-    # Input and output names
-    rawfile='lissajous.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestEdgeMarkerGeneric'
-    reffiles = [ 'marker.otf.default.ref',
-                 'marker.otf.custom.ref' ]
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        for reffile in self.reffiles:
-            if (not os.path.exists(reffile)):
-                shutil.copyfile(self.datapath+reffile, reffile)
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        for reffile in self.reffiles:
-            if (os.path.exists(reffile)):
-                os.remove(reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def testEdgeMarkerGeneric0(self):
-        """
-        Test default setting for edgemarker
-        """
-        outname = self.prefix+'.asap'
-        self.res = sdcalold(infile=self.rawfile,calmode='otf',markonly=True,outfile=outname,outform='ASAP')
-        refdir = self._readref( self.reffiles[0] )
-        self._checkfile( outname ) 
-        self._checkmarker( outname, refdir )
-
-    def testEdgeMarkerGeneric1(self):
-        """
-        Test customized edge marking
-        """
-        outname = self.prefix+'.asap'
-        self.res = sdcalold(infile=self.rawfile,calmode='otf',fraction='3%',markonly=True,outfile=outname,outform='ASAP')
-        refdir = self._readref( self.reffiles[1] )
-        self._checkfile( outname ) 
-        self._checkmarker( outname, refdir )
-
-
-class sdcalold_test_edgemarker_raster(sdcalold_edgemarker_base,unittest.TestCase):
-    """
-    Test edgemarker function that is available for calmode='otfraster'. 
-
-    Here, data will not be calibrated and only edge marking process
-    will be executed. 
-    """
-    # Input and output names
-    rawfile='raster.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestEdgeMarkerRaster'
-    reffiles=[ 'marker.raster.default.ref',
-               'marker.raster.custom.ref' ]
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        for reffile in self.reffiles:
-            if (not os.path.exists(reffile)):
-                shutil.copyfile(self.datapath+reffile, reffile)
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        for reffile in self.reffiles:
-            if (os.path.exists(reffile)):
-                os.remove(reffile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def testEdgeMarkerRaster0(self):
-        """
-        Test default setting for edgemarker
-        """
-        outname = self.prefix+'.asap'
-        self.res = sdcalold(infile=self.rawfile,calmode='otfraster',markonly=True,outfile=outname,outform='ASAP')
-        refdir = self._readref( self.reffiles[0] )
-        self._checkfile( outname ) 
-        self._checkmarker( outname, refdir )
-
-    def testEdgeMarkerRaster1(self):
-        """
-        Test default setting for edgemarker
-        """
-        outname = self.prefix+'.asap'
-        self.res = sdcalold(infile=self.rawfile,calmode='otfraster',noff=1,markonly=True,outfile=outname,outform='ASAP')
-        refdir = self._readref( self.reffiles[1] )
-        self._checkfile( outname ) 
-        self._checkmarker( outname, refdir )
-
-class sdcalold_test_selection(selection_syntax.SelectionSyntaxTest,
-                               sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test selection syntax. Selection parameters to test are:
-    field, spw (no channel selection), scan, pol
-
-    Data is taken from sd_analytic_type1-3.asap and TSYS column is filled
-    by the following script:
-    poly = ( (1.0, ), (0.2, 0.02), (2.44, -0.048, 0.0004),
-           (-3.096, 0.1536, -0.00192, 8.0e-6) )
-    shutil.copytree(os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/singledish/sd_analytic_type1-3.asap','sd_analytic_type1-3.filltsys.asap')
-    tb.open('sd_analytic_type1-3.filltsys.asap', nomodify=False)
-    subt = tb.query('SRCTYPE==0')
-    for irow in range(subt.nrows()):
-        nchan = len(subt.getcell('SPECTRA', irow))
-        x = numpy.array(range(nchan))
-        tsys = numpy.zeros(nchan)
-        coeffs = poly[irow]
-        for idim in range(len(coeffs)):
-            tsys += coeffs[idim]*x**idim
-        subt.putcell('TSYS',irow, tsys)
-    subt.flush()
-    tb.flush()
-    subt.close()
-    tb.close()
-    """
-    # Input and output names
-    rawfile='sd_analytic_type1-3.filltsys.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestSel'
-    calmode='ps'
-    line = ({'value': 5,  'channel': (20,20)},
-            {'value': 10, 'channel': (40,40)},
-            {'value': 20, 'channel': (60,60)},
-            {'value': 30, 'channel': (80,80)},)
-    baseline = ( (1.0, ), (0.2, 0.02), (2.44, -0.048, 0.0004),
-                (-3.096, 0.1536, -0.00192, 8.0e-6) )
+    # task execution result
+    result = None
     
     @property
-    def task(self):
-        return sdcalold
+    def outfile(self):
+        return self.applytable
     
-    @property
-    def spw_channel_selection(self):
-        return False
-
     def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        os.system( 'rm -rf '+self.prefix+'*' )
+        self._setUp([self.infile], sdcal)
 
-        default(sdcalold)
-        self.outname=self.prefix+self.postfix
-        
     def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-    
-    ####################
-    # Additional tests
-    ####################
-    #N/A
-
-    ####################
-    # scan
-    ####################
-    def test_scan_id_default(self):
-        """test scan selection (scan='')"""
-        scan = ''
-        ref_idx = []
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,scan=scan,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_exact(self):
-        """ test scan selection (scan='16')"""
-        scan = '16'
-        ref_idx = [1, 2]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_lt(self):
-        """ test scan selection (scan='<16')"""
-        scan = '<16'
-        ref_idx = [0]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_gt(self):
-        """ test scan selection (scan='>16')"""
-        scan = '>16'
-        ref_idx = [3]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_range(self):
-        """ test scan selection (scan='16~17')"""
-        scan = '16~17'
-        ref_idx = [1,2,3]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_list(self):
-        """ test scan selection (scan='15,17')"""
-        scan = '15,17'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_scan_id_exprlist(self):
-        """ test scan selection (scan='15,>16')"""
-        scan = '15,>16'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,scan=scan,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    ####################
-    # pol
-    ####################
-    def test_pol_id_default(self):
-        """test pol selection (pol='')"""
-        pol = ''
-        ref_idx = []
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,pol=pol,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_exact(self):
-        """ test pol selection (pol='1')"""
-        pol = '1'
-        ref_idx = [1,3]
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_lt(self):
-        """ test pol selection (pol='<1')"""
-        pol = '<1'
-        ref_idx = [0,2]
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_gt(self):
-        """ test pol selection (pol='>0')"""
-        pol = '>0'
-        ref_idx = [1,3]
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_range(self):
-        """ test pol selection (pol='0~1')"""
-        pol = '0~1'
-        ref_idx = []
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_list(self):
-        """ test pol selection (pol='0,1')"""
-        pol = '0,1'
-        ref_idx = []
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_pol_id_exprlist(self):
-        """test pol selection (pol='0,>0')"""
-        pol = '0,>0'
-        ref_idx = []
-        self.res=self.run_task(infile=self.rawfile,pol=pol,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    ####################
-    # field
-    ####################
-    def test_field_value_default(self):
-        """test field selection (field='')"""
-        field = ''
-        ref_idx = []
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,field=field,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_exact(self):
-        """ test field selection (field='6')"""
-        field = '6'
-        ref_idx = [1]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_lt(self):
-        """ test field selection (field='<6')"""
-        field = '<6'
-        ref_idx = [0]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_gt(self):
-        """ test field selection (field='>7')"""
-        field = '>7'
-        ref_idx = [3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_range(self):
-        """ test field selection (field='6~8')"""
-        field = '6~8'
-        ref_idx = [1,2,3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_list(self):
-        """ test field selection (field='5,8')"""
-        field = '5,8'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_id_exprlist(self):
-        """ test field selection (field='5,>7')"""
-        field = '5,>7'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_value_exact(self):
-        """ test field selection (field='M30')"""
-        field = 'M30'
-        ref_idx = [2]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_value_pattern(self):
-        """ test field selection (field='M*')"""
-        field = 'M*'
-        ref_idx = [0,1,2]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_value_list(self):
-        """ test field selection (field='3C273,M30')"""
-        field = '3C273,M30'
-        ref_idx = [2,3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_field_mix_exprlist(self):
-        """ test field selection (field='<6,3*')"""
-        field = '<6,3*'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,field=field,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    ####################
-    # spw 
-    ####################
-    def test_spw_id_default(self):
-        """test spw selection (spw='')"""
-        spw = ''
-        ref_idx = []
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,spw=spw,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_id_exact(self):
-        """ test spw selection (spw='23')"""
-        spw = '23'
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-
-    def test_spw_id_lt(self):
-        """ test spw selection (spw='<23')"""
-        spw = '<23'
-        ref_idx = [2]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-
-    def test_spw_id_gt(self):
-        """ test spw selection (spw='>23')"""
-        spw = '>23'
-        ref_idx = [1]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_id_range(self):
-        """ test spw selection (spw='23~25')"""
-        spw = '23~25'
-        ref_idx = [0,1,3]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_id_list(self):
-        """ test spw selection (spw='21,25')"""
-        spw = '21,25'
-        ref_idx = [1,2]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-
-    def test_spw_id_exprlist(self):
-        """ test spw selection (spw='23,>24')"""
-        spw = '23,>24'
-        ref_idx = [0,1,3]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-
-    def test_spw_id_pattern(self):
-        """test spw selection (spw='*')"""
-        spw='*'
-        ref_idx = []
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,spw=spw,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_value_frequency(self):
-        """test spw selection (spw='300.49~300.50GHz')"""
-        spw = '300.49~300.50GHz' # IFNO=25 should be selected
-        ref_idx = [1]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_value_velocity(self):
-        """test spw selection (spw='-470~470km/s')"""
-        spw = '-470~470km/s'  # IFNO=23 should be selected
-        ref_idx = [0,3]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    def test_spw_mix_exprlist(self):
-        """test spw selection (spw='25,-30~30km/s')"""
-        spw = '25,-30~30km/s' # IFNO=23,25 should be selected
-        ref_idx = [0,1,3]
-        self.res=self.run_task(infile=self.rawfile,spw=spw,calmode=self.calmode,outfile=self.outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._compare_with_analytic(self.outname, self.line, self.baseline, ref_idx)
-
-    ####################
-    # Helper functions
-    ####################
-    def _compare_with_analytic(self, name, ref_line, ref_bl, ref_idx=[], precision = 1.e-6):
-        self._checkfile( name )
-        sout = sd.scantable(name,average=False)
-        nrow = sout.nrow()
-        if len(ref_idx) == 0:
-            ref_idx = range(nrow)
-
-        self.assertEqual(nrow,len(ref_idx),"The rows in output table differs from the expected value.")
-        for irow in range(nrow):
-            y = sout._getspectrum(irow)
-            nchan = len(y)
-            x = numpy.array( range(nchan) )
-            # analytic solution
-            coeff = ref_bl[ ref_idx[irow] ]
-            yana = self._create_ploynomial_array(coeff, x)
-            curr_line = ref_line[ ref_idx[irow] ]
-            chanlist = curr_line['channel']
-            valuelist = curr_line['value']
-            yana += self._create_tophat_array(nchan, chanlist, valuelist)
-
-            # compare
-            rdiff = self._get_array_relative_diff(y,yana)
-            rdiff_max = max(abs(rdiff))
-            self.assertTrue(rdiff_max < precision, "Maximum relative difference %f > %f" % (rdiff_max, precision))
-    
-    def _create_tophat_array(self, nchan, chanlist, valuelist):
-        array_types = (tuple, list, numpy.ndarray)
-        # check for inputs
-        if nchan < 1:
-            self.fail("Internal error. Number of channels should be > 0")
-        if type(chanlist) not in array_types:
-            self.fail("Internal error. Channel range list for reference data is not an array type")
-        if type(chanlist[0]) not in array_types:
-            chanlist = [ chanlist ]
-        if type(valuelist) not in array_types:
-            valuelist = [ valuelist ]
-        nval = len(valuelist)
-        nrange = len(chanlist)
-        # generate reference data
-        ref_data = numpy.zeros(nchan)
-        for irange in range(nrange):
-            curr_range = chanlist[irange]
-            if type(curr_range) not in array_types or len(curr_range) < 2:
-                self.fail("Internal error. Channel range list  for reference data should be a list of 2 elements arrays.")
-            schan = curr_range[0]
-            echan = curr_range[1]
-            ref_data[schan:echan+1] = valuelist[irange % nval]
-        return ref_data
-
-    def _create_ploynomial_array(self, coeff, x):
-        """ Create an array from a list of polynomial coefficients and x-array"""
-        xarr = numpy.array(x)
-        yarr = numpy.zeros(len(xarr))
-        for idim in range(len(coeff)):
-            ai = coeff[idim]
-            yarr += ai*xarr**idim
-        return yarr
-
-    def _get_array_relative_diff(self, data, ref, precision=1.e-6):
+        self._tearDown([self.infile, self.outfile])
+        
+    def _verify_caltable(self):
         """
-        Return an array of relative difference of elements in two arrays
+        verify single polarization caltable
+        
+        This method checks if 
+        
+            - calibration solution is properly stored in pol 0
+            - pol 1 is all flagged
+            
+        Generated caltable will have the following properties:
+        
+            - number of rows is 2
+            - FPARAM (pol 0) has identical value to infile rows that 
+              corresponds to OFF_SOURCE intents (STATE_ID 1)
+            - FPARAM (pol 1) is all 0 and is all flagged
         """
-        precision = abs(precision)
-        data_arr = numpy.array(data)
-        ref_arr = numpy.array(ref)
-        ref_denomi = numpy.array(ref)
-        # a threshold to assume the value to be zero.
-        almostzero = min(precision, max(abs(ref_arr))*precision)
-        # set rdiff=0 for elements both data and reference are close to zero
-        idx_ref = numpy.where(abs(ref_arr) < almostzero)
-        idx_data = numpy.where(abs(data_arr) < almostzero)
-        if len(idx_ref[0])>0 and len(idx_data[0])>0:
-            idx = numpy.intersect1d(idx_data[0], idx_ref[0], assume_unique=True)
-            ref_arr[idx] = almostzero
-            data_arr[idx] = almostzero
-        # prevent zero division
-        ref_denomi[idx_ref] = almostzero
-        return (data_arr-ref_arr)/ref_denomi
-
-###
-# Test flag handling in ALMA position switch calibration
-###
-class sdcalold_testFlagPSALMA(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test flag handling in ALMA position switch calibration
-    
-    Data file: calpsALMA_flagtest[_rowflagged].asap
-    - six artificial spectra with constant time interval
-    - the only ON-source spectrum is at the middle in time
-      sequence (irow=2), while all the others are OFF-source
-      spectra.
-    - the ON-spectrum is row-flagged in
-      'calpsALMA_flagtest_rowflagged.asap', while it is not
-      row-flagged in 'calpsALMA_flagtest.asap'.
-    - one of the OFF spectra at irow=1 is row-flagged and
-      has large constant spectrum values (200.0)
-    - the first 5 channels of the spectrum at irow=3 are
-      flagged and have large spectrum values (400.0).
-    - the 5th and 6th (index=4 and 5) channels of the
-      ON-source spectrum are flagged.
-    - the last channel is flagged for all OFF-source spectra.
-    - the values at non-flagged channels in non-row-flagged
-      spectra is equal to (irow+1), e.g., the first
-      OFF-spectrum has constant values 1.0 and the
-      ON-spectrum has constant values 3.0.
-
-    Proper flag handling in sdcalold:
-    (1) ON-spectra
-        - if row-flagged, calibration must not be applied
-        - if not row-flagged, calibration must be done for
-          all channels even if channel-flagged.
-        - if no OFF-data available for a channel, calibration
-          is impossible so no change in values, also the
-          channel must be flagged
-        - other channel flags and row-flag must not be
-          changed after calibration
-    (2) OFF-spectra
-        - if row-flagged, the spectra must not be used for
-          calibration.
-        - if channel-flagged in a non-row-flagged spectrum,
-          the channels must not be used for calibration.
-    """
-    # Input and output names
-    raw1file='calpsALMA_flagtest.asap'
-    raw2file='calpsALMA_flagtest_rowflagged.asap'
-    ref1file='calpsALMA_flagtest.cal.asap'
-    ref2file='calpsALMA_flagtest_rowflagged.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestFlagPSALMA'
-    calmode='ps'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.raw1file)):
-            shutil.copytree(self.datapath+self.raw1file, self.raw1file)
-        if (not os.path.exists(self.raw2file)):
-            shutil.copytree(self.datapath+self.raw2file, self.raw2file)
-        if (not os.path.exists(self.ref1file)):
-            shutil.copytree(self.datapath+self.ref1file, self.ref1file)
-        if (not os.path.exists(self.ref2file)):
-            shutil.copytree(self.datapath+self.ref2file, self.ref2file)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.raw1file)):
-            shutil.rmtree(self.raw1file)
-        if (os.path.exists(self.raw2file)):
-            shutil.rmtree(self.raw2file)
-        if (os.path.exists(self.ref1file)):
-            shutil.rmtree(self.ref1file)
-        if (os.path.exists(self.ref2file)):
-            shutil.rmtree(self.ref2file)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def _comparecal( self, name, reffile ):
-        self._checkfile(name)
-        sp=self._getspectra(name)
-        spref=self._getspectra(reffile)
-
-        self._checkshape( sp, spref )
+        # get reference data from infile
+        with sdutil.tbmanager(self.infile, nomodify=False) as tb:
+            tsel = tb.query('STATE_ID == 1', sortlist='TIME')
+            try:
+                reftime = tsel.getcol('TIME')
+                refdata = tsel.getcol('FLOAT_DATA')
+                refflag = tsel.getcol('FLAG')
+            finally:
+                tsel.close()
+                
+        # verify caltable
+        with sdutil.tbmanager(self.outfile, nomodify=False) as tb:
+            caltime = tb.getcol('TIME')
+            fparam = tb.getcol('FPARAM')
+            calflag = tb.getcol('FLAG')
+            
+        self.assertEqual(len(caltime), len(reftime))
+        self.assertTrue(numpy.all(caltime == reftime))
         
-        for irow in xrange(sp.shape[0]):
-            diff=self._diff(sp[irow],spref[irow])
-            retval=numpy.all(diff<0.01)
-            maxdiff=diff.max()
-            self.assertEqual( retval, True,
-                             msg='calibrated result is wrong (irow=%s): maxdiff=%s'%(irow,diff.max()) )
-        del sp, spref
-
-        cfout,rfout = self._getflags(name)
-        cfref,rfref = self._getflags(reffile)
-        self._checkshape(cfout, cfref)
-        self.assertTrue(len(rfout)==len(rfref))
-        for irow in xrange(cfout.shape[0]):
-            self.assertTrue((cfout[irow]==cfref[irow]).all())
-            self.assertTrue((rfout==rfref).all())
-
-        del cfout, cfref
-        del rfout, rfref
-
-    def testFlagPSALMA01(self):
-        """Test FlagPSALMA01: for non-row-flagged ON-data (ALMA position switch)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.raw1file,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname, self.ref1file)
-
-    def testFlagPSALMA02(self):
-        """Test FlagPSALMA02: for row-flagged ON-data (ALMA position switch)"""
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.raw2file,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname, self.ref2file)
-
-
-"""
-###
-# Test flag handling in GBT position switch calibration
-###
-class sdcalold_testFlagPSGBT(sdcalold_caltest_base,unittest.TestCase):
-    #""
-    Test flag handling in GBT position switch calibration
-    
-    Data file: calpsGBT_flagtest[_rowflagged].asap
-    - six artificial spectra with constant time interval
-    - the only ON-source spectrum is at the middle in time
-      sequence (irow=2), while all the others are OFF-source
-      spectra.
-    - the ON-spectrum is row-flagged in
-      'calpsGBT_flagtest_rowflagged.asap', while it is not
-      row-flagged in 'calpsGBT_flagtest.asap'.
-    - one of the OFF spectra at irow=1 is row-flagged and
-      has large constant spectrum values (200.0)
-    - the first 5 channels of the spectrum at irow=3 are
-      flagged and have large spectrum values (400.0).
-    - the 5th and 6th (index=4 and 5) channels of the
-      ON-source spectrum are flagged.
-    - the last channel is flagged for all OFF-source spectra.
-    - the values at non-flagged channels in non-row-flagged
-      spectra is equal to (irow+1), e.g., the first
-      OFF-spectrum has constant values 1.0 and the
-      ON-spectrum has constant values 3.0.
-
-    Proper flag handling in sdcalold:
-    (1) ON-spectra
-        - if row-flagged, calibration must not be applied
-        - if not row-flagged, calibration must be done for
-          all channels even if channel-flagged.
-        - if no OFF-data available for a channel, calibration
-          is impossible so no change in values, also the
-          channel must be flagged
-        - other channel flags and row-flag must not be
-          changed after calibration
-    (2) OFF-spectra
-        - if row-flagged, the spectra must not be used for
-          calibration.
-        - if channel-flagged in a non-row-flagged spectrum,
-          the channels must not be used for calibration.
-    #""
-    # Input and output names
-    raw1file='calpsGBT_flagtest.asap'
-    raw2file='calpsGBT_flagtest_rowflagged.asap'
-    ref1file='calpsGBT_flagtest.cal.asap'
-    ref2file='calpsGBT_flagtest_rowflagged.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestFlagPSGBT'
-    calmode='ps'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.raw1file)):
-            shutil.copytree(self.datapath+self.raw1file, self.raw1file)
-        if (not os.path.exists(self.raw2file)):
-            shutil.copytree(self.datapath+self.raw2file, self.raw2file)
-        if (not os.path.exists(self.ref1file)):
-            shutil.copytree(self.datapath+self.ref1file, self.ref1file)
-        if (not os.path.exists(self.ref2file)):
-            shutil.copytree(self.datapath+self.ref2file, self.ref2file)
-
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.raw1file)):
-            shutil.rmtree(self.raw1file)
-        if (os.path.exists(self.raw2file)):
-            shutil.rmtree(self.raw2file)
-        if (os.path.exists(self.ref1file)):
-            shutil.rmtree(self.ref1file)
-        if (os.path.exists(self.ref2file)):
-            shutil.rmtree(self.ref2file)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def _comparecal( self, name, reffile ):
-        self._checkfile(name)
-        sp=self._getspectra(name)
-        spref=self._getspectra(reffile)
-
-        self._checkshape( sp, spref )
+        nrow = len(caltime)
         
-        for irow in xrange(sp.shape[0]):
-            diff=self._diff(sp[irow],spref[irow])
-            retval=numpy.all(diff<0.01)
-            maxdiff=diff.max()
-            self.assertEqual( retval, True,
-                             msg='calibrated result is wrong (irow=%s): maxdiff=%s'%(irow,diff.max()) )
-        del sp, spref
-
-    def testFlagPSGBT01(self):
-        #Test FlagPSGBT01: for non-row-flagged ON-data (GBT position switch)
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.raw1file,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname, self.ref1file)
-
-    def testFlagPSGBT02(self):
-        #Test FlagPSGBT02: for row-flagged ON-data (GBT position switch)
-        outname=self.prefix+self.postfix
-        self.res=sdcalold(infile=self.raw2file,calmode=self.calmode,outfile=outname,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-        self._comparecal(outname, self.ref2file)
-"""
-
-###
-# Test flag handling in calibrating ALMA OTF data
-###
-class sdcalold_testFlagOTF(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test flag handling in calibrating ALMA OTF data (lissajous scan)
+        self.assertEqual(fparam.shape, calflag.shape)
+        calshape = fparam.shape
+        datashape = refdata.shape
+        self.assertEqual(calshape[0], 2)
+        self.assertEqual(datashape[0], 1)
+        self.assertEqual(calshape[1], datashape[1])
+        self.assertEqual(calshape[2], datashape[2])
+        
+        for irow in xrange(nrow):
+            # FPARAM (pol 0)
+            self.assertTrue(numpy.all(fparam[0, :, irow] == refdata[0, :, irow]))
+            self.assertTrue(numpy.all(calflag[0, :, irow] == refflag[0, :, irow]))
+            
+            # FPARAM (pol 1)
+            self.assertTrue(numpy.all(fparam[1, :, irow] == 0))
+            self.assertTrue(numpy.all(calflag[1, :, irow] == True))
     
-    Data file: lissajous_flagtest.asap
-    - ON spectrum at irow=100 is row-flagged. Calibration must
-      not be applied to this spectrum so the output value of this
-      spectrum (about 8 or 9) must not be modified. 
-    - ON spectrum at irow=101 is channel-flagged. This spectrum
-      must be calibrated.
-    - The spectra at irow=40 and 41, which are to be marked as
-      OFF spectra with fraction parameter of '10%', are row-flagged
-      and have huge spetrum values. They must not be used for
-      calibration, so the calibrated spectra must have values
-      much smaller than unity (actually smaller than about 0.03).
-
-    Proper flag handling in sdcalold:
-    (1) ON-spectra
-        - if row-flagged, calibration must not be applied
-        - if not row-flagged, calibration must be done for
-          all channels even if channel-flagged.
-        - channel flags and row-flag must not be changed after calibration
-    (2) OFF-spectra
-        - if row-flagged, the spectra must not be used for
-          calibration.
-        - if channel-flagged in a non-row-flagged spectrum,
-          the channels must not be used for calibration.
-    """
-    # Input and output names
-    rawfile='lissajous_flagtest.asap'
-    #reffile='lissajous_flagtest.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestFlagOTF'
-    outfile=prefix+sdcalold_caltest_base.postfix
-    calmode='otf'
-    fraction='10%'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def testFlagOTF01(self):
-        """Test FlagOTF01: for ALMA OTF data"""
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,fraction=self.fraction,outfile=self.outfile,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-
-        tb.open(self.rawfile)
-        spec_rowflagged_input = tb.getcell('SPECTRA', 100)
-        tb.close()
-        tb.open(self.outfile)
-        spec_rowflagged_output = tb.getcell('SPECTRA', 52)
-        spec_output  = tb.getcol('SPECTRA')[0]
-        cflag_output = tb.getcol('FLAGTRA')[0]
-        rflag_output = tb.getcol('FLAGROW')
-        tb.close()
-
-        #check row-flagged ON spectrum is not calibrated
-        self.assertTrue(self._diff(spec_rowflagged_input, spec_rowflagged_output) < 1e-5)
-        #check other ON spectra is calibrated so have values less than ~0.3
-        spec_output[52] = 0.0
-        self.assertTrue(all(spec_output < 0.03))
-        #check channel flags not modified
-        self.assertEqual(cflag_output[53], 128)
-        cflag_output[53] = 0
-        self.assertTrue(all(cflag_output == 0))
-        #check row flags not modified
-        self.assertEqual(rflag_output[52], 1)
-        rflag_output[52] = 0
-        self.assertTrue(all(rflag_output == 0))
-
-###
-# Test flag handling in calibrating ALMA OTF raster data
-###
-class sdcalold_testFlagOTFRASTER(sdcalold_caltest_base,unittest.TestCase):
-    """
-    Test flag handling in calibrating ALMA OTF raster data
     
-    Data file: raster_flagtest.asap
-    - ON spectrum at irow=50 is row-flagged. Calibration must
-      not be applied to this spectrum so the output value of this
-      spectrum (about 8 or 9) must not be modified. 
-    - ON spectrum at irow=51 is channel-flagged. This spectrum
-      must be calibrated.
-    - The spectra at irow=60 and 61, which are to be marked as
-      OFF spectra with fraction parameter of '10%', are row-flagged
-      and have huge spetrum values. They must not be used for
-      calibration, so the calibrated spectra must have values
-      much smaller than unity (actually smaller than about 0.01).
-
-    Proper flag handling in sdcalold:
-    (1) ON-spectra
-        - if row-flagged, calibration must not be applied
-        - if not row-flagged, calibration must be done for
-          all channels even if channel-flagged.
-        - channel flags and row-flag must not be changed after calibration
-    (2) OFF-spectra
-        - if row-flagged, the spectra must not be used for
-          calibration.
-        - if channel-flagged in a non-row-flagged spectrum,
-          the channels must not be used for calibration.
-    """
-    # Input and output names
-    rawfile='raster_flagtest.asap'
-    #reffile='raster_flagtest.cal.asap'
-    prefix=sdcalold_unittest_base.taskname+'TestFlagOTFRASTER'
-    outfile=prefix+sdcalold_caltest_base.postfix
-    calmode='otfraster'
-    fraction='10%'
-
-    def setUp(self):
-        self.res=None
-        if (not os.path.exists(self.rawfile)):
-            shutil.copytree(self.datapath+self.rawfile, self.rawfile)
-        default(sdcalold)
-
-    def tearDown(self):
-        if (os.path.exists(self.rawfile)):
-            shutil.rmtree(self.rawfile)
-        os.system( 'rm -rf '+self.prefix+'*' )
-
-    def testFlagOTF01(self):
-        """Test FlagOTF01: for ALMA OTF raster data"""
-        self.res=sdcalold(infile=self.rawfile,calmode=self.calmode,fraction=self.fraction,outfile=self.outfile,outform='ASAP')
-        self.assertEqual(self.res,None,
-                         msg='Any error occurred during calibration')
-
-        irow_rowflagged_input  = 50
-        irow_rowflagged_output = 44
-        irow_chanflagged_output = 45
-
-        tb.open(self.rawfile)
-        spec_rowflagged_input = tb.getcell('SPECTRA', irow_rowflagged_input)
-        tb.close()
-        tb.open(self.outfile)
-        spec_rowflagged_output = tb.getcell('SPECTRA', irow_rowflagged_output)
-        spec_output  = tb.getcol('SPECTRA')[0]
-        cflag_output = tb.getcol('FLAGTRA')[0]
-        rflag_output = tb.getcol('FLAGROW')
-        tb.close()
-
-        #check row-flagged ON spectrum is not calibrated
-        self.assertTrue(self._diff(spec_rowflagged_input, spec_rowflagged_output) < 1e-5)
-        #check other ON spectra is calibrated so have values less than ~0.3
-        spec_output[irow_rowflagged_output] = 0.0
-        self.assertTrue(all(spec_output < 0.01))
-        #check channel flags not modified
-        self.assertEqual(cflag_output[irow_chanflagged_output], 128)
-        cflag_output[irow_chanflagged_output] = 0
-        self.assertTrue(all(cflag_output == 0))
-        #check row flags not modified
-        self.assertEqual(rflag_output[irow_rowflagged_output], 1)
-        rflag_output[irow_rowflagged_output] = 0
-        self.assertTrue(all(rflag_output == 0))
-
-
+    def _verify_application(self):
+        """
+        verify single polarization application result
+        
+        This method checks if 
+        
+            - calibration solution is properly applied 
+            
+        CORRECTED_DATA column will have the following properties:
+        
+            - For calibration spectra (STATE_ID 0), CORRECTED_DATA is identical to FLOAT_DATA
+            - For OFF_SOURCE spectra (STATE_ID 1), CORRECTED_DATA is all 0
+            - For ON_SOURCE spectra (STATE_ID 2), CORRECTED_DATA is a calculated result of 
+              (ON - OFF) / OFF with interpolated OFF in time
+        """
+        with sdutil.tbmanager(self.infile, nomodify=False) as tb:
+            # calibration spectra (STATE_ID 0)
+            tsel = tb.query('STATE_ID == 0')
+            try:
+                float_data = tsel.getcol('FLOAT_DATA')
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertTrue(numpy.all(corrected_data.real == float_data))
+                self.assertTrue(numpy.all(corrected_data.imag == 0.0))
+            finally:
+                tsel.close()
+                
+            # OFF_SOURCE spectra (STATE_ID 1)
+            reftime = None
+            refdata = None
+            tsel = tb.query('STATE_ID == 1', sortlist='TIME')
+            try:
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertTrue(numpy.all(corrected_data.real == 0.0))
+                self.assertTrue(numpy.all(corrected_data.imag == 0.0))
+            finally:
+                reftime = tsel.getcol('TIME')
+                refdata = tsel.getcol('FLOAT_DATA')
+                
+                tsel.close()
+                
+            # ON_SOURCE spectra (STATE_ID 2)
+            self.assertFalse(reftime is None)
+            self.assertFalse(refdata is None)
+            tsel = tb.query('STATE_ID == 2')
+            try:
+                sptime = tsel.getcol('TIME')
+                float_data = tsel.getcol('FLOAT_DATA')
+                corrected_data = tsel.getcol('CORRECTED_DATA')
+                
+                self.assertEqual(len(reftime), 2)
+                
+                nrow = float_data.shape[2]
+                
+                off_data = numpy.zeros(corrected_data.shape, dtype=numpy.float64)
+                for irow in xrange(nrow):
+                    off_data[:,:,irow] = (refdata[:,:,1] * (sptime[irow] - reftime[0]) \
+                                          + refdata[:,:,0] * (reftime[1] - sptime[irow])) \
+                                            / (reftime[1] - reftime[0])
+                calibrated = (float_data - off_data) / off_data
+                
+                # exclude nan
+                idx_not_nan = numpy.where(numpy.isfinite(float_data))
+                diff = numpy.abs((corrected_data.real - calibrated) / calibrated)
+                diff_not_nan = diff[idx_not_nan]
+                eps = 1.0e-7
+                #print 'maxdiff = {}'.format(diff_not_nan.max())
+                self.assertTrue(numpy.all(diff_not_nan < eps))
+                self.assertTrue(numpy.all(corrected_data[idx_not_nan].imag == 0.0))
+            finally:
+                tsel.close()
+            
+    def test_single_pol_ps(self):
+        """
+        test_single_pol_ps --- generate caltable for single-polarization data
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps', outfile=self.outfile)
+        self._verify_caltable()
+    
+    def test_single_pol_apply(self):
+        """
+        test_single_pol_apply --- apply caltable to single-polarization data
+        """
+        self.test_single_pol_ps()
+        self.assertTrue(os.path.exists(self.outfile))
+        
+        self.result = sdcal(infile=self.infile, calmode='apply', applytable=self.outfile)
+        self._verify_application()
+    
+    def test_single_pol_apply_composite(self):
+        """
+        test_single_pol_apply_composite --- on-the-fly calibration/application on single-polarization data
+        """
+        self.result = sdcal(infile=self.infile, calmode='ps,apply')
+        self._verify_application()
 
 def suite():
-    return [sdcalold_test0, sdcalold_test1,
-            sdcalold_test2, sdcalold_test3,
-            sdcalold_test4, sdcalold_test5,
-            sdcalold_test_edgemarker_generic,
-            sdcalold_test_edgemarker_raster,
-            sdcalold_test_selection,
-            sdcalold_testFlagPSALMA,   #sdcalold_testFlagPSGBT,
-            sdcalold_testFlagOTF,
-            sdcalold_testFlagOTFRASTER
-            ]
+    return [  sdcal_test
+            , sdcal_test_ps
+            , sdcal_test_otfraster
+            , sdcal_test_otf
+            , sdcal_test_apply
+            , sdcal_test_otf_ephem
+            , sdcal_test_single_polarization]
+
+

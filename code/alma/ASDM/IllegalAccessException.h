@@ -28,7 +28,6 @@
 #define IllegalAccessException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
 
@@ -56,7 +55,7 @@ namespace asdm {
      * @param m The conversion error.
      * @param t The table being converted.
      */
-    IllegalAccessException(const string& attribute, const string& table);
+    IllegalAccessException(const std::string& attribute, const std::string& table);
 	 
     /**
      * The DTOR
@@ -66,12 +65,12 @@ namespace asdm {
     /**
      * @return a text describing the exception.
      */    
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
     
-    string message;
-    string tableName;
+    std::string message;
+    std::string tableName;
     
   };
 } // End namespace asdm

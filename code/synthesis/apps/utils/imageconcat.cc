@@ -105,6 +105,7 @@ int main(int argc, char **argv)
     inp.create("outimage", "Out.image", "Output concatenatedimage");
     inp.create("inimages", "", "List of input images to be concatenated e.g inimages='in0.image in1.image'");
     inp.create("type", "virtualcopy", "type of image concatenation: virtualmove:virtual concat+ move images, virtualnomove: virtual concat and leave input images as is, virtualcopy: copy the subimages into output subdiretory, real: literal concat");
+    inp.create("tempclose", "true", "if true, temporarily close input images when they are not accessed.");
     inp.readArguments(argc, argv);
     String inimages=inp.getString("inimages");
     String sep=String(" ");
@@ -112,6 +113,8 @@ int main(int argc, char **argv)
       sep=String(",");
 
     String conctype=inp.getString("type");
+
+    Bool tempclose=inp.getBool("tempclose");
 
 
     Timer tim;
@@ -132,7 +135,7 @@ int main(int argc, char **argv)
 	   return -1;
       //outname=outname+"/concat.aipsio";
     }
-    Block<SHARED_PTR<PagedImage<Float> > > vim(nimages);
+    Block<std::shared_ptr<PagedImage<Float> > > vim(nimages);
     for (Int k=0; k < nimages; ++k){
      
       vim[k].reset(new PagedImage<Float>(images[k]));
@@ -150,7 +153,8 @@ int main(int argc, char **argv)
     */
     //tim.mark();
     {
-      ImageConcat<Float> ic(3, true);
+      //ImageConcat<Float> ic(3, true);
+      ImageConcat<Float> ic(3, tempclose);
       for (Int k=0; k < nimages; ++k){
 	ic.setImage(*vim[k], true);
       }

@@ -26,7 +26,7 @@
 
 #ifndef LINEOVERLAYSSEARCHRESULTSDIALOG_QO_H
 #define LINEOVERLAYSSEARCHRESULTSDIALOG_QO_H
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/QtPlotter/LineOverlaysSearchResultsDialog.ui.h>
 #include <display/QtPlotter/SearchMoleculesResultDisplayer.h>
 #include <casa/Containers/Record.h>
@@ -47,7 +47,7 @@ namespace casa {
 		void getLines( QList<float>& peaks, QList<float>& centers,
 		               QString& molecularName, QList<QString>& chemicalNames,
 		               QList<QString>& resolvedQNs, QString& frequencyUnit ) const;
-		void displaySearchResults( const vector<SplatResult>& results, int offset,
+		void displaySearchResults( const std::vector<SplatResult>& results, int offset,
 		                           int totalCount);
 		int getLineCount() const;
 		~LineOverlaysSearchResultsDialog();

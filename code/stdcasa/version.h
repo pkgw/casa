@@ -31,6 +31,7 @@
 
 //# Includes
 #include <iostream>
+#include <vector>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -41,8 +42,13 @@ class VersionInfo {
     static int minor( );            // minor version number: e.g. 7
     static int patch( );            // patch number: e.g.         1
     static int feature( );          // feature increment: e.g.    298
-    static std::string desc( );     // description: e.g.          "DEV" or "REL"
-    static std::string info( );     // combined string: e.g.      "4.7.1-DEV (298)"
+    static std::string desc( );     // description: e.g.          " ID cc37ed0c4a"
+    static std::string info( );     // combined string: e.g.      "5.0.0-565 ID cc37ed0c4a"
+    static std::string str( );      // combined string: e.g.      "5.0.0-565"
+
+    // compare the version included in 'vec' against the current version.
+    // 'comparitor' is one of: ">", "<", ">=", "<=", "=", "!="
+    static bool compare(const  std::string& comparitor,  const std::vector<int>& vec);
 
     // Summarize the above into an ostream. Note that an 
     // <src>ostringstream</src> can be converted to a 

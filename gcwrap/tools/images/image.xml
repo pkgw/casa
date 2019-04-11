@@ -8,6 +8,7 @@ file:///opt/casa/code/tools/xml/casa.xsd">
  
         <tool name="image" module="images">
 		<needs>coordsys</needs>
+        <needs>componentlist</needs>
         <shortdescription>Operations on images</shortdescription>
        
 <keyword>image</keyword>
@@ -864,8 +865,7 @@ print "\t----\t Intro Ex 10 \t----"
    </method>
 
    <method type="function" name="newimage">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimagefromfile.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimagefromfile.)</shortdescription>
    
 <input>
   
@@ -876,15 +876,13 @@ print "\t----\t Intro Ex 10 \t----"
 </input>
 <returns type="image"/>
 <description>
-This method is identical to ia.newimagefromfile(). The description of
-how it works is in the online help for that method.
+This method is identical to ia.newimagefromfile(). The description of how it works is in the help for that method.
 </description>
 </method>
 
 
    <method type="function" name="newimagefromfile">
-   <shortdescription>Construct a new image analysis tool using the specified image.
-(Also known as newimage.)</shortdescription>
+   <shortdescription>Construct a new image analysis tool using the specified image. (Also known as newimage.)</shortdescription>
    
 <input>
   
@@ -897,11 +895,11 @@ how it works is in the online help for that method.
 <description>
 This method returns an image analysis tool associated with the specified image.
 Constructing a image analysis tool in addition to the default ia tool allows the
-user to operate on multiple images without having to close one
-before opening another. All ia.newimagefrom*() methods share this functionality.
+user to operate on multiple images simultaneously. All ia.newimagefrom*()
+methods share this behavior.
     
 The parameter infile may refer to a CASA image, a Miriad image, or a FITS image.
-FITS images of types Float, Double, Long, and Short are supported.
+FITS images of types Float are supported.
 
 When finished with the newly created tool, the user should close it to free
 up system resources (eg memory).
@@ -952,12 +950,17 @@ fitsimage.done()
             <description>The image from which metadata should be copied. Default means no gaurantee from which image is used.</description>
             <value/>
         </param>
+        <param type="string" name="prec" >
+            <description>Precision for the output image pixels. 'float' or 'double' (minimum match supported)</description>
+            <value>float</value>
+        </param>
     </input>
     <returns type="image"/>
     <description> 
 
 This method is used to evaluate a mathematical expression involving
-existing images. It fully supports both float and complex valued images.
+existing images. It fully supports float, double, and complex float, and complex
+double valued images.
 The syntax of the expression supplied via the pixels
 parameter (in what is called the Lattice Expression Language, or LEL) is
 explained in detail in \htmladdnormallink{note
@@ -1009,6 +1012,10 @@ rules of metadata copying will be followed:
     3. If the output image is a spectral image, the brightness units are set to the empty string.
     4. If the ouptut image is a polarization angle image, the brightness unit is set to "deg" and
     the stokes coordinate is set to have a single plane of type of Pangle.
+
+    The precision (float or double) of the output image pixels is determined by
+    the value specified by the prec parameter. The domain (real or complex) of
+    the output pixel values is determined from the expression.
 
     </description>
     <example>
@@ -1096,7 +1103,7 @@ myim.done()
     <shortdescription>Collapse an image along a specified axis, computing a specified aggregate function of pixels along that axis.</shortdescription>
     <input>
         <param type="string"  name="function">
-            <description>Aggregate function to apply. This can be set one of flux, max, mean, median, min, rms, stdev, sum, variance. Must be specified.</description>
+            <description>Aggregate function to apply. This can be set one of flux, madm, max, mean, median, min, npts, rms, stddev, sum, variance, xmadm. Must be specified.</description>
             <value/>
         </param>
         <param type="any"  name="axes">
@@ -1143,12 +1150,15 @@ myim.done()
 
 This method collapses an image along a specified axis or set of axes of length N pixels to a single pixel on each
 specified axis. Both float valued and complex valued images are supported. It computes a user-specified aggregate
-function for pixel values along the specified axes,
-and places those values in the single remaining plane of those axes in the output image. The method returns
-an image analysis tool containing the newly-created collapsed image. Valid choices of aggregate functions are:
-'flux' (see below for constraitns), 'max', 'mean', 'median', 'min', 'rms', 'stdev', 'sum' and 'variance'. Minimal unique matching is supported
-for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will compute
-the median, etc.).
+function for pixel values along the specified axes, and places those values in the single remaining plane of
+those axes in the output image. The method returns an image analysis tool containing the newly-created collapsed
+image. Valid choices of aggregate functions are: 'flux' (see below for constraitns), 'madm' (median absolute
+deviation from the median), 'max', 'mean', 'median', 'min', 'npts', 'rms', 'stddev', 'sum', 'variance' and 'xmadm'
+(median absolute deviation from the median multipied by x, where x is the reciprocal of Phi^-1(3/4), where Phi^-1
+is the reciprocal of the quantile function. Numerically, x = 1.482602218505602. See, eg,
+https://en.wikipedia.org/wiki/Median_absolute_deviation#Relation_to_standard_deviation). Minimal unique matching is
+supported for the function parameter (e.g. function = 'r' will compute the rms of the pixel values, 'med' will
+compute the median, etc.).
 
 If one specifies function='flux', the following constraints must be true:
 
@@ -1228,70 +1238,102 @@ collapsed.done()
                 <description>Method to use for calculating pixel values of output. Supported values are "copy" or "mean".</description>
                 <value>copy</value>
             </param>
-            	<param type="any" direction="in" name="region">
-            	<any type="variant" limittypes="string record"/>
-            	<description>Region selection. Default is to use the full image.</description>
-            	<value type="string"/>
-        	</param>
-        	<param type="string"  name="mask">
-            	<description>Mask to use. Default setting is none. </description>
-            	<value type="string"/>
-       		</param>
-       	 	<param type="bool"  name="overwrite">
-         	   <description>Overwrite (unprompted) pre-existing output file? Ignored if "outfile" is left blank. </description>
-        	    <value>false</value>
-       		</param>
-        	<param type="bool"  name="stretch">
-         	   <description>Stretch the mask if necessary and possible? Default value is False.</description>
-         	   <value>false</value>
-        	</param>
+                <param type="any" direction="in" name="region">
+                <any type="variant" limittypes="string record"/>
+                <description>Region selection. Default is to use the full image.</description>
+                <value type="string"/>
+            </param>
+            <param type="string"  name="mask">
+                <description>Mask to use. Default setting is none. </description>
+                <value type="string"/>
+            </param>
+            <param type="bool"  name="overwrite">
+               <description>Overwrite (unprompted) pre-existing output file? Ignored if "outfile" is left blank. </description>
+                <value>false</value>
+            </param>
+            <param type="bool"  name="stretch">
+               <description>Stretch the mask if necessary and possible? Default value is False.</description>
+               <value>false</value>
+            </param>
         </input>
         <returns type="image"/>
-		<description>
-			This application removes planes along the specified axis of an image. It supports both float valued and complex
-			valued images. The factor parameter represents the factor by which to reduce the number
-			of planes. 
-			
-			The method parameter represents how to calculate the pixel values of the output image. A
-			value of method="copy" means that every factorth plane of the selected region in the input
-			image will be directly copied to the corresponding plane in the output image. So, if one
-			wanted to copy every third spectral plane in the input image to the output image, one would
-			specify factor=3 and method="copy". If the selected region along the specified axis had 11
-			planes, then there would be 4 output planes which would map to planes 0, 3, 6, and 9 of
-			the specified region of input image. A value of method="mean" indicates that each of
-			factor number of planes in the range starting at each factorth plane should be averaged to 
-			produce the corresponding output plane. So, if one specified factor=3 and method="mean" along 
-			an axis of the selected region of the input image which had 11 pixels, the corresponding axis
-			in the output image would have three pixels and the pixel values for each of those output
-			planes would corresponding to averaging along that axis planes 0-2, 3-5, and 6-8 of the
-			selected region of the input image. Note that the remaining planes, 9 and 10, in the selected
-			region of the input image would be ignored because the last interval must have exactly
-			factor number of planes in order to be included in the output image.
-			
-			The coordinate system of the output image takes into account the decimation; that is, along the
-			decimated axis, the increment of the output image is factor times that of the input image, and
-			the reference pixel of the output image is located at pixel 1/factor times the reference pixel
-			in the input image.
-			
-			This method returns an image analysis tool which references the output image. If this tool
-			is not desired, one should capture it anyway and then close() it immediately to free up
-			resources.
-			
-			Images with multiple beams are not supported; please convolve a multi-beam image to a single
-			resolution before running this application.
-		</description>
-		<example>
-			# Copy verbatim every 5th plane of axis 2 of the input image
-			ia.open("myim.im")
-			decimated = ia.decimate("dec1.im", axis=2, factor=5, method="copy")
-			# do stuff with decimated and then close it
-			decimated.close()
-			
-			# Decimte by averaging every 7 planes of the input image along axis 2
-			decimated = ia.decimate("dec2.im", axis=2, factor=7, method="mean")
-			# do stuff with decimated and then close it
-			decimated.close()
-		</example>
+        <description>
+            This application removes planes along the specified axis of an image. It supports both float valued and complex
+            valued images. The factor parameter represents the factor by which to reduce the number
+            of planes. 
+            
+            The method parameter represents how to calculate the pixel values of the output image. A
+            value of method="copy" means that every factorth plane of the selected region in the input
+            image will be directly copied to the corresponding plane in the output image. So, if one
+            wanted to copy every third spectral plane in the input image to the output image, one would
+            specify factor=3 and method="copy". If the selected region along the specified axis had 11
+            planes, then there would be 4 output planes which would map to planes 0, 3, 6, and 9 of
+            the specified region of input image. A value of method="mean" indicates that each of
+            factor number of planes in the range starting at each factorth plane should be averaged to 
+            produce the corresponding output plane. So, if one specified factor=3 and method="mean" along 
+            an axis of the selected region of the input image which had 11 pixels, the corresponding axis
+            in the output image would have three pixels and the pixel values for each of those output
+            planes would corresponding to averaging along that axis planes 0-2, 3-5, and 6-8 of the
+            selected region of the input image. Note that the remaining planes, 9 and 10, in the selected
+            region of the input image would be ignored because the last interval must have exactly
+            factor number of planes in order to be included in the output image.
+            
+            The coordinate system of the output image takes into account the decimation; that is, along the
+            decimated axis, the increment of the output image is factor times that of the input image, and
+            the reference pixel of the output image is located at pixel 1/factor times the reference pixel
+            in the input image.
+            
+            This method returns an image analysis tool which references the output image. If this tool
+            is not desired, one should capture it anyway and then close() it immediately to free up
+            resources.
+            
+            Images with multiple beams are not supported; please convolve a multi-beam image to a single
+            resolution before running this application.
+        </description>
+        <example>
+            # Copy verbatim every 5th plane of axis 2 of the input image
+            ia.open("myim.im")
+            decimated = ia.decimate("dec1.im", axis=2, factor=5, method="copy")
+            # do stuff with decimated and then close it
+            decimated.close()
+            
+            # Decimate by averaging every 7 planes of the input image along axis 2
+            decimated = ia.decimate("dec2.im", axis=2, factor=7, method="mean")
+            # do stuff with decimated and then close it
+            decimated.close()
+            # close input ia tool
+            ia.close()
+        </example>
+    </method>
+
+    <method type="function" name="dohistory">
+        <shortdescription>Enable/disable tool methods from writing to history.</shortdescription>
+        <input>
+            <param type="bool"  name="enable">
+                <description>Enable history writing of tool methods? True means yes, False means no.</description>
+                <value>True</value>
+            </param>
+        </input>
+        <returns type="bool"/>
+        <description>
+            This allows control over if tool methods record history of what parameters they were called
+            with to the input and/or output image. By default, tool methods will write to the image
+            history. By explicitly disabling history writing, tool methods will not write to the history.
+            When created, an ia tool will have history writing enabled. Note that the setting is specific
+            to the individual tool, and that methods such as open(), close(), done(), fromshape(), etc do
+            not implicitly change the internal state of whether or not history writing by methods is
+            enabled. One can explicitly enable/disable history writing even if the tool is not yet attached
+            to an image. In the case where a method returns a new ia tool, the method will not write history
+            to the output image, but the returned tool will have history writing enabled, so that running
+            methods on the returned tool will cause history to be written to the image attached to that
+            tool, or any new image created by running methods on that tool, unless dohistory(False) is
+            explicitly run on that tool prior to running other methods.
+            
+            IMPORTANT NOTE: This setting will not affect the behavior of ia.sethistory(); this tool
+            method will always write to the history, no matter if ia.dohistory(False) was run prior.
+        </description>
+        <example>
+        </example>
     </method>
 
     <method type="function" name="imageconcat">
@@ -1443,18 +1485,18 @@ of that tool (eg the image it references) will not be changed.
 
 """
 # Create three images to concatenate together.
-ia.fromshape('im.1',[10,10,10],overwrite=T)
-ia.fromshape('im.2',[10,10,10],overwrite=T)
-ia.fromshape('im.3',[10,10,10],overwrite=T)
+ia.fromshape('im.1',[10,10,10],overwrite=True)
+ia.fromshape('im.2',[10,10,10],overwrite=True)
+ia.fromshape('im.3',[10,10,10],overwrite=True)
 ia.done()
 # now concatenate.
 # The three images have the same shape along the axes not to be
-# concatenated as they must. relax=T means that the contiguity
+# concatenated as they must. relax=True means that the contiguity
 # constraint along the concatenated axis is not imposed (if it were
 # the call would fail because the spectral axes of the input images
 # are not contiguous).
 bigim = ia.imageconcat(outfile='bigimage', infiles='im.1 im.2 im.3',
-                       axis=2, relax=T, tempclose=F, overwrite=T)
+                       axis=2, relax=True, tempclose=False, overwrite=True)
 # be sure to call done() on the return tool to free up system resources.
 bigim.done()
 """
@@ -1472,7 +1514,7 @@ bigim.done()
 # result.  Because an oufile is not specified, the returned image analysis
 # tool captured in the variable named bigim just references the input images;
 # this call does not create a persistent result image.
-bigim = ia.imageconcat(infiles="im.*",relax=T)
+bigim = ia.imageconcat(infiles="im.*",relax=True)
 bigim.done()
 """
 </example>
@@ -1480,85 +1522,87 @@ bigim.done()
 
  
  
-   <method type="function" name="fromarray">
-   <shortdescription>Construct a \casa\ image from a numerical (integer or float) array</shortdescription>
-   
-<input>
-  
-     <param type="string"  name="outfile">
-     <description>Output image file name.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="any"  name="pixels">
-	     <any type="variant"/>
-     <description>Numeric array</description>
-     <value/>
-     </param>
-  
-     <param type="record"  name="csys">
-     <description>Coordinate System.  Default is unset.</description>
-     <value></value>
-     </param>
-  
-     <param type="bool"  name="linear">
-     <description>Make a linear Coordinate System if csys not given</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="overwrite">
-     <description>Overwrite (unprompted) pre-existing output file?</description>
-     <value>false</value>
-     </param>
-  
-     <param type="bool"  name="log">
-     <description>Write image creation messages to logger</description>
-     <value>true</value>
-     </param>
-</input>
-<returns type="bool"/>
+<method type="function" name="fromarray">
+    <shortdescription>Construct a \casa\ image from a numerical numpy array</shortdescription>
+    <input>
+        <param type="string" name="outfile">
+            <description>Output image file name.  Default is unset.</description>
+            <value/>
+        </param>
+        <param type="any" name="pixels">
+	       <any type="variant"/>
+           <description>Numeric array</description>
+            <value/>
+        </param>
+        <param type="record" name="csys">
+            <description>Coordinate System. Default is to construct an appropriate coordinate system given the array shape.</description>
+            <value/>
+        </param>
+            <param type="bool" name="linear">
+            <description>Make a linear Coordinate System if csys not given</description>
+            <value>false</value>
+        </param>
+        <param type="bool" name="overwrite">
+            <description>Overwrite the output image if it already exists?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="string"  name="type">
+            <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+            <value>f</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
 
-<description>
+This application converts a numerical numpy array of any size and dimensionality
+into a CASA image. It will create float, double, complex-float, and complex-double
+valued images.
 
-This function converts a numerical (integer or float) numpy array of any size and
-dimensionality into a \casa\ image. It will create both float and complex valued images.
+The image analysis tool on which this method is called will reference the created
+image; if this tool referenced another image before this call, that image will no
+longer be referenced by the tool after the creation of the new image. If you
+would rather have a new image analysis tool returned, keeping the one on which
+this method is called unaltered, use newimagefromarray() instead. If outfile is
+specified, a persistent image is written to disk, if not, the image tool on
+which this method was called will reference a temporary image (either in memory
+or on disk, depending on its size) that will be deleted when the tool is closed.
 
-The image analysis tool on which this method is called will reference the created image;
-if this tool referenced another image before this call, that image will no longer be referenced
-by the tool after the creation of the new image. If you would rather have a new image analysis
-tool returned, keeping the one on which this method is called unaltered, use newimagefromarray()
-instead. If {\stfaf outfile} is given, the image is written to disk, if not, the image tool on
-which this method was called will reference a temporary image (either in memory or on disk, 
-depending on its size) that will be deleted when the tool
-is closed.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-Float valued images are produced from real-valued arrays. Complex-valued images are produced from
-complex-valued arrays.
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-The coordinate system, provided as a <link
-anchor="images:coordsys">coordsys</link> \tool converted to a record
-is optional.  If you provide it, it must have the same number of dimensions
-as the pixels array (see also <link anchor="images:image.coordsys.function">coordsys</link>).
-Call the naxes() method on the coordinate system tool to see how many dimensions the coordinate
-system has. A coordinate system can be created from scratch using the coordinate system (cs) tool and
-methods therein, but often users prefer to use a coordinate system from an already existing image.
-This can be gotten using ia.coordsys() which returns a coordinate system tool. A torecord() call
-on that tool will result in a python dictionary describing the coordinate system which is the
-necessary format for the csys input parameter of ia.fromarray().
-
-If csys is not specified, a default coordinate system
-is created.  If {\stfaf linear=F} (the default) the created coordinate system will have
-standard RA/DEC/Stokes/Spectral Coordinate axes depending upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis preceding the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T}, then all the resulting coordinates
-are linear with the axes represent lengths. In this case each axis will have a value
-of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 The method returns True if creation of the image was successful, False otherwise,
-so you can check programmatically if the image creation was successful.
-
+so a check can be made programmatically if the image creation was successful.
 </description>
 <example>
 
@@ -1748,6 +1792,109 @@ ia.done()
 </example>
 </method>
 
+
+<method type="function" name="fromcomplist">
+    <shortdescription>Create a new ComponentListImage from a component list</shortdescription>
+    <input>
+        <param type="string"  name="outfile">
+            <description>Name of output image file. Default is unset.</description>
+            <value></value>
+        </param>
+        <param type="intArray"  name="shape">
+            <description>Shape of image.  Must be specified and have either two, three, or four elements.</description>
+            <value/>
+        </param>
+        <param type="any" name="cl">
+            <any type="variant" limittypes="string record"/>
+            <description>Component list as a dictionary or name of component list table. Must be specified</description>
+            <value/>
+        </param>
+        <param type="record"  name="csys">
+            <description>Coordinate System. Default uses a four dimensional "standard" RA/Dec/Stokes/Freq coordinate system.</description>
+            <value/>
+        </param>
+        <param type="bool"  name="overwrite">
+            <description>Overwrite (unprompted) pre-existing output file?</description>
+            <value>false</value>
+        </param>
+        <param type="bool"  name="log">
+            <description>Write image creation messages to logger</description>
+            <value>true</value>
+        </param>
+        <param type="bool"  name="cache">
+            <description>Cache pixel values for use while image is in use?</description>
+            <value>true</value>
+        </param>
+    </input>
+    <returns type="bool"/>
+    <description>
+        This method allows one to create an image based on a component list. A component list
+        is a list of simple models (point sources, Gaussians, disks, etc) that describe the
+        sky brightness (cf the component list (cl) tool). Images that can be described in this
+        way normally require significantly less space to store than traditional images in which
+        all the pixel values are stored. For a component list image, pixel values are computed
+        "on the fly". Pixel values can be cached by specifying cache=True (the default value)
+        while the image is attached to an image tool, which permits faster access to them after
+        they are computed the first time. The trade off to caching is that resources such as
+        memory and disk space must be used to cache the pixel values.
+        
+        The image is constrained to have two, three, or four dimensions. One must specify an
+        image shape (the dimensionality of which must adhere to this constraint). One may also
+        supply a coordinate system specification using the csys parameter. If a coordinate system
+        is not specified, a default coordinate system is used. If specified, the coordinate system
+        must have a direction coordinate which has two pixel axes. It can also have a spectral
+        and/or polarization coordinate. The maximum length of the polarization coordinate is four
+        pixels, and the world coordinate values of the polarization coordinate are constrained to
+        be in the set of stokes parameters I, Q, U, and V.
+        
+        As is common with image creation methods, specifying an empty string for the outfile parameter
+        results in a tempoary image being created that will be deleted when either the done() or
+        close() method is run on the tool. By specifying a non-empty string, the image is saved to
+        disk and can be opened with the open() method later. A persistent component list image is
+        composed of a component list table that has metadata describing the image-related information,
+        such as the coordinate system and the shape, as well as a history (log) table.
+        
+        Because pixel values are computed from the component models, altering pixel values is not
+        supported. So methods such as putchunk(), putregion(), and addnoise() will fail on component
+        list images when trying to modify pixel values. However, persistent image masks and on the fly
+        masks are fully supported.
+        
+        The brightness unit of a component list image is constrained to be "Jy/pixel". Attempts to
+        modify this value using setbrightnessunit() will fail.
+        
+        Component list images do not support synthesized beams; attempting to run setrestoringbeam() on
+        a component list image to add a beam(s) will fail.
+        
+        One can easily create an image in which the pixel values are persistently stored from a
+        component list image by running methods such as fromimage(), subimage(), tofits(), etc. In
+        general, any method run on a component list image that creates a new image will create a
+        non-component list image (eg, a traditional CASA Paged image or Temporary image) in which the
+        pixel values are explicitly stored.
+        
+    </description>
+    <example>
+        # use an existing component list and the coordinate system from an existing image
+        # to create a component list image. To prevent the size of the files associated with
+        # the component list from increasing, open the list read only
+        cl.open("mymodel.cl", nomodify=True)
+        clrec = cl.torecord()
+        cl.done()
+        # say this image has axes RA x Dec x Stokes x Freq
+        ia.open("myimage.im")
+        csys = ia.coordsys().torecord()
+        ia.done()
+        ia.fromcomplist(outfile="mycomplist.im", shape=[512, 512, 4, 20], cl=clrec,
+            csys=csys, cache=True)
+        # get statistics
+        stats = ia.statistics()
+        # do other operations, like convolving the image
+        im2 = ia.convolve2d(outfile="convolved.im", axes=[0,1], type="gauss", "
+            major='20arcsec', minor='10arces', pa='45deg')
+        # be sure to close the image tools when done with them
+        ia.done()
+        im2.done()
+    </example>
+</method>
  
    <method type="function" name="fromfits">
    <shortdescription>Construct a \casa\ image by conversion from a FITS image file</shortdescription>
@@ -1923,7 +2070,6 @@ of the image, and all pixels of other axes.
  
 <method type="function" name="fromshape">
    <shortdescription>Construct an empty \casa\ image from a shape</shortdescription>
-   
 <input>
   
      <param type="string"  name="outfile">
@@ -1957,36 +2103,36 @@ of the image, and all pixels of other axes.
      </param>
      
      <param type="string"  name="type">
-        <description>Type of image. 'f' means Float, 'c' means complex.</description>
+        <description>Data type of image pixels. 'f' (float), 'c' (complex float), 'd' (double), 'cd' (complex double).</description>
         <value>f</value>
      </param>
 </input>
 <returns type="bool"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0. One may create either an image
-with float valued pixels (type='f') or a complex valued image (type='c').
+This function creates a CASA image with the specified shape.  All the pixel
+values in the image are set to 0. One may create an image with float precision
+pixels (type='f'), complex float precision pixels (type='c'), double precision
+pixels (type='d'), or complex double precision pixels ('cd'). To use a numpy
+array of values to create an image, use ia.fromarray(). To make a 2-D image from
+a packaged FITS file, use ia.maketestimage().
 
-If {\stfaf outfile} is given, the image is written to the specified disk
-file.  If {\stfaf outfile} is unset, the Image \tool\ is associated with
-a temporary image.  This temporary image may be in memory or on disk,
-depending on its size.  When you close the Image \tool\  (with the
-<link anchor="images:image.close.function">close</link> function) this temporary image is
-deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The Coordinate System, provided as a <link anchor="images:coordsys">Coordsys</link>
-\tool, is optional.  If you provide it, it must be dimensionally
-consistent with the shape that you specify (see also
-<link anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If you don't provide the Coordinate System, a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape (Stokes axis must be no longer than 4 pixels and you may find
-the spectral axis coming out before the Stokes axis if say, {\cf
-shape=[64,64,32,4]}).  Extra dimensions are given linear coordinates. 
-If {\stfaf linear=T} then you get a linear Coordinate System. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 The method returns True if successful, False otherwise.
 
@@ -1994,23 +2140,37 @@ The method returns True if successful, False otherwise.
 <example>
 
 """
-#
-print "\t----\t fromshape Ex 1 \t----"
-ia.fromshape('test2.data', [64,64,128], overwrite=true)
-mycs = ia.coordsys(axes=[0,2])
+# Create a 64 x 64 x 128 RA-Dec-Frequency image
+ia.fromshape('test2.data', [64,64,128], overwrite=True)
+mycs = ia.coordsys(axes=[0,1])
 ia.close()
+# create temporary image using first and third axes of
+# previously created image
 ia.fromshape(shape=[10, 20], csys=mycs.torecord())
 mycs.done()
 ia.close()
-#
 """
 
-
 The first example creates a zero-filled \imagefile\ named {\sff
-test.data} of shape [64,64,128].  If you examine the header with {\stff
+test2.data} of shape [64,64,128].  If you examine the header with {\stff
 ia.summary()} you will see the RA/DEC/Spectral coordinate information. 
-In the second example, a Coordinate System describing the first and third axes
+In the second example, a Coordinate System describing the first and second axes
 of the image {\sff test.data} is created and used to create a 2D temporary image.
+
+# create a 4-D image populated with noise with some interesting metadata
+ia.fromshape("noisy.im", [100, 100, 4, 20])
+# add the noise
+ia.addnoise()
+# add a beam
+ia.setrestoringbeam(major="4arcmin", minor="3arcmin", pa="20deg")
+# add brightness unit
+ia.setbrightnessunit("Jy/beam")
+ia.done()
+# set an interesting object name
+imd.open("noisy.im")
+imd.set("object","thor")
+imd.done()
+
 </example>
 </method>
 
@@ -2086,13 +2246,15 @@ ia.close()             # close to unlock disk image
             <description>Stretch the mask if necessary and possible? Default value is False.</description>
             <value>false</value>
         </param>    
-        <param type="intarray" name="grid">
+        <param type="intArray" name="grid">
             <description>x,y grid spacing. Array of exactly two positive integers.</description>
             <value type="vector"><value>1</value><value>1</value></value>
         </param>
-        <param type="intarray" name="anchor">
-            <description>x,y anchor pixel location. Array of exactly two integers.</description>
-            <value type="vector"><value>0</value><value>0</value></value>
+        <param type="variant" name="anchor">
+            <any type="variant" limittypes="string intArray"/>
+            <description>x,y anchor pixel location. Either "ref" to use the image reference pixel, or an array of exactly two integers.</description>
+            <!-- <value type="vector"><value>0</value><value>0</value></value> -->
+            <value type="string">ref</value>
         </param>
         <param type="variant" name="xlength">
             <any type="variant" limittypes="string int"/>
@@ -2151,6 +2313,9 @@ ia.close()             # close to unlock disk image
     non-grid-point pixels. The user may specify which interpolation algorithm to use for this computation
     using the interp parameter.
     
+    The input image pixel mask is copied to the output image. If interpolation is performed, output pixels are
+    masked where the interpolation fails.
+    
     ANCHORING THE GRID
     
     The user may choose at which pixel to "anchor" the grid. For example, if one specifies grid=[4,4] and
@@ -2158,7 +2323,9 @@ ia.close()             # close to unlock disk image
     is exactly the same grid that would be produced if the user specified anchor=[4,4] or anchor=[20,44].
     If the user specifies anchor=[1, 2] and grid=[4,4], then the grid points will be at pixels [1,2], [5,2],
     [9,2]... [5,2], [5,6], etc. and the resulting grid is the same as it would be if the user specified eg
-    anchor=[9,10] or anchor=[21, 18].
+    anchor=[9,10] or anchor=[21, 18]. The value "ref", which is the default, indicates that the reference
+    pixel of the input image should be used to anchor the grid. The x and y values of this pixel will be
+    rounded to the nearest integer if necessary.
     
     SUPPORTED STATISTICS AND STATISTICS ALGORITHMS
     
@@ -2289,7 +2456,7 @@ mycs=ia.coordsys()
 print mycs.axiscoordinatetypes()
 #['Direction', 'Direction']
 mycs.done()
-im2 = ia.adddegaxes(spectral=T)
+im2 = ia.adddegaxes(spectral=True)
 print im2.shape()
 #[113L, 76L, 1L]
 mycs=im2.coordsys()
@@ -2423,7 +2590,7 @@ where MJD is the Modidfied Julian Day.
 
 """
 ia.maketestimage()
-ia.addnoise(type='normal', pars=[0.5, 1], zero=T, seeds=[1,2]) 
+ia.addnoise(type='normal', pars=[0.5, 1], zero=True, seeds=[1,2]) 
 ia.statistics()
 ia.close()
 """
@@ -2484,42 +2651,36 @@ value (which is an empty list).
 
 <description>
 
-This function performs Fourier-based convolution of an \imagefile\ by the
-given kernel.
+This function performs Fourier-based convolution of an image by the specified
+kernel. The input image must have real-valued pixels.
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is left unset, the on-the-fly Image \tool\
-generated by this function is associated with a temporary image.  This
+If outfile is specified, a persistent image is written to the specified disk
+file.  If outfile is left set to the empty string, the on-the-fly image analysis
+tool generated by this function is associated with a temporary image.  This
 temporary image may be stored in memory or on disk, depending on its size.
-When the user destroys the generated Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+When the user destroys the generated image analysis tool with the close() or
+done() method, the temporary image is deleted.
 
-The kernel is provided as a multi-dimensional array or as the
-filename of a disk-based \imagefile.   The provided kernel can have fewer
-dimensions than the image being convolved.  In this case, it will be
-padded with degenerate axes.  An error will result if the kernel has
-more dimensions than the image.   No additional scaling of the kernel is
-provided yet.
+The kernel is provided as a multi-dimensional array or as the filename of a
+persistent image. The provided kernel can have fewer dimensions than the image
+being convolved. In this case, it will be padded with degenerate axes. An
+exception will be thrown if the kernel has more dimensions than the image. No
+additional scaling of the kernel is provided.
 
-The scaling of the output image is determined by the argument {\stfaf scale}.
-If this is left unset, then the kernel is normalized to unit sum.
-If {\stfaf scale} is not left unset, then the convolution kernel
-will be scaled (multiplied) by this value.
+The scaling of the output image is determined by the value of the scale
+parameter. If this is left unset, then the kernel is normalized to unit sum.
+If scale is not left unset, then the convolution kernel will be scaled
+(multiplied) by this value.
 
 Masked pixels will be assigned the value 0.0 before convolution.
 
-The output mask is the combination (logical OR) of the default input
-\pixelmask\ (if any) and the OTF mask.  Any other input \pixelmasks\
-will not be copied.  The function
-<link anchor="images:image.maskhandler.function">maskhandler</link>
-should be used if there is a need to copy other masks too.
+The output mask is the logical AND of the input image's default pixel mask (if
+any) and the OTF mask.  Any other pixel masks associated with the input image
+will not be copied.  The maskhandler method should be used if there is a need to
+copy other masks too.
 
-See also the other convolution functions:
-
-<link anchor="images:image.convolve2d.function">convolve2d</link>,
-<link anchor="images:image.sepconvolve.function">sepconvolve</link> and
-<link anchor="images:image.hanning.function">hanning</link>.
+See also the other convolution methods convolve2d(), sepconvolve(), and
+hanning() for more specialized convolution algorithms.
 
 </description>
 
@@ -2919,30 +3080,24 @@ This shows a mixed type expression.  The real part of the complex image
 
 <description> 
 
-This method is used to create a new \pixelmask\ via a Boolean LEL expression.
-This gives you much more scope than the simple
-<link anchor="images:image.set.function">set</link> and
-<link anchor="images:image.putregion.function">putregion</link> functions.
-Both float and complex valued images are supported.
+This method is used to create a new pixel mask via a boolean LEL expression.
 
-See http://casa.nrao.edu/aips2_docs/notes/223/index.shtml
-which describes the the syntax and functionality of LEL in detail. Also
-in this document is a description of ways to escape image names that
-contain certain non-alphanumeric characters so they are compatible
-with LEL syntax. 
+See http://casa.nrao.edu/aips2_docs/notes/223/index.shtml which describes the
+the syntax and functionality of LEL in detail. Also in this document is a
+description of ways to escape image names that contain certain non-alphanumeric
+characters so they are compatible with LEL syntax.
 
-If the expression is not a scalar, the shapes and coordinates of the
-image and expression must conform.    If the expression is a scalar
-then the entire \pixelmask\ will be set to that value.
+If the expression is not a scalar, the shapes and coordinates of the image and
+expression must conform. If the expression is a scalar then the entire pixel
+mask will be set to that value.
 
-By default (argument {\stfaf name}) the name of a new \pixelmask\ is made up
-for you.  However, if you specify a \pixelmask\ name (use function
-<link anchor="images:image.summary.function">summary</link> or
-<link anchor="images:image.maskhandler.function">maskhandler</link> to see the mask names)
-then it is used.  If the \pixelmask\ already exists, it is overwritten. 
+By specifying the name parameter to be an empty string, the method automatically
+determines the name of the output mask. Otherwise, the output mask is named the
+value specified by the name parameter. If a mask by that name already exists,
+it is overwritten. Use method ia.summary() to view existing mask names.
 
-You can specify whether the new \pixelmask\ should be the default mask or not.
-By default, it is made the default \pixelmask\ !
+The asdefault parameter specifies if the new mask should be set as the default
+pixel mask of the image. This value is set to True by default.
 
 </description>
 
@@ -3175,8 +3330,8 @@ Gaussian component.  The image must hold a restoring beam.
 print "\t----\t convertflux Ex 1 \t----"
 ia.maketestimage('in.im', overwrite=true);
 p1 = qa.quantity('1mJy/beam')
-i1 = ia.convertflux(p1, major='30arcsec', minor='10arcsec', topeak=F);
-p2 = ia.convertflux(i1, major='30arcsec', minor='10arcsec', topeak=T)
+i1 = ia.convertflux(p1, major='30arcsec', minor='10arcsec', topeak=False);
+p2 = ia.convertflux(i1, major='30arcsec', minor='10arcsec', topeak=True)
 print 'peak, integral, peak = ', p1, i1, p2
 #peak, integral, peak =  {'value': 1.0, 'unit': 'mJy/beam'}
 #                        {'value': 0.00016396129551656742, 'unit': 'Jy'}
@@ -3940,7 +4095,7 @@ beam = ia.beamforconvolvedsize(source=["1arcsec", "1arcsec", "0deg"], convolved=
     ia.open("mymultibeamimage.im")
     cb = ia.commonbeam()
     # convolve all the planes in the image with that beam
-    ia.convolve2d(outfile="myconvolvedimage.im", major=cb["major], minor=cb["minor"], pa=cb["pa"], targetres=T)
+    ia.convolve2d(outfile="myconvolvedimage.im", major=cb["major], minor=cb["minor"], pa=cb["pa"], targetres=True)
 
 </example>
 </method>
@@ -4139,22 +4294,19 @@ ia.close()
 
 <description>
 
-This function fast Fourier Transforms the supplied image to the Fourier plane.
-Both float valued and complex valued images are supported.
-If the {\stfaf axes} parameter is left unset, then the sky plane of the image (if
+This method fast Fourier Transforms the supplied image to the Fourier plane.
+If the axes parameter is left unset, then the direction plane of the image (if
 there is one) is transformed.  Otherwise, the user can specify which axes are
-to be transformed.  Note that if a sky axis is to be transformed, both of them
-must be specified.
+to be transformed.  Note that if the direction plane is to be transformed, both
+axes associated with it must be specified.
 
 The user specifies which form is desired in the result by specifying the
 desired output image file name(s).
 
-Before the FFT is performed, any masked pixels are set to values of zero.
-The output mask is the combination (logical OR) of the default input
-\pixelmask\ (if any) and the OTF mask.  Any other input \pixelmasks\
-will not be copied.  The function
-<link anchor="images:image.maskhandler.function">maskhandler</link> can be
-used if there is a need to copy other masks too.
+Before the FFT is performed, any masked pixels are set to values of zero. The
+output mask is the result of ANDing the default input pixel mask (if any) and
+the OTF mask.  Any other input pixel masks will not be copied.  The method
+maskhandler() can be used if there is a need to copy other masks.
 
 </description>
 
@@ -4309,6 +4461,9 @@ We use the Componentlist GUI to look at the strongest component.
             <any type="variant" limittypes="string record"/>
             <description>Region selection. Default is to use the full image.</description>
             <value type="string"/>
+            <type>path</type>
+            <type>string</type>
+            <type>record</type>
         </param>
         <param type="string"  name="chans">
             <description>Channels to use. Channels must be contiguous. Default is to use all channels..</description>
@@ -4338,6 +4493,7 @@ We use the Componentlist GUI to look at the strongest component.
         <param type="string"  name="estimates">
             <description>Name of file containing initial estimates.  Default: No initial estimates ("").</description>
             <value/>
+            <type>path</type>
         </param>
         <param type="int"  name="minpts">
             <description>Minimum number of unmasked points necessary to attempt fit.</description>
@@ -4398,17 +4554,17 @@ We use the Componentlist GUI to look at the strongest component.
         <param type="any"  name="pampest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile amplitudes.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pcenterest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile centers, in pixels.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pfwhmest">
             <any type="variant" limittypes="double doubleArray"/>
             <description>Initial estimate PCF profile FWHMs, in pixels.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="pfix">
             <any type="variant" limittypes="string stringArray"/>
@@ -4423,17 +4579,17 @@ We use the Componentlist GUI to look at the strongest component.
         <param type="any"  name="gmampcon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The amplitude ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="gmcentercon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The center offset constraints (in pixels) for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="any"  name="gmfwhmcon">
             <any type="variant" limittypes="double doubleArray"/>
             <description>The FWHM  ratio constraints for non-reference components to reference component in gaussian multiplets.</description>
-            <value type="string"/>
+            <value type="doubleArray"/>
         </param>
         <param type="doubleArray"  name="gmampest">
             <description>Initial estimate of individual gaussian amplitudes in gaussian multiplets.</description>
@@ -4504,6 +4660,11 @@ We use the Componentlist GUI to look at the strongest component.
         </param>
         <param type="any"  name="sigma">
             <any type="variant" limittypes="string doubleArray intArray"/>
+            <type>string</type>
+            <type>intVec</type>
+            <type>intArray</type>
+            <type>doubleVec</type>
+            <type>doubleArray</type>
             <description>Standard deviation array or image name.</description>
             <value type="string"/>
         </param>
@@ -4572,7 +4733,7 @@ that the zeroth axis should be used.
 
 MINIMUM NUMBER OF PIXELS
 The minpts parameter indicates the minimum number of unmasked pixels that must be present in order for a fit
-to be attempted. When multifit=T, positions with too few good points will be masked in any output images.
+to be attempted. When multifit=True, positions with too few good points will be masked in any output images.
 
 ONE FIT OF REGION AVERAGE OR PIXEL BY PIXEL FIT
 The multifit parameter indicates if profiles should be fit at each pixel in the selected region (true), or if the profiles in that region should be
@@ -4779,7 +4940,7 @@ The weight of a pixel is the usual
 
 weight = 1/(sigma*sigma)
 
-In the case of multifit=F, the sigma values at each pixel along the fit axis in the hyperplane perpendicular to the fit axis which includes
+In the case of multifit=False, the sigma values at each pixel along the fit axis in the hyperplane perpendicular to the fit axis which includes
 that pixel are averaged and the resultant averaged standard deviation spectrum is the one used in the fit. Internally, sigma values are normalized
 such that the maximum value is 1. This mitigates a known overflow issue.
 
@@ -4972,20 +5133,22 @@ but can be performed over several contiguous spectral channels.
 If the image has a clean beam, the report and returned dictionary will contain both the convolved
 and the deconvolved fit results.
 
-When dooff is False, the method returns a dictionary with three keys, 'converged', 'results',
-and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the fit
-converged on a channel by channel basis. The value of 'results' is a dictionary representing
-a component list reflecting the fit results. In the case of an image containing beam information,
-the sizes and position angles in the 'results' dictionary are those of the source(s) convolved
-with the restoring beam, while the same parameters in the 'deconvolved' dictionary represent the
-source sizes deconvolved from the beam. In the case where the image does not contain a beam,
-'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
-be read into a component list tool (default tool is named cl) using the fromrecord() method
-for easier inspection using tool methods, eg
+When dooff is False, the method returns a dictionary with keys named 'converged', 'pixelsperarcsec',
+'results', and 'deconvolved'. The value of 'converged' is a boolean array which indicates if the
+fit converged on a channel by channel basis. The value of 'pixelsperarcsec' is a two element double
+array with the absolute values of the direction coordinate pixel increments (longitude-like and
+latitude-like coordinate, respectively) in arcsec. The value of 'results' is a dictionary
+representing a component list reflecting the fit results. In the case of an image containing beam
+information, the sizes and position angles in the 'results' dictionary are those of the source(s)
+convolved with the restoring beam, while the same parameters in the 'deconvolved' dictionary
+represent the source sizes deconvolved from the beam. In the case where the image does not
+contain a beam, 'deconvolved' will be absent. Both the 'results' and 'deconvolved' dictionaries can
+be read into a component list tool (default tool is named cl) using the fromrecord() method for
+easier inspection using tool methods, eg
 
 cl.fromrecord(res['results'])
 
-although this currently only works if the flux density units are conformant with Jy.
+although this only works if the flux density units are conformant with Jy.
 
 There are also values in each component subdictionary not used by cl.fromrecord() but meant to
 supply additional information. There is a 'peak' subdictionary for each component that provides the
@@ -4999,7 +5162,9 @@ have three keys: 'beamarcsec' will be a subdictionary giving the beam dimensions
 'beampixels' will have the value of the beam area expressed in pixels, and 'beamster' will have the
 value of the beam area epressed in steradians. Also, if the image has a beam(s), in the component level
 dictionaries will be an 'ispoint' entry with an associated boolean value describing if the component
-is consistent with a point source.
+is consistent with a point source. Each component level dictionary will have a 'pixelcoords' entry
+which has the value of a two element numeric array which provides the direction pixel coordinates
+of the fitted position.
 
 If dooff is True, in addtion to the specified number of
 gaussians, a zero-level offset will also be fit. The initial estimate for this
@@ -5114,7 +5279,10 @@ in pixel coordinates. The major and minor axes and the position angle are the co
 parameters if the image has been convolved with a clean beam and are specified as quantities.
 The fixed parameter is optional and is a string. It may contain any combination of the
 following characters 'f' (peak intensity), 'x' (peak x position), 'y' (peak y position),
-'a' (major axis), 'b' (minor axis), 'p' (position angle).
+'a' (major axis), 'b' (axial ratio, R = (major axis FWHM)/(minor axis FWHM)),
+'p' (position angle). NOTE: One cannot hold the minor axis fixed without holding the major
+axis fixed. If the major axis is not fixed, specifying "b" in the fixed string will hold
+the axial ratio fixed during the fit.
 
 In addition, lines in the file starting with a \# are considered comments.
 
@@ -5339,32 +5507,32 @@ ia.fromrecord(rec, "testimage")
 <description>
 
 This function returns the pixels (or optionally the pixel mask) from the
-\imagefile\ between {\stfaf blc} and {\stfaf trc} inclusively. Both float
-and complex valued images are supported. An increment may be specified
-with {\stfaf inc}. Note that if you retrieve too many pixels, you might
-cause swapping since the pixels are kept in memory. 
+attached image between blc and trc, inclusive. Images with float, complex
+float, double, and complex double precision pixel values are supported.
+An increment may be specified with inc. Note that if too many pixel values
+are retrieved, swapping may occur, result in a decrease in performance,
+since the pixel values are stored in memory.
 
-Any illegal {\stfaf blc} values are set to zero.  Any illegal {\stfaf
-trc} values are set to the end of the image.  If any {\stfaf trc $\&lt;$
-blc}, you get the whole image for that axis.  Any illegal {\stfaf inc}
+Any illegal blc values are set to zero.  Any illegal trc values are set to
+the end of the image.  If any trc values are less than corresponding blc
+values, all the pixel values for that axis are returned.  Any illegal inc
 values are set to unity. 
 
-The argument {\stfaf axes} can be used to reduce the dimensionality of
-the output array. It specifies which pixel axes of the image to
-{\bf average} the data over.  For example, consider a 3-D image.
-With {\stfaf axes=[0,1]} and all other arguments left at their defaults,
-the result would be a 1-D vector, a profile along the third axis,
-with the data averaged over the first two axes.
+The axes parameter can be used to reduce the dimensionality of the output
+array. It specifies which pixel axes of the image over which to average
+the data.  For example, consider a 3-D image, with axes=[0,1] and all
+other parameters set to their defaults. The result would be a 1-D vector,
+a profile along the third axis, with the data averaged over the first two
+axes.
 
-A related function is <link
-anchor="images:image.getregion.function">getregion</link> which
-retrieves the pixels or \pixelmask\ from a potentially more complex
-\region.  Function {\stff getchunk} is retained because it is faster
-and therefore preferable for repeated operation in loops if the
-\pixelmask\ is not required and the region is a simple box.
+A related function is getregion(), which retrieves the pixel values or
+pixel mask from a potentially more complex region.  Method getchunk() is
+retained because it is faster and therefore preferable for repeated
+operations in loops if the pixel mask is not required and the region is a
+simple box.
 
-If you set getmask=T, the return value is the 'pixelmask' rather than
-the 'pixel' image.
+If getmask=True, the return value is the pixel mask values, rather than
+the pixel values.
 
 </description>
 
@@ -5380,7 +5548,7 @@ ia.calcmask('T')                         # give image a mask
 pix = ia.getchunk([1,1,1], [10,10,1])    # 10 by 10 section of plane # 1
 pix = ia.getchunk([1,1], [1,1])          # first spectrum
 pix = ia.getchunk(inc=[1,5])             # all planes, decimated by 5 in y
-mask = ia.getchunk(getmask=T)            # Get pixelmask
+mask = ia.getchunk(getmask=True)            # Get pixelmask
 ia.close()
 #
 """
@@ -5433,37 +5601,30 @@ ia.close()
 <returns type="variant"></returns>
 <description>
 
-This function recovers the image pixel or \pixelmask\ values in the
-given <link anchor="images:regionmanager">region-of-interest</link>.  <!-- You can
-recover either or both of these by specifying the appropriate argument.-->
-Regardless of the shape of the {\stfaf region} you have specified, the
-shape of the {\stfaf pixels} and {\stfaf pixelmask} arrays must
-necessarily be the bounding box of the specified region.  If the region
-extends beyond the image, it is truncated.
+This function recovers the image pixel or pixel mask values in the given region
+of interest. Regardless of the shape of the specified, the shape of the pixels and
+pixelmask arrays must necessarily be the bounding box of the specified region.  If
+the region extends beyond the image, it is truncated.
 
-Recall that the recovered \pixelmask\ will reflect both the \pixelmask\
-stored in the image, and the \region\ (their masks are `anded') -- see
-the \htmlref{discussion}{IMAGE:MASKSANDREGIONS} in the introduction
-about this. 
+Recall that the recovered pixelmask will reflect both the pixelmask stored in the
+image, and the region (their masks are `anded' together).
 
-The argument {\stfaf axes} can be used to reduce the dimensionality of
-the output array. It specifies which pixel axes of the image to
-average the data over.  For example, consider a 3-D image.  With
-{\stfaf axes=[0,1]} and all other arguments left at their defaults,
-the result would be a 1-D vector, a profile along the third axis, with
+The argument axes can be used to reduce the dimensionality of the output array. It
+specifies which pixel axes of the image to average the data over.  For example,
+consider a 3-D image. With axes=[0,1] and all other arguments left at their
+defaults, the result would be a 1-D vector, a profile along the third axis, with
 the data averaged over the first two axes.
 
-This function differs in three ways from {\stff getchunk}.  First, the
-region can be much more complex (e.g.  a union of polygons) than the
-simple {\stfaf blc}, {\stfaf trc}, and {\stfaf inc} of {\stff
-getchunk} (although such a region can be created of course).  Second,
-it can be used to recover the \pixelmask\ or the pixels.  Third, it is
-less efficient than {\stff getchunk} for doing the same thing as
-{\stff getchunk}.  So if you are interested in say, iterating through
-an image, getting a regular hyper-cube of pixels and doing something
-with them, then {\stff getchunk} will be faster.  This would be
-especially noticeable if you iterated line by line through a large
-image.
+This method differs in a couple of ways from the getchunk() method.  For example,
+the specified region can be much more complex (eg, a union of polygons) than the
+limited, simple regions that can be specified in getchunk(), which must be
+rectangular. On the other hand, getregion() is less effective than getchunk()
+for the same region specification. So if one is interested in say, iterating
+through an image, getting a regular hyper-cube of pixels and doing something
+with them, then getchunk() will be faster. This would be especially noticeable if
+you iterated line by line through a large image (and of course, in both cases,
+retrieving very large regions will become very resource intensive, as these
+returned arrays are completely stored in memory).
 
 </description>
 
@@ -5491,7 +5652,7 @@ ia.close()
 print "\t----\t getregion Ex 2 \t----"
 ia.fromshape('cube', [64,64,64], overwrite=true)
 pixels = ia.getregion()
-pixelmask = ia.getregion(getmask=T)  
+pixelmask = ia.getregion(getmask=True)  
 #
 """
 
@@ -5552,9 +5713,12 @@ This application returns information on a one-dimensional profile taken along a 
 The region of interest is collapsed (a'la ia.collapse() along all axes orthogonal to the one specified, and)
 the specified aggregate function is applied to these pixels to generate the returned values. 
 
-The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'max',  'mean',
-'median', 'min', 'rms', 'stdev', 'sum', and 'variance'. See the help for ia.collapse() for details regarding
-these functions. Minimum match and case insenstivity is supported.
+The aggregate function must be one of the functions supported by ia.collapse; ie, 'flux', 'madm', 'max', 'mean',
+'median', 'min', 'rms', 'stdev', 'sum', 'variance', and 'xmadm'. See the help for ia.collapse() for details regarding
+these functions. Minimum match and case insenstivity is supported. In addition, single binary (addition,
+subtraction, multiplication, and division) operations of these functions are supported, eg function='max*min'
+will return data that is the product of the maximum and the mininum for each plane along the specified
+axis.
 
 One may specify the unit of the returned coordinate values.  Unless axis is the spectral axis, unit must be
 conformant with the corresponding axis unit in the image coordinate system or it must be 'pixel' which signifies,
@@ -5586,10 +5750,6 @@ coords   One-dimensional array of corresponding coordinate values along the spec
          (or the unit associated with the axis in the image coordinate system if unspecified).
 xUnit    The unit used for calculating the values the coords array.
 
-
-<example>
-</example>
-
 </description>
 
 <example>
@@ -5600,16 +5760,17 @@ res = ia.getprofile(axis=2, function='max')
 # axis 2 is the spectral axis. Get the minimum pixel values along this axis
 # and specify that the returned coordinate values should be optical velocities
 # in km/s
-
 res2 = ia.getprofile(axis=2, function='min', unit='km/s', spectype='optical')
+
+# get the result of the maximum and the median of the absolute deviation from the median
+# along this axis
+res3 = ia.getprofile(axis=2, function='max/madm')
 
 ia.done()
 
 </example>
 
 </method>
-
-
  
    <method type="function" name="getslice">
    <shortdescription>Get 1-D slice from the image</shortdescription>
@@ -5648,24 +5809,28 @@ ia.done()
 <returns type="record"/>
 <description>
 
-This function returns a 1-D slice (the pixels and opionally the pixel mask) from the
-\imagefile.   The slice is constrained to lie in a plane of two  cardinal axes
-(e.g. XY or YZ).  At some point this constraint will be relaxed.
-A range of interpolation schemes are available.
+This function returns a 1-D slice (the pixels and opionally the pixel mask) from
+the attached image. The slice is constrained to lie in a plane of two cardinal
+axes (e.g. XY or YZ). Interpolation is permitted between pixels, and a set of
+interpolation schemes is available.
 
-You specify the slice as a polyline giving the x ({\stfaf x}) and y
-({\stfaf y}) coordinates and the axes of the plane holding that slice
-({\stfaf axes}).  As well, you must specify the absolute pixel
-coordinates of the other axes ({\stfaf coord}).  This defaults to the
-first pixel (e.g. first plane).
+The slice is specified as a polyline giving the x and y coordinates and the axes
+of the plane holding that slice.  The absolute pixel coordinates of the other
+axes may be specified using the coord parameter. If not specified, these values
+default to pixel 0 on the relevant axes.
 
-The return value is a record with fields 'pixels' (interpolated intensity), 
+The npts parameter allows the number of values to be returned.
+
+The method parameter allows specification of the interpolation method to be
+used. Allowed values are 'nearest', 'linear', and 'cubic'. In the case of an
+image with complex valued pixels, the interpolation is done independently on the
+real and imaginary values. For example, the linearly interpolated value midway
+between pixels with values of 1 + 5j and 2 + 7j would be 1.5 + 6j.
+
+The return value is a dictionary with keys 'pixels' (interpolated pixel values), 
 'mask' (interpolated mask), 'xpos' (x-location in absolute pixel coordinates), 
 'ypos' (y-location in absolute pixel coordinates), 'distance' (distance along
-slice in pixels), 'axes' (the x and y axes of slice).
-
-<!-- You can optionally plot the slice via argument {\stfaf plot}
-which defaults to False. -->
+slice in pixels), and 'axes' (the x and y axes of slice).
 
 </description>
 
@@ -5865,7 +6030,7 @@ file is being shared between more than one process.  See also functions
 #
 print "\t----\t haslock Ex 1 \t----"
 ia.maketestimage('xx',overwrite=true)
-ia.lock(writelock=T)
+ia.lock(writelock=True)
 print ia.haslock()
 #[True, True]
 ia.unlock()
@@ -5988,7 +6153,7 @@ ia.close()
 # the cumulative number of data points in the current bin and in
 # bins less than the current bin.
 ia.open("myimage.im")
-r = ia.histograms(axes=[0,2],nbins=30,includepix=1e-3,cumu=T)
+r = ia.histograms(axes=[0,2],nbins=30,includepix=1e-3,cumu=True)
 ia.close()
 
 </example>
@@ -6011,21 +6176,14 @@ ia.close()
 
 <description>
 
-This function allows you to access the history file.
+This method interogates the history of an image.
 
-<!--
-By default, you browse it with the Table browser ({\stfaf browse=T})
-and the return value is T or a fail. -->
+The history is returned as an array of strings, where each element represents
+an individual history entry. If True, the list parameter will also cause the
+history to be emitted by the logger.
 
-If {\stfaf browse=F} and {\stfaf list=F}, the history is returned by
-the function as a vector of strings.  If {\stfaf list=T}, the history
-is sent to the logger.  <!-- and the function returns T or a fail.-->
-
-\casa\ tools that modify the MeasurementSet or an image file will save
-history information.  Also, you can directly annotate the history file
-with the function <link
-anchor="images:image.sethistory.function">sethistory</link>.  History
-from \fits\ file conversions is also stored and listable here.
+Note that entries can be permanently added to the image history by using the
+ia.sethistory() method.
 
 </description>
 
@@ -6036,8 +6194,8 @@ from \fits\ file conversions is also stored and listable here.
 print "\t----\t history Ex 1 \t----"
 ia.maketestimage()
 ia.history()                       # List history to logger
-h = ia.history(list=F)             # Recover history in variable h
-ia.history(list=T, browse=F)       # List history to logger
+h = ia.history(list=False)             # Recover history in variable h
+ia.history(list=True, browse=False)       # List history to logger
 #
 """
 
@@ -6121,8 +6279,7 @@ ia.close()                                    # close default tool and
 <returns type="bool">Bool</returns>
 <description>
 
-This function can be used to find out whether the Image \tool\
-is associated with an image or not.
+This method returns True if the image tool has an attached image.
 
 </description>
 
@@ -6146,7 +6303,6 @@ ia.close()
 
 </example>
 </method>
-
  
    <method type="function" name="ispersistent">
    <shortdescription>Is the image persistent?</shortdescription>
@@ -6225,9 +6381,9 @@ file is being shared between more than one process.  See also functions
 #
 print "\t----\t lock Ex 1 \t----"
 ia.maketestimage('xx', overwrite=true)
-ia.lock(writelock=T)
+ia.lock(writelock=True)
 ia.unlock()
-ia.lock(writelock=F)
+ia.lock(writelock=False)
 ia.close(remove=true)
 #
 """
@@ -6267,12 +6423,15 @@ and acquire a readonly lock.
 
 This function combines the current image with another image to make
 a complex image.  The current image (i.e. that associated with this
-Image \tool\ is assumed to be the Real image).  You supply
-the Imaginary image; it must be disk-based at this time.
-
-The output image cannot be associated with an Image \tool\ (does
-not handle Complex images yet) and so the best you can do is
-write it to disk.  The Viewer can view it.
+Image must have real valued pixels).  The image used for generating the
+imaginary part of the pixel values is specified using the imag parameter, and
+it must persistent. The image attached to this tool and the image specified
+using the imag parameter must have the same precision, or else an exception
+will be thrown. If both are float precision, the resulting image will have
+float precision pixel values. If both are double precision, the resulting image
+will have double precision pixel values. The coordinate systems of the two
+input images must be conformant. The metadata written to the resulting image is
+copied from the image attached to this tool.
 
 </description>
 
@@ -6373,63 +6532,45 @@ ia.makefloat('abs.im', 'complex.im', 'abs') # creates abs.im
 
 <description>
 
-This function <!-- (short-hand name {\stff mh}) --> is used to manage
-or handle \pixelmasks\ . <!-- (there is also a custom GUI interface
-through the <link
-anchor="images:image.maskhandlergui.function">maskhandlergui</link>
-function). --> A \casa\ image may contain zero, one or more
-\pixelmasks.  Any of these masks can be designated the default
-\pixelmask.  The default mask is acted upon by \casa\ applications.
-For example, if you ask for statistics from an image, pixels which are
-masked as bad (F) will be excluded from the calculations.
+This method is used to manage or handle pixel masks . A CASA image may contain
+zero, one, or more pixel masks.  Any of these masks can be designated the
+default pixel mask assoicated with the given image.  The default mask is acted
+upon and/or used by CASA applications. For example, if ia.statistics() will
+exclude pixels which are masked as bad (False) from the calculations.
 
-This function has an argument ({\stfaf op}) that specifies the
-behaviour.  In all cases, you can shorten the operation string to three
-characters.  It is not the job of this function to modify the values of
-masks. 
+This method does not modify the individual boolean values of any masks.
 
-\begin{itemize} 
+The op parameter is used to specify the behaviour.  In all cases, the specified
+operation can be specified by a three character string. Supported values of the
+op parameter are:
 
-\item{default - } this retrieves  the name of the default \pixelmask\
-as the return value of the function call.
+'default': Retrieve the name of the default pixel mask associated with the
+image. A one element array containing the empty string is returned if the image
+has no default mask.
 
-\item{get - } this retrieves the name(s) of the existing \pixelmasks\
-as the return value of the function call (string or vector of strings).
+'get': Retrieve the name(s) of all the existing pixel masks. Note that the
+ia.summary() method may also be used to view the pixel masks associated with an
+image.
 
-\item{set - } this lets you change the default \pixelmask\ to that given by the
-{\stfaf name} argument.  If {\stfaf name} is empty, then the default
-mask is unset (i.e. an all good mask is effectively applied).
+'set': Set the default pixel mask to the value specified by the name parameter.
+If the value of the name parameter is the empty string, then the default mask is
+unset (ie, all the pixels will be treated as being unmasked).
 
-\item{delete - } this lets you delete the \pixelmasks\ specified by the
-{\stfaf name} argument.  To delete more than one mask, {\stfaf name} can
-be a vector of strings.    Any supplied \pixelmask\ name that does not
-exist is silently ignored.
+'delete': Delete the pixel mask(s) specified by the name parameter. To delete
+more than one mask, the name parameter can be an array of strings. Any supplied
+pixel mask name that does not exist is silently ignored.
 
-\item{rename - } this lets you rename the mask specified by {\stfaf name[0]}
-to {\stfaf name[1]}.  Thus the {\stfaf name} argument must be a vector of
-length 2.
+'rename': Rename the mask specified as the first element of the name array
+parameter (name[0]) to the value specified in the second element of the name
+array parameter (name[1]]. In this case, the name array parameter must have
+exactly two elements.
 
-\item{copy - } this lets you copy a mask to another in the same image, or
-copy a mask from another image into this image.  Thus the {\stfaf name}
-argument must be a vector of length 2.
-
-For the first case, the first element of {\stfaf name} must be the name
-of the mask to copy, and the second element must be the name of the
-\pixelmask\ to which it will be copied. 
-
-For the second case, the first element of {\stfaf name} must be the name
-of the input image and \pixelmask\ with a colon delimiter (e.g. {\cf
-hcn:mask2}). The second element must be the name of the \pixelmask\ to
-which the input \pixelmask\ will be copied. 
-
-\end{itemize}
-
-Use the <link anchor="images:image.summary.function">summary</link> function to see the
-available \pixelmasks.  You can do this either via the logger display, or via
-the returned record, which contains the mask names. In the logger display,
-any \pixelmask\ which is not the default mask is listed in square brackets.  If
-a default mask is set, it is listed first, and is not enclosed in square
-brackets. 
+'copy': Copy the mask specified in the first element of the name array
+parameter (name[0]) to the a mask name specified in the second element of the
+name array parameter (name[1]]. In this case, the name array parameter must have
+exactly two elements. A mask from another image can be copied by using the
+imagename:maskname syntax for the first element in the name array, eg,
+'myimage:mask2'.
 
 </description>
 
@@ -7103,9 +7244,9 @@ just recover the \imagefile\ name itself.
 #
 print "\t----\t name Ex 1 \t----"
 ia.maketestimage('g1.app', overwrite=true)
-print ia.name(strippath=F)
+print ia.name(strippath=False)
 #/casa/code/xmlcasa/implement/images/scripts/g1.app
-print ia.name(strippath=T)
+print ia.name(strippath=True)
 #g1.app
 ia.close()
 #
@@ -7124,19 +7265,26 @@ ia.close()
      <param type="string"  name="infile" mustexist="True">
      <description>image file name</description>
      </param>
+     <param type="bool"  name="cache">
+        <description>Cache pixel values for use while image is in use? Ignored if image being opened is not a ComponentListImage.</description>
+        <value>true</value>
+     </param>
+     
 </input>
 <returns type="bool">T or fail</returns>
 <description>
 
-Use this function when you are finished analyzing the current
-\imagefile\ and want to attach to another one.  This function detaches the
-\imagetool\ from the current \imagefile, and reattaches it (opens) to
-the new \imagefile. 
+This method detaches from the current image (if an image is attached to the tool), and
+reattaches it (opens) to the new image.
 
-The input image file may be in native \casa, \fits, or Miriad  
-format.  Look \htmlref{here}{IMAGES:FOREIGNIMAGES}  for more
-information on foreign images. In the case of \casa images, both
-Float and Complex valued images are supported.
+The input image file may be in native CASA, FITS, or Miriad format. In the case
+of CASA images, images with float, complex float, double, and complex double
+valued pixels are supported. Note that only FITS images with float valued pixels
+are supported.
+
+The cache parameter applies only to component list images and indicates if pixel
+values should be cached after they are computed for faster retrieval. It is not
+used for other image types.
 
 </description>
 
@@ -7400,48 +7548,44 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function puts an array into the \imagefile.  If there is a
-default \pixelmask\ it is ignored in this process.  It is the complement of the
-<link anchor="images:image.getchunk.function">getchunk</link> function.  You can specify the {\stfaf
-blc} and {\stfaf inc} if desired.  If they are unspecified, they default
-to the beginning of the image and an increment of one. 
+This method puts an array into the image (which must be writable, eg it
+will fail on FITS images). If there is a default pixel mask, it is
+ignored. It is the complement of the getchunk() method. The blc, trc,
+and increment (inc) may be specified. If they are unspecified, they
+default to the beginning of the image and an increment of one.
 
-Any illegal {\stfaf blc} values are set to zero.  Any illegal {\stfaf
-inc} values are set to unity. 
+Any illegal blc values are set to zero.  Any illegal inc values are set
+to unity.
 
-An error will result if you attempt to put an array beyond the extent of
-the image (i.e., it is not truncated or decimated). 
+An error will result if an attempt is made to put an array the extends
+beyond the image edge (i.e., it is not truncated or decimated).
 
 If there are fewer axes in the array than in the image, the array is
 assumed to have trailing axes of length unity.  Thus, if you have a 2D
 array and want to put it in as the YZ plane rather than the XY plane,
 you must ensure that the shape of the array is [1,nx,ny].  
 
-However, the argument {\stfaf replicate} can be used to replicate the array
-throughout the image (from the blc to the trc).  For example, if you
-provide a 2D array to a 3D image, you can replicate it through the third
-axis by setting {\stfaf replicate=T}.   The replication is done
-from the specified {\stfaf blc} to the end of the image.
-Use function <link anchor="images:image.putregion.function">putregion</link>  if you
-want to terminate the replication at a {\stfaf trc} value.
+However, the replicate parameter can be used to replicate the array
+throughout the image (from the blc to the trc).  For example, if a 2D
+array is provided for a 3D image, it can be replicated along the third
+axis by setting replicate=True. The replication is done from the
+specified blc to the end of the image. Method putregion() can be used
+to terminate the replication at a trc value.
 
-The argument {\stfaf locking} controls two things.  If True, then
-after the function is called, the image is unlocked (so some other
-process can acquire a lock) and it is indicated that the image has
-changed. <!-- (causes function <link
-anchor="images:image.view.function">view</link> to redisplay the image
-if it is has been called).--> The reason for having this argument is
-that the unlocking and updating processes are quite expensive.  If you
-are repeatedly calling {\stff putchunk} in a for loop, you would be
-advised to use this switch.
+The locking parameter controls two aspects. If True, then after the
+method is called, the image is unlocked (so some other process can
+acquire a lock) and it is indicated that the image has
+changed. The reason for having this argument is that the unlocking and
+updating processes are quite expensive.  If putchunk() is called
+repeatedly in eg, a loop, it is advisable to set this parameter to True.
 
-A related function is <link anchor="images:image.putregion.function">putregion</link> 
-which puts the pixels and masks into a more complex \region.
-Function {\stff putchunk} is retained because it is faster and therefore
-preferable for repeated operation in loops if the \pixelmask\ is not required.
+A related function is putregion(), which supports putting the pixel and
+mask values into a more complex region. Method putchunk() is faster and
+therefore preferable for repeated operation in loops if the pixel mask
+is not required.
 
-See also the functions <link anchor="images:image.set.function">set</link> and 
-<link anchor="images:image.calc.function">calc</link> which can also change pixel values.
+See also the methods set() and calc() which can also be used to change
+pixel values.
 
 </description>
 
@@ -7564,38 +7708,37 @@ ia.close()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces data and/or \pixelmask\ values in the image in
-the specified \region.  The {\stfaf pixels} and/or {\stfaf pixelmask}
-arrays must be the shape of the bounding box, and the whole bounding box
-is replaced in the image.  The \region\ is really only used to specify
-the bounding box.  If the region extends beyond the image, it is
-truncated.  If the {\stfaf pixels} or {\stfaf pixelmask} array shapes do not
-match the bounding box, an error will result. 
+This function replaces data and/or pixel mask values in the image in the
+specified region. The pixels and/or pixelmask arrays must be the shape of
+the bounding box, and the whole bounding box is replaced in the image. The
+region is only used to specify the bounding box.  If the region extends
+beyond the image, it is truncated.  If the pixels or pixelmask array shapes
+do not match the bounding box, an error will result. Values in the pixels
+array must share the same domain as the pixel values in the image. If the
+pixels array contains real values and the image pixels contain complex
+values (or vice versa), an exception will be thrown.
 
-When you put a \pixelmask, it either replaces the current default \pixelmask, or
-is created.  The \pixelmask\ is put before the pixels.
+When you put a pixel mask, it either replaces the current default pixel mask,
+or is created.
 
-The argument {\stfaf usemask} is only relevant when you are putting
-pixel values and there is a \pixelmask\ (meaning also the one you might have
-just put in place).  If {\stfaf usemask=T} then only pixels for which
-the mask is good (T) are altered.  If {\stfaf usemask=F} then all the
-pixels in the region are altered - the mask is ignored. 
+The usemask parameter is only relevant when you are putting pixel values and
+there is a pixel mask (meaning also the one you might have just put in place).
+If usemask=True, then only pixels for which the mask is good (True) are
+altered.  If usemask=False, then all the pixels in the region are altered. 
 
-The argument {\stfaf replicate} can be used to replicate the array
-throughout the image (from the blc to the trc).  For example, if you
-provide a 2D array to a 3D image, you can replicate it through the third
-axis by setting {\stfaf replicate=T}.   The replication
-is done in the specified {\stfaf region}.
+The replicate parameter can be used to replicate the array throughout the
+image (from the blc to the trc).  For example, if a two dimensional array is
+provided for a three dimensional image, it can be replicated along the third
+axis by setting replicate=True. The replication is done in the specified
+region.
 
-The argument {\stfaf locking} controls two things.  If True, then
-after the function is called, the image is unlocked (so some other
-process can acquire a lock) and it is indicated that the image has
-changed. <!-- (causes function <link
-anchor="images:image.view.function">view</link> to redisplay the image
-if it is has been called).--> The reason for having this argument is
-that the unlocking and updating processes are quite expensive.  If you
-are repeatedly calling {\stff putregion} in a for loop, you would be
-advised to use this switch (and to consider using {\stff putchunk}).
+The locking parameter controls two things.  If True, then after the method
+is called, the image is unlocked (so some other process can acquire a lock)
+and it is indicated that the image has changed. The reason for this
+parameter is that the unlocking and updating processes are quite expensive.
+If putregion() is being called multiple times, in a for loop, for example,
+it is recommended to set locking=True (and to consider using putchunk()
+instead).
 
 See the related functions <link
 anchor="images:image.putchunk.function">putchunk</link>, <link
@@ -7621,7 +7764,7 @@ mycs = ia.coordsys()
 r1 = rg.wpolygon(x,y,csys=mycs.torecord()) # Create polygonal world region
 mycs.done()
 pixels = ia.getregion(r1)                  # Recover pixels
-pixelmask = ia.getregion(r1, getmask=T)    # and mask
+pixelmask = ia.getregion(r1, getmask=True)    # and mask
 for i in range(len(pixels)):
   pixels[i] = list(pixels[i])              # convert tuple to list for mods
   for j in range(len(pixels[i])):
@@ -7834,167 +7977,151 @@ ia.close()
 
 <description>
 
-This function regrids the current image onto a grid specified by the
-given Coordinate System.   You can also specify the shape of the
-output image.
+This function regrids the current image onto a grid specified by the given
+coordinate system. The shape of the output image may also be specified.
 
-The Coordinate System must be given via a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (using
-coordsys.torecord()).  It is optional; if not specified, the Coordinate
-System from the input image (i.e.  the one to which you are applying
-the regrid function) is taken.  The order of the coordinates and axes
-in the output image is always the same as the input image.  It simply
-'finds' the relevant coordinate in the supplied Coordinate System in
-order to figure out the regridding parameters.  The supplied
-Coordinate System must have at least as many coordinates as are
-required to accomodate the axes you are regridding (e.g.  if you
-regrid the first two axes, and these belong to a Direction Coordinate,
-you need one Direction Coordinate in the supplied Coordinate System).
-Coordinates pertaining to axes that are not being regridded are
-supplied from the input image, not the given Coordinate System.
+The coordinate system must be specified via a cs tool (using cs.torecord()). It
+is optional; if not specified, the coordinate system from the input image (ie,
+the one to which you are applying the regrid function) is used. The order of the
+coordinates and axes in the output image is always the same as the input image.
+It simply finds the relevant coordinate in the supplied coordinate system in
+order to determine the regridding parameters. The supplied coordinate system
+must have at least as many coordinates as are required to accomodate the axes 
+that are to be regridded (eg, if the first two axes are to be regridded, and
+these belong to a direction coordinate, one direction coordinate in the supplied
+coordinate system is required). Coordinates pertaining to axes that are not
+being regridded are supplied from the input image, not the specified coordinate
+system.
 
-Reference changes are handled (e.g.  J2000 to B1950, LSR to TOPO).  In
-general, the conversion machinery attempts to work out how sophisticated
-it needs to be (e.g.  am I regridding LSR to LSR or LSR to TOPO). 
-However, it errs on the side of conservatism so that it can be that the
-conversion machine requires more information than it actually needs. 
-For full frame conversions, one needs to know things like location on
-earth (e.g.  observatory), direction of observation, and time of
-observation.  
+Reference changes are handled (eg, J2000 to B1950, LSR to TOPO). In general, the
+conversion machinery attempts to work out how sophisticated it needs to be (eg,
+is the regridding being done from LSR to LSR or from LSR to TOPO). However, it
+errs on the side of caution if the conversion machine requires more information
+than it actually needs. For full frame conversions, one needs to know things
+like the position on the earth's surface where the observation occurred,
+direction (celestial coordinates) of observation, and time of observation.  
 
-If you get the above errors and you {\bf are} doing a frame conversion,
-then that means you must insert some extra information into the
-Coordinate System of your image.  Most likely it's the time
-(<link anchor="images:coordsys.setepoch.function">coordsys.setepoch</link>) and location
-(<link anchor="images:coordsys.settelescope.function">coordsys.settelescope</link>) that are
-missing. If you get these errors and you {\bf know} that you are not
-specifying a frame change (e.g.  regrid LSR to LSR) then try setting
-{\stfaf doref=F}.  This will (silently) bypass all possible frame
-conversions.  Note that if you {\bf are} requesting a frame conversion
-and you set {\stfaf doref=F} you are doing a bad thing (and you will
-get no warnings).
+If you get such errors and you are doing a frame conversion, then that means you
+must insert some extra information into the coordinate system of your image.
+Most likely it's the time (in which case you can use cs.setepoch()) and/or
+position (in which case you can use cs.settelescope()) that are missing. If you
+get these errors and you are certain that you are not specifying a frame change
+(eg, regrid LSR to LSR) then try setting doref=False. This will (silently)
+bypass all possible frame conversions. Note that if you are requesting a frame
+conversion and you set doref=False, no warnings will be emitted and the output
+image will likely be nonsensical.
 
-If you regrid a plane holding a Direction Coordinate and the units are
-Jy/pixel then the output is scaled to conserve flux (roughly; just one
-scale factor at the reference pixel is computed). 
+If you regrid a plane holding a direction coordinate and the units are Jy/pixel,
+then the output is scaled to conserve flux (roughly; just one scale factor at
+the reference pixel is computed).
 
-Regridding of complex-valued images is supported. The real and imaginary parts are
-regridded independently and the resulting regridded pixel values are combined to
-form the regridded, complex-valued image.
+Regridding of complex-valued images is supported. The real and imaginary parts
+are regridded independently and the resulting regridded pixel values are
+combined to form the regridded, complex-valued image.
 
-A variety of interpolation schemes are provided (you need only specify
-the first three characters to {\stfaf method}).  The cubic interpolation
-is substantially slower than linear, and often the improvement is
-modest.  By default you get linear interpolation. 
+A variety of interpolation schemes are provided (you need only specify the first
+three characters to the method parameter).  The cubic interpolation is
+substantially slower than linear, and often the improvement is modest. By
+default, linear interpolation is used.
 
-You specify the shape of the output image ({\stfaf shape}) and which
-output axes you want to regrid ({\stfaf axes}).  Note that a Stokes axis
-cannot be regridded (you will get a warning if you try).
+You specify the shape of the output image using the shape parameter and which
+output axes you want to regrid.  Note that a Stokes axis cannot be regridded
+(you will get a warning if you try).
 
-The {\stfaf axes} argument cannot be used to discard axes from the
-output image; it can only be used to specify which {\bf output} axes are
-going to be regridded and which are not.  Any axis that you are not
-regridding must have the same output shape as the input image shape for
-that axis. 
+The axes parameter cannot be used to discard axes from the output image; it can
+only be used to specify which output axes are going to be regridded and which
+are not. Any axis that you are not regridding must have the same output shape as
+the input image shape for that axis. 
 
-The {\stfaf axes} argument can also be used to specify the order in
-which the {\bf output} axes are regridded.  This may give you
-significant performance benefits.  For example, imagine we are going to
-regrid a spectral-line cube of shape [512,512,1204] to shape
-[256,256,32].  If you specified {\stfaf axes=[0,1,2]} then first, the
-Direction axes would be regridded for each of the 1024 pixels (and
-stored in a temporary image).  Then each profile at each spatial
-location in the temporary image would be regridded to 32 pixels.  You
-could speed this process up significantly by setting {\stfaf
-axes=[2,0,1]}.  In this case, first each profile would be regridded to
-32 pixels, and then each plane of the 32 pixels would be regridded. 
-Note that the order of {\stfaf axes} does not affect the order of the
-{\stfaf shape} argument.  I.e.  it should be given in the natural pixel
-axis order of the image {\stfaf [256,256,32]} in both cases. 
+The axes parameter can also be used to specify the order in which the output
+axes are regridded. This may give you significant performance benefits. For
+example, imagine we are going to regrid a spectral-line cube of shape
+[512,512,1204] to shape [256,256,32]. If you specified axes=[0,1,2] then first,
+the direction axes would be regridded for each of the 1024 pixels (and stored in
+a temporary image). Then each spectral profile at each spatial location in the
+temporary image would be regridded to 32 pixels.  You could speed this process
+up significantly by setting axes=[2,0,1]. In this case, first each spectral
+profile would be regridded to 32 pixels, and then each plane of the 32 pixels
+would be regridded. Note that the order of axes does not affect the order of the
+shape parameter; ie, it should be given in the natural pixel axis order of the
+image ()[256,256,32] in both cases of this example). 
 
-You can also specify a \region\ to be applied to the input image.  If
-you do this, you need to be careful with the output shape for
-non-regridded axes (must match that of the region - use function
-<link anchor="images:image.boundingbox.function">boundingbox</link> to find that out). 
+You can also specify a region to be applied to the input image. If you do this,
+you need to be careful with the output shape for non-regridded axes (must match
+that of the region - use function ia.boundingbox() to determine that). 
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If the outfile parameter is specified, the image is written to the specified
+disk file.  If this parameter is unset, the on-the-fly image analysis tool
+returned by this method is associated with a temporary image.  This temporary
+image may be in memory or on disk, depending on its size. When you destroy the
+on-the-fly image analysis tool (with either the ia.close() or ia.done()
+methods), this temporary image is deleted.
 
-The argument {\stfaf replicate} can be used to simply replicate pixels
-rather than regridding them.  Normally ({\stfaf replicate=F}), for every
-output pixel, its world coordinate is computed and the corresponding
-input pixel found (then a little interpolation grid is generated).  If
-you set {\stfaf replicate=T}, then what happens is that for every output
-axis, a vector of regularly sampled input pixels is generated (based on
-the ratio of the output and input axis shapes).  So this just means the
-pixels get replicated (by whatever interpolation scheme you use) rather
-than regridded in world coordinate space.  This process is much faster,
-but its not a true world coordinate based regrid. 
+The replicate parameter can be used to simply replicate pixels rather than
+regridding them.  Normally replicate=False, for every output pixel, its world
+coordinate is computed and the corresponding input pixel found (then a little
+interpolation grid is generated).  If replicate=True, then for every output
+axis, a vector of regularly sampled input pixels is generated (based on the
+ratio of the output and input axis shapes).  So this just means the pixels get
+replicated (by whatever interpolation scheme you use) rather than regridded in
+world coordinate space.  This process is much faster, but its not a true world
+coordinate based regrid. 
 
-As decribed above, when {\stfaf replicate} is False, a coordinate is
-computed for each output pixel; this is an expensive operation.  The
-argument {\stfaf decimate} allows you to decimate the computation of
-that coordinate grid to a sparse grid, which is then filled in via fast
-interpolation.  The default for {\stfaf decimate} is 10.  The number of
-pixels per axis in the sparse grid is the number of output pixels for
-that axis divided by the decimation factor.  A factor of 10 does pretty
-well.  You may find that for very non-linear coordinate systems (e.g. 
-very close to the pole) that you have to reduce the decimation factor.
-You may also have to reduce the decimation factor if the number of pixels
-in the output image along an axis to be regridded is less than about 50, or
-the output image may be completely masked.
+As decribed above, when replicate=False, a coordinate is computed for each
+output pixel; this is an expensive operation.  The decimate parameter allows you
+to decimate the computation of that coordinate grid to a sparse grid, which is
+then filled in via fast interpolation.  The default is decimate=10. The number
+of pixels per axis in the sparse grid is the number of output pixels for that
+axis divided by the decimation factor. A factor of 10 does pretty well. You may
+find that for very non-linear coordinate systems (e.g. very close to the pole)
+that you have to reduce the decimation factor. You may also have to reduce the
+decimation factor if the number of pixels in the output image along an axis to
+be regridded is less than about 50, or the output image may be completely
+masked.
 
-If one of the axes to be regridded is a spectral axis and asvelocity=T,
-the axis will be regridded to match the velocity, not the frequency,
-description of the template coordinate system. Thus the output pixel
-values will correspond only to the velocity, not the frequency, of the
-output axis.
+If one of the axes to be regridded is a spectral axis and asvelocity=True, the
+axis will be regridded to match the velocity, not the frequency, description of
+the template spectral coordinate. Thus the output pixel values will correspond
+only to the velocity, not the frequency, of the output axis.
 
-Sometimes it is useful to drop axes of length one (degenerate axes). 
-Use the {\stfaf dropdeg} argument if you want to do this.  It will
-discard the axes from the input image.  Therefore the output shape and
-Coordinate System that you supply must be consistent with the input
-image after the degenerate axes are dropped. 
+Sometimes it is useful to drop axes of length one (degenerate axes). Setting
+the dropdeg parameter to True will do that. It will discard the axes from the
+input image.  Therefore the output shape and coordinate system that you supply
+must be consistent with the input image after the degenerate axes are dropped. 
 
-Argument {\stfaf force} can be used to force all specified axes to be
-regridded, even if the algorithm determines that they don't need to be (because
-the input and output coordinate information is identical).
+The force parameter can be used to force all specified axes to be regridded,
+even if the algorithm determines that they don't need to be (because the input
+and output coordinate information is identical).
 
-There is a useful function
-<link anchor="images:coordsys.setreferencelocation.function">setreferencelocation</link> that
-you can use to keep a specific world coordinate in the center of an
-image when regridding (see example below). 
+The cs tool has a useful method, cs.setreferencelocation(), that can be used to
+keep a specific world coordinate in the center of an image when regridding (see
+example below).
 
-The output \pixelmask\ will be good (T) unless the regridding failed to
-find a value for that output pixel in which case it will be bad (F).
-For example, if the total input mask (default input \pixelmask\ plus OTF
-mask) for all of the relevant input pixels were masked bad 
-then the output pixel would be masked bad (F).
+The output pixel mask will be True (good) unless the regridding failed to find a
+value for that output pixel in which case it will be False. For example, if the
+total input mask (default input pixel mask plus OTF mask) for all of the
+relevant input pixels were masked bad then the output pixel would be masked
+(False).
 
-{\bf Multiple axis Coordinates limitation} -- Some cooordinates pertain
-to more than one axis.  E.g.  a Direction Coordinate holds longitude and
-latitude.  A Linear Coordinate can also hold many axes.  When you regrid
-*any* axis from a Coordinate which holds multiple axes, you must fully
-specify the coordinate information for all axes in that Coordinate in
-the Coordinate System that you provide.  For example, you have a Linear
-Coordinate with two axes and you want to regrid axis one only.  In the
-Coordinate System you provide, the coordinate information for axis two
-(not being regridded) must correctly be a copy from the input coordinate
-system (it won't be filled in for you). 
+MULTIPLE AXIS COORDINATES LIMITATION
+Some cooordinates contain multiple axes. For example, a direction coordinate
+contains both longitude-like and latitude-like axes. A linear coordinate can
+also contain multiple axes.  When you regrid *any* axis from a coordinate which
+contains multiple axes, you must fully specify the coordinate information for
+all axes in that coordinate in the coordinate system that you provide. For
+example, if you have a linear coordinate with two axes and you want to regrid
+axis one only. In the coordinate system you provide, the coordinate information
+for axis two (not being regridded) must correctly be a copy from the input
+coordinate system (it won't be filled in for you).
 
 If an image has per-plane beams and one attempts to regrid the spectral axis,
 an exception is thrown.
 
 IMPORTANT NOTE ABOUT FLUX CONSERVATION
-in general regridding is inaccurate for images that the angular resolution is poorly
-sampled. A check is done for such cases and a warning message is emitted if a beam present.
-However, no such check is done if there is no beam present. To add a restoring beam to
-an image, use ia.setrestoringbeam().
+in general regridding is inaccurate for images that the angular resolution is
+poorly sampled. A check is done for such cases and a warning message is emitted
+if a beam present. However, no such check is done if there is no beam present.
+To add a restoring beam to an image, use ia.setrestoringbeam().
 
 </description>
 
@@ -8032,7 +8159,7 @@ ia.maketestimage('radio.image',overwrite=true)
 mycs = ia.coordsys();
 print mycs.referencecode('dir')
 #J2000
-mycs.setreferencecode(value='B1950', type='dir', adjust=T)
+mycs.setreferencecode(value='B1950', type='dir', adjust=True)
 im3 = ia.regrid(outfile='radio.regridded', csys=mycs.torecord(),
                 shape=ia.shape(), overwrite=true)
 mycs.done()
@@ -8347,16 +8474,16 @@ result.
 Example:
 #
 print ' ---- rename Ex 1, rename a new image ----'
-ia.maketestimage('myimage',overwrite=T)
-print ia.name(strippath=T)
+ia.maketestimage('myimage',overwrite=True)
+print ia.name(strippath=True)
 #myimage
-ia.rename('newimage', overwrite=T)
-print ia.name(strippath=T)
+ia.rename('newimage', overwrite=True)
+print ia.name(strippath=True)
 #newimage
 #
 print ' ---- rename Ex 2, rename an existing image ----'
-ia.open('originalimage',overwrite=T)
-ia.rename('newimage', overwrite=T)
+ia.open('originalimage',overwrite=True)
+ia.rename('newimage', overwrite=True)
 ia.close()
 #
 """
@@ -8508,7 +8635,7 @@ ia.calcmask('zz1&lt;0')
 im2 = ia.subimage(outfile='zz2',overwrite=true)
 # r = rg.quarter()
 r=rg.box([0.25,0.25],[0.75,0.75],frac=true)
-ia.replacemaskedpixels(0.0, region=r, mask=im2.name(strippath=T)+'\&gt;0')
+ia.replacemaskedpixels(0.0, region=r, mask=im2.name(strippath=True)+'\&gt;0')
 # same as ia.replacemaskedpixels(0.0, region=r, mask='zz2\&gt;0')
 im2.done()
 ia.close()
@@ -8651,7 +8778,7 @@ ia.close()
      <description>Type of convolution kernel.
      Vector of strings from 'boxcar', 'gaussian', and 'hanning'.
      Default is appropriately sized vector of 'gaussian'.</description>
-     <value></value>
+     <value><value/></value>
      </param>
   
      <param type="any"  name="widths">
@@ -8859,9 +8986,9 @@ ia.set(pixels=1.0)               # Set all pixels to 1
 ia.set(pixels='2.0', region=r1)  # Set all pixels to 2 in the region
 ia.set(pixels='min(yy)')         # Set all pixels to minimum of image yy
                                  # Set pixels in region to minimum of image xx
-ia.set(pixels='min('+ia.name(strippath=T)+')', region=r1)
-ia.set(pixelmask=T)              # Set mask to all T
-ia.set(pixels=0, pixelmask=F, region=r1)  #Set pixels and mask in region
+ia.set(pixels='min('+ia.name(strippath=True)+')', region=r1)
+ia.set(pixelmask=True)              # Set mask to all T
+ia.set(pixels=0, pixelmask=False, region=r1)  #Set pixels and mask in region
 ia.close()
 #
 """
@@ -8917,14 +9044,13 @@ print ia.brightnessunit()
 <returns type="bool">T or fail</returns>
 <description>
 
-This function replaces the coordinate system in the image. It is supported for both
-float and complex valued images. Coordinate systems are manipulated with the
-<link anchor="images:coordsys">cs</link> \tool.  The coordinate system can be
-recovered from an image via the <link anchor="images:coordsys">coordsys</link>
-function.
+This method replaces the coordinate system in the image. Coordinate systems are
+manipulated with the cs (coordintate system) tool. The coordinate system can be
+recovered from an image via the coordsys() method of the image analysis (ia)
+tool.
 
-Note that changing the cs \tool\ has no effect on the original
-image, until it is replaced with this function; the value returned
+Note that changing the coordinate system using the cs tool has no effect on the
+original image, until it is replaced with this method; the value returned
 by coordsys() is a copy of, not a reference to, the image's coordinate system.
 
 </description>
@@ -9014,24 +9140,20 @@ ia.close()
 
 <description>
 
-A \casa\ \imagefile\ can accumulate miscellaneous information
-during its lifetime; it is stored in a record called the {\stff
-miscinfo} record.  For example, the \fits\ reader
-(<link anchor="images:image.fromfits.constructor">fromfits</link>) puts header keywords
-it doesn't otherwise use into the {\stff miscinfo} record.  The {\stff
-miscinfo} record is not guaranteed to have any entries, so it's up to
-you to check for any fields that you require. 
+A CASA image can include user-specified or miscellaneous metadata. This metadata
+is stored in a data structure referred to as a miscinfo record. For example, the
+FITS reader ia.fromfits() puts header keywords it doesn't otherwise use into 
+such a record.  The miscinfo record is not required to be populated, though. 
 
-This function sets the {\cf miscinfo} record of the \imagefile.  Note
-that this function {\em replaces} the record, it doesn't add to it, so
-if you want to augment the existing record, you should first capture
-it with the <link
-anchor="images:image.miscinfo.function">miscinfo</link> function, add
-to the record, and then put it back.  The \fits\ writer will attempt
-to write all the fields in the {\stff miscinfo} record to the \fits\ file.
-It can do so for scalars and 1-dimensional arrays.  Records
+This method sets the  miscinfo record of an image. Note that this method will
+overwrite, not add to, an existing miscinfo record. Thus if the user wishes
+to augment an existing record, they must first capture the existing record using
+the ia.miscinfo() method, modify the captured record, and then replace the
+record in the image using setmiscinfo() by passing it the modified record. The
+FITS writer will attempt to write all the fields in the miscinfo record to the
+FITS file it creates. It can do so for scalars and 1-dimensional arrays. Records
 will be omitted, and multi-dimensional arrays will be flattened into
-1-dimensional arrays.
+one dimensional arrays.
 
 </description>
 
@@ -9135,73 +9257,72 @@ ia.close()
     <returns type="bool">T or fail</returns>
     <description>
 
-This function sets the restoring beam(s) for an image.
+This method sets the restoring beam(s) for an image.
 
-You may supply the beam in one of two ways.  
+The beam may be specified in one of two ways.  
 
-First, you can use the argument {\stfaf beam} which you must assign to a
-record containing  fields 'major', 'minor' and 'positionangle'.  
-Each of these fields contains a quantity.   This record is in the same
-format as  one returned by function
-<link anchor="images:image.restoringbeam.function">restoringbeam</link>. 
-If {\stfaf beam} is used, the arguments {\stfaf major, minor, \&amp; pa} are
+First, the beam parameter may be specified for which a dictionary must be set
+containing  fields 'major', 'minor' and 'positionangle'. Each of these fields
+must contain a quantity.  This record is in the same format as  one returned by
+restoringbeam() method. In this case, the major, minor, and pa parameters are
 ignored.
 
-Second, you can use the arguments {\stfaf major}, {\stfaf minor}
-and {\stfaf pa}.   Only the ones that you assign are used.
-Each argument should be assigned either a quantity or a float (units
-are implicitly those of the current beam - or if none, arcsec for
-the axes and degrees for the position angle). These parameters are only
-used if {\stfaf beam} is not specified.
+Second, major, minor, and pa may be specified.  Only the ones that are 
+specified are used. Each parameter should be assigned either a quantity or a
+float (units are implicitly those of the current beam - or if none, arcsec for
+the axes and degrees for the position angle). These parameters are only used if
+the beam parameter is not specified.
 
 An image must have exactly one of the following states:
 
-1. An image can have a single "traditional" beam. In that case, the beam applies
-to every channel and polarization in the image.
+1. An image can have a single "traditional" or global beam. In that case, the
+beam applies to every channel and polarization in the image.
 
 2. If an image has more than one spectral channel or more than one polarization,
-it can have a set of beams. In this case, each channel and/or polarization will have
-its own beam.
+it can have a set of beams. In this case, each channel and/or polarization will
+have its own beam.
 
-3. An image can have neither a traditional beam nor a beam set.
+3. An image can have neither a global beam nor a beam set.
 
-It is never permissible for an image to have both a traditional (global) beam and
-a set of per-plane beams. Task and method behavior is undefined in that case and
-any resulting products are considered corrupt.
+It is never permissible for an image to have both a traditional (global) beam
+and a set of per-plane beams. Task and method behavior is undefined in that case
+and any resulting products are considered corrupt.
 
 RULES FOR BEAM MODIFICATION
 
 If an image has no beams, a traditional (global) beam can be added by setting
 both channel and polarization to negative values.
 
-If an image has no beams, a set of per-plane beams can be added by setting either
-or both channel and/or polarization to a non-negative value. In this case, a number
-of per-plane beams are added consistent with the image and they are all set to be
-the same with parameters equal to those specified by either the beam or major/minor/pa
-parameters.
+If an image has no beams, a set of per-plane beams can be added by setting
+either or both channel and/or polarization to a non-negative value. In this
+case, a number of per-plane beams are added consistent with the image and they
+are all set to be the same with parameters equal to those specified by either
+the beam or major/minor/pa parameters.
 
-If an image has a traditional beam, it can be modified by setting both channel and
-polarization to negative values. If one or both is not set to a negative value, an
-exception is thrown, and nothing is modified.
+If an image has a traditional beam, it can be modified by setting both channel
+and polarization to negative values. If one or both is not set to a negative
+value, an exception is thrown, and nothing is modified.
 
-If an image has a set of per plane beams, one at a time of these can be modified by 
-setting the appropriate channel number and/or polarization number. All the per-plane
-beams can be modified to the same values in one go by setting both channel and
-polarization to negative values. Also, in the case where an image has multiple channels,
-the beams associated with all channels for a given polarization can be modified to the same
-beam by setting polarization equal to the desired polarization plane number and by setting
-channel to a negative value. Similarly, in the case where an image has multiple polarizations,
-the beams associated with all polarizations for a given spectral channel can be modified to the same
-beam by setting channel equal to the desired spectral channel number and by setting
-polarization to a negative value.
+If an image has a set of per plane beams, one at a time of these can be modified
+by setting the appropriate channel number and/or polarization number. All the
+per-plane beams can be modified to the same values in one go by setting both
+channel and polarization to negative values. Also, in the case where an image
+has multiple channels, the beams associated with all channels for a given
+polarization can be modified to the same beam by setting polarization equal to
+the desired polarization plane number and by setting channel to a negative
+value. Similarly, in the case where an image has multiple polarizations, the
+beams associated with all polarizations for a given spectral channel can be
+modified to the same beam by setting channel equal to the desired spectral
+channel number and by setting polarization to a negative value.
 
-A beam or set of beams can be copied from another image using the imagename parameter to specify
-that image's name. If both the current image and specified image have multiple beams, the current
-image shape must be consistent with the specified image beam set shape.
+A beam or set of beams can be copied from another image using the imagename
+parameter to specify that image's name. If both the current image and specified
+image have multiple beams, the current image shape must be consistent with the
+specified image beam set shape.
 
-The traditional beam or a set of multiple beams can be deleted from an image by setting {\stfaf delete=T}. If set
-to true, all other parameters are then ignored; all existing beams
-will be irrevocably deleted.
+The traditional beam or a set of multiple beams can be deleted from an image by
+setting remove=True. If set to true, all other parameters are then ignored;
+all existing beams will be irrevocably deleted.
 
 </description>
 
@@ -9282,6 +9403,9 @@ ib.done()
      <param type="any"  name="region">
      <any type="variant" limittypes="record string"/>
      <description>Region selection. Default is to use the full image.</description>
+     <type>path</type>
+     <type>string</type>
+     <type>record</type>
      <value/>
      </param>
   
@@ -9341,7 +9465,7 @@ ib.done()
           <value>true</value>
      </param>
      <param type="string"  name="algorithm">
-          <description>Algorithm to use. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+          <description>Algorithm to use. Supported values are "biweight", "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
           <value>classic</value>
      </param>
      <param type="double"  name="fence">
@@ -9361,12 +9485,16 @@ ib.done()
           <value>-1</value>
      </param>
      <param type="int"  name="maxiter">
-          <description>For chauvenet, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if algortihm is not "chauvenet".</description>
+          <description>For chauvenet, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, iterate until the zscore criterion is met. Ignored if algorithm is not "chauvenet".</description>
           <value>-1</value>
      </param>
      <param type="string"  name="clmethod">
           <description>Method to use for calculating classical statistics. Supported methods are "auto", "tiled", and "framework". Ignored if algorithm is not "classic".</description>
           <value>auto</value>
+     </param>
+     <param type="int"  name="niter">
+          <description>For biweight, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, do a fast, simple computation (see description). Ignored if the algorithm is not "chauvenet".</description>
+          <value>3</value>
      </param>
 </input>
 
@@ -9376,29 +9504,11 @@ ib.done()
 
 <description>
 
-This function computes statistics
-from the pixel values in the image.  You can then list them
-and retrieve them (into a record) for further analysis. 
+This method computes statistics from the pixel values in the image.  You can
+then list them and retrieve them (into a record) for further analysis. This
+method supports only real valued images.
 
-The chunk of the image over which you evaluate the statistics is
-specified by an array of axis numbers (argument {\stfaf axes}).  For example,
-consider a 3-dimensional image for which you specify {\stfaf axes=[0,2]}. 
-The statistics would be computed for each XZ (axes 0 and 2) plane in the
-image.  You could then examine those statistics as a function of the Y
-(axis 1) axis.  Or perhaps you set {\stfaf axes=[2]}, whereupon you could
-examine the statistics for each Z (axis 2) profile as a function of X
-and Y location in the image.
-
-Each statistic is stored in 
-an array in one named field in the returned record.  The shape of that array is
-that of the axes which you did {\bf not} evaluate the statistics over.
-For example, in the second example above, we set {\stfaf axes=[2]} and
-asked for statistics as a function of the remaining axes, in this
-case, the X and Y (axes 0 and 1) axes.  The shape of each statistics
-array is then [nx,ny].
-
-The names of the fields in this record are the same as the names of the
-statistics that you can plot: 
+The names of the fields in the returned record are summarized below:
 
 \begin{itemize}
 
@@ -9495,6 +9605,43 @@ However, you can force regeneration of the storage image if you set
 depending upon its size.  You can force it to disk if you set {\stfaf
 disk=T}, otherwise it decides for itself.    
 
+CURSOR AXES
+The axes parameter allows one to set the cursor axes over which statistics 
+are computed. For example, consider a 3-dimensional image for which axes=[0,2]. 
+The statistics would be computed for each XZ (axes 0 and 2) plane in the
+image.  One could then examine those statistics as a function of the Y
+(axis 1) axis. 
+
+Each statistic is stored in an array in its own field in the returned dictionary.
+The dimensionality of these arrays is equal to the number of axes over which the
+statistics were not evaluated (called the display axes). For example, if the input
+image has four axes, and axes=[0], the output statistic arrays will have three dimensions.
+If axes=[0, 1], the output statistic arrays will have two dimensions.
+
+The shape of the output arrays when axes has a positive number of elements is based on
+the region selection. If there is no region selection, the shape of the statistic arrays
+is just the shape of the image along the display (non-cursor) axes. For example, if the
+input image has dimensions of 300x400x4x80 and axes=[0, 1], in the absence of a region
+selection, the shape of the output statistic arrays will be 4x80. If there is a region
+selection, the shape of the output statistic arrays will be determined by the number of
+planes along the display axes chosen in the region selection. For example, continuing with
+our example, if axes=[0,1] and region=rg.box([0, 0, 1, 20], [299,399, 2, 60]), the output
+statistic arrays will have shapes of 2x41. Only the selected planes will be displayed in the
+logger output if verbose=True.
+
+In the case where the image has a pixel mask, and/or the mask parameter is specified, and because
+of this specification a plane is entirely masked, this element is included in the statistic arrays
+(usually with a value of 0). It is not included in the logger output if verbose=True. One can
+exclude such elements from computations on the output arrays by using the numpy.extract() method.
+For example, to compute the minimum rms value, not including any fully masked planes, one could
+use
+
+stats = ia.statistics(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
+
 ALGORITHMS
 
 Several types of statistical algorithms are supported:
@@ -9542,7 +9689,7 @@ Several types of statistical algorithms are supported:
   closer to forming a normal distribution. Iterating stops when no additional points lie beyond the
   specified zscore value, or, if zscore is negative, when Chauvenet's criterion is met (see below).
   The parameter maxiter can be set to a non-negative value to prematurely abort this iterative
-  process. When verbose=T, the "N iter" column in the table that is logged represents the number
+  process. When verbose=True, the "N iter" column in the table that is logged represents the number
   of iterations that were executed.
   
   Chauvenet's criterion allows the target z-score to decrease as the number of points in the
@@ -9572,6 +9719,79 @@ Several types of statistical algorithms are supported:
   6.0      253,398,672
   6.5    6,225,098,696
   7.0  195,341,107,722
+  
+* biweight: The biweight algorithm is a robust iterative algorithm that computes two
+  quantities called the "location" and the "scale", which are analogous to the mean
+  and the standard deviation. In this case, the only keys present in the returned
+  dictionary are 'mean' (location), 'sigma' (scale), 'npts', 'min', and 'max'. The
+  last three represent the values using the entire distribution. Note that the
+  biweight algorithm does not support computation of quantile-like values (median,
+  madm, q1, q3, and iqr), so setting robust=True will cause a warning message to
+  be logged regarding that, and the computation will proceed.
+  
+  Important equations for the biweight algorithm are
+
+  A. How to compute u_i values, which are related to the weights w_i = (1 - u_i*u_i),
+     using the
+     equation
+
+      u_i = (x_i - c_bi)/(6.0*s_bi)                 (1)
+
+     where x_i are the data values, c_bi is the biweight location and s_bi is the
+     biweight scale. For the initial computation of the u_i values, c_bi is set
+     equal to the median of the distribution and s_bi is set equal to
+     the normalized median of the absolute deviation about the median (that is the
+     median of the absolute deviation about the median multiplied by the value of
+     the probit function at 0.75).
+     
+  B  The location, c_bi, is computed from
+
+      c_bi = sum(x_i * w_i^2)/sum(w_i^2)            (2)
+
+    where only values of u_i which satisfy abs(u_i) &lt; 1 (w_i &gt; 0) are used in the sums.
+
+  C. The scale value is computed using
+
+               n * sum((x_i - c_bi)^2 * w_i^4)
+      s_bi^2 = _______________________________      (3)
+                      p * max(1, p - 1)
+
+  where n is the number of points for the entire distribution (which includes all
+  the data, even for which abs(u_i) >= 1) and p is given by
+
+     p = abs(sum((w_i) * (5*w_i - 4)))
+
+  Again, the sums include only data for which abs(u_i) &lt; 1.
+
+  The algorithm proceeds as follows.
+    1. Compute initial u_i values (and hence w_i values) from equation (1), setting
+       c_bi equal to the median of the distribution and s_bi equal to the normalized
+       median of the absolute deviation about the median.
+    2. Compute the initial value of the scale using the w_i values computed in
+       step 1. using equation 3.
+    3. Recompute u_i/w_i values using the most recent previous scale and location
+       values.
+    4. Compute the location using the u_i.w_i values from step 3 and equation (2).
+    5. Recompute u_i/w_i values using the most recent previous scale and location
+       values.
+    6. Compute the new scale value using the the u_i/w_i values computed in
+       step 5 and the value of the location computed in step 4.
+    7. Steps 3. - 6. are repeated until convergence occurs or the maximum number of
+       iterations (specified in the niter parameter) is reached. The convergence
+       criterion is given by
+
+         abs(s_bi - s_bi,prev) &lt; 0.03 * sqrt(0.5/(n - 1))
+
+       where s_bi,prev is the value of the scale computed in the previous iteration.
+
+    In the special case where niter is specified to be negative, the faster,
+    non-iterative algorithm proceeds as follows:
+   
+    1. Compute u_i/w_i values using the median for the location and the normalized
+       median of the absolute deviation about the median as the scale
+    2. Compute the location and scale (which can be carried out simultaneously)
+       using the u_i/w_i values computed in step 1. The value of the location is
+       just the median that is used in equation (3) to compute the scale
   
 NOTES ON FLUX DENSITIES AND FLUXES
 
@@ -9606,6 +9826,16 @@ frequency unit is Hz, the resulting flux unit will be K.arcsec2.Hz).
 
 In both cases of flux density or flux being computed, the resulting numerical value is
 assigned to the "flux" key in the output dictionary.
+
+If the image has units of Jy/beam, the flux density is just the mean intensity multiplied
+by the number of beam areas included in the region. The beam area is defined as the volume
+of the elliptical Gaussian defined by the synthesized beam, divided by the maximum of
+that function, which is equivalent to
+
+pi/(4*ln(2)) * major * minor
+
+where ln() is the natural logarithm and major and minor are the major and minor FWHM axes
+of the beam, respectively.
 
 </description>
 
@@ -9654,7 +9884,7 @@ entire image. <!-- No plotting is available under these conditions.-->
 print "\t----\t statistics Ex 2 \t----"
 ia.maketestimage()
 stats = ia.statistics(axes=[1],plotstats=["sigma","rms"],
-                      includepix=[0,100],list=F)
+                      includepix=[0,100],list=False)
 #
 """
  
@@ -9747,11 +9977,9 @@ lags don't have a lot of contributing values of course.
 <example> 
  
 """
-#
-print "\t----\t twopointcorrelation Ex 1 \t----"
-ia.maketestimage();        # Output image is virtual
-ia.twopointcorrelation()   # Output image is virtual
-#
+ia.maketestimage("test.image")
+ia.twopointcorrelation("2pt.image")
+ia.done()
 """
  
 </example>
@@ -9886,7 +10114,7 @@ subim.done()
 
  
    <method type="function" name="summary">
-   <shortdescription>Summarize basic information about the image</shortdescription>
+   <shortdescription>Summarize metadata from the image</shortdescription>
    
 <input>
      <param type="string"  name="doppler">
@@ -9912,65 +10140,59 @@ subim.done()
 <returns type="record"/>
 <description>
 
-This function summarizes miscellaneous information such as shape, Coordinate System,
+This function summarizes various metadata such as shape, Coordinate System,
 restoring beams, and masks.
 
-If called without any arguments, this function displays a summary of the
-image header to the logger; where appropriate, values will be
-formatted nicely (e.g.  HH:MM:SS.SS for the reference value of RA axes). 
+If called without any arguments, this function displays a summary of the image
+metadata to the logger; where appropriate, values will be formatted nicely (e.g.
+HH:MM:SS.SS for the reference value of RA axes).
 
-For spectral axes, the information is listed as a velocity as well as
-a frequency.  The argument {\stfaf doppler} allows you to specify what
-velocity doppler convention it is listed in.  You can choose from
-{\stfaf radio, optical} and {\stfaf true}.  Alternative names are
-{\stfaf z} for {\stfaf optical}, and {\stfaf beta} or {\stfaf
-relativistic} for {\stfaf true}.  The default is {\stfaf radio}.  The
-definitions are
+For spectral axes, the information is listed in both the velocity and frequency
+domains.  The doppler parameter allows one to specify what velocity doppler
+convention it is listed in.  Supported values are: "radio", "optical", and
+"true". Alternative values are "z" for "optical", and "beta" or "relativistic"
+for true.  The default is "radio".  The definitions are
 
 \begin{itemize}
 \item radio: $1 - F$
 \item optical: $-1 + 1/F$
 \item true: $(1 - F^2)/(1 + F^2)$
 \end{itemize}
-where $F = \nu/\nu_0$ and $\nu_0$ is the rest frequency.  If the rest
-frequency has not been set in your image, you can set it via
-a Coordsys \tool\ with
-the function <link anchor="images:coordsys.setrestfrequency.function">setrestfrequency</link>.
+where $F = \nu/\nu_0$ and $\nu_0$ is the rest frequency.  If the rest frequency
+has not been set in your image, you can set it via a coordinate system (cs) tool
+using the setrestfrequency() method().
 
-If the output of summary is saved to a variable, then the {\stfaf
-header} field (for instance, {\stfaf mysummary['header']}) has the
-following fields filled in:
+If the output of summary is saved to a variable, then the header field (for
+instance, mysummary['header']) has the following fields:
 
-\begin{description}
-    \item[ndim]       Dimension of the image.
-    \item[shape]      Length of each axis in the image.
-    \item[tileshape]  Shape of the chunk which is most efficient for I/O.
-    \item[axisnames]  Name of each axis.
-    \item[refpix]     Reference pixel for each axis (0-relative)
-    \item[refval]     Reference value for each axis.
-    \item[incr]       Increment for each axis.
-    \item[axisunits]  Unit name for each axis.
-    \item[unit]       Brightness units for the pixels.
-    \item[hasmask]    True if the image has a mask.
-    \item[defaultmask]The name of the mask which is applied by default.
-    \item[masks]      The names of all the masks stored in this image.
-    \item[restoringbeam] The restoring beam(s) if present.
-    \item[imagetype]   The image type.
-\end{description}
+ndim          Dimension of the image.
+shape         Length of each axis in the image.
+tileshape     Shape of the chunk which is most efficient for I/O.
+axisnames     Name of each axis.
+refpix        Reference pixel for each axis (0-relative)
+refval        Reference value for each axis.
+incr          Increment for each axis.
+axisunits     Unit name for each axis.
+unit          Brightness units for the pixels.
+hasmask       True if the image has a mask.
+defaultmask   The name of the mask which is applied by default.
+masks         The names of all the masks stored in this image.
+restoringbeam The restoring beam(s) if present.
+imagetype     The image type.
 
-For an image with multiple beams, the restoringbeam field is a dictionary of dictionaries with
-keys of names "*" followed by the channel number, if the image has a spectral coordinate,
-or the polarization number if it does not. That is, the keys have names "*0", "*1", "*2", etc.
-If the image has both a spectral and a polarization coordinate, each of these dictionaries is
-a dictionary with keys of the same form which range from 0 to the number of polarizations
-minus 1; "*0", "*1", ... The dictionaries pointed to by the channel and/or polarization number
-contain information for the beam at that position.
+For an image with multiple beams, the restoringbeam field is a dictionary of
+dictionaries with keys of names "*" followed by the channel number, if the image
+has a spectral coordinate, or the polarization number if it does not. That is,
+the keys have names "*0", "*1", "*2", etc. If the image has both a spectral and
+a polarization coordinate, each of these dictionaries is a dictionary with keys
+of the same form which range from 0 to the number of polarizations minus 1;
+"*0", "*1", ... The dictionaries pointed to by the channel and/or polarization
+number contain information for the beam at that position.
 
-If you set {\stfaf list=F}, then the summary will not be written to
-the logger.  The
-return value of the function, in the {\stfaf header} field is a
-vector string containing the formatted output that would normally
-have gone to the logger. 
+If the list parameter is set to False, then the summary will not be written to
+the logger.  The return value of the method, in the "header" field is a vector
+string containing the formatted output that would have been logged in the
+list=True case.
 
 If verbose is True and the image contains multiple beams, the formatted output,
 whether it is written to the logger or placed in the output record, will have
@@ -9978,8 +10200,8 @@ information on every beam in the dataset. If verbose=False and the image has
 multiple beams, only a summary of beams for each polarization is listed. In this
 case, the beams with the maximum area, the minimum area, and the median area for
 each polarization are listed. However, all the beams can still be found in the
-restoringbeam field of the returned dictionary. If the image does not have multiple
-beams, verbose is not used.
+restoringbeam field of the returned dictionary. If the image does not have
+multiple beams, verbose is not used.
 
 </description>
 <example>
@@ -9989,28 +10211,12 @@ beams, verbose is not used.
 print "\t----\t summary Ex 1 \t----"
 ia.maketestimage('myim1', overwrite=true)
 ia.summary()                 # summarize to logging only
-s = ia.summary(list=F)       # store header in record
+s = ia.summary(list=False)       # store header in record
 if s['header']['ndim'] == 2: # program using header values
   print s['header']['axisnames']
 ia.close()
 #
 """
-
-
-<!--
-Note that the Spectral Coordinate is listed twice; once with frequency
-and once with velocity units.  You can distinguish this double listing
-because the shape of the axis is only listed once (in
-this case on the Frequency line). 
-
-Note also that this image has three masks present.  The first one is the
-default which means that it is applied by applications.  Any of the
-other masks, listed in square brackets, could be made the default mask
-by application of the <link anchor="images:image.maskhandler.function">maskhandler</link>
-function.   If there was no default mask (effectively that means
-an all good mask would be applied), all the mask names would be 
-listed in square brackets.
--->
 
 </example>
 
@@ -10278,10 +10484,9 @@ ia.toASCII('myfile2.ascii',overwrite=true)
   
 <description>
 
-You can convert an associated image to a record for manipulation or passing it to inputs of other function of other tools.
-This and fromrecord are used for serialization and deserialization.
-
-<!--These functions are not for general user use.-->
+You can convert an associated image to a record for manipulation or passing it
+to inputs of other methods of other tools. This method and fromrecord() are used
+for serialization and deserialization.
 
 </description>
 
@@ -10335,14 +10540,12 @@ a script to make sure this variable is an Image
 
 <description>
 
-This function converts from absolute world to pixel coordinate (0-rel). 
-The world coordinate can be provided in many formats (numeric, string,
-quantum etc.) via the argument {\stfaf value}.  These match the output
-formats of function <link anchor="images:image.toworld.function">toworld</link>. 
+This method converts from world to pixel coordinates. The world coordinate can
+be provided in many formats (numeric, string, quantum etc.) via the value
+parameter.  These match the output of the toworld() method. 
 
-This function is just a wrapper for the Coordsys \tool\ function
-<link anchor="images:coordsys.topixel.function">topixel</link> so see the documentation there
-for a description and more examples. 
+This function is just a wrapper for the coordsys tool method of the same name,
+so see that documentation for a description and more examples. 
 
 </description>
 
@@ -10391,7 +10594,7 @@ formatted as measures instead.
      <value>n</value>
      </param>
      <param type="bool" name="dovelocity">
-        <description>Compute corresponding spectral velocities?</description>
+        <description>Compute corresponding spectral velocities if format='m'?</description>
         <value>True</value>
      </param>
 </input>
@@ -10399,12 +10602,14 @@ formatted as measures instead.
 
 <description>
 
-This function converts between absolute pixel coordinate (0-rel)   
-and world (physical coordinate).
-
-This function is just a wrapper for the Coordsys \tool\ function
-<link anchor="images:coordsys.toworld.function">toworld</link> so see the documentation there
-for a description of the arguments and more examples. 
+This method converts between pixel and world coordinates. A variety of return
+formats is supported. If format='n', numerical values are returned.
+If format='q', values formatted as quantities are returned. If format='s',
+values formatted as strings are returned. If format='m', values formatted as
+measures are returned. If format='m', one can choose to have the corresponding
+velcocites of an extant spectral coordinate computed as well by specifyting
+dovelocity=True (dovelocity is ignored if format is not equal to 'm' or if the
+image does not have a spectral coordinate).
 
 </description>
 
@@ -10507,40 +10712,53 @@ other process can gain immediate access to the \imagefile.
      <description>Write image creation messages to logger</description>
      <value>true</value>
      </param>
+     <param type="string"  name="type">
+        <description>Pixel data type to write. 'f' (float precision) or 'd' (double precision)</description>
+        <value>f</value>
+     </param>
 </input>
 <returns type="image"/>
 
 <description>
 
-This function converts an array of any size into a \casa\
-\imagefile. 
+This application converts a numpy array of any size into a CASA image.
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is specified, the image is written to the specified
+(persistent) disk file.  If outfile is unset, the returned image tool
+is associated with a temporary image.  This temporary image may be in
+memory or on disk, depending on its size. In this case, when the
+close() or done() method is called on the returned image tool, the
+associated temporary image is deleted.
 
-At present, no matter what type the {\stfaf pixels} array is, a
-real-valued image will be written (the input pixels will be converted
-to Float).  In the future, Complex images will be supported.
+The type parameter controls the data type/precision of the pixel values of the
+created image. 'f' indicates that float precision point (32 bit precision) pixel
+values should be writted. 'd' indicates that double precision (64 bit precision)
+pixel values should be written. If the input array has complex (as opposed to
+real) values, then complex pixel values, with each of the real and imaginary
+parts having the specified precision, will be written. Array values will be cast
+automatically to the specified precision, so that the precision of the input
+array values may be increased, decreased, or unchanged depending on the input
+array type.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (via
-coordsys.torecord(), for instance) is optional.  If you provide it, it
-must be dimensionally consistent with the pixels array you give (see
-also <link anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a a dictionary (use eg, cs.torecord() to do
+that), is optional. If specified, it must have the same number of dimensions
+as the pixels array. Call the naxes() method on the coordinate system tool to
+see how many dimensions the coordinate system has. A coordinate system can be
+created from scratch using the coordinate system (cs) tool and methods therein,
+but often users prefer to use a coordinate system from an already existing image.
+This can be gotten using ia.coordsys() which returns a coordinate system tool.
+A torecord() call on that tool will result in a python dictionary describing
+the coordinate system which is the necessary format for the csys input parameter
+of ia.fromarray().
 
-If you don't provide the Coordinate System (unset), a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape of the {\stfaf pixels} array (Stokes axis must be no longer
-than 4 pixels and you may find the spectral axis coming out before the
-Stokes axis if say, {\cf shape=[64,64,32,4]}).  Extra dimensions are
-given linear coordinates.  If {\stfaf linear=T} then you get a linear
-Coordinate System. 
+If csys is not specified, a default coordinate system will be created. If
+linear=False (the default), the created coordinate system will have standard
+RA/DEC/Stokes/Spectral Coordinate axes depending upon the shape of the pixels
+array (Stokes axis must be no longer than 4 pixels and the spectral axis may
+precede the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are given
+linear coordinates.  If linear=True, then all the resulting coordinates
+are linear with the axes represent lengths. In this case each axis will have a
+value of 0.0 at its center pixel. The increment of each axis will be 1.0 km.
 
 </description>
 <example>
@@ -10756,8 +10974,6 @@ im2.done()
 #
 """
 
-<!--The specified \region\ takes a quarter by area of the first two axes
-of the image, and all pixels of other axes.-->
 </example>
 </method>
 
@@ -10769,7 +10985,7 @@ of the image, and all pixels of other axes.-->
   
      <param type="string"  name="outfile">
      <description>Name of output image file.  Default is unset.</description>
-     <value></value>
+     <value/>
      </param>
   
      <param type="intArray"  name="shape">
@@ -10804,33 +11020,31 @@ of the image, and all pixels of other axes.-->
 <returns type="image"/>
 <description>
 
-This function creates a \casa\ \imagefile\ with the specified shape.  All
-the pixel values in the image are set to 0.  Both float valued and complex
-valued images are supported; the data type of the image is specified via
-the type parameter.
+This function creates a CASA image with the specified shape. It is similar to
+ia.fromshape(), but instead returns a new image analysis tool attached to the
+new image, rather than attaching the new image to the current tool. All the
+pixel values in the image are set to 0. One may create an image with float
+precision pixels (type='f'), complex float precision pixels (type='c'), double
+precision pixels (type='d'), or complex double precision pixels ('cd'). To use a
+numpy array of values to create an image, use ia.(newimage)fromarray(). To make
+a 2-D image from a packaged FITS file, use ia.maketestimage().
 
-If {\stfaf outfile} is given, the image is written to the specified
-disk file.  If {\stfaf outfile} is unset, the on-the-fly Image \tool\
-returned by this function is associated with a temporary image.  This
-temporary image may be in memory or on disk, depending on its size.
-When you destroy the on-the-fly Image \tool\ (with the <link
-anchor="images:image.done.function">done</link> function) this
-temporary image is deleted.
+If outfile is given, the image is written to the specified disk file.  If
+outfile is unset, the image analysis tool is associated with a temporary image.
+This temporary image may be in memory or on disk, depending on its size.  When
+you close the image analysis tool  (with the ia.close() method, the temporary
+image is deleted.
 
-The Coordinate System, provided as a record describing a <link
-anchor="images:coordsys">Coordsys</link> \tool\ (created via
-coordsys.torecord(), for instance), is optional.  If you provide it,
-it must be dimensionally consistent with the pixels array you give
-(see also <link
-anchor="images:image.coordsys.function">coordsys</link>).
+The coordinate system, provided as a coordinate system tool record, is optional.
+If provided, it must be dimensionally consistent with the specified shape.
 
-If you don't provide the Coordinate System, a default Coordinate System
-is made for you.  If {\stfaf linear=F} (the default) then it is a
-standard RA/DEC/Stokes/Spectral Coordinate System depending exactly upon
-the shape (Stokes axis must be no longer than 4 pixels and you may find
-the spectral axis coming out before the Stokes axis if say, {\cf
-shape=[64,64,32,4]}).  Extra dimensions are given linear coordinates. 
-If {\stfaf linear=T} then you get a linear Coordinate System. 
+If the coordinate system is not provided, a default coordinate system will be
+created.  If linear=False (the default), then it is a
+standard RA/DEC/Stokes/Spectral coordinate system depending exactly upon the
+shape (the Stokes axis must be no longer than 4 pixels and spectral axis may
+occur prior to the Stokes axis if eg, shape=[64,64,32,4]. Extra dimensions are
+given linear coordinates. If linear=True, then the coordinate system will have
+linear coordinates. 
 
 </description>
 <example>
@@ -10938,6 +11152,19 @@ used to create a 2D temporary image.
         # do stuff with ia tool attached to pb image and close it
         pbia.done()
     </example>
+</method>
+
+<method type="function" name="pixeltype">
+    <shortdescription>Get the pixel data type of the attached image</shortdescription>
+    <returns type="string"/>
+    <description>
+        This application returns the data type of the pixels of the attached image as a string.
+        The possible values are: "float" which indicates real valued, floating point, 32 bit pixel
+        values, "complex" which indicates complex valued, floating point, 32 bit (for each of the
+        real and imaginary parts) pixel values, "double" which indicates real valued, floating
+        point, 64 bit pixel values, and "dcomplex" which indicates complex valued, floating point,
+        64 bit (for each of the real and imaginary parts) pixel values.
+    </description>
 </method>
   
 <method type="function" name="pv">

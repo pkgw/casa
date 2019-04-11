@@ -188,5 +188,130 @@ class ia_deviation_test(unittest.TestCase):
         sub0.done()
         sub1.done()
 
+    def test_refpix(self):
+        """Test using reference pixel"""
+        self._myia.fromshape("", [20,20])
+        self._myia.addnoise()
+        xlen = "4pix"
+        ylen = "4pix"
+        grid = [4, 4]
+        res = self._myia.deviation("", grid=grid, xlength=xlen, ylength=ylen, anchor=[10,10])
+        expec = res.getchunk()
+        res.done()
+        res = self._myia.deviation("", grid=grid, xlength=xlen, ylength=ylen, anchor="ref")
+        got = res.getchunk()
+        res.done()
+        self._myia.done()
+        self.assertTrue(numpy.all(numpy.isclose(got, expec)), "ref val as anchor compare") 
+
+    def test_mask(self):
+        aa = numpy.array(range(100), dtype=numpy.double)
+        aa = aa.reshape([10,10])
+        self._myia.fromshape("", [10, 10])
+        self._myia.putchunk(aa*aa)
+        mask = self._myia.getchunk(getmask=True)
+        mask[2,2] = False
+        mask[6,6] = False
+        self.assertFalse(mask.all())
+        self._myia.putregion(pixelmask=mask)
+        self.assertTrue((self._myia.getchunk(getmask=True) == mask).all()) 
+        mm = self._myia.deviation("", grid=[3,3], anchor=[2,2], xlength="4pix", ylength="4pix", interp="linear")
+        self._myia.done()
+        expec = mask[:]
+        expec[0:5, 0:5] = False
+        self.assertTrue((mm.getchunk(getmask=True) == expec).all()) 
+        mm.done()
+
+        self._myia.fromshape("", [10, 10, 2])
+        bb = self._myia.getchunk()
+        bb[:,:,0] = aa
+        bb[:,:,1] = aa
+        self._myia.putchunk(bb)
+        mask2 = self._myia.getchunk(getmask=True)
+        mask2[:,:,0] = mask
+        mask2[2,5,1] = False
+        mask2[6,6,1] = False
+        self.assertFalse(mask2.all())
+        self._myia.putregion(pixelmask=mask2)
+        self.assertTrue((self._myia.getchunk(getmask=True) == mask2).all()) 
+        mm = self._myia.deviation(
+            "", grid=[3,3], anchor=[2,2], xlength="4pix",
+            ylength="4pix", interp="linear"
+        )
+        self._myia.done()
+        expec = mask2[:]
+        expec[0:5, 0:5, 0] = False
+        expec[0:5, :, 1] = False
+        expec[2, 2, 1] = True
+        expec[2, 8, 1] = True
+        self.assertTrue((mm.getchunk(getmask=True) == expec).all()) 
+        mm.done()
+        
+    def test_circle(self):
+        """test circles work correctly CAS-10296"""
+        myia = self._myia
+        imagename = "mycirc.im"
+        myia.fromshape(imagename, [100, 100])
+        bb = myia.getchunk()
+        bb[:] = 1
+        myia.putchunk(bb)
+        zz = myia.deviation(
+            "", xlength="40pix", ylength="", stattype="sum", grid=[20,20]
+        )
+        myia.done()
+        self.assertTrue(
+            numpy.isclose(zz.getchunk()[50,50], 1257.0, 1e-7),
+            "incorrect grid pixel value"
+        )
+        zz.done()
+        outfile = "mycirc_out.im"
+        imdev(
+            imagename=imagename,outfile=outfile, xlength="40pix",
+            ylength="", stattype="sum", grid=[20,20]
+        )
+        myia.open(outfile)
+        self.assertTrue(
+            numpy.isclose(myia.getchunk()[50,50], 1257.0, 1e-7),
+            "incorrect grid pixel value"
+        )
+        myia.done()
+        
+    def test_history(self):
+        """verify history writing"""
+        myia = iatool()
+        imagename = "zz.im"
+        myia.fromshape(imagename,[100, 100])
+        xlength = "4arcmin"
+        stattype="sum"
+        grid=[20,20]
+        myia = myia.deviation(xlength=xlength, stattype=stattype, grid=grid)
+        msgs = myia.history()
+        myia.done()
+        teststr = "ia.deviation"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        # verify no history written if dohistory set to False
+        ia2 = iatool()
+        ia2.dohistory(False)
+        ia2.fromshape(imagename,[100, 100], overwrite=True)
+        ia2 = ia2.deviation(xlength=xlength, stattype=stattype, grid=grid)
+        msgs = ia2.history()
+        ia2.done()
+        for m in msgs:
+            self.assertFalse(teststr in m, "History unexpectedly written")
+            
+        outfile = "xx.im"
+        imdev(
+            imagename=imagename, outfile=outfile, xlength=xlength,
+            stattype=stattype, grid=grid
+        )
+        myia.open(outfile)  
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imdev"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+
 def suite():
     return [ia_deviation_test]

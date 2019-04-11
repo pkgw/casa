@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -56,11 +56,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -69,18 +69,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -99,7 +99,7 @@ class PointingModelRow;
  * The pointing models used to point the antennas.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of PointingModel </CAPTION>
@@ -130,7 +130,7 @@ class PointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients used in the analytical form of the model. </TD>
@@ -138,14 +138,14 @@ class PointingModelRow;
 	
  * <TR>
  * <TD> coeffName </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the names of the coefficients. </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffVal </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the values of the coefficients. </TD>
  * </TR>
@@ -166,7 +166,7 @@ class PointingModelRow;
 	
  * <TR>
  * <TD> assocNature </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;nature of the association with the row refered to by associatedPointingModelId. </TD>
  * </TR>
@@ -183,8 +183,8 @@ class PointingModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> coeffFormula </TD> 
- * <TD> vector<string > </TD>
+ * <TD> coeffFormula</TD> 
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff  </TD>
  * <TD>&nbsp; the fitted functions </TD>
  * </TR>
@@ -342,7 +342,7 @@ public:
  	 * @param assocPointingModelId
 	
      */
-	PointingModelRow *newRow(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId);
+	PointingModelRow *newRow(Tag antennaId, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, std::string assocNature, int assocPointingModelId);
 	
 
 
@@ -452,7 +452,7 @@ public:
  	 * @param assocPointingModelId
  	 		 
  	 */
-	PointingModelRow* lookup(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId); 
+	PointingModelRow* lookup(Tag antennaId, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, std::string assocNature, int assocPointingModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -478,6 +478,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

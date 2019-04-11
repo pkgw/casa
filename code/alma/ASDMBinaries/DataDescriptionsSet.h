@@ -4,24 +4,21 @@
 #include <set>
 #include <map>
 
-#include <AtmPhaseCorrection.h>
-#include <CorrelationMode.h>
-#include <SidebandProcessingMode.h>
+#include <alma/Enumtcl/AtmPhaseCorrection.h>
+#include <alma/Enumtcl/CorrelationMode.h>
+#include <alma/Enumtcl/SidebandProcessingMode.h>
 
-#include "ASDMEntities.h"
-#include "SwitchCyclesList.h"
-//#include "DataBlock.h"
-
-using namespace std;
-using namespace asdm;
+#include <alma/ASDM/ASDMEntities.h>
+#include <alma/ASDMBinaries/SwitchCyclesList.h>
+//#include <alma/ASDM/DataBlock.h>
 
 namespace sdmbin {
 
   struct DataDescParams {
     unsigned int ddIdx;
-    Tag          scId;
-    Tag          spwId;
-    Tag          polId;
+    asdm::Tag    scId;
+    asdm::Tag    spwId;
+    asdm::Tag    polId;
     unsigned int numChan;
     unsigned int numCorr;
     unsigned int numBin;
@@ -57,9 +54,9 @@ namespace sdmbin {
      * @note Use the alternate constructor if the data description identifiers are 
      *       typed int.
      */
-    DataDescriptionsSet( ASDM* const datasetPtr, vector<Tag> v_switchCycleId,
-			 vector<Tag> v_dataDescriptionId, 
-			 CorrelationMode corrMode,  vector<AtmPhaseCorrection> atmPhaseCodes);
+    DataDescriptionsSet( asdm::ASDM* const datasetPtr, std::vector<asdm::Tag> v_switchCycleId,
+			 std::vector<asdm::Tag> v_dataDescriptionId, 
+			 CorrelationModeMod::CorrelationMode corrMode,  std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> atmPhaseCodes);
 
     /** Define the first level in the tree hierarchy.
      * @pre the pointer to the SDM dataset is already known
@@ -80,9 +77,9 @@ namespace sdmbin {
      * DataDescriptionsSet( SwitchCyclesList& , vector<Tag> , int ,  int , int);
      * if the data description identifiers are with the asdm type Tag.
      */
-    DataDescriptionsSet( vector<int> v_switchCycleId,
-			 vector<int> v_dataDescriptionId,
-			 CorrelationMode corrMode,  vector<AtmPhaseCorrection> atmPhaseCodes);
+    DataDescriptionsSet( std::vector<int> v_switchCycleId,
+			 std::vector<int> v_dataDescriptionId,
+			 CorrelationModeMod::CorrelationMode corrMode,  std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection> atmPhaseCodes);
 
     /** Copy constructor */
     DataDescriptionsSet(const DataDescriptionsSet &);
@@ -97,14 +94,14 @@ namespace sdmbin {
      * @exception ndd has an illegal value or is too large for the number of dataDescriptions in the ConfigDescription 
      * @return The baseband number (one-based)
      */ 
-    BasebandName      getBasebandName(unsigned int ndd) ; // throw (Error);  
+    BasebandNameMod::BasebandName      getBasebandName(unsigned int ndd) ;
 
     /** Get the baseband number of a given dataDescription
      * @param ndd The index of the dataDescription identifier
      * @exception ndd has an illegal value or is too large for the number of dataDescriptions in the ConfigDescription 
      * @return The baseband number (one-based)
      */ 
-    unsigned int      getBasebandIndex(unsigned int ndd) ; // throw (Error);  
+    unsigned int      getBasebandIndex(unsigned int ndd) ;
 				      
     /** Accessor to the number of basebands
      * @return the number of basebands \f$ N_{bb} \f$
@@ -117,7 +114,7 @@ namespace sdmbin {
      * @exception ndd is too large for the number of dataDescriptions in the ConfigDescription 
      * @return Number of steps for the baseband of a given dataDescription
      */
-    unsigned int      numBin(unsigned int ndd) ; // throw (Error);       
+    unsigned int      numBin(unsigned int ndd) ;
 
     /** Accessor to the number of polarization products of a given dataDescription
      * @param ndd The index of the dataDescrition identifier in dataDescriptionIdArray
@@ -132,7 +129,7 @@ namespace sdmbin {
      *                    corresponding number \f$ N_{pp}^{o} \f$ for the zero baselines.
      * @note If it desired to get this number for a given baseband, use the method getNumPol(int bbNum).
      */
-    unsigned int      numPol(unsigned int ndd) ; // throw (Error);   
+    unsigned int      numPol(unsigned int ndd) ;
 
     /** Accessor to the number of polarization cross-products of a given dataDescription
      * @param ndd The index (zero-based) of the dataDescription identifier in dataDescriptionIdArray
@@ -144,7 +141,7 @@ namespace sdmbin {
      * @note If it desired to get this number \f$ N_{pp}^{oo} \f$ for a given baseband, use the method 
      *       getNumSdPol(int bbNum).
      */
-    unsigned int      numSdPol(unsigned int ndd) ; // throw (Error);     
+    unsigned int      numSdPol(unsigned int ndd) ;
 
     /** Accessor to the number of frequency channels of a given dataDescription
      * @param ndd The index of the dataDescription identifier in dataDescriptionIdArray
@@ -152,14 +149,14 @@ namespace sdmbin {
      * @exception ndd is too large for the number of dataDescriptions in the ConfigDescription 
      * @return Number of frequency channels (spectral points) for that dataDescription
      */
-    unsigned int      numChan(unsigned int ndd) ; // throw (Error);
+    unsigned int      numChan(unsigned int ndd) ;
 
     /** Accessor to get the spwtral window identifier of a given dataDescription
      * @param ndd The index of the dataDescription identifier in dataDescriptionIdArray
      * @exception ndd is too large for the number of dataDescriptions in the ConfigDescription 
      * @return The spectral window identifier
      */
-    Tag               getSpwId(unsigned int ndd) ; // throw (Error);
+    asdm::Tag               getSpwId(unsigned int ndd) ;
 
     /** Accessor to the total frequency bandwidth of a given dataDescription
      * @param ndd The index (zero-based) of the dataDescription identifier  dataDescriptionIdArray
@@ -167,7 +164,7 @@ namespace sdmbin {
      * @exception ndd has an illegal value or is too large for the number of dataDescriptions in the ConfigDescription 
      * @return Total spectral bandwidth (Hz)
      */
-    Frequency         totBandwidth(unsigned int ndd) ; // throw (Error); 
+    asdm::Frequency         totBandwidth(unsigned int ndd) ;
 
     /** Size of the apc axis (can be only 1 or 2)
      * @return size of this axis (the 3rd inner most in the axis hierarchy)
@@ -189,14 +186,14 @@ namespace sdmbin {
      * - AP_MIXED       means in the data product contains some data having been corrected, the other not corrected, 
      *                  the criterion for correcting or not being being based to some algorithm
      */                     
-      Enum<AtmPhaseCorrection> atmPhaseCorrection(unsigned int atmPhaseCorrectionIndex);
+      Enum<AtmPhaseCorrectionMod::AtmPhaseCorrection> atmPhaseCorrection(unsigned int atmPhaseCorrectionIndex);
 
      /** Get the index position along the apc axis
       * @param apc an AtmPhaseCorrection enumerator
       * @return  The index position (0-based) along the apc axis
       * @exception -1 returned if the input apc value is not present on the apc axis
       */ 
-     unsigned int atmPhaseCorrectionIndex(AtmPhaseCorrection apc) ; // throw (Error);
+     unsigned int atmPhaseCorrectionIndex(AtmPhaseCorrectionMod::AtmPhaseCorrection apc) ;
 
     /** Provide the number of auto-correlations for a given dataDescription
      * \note would the dataDescription identifier for this index in ConfigDescription be for cross correlations, 
@@ -207,7 +204,7 @@ namespace sdmbin {
      * @return  Number of auto-correlations for that dataDescription
      * @exception 0 returned (lax mode) if correlationMode=0.
      */
-    int               numAutoData(unsigned int ndd) ; // throw (Error);
+    int               numAutoData(unsigned int ndd) ;
 
     /** Provide the number of cross-correlations for a given dataDescription
      * @param ndd The index (zero-based) of the dataDescription identifier in dataDescriptionIdArray
@@ -215,7 +212,7 @@ namespace sdmbin {
      * @return  the number of cross-correlations for that dataDescription
      * @exception returns 0 if correlationMode=1.
      */
-    unsigned int      numCrossData(unsigned int ndd) ; // throw (Error);
+    unsigned int      numCrossData(unsigned int ndd) ;
 
     /** Provide the number of switchCycle phases cumulated over all the basebands in the configuration.
      * @return the sum \f$ \sum_{i=1}^{N_{bb}} N_{bin}(i)  \f$
@@ -232,7 +229,7 @@ namespace sdmbin {
      * @exception ndd has an illegal value or is too large for the number of dataDescriptions in the ConfigDescription 
      * @return  The index in the metadata tree
      */
-     unsigned int      metaDataIndex(unsigned int ndd)  ; // throw (Error);
+     unsigned int      metaDataIndex(unsigned int ndd)  ;
 
     /** Get the bitSize (actually the number of bytes, 2 or 4) used for the visibilities
      * @return The size (actually in number of bytes)
@@ -255,7 +252,7 @@ namespace sdmbin {
      * - AUTO_ONLY
      * - CROSS_AND_AUTO
      */ 
-    CorrelationMode   getCorrelationMode();
+    CorrelationModeMod::CorrelationMode   getCorrelationMode();
 
     /** Get the number of dataDescription
      * @return  The number of dataDescription
@@ -267,7 +264,7 @@ namespace sdmbin {
      * @exception ndd equal or exeeding the number of dataDescription in the configuration setup
      * @return  The number of channels (spectral points) for that dataDescription number (1-based)
      */   
-    unsigned int      getNumChan(unsigned int ndd)  ; // throw (Error);
+    unsigned int      getNumChan(unsigned int ndd)  ;
 
     /** Get the number of Polarization Products given a baseband.
      * @param  nbb The baseband index
@@ -283,7 +280,7 @@ namespace sdmbin {
      * To get number of products given a dataDescription use the method numPol().
      * To get number of products given a basebandName, would that be constant per baseband, use getNumPol(BasebandName bbName)
      */
-    unsigned int       getNumPol(unsigned int bbIndex)  ; // throw (Error);
+    unsigned int       getNumPol(unsigned int bbIndex)  ;
 
     /** Get the number of Polarization Products given a baseband.
      * @param  bbName The baseband index (0-based)
@@ -297,7 +294,7 @@ namespace sdmbin {
      * @note
      * To get number of products given a dataDescription use the method numPol().
      */
-    unsigned int      getNumPol(BasebandName bbName)  ; // throw (Error);
+    unsigned int      getNumPol(BasebandNameMod::BasebandName bbName)  ;
 
     /** Get the number of Polarization Products in the case of zero-baselines given a baseband.
      * @param  bbIndex The baseband index
@@ -310,7 +307,7 @@ namespace sdmbin {
      * - if the input baseband name does not belong to the configuration return 0
      * @note To get number of products given a dataDescription use the method numPol().
      */
-    unsigned int      getNumSdPol(unsigned int bbIndex)  ; // throw (Error);
+    unsigned int      getNumSdPol(unsigned int bbIndex)  ;
 
     /** Get the number of Polarization Products in the case of zero-baselines given a baseband.
      * @param  bbName The baseband index (0-based)
@@ -322,7 +319,7 @@ namespace sdmbin {
      * - if the input baseband name does not belong to the configuration return 0
      * @note To get number of products given a dataDescription use the method numPol().
      */
-    unsigned int      getNumSdPol(BasebandName bbName) ; // throw(Error);
+    unsigned int      getNumSdPol(BasebandNameMod::BasebandName bbName) ;
 
     /** Get the index of a dataDescription given its index in its parent baseband
      * @param  bbIndex The baseband index
@@ -332,7 +329,7 @@ namespace sdmbin {
      * @return The index of the dataDescrition in the sequence of dataDescription in the
      *         configDescription
      */ 
-    unsigned int      getNdd(unsigned int bbIndex, unsigned int j)  ; // throw (Error);
+    unsigned int      getNdd(unsigned int bbIndex, unsigned int j)  ;
 
     /** Get the index of a dataDescription given its index in its parent baseband
      * @param  bbName The baseband name
@@ -341,28 +338,28 @@ namespace sdmbin {
      * @return The index of the dataDescrition in the sequence of dataDescription in the
      *         configDescription
      */ 
-    unsigned int      getNdd(BasebandName bbName, unsigned int j)  ; // throw (Error);
+    unsigned int      getNdd(BasebandNameMod::BasebandName bbName, unsigned int j)  ;
 
     /** Get the number of Spectral Windows in a given baseband identified by its index.
      * @param  bbNum The baseband index (zero-based)
      * @exception bbNum illegal or exceeding the number of basebands used in the configuration
      * @return The number \f$ N_{sw} \f$ of spectral windows in the baseband
      */
-    unsigned int      getNumSpw(unsigned int bbIndex)  ; // throw (Error);
+    unsigned int      getNumSpw(unsigned int bbIndex)  ;
 
     /** Get the number of Spectral Windows in a given baseband identified by its name.
      * @param  bbName The baseband name
      * @return The number \f$ N_{sw} \f$ of spectral windows in the baseband 
      * or 0 if baseband does not belong to the configuration
      */
-    unsigned int      getNumSpw(BasebandName bbName);
+    unsigned int      getNumSpw(BasebandNameMod::BasebandName bbName);
 
     /** Get the dataDescription index given a dataDescriptionId identifier
      * @param dataDescriptionId The dataDescriptionId identifier
      * @exception dataDescriptionId does not exist in the set of dataDescription identifiers in the configuration
      * @return  The dataDescription index (0-based)
      */
-    unsigned int      getDataDescriptionIndex( Tag dataDescriptionId)  ; // throw (Error);
+    unsigned int      getDataDescriptionIndex( asdm::Tag dataDescriptionId)  ;
 
     /** Get the size of the block of data for the auto-correlations originating from one antenna. \n
      * This size is determined according to the formula \n
@@ -430,7 +427,7 @@ namespace sdmbin {
      *  see the method numSdPol(int ndd); 
      *  to get it for a given baseband, would it be baseband-based, see the method getNumSdPol(int bbNum).
      */  
-    unsigned long     getNumAutoData(Tag autoDataDescriptionId) ; // throw (Error);
+    unsigned long     getNumAutoData(asdm::Tag autoDataDescriptionId) ;
 
 
     /** Number of cross-correlations produced by one non-zero baseline for a given dataDescription.
@@ -440,7 +437,7 @@ namespace sdmbin {
      *  \note This number must be understood as the number complex values, one data value being
      *   a complex quantity.
      */
-    unsigned long     getNumCrossData(Tag crossDataDescriptionId)  ; // throw (Error);
+    unsigned long     getNumCrossData(asdm::Tag crossDataDescriptionId)  ;
 
     /** Get the array of dataDescriptionId identifiers for the auto-correlations
      * \param crossDataDescriptionId one of the dataDescription identifiers in the set used for the configuration setup
@@ -450,37 +447,37 @@ namespace sdmbin {
      * It is automaticly derived based on the input dataDescriptionId identifiers for the cross-correlations 
      * (the second parameter in the signature of the constructor of this class).
      */
-    Tag               getAutoDataDescriptionId(Tag crossDataDescriptionId) ; // throw (Error);
+    asdm::Tag               getAutoDataDescriptionId(asdm::Tag crossDataDescriptionId) ;
 
     /** Get the array of dataDescriptionId identifiers for the cross-correlations
      * @return The array of dataDescriptionId identifier for the auto-correlations (zero-baselines)
      * \exception Would correlationMode=0 the returned vector would have a size of 0
      */
-    vector<Tag>       getAutoDataDescriptionId();
+    std::vector<asdm::Tag>       getAutoDataDescriptionId();
 
     /** Get the array of dataDescriptionId identifiers for the cross-correlations
      * @return The array of dataDescriptionId identifier for the cross-correlations
      * \exception would correlationMode=1 the returned vector would have a size of 0
      */
-    vector<Tag>       getCrossDataDescriptionId();
+    std::vector<asdm::Tag>       getCrossDataDescriptionId();
 
 
   protected:
-    vector<Tag>                 v_dataDescriptionIdArray_;//!< the input array of dataDescription identifiers
+    std::vector<asdm::Tag>                 v_dataDescriptionIdArray_;//!< the input array of dataDescription identifiers
 
-    Enum<CorrelationMode>       e_cm_;                    //!< Type-safe correlation mode
-    CorrelationMode             correlationMode_;         //!< Correlation mode
+    Enum<CorrelationModeMod::CorrelationMode>       e_cm_;                    //!< Type-safe correlation mode
+    CorrelationModeMod::CorrelationMode             correlationMode_;         //!< Correlation mode
 
-    EnumSet<AtmPhaseCorrection> es_apc_;                  //!< Atmospheric Phase Correction set
-    vector<AtmPhaseCorrection>  v_atmPhaseCorrection_;    //!< sequence of the Atmospheric Phase Correction values along the apc axis
+    EnumSet<AtmPhaseCorrectionMod::AtmPhaseCorrection> es_apc_;                  //!< Atmospheric Phase Correction set
+    std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection>  v_atmPhaseCorrection_;    //!< sequence of the Atmospheric Phase Correction values along the apc axis
     
-    vector<unsigned int>        v_numPol_;                //!< number of cross-products (size numDataDesc_)
-    vector<Tag>                 v_spwId_;                 //!< sequence of spectral window identifiers (size numDataDesc_)
-    vector<unsigned int>        v_numChan_;               //!< sequence of nb of chan. i.e. spectral points (size numDataDesc_)
-    vector<BasebandName>        v_basebandName_;          //!< (size numDataDesc_), baseband name for every spectral window.
-    vector<vector<int> >        vv_nsp_;                  //!< Nb of chan. per dataDescription (size numBaseband) vectors
-    map<BasebandName,vector<DataDescParams> > m_bn_v_ddp_; //!<  The sequence of dataDescParams in the different basebands
-    map<Tag,BasebandName>       m_ddid_bbn_;              //!< Association between the dataDescriptionId and the baseband name
+    std::vector<unsigned int>        v_numPol_;                //!< number of cross-products (size numDataDesc_)
+    std::vector<asdm::Tag>                 v_spwId_;                 //!< sequence of spectral window identifiers (size numDataDesc_)
+    std::vector<unsigned int>        v_numChan_;               //!< sequence of nb of chan. i.e. spectral points (size numDataDesc_)
+    std::vector<BasebandNameMod::BasebandName>        v_basebandName_;          //!< (size numDataDesc_), baseband name for every spectral window.
+    std::vector<std::vector<int> >        vv_nsp_;                  //!< Nb of chan. per dataDescription (size numBaseband) vectors
+    std::map<BasebandNameMod::BasebandName,std::vector<DataDescParams> > m_bn_v_ddp_; //!<  The sequence of dataDescParams in the different basebands
+    std::map<asdm::Tag,BasebandNameMod::BasebandName>       m_ddid_bbn_;              //!< Association between the dataDescriptionId and the baseband name
     unsigned int                numApc_;                  //!< APC axis size (can take the value 1 or 2 only)
     unsigned int                numDataDescription_;      //!< Explicit number of dataDescriptionId 
 
@@ -488,24 +485,24 @@ namespace sdmbin {
     unsigned long               sumAutoSize_;             //!< Sum of the elements of the vector v_autoSize_
     unsigned long               sumCrossSize_;            //!< Sum of the elements of the vector v_crossSize_
 
-    vector<unsigned int>        v_metaDataIndex_;         //!< Indices for positions for every dataDesc (size numDataDesc_)
-    vector<unsigned long>       v_cumulAutoSize_;         //!< Number of bytes to skip for every dataDesc (size numDataDesc_) 
-    vector<unsigned long>       v_cumulCrossSize_;        //!< Number of bytes to skip for every dataDesc (size numDataDesc_) 
-    vector<unsigned long>       v_numAutoData_;           //!< Number of auto-correlations per antenna (size numDataDesc_) 
-    vector<unsigned long>       v_numCrossData_;          //!< Number of cross-correlations per antenna pair (size numDataDesc_) 
-    vector<unsigned long>       v_autoSize_;              //!< Size, in nb PDT values, for every dataDesc (size numDataDesc_) 
-    vector<unsigned long>       v_crossSize_;             //!< Size, in nb PDT values, for every dataDesc (size numDataDesc_) 
+    std::vector<unsigned int>        v_metaDataIndex_;         //!< Indices for positions for every dataDesc (size numDataDesc_)
+    std::vector<unsigned long>       v_cumulAutoSize_;         //!< Number of bytes to skip for every dataDesc (size numDataDesc_) 
+    std::vector<unsigned long>       v_cumulCrossSize_;        //!< Number of bytes to skip for every dataDesc (size numDataDesc_) 
+    std::vector<unsigned long>       v_numAutoData_;           //!< Number of auto-correlations per antenna (size numDataDesc_) 
+    std::vector<unsigned long>       v_numCrossData_;          //!< Number of cross-correlations per antenna pair (size numDataDesc_) 
+    std::vector<unsigned long>       v_autoSize_;              //!< Size, in nb PDT values, for every dataDesc (size numDataDesc_) 
+    std::vector<unsigned long>       v_crossSize_;             //!< Size, in nb PDT values, for every dataDesc (size numDataDesc_) 
 
 
-    vector<Tag>                 v_crossDataDescriptionId_;//!< Vector of dataDecsritionId for the cross-correlations (size numDataDesc_)
-    vector<Tag>                 v_autoDataDescriptionId_; //!< Vector of dataDecsritionId for the auto-correlations (size <= numDataDesc_)
-    vector<bool>                v_pairDataDescriptionId_; //!< true if crossDataDecsritionId assoc to autoDataDecsritionId (size numDataDesc_)
+    std::vector<asdm::Tag>                 v_crossDataDescriptionId_;//!< Vector of dataDecsritionId for the cross-correlations (size numDataDesc_)
+    std::vector<asdm::Tag>                 v_autoDataDescriptionId_; //!< Vector of dataDecsritionId for the auto-correlations (size <= numDataDesc_)
+    std::vector<bool>                v_pairDataDescriptionId_; //!< true if crossDataDecsritionId assoc to autoDataDecsritionId (size numDataDesc_)
 
 
-    vector<BasebandName>        v_basebandSet_;           //!< Sequence of baseband names
-    EnumSet<BasebandName>       e_basebandSet_;           //!< Set of baseband names
+    std::vector<BasebandNameMod::BasebandName>        v_basebandSet_;           //!< Sequence of baseband names
+    EnumSet<BasebandNameMod::BasebandName>       e_basebandSet_;           //!< Set of baseband names
 
-    vector<unsigned int>        v_numSpwPerBb_;           //!< Number of spectral windows in every baseband
+    std::vector<unsigned int>        v_numSpwPerBb_;           //!< Number of spectral windows in every baseband
 
   private:
     
@@ -515,6 +512,13 @@ namespace sdmbin {
     void mapScToBaseband();                               // Method to map vectors of switchCycles to the basebandName.
   };
 
+  inline unsigned int DataDescriptionsSet::numBin(unsigned int ndd) { // throw(Error){
+    // if(ndd>=v_basebandName_.size())
+    //   Error(SERIOUS,"The dataDescription index must be smaller than %d",
+    // 	    v_basebandName_.size());
+    return v_numBin_[ndd];  
+  }
+  
 }
 #define _DATADESCRIPTIONSSET_H
 #endif

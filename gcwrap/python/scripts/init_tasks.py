@@ -166,7 +166,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                        
         xmlfile=pathname+'/'+myf['taskname']+'.xml'
         if(os.path.exists(xmlfile)) :
-            cu.setconstraints('file://'+xmlfile);
+            myf['cu'].setconstraints('file://'+xmlfile);
         else:
             #
             # SRankin: quick fix for CAS-5381 - needs review.
@@ -175,7 +175,7 @@ def update_params(func, printtext=True, ipython_globals=None):
             task_path=task_location[taskname]
             xmlfile=task_path+'/'+myf['taskname']+'.xml'
             if(os.path.exists(xmlfile)) :
-                cu.setconstraints('file://'+xmlfile);
+                myf['cu'].setconstraints('file://'+xmlfile);
 
     a=myf[myf['taskname']].defaults("paramkeys",myf)
     itsdef=myf[myf['taskname']].defaults
@@ -475,9 +475,12 @@ def tput(taskname=None, outfile=''):
 	outfile = myf['taskname']+'.last'
 	saveinputs(taskname, outfile)
 
-def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, scriptstr=['']):
-    #parameter_printvalues(arg_names,arg_values,arg_types)
+def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None,
+               scriptstr=[''], do_save_inputs=True):
     """ Save current input values to file on disk for a specified task:
+    BEWARE: this function does not only save the inputs into a (.last) file, it will
+    also populate scriptstr with the long string of parameters normally displayed at
+    the beginning of tasks (the messages ##### Begin Task: ... #####)
 
     taskname -- Name of task
         default: <unset>; example: taskname='bandpass'
@@ -519,15 +522,19 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None, s
         ##make sure unfolded parameters get their default values
         myf['update_params'](func=myf['taskname'], printtext=False, ipython_globals=myf)
         ###
-        do_save_inputs = False
+
         outpathdir = os.path.realpath(os.path.dirname(outfile))
         outpathfile = outpathdir + os.path.sep + os.path.basename(outfile)
-        if outpathfile not in casa['state']['unwritable'] and outpathdir not in casa['state']['unwritable']:
+        # Note the casa['state']['unwritable'] - state in the global casa dict that can
+        # be initialized in previous function calls
+        do_save_inputs = (do_save_inputs and outpathfile not in casa['state']['unwritable']
+                          and outpathdir not in casa['state']['unwritable'])
+        if do_save_inputs:
             try:
                 taskparameterfile=open(outfile,'w')
                 print >>taskparameterfile, '%-15s    = "%s"'%('taskname', taskname)
-                do_save_inputs = True
             except:
+                do_save_inputs = False
                 print "********************************************************************************"
                 print "Warning: no write permission for %s, cannot save task" % outfile
                 if os.path.isfile(outfile):
@@ -619,18 +626,18 @@ def default(taskname=None):
     except TypeError, e:
         print "default --error: ", e
 
-def taskparamgui(useGlobals=True):
-    """
-        Show a parameter-setting GUI for all available tasks.
-    """
-    import paramgui
-
-    if useGlobals:
-        paramgui.setGlobals(stack_frame_find( ))
-    else:
-        paramgui.setGlobals({})
-
-    paramgui.runAll(_ip)
-    paramgui.setGlobals({})
+# def taskparamgui(useGlobals=True):
+#     """
+#         Show a parameter-setting GUI for all available tasks.
+#     """
+#     import paramgui
+# 
+#     if useGlobals:
+#         paramgui.setGlobals(stack_frame_find( ))
+#     else:
+#         paramgui.setGlobals({})
+# 
+#     paramgui.runAll(_ip)
+#     paramgui.setGlobals({})
 
 ####################

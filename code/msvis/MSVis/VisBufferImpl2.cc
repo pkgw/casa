@@ -1462,6 +1462,10 @@ VisBufferImpl2::subtableColumns () const {
   return getViiP()->subtableColumns();
 }  
 
+casacore::Bool
+VisBufferImpl2::existsColumn(VisBufferComponent2 id) const {
+	return getViiP()->existsColumn(id);
+}
 
 //      +---------------+
 //      |               |
@@ -2046,7 +2050,8 @@ VisBufferImpl2::setVisCubeModel(const Vector<Float>& stokesIn)
   }
 
   // A map onto the actual correlations in the VisBuffer  (which may be a subset)
-  Vector<Int> corrmap = correlationTypes ();
+  Vector<Int> corrmap;
+  corrmap.assign(correlationTypes());  // actual copy, to avoid changing correlationTypes()!
   corrmap -= corrmap(0);
 
   ThrowIf (max(corrmap) >= 4,  "HELP! The correlations in the data are not normal!");
@@ -2294,6 +2299,7 @@ VisBufferImpl2::fillDirectionAux (Vector<MDirection>& value,
         return;
     }
 
+
     for (uInt row = 0; row < antenna.nelements(); ++row) {
 
         DebugAssert(antenna (row) >= 0 && feed (row) >= 0, AipsError);
@@ -2476,7 +2482,8 @@ VisBufferImpl2::fillImagingWeight (Matrix<Float> & value) const
 
     value.resize (IPosition (2, nChannels(), nRows()));
 
-    Matrix<Bool> flagMat = flagCube().yzPlane(0);
+    Matrix<Bool> flagMat;
+    flagMat.assign(flagCube().yzPlane(0));
     std::logical_and<Bool> andOp;
 
     /*

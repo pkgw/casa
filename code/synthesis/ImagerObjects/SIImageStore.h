@@ -46,7 +46,7 @@
 namespace casa { //# NAMESPACE CASA - BEGIN
   
   template <class T>
-  void openImage(const casacore::String& imagenamefull,SHARED_PTR<casacore::ImageInterface<T> >* img);
+  void openImage(const casacore::String& imagenamefull,std::shared_ptr<casacore::ImageInterface<T> >* img);
     
 
 class SIImageStore 
@@ -57,28 +57,33 @@ class SIImageStore
 
   SIImageStore();
 
-  SIImageStore(casacore::String imagename,const casacore::Bool ignorefacets=casacore::False);
+  SIImageStore(const casacore::String &imagename,
+               const casacore::Bool ignorefacets=casacore::False);
 
-  SIImageStore(casacore::String imagename, 
-	       casacore::CoordinateSystem &imcoordsys, 
-	       casacore::IPosition imshape, 
-	       //	       const casacore::Int nfacets=1, 
+  SIImageStore(const casacore::String &imagename,
+	       const casacore::CoordinateSystem &imcoordsys,
+	       const casacore::IPosition &imshape,
+	       const casacore::String &objectname,
+               const casacore::Record &miscinfo,
+	       // const casacore::Int nfacets=1,
 	       const casacore::Bool overwrite=casacore::False,
 	       const casacore::Bool useweightimage=casacore::False);
 
-  SIImageStore(SHARED_PTR<casacore::ImageInterface<casacore::Float> > modelim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > residim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > psfim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > weightim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > restoredim, 
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > maskim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > sumwtim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > gridwtim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > pbim,
-	       SHARED_PTR<casacore::ImageInterface<casacore::Float> > restoredpbcorim,
-	       casacore::CoordinateSystem& csys, 
-	       casacore::IPosition imshape, 
-	       casacore::String imagename, 
+  SIImageStore(const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &modelim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &residim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &psfim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &weightim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &restoredim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &maskim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &sumwtim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &gridwtim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &pbim,
+	       const std::shared_ptr<casacore::ImageInterface<casacore::Float> > &restoredpbcorim,
+	       const casacore::CoordinateSystem &csys,
+	       const casacore::IPosition &imshape,
+	       const casacore::String &imagename,
+	       const casacore::String &objectname,
+	       const casacore::Record &miscinfo,
 	       const casacore::Int facet=0, const casacore::Int nfacets=1,
 	       const casacore::Int chan=0, const casacore::Int nchanchunks=1,
 	       const casacore::Int pol=0, const casacore::Int npolchunks=1,
@@ -96,32 +101,36 @@ class SIImageStore
 
   virtual casacore::String getType(){return "default";}
 
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > psf(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > residual(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > weight(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > model(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > image(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > mask(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Complex> > forwardGrid(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Complex> > backwardGrid(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > sumwt(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > psf(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > residual(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > weight(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > model(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > image(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > mask(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Complex> > forwardGrid(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Complex> > backwardGrid(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > sumwt(casacore::uInt term=0);
 
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > alpha(){throw(casacore::AipsError("No Alpha for 1 term"));};
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > beta(){throw(casacore::AipsError("No Beta for 1 term"));};
 
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > gridwt(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > pb(casacore::uInt term=0);
-  virtual SHARED_PTR<casacore::ImageInterface<casacore::Float> > imagepbcor(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > alpha(){throw(casacore::AipsError("No Alpha for 1 term"));};
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > beta(){throw(casacore::AipsError("No Beta for 1 term"));};
+  ///Gridwgt is for weight density sharing (Brigg's) thus only term 0 is done
+  //default will be just 1 plane of densities for all fields
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > gridwt(casacore::IPosition newshape=casacore::IPosition(0));
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > pb(casacore::uInt term=0);
+  virtual std::shared_ptr<casacore::ImageInterface<casacore::Float> > imagepbcor(casacore::uInt term=0);
 
   virtual void setModelImageOne( casacore::String modelname, casacore::Int nterm=-1 );
   virtual void setModelImage( casacore::Vector<casacore::String> modelnames );
   virtual casacore::Vector<casacore::String> getModelImageName();
-  virtual void setWeightDensity( SHARED_PTR<SIImageStore> imagetoset );
+  virtual void setWeightDensity( std::shared_ptr<SIImageStore> imagetoset );
   virtual casacore::Bool doesImageExist(casacore::String imagename);
-  void setImageInfo(const casacore::Record miscinfo);
+
+  void setObjectName(const casacore::String);
+  void setMiscInfo(const casacore::Record miscinfo);
 
   virtual void resetImages( casacore::Bool resetpsf, casacore::Bool resetresidual, casacore::Bool resetweight );
-  virtual void addImages( SHARED_PTR<SIImageStore> imagestoadd, 
+  virtual void addImages( std::shared_ptr<SIImageStore> imagestoadd, 
 			  casacore::Bool addpsf, casacore::Bool addresidual, casacore::Bool addweight, casacore::Bool adddensity );
 
   ///// Normalizers
@@ -134,8 +143,8 @@ class SIImageStore
   /// Other
   virtual casacore::Bool releaseLocks();
   virtual casacore::Bool releaseComplexGrids();
-  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Float> > &im );
-  void releaseImage( SHARED_PTR<casacore::ImageInterface<casacore::Complex> > &im );
+  void releaseImage( std::shared_ptr<casacore::ImageInterface<casacore::Float> > &im );
+  void releaseImage( std::shared_ptr<casacore::ImageInterface<casacore::Complex> > &im );
   virtual casacore::Double getReferenceFrequency(){return 0.0;}
   virtual casacore::uInt getNTaylorTerms(casacore::Bool dopsf=casacore::False); //{return 1;};
   casacore::GaussianBeam getPSFGaussian();
@@ -148,7 +157,7 @@ class SIImageStore
   ////////// Restoring Beams
   virtual void makeImageBeamSet();
   casacore::ImageBeamSet getBeamSet();
-  virtual void printBeamSet();
+  virtual void printBeamSet(casacore::Bool verbose=casacore::False);
   casacore::GaussianBeam findGoodBeam();
   void lineFit(casacore::Vector<casacore::Float> &data, casacore::Vector<casacore::Bool> &flag, casacore::Vector<casacore::Float> &fit, casacore::uInt lim1, casacore::uInt lim2);
   casacore::Float calcMean(casacore::Vector<casacore::Float> &vect, casacore::Vector<casacore::Bool> &flag);
@@ -157,7 +166,7 @@ class SIImageStore
 
   // The images internall will reference back to a given section of the main of this.
   //nfacets = nx_facets*ny_facets...assumption has been made  nx_facets==ny_facets
-  virtual SHARED_PTR<SIImageStore> getSubImageStore(const casacore::Int facet=0, const casacore::Int nfacets=1, 
+  virtual std::shared_ptr<SIImageStore> getSubImageStore(const casacore::Int facet=0, const casacore::Int nfacets=1, 
 						    const casacore::Int chan=0, const casacore::Int nchanchunks=1, 
 						    const casacore::Int pol=0, const casacore::Int npolchunks=1);
 
@@ -191,6 +200,8 @@ class SIImageStore
 		  casacore::Float& minVal, casacore::Float& maxVal,
 		  casacore::Float& minValMask, casacore::Float& maxValMask);
   virtual void printImageStats();
+  virtual casacore::Array<casacore::Double> calcRobustRMS(casacore::Array<casacore::Double>& mdns, 
+                                                        const casacore::Float pbmasklevel=0.0, const casacore::Bool fastcalc=true); 
   casacore::Float getMaskSum();
 
   //
@@ -208,7 +219,7 @@ class SIImageStore
   casacore::CoordinateSystem getCSys(){return itsCoordSys;}
 
 protected:
-  SHARED_PTR<casacore::ImageInterface<casacore::Float> > makeSubImage(const casacore::Int facet, const casacore::Int nfacets,
+  std::shared_ptr<casacore::ImageInterface<casacore::Float> > makeSubImage(const casacore::Int facet, const casacore::Int nfacets,
 						  const casacore::Int chan, const casacore::Int nchanchunks,
 						  const casacore::Int pol, const casacore::Int npolchunks,
 						  casacore::ImageInterface<casacore::Float>& image);
@@ -229,17 +240,17 @@ protected:
   void makePBFromWeight(const casacore::Float pblimit);
   void makePBImage(const casacore::Float pblimit);
 
-  void accessImage( SHARED_PTR<casacore::ImageInterface<casacore::Float> > &ptr, 
-		    SHARED_PTR<casacore::ImageInterface<casacore::Float> > &parentptr, 
+  void accessImage( std::shared_ptr<casacore::ImageInterface<casacore::Float> > &ptr, 
+		    std::shared_ptr<casacore::ImageInterface<casacore::Float> > &parentptr, 
 		    const casacore::String label );
 
-  SHARED_PTR<casacore::ImageInterface<casacore::Float> > openImage(const casacore::String imagenamefull, 
+  std::shared_ptr<casacore::ImageInterface<casacore::Float> > openImage(const casacore::String imagenamefull, 
 					       const casacore::Bool overwrite, 
 					       const casacore::Bool dosumwt=casacore::False,
-					       const casacore::Int nfacetsperside=1);
+								   const casacore::Int nfacetsperside=1, const  casacore::Bool checkCoord=casacore::True);
 
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, casacore::String name);
-  void buildImage(SHARED_PTR<casacore::ImageInterface<casacore::Float> > &imptr,casacore::String name);
+  void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr, casacore::IPosition shape, casacore::CoordinateSystem csys, const casacore::String name);
+  void buildImage(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr,const casacore::String name);
 
 
   casacore::Double getPbMax();
@@ -251,7 +262,7 @@ protected:
   void removeMask(casacore::CountedPtr<casacore::ImageInterface<casacore::Float> >im);
   void rescaleResolution(casacore::Int chan, casacore::ImageInterface<casacore::Float>& subResidual, const casacore::GaussianBeam& newbeam, const casacore::GaussianBeam& oldbeam);
 
-  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask,
+  casacore::Bool findMinMaxLattice(const casacore::Lattice<casacore::Float>& lattice, const casacore::Lattice<casacore::Float>& mask, const casacore::Lattice<casacore::Bool>& pixmask,
 			 casacore::Float& maxAbs, casacore::Float& maxAbsMask, casacore::Float& minAbs, casacore::Float& minAbsMask );
 
 
@@ -263,8 +274,9 @@ protected:
 
   casacore::Bool itsOverWrite;
   casacore::Bool itsUseWeight;
+  casacore::String itsObjectName;
   casacore::Record itsMiscInfo;
-  SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsMask, itsParentMask, itsGridWt; // mutliterm shares this...
+  std::shared_ptr<casacore::ImageInterface<casacore::Float> > itsMask, itsParentMask, itsGridWt; // mutliterm shares this...
   casacore::Double itsPBScaleFactor;
 
   casacore::Int itsNFacets, itsFacetId;
@@ -287,10 +299,13 @@ protected:
 
 private:
 
-  SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt, itsImagePBcor, itsPB;
-  SHARED_PTR<casacore::ImageInterface<casacore::Complex> > itsForwardGrid, itsBackwardGrid;
+  virtual void initMetaInfo(std::shared_ptr<casacore::ImageInterface<casacore::Float> > &imptr,
+                            const casacore::String name);
 
-  SHARED_PTR<casacore::ImageInterface<casacore::Float> > itsParentPsf, itsParentModel, itsParentResidual, itsParentWeight, itsParentImage, itsParentSumWt, itsParentGridWt, itsParentPB, itsParentImagePBcor;
+  std::shared_ptr<casacore::ImageInterface<casacore::Float> > itsPsf, itsModel, itsResidual, itsWeight, itsImage, itsSumWt, itsImagePBcor, itsPB;
+  std::shared_ptr<casacore::ImageInterface<casacore::Complex> > itsForwardGrid, itsBackwardGrid;
+
+  std::shared_ptr<casacore::ImageInterface<casacore::Float> > itsParentPsf, itsParentModel, itsParentResidual, itsParentWeight, itsParentImage, itsParentSumWt, itsParentGridWt, itsParentPB, itsParentImagePBcor;
 
 
 };

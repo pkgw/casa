@@ -357,12 +357,12 @@ void SDGrid::init() {
       }
     }
 
-    String outfile = convType + ".dat";
-    ofstream ofs(outfile.c_str());
-    for (Int i = 0 ; i < convSize ; i++) {
-      ofs << i << " " << convFunc[i] << endl; 
-    }
-    ofs.close();
+//    String outfile = convType + ".dat";
+//    ofstream ofs(outfile.c_str());
+//    for (Int i = 0 ; i < convSize ; i++) {
+//      ofs << i << " " << convFunc[i] << endl;
+//    }
+//    ofs.close();
   }
   else {
     logIO_p << "Unknown convolution function " << convType << LogIO::EXCEPTION;
@@ -505,10 +505,19 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
   directionCoord=coords.directionCoordinate(directionIndex);
   //make sure we use the same units
   worldPosMeas.set(dc.worldAxisUnits()(0));
+
+  // Reference pixel may be modified in dc.setReferenceValue when
+  // projection type is SFL. To take into account this effect,
+  // keep original reference pixel here and subtract it from
+  // the reference pixel after dc.setReferenceValue instead
+  // of setting reference pixel to (0,0).
+  Vector<Double> const originalReferencePixel = dc.referencePixel();
   dc.setReferenceValue(worldPosMeas.getAngle().getValue());
-  Vector<Double> unitVec(2);
-  unitVec=0.0;
-  dc.setReferencePixel(unitVec);
+  //Vector<Double> unitVec(2);
+  //unitVec=0.0;
+  //dc.setReferencePixel(unitVec);
+  Vector<Double> updatedReferencePixel = dc.referencePixel() - originalReferencePixel;
+  dc.setReferencePixel(updatedReferencePixel);
 
   coords.replaceCoordinate(dc, directionIndex);
 
@@ -805,6 +814,7 @@ extern "C" {
                  const Complex*,
                  Int*,
                  Int*,
+                 Int*,
                  const Int*,
                  const Int*,
                  const Float*,
@@ -1032,6 +1042,7 @@ void SDGrid::put(const VisBuffer& vb, Int row, Bool dopsf,
           datStorage,
           &s[0],
           &s[1],
+          &idopsf,
           flags.getStorage(del),
           rowFlags.getStorage(del),
           wgtStorage,
@@ -1563,6 +1574,13 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
     if (!isSplineInterpolationReady) {
       interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
       isSplineInterpolationReady = true;
+    } else {
+      if (!interpolator->inTimeRange(vb.time()(row), vb.antenna1()(row))) {
+	// setup spline interpolator for the current dataset (CAS-11261, 2018/5/22 WK)
+	delete interpolator;
+	interpolator = 0;
+	interpolator = new SDPosInterpolator(vb, pointingDirCol_p);
+      }
     }
   }
 
@@ -1604,9 +1622,9 @@ Bool SDGrid::getXYPos(const VisBuffer& vb, Int row) {
 
   if (!nullPointingTable) {
     if (dointerp) {
-      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex, vb.time()(row)));
       MDirection newdir = directionMeas(act_mspc, pointIndex, vb.time()(row));
-      Vector<Double> newdirv = newdir.getAngle("rad").getValue();
+      worldPosMeas = (*pointingToImage)(newdir);
+      //Vector<Double> newdirv = newdir.getAngle("rad").getValue();
       //cerr<<"dir0="<<newdirv(0)<<endl;
    
     //fprintf(pfile,"%.8f %.8f \n", newdirv(0), newdirv(1));

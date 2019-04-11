@@ -49,13 +49,13 @@ public:
 	virtual bool isActionEnabled( PlotMSAction::Type type ) const;
 
 	//Return the current client plot.
-	virtual vector<PlotMSPlot*> getCurrentPlots() const;
+	virtual std::vector<PlotMSPlot*> getCurrentPlots() const;
 
 	//Retrieve the plot load axes the user has specified.
-	virtual vector<vector<PMS::Axis> > getSelectedLoadAxes() const;
+	virtual std::vector<std::vector<PMS::Axis> > getSelectedLoadAxes() const;
 
 	//Retrieve the release axes the user has specified.
-	virtual vector<vector<PMS::Axis> > getSelectedReleaseAxes() const;
+	virtual std::vector<std::vector<PMS::Axis> > getSelectedReleaseAxes() const;
 
 	//Retrieve flagging information specified by the client.
 	virtual PlotMSFlagging getFlagging() const;
@@ -131,14 +131,15 @@ public:
 	}
 	virtual void gridSizeChanged( int /*rowCount*/, int /*colCount*/ );
 
-	virtual vector<casacore::String> getFiles() const;
+	virtual std::vector<casacore::String> getFiles() const;
 
 private:
 	void initializeCurrentPlot();
 	void initialize( Plotter::Implementation impl );
+	void updatePlotterPageHeader();
 	PlotMSApp* plotController;
 	PlotMSFlagging flagging;
-	vector<PlotMSPlot*> currentPlots;
+    std::vector<PlotMSPlot*> currentPlots;
 
 	const casacore::String SCRIPT_CLIENT;
 };

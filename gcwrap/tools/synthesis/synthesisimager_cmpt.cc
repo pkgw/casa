@@ -62,7 +62,7 @@ namespace casac {
 {
   
   // itsImager = new SynthesisImagerVi2();
- 
+  itsLog = new LogIO();
   //itsImager = new SynthesisImager();
   itsImager = makeSI(true);
 }
@@ -179,22 +179,62 @@ synthesisimager::selectdata(const casac::record& selpars)
 bool synthesisimager::defineimage(const casac::record& impars, const casac::record& gridpars)
 {
   Bool rstat(false);
-
+  *itsLog << casacore::LogOrigin("synthesisimager", __func__);
   try 
     {
     
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
     casacore::Record irecpars = *toRecord( impars );
+    ////Temporary fix till we get the checking for phasecenter in fromRecord 
+    ////to deal with this
+    //////////////
+    String movingSource="";
+    if( irecpars.dataType("phasecenter") == TpString ){
+      String pcen=irecpars.asString("phasecenter");
+      //seems to be a table so assuming ephemerides table 
+      //Or A known planet
+      //Or special case
+      casacore::MDirection::Types refType;
+      Bool trackingNearSource= (Table::isReadable(pcen, False))
+	|| ( (casacore::MDirection::getType(refType, pcen)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	|| (upcase(pcen)==String("TRACKFIELD"));
+      if(trackingNearSource){
+	*itsLog << "Detected tracking of moving source " <<  casacore::LogIO::POST;
+	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection::COMET){
+	  
+	  *itsLog << "Will be Using measures internal ephemeris  for  " << casacore::MDirection::showType(refType) << " to track " << casacore::LogIO::POST;
+	} 
+	movingSource=pcen;
+	irecpars.define("phasecenter", "");
+      }
+      
+      
+      
+      //cerr << "PCEN " << pcen << "  " << irecpars.asString("phasecenter")<< endl;
+    }
+
     SynthesisParamsImage ipars;
     ipars.fromRecord( irecpars );
-
+    
+      
     casacore::Record grecpars = *toRecord( gridpars );
     SynthesisParamsGrid gpars;
     gpars.fromRecord( grecpars );
-
+    ipars.trackSource=False;
+    if(movingSource != casacore::String("")){
+      itsImager->setMovingSource(movingSource);
+      ipars.trackSource=True;
+      ipars.movingSource=movingSource;
+      casacore::MDirection::Types refType;
+      if((casacore::MDirection::getType(refType, movingSource)) && (refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ))
+	ipars.trackDir=casacore::MDirection(refType);
+      
+    }
     itsImager->defineImage( ipars, gpars );
- 
+    
+
+    
     /*
     itsImager->defineImage( ipars.imageName, ipars.imsize[0], ipars.imsize[1], 
 			    ipars.cellsize[0], ipars.cellsize[1], ipars.stokes, ipars.phaseCenter,
@@ -252,7 +292,7 @@ synthesisimager::setimage(const std::string& imagename,
 			     const std::string& cfcache,//  = "",
 			     const bool dopointing,// = false,
 			     const bool dopbcorr,//   = true,
-			     const bool conjbeams,//  = true,
+			     const bool conjbeams,//  = false,
 			     const float computepastep,         //=360.0
 			     const float rotatepastep          //=5.0
 			     )
@@ -426,6 +466,24 @@ bool synthesisimager::setweighting(const std::string& type,
     return rstat;
   }
 
+
+  casac::record* synthesisimager::apparentsens()
+  {
+    casac::record* rstat(0);
+    try{ 
+
+      itsImager = makeSI();
+      itsImager->makePSF();
+      rstat = fromRecord( itsImager->apparentSensitivity() );
+
+    } catch (AipsError x) { 
+      RETHROW(x);
+    }
+    return rstat;
+  }
+
+
+
   bool synthesisimager::drygridding(const std::vector<std::string>& cfList)
   {
     Bool rstat(false);
@@ -529,8 +587,69 @@ bool synthesisimager::executemajorcycle(const casac::record& controls)
     return rstat;
   }
 
+bool synthesisimager::makesdimage()
+{
+  Bool rstat(false);
+
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    itsImager->makeSdImage();
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
+
+bool synthesisimager::makeimage(const std::string& type, const std::string& image,
+                       const std::string& compleximage, const int model)
+{
+  Bool rstat(true);
+
+  try {
+    itsImager = makeSI();
+    itsImager->makeImage(String(type), String(image), String(compleximage), 
+			 model );
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
 
 
+bool synthesisimager::makesdpsf()
+{
+  Bool rstat(false);
+
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    itsImager->makeSdImage(true);
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
+bool synthesisimager::unlockimages(const int id)
+{
+  Bool rstat(false);
+
+  try {
+
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    rstat=(itsImager->imageStore(id))->releaseLocks();
+
+  } catch  (AipsError x) {
+    RETHROW(x);
+  }
+  return rstat;
+}
 synthesisimstore* synthesisimager::getimstore(const int id)
 {
   synthesisimstore *rstat;
@@ -580,22 +699,22 @@ int synthesisimager::updatenchan()
   return rstat;
 }
        
-  bool synthesisimager::getweightdensity()
+  string synthesisimager::getweightdensity()
   {
-    Bool rstat(false);
+    string rstat("");
     
     try {
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->getWeightDensity();
+      rstat=(itsImager->getWeightDensity());
       
     } catch  (AipsError x) {
       RETHROW(x);
     }
     return rstat;
   }
-  bool synthesisimager::setweightdensity()
+  bool synthesisimager::setweightdensity(const std::string& wgtdensity )
   {
     Bool rstat(false);
     
@@ -603,7 +722,7 @@ int synthesisimager::updatenchan()
       
       //if( ! itsImager ) itsImager = new SynthesisImager();
       itsImager = makeSI();
-      itsImager->setWeightDensity();
+      itsImager->setWeightDensity(wgtdensity);
       
     } catch  (AipsError x) {
       RETHROW(x);
@@ -624,6 +743,9 @@ synthesisimager::done()
 	  delete itsImager;
 	  itsImager=NULL;
 	}
+      if(itsLog)
+	delete itsLog;
+      itsLog=NULL;
     } 
   catch  (AipsError x) 
     {

@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -62,35 +58,39 @@
 	
 
 	
-#include "CSubscanIntent.h"
-	
-
-	
-#include "CSwitchingMode.h"
-	
 
 	
 
 	
-
-	
-#include "CCorrelatorCalibration.h"
+#include <alma/Enumerations/CSubscanIntent.h>
 	
 
+	
+#include <alma/Enumerations/CSwitchingMode.h>
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CCorrelatorCalibration.h>
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -109,7 +109,7 @@ class SubscanRow;
  * Subscan-based information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Subscan </CAPTION>
@@ -164,7 +164,7 @@ class SubscanRow;
 	
  * <TR>
  * <TD> fieldName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the observed field. </TD>
  * </TR>
@@ -177,15 +177,15 @@ class SubscanRow;
  * </TR>
 	
  * <TR>
- * <TD> numIntegration </TD> 
+ * <TD> numIntegration (numIntegration)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of integrations during the scan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSubintegration </TD> 
- * <TD> vector<int > </TD>
+ * <TD> numSubintegration (numSubintegration)</TD> 
+ * <TD> std::vector<int > </TD>
  * <TD>  numIntegration </TD> 
  * <TD> &nbsp;the number of subintegrations for each integration. </TD>
  * </TR>
@@ -195,14 +195,14 @@ class SubscanRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> subscanMode </TD> 
+ * <TD> subscanMode</TD> 
  * <TD> SwitchingModeMod::SwitchingMode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the data acquisition mode during the subscan. </TD>
  * </TR>
 	
  * <TR>
- * <TD> correlatorCalibration </TD> 
+ * <TD> correlatorCalibration</TD> 
  * <TD> CorrelatorCalibrationMod::CorrelatorCalibration </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the correlator calibration during the subscan. </TD>
@@ -363,7 +363,7 @@ public:
  	 * @param numSubintegration
 	
      */
-	SubscanRow *newRow(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration);
+	SubscanRow *newRow(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration);
 	
 
 
@@ -471,7 +471,7 @@ public:
  	 * @param numSubintegration
  	 		 
  	 */
-	SubscanRow* lookup(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration); 
+	SubscanRow* lookup(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -497,6 +497,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

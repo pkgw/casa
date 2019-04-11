@@ -62,7 +62,7 @@
 #include <display/DisplayErrors.h>
 
 #include <QtCore/QPoint>
-#include <QtGui/QToolTip>
+#include <QToolTip>
 
 #include <iostream>
 #include <cassert>
@@ -100,6 +100,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		zStart_(0), zEnd_(1), zStep_(1),
 		bStart_(0), bEnd_(1), bStep_(1) {
 
+        oldRowCount = oldColumnCount = 0;
         construct_(new QtPixelCanvas(other->pc_),args);
 
     }
@@ -129,6 +130,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		zStart_(0), zEnd_(1), zStep_(1),
 		bStart_(0), bEnd_(1), bStep_(1) {
 
+        oldRowCount = oldColumnCount = 0;
         construct_(new QtPixelCanvas(),args);
     }
 
@@ -228,7 +230,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		panel_->viewer()->dpCreated( panel_, this ); // Inform supervisory object of DP creation.
 
-		displayDataHolder = new DisplayDataHolder();
+		displayDataHolder.reset(new DisplayDataHolder());
 		displayDataHolder->setImageDisplayer( this );
 	}
 
@@ -245,7 +247,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		delete bkgdClrOpt_;
 		if(lastMotionEvent_!=0) delete lastMotionEvent_;
 		delete pc_;
-		delete displayDataHolder;
 	}
 
 
@@ -280,9 +281,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Create the actual mouse tools.
 
 		zoom_      = new MWCRTZoomer;
-		pd_->addTool(ZOOM, SHARED_PTR<MultiWCTool>(zoom_));
+		pd_->addTool(ZOOM, std::shared_ptr<MultiWCTool>(zoom_));
 		panner_    = new MWCPannerTool;
-		pd_->addTool(PAN, SHARED_PTR<MultiWCTool>(panner_));
+		pd_->addTool(PAN, std::shared_ptr<MultiWCTool>(panner_));
 
 		if ( new_region_tools ) {
 
@@ -290,13 +291,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		} else {
 			ocrosshair_ = new QtOldCrossTool;
-			pd_->addTool(POINT, SHARED_PTR<MultiWCTool>(ocrosshair_));
+			pd_->addTool(POINT, std::shared_ptr<MultiWCTool>(ocrosshair_));
 			optregion_  = new QtOldPolyTool(pd_);
-			pd_->addTool(POLYGON, SHARED_PTR<MultiWCTool>(optregion_));
+			pd_->addTool(POLYGON, std::shared_ptr<MultiWCTool>(optregion_));
 			ortregion_  = new QtOldRectTool(pd_);
-			pd_->addTool(RECTANGLE, SHARED_PTR<MultiWCTool>(ortregion_));
+			pd_->addTool(RECTANGLE, std::shared_ptr<MultiWCTool>(ortregion_));
 			oelregion_  = new QtOldEllipseTool(pd_);
-			pd_->addTool(ELLIPSE, SHARED_PTR<MultiWCTool>(oelregion_));
+			pd_->addTool(ELLIPSE, std::shared_ptr<MultiWCTool>(oelregion_));
 			connect( ortregion_, SIGNAL(mouseRegionReady(casacore::Record, WorldCanvasHolder*)),
 			         SLOT(mouseRegionReady_(casacore::Record, WorldCanvasHolder*)) );
 			connect( ortregion_, SIGNAL(echoClicked(casacore::Record)),
@@ -313,12 +314,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		polyline_  = new MWCPolylineTool;
-		pd_->addTool(POLYLINE, SHARED_PTR<MultiWCTool>(polyline_));
+		pd_->addTool(POLYLINE, std::shared_ptr<MultiWCTool>(polyline_));
 
 		rulerline_  = new MWCRulerlineTool;
-		pd_->addTool(RULERLINE, SHARED_PTR<MultiWCTool>(rulerline_));
+		pd_->addTool(RULERLINE, std::shared_ptr<MultiWCTool>(rulerline_));
 		pvtool_  = new MWCPositionVelocityTool;
-		pd_->addTool(POSITIONVELOCITY, SHARED_PTR<MultiWCTool>(pvtool_));
+		pd_->addTool(POSITIONVELOCITY, std::shared_ptr<MultiWCTool>(pvtool_));
 
 
 		snsFidd_ = new PCITFiddler(pc_, PCITFiddler::StretchAndShift,
@@ -505,7 +506,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void QtDisplayPanel::resetTool(String toolname) {
 		// (NB: no effect on PCTools (e.g. SHIFTSLOPE, BRIGHTCONTRAST).
-		SHARED_PTR<MultiWCTool> tool = pd_->getTool(toolname);
+		std::shared_ptr<MultiWCTool> tool = pd_->getTool(toolname);
 		if ( tool.get( ) == 0 ) return;
 		tool->reset();
 	}
@@ -804,7 +805,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		emit oldDDRegistered(qdd);
 	}
 
-	DisplayDataHolder* QtDisplayPanel::getDataHolder() const {
+	std::shared_ptr<DisplayDataHolder> QtDisplayPanel::getDataHolder() const {
 		return displayDataHolder;
 	}
 
@@ -2907,7 +2908,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // revoke region from region source...
 	void QtDisplayPanel::revokeRegion( viewer::Region *r ) {
-		SHARED_PTR<RegionTool> tool = toolmgr->tool(r->type( ));
+		std::shared_ptr<RegionTool> tool = toolmgr->tool(r->type( ));
 		if ( tool ) tool->revokeRegion( r );
 	}
 

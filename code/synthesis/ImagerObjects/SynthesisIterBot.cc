@@ -51,8 +51,11 @@
 #include <synthesis/ImagerObjects/SynthesisIterBot.h>
 #include <ms/MeasurementSets/MSHistoryHandler.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/synthesis/ImagerControl.h>
+#endif
+#include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -72,6 +75,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //		fflush( stderr );
 	}
 
+#if ! defined(WITHOUT_DBUS)
 	void SynthesisIterBot::openDBus( ) {
 		if ( dbus_thread != NULL ) return;
 		dbus_thread = new std::thread(std::bind(&SynthesisIterBot::dbus_thread_launch_pad,this));
@@ -82,16 +86,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casa::DBusSession::instance().dispatcher( ).enter( );
 		std::cout << "Service Loop Exited: " << time(0) << std::endl;
 	}
-
+#endif
 	SynthesisIterBot::~SynthesisIterBot() {
 		if ( dbus_thread != NULL ) {
+#if ! defined(WITHOUT_DBUS)
 			casa::DBusSession::instance().dispatcher( ).leave( );
+#endif
 			dbus_thread->join( );
 			delete dbus_thread;
 			dbus_thread = NULL;
 		}
 		LogIO os( LogOrigin("SynthesisIterBot","destructor",WHERE) );
 		os << LogIO::DEBUG1 << "SynthesisIterBot destroyed" << LogIO::POST;
+		SynthesisUtilMethods::getResource("End SynthesisIterBot");
 	}
 
 	void SynthesisIterBot::setIterationDetails(Record iterpars) {
@@ -173,6 +180,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			if ( itsLoopController ) {
 				itsLoopController->incrementMajorCycleCount();
 				itsLoopController->addSummaryMajor();
+			}
+		} catch(AipsError &x) {
+			throw( AipsError("Error in running Major Cycle : "+x.getMesg()) );
+		}    
+	}
+
+	void SynthesisIterBot::resetMinorCycleInfo() {
+		LogIO os( LogOrigin("SynthesisIterBot","resetMinorCycleInfo",WHERE) );
+
+		try {
+			if ( itsLoopController ) {
+				itsLoopController->resetMinorCycleInitInfo();
 			}
 		} catch(AipsError &x) {
 			throw( AipsError("Error in running Major Cycle : "+x.getMesg()) );
@@ -319,11 +338,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       
 		  
 		  uInt nIm = itsImageList.nelements();
-		  if( itsActionCodes.nelements() != nIm ) { itsActionCodes.resize(nIm); itsActionCodes.set(0); }
+		  if( itsActionCodes.nelements() != nIm ) { itsActionCodes.resize(nIm); itsActionCodes.set(1.0); }
 		  
 		  for (uInt ind=0;ind<nIm;ind++)
 		    {
-		      if ( itsActionCodes[ind] ==0 )
+		      if ( fabs(itsActionCodes[ind]) ==1.0 )
 			{
 			  String imageName = itsImageList[ind]+".residual"+(itsMultiTermList[ind]?".tt0":"");
 			  String maskName = itsImageList[ind] + ".mask";
@@ -331,14 +350,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			  itsActionCodes[ind] = itsInteractiveMasker->interactivemask(imageName, maskName,
 										      iterleft, cycleniter, strthresh, strcycthresh);
 			  //cout << "After interaction : niter : " << niter << " cycleniter : " << cycleniter << " thresh : " << strthresh << " cyclethresh : " << strcycthresh << "  ------ ret : " << itsActionCodes[ind] << endl;
+			  if( itsActionCodes[ind] < 0 ) os << "[" << itsImageList[ind] <<"] Mask changed interactively." << LogIO::POST;
 			}
 		    }
 		  
-		  //cout << "ActionCodes : " << itsActionCodes << endl;
+		  //		  cout << "ActionCodes : " << itsActionCodes << endl;
 		  
 		  Quantity qa;
 		  casacore::Quantity::read(qa,strthresh);
 		  threshold = qa.getValue(Unit("Jy"));
+
+
+		  Float oldcyclethreshold = cyclethreshold;
 		  casacore::Quantity::read(qa,strcycthresh);
 		  cyclethreshold = qa.getValue(Unit("Jy"));
 
@@ -346,13 +369,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		    itsLoopController->changeNiter( iterdone+iterleft );
 		    itsLoopController->changeCycleNiter( cycleniter );
 		    itsLoopController->changeThreshold( threshold );
-		    itsLoopController->changeCycleThreshold( cyclethreshold );
+		    if( fabs( cyclethreshold - oldcyclethreshold ) > 1e-06)
+		      itsLoopController->changeCycleThreshold( cyclethreshold );
 		    }
 
 		  Bool alldone=true;
 		  for(uInt ind=0;ind<nIm;ind++)
 		    {
-		      alldone = alldone & ( itsActionCodes[ind]==2 );
+		      alldone = alldone & ( fabs(itsActionCodes[ind])==3 );
 		    }
 		  if( alldone==true ) changeStopFlag( true );
 

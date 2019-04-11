@@ -6,20 +6,32 @@
 #include <iostream>
 #include <string>
 
-#include "SDMBinData.h"
-using namespace sdmbin;
+#include <alma/ASDMBinaries/SDMBinData.h>
+#include <alma/ASDMBinaries/Error.h>
+#include <alma/ASDMBinaries/DataDescriptionsSet.h>
 
+#include <alma/Enumtcl/AxisName.h>
+#include <alma/Enumtcl/DataContent.h>
+#include <alma/Enumtcl/NetSideband.h>
+#include <alma/Enumtcl/PrimitiveDataType.h>
+#include <alma/Enumtcl/CalibrationDevice.h>
 
-#include "Error.h"
+using namespace asdm;
+using namespace asdmbinaries;
+using namespace std;
 
-#include "DataDescriptionsSet.h"
-
-
-#include <AxisName.h>
-#include <DataContent.h>
-#include <NetSideband.h>
-#include <PrimitiveDataType.h>
-#include <CalibrationDevice.h>
+using namespace AtmPhaseCorrectionMod;
+using namespace AxisNameMod;
+using namespace CalibrationDeviceMod;
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace DataContentMod;
+using namespace NetSidebandMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+using namespace ScanIntentMod;
+using namespace SpectralResolutionTypeMod;
+using namespace TimeSamplingMod;
 
 namespace sdmbin {
 
@@ -32,11 +44,20 @@ namespace sdmbin {
     // Are we going to be verbose ?
     verbose_ = getenv("ASDM_DEBUG") != NULL;
 
-    if(!opendir( execBlockDir.c_str()))
+    DIR *dir;
+    dir = opendir( execBlockDir.c_str());
+    if(!dir)
       Error(FATAL, "In SDMBinData::SDMBinData( ASDM* const datasetPtr, string execBlockDir) : Directory " + execBlockDir + " not present present");
+    closedir(dir);
+    dir = NULL;
+
     string xmlfile = execBlockDir + "/Main.xml"; //cout << "xmlfile="<< xmlfile<<endl;
-    if(!fopen( xmlfile.c_str(),"r"))
+    FILE *pFile;
+    pFile = fopen( xmlfile.c_str(),"r");
+    if(!pFile)
       Error(FATAL, string("In SDMBinData::SDMBinData( ASDM* const datasetPtr, string execBlockDir) : Main table not present in the SDM dataset"));
+    fclose(pFile);
+    pFile = NULL;
 
     execBlockDir_ = execBlockDir;
     mainRowPtr_   = NULL;
@@ -59,29 +80,34 @@ namespace sdmbin {
     if(coutDeleteInfo_)cout<<"Destructor SSDMBinData"<<endl;
 
     for(unsigned int n=0; n<v_msDataPtr_.size();  n++) {
-      if(v_msDataPtr_[n]){delete  v_msDataPtr_[n];}
-      msDataPtr_=NULL;
+      if(v_msDataPtr_[n]){deleteMsData(v_msDataPtr_[n]);}
     }
+    v_msDataPtr_.clear();
 
     for(unsigned int n=0; n<v_sdmDataPtr_.size(); n++){
       if(v_sdmDataPtr_[n]){delete v_sdmDataPtr_[n]; }
-      sdmDataPtr_=NULL;
+    }
+    v_sdmDataPtr_.clear();
+
+    if(vmsDataPtr_) {
+      delete vmsDataPtr_;
+      vmsDataPtr_ = NULL;
     }
 
-    // if(vmsDataPtr_) {
-    //   delete vmsDataPtr_;
-    //   vmsDataPtr_ = NULL;
-    // }
-
+    // msDataPtr_ is used to pass things around
+    // the pointers to be deleted are handled where they are found - usually in v_msDataPtr_
     // if(msDataPtr_ ) {
-    //   delete msDataPtr_;
+    //   deleteMsData(msDataPtr_);
     //   msDataPtr_ = NULL;
     // }
 
+    // sdmDataPtr_ appears to not be used here, unsure what it is or where it comes from
     // if(sdmDataPtr_) {
     //   delete sdmDataPtr_;
     //   sdmDataPtr_ = NULL;
     // }
+
+    // v_dataDump_
     vector<DataDump*>::reverse_iterator
       it,
       itrb=v_dataDump_.rbegin(),
@@ -89,6 +115,13 @@ namespace sdmbin {
     for(it=itrb; it!=itre; it++){
       delete *it;
     }
+    v_dataDump_.clear();
+
+    for (map<Tag,BaselinesSet*>::iterator it=m_cdId_baselinesSet_.begin();it!=m_cdId_baselinesSet_.end();++it) {
+      if (it->second != NULL) delete(it->second);
+    }
+    m_cdId_baselinesSet_.clear();
+
     if(coutDeleteInfo_)cout<<"FIN: SSDMBinData object deleted"<<endl;
   }
 
@@ -468,10 +501,10 @@ namespace sdmbin {
       vector<SDMDataObject::Baseband>  v_baseband          = dataStruct.basebands();
       SDMDataObject::ZeroLagsBinaryPart               zeroLagsParameters;
 
-      bool                             normalized=false;
+//      bool                             normalized=false;
       if(e_pt[ProcessorTypeMod::CORRELATOR]){
-	if(e_cm[CorrelationModeMod::CROSS_ONLY])
-	  normalized =  dataStruct.autoData().normalized();
+//	if(e_cm[CorrelationModeMod::CROSS_ONLY])
+//	  normalized =  dataStruct.autoData().normalized();
 	if(dataStruct.zeroLags().size()){
 	  zeroLagsParameters = dataStruct.zeroLags();
 	  correlatorType = zeroLagsParameters.correlatorType(); e_ct=correlatorType;
@@ -774,7 +807,7 @@ namespace sdmbin {
 	int64_t                    exposure;
 	int64_t                    timeOfInteg;
 	int64_t                    timeCentroid;
-	unsigned int                 dumpNum;
+//	unsigned int                 dumpNum;
 
 // 	interval_    = interval;
 // 	exposure     = interval_;
@@ -791,7 +824,7 @@ namespace sdmbin {
 	    cout<<"ici 1"<<endl;
 	  }
 
-	  dumpNum     = nt+1;
+//	  dumpNum     = nt+1;
 
 	  timeOfInteg  = v_dataSubset[nt].time();        if(coutest)cout<<"attachDataObject: "<<timeOfInteg<<endl;
 	  timeCentroid = v_dataSubset[nt].time();        if(coutest)cout<<"attachDataObject: "<<timeCentroid<<endl;
@@ -1175,10 +1208,10 @@ namespace sdmbin {
       vector<SDMDataObject::Baseband>  v_baseband          = dataStruct.basebands();
       SDMDataObject::ZeroLagsBinaryPart               zeroLagsParameters;
 
-      bool                             normalized=false;
+//      bool                             normalized=false;
       if(e_pt[ProcessorTypeMod::CORRELATOR]){
-	if(e_cm[CorrelationModeMod::CROSS_ONLY])
-	  normalized =  dataStruct.autoData().normalized();
+//	if(e_cm[CorrelationModeMod::CROSS_ONLY])
+//	  normalized =  dataStruct.autoData().normalized();
 	if(dataStruct.zeroLags().size()){
 	  zeroLagsParameters = dataStruct.zeroLags();
 	  correlatorType = zeroLagsParameters.correlatorType(); e_ct=correlatorType;
@@ -1483,7 +1516,7 @@ namespace sdmbin {
 	int64_t                    exposure;
 	int64_t                    timeOfInteg;
 	int64_t                    timeCentroid;
-	unsigned int                 dumpNum;
+//	unsigned int                 dumpNum;
 
 // 	interval_    = interval;
 // 	exposure     = interval_;
@@ -1505,7 +1538,7 @@ namespace sdmbin {
 	    cout<<"ici 1"<<endl;
 	  }
 
-	  dumpNum     = nt+1;  //nt++;
+//	  dumpNum     = nt+1;  //nt++;
 
 	  timeOfInteg  = currentSubset.time();        if(verbose_)cout<<"attachDataObject: "<<timeOfInteg<<endl;
 	  timeCentroid = currentSubset.time();        if(verbose_)cout<<"attachDataObject: "<<timeCentroid<<endl;
@@ -1694,6 +1727,7 @@ namespace sdmbin {
 	  <<",es_qapc="<<es_qapc.str()<<")"
 	  << endl;
 
+    // note, this is a LOCAL msDataPtr_ here
     MSData* msDataPtr_ = 0;
 
     if(v_msDataPtr_.size()>0){
@@ -1940,6 +1974,7 @@ namespace sdmbin {
 		  if(v_dataDump_[nt]->integrationNum())v_projectNodes.push_back(v_dataDump_[nt]->integrationNum());
 		  if(v_dataDump_[nt]->subintegrationNum())v_projectNodes.push_back(v_dataDump_[nt]->subintegrationNum());
 		  msDataPtr_->projectPath        = v_projectNodes;
+		  // this pointer ends up in v_msDataPtr_ and is deleted from there
 		  v_msDataPtr_.push_back(msDataPtr_);                      // store in vector for export
 		}
 		if(verbose_)cout << "B/ msDataPtr_->numData=" <<msDataPtr_->numData << endl;
@@ -2064,6 +2099,7 @@ namespace sdmbin {
 		    msDataPtr_->projectPath          = v_projectNodes;
 		  }
 		  // store in vector for export
+		  // this point is put into v_msDataPtr_ and should be deleted from there
 		  if(msDataPtr_->numData>0)v_msDataPtr_.push_back(msDataPtr_);
 		  if(verbose_)cout << "A/ msDataPtr_->numData=" << msDataPtr_->numData << endl;
 		  scn++;
@@ -2524,7 +2560,7 @@ namespace sdmbin {
       vector<int> ddId_v;
       vector<int>::iterator ddId_i;
       int ddIdOld = -1;
-      int ddIndex;
+      int ddIndex = -1;
  
       for(unsigned int n=0; n<v_msDataPtr_.size(); n++) {
 	if (v_msDataPtr_[n]->dataDescId != ddIdOld) {
@@ -2671,17 +2707,6 @@ namespace sdmbin {
     return getNextMSMainCols( e_qcm, es_qapc, nDataSubset);
   }
 
-  void SDMBinData::getNextMSMainCols(unsigned int nDataSubset, std::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp) {
-    Enum<CorrelationMode>       e_qcm;
-    EnumSet<AtmPhaseCorrection> es_qapc;
-    if(canSelect_){
-      cout<<"INFORM: context allow to select"<<endl;
-      e_qcm   = e_qcm_;
-      es_qapc = es_qapc_;
-    }
-    getNextMSMainCols( e_qcm, es_qapc, nDataSubset, vmsData_p_sp );
-  }
-
   const VMSData* SDMBinData::getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubset) {
     if (verbose_) cout << "SDMBinData::getNextMSMainCols : entering" << endl;
 
@@ -2735,7 +2760,7 @@ namespace sdmbin {
       vector<int> ddId_v;
       vector<int>::iterator ddId_i;
       int ddIdOld = -1;
-      int ddIndex;
+      int ddIndex = -1;
  
       for(unsigned int n=0; n<v_msDataPtr_.size(); n++) {
 	if (v_msDataPtr_[n]->dataDescId != ddIdOld) {
@@ -2833,13 +2858,27 @@ namespace sdmbin {
     return vmsDataPtr_;
   }
 
-  void  SDMBinData::getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubset,  std::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp ) {
+  // shared_ptr not needed by CASA, do not compile this for the WITHOUT_BOOST option
+  // It may be needed by ALMA code, so do not elimiate it yet.
+#ifndef WITHOUT_BOOST
+  void SDMBinData::getNextMSMainCols(unsigned int nDataSubset, boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp) {
+    Enum<CorrelationMode>       e_qcm;
+    EnumSet<AtmPhaseCorrection> es_qapc;
+    if(canSelect_){
+      cout<<"INFORM: context allow to select"<<endl;
+      e_qcm   = e_qcm_;
+      es_qapc = es_qapc_;
+    }
+    getNextMSMainCols( e_qcm, es_qapc, nDataSubset, vmsData_p_sp );
+  }
+
+  void  SDMBinData::getNextMSMainCols(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubset,  boost::shared_ptr<VMSDataWithSharedPtr>& vmsData_p_sp ) {
     if (verbose_) cout << "SDMBinData::getNextMSMainCols (with VMSDataSharedPtr) : entering" << endl;
 
     VMSDataWithSharedPtr* vmsData_p = vmsData_p_sp.get();
 
     // Delete the content of v_msDataPtr (but do not delete "deeply" i.e. do not delete the visibilities referred to by pointers stored into v_msDataPtr since the 
-    // memory they occupy is going to be managed by std::shared_ptr s.
+    // memory they occupy is going to be managed by boost::shared_ptr s.
     //
     if ( v_msDataPtr_.size() > 0 ){
       for(vector<MSData*>::reverse_iterator it=v_msDataPtr_.rbegin(); it!=v_msDataPtr_.rend(); ++it) delete (*it);
@@ -2867,7 +2906,7 @@ namespace sdmbin {
       vector<int> ddId_v;
       vector<int>::iterator ddId_i;
       int ddIdOld = -1;
-      int ddIndex;
+      int ddIndex = -1;
  
       for(unsigned int n=0; n<v_msDataPtr_.size(); n++) {
 	if (v_msDataPtr_[n]->dataDescId != ddIdOld) {
@@ -2919,10 +2958,10 @@ namespace sdmbin {
 	vmsData_p->v_flag.push_back(v_msDataPtr_[n]->flag);
 
 	vmsData_p->v_atmPhaseCorrection = v_msDataPtr_[n]->v_atmPhaseCorrection;
-	map<AtmPhaseCorrection,std::shared_ptr<float> > m_vdata;
+	map<AtmPhaseCorrection,boost::shared_array<float> > m_vdata;
 	for(unsigned int napc=0; napc<vmsData_p->v_atmPhaseCorrection.size(); napc++){
 	  float* d=v_msDataPtr_[n]->v_data[napc];
-	  std::shared_ptr<float> d_sp(d);
+	  boost::shared_array<float> d_sp(d);
 	  m_vdata.insert(make_pair(vmsData_p->v_atmPhaseCorrection[napc],d_sp));
 	}
 	vmsData_p->v_m_data.push_back(m_vdata);
@@ -2955,10 +2994,10 @@ namespace sdmbin {
 	vmsData_p->v_flag.push_back(v_msDataPtr_[n]->flag);
 
 	vmsData_p->v_atmPhaseCorrection = v_msDataPtr_[n]->v_atmPhaseCorrection;
-	map<AtmPhaseCorrection, std::shared_ptr<float> > m_vdata;
+	map<AtmPhaseCorrection, boost::shared_array<float> > m_vdata;
 	for(unsigned int napc=0; napc<vmsData_p->v_atmPhaseCorrection.size(); napc++){
 	  float* d=v_msDataPtr_[n]->v_data[napc];
-	  std::shared_ptr<float> d_sp(d);
+	  boost::shared_array<float> d_sp(d);
 	  m_vdata.insert(make_pair(vmsData_p->v_atmPhaseCorrection[napc],d_sp));
 	}
 	vmsData_p->v_m_data.push_back(m_vdata);
@@ -2968,6 +3007,7 @@ namespace sdmbin {
     }
     if (verbose_) cout << "SDMBinData::getNextMSMainCols : exiting" << endl; 
   }
+#endif
 
   vector<MSData*> SDMBinData::getMSDataFromBDFData(Enum<CorrelationMode> e_qcm, EnumSet<AtmPhaseCorrection> es_qapc, unsigned int nDataSubsets) {
     if (verbose_) cout << "SDMBinData::getMSDataFromBDFData: entering (e_qcm="<<e_qcm.str()
@@ -3036,7 +3076,7 @@ namespace sdmbin {
     baselinesSet_=itf->second;
 
     if (verbose_) cout<<"ConfigDescriptionId = " << configDescriptionId.toString()<<endl;
-    unsigned int               stateId;
+//    unsigned int               stateId;
     vector<StateRow*>          v_statePtr = mainRowPtr_->getStatesUsingStateId();
 
     vector<int>                v_feedSet  = cdPtr->getFeedId();
@@ -3129,7 +3169,7 @@ namespace sdmbin {
 	
 	unsigned int scn=0;
 	for(unsigned int na=0; na<v_antSet.size(); na++){
-	  stateId = v_statePtr[na]->getStateId().getTagValue();
+//	  stateId = v_statePtr[na]->getStateId().getTagValue();
 	  for(unsigned int nfe=0; nfe<numFeed; nfe++){
 	    for(unsigned int ndd=0; ndd<v_ddList.size(); ndd++){
 	      numBin = baselinesSet_->numBin(ndd);
@@ -3254,7 +3294,7 @@ namespace sdmbin {
 	unsigned int scn=0;
 	for(unsigned int na1=0; na1<v_antSet.size(); na1++){
 	  // we will assume that na2 has the same stateId (perhaps we should return a vector?)!
-	  stateId = v_statePtr[na1]->getStateId().getTagValue();
+ //	  stateId = v_statePtr[na1]->getStateId().getTagValue();
 	  for(unsigned int na2=na1+1; na2<v_antSet.size(); na2++){
 	    for(unsigned int nfe=0; nfe<numFeed; nfe++){
 	      for(unsigned int ndd=0; ndd<v_ddList.size(); ndd++){
@@ -3352,7 +3392,7 @@ namespace sdmbin {
     Enum<CorrelatorType>             e_ct;
  
     if (verbose_) cout << "*" << endl;
-    unsigned int                     numTime=0;
+//    unsigned int                     numTime=0;
  
     unsigned int                     numAnt              = sdmdosr.numAntenna();   
     CorrelationMode                  correlationMode     = sdmdosr.correlationMode(); e_cm=correlationMode;
@@ -3365,10 +3405,10 @@ namespace sdmbin {
     const vector<SDMDataObject::Baseband>&  v_baseband          = dataStruct.basebands();
     SDMDataObject::ZeroLagsBinaryPart               zeroLagsParameters;
     
-    bool                             normalized=false;
+//    bool                             normalized=false;
     if(e_pt[ProcessorTypeMod::CORRELATOR]){
-      if(e_cm[CorrelationModeMod::CROSS_ONLY])
-	normalized =  dataStruct.autoData().normalized();
+//      if(e_cm[CorrelationModeMod::CROSS_ONLY])
+//	normalized =  dataStruct.autoData().normalized();
       if(dataStruct.zeroLags().size()){
 	zeroLagsParameters = dataStruct.zeroLags();
 	correlatorType = zeroLagsParameters.correlatorType(); e_ct=correlatorType;
@@ -3458,7 +3498,7 @@ namespace sdmbin {
     es_axisNames.set(binaryPart.axes(),true);
     if(es_axisNames.count())m_dc_sizeAndAxes.insert(make_pair(dataContent,make_pair(binaryPart.size(),es_axisNames)));
     
-    if(es_axisNames[TIM])numTime=sdmdosr.numTime();
+//    if(es_axisNames[TIM])numTime=sdmdosr.numTime();
     
     dataContent = CROSS_DATA;
     binaryPart  = dataStruct.crossData();
@@ -3472,7 +3512,7 @@ namespace sdmbin {
       if(es_axisNames.count())m_dc_sizeAndAxes.insert(make_pair(dataContent,make_pair(binaryPart.size(),es_axisNames)));
     }
     
-    if(es_axisNames[TIM])numTime=sdmdosr.numTime();
+//    if(es_axisNames[TIM])numTime=sdmdosr.numTime();
     
     map<DataContent,pair<unsigned int,EnumSet<AxisName> > >::iterator
       itf=m_dc_sizeAndAxes.find(AUTO_DATA),

@@ -47,7 +47,8 @@ MSMetaInfoForCal::MSMetaInfoForCal(String msname) :
   nSpw_(1),
   nFld_(1),
   ms_(NULL),
-  msmd_(NULL)
+  msmd_(NULL),
+  ssp_(NULL)
 {
 
   // If the specified MS is available, make non-trivial meta-info accessors
@@ -55,7 +56,14 @@ MSMetaInfoForCal::MSMetaInfoForCal(String msname) :
       Table::tableInfo(msname_).type()=="Measurement Set") {
 
     ms_ = new MeasurementSet(msname_);
-    msmd_ = new MSMetaData(ms_,50.0f);
+
+    // 95% of the size of an Int column, or 50 MB (whichever smaller)
+    //  This ensures that smallish time-to-Id maps will get cached
+    //   (instead of one-off column info needed to calculate them)
+    //  This is appropriate for the the calibration context
+    Float msmdcache=0.95*4.0f*Float(ms_->nrow())/1e6;
+    msmdcache=min(msmdcache,50.0);
+    msmd_ = new MSMetaData(ms_,msmdcache);
 
     // MS seems to be available
     msOk_=True;
@@ -78,9 +86,10 @@ MSMetaInfoForCal::MSMetaInfoForCal(const MeasurementSet& ms) :
   nSpw_(0),
   nFld_(0),
   ms_(NULL),        // ... but we won't have our own MS pointer
-  msmd_(new MSMetaData(&ms,50.0f))  // Form MSMetaData directly
+  msmd_(new MSMetaData(&ms,  // Form MSMetaData directly (not more than 50MB)
+		       min(50.0,0.95f*4.0f*Float(ms.nrow())/1e6))),
+  ssp_(NULL)
 {
-
   // Fill counters from msmd
   nAnt_=msmd_->nAntennas();
   nSpw_=msmd_->nSpw(True);
@@ -95,7 +104,8 @@ MSMetaInfoForCal::MSMetaInfoForCal(uInt nAnt,uInt nSpw,uInt nFld) :
   nSpw_(nSpw),
   nFld_(nFld),
   ms_(NULL),
-  msmd_(NULL)
+  msmd_(NULL),
+  ssp_(NULL)
 {
   // Nothing to do
 }
@@ -110,7 +120,8 @@ MSMetaInfoForCal::MSMetaInfoForCal(const vi::SimpleSimVi2Parameters& sspar) :
   nSpw_(sspar.nSpw_),
   nFld_(sspar.nField_),
   ms_(NULL),
-  msmd_(NULL)
+  msmd_(NULL),
+  ssp_(new SimpleSimVi2Parameters(sspar))  // a copy
 {
   // Nothing to do
 }
@@ -124,6 +135,8 @@ MSMetaInfoForCal::~MSMetaInfoForCal()
     delete msmd_;
   if (ms_)
     delete ms_;
+  if (ssp_)
+    delete ssp_;
 }
 
 // Return access to MSMetaData object (if avail)
@@ -133,6 +146,13 @@ MSMetaData& MSMetaInfoForCal::msmd() const {
     return *msmd_;
   else
     throw(AipsError("MSMetaDataForCal::msmd():  No MSMetaData object available!"));
+}
+
+const SimpleSimVi2Parameters& MSMetaInfoForCal::ssp() const {
+  if (ssp_)
+    return *ssp_;
+  else
+    throw(AipsError("MSMetaDataForCal::ssp():  No SimpleSimVi2Parameters object available!"));
 }
 
 // Antenna name, by index

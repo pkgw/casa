@@ -38,8 +38,7 @@ template<class T> class Vector;
 
 namespace casa {
 
-
-class ImageFitterResults {
+template <class T> class ImageFitterResults {
 	// <summary>
     // Used exclusively by ImageFitter. Unless you are modifying that class,
     // you should have no reason to use this class.
@@ -72,11 +71,11 @@ public:
 
 	ImageFitterResults() = delete;
 
-	ImageFitterResults(SPCIIF image, SHARED_PTR<casacore::LogIO> log);
+	ImageFitterResults(SPCIIT image, std::shared_ptr<casacore::LogIO> log);
 
 	~ImageFitterResults();
 
-	void setChannels(casacore::Vector<casacore::uInt> chans) { _channels = chans; }
+	void setChannels(std::vector<casacore::uInt> chans) { _channels = chans; }
 
 	void setConvolvedList(const ComponentList& list) {
 		_convolvedList = list;
@@ -86,31 +85,31 @@ public:
 	    _deconvolvedList = list;
 	}
 
-	void setPeakIntensities(const casacore::Vector<casacore::Quantity>& p) {
-		_peakIntensities.assign(p);
+	void setPeakIntensities(const std::vector<casacore::Quantity>& p) {
+		_peakIntensities = p;
 	}
 
-	void setPeakIntensityErrors(const casacore::Vector<casacore::Quantity>& m) {
-		_peakIntensityErrors.assign(m);
+	void setPeakIntensityErrors(const std::vector<casacore::Quantity>& m) {
+		_peakIntensityErrors = m;
 	}
-	void setMajorAxes(const casacore::Vector<casacore::Quantity>& m) {
+	void setMajorAxes(const std::vector<casacore::Quantity>& m) {
 		_majorAxes = m;
 	}
 
-	void setMinorAxes(const casacore::Vector<casacore::Quantity>& m) {
+	void setMinorAxes(const std::vector<casacore::Quantity>& m) {
 		_minorAxes = m;
 	}
 
-	void setPositionAngles(const casacore::Vector<casacore::Quantity>& m) {
+	void setPositionAngles(const std::vector<casacore::Quantity>& m) {
 		_positionAngles = m;
 	}
 
-	void setFluxDensities(const casacore::Vector<casacore::Quantity>& m) {
-		_fluxDensities.assign(m);
+	void setFluxDensities(const std::vector<casacore::Quantity>& m) {
+		_fluxDensities = m;
 	}
 
-	void setFluxDensityErrors(const casacore::Vector<casacore::Quantity>& m) {
-		_fluxDensityErrors.assign(m);
+	void setFluxDensityErrors(const std::vector<casacore::Quantity>& m) {
+		_fluxDensityErrors = m;
 	}
 
 	void writeNewEstimatesFile(const casacore::String& filename) const;
@@ -123,12 +122,12 @@ public:
 	casacore::String resultsHeader(
 		const casacore::String& chans, const casacore::Vector<casacore::uInt>& chanVec,
 		const casacore::String& region, const casacore::String& mask,
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > includePixelRange,
-		SHARED_PTR<std::pair<casacore::Float, casacore::Float> > excludePixelRange,
+		std::shared_ptr<std::pair<T, T>> includePixelRange,
+		std::shared_ptr<std::pair<T, T>> excludePixelRange,
 		const casacore::String& estimates
 	) const;
 
-	static vector<casacore::String> unitPrefixes(casacore::Bool includeC);
+	static std::vector<casacore::String> unitPrefixes(casacore::Bool includeC);
 
 	void setStokes(const casacore::String& s) { _stokes = s; }
 
@@ -136,21 +135,27 @@ public:
 
 	void setFixed(const casacore::Vector<casacore::String>& s) { _fixed = s; }
 
-	void writeSummaryFile(const casacore::String& filename, const casacore::CoordinateSystem& csys) const;
+	void writeSummaryFile(
+	    const casacore::String& filename, const casacore::CoordinateSystem& csys
+	) const;
 
 private:
-	SPCIIF _image;
-	SHARED_PTR<casacore::LogIO> _log;
+	SPCIIT _image;
+	std::shared_ptr<casacore::LogIO> _log;
 	ComponentList _convolvedList{}, _deconvolvedList{};
-	casacore::Vector<casacore::Quantity> _peakIntensities, _peakIntensityErrors,
-		_majorAxes, _minorAxes,
-		_positionAngles, _fluxDensities, _fluxDensityErrors;
+	std::vector<casacore::Quantity> _peakIntensities, _peakIntensityErrors,
+		_majorAxes, _minorAxes, _positionAngles, _fluxDensities, _fluxDensityErrors;
 	casacore::String _bUnit, _stokes;
 	casacore::Vector<casacore::String> _fixed;
-	casacore::Vector<casacore::uInt> _channels{};
+	std::vector<casacore::uInt> _channels{};
 	const static casacore::String _class;
 	static std::vector<casacore::String> _prefixes, _prefixesWithCenti;
 };
+
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/IO/ImageFitterResults.tcc>
+#endif
 
 #endif

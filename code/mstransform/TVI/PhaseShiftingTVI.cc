@@ -36,7 +36,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 PhaseShiftingTVI::PhaseShiftingTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	// Parse and check configuration parameters
 	// Note: if a constructor finishes by throwing an exception, the memory
@@ -113,7 +113,7 @@ void PhaseShiftingTVI::visibilityObserved (Cube<Complex> & vis) const
 	Vector<Double> frequencies = vb->getFrequencies(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -145,7 +145,7 @@ void PhaseShiftingTVI::visibilityCorrected (Cube<Complex> & vis) const
 	Vector<Double> frequencies = vb->getFrequencies(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -177,7 +177,7 @@ void PhaseShiftingTVI::visibilityModel (Cube<Complex> & vis) const
 	Vector<Double> frequencies = vb->getFrequencies(0);
 
 	// Reshape output data before passing it to the DataCubeHolder
-	vis.resize(getVisBufferConst()->getShape(),false);
+	vis.resize(getVisBuffer()->getShape(),false);
 
 	// Gather input data
 	DataCubeMap inputData;
@@ -226,6 +226,23 @@ vi::ViImplementation2 * PhaseShiftingTVIFactory::createVi(VisibilityIterator2 *)
 vi::ViImplementation2 * PhaseShiftingTVIFactory::createVi() const
 {
 	return new PhaseShiftingTVI(inputVii_p,configuration_p);
+}
+
+//////////////////////////////////////////////////////////////////////////
+// PhaseShiftingTVILayerFactory class
+//////////////////////////////////////////////////////////////////////////
+
+PhaseShiftingTVILayerFactory::PhaseShiftingTVILayerFactory(Record &configuration) :
+  ViiLayerFactory(),
+  configuration_p(configuration)
+{}
+
+ViImplementation2* 
+PhaseShiftingTVILayerFactory::createInstance(ViImplementation2* vii0) const 
+{
+  // Make the PhaseShiftingTVi2, using supplied ViImplementation2, and return it
+  ViImplementation2 *vii = new PhaseShiftingTVI(vii0,configuration_p);
+  return vii;
 }
 
 //////////////////////////////////////////////////////////////////////////

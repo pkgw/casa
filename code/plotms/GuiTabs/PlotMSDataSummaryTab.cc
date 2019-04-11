@@ -25,6 +25,8 @@
 //# $Id: $
 #include <plotms/GuiTabs/PlotMSDataSummaryTab.qo.h>
 
+
+#include <casaqt/QwtPlotter/QPPlotter.qo.h>
 #include <casaqt/QtUtilities/QtUtilities.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/GuiTabs/PlotMSDataCollapsible.qo.h>
@@ -33,6 +35,9 @@
 #include <plotms/Plots/PlotMSPlot.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <QDebug>
+
+#include <QMessageBox>
+#include <plotms/Data/MSCache.h>
 
 using namespace casacore;
 namespace casa {
@@ -52,8 +57,13 @@ PlotMSDataSummaryTab::PlotMSDataSummaryTab(PlotMSPlotter* parent) :
 
 	 // Add as watcher.
 	parent->getParent()->getPlotManager().addWatcher(this);
+
+	layout()->setAlignment(Qt::AlignTop);
     
     scrollWidget = new QWidget( ui.dataScroll );
+    //scrollWidget->setStyleSheet("QScrollArea#scrollWidget { background-color: green; }");
+    //scrollWidget->setMaximumHeight(850);
+
     ui.dataScroll->setWidget( scrollWidget );
     ui.dataScroll->setWidgetResizable( true );
     QVBoxLayout* scrollLayout = new QVBoxLayout();
@@ -211,6 +221,20 @@ void PlotMSDataSummaryTab::close( PlotMSDataCollapsible* collapsible ){
 		dataList.removeAt( collapseIndex );
 	}
 	delete collapsible;
+	for (int i=0; i<dataList.size(); ++i) {
+		dataList[i]->maximizeDisplay();
+		dataList[i]->plot(false);
+	}
+}
+
+void PlotMSDataSummaryTab::refreshPageHeader(){
+	auto * controllerQtDataModel = new PlotMSPageHeaderDataModel(itsParent_);
+	QtPageHeaderDataModelPtr controllerDataModelPtr { new QtPageHeaderDataModel(controllerQtDataModel) };
+
+	auto plotter = itsParent_->getPlotter();
+
+	plotter->refreshPageHeaderDataModel(controllerDataModelPtr);
+
 }
 
 bool PlotMSDataSummaryTab::plot(){
@@ -223,6 +247,7 @@ bool PlotMSDataSummaryTab::plot(){
 			plotted = true;
 		}
 	}
+	refreshPageHeader();
 	return plotted;
 }
 
@@ -243,6 +268,7 @@ void PlotMSDataSummaryTab::completePlotting( bool success, PlotMSPlot* plot ){
 		completePlotting( success, completedIndex );
 
 	}
+	refreshPageHeader();
 }
 
 void PlotMSDataSummaryTab::completePlotting( bool success, int plotIndex ){

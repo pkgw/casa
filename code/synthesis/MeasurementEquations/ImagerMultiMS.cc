@@ -657,7 +657,7 @@ Bool ImagerMultiMS::setimage(const Int nx, const Int ny,
 
   Bool ImagerMultiMS::selectDataChannel(){
 
-    LogIO os(LogOrigin("imager", "setDataPerMS()"), logSink_p);
+    LogIO os(LogOrigin("imager", "selectDataChannel()"), logSink_p);
 
     (blockNChan_p[numMS_p-1]).resize(dataspectralwindowids_p.nelements());
     (blockStart_p[numMS_p-1]).resize(dataspectralwindowids_p.nelements());

@@ -50,7 +50,7 @@ namespace casa {
 		virtual QString getFileName() const = 0;
 		virtual QString getImagePath() const =0;
 		virtual bool getBeamInfo( const QString& curveName, casacore::Double& beamAngle, casacore::Double& beamArea ) const = 0;
-		virtual casacore::SpectralCoordinate getSpectralCoordinate(SHARED_PTR<const casacore::ImageInterface<casacore::Float> > imagePtr, casacore::Bool& validCoord ) = 0;
+		virtual casacore::SpectralCoordinate getSpectralCoordinate(std::shared_ptr<const casacore::ImageInterface<casacore::Float> > imagePtr, casacore::Bool& validCoord ) = 0;
 		virtual casacore::Vector<casacore::Float> getXValues() const = 0;
 		virtual casacore::Vector<casacore::Float> getYValues() const = 0;
 		virtual casacore::Vector<casacore::Float>getZValues() const = 0;
@@ -62,7 +62,7 @@ namespace casa {
 		virtual casacore::String getRegionShape() const = 0;
 		virtual void postStatus( casacore::String str ) = 0;
 		virtual void plotMainCurve() = 0;
-		virtual SHARED_PTR<const casacore::ImageInterface<casacore::Float> > getImage( const QString& imageName = "") const = 0;
+		virtual std::shared_ptr<const casacore::ImageInterface<casacore::Float> > getImage( const QString& imageName = "") const = 0;
 		virtual void getPixelBounds( casacore::Vector<double>& xPixels, casacore::Vector<double>& yPixels) const = 0;
 		virtual casacore::MFrequency::Types getReferenceFrame() const = 0;
 		//Specific to Moments
@@ -70,7 +70,7 @@ namespace casa {
 		virtual QString read( const QString & key ) const = 0;
 		virtual void imageCollapsed(casacore::String path, casacore::String dataType, casacore::String displayType,
 				casacore::Bool autoRegister, casacore::Bool tmpData,
-				SHARED_PTR<casacore::ImageInterface<casacore::Float> > img = SHARED_PTR<casacore::ImageInterface<casacore::Float> >())=0;
+				std::shared_ptr<casacore::ImageInterface<casacore::Float> > img = std::shared_ptr<casacore::ImageInterface<casacore::Float> >())=0;
 		virtual void setPurpose( ProfileTaskMonitor::PURPOSE purpose ) = 0;
 
 		//Specific to Spectrum Position setting.

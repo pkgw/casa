@@ -45,6 +45,7 @@
 
 #include <mirlib/maxdimc.h>
 #include <mirlib/miriad.h>
+#include <sstream>
 
 using namespace casa;
 
@@ -107,6 +108,7 @@ Importmiriad::Importmiriad(String& infile, Int debug,
   debug_p = debug;
   msc_p = 0;
   nArray_p = 0;
+  nFreqSet_p = 0;
   nfield = 0;           //  # mosaiced fields (using offsets?)
   npoint = 0;           //  # pointings (using independant RA/DEC?)
   Qtsys_p = Qtsys;
@@ -203,14 +205,19 @@ void Importmiriad::checkInput(Block<Int>& spw, Block<Int>& wide)
       // get the initial correllator setup
       check_window();
       // setup the 'keep' array to specify which data we want to keep
-      for (Int i=0; i<MAXWIN+MAXWIDE; i++) keep[i]=(spw[0]==-1);
-      for (uInt i=0; i<spw.nelements(); i++) {
-        if (spw[i]>=0 && spw[i]<win[0].nspect) keep[spw[i]]=true;
+      keep_p.resize(MAXWIN+MAXWIDE); keep_p.set(False);
+      if (spw.nelements()>0) {
+        for (Int i=0; i<MAXWIN+MAXWIDE; i++) keep_p[i]=(spw[0]==-1);
+        for (uInt i=0; i<spw.nelements(); i++) {
+          if (spw[i]>=0 && spw[i]<win[0].nspect) keep_p[spw[i]]=true;
+        }
       }
       Int n=win[0].nspect;
-      for (Int i=0; i<win[0].nwide; i++) keep[n+i]=(wide[0]==-1);
-      for (uInt i=0; i<wide.nelements(); i++) {
-        if (wide[i]>0 && wide[i]<win[0].nwide) keep[n+wide[i]]=true;
+      if (wide.nelements()>0) {
+        for (Int i=0; i<win[0].nwide; i++) keep_p[n+i]=(wide[0]==-1);
+        for (uInt i=0; i<wide.nelements(); i++) {
+          if (wide[i]>0 && wide[i]<win[0].nwide) keep_p[n+wide[i]]=true;
+        }
       }
       //  should store nread + nwread, or handle it as option
       if (win[freqSet_p].nspect > 0) {    // narrow band, with possibly wide band also
@@ -225,6 +232,13 @@ void Importmiriad::checkInput(Block<Int>& spw, Block<Int>& wide)
 
       nants_offset_p = 0;
       uvgetvr_c(uv_handle_p,H_INT, "nants", (char *)&nants_p,1);
+      if (nants_p > MAXANT) {
+	ostringstream  msg;
+	msg << "Importmiriad: Too many antennas, "<< nants_p << " > "<< MAXANT<<endl;
+    	throw(AipsError(msg.str()));
+	return;
+      }
+
       uvgetvr_c(uv_handle_p,H_DBLE,"antpos",(char *)antpos,3*nants_p);
       if (Debug(1)) {
         os_p << LogIO::DEBUG1 << "Found " << nants_p << " antennas (first scan)" << LogIO::POST;
@@ -774,7 +788,7 @@ void Importmiriad::fillMSMainTable()
 
     Int ispw=-1;
     for (Int sno=0; sno < win[freqSet_p].nspect; sno++) {
-      if (not keep[sno]) continue;    
+      if (not keep_p(sno)) continue;    
       // IFs go to separate rows in the MS, pol's do not!
       ms_p.addRow(); 
       row++; ispw++;
@@ -1174,7 +1188,7 @@ void Importmiriad::fillSpectralWindowTable(String vel)
   Int ddid=-1;
   for (Int k=0; k < nFreqSet_p; k++) {
     for (Int i=0; i < win[k].nspect; i++) {
-      if(not keep[i]) continue;
+      if(not keep_p(i)) continue;
       ddid++;
       Int n = win[k].nschan[i];
       Vector<Double> f(n), w(n),cs(n);
@@ -1532,7 +1546,7 @@ void Importmiriad::Tracking(int record)
   if (vupd && npol_p==1) {
     uvrdvr_c(uv_handle_p,H_INT,"pol",(char *)&idat, NULL, 1);
     if (idat != pol_p[0])
-        os_p << LogIO::WARN<<"polarization changed to " << pol_p << LogIO::POST;
+        os_p << LogIO::WARN<<"polarization changed to " << *pol_p << LogIO::POST;
     pol_p[0] = idat;
   }
 
@@ -1786,7 +1800,7 @@ void Importmiriad::check_window()
       os_p << LogIO::DEBUG1 << "(N=narrow    W=wide,   S=spectral window averages)" << LogIO::POST;
 
       for (Int i=0; i<nspect+nwide; i++)
-        os_p << LogIO::DEBUG1 << win[next].code[i] << ": " << i+1  << " " << keep[i] << " "
+        os_p << LogIO::DEBUG1 << win[next].code[i] << ": " << i+1  << " " << keep_p(i) << " "
              << win[next].nschan[i] << " " << win[next].ischan[i] << " " 
              << win[next].sfreq[i] <<  " " << win[next].sdf[i] <<  " " << win[next].restfreq[i]
              << LogIO::POST;
@@ -1803,7 +1817,7 @@ void Importmiriad::check_window()
     ddid_p=0;
     for (Int i=0; i<freqSet_p; i++){
       for (Int j=0; j<win[i].nspect+win[i].nwide; j++) {
-        if (keep[j]) ddid_p+=1;
+        if (keep_p(j)) ddid_p+=1;
       }
     }
   }
@@ -1838,6 +1852,7 @@ void Importmiriad::show()
 // ==============================================================================================
 void Importmiriad::close()
 {
-  // does nothing for now
+  // close the file
+  uvclose_c(uv_handle_p);
 }
 

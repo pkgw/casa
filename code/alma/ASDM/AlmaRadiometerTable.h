@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -53,18 +53,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -83,7 +83,7 @@ class AlmaRadiometerRow;
  * Properties of the Radiometer receiver/backend (used to monitor water vapour  content and correct phases). Note that standard properties (like  spectral coverage) are in the generic tables (like SpectralWindow).
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of AlmaRadiometer </CAPTION>
@@ -106,15 +106,15 @@ class AlmaRadiometerRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna(numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> spectralWindowId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> spectralWindowId</TD> 
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; the references to the actual spectral windows (one spectral window per antenna). </TD>
  * </TR>
@@ -348,6 +348,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

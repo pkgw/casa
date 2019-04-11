@@ -3,11 +3,11 @@
  * Framework independent implementation file for utils...
  *
  * Implement the utils component here.
- * 
- * // TODO: WRITE YOUR DESCRIPTION HERE! 
+ *
+ * // TODO: WRITE YOUR DESCRIPTION HERE!
  *
  * @author
- * @version 
+ * @version
  ***/
 
 #include <iostream>
@@ -27,11 +27,17 @@
 #ifndef NO_CRASH_REPORTER
 #include <stdcasa/StdCasa/CrashReporter.h>
 #endif
+#include <stdlib.h>
 #include <signal.h>
 #include <string>
 #include <vector>
 #include <cstdlib>
-
+#include <casacore/casa/Quanta/UnitMap.h>
+#include <casatools/Config/State.h>
+#ifdef CASATOOLS
+#include <asdmstman/Register.h>
+#include <toolversion.h>
+#endif
 
 using namespace std;
 using namespace casacore;
@@ -321,7 +327,7 @@ typedef int SIZETCAST;
     result->insert( "pid", HostInfo::processID( ) );
 
     result->insert( "seconds", HostInfo::secondsFrom1970( ) );
-    
+
     return result;
 }
 
@@ -361,7 +367,7 @@ utils::_crash_reporter_initialize (const string & crashDirectory,
 
     return status;
 #else
-    return "";
+    return "no-op";
 #endif
 }
 
@@ -391,6 +397,81 @@ utils::_trigger_segfault (int faultType)
     return false;
 }
 
+// ------------------------------------------------------------
+// -------------------- initialize CASAtools ------------------
+
+static std::vector<std::string> default_data_path;
+bool utils::initialize(const std::vector<std::string> &default_path) {
+    static bool initialized = false;
+    if ( initialized ) return false;
+    default_data_path = default_path;
+    casatools::get_state( ).setDataPath(default_data_path);
+    // configure quanta/measures customizations...
+    UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
+#ifdef CASATOOLS
+    register_asdmstman( );
+#endif
+    initialized = true;
+    return true;
+}
+
+// ------------------------------------------------------------
+// -------------------- handling data path --------------------
+std::vector<std::string> utils::defaultpath( ) {
+    return default_data_path;
+}
+
+bool utils::setpath(const std::vector<std::string> &dirs) {
+    casatools::get_state( ).setDataPath(dirs);
+    return casatools::get_state( ).dataPath( ).size( ) == dirs.size( );
+}
+
+std::vector<std::string> utils::getpath( ) {
+    std::vector<std::string> result;
+    const std::list<std::string> &path = casatools::get_state( ).dataPath( );
+    std::copy( path.begin( ), path.end( ), std::back_inserter(result) );
+    return result;
+}
+
+void utils::clearpath( ) {
+    casatools::get_state( ).clearDataPath( );
+}
+
+std::string utils::resolve(const std::string &subdir) {
+    return casatools::get_state( ).resolve(subdir);
+}
+// ------------------------------------------------------------
+
+// ------------------------------------------------------------
+// -------------- handling service registry -------------------
+::casac::record *utils::registry( ) {
+    casac::record *regrec = new casac::record;
+    regrec->insert("uri",casatools::get_state( ).registryURI( ));
+    return regrec;
+}
+
+::casac::record *utils::services( ) {
+    std::list<casatools::ServiceId> servs = casatools::get_state( ).services( );
+    casac::record *regrec = new casac::record;
+    unsigned int count = 1;
+    for ( std::list<casatools::ServiceId>::const_iterator it=servs.begin( ); it != servs.end( ); ++it ) {
+        casac::record *sub = new casac::record;
+        sub->insert("id",it->id( ));
+        sub->insert("type",it->type( ));
+        sub->insert("uri",it->uri( ));
+        sub->insert("priority",it->priority( ));
+        regrec->insert(std::to_string(count++),sub);
+    }
+    return regrec;
+}
+
+void utils::shutdown( ) {
+    casatools::get_state( ).shutdown( );
+    // this will result in the deletion of casacore state object
+    casacore::AppStateSource::initialize(0);
+}
+
+// ------------------------------------------------------------
 
 std::vector<int>
 utils::version( ) {
@@ -409,55 +490,31 @@ utils::version_desc( ) { return VersionInfo::desc( ); }
 std::string
 utils::version_info( ) { return VersionInfo::info( ); }
 
-bool
- utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
-  vector<int> current_version = version( );
-  for ( unsigned int i=0; i < vec.size( ); ++i )
-    if ( vec[i] < 0 ) throw(AipsError("negative values not allowed in version numbers"));
+std::string
+utils::version_string( ) { return VersionInfo::str( ); }
 
-  unsigned int limit = min(current_version.size( ),vec.size( ));
-  if ( comparitor == ">" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return true;
-      else if ( current_version[i] < vec[i] ) return false;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return true;
-    return false;
-  } else if ( comparitor == "<" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return false;
-      else if ( current_version[i] < vec[i] ) return true;
-    }
-    return false;
-  } else if ( comparitor == ">=" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return true;
-      else if ( current_version[i] < vec[i] ) return false;
-    }
-    return true;
-  } else if ( comparitor == "<=" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] > vec[i] ) return false;
-      else if ( current_version[i] < vec[i] ) return true;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return false;
-    return true;
-  } else if ( comparitor == "=" || comparitor == "==" ) {
-    for ( unsigned int i=0; i < limit; ++i ) {
-      if ( current_version[i] != vec[i] ) return false;
-    }
-    for ( unsigned int i=limit; i < current_version.size( ); ++i )
-      if ( current_version[i] > 0 ) return false;
-    return true;
-  } else if ( comparitor == "!=" ) {
-    return ! compare_version("=",vec);
-  } else {
-    throw(AipsError("unknown comparator"));
-  }
-  return false;
+bool utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
+    return VersionInfo::compare(comparitor,vec);
+}
+
+std::vector<int>
+utils::toolversion( ) {
+    std::vector<int> result = {
+#ifdef CASATOOLS
+        ToolVersionInfo::major( ),
+        ToolVersionInfo::minor( ),
+#endif
+    };
+    return result;
+}
+
+std::string
+utils::toolversion_string( ) {
+#ifdef CASATOOLS
+    return ToolVersionInfo::version( );
+#else
+    return "";
+#endif
 }
 
 } // casac namespace
-

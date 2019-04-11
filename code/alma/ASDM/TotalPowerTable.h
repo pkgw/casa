@@ -41,27 +41,23 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -83,20 +79,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -115,7 +115,7 @@ class TotalPowerRow;
  * Total power data monitoring.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of TotalPower </CAPTION>
@@ -177,42 +177,42 @@ class TotalPowerRow;
 	
  * <TR>
  * <TD> uvw </TD> 
- * <TD> vector<vector<Length > > </TD>
+ * <TD> std::vector<std::vector<Length > > </TD>
  * <TD>  ConfigDescription.numAntenna, 3 </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> exposure </TD> 
- * <TD> vector<vector<Interval > > </TD>
+ * <TD> std::vector<std::vector<Interval > > </TD>
  * <TD>  ConfigDescription.numAntenna, CorrelatorMode.numBaseband </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> timeCentroid </TD> 
- * <TD> vector<vector<ArrayTime > > </TD>
+ * <TD> std::vector<std::vector<ArrayTime > > </TD>
  * <TD>  ConfigDescription.numAntenna, CorrelatorMode.numBaseband </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> floatData </TD> 
- * <TD> vector<vector<vector<float > > > </TD>
+ * <TD> std::vector<std::vector<std::vector<float > > > </TD>
  * <TD>  , ,  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> flagAnt </TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  ConfigDescription.numAntenna </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
 	
  * <TR>
  * <TD> flagPol </TD> 
- * <TD> vector<vector<int > > </TD>
+ * <TD> std::vector<std::vector<int > > </TD>
  * <TD>  ,  </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -226,7 +226,7 @@ class TotalPowerRow;
 	
  * <TR>
  * <TD> stateId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  ConfigDescription.numAntenna </TD> 
  * <TD> &nbsp; </TD>
  * </TR>
@@ -243,7 +243,7 @@ class TotalPowerRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> subintegrationNumber </TD> 
+ * <TD> subintegrationNumber</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  </TD>
@@ -416,7 +416,7 @@ public:
  	 * @param execBlockId
 	
      */
-	TotalPowerRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId);
+	TotalPowerRow *newRow(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId);
 	
 
 
@@ -553,7 +553,7 @@ public:
  	 * @param execBlockId
  	 		 
  	 */
-	TotalPowerRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId); 
+	TotalPowerRow* lookup(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -579,6 +579,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

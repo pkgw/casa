@@ -6,11 +6,12 @@ import shutil
 
 from taskinit import *
 from applycal import applycal
+from mstools import write_history
 import types
 import sdutil
 
 # Calibrator tool
-(cb,) = gentools(['cb'])
+(cb,myms) = gentools(['cb','ms'])
 
 def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
            width=0.5, elongated=False, applytable='',interp='', spwmap={},
@@ -33,8 +34,10 @@ def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
                 raise UserWarning, "Spw input must be ''(=all) in calmode='tsys'."
 
         if isinstance(infile,str) and os.path.exists(infile):
-            # don't need scr col for this
-            cb.open(filename=infile,compress=False,addcorr=True,addmodel=False)
+            # check if CORRECTED_DATA is necessary
+            addcorr = calmode == 'apply'
+            cb.setvi(old=True)
+            cb.open(filename=infile,compress=False,addcorr=addcorr,addmodel=False)
             cb.selectvis(spw=spw, scan=scan, field=field)
         else:
             raise Exception, 'Infile data set not found - please verify the name'
@@ -113,6 +116,13 @@ def sdcal(infile=None, calmode='tsys', fraction='10%', noff=-1,
                     
             # Calibrate
             cb.correct(applymode='calflag')
+            
+            # Write to HISTORY table of MS
+            param_names = sdcal.func_code.co_varnames[:sdcal.func_code.co_argcount] 
+            param_vals = [eval(p) for p in param_names]
+            write_history(myms, infile, 'sdcal', param_names, 
+                              param_vals, casalog) 
+            
 
         else: # Compute calibration table
             # Reconciliating 'Python world' calmode with 'C++ world' calmode
@@ -203,6 +213,19 @@ def temporary_calibration(calmode, arg_template, **kwargs):
         raise RuntimeError, 'Failed to create temporary caltable.'
     return caltable
 
+def fix_for_intent(calmodes, input_args):
+    if 'tsys' in calmodes and ('otfraster' in calmodes or 'otf' in calmodes):
+        casalog.post("Intent selection for 'otf' or 'otfraster' should be 'OBSERVE_TARGET#ON_SOURCE'. \n" 
+                     "However, the task is not allowed to set global intent selection since calmode contains 'tsys'. \n" 
+                     "As a workaround, set intent selection locally when 'otf' or 'otfraster' calibration is performed.",
+                     priority='WARN')
+        output_args = input_args.copy()
+        output_args['intent'] = 'OBSERVE_TARGET#ON_SOURCE'
+    else:
+        output_args = input_args
+    return output_args
+        
+
 def handle_composite_mode(args):
     kwargs = args.copy()
     calmodes = kwargs['calmode'].split(',')
@@ -225,13 +248,15 @@ def handle_composite_mode(args):
                 )
         elif 'otfraster' in calmodes:
             # otfraster calibration
+            kwargs_local = fix_for_intent(calmodes, kwargs)
             applytable_list.append(
-                temporary_calibration('otfraster', kwargs, spwmap={})
+                temporary_calibration('otfraster', kwargs_local, spwmap={})
                 )
         elif 'otf' in calmodes:
             # otf calibration
+            kwargs_local = fix_for_intent(calmodes, kwargs)
             applytable_list.append(
-                temporary_calibration('otf', kwargs, spwmap={})
+                temporary_calibration('otf', kwargs_local, spwmap={})
                 )
 
         # Tsys calibration

@@ -59,8 +59,8 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
   
   SynthesisNormalizer::SynthesisNormalizer() : 
-				       itsImages(SHARED_PTR<SIImageStore>()),
-				       itsPartImages(Vector<SHARED_PTR<SIImageStore> >()),
+				       itsImages(std::shared_ptr<SIImageStore>()),
+				       itsPartImages(Vector<std::shared_ptr<SIImageStore> >()),
                                        itsImageName(""),
                                        itsPartImageNames(Vector<String>(0)),
 				       itsPBLimit(0.2),
@@ -75,6 +75,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisNormalizer","destructor",WHERE) );
     os << LogIO::DEBUG1 << "SynthesisNormalizer destroyed" << LogIO::POST;
+    SynthesisUtilMethods::getResource("End SynthesisNormalizer");
+
   }
   
   
@@ -135,7 +137,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else
 	{ itsNFacets = 1;}
 
-
+      if( normpars.isDefined("restoringbeam") ) 
+        { 
+          if (normpars.dataType("restoringbeam")==TpString) {
+            itsUseBeam = normpars.asString( RecordFieldId("restoringbeam") ); }          
+          else 
+            { itsUseBeam = "";} 
+        }
       }
     catch(AipsError &x)
       {
@@ -147,7 +155,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   void SynthesisNormalizer::gatherImages(Bool dopsf, Bool doresidual, Bool dodensity)
   {
-
     //    cout << " partimagenames :" << itsPartImageNames << endl;
 
     Bool needToGatherImages = setupImagesOnDisk();
@@ -223,13 +230,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	os << "Send the model from : " << itsImageName << " to all nodes :" << itsPartImageNames << LogIO::POST;
 	
 	// Make the list of model images. This list is of length >1 only for multi-term runs.
+	// Vector<String> modelNames( itsImages->getNTaylorTerms() );
+	// if( modelNames.nelements() ==1 ) modelNames[0] = itsImages->getName()+".model";
+	// if( modelNames.nelements() > 1 ) 
+	//   {
+	//     for( uInt nt=0;nt<itsImages->getNTaylorTerms();nt++)
+	//       modelNames[nt] = itsImages->getName()+".model.tt" + String::toString(nt);
+	//   }
+
+
 	Vector<String> modelNames( itsImages->getNTaylorTerms() );
-	if( modelNames.nelements() ==1 ) modelNames[0] = itsImages->getName()+".model";
-	if( modelNames.nelements() > 1 ) 
+	if( itsImages->getType()=="default" ) modelNames[0] = itsImages->getName()+".model";
+	if( itsImages->getType()=="multiterm" ) 
 	  {
 	    for( uInt nt=0;nt<itsImages->getNTaylorTerms();nt++)
 	      modelNames[nt] = itsImages->getName()+".model.tt" + String::toString(nt);
 	  }
+	
+	
 	
 	for( uInt part=0;part<itsPartImages.nelements();part++)
 	  {
@@ -299,7 +317,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       itsImages->calcSensitivity();
 
       itsImages->makeImageBeamSet();
-      itsImages->printBeamSet();
+      Bool verbose(False);
+      if (itsUseBeam=="common") verbose=True;
+      itsImages->printBeamSet(verbose);
     }
 
   }
@@ -356,7 +376,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  }
 
 
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::getImageStore()
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::getImageStore()
   {
     LogIO os( LogOrigin("SynthesisNormalizer", "getImageStore", WHERE) );
     return itsImages;
@@ -393,11 +413,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     catch(AipsError &x)
       {
 	//throw( AipsError("Error in constructing a Deconvolver : "+x.getMesg()) );
-	//cout << "Did not find full images : " << x.getMesg() << endl;  // This should be a debug message.
 	err = err += String(x.getMesg()) + "\n";
 	foundFullImage = false;
       }
 
+    os << LogIO::DEBUG2 << " Found full images : " << foundFullImage << LogIO::POST;
 
     // Check if part images exist
     Bool foundPartImages = itsPartImageNames.nelements()>0 ? true : false ;
@@ -418,12 +438,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
       }
 
+    os << LogIO::DEBUG2 << " Found part images : " << foundPartImages << LogIO::POST;
+
     if( foundPartImages == false) 
       { 
 	if( foundFullImage == true && itsPartImageNames.nelements()>0 )
 	  {
 	    // Pick the coordsys, etc from fullImage, and construct new/fresh partial images. 
-	    cout << "Found full image, but no partial images. Make partImStores for : " << itsPartImageNames << endl;
+	    os << LogIO::DEBUG2 << "Found full image, but no partial images. Make partImStores for : " << itsPartImageNames << LogIO::POST;
 	    
 	    String imopen = itsImages->getName()+".residual"+((itsMapperType=="multiterm")?".tt0":"");
 	    Directory imdir( imopen );
@@ -435,19 +457,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  throw(AipsError("Cannot find partial image psf or residual for  " +itsImages->getName() +err));
 	      }
 
-	    PagedImage<Float> temppart( imopen );
-	    IPosition tempshape = temppart.shape();
-	    CoordinateSystem tempcsys = temppart.coordinates();
+	    PagedImage<Float> temppart(imopen);
 
 	    Bool useweightimage = itsImages->getUseWeightImage( *(itsImages->sumwt()) );
 	    for( uInt part=0; part<itsPartImageNames.nelements(); part++ )
 	      {
-		itsPartImages[part] = makeImageStore ( itsPartImageNames[part], tempcsys, tempshape, useweightimage );
+		itsPartImages[part] = makeImageStore (itsPartImageNames[part], temppart,
+                                                      useweightimage);
 	      }
+	    foundPartImages = True;
 	  }
 	else
 	  {
 	    itsPartImages.resize(0); 
+	    foundPartImages = False;
 	  }
       }
     else // Check that all have the same shape.
@@ -508,12 +531,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      }
 
 	    PagedImage<Float> temppart( imopen );
-	    IPosition tempshape = temppart.shape();
-	    CoordinateSystem tempcsys = temppart.coordinates();
 
 	    Bool useweightimage = itsPartImages[0]->getUseWeightImage( *(itsPartImages[0]->sumwt()) );
-
-	    itsImages = makeImageStore ( itsImageName, tempcsys, tempshape, useweightimage );
+	    itsImages = makeImageStore (itsImageName, temppart, useweightimage);
 	    foundFullImage = true;
 	  }
 
@@ -560,29 +580,51 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
           }
       }
-
-    return needToGatherImages;
+  os << LogIO::DEBUG2 << "Need to Gather ? " << needToGatherImages << LogIO::POST;
+  return needToGatherImages;
   }// end of setupImagesOnDisk
 
 
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::makeImageStore( String imagename )
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename )
   {
     if( itsMapperType == "multiterm" )
-      { return SHARED_PTR<SIImageStore>(new SIImageStoreMultiTerm( imagename, itsNTaylorTerms, true ));   }
+      { return std::shared_ptr<SIImageStore>(new SIImageStoreMultiTerm( imagename, itsNTaylorTerms, true ));   }
     else
-      { return SHARED_PTR<SIImageStore>(new SIImageStore( imagename, true ));   }
+      { return std::shared_ptr<SIImageStore>(new SIImageStore( imagename, true ));   }
   }
 
 
-  SHARED_PTR<SIImageStore> SynthesisNormalizer::makeImageStore( String imagename, 
-							    CoordinateSystem& csys, 
-								IPosition shp, Bool useweightimage )
+ /**
+  * build a new ImageStore, whether SIImageStore or SIImageStoreMultiTerm, borrowing
+  * image information from one partial image.
+  *
+  * @param imagename image name for the new SIStorageManager
+  * @param part partial image from which miscinfo, etc. data will be borrowed
+  * @param useweightimage useweight option for the new SIStorageManager
+  *
+  * @return A new SIImageStore object for the image name given.
+  */
+  std::shared_ptr<SIImageStore> SynthesisNormalizer::makeImageStore(const String &imagename,
+                                                               const PagedImage<Float> &part,
+                                                               Bool useweightimage)
   {
+    // borrow shape, coord, imageinfo and miscinfo
+    auto shape = part.shape();
+    auto csys = part.coordinates();
+    auto objectname = part.imageInfo().objectName();
+    auto miscinfo = part.miscInfo();
     if( itsMapperType == "multiterm" )
-      { return SHARED_PTR<SIImageStore>(new SIImageStoreMultiTerm( imagename, csys, shp, itsNFacets, false, itsNTaylorTerms, useweightimage ));   }
+      {
+        std::shared_ptr<SIImageStore> multiTermStore =
+            std::make_shared<SIImageStoreMultiTerm>(imagename, csys, shape, objectname,
+                                                    miscinfo, itsNFacets, false, itsNTaylorTerms, useweightimage );
+        return multiTermStore;
+      }
     else
-      { return SHARED_PTR<SIImageStore>(new SIImageStore( imagename, csys, shp, false, useweightimage ));   }
-    //      { return new SIImageStore( imagename, csys, shp, itsNFacets, false, useweightimage );   }
+      {
+        return std::make_shared<SIImageStore>(imagename, csys, shape, objectname, miscinfo,
+                                              false, useweightimage);
+       }
   }
 
   //

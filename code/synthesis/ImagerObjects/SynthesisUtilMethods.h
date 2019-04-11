@@ -133,14 +133,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     static casacore::Int getOptimumSize(const casacore::Int npix);
 
-    static casacore::Int parseLine(char* line);
-    static void getResource(casacore::String label="",casacore::String fname="");
+    static void getResource(casacore::String label="", casacore::String fname="");
     
+    // return comprehensible direction string from given MDirection object
+    static casacore::String asComprehensibleDirectionString(casacore::MDirection const &direction);
+
   protected:
     static casacore::String mergeSpwSel(const casacore::Vector<casacore::Int>& fspw, const casacore::Vector<casacore::Int>& fstart, const casacore::Vector<casacore::Int>& fnchan, const casacore::Matrix<casacore::Int>& spwsel);
 
     static casacore::Vector<casacore::uInt> primeFactors(casacore::uInt n, casacore::Bool douniq=true);
 
+  private:
+    static casacore::String makeResourceFilename(int pid);
+
+    static casacore::String g_hostname;
+    static casacore::String g_startTimestamp;
+    static const casacore::String g_enableOptMemProfile;
+
+    static casacore::Int parseProcStatusLine(const std::string &str);
   };
 
 class SynthesisParams
@@ -213,7 +223,10 @@ public:
 
   // Generate casacore::Coordinate System 
   casacore::CoordinateSystem buildCoordinateSystem(ROVisibilityIterator* rvi);
-  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2);
+
+  casacore::CoordinateSystem buildCoordinateSystem(vi::VisibilityIterator2& vi2, const std::map<casacore::Int, std::map<casacore::Int, casacore::Vector<casacore::Int> > >& chansel,  casacore::Block<const casacore::MeasurementSet *> mss);
+
+ 
   casacore::CoordinateSystem buildCoordinateSystemCore(casacore::MeasurementSet& msobj, 
 					     casacore::Vector<casacore::Int> spwids, casacore::Int fld, 
 					     casacore::Double freqmin, casacore::Double freqmax, 
@@ -235,7 +248,9 @@ public:
   // check consistency of image parameters when csys record exists and update 
   // accordingly based on csys record 
   casacore::Record updateParams(const casacore::Record &impar);
-
+  //get the moving source direction in frame requested
+  casacore::MDirection getMovingSourceDir(const casacore::MeasurementSet& ms, const casacore::MEpoch& refEp, const casacore::MPosition& refpos, const casacore::MDirection::Types outframe);
+  
   // Sky coordinates
   casacore::String imageName, stokes;
   casacore::Vector<casacore::String> startModel;
@@ -245,6 +260,10 @@ public:
   casacore::Bool useNCP;
   casacore::MDirection phaseCenter;
   casacore::Int phaseCenterFieldId;
+  casacore::MPosition obslocation;
+  
+  // Stokes info
+  casacore::Bool pseudoi;
 
   // Spectral coordinates ( TT : Add other params here  )
   casacore::Int nchan, nTaylorTerms, chanStart, chanStep;
@@ -254,6 +273,8 @@ public:
   casacore::MRadialVelocity mVelStart, mVelStep;
   casacore::Vector<casacore::Quantity> restFreq;
   casacore::String start, step, frame, veltype, mode, reffreq, sysvel, sysvelframe;
+  casacore::Quantity sysvelvalue;
+  
   // private variable to store ref frame defined in casacore::Quantity or casacore::Measure 
   // in start or step parameters and veltype from measure (e.g. casacore::MDoppler)
   casacore::String qmframe, mveltype;
@@ -270,6 +291,13 @@ public:
   casacore::Bool overwrite;
 
   casacore::String deconvolver;
+  //moving source
+  // Moving phase center ? 
+  casacore::Quantity distance;
+  casacore::MDirection trackDir;
+  casacore::Bool trackSource;
+  casacore::String movingSource;
+  
 
 };
 
@@ -303,15 +331,29 @@ public:
   // Spectral axis interpolation
   casacore::String interpolation;
 
+  //mosaic use pointing table
+  casacore::Bool usePointing;
+  
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;
-  casacore::Bool trackSource; 
+  casacore::Bool trackSource;
+  casacore::String movingSource;
   
   // For wb-aprojection ftm.
   casacore::Bool aTermOn, psTermOn,mTermOn,wbAWP,doPointing, doPBCorr, conjBeams;
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
+
+  // For single-dish imaging
+  casacore::String pointingDirCol;
+  casacore::Float skyPosThreshold;
+  casacore::Int convSupport;
+  casacore::Quantity truncateSize;
+  casacore::Quantity gwidth;
+  casacore::Quantity jwidth;
+  casacore::Float minWeight;
+  casacore::Bool clipMinMax;
 
   // Mapper Type.
   casacore::String mType;
@@ -349,9 +391,16 @@ public:
   casacore::Float sidelobeThreshold;
   casacore::Float noiseThreshold;
   casacore::Float lowNoiseThreshold;
+  casacore::Float negativeThreshold;
   casacore::Float smoothFactor;
   casacore::Float minBeamFrac;
   casacore::Float cutThreshold;
+  casacore::Int growIterations;
+  casacore::Bool doGrowPrune;
+  casacore::Float minPercentChange;
+  casacore::Bool verbose;
+  casacore::Bool fastnoise;
+  casacore::Float nsigma;
   int nMask;
   bool autoAdjust;
 

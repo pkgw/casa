@@ -41,19 +41,15 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -61,20 +57,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -98,7 +98,7 @@ where \f$T_{cal}\f$ is the temperature of the noise tube.
 
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of SysPower </CAPTION>
@@ -147,7 +147,7 @@ where \f$T_{cal}\f$ is the temperature of the noise tube.
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;The number of receptors. </TD>
@@ -158,22 +158,22 @@ where \f$T_{cal}\f$ is the temperature of the noise tube.
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> switchedPowerDifference </TD> 
- * <TD> vector<float > </TD>
+ * <TD> switchedPowerDifference</TD> 
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the switched power difference \f$P_{diff}\f$ defined by \f$P_{diff} = G*(P_{on}-P_{off})\f$. </TD>
  * </TR>
 	
  * <TR>
- * <TD> switchedPowerSum </TD> 
- * <TD> vector<float > </TD>
+ * <TD> switchedPowerSum</TD> 
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the switched power sum \f$P_{sum}\f$ defined by \f$P_{sum}=G(P_{on} + P_{off})\f$. </TD>
  * </TR>
 	
  * <TR>
- * <TD> requantizerGain </TD> 
- * <TD> vector<float > </TD>
+ * <TD> requantizerGain</TD> 
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; refers to the gain inserted after the synchronous power detector. For WIDAR, it is the requantizer gain (\f$G\f$). </TD>
  * </TR>
@@ -470,6 +470,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

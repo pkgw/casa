@@ -3,7 +3,8 @@ import shutil
 import string
 import copy
 import math
-from taskinit import *
+from taskinit import mttool, mstool, casalog
+from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 import flaghelper as fh
 
@@ -121,11 +122,23 @@ def partition(vis,
             casalog.post('Create a backup of the flags that are in the MMS')
             fh.backupFlags(aflocal=None, msfile=outputvis, prename='partition')    
 
+        # Write history to output MS, not the input ms.
+        try:
+            param_names = partition.func_code.co_varnames[:partition.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            casalog.post('Updating the history in the output', 'DEBUG1')
+            write_history(mstool(), outputvis, 'partition', param_names,
+                          param_vals, casalog)
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
+                         'WARN')
+            return False
+
         return True
 
 
     # Create local copies of the MSTransform and ms tools
-    mtlocal = casac.mstransformer()
+    mtlocal = mttool()
     mslocal = mstool()
         
     try:
@@ -162,17 +175,6 @@ def partition(vis,
         return False
 
 
-    # Write history to output MS, not the input ms.
-    try:
-        param_names = partition.func_code.co_varnames[:partition.func_code.co_argcount]
-        param_vals = [eval(p) for p in param_names]
-        casalog.post('Updating the history in the output', 'DEBUG1')
-        write_history(mslocal, outputvis, 'partition', param_names,
-                      param_vals, casalog)
-    except Exception, instance:
-        casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
-                     'WARN')
-        return False
 
     mslocal = None
     

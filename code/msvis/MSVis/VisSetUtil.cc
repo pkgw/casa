@@ -198,7 +198,7 @@ void VisSetUtil::Sensitivity(ROVisIter &vi, Matrix<Double>& /*mssFreqSel*/,
                 {
                     //		  Double variance=square(vb.sigma()(row));
                     Double variance=1.0/(vb.weight()(row));
-                    if (abs(vb.time()(row) - t0(spwIndex) > timeInterval(row)))
+                    if (abs(vb.time()(row) - t0(spwIndex)) > timeInterval(row))
                     {
                         t0(spwIndex)=vb.time()(row);
                         spwIntegTime(spwIndex) += timeInterval(row);
@@ -585,14 +585,14 @@ void VisSetUtil::addScrCols(MeasurementSet& ms, Bool addModel, Bool addCorr,
                     :  MS::columnName (MS::DATA);
 
                     TableCopy::cloneColumnTyped<Complex> (ms, dataColumnName,
-                                                          ms, MS::columnName (MS::CORRECTED_DATA),
+                                                          ms, colCorr,
                                                           "TiledCorrected");
 
                     // Copy the appropriate data column into the new one, preserving the tiling
                     // of the column's hypercubes.
 
                     TableCopy::copyColumnData (ms, dataColumnName,
-                                               ms, MS::columnName (MS::CORRECTED_DATA),
+                                               ms, colCorr,
                                                true); // last arg preserves tile shape
 
                     addCorr = false; // We've already done the copying
@@ -604,7 +604,21 @@ void VisSetUtil::addScrCols(MeasurementSet& ms, Bool addModel, Bool addCorr,
                     TiledShapeStMan corrStMan("CorrectedTiled", corrTileShape);
                     ms.addColumn(tdCorr, corrStMan);
                 }
-
+                // Copy the column keywords
+                String dataColumnName = data_is_float ? MS::columnName (MS::FLOAT_DATA)
+                :  MS::columnName (MS::DATA);
+            	const TableRecord& dataColKeyWord = ms.tableDesc().columnDesc(dataColumnName).keywordSet();
+            	if (dataColKeyWord.nfields() > 0) {
+                    LogMessage message("Start copying column keyword(s) of "+colCorr+" from "+dataColumnName,LogOrigin("VisSetUtil","addScrCols"));
+                    logSink.post(message);
+                    ArrayColumn<Complex> corrCol(ms, colCorr);
+                    TableRecord &corrColKeyWord = corrCol.rwKeywordSet();
+            		if (corrColKeyWord.nfields()==0) {
+                    	corrColKeyWord.assign(dataColKeyWord);
+            		} else {
+            			corrColKeyWord.merge(dataColKeyWord, RecordInterface::OverwriteDuplicates);
+            		}
+            	}
             }
 
             if (ccCorr) delete ccCorr;

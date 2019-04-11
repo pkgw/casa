@@ -23,7 +23,7 @@
 #ifndef PhaseShiftingTVITest_H_
 #define PhaseShiftingTVITest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/PhaseShiftingTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 
@@ -52,6 +52,29 @@ protected:
     void generateReferenceFile();
     void initTestConfiguration(casacore::Record &configuration);
     void initReferenceConfiguration(casacore::Record &configuration);
+};
+
+class PhaseShiftingTVISpwChannTest: public MsFactoryTVITester {
+
+public:
+
+    PhaseShiftingTVISpwChannTest();
+
+    void createTVIs();
+
+    void useMSSelection(bool use);
+
+    void addPassThroughTVI(bool use);
+
+    void addExtraHanningTVI(bool use);
+
+protected:
+
+    bool useMSSelection_p;
+
+    bool addPassThroughTVI_p;
+
+    bool addExtraHanningTVI_p;
 };
 
 #endif /* PhaseShiftingTVITest_H_ */

@@ -41,42 +41,38 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-#include "CReceiverBand.h"
-	
-
-	
-#include "CBasebandName.h"
-	
 
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
+	
+
+	
+#include <alma/Enumerations/CReceiverBand.h>
+	
+
+	
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
 
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -87,20 +83,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -119,7 +119,7 @@ class CalAmpliRow;
  * Amplitude Calibration Result from Telescope Calibration. This calibration checks that observing amplitude calibrators provide reasonable results: From the antenna-based fringe amplitudes rough aperture efficiencies are determined.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalAmpli </CAPTION>
@@ -131,7 +131,7 @@ class CalAmpliRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the antenna's name. </TD>
  * </TR>
@@ -186,7 +186,7 @@ class CalAmpliRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -194,7 +194,7 @@ class CalAmpliRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the polarizations of the receptors (an array containing one value per receptor). </TD>
  * </TR>
@@ -215,21 +215,21 @@ class CalAmpliRow;
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the frequency range over which the result is valid. </TD>
  * </TR>
 	
  * <TR>
  * <TD> apertureEfficiency </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the aperture efficiency without correction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> apertureEfficiencyError </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the aperture efficiency error. </TD>
  * </TR>
@@ -239,7 +239,7 @@ class CalAmpliRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> correctionValidity </TD> 
+ * <TD> correctionValidity</TD> 
  * <TD> bool </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the correction validity. </TD>
@@ -408,7 +408,7 @@ public:
  	 * @param apertureEfficiencyError
 	
      */
-	CalAmpliRow *newRow(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError);
+	CalAmpliRow *newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError);
 	
 
 
@@ -491,7 +491,7 @@ public:
 	
  	 *
 	 */
- 	CalAmpliRow* getRowByKey(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
+ 	CalAmpliRow* getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -530,7 +530,7 @@ public:
  	 * @param apertureEfficiencyError
  	 		 
  	 */
-	CalAmpliRow* lookup(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError); 
+	CalAmpliRow* lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -556,6 +556,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

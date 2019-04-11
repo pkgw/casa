@@ -33,6 +33,7 @@
 #include <graphics/X11/X_enter.h>
 #  include <QtCore>
 #  include <QtGui>
+#include <QStatusBar>
 #include <QTextEdit>
 #include <QHash>
 #include <QFont>
@@ -59,7 +60,7 @@ namespace casacore{
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 	namespace viewer {
-		class Preferences;
+		class ViewerPreferences;
 		class CleanGui;
 	}
 
@@ -278,7 +279,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// display cursor information for the specified point (in world coordinates)
 		void updateCursorInfo( WorldCanvas *wc, casacore::Quantity x, casacore::Quantity y );
-		typedef std::pair<QString, SHARED_PTR<casacore::ImageInterface<float> > > OverplotInterface;
+		typedef std::pair<QString, std::shared_ptr<casacore::ImageInterface<float> > > OverplotInterface;
 
 	public slots:
 
@@ -345,7 +346,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//</group>
 
 		// add a new DD
-		virtual QtDisplayData* addDD(casacore::String path, casacore::String dataType, casacore::String displayType, bool autoRegister=true, bool tmpDtata=false, SHARED_PTR<casacore::ImageInterface<float> > img = SHARED_PTR<casacore::ImageInterface<float> >());
+		virtual QtDisplayData* addDD(casacore::String path, casacore::String dataType, casacore::String displayType, bool autoRegister=true, bool tmpDtata=false, std::shared_ptr<casacore::ImageInterface<float> > img = std::shared_ptr<casacore::ImageInterface<float> >());
 		// go to a specifc channel
 		virtual void doSelectChannel(int channelIndex);
 
@@ -519,7 +520,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Existing user-visible QDDs
 		//casacore::List<QtDisplayData*> qdds_;
-		DisplayDataHolder* displayDataHolder;
+		std::shared_ptr<DisplayDataHolder> displayDataHolder;
 		casacore::String errMsg_;
 
 
@@ -640,7 +641,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void resetHistogram( viewer::Region* qtRegion );
 		viewer::Region* findRegion( int id );
 
-		viewer::Preferences *preferences;
+		viewer::ViewerPreferences *preferences;
 
 		AnimatorHolder* animationHolder;
 		bool adjust_channel_animator;
@@ -651,7 +652,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		ColorHistogram* colorHistogram;
 		Fit2DTool* fitTool;
 		SlicerMainWindow* sliceTool;
-		ImageManagerDialog* imageManagerDialog;
+		std::shared_ptr<ImageManagerDialog> imageManagerDialog;
 		AboutDialogViewer* aboutDialog;
 
 		// interactive clean...
@@ -698,7 +699,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void addResidualFitImage( casacore::String path );
 		virtual void addDDSlot(casacore::String path, casacore::String dataType, casacore::String displayType,
 				bool autoRegister=true, bool tmpData=false,
-				SHARED_PTR<casacore::ImageInterface<float> > img = SHARED_PTR<casacore::ImageInterface<float> >());
+				std::shared_ptr<casacore::ImageInterface<float> > img = std::shared_ptr<casacore::ImageInterface<float> >());
 		void sliceChanged( int regionId, viewer::region::RegionChanges change,
 		                   const QList<double> & worldX, const QList<double> & worldY,
 		                   const QList<int> &pixelX, const QList<int> & pixelY );

@@ -4,7 +4,7 @@ from taskinit import *
 (cb,) = gentools(['cb'])
 def gencal(vis=None,caltable=None,caltype=None,infile=None,
            spw=None,antenna=None,pol=None,
-           parameter=None):
+           parameter=None,uniform=None):
 
        """ Externally specify calibration solutions af various types
        """
@@ -26,7 +26,7 @@ def gencal(vis=None,caltable=None,caltype=None,infile=None,
 
               # call a Python function to retreive ant position offsets automatically (currently EVLA only)
               if (caltype=='antpos' and antenna==''):
-                casalog.post(" Determine antenna position offests from the baseline correction database")
+                casalog.post(" Determine antenna position offsets from the baseline correction database")
                 import correct_ant_posns as getantposns 
                 # correct_ant_posns returns a list , [return_code, antennas, offsets]
                 antenna_offsets=getantposns.correct_ant_posns(vis,False)
@@ -42,7 +42,8 @@ def gencal(vis=None,caltable=None,caltype=None,infile=None,
                    warnings.warn('No offsets found. No caltable created.')
 
               cb.specifycal(caltable=caltable,time="",spw=spw,antenna=antenna,pol=pol,
-                            caltype=caltype,parameter=parameter,infile=infile)
+                            caltype=caltype,parameter=parameter,infile=infile,
+                            uniform=uniform)
 
               #cb.close()
        

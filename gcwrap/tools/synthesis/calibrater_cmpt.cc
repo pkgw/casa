@@ -31,6 +31,7 @@
 #include <ms/MeasurementSets/MSField.h>
 #include <ms/MeasurementSets/MSSpectralWindow.h>
 #include <synthesis/TransformMachines/VisModelData.h>
+#include <synthesis/CalLibrary/CalLibraryTools.h>
 
 #include <measures/Measures/MeasTable.h>
 #include <iostream>
@@ -43,7 +44,7 @@ using namespace casacore;
 namespace casac {
 
 // Hardwire which VI to use
-#define USEOLDVI true
+#define USEOLDVI false
 
 calibrater::calibrater() : 
   itsMS(0),
@@ -53,12 +54,20 @@ calibrater::calibrater() :
 
   // Default constructor
 
-  //  The following doesn't work yet...
-  // User can override to use old VI by setting the VI1 variable (to anything)
-  //  cout << "getenv(VI1) = " << getenv("VI1") <<endl;
-  //  bool forceOldVIByEnv = (getenv("VI1")!=NULL);
-  //  cout << "Found VI1 env var; forcing use of old VI!" << endl;
-  //  oldcal_ |= forceOldVIByEnv;
+  // User can override to use old VI in CALIBRATION 
+  //  by setting the VI1CAL variable (to anything) in the shell
+  bool forceOldVIByEnv(false);
+  forceOldVIByEnv = (getenv("VI1CAL")!=NULL);
+  bool forceNewVIByEnv(false);
+  forceNewVIByEnv = (getenv("VI2CAL")!=NULL);
+  //cout << "forceOldVIByEnv = " << boolalpha << forceOldVIByEnv << endl;
+  if (forceOldVIByEnv) {
+    cout << "Found VI1CAL env var; forcing default use of old VI!" << endl;
+    oldcal_ = true;
+  } else if (forceNewVIByEnv) {
+    cout << "Found VI2CAL env var; forcing default use of NEW VI2!" << endl;
+    oldcal_ = false;
+  }
 
   itsLog = new casacore::LogIO();
   itsCalibrater = casa::Calibrater::factory(oldcal_);
@@ -341,8 +350,10 @@ calibrater::setsolve(const std::string& type,
 		     const bool phaseonly, 
 		     const std::string& apmode,
 		     const ::casac::variant& refant,
+		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
+		     const std::string& normtype,
 		     const float minsnr,
 		     const std::string& combine,
 		     const int fillgaps,
@@ -352,7 +363,14 @@ calibrater::setsolve(const std::string& type,
                      const float fraction,
                      const int numedge,
                      const std::string& radius,
-                     const bool smooth)
+                     const bool smooth,
+                     const bool zerorates,
+                     const bool globalsolve,
+                     const vector<double>& delaywindow,
+                     const vector<double>& ratewindow,
+		     const std::string& solmode,
+		     const vector<double>& rmsthresh
+    )
 {
   if (! itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -377,9 +395,10 @@ calibrater::setsolve(const std::string& type,
     // Forward to Calibrater object
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
-			    toCasaString(refant),solnorm,minsnr,combine,fillgaps,
-			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
-    
+			    toCasaString(refant),refantmode,
+			    solnorm,normtype, minsnr,combine,fillgaps,
+			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
+                            zerorates, globalsolve, delaywindow, ratewindow, solmode, rmsthresh);
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
@@ -919,6 +938,7 @@ casac::record* calibrater::fluxscale(
 	oSubRecord.define( "fitFluxd", oFluxD.fitfd(t));
 	oSubRecord.define( "fitFluxdErr", oFluxD.fitfderr(t));
 	oSubRecord.define( "fitRefFreq", oFluxD.fitreffreq(t));
+	oSubRecord.define( "covarMat", oFluxD.covarmat[t]);
 	
 	oRecord.defineRecord( String::toString<Int>(t), oSubRecord );
       }
@@ -1014,7 +1034,8 @@ calibrater::specifycal(const std::string& caltable,
 		       const std::string& pol,
 		       const std::string& caltype, 
 		       const std::vector<double>& parameter,
-		       const std::string& infile ) {
+		       const std::string& infile,
+		       bool uniform) {
 
   if (!itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -1028,7 +1049,7 @@ calibrater::specifycal(const std::string& caltable,
     LogIO os (LogOrigin ("calibrater", "specifycal"), logSink_p);
     os << "Beginning specifycal-----------------------" << LogIO::POST;
 
-    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile);
+    itsCalibrater->specifycal(caltype,caltable,time,spw,antenna,pol,parameter,infile,uniform);
     
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -1068,6 +1089,40 @@ calibrater::smooth(const std::string& tablein,
     rstat = itsCalibrater->smooth(tablein,tabo,
 				  smoothtype,smoothtime,
 				  toCasaString(field));
+
+  } catch(AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+  return rstat;
+}
+
+bool
+calibrater::rerefant(const std::string& tablein, 
+		     const std::string& tableout, 
+		     const std::string& refantmode,
+		     const ::casac::variant& refant)
+{
+  bool rstat(false);
+
+  // TBD: Is this really needed?
+  if (! itsMS) {
+    *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+	    << endl << LogIO::POST;
+    return false;
+  }
+
+  try {
+
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "refant"),logSink_p);
+    os << "Beginning smooth--(MSSelection version)-------" << LogIO::POST;
+
+    String tabo(tableout);
+
+    rstat = itsCalibrater->reRefant(tablein,tabo,
+				    refantmode,
+				    toCasaString(refant));
 
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -1303,6 +1358,46 @@ calibrater::done()
 
 
 //----------------------------------------------------------------------------
+// parsecallibfile - convert callib file to a record
+casac::record* calibrater::parsecallibfile(const std::string& filein )
+{
+
+  casac::record* oRec;
+
+  try {
+
+    /*
+    if (! itsMS) {
+      *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+  	    << endl << LogIO::POST;
+      throw( AipsError( "Must first open a MeasurementSet." ) );
+    }
+    */
+
+    // Log
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "parsecallibfile"), logSink_p);
+    os << "Beginning parsecallibfile-)-------" << LogIO::POST;
+
+    // Check existence of specified file
+    File diskfile(filein);
+    if (!diskfile.exists())
+      throw( AipsError( "Specified cal library file ('"+filein+ "') does not exist!") );
+
+    // Call parser
+    Record callibRec = callibSetParams(filein);
+
+    oRec = fromRecord( callibRec );
+  } catch (AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+
+  return( oRec );
+ 
+}
+
+//----------------------------------------------------------------------------
 
 bool calibrater::setvi(const bool old, const bool quiet)
 {
@@ -1445,7 +1540,7 @@ void calibrater::uvtaql(std::string& uvsel, bool& noselect,
     ScalarColumn<Double> reffreq(spwtab, "REF_FREQUENCY");
     uvsel = "( ";
     uInt nfreq=reffreq.nrow();
-    Double c = (QC::c).getValue();
+    Double c = (QC::c( )).getValue();
     double ffact;
     vector<int> dd;
 

@@ -26,6 +26,7 @@
 //# $Id$
 
 
+#include <QTableWidgetItem>
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtDataManager.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
@@ -102,16 +103,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	QtDataManager::QtDataManager(QtDisplayPanelGui* panel, const char *name, QWidget *parent ) :
 		QWidget(parent), parent_(parent), panel_(panel),
 		ms_selection(new Ui::QtDataMgrMsSelect), rc(viewer::getrc()),
-        slice_available(true), regrid_available(true), dvo("edu.nrao.casa.dVO", "/casa/dVO", QDBusConnection::sessionBus( ), 0),
-		vo_current_action(0), vo_action_timeout(new QTimer( )), vo_actions_are_enabled(true) {
+        slice_available(true), regrid_available(true)
+#ifdef WITH_VO
+        , dvo("edu.nrao.casa.dVO", "/casa/dVO", QDBusConnection::sessionBus( ), 0),
+		vo_current_action(0), vo_action_timeout(new QTimer( )), vo_actions_are_enabled(true)
+#endif
+    {
 
 		setWindowTitle(name);
 
 		setupUi(this);
 
+#ifdef WITH_VO
         setupVO( );
 
 		connect( vo_action_timeout, SIGNAL(timeout( )), SLOT(vo_action_timed_out( )) );
+#endif
 
 		slice_gen = new viewer::SlicerGen( );
 		slice_gen->initialize(slice_frame);
@@ -315,7 +322,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	QtDataManager::~QtDataManager() {
+#ifdef WITH_VO
 		delete vo_action_timeout;
+#endif
 	}
 
 
@@ -358,7 +367,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	static int findNumberOfFITSImageExt( QString path ) {
 		fitsfile *fptr;
 		int status = 0;
-		fits_open_file( &fptr, path.toAscii( ).constData( ), READONLY, &status );
+		fits_open_file( &fptr, path.toLatin1( ).constData( ), READONLY, &status );
 		if ( status != 0 ) {
 			fits_report_error(stderr, status);
 			return -1;
@@ -841,11 +850,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     void QtDataManager::showEvent( QShowEvent *event ) {
         QWidget::showEvent(event);
+#ifdef WITH_VO
         updateVOstatus( );
+#endif
     }
     void QtDataManager::enterEvent( QEvent  *event ) {
         QWidget::enterEvent(event);
+#ifdef WITH_VO
         updateVOstatus( );
+#endif
     }
 
 	void QtDataManager::showDisplayButtons(int ddtp,const QString &name) {
@@ -1448,7 +1461,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		QtDisplayData *qdd = display_datas[item->text(0)];
 
-		SHARED_PTR<ImageInterface<Float> > img = qdd->imageInterface();
+		std::shared_ptr<ImageInterface<Float> > img = qdd->imageInterface();
 		if (!img) {
 			img_output_error->setStyleSheet("color: red");
 			img_output_error->setText( "cannot export data, complex images cannot be exported" );
@@ -2026,6 +2039,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         }
     }
 
+#ifdef WITH_VO
 	struct vo_service_config {
 		// name of service => pre-flight configuration
 		function<void(QtDataManager &mgr)> pre_flight;
@@ -2559,5 +2573,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		vo_action_timeout_id = 0;
 		vo_action_timeout_msg = "";
 	}
+#endif
 
 } //# NAMESPACE CASA - END

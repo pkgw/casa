@@ -72,8 +72,9 @@ class VisImagingWeight_p;
 class PBMath;
 class VPSkyJones;
 class EPJones;
+#if ! defined(WITHOUT_DBUS)
 class ViewerProxy;
-
+#endif
 // <summary> Class that contains functions needed for imager </summary>
 
 
@@ -196,7 +197,8 @@ class Imager
 			   const casacore::Quantity& distance=casacore::Quantity(0,"m"),
 			   const casacore::Bool trackSource=false, const casacore::MDirection& 
 			   trackDir=casacore::MDirection(casacore::Quantity(0.0, "deg"), 
-					       casacore::Quantity(90.0, "deg")));
+					       casacore::Quantity(90.0, "deg")),
+				 const casacore::String& projection=casacore::String("SIN"));
   // Set the data selection parameters
  
   // The parameters useModelcol and readonly is dummy here
@@ -500,8 +502,11 @@ class Imager
   
   // Fourier transform the model and componentlist.
   // Returns its nominal success value.
+  ///For moving time variable phasecenters in field table
+  //phasecentertime is usually the time in the data unless 
+  //you want to use a specific time which you can set here 
   casacore::Bool ft(const casacore::Vector<casacore::String>& model, const casacore::String& complist,
-	  casacore::Bool incremental=false);
+		    casacore::Bool incremental=false, const casacore::Double phasecenterTime=-1.0);
 
   // Compute the model visibility using specified source flux densities
   casacore::Bool setjy(const casacore::Int fieldid, const casacore::Int spectralwindowid,
@@ -1041,7 +1046,9 @@ protected:
   VisImagingWeight imwgt_p;
 
   // viewer connection
+#if ! defined(WITHOUT_DBUS)
   ViewerProxy *viewer_p;
+#endif
   int clean_panel_p;
   int image_id_p;
   int mask_id_p;
@@ -1050,6 +1057,7 @@ protected:
   //numthreads
   casacore::Int numthreads_p;
   casacore::Bool avoidTempLatt_p;
+  casacore::String projection_p;
 };
 
 

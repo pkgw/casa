@@ -1,19 +1,32 @@
 import numpy
 import os
 from taskinit import gentools, casalog
+from mstools import write_history
 import sdutil
 from collections import Counter
 ms,sdms,tb,msmd = gentools(['ms','sdms','tb', 'msmd'])
 
-def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None, timerange=None, scan=None, pol=None, intent=None, maskmode=None, thresh=None, avg_limit=None, minwidth=None, edge=None, blmode=None, dosubtract=None, blformat=None, bloutput=None, bltable=None, blfunc=None, order=None, npiece=None, applyfft=None, fftmethod=None, fftthresh=None, addwn=None, rejwn=None, clipthresh=None, clipniter=None, blparam=None, verbose=None, showprogress=None, minnrow=None, outfile=None, overwrite=None):
+def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None,
+               spw=None, timerange=None, scan=None, pol=None, intent=None,
+               reindex=None, maskmode=None, thresh=None, avg_limit=None,
+               minwidth=None, edge=None, blmode=None, dosubtract=None,
+               blformat=None, bloutput=None, bltable=None, blfunc=None,
+               order=None, npiece=None, applyfft=None, fftmethod=None,
+               fftthresh=None, addwn=None, rejwn=None, clipthresh=None,
+               clipniter=None, blparam=None, verbose=None, showprogress=None,
+               minnrow=None, outfile=None, overwrite=None):
 
     casalog.origin('sdbaseline')
     try:
+        if not os.path.exists(infile):
+            raise Exception("infile='" + str(infile) + "' does not exist.")
         if (outfile == '') or not isinstance(outfile, str):
-            print("type=%s, value=%s" % (type(outfile), str(outfile)))
-            raise ValueError, "outfile name is empty."
+            #print("type=%s, value=%s" % (type(outfile), str(outfile)))
+            #raise ValueError, "outfile name is empty."
+            outfile = infile.rstrip('/') + '_bs'
+            print("outfile is empty or non-string. set to '" + outfile + "'")
         if os.path.exists(outfile) and not overwrite:
-            raise Exception(outfile + ' exists.')
+            raise Exception("outfile='%s' exists, and cannot overwrite it." % (outfile))
         if (maskmode == 'interact'):
             raise ValueError, "maskmode='%s' is not supported yet" % maskmode
         if (blfunc == 'variable' and not os.path.exists(blparam)):
@@ -36,7 +49,8 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
             sdms.open(infile)
             sdms.set_selection(spw=sdutil.get_spwids(selection), field=field, 
                                antenna=antenna, timerange=timerange, 
-                               scan=scan, polarization=pol, intent=intent)
+                               scan=scan, polarization=pol, intent=intent,
+                               reindex=reindex)
             sdms.apply_baseline_table(bltable=bltable,
                                       datacolumn=datacolumn,
                                       spw=spw,
@@ -71,7 +85,8 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
             sdms.set_selection(spw=sdutil.get_spwids(selection),
                                field=field, antenna=antenna,
                                timerange=timerange, scan=scan,
-                               polarization=pol, intent=intent)
+                               polarization=pol, intent=intent,
+                               reindex=reindex)
             params, func = prepare_for_baselining(blfunc=blfunc,
                                                   datacolumn=datacolumn,
                                                   outfile=outfile,
@@ -93,12 +108,20 @@ def sdbaseline(infile=None, datacolumn=None, antenna=None, field=None, spw=None,
                                                   rejwn=rejwn,
                                                   clip_threshold_sigma=clipthresh,
                                                   num_fitting_max=clipniter+1,
-                                                  blparam=blparam)
+                                                  blparam=blparam,
+                                                  verbose=verbose)
             func(**params)
             sdms.close()
             
             if (blfunc == 'variable'):
                 restore_sorted_table_keyword(infile, sorttab_info)
+
+        # Write history to outfile
+        param_names = sdbaseline.func_code.co_varnames[:sdbaseline.func_code.co_argcount]
+        param_vals = [eval(p) for p in param_names]
+        write_history(ms, outfile, 'sdbaseline', param_names,
+                      param_vals, casalog)
+
 
     except Exception, instance:
         raise Exception, instance
@@ -283,7 +306,7 @@ def prepare_for_baselining(**keywords):
         keys += ['applyfft', 'fftmethod', 'fftthresh', 'addwn', 'rejwn']
         funcname += ('_' + blfunc)
     elif blfunc == 'variable':
-        keys += ['blparam']
+        keys += ['blparam', 'verbose']
         funcname += ('_' + blfunc)
     else:
         raise ValueError, "Unsupported blfunc = %s" % blfunc

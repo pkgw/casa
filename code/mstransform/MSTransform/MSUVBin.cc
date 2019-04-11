@@ -120,8 +120,7 @@ Bool MSUVBin::selectData(const String& msname, const String& spw, const String& 
 
 	Vector<Int> fakestep = Vector<Int> (1, 1);
 
-	String elms=msname; // cause the following constructor does not accept a const
-	MSTransformDataHandler mshandler(elms, doFlag_p ? Table::Update: Table::Old);
+	MSTransformDataHandler mshandler(msname, doFlag_p ? Table::Update: Table::Old);
 	//No very well documented what the step is supposed to do
 	//using the default value here
 	if(mshandler.setmsselect(spw, field, baseline, scan, uvrange,
@@ -155,9 +154,11 @@ void MSUVBin::createOutputMS(const Int nrrow){
 		throw(AipsError("no ms selected for input yet"));
 	Vector<Int> tileShape(3);
 	tileShape[0]=4; tileShape[1]=200; tileShape[2]=500;
-	outMsPtr_p=MSTransformDataHandler::setupMS(outMSName_p, nchan_p, npol_p,
-				Vector<MS::PredefinedColumns>(1, MS::DATA),
-				tileShape);
+        auto wtSpec = ROMSColumns(*mss_p[0]).weightSpectrum();
+        auto createdWeightSpectrumCols = !wtSpec.isNull() && wtSpec.isDefined(0);
+        outMsPtr_p = MSTransformDataHandler::setupMS(outMSName_p, nchan_p, npol_p,
+                                                     Vector<MS::PredefinedColumns>(1, MS::DATA),
+                                                     createdWeightSpectrumCols, tileShape);
 	outMsPtr_p->addRow(nrrow, true);
 	//cerr << "mss Info " << mss_p[0]->tableName() << "  " << mss_p[0]->nrow() <<endl;
 	MSTransformDataHandler::addOptionalColumns(mss_p[0]->spectralWindow(),
@@ -209,6 +210,8 @@ void MSUVBin::createOutputMS(const Int nrrow){
 	}
 	//cerr << "MINMAX array ID " << min(arrayID) << "  " << max(arrayID) << endl;
 	msc.arrayId().putColumn(arrayID);
+        // Note: we suspect this flush with sync=true (fsync!) can be removed (it is
+        // commented out in other functions in this same file. See CAS-11946.
 	outMsPtr_p->flush(true);
 
 	existOut_p=false;
@@ -270,8 +273,6 @@ void MSUVBin::setTileCache()
 
 	//uInt startrow = 0;
 
-
-
 	Vector<String> columns (6);
 	columns (0) = MS::columnName (MS::DATA);            // complex
 	columns (1) = MS::columnName (MS::FLAG);            // boolean
@@ -332,7 +333,7 @@ Bool MSUVBin::fillOutputMS(){
   //  Double imagevol=Double(nx_p)*Double(ny_p)*Double(npol_p)*Double(nchan_p)*12.0/1e6; //in MB
   // Double memoryMB=Double(HostInfo::memoryFree())/1024.0 ;
   Bool retval;
-   retval= fillNewBigOutputMS();
+  retval= fillNewBigOutputMS();
   return retval;
 }
 

@@ -179,8 +179,11 @@ class TestHelpers():
                   imexist=None,  # list of image names
                   imexistnot=None, # list of image names
                   imval=None,  # list of tuples of (imagename,val,pos)
-                  immask=None,
-                  tabcache=True
+                  imvalexact=None, # list of tuples of (imagename,val,pos)
+                  immask=None,  #list of tuples to check mask value
+                  tabcache=True,
+                  stopcode=None,
+                  reffreq=None # list of tuples of (imagename, reffreq)
                   ):
           pstr = ""
 
@@ -207,6 +210,10 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
+                    print "pstr after checkims=",pstr
+                    pstr += self.check_keywords(imexist)
+                    print "pstr after check_keywords=",pstr
+
 
           if imexistnot != None:
                if type(imexistnot)==list:
@@ -218,6 +225,12 @@ class TestHelpers():
                          if type(ii)==tuple and len(ii)==3:
                               pstr += self.checkpixval(ii[0],ii[1],ii[2])
 
+          if imvalexact != None:
+               if type(imvalexact)==list:
+                    for ii in imvalexact:
+                         if type(ii)==tuple and len(ii)==3:
+                              pstr += self.checkpixval(ii[0],ii[1],ii[2], exact=True)
+
           if immask != None:
                if type(immask)==list:
                     for ii in immask:
@@ -228,6 +241,18 @@ class TestHelpers():
                opentabs = tb.showcache()
                if len(opentabs)>0 : 
                     pstr += "["+inspect.stack()[1][3]+"] "+self.verdict(False) + ": Found open tables after run "
+
+          if stopcode != None:
+              if type(stopcode)==int:
+                  stopstr = "["+inspect.stack()[1][3]+"] Stopcode is " + str(ret['stopcode']) + " (" + self.verdict(ret['stopcode']==stopcode)  +  " : should be " + str(stopcode) + ")\n"
+                  print stopstr
+                  pstr += stopstr
+                  
+          if reffreq != None:
+              if type(reffreq)==list:
+                  for ii in reffreq:
+                      if type(ii)==tuple and len(ii)==2:
+                          pstr += self.checkreffreq(ii[0],ii[1])
           
           return pstr
           #self.checkfinal(pstr)
@@ -305,7 +330,7 @@ class TestHelpers():
 #               self.fail(pstr)
           return pstr
 
-     def checkpixval(self,imname,theval=0, thepos=[0,0,0,0]):
+     def checkpixval(self,imname,theval=0, thepos=[0,0,0,0], exact=False):
           testname = inspect.stack()[2][3]
 #          maxvals, maxvalposs = self.get_max(imname)
           readval = self.get_pix(imname,thepos)
@@ -318,10 +343,17 @@ class TestHelpers():
                res=False
           else:
                if abs(theval)>self.epsilon:
-                  if abs(readval - theval)/abs(theval) > self.epsilon: 
-                       res = False
-                  else:
-                       res = True
+                   if exact==False:
+                       if abs(readval - theval)/abs(theval) > self.epsilon: 
+                           res = False
+                       else:
+                           res = True
+                   else:
+                       if abs(readval - theval) > 0.0: 
+                           res = False
+                       else:
+                           res = True
+                       
                else:  ## this is to guard against exact zero... sort of.
                   if abs(readval - theval) > self.epsilon: 
                        res = False
@@ -334,6 +366,8 @@ class TestHelpers():
 #          if res==False:
 #               self.fail(pstr)
           return pstr
+
+
 
      def checkpixmask(self,imname,theval=True, thepos=[0,0,0,0]):
           testname = inspect.stack()[2][3]
@@ -358,28 +392,64 @@ class TestHelpers():
 #          if res==False:
 #               self.fail(pstr)
           return pstr
+
+     def checkreffreq(self,imname,theval=0):
+          testname = inspect.stack()[2][3]
+
+          retres=True
+
+          _ia.open(imname)
+          csys = _ia.coordsys()
+          _ia.close()
+          reffreq = csys.referencevalue()['numeric'][3]
+          if  abs(reffreq - theval)/theval > self.epsilon :
+              retres=False
+          else:
+              retres=True
+
+          pstr = "[" +  testname + "] Ref-Freq is " + str(reffreq) + " ("+self.verdict(retres)+" : should be " + str(theval) + ")"
+
+          print pstr
+          pstr=pstr+"\n"
+          return pstr
    
-     def checkspecframe(self,imname,frame, crval=0.0):
+     def checkspecframe(self,imname,frame, crval=0.0, cdelt=0.0):
           testname = inspect.stack()[1][3]
           pstr = ""
           if os.path.exists(imname):
                res = True
+               expcrval=""
+               expcdelt=""
+               thecval=""
+               thecdelt="" 
                coordsys = self.getcoordsys(imname)
                baseframe = coordsys['spectral2']['system']
                basecrval = coordsys['spectral2']['wcs']['crval']
+               basecdelt = coordsys['spectral2']['wcs']['cdelt']
                if baseframe != frame:
                     res = False 
                else:
                     res = True
                     if crval!=0.0:
-                         if abs(basecrval - crval)/crval > 1.0e-6: 
+                         if abs(basecrval - crval)/abs(crval) > 1.0e-6: 
                               res = False
+                         thecrval = " with crval " + str(basecrval)
+                         expcrval = " with expected crval " + str(crval)
                     else:
                          # skip the crval test
                          thecrval = ""
-               thecorrectans = frame + " "+ str(crval) 
+                         expcrval = ""
+                    if cdelt!=0.0:
+                         if abs(basecdelt - cdelt)/abs(cdelt) > 1.0e-6: 
+                              res = False
+                         thecdelt = " with cdelt " + str(basecdelt)
+                         expcdelt = " with expected cdelt " + str(cdelt) 
+                    else:
+                         # skip the crval test
+                         thecdelt = ""
+               thecorrectans = frame +  expcrval + expcdelt
                pstr =  "[" + testname + "] " + imname + ": Spec frame is " +\
-               str(baseframe) + " with crval " + str(basecrval) + " (" +\
+               str(baseframe) + thecrval + thecdelt + " (" +\
                self.verdict(res) +" : should be " + thecorrectans +" )"
                print pstr
                pstr=pstr+"\n"
@@ -392,6 +462,128 @@ class TestHelpers():
          _ia.close()
          return csys
 
+     def check_keywords(self, imlist):
+         """
+         Keyword related checks (presence/absence of records and entries in these records,
+         in the keywords of the image table).
+
+         :param imlist: names of the images produced by a test execution.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         """
+         # Keeping the general approach. This is fragile!
+         testname = inspect.stack()[2][3]
+
+         # accumulator of error strings
+         pstr = ''
+         for imname in imlist:
+             if os.path.exists(imname):
+                 issues = self.check_im_keywords(imname, check_misc=True,
+                                                 check_extended=True)
+                 if issues:
+                     pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
+
+         if not pstr:
+             pstr += 'All expected keywords in imageinfo, miscinfo, and coords found.\n'
+
+         return pstr
+
+     def check_im_keywords(self, imname, check_misc=True, check_extended=True):
+         """
+         Checks several lists of expected and forbidden keywords and entries of these
+         keywords.
+         Forbidden keywords lists introduced with CAS-9231 (prevent duplication of
+         TELESCOP and OBJECT).
+
+         Note that if imname is the top level of a refconcat image, there's no table to open
+         to look for its keywords. In these cases nothing is checked. We would not have the
+         'imageinfo' keywords, only the MiscInfo that goes in imageconcat.json and I'm not
+         sure yet how that one is supposed to behave.
+         Tests should check the 'getNParts() from imname' to make sure the components of
+         the refconcat image exist, have the expected keywords, etc.
+
+         :param imname: image name (output image from tclean)
+         :param check_misc: whether to check miscinfo in addition to imageinfo'
+         :param check_extended: can leave enabled for images other than .tt?, .alpha, etc.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         Errors marked with '(Fail' as per self.verdict().
+         """
+
+         tbt = tbtool()
+         try:
+             tbt.open(imname)
+             keys = tbt.getkeywords()
+         except RuntimeError as exc:
+             #if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             if os.path.isfile(os.path.join(os.path.abspath(imname), 'imageconcat.json')):
+                 # Looks like a refconcat image, nothing to check
+                 #return ''
+                 # make a bit more informative
+                 pstr = 'Looks like it is a refconcat image. Skipping the imageinfo keywords check.'
+                 return pstr
+             else:
+                 pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
+                 return pstr
+         finally:
+             tbt.close()
+
+         pstr = ''
+         if len(keys) <= 0:
+             pstr += ('No keywords found ({0})'.
+                      format(self.verdict(False)))
+             return pstr
+
+         # Records that need to be present
+         imageinfo = 'imageinfo'
+         miscinfo = 'miscinfo'
+         coords = 'coords'
+         mandatory_recs = [imageinfo, coords]
+         if check_misc:
+             mandatory_recs.append(miscinfo)
+         for rec in mandatory_recs:
+             if rec not in keys:
+                 pstr += ('{0} record not found ({1})\n'.
+                          format(rec, self.verdict(False)))
+         if len(pstr) > 0:
+            return pstr
+
+         mandatory_imageinfo = ['objectname', 'imagetype']
+         pstr += self.check_expected_entries(mandatory_imageinfo, imageinfo, keys)
+
+         if check_misc:
+             if check_extended:
+                 mandatory_miscinfo = ['INSTRUME', 'distance']
+                 pstr += self.check_expected_entries(mandatory_miscinfo, miscinfo, keys)
+             forbidden_miscinfo = ['OBJECT', 'TELESCOP']
+             pstr += self.check_forbidden_entries(forbidden_miscinfo, miscinfo, keys)
+
+         mandatory_coords = ['telescope']
+         pstr += self.check_expected_entries(mandatory_coords, coords, keys)
+
+         return pstr
+
+     def check_expected_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry not in keys[record]:
+                 pstr += ('entry {0} not found in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+             else:
+                 # TODO: many tests leave 'distance' empty. Assume that's acceptable...
+                 if entry != 'distance' and not keys[record][entry]:
+                     pstr += ('entry {0} is found in record {1} but it is empty ({2})\n'.
+                              format(entry, record, self.verdict(False)))
+
+         return pstr
+
+     def check_forbidden_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry in keys[record]:
+                 pstr += ('entry {0} should not be in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+         return pstr
 
      def modeltype(self,msname):
           """has no model, otf model, modelcol"""
@@ -498,13 +690,79 @@ class TestHelpers():
                imlist=[];
                for imext in imexts:
                     for part in range(1,self.nproc+1):
-                         imlist.append( imprefix+'.workdirectory/'+imprefix + '.n'+str(part)+'.'+imext )
+                         imlist.append( imprefix+'.workdirectory/'+
+                                        os.path.basename(imprefix) + '.n'+str(part)+
+                                        '.'+imext )
                #self.checkall(imexist = imlist)
 
           else:
                print 'Not a parallel run of CASA'
 
           return imlist
+
+     def mergeParaCubeResults(self, 
+                          ret=None,  
+                          parlist=[]
+                          #peakres=None, # a float
+                          #modflux=None, # a float
+                          #iterdone=None, # an int
+                          #nmajordone=None, # an int
+                          #imexist=None,  # list of image names
+                          #imexistnot=None, # list of image names
+                          #imval=None,  # list of tuples of (imagename,val,pos)
+                          #imvalexact=None, # list of tuples of (imagename,val,pos)
+                          #immask=None,  #list of tuples to check mask value
+                          #tabcache=True,
+                          #stopcode=None,
+                          #reffreq=None # list of tuples of (imagename, reffreq)
+                          ):
+         if ret!=None and type(ret)==dict:
+             if ret.keys()[0].count('node'):
+                 mergedret={}
+                 nodenames = ret.keys()
+                 print "ret NOW=",ret
+                 # must be parallel cube results
+                 if parlist.count('iterdone'):
+                     retIterdone = 0
+                     for inode in nodenames:
+                         print "ret[",inode,"]=",ret[inode]
+                         print "inode.strip = ", int(inode.strip('node'))
+                         retIterdone+=ret[inode][int(inode.strip('node'))]['iterdone']
+                     mergedret['iterdone']=retIterdone
+                 if parlist.count('nmajordone'):
+                     retNmajordone = 0
+                     for inode in nodenames:
+                         retNmajordone = max(ret[inode][int(inode.strip('node'))]['nmajordone'],retNmajordone) 
+                     mergedret['nmajordone']=retNmajordone
+                 if parlist.count('peakres'):
+                     #retPeakres = 0
+                     #for inode in nodenames:
+                         #tempreslist = ret[inode][int(inode.strip('node'))]['summaryminor'][1,:]
+                         #if len(tempreslist)>0: 
+                         #    tempresval = tempreslist[len(tempreslist)-1]
+                         #else: 
+                         #    tempresval=0.0
+                         #retPeakres = max(tempresval,retPeakres) 
+                     mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                 if parlist.count('modflux'):
+                     #retModflux = 0
+                     #for inode in nodenames:
+                     #    tempmodlist = ret[inode][int(inode.strip('node'))]['summaryminor'][2,:]
+                     #    print "tempmodlist for ",inode,"=",tempmodlist
+                     #    if len(tempmodlist)>0:
+                     #         tempmodval=tempmodlist[len(tempmodlist)-1]
+                     #    else:
+                     #         tempmodval=0.0
+                     #    retModflux += tempmodval
+                     #mergedret['modflux']=retModflux
+                    if not mergedret.has_key('summaryminor'):
+                        mergedret['summryminor']=et['node1'][1]['summaryminor']
+                 if parlist.count('stopcode'):
+                     mergedret['stopcode']=ret['node1'][1]['stopcode']
+             else:
+                 mergedret=ret 
+
+         return mergedret
 
 ##############################################
 

@@ -23,19 +23,19 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_admit.py
   test_agentflagger.py
   test_applycal.py
+  test_asdmsummary.py
   test_bandpass.py
-  test_boxit.py
   test_caltabconvert.py
   test_calanalysis.py
   test_clean.py
   test_cleanhelper.py
   test_clearstat.py
   test_componentlist.py
+  test_componentlistimage.py
   test_concat.py
   test_conjugatevis.py
   test_coordsys.py
   test_createmultims.py
-  test_csvclean.py
   test_cvel.py
   test_cvel2.py
   test_cvelfreqs.py
@@ -78,6 +78,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_ia_fromrecord.py
   test_ia_fromshape.py
   test_ia_getregion.py
+  test_ia_getslice.py
   test_ia_hanning.py
   test_ia_histograms.py
   test_ia_imageconcat.py
@@ -117,9 +118,12 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_importasap.py
   test_importasdm.py
   test_importasdm_mms.py
-  test_importevla.py
+  test_importatca.py
+  test_importcasa.py
   test_importfitsidi.py
+  test_importmiriad.py
   test_importnro.py
+  test_importvla.py
   test_imregrid.py
   test_imsmooth.py
   test_imstat.py
@@ -146,8 +150,11 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_partition.py
   test_partitionHelper.py
   test_plotants.py
+  test_plotcal.py
   test_plotms.py
+  test_plotprofilemap.py
   test_plotuv.py
+  test_plotweather.py
   test_po_complexfraclinpol.py
   test_po_complexlinpol.py  
   test_po_depolratio.py
@@ -164,37 +171,50 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_po_sigmalinpolint.py
   test_po_sigmalinpolposang.py
   test_po_totpolint.py
+  test_predictcomp.py
   test_refimager.py
   test_refimager_parallel.py
+  test_rerefant.py
   test_report.py
   test_rg_selectedchannels.py
   test_rg_frombcs.py
   test_rg_fromtextfile.py
-  test_tsdbaseline.py	
-  test_tsdcal.py
-  test_tsdfit.py
+  test_sdbaseline.py
+  test_sdcal.py
+  test_sdfit.py
+  test_sdfixscan.py
   test_sdgaincal.py
   test_sdimaging.py
-  test_sdimprocess.py
-  test_tsdsmooth.py
-  ### ASAP tasks ###
-  test_sdaverage.py
-  test_sdbaseline.py
-  test_sdbaseline2.py
-  test_sdcal.py
-  test_sdcal2.py
-  test_sdcoadd.py
-  test_sdfit.py
-  test_sdflag.py
-  test_sdflagmanager.py
-  test_sdgrid.py
-  test_sdlist.py
-  test_sdmath.py
-  test_sdplot.py
-  test_sdreduce.py
-  test_sdsave.py
-  test_sdscale.py
-  test_sdstat.py
+  test_tsdimaging.py
+  test_sdpolaverage.py
+  test_sdsidebandsplit.py
+  test_sdsmooth.py
+
+  ### CASAGUIDES ###
+  test_FirstLook_Imaging.py
+  test_FirstLook_LineImageAnalysis.py
+  test_FirstLook_LineImaging.py
+  test_FirstLook_SelfCalibration.py
+  test_ATCA_NGC612_advanced.py
+  test_ATCA_NGC612.py
+  test_VLA_CorrectingBandpass.py
+  test_VLA_Flagging.py
+  test_VLA_Imaging.py
+  test_VLA_3C391.py
+  test_VLA_IRC10216.py
+  test_VLA_MG0414.py
+
+  ###
+
+  test_req_task_listobs.py
+  test_req_task_listhistory.py
+  test_req_task_importuvfits.py
+  test_req_task_calstat.py
+  test_req_task_rmtables.py
+  test_req_task_clearcal.py
+  test_req_task_imhead.py
+  test_req_task_visstat.py
+
   ###
   test_setjy.py
   test_simobserve.py
@@ -204,8 +224,8 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_specflux.py
   test_splattotable.py
   test_split.py
-  test_split2.py
   test_spxfit.py
+  test_oldstatwt.py
   test_statwt.py
   test_testconcat.py
   test_uvcontsub.py
@@ -215,11 +235,15 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_virtualconcat.py
   test_vishead.py
   test_visstat.py
-  test_visstat2.py
   test_vpmanager.py
   test_wvrgcal.py
+  test_imview.py
+  test_msview.py
   selection_syntax.py
   ../mpi4casa/test_mpi4casa.py
+  ../mpi4casa/test_mpi4casa_subset.py
   testutils.py
   unittests_list.txt
+  uTest_list.json
+  uTest_Template.dat
 )

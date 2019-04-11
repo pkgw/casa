@@ -41,31 +41,27 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -115,20 +111,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -147,7 +147,7 @@ class ExecBlockRow;
  * Characteristics of the Execution block.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of ExecBlock </CAPTION>
@@ -205,27 +205,27 @@ class ExecBlockRow;
 	
  * <TR>
  * <TD> configName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the array's configuration. </TD>
  * </TR>
 	
  * <TR>
  * <TD> telescopeName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the telescope. </TD>
  * </TR>
 	
  * <TR>
  * <TD> observerName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the observer. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numObservingLog </TD> 
+ * <TD> numObservingLog (numObservingLog)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of elements in the (array) attribute observingLog. </TD>
@@ -233,7 +233,7 @@ class ExecBlockRow;
 	
  * <TR>
  * <TD> observingLog </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numObservingLog </TD> 
  * <TD> &nbsp; logs of the observation during this execution block. </TD>
  * </TR>
@@ -288,7 +288,7 @@ class ExecBlockRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas. </TD>
@@ -296,7 +296,7 @@ class ExecBlockRow;
 	
  * <TR>
  * <TD> antennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;refers to the relevant rows in AntennaTable. </TD>
  * </TR>
@@ -313,56 +313,56 @@ class ExecBlockRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> releaseDate </TD> 
+ * <TD> releaseDate</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the date when the data go to the public domain. </TD>
  * </TR>
 	
  * <TR>
- * <TD> schedulerMode </TD> 
- * <TD> string </TD>
+ * <TD> schedulerMode</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the mode of scheduling. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteAltitude </TD> 
+ * <TD> siteAltitude</TD> 
  * <TD> Length </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the altitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteLongitude </TD> 
+ * <TD> siteLongitude</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the longitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> siteLatitude </TD> 
+ * <TD> siteLatitude</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the latitude of the site. </TD>
  * </TR>
 	
  * <TR>
- * <TD> observingScript </TD> 
- * <TD> string </TD>
+ * <TD> observingScript</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; The text of the observation script. </TD>
  * </TR>
 	
  * <TR>
- * <TD> observingScriptUID </TD> 
+ * <TD> observingScriptUID</TD> 
  * <TD> EntityRef </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; A reference to the Entity which contains the observing script. </TD>
  * </TR>
 	
  * <TR>
- * <TD> scaleId </TD> 
+ * <TD> scaleId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a unique row in the table Scale. </TD>
@@ -545,7 +545,7 @@ public:
  	 * @param sBSummaryId
 	
      */
-	ExecBlockRow *newRow(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId);
+	ExecBlockRow *newRow(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId);
 	
 
 
@@ -668,7 +668,7 @@ public:
  	 * @param sBSummaryId
  	 		 
  	 */
-	ExecBlockRow* lookup(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId); 
+	ExecBlockRow* lookup(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -694,6 +694,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

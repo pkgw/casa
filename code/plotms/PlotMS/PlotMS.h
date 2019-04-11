@@ -168,12 +168,13 @@ public:
     //For example, if an invalid selection was made, the return value may be false.
     bool isOperationCompleted() const;
     PlotterPtr getPlotter();
-public:
+
     // To allow normal error/warning/info popups, which block execution,
     // or, if not, prevent blocking by writing to the Logger and posting 
     // text to a status bar (or other visible gui element TBD)
-    // (public for now, while it's experimental)
-	bool its_want_avoid_popups;
+	inline virtual void allowPopups(bool allow=true) {
+		allow_popups = allow; };
+	inline bool popupsAllowed() { return allow_popups; };
 	bool updateCachePlot( PlotMSPlot* plot, void (*f)(void*, bool), bool setupPlot);
 	void setCommonAxes(bool commonX, bool commonY );
 	bool isCommonAxisX() const;
@@ -181,7 +182,7 @@ public:
 	void setAxisLocation( PlotAxis locationX, PlotAxis locationY );
 	PlotAxis getAxisLocationX() const;
 	PlotAxis getAxisLocationY() const;
-	vector<casacore::String> getFiles() const;
+    std::vector<casacore::String> getFiles() const;
 
 
 private:
@@ -189,6 +190,7 @@ private:
     Client* itsPlotter_;
     Client* itsLastPlotter_;
     bool isGUI_;
+	bool allow_popups;
 
     // Current parameters.
     PlotMSParameters itsParameters_;

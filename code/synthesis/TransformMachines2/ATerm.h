@@ -153,7 +153,6 @@ namespace casa{
     //   return defaultConvSize;
     // };
 
-    void setOversampling(const casacore::Int os) {cachedOverSampling_p=os;};
     virtual casacore::Int getOversampling() {return cachedOverSampling_p;}
     // {
     //   casacore::Int defaultOverSampling=OVERSAMPLING;
@@ -183,7 +182,7 @@ namespace casa{
 
     virtual void cacheVBInfo(const VisBuffer2& vb) = 0;
     virtual void cacheVBInfo(const casacore::String& telescopeName, const casacore::Float& diameter)=0;
-    virtual casacore::Int getBandID(const casacore::Double& freq, const casacore::String& telescopeName) = 0;
+    virtual casacore::Int getBandID(const casacore::Double& freq, const casacore::String& telescopeName, const casacore::String& bandName) = 0;
     virtual int getVisParams(const VisBuffer2& vb, const casacore::CoordinateSystem& skyCoord=casacore::CoordinateSystem()) = 0;
     //
     // The mapping from VisBuffer polarizations map to the Image plane
@@ -208,7 +207,6 @@ namespace casa{
     casacore::Int cachedOverSampling_p, cachedConvSize_p;
 
     casacore::Float Diameter_p, Nant_p, HPBW, sigma;
-    casacore::String telescopeName_p;
   };
   };
 };

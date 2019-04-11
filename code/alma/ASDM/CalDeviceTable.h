@@ -41,30 +41,26 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
-	
-
-	
-
-	
-#include "CCalibrationDevice.h"
 	
 
 	
 
+	
+#include <alma/Enumerations/CCalibrationDevice.h>
 	
 
 	
@@ -73,20 +69,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -105,7 +105,7 @@ class CalDeviceRow;
  * Calibration device characteristics. This table is not part of the   Calibration Data Model but describes the actual observations; it refers to   the amplitude calibration device which includes the hot loads.     Calibration device properties are assumed independent of frequency   throughout a spectral window.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalDevice </CAPTION>
@@ -154,7 +154,7 @@ class CalDeviceRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCalload </TD> 
+ * <TD> numCalload (numCalload)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of calibration loads. </TD>
@@ -162,7 +162,7 @@ class CalDeviceRow;
 	
  * <TR>
  * <TD> calLoadNames </TD> 
- * <TD> vector<CalibrationDeviceMod::CalibrationDevice > </TD>
+ * <TD> std::vector<CalibrationDeviceMod::CalibrationDevice > </TD>
  * <TD>  numCalload </TD> 
  * <TD> &nbsp;identifies the calibration loads (an array with one value per load). </TD>
  * </TR>
@@ -172,36 +172,36 @@ class CalDeviceRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor(numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of receptors. </TD>
  * </TR>
 	
  * <TR>
- * <TD> calEff </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> calEff</TD> 
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp; the calibration efficiencies (one value per receptor per load). </TD>
  * </TR>
 	
  * <TR>
- * <TD> noiseCal </TD> 
- * <TD> vector<double > </TD>
+ * <TD> noiseCal</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the equivalent temperatures of the of the noise sources used (one value per load). </TD>
  * </TR>
 	
  * <TR>
- * <TD> coupledNoiseCal </TD> 
- * <TD> vector<vector<float > > </TD>
+ * <TD> coupledNoiseCal</TD> 
+ * <TD> std::vector<std::vector<float > > </TD>
  * <TD>  numReceptor, numCalload  </TD>
  * <TD>&nbsp;  </TD>
  * </TR>
 	
  * <TR>
- * <TD> temperatureLoad </TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> temperatureLoad</TD> 
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  numCalload  </TD>
  * <TD>&nbsp; the physical temperatures of the loads for a black body calibration source (one value per load). </TD>
  * </TR>
@@ -355,7 +355,7 @@ public:
  	 * @param calLoadNames
 	
      */
-	CalDeviceRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+	CalDeviceRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
 	
 
 
@@ -476,7 +476,7 @@ public:
  	 * @param calLoadNames
  	 		 
  	 */
-	CalDeviceRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
+	CalDeviceRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -502,6 +502,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

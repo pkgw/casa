@@ -621,7 +621,7 @@ class test_mms_parallel(test_base):
         ret = th.verifyMS(self.outputms, 2, 1, 0)
         self.assertTrue(ret[0],ret[1])
 
-#@unittest.skip('Skip until support for this data is included in getPartitonMap() is fixed')
+#@unittest.skip('Skip until support for this data is included in getPartitionMap() is fixed')
 class test_mms_spw_poln(test_base):
     '''tests for spw with different correlation shapes'''
 
@@ -643,7 +643,7 @@ class test_mms_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'1,2'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)
@@ -680,7 +680,7 @@ class test_mms_spw_poln(test_base):
         myms = mstool()
         myms.open(self.vis)
         myms.msselect({'spw':'0,1'})
-        inp_nrow = myms.nrow()
+        inp_nrow = myms.nrow(True)
         myms.close()
 
         myms.open(self.outputms)

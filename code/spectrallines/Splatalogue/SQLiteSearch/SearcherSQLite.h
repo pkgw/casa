@@ -59,8 +59,8 @@ public:
 	virtual void reset();
 
 	//Search Paramaters
-	virtual void setChemicalNames( const vector<string>& chemNames );
-	virtual void setSpeciesNames( const vector<string>& speciesNames );
+	virtual void setChemicalNames( const std::vector<string>& chemNames );
+	virtual void setSpeciesNames( const std::vector<string>& speciesNames );
 	/**
 	 * Units are assumed to be MHz.
 	 */
@@ -70,7 +70,7 @@ public:
 	virtual void setLogaRange( double minValue, double maxValue );
 	virtual void setElRange( double minValue, double maxValue );
 	virtual void setEuRange( double minValue, double maxValue );
-	virtual void setQNS( const vector<string>& qns );
+	virtual void setQNS( const std::vector<string>& qns );
 
 
 	//Astronomical Filters
@@ -91,7 +91,7 @@ public:
 	 * limit, the offset indicates the starting index of the rows that
 	 * are returned.
 	 */
-	virtual vector<SplatResult> doSearch( string& errorMsg, int offset );
+	virtual std::vector<SplatResult> doSearch( string& errorMsg, int offset );
 	virtual long doSearchCount( string& errorMsg );
 	/**
 	 * Sets the maximum number of rows that will be returned as a result
@@ -117,8 +117,8 @@ private:
 	std::string getTrue() const;
 	string numToString( double number ) const;
 	string getBetweenClause( const string& columnName, double low, double high) const;
-	string getInClause( const string& columnName, const vector<string>& values ) const;
-	string getLikeClause( const string& columnName, const vector<string>& values ) const;
+	string getInClause( const string& columnName, const std::vector<string>& values ) const;
+	string getLikeClause( const string& columnName, const std::vector<string>& values ) const;
 
 	//Set-up
 	sqlite3* db;
@@ -136,17 +136,17 @@ private:
 	double maxValueEl;
 	double minValueEu;
 	double maxValueEu;
-	bool recommendedOnly;
-	vector<string> speciesNames;
-	vector<string> chemicalNames;
-	vector<string> qns;
+	//bool recommendedOnly;
+	std::vector<string> speciesNames;
+	std::vector<string> chemicalNames;
+	std::vector<string> qns;
 
 
 	enum FILTER_LIST { FILTER_TOP_20, FILTER_PLANETARY_ATMOSPHERE, FILTER_HOT_CORES,
 		FILTER_DARK_CLOUDS, FILTER_DIFFUSE_CLOUDS, FILTER_COMETS, FILTER_AGB_PPN_PN,
 		FILTER_EXTRAGALACTIC, END_FILTERS };
-	vector<bool> filters;
-	static vector<string> filterNames;
+	std::vector<bool> filters;
+	static std::vector<string> filterNames;
 
 	//casacore::Table Names
 	const static std::string TABLE_MAIN;

@@ -87,6 +87,7 @@ install (FILES
     ComponentModels/SkyCompBase.h
     ComponentModels/SkyComponent.h
     ComponentModels/SkyComponentFactory.h
+    ComponentModels/SkyComponentFactory2.tcc
     ComponentModels/SkyCompRep.h
     ComponentModels/SpectralIndex.h
     ComponentModels/SpectralModel.h
@@ -122,7 +123,6 @@ casa_add_demo ( components ComponentModels/test/dPointShape.cc )
 casa_add_demo( components ComponentModels/test/dSkyCompBase.cc )
 casa_add_demo( components ComponentModels/test/dSpectralModel.cc )
 casa_add_demo( components ComponentModels/test/dTwoSidedShape.cc )
-casa_add_assay( components ComponentModels/test/tComponentList.cc )
 casa_add_assay( components ComponentModels/test/tComponentType.cc )
 casa_add_assay( components ComponentModels/test/tConstantSpectrum.cc )
 casa_add_assay( components ComponentModels/test/tDiskShape.cc )
@@ -143,6 +143,7 @@ casa_add_assay( components SpectralComponents/test/tPowerLogPolynomialSpectralEl
 casa_add_assay( components SpectralComponents/test/tProfileFit1D.cc )
 casa_add_assay( components SpectralComponents/test/tSpectralFit.cc )
 
+casa_add_unit_test( MODULES components SOURCES ComponentModels/test/tComponentList.cc )
 casa_add_unit_test( MODULES components SOURCES ComponentModels/test/tLimbDarkenedDiskShape.cc )
 casa_add_google_test( MODULES components SOURCES ComponentModels/test/FluxStandard_GTest.cc ComponentModels/test/FluxStandardTest.cc )
 casa_add_google_test( MODULES components SOURCES ComponentModels/test/EphemObjFluxStandard_GTest.cc ComponentModels/test/FluxStandardTest.cc )

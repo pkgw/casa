@@ -413,14 +413,14 @@ namespace LibAIR2 {
   ALMAAbsProcessor(const ALMAAbsInpL &inp,
 		   boost::ptr_list<ALMAResBase> &r)
   {
-    std::auto_ptr<dTdLCoeffsBase> res;
+    std::unique_ptr<dTdLCoeffsBase> res;
     if (inp.size()==0)
     {
     }
     else
     {
       dTdLCoeffsSingleInterpolated *rr=new dTdLCoeffsSingleInterpolated();
-      res=std::auto_ptr<dTdLCoeffsBase>(rr);
+      res=std::unique_ptr<dTdLCoeffsBase>(rr);
 
       for(ALMAAbsInpL::const_iterator i=inp.begin(); 
 	  i!=inp.end(); 
@@ -447,7 +447,7 @@ namespace LibAIR2 {
 
     BOOST_ASSERT(fb.size()==r.size());
     
-    std::auto_ptr<dTdLCoeffsSingleInterpolated> 
+    std::unique_ptr<dTdLCoeffsSingleInterpolated> 
       res(new dTdLCoeffsSingleInterpolated());
 
     boost::ptr_list<ALMAResBase>::iterator ir=r.begin();

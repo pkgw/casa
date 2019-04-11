@@ -57,8 +57,6 @@ using namespace casacore;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-MSIter msi;
-
 VisBuffer::VisBuffer()
     : corrSorted_p(false),
       lastPointTableRow_p(0),
@@ -2357,6 +2355,18 @@ MDirection& VisBuffer::fillPhaseCenter()
   phaseCenterOK_p = true;
   return phaseCenter_p = visIter_p->phaseCenter();
 }
+const MDirection VisBuffer::phaseCenter(const Double time) const 
+{
+  CheckVisIter ();
+  
+  return This->phaseCenter(This->fieldId(), time);
+}
+const MDirection VisBuffer::phaseCenter(const Int field, const Double time) const 
+{
+  CheckVisIter ();
+ 
+  return visIter_p->phaseCenter(field, time);
+}
 
 Int& VisBuffer::fillPolFrame()
 {
@@ -2466,7 +2476,11 @@ Cube<Complex>& VisBuffer::fillVisCube(VisibilityIterator::DataColumn whichOne)
 	  if (not visModelData_p.null()) hasmodkey = visModelData_p->isModelDefinedI(fieldId(), visIter_p->ms(), modelkey, snum);
 	  if( hasmodkey || !(visIter_p->ms().tableDesc().isColumn("MODEL_DATA")))
 	  {
+	    
 		  //cerr << "HASMOD " << visModelData_p.hasModel(msId(), fieldId(), spectralWindow()) << endl;
+	    visModelData_p->init(*this);
+	    ////This bit can be removed when we do not support old model vesions saved
+	    if(!(visModelData_p->isVersion2())){
 		  if(visModelData_p->hasModel(msId(), fieldId(), spectralWindow()) ==-1){
 			  if(hasmodkey){
 				  //String whichrec=visIter_p->ms().keywordSet().asString(modelkey);
@@ -2476,6 +2490,8 @@ Cube<Complex>& VisBuffer::fillVisCube(VisibilityIterator::DataColumn whichOne)
 				  }
 			  }
 		  }
+	    }
+	    ////////////////////////////
 		  visModelData_p->getModelVis(*this);
 	  }
 	  else

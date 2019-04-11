@@ -29,22 +29,17 @@
 
 #include <stdint.h>
 #include <string>
-using std::string;
 
 #include <vector>
-using std::vector;
 
-#include <Interval.h> 
-#include <UTCCorrection.h>
+#include <alma/ASDM/Interval.h> 
+#include <alma/ASDM/UTCCorrection.h>
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLTypesC.h>
-using asdmIDLTypes::IDLArrayTime;
 #endif
 
-#include "EndianStream.h"
-using asdm::EndianOSStream;
-using asdm::EndianIStream;
+#include <alma/ASDM/EndianStream.h>
 
 namespace asdm {
 
@@ -130,7 +125,7 @@ public:
 	 *
 	 * @param s a const reference to a string.
 	 */
-	ArrayTime (const string &s); 
+	ArrayTime (const std::string &s); 
 
 	/**
 	 * The copy constructor.
@@ -144,7 +139,7 @@ public:
 	 *
 	 * @param t a const reference to an IDLArrayTime.
 	 */
-	ArrayTime (const IDLArrayTime &t);
+	ArrayTime (const asdmIDLTypes::IDLArrayTime &t);
 #endif 
 
 	/**
@@ -216,9 +211,9 @@ public:
 */
 
 #ifndef WITHOUT_ACS
-	IDLArrayTime toIDLArrayTime() const; 
+    asdmIDLTypes::IDLArrayTime toIDLArrayTime() const; 
 #endif
-	string toFITS() const; 
+	std::string toFITS() const; 
 	
 			
 	/**
@@ -231,21 +226,21 @@ public:
 	 * @param arrayTime the vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<ArrayTime>& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<ArrayTime>& arrayTime,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of ArrayTime to a EndianOSStream.
 	 * @param arrayTime the vector of vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */	
-	static void toBin(const vector<vector<ArrayTime> >& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<ArrayTime> >& arrayTime,  EndianOSStream& eoss);
 	
 	/**
 	 * Write the binary representation of a vector of vector of vector of ArrayTime to a EndianOSStream.
 	 * @param arrayTime the vector of vector of vector of ArrayTime to be written
 	 * @param eoss the EndianOSStream to be written to
 	 */
-	static void toBin(const vector<vector<vector<ArrayTime> > >& arrayTime,  EndianOSStream& eoss);
+	static void toBin(const std::vector<std::vector<std::vector<ArrayTime> > >& arrayTime,  EndianOSStream& eoss);
 
 	/**
 	 * Read the binary representation of an ArrayTime from a EndianIStream
@@ -261,7 +256,7 @@ public:
 	 * @param dis the EndianIStream to be read
 	 * @return a vector of ArrayTime
 	 */	 
-	 static vector<ArrayTime> from1DBin(EndianIStream & eis);
+	 static std::vector<ArrayTime> from1DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of ArrayTime from an EndianIStream
@@ -269,7 +264,7 @@ public:
 	 * @param eiis the EndianIStream to be read
 	 * @return a vector of vector of ArrayTime
 	 */	 
-	 static vector<vector<ArrayTime> > from2DBin(EndianIStream & eis);
+	 static std::vector<std::vector<ArrayTime> > from2DBin(EndianIStream & eis);
 	 
 	/**
 	 * Read the binary representation of  a vector of vector of vector of ArrayTime from an EndianIStream
@@ -277,13 +272,13 @@ public:
 	 * @param eis the EndianIStream to be read
 	 * @return a vector of vector of vector of ArrayTime
 	 */	 
-	 static vector<vector<vector<ArrayTime> > > from3DBin(EndianIStream & eis);	
+	 static std::vector<std::vector<std::vector<ArrayTime> > > from3DBin(EndianIStream & eis);	
 	 	
 	int *getDateTime() const; 
 	double getTimeOfDay() const; 
 	int getDayOfWeek() const; 
 	int getDayOfYear() const; 
-	string timeOfDayToString() const;
+	std::string timeOfDayToString() const;
 	double getLocalSiderealTime(double longitudeInHours) const; 
 	double getGreenwichMeanSiderealTime() const; 
 
@@ -298,7 +293,7 @@ private:
 
 	static int64_t init(int year, int month, double day);
 	static int64_t init(int year, int month, int day, int hour, int minute, double second);
-	int64_t FITSString(string t) const;
+	int64_t FITSString(std::string t) const;
 
 /*
 	static const int numberSigDigitsInASecond;

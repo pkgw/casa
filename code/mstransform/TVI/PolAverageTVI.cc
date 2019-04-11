@@ -36,6 +36,8 @@
 #include <msvis/MSVis/VisBufferComponents2.h>
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
 
+#include <mstransform/TVI/UtilsTVI.h>
+
 using namespace casacore;
 
 namespace {
@@ -155,7 +157,7 @@ struct GeometricTransformation {
   inline static void transformData(Cube<T> const &dataIn,
       Cube<Bool> const &flagIn, Matrix<Float> const &weightIn, Int pid0,
       Int pid1, Cube<T> &dataOut) {
-    cout << "start " << __func__ << endl;
+//    cout << "start " << __func__ << endl;
     if (dataIn.empty()) {
       dataOut.resize();
       return;
@@ -207,7 +209,7 @@ struct GeometricTransformation {
     }
 
     dataOut.reference(transformedData);
-    cout << "end " << __func__ << endl;
+//    cout << "end " << __func__ << endl;
   }
 
   static inline void AccumulateWeight(Float const wt, Double &wtsum) {
@@ -226,9 +228,9 @@ inline Float weight2Sigma(Float x) {
 template<class WeightHandler>
 inline void transformWeight(Array<Float> const &weightIn, Int pid0, Int pid1,
     Array<Float> &weightOut) {
-  cout << "start " << __func__ << endl;
+//  cout << "start " << __func__ << endl;
   if (weightIn.empty()) {
-    cout << "input weight is empty" << endl;
+//    cout << "input weight is empty" << endl;
     weightOut.resize();
     return;
   }
@@ -236,7 +238,7 @@ inline void transformWeight(Array<Float> const &weightIn, Int pid0, Int pid1,
   IPosition shapeOut(shapeIn);
   // set length of polarization axis to 1
   shapeOut[0] = 1;
-  cout << "shapeIn = " << shapeIn << " shapeOut = " << shapeOut << endl;
+//  cout << "shapeIn = " << shapeIn << " shapeOut = " << shapeOut << endl;
 
   // initialization
   weightOut.resize(shapeOut);
@@ -244,8 +246,8 @@ inline void transformWeight(Array<Float> const &weightIn, Int pid0, Int pid1,
 
   ssize_t numPol = shapeIn[0];
   Int64 numElemPerPol = shapeOut.product();
-  cout << "numElemPerPol = " << numElemPerPol << endl;
-  cout << "numPol = " << numPol << endl;
+//  cout << "numElemPerPol = " << numElemPerPol << endl;
+//  cout << "numPol = " << numPol << endl;
 
   Bool b;
   Float const *p_wIn = weightIn.getStorage(b);
@@ -276,6 +278,9 @@ namespace vi { //# NAMESPACE VI - BEGIN
 PolAverageTVI::PolAverageTVI(ViImplementation2 *inputVII) :
     TransformingVi2(inputVII) {
   configurePolAverage();
+
+  // Initialize attached VisBuffer
+  setVisBuffer(createAttachedVisBuffer(VbRekeyable));
 }
 
 PolAverageTVI::~PolAverageTVI() {
@@ -314,7 +319,7 @@ void PolAverageTVI::warnIfNoTransform() {
     String msg("Skip polarization average because");
     if (vb->nCorrelations() == 1) {
       msg += " number of polarizations is 1.";
-    } else if (anyEQ(vb->correlationTypes(), (Int)Stokes::I)) {
+    } else if (anyEQ(vb->correlationTypes(), (Int) Stokes::I)) {
       msg += " polarization type is Stokes.";
     } else {
       msg += " no valid polarization components are found.";
@@ -331,6 +336,11 @@ void PolAverageTVI::corrType(Vector<Int> & corrTypes) const {
   } else {
     getVii()->corrType(corrTypes);
   }
+}
+
+void PolAverageTVI::flagRow(Vector<Bool> & rowflags) const {
+  Cube<Bool> const &flags = getVisBuffer()->flagCube();
+  accumulateFlagCube(flags, rowflags);
 }
 
 void PolAverageTVI::flag(Cube<Bool> & flags) const {
@@ -373,11 +383,17 @@ void PolAverageTVI::jonesC(Vector<SquareMatrix<Complex, 2> > &cjones) const {
 }
 
 void PolAverageTVI::sigma(Matrix<Float> & sigmat) const {
-  if (doTransform_[dataDescriptionId()]) {
-    weight(sigmat);
-    arrayTransformInPlace(sigmat, ::weight2Sigma);
+  if (weightSpectrumExists()) {
+    Cube<Float> const &sigmaSp = getVisBuffer()->sigmaSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
+    accumulateWeightCube(sigmaSp, flag, sigmat);
   } else {
-    getVii()->sigma(sigmat);
+    if (doTransform_[dataDescriptionId()]) {
+      weight(sigmat);
+      arrayTransformInPlace(sigmat, ::weight2Sigma);
+    } else {
+      getVii()->sigma(sigmat);
+    }
   }
 }
 
@@ -455,12 +471,18 @@ IPosition PolAverageTVI::visibilityShape() const {
 }
 
 void PolAverageTVI::weight(Matrix<Float> & wtmat) const {
-  Matrix<Float> wtmatOrg;
-  getVii()->weight(wtmatOrg);
-  if (doTransform_[dataDescriptionId()]) {
-    transformWeight(wtmatOrg, wtmat);
+  if (weightSpectrumExists()) {
+    Cube<Float> const &weightSp = getVisBuffer()->weightSpectrum();
+    Cube<Bool> const &flag = getVisBuffer()->flagCube();
+    accumulateWeightCube(weightSp, flag, wtmat);
   } else {
-    wtmat.reference(wtmatOrg);
+    Matrix<Float> wtmatOrg;
+    getVii()->weight(wtmatOrg);
+    if (doTransform_[dataDescriptionId()]) {
+      transformWeight(wtmatOrg, wtmat);
+    } else {
+      wtmat.reference(wtmatOrg);
+    }
   }
 }
 
@@ -662,7 +684,7 @@ PolAverageVi2Factory::PolAverageVi2Factory(Record const &configuration,
     Double timeInterval, Bool isWritable) :
     inputVII_p(nullptr), mode_(AveragingMode::DEFAULT) {
   inputVII_p = new VisibilityIteratorImpl2(Block<MeasurementSet const *>(1, ms),
-      sortColumns, timeInterval, VbPlain, isWritable);
+      sortColumns, timeInterval, isWritable);
 
   mode_ = PolAverageVi2Factory::GetAverageModeFromConfig(configuration);
 }
@@ -682,18 +704,26 @@ ViImplementation2 * PolAverageVi2Factory::createVi() const {
   return nullptr;
 }
 
-PolAverageTVILayerFactory::PolAverageTVILayerFactory(Record const &configuration) :
-  ViiLayerFactory()
-{
+PolAverageTVILayerFactory::PolAverageTVILayerFactory(
+    Record const &configuration) :
+    ViiLayerFactory() {
   configuration_p = configuration;
 }
 
 ViImplementation2*
-PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const
-{
+PolAverageTVILayerFactory::createInstance(ViImplementation2* vii0) const {
   // Make the PolAverageTVI, using supplied ViImplementation2, and return it
   PolAverageVi2Factory factory(configuration_p, vii0);
-  return factory.createVi();
+  ViImplementation2 *vii = nullptr;
+  try {
+    vii = factory.createVi();
+  } catch (...) {
+    if (vii0) {
+      delete vii0;
+    }
+    throw;
+  }
+  return vii;
 }
 } // # NAMESPACE VI - END
 } // #NAMESPACE CASA - END

@@ -105,7 +105,7 @@ bool CacheThread::doWork(){
 				itsCache->load(workAxes, itsAxesData, itsMSName, 
 					itsSelection, itsAveraging,
 					itsTransformations, itsCalibration,
-					threadController );
+                    threadController );
 			}
 			else {
 				throw(AipsError("Problem in Cache Thread::run A"));
@@ -125,7 +125,7 @@ bool CacheThread::doWork(){
                         itsCache->clearRanges();
                         bool globalRanges = false;
                         for ( int i = 0; i < dataCount; i++ ){
-                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, i);
+                            itsCache->setUpIndexer(PMS::NONE, globalRanges, globalRanges, "none", false, i);
                         }
                     }
                 }

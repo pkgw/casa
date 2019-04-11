@@ -28,7 +28,6 @@
 
 #include <imageanalysis/ImageAnalysis/ImageRegridderBase.h>
 
-#include <scimath/Mathematics/Interpolate2D.h>
 #include <casa/namespace.h>
 
 namespace casacore{
@@ -40,9 +39,10 @@ template <class T> class TempImage;
 namespace casa {
 
 
-class ImageRegridder : public ImageRegridderBase<casacore::Float> {
+template<class T> class ImageRegridder : public ImageRegridderBase<T> {
 	// <summary>
-	// Top level interface which regrids an image to a specified coordinate system
+	// Top level interface which regrids an image to a specified coordinate
+    // system
 	// </summary>
 
 	// <reviewed reviewer="" date="" tests="" demos="">
@@ -56,10 +56,11 @@ class ImageRegridder : public ImageRegridderBase<casacore::Float> {
 	// </etymology>
 
 	// <synopsis>
-	// High level interface for regridding an image. Note that in the case of a complex-valued
-	// image, the image is first divided into its composite real and imaginary parts, and these
-	// parts are regridded independently. The resulting regridded images are combined to form
-	// the final regridded complex-valued image.
+	// High level interface for regridding an image. Note that in the case of a
+    // complex-valued image, the image is first divided into its composite real
+    // and imaginary parts, and these parts are regridded independently. The
+    // resulting regridded images are combined to form the final regridded
+    // complex-valued image.
 	// </synopsis>
 
 public:
@@ -67,22 +68,24 @@ public:
 	ImageRegridder() = delete;
 
 	// if <src>outname</src> is empty, no image will be written
-	// if <src>overwrite</src> is true, if image already exists it will be removed
-	// if <src>overwrite</src> is false, if image already exists exception will be thrown
+	// if <src>overwrite</src> is true, if image already exists it will be
+	// removed if <src>overwrite</src> is false, if image already exists
+	// exception will be thrown
 	// <group>
 
 	ImageRegridder(
-		const SPCIIF image,
-		const casacore::Record *const regionRec,
-		const casacore::String& maskInp, const casacore::String& outname, casacore::Bool overwrite,
-		const casacore::CoordinateSystem& csysTo, const casacore::IPosition& axes,
-		const casacore::IPosition& shape
+		const SPCIIT image, const casacore::Record *const regionRec,
+		const casacore::String& maskInp, const casacore::String& outname,
+		casacore::Bool overwrite, const casacore::CoordinateSystem& csysTo,
+		const casacore::IPosition& axes, const casacore::IPosition& shape
 	);
 
-	// FIXME Add support to allow image and templateIm to be of different data types
+	// FIXME Add support to allow image and templateIm to be of different data
+	// types
 	ImageRegridder(
-		const SPCIIF image, const casacore::String& outname,
-		const SPCIIF templateIm, const casacore::IPosition& axes=casacore::IPosition(),
+		const SPCIIT image, const casacore::String& outname,
+		const SPCIIT templateIm,
+		const casacore::IPosition& axes=casacore::IPosition(),
 		const casacore::Record *const regionRec=0,
 		const casacore::String& maskInp="", casacore::Bool overwrite=false,
 		const casacore::IPosition& shape=casacore::IPosition()
@@ -93,44 +96,50 @@ public:
 	~ImageRegridder();
 
 	// perform the regrid.
-	SPIIF regrid() const;
+	SPIIT regrid() const;
 
 	inline casacore::String getClass() const { return _class; }
 
 	void setDebug(casacore::Int debug) { _debug = debug; }
 
 private:
-	mutable SPIIF _subimage;
+	mutable SPIIT _subimage;
 	casacore::Int _debug;
 	static const casacore::String _class;
 
-	SPIIF _regrid() const;
+	SPIIT _regrid() const;
 
-	SPIIF _regridByVelocity() const;
+	SPIIT _regridByVelocity() const;
 
-	casacore::Bool _doImagesOverlap(
-		SPCIIF image0,
-		SPCIIF image1
-	) const;
+	casacore::Bool _doImagesOverlap(SPCIIT image0, SPCIIT image1) const;
 
-	static casacore::Vector<std::pair<casacore::Double, casacore::Double> > _getDirectionCorners(
+	static casacore::Vector<std::pair<casacore::Double, casacore::Double> >
+	_getDirectionCorners(
 		const casacore::DirectionCoordinate& dc,
 		const casacore::IPosition& directionShape
 	);
 
 	void _checkOutputShape(
-		const casacore::SubImage<casacore::Float>& subImage,
+		const casacore::SubImage<T>& subImage,
 		const std::set<casacore::Coordinate::Type>& coordsToRegrid
 	) const;
 
-	SPIIF _decimateStokes(SPIIF workIm) const;
+	SPIIT _decimateStokes(SPIIT workIm) const;
 
 	static casacore::Bool _doRectanglesIntersect(
-		const casacore::Vector<std::pair<casacore::Double, casacore::Double> >& corners0,
-		const casacore::Vector<std::pair<casacore::Double, casacore::Double> >& corners1
+		const casacore::Vector<
+		    std::pair<casacore::Double, casacore::Double>
+	    >& corners0,
+		const casacore::Vector<
+		    std::pair<casacore::Double, casacore::Double>
+	    >& corners1
 	);
 
 };
 }
+
+#ifndef CASACORE_NO_AUTO_TEMPLATES
+#include <imageanalysis/ImageAnalysis/ImageRegridder.tcc>
+#endif
 
 #endif

@@ -1099,19 +1099,84 @@ class test_ModImage(SetjyUnitTestBase):
                                             field='0542+498_1',
                                             baseline='2&9',
                                             time='2003/05/02/19:53:30.0',
-                                            correlation='rr')['MODEL']['mean']
+                                            correlation='rr',
+                                            reportingaxes='field')['FIELD_ID=12']['mean']
             record['long']  = ms.statistics(column='MODEL',
                                             complex_value='amp',
                                             field='0542+498_1',
                                             baseline='21&24',
                                             time='2003/05/02/19:53:30.0',
-                                            correlation='ll')['MODEL']['mean']
+                                            correlation='ll',
+                                            reportingaxes='field')['FIELD_ID=12']['mean']
             ms.close()
         except Exception, e:
             print "Error from setjy or ms.statistics()"
             raise e
 
         return record
+    
+class test_newStandards(SetjyUnitTestBase):
+    """Test simple Stnadard Scaling"""
+    def setUp(self):
+        prefix = 'n1333_1' 
+        msname=prefix+'.ms'
+        self.setUpMS(msname)
+        self.field='0542+498_1' #3C147
+
+    def tearDown(self):
+        #self.resetMS()
+        pass
+
+    def test_PB2013(self):
+        self.modelim = ""
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      standard='Perley-Butler 2013',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        self.check_eq(sjran['12']['0']['fluxd'][0],0.99137,0.0001)
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99132,0.0001)
+        self.assertTrue(ret)
+ 
+    def test_PB2017(self):
+        self.modelim = ""
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      standard='Perley-Butler 2017',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        #self.check_eq(sjran['12']['0']['fluxd'][0],1.15116881972,0.0001)
+        #self.check_eq(sjran['12']['1']['fluxd'][0],1.15111995508,0.0001)
+        self.check_eq(sjran['12']['0']['fluxd'][0],0.99137,0.0001)
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99132,0.0001)
+        self.assertTrue(ret)
+ 
     
 class test_inputs(SetjyUnitTestBase):
     """Test input parameter checking"""
@@ -1284,9 +1349,9 @@ class test_setpol(SetjyUnitTestBase):
         # fmin at last chan (Freq=4662000000.0Hz)
         fexpmin = 7.68502
         ms.open(self.inpms)
-        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         ms.close()
-        self.check_eq(retrec['MODEL']['min'],fexpmin,0.0001)
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
 
     def test_setpol2(self):
         """ Test for constant polindex and polangle with I flux density  """
@@ -1313,10 +1378,219 @@ class test_setpol(SetjyUnitTestBase):
         # fmin at last chan (Freq=4662000000.0Hz)
         fexpmin = 7.68527
         ms.open(self.inpms)
-        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         #retrec2 = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
         ms.close()
-        self.check_eq(retrec['MODEL']['min'],fexpmin,0.0001)
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
+
+    def test_setpol3(self):
+        """ Test for frequency-dependent polindex (2 terms)   """
+        # the constant terms (polindex[0] and polangle[0] is ignored..
+    
+class test_inputs(SetjyUnitTestBase):
+    """Test input parameter checking"""
+    def setUp(self):
+        #self.setUpMS("unittest/setjy/2528.ms")         # Uranus
+        #self.setUpMS("2528.ms")         # Uranus
+        self.setUpMS("multiobs.ms")
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_vischeck(self):
+        """ Test input vis check"""
+        self.inpms='wrong.ms'
+        if os.path.exists(self.inpms):
+            shutil.rmtree(self.inpms) 
+
+
+        # test by temporarily setting __rethrow_casa_exceptions
+        sjran=None
+        try:
+            myf = stack_frame_find( )
+            original_rethrow_setting=myf.get('__rethrow_casa_exceptions',False)
+            myf['__rethrow_casa_exceptions']=True
+            print "\nRunning setjy with a non-existant vis"
+            sjran = setjy(vis=self.inpms,listmodels=False)
+        except Exception, setjyUTerr:
+            msg = setjyUTerr.message
+            self.assertNotEqual(msg.find("%s does not exist" % self.inpms), -1,
+                                'wrong type of exception is thrown')
+        finally:
+            # put back original rethrow setting
+            myf['__rethrow_casa_exceptions']=original_rethrow_setting
+        self.assertEqual(sjran,None,"Failed to raise exception.") 
+     
+    def test_listmodels(self):
+        """ Test listmodels mode """
+        self.inpms=''
+        print "\nRunning setjy in listmodels mode ...."
+        sjran = setjy(vis=self.inpms,listmodels=True)
+        self.assertTrue(sjran)
+
+
+class test_conesearch(SetjyUnitTestBase):
+    """Test search for field match by position (standard='Perley-Butler 2013')"""
+
+    def setUp(self):
+        prefix = 'n1333_nonstdcalname' 
+        msname=prefix+'.ms'
+        #self.setUpMS('unittest/setjy/n1333_nonstdcalname.ms')
+        self.setUpMS(msname)
+        self.field = 'myfcalsrc'
+        self.modelim = '3C147_U.im'
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+ 
+    def test_searchByPosition(self): 
+        sjran = setjy(vis=self.inpms, 
+                      field=self.field,
+                      modimage=self.modelim,
+                      scalebychan=False,
+                      #standard='Perley-Taylor 99',
+                      standard='Perley-Butler 2013',
+                      usescratch=True
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else: 
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==self.field:
+                    outfldid = ky
+                    break 
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field 
+        self.check_eq(sjran['12']['1']['fluxd'][0],0.99125797,0.0001)
+        self.assertTrue(ret)
+
+class test_fluxscaleStandard(SetjyUnitTestBase):
+    """Test standard="fluxscale" mode"""
+
+    def setUp(self):
+        prefix = 'ngc5921' 
+        msname=prefix+'.ms'
+        self.setUpMS(msname) 
+        self.field = 'myfcalsrc'
+        self.modelim = '3C147_U.im'
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_fluxscaleStandard1(self):
+        """ Test for accepting input fluxscale dictionary """
+        import numpy as np
+        fluxscaledict=\
+        {'1': {'0': {'fluxd': np.array([ 2.48362403,  0.        ,  0.        ,  0.        ]),
+             'fluxdErr': np.array([ 0.00215907,  0.        ,  0.        ,  0.        ]),
+             'numSol': np.array([ 54.,   0.,   0.,   0.])},
+       'fieldName': '1445+09900002_0',
+       'fitFluxd': 0.0,
+       'fitFluxdErr': 0.0,
+       'fitRefFreq': 0.0,
+       'spidx': np.array([ 0.,  0.,  0.]),
+       'spidxerr': np.array([ 0.,  0.,  0.])},
+       'freq':np. array([  1.41266507e+09]),
+       'spwID': np.array([0], dtype=np.int32),
+       'spwName': np.array(['none'], dtype='|S5')}
+
+        sjran = setjy(vis=self.inpms,
+                      standard='fluxscale',
+                      fluxdict=fluxscaledict,
+                      usescratch=False
+                      )
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        else:
+            outfldid = ""
+            for ky in sjran.keys():
+                if sjran[ky].has_key('fieldName') and sjran[ky]['fieldName']==fluxscaledict['1']['fieldName']:
+                    outfldid = ky
+                    break
+            ret = len(outfldid)
+            if not ret:
+                print "FAIL: missing field = %s in the returned dictionary" % self.field
+        self.check_eq(sjran['1']['0']['fluxd'][0],2.48362403,0.0001)
+        self.assertTrue(ret)
+
+class test_setpol(SetjyUnitTestBase):
+    """Test multi-term spix and polarization parameter setting"""
+
+    def setUp(self):
+        prefix = '3c391calonly'
+        msfile = prefix + '.ms'
+        #self.setUpMS('unittest/setjy/3c391calonly.ms')
+        self.setUpMS(msfile)
+        self.result = {}
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_setpol1(self):
+        """ Test for multi-term spix (alpha and beta) """
+
+        sjran = setjy(vis=self.inpms,
+                      standard='manual',
+                      field = 'J1331+3030',
+                      fluxdensity = [7.81694, 0.355789, 0.79909, 0],
+                      spix = [-0.62,-0.1], 
+                      reffreq='4536.0MHz',
+                      usescratch=True)
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        #else:
+        #    print sjran 
+        #print "fluxdic=",sjran 
+ 
+        self.check_eq(sjran['0']['0']['fluxd'][0],7.81694, 0.0001)
+        self.assertTrue(ret)
+
+        # expected flux
+        #fref = 4.536e9
+        #logflx = log10(7.81694) + (-0.62)*log10(f/fref) + (-0.1)*log10(f/fref)
+        # fmin at last chan (Freq=4662000000.0Hz)
+        fexpmin = 7.68502
+        ms.open(self.inpms)
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
+        ms.close()
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
+
+    def test_setpol2(self):
+        """ Test for constant polindex and polangle with I flux density  """
+
+        sjran = setjy(vis=self.inpms,
+                      standard='manual',
+                      field = 'J1331+3030',
+                      fluxdensity = [7.81694, 0, 0, 0],
+                      spix = [-0.62],
+                      reffreq='4536.0MHz',
+                      usescratch=True)
+        ret = True
+        if type(sjran)!=dict:
+            ret = False
+        #else:
+        #    print sjran
+
+        self.check_eq(sjran['0']['0']['fluxd'][0],7.81694, 0.0001)
+        self.assertTrue(ret)
+
+        # expected flux
+        #fref = 4.536e9
+        #logflx = log10(7.81694) + (-0.62)*log10(f/fref) + (-0.1)*log10(f/fref)
+        # fmin at last chan (Freq=4662000000.0Hz)
+        fexpmin = 7.68527
+        ms.open(self.inpms)
+        retrec = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
+        #retrec2 = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
+        ms.close()
+        self.check_eq(retrec['FIELD_ID=0']['min'],fexpmin,0.0001)
 
     def test_setpol3(self):
         """ Test for frequency-dependent polindex (2 terms)   """
@@ -1347,21 +1621,21 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # Q flux
         # polindex0 = 0.11190024, polindex = polindex0 - 0.5*(f-fref)/fref  (f-fref)/fref = 0.027778
         # => poindex_min = 0.09801124, with ifexpmin + pang constant => Qmin = 0.306371465
         # Umin = sqrt(I^2*polindex - Q^2)
         qfexpmin = 0.306371 
         ufexpmin = 0.688121784
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real') 
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary') 
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field') 
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field') 
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpmin,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpmin,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
 
     def test_setpol4(self):
         """ Test for frequency-dependent polangle (2 terms)   """
@@ -1392,7 +1666,7 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux
         # polindex0 = 0.11190024, 
         # polangle0 = 0.5759586531581288, polangle = polangle0 - 0.5*(f-fref)/fref  (f-fref)/fref = 0.027778
@@ -1400,14 +1674,14 @@ class test_setpol(SetjyUnitTestBase):
         # Umin = sqrt(I^2*polindex^2 - Q^2)
         qfexpmax = 0.371472 
         ufexpmin = 0.775616 
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['max'],qfexpmax,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['max'],qfexpmax,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
 
     def testr5(self):
         """ Test for rotation measure (with constant polindex and polangle) """
@@ -1439,21 +1713,21 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.68527
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux
         # polindex = 0.11190024,
         # polangle = 0.57595865
         # rotmeas = 10.0 => angle = 2*rotmeas*c^2*(fref^2-f^2)/ (f^2*f0^2) 
         qfexpend = 0.353443
         ufexpend = 0.783996
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpend,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpend,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpend,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpend,0.0001)
 
     def testr6(self):
         """ Test for spectral index with curvature and frequnecy-dependent polindex and polangle with rotmeas """
@@ -1485,7 +1759,7 @@ class test_setpol(SetjyUnitTestBase):
         # min fluxes  at last chan (Freq=4662000000.0Hz)
         ifexpmin = 7.6850217
         ms.open(self.inpms)
-        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp')
+        retrecI = ms.statistics(field='0', baseline='1&2', correlation='rr', column='model', complex_value='amp', reportingaxes='field')
         # U flux - based on python script calculation
         # polindex0 = 0.11190024, polindex= polindex0 +(-0.5)*(f-fref)/fref +(-0.1)*((f-fref)/fref)^2
         # polindex(f=fmax) = 
@@ -1494,16 +1768,16 @@ class test_setpol(SetjyUnitTestBase):
         qfexpmin = 0.328774
         ufexpmin = 0.678335
         anglemin = 1.119481
-        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real')
-        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary')
-        retrecAngle = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase')
+        retrecQ = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='real', reportingaxes='field')
+        retrecU = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='imaginary', reportingaxes='field')
+        retrecAngle = ms.statistics(field='0', baseline='1&2', correlation='rl', column='model', complex_value='phase', reportingaxes='field')
         #print "retrecQ=",retrecQ['MODEL']['min']
         #print "retrecU=",retrecU['MODEL']['min']
         ms.close()
-        self.check_eq(retrecI['MODEL']['min'],ifexpmin,0.0001)
-        self.check_eq(retrecQ['MODEL']['min'],qfexpmin,0.0001)
-        self.check_eq(retrecU['MODEL']['min'],ufexpmin,0.0001)
-        self.check_eq(retrecAngle['MODEL']['min'],anglemin,0.0001)
+        self.check_eq(retrecI['FIELD_ID=0']['min'],ifexpmin,0.0001)
+        self.check_eq(retrecQ['FIELD_ID=0']['min'],qfexpmin,0.0001)
+        self.check_eq(retrecU['FIELD_ID=0']['min'],ufexpmin,0.0001)
+        self.check_eq(retrecAngle['FIELD_ID=0']['min'],anglemin,0.0001)
 
 
 class test_ephemtbl(SetjyUnitTestBase):
@@ -1539,18 +1813,18 @@ class test_ephemtbl(SetjyUnitTestBase):
         stats['phase0']={}
         stats['phase180']={}
         ms.open(self.inpms)
-        stats['1stNull']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',baseline='2&18',time='2015/06/21/04:56:50.4')['MODEL']
-        stats['1stNull']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',baseline='0&16',time='2015/06/21/04:54:25.1')['MODEL']
-        stats['1stNull']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',baseline='7&13',time='2015/06/21/04:54:25.1')['MODEL']
-        stats['1stNull']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',baseline='7&13',time='2015/06/21/04:55:01.4')['MODEL']
-        stats['phase0']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='0&16', time='2015/06/21/04:55:37.8')['MODEL']
-        stats['phase180']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='2&18', time='2015/06/21/04:55:37.8')['MODEL'] 
-        stats['phase0']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:186~190',baseline='0&16', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase180']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:0~10',baseline='0&16', time='2015/06/21/04:55:37.8')['MODEL'] 
-        stats['phase0']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:0~10',baseline='7&13', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase180']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:180~190',baseline='7&13', time='2015/06/21/04:54:25.1')['MODEL'] 
-        stats['phase0']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:0~10',baseline='7&13', time='2015/06/21/04:55:01.4')['MODEL'] 
-        stats['phase180']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:180~190',baseline='7&13', time='2015/06/21/04:55:01.4')['MODEL'] 
+        stats['1stNull']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',baseline='2&18',time='2015/06/21/04:56:50.4',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',baseline='0&16',time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',baseline='7&13',time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1']
+        stats['1stNull']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',baseline='7&13',time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1']
+        stats['phase0']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='0&16', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1']
+        stats['phase180']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',baseline='2&18', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:186~190',baseline='0&16', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1:0~10',baseline='0&16', time='2015/06/21/04:55:37.8',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:0~10',baseline='7&13', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2:180~190',baseline='7&13', time='2015/06/21/04:54:25.1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase0']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:0~10',baseline='7&13', time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase180']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3:180~190',baseline='7&13', time='2015/06/21/04:55:01.4',reportingaxes='field')['FIELD_ID=1'] 
         ms.close()
         spwlist = ['spw0','spw1','spw2','spw3']
         print "Checking values of  model amplitudes near 1st null ..."
@@ -1561,7 +1835,7 @@ class test_ephemtbl(SetjyUnitTestBase):
         print "Checking values of model phases transition of 1st null (shuold see phase 0 deg -> 180 deg)..."
         for spwn in spwlist:
             self.check_eq(stats['phase0'][spwn]['min']*180.0/numpy.pi,0.0,1.0e-4)
-            self.check_eq(stats['phase180'][spwn]['min']*180.0/numpy.pi,180.0,1.0e-4)
+            self.check_eq((stats['phase180'][spwn]['min']*180.0/numpy.pi)%360,180.0,1.0e-4)
 
     def test_ephemtbl2(self):
         """ Test for Uranus with the ephemeris table with the positions in ICRS """
@@ -1581,14 +1855,14 @@ class test_ephemtbl(SetjyUnitTestBase):
         stats['amp']={}
         stats['phase']={}
         ms.open(self.inpms)
-        stats['amp']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0')['MODEL']
-        stats['amp']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1')['MODEL']
-        stats['amp']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2')['MODEL']
-        stats['amp']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3')['MODEL']
-        stats['phase']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0')['MODEL']
-        stats['phase']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1')['MODEL'] 
-        stats['phase']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2')['MODEL'] 
-        stats['phase']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3')['MODEL'] 
+        stats['amp']['spw0']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='0',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw1']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='1',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw2']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='2',reportingaxes='field')['FIELD_ID=1']
+        stats['amp']['spw3']=ms.statistics(column='MODEL',complex_value='amp',field='1',spw='3',reportingaxes='field')['FIELD_ID=1']
+        stats['phase']['spw0']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='0',reportingaxes='field')['FIELD_ID=1']
+        stats['phase']['spw1']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='1',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase']['spw2']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='2',reportingaxes='field')['FIELD_ID=1'] 
+        stats['phase']['spw3']=ms.statistics(column='MODEL',complex_value='phase',field='1',spw='3',reportingaxes='field')['FIELD_ID=1'] 
         ms.close()
         spwlist = ['spw0','spw1','spw2','spw3']
         print "Checking values of mean model amplitudes"
@@ -1659,8 +1933,31 @@ class test_tpmAsteroid(SetjyUnitTestBase):
         self.check_eq(sjran['3']['2']['fluxd'][0],expflxs['Vesta'][2],0.0001)
         self.check_eq(sjran['3']['3']['fluxd'][0],expflxs['Vesta'][3],0.0001)
 
+class test_NullSelection(SetjyUnitTestBase):
+    def setUp(self):
+        msname = 'alma_uid___A002_Xa3f11a_X3df1.ms.split.thinned'
+        self.setUpMS(msname)
+
+    def tearDown(self):
+        self.resetMS()
+
+    def test_empty_sel_handled(self):
+        """ setjy with null selection produces False (and not None or empty dictionary) """
+        # Try to run with a null/empty selection and make sure that it is handled
+        # gracefully. This is to prevent issues such as CAS-11196, where incorrect handling
+        # of null selection issues can produce 'None's and empty output dictionaries which
+        # will confuse the ALMA pipeline.
+
+        # Field 1 is Titan and has scanintent 'CALIBRATE_FLUX#ON_SOURCE', there are
+        # SPWs 0-3, but no scan 5 -> null (zero rows) selection
+        res = setjy(vis=self.inpms, field='1', spw='3', scan='5',
+                    standard='Butler-JPL-Horizons 2012', intent="*CALIB*FLUX*",
+                    usescratch=True)
+
+        self.assertEquals(res, False, "setjy did not return False for a null selection")
 
 
- 
 def suite():
-    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs, test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl, test_tpmAsteroid]
+    return [test_SingleObservation,test_MultipleObservations,test_ModImage, test_inputs,
+            test_conesearch, test_fluxscaleStandard, test_setpol, test_ephemtbl,
+            test_tpmAsteroid,test_NullSelection, test_newStandards]

@@ -101,6 +101,19 @@ class test_base(unittest.TestCase):
 
         os.system('rm -rf ' + self.vis + '.flagversions')
         self.unflag_table()
+
+    def setUp_ngc5921(self):
+        '''VLA data set, scan=1~7, spw=0 63 chans, RR,LL'''
+        self.vis = "ngc5921.ms"
+            
+        # Need a fresh restart. Copy the MS
+        shutil.rmtree(self.vis, True)
+        os.system('rm -rf ' + self.vis + '.flagversions')
+        
+        datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/flagdata/" 
+        os.system('cp -RH '+datapath + self.vis +' '+ self.vis)            
+        
+        self.unflag_table()
         
     def unflag_table(self):
 
@@ -714,21 +727,29 @@ class test_bpass(test_base):
 
         aflocal = aftool()
         aflocal.open(self.vis)
-        aflocal.selectdata({'antenna':'ea01'})
-        agentAntInt = {'apply':True, 'mode': 'antint', 'spw': '0', 
+        aflocal.selectdata()
+        
+        agentUnflag = {'apply':True, 'mode':'unflag'}
+        agentAntInt = {'apply': True, 'mode': 'antint', 'datacolumn': 'CPARAM',
+                       'antint_ref_antenna': 'ea01', 'spw': '0', 'field': '0',
                        'minchanfrac': 0.7, 'verbose': True}
+        agentSummary={'apply':True,'mode':'summary'}
+
+        aflocal.parseagentparameters(agentUnflag)
         aflocal.parseagentparameters(agentAntInt)
         aflocal.parsesummaryparameters()
+        aflocal.parseagentparameters(agentSummary)
+
         aflocal.init()
         summary = aflocal.run(writeflags=True)
         aflocal.done()
 
         self.assertEqual(summary['report0']['flagged'], 0)
-        self.assertEqual(summary['report0']['total'], 48000)
+        self.assertEqual(summary['report0']['total'], 1248000)
         self.assertEqual(summary['report0']['correlation']['Sol1']['flagged'], 0)
-        self.assertEqual(summary['report0']['correlation']['Sol1']['total'], 24000)
+        self.assertEqual(summary['report0']['correlation']['Sol1']['total'], 624000)
         self.assertEqual(summary['report0']['correlation']['Sol2']['flagged'], 0)
-        self.assertEqual(summary['report0']['correlation']['Sol2']['total'], 24000)
+        self.assertEqual(summary['report0']['correlation']['Sol2']['total'], 624000)
 
 
 class test_MS(test_base):
@@ -778,6 +799,25 @@ class test_MS(test_base):
         self.assertEqual(summary['report0']['flagged'], 0)
         self.assertEqual(summary['report1']['flagged'], 0)
         self.assertEqual(summary['report2']['spw']['0']['flagged'], summary['report2']['spw']['0']['total'])
+
+class test_MS_datacols(test_base):
+    def setUp(self):
+        self.setUp_ngc5921()
+        
+    def tearDown(self):
+        shutil.rmtree(self.vis, True)
+        
+    def test_model_no_model_col(self):
+        '''AgentFlagger:" raise an error when there isn't a MODEL or virtual MODEL column'''
+        aflocal = aftool()
+        aflocal.open(self.vis)
+        aflocal.selectdata()
+        aflocal.parseclipparameters(clipminmax=[2.3,3.1],datacolumn='RESIDUAL')
+        aflocal.parsesummaryparameters(name='summary_none')
+        aflocal.init()
+        summary = aflocal.run()
+        aflocal.done()
+        self.assertEqual(summary['report0']['flagged'],0)
 
              
 class test_display(test_base):
@@ -897,4 +937,5 @@ def suite():
             test_bpass,
             test_display,
             test_MS,
+            test_MS_datacols,
             cleanup]

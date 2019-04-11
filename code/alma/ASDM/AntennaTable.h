@@ -41,54 +41,54 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
-
-	
-#include "CAntennaMake.h"
-	
-
-	
-#include "CAntennaType.h"
-	
 
 	
 
 	
 
 	
+#include <alma/Enumerations/CAntennaMake.h>
+	
+
+	
+#include <alma/Enumerations/CAntennaType.h>
+	
+
+	
+
+	
+
+	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -107,7 +107,7 @@ class AntennaRow;
  * Antenna characteristics.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Antenna </CAPTION>
@@ -130,7 +130,7 @@ class AntennaRow;
 	
  * <TR>
  * <TD> name </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the antenna's name. </TD>
  * </TR>
@@ -158,14 +158,14 @@ class AntennaRow;
 	
  * <TR>
  * <TD> position </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the antenna's position. </TD>
  * </TR>
 	
  * <TR>
  * <TD> offset </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the position's offset. </TD>
  * </TR>
@@ -189,7 +189,7 @@ class AntennaRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> assocAntennaId </TD> 
+ * <TD> assocAntennaId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to an associate antenna (i.e. one row in the Antenna table). </TD>
@@ -348,7 +348,7 @@ public:
  	 * @param stationId
 	
      */
-	AntennaRow *newRow(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId);
+	AntennaRow *newRow(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId);
 	
 
 
@@ -447,7 +447,7 @@ public:
  	 * @param stationId
  	 		 
  	 */
-	AntennaRow* lookup(string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, vector<Length > position, vector<Length > offset, ArrayTime time, Tag stationId); 
+	AntennaRow* lookup(std::string name, AntennaMakeMod::AntennaMake antennaMake, AntennaTypeMod::AntennaType antennaType, Length dishDiameter, std::vector<Length > position, std::vector<Length > offset, ArrayTime time, Tag stationId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -473,6 +473,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

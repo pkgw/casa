@@ -282,7 +282,7 @@ void MosaicFT::findConvFunction(const ImageInterface<Complex>& iimage,
     AipsrcValue<Int>::find (convSampling, "mosaic.oversampling", 10);
   }
   pbConvFunc_p->findConvFunction(iimage, vb, convSampling, interpVisFreq_p, convFunc, weightConvFunc_p, convSizePlanes_p, convSupportPlanes_p,
-		  convPolMap_p, convChanMap_p, convRowMap_p);
+				 convPolMap_p, convChanMap_p, convRowMap_p, False);
 
   // cerr << "MAX of convFunc " << max(abs(convFunc)) << endl;
   //For now only use one size and support
@@ -315,8 +315,9 @@ void MosaicFT::initializeToVis(ImageInterface<Complex>& iimage,
   //make sure we rotate the first field too
   lastFieldId_p=-1;
   phaseShifter_p=new UVWMachine(*uvwMachine_p);
-  //findConvFunction(*image, vb);
-  prepGridForDegrid();
+   //This is needed here as we need to know the grid correction before FFTing 
+  findConvFunction(*image, vb);
+ prepGridForDegrid();
 
 }
 
@@ -1068,7 +1069,6 @@ void MosaicFT::put(const VisBuffer& vb, Int row, Bool dopsf,
   Int doWeightGridding=1;
   if(doneWeightImage_p)
     doWeightGridding=-1;
-  doWeightGridding = doWeightGridding;//Dummy statement to supress silly complier warnings
   Bool del;
   //    IPosition s(flags.shape());
   const IPosition& fs=flags.shape();

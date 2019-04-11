@@ -65,7 +65,7 @@ namespace LibAIR2 {
 
   };
 
-  std::auto_ptr<Radiometer> MergeRadiometers( std::vector<const Radiometer *> & vr)
+  std::unique_ptr<Radiometer> MergeRadiometers( std::vector<const Radiometer *> & vr)
   {
     
     // Number of radiometers
@@ -114,7 +114,7 @@ namespace LibAIR2 {
 
     }
     
-    return std::auto_ptr<Radiometer> ( new Radiometer( fg, cv));
+    return std::unique_ptr<Radiometer> ( new Radiometer( fg, cv));
 
   }
 

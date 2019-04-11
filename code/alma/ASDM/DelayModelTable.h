@@ -41,27 +41,23 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -102,7 +98,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -119,18 +119,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -149,7 +149,7 @@ class DelayModelRow;
  * Contains the delay model components. For ALMA this includes all TMCDB delay model components.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of DelayModel </CAPTION>
@@ -189,7 +189,7 @@ class DelayModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients of the polynomials. </TD>
@@ -197,28 +197,28 @@ class DelayModelRow;
 	
  * <TR>
  * <TD> phaseDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;the phase delay polynomial (rad). </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseDelayRate </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Phase delay rate polynomial (rad/s). </TD>
  * </TR>
 	
  * <TR>
  * <TD> groupDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Group delay polynomial (s). </TD>
  * </TR>
 	
  * <TR>
  * <TD> groupDelayRate </TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numPoly </TD> 
  * <TD> &nbsp;Group delay rate polynomial (s/s) </TD>
  * </TR>
@@ -235,154 +235,154 @@ class DelayModelRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> timeOrigin </TD> 
+ * <TD> timeOrigin</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; value used as the origin for the evaluation of the polynomials. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericGroupDelay </TD> 
+ * <TD> atmosphericGroupDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Atmosphere group delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericGroupDelayRate </TD> 
+ * <TD> atmosphericGroupDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Atmosphere group delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> geometricDelay </TD> 
+ * <TD> geometricDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Geometric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> geometricDelayRate </TD> 
+ * <TD> geometricDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Geometric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLO </TD> 
+ * <TD> numLO(numLO)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of local oscillators. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LOOffset </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> LOOffset</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LOOffsetRate </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> LOOffsetRate</TD> 
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLO  </TD>
  * <TD>&nbsp; Local oscillator offset rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> dispersiveDelay </TD> 
+ * <TD> dispersiveDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Dispersive delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> dispersiveDelayRate </TD> 
+ * <TD> dispersiveDelayRate</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Dispersive delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericDryDelay </TD> 
+ * <TD> atmosphericDryDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the dry atmospheric delay component. </TD>
  * </TR>
 	
  * <TR>
- * <TD> atmosphericWetDelay </TD> 
+ * <TD> atmosphericWetDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the wet atmospheric delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> padDelay </TD> 
+ * <TD> padDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Pad delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> antennaDelay </TD> 
+ * <TD> antennaDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Antenna delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numReceptor </TD> 
+ * <TD> numReceptor(numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp;  </TD>
  * </TR>
 	
  * <TR>
- * <TD> polarizationType </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> polarizationType</TD> 
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; describes the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> electronicDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> electronicDelay</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> electronicDelayRate </TD> 
- * <TD> vector<double > </TD>
+ * <TD> electronicDelayRate</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the electronic delay rate. </TD>
  * </TR>
 	
  * <TR>
- * <TD> receiverDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> receiverDelay</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the receiver delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> IFDelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> IFDelay</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the intermediate frequency delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> LODelay </TD> 
- * <TD> vector<double > </TD>
+ * <TD> LODelay</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>  numReceptor  </TD>
  * <TD>&nbsp; the local oscillator delay. </TD>
  * </TR>
 	
  * <TR>
- * <TD> crossPolarizationDelay </TD> 
+ * <TD> crossPolarizationDelay</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the cross polarization delay. </TD>
@@ -543,7 +543,7 @@ public:
  	 * @param fieldId
 	
      */
-	DelayModelRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId);
+	DelayModelRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId);
 	
 
 
@@ -668,7 +668,7 @@ public:
  	 * @param fieldId
  	 		 
  	 */
-	DelayModelRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, vector<double > phaseDelay, vector<double > phaseDelayRate, vector<double > groupDelay, vector<double > groupDelayRate, Tag fieldId); 
+	DelayModelRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int numPoly, std::vector<double > phaseDelay, std::vector<double > phaseDelayRate, std::vector<double > groupDelay, std::vector<double > groupDelayRate, Tag fieldId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -694,6 +694,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

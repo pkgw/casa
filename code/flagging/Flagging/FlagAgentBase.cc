@@ -22,7 +22,10 @@
 
 #include <flagging/Flagging/FlagAgentBase.h>
 
-// Needed for the factory method (create)
+#include <stdcasa/StdCasa/CasacSupport.h>
+#include <ms/MSSel/MSSelectionTools.h>
+
+// Headers of every concrete agent, needed for the factory method (create)
 #include <flagging/Flagging/FlagAgentTimeFreqCrop.h>
 #include <flagging/Flagging/FlagAgentClipping.h>
 #include <flagging/Flagging/FlagAgentSummary.h>
@@ -32,7 +35,9 @@
 #include <flagging/Flagging/FlagAgentShadow.h>
 #include <flagging/Flagging/FlagAgentExtension.h>
 #include <flagging/Flagging/FlagAgentRFlag.h>
+#if ! defined(WITHOUT_DBUS)
 #include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
 #include <flagging/Flagging/FlagAgentAntennaIntegrations.h>
 
 using namespace casacore;
@@ -312,12 +317,14 @@ FlagAgentBase::create (FlagDataHandler *dh,Record config)
 		FlagAgentAntennaIntegrations* agent = new FlagAgentAntennaIntegrations(dh,config,writePrivateFlags, true);
 		return agent;
 	}
+#if ! defined(WITHOUT_DBUS)
 	// Display
 	else if (mode.compare("display")==0)
 	{
 		FlagAgentDisplay* agent = new FlagAgentDisplay(dh,config,writePrivateFlags);
 		return agent;
 	}
+#endif
 	else
 	{
 		cerr << "FlagAgentFactory::" << __FUNCTION__ << " Mode " << mode << " not supported" << endl;
@@ -817,6 +824,8 @@ FlagAgentBase::setDataSelection(Record config)
 		{
 			*logger_p << LogIO::DEBUG1 << " no correlation selection" << LogIO::POST;
 		}
+
+
 		// Only process the polarization selection as in-row selection if there is no complex operator
 		else if ((polarizationSelection_p.find("REAL") == string::npos) and
 				(polarizationSelection_p.find("IMAG") == string::npos) and
@@ -1779,7 +1788,7 @@ FlagAgentBase::indigen(vector<uInt> &index, uInt size)
 bool
 FlagAgentBase::isZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1807,7 +1816,7 @@ FlagAgentBase::isZero(Float number)
 bool
 FlagAgentBase::isZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1835,7 +1844,7 @@ FlagAgentBase::isZero(Double number)
 bool
 FlagAgentBase::isNaN(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1859,7 +1868,7 @@ FlagAgentBase::isNaN(Float number)
 bool
 FlagAgentBase::isNaN(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1883,7 +1892,7 @@ FlagAgentBase::isNaN(Double number)
 bool
 FlagAgentBase::isNaNOrZero(Float number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:
@@ -1914,7 +1923,7 @@ FlagAgentBase::isNaNOrZero(Float number)
 bool
 FlagAgentBase::isNaNOrZero(Double number)
 {
-	int type = fpclassify(number);
+	int type = std::fpclassify(number);
 	switch (type)
 	{
 		case FP_NORMAL:

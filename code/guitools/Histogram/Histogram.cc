@@ -118,7 +118,7 @@ bool Histogram::compute( ){
 	return success;
 }
 
-ImageHistograms<Float>* Histogram::filterByChannels( const SHARED_PTR<const ImageInterface<Float> > image ){
+ImageHistograms<Float>* Histogram::filterByChannels( const std::shared_ptr<const ImageInterface<Float> > image ){
 	ImageHistograms<Float>* imageHistogram = NULL;
 	if ( channelMin != ALL_CHANNELS && channelMax != ALL_CHANNELS ){
 		//Create a slicer from the image
@@ -153,7 +153,7 @@ ImageHistograms<Float>* Histogram::filterByChannels( const SHARED_PTR<const Imag
 	return imageHistogram;
 }
 
-void Histogram::setImage(const SHARED_PTR<const ImageInterface<Float> > img ){
+void Histogram::setImage(const std::shared_ptr<const ImageInterface<Float> > img ){
 	image = img;
 }
 
@@ -175,7 +175,7 @@ bool Histogram::reset(FootPrintWidget::PlotMode mode ){
 			}
 			else if ( region != NULL ){
 				//Make the histogram based on the region
-				SHARED_PTR<SubImage<Float> > subImage(new SubImage<Float>( *image, *region ));
+				std::shared_ptr<SubImage<Float> > subImage(new SubImage<Float>( *image, *region ));
 				if ( subImage.get() != NULL ){
 					Array<Bool> mask = subImage->getMask();
 					if ( ! anyTrue( mask ) ){
@@ -212,8 +212,7 @@ void Histogram::defineLine( int index, QVector<double>& xVals,
 		QVector<double>& yVals, bool useLogY ) const{
 	assert( xVals.size() == 2 );
 	assert( yVals.size() == 2 );
-	int dataCount = xValues.size();
-	assert( index >= 0 && index < dataCount);
+	assert( index >= 0 && index < xVals.size());
 	xVals[0] = xValues[index];
 	xVals[1] = xValues[index];
 	yVals[0] = computeYValue( 0, useLogY );
@@ -246,8 +245,7 @@ void Histogram::defineStepVertical( int index, QVector<double>& xVals,
 		QVector<double>& yVals, bool useLogY ) const {
 	assert( xVals.size() == 2 );
 	assert( yVals.size() == 2 );
-	int count = xValues.size();
-	assert( index >= 0 && index < count );
+	assert( index >= 0 && index < (int)xValues.size());
 	if ( index > 0 ){
 		xVals[0] = (xValues[index] + xValues[index-1])/2;
 	}

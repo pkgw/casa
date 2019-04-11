@@ -65,6 +65,7 @@ casa_add_library( synthesis
   TransformMachines2/AWVisResampler.cc
  TransformMachines2/VisibilityResamplerBase.cc
  TransformMachines2/VisibilityResampler.cc
+  TransformMachines2/SDGrid.cc
   TransformMachines/BeamSkyJones.cc
   TransformMachines/BeamSquint.cc
   TransformMachines/CFCache.cc
@@ -156,6 +157,7 @@ casa_add_library( synthesis
   CalTables/CalMainRecord.cc
   CalTables/CalSet2.cc
   CalTables/CalSetMetaInfo.cc
+  CalTables/CalSummary.cc
   CalTables/CalTable2.cc
   CalTables/CalTable.cc
   CalTables/CalTableDesc2.cc
@@ -166,11 +168,12 @@ casa_add_library( synthesis
   CalTables/CTEnums.cc
   CalTables/CTGlobals.cc
   CalTables/CTInterface.cc
-#  CalTables/CTSelection.cc
   CalTables/CTIter.cc
   CalTables/CTMainColumns.cc
   CalTables/CTMainRecord.cc
   CalTables/CTPatchedInterp.cc
+  CalTables/CTSelection.cc
+  CalTables/CTSummary.cc
   CalTables/CTTimeInterp1.cc
   CalTables/EPointDesc.cc
   CalTables/EPointMBuf.cc
@@ -221,6 +224,7 @@ casa_add_library( synthesis
  DataSampling/SDDataSampling.cc
  DataSampling/SynDataSampling.cc
  IDL/IDL.cc
+ MeasurementComponents/AccorJones.cc
  MeasurementComponents/AMueller.cc
  MeasurementComponents/BPoly.cc
  MeasurementComponents/CalCorruptor.cc
@@ -235,6 +239,7 @@ casa_add_library( synthesis
  MeasurementComponents/ConvFuncDiskCache.cc
  MeasurementComponents/CSCleanImageSkyModel.cc
  MeasurementComponents/DJones.cc
+ MeasurementComponents/XJones.cc
  MeasurementComponents/EJones.cc
  MeasurementComponents/EPJones.cc
  MeasurementComponents/EVLASwPow.cc
@@ -269,7 +274,6 @@ casa_add_library( synthesis
  MeasurementComponents/ResidualAlgorithm.cc
  MeasurementComponents/ResamplerWorklet.cc
  MeasurementComponents/SDGrid.cc
- MeasurementComponents/SDPosInterpolator.cc
  MeasurementComponents/SDDoubleCircleGainCalImpl.cc
  MeasurementComponents/SDDoubleCircleGainCal.cc
  MeasurementComponents/SimACohCalc.cc
@@ -287,6 +291,8 @@ casa_add_library( synthesis
  MeasurementComponents/VisCalSolver.cc
  MeasurementComponents/VisCalSolver2.cc
  MeasurementComponents/VisVector.cc
+ MeasurementComponents/FiltrationTVI.cc
+ MeasurementComponents/SDDoubleCircleFilter.cc
  TransformMachines/VisibilityResamplerBase.cc
  TransformMachines/VisibilityResampler.cc
  TransformMachines/VLACalcIlluminationConvFunc.cc
@@ -320,6 +326,7 @@ casa_add_library( synthesis
  MeasurementEquations/MatrixCleaner.cc
  MeasurementEquations/MatrixNACleaner.cc
  MeasurementEquations/MultiTermMatrixCleaner.cc
+ MeasurementEquations/SideBandSeparator.cc
  MeasurementEquations/Simulator.cc
  MeasurementEquations/SkyEquation.cc
  MeasurementEquations/StokesUtil2.cc
@@ -333,6 +340,7 @@ casa_add_library( synthesis
  Parallel/MPITransport.cc
  Parallel/PabloIO.cc
  Parallel/SerialTransport.cc
+ Utilities/AppRC.cc		
  Utilities/FFT2D.cc	
  Utilities/FixVis.cc
  Utilities/SigHandler.cc
@@ -373,6 +381,7 @@ casa_add_library( synthesis
  Utilities/PointingDirectionCalculator.cc
  Utilities/PointingDirectionProjector.cc
  Utilities/SingleDishBeamUtil.cc
+ Utilities/SDPosInterpolator.cc
  ${BISON_CalLibraryGram_OUTPUTS}
  ${FLEX_CalLibraryGram_OUTPUTS}
   )
@@ -383,17 +392,19 @@ install (FILES
 	CalTables/BJonesMCol.h
 	CalTables/BJonesMRec.h
 	CalTables/BJonesTable.h
+ 	CalTables/CalSummary.h
 	CalTables/CLPatchPanel.h
 	CalTables/CTColumns.h
 	CalTables/CTDesc.h
 	CalTables/CTEnums.h
 	CalTables/CTInterface.h
-#	CalTables/CTSelection.h
-	CalTables/CTMainColInterface.h
 	CalTables/CTIter.h
+	CalTables/CTMainColInterface.h
 	CalTables/CTMainColumns.h
 	CalTables/CTMainRecord.h
 	CalTables/CTPatchedInterp.h
+ 	CalTables/CTSelection.h
+ 	CalTables/CTSummary.h
 	CalTables/CTTimeInterp1.h
 	CalTables/CalBuffer.h
 	CalTables/CalDescBuffer.h
@@ -535,7 +546,6 @@ install (FILES
 	MeasurementComponents/ResamplerWorklet.h
 	MeasurementComponents/ResidualAlgorithm.h
 	MeasurementComponents/SDGrid.h
-	MeasurementComponents/SDPosInterpolator.h
 	MeasurementComponents/SDDoubleCircleGainCalImpl.h
 	MeasurementComponents/SDDoubleCircleGainCal.h
 	MeasurementComponents/SimACoh.h
@@ -561,6 +571,9 @@ install (FILES
 	MeasurementComponents/nPBWProjectFT.h
 	MeasurementComponents/rGridFT.h
 	MeasurementComponents/ImageSkyModel.tcc
+ 	MeasurementComponents/FiltrationTVI.h
+ 	MeasurementComponents/FiltrationTVI.tcc
+ 	MeasurementComponents/SDDoubleCircleFilter.h
 	DESTINATION include/casacode/synthesis/MeasurementComponents
 	)
 install (FILES
@@ -595,6 +608,7 @@ install (FILES
 	MeasurementEquations/MatrixNACleaner.h
 	MeasurementEquations/MultiTermMatrixCleaner.h
 	MeasurementEquations/ResidualEquation.h
+	MeasurementEquations/SideBandSeparator.h
 	MeasurementEquations/Simulator.h
 	MeasurementEquations/SkyEquation.h
 	MeasurementEquations/StokesUtil.h
@@ -710,6 +724,7 @@ install (FILES
 	TransformMachines2/WPConvFunc.h
 	TransformMachines2/WProjectFT.h
 	TransformMachines2/WTerm.h
+	TransformMachines2/SDGrid.h
 	DESTINATION include/casacode/synthesis/TransformMachines2
        )
 install (FILES
@@ -796,6 +811,7 @@ install (FILES
 	Utilities/PointingDirectionCalculator.h
 	Utilities/PointingDirectionProjector.h
 	Utilities/SingleDishBeamUtil.h
+	Utilities/SDPosInterpolator.h
 	DESTINATION include/casacode/synthesis/Utilities
 	)
 casa_add_executable( synthesis casasplit apps/casasplit/casasplit.cc )
@@ -858,33 +874,48 @@ casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImage
 casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSynthesisImagerVi2.cc  TransformMachines2/test/MakeMS.cc )
 casa_add_unit_test( MODULES synthesis SOURCES Utilities/test/tFFT2D.cc  ) 
 casa_add_unit_test( MODULES synthesis SOURCES CalTables/test/tCTPatchedInterp.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegions.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tLabelandFindRegionsFullCube.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tBinaryDilation.cc )
+casa_add_unit_test( MODULES synthesis SOURCES ImagerObjects/test/tSkipChannels.cc )
 
 
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
-casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../mstransform/TVI/test/TestUtilsTVI.cc)
 
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/MSTransform/test/tMSTransformIterator.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tChannelAverageTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tHanningSmoothTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tPhaseShiftingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+#casa_add_google_test( MODULES mstransform SOURCES ../mstransform/TVI/test/tStatWtTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc)
+casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tRegriddingTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+casa_add_google_test( NOT_ON_APPLE MODULES mstransform SOURCES ../mstransform/TVI/test/tUVContSubTVI.cc  ../msvis/MSVis/test/TestUtilsTVI.cc ../msvis/MSVis/test/MsFactory.cc)
+
+casa_add_google_test( MODULES synthesis SOURCES ImagerObjects/test/SDMaskHandler_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalibraterSolve_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalibraterSolveSimData_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalSolVi2Organizer_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tAccorJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tDJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tXJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tEJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tFringeJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGlinXphJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tKJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tMMueller_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tMSMetaInfoForCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tPJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tSolveDataBuffer_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tTsysGainCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisVectorJonesMueller_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisCal_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tVisCalGlobals_GT.cc )
-casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tSolveDataBuffer_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SingleDishSkyCal_GTest.cc )
-
-casa_add_google_test( MODULES synthesis SOURCES ImagerObjects/test/SDMaskHandler_GTest.cc )
-casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDPosInterpolator_GTest.cc )
+casa_add_google_test( MODULES synthesis mstransform SOURCES MeasurementComponents/test/FiltrationTVI_GTest.cc )
+casa_add_google_test( MODULES synthesis SOURCES Utilities/test/SDPosInterpolator_GTest.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/SDDoubleCircleGainCalImpl_GTest.cc )
-
+casa_add_google_test( MODULES synthesis SOURCES CalTables/test/CTSelection_GTest.cc )
+#---
+# Add by Nishie
+casa_add_google_test( MODULES synthesis SOURCES Utilities/test/PointingDirectionCalculator_GTest.cc )
+#--

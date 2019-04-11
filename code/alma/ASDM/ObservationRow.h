@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -58,15 +58,15 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Observation.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -77,12 +77,12 @@ namespace asdm {
 
 class ObservationRow;
 typedef void (ObservationRow::*ObservationAttributeFromBin) (EndianIStream& eis);
-typedef void (ObservationRow::*ObservationAttributeFromText) (const string& s);
+typedef void (ObservationRow::*ObservationAttributeFromText) (const std::string& s);
 
 /**
  * The ObservationRow class is a row of a ObservationTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ObservationRow {
@@ -315,7 +315,7 @@ void observationIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ObservationAttributeFromText> fromTextMethods;
 	
-void observationIdFromText (const string & s);
+void observationIdFromText (const std::string & s);
 	
 
 		

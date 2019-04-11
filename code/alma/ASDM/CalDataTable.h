@@ -41,34 +41,20 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
 
 
-	
-
-	
-
-	
-
-	
-
-	
-#include "CCalDataOrigin.h"
-	
-
-	
-#include "CCalType.h"
 	
 
 	
@@ -78,7 +64,11 @@
 	
 
 	
-#include "CAssociatedCalNature.h"
+#include <alma/Enumerations/CCalDataOrigin.h>
+	
+
+	
+#include <alma/Enumerations/CCalType.h>
 	
 
 	
@@ -88,23 +78,33 @@
 	
 
 	
-#include "CScanIntent.h"
+#include <alma/Enumerations/CAssociatedCalNature.h>
+	
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CScanIntent.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -123,7 +123,7 @@ class CalDataRow;
  * This table describes the data used to derive the calibration results.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalData </CAPTION>
@@ -180,7 +180,7 @@ class CalDataRow;
  * </TR>
 	
  * <TR>
- * <TD> numScan </TD> 
+ * <TD> numScan (numScan)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of scans (in this Execution Block). </TD>
@@ -188,7 +188,7 @@ class CalDataRow;
 	
  * <TR>
  * <TD> scanSet </TD> 
- * <TD> vector<int > </TD>
+ * <TD> std::vector<int > </TD>
  * <TD>  numScan </TD> 
  * <TD> &nbsp;the set of scan numbers. </TD>
  * </TR>
@@ -198,43 +198,43 @@ class CalDataRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> assocCalDataId </TD> 
+ * <TD> assocCalDataId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to an associate row in CalDataTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocCalNature </TD> 
+ * <TD> assocCalNature</TD> 
  * <TD> AssociatedCalNatureMod::AssociatedCalNature </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the nature of the relation with the associate row in CalDataTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> fieldName </TD> 
- * <TD> vector<string > </TD>
+ * <TD> fieldName</TD> 
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the names of the fields (one name per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceName </TD> 
- * <TD> vector<string > </TD>
+ * <TD> sourceName</TD> 
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the names of the sources as given during observations (one source name per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceCode </TD> 
- * <TD> vector<string > </TD>
+ * <TD> sourceCode</TD> 
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; the special characteristics of sources expressed in a textual form (one string per scan). </TD>
  * </TR>
 	
  * <TR>
- * <TD> scanIntent </TD> 
- * <TD> vector<ScanIntentMod::ScanIntent > </TD>
+ * <TD> scanIntent</TD> 
+ * <TD> std::vector<ScanIntentMod::ScanIntent > </TD>
  * <TD>  numScan  </TD>
  * <TD>&nbsp; identifies the intents of  the scans (one value per scan). </TD>
  * </TR>
@@ -390,7 +390,7 @@ public:
  	 * @param scanSet
 	
      */
-	CalDataRow *newRow(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet);
+	CalDataRow *newRow(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet);
 	
 
 
@@ -487,7 +487,7 @@ public:
  	 * @param scanSet
  	 		 
  	 */
-	CalDataRow* lookup(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet); 
+	CalDataRow* lookup(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -513,6 +513,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

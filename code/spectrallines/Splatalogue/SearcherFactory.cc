@@ -24,6 +24,7 @@
 #include "SearcherFactory.h"
 #include <spectrallines/Splatalogue/Searcher.h>
 #include <spectrallines/Splatalogue/SQLiteSearch/SearcherSQLite.h>
+#include <casatools/Config/State.h>
 
 #include <iostream>
 using namespace std;
@@ -34,13 +35,23 @@ namespace casa {
 String SearcherFactory::getLocation( bool local ){
 	String defaultDatabasePath;
 	if ( local ){
+
 		//Note:: When the SQLite code (and database get put into its
 		//own library, finding the location of the database should be
 		//removed from here and put into the DatabaseConnector.
-		Bool foundDatabase = Aipsrc::find(defaultDatabasePath, "user.ephemerides.SplatDefault.tbl");
-		if( !foundDatabase ){
-			foundDatabase = Aipsrc::findDir(defaultDatabasePath, "data/ephemerides/SplatDefault.tbl");
-		}
+        const string splatable = "ephemerides/SplatDefault.tbl";
+        Bool foundDatabase = false;
+        string resolvepath;
+        resolvepath = casatools::get_state( ).resolve(splatable);
+        if ( resolvepath != splatable ) {
+            foundDatabase = true;
+            defaultDatabasePath = resolvepath;
+        } else {
+            foundDatabase = Aipsrc::find(defaultDatabasePath, "user.ephemerides.SplatDefault.tbl");
+            if( !foundDatabase ){
+                foundDatabase = Aipsrc::findDir(defaultDatabasePath, "data/" + splatable);
+            }
+        }
 
 		if ( foundDatabase ) {
 			const String tableName = "SplatDefault.tbl";
@@ -56,7 +67,7 @@ Searcher* SearcherFactory::getSearcher( bool local ){
 	Searcher* searcher = NULL;
 	if ( local ){
 		String defaultDatabasePath = getLocation( local );
-		if ( ! defaultDatabasePath.length() == 0 ){
+		if (! defaultDatabasePath.empty()){
 			searcher = new SearcherSQLite(defaultDatabasePath.c_str() );
 			if ( !searcher->isConnected()){
 				delete searcher;

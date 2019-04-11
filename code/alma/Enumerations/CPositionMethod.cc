@@ -33,7 +33,7 @@
  * File CPositionMethod.cpp
  */
 #include <sstream>
-#include <CPositionMethod.h>
+#include <alma/Enumerations/CPositionMethod.h>
 #include <string>
 using namespace std;
 

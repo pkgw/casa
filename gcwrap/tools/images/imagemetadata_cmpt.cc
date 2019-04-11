@@ -2,13 +2,15 @@
 
 #include <casa/Containers/ValueHolder.h>
 #include <casa/Utilities/PtrHolder.h>
-#include <imageanalysis/ImageAnalysis/ImageMetaDataRW.h>
 #include <imageanalysis/ImageAnalysis/ImageFactory.h>
+#include <imageanalysis/ImageAnalysis/ImageMetaDataRW.h>
 #include <images/Images/ImageOpener.h>
 
 #include <stdcasa/version.h>
 
 #include <casa/namespace.h>
+
+#include <memory>
 
 using namespace std;
 
@@ -20,20 +22,29 @@ namespace casac {
 const String imagemetadata::_class = "imagemetadata";
 
 imagemetadata::imagemetadata() :
-_log(new LogIO()), _header(0) {}
+_log(new LogIO()), _mdf(), _mdc() {}
 
 imagemetadata::~imagemetadata() {}
 
 bool imagemetadata::close() {
-	_header.reset(0);
+	_mdf.reset();
+	_mdc.reset();
 	return true;
 }
 
 bool imagemetadata::add(const string& key, const variant& value) {
 	try {
 		_exceptIfDetached();
-		std::auto_ptr<const ValueHolder> vh(casa::toValueHolder(value));
-		return _header->add(key, *vh);
+		std::unique_ptr<const ValueHolder> vh(casa::toValueHolder(value));
+		if (_mdf) {
+		    return _mdf->add(key, *vh);
+		}
+		else if(_mdc) {
+		    return _mdc->add(key, *vh);
+		}
+		else {
+		    ThrowCc("Logic error");
+		}
 	}
 	catch (const AipsError& x) {
 		*_log << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -50,7 +61,7 @@ variant* imagemetadata::get(const string& key) {
 	try {
 		_exceptIfDetached();
 		return casa::fromValueHolder(
-			_header->getFITSValue(key)
+			_mdf ? _mdf->getFITSValue(key) : _mdc->getFITSValue(key)
 		);
 	}
 	catch (const AipsError& x) {
@@ -63,7 +74,7 @@ variant* imagemetadata::get(const string& key) {
 record* imagemetadata::list(bool verbose) {
 	try {
 		_exceptIfDetached();
-		return casa::fromRecord(_header->toRecord(verbose));
+		return casa::fromRecord(_mdf ? _mdf->toRecord(verbose) : _mdc->toRecord(verbose));
 	}
 	catch (const AipsError& x) {
 		*_log << LogIO::SEVERE << "Exception Reported: "
@@ -74,16 +85,22 @@ record* imagemetadata::list(bool verbose) {
 
 bool imagemetadata::open(const std::string& infile) {
 	try {
-		if (_log.get() == 0) {
+		if (! _log.get()) {
 			_log.reset(new LogIO());
 		}
-		auto mypair = ImageFactory::fromFile(infile);
-		if (mypair.first) {
-			_header.reset(new ImageMetaDataRW(mypair.first));
+        SPIIF imageF;
+        SPIIC imageC;
+        std::tie(imageF, imageC, std::ignore, std::ignore)
+            = ImageFactory::fromFile(infile);
+        if (imageF) {
+			_mdf.reset(new ImageMetaDataRW<Float>(imageF));
 		}
-		else {
-			_header.reset(new ImageMetaDataRW(mypair.second));
+		else if (imageC) {
+			_mdc.reset(new ImageMetaDataRW<Complex>(imageC));
 		}
+        else {
+            ThrowCc("Image type not yet supported");
+        }
 		return true;
 	}
 	catch (const AipsError& x) {
@@ -98,11 +115,12 @@ bool imagemetadata::remove(
 ) {
 	try {
 		_exceptIfDetached();
-		if (String(key) == ImageMetaDataBase::MASKS) {
-			return _header->removeMask(value.toString());
+		if (String(key) == ImageMetaDataConstants::MASKS) {
+			return _mdf ? _mdf->removeMask(value.toString())
+			    : _mdc->removeMask(value.toString());
 		}
 		else {
-			return _header->remove(key);
+			return _mdf ? _mdf->remove(key) : _mdc->remove(key);
 		}
 	}
 	catch (const AipsError& x) {
@@ -115,8 +133,8 @@ bool imagemetadata::remove(
 bool imagemetadata::set(const string& key, const variant& value) {
 	try {
 		_exceptIfDetached();
-		std::auto_ptr<const ValueHolder> vh(toValueHolder(value));
-		return _header->set(key, *vh);
+		std::unique_ptr<const ValueHolder> vh(toValueHolder(value));
+		return _mdf ? _mdf->set(key, *vh) : _mdc->set(key, *vh);
 	}
 	catch (const AipsError& x) {
 		*_log << LogIO::SEVERE << "Exception Reported: "
@@ -126,10 +144,10 @@ bool imagemetadata::set(const string& key, const variant& value) {
 }
 
 void imagemetadata::_exceptIfDetached() const {
-	if (_header.get() == 0) {
-		throw AipsError("Tool is not attached to a metadata object. Call open() first.");
-	}
+	ThrowIf(
+	    ! (_mdf || _mdc),
+	    "Tool is not attached to a metadata object. Call open() first."
+	);
 }
-
 
 } // casac namespace

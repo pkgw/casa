@@ -1,14 +1,14 @@
 import os
 import time
 from taskinit import *
-from casa_stack_manip import stack_frame_find
+from casa_system import procmgr
 
 def plotms(vis=None, 
            gridrows=None, gridcols=None,
            rowindex=None,colindex=None,
            plotindex=None,
-           xaxis=None, xdatacolumn=None, 
-           yaxis=None, ydatacolumn=None, yaxislocation=None,
+           xaxis=None, xdatacolumn=None, xframe=None, xinterp=None,
+           yaxis=None, ydatacolumn=None, yframe=None, yinterp=None, yaxislocation=None,
            selectdata=None, field=None, spw=None,
            timerange=None, uvrange=None, antenna=None, scan=None,
            correlation=None, array=None, observation=None, 
@@ -28,18 +28,17 @@ def plotms(vis=None,
            customflaggedsymbol=None, flaggedsymbolshape=None,
            flaggedsymbolsize=None, flaggedsymbolcolor=None,
            flaggedsymbolfill=None, flaggedsymboloutline=None,
+           xconnector=None, timeconnector=False,
            plotrange=None,
            title=None, titlefont=None, 
            xlabel=None, xaxisfont=None, ylabel=None, yaxisfont=None,
            showmajorgrid=None, majorwidth=None, majorstyle=None,  majorcolor=None,    
            showminorgrid=None, minorwidth=None, minorstyle=None,  minorcolor=None, 
            showlegend=None, legendposition=None,   
-           plotfile=None, expformat=None, exprange=None,
+           plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None
-):
-
+           callib=None, headeritems=None, showatm=None, showtsky=None):
 # we'll add these later
 #           extspw=None, extantenna=None,
 #           exttime=None, extscans=None, extfield=None,
@@ -76,6 +75,12 @@ def plotms(vis=None,
         &gt;&gt;&gt; xaxis, yaxis expandable parameters
         xdatacolumn, 
         ydatacolumn -- which data column to use for data axes
+                       default: '' (uses PlotMS default/current set).
+        xframe,
+        yframe      -- which coordinates frame to use for ant-ra,ant-dec axes
+                       default: '' (uses PlotMS default/current set).
+        xinterp,
+        yinterp     -- which interpolation method to use for ant-ra,ant-dec axes
                        default: '' (uses PlotMS default/current set).
         yaxislocation -- whether the data should be plotted using the left or right y-axis
                        default: '' (uses PlotMS default).
@@ -166,8 +171,6 @@ def plotms(vis=None,
         extfield -- extend flags based on field?  only valid if time extension
                     is turned on.
                     default: False.
-        showgui -- Whether or not to display the plotting GUI
-                  default: True; example showgui=False
 
     coloraxis -- which axis to use for colorizing
                      default: ''  (ignored - same as colorizing off)              
@@ -186,15 +189,30 @@ def plotms(vis=None,
                     Interior legends can be located in the upper right, lower right, upper left, or lower left.
                     Exterior legends can be located on the right, left, top, or bottom.
                     default: 'upperright'
+    showgui -- Whether or not to display the plotting GUI
+                    default: True; example showgui=False
     clearplots -- clear existing plots so that the new ones coming in can replace them.                 
     callib -- calibration library string, list of strings, or filename for on-the-fly calibration
+    headeritems -- string of comma-separated page header items keywords
+    showatm -- show atmospheric transmission curve
+    showtsky -- show sky temperature curve
 
     """
     # Check if DISPLAY environment variable is set.
     if os.getenv('DISPLAY') == None:
-        casalog.post('ERROR: DISPLAY environment variable is not set!  Cannot open plotms.', 'SEVERE')
+        casalog.post('ERROR: DISPLAY environment variable is not set! Cannot run plotms.', 'SEVERE')
         return False
 
+    # using procmgr?
+    usingprocmgr = False
+    if casa['state']['init_version'] > 0:
+        usingprocmgr = True
+        if not procIsRunning("dbus"):
+            casalog.post('ERROR: dbus-daemon has stopped, cannot run plotms. Please restart casa.', 'SEVERE')
+            return False
+ 
+    # check arguments
+    # check plotfile for export
     if plotfile:
         if not os.path.dirname(plotfile):
             # CAS-7148: Use dir that user cd'ed to in casapy session
@@ -203,13 +221,12 @@ def plotms(vis=None,
         if (os.path.exists(plotfile) and not overwrite):
             casalog.post("Plot file " + plotfile + " exists and overwrite is false, cannot write the file", "SEVERE")
             return False
-  
-    
-    try:            
-        # Check synonyms
-        # format is:  synonym['new_term'] = 'existing_term', with 
-        # the existing term being what's coded in PlotMSConstants.h  (case insensitive)
-        # CAS-8532 match capitalization in axis names in GUI
+
+    # Define axis synonyms
+    # format is:  synonym['new_term'] = 'existing_term'
+    # existing_term in PlotMSConstants.h
+    # CAS-8532: match capitalization in axis names in GUI
+    if True:
         synonyms = {}
         synonyms['Scan'] = 'scan'
         synonyms['Field'] = 'field'
@@ -254,8 +271,10 @@ def plotms(vis=None,
         synonyms['ant'] = synonyms['Antenna'] = 'antenna'
         synonyms['Ant-Azimuth'] = 'ant-azimuth'
         synonyms['Ant-Elevation'] = 'ant-elevation'
+        synonyms['Ant-Ra'] = synonyms['Ant-RA'] = 'ant-ra'
+        synonyms['Ant-Dec'] = synonyms['Ant-DEC'] = 'ant-dec'
         synonyms['ant-parallacticangle']=synonyms['ant-parang'] = synonyms['Ant-ParAngle'] = 'ant-parangle'
-        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amplitude'
+        synonyms['gamp']=synonyms['gainamp']=synonyms['GainAmp']='Gain Amp'
         synonyms['gphase']=synonyms['gainphase']=synonyms['GainPhase']='Gain Phase'
         synonyms['greal']=synonyms['gainreal']=synonyms['GainReal']='Gain Real'
         synonyms['gimag']=synonyms['gainimag']=synonyms['GainImag']='Gain Imag'
@@ -264,27 +283,68 @@ def plotms(vis=None,
         synonyms['tsys']=synonyms['Tsys']=synonyms['TSYS']='tsys'
         synonyms['opac']=synonyms['opacity']=synonyms['Opac']='opac'
         synonyms['snr']=synonyms['SNR']='SNR'
+        synonyms['antpos']='Antenna Positions'
         synonyms['radialvelocity']= synonyms['Radial Velocity'] = 'Radial Velocity [km/s]'
         synonyms['rho']=synonyms['Distance']='Distance (rho) [km]'
+        # data columns: unspecified residuals default to vector
+        synonyms['residual']=synonyms['corrected-model']='corrected-model_vector'
+        synonyms['data-model']='data-model_vector'
+        synonyms['corrected/model']='corrected/model_vector'
+        synonyms['data/model']='data/model_vector'
+        synonyms['azelgeo']='AzEl'
         
-        if(synonyms.has_key(xaxis)): xaxis = synonyms[xaxis]
-        if type(yaxis) is str:
-            if(synonyms.has_key(yaxis)): yaxis = synonyms[yaxis]
-        elif type(yaxis) is list:
+    try:
+        # Do preliminary checks on argument values
+        # Set synonyms to existing_terms
+        if(synonyms.has_key(xaxis)):
+            xaxis = synonyms[xaxis]
+        if isinstance(yaxis, str):
+            if synonyms.has_key(yaxis):
+                yaxis = synonyms[yaxis]
+        elif isinstance(yaxis, list):
             for index,axis in enumerate(yaxis):
-                if (synonyms.has_key(axis)): yaxis[index] = synonyms[axis]
-        if type(coloraxis) is str:
-            if(synonyms.has_key(coloraxis)): coloraxis = synonyms[coloraxis]
-        
-        
-        # synonyms for data columns (only one, so just hardcode it)
-        if (xdatacolumn=='cor' or xdatacolumn=='corr'):  xdatacolumn='corrected'
-        if (ydatacolumn=='cor' or ydatacolumn=='corr'):  ydatacolumn='corrected'
+                if synonyms.has_key(axis):
+                    yaxis[index] = synonyms[axis]
 
+        if isinstance(coloraxis, str):
+            if synonyms.has_key(coloraxis):
+                coloraxis = synonyms[coloraxis]
+
+        if(synonyms.has_key(xdatacolumn)):
+            xdatacolumn = synonyms[xdatacolumn]
+        if isinstance(ydatacolumn, str):
+            if synonyms.has_key(ydatacolumn):
+                yaxis = synonyms[ydatacolumn]
+        elif isinstance(ydatacolumn, list):
+            for index,col in enumerate(ydatacolumn):
+                if synonyms.has_key(col):
+                    ydatacolumn[index] = synonyms[col]
+
+        if isinstance(xframe, str):
+            if synonyms.has_key(xframe):
+                xframe = synonyms[xframe]
+        elif isinstance(xframe, list):
+            for index,frame in enumerate(xframe):
+                if synonyms.has_key(frame):
+                    xframe[index] = synonyms[frame]
+
+        if isinstance(yframe, str):
+            if synonyms.has_key(yframe):
+                yframe = synonyms[yframe]
+        elif isinstance(yframe, list):
+            for index,frame in enumerate(yframe):
+                if synonyms.has_key(frame):
+                    yframe[index] = synonyms[frame]
+
+        # check vis exists
         vis = vis.strip()
         if len(vis) > 0:
             vis = os.path.abspath(vis)
+            if not os.path.exists(vis):
+                casalog.post('\n'.join(['Input file not found:',vis]),"SEVERE")
+                return False
 
+        # check plotindex
         if not plotindex:
             plotindex = 0  
         if plotindex < 0:
@@ -294,51 +354,51 @@ def plotms(vis=None,
             casalog.post("A nonzero plotindex is not valid when clearing plots.", "SEVERE")
             return False
        
-        # start plotms with the procmgr, use logfile
-        myframe = stack_frame_find()
-        if myframe['casa']['state']['init_version'] > 0:
-            from casa_system import procmgr
-            pmsrun = procmgr.running("plotms")
-            pms = procmgr.fetch("plotms")
-            try:
-                if pmsrun and not pms.is_alive():  # crash!
-                    pms.stop()
-                    pmsrun = False
-            except AttributeError:  # fetch failed: pms=None
-                pass
-            if not pmsrun:
-                # start (or restart)
+        # start plotms with the procmgr, use casa logfile
+        if usingprocmgr:
+            if not procIsRunning("plotms"):
+                # set plotmsApp
                 plotmsApp = 'casaplotms'
                 for dir in os.getenv('PATH').split(':'):
                     dd = dir + os.sep + plotmsApp
                     if os.path.exists(dd) and os.access(dd, os.X_OK):
                         plotmsApp = dd
                         break
+                # set logfile
                 try:
-                    logfile = myframe['casa']['files']['logfile']
+                    logfile = casa['files']['logfile']
                 except KeyError:
                     logfile = ""
+                # start process with procmgr
                 procmgr.create("plotms", [plotmsApp, "--nogui", "--nopopups",
                     "--casapy", "--logfilename="+logfile])
-                if procmgr.running("plotms"):
-                    # connect future calls to this plotms
-                    procpid = procmgr.fetch('plotms').pid
-                    pm.setPlotmsPid(procpid)
+            if procIsRunning("plotms"):
+                # plotms is running, but is it connected? CAS-11306
+                procmgrPid = procmgr.fetch('plotms').pid
+                plotmsPid = pm.getPlotMSPid()
+                if plotmsPid != procmgrPid:
+                    # connect future pm calls to procmgr plotms
+                    pm.setPlotMSPid(procmgrPid)
+            else:
+                casalog.post("plotms failed to start", "SEVERE")
+                return False
 
         # Determine whether this is going to be a scripting client or 
         # a full GUI supporting user interaction.  This must be done 
-        # before other properties are set because it affects the
+        # before any other properties are set because it affects the
         # constructor of plotms.
+        if casa['flags'].nogui:
+            showgui = False
         pm.setShowGui( showgui )
-        
-        if pm.isDrawing() and clearplots:
-            casalog.post("Plotms is running in GUI mode and cannot be run again until the current drawing completes.", "SEVERE")
-            return False
 
-        #Clear any existing plots.
         if clearplots:
+            # Clear any existing plots unless still drawing last one
+            if pm.isDrawing():
+                casalog.post("Plotms is running in GUI mode and cannot be run again until the current drawing completes.", "SEVERE")
+                return False
             pm.clearPlots()
-       
+
+        # set grid
         gridChange = False    
         if gridrows > 0 or gridcols > 0:
             gridChange = True
@@ -346,64 +406,162 @@ def plotms(vis=None,
                 gridrows = 1
             if not gridcols:
                 gridcols = 1
-        
         if gridChange:
             pm.setGridSize( gridrows, gridcols )
+
+        # set vis filename
         pm.setPlotMSFilename(vis, False, plotindex )
-        
-        if type(yaxis) is tuple:
+
+        # set yaxis defaults as needed
+        if isinstance(yaxis, tuple):
+            # yaxis default from xml is str or list: yaxis=('', [])
+            # set it to the empty string
             yaxis = yaxis[0]
-    
-        if not yaxis or type(yaxis) is str:
-            if not yaxislocation or not type(yaxislocation) is str:
-                yaxislocation='left'
-            if not ydatacolumn or not type(ydatacolumn) is str:
-                ydatacolumn=''
+        if not yaxis or isinstance(yaxis, str):
             if not yaxis:
                 yaxis = ''
-           
-            pm.setPlotAxes( xaxis, yaxis, xdatacolumn, ydatacolumn, yaxislocation, False, plotindex, 0)
-          
-        else:        
+            if yaxis == 'ant-ra' or yaxis == 'ant-dec':
+                # Handle empty lists as empty strings
+                if isinstance(yinterp, list) and not yinterp:
+                    yinterp = ''
+                if isinstance(yframe, list) and not yframe:
+                    yframe = ''
+                if isinstance(yinterp, str) and isinstance(yframe, str):
+                    # For now, ignore cases where xinterp or xframe is a list
+                    if isinstance(xframe, list):
+                        msg_fmt = "Assuming xframe={assumed} instead of xframe={org}"
+                        assumed_xframe = '' if not xframe else xframe[0]
+                        msg = msg_fmt.format(assumed=assumed_xframe, org=xframe)
+                        casalog.post(msg,'WARN','set_axes')
+                        xframe = assumed_xframe
+                    if isinstance(xinterp, list):
+                        msg_fmt = "Assuming xinterp={assumed} instead of xinterp={org}"
+                        assumed_xinterp = '' if not xinterp else xinterp[0]
+                        msg = msg_fmt.format(assumed=assumed_xinterp, org=xinterp)
+                        casalog.post(msg,'WARN','set_axes')
+                        xinterp = assumed_xinterp
+                    if isinstance(yaxislocation, list):
+                        yaxislocation= 'left' if not yaxislocation else yaxislocation[0]
+                    if not isinstance(yaxislocation, str):
+                        yaxislocation= 'left'
+                    xdatacolumn = ydatacolumn = ''
+                    pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                    xframe, yframe, xinterp, yinterp,
+                    yaxislocation,
+                    False, plotindex, 0)
+                else:
+                    # Handle yinterp, yframe and yaxislocation as parallel lists, which
+                    # 1. must have the same length
+                    # 2. must NOT contain empty strings, otherwise C++ vectors won't have the same length
+                    if isinstance(yinterp, list):
+                        if isinstance(yframe, str):
+                            # Allow usage: plotms(yinterp=['nearest','spline'],yframe='')
+                            if not yframe:
+                                yframe = 'icrs'
+                            yframe = [yframe for i in yinterp]
+                        else:
+                            if len(yframe) != len(yinterp):
+                                msg_fmt = "Length mismatch: yframe={0} and yinterp={1}"
+                                msg = msg_fmt.format(yframe,yinterp)
+                                casalog.post(msg,'ERROR',set_axes)
+                                return False
+                        if isinstance(yaxislocation, str):
+                            # Allow usage: plotms(yinterp=['nearest','spline'],yaxislocation='')
+                            if not yaxislocation:
+                                yaxislocation = 'left'
+                            yaxislocation = [yaxislocation for i in yinterp]
+                        else:
+                            if len(yaxislocation) != len(yinterp):
+                                msg_fmt = "Length mismatch: yaxislocation={0} and yinterp={1}"
+                                msg = msg_fmt.format(yaxislocation,yinterp)
+                                casalog.post(msg,'ERROR',set_axes)
+                                return False
+                        # For now: enforce xframe=yframe, xinterp=yinterp in this case
+                        casalog.post('Enforcing xframe=yframe, xinterp=yinterp','WARN','set_axes')
+                        xdatacolumn = ydatacolumn = 'data'
+                        if not xaxis:
+                            xaxis = 'time'
+                        for dataindex, (frame,interp,yaxisloc) in enumerate(zip(yframe,yinterp,yaxislocation)):
+                            pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                                           frame, frame, interp, interp,
+                                           yaxisloc,
+                                           False, plotindex, dataindex)
+                    else:
+                        casalog.post('Not yet implemented: yframe=list','SEVERE','set_axes')
+                        return False
+            else:
+                if not yaxislocation or not isinstance(yaxislocation, str):
+                    yaxislocation='left'
+                if not ydatacolumn or not isinstance(ydatacolumn, str):
+                    ydatacolumn=''
+                pm.setPlotAxes(xaxis, yaxis, xdatacolumn, ydatacolumn,
+                    xframe, yframe, xinterp, yinterp,
+                    yaxislocation,
+                    False, plotindex, 0)
+        else:
+            # make ydatacolumn and yaxislocation same length as yaxis
+            # and check that no duplicate y axes
             yAxisCount = len(yaxis)
-            
             yDataCount = 0
             if ydatacolumn!=['']:
                 yDataCount = len(ydatacolumn)
             yLocationCount = 0
             if yaxislocation!=['']:
                 yLocationCount = len(yaxislocation)
-                
             '''Make sure all the y-axis values are unique.'''
             uniqueY = True
-            for i in range(0, yAxisCount ):
+            for i in range( yAxisCount ):
                 yDataColumnI = ''
                 if  i < yDataCount :
                     yDataColumnI = ydatacolumn[i]
-                for j in range(0, i):
+                for j in range(i):
                     if yaxis[j] == yaxis[i] :
                         yDataColumnJ = ''
                         if j < yDataCount:
                             yDataColumnJ = ydatacolumn[j]
                         if yDataColumnI == yDataColumnJ :
+                            # same axis, same datacolumn!
                             uniqueY = False
                             break
                 if not uniqueY :
                     break
             if ( uniqueY ):
-                for i in range(0,yAxisCount):
+                for i in range(yAxisCount):
                     yDataColumn=''
                     if i < yDataCount:
                         yDataColumn = ydatacolumn[i]
                     yAxisLocation = 'left'
                     if i < yLocationCount:
                         yAxisLocation = yaxislocation[i]
-                    pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, yAxisLocation, False, plotindex, i)
+                    if xaxis in ['ant-ra','ant-dec'] or yaxis[i]  in ['ant-ra','ant-dec']:
+                        raise Exception, 'Currently not supported: multiple y-axes involving ant-ra or ant-dec'
+                    # Always make C++ ra/dec parameters vectors the same length as yaxis
+                    xframe = yframe = 'icrs'
+                    xinterp = yinterp = 'nearest'
+                    pm.setPlotAxes(xaxis, yaxis[i], xdatacolumn, yDataColumn, 
+                        xframe, yframe, xinterp, yinterp,
+                        yAxisLocation,
+                        False, plotindex, i)
             else :
                 raise Exception, 'Please remove duplicate y-axes.'
+
+        if not showatm:
+            showatm = False
+        if not showtsky:
+            showtsky = False
+        if showatm and showtsky:
+            casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
+            showtsky = False
+        if showatm or showtsky:  # check that xaxis is None, chan, or freq
+            validxaxis = not xaxis or xaxis in ["channel", "frequency"]
+            if not validxaxis:
+                casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
+                return False
+        pm.setShowAtm(showatm, False, plotindex)
+        pm.setShowTsky(showtsky, False, plotindex)
         
         # Set selection
-        if (selectdata and os.path.exists(vis)):
+        if selectdata:
             pm.setPlotMSSelection(field, spw, timerange, uvrange, antenna, scan,
                                   correlation, array, str(observation), intent,
                                   feed, msselect, False, plotindex)
@@ -431,17 +589,17 @@ def plotms(vis=None,
             return False
         pm.setPlotMSAveraging(avgchannel, avgtime, avgscan, avgfield, avgbaseline, 
                               avgantenna, avgspw, scalar, False, plotindex)
+
         # Set transformations
         if not transform:
             freqframe=''
             restfreq=''
             veldef='RADIO'
             shift=[0.0,0.0]
-
         pm.setPlotMSTransformations(freqframe,veldef,restfreq,shift[0],shift[1],
                                     False, plotindex)
 
-        # Set calibration: None, string (filename), dictionary
+        # Set calibration: None or string (filename)
         useCallib = False
         callibString = ''
         if isinstance(callib, str):
@@ -457,17 +615,17 @@ def plotms(vis=None,
                         useCallib = True
                         callibString = callibFile
                     else:
-                        casalog.post("Callib file does not exist")
-                        raise RuntimeError("Callib file does not exist")
-        elif isinstance(callib, list):
-            if len(callib[0]) > 0:  # no param is a list (default in plotms.xml?)
+                        casalog.post("Callib file does not exist", "SEVERE")
+                        return False
+        elif isinstance(callib, list): # default is callib=['']
+            if len(callib[0]) > 0:  # argument set to list of strings
                 useCallib = True
                 callibString = ",".join(callib)
         pm.setPlotMSCalibration(useCallib, callibString, False, plotindex) 
 
-        # Set flag extension
-        # for now, some options here are not available:
-        # pm.setFlagExtension(extendflag, extcorrelation, extchannel, extspw, extantenna, exttime, extscans, extfield)
+        # Set flag extensions; for now, some options here are not available
+        # pm.setFlagExtension(extendflag, extcorrelation, extchannel, extspw,
+        #    extantenna, exttime, extscans, extfield)
         extcorrstr=''
         if extcorr:
             extcorrstr='all'
@@ -477,6 +635,7 @@ def plotms(vis=None,
         if not exprange or exprange == "":
             exprange='current'
         pm.setExportRange(exprange)
+        # for pm.save:
         if not dpi:
             dpi = -1
         if not width:
@@ -484,13 +643,12 @@ def plotms(vis=None,
         if not height:
             height = -1
 
-        # Set stuff that informs the plot on additional axes
-        #  (iteration, colorization, etc.)
+        # Set additional axes (iteration, colorization, etc.)
         # (Iteration)
         if not iteraxis:
             iteraxis = ""
         if iteraxis=="":
-            xselfscale=yselfscale=False
+            xselfscale = yselfscale = False
             xsharedaxis = ysharedaxis = False
         if not rowindex:
             rowindex = 0
@@ -509,7 +667,13 @@ def plotms(vis=None,
             return False
         if not yselfscale and ysharedaxis:
             casalog.post( "Plots cannot share a y-axis unless they use the same y-axis scale.", "ERROR")
-            return False    
+            return False
+        if xsharedaxis and gridrows < 2:
+            casalog.post( "Plots cannot share an x-axis when gridrows=1.", "WARN")
+            xsharedaxis=False
+        if ysharedaxis and gridcols < 2:
+            casalog.post( "Plots cannot share a y-axis when gridcols=1.", "WARN")
+            ysharedaxis=False
         pm.setPlotMSIterate(iteraxis,rowindex,colindex,
                             xselfscale,yselfscale,
                             xsharedaxis,ysharedaxis,False,plotindex);
@@ -591,8 +755,6 @@ def plotms(vis=None,
                     symbolOutline = False
                 pm.setSymbol(symbolShape, symbolSize, symbolColor,
                      symbolFill, symbolOutline, False,plotindex,i)
-      
-           
             
         # Set custom flagged symbol
         if type(customflaggedsymbol) is bool and customflaggedsymbol:
@@ -666,16 +828,20 @@ def plotms(vis=None,
                 pm.setFlaggedSymbol(flaggedSymbolShape, flaggedSymbolSize,
                             flaggedSymbolColor, flaggedSymbolFill,
                             flaggedSymbolOutline, False, plotindex, i)
-       
-        
-        
-          #Determine if there should be a legend.
+ 
+        # connect the dots
+        if not xconnector:
+            xconnector = 'none'
+        if not timeconnector:
+            timeconnector = False
+        pm.setConnect(xconnector, timeconnector, False, plotindex)
+
+        # Legend
         if not showlegend:
             showlegend = False
         if not legendposition:
             legendposition = 'upperRight' 
         pm.setLegend( showlegend, legendposition, False, plotindex )          
-        
         
         # Set various user-directed appearance parameters
         pm.setTitle(title,False,plotindex)
@@ -686,41 +852,100 @@ def plotms(vis=None,
         pm.setYAxisFont(yaxisfont,False,plotindex)
         pm.setGridParams(showmajorgrid, majorwidth, majorstyle, majorcolor,
                          showminorgrid, minorwidth, minorstyle, minorcolor, False, plotindex)
+
+        # Plot ranges
+        if len(plotrange) == 0:
+            plotrange=[0.0, 0.0, 0.0, 0.0]
+        elif len(plotrange) != 4:
+            casalog.post('plotrange parameter has incorrect number of elements.', 'SEVERE')
+            return False
+        else:
+            try:
+                for i,val in enumerate(plotrange):
+                    plotrange[i] = float(val)
+            except (TypeError, ValueError) as e:
+                casalog.post("plotrange elements must be numeric", 'SEVERE')
+                return False
+        xranges = plotrange[1] - plotrange[0]
+        yranges = plotrange[3] - plotrange[2]
+        pm.setXRange((xranges<=0.0), plotrange[0], plotrange[1], False, plotindex)
+        pm.setYRange((yranges<=0.0), plotrange[2], plotrange[3], False, plotindex)
         
-     
+        # Page Header Items
+        # Python keywords for specifying header items are defined in CAS-8082, 
+        # Erik's comment dated 9-jun-2016
+        # Python / C++ header items keywords map
+        # format is header_cpp_kw['python_keyword'] = 'c++_keyword', where 
+        # the c++ keyword is what's coded in PlotMSPageHeaderParam.h
+        header_cpp_kw = {}
+        header_cpp_kw['filename'] = 'filename'
+        header_cpp_kw['ycolumn']  = 'y_columns'
+        header_cpp_kw['obsdate']  = 'obs_start_date'
+        header_cpp_kw['obstime']  = 'obs_start_time'
+        header_cpp_kw['observer'] = 'obs_observer'
+        header_cpp_kw['projid']   = 'obs_project'
+        header_cpp_kw['telescope'] = 'obs_telescope_name'
+        header_cpp_kw['targname'] = 'target_name'
+        header_cpp_kw['targdir']  = 'target_direction'
+        
+        if type(headeritems) is str:
+            cpp_headeritems = []
+            for headeritem_word in headeritems.split(','):
+                py_headeritem = headeritem_word.strip()
+                if py_headeritem == "":
+                    continue
+                if py_headeritem in header_cpp_kw:
+                    ccp_headeritem = header_cpp_kw[py_headeritem]
+                    cpp_headeritems.append(ccp_headeritem)
+                else:
+                    casalog.post("Ignoring invalid page header item: " + py_headeritem ,"WARN")
+    
+            pm.setPlotMSPageHeaderItems(','.join(cpp_headeritems), False, plotindex)
 
-        #Plot range
-        if (len(plotrange)!=4):
-            if (len(plotrange)==0):
-                plotrange=[0.0,0.0,0.0,0.0]
-            else:
-                raise Exception, 'plotrange parameter has incorrect number of elements.'
-
-        xrange=plotrange[1]-plotrange[0]
-        yrange=plotrange[3]-plotrange[2]
-
-        pm.setXRange((xrange<=0.), plotrange[0],plotrange[1], False, plotindex)
-        pm.setYRange((yrange<=0.), plotrange[2],plotrange[3], False, plotindex)
-
-        # Update
+        # Update - ready to plot!
         plotUpdated = pm.update()
         if not plotUpdated:
-            casalog.post( "There was a problem updating the plot.")
+            casalog.post( "There was a problem updating the plot.", "ERROR")
         else:
             # write file if requested
             if(plotfile != ""):
                 casalog.post("Plot file " + plotfile, 'NORMAL')
+                # kluge: isDrawing checks if *any* thread is running, could be cache
+                # thread or drawing thread! Give it time for cache to finish...
                 time.sleep(0.5)
                 if (pm.isDrawing()):
                     casalog.post("Will wait until drawing of the plot has completed before exporting it",'NORMAL')
                     while (pm.isDrawing()):
                         time.sleep(1.0)
                 casalog.post("Exporting the plot.",'NORMAL')
-                casalog.post("Calling pm.save", 'NORMAL')
-                plotUpdated = pm.save( plotfile, expformat, highres, dpi, width, height)
-    
+                plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
+
     except Exception, instance:
         plotUpdated = False
         print "Exception during plotms task: ", instance
         
+    if not plotUpdated:
+        checkProcesses() # see if something crashed, log failure
     return plotUpdated
+
+def procIsRunning(procname):
+    procrun = procmgr.running(procname)
+    if not procrun:
+        time.sleep(2) # for slow startups
+        procrun = procmgr.running(procname)
+    if procrun:
+        try:
+            process = procmgr.fetch(procname)
+            if not process.is_alive():  # crash!
+                process.stop()  # let procmgr know it crashed
+                procrun = False
+        except AttributeError:  # fetch returned None: None.is_alive()
+            pass
+    return procrun
+
+def checkProcesses():
+    if not procIsRunning('plotms'):
+        casalog.post( "plotms has stopped running. Check logs for error and run again.", "SEVERE")
+
+    if not procIsRunning('dbus'):
+        casalog.post( "dbus-daemon has stopped running.  Please restart casa.", "SEVERE")

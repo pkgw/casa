@@ -74,9 +74,7 @@ import numpy
 
 image = "gauss_no_pol.fits"
 
-
 datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/unittest/getchunk/'
-
 
 myia = iatool()
 
@@ -296,6 +294,81 @@ class getchunk_test(unittest.TestCase):
         exp = numpy.mean(bb)
         got = res['values'][0]
         self.assertLess(abs((got - exp)/exp), 1.25e-5)
+        
+    def test_getprofile_composite_function(self):
+        """Test composite value of function in getprofile works properly"""
+        myia = iatool()
+        myia.fromshape("", [100, 100, 20])
+        myia.addnoise()
+        im0 = myia.collapse(outfile="", function="madm", axes=[0, 1])
+        im1 = myia.collapse(outfile="", function="max", axes=[0, 1])
+        im2 = myia.collapse(outfile="", function="x", axes=[0, 1])
+        expec = im1.getchunk()/im0.getchunk()
+        res = myia.getprofile(axis=2, function="max/madm")['values']
+        self.assertTrue(numpy.isclose(res, expec, rtol=1e-7, atol=1e-7).all())
+        res = im2.getchunk()/im0.getchunk()
+        self.assertTrue(numpy.isclose(res, 1.482602218505602, rtol=1e-7, atol=1e-7).all())
+        res = myia.getprofile(axis=2, function="x")['values']
+        expec = im2.getchunk()
+        self.assertTrue(numpy.isclose(res, expec, rtol=1e-7, atol=1e-7).all())
+        im0.done()
+        im1.done()
+        im2.done()
+        myia.done()
+        
+    def test_precision(self):
+        """Test various image precisions"""
+        rval = 1.23456789012345678901234567890123456789
+        myia = iatool()
+        myia.fromshape("", [10, 10, 10], type='f')
+        bb = myia.getchunk()
+        bb[:] = rval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        tol = 1e-8
+        myia.done()
+        self.assertTrue(
+            numpy.isclose(cc, rval, rtol=tol, atol=tol).all(),
+            "Falure on float precision pixels"
+        )
+        myia.fromshape("", [10, 10, 10], type='d')
+        self.assertTrue(myia.isopen())
+        bb = myia.getchunk()
+        bb[:] = rval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        tol = 1e-20
+        myia.done()
+        self.assertFalse(myia.isopen())
+        self.assertTrue(
+            numpy.isclose(cc, rval, rtol=tol, atol=tol).all(),
+            "Falure on double precision pixels"
+        )
+        cval = complex(rval, rval)
+        myia.fromshape("", [10, 10, 10], type='c')
+        self.assertTrue(myia.isopen())
+        bb = myia.getchunk()
+        bb[:] = cval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        myia.done()
+        self.assertFalse(myia.isopen())
+        tol = 1e-8
+        self.assertTrue(
+            numpy.isclose(cc, cval, rtol=tol, atol=tol).all(),
+            "Falure on complex<float> precision pixels"
+        )
+        myia.fromshape("", [10, 10, 10], type='cd')
+        bb = myia.getchunk()
+        bb[:] = cval
+        myia.putchunk(bb)
+        cc = myia.getchunk()
+        myia.done()
+        tol = 1e-20
+        self.assertTrue(
+            numpy.isclose(cc, cval, rtol=tol, atol=tol).all(),
+            "Falure on complex<double> precision pixels"
+        )
 
 def suite():
     return [getchunk_test]

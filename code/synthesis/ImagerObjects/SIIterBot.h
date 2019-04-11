@@ -23,21 +23,27 @@
 #ifndef SYNTHESIS_SIITERBOT
 #define SYNTHESIS_SIITERBOT
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/utilities/BusAccess.h>
+#else
+#include <stdcasa/variant.h>
+#endif
 // .casarc interface
 #include <casa/System/AipsrcValue.h>
 
 // System utilities (for profiling macros)
 #include <casa/OS/HostInfo.h>
 #include <sys/time.h>
+#if ! defined(WITHOUT_DBUS)
 #if defined(DBUS_CPP)
 #include <dbus-cpp/dbus.h> /*for DBus::Variant... probably can be removed with *_adaptor class*/
 #else
 #include <dbus-c++/dbus.h>
 #endif
-
+#endif
 
 // Boost Libraries for mutex and noncopyable semantics
+#include <map>
 #include <mutex>
 #include <condition_variable>
 
@@ -80,7 +86,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			SIIterBot_state &operator=( const SIIterBot_state & );
 
 		public:
-			SIIterBot_state( SHARED_PTR<SIIterBot_callback> );
+			SIIterBot_state( std::shared_ptr<SIIterBot_callback> );
 			~SIIterBot_state( );
 
 			/****
@@ -126,6 +132,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			void changeInteractiveMode(const bool& interactiveEnabled);
 			void changePauseFlag(const bool& pauseEnabled);
 			void changeStopFlag(const bool& stopEnabled);
+                     
+                        /* expected not to change but for conviniece set nsimga here */
+                        void changeNsigma( casacore::Float nsigma );
 
 			/* As a convience the controls can also be updated from a Record.  
 			   The following fields are supported:
@@ -150,6 +159,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 			/* Note:  Incrementing the Major cycle will reset the cycleIterDone */
 			void incrementMajorCycleCount();
+	                void resetMinorCycleInitInfo();
 
 			casacore::Int getMajorCycleCount();
 
@@ -189,16 +199,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			std::string getDescription( );
 			void setDescription( const std::string &value );
 
+#if defined(WITHOUT_DBUS)
+            std::map<std::string,casac::variant> getDetails( );
+            casac::variant getSummary();
+			void controlUpdate(const std::map<std::string, casac::variant>& parameters);
+#else
 #ifdef INTERACTIVE_ITERATION
 			std::map<std::string,DBus::Variant> getDetails();
-#endif
-			DBus::Variant getSummary();
-    
-			void interactionComplete();
-
-#ifdef INTERACTIVE_ITERATION
 			void controlUpdate(const std::map<std::string, DBus::Variant>& parameters);
 #endif
+			DBus::Variant getSummary();
+#endif
+			void interactionComplete();
+
 			//// START /// Functions for runtime parameter modification
 
 			/* Methods to get the state of the iterbot as a casacore::Record*/
@@ -232,6 +245,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Float itsPrevPeakResidualNoMask;
 			casacore::Float itsMinPeakResidualNoMask;
 
+	                casacore::Float itsNsigma; 
+                        casacore::Float itsNsigmaThreshold;
+
+	                casacore::Float itsMadRMS;
+                        
+	                casacore::Float itsMaskSum;
+	  
+ 	                casacore::Int itsPrevMajorCycleCount;
 
 			/* The number of Controllers Currently Connected */
 			int    itsControllerCount;
@@ -253,6 +274,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Float itsInteractiveThreshold;
 	  
 	        casacore::Bool itsIsCycleThresholdAuto;
+	  casacore::Bool itsIsThresholdAuto;
 
 			casacore::Float itsCycleFactor;
 			casacore::Float itsLoopGain;
@@ -283,11 +305,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			casacore::Array<casacore::Double> itsSummaryMinor;
 			casacore::Array<casacore::Int>    itsSummaryMajor;
 
-			SHARED_PTR<SIIterBot_callback> callback;
+			std::shared_ptr<SIIterBot_callback> callback;
 	};
 
 	class SIIterBot_adaptor
-#ifdef INTERACTIVE_ITERATION
+#if defined(INTERACTIVE_ITERATION) && ! defined(WITHOUT_DBUS)
 		: private dbus::address,
 		  private edu::nrao::casa::SynthesisImager_adaptor,
 		  public DBus::IntrospectableAdaptor,
@@ -295,7 +317,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 #endif
 		{
 			public:
-				SIIterBot_adaptor( SHARED_PTR<SIIterBot_state> state, const std::string &bus_name, const std::string &object_path );
+				SIIterBot_adaptor( std::shared_ptr<SIIterBot_state> state, const std::string &bus_name, const std::string &object_path );
 				~SIIterBot_adaptor();
 
 				bool incrementController( )	{ return state->incrementController( ); }
@@ -308,7 +330,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					(void)val;  // To get the compiler to not warn...
 #endif
 				}
-				void controlUpdate(const std::map< std::string, ::DBus::Variant >& newParams)
+#if defined(WITHOUT_DBUS)
+          void controlUpdate(const std::map< std::string, casac::variant >& newParams)
+											{
+												state->controlUpdate(newParams);
+											}
+#else
+          void controlUpdate(const std::map< std::string, ::DBus::Variant >& newParams)
 											{
 #ifdef INTERACTIVE_ITERATION
 												state->controlUpdate(newParams);
@@ -317,6 +345,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 											       
 #endif
 											}
+#endif
 				void interactionComplete( )
 											{ state->interactionComplete( ); }
 				void changePauseFlag(const bool& pauseState)
@@ -327,6 +356,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 											{ state->changeInteractiveMode(interactiveMode); }
 				std::string getDescription( )
 											{ return state->getDescription( ); }
+#if defined(WITHOUT_DBUS)
+				std::map< std::string, casac::variant > getDetails( )
+											{
+												return state->getDetails( );
+											}
+				casac::variant getSummary( )
+											{ return state->getSummary( ); }
+
+#else
 				std::map< std::string, ::DBus::Variant > getDetails( )
 											{
 #ifdef INTERACTIVE_ITERATION
@@ -338,8 +376,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				::DBus::Variant getSummary( )
 											{ return state->getSummary( ); }
 
+#endif
 			private:
-				SHARED_PTR<SIIterBot_state> state;
+				std::shared_ptr<SIIterBot_state> state;
 
 		};
     

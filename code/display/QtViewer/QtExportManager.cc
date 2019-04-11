@@ -26,6 +26,7 @@
 //# $Id$
 
 
+#include <QFileDialog>
 #include <display/QtViewer/QtExportManager.qo.h>
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtExportBrowser.qo.h>
@@ -471,7 +472,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		switch (saveType_) {
 		case IMAGE: {
-			SHARED_PTR<ImageInterface<Float> > img = qdd->imageInterface();
+			std::shared_ptr<ImageInterface<Float> > img = qdd->imageInterface();
 			if (!img) {
 				// it should not get to here
 				QString msg = "The selected display does not contain a\n float image. Complex images can NOT be exported!";

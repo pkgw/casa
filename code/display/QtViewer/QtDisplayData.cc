@@ -75,7 +75,7 @@
 #include <display/Display/Options.h>
 #include <algorithm>
 #include <display/functional/elements.h>
-
+#include <imageanalysis/ImageAnalysis/ImageFactory.h>
 #include <imageanalysis/ImageAnalysis/ImageRegridder.h>
 
 
@@ -256,7 +256,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		invertColorMap = false;
 		logScaleColorMap = 0;
 		std::string method = "";
-
 		if(dataType=="lel") {
 			name_ = path_;
 			if( name_.length() > 25 )
@@ -299,7 +298,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			else if( isMS() && isRaster() ) {
 				dd_ = new MSAsRaster( path_, ddo );
 			} else if(dataType_==TYPE_IMAGE || dataType_=="lel") {
-
 				if(dataType_==TYPE_IMAGE) {
 
 					// check for a FITS extension in the path name
@@ -373,6 +371,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					default: {
 						File f(path);
 						if(!f.exists()) throw AipsError("File not found.");
+						///Try if file is one of the new format recognized 
+						///by imagefactory but not taken care above.
+                        auto imagePtrs = ImageFactory::fromFile(path);
+                        // FIXME fromFile() now returns a tuple with more than two pointers
+                        std::tie(im_ , cim_, std::ignore , std::ignore )=imagePtrs;	 
+						if(im_ || cim_){
+						  break;
+						}
 						if (f.isDirectory()) {
 							//Defer image construction.
 							return;
@@ -388,7 +394,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							std::string outpath = viewer::options.temporaryPath(Path(path_).baseName());
 							panel_->status( "generating temporary image: " + outpath );
 							panel_->logIO( ) << "generating temporary image \'" << outpath << "'" << LogIO::POST;
-							ImageRegridder regridder(im_, String(outpath), regrid_to->imageInterface( ) );
+							ImageRegridder<Float> regridder(im_, String(outpath), regrid_to->imageInterface( ) );
 							regridder.setMethod(method);
 							regridder.setSpecAsVelocity(true);
 							im_ = regridder.regrid();
@@ -482,7 +488,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		dd_->setOptions( record, outRecord );
 	}
 
-	void QtDisplayData::setImage(SHARED_PTR<ImageInterface<Float> > img ) {
+	void QtDisplayData::setImage(std::shared_ptr<ImageInterface<Float> > img ) {
 		im_=img;
 	}
 
@@ -1533,8 +1539,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	bool QtDisplayData::isValidColormap( const QString &name ) const {
-		colormapnamemap::const_iterator iter = clrMapNames_.find(name.toAscii().constData());
+		colormapnamemap::const_iterator iter = clrMapNames_.find(name.toLatin1().constData());
 		return iter != clrMapNames_.end() ? true : false;
+	}
+
+	void QtDisplayData::setRasterPowerScaling( float powerScale  ) {
+		Record rec;
+
+		Record powerScaleRecord;
+		powerScaleRecord.define( "value", powerScale );
+		rec.defineRecord(WCPowerScaleHandler::POWER_CYCLES, powerScaleRecord );
+
+		setOptions( rec, true );
 	}
 
 // Get/set colormap shift/slope ('fiddle') and brightness/contrast

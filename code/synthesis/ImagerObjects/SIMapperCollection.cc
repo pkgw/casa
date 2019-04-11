@@ -213,7 +213,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  if(col==refim::FTMachine::CORRECTED){
 	//Dang i thought the new vb will return Data or FloatData if correctedData was
 	//not there
-	    if(ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull()){
+	    if(ROMSMainColumns(vb.ms()).correctedData().isNull()){
 	      col=refim::FTMachine::OBSERVED;
 	      //			  cerr << "Max of visCube" << max(vb.visCube()) << " model " << max(vb.modelVisCube())<< endl;
 	      vb.setVisCube(vb.visCube()-vb.visCubeModel());
@@ -229,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}// if non zero model
 
     if(col==refim::FTMachine::CORRECTED &&
-       ROMSMainColumns(vb.getVi()->ms()).correctedData().isNull()){
+       ROMSMainColumns(vb.ms()).correctedData().isNull()){
       //cout << "Corrected column isn't there, using data instead" << endl;
       col=refim::FTMachine::OBSERVED;
     }
@@ -413,11 +413,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}// if non zero model
     }
   
-  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath)
+  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath, const MDirection& altDir, const Bool useAltDir)
   {
     for (uInt k=0; k < itsMappers.nelements(); ++k)
       {
-	(itsMappers[k])->addPB(vb,pbMath);
+	(itsMappers[k])->addPB(vb,pbMath, altDir, useAltDir);
 	
       }
   }
@@ -508,20 +508,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	  if(vb.msId() != oldMsId_p){
 	    oldMsId_p=vb.msId();
-	    vi::VisibilityIterator2 *viloc=const_cast<vi::VisibilityIterator2 *>(vb.getVi());
 	    
 	    for (uInt k=0; k < itsMappers.nelements(); ++k){
 	      Record rec;
-	      String modImage=viloc->ms().getPartNames()[0];
-	      if(!((viloc->ms()).source().isNull()))
-		modImage=(viloc->ms()).source().tableName();
+	      String modImage=vb.ms().getPartNames()[0];
+	      if(!((vb.ms()).source().isNull()))
+		modImage=(vb.ms()).source().tableName();
 	      modImage=File::newUniqueName(modImage, "FT_MODEL").absoluteName();
 	      Bool iscomp=itsMappers[k]->getCLRecord(rec);
 	      if(iscomp || itsMappers[k]->getFTMRecord(rec, modImage)){
 
 		////Darn not implemented  
 		//static_cast<VisibilityIteratorImpl2 *>(viloc->getImpl())->writeModel(rec, //iscomp, true);
-              viloc->writeModel(rec, iscomp, true);
+		      const_cast<VisibilityIterator2*>(vb.getVi())->writeModel(rec, iscomp, true);
 				  //				  VisModelData::listModel(vb.getVisibilityIterator()->ms());
 			  }
 

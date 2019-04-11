@@ -30,18 +30,18 @@
  *
  * File DelayModelVariableParametersTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <DelayModelVariableParametersTable.h>
-#include <DelayModelVariableParametersRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
+#include <alma/ASDM/DelayModelVariableParametersRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::DelayModelVariableParametersTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -269,7 +272,7 @@ namespace asdm {
  	 * @param delayModelFixedParametersId 
 	
      */
-	DelayModelVariableParametersRow* DelayModelVariableParametersTable::newRow(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId){
+	DelayModelVariableParametersRow* DelayModelVariableParametersTable::newRow(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId){
 		DelayModelVariableParametersRow *row = new DelayModelVariableParametersRow(*this);
 			
 		row->setTime(time);
@@ -505,7 +508,7 @@ DelayModelVariableParametersRow* DelayModelVariableParametersTable::newRow(Delay
  * @param delayModelFixedParametersId.
  	 		 
  */
-DelayModelVariableParametersRow* DelayModelVariableParametersTable::lookup(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
+DelayModelVariableParametersRow* DelayModelVariableParametersTable::lookup(ArrayTime time, double ut1_utc, double iat_utc, DifferenceTypeMod::DifferenceType timeType, Angle gstAtUt0, AngularRate earthRotationRate, std::vector<double > polarOffsets, DifferenceTypeMod::DifferenceType polarOffsetsType, Tag delayModelFixedParametersId) {
 		DelayModelVariableParametersRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -566,7 +569,7 @@ DelayModelVariableParametersRow* DelayModelVariableParametersTable::lookup(Array
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<DelayModelVariableParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmvp=\"http://Alma/XASDM/DelayModelVariableParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelVariableParametersTable http://almaobservatory.org/XML/XASDM/3/DelayModelVariableParametersTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<DelayModelVariableParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmvp=\"http://Alma/XASDM/DelayModelVariableParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelVariableParametersTable http://almaobservatory.org/XML/XASDM/4/DelayModelVariableParametersTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -595,12 +598,11 @@ DelayModelVariableParametersRow* DelayModelVariableParametersTable::lookup(Array
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "DelayModelVariableParameters");
 		
@@ -674,9 +676,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</DelayModelVariableParametersTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -693,7 +699,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<DelayModelVariableParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmvp=\"http://Alma/XASDM/DelayModelVariableParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelVariableParametersTable http://almaobservatory.org/XML/XASDM/3/DelayModelVariableParametersTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<DelayModelVariableParametersTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:dmvp=\"http://Alma/XASDM/DelayModelVariableParametersTable\" xsi:schemaLocation=\"http://Alma/XASDM/DelayModelVariableParametersTable http://almaobservatory.org/XML/XASDM/4/DelayModelVariableParametersTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='DelayModelVariableParametersTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -956,8 +962,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void DelayModelVariableParametersTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1011,11 +1020,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void DelayModelVariableParametersTable::setFromFile(const string& directory) {		
+	void DelayModelVariableParametersTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/DelayModelVariableParameters.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/DelayModelVariableParameters.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/DelayModelVariableParameters.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/DelayModelVariableParameters.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the DelayModelVariableParameters table", "DelayModelVariableParameters");
 	}			
@@ -1166,7 +1183,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

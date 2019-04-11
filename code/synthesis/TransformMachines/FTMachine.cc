@@ -89,7 +89,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
 			   canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1),pbLimit_p(0.05), 
-			   sj_p(0),cmplxImage_p()
+			   sj_p(0),cmplxImage_p(), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isIOnly=false;
@@ -109,7 +109,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0),cmplxImage_p( )
+    pbLimit_p(0.05),sj_p(0),cmplxImage_p( ), phaseCenterTime_p(-1.0)
   {
     spectralCoord_p=SpectralCoordinate();
     isIOnly=false;
@@ -203,6 +203,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       sj_p.resize();
       sj_p=other.sj_p;
       isDryRun=other.isDryRun;
+      phaseCenterTime_p=other.phaseCenterTime_p;
     };
     return *this;
   };
@@ -344,11 +345,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     String observatory=vb.msColumns().observation().telescopeName()(0);
     if(observatory.contains("ATCA") || observatory.contains("DRAO")
        || observatory.contains("WSRT")){
-      uvwMachine_p=new UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p, 
+      uvwMachine_p=new UVWMachine(mImage_p, vb.phaseCenter(phaseCenterTime_p), mFrame_p, 
 				  true, false);
     }
     else{
-      uvwMachine_p=new UVWMachine(mImage_p, vb.phaseCenter(), mFrame_p, 
+      uvwMachine_p=new UVWMachine(mImage_p, vb.phaseCenter(phaseCenterTime_p), mFrame_p, 
 				  false, tangentSpecified_p);
     }
     AlwaysAssert(uvwMachine_p, AipsError);
@@ -592,7 +593,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	chanMap.set(-1);
 	interpVisFreq_p.resize(ninterpchan);
 	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-	interpVisFreq_p[0] -= fabs(imageFreq_p[1]-imageFreq_p[0])/2.0;
+	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
+																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
 	for (Int k=1; k < ninterpchan; ++k){
 	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
 	}
@@ -828,7 +830,7 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), vb.msColumns().timeMeas()(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
-      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(), MDirection::Ref(outType, mFrame_p))();
+      MDirection phasecenter=MDirection::Convert(vb.phaseCenter(phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
       
 
       if(fixMovingSource_p){
@@ -854,13 +856,13 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -890,7 +892,7 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
       //scale(0)=dc.increment()(0);
       //scale(1)=dc.increment()(1);
       for (uInt irow=0; irow<nrows;++irow) {
-	thisRow.reference(uvw.column(irow));
+	thisRow.assign(uvw.column(irow));
 	//cerr << " uvw " << thisRow ;
 	// This is for frame change
 	uvwMachine_p->convertUVW(dphase(irow), thisRow);
@@ -903,7 +905,16 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 	//Double pixphase2=(thePix(0)-nx/2.0)*thisRow(0)*scale(0)+(thePix(1)-ny/2.0)*thisRow(1)*scale(1);
 	//cerr << " pixphase " <<  pixphase <<  " pixphase2 " << pixphase2<< endl;
 	//dphase(irow)=pixphase;
-	dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
+	//dphase(irow)+= rotphase(0)*thisRow(0)+rotphase(1)*thisRow(1);
+	RotMatrix rotMat=phaseShifter_p->rotationUVW();
+	//cerr << "rot 0 " << rotMat(0,0) << "    " << rotMat(1,0) << "   " << rotMat(2,0) << endl;
+	//cerr << "rot 1 " << rotMat(0,1) << "    " << rotMat(1,1) << "   " << rotMat(2,1) << 
+	uvw.column(irow)(0)=thisRow(0)*rotMat(0,0)+thisRow(1)*rotMat(1,0);	  
+	uvw.column(irow)(1)=thisRow(0)*rotMat(0,1)+thisRow(1)*rotMat(1,1);
+	
+	uvw.column(irow)(2)=thisRow(0)*rotMat(0,2)+thisRow(1)*rotMat(1,2)+thisRow(2)*rotMat(2,2);
+	//cerr << "w term " << thisRow(2) << " aft " << 	uvw.column(irow)(2) << endl;
+	dphase(irow)+= rotphase(0)*uvw.column(irow)(0)+rotphase(1)*uvw.column(irow)(1);
       }
 	
       
@@ -952,11 +963,11 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+	    uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(phaseCenterTime_p), mFrame_p,
 					true, false);
 	}
 	else{
-		uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(), mFrame_p,
+		uvwMachine_p=new UVWMachine(phasecenter, vb.phaseCenter(phaseCenterTime_p), mFrame_p,
 					false,tangentSpecified_p);
 	    }
      }
@@ -1198,6 +1209,7 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
     outRecord.define("tovis", toVis_p);
     outRecord.define("sumweight", sumWeight);
     outRecord.define("numthreads", numthreads_p);
+    outRecord.define("phasecentertime", phaseCenterTime_p);
     //Need to serialized sj_p...the user has to set the sj_p after recovering from record
     return true;
   };
@@ -1355,6 +1367,7 @@ void  FTMachine::girarUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
       freqInterpMethod_p=static_cast<InterpolateArray1D<Double, Complex >::InterpolationMethod>(tmpInt);
     }
     inRecord.get("numthreads", numthreads_p);
+    inRecord.get("phasecentertime", phaseCenterTime_p);
     return true;
   };
   

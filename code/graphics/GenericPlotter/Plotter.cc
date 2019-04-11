@@ -47,14 +47,13 @@ const String Plotter::DEFAULT_DATE_FORMAT = "%y/%m/%d\n%h:%n:%s";
 const String Plotter::DEFAULT_RELATIVE_DATE_FORMAT = "%h:%n:%s";
 
 String Plotter::formattedDateString(const String& format, double value,
-            PlotAxisScale scale, bool isRelative) {
-    stringstream ss;
-    
+            PlotAxisScale scale, bool isRelative, int secPrecision) {
     // Values to be used in formatted String.
     Time t;
     int64_t hours = 0;
     uint64_t minutes = 0;
     double seconds = 0;
+    stringstream ss;
     
     // Calculate relative values, if needed.
     if(isRelative) {
@@ -86,7 +85,7 @@ String Plotter::formattedDateString(const String& format, double value,
         }
     }
     
-    int defPrec = ss.precision();
+    int defPrec = ss.precision(); // change and restore for seconds
     char c;
     for(unsigned int i = 0; i < format.length(); i++) {
         c = format[i];
@@ -116,7 +115,7 @@ String Plotter::formattedDateString(const String& format, double value,
                     if(t.hours() < 10) ss << '0';
                     ss << t.hours();
                 } else {
-                    if(hours < 10 && hours > 0) ss << '0';
+                    if (hours < 10) ss << '0';
                     ss << hours;
                 }
                 break;
@@ -132,7 +131,10 @@ String Plotter::formattedDateString(const String& format, double value,
                 break;
                 
             case 's': case 'S':
-                ss.precision(4);
+				if (secPrecision >=0)
+					ss.precision(secPrecision);
+				else
+					ss.precision(4);
                 if(!isRelative) {
                     if(t.seconds() < 10) ss << '0';
                     ss << fixed << (t.seconds() + seconds);

@@ -250,6 +250,7 @@ private:
   casacore::Vector<casacore::String>         source_p,      // list of source names (?? object_p ??)
                          purpose_p;     // purpose of this source 
   casacore::LogIO                  os_p;          // logger
+  casacore::Vector<casacore::Bool>   keep_p; // keep this window for output to MS
 
 
   // the following variables are for miriad, hence not casacore::Double/casacore::Int/Float
@@ -257,15 +258,15 @@ private:
   // agree ... may need special access code to get those into CASA
   // types on 64 bit machines??
 
-  double preamble[5], first_time;
-  int    ifield, nfield, npoint, nsource;     // both dra/ddec should become casacore::Vector's
+  double preamble[5] /*, first_time*/;
+  int    ifield, nfield, npoint /*, nsource*/;     // both dra/ddec should become casacore::Vector's
   float  dra[MAXFIELD], ddec[MAXFIELD];       // offset in radians
   double ra[MAXFIELD], dec[MAXFIELD];
   int    field[MAXFIELD];                     // source index
   int    fcount[MAXFIELD];
   float  dra_p=0, ddec_p=0;
   int    pol_p[4];
-  char   message[MAXMSG];
+  // char   message[MAXMSG];
 
 
   // The following items more or less follow the uv variables in a dataset
@@ -286,7 +287,6 @@ private:
   casacore::Bool   Qtsys_p;    /* tsys weight's */
   casacore::Bool   Qarrays_p;  /* write separate arrays */
   casacore::Bool   Qlinecal_p; /* do linecal */
-  casacore::Bool   keep[MAXWIN+MAXWIDE]; // keep this window for output to MS
 
   // casacore::Data buffers.... again in MIRIAD format
   

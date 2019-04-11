@@ -30,6 +30,7 @@
 #include <msvis/MSVis/IteratingParameters.h>
 #include <msvis/MSVis/AveragingVi2Factory.h>
 #include <msvis/MSVis/CalibratingVi2FactoryI.h>
+#include <msvis/MSVis/ViFrequencySelection.h>
 #include <msvis/MSVis/UtilJ.h>
 #include <casa/BasicSL/String.h>
 
@@ -141,7 +142,6 @@ vi::ViImplementation2 * LayeredVi2Factory::createVi () const
   viis[ilayer]= new vi::VisibilityIteratorImpl2 (Block<const MeasurementSet*>(1,ms_p),
                                                  iterpar_p->getSortColumns(),
                                                  iterpar_p->getChunkInterval(),
-                                                 vi::VbPlain,
                                                  true); // writable!  (hardwired?)
   
   // TBD: consider if this is the layer where weight scaling should be applied?
@@ -164,7 +164,7 @@ vi::ViImplementation2 * LayeredVi2Factory::createVi () const
   }
 
   // Must be at the last layer now
-  Assert((nlayer_p-ilayer)==1)
+  Assert((nlayer_p-ilayer)==1);
   Assert(viis[nlayer_p-1]);
 
   // Return outermost ViImplementation2 layer
@@ -187,6 +187,10 @@ VisIterImpl2LayerFactory::VisIterImpl2LayerFactory(MeasurementSet* ms,
     useMSIter2_(useMSIter2)
 {}
   
+void VisIterImpl2LayerFactory::setFrequencySelections(std::shared_ptr<FrequencySelections> selections)
+{
+    frequencySelections_p = selections;
+}
 
 // VisIterImpl2-specific layer-creater
 ViImplementation2 * VisIterImpl2LayerFactory::createInstance (ViImplementation2* /*vii0*/) const {
@@ -198,9 +202,12 @@ ViImplementation2 * VisIterImpl2LayerFactory::createInstance (ViImplementation2*
   ViImplementation2 *vii = new VisibilityIteratorImpl2(Block<const MeasurementSet*>(1,ms_),
                                                        pars_.getSortColumns(),
                                                        pars_.getChunkInterval(),
-                                                       vi::VbPlain,
                                                        writable_,
 						       useMSIter2_); 
+  
+  if(frequencySelections_p)
+      vii->setFrequencySelections(*frequencySelections_p);
+
   return vii;
 }
 

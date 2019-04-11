@@ -1,9 +1,9 @@
-import os
+#import os
+import copy
+import glob
 import sys
 import shutil
 import numpy
-import math
-
 from __main__ import default
 from tasks import *
 from taskinit import *
@@ -12,1371 +12,1408 @@ import unittest
 import listing
 from numpy import array
 
-import asap as sd
-from sdfitold import sdfitold
+from sdfit import sdfit
+from sdutil import tbmanager
+
 
 try:
     import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
-class sdfitold_unittest_base:
+try:
+    import testutils
+except:
+    import tests.testutils as testutils
+
+### Utilities for reading blparam file
+class FileReader(object):
+    def __init__(self, filename):
+        self.__filename = filename
+        self.__data = None
+        self.__nline = None
+
+    def read(self):
+        if self.__data is None:
+            f = open(self.__filename, 'r')
+            self.__data = f.readlines()
+            f.close()
+            self.__nline = len(self.__data)
+        return
+
+    def nline(self):
+        self.read()
+        return self.__nline
+
+    def index(self, txt, start):
+        return self.__data[start:].index(txt) + 1 + start
+
+    def getline(self, idx):
+        return self.__data[idx]
+
+class BlparamFileParser(FileReader):
+    def __init__(self, blfile):
+        FileReader.__init__(self, blfile)
+        self.__nrow = None
+        self.__coeff = None
+        self.__rms = None
+        self.__ctxt = 'Baseline parameters\n'
+        self.__rtxt = 'Results of baseline fit\n'
+
+    def nrow(self):
+        self.read()
+        if self.__nrow is None:
+            return self._nrow()
+        else:
+            return self.__nrow
+
+    def coeff(self):
+        self.read()
+        if self.__coeff is None:
+            self.parseCoeff()
+        return self.__coeff
+
+    def rms(self):
+        self.read()
+        if self.__rms is None:
+            self.parseRms()
+        return self.__rms
+
+    def _nrow(self):
+        self.__nrow = 0
+        for i in xrange(self.nline()):
+            if self.getline(i) == self.__ctxt:
+                self.__nrow += 1
+        return self.__nrow
+
+    def parse(self):
+        self.read()
+        self.parseCoeff()
+        self.parseRms()
+        return
+        
+    def parseCoeff(self):
+        self.__coeff = []
+        nrow = self.nrow()
+        idx = 0
+        while (len(self.__coeff) < nrow):
+            try:
+                idx = self.index(self.__ctxt, idx)
+                coeffs = []
+                while(self.getline(idx) != self.__rtxt):
+                    coeff = self.__parseCoeff(idx)
+                    coeffs += coeff
+                    idx += 1
+                self.__coeff.append(coeffs)
+            except:
+                break
+        return
+
+    def parseRms(self):
+        self.__rms = []
+        nrow = self.nrow()
+        idx = 0
+        while (len(self.__rms) < nrow):
+            try:
+                idx = self.index(self.__rtxt, idx)
+                self.__rms.append(self.__parseRms(idx))
+            except:
+                break   
+        return
+
+    def __parseCoeff(self, idx):
+        return parseCoeff(self.getline(idx))
+
+    def __parseRms(self, idx):
+        return parseRms(self.getline(idx))
+
+def parseCoeff(txt):
+    clist = txt.rstrip('\n').split(',')
+    ret = []
+    for c in clist:
+        ret.append(float(c.split('=')[1]))
+    return ret
+    
+def parseRms(txt):
+    t = txt.lstrip().rstrip('\n')[6:]
+    return float(t)
+
+class sdfit_unittest_base(unittest.TestCase):
     """
-    Base class for sdfitold unit test.
+    Base class for sdfit unit test
     """
     # Data path of input/output
-    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdfit/'
+    datapath = os.environ.get('CASAPATH').split()[0] + \
+              '/data/regression/unittest/tsdfit/'
+    taskname = "sdfit"
+    verboselog = False
 
+    #complist = ['max','min','rms','median','stddev']
+
+    blparam_order = ['row', 'pol', 'mask', 'nclip', 'cthre',
+                     'uself', 'lthre', 'ledge', 'redge', 'chavg',
+                     'btype', 'order', 'npiec', 'nwave']
+    blparam_dic = {}
+    blparam_dic['row']   = [0, 0, 1, 1, 2, 2, 3, 3]
+    blparam_dic['pol']   = [0, 1, 0, 1, 0, 1, 0, 1]
+    #blparam_dic['mask']  = ['0~4000;6000~8000']*3 + ['']*5
+    blparam_dic['mask']  = ['500~2500;5000~7500']*8
+    blparam_dic['nclip'] = [0]*8
+    blparam_dic['cthre'] = ['3.']*8
+    blparam_dic['uself'] = ['false']*4 + ['true'] + ['false']*3
+    blparam_dic['lthre'] = ['0.']*4 + ['3.', '', '', '0.']
+    blparam_dic['ledge'] = [0]*4 + [10, 50, '', 0]
+    blparam_dic['redge'] = [0]*4 + [10, 50, '', 0]
+    blparam_dic['chavg'] = [0]*4 + [4, '', '', 0]
+    blparam_dic['btype'] = ['poly'] + ['chebyshev']*2 + ['poly', 'chebyshev', 'poly'] + ['cspline']*2
+    blparam_dic['order'] = [0, 0, 1, 1, 2, 2, '', '']
+    blparam_dic['npiec'] = [0]*6 + [1]*2
+    blparam_dic['nwave'] = [[]]*3 + ['']*2 + [[]]*3
+
+    ### helper functions for tests ###
+    def _createBlparamFile(self, file, param_order, val, option=''):
+        nspec = 8
+        f = open(file, 'w')
+        assert(len(param_order) == len(val.keys()))
+        for key in val.keys():
+            assert(len(val[key]) == nspec)
+        for i in range(nspec):
+            do_write = True
+            s = ''
+            for key in param_order:
+                v = val[key][i]
+                if key == 'nwave':
+                    if v != '':
+                        s += ','
+                        s += str(v)
+                else:
+                    s += str(v)
+                    if key != 'npiec': s += ','
+            s += '\n'
+            if (option == 'r2p1less') and (val['row'][i] == 2) and (val['pol'][i] == 1):
+                do_write = False
+            if (option == 'r2p1cout') and (val['row'][i] == 2) and (val['pol'][i] == 1):
+                s = '#' + s
+            if do_write:
+                f.write(s)
+        f.close()
+
+    def _checkfile(self, name, fail=True):
+        """
+        Check if the file exists.
+        name : the path and file name to test
+        fail : if True, Error if the file does not exists.
+               if False, return if the file exists
+        """
+        isthere=os.path.exists(name)
+        if fail:
+            self.assertTrue(isthere,
+                            msg='Could not find, %s'%(name))
+        else: return isthere
+
+    def _remove(self, names):
+        """
+        Remove a list of files and directories from disk
+        """
+        for name in names:
+            if os.path.exists(name):
+                if os.path.isdir(name):
+                    shutil.rmtree(name)
+                else:
+                    os.remove(name)
+
+    def _copy(self, names, from_dir=None, dest_dir=None):
+        """
+        Copy a list of files and directories from a directory (from_dir) to
+        another (dest_dir) in the same name.
+        
+        names : a list of files and directories to copy
+        from_dir : a path to directory from which search and copy files
+                   and directories (the default is the current path)
+        to_dir   : a path to directory to which copy files and directories
+                   (the default is the current path)
+        NOTE: it is not allowed to specify 
+        """
+        # Check for paths
+        if from_dir==None and dest_dir==None:
+            raise ValueError, "Can not copy files to exactly the same path."
+        from_path = os.path.abspath("." if from_dir==None else from_dir.rstrip("/"))
+        to_path = os.path.abspath("." if dest_dir==None else dest_dir.rstrip("/"))
+        if from_path == to_path:
+            raise ValueError, "Can not copy files to exactly the same path."
+        # Copy a list of files and directories
+        for name in names:
+            from_name = from_path + "/" + name
+            to_name = to_path + "/" + name
+            if os.path.exists(from_name):
+                if os.path.isdir(from_name):
+                    shutil.copytree(from_name, to_name)
+                else:
+                    shutil.copyfile(from_name, to_name)
+                if self.verboselog:
+                    casalog.post("Copying '%s' FROM %s TO %s" % (name, from_path, to_path))
+            else:
+                casalog.post("Could not find '%s'...skipping copy" % from_name, 'WARN')
+    
+    def _getUniqList(self, val):
+        """Accepts a python list and returns a list of unique values"""
+        if not isinstance(val, list):
+            raise Exception('_getUniqList: input value must be a list.')
+        return list(set(val))
+
+    def _getListSelection(self, val):
+        """
+        Converts input to a list of unique integers
+        Input: Either comma separated string of IDs, an integer, or a list of values.
+        Output: a list of unique integers in input arguments for string and integer input.
+                In case the input is a list of values, output will be a list of unique values.
+        """
+        if isinstance(val, str):
+            val_split = val.split(',')
+            val_sel = []
+            for j in range(len(val_split)):
+                val_sel.append(int(val_split[j]))
+        elif isinstance(val, int):
+            val_sel = [val]
+        elif isinstance(val, list) or isinstance(val, tuple):
+            val_sel = val.copy()
+        else:
+            raise Exception('_getListSelection: wrong value ' + str(val) + ' for selection.')
+        return self._getUniqList(val_sel)
+    
+    def _getListSelectedRowID(self, data_list, sel_list):
+        """
+        Returns IDs of data_list that contains values equal to one in
+        sel_list.
+        The function is used to get row IDs that corresponds to a
+        selected IDs. In that use case, data_list is typically a list
+        of values in a column of an MS (e.g., SCAN_NUMBER) and sel_list is
+        a list of selected (scan) IDs.
+
+        data_list : a list to test and get IDs from
+        sel_list  : a list of values to look for existance in data_list
+        """
+        res = []
+        for i in range(len(data_list)):
+            if data_list[i] in sel_list:
+                #idx = sel_list.index(data_list[i])
+                res.append(i)
+        return self._getUniqList(res)
+    
+    def _getEffective(self, spec, mask):
+        """
+        Returns an array made by selected elements in spec array.
+        Only the elements in the ID range in mask are returned.
+
+        spec : a data array
+        mask : a mask list of the channel ranges to use. The format is
+               [[start_idx0, end_idx0], [start_idx1, end_idx1], ...]
+        """
+        res = []
+        for i in range(len(mask)):
+            for j in range(mask[i][0], mask[i][1]):
+                res.append(spec[j])
+        return numpy.array(res)
+
+    def _getStats(self, filename=None, spw=None, pol=None, colname=None, mask=None):
+        """
+        Returns a list of statistics dictionary of selected rows in an MS.
+
+        filename : the name of MS
+        spw      : spw ID selection (default: all spws in MS)
+        pol      : pol ID selection (default: all pols in MS)
+        colname  : the name of data column (default: 'FLOAT_DATA')
+        mask     : a mask list of the channel ranges to use. The format is
+                   [[start_idx0, end_idx0], [start_idx1, end_idx1], ...]
+        
+        The order of output list is in the ascending order of selected row IDs.
+        The dictionary in output list has keys:
+        'row' (row ID in MS), 'pol' (pol ID), 'rms', 'min', 'max', 'median',
+        and 'stddev'
+        """
+        # Get selected row and pol IDs in MS. Also get spectrumn in the MS
+        if not spw: spw = ''
+        select_spw = (spw not in ['', '*'])
+        if select_spw: spw_sel = self._getListSelection(spw)
+        if not pol: pol = ''
+        select_pol = (pol not in ['', '*'])
+        if select_pol: pol_sel = self._getListSelection(pol)
+        if not colname: colname='FLOAT_DATA'
+        self._checkfile(filename)
+        with tbmanager(filename) as tb:
+            data = tb.getcol(colname)
+            ddid = tb.getcol('DATA_DESC_ID')
+        with tbmanager(filename+'/DATA_DESCRIPTION') as tb:
+            spwid = tb.getcol('SPECTRAL_WINDOW_ID').tolist()
+        if not select_spw: spw_sel = spwid
+        # get the selected DD IDs from selected SPW IDs.
+        dd_sel = self._getListSelectedRowID(spwid, spw_sel)
+        # get the selected row IDs from selected DD IDs
+        row_sel = self._getListSelectedRowID(ddid, dd_sel)
+        if not select_spw: row_sel = range(len(ddid))
+        if not select_pol: pol_sel = range(len(data))
+
+        res = []
+        for irow in row_sel:
+            for ipol in pol_sel:
+                spec = data[ipol,:,irow]
+                res_elem = self._calc_stats_of_array(spec, mask=mask)
+                res_elem['row'] = irow
+                res_elem['pol'] = ipol
+                
+                res.append(res_elem)
+
+        return res
+
+    def _calc_stats_of_array(self, data, mask=None):
+        """
+        """
+        if mask is not None:
+            spec = self._getEffective(data, mask)
+        else:
+            spec = numpy.array(data)
+        res_elem = {}
+        res_elem['rms'] = numpy.sqrt(numpy.var(spec))
+        res_elem['min'] = numpy.min(spec)
+        res_elem['max'] = numpy.max(spec)
+        spec_mea = numpy.mean(spec)
+        res_elem['median'] = numpy.median(spec)
+        res_elem['stddev'] = numpy.std(spec)
+        return res_elem
+        
+
+    def _convert_statslist_to_dict(self, stat_list):
+        """
+        Returns a disctionary of statistics of selected rows in an MS.
+
+        stat_list: a list of stats dictionary (e.g., return value of _getStats)
+
+        The output dictionary is in form:
+        {'max': [max0, max1, max2, ...], 'min': [min0, min1,...], ...}
+        The order of elements are in ascending order of row and pol IDs pair, i.e.,
+        (row0, pol0), (row0, pol1), (row1, pol0), ....
+        """
+        #if len(stat_list)==0: raise Exception, "No row selected in MS"
+        keys=stat_list[0].keys()
+        stat_dict={}
+        for key in keys:
+            stat_dict[key] = []
+        for stat in stat_list:
+            for key in keys:
+                stat_dict[key].append(stat[key])
+        return stat_dict
+
+    def _compareStats(self, currstat, refstat, rtol=1.0e-2, atol=1.0e-5, complist=None):
+        """
+        Compare statistics results (dictionaries) and test if the values are within
+        an allowed tolerance.
+
+        currstat : the statistic values to test (either an MS name or
+                   a dictionary)
+        refstat  : the reference statistics values (a dictionary)
+        rtol   : tolerance of relative difference
+        atol   : tolerance of absolute difference
+        complist : statistics to compare (default: keys in refstat)
+        """
+        # test if the statistics of baselined spectra are equal to
+        # the reference values
+        printstat = False #True
+        # In case currstat is filename
+        if isinstance(currstat, str) and os.path.exists(currstat):
+            #print "calculating statistics from '%s'" % currstat
+            currstat = self._getStats(currstat)
+
+        self.assertTrue(isinstance(currstat,dict) and \
+                        isinstance(refstat, dict),\
+                        "Need to specify two dictionaries to compare")
+        if complist:
+            keylist = complist
+        else:
+            keylist = refstat.keys()
+            #keylist = self.complist
+        
+        for key in keylist:
+            self.assertTrue(currstat.has_key(key),\
+                            msg="%s is not defined in the current results."\
+                            % key)
+            self.assertTrue(refstat.has_key(key),\
+                            msg="%s is not defined in the reference data."\
+                            % key)
+            refval = refstat[key]
+            currval = currstat[key]
+            # Quantum values
+            if isinstance(refval,dict):
+                if refval.has_key('unit') and currval.has_key('unit'):
+                    if printstat:
+                        print "Comparing unit of '%s': %s (current run), %s (reference)" %\
+                              (key,currval['unit'],refval['unit'])
+                    self.assertEqual(refval['unit'],currval['unit'],\
+                                     "The units of '%s' differs: %s (expected: %s)" % \
+                                     (key, currval['unit'], refval['unit']))
+                    refval = refval['value']
+                    currval = currval['value']
+                else:
+                    raise Exception("Invalid quantum values. %s (current run) %s (reference)" %\
+                                    (str(currval),str(refval)))
+            currval = self._to_list(currval)
+            refval = self._to_list(refval)
+            if printstat:
+                print "Comparing '%s': %s (current run), %s (reference)" %\
+                      (key,str(currval),str(refval))
+            self.assertTrue(len(currval)==len(refval),"Number of elemnets in '%s' differs." % key)
+            if isinstance(refval[0],str):
+                for i in range(len(currval)):
+                    if isinstance(refval[i],str):
+                        self.assertTrue(currval[i]==refval[i],\
+                                        msg="%s[%d] differs: %s (expected: %s) " % \
+                                        (key, i, str(currval[i]), str(refval[i])))
+            else:
+                # numpy.allclose handles almost zero case more properly.
+                self.assertTrue(numpy.allclose(currval, refval, rtol=rtol, atol=atol),
+                                msg="%s differs: %s" % (key, str(currval)))
+            del currval, refval
+
+            
+#     def _isInAllowedRange(self, testval, refval, reltol=1.e-2):
+#         """
+#         Check if a test value is within permissive relative difference from refval.
+#         Returns a boolean.
+#         testval & refval : two numerical values to compare
+#         reltol           : allowed relative difference to consider the two
+#                            values to be equal. (default 0.01)
+#         """
+#         denom = refval
+#         if refval == 0:
+#             if testval == 0:
+#                 return True
+#             else:
+#                 denom = testval
+#         rdiff = (testval-refval)/denom
+#         del denom,testval,refval
+#         return (abs(rdiff) <= reltol)
+
+    def _to_list(self, input):
+        """
+        Convert input to a list
+        If input is None, this method simply returns None.
+        """
+        import numpy
+        listtypes = (list, tuple, numpy.ndarray)
+        if input == None:
+            return None
+        elif type(input) in listtypes:
+            return list(input)
+        else:
+            return [input]
+
+
+    def _compareBLparam(self, out, reference):
+        # test if baseline parameters are equal to the reference values
+        # currently comparing every lines in the files
+        # TO DO: compare only "Fitter range" and "Baseline parameters"
+        self._checkfile(out)
+        self._checkfile(reference)
+        
+        blparse_out = BlparamFileParser(out)
+        blparse_out.parse()
+        coeffs_out = blparse_out.coeff()
+        rms_out = blparse_out.rms()
+        blparse_ref = BlparamFileParser(reference)
+        blparse_ref.parse()
+        coeffs_ref = blparse_ref.coeff()
+        rms_ref = blparse_ref.rms()
+        allowdiff = 0.01
+        print 'Check baseline parameters:'
+        for irow in xrange(len(rms_out)):
+            print 'Row %s:'%(irow)
+            print '   Reference rms  = %s'%(rms_ref[irow])
+            print '   Calculated rms = %s'%(rms_out[irow])
+            print '   Reference coeffs  = %s'%(coeffs_ref[irow])
+            print '   Calculated coeffs = %s'%(coeffs_out[irow])
+            r0 = rms_ref[irow]
+            r1 = rms_out[irow]
+            rdiff = (r1 - r0) / r0
+            self.assertTrue((abs(rdiff)<allowdiff),
+                            msg='row %s: rms is different'%(irow))
+            c0 = coeffs_ref[irow]
+            c1 = coeffs_out[irow]
+            for ic in xrange(len(c1)):
+                rdiff = (c1[ic] - c0[ic]) / c0[ic]
+                self.assertTrue((abs(rdiff)<allowdiff),
+                                msg='row %s: coefficient for order %s is different'%(irow,ic))
+        print ''
+#         self.assertTrue(listing.compare(out,reference),
+#                         'New and reference files are different. %s != %s. '
+#                         %(out,reference))
+
+
+class sdfit_basicTest(sdfit_unittest_base):
+    """
+    Basic unit tests for task sdfit. No interactive testing.
+
+    List of tests:
+    test000 --- default values for all parameters (nfit=[0] : no fitting)
+    test001 --- fitting with single Gaussian (spw='0,1,2', nfit=[1])
+    test002 --- fitting with double fitrange (spw='3', nfit=[1,1])
+    test003 --- fitting with double Gaussian (spw='3', nfit=[2])
+
+    Note: input data 'gaussian.ms' and 'lorentzian.ms' are based
+    on a single dish regression data, 'OrionS_rawACSmod', but the
+    spectra values are modified to have the following features:
+      irow ipol num_lines line_id peak_height center fwhm sigma_noise
+      -------------------------------------------------------
+         0    0     1        0        10       4000   500    0.1
+         0    1     1        0        10       5000   100    0.1
+         1    0     1        0        10       3000    20    0.1
+         1    1     1        0        10       2000     4    0.1
+         2    0     1        0        10       4500   100    1.0
+         2    1     1        0        10       5500    20    1.0
+         3    0     2        0        10       2000   100    0.1
+         3    0     2        1        10       6000   100    0.1
+         3    1     2        0        10       3900    20    0.1
+         3    1     2        1         5       4100   100    0.1
+      -------------------------------------------------------
+
+      the spectra of the row (irow=3) have two lines, while those 
+      of the other rows have single line.
+      spw value is identical to irow, and number of channels is 8192.
+    """
+    # Input and output names
+    infiles = ['gaussian.ms', 'lorentzian.ms']
+    outroot = sdfit_unittest_base.taskname+'_basictest'
+    blrefroot = sdfit_unittest_base.datapath+'refblparam'
+    tid = None
+
+    answer012 = {'cent': [[4000.0], [5000.0], [3000.0], [2000.0], [4500.0], [5500.0]],
+                 'peak': [[10.0], [10.0], [10.0], [10.0], [10.0], [10.0]],
+                 'fwhm': [[500.0], [100.0], [20.0], [4.0], [100.0], [20.0]]
+                 }
+    answer3 = {'cent': [[2000.0, 6000.0], [3900.0, 4100.0]],
+               'peak': [[10.0, 10.0], [10.0, 5.0]],
+               'fwhm': [[100.0, 100.0], [20.0, 100.0]]
+               }
+
+    def _generateMSWithNegativeProfiles(self, infile, negative_file):
+        # negative_file contains data copied from infile, but a factor of -1 is multiplied.
+        shutil.copytree(infile, negative_file)
+        tb.open(tablename=negative_file, nomodify=False)
+        spec_orig = tb.getcol('FLOAT_DATA')
+        spec = spec_orig * -1.0
+        tb.putcol('FLOAT_DATA', spec)
+        tb.close()
+
+    def _generateAnswerForNegativeProfiles(self, answer):
+        for i in range(len(answer['peak'])):
+            for j in range(len(answer['peak'][i])):
+                answer['peak'][i][j] *= -1.0
+        
     def setUp(self):
-        if hasattr(self, 'inputs'):
-            for infile in self.inputs:
-                #print 'copying %s...'%(infile)
-                if os.path.exists(infile):
-                    shutil.rmtree(infile)
-                shutil.copytree(os.path.join(self.datapath, infile), infile)
-        default(sdfitold)
+        for infile in self.infiles:
+            if os.path.exists(infile):
+                shutil.rmtree(infile)
+            shutil.copytree(self.datapath+infile, infile)
+        default(sdfit)
 
     def tearDown(self):
-        if hasattr(self, 'inputs'):
-            for infile in self.inputs:
-                #print 'removing %s...'%(infile)
-                if os.path.exists(infile):
-                    shutil.rmtree(infile)
+        for infile in self.infiles:
+            if (os.path.exists(infile)):
+                shutil.rmtree(infile)
+        os.system('rm -rf '+self.outroot+'*')
 
-        if hasattr(self, 'outputs'):
-            for outfile in self.outputs:
-                #print 'removing %s...'%(outfile)
-                os.system('rm -rf %s'%(outfile))
-    
-    def _check_file( self, filename, fail=True ):
-        """
-        Check if filename exists.
-        The test fails if fail=True. Otherwise the method returns
-        a bool which indicates if exists or not.
-        """
-        exists = os.path.exists(filename)
-        if fail:
-            self.assertTrue(exists,"'%s' does not exists." % filename)
-        return exists
+    def test000(self):
+        """Basic Test 000: default values for all parameters (nfit=[0] : no fitting)"""
+        tid = '000'
+        for infile in self.infiles:
+            datacolumn = 'float_data'
+            result = sdfit(infile=infile, datacolumn=datacolumn)
 
-    def read_result(self, outfile):
-        # basic check
-        #   - check if self.outfile exists
-        #   - check if self.outfile is a regular file
-        self.assertTrue(os.path.exists(outfile))
-        self.assertTrue(os.path.isfile(outfile))
+            npol = 2
+            with tbmanager(infile) as tb:
+                nrow = tb.nrows()
 
-        result = {}
-        with open(outfile, 'r') as f:
-            for line in f:
-                if line[0] == '#':
-                    continue
-                s = line.split()
-                scanno = int(s[0])
-                ifno = int(s[1])
-                polno = int(s[2])
-                peak = float(s[4])
-                center = float(s[5])
-                fwhm = float(s[6])
-                key = (scanno, ifno, polno)
-                #self.assertFalse(result.has_key(key))
-                if result.has_key(key):
-                    result[key].extend([peak, center, fwhm])
-                else:
-                    result[key] = [peak, center, fwhm]
-        return result
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], 0, msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(result[key][i], [], msg="%s has wrong value."%(key))
 
-    def _verify_outfile(self, expected, outfile=None):
-        # dictionary for verification
-        # key: tuple consisting of SCANNO, IFNO, and POLNO
-        #     (SCANNO,IFNO,POLNO), e.g.,
-        #
-        #         (0,0,0)
-        #
-        # value: flattened list of 'peak', 'cent', and 'fwhm'.
-        #     If there are multiple rows for one key, the list
-        #     is extended, e.g.,
-        #
-        #         [peak0, cent0, fwhm0, peak1, cent1, fwhm1, ...]
-        #
-        if outfile is None:
-            if hasattr(self, 'outfile'): outfile = self.outfile
-            else: self.fail("outfile is not specified.")
-        result = self.read_result(self.outfile)
-        tol = 1.0e-4
-        properties = ['peak', 'cent', 'fwhm']
-        nprop = len(properties)
-        for key in expected.keys():
-            self.assertTrue(result.has_key(key),
-                            msg='result does\'t have key %s'%(list(key)))
-            e = expected[key]
-            r = result[key]
-            ne = len(e)
-            nr = len(r)
-            self.assertEqual(nr, ne,
-                             msg='%s: number of row mismatch (expected %s, actual %s)'%(list(key), ne/nprop, nr/nprop))
-            for irow in xrange(len(e)):
-                diff = abs((r[irow] - e[irow])/e[irow])
-                self.assertLessEqual(diff, tol,
-                                     msg='%s (%s): result differ (expected %s, actual %s)'%(properties[irow % nprop], irow, e[irow], r[irow]))
-
-    
-class sdfitold_test(sdfitold_unittest_base, unittest.TestCase):
-    """
-    Unit tests for task sdfitold. No interactive testing.
-
-    The list of tests:
-    testGaussian00 --- test fitting a broad Gaussian profile (centre=4000, fwhm=1000, ampl=10)
-    testGaussian01 --- test fitting a broad Gaussian profile (centre= 500, fwhm=1000, ampl=10) : on spectral edge
-    testGaussian02 --- test fitting a narrow Gaussian profile (centre=4000, fwhm=100, ampl=10)
-    testGaussian03 --- test fitting a combination of broad and narrow Gaussian profiles
-                       (cen1=3000,fwhm1=1000,ampl1=10,cen2=6000,fwhm2=100,ampl2=10) : separated
-    testGaussian04 --- test fitting a combination of broad and narrow Gaussian profiles
-                       (cen1=4000,fwhm1=1000,ampl1=10,cen2=4700,fwhm2=100,ampl2=10) : overlapped
-    testLorentzian00 --- test fitting a broad Lorentzian profile (centre=4000, fwhm=1000, ampl=10)
-    testLorentzian01 --- test fitting a broad Lorentzian profile (centre= 500, fwhm=1000, ampl=10) : on spectral edge
-    testLorentzian02 --- test fitting a narrow Lorentzian profile (centre=4000, fwhm=100, ampl=10)
-    testLorentzian03 --- test fitting a combination of broad and narrow Lorentzian profiles
-                       (cen1=3000,fwhm1=1000,ampl1=10,cen2=6000,fwhm2=100,ampl2=10) : separated
-    testLorentzian04 --- test fitting a combination of broad and narrow Lorentzian profiles
-                       (cen1=4000,fwhm1=1000,ampl1=10,cen2=4700,fwhm2=100,ampl2=10) : overlapped
-    
-    Note: (1) the rms noise is 1.0 for all data.
-
-    created 21/04/2011 by Wataru Kawasaki
-    """
-    # Input and output names
-    infile_gaussian   = 'Artificial_Gaussian.asap'
-    infile_lorentzian = 'Artificial_Lorentzian.asap'
-    inputs = [infile_gaussian, infile_lorentzian]
-
-    def testGaussian00(self):
-        """Test Gaussian00: single broad profile """
-        infile = self.infile_gaussian
-        scan = '0'
-        fitfunc = "gauss"
-        fitmode = "list"
-        nfit = 1
+    def test001(self):
+        """Basic Test 001: fitting with single line profile (spw='0,1,2', nfit=[1])"""
+        tid = '001'
+        for infile in self.infiles:
+            datacolumn = 'float_data'
+            spw = '0,1,2'
+            nfit = [1]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            npol = 2
+            nrow = len(spw.split(','))
+            answer = self.answer012
         
-        res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], nfit[0], msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), nfit[0], msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            result_lower = result[key][i][j][0] - 3.0 * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + 3.0 * result[key][i][j][1]
+                            #print "infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-        ans = {'cent': [[4000.0]],
-               'fwhm': [[1000.0]],
-               'peak': [[10.0]]}
+    def test002(self):
+        """Basic Test 002: fitting with double fitrange (spw='3', nfit=[1,1])"""
+        tid = '002'
+        for infile in self.infiles:
+            datacolumn = 'float_data'
+            spw = '3:0~4000;4001~8191'
+            nfit = [1,1]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            npol = 2
+            nrow = 1
+            answer = self.answer3
 
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3997.420166015625, 2.2180848121643066]]],
-               'fwhm': [[[1006.1046142578125, 5.2231903076171875]]],
-               'nfit': [1],
-               'peak': [[[9.9329404830932617, 0.044658195227384567]]]}
-        """
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], sum(nfit), msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), sum(nfit), msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            thres = 3.0
+                            if (key == "fwhm") and (i == 1) and (j == 0): thres = 18.0
+                            result_lower = result[key][i][j][0] - thres * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + thres * result[key][i][j][1]
+                            #print "infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-        self.checkResult(res, ans)
+    def test003(self):
+        """Basic Test 003: fitting with double lines (spw='3', nfit=[2])"""
+        tid = '003'
+        for infile in self.infiles:
+            datacolumn = 'float_data'
+            spw = '3'
+            nfit = [2]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            npol = 2
+            nrow = 1
+            answer = self.answer3
 
-    def testGaussian01(self):
-        """Test Gaussian01: single broad profile on spectral edge"""
-        infile = self.infile_gaussian
-        scan = '1'
-        spw = '0:0~2000'
-        fitfunc = "gauss"
-        fitmode = "list"
-        #maskline = [0,2000]
-        nfit = 1
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], sum(nfit), msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), sum(nfit), msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            result_lower = result[key][i][j][0] - 3.0 * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + 3.0 * result[key][i][j][1]
+                            #print "infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-        ans = {'cent': [[500.0]],
-               'fwhm': [[1000.0]],
-               'peak': [[10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[504.638427734375, 2.7173392772674561]]],
-               'fwhm': [[[998.78643798828125, 7.1386871337890625]]],
-               'nfit': [1],
-               'peak': [[[10.030097961425781, 0.047238241881132126]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testGaussian02(self):
-        """Test Gaussian02: single narrow profile """
-        infile = self.infile_gaussian
-        scan = '2'
-        fitfunc = "gauss"
-        fitmode = "list"
-        nfit = 1
-        
-        res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[4000.0]],
-               'fwhm': [[100.0]],
-               'peak': [[10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3999.159912109375, 0.68400073051452637]]],
-               'fwhm': [[[98.87506103515625, 1.6106985807418823]]],
-               'nfit': [1],
-               'peak': [[[9.9385099411010742, 0.14021013677120209]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testGaussian03(self):
-        """Test Gaussian03: broad/narrow combination : separated """
-        infile = self.infile_gaussian
-        scan = '3'
-        spw = '0:2000~4000;5500~6500'
-        fitfunc = "gauss"
-        fitmode = "list"
-        #maskline = [[2000,4000],[5500,6500]]
-        nfit = [1,1]
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[3000.0, 6000.0]],
-               'fwhm': [[1000.0, 100.0]],
-               'peak': [[10.0, 10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[2996.004638671875, 2.2644386291503906],
-                         [5999.11181640625, 0.70802927017211914]]],
-               'fwhm': [[[1001.549560546875, 5.4809303283691406],
-                         [99.259437561035156, 1.6672815084457397]]],
-               'nfit': [2],
-               'peak': [[[9.899937629699707, 0.04574853926897049],
-                         [9.9107418060302734, 0.14416992664337158]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testGaussian04(self):
-        """Test Gaussian04: broad/narrow combination : overlapped """
-        infile = self.infile_gaussian
-        scan = '4'
-        spw = '0:3000~4400;4500~5000'
-        fitfunc = "gauss"
-        fitmode = "list"
-        #maskline = [[3000,4400],[4500,5000]]
-        nfit = [1,1]
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[4000.0, 4700.0]],
-               'fwhm': [[1000.0, 100.0]],
-               'peak': [[10.0, 10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[4001.522216796875, 2.6332762241363525],
-                         [4699.75732421875, 0.6802678108215332]]],
-               'fwhm': [[[999.63507080078125, 6.4683256149291992],
-                         [97.721427917480469, 1.7482517957687378]]],
-               'nfit': [2],
-               'peak': [[[9.9929990768432617, 0.04641139879822731],
-                         [10.233022689819336, 0.15014420449733734]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testLorentzian00(self):
-        """Test Lorentzian00: single broad profile """
-        infile = self.infile_lorentzian
-        scan = '0'
-        fitfunc = "lorentz"
-        fitmode = "list"
-        nfit = 1
-        
-        res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[4000.0]],
-               'fwhm': [[1000.0]],
-               'peak': [[10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3997.696044921875, 2.5651662349700928]]],
-               'fwhm': [[[1010.3181762695312, 7.2803301811218262]]],
-               'nfit': [1],
-               'peak': [[[9.9210958480834961, 0.05041566863656044]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testLorentzian01(self):
-        """Test Lorentzian01: single broad profile on spectral edge"""
-        infile = self.infile_lorentzian
-        scan = '1'
-        spw = '0:0~2000'
-        fitfunc = "lorentz"
-        fitmode = "list"
-        #maskline = [0,2000]
-        nfit = 1
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[500.0]],
-               'fwhm': [[1000.0]],
-               'peak': [[10.0]]}
-        
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[500.99105834960938, 2.8661653995513916]]],
-               'fwhm': [[[995.85455322265625, 9.5194911956787109]]],
-               'nfit': [1],
-               'peak': [[[10.041034698486328, 0.053434751927852631]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testLorentzian02(self):
-        """Test Lorentzian02: single narrow profile """
-        infile = self.infile_lorentzian
-        scan = '2'
-        fitfunc = "lorentz"
-        fitmode = "list"
-        nfit = 1
-        
-        res = sdfitold(infile=infile,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[4000.0]],
-               'fwhm': [[100.0]],
-               'peak': [[10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3999.230224609375, 0.79903918504714966]]],
-               'fwhm': [[[102.48796081542969, 2.2600326538085938]]],
-               'nfit': [1],
-               'peak': [[[9.9708395004272461, 0.1554737389087677]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testLorentzian03(self):
-        """Test Lorentzian03: broad/narrow combination : separated """
-        infile = self.infile_lorentzian
-        scan = '3'
-        spw = '0:2000~4000;5500~6500'
-        fitfunc = "lorentz"
-        fitmode = "list"
-        #maskline = [[2000,4000],[5500,6500]]
-        nfit = [1,1]
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[3000.0, 6000.0]],
-               'fwhm': [[1000.0, 100.0]],
-               'peak': [[10.0, 10.0]]}
-
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3001.23876953125, 2.5231325626373291],
-                         [5999.01953125, 0.82874661684036255]]],
-               'fwhm': [[[990.19671630859375, 8.1528301239013672],
-                         [102.10212707519531, 2.3521277904510498]]],
-               'nfit': [2],
-               'peak': [[[9.9958734512329102, 0.051685664802789688],
-                         [9.6133279800415039, 0.1561257392168045]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def testLorentzian04(self):
-        """Test Lorentzian04: broad/narrow combination : overlapped """
-        infile = self.infile_lorentzian
-        scan = '4'
-        spw = '0:3000~4400;4500~5000'
-        fitfunc = "lorentz"
-        fitmode = "list"
-        #maskline = [[3000,4400],[4500,5000]]
-        nfit = [1,1]
-        
-        res = sdfitold(infile=infile,spw=spw,scan=scan,fitfunc=fitfunc,fitmode=fitmode,nfit=nfit)
-        self.assertNotEqual(res, None, msg="The task returned None. Fit failed.")
-
-        ans = {'cent': [[4000.0, 4700.0]],
-               'fwhm': [[1000.0, 100.0]],
-               'peak': [[10.0, 10.0]]}
-        
-        """ the result (RHEL5 64bit)
-        ref = {'cent': [[[3995.85693359375, 3.0016641616821289],
-                         [4699.53271484375, 0.82658475637435913]]],
-               'fwhm': [[[972.22833251953125, 10.149419784545898],
-                         [104.71010589599609, 2.7239837646484375]]],
-               'nfit': [2],
-               'peak': [[[10.013784408569336, 0.053735069930553436],
-                         [9.9273672103881836, 0.15813499689102173]]]}
-        """
-
-        self.checkResult(res, ans)
-
-    def checkResult(self, result, answer):
-        for key in ['cent', 'fwhm', 'peak']:
-            for i in range(len(result[key][0])):
-                val = result[key][0][i][0]
-                err = result[key][0][i][1]
-                ans = answer[key][0][i]
-
-                #check if result is consistent with answer in 3-sigma level
-                threshold = 3.0
-                
-                within_errorrange = (abs(ans - val) <= abs(err * threshold))
-                self.assertTrue(within_errorrange)
-
-class sdfitold_test_exceptions(sdfitold_unittest_base, unittest.TestCase):
-    """
-    test the case when sdfitold throws exception.
-    """
-    # Input and output names
-    infile_gaussian   = 'Artificial_Gaussian.asap'
-    inputs = [infile_gaussian]
-
-    def testNoData(self):
-        try:
-            res = sdfitold(infile=self.infile_gaussian,spw='99')
-            self.assertTrue(False,
-                            msg='The task must throw exception')
-        except Exception, e:
-            #pos=str(e).find('Invalid spectral window selection. Selection contains no data.')
-            pos=str(e).find('No valid spw.')
-            self.assertNotEqual(pos,-1,
-                                msg='Unexpected exception was thrown: %s'%(str(e)))
-
-class sdfitold_selection_syntax(sdfitold_unittest_base, selection_syntax.SelectionSyntaxTest):
-    
-    # Data path of input/output
-    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/singledish/'
-    
-    # Input and output names
-    infile_convolve = 'sd_analytic_type3-1.asap'
-    infile_shift = 'sd_analytic_type4-1.asap'
-    infile_duplicate = 'sd_analytic_type5-1.asap'
-    prefix = 'sdfitold_selection_syntax'
-    inputs = [infile_convolve, infile_shift, infile_duplicate]
-    outputs = [prefix+'*']
-
-    # line information
-    # | row | line channel | intensity |
-    # | 0   | 20           | 5         |
-    # | 1   | 40           | 10        |
-    # | 2   | 60           | 20        |
-    # | 3   | 80           | 30        |
-    line_location = [[20, 5.0],
-                     [40, 10.0],
-                     [60, 20.0],
-                     [80, 30.0]]
-
-    # reference values for baseline fit
-    # (scan,beam,if,pol): [peak, center, fwhm]
-    fit_ref_convolve = {(15,23,0): [[0.9394372701644897, 20.0, 5.0]],
-                        (16,25,1): [[1.8788745403289795, 40.0, 5.0]],
-                        (16,21,0): [[3.757749080657959, 60.0, 5.0]],
-                        (17,23,1): [[5.636623859405518, 80.0, 5.0]]}
-    fit_ref_shift = {(15,23,0): [[0.9394372701644897, 50.0, 5.0]],
-                     (16,25,1): [[1.8788745403289795, 50.0, 5.0]],
-                     (16,21,0): [[3.757749080657959, 50.0, 5.0]],
-                     (17,23,1): [[5.636623859405518, 50.0, 5.0]]}
-    fit_ref_duplicate = {(15,23,0): [[0.9394372701644897, 50.0, 5.0],
-                                      [0.9394372701644897, 75.0, 5.0]],
-                         (16,25,1): [[1.8788745403289795, 50.0, 5.0],
-                                     [1.8788745403289795, 75.0, 5.0]],
-                         (16,21,0): [[3.757749080657959, 50.0, 5.0],
-                                     [3.757749080657959, 75.0, 5.0]],
-                         (17,23,1): [[5.636623859405518, 50.0, 5.0],
-                                     [5.636623859405518, 75.0, 5.0]]}
-    fit_ref = {infile_convolve: fit_ref_convolve,
-               infile_shift: fit_ref_shift,
-               infile_duplicate: fit_ref_duplicate}
-    
-    # tolerance
-    tol = 1.0e-7
-    
-    @property
-    def task(self):
-        return sdfitold
-
-    @property
-    def spw_channel_selection(self):
-        return True
-
-    def __test_result(self, infile, result_ret, result_out, rows):
-        casalog.post('result=%s'%(result_ret))
-        s = sd.scantable(infile, average=False)
-        self.assertTrue(self.fit_ref.has_key(infile))
-        fit_ref = self.fit_ref[infile]
+    def test004(self):
+        """Basic Test 004: fitting negative line profile with single line model (spw='0,1,2', nfit=[1])"""
+        tid = '004'
+        for infile in self.infiles:
+            infile_negative = self.outroot+tid+'.negative.ms'
+            self._generateMSWithNegativeProfiles(infile, infile_negative)
+            datacolumn = 'float_data'
+            spw = '0,1,2'
+            nfit = [1]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            shutil.rmtree(infile_negative)
+            npol = 2
+            nrow = len(spw.split(','))
+            answer = copy.deepcopy(self.answer012)
+            self._generateAnswerForNegativeProfiles(answer)
             
-        for irow in xrange(len(rows)):
-            row = rows[irow]
-            scanno = s.getscan(row)
-            ifno = s.getif(row)
-            polno = s.getpol(row)
-            key = (scanno, ifno, polno)
-            ref = fit_ref[key]
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], nfit[0], msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), nfit[0], msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            result_lower = result[key][i][j][0] - 3.0 * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + 3.0 * result[key][i][j][1]
+                            #print infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-            # check nfit
-            nfit = result_ret['nfit'][0]
-            self.assertEqual(nfit, len(ref))
-            for icomp in xrange(len(ref)):
-                comp = ref[icomp]
-                # check peak
-                peak = result_ret['peak'][irow][icomp][0]
-                diff = abs((peak - comp[0]) / comp[0])
-                self.assertLess(diff, self.tol)
-                # check center
-                center = result_ret['cent'][irow][icomp][0]
-                self.assertEqual(center, comp[1])
-                # check fwhm
-                fwhm = result_ret['fwhm'][irow][icomp][0]
-                self.assertEqual(fwhm, comp[2])
-        
-        for (k,v) in result_out.items():
-            ref = fit_ref[k]
+    def test005(self):
+        """Basic Test 005: fitting with double fitrange (spw='3', nfit=[1,1])"""
+        tid = '005'
+        for infile in self.infiles:
+            infile_negative = self.outroot+tid+'.negative.ms'
+            self._generateMSWithNegativeProfiles(infile, infile_negative)
+            datacolumn = 'float_data'
+            spw = '3:0~4000;4001~8191'
+            nfit = [1,1]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            shutil.rmtree(infile_negative)
+            npol = 2
+            nrow = 1
+            answer = copy.deepcopy(self.answer3)
+            self._generateAnswerForNegativeProfiles(answer)
+            
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], sum(nfit), msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), sum(nfit), msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            thres = 3.0
+                            if (key == "fwhm") and (i == 1) and (j == 0): thres = 18.0
+                            result_lower = result[key][i][j][0] - thres * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + thres * result[key][i][j][1]
+                            #print infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-            self.assertEqual(len(v), 3 * len(ref))
-            for icomp in xrange(len(ref)):
-                offset = icomp * 3
-                _ref = ref[icomp]
-                # check peak
-                diff = abs((v[offset] - _ref[0]) / _ref[0])
-                self.assertLess(diff, self.tol)
-                # check center
-                self.assertEqual(v[offset+1], _ref[1])
-                # check fwhm
-                self.assertEqual(v[offset+2], _ref[2])
+    def test006(self):
+        """Basic Test 006: fitting with double line profiles (spw='3', nfit=[2])"""
+        tid = '006'
+        for infile in self.infiles:
+            infile_negative = self.outroot+tid+'.negative.ms'
+            self._generateMSWithNegativeProfiles(infile, infile_negative)
+            datacolumn = 'float_data'
+            spw = '3'
+            nfit = [2]
+            fitfunc = infile.split('.')[0]
+            print "testing " + fitfunc + " profile..."
+            result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
+            shutil.rmtree(infile_negative)
+            npol = 2
+            nrow = 1
+            answer = copy.deepcopy(self.answer3)
+            self._generateAnswerForNegativeProfiles(answer)
+            
+            for key in result.keys():
+                self.assertEqual(len(result[key]), nrow*npol, 
+                                 msg="The result data has wrong data length")
+                for i in range(len(result[key])):
+                    if (key == "nfit"):
+                        self.assertEqual(result[key][i], sum(nfit), msg="%s has wrong value."%(key))
+                    else:
+                        self.assertEqual(len(result[key][i]), sum(nfit), msg="%s element has wrong length."%(key))
+                        for j in range(len(result[key][i])):
+                            thres = 3.0
+                            if (key == "fwhm") and (i == 1) and (j == 0): thres = 18.0
+                            result_lower = result[key][i][j][0] - thres * result[key][i][j][1]
+                            result_upper = result[key][i][j][0] + thres * result[key][i][j][1]
+                            #print infile="+infile+" --- "+"lower("+str(result_lower)+") - answer("+str(answer[key][i][j])+") - upper("+str(result_upper) +")"
+                            self.assertTrue(((result_lower <= answer[key][i][j]) and (answer[key][i][j] <= result_upper)),
+                                            msg="row%s, comp%s result inconsistent with answer"%(i, j))
 
-    def __exec_complex_test(self, infile, params, exprs, rows, regular_test=True):
-        num_param = len(params)
-        test_name = self._get_test_name(regular_test)
-        outfile = '.'.join([self.prefix, test_name])
-        #print 'outfile=%s'%(outfile)
-        casalog.post('%s: %s'%(test_name, ','.join(['%s = \'%s\''%(params[i],exprs[i]) for i in xrange(num_param)])))
-        nfit = [1,1] if infile == self.infile_duplicate else [1]
-        kwargs = {'infile': infile,
-                  'nfit': nfit,
-                  'fitfunc': 'gauss',
-                  'fitmode': 'list',
-                  'outfile': outfile,
-                  'overwrite': True}
-        
-        for i in xrange(num_param):
-            kwargs[params[i]] = exprs[i]
+class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
+    """
+    This class tests data selection parameters,
+    i.e.,
+        intent, antenna, field, spw, timerange, scan, and pol,
+    in combination with datacolumn selection = {corrected | float_data}
+    """
+    datapath = os.environ.get('CASAPATH').split()[0] + \
+        '/data/regression/unittest/tsdfit/'
+    infile = "analytic_type1.fit.ms"
+    common_param = dict(infile=infile, outfile='',
+                        fitfunc='gaussian',nfit=[1],fitmode='list')
+    selections=dict(intent=("CALIBRATE_ATMOSPHERE#*", [1]),
+                    antenna=("DA99", [1]),
+                    field=("M1*", [0]),
+                    spw=(">6", [1]),
+                    timerange=("2013/4/28/4:13:21",[1]),
+                    scan=("0~8", [0]),
+                    pol=("YY", [1]))
+    verbose = False
+ 
+    reference = {'float_data': {'cent': [50, 50, 60, 60],
+                                'peak': [5, 10, 15, 20],
+                                'fwhm': [40, 30, 20, 10]},
+                 'corrected': {'cent': [70, 70, 80, 80],
+                               'peak': [25, 30, 35, 40],
+                               'fwhm': [20, 30, 40, 10]} }
+    templist = [infile]
 
-        regular_test = False
-        if regular_test:
-            result = self.run_task(**kwargs)
-        else:
-            result = sdfitold(**kwargs)
+    def setUp(self):
+        self._remove(self.templist)
+        shutil.copytree(self.datapath+self.infile, self.infile)
+        default(sdfit)
 
-        # read outfile
-        result_out = self.read_result(outfile)
+    def tearDown(self):
+        self._remove(self.templist)
 
-        self.__test_result(infile, result, result_out, rows)
-                          
-        return outfile
+    def _get_selection_string(self, key):
+        if key not in self.selections.keys():
+            raise ValueError, "Invalid selection parameter %s" % key
+        return {key: self.selections[key][0]}
 
-    def __exec_simple_test(self, infile, param, expr, rows, regular_test=True):
-        return self.__exec_complex_test(infile, [param], [expr],
-                                        rows, regular_test)
-
-    ### field selection syntax test ###
-    def test_field_value_default(self):
-        """test_field_value_default: Test default value for field"""
-        infile = self.infile_shift
-        field = ''
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-        
-    def test_field_id_exact(self):
-        """test_field_id_exact: Test field selection by id"""
-        infile = self.infile_convolve
-        field = '5'
-        spw = '23:0~40'
-        rows = [0]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-        
-    def test_field_id_lt(self):
-        """test_field_id_lt: Test field selection by id (<N)"""
-        infile = self.infile_convolve
-        field = '<7'
-        spw = '23:0~40,25:20~60'
+    def _get_selected_row_and_pol(self, key):
+        if key not in self.selections.keys():
+            raise ValueError, "Invalid selection parameter %s" % key
+        pols = [0,1]
         rows = [0,1]
+        if key == 'pol':  #self.selection stores pol ids
+            pols = self.selections[key][1]
+        else: #self.selection stores row ids
+            rows = self.selections[key][1]
+        return (rows, pols)
 
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
+    def _get_reference(self, row_offset, pol_offset, datacol):
+        ref_list = self.reference[datacol]
+        idx = row_offset*2+pol_offset
+        retval = {}
+        for key in ref_list.keys():
+            retval[key] = ref_list[key][idx]
+        if self.verbose: print("reference=%s" % str(retval))
+        return retval
 
-    def test_field_id_gt(self):
-        """test_field_id_gt: Test field selection by id (>N)"""
-        infile = self.infile_convolve
-        field = '>6'
-        spw = '23:60~100,21:40~80'
-        rows = [2,3]
+    def _get_gauss_param_from_return(self, params, keys):
+        """returns a dictionary that stores a list of cent, fwhm, and peak """
+        retval = {}
+        for key in keys:
+            self.assertTrue(key in params.keys(),
+                            "Return value does not have key '%s'" % key)
+            retval[key] = [ params[key][irow][0][0] for irow in range(len(params[key])) ]
+        return retval
 
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_id_range(self):
-        """test_field_id_range: Test field selection by id ('N~M')"""
-        infile = self.infile_convolve
-        field = '5~6'
-        spw = '23:0~40,25:20~60'
-        rows = [0,1]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_id_list(self):
-        """test_field_id_list: Test field selection by id ('N,M')"""
-        infile = self.infile_convolve
-        field = '5,7'
-        spw = '23:0~40,21:40~80'
-        rows = [0,2]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_id_exprlist(self):
-        """test_field_id_exprlist: Test field selection by id ('EXPR0,EXPR1')"""
-        infile = self.infile_convolve
-        field = '6~7,>7'
-        spw = '23:60~100,25:20~60,21:40~80'
-        rows = [1,2,3]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_value_exact(self):
-        """test_field_value_exact: Test field selection by name"""
-        infile = self.infile_convolve
-        field = 'M100'
-        spw = '23:0~40,25:20~60'
-        rows = [0,1]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_value_pattern(self):
-        """test_field_value_pattern: Test field selection by pattern match"""
-        infile = self.infile_convolve
-        field = 'M*'
-        spw = '23:0~40,25:20~60,21:40~80'
-        rows = [0,1,2]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_value_list(self):
-        """test_field_value_list: Test field selection by name list"""
-        infile = self.infile_convolve
-        field = 'M30,3C273'
-        spw = '23:60~100,21:40~80'
-        rows = [2,3]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    def test_field_mix_exprlist(self):
-        """test_field_mix_list: Test field selection by name and id"""
-        infile = self.infile_convolve
-        field = '6,M30,3C273'
-        spw = '25:20~60,23:60~100,21:40~80'
-        rows = [1,2,3]
-
-        self.__exec_complex_test(infile, ['field', 'spw'], [field, spw], rows)
-
-    ### spw selection syntax test ###
-    def test_spw_id_default(self):
-        """test_spw_id_default: Test default value for spw"""
-        infile = self.infile_shift
-        spw = ''
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
+    def run_test(self, sel_param, datacolumn):
+        inparams = self._get_selection_string(sel_param)
+        inparams.update(self.common_param)
+        fit_val = sdfit(datacolumn=datacolumn, **inparams)
+        self._test_result(fit_val, sel_param, datacolumn)
         
-    def test_spw_id_exact(self):
-        """test_spw_id_exact: Test spw selection by id ('N')"""
-        infile = self.infile_shift
-        spw = '21'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_id_lt(self):
-        """test_spw_id_lt: Test spw selection by id ('<N')"""
-        infile = self.infile_shift
-        spw = '<24'
-        rows = [0,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_gt(self):
-        """test_spw_id_lt: Test spw selection by id ('>N')"""
-        infile = self.infile_shift
-        spw = '>22'
-        rows = [0,1,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_range(self):
-        """test_spw_id_range: Test spw selection by id ('N~M')"""
-        infile = self.infile_shift
-        spw = '22~25'
-        rows = [0,1,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_list(self):
-        """test_spw_id_list: Test spw selection by id ('N,M')"""
-        infile = self.infile_shift
-        spw = '21,23,25'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_exprlist(self):
-        """test_spw_id_exprlist: Test spw selection by id ('EXP0,EXP1')"""
-        infile = self.infile_shift
-        spw = '<22,23~25'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_pattern(self):
-        """test_spw_id_pattern: Test spw selection by wildcard"""
-        infile = self.infile_shift
-        spw = '*'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_frequency(self):
-        """test_spw_value_frequency: Test spw selection by frequency range ('FREQ0~FREQ1')"""
-        infile = self.infile_shift
-        spw = '299.4~299.6GHz'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_value_velocity(self):
-        """test_spw_value_velocity: Test spw selection by velocity range ('VEL0~VEL1')"""
-        infile = self.infile_shift
-        spw = '-100~100km/s'
-        rows = [0,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_mix_exprlist(self):
-        """test_spw_mix_exprlist: Test spw selection by id and frequency/velocity range"""
-        infile = self.infile_shift
-        spw = '<22,-100~100km/s'
-        rows = [0,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    ### spw (channel) selection syntax test ###
-    def test_spw_id_default_channel(self):
-        """test_spw_id_default_channel: Test spw selection with channel range (':CH0~CH1')"""
-        infile = self.infile_shift
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_default_frequency(self):
-        """test_spw_id_default_frequency: Test spw selection with channel range (':FREQ0~FREQ1')"""
-        infile = self.infile_convolve
-        spw = ':300470~300510MHz'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_default_velocity(self):
-        """test_spw_id_default_velocity: Test spw selection with channel range (':VEL0~VEL1')"""
-        infile = self.infile_convolve
-        spw = ':-509.6~-469.7km/s'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_default_list(self):
-        """test_spw_id_default_list: Test spw selection with multiple channel range (':CH0~CH1;CH2~CH3')"""
-        infile = self.infile_duplicate
-        spw = ':40~60;65~85'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_exact_channel(self):
-        """test_spw_id_exact_channel: Test spw selection with channel range ('N:CH0~CH1')"""
-        infile = self.infile_convolve
-        spw = '25:20~60'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_id_exact_frequency(self):
-        """test_spw_id_exact_frequency: Test spw selection with channel range ('N:FREQ0~FREQ1')"""
-        infile = self.infile_convolve
-        spw = '25:3.0047e5~3.0051e5MHz'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_id_exact_velocity(self):
-        """test_spw_id_exact_velocity: Test spw selection with channel range ('N:VEL0~VEL1')"""
-        infile = self.infile_convolve
-        spw = '25:-5.09647e2~-4.69675e2km/s'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_exact_list(self):
-        """test_spw_id_exact_list: Test spw selection with channel range ('N:CH0~CH1;CH2~CH3')"""
-        infile = self.infile_duplicate
-        spw = '23:40~60;65~85'
-        rows = [0,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_id_pattern_channel(self):
-        """test_spw_id_pattern_channel: Test spw selection with channel range ('*:CH0~CH1')"""
-        infile = self.infile_shift
-        spw = '*:30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-        
-    def test_spw_id_pattern_frequency(self):
-        """test_spw_id_pattern_frequency: Test spw selection with channel range ('*:FREQ0~FREQ1')"""
-        infile = self.infile_convolve
-        spw = '*:300470~300510MHz'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_pattern_velocity(self):
-        """test_spw_id_pattern_velocity: Test spw selection with channel range ('*:VEL0~VEL1')"""
-        infile = self.infile_convolve
-        spw = ':-509.6~-469.7km/s'
-        rows = [1]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_pattern_list(self):
-        """test_spw_id_pattern_list: Test spw selection with channel range ('*:CH0~CH1;CH2~CH3')"""
-        infile = self.infile_duplicate
-        spw = '*:40~60;65~85'
-        rows = [0,1,2,3]
-        
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_frequency_channel(self):
-        """test_spw_value_frequency_channel: Test spw selection with channel range ('FREQ0~FREQ1:CH0~CH1')"""
-        infile = self.infile_convolve
-        spw = '299.4~299.6GHz:40~80'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_frequency_frequency(self):
-        """test_spw_value_frequency_frequency: Test spw selection with channel range ('FREQ0~FREQ1:FREQ2~FREQ3')"""
-        infile = self.infile_convolve
-        spw = '299.4~299.6GHz:299.49~299.53GHz'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_frequency_velocity(self):
-        """test_spw_value_frequency_velocity: Test spw selection with channel range ('FREQ0~FREQ1:VEL0~VEL1')"""
-        infile = self.infile_convolve
-        spw = '299.4~299.6GHz:469.67~509.65km/s'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_frequency_list(self):
-        """test_spw_value_frequency_list: Test spw selection with channel range ('FREQ0~FREQ1:CH0~CH1;CH2~CH3')"""
-        infile = self.infile_duplicate
-        spw = '299.4~299.6GHz:40~60;65~85'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_velocity_channel(self):
-        """test_spw_value_velocity_channel: Test spw selection with channel range ('VEL0~VEL1:CH0~CH1')"""
-        infile = self.infile_convolve
-        spw = '400~600km/s:40~80'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_velocity_frequency(self):
-        """test_spw_value_velocity_frequency: Test spw selection with channel range ('VEL0~VEL1:FREQ0~FREQ1')"""
-        infile = self.infile_convolve
-        spw = '400~600km/s:299.49~299.53GHz'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_velocity_velocity(self):
-        """test_spw_value_velocity_velocity: Test spw selection with channel range ('VEL0~VEL1:VEL2~VEL3')"""
-        infile = self.infile_convolve
-        spw = '400~600km/s:469.67~509.65km/s'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_value_velocity_list(self):
-        """test_spw_value_velocity_list: Test spw selection with channel range ('VEL0~VEL1:CH0~CH1;CH2~CH3')"""
-        infile = self.infile_duplicate
-        spw = '400~600km/s:40~60;65~85'
-        rows = [2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    def test_spw_id_list_channel(self):
-        """test_spw_id_list_channel: Test spw selection with channnel range ('ID0:CH0~CH1,ID1:CH2~CH3')"""
-        infile = self.infile_convolve
-        spw = '21:40~80,25:20~60'
-        rows = [1,2]
-
-        self.__exec_simple_test(infile, 'spw', spw, rows)
-
-    ### scan selection syntax test ###
-    def test_scan_id_default(self):
-        """test_scan_id_default: Test default value for scan"""
-        infile = self.infile_shift
-        scan = ''
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    def test_scan_id_exact(self):
-        """test_scan_id_exact: Test scan selection by id ('N')"""
-        infile = self.infile_convolve
-        scan = '15'
-        spw = ':0~40'
-        rows = [0]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-       
-    def test_scan_id_lt(self):
-        """test_scan_id_lt: Test scan selection by id ('<N')"""
-        infile = self.infile_convolve
-        scan = '<16'
-        spw = ':0~40'
-        rows = [0]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    def test_scan_id_gt(self):
-        """test_scan_id_gt: Test scan selection by id ('>N')"""
-        infile = self.infile_convolve
-        scan = '>16'
-        spw = ':60~100'
-        rows = [3]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    def test_scan_id_range(self):
-        """test_scan_id_range: Test scan selection by id ('N~M')"""
-        infile = self.infile_convolve
-        scan = '15~16'
-        spw = '23:0~40,25:20~60,21:40~80'
-        rows = [0,1,2]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    def test_scan_id_list(self):
-        """test_scan_id_list: Test scan selection by id ('N,M')"""
-        infile = self.infile_convolve
-        scan = '15,16'
-        spw = '21:40~80,23:0~40,25:20~60'
-        rows = [0,1,2]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    def test_scan_id_exprlist(self):
-        """test_scan_id_exprlist: Test scan selection by id ('EXP0,EXP1')"""
-        infile = self.infile_convolve
-        scan = '<16,16'
-        spw = '21:40~80,23:0~40,25:20~60'
-        rows = [0,1,2]
-
-        self.__exec_complex_test(infile, ['scan', 'spw'], [scan, spw], rows)
-
-    ### pol selection syntax test ###
-    def test_pol_id_default(self):
-        """test_pol_id_default: Test default value for pol"""
-        infile = self.infile_shift
-        pol = ''
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_exact(self):
-        """test_pol_id_exact: Test pol selection by id ('N')"""
-        infile = self.infile_convolve
-        pol = '0'
-        spw = '21:40~80,23:0~40'
-        rows = [0,2]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_lt(self):
-        """test_pol_id_lt: Test pol selection by id ('<N')"""
-        infile = self.infile_convolve
-        pol = '<1'
-        spw = '21:40~80,23:0~40'
-        rows = [0,2]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_gt(self):
-        """test_pol_id_gt: Test pol selection by id ('>N')"""
-        infile = self.infile_convolve
-        pol = '>0'
-        spw = '25:20~60,23:60~100'
-        rows = [1,3]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_range(self):
-        """test_pol_id_range: Test pol selection by id ('N~M')"""
-        infile = self.infile_shift
-        pol = '0~1'
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_list(self):
-        """test_pol_id_list: Test pol selection by id ('N,M')"""
-        infile = self.infile_shift
-        pol = '0,1'
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-    def test_pol_id_exprlist(self):
-        """test_pol_id_exprlist: Test pol selection by id ('EXP0,EXP1')"""
-        infile = self.infile_shift
-        pol = '>0,<1'
-        spw = ':30~70'
-        rows = [0,1,2,3]
-
-        self.__exec_complex_test(infile, ['pol', 'spw'], [pol, spw], rows)
-
-class sdfitold_average(sdfitold_unittest_base, unittest.TestCase):
-    """
-    """
-    infile = 'sdfit_average.asap'
-    inputs = [infile]
-    outfile = 'sdfitold_average.txt'
-    outputs = [outfile]
-    fitmode = 'list'
-    spw = ':0~40'
-    nfit = [1]
-    tweight = 'tint'
-    pweight = 'tsys'
-
-    def _execute_task(self, timeaverage, scanaverage, polaverage):
-        kwargs={'infile': self.infile,
-                'outfile': self.outfile,
-                'spw': self.spw,
-                'nfit': self.nfit,
-                'fitmode': self.fitmode,
-                'timeaverage': timeaverage,
-                'polaverage': polaverage}
-        if timeaverage is True:
-            kwargs['scanaverage'] = scanaverage
-            kwargs['tweight'] = self.tweight
-        if polaverage is True:
-            kwargs['pweight'] = self.pweight
-
-        return sdfitold(**kwargs)
-
-    def _verify(self, expected):
-        # dictionary for verification
-        # key: tuple consisting of SCANNO, IFNO, and POLNO
-        #     (SCANNO,IFNO,POLNO), e.g.,
-        #
-        #         (0,0,0)
-        #
-        # value: flattened list of 'peak', 'cent', and 'fwhm'.
-        #     If there are multiple rows for one key, the list
-        #     is extended, e.g.,
-        #
-        #         [peak0, cent0, fwhm0, peak1, cent1, fwhm1, ...]
-        #
-        result = self.read_result(self.outfile)
-        tol = 1.0e-4
-        properties = ['peak', 'cent', 'fwhm']
-        nprop = len(properties)
-        for key in expected.keys():
-            self.assertTrue(result.has_key(key),
-                            msg='result does\'t have key %s'%(list(key)))
-            e = expected[key]
-            r = result[key]
-            ne = len(e)
-            nr = len(r)
-            self.assertEqual(nr, ne,
-                             msg='%s: number of row mismatch (expected %s, actual %s)'%(list(key), ne/nprop, nr/nprop))
-            for irow in xrange(len(e)):
-                diff = abs((r[irow] - e[irow])/e[irow])
-                self.assertLessEqual(diff, tol,
-                                     msg='%s (%s): result differ (expected %s, actual %s)'%(properties[irow % nprop], irow, e[irow], r[irow]))
-
-    def testaverageFFF(self):
-        """testaverageFFF: test average (timeaverage=False, scanaverage=False, polaverage=False)"""
-        result = self._execute_task(timeaverage=False, scanaverage=False, polaverage=False)
-        expected = {(0,0,0): [8.0, 20.0, 5.0, 16.0, 20.0, 5.0],
-                    (0,0,1): [16.0, 20.0, 5.0, 32.0, 20.0, 5.0],
-                    (1,0,0): [64.0, 20.0, 5.0, 128.0, 20.0, 5.0],
-                    (1,0,1): [128.0, 20.0, 5.0, 256.0, 20.0, 5.0]}
-        self._verify(expected)
-
-    def testaverageTFF(self):
-        """testaverageTFF: test average (timeaverage=True, scanaverage=False, polaverage=False)"""
-        result = self._execute_task(timeaverage=True, scanaverage=False, polaverage=False)
-        expected = {(0,0,0): [54.0, 20.0, 5.0],
-                    (0,0,1): [108.0, 20.0, 5.0]}
-        self._verify(expected)
-
-    def testaverageTTF(self):
-        """testaverageTTF: test average (timeaverage=True, scanaverage=True, polaverage=False)"""
-        result = self._execute_task(timeaverage=True, scanaverage=True, polaverage=False)
-        expected = {(0,0,0): [12.0, 20.0, 5.0],
-                    (0,0,1): [24.0, 20.0, 5.0],
-                    (1,0,0): [96.0, 20.0, 5.0],
-                    (1,0,1): [192.0, 20.0, 5.0]}
-        self._verify(expected)
-
-    def testaverageTTT(self):
-        """testaverageTTT: test average (timeaverage=True, scanaverage=True, polaverage=True)"""
-        result = self._execute_task(timeaverage=True, scanaverage=True, polaverage=True)
-        expected = {(0,0,0): [18.0, 20.0, 5.0],
-                    (1,0,0): [144.0, 20.0, 5.0]}
-        self._verify(expected)
-
-    def testaverageFFT(self):
-        """testaverageFFT: test average (timeaverage=False, scanaverage=False, polaverage=True)"""
-        result = self._execute_task(timeaverage=False, scanaverage=False, polaverage=True)
-        expected = {(0,0,0): [81.0, 20.0, 5.0]}
-        self._verify(expected)
-        
-
-    def testaverageTFT(self):
-        """testaverageTFT: test average (timeaverage=True, scanaverage=False, polaverage=True)"""
-        result = self._execute_task(timeaverage=True, scanaverage=False, polaverage=True)
-        expected = {(0,0,0): [81.0, 20.0, 5.0]}
-        self._verify(expected)
-    
-class sdfitold_flag(sdfitold_unittest_base, unittest.TestCase):
-    """
-    Test flag handling in sdfitold
-    * channel flag with list
-    * channel flag with auto (line finder)
-    * row flag with list
-    * row flag with auto (line finder)
-    * channel flag and timeaverage (scanaverage=True)
-    * channel flag and timeaverage (scanaverage=False)
-    * channel flag and polaverage
-    * row flag and timeaverage (scanaverage=True)
-    * row flag and timeaverage (scanaverage=False)
-    * row flag and polaverage
-    """
-    avefile = 'sdfit_average.asap'
-    fitfile1 = 'sd_analytic_type4-1.asap'
-    fitfile2 = 'sd_analytic_type5-1.asap'
-    inputs = [avefile, fitfile1, fitfile2]
-    outfile = 'fit_result.txt'
-    outputs = [outfile]
-    spw = '23'
-    fitmode = 'list'
-    nfit = [1]
-    tweight = 'tint'
-    pweight = 'tsys'
-
-    def _run_test(self, refdata, **kwargs):
-        # construct task parameters
-        if not kwargs.has_key('infile'):
-            self.fail("infile is not specified")
-        predefined = ['outfile', 'spw', 'fitmode', 'nfit',
-                      'tweight', 'pweight']
-        for p in predefined:
-            if not hasattr(self, p):
-                self.fail("Internal error: %s not defined in class" % p)
-            if not kwargs.has_key(p): kwargs[p] = getattr(self, p)
-        # save flag for comparison
-        tbname = kwargs['infile']
-        self._check_file(tbname)
-        tb.open(tbname)
-        flagtra_pre = tb.getcol('FLAGTRA')
-        flagrow_pre = tb.getcol('FLAGROW')
+    def _test_result(self, fit_val, sel_param, dcol, atol=1.e-5, rtol=1.e-5):
+        # Make sure output MS exists
+        self.assertTrue(os.path.exists(self.infile), "Could not find input MS")
+        tb.open(self.infile)
+        nrow = tb.nrows()
         tb.close()
-        # invoke task
-        retval = sdfitold(**kwargs)
-        # verify fit results
-        self._verify_outfile(refdata, kwargs['outfile'])
-        # make sure FLAGTRA and FLAGROW are not changed
-        tb.open(tbname)
-        flagtra_post = tb.getcol('FLAGTRA')
-        flagrow_post = tb.getcol('FLAGROW')
-        tb.close()
-        self.assertTrue((flagrow_post==flagrow_pre).all(),
-                        "FLAGROW has been changed by task operation")
-        self.assertTrue((flagtra_post==flagtra_pre).all(),
-                        "FLAGTRA has been changed by task operation")
+        # Compare fitting parameters with reference
+        (rowids, polids) = self._get_selected_row_and_pol(sel_param)
+        self.assertEqual(nrow, 2, "Row number changed in input MS")
+        test_keys = self.reference[dcol].keys()
+        # format return values and make a list of line parameters
+        test_value = self._get_gauss_param_from_return(fit_val, test_keys)
+        idx = 0
+        for out_row in range(len(rowids)):
+            in_row = rowids[out_row]
+            for out_pol in range(len(polids)):
+                in_pol = polids[out_pol]
+                reference = self._get_reference(in_row, in_pol, dcol)
+                for key in reference.keys():
+                    self.assertTrue(numpy.allclose([test_value[key][idx]],
+                                                   [reference[key]],
+                                                   atol=atol, rtol=rtol),
+                                    "Fitting result '%s' in row=%d, pol=%d differs: %f (expected: %f)" % (key, in_row, in_pol, test_value[key][idx], reference[key]))
+                #Next spectrum
+                idx += 1
 
-    def _flag_table(self, infile, row=[], chan=[]):
-        """
-        flag infile.
-        row: a list of row ids to flag
-        chan : a list of [start, end] channels to flag
-        when chan=[], FLAGROW is set. Otherwise, channel flag is set
-        for the row list.
-        """
-        if len(row) == 0: return
-        flagrow = (len(chan)==0)
-        self._check_file(infile)
-        tb.open(infile, nomodify=False)
-        try:
-            if flagrow:
-                fl = tb.getcol('FLAGROW')
-                for idx in row:
-                    fl[idx] = 1
-                tb.putcol('FLAGROW', fl)
+    def testIntentF(self):
+        """Test selection by intent (float_data)"""
+        self.run_test("intent", "float_data")
+
+    def testIntentC(self):
+        """Test selection by intent (corrected)"""
+        self.run_test("intent", "corrected")
+
+    def testAntennaF(self):
+        """Test selection by antenna (float_data)"""
+        self.run_test("antenna", "float_data")
+
+    def testAntennaC(self):
+        """Test selection by antenna (corrected)"""
+        self.run_test("antenna", "corrected")
+
+    def testFieldF(self):
+        """Test selection by field (float_data)"""
+        self.run_test("field", "float_data")
+
+    def testFieldC(self):
+        """Test selection by field (corrected)"""
+        self.run_test("field", "corrected")
+
+    def testSpwF(self):
+        """Test selection by spw (float_data)"""
+        self.run_test("spw", "float_data")
+
+    def testSpwC(self):
+        """Test selection by spw (corrected)"""
+        self.run_test("spw", "corrected")
+
+    def testTimerangeF(self):
+        """Test selection by timerange (float_data)"""
+        self.run_test("timerange", "float_data")
+
+    def testTimerangeC(self):
+        """Test selection by timerange (corrected)"""
+        self.run_test("timerange", "corrected")
+
+    def testScanF(self):
+        """Test selection by scan (float_data)"""
+        self.run_test("scan", "float_data")
+
+    def testScanC(self):
+        """Test selection by scan (corrected)"""
+        self.run_test("scan", "corrected")
+
+    def testPolF(self):
+        """Test selection by pol (float_data)"""
+        self.run_test("pol", "float_data")
+
+    def testPolC(self):
+        """Test selection by pol (corrected)"""
+        self.run_test("pol", "corrected")
+
+
+class sdfit_auto(sdfit_unittest_base,unittest.TestCase):
+    """
+    This class tests fitmode='auto'
+    """
+    datapath = os.environ.get('CASAPATH').split()[0] + \
+        '/data/regression/unittest/tsdfit/'
+    infile = "analytic_type2.fit1row.ms"
+    common_param = dict(infile=infile, outfile='',datacolumn='float_data',
+                        fitfunc='gaussian',fitmode='auto')
+
+    base_ref = {'cent': [[[15.00979614, 0.04770457], [61.38282013, 0.24553408]],
+                         [[15.00979614, 0.04770457], [61.38282013, 0.24553408], [109.980896, 0.05658337]]],
+                'fwhm': [[[3.89398646, 0.11234628], [9.02820969, 0.59809124]],
+                         [[3.89398646, 0.11234628], [9.02820969, 0.59809124], [4.15015697, 0.13328633]]],
+                'peak': [[[2.58062243, 0.06447442], [0.71921641, 0.03993592]],
+                         [[2.58062243, 0.06447442], [0.71921641, 0.03993592], [2.47205806, 0.06873842]]],
+                'nfit': [2, 3]}
+    center_id = [1, 1]
+
+    def setUp(self):
+        self._remove([self.infile])
+        shutil.copytree(self.datapath+self.infile, self.infile)
+        default(sdfit)
+
+    def tearDown(self):
+        self._remove([self.infile])
+
+    def get_reference_from_base(self, is_center):
+        ref_val = {}
+        for key, value in self.base_ref.items():
+            if key=='nfit':
+                if is_center:
+                    ref_val[key] = [ 1 for idx in self.center_id ]
+                else:
+                    ref_val[key] = [ value[irow]-1 for irow in range(len(self.center_id)) ]
+                continue
             else:
-                if type(chan[0]) in [int, float]:
-                    chan = [chan]
-                fl = tb.getcol('FLAGTRA').transpose()
-                for irow in row:
-                    for (schan, echan) in chan:
-                        fl[irow][schan:echan+1] = 1
-                tb.putcol('FLAGTRA', fl.transpose())
-        except:
-            raise
+                ref_val[key] = []
+
+            for irow in range(len(self.center_id)):
+                nrowval = len(value[irow])
+                if is_center:
+                    ref_val[key].append([ value[irow][self.center_id[irow]] ])
+                else:
+                    ref_val[key].append([ value[irow][ival] for ival in range(nrowval) if ival != self.center_id[irow] ])
+        return ref_val
+
+    def run_test(self, is_center, reference=None, **kwarg):
+        param = dict(**self.common_param)
+        param.update(kwarg)
+        fit_val = sdfit(**param)
+        #print("Return:",fit_val)
+        if reference is None:
+            reference = self.get_reference_from_base(is_center)
+        #print("Reference:",reference)
+        for irow in range(len(fit_val['nfit'])):
+            # test the number of detected lines
+            self.assertEqual(fit_val['nfit'][irow], reference['nfit'][irow],
+                             "The number of lines in row %d differ: %d (expected: %d)" % (irow, fit_val['nfit'][irow], reference['nfit'][irow]))
+            nline = fit_val['nfit'][irow]
+            for key in fit_val.keys():
+                if key=='nfit': continue
+                for iline in range(nline):
+                    test = fit_val[key][irow][iline]
+                    ref = reference[key][irow][iline][0]
+                    self.assertTrue(numpy.allclose(test, ref, rtol=1.e2),
+                                    "%s in row %d line %d differs" % (key, irow, iline))
+
+    def testAuto(self):
+        """Test fitmode='auto' with default parameters"""
+        self.run_test(False, self.base_ref)
+
+    def testAutoMask(self):
+        """Test fitmode='auto' with line mask by spw parameter"""
+        self.run_test(True, None, spw='6:20~100')
+
+    def testAutoThres(self):
+        """Test fitmode='auto' with threshold"""
+        self.run_test(False, None, thresh=15.0)
+
+    def testAutoMinwidth(self):
+        """Test fitmode='auto' with minwidth"""
+        ref_stat = {'cent': [[[61.40139389, 0.25993374]], [[61.40139389, 0.25993374]]],
+                    'fwhm': [[[8.92976952, 0.64963025]], [[8.92976952, 0.64963025]]],
+                    'nfit': [1, 1],
+                    'peak': [[[0.7223646, 0.0429684]], [[0.7223646, 0.0429684]]]}
+
+        self.run_test(False, ref_stat, minwidth=12,thresh=4.)
+
+    def testAutoEdge(self):
+        """Test fitmode='auto' with edge"""
+        self.run_test(True, None, edge=[20,27])
+
+    def testAutoFlag(self):
+        """Test fitmode='auto' of flagged data """
+        # flagg edge channels
+        flagdata(vis=self.infile, spw='6:0~19;101~127')
+        self.run_test(True, None, spw='', edge=[0])
+
+
+class sdfit_timeaverage(sdfit_unittest_base,unittest.TestCase):
+    """
+    tests for time-averaging capability
+
+    Note: the input data 'sdfit_tave.ms' has 32 rows. Any combination of 
+          SCAN_ID (8 and 9), STATE_ID (6 and 4) and FIELD_ID (4 and 5)
+          has 4 rows, where Gaussian profile has different amplitude and 
+          different weight:
+          --------------------------------------
+          irow scan state field weight amplitude
+          --------------------------------------
+           0   8    6     4     0.5    1*0.94
+           1   8    6     4     0.5    1*0.98
+           2   8    6     4     1.0    1*1.01
+           3   8    6     4     1.0    1*1.03
+
+           4   8    6     5     0.5    2*0.94
+           5   8    6     5     0.5    2*0.98
+           6   8    6     5     1.0    2*1.01
+           7   8    6     5     1.0    2*1.03
+
+           8   8    4     4     0.5    3*0.94
+                     ..........
+
+          12   8    4     5     0.5    4*0.94
+                     ..........
+
+          16   9    6     4     0.5    5*0.94
+                     ..........
+
+          20   9    6     5     0.5    6*0.94
+                     ..........
+
+          24   9    4     4     0.5    7*0.94
+                     ..........
+
+          28   9    4     5     0.5    8*0.94
+          29   9    4     5     0.5    8*0.98
+          30   9    4     5     1.0    8*1.01
+          31   9    4     5     1.0    8*1.03
+          --------------------------------------
+          Averaging the first 4 rows, taking account of weight, gives
+          Gaussian with peak amplitude of 1. 
+    """
+    datapath = os.environ.get('CASAPATH').split()[0] + \
+        '/data/regression/unittest/tsdfit/'
+    infile = "sdfit_tave.ms"
+    outfile = "sdfit.out"
+    common_param = dict(infile=infile, outfile=outfile, datacolumn='float_data',
+                        fitfunc='gaussian', nfit=[1], pol='XX')
+    select_param = dict(scan='8', intent='*ON_SOURCE*', field='4')
+    def setUp(self):
+        self._remove([self.infile])
+        shutil.copytree(self.datapath+self.infile, self.infile)
+        default(sdfit)
+
+    def tearDown(self):
+        self._remove([self.infile, self.outfile])
+
+    def run_test(self, select=True, ref_val=None, **kwarg):
+        param = dict(**self.common_param)
+        param.update(kwarg)
+        if select:
+            param.update(**self.select_param)
+        fit_val = sdfit(**param)
+        #print("Return:",fit_val)
+        for irow in range(len(fit_val['peak'])):
+            out = fit_val['peak'][irow][0][0]
+            ref = ref_val[irow]
+            self.assertTrue(numpy.allclose(out, ref, rtol=1.e2), 
+                            "result in row %d differs" % (irow))
+                
+    def testTimebinNullString(self):
+        """Test timebin='' : no averaging (default)"""
+        ref = [0.94, 0.98, 1.01, 1.03]
+        self.run_test(True, ref, timebin='')
+
+    def testAverage2(self):
+        """Test timebin='0.2s' : averaging 2 spectra"""
+        ref = [0.96, 1.02]
+        self.run_test(True, ref, timebin='0.2s')
+
+    def testAverage4(self):
+        """Test timebin='0.4s' : averaging 4 spectra"""
+        ref = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
+        self.run_test(False, ref, timebin='0.4s')
+
+    def testTimespanScan(self):
+        """Test timespan='scan' : averaging across SCAN_NUMBER border"""
+        ref = [3.0, 4.0, 5.0, 6.0]
+        self.run_test(False, ref, timebin='10s', timespan='scan')
+
+    def testTimespanState(self):
+        """Test timespan='state' : averaging across STATE_ID border"""
+        ref = [2.0, 3.0, 6.0, 7.0]
+        self.run_test(False, ref, timebin='10s', timespan='state')
+
+    def testTimespanField(self):
+        """Test timespan='field' : averaging across FIELD_ID border"""
+        ref = [1.5, 3.5, 5.5, 7.5]
+        self.run_test(False, ref, timebin='10s', timespan='field')
+
+    def testTimespanScanState(self):
+        """Test timespan='scan,state' : averaging across SCAN_NUMBER and STATE_ID borders"""
+        ref = [4.0, 10.0]
+        self.run_test(False, ref, timebin='10s', timespan='scan,state')
+
+    def testTimespanScanField(self):
+        """Test timespan='scan,field' : averaging across SCAN_NUMBER and FIELD_ID borders"""
+        ref = [3.5, 5.5]
+        self.run_test(False, ref, timebin='10s', timespan='scan,field')
+
+    def testTimespanStateField(self):
+        """Test timespan='state,field' : averaging across STATE_ID and FIELD_ID borders"""
+        ref = [2.5, 6.5]
+        self.run_test(False, ref, timebin='10s', timespan='state,field')
+
+    def testTimespanScanStateField(self):
+        """Test timespan='scan,state,field' : averaging across SCAN_NUMBER, STATE_ID and FIELD_ID borders"""
+        ref = [4.5]
+        self.run_test(False, ref, timebin='10s', timespan='scan,state,field')
+
+    def testTimespanStateAutoAdded(self):
+        """Test timespan='scan,field' : to see if 'state' is automatically added to timespan"""
+        ref = [4.5]
+        self.run_test(False, ref, timebin='100s', timespan='scan,field')
+
+class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
+    """
+    Test polarization averaging capability
+    
+        test_polaverage_default   -- test default average mode (=stokes)
+        test_polaverage_stokes    -- test stokes average mode
+        test_polaverage_geometric -- test geometric average mode 
+        --- The following tests are defined to verify fix for CAS-9778 --- 
+        test_polaverage_stokes_chunk -- test stokes average mode against different access pattern 
+        test_polaverage_geometric_chunk -- test geometric average mode against different access pattern
+    """
+    infile = "gaussian.ms"
+    
+    # reference value from basicTest
+    answer = sdfit_basicTest.answer012
+    
+    def setUp(self):
+        testutils.copytree_ignore_subversion(self.datapath, self.infile)
+        self.edit_weight()
+    
+    def tearDown(self):
+        if os.path.exists(self.infile):
+            shutil.rmtree(self.infile)
+
+    def edit_weight(self):
+        (mytb,) = gentools(['tb'])
+        mytb.open(self.infile, nomodify=False)
+        try:
+            print 'Editing weight'
+            for irow in xrange(mytb.nrows()):
+                # weight for XX is two times larger than YY
+                print '    irow = {}'.format(irow)
+                weight = mytb.getcell('WEIGHT', irow)
+                print '    weight (before)', weight
+                weight[1] *= 2.0
+                print '    weight (after)', weight
+                mytb.putcell('WEIGHT', irow, weight)
         finally:
-            tb.flush()
+            mytb.close()
+            
+    def edit_meta(self):
+        """
+        Edit DATA_DESC_ID and TIME (TIME_CENTROID) so taht VI/VB2 takes more than 
+        one row in one (sub)chunk
+        """
+        (mytb) = gentools(['tb'])
+        tb.open(self.infile, nomodify=False)
+        try:
+            ddid = tb.getcol('DATA_DESC_ID')
+            time = tb.getcol('TIME')
+            interval = tb.getcol('INTERVAL')
+            ddid[0] = 0
+            ddid[1] = 0
+            ddid[2] = 1
+            ddid[3] = 1
+            time[1] = time[0] + interval[0]
+            time[2] = time[0]
+            time[3] = time[0] + interval[0]
+            tb.putcol('DATA_DESC_ID', ddid)
+            tb.putcol('TIME', time)
+            tb.putcol('TIME_CENTROID', time)
+        finally:
             tb.close()
+            
+    def scale_expected_peak(self, mode, peak):
+        scaled = numpy.copy(peak)
+        if mode == 'default' or mode == 'stokes':
+            scaled /= 2.0
+        elif mode == 'geometric':
+            (myms, mytb,) = gentools(['ms', 'tb'])
+            sel = myms.msseltoindex(vis=self.infile, spw='0')
+            ddid = sel['dd'][0]
+            mytb.open(self.infile)
+            tsel = mytb.query('DATA_DESC_ID=={}'.format(ddid))
+            try:
+                weight = tsel.getcell('WEIGHT', 0)
+            finally:
+                tsel.close()
+                mytb.close()
+            wsum = numpy.sum(weight)
+            scaled *= weight / wsum
 
-    def testChanFlagList(self):
-        """test channel flag with fitmode='list'"""
-        fitmode='list'
-        nfit = [1]
-        spw = '21'
-        infile = self.fitfile2 # spectra with 2 lines
-        self._flag_table(infile, row=[2], chan=[40,65]) #flag 1st line
-        refdata = {(16,21,0): [3.757749080657959, 75.0, 5.0]}
-        # the first line at 50chan will be detected if not flagged
-        self._run_test(refdata,infile=infile,spw=spw,fitmode=fitmode,nfit=nfit)
-
-    def testChanFlagAuto(self):
-        """test channel flag with fitmode='auto'"""
-        fitmode='auto'
-        infile = self.fitfile2  # spectra with 2 lines
-        box_size = 0.3
-        spw = '21'
-        self._flag_table(infile, row=[2], chan=[40,65]) #flag 1st line
-        refdata = {(16,21,0): [3.757749080657959, 75.0, 5.0]}
-        # two lines would be detected if not flagged
-        self._run_test(refdata,infile=infile,spw=spw,
-                      fitmode=fitmode,nfit=[],box_size=box_size)
+        return scaled
+            
+    def verify(self, mode, result, where=[0,1]):
+        print 'mode=\'{}\''.format(mode)
+        print 'result=\'{}\''.format(result)
         
-    def testRowFlagList(self):
-        """test row flag with fitmode='list'"""
-        fitmode='list'
-        nfit = [1]
-        spw = '*:20~80'
-        infile = self.fitfile1 # spectra with 1 line
-        self._flag_table(infile, row=[0,1,2])
-        refdata = {# flagged row will not be saved in outfile
-                   (17,23,1): [5.636623859405518, 50.0, 5.0]}
-        # the first line at 50chan will be detected if not flagged
-        self._run_test(refdata,infile=infile,spw=spw,fitmode=fitmode,nfit=nfit)
-
-    def testRowFlagAuto(self):
-        """test channel flag with fitmode='auto'"""
-        fitmode='auto'
-        infile = self.fitfile1  # spectra with 1 line
-        spw = '*:20~80'
-        self._flag_table(infile, row=[0, 1, 2])
-        refdata = {# flagged row will not be saved in outfile
-                   (17,23,1): [5.636623859405518, 50.0, 5.0]}
-        # two lines would be detected if not flagged
-        self._run_test(refdata,infile=infile,spw=spw,
-                      fitmode=fitmode,nfit=[])
-
-    def testChanFlagSave(self):
-        """test channel flag with averaging time=T, scan=T, pol=F"""
-        spw = '0:0~40'
-        pol='0'
-        (tave, save, pave) = (True, True, False)
-        infile = self.avefile
-        self._flag_table(infile, row=[0], chan=[0,40])
-        refdata = {(0,0,0): [16.0, 20.0, 5.0],
-                   (1,0,0): [96.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,pol=pol,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
-    def testRowFlagSave(self):
-        """test row flag with averaging time=T, scan=T, pol=F"""
-        spw = '0:0~40'
-        pol='0'
-        (tave, save, pave) = (True, True, False)
-        infile = self.avefile
-        self._flag_table(infile, row=[0])
-        refdata = {(0,0,0): [16.0, 20.0, 5.0],
-                   (1,0,0): [96.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,pol=pol,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
-    def testChanFlagTave(self):
-        """test channel flag with averaging time=T, scan=F, pol=F"""
-        spw = '0:0~40'
-        pol='0'
-        (tave, save, pave) = (True, False, False)
-        infile = self.avefile # spectra with 2 lines
-        self._flag_table(infile, row=[0,5], chan=[0,40]) #flag 1st line
-        refdata = {(0,0,0): [40.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,pol=pol,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
-    def testRowFlagTave(self):
-        """test row flag with averaging time=T, scan=F, pol=F"""
-        spw = '0:0~40'
-        pol='0'
-        (tave, save, pave) = (True, False, False)
-        infile = self.avefile
-        self._flag_table(infile, row=[0,5]) 
-        refdata = {(0,0,0): [40.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,pol=pol,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
-    def testChanFlagPave(self):
-        """test channel flag with averaging time=F, scan=F, pol=T"""
-        spw = '0:0~40'
-        (tave, save, pave) = (False, False, True)
-        infile = self.avefile
-        self._flag_table(infile, row=[0,2,5,7], chan=[0,40])
-        refdata = {(0,0,0): [60.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
-    def testRowFlagPave(self):
-        """test row flag with averaging time=F, scan=F, pol=T"""
-        spw = '0:0~40'
-        (tave, save, pave) = (False, False, True)
-        infile = self.avefile
-        self._flag_table(infile, row=[0,2,5,7])
-        refdata = {(0,0,0): [60.0, 20.0, 5.0]}
-        self._run_test(refdata,infile=infile,spw=spw,
-                       timeaverage=tave,scanaverage=save,polaverage=pave)
-
+        # number of fit results
+        # number of fit results should be 1
+        # (2 spectra are reduced into 1 by polarization averaging)
+        nresults = len(result['nfit'])
+        if (mode == ''):
+            self.assertEqual(nresults, 2)
+            return
+        else:
+            self.assertEqual(nresults, 1)
+        
+        # verify nfit
+        # nfit should be 2
+        nfit = numpy.asarray(result['nfit'])
+        self.assertTrue(numpy.all(nfit == 2))
+        
+        # verify cent
+        # cent should not be changed
+        cent = numpy.asarray(result['cent'])
+        cent_result = cent[0,:,0]
+        cent_err = cent[0,:,1]
+        cent_expected = numpy.asarray(self.answer['cent'])[where].squeeze()
+        sort_index = numpy.argsort(cent_expected)
+        cent_expected = cent_expected[sort_index]
+        print 'cent (result)={}\ncent (expected)={}'.format(cent_result, 
+                                                            cent_expected) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(cent_expected[i], cent_result[i] + err_factor * cent_err[i])
+            self.assertGreaterEqual(cent_expected[i], cent_result[i] - err_factor * cent_err[i])
+            
+        # verify fwhm
+        # fwhm should not be changed
+        fwhm = numpy.asarray(result['fwhm'])
+        fwhm_result = fwhm[0,:,0]
+        fwhm_err = fwhm[0,:,1]
+        fwhm_expected = numpy.asarray(self.answer['fwhm'])[where].squeeze()
+        fwhm_expected = fwhm_expected[sort_index]
+        print 'fwhm (result)={}\nfwhm (expected)={}'.format(fwhm_result, 
+                                                            fwhm_expected) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(fwhm_expected[i], fwhm_result[i] + err_factor * fwhm_err[i])
+            self.assertGreaterEqual(fwhm_expected[i], fwhm_result[i] - err_factor * fwhm_err[i])
+        
+        # verify peak
+        # peak should depend on mode and weight value
+        peak = numpy.asarray(result['peak'])
+        peak_result = peak[0,:,0]
+        peak_err = peak[0,:,1]
+        peak_expected = numpy.asarray(self.answer['peak'])[where].squeeze()
+        peak_expected_scaled = self.scale_expected_peak(mode, peak_expected)
+        peak_expected_scaled = peak_expected_scaled[sort_index]
+        print 'peak (result)={}\npeak (expected)={}'.format(peak_result, 
+                                                            peak_expected_scaled) 
+        err_factor = 2.0
+        for i in xrange(2):
+            self.assertLessEqual(peak_expected_scaled[i], peak_result[i] + err_factor * peak_err[i])
+            self.assertGreaterEqual(peak_expected_scaled[i], peak_result[i] - err_factor * peak_err[i])
+        
+    def run_test(self, mode):
+        # only spw 0 is processed
+        result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
+                       nfit=[2], spw='0', fitmode='auto', polaverage=mode)
+        self.verify(mode, result)        
+    
+    def run_test2(self, mode):
+        """
+        run_test2 is test function that should be used for tests including edit_meta 
+        """
+        # only spw 0 is processed
+        # since edit_meta, effectively it corresponds to process both spw 0 and 1
+        result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
+                       nfit=[2], spw='0', fitmode='auto', polaverage=mode)
+        for i in xrange(len(result['nfit'])):
+            subresult = {}
+            subresult['nfit'] = [result['nfit'][i]]
+            subresult['cent'] = [result['cent'][i]]
+            subresult['fwhm'] = [result['fwhm'][i]]
+            subresult['peak'] = [result['peak'][i]]
+            self.verify(mode, subresult, where=[2*i, 2*i+1])        
+    
+    def test_polaverage_default(self):
+        """ test_polaverage_default: test default case (no averaging) """
+        self.run_test(mode='')
+    
+    def test_polaverage_stokes(self):
+        """ test_polaverage_stokes: test stokes average mode """
+        self.run_test(mode='stokes')
+        
+    def test_polaverage_geometric(self):
+        """ test_polaverage_geometric: test geometric average mode """
+        self.run_test(mode='geometric')
+        
+    def test_polaverage_stokes_chunk(self):
+        """ test_polaverage_stokes_chunk: test stokes average mode against different access pattern """
+        self.edit_meta()
+        self.run_test2(mode='stokes')
+        
+    def test_polaverage_geometric_chunk(self):
+        """ test_polaverage_geometric_chunk: test geometric average mode against different access pattern """
+        self.edit_meta()
+        self.run_test2(mode='geometric')
 
 def suite():
-    return [sdfitold_test, sdfitold_test_exceptions,
-            sdfitold_selection_syntax, sdfitold_average,
-            sdfitold_flag]
+    return [sdfit_basicTest, 
+            sdfit_selection, 
+            sdfit_auto, 
+            sdfit_timeaverage,
+            sdfit_polaverage
+           ]

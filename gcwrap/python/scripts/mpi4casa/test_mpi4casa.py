@@ -7,6 +7,7 @@ import traceback
 import unittest
 import testhelper
 import filecmp
+import shutil
 from taskinit import mstool,tbtool,cbtool,casalog,casac,casa
 from tasks import setjy,flagdata,applycal,uvcontsub
 from mpi4casa.MPIEnvironment import MPIEnvironment
@@ -773,17 +774,87 @@ class test_MPICommandServer(unittest.TestCase):
         self.client.set_log_mode('unified')
         self.server_list = MPIEnvironment.mpi_server_rank_list()
         self.client.start_services()
-        
-        
-    def test_server_not_responsive(self):
-        
-        # First find a suitable server
+
+    def _find_suitable_server_rank(self):
+        """ Returns the rank of the first server found not in timeout state"""
+
         rank = -1
         server_list = self.client.get_server_status()
         for server in server_list:
             if not server_list[server]['timeout']:
                  rank = server_list[server]['rank']
                  break
+        return rank
+
+    def test_server_not_responsive_debugging_mode(self):
+        """ Server not responsive because in debugging mode (enable it / disable it) """
+
+        # Start debugging mode: don't timeout servers because they might be being
+        # debugged, just wait indefinitely
+        mon =  MPIMonitorClient()
+        ini_servers_online = len(mon.get_server_rank_online())
+        ini_servers_available = len(mon.get_server_rank_available())
+        ini_servers_timeout = len(mon.get_server_timeout())
+        mon.start_debugging_mode()
+
+        # First find a suitable (not in 'timeout') server
+        rank = self._find_suitable_server_rank()
+
+        # The server will be busy (user debugging) for over a minute...
+        cmd_str = ("for idx in range(0, count): time.sleep(interval); "
+                   "casalog.post('waiting/debugging {}'.format(idx))")
+        # Wait ('debug') long enough that the timeout should fire
+        count = MPIEnvironment.mpi_monitor_status_service_timeout + 5
+        command_request_id_list = self.client.push_command_request(cmd_str, False, [rank],
+                                                                   {'interval': 1,
+                                                                    'count': count})
+        timeout_command_id = command_request_id_list
+
+        # Wait while 'debugging'
+        command_response_list = self.client.get_command_response(command_request_id_list, True, True)
+
+        # Check command response
+        self.assertEqual(len(command_response_list), 1, "Command response list should have one element")
+        command_response = command_response_list[0]
+        self.assertTrue(command_response['successful'])
+        self.assertTrue(command_response['traceback'] is None,
+                         "Response traceback should not contain Timeout")
+        expected_sts = 'response received'
+        self.assertEqual(command_response['status'], expected_sts,
+                         "Command status should be {}".format(expected_sts))
+        self.assertEqual(command_response['ret'], None,
+                         "Command return variable from exec mode should be None")
+
+        # Try to push one command to the server after 'debugging'
+        command_response_list = self.client.push_command_request("a+b", True, [rank],
+                                                                   {'a':2,'b':3})
+        # Check output from simple sum command
+        self.assertTrue(command_response_list is not None,
+                        "Command response should not be empty")
+        self.assertEquals(len(command_response_list), 1,
+                          "Response list from second command should have one element")
+        command_response = command_response_list[0]
+        self.assertEqual(command_response['status'], expected_sts,
+                         "Second command status should be {}".format(expected_sts))
+        self.assertEqual(command_response['ret'], 5,
+                         "Second command return value should be as expected")
+
+        # Back to normal
+        mon.stop_debugging_mode()
+        self.assertEqual(len(mon.get_server_rank_online()), ini_servers_online,
+                         "Expected to finish with all initial servers online after stop_debugging")
+        self.assertEqual(len(mon.get_server_rank_available()), ini_servers_available,
+                         "Expected to finish with all initial servers available after stop_debugging")
+        self.assertEqual(len(mon.get_server_timeout()), ini_servers_timeout,
+                         "After stop_debugging, expected to finish with the same number of "
+                         "servers in 'timeout' status ")
+
+
+    def test_server_not_responsive(self):
+        """ Server not responsive, stuck in endless calculations"""
+
+        # First find a suitable server
+        rank = self._find_suitable_server_rank()
         
         # Overload server n# 0 with a pow operation
         command_request_id_list = self.client.push_command_request("pow(a,b)",False,[rank],{'a':10,'b':100000000000000000})
@@ -815,7 +886,6 @@ class test_MPICommandServer(unittest.TestCase):
             
         self.assertEqual(rethrow,True,"Exception not retrown") 
         self.assertEqual(str(sys.exc_info()[1]).find("Timeout")>=0, True, "Trace-back should contain Timeout")
-            
             
     def test_server_timeout_recovery(self):
              
@@ -878,22 +948,27 @@ class test_MPICommandServer(unittest.TestCase):
             instantiated = False
             
         self.assertEqual(instantiated, False, "It should not be possible to instantiate MPICommandServer in the client")
-        
-        
+
+
     def test_server_fake_timeout_busy_wait(self):
-               
+
+        mon = MPIMonitorClient()
+        ini_online = len(list(mon.get_server_rank_online()))
+        self.assertTrue(ini_online > 0,
+                        "Expected to start this test with some servers online")
+
         # Simulate a client timeout with a greedy operation
         nloops = len(self.server_list) / 2
-        for iter in range(0,nloops):
+        for iter in range(0, nloops):
             str(10**1000000) # NOTE: The greedy part is the str conversion
         
         # Check if any server turns into timeout condition in 2 loops of the heartbeat service
-        monitorClient = MPIMonitorClient()
         end_check = time.time() + 2*MPIEnvironment.mpi_monitor_status_service_heartbeat
         while (time.time() < end_check):
-            onlineServers = list(monitorClient.get_server_rank_online())
-            self.assertEqual(len(self.server_list),len(onlineServers), "There are servers in timeout condition") 
-        
+            now_online = len(list(mon.get_server_rank_online()))
+            self.assertEqual(ini_online, now_online,
+                             "There are more servers in timeout condition than initially")
+
         
 class test_MPIInterface(unittest.TestCase):            
     
@@ -1921,6 +1996,52 @@ class test_mpi4casa_runtime_settings(unittest.TestCase):
                          "getNumCPUs(use_aipsrc=True) wrong after setNumCPUs(3,self.server_list)")                                      
         
 
+class test_push_commands_parallel_task(unittest.TestCase):
+    """
+    Tests to catch the following failure observed in the past:
+    When the pipeline pushes a command using the MPIClient interface to a server
+    and the command is a task that is MMS-parallel, the task will fail to execute
+    in the MPI server because it will try to distribute work to the servers, as if
+    it was the MPI client!
+    This can affect the so-called "Tier0" parallelization approach in the pipeline.
+    See CAS-9871, CAS-11316.
+
+    This is a minimal start, just to have basic coverage for this issue. It could
+    benefit from a few additional (short, fast) tests.
+    """
+
+    def setUp(self):
+        self.vis = "ngc5921.applycal.mms"
+        setUpFile(self.vis, 'vis')
+
+        self.client = MPICommandClient()
+        self.client.set_log_mode('redirect')
+        self.client.start_services()
+
+    def tearDown(self):
+        self.client = None
+        shutil.rmtree(self.vis)
+
+    def test_push_simple_flagdata(self):
+        # the servers need to know where the tests are running (and the test files are
+        # located)
+        cmd_cd = "os.chdir('{0}')".format(os.getcwd())
+        resp = self.client.push_command_request(cmd_cd, True, None)
+        resp = resp[0]
+
+        self.assertEqual(resp['successful'], True)
+
+        cmd = "flagdata(vis='{0}', mode='summary')".format(self.vis)
+        resp = self.client.push_command_request(cmd, True, None)
+        resp = resp[0]
+
+        self.assertEqual(resp['status'], 'response received')
+        self.assertEqual(resp['successful'], True)
+        flag_dict = resp['ret']
+        self.assertEqual(flag_dict['type'], 'summary')
+        self.assertEqual(flag_dict['flagged'], 203994)
+
+
 def suite():
     return [test_MPICommandClient,
             test_MPIInterface,
@@ -1932,4 +2053,6 @@ def suite():
             test_mpi4casa_NullSelection,
             test_mpi4casa_plotms,
             test_mpi4casa_log_level,
-            test_mpi4casa_runtime_settings]
+            test_mpi4casa_runtime_settings,
+            test_push_commands_parallel_task
+    ]

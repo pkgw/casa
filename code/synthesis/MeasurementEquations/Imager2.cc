@@ -70,7 +70,6 @@
 
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Slice.h>
-#include <imageanalysis/ImageAnalysis/ImageAnalysis.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
 #include <images/Images/ImageBeamSet.h>
@@ -175,10 +174,12 @@
 #include <components/ComponentModels/PointShape.h>
 #include <components/ComponentModels/DiskShape.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 #include <casa/OS/HostInfo.h>
 
@@ -274,7 +275,8 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
   deltas(0)=-mcellx_p.get("rad").getValue();
   deltas(1)=mcelly_p.get("rad").getValue();
   
-  ROMSColumns msc(*ms_p);
+  //ROMSColumns msc(*ms_p);
+  ROMSColumns msc(*mssel_p); // CAS-11503
   MFrequency::Types obsFreqRef=MFrequency::DEFAULT;
   ROScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
 				  MSSpectralWindow::columnName(MSSpectralWindow::MEAS_FREQ_REF));
@@ -317,6 +319,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     os << LogIO::DEBUG1 << "Using user defined location: "
        << mLocation_p.getRefString() << " " << mLocation_p.get("m")
        << LogIO::POST;
+    obsPosition = mLocation_p;
     freqFrameValid_p = true;
   } else if(!(MeasTable::Observatory(obsPosition, telescop))){
     os << LogIO::WARN << "Did not get the position of " << telescop 
@@ -339,8 +342,10 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
 
   // Now find the projection to use: could probably also use
   // max(abs(w))=0.0 as a criterion
-  Projection projection(Projection::SIN);
-  if(telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO") {
+  Projection::Type ptype = Projection::type(projection_p);
+  Projection projection(ptype);
+  if(ptype == Projection::SIN
+      && (telescop == "ATCASCP" || telescop == "WSRT" || telescop == "DRAO")) {
     os << LogIO::NORMAL // Loglevel NORMAL
        << "Using SIN image projection adjusted for "
        << (telescop == "ATCASCP" ? 'S' : 'N') << "CP" 
@@ -359,7 +364,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     }
   }
   else {
-    os << LogIO::DEBUGGING << "Using SIN image projection" << LogIO::POST;
+    os << LogIO::DEBUGGING << "Using " << projection_p << " image projection" << LogIO::POST;
   }
   os << LogIO::NORMAL;
   
@@ -4238,8 +4243,6 @@ Bool Imager::makeEmptyImage(CoordinateSystem& coords, String& name, Int fieldID)
   iinfo.setObjectName(objectName);
   modelImage.setImageInfo(iinfo);
   String telescop=msc.observation().telescopeName()(0);
-  info.define("OBJECT", object);
-  info.define("TELESCOP", telescop);
   info.define("INSTRUME", telescop);
   info.define("distance", 0.0);
   modelImage.setMiscInfo(info);

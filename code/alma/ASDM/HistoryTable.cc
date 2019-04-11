@@ -30,18 +30,18 @@
  *
  * File HistoryTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <HistoryTable.h>
-#include <HistoryRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/HistoryTable.h>
+#include <alma/ASDM/HistoryRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::HistoryTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -261,7 +264,7 @@ namespace asdm {
  	 * @param appParms 
 	
      */
-	HistoryRow* HistoryTable::newRow(Tag execBlockId, ArrayTime time, string message, string priority, string origin, string objectId, string application, string cliCommand, string appParms){
+	HistoryRow* HistoryTable::newRow(Tag execBlockId, ArrayTime time, std::string message, std::string priority, std::string origin, std::string objectId, std::string application, std::string cliCommand, std::string appParms){
 		HistoryRow *row = new HistoryRow(*this);
 			
 		row->setExecBlockId(execBlockId);
@@ -296,7 +299,6 @@ HistoryRow* HistoryTable::newRow(HistoryRow* row) {
 	//
 
 	
-		
 	
 		
 		
@@ -334,11 +336,11 @@ HistoryRow* HistoryTable::newRow(HistoryRow* row) {
 		HistoryRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -354,7 +356,7 @@ HistoryRow* HistoryTable::newRow(HistoryRow* row) {
 			
 			
 			
-	HistoryRow*  HistoryTable::checkAndAdd(HistoryRow* x, bool ) {
+	HistoryRow*  HistoryTable::checkAndAdd(HistoryRow* x, bool /* skipCheckUniqueness */ ) {
 		string keystr = Key( 
 						x->getExecBlockId() 
 					   ); 
@@ -532,7 +534,7 @@ HistoryRow* HistoryTable::newRow(HistoryRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<HistoryTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:histry=\"http://Alma/XASDM/HistoryTable\" xsi:schemaLocation=\"http://Alma/XASDM/HistoryTable http://almaobservatory.org/XML/XASDM/3/HistoryTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<HistoryTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:histry=\"http://Alma/XASDM/HistoryTable\" xsi:schemaLocation=\"http://Alma/XASDM/HistoryTable http://almaobservatory.org/XML/XASDM/4/HistoryTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -561,12 +563,11 @@ HistoryRow* HistoryTable::newRow(HistoryRow* row) {
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "History");
 		
@@ -640,9 +641,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</HistoryTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -659,7 +664,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<HistoryTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:histry=\"http://Alma/XASDM/HistoryTable\" xsi:schemaLocation=\"http://Alma/XASDM/HistoryTable http://almaobservatory.org/XML/XASDM/3/HistoryTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<HistoryTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:histry=\"http://Alma/XASDM/HistoryTable\" xsi:schemaLocation=\"http://Alma/XASDM/HistoryTable http://almaobservatory.org/XML/XASDM/4/HistoryTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='HistoryTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -907,8 +912,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void HistoryTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -962,11 +970,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void HistoryTable::setFromFile(const string& directory) {		
+	void HistoryTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/History.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/History.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/History.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/History.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the History table", "History");
 	}			
@@ -1117,7 +1133,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

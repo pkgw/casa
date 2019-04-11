@@ -33,7 +33,7 @@
  * File CSubscanIntent.cpp
  */
 #include <sstream>
-#include <CSubscanIntent.h>
+#include <alma/Enumerations/CSubscanIntent.h>
 #include <string>
 using namespace std;
 

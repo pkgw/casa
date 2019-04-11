@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -64,7 +60,11 @@
 	
 
 	
-#include "CInvalidatingCondition.h"
+
+	
+
+	
+#include <alma/Enumerations/CInvalidatingCondition.h>
 	
 
 	
@@ -77,18 +77,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -107,7 +107,7 @@ class CalReductionRow;
  * Generic items describing the data reduction process.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalReduction </CAPTION>
@@ -129,7 +129,7 @@ class CalReductionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numApplied </TD> 
+ * <TD> numApplied (numApplied)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of applied calibrations prior the reduction. </TD>
@@ -137,13 +137,13 @@ class CalReductionRow;
 	
  * <TR>
  * <TD> appliedCalibrations </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numApplied </TD> 
  * <TD> &nbsp;the list of applied calibrations (one string per calibration). </TD>
  * </TR>
 	
  * <TR>
- * <TD> numParam </TD> 
+ * <TD> numParam (numParam)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of listed parameters used for calibration. </TD>
@@ -151,13 +151,13 @@ class CalReductionRow;
 	
  * <TR>
  * <TD> paramSet </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numParam </TD> 
  * <TD> &nbsp;the input parameters expressed as (keyword,value) pairs (one string per parameter). </TD>
  * </TR>
 	
  * <TR>
- * <TD> numInvalidConditions </TD> 
+ * <TD> numInvalidConditions (numInvalidConditions)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of invalidating conditions. </TD>
@@ -165,7 +165,7 @@ class CalReductionRow;
 	
  * <TR>
  * <TD> invalidConditions </TD> 
- * <TD> vector<InvalidatingConditionMod::InvalidatingCondition > </TD>
+ * <TD> std::vector<InvalidatingConditionMod::InvalidatingCondition > </TD>
  * <TD>  numInvalidConditions </TD> 
  * <TD> &nbsp;invalidating use cases (one string per case). </TD>
  * </TR>
@@ -179,21 +179,21 @@ class CalReductionRow;
 	
  * <TR>
  * <TD> messages </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;messages issued by the data reduction software. </TD>
  * </TR>
 	
  * <TR>
  * <TD> software </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the data reduction software reduction used. </TD>
  * </TR>
 	
  * <TR>
  * <TD> softwareVersion </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;version information about the data reduction software used. </TD>
  * </TR>
@@ -356,7 +356,7 @@ public:
  	 * @param softwareVersion
 	
      */
-	CalReductionRow *newRow(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion);
+	CalReductionRow *newRow(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion);
 	
 
 
@@ -459,7 +459,7 @@ public:
  	 * @param softwareVersion
  	 		 
  	 */
-	CalReductionRow* lookup(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion); 
+	CalReductionRow* lookup(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -485,6 +485,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

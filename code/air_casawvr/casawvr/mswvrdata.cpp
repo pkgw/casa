@@ -443,7 +443,7 @@ namespace LibAIR2 {
       WVRFieldAZEl(ms, times, fields, az, el);
     }
 
-    std::auto_ptr<InterpArrayData> 
+    std::unique_ptr<InterpArrayData> 
       res(new InterpArrayData(times, 
 			      el,
 			      az,

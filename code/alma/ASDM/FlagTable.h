@@ -41,19 +41,15 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -68,23 +64,31 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
+	
+
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -103,7 +107,7 @@ class FlagRow;
  * This table is used for flagging visibility data and is used in addition to the Binary Data Format flags produced by the correlator software.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Flag </CAPTION>
@@ -140,21 +144,21 @@ class FlagRow;
 	
  * <TR>
  * <TD> reason </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Extensible list of flagging conditions. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;The number of antennas to which the flagging refers.By convention numAntenna== 0 means that the flag applies to all the existing antennas.  </TD>
+ * <TD> &nbsp;The number of antennas to which the flagging refers.By convention numAntenna== 0 means that the flag applies to all the existing antennas, in such a case the array antennaId can be left empty. </TD>
  * </TR>
 	
  * <TR>
  * <TD> antennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;An array of Tag which refers to a collection of rows in the Antenna table. The flag applies to the antennas described in these rows. It is an error to have different elements with a same value in this array. </TD>
  * </TR>
@@ -164,43 +168,62 @@ class FlagRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numPolarizationType </TD> 
+ * <TD> numPolarizationType(numPolarizationType)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; The number of polarization types , i.e. the size of the attribute polarizationType. By convention numPolarizationType == 0 means that the flag applies to all the defined polarization types. </TD>
+ * <TD>&nbsp; The number of polarization types , i.e. the size of the attribute polarizationType. By convention numPolarizationType == 0 means that the flag applies to all the defined polarization types. \b Remark : numPolarizationType and polarizationType, both optional, must be both present or both absent in one same row of the table, except if numPolarizationType==0 in which case all the defined polarization types are involved in the flagging. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numSpectralWindow </TD> 
+ * <TD> numSpectralWindow(numSpectralWindow)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; The number of spectral windows. By convention numSpectralWindow == 0 means that the flag applies to all the existing spectral windows. </TD>
+ * <TD>&nbsp; The number of spectral windows targeted by the flagging. By convention numSpectralWindow == 0 means that the flag applies to all the existing spectral windows. \b Remark : numSpectralWindow and spectralWindow, both optional, must be both present or both absent in one same row of the table, except if numSpectralWindow==0, in which case all the declared spectral windows are involved in the flagging. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPairedAntenna </TD> 
+ * <TD> numPairedAntenna(numPairedAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
- * <TD>&nbsp; The number of antennas to be paired with to form the flagged baselines. By convention, numPairedAntenna == 0 means that the flag applies to all baselines built on the antennas declared in the attribute antennaId. </TD>
+ * <TD>&nbsp; The number of antennas to be paired with to form the flagged baselines. By convention, numPairedAntenna == 0 means that the flag applies to all baselines built on the antennas declared in the attribute antennaId. \b Remark: numPairedAntenna and pairedAntenna, both optional, must be both present or both absent except if numPairedAntenna==0 in which case one has to consider all the baselines defined upon the antennas announced in  antennaId. </TD>
  * </TR>
 	
  * <TR>
- * <TD> polarizationType </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> numChan(numChan)</TD> 
+ * <TD> int </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; Number of channels to be flaggged. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> polarizationType</TD> 
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numPolarizationType  </TD>
  * <TD>&nbsp; An array of values of type PolarizationType. It specifies the polarization types where the flagging applies. It is an error to have different elements with a same value in this array.  </TD>
  * </TR>
 	
  * <TR>
- * <TD> pairedAntennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> channel</TD> 
+ * <TD> std::vector<std::vector<int > > </TD>
+ * <TD>  numChan, 3  </TD>
+ * <TD>&nbsp; An array of triplets where the first element is the number spectralWindowId. The second and third values are the startChannel and endChannel, 
+respectively, which specify
+the channels where flagging applies. It is
+an error to have different elements with a
+same value in this array.
+ </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> pairedAntennaId</TD> 
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numPairedAntenna  </TD>
  * <TD>&nbsp; An array of Tag which refers to rows in the Antenna table. These rows contain the description of the antennas which are paired to form the flagged baselines. It is an error to have distinct elements with a same value in this array. </TD>
  * </TR>
 	
  * <TR>
- * <TD> spectralWindowId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> spectralWindowId</TD> 
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numSpectralWindow  </TD>
  * <TD>&nbsp; An array of Tag  which refers to a collection of rows in the SpectralWindow table. The flag applies to the spectral windows described in these rows. It is an error to have different elements with a same value in this array.   </TD>
  * </TR>
@@ -352,7 +375,7 @@ public:
  	 * @param antennaId
 	
      */
-	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId);
+	FlagRow *newRow(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId);
 	
 
 
@@ -445,7 +468,7 @@ public:
  	 * @param antennaId
  	 		 
  	 */
-	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId); 
+	FlagRow* lookup(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -471,6 +494,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

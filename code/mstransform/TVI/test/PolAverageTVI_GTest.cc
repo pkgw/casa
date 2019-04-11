@@ -41,6 +41,11 @@
 #include <casacore/casa/Containers/Record.h>
 #include <casacore/casa/Utilities/GenSort.h>
 
+#include <casacore/tables/Tables/ArrColData.h>
+#include <casacore/tables/DataMan/TiledShapeStMan.h>
+
+#include <casacore/ms/MeasurementSets/MeasurementSet.h>
+
 #include <msvis/MSVis/VisibilityIteratorImpl2.h>
 #include <msvis/MSVis/LayeredVi2Factory.h>
 
@@ -601,8 +606,7 @@ public:
     SortColumns defaultSortColumns;
 
     std::unique_ptr<ViImplementation2> inputVii(
-        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, VbPlain,
-            False));
+        new VisibilityIteratorImpl2(mss, defaultSortColumns, 0.0, False));
 
     std::unique_ptr<ViFactory> factory(
         new PolAverageVi2Factory(mode, inputVii.get()));
@@ -677,6 +681,95 @@ public:
   }
 };
 
+// copy & paste from Calibrater::initWeights
+void initWeights(MeasurementSet *ms) {
+  // add columns
+  TableDesc mstd = ms->actualTableDesc();
+  String colWtSp=MS::columnName(MS::WEIGHT_SPECTRUM);
+  Bool wtspexists=mstd.isColumn(colWtSp);
+  String colSigSp=MS::columnName(MS::SIGMA_SPECTRUM);
+  Bool sigspexists=mstd.isColumn(colSigSp);
+
+  if (!wtspexists) {
+    // Nominal defaulttileshape
+    IPosition dts(3, 4, 32, 1024);
+
+    // Discern DATA's default tile shape and use it
+    const Record dminfo = ms->dataManagerInfo();
+    for (uInt i = 0; i < dminfo.nfields(); ++i) {
+        Record col = dminfo.asRecord(i);
+        //if (upcase(col.asString("NAME"))=="TILEDDATA") {
+        if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+            dts = IPosition(
+                    col.asRecord("SPEC").asArrayInt(
+                            "DEFAULTTILESHAPE"));
+            //cout << "Found DATA's default tile: " << dts << endl;
+            break;
+        }
+    }
+
+    // Add the column
+    String colWtSp = MS::columnName(MS::WEIGHT_SPECTRUM);
+    TableDesc tdWtSp;
+    tdWtSp.addColumn(
+            ArrayColumnDesc<Float>(colWtSp, "weight spectrum", 2));
+    TiledShapeStMan wtSpStMan("TiledWgtSpectrum", dts);
+    ms->addColumn(tdWtSp, wtSpStMan);
+  }
+
+  if (!sigspexists) {
+    // Nominal defaulttileshape
+    IPosition dts(3, 4, 32, 1024);
+
+    // Discern DATA's default tile shape and use it
+    const Record dminfo = ms->dataManagerInfo();
+    for (uInt i = 0; i < dminfo.nfields(); ++i) {
+        Record col = dminfo.asRecord(i);
+        //if (upcase(col.asString("NAME"))=="TILEDDATA") {
+        if (anyEQ(col.asArrayString("COLUMNS"), String("DATA"))) {
+            dts = IPosition(
+                    col.asRecord("SPEC").asArrayInt(
+                            "DEFAULTTILESHAPE"));
+            //cout << "Found DATA's default tile: " << dts << endl;
+            break;
+        }
+    }
+
+    // Add the column
+    String colSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+    TableDesc tdSigSp;
+    tdSigSp.addColumn(
+            ArrayColumnDesc<Float>(colSigSp, "sigma spectrum", 2));
+    TiledShapeStMan sigSpStMan("TiledSigtSpectrum", dts);
+    ms->addColumn(tdSigSp, sigSpStMan);
+    {
+      TableDesc loctd = ms->actualTableDesc();
+      String loccolSigSp = MS::columnName(MS::SIGMA_SPECTRUM);
+      AlwaysAssert(loctd.isColumn(loccolSigSp),AipsError);
+    }
+
+    ArrayColumn<Float> weightColumn(*ms, "WEIGHT");
+    ArrayColumn<Float> sigmaColumn(*ms, "SIGMA");
+    ArrayColumn<Float> weightSpColumn(*ms, "WEIGHT_SPECTRUM");
+    ArrayColumn<Float> sigmaSpColumn(*ms, "SIGMA_SPECTRUM");
+    ArrayColumn<Bool> const flagColumn(*ms, "FLAG");
+    ROScalarColumn<Double> exposureColumn(*ms, "EXPOSURE");
+    for (size_t i = 0; i < ms->nrow(); ++i) {
+      IPosition const cellShape = flagColumn.shape(i);
+      Double const exposure = exposureColumn(i);
+      Matrix<Float> weightSp(cellShape, exposure);
+      Vector<Float> weight(cellShape[0], exposure);
+      Matrix<Float> sigmaSp = 1.0f / sqrt(weightSp);
+      Vector<Float> sigma = 1.0f / sqrt(weight);
+      weightColumn.put(i, weight);
+      sigmaColumn.put(i, sigma);
+      weightSpColumn.put(i, weightSp);
+      sigmaSpColumn.put(i, sigmaSp);
+    }
+
+  }
+}
+
 } // anonymous namespace
 
 class PolAverageTVITestBase: public ::testing::Test {
@@ -738,7 +831,7 @@ protected:
     uInt const nRowPolarizationTable = ms.polarization().nrow();
     auto const desc = ms.tableDesc();
     auto const correctedExists = desc.isColumn("CORRECTED_DATA");
-    auto const modelExists = desc.isColumn("MODEL_DATA");
+    auto const modelExists = vi->existsColumn(VisBufferComponent2::VisibilityModel);
     auto const dataExists = desc.isColumn("DATA");
     auto const floatExists = desc.isColumn("FLOAT_DATA");
     //auto const weightSpExists = desc.isColumn("WEIGHT_SPECTRUM");
@@ -1031,6 +1124,31 @@ protected:
     }
   }
 
+  VisibilityIterator2 *ManufactureVI2(String const &mode) {
+    return LayerManufacturer::ManufactureVI(ms_, mode);
+  }
+
+  void TestLayerFactory(String const &mode, String const &expectedClassName) {
+
+    cout << "Mode \"" << mode << "\" expected class name \""
+        << expectedClassName << "\"" << endl;
+
+    if (expectedClassName.size() > 0) {
+      std::unique_ptr < VisibilityIterator2 > vi(ManufactureVI2(mode));
+
+      // Verify type string
+      String viiType = vi->ViiType();
+      EXPECT_TRUE(viiType.startsWith(expectedClassName));
+    } else {
+      cout << "Creation of VI via factory will fail" << endl;
+      // exception must be thrown
+      EXPECT_THROW( {
+            std::unique_ptr<VisibilityIterator2> vi(ManufactureVI2(mode)); //new VisibilityIterator2(factory));
+          },
+          AipsError)<< "The process must throw AipsError";
+    }
+  }
+
 };
 
 // Fixture class for testing four polarization (cross-pol, stokes IQUV)
@@ -1041,7 +1159,7 @@ protected:
   }
 
   virtual std::string GetRelativeDataPath() {
-    return "sdsave";
+    return "singledish";
   }
 
   void SetCorrTypeToStokes() {
@@ -1198,6 +1316,23 @@ TEST_F(PolAverageTVITest, Factory) {
   TestFactory("invalid", "");
 }
 
+TEST_F(PolAverageTVITest, LayerFactory) {
+
+  TestLayerFactory("default", "StokesPolAverage");
+  TestLayerFactory("Default", "StokesPolAverage");
+  TestLayerFactory("DEFAULT", "StokesPolAverage");
+  TestLayerFactory("geometric", "GeometricPolAverage");
+  TestLayerFactory("Geometric", "GeometricPolAverage");
+  TestLayerFactory("GEOMETRIC", "GeometricPolAverage");
+  TestLayerFactory("stokes", "StokesPolAverage");
+  TestLayerFactory("Stokes", "StokesPolAverage");
+  TestLayerFactory("STOKES", "StokesPolAverage");
+  // empty mode (default)
+  TestLayerFactory("", "StokesPolAverage");
+  // invalid mode (throw exception)
+  TestLayerFactory("invalid", "");
+}
+
 TEST_F(PolAverageTVITest, GeometricAverage) {
   // Use different types of constructor to create factory
   TestTVI<GeometricAverageValidator, BasicManufacturer1>();
@@ -1210,6 +1345,18 @@ TEST_F(PolAverageTVITest, StokesAverage) {
   TestTVI<StokesAverageValidator, BasicManufacturer1>();
   TestTVI<StokesAverageValidator, BasicManufacturer2>();
   TestTVI<StokesAverageValidator, LayerManufacturer>();
+}
+
+TEST_F(PolAverageTVITest, SpectralWeightTest) {
+  // add SIGMA_SPECTRUM and WEIGHT_SPECTRUM columns and
+  // initialize them using EXPOSURE value.
+  initWeights(ms_);
+  ASSERT_TRUE(ms_->tableDesc().isColumn("WEIGHT_SPECTRUM"));
+  ASSERT_TRUE(ms_->tableDesc().isColumn("SIGMA_SPECTRUM"));
+
+  // test
+  TestTVI<GeometricAverageValidator, BasicManufacturer1>();
+  TestTVI<StokesAverageValidator, BasicManufacturer1>();
 }
 
 TEST_F(PolAverageTVIDirtyDataTest, GeometricAverageCorrupted) {

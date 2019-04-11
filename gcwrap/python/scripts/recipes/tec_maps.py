@@ -24,6 +24,11 @@
 ##    Modified by J. E. Kooi   2015/03/2   v2.5 (Changed ztec_value for doplot = 
 ##                                              True to plot a red bar over the VTEC
 ##                                              to show the observing session)
+##    Modified by gmoellen     2017/05/30  v2.6 Generate plot disk file
+##    Modified by bkent        2017/10-31  v2.7 Fixed VisibleDeprecationWarning: 
+##                                              using a non-integer 
+##                                              number instead of an integer will 
+##                                              result in an error in the future
 ##
 ##
 ##    Tested in CASA 4.3.0 and 4.2.1 on RHEL release 6.4 (Santiago)
@@ -261,7 +266,7 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
     ## Gets the day string and the integer number of days of observation (only tested for two continuous days)
     begin_day = qa.time(str(t_min[0])+'s',form='ymd')[0][:10]
     end_day = qa.time(str(t_max[0])+'s',form='ymd')[0][:10]
-    num_of_days = np.floor((t_max[0]-t_min[0])/86400.)
+    num_of_days = int(np.floor((t_max[0]-t_min[0])/86400.))  # must be an int as used below!
 
     ## Set up the number of times we need to go get TEC files
     if begin_day == end_day:
@@ -287,23 +292,30 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
             ## Fill a new array with all the full set of TEC/DTEC values for all days in the observation set.
             if tec_type != '':
                 if ymd_date_num == 0:
-                    full_tec_array = np.zeros((2,points_long,points_lat,(num_maps-1)*call_num+1))
+                    full_tec_array = np.zeros((2,int(points_long),int(points_lat),(int(num_maps)-1)*int(call_num)+1))
                     for iter in range(int(num_maps)):
                         full_tec_array[:,:,:,iter] = tec_array[:,:,:,iter]
                 else:
                     ## We remove map 0 for the current tec_array because it is a repeat of the last map from the previous tec_array
                     for iter in range(int(num_maps-1)):
-                        full_tec_array[:,:,:,iter+num_maps*ymd_date_num] = tec_array[:,:,:,iter+1]
+                        full_tec_array[:,:,:,iter+int(num_maps)*ymd_date_num] = tec_array[:,:,:,iter+1]
             ymd_date_num +=1
 
         if tec_type != '':
-            ztec_value(-107.6184,34.0790,points_long,points_lat,ref_long,ref_lat,incr_long,\
-                        incr_lat,incr_time,ref_start,ref_end,int((num_maps-1)*call_num+1),\
-                        full_tec_array,plot_vla_tec)
+
             if im_name == '':
                 prefix = ms_name
             else:
                 prefix = im_name
+
+            plot_name=''
+            if plot_vla_tec:
+                plot_name=prefix+'.IGS_TEC_at_site.png'
+
+            ztec_value(-107.6184,34.0790,points_long,points_lat,ref_long,ref_lat,incr_long,\
+                        incr_lat,incr_time,ref_start,ref_end,int((num_maps-1)*call_num+1),\
+                        full_tec_array,plot_vla_tec,plot_name)
+
             CASA_image = make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,\
                                     incr_time*60,full_tec_array[0],tec_type,appendix = '.IGS_TEC')
             CASA_RMS_image = make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,\
@@ -366,7 +378,11 @@ def create0(ms_name,tec_server='IGS',plot_vla_tec=False,im_name='',username='',u
   
     ## Returns the name of the TEC image generated
     print 'The following TEC map was generated: '+CASA_image+' & '+CASA_RMS_image
-    return CASA_image,CASA_RMS_image
+    if len(plot_name)>0:
+        print 'The following TEC zenith plot was generated: '+plot_name
+    else:
+        plot_name='none'
+    return CASA_image,CASA_RMS_image,plot_name
 
 
 
@@ -554,7 +570,7 @@ def get_IGS_TEC(ymd_date):
     number_of_rows = int(np.ceil(points_long/16))    ## Note there are 16 columns of data in IONEX format
     
     ## 4-D array that will contain TEC & DTEC (a[0] and a[1], respectively) values
-    a = np.zeros((2,points_long,points_lat,num_maps))
+    a = np.zeros((2,int(points_long),int(points_lat),int(num_maps)))
 
     ## Selecting only the TEC/DTEC values to store in the 4-D array.
     for Titer in range(2):
@@ -602,13 +618,13 @@ def get_IGS_TEC(ymd_date):
     ## =========================================================================
     
     ## The native sampling of the IGS maps minutes
-    incr_time = 24*60/int(num_maps-1)    
-    tec_array = np.zeros((2,points_long,points_lat,num_maps))
+    incr_time = 24*60/(int(num_maps)-1)    
+    tec_array = np.zeros((2,int(points_long),int(points_lat),int(num_maps)))
 
     for Titer in range(2):
         incr = 0
         for ilat in range(int(points_lat)):
-            tec_array[Titer,:,ilat,:] = 0.1*a[Titer,:,points_lat-1-ilat,:]
+            tec_array[Titer,:,ilat,:] = 0.1*a[Titer,:,int(points_lat)-1-ilat,:]
 
     return points_long,points_lat,start_long,end_lat,incr_long,np.absolute(incr_lat),incr_time,num_maps,tec_array,tec_type
 
@@ -728,7 +744,7 @@ def make_image(prefix,ref_long,ref_lat,ref_time,incr_long,incr_lat,incr_time,tec
 
 
 
-def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,incr_lat,incr_time,ref_start,ref_end,num_maps,tec_array,PLOT=False):
+def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,incr_lat,incr_time,ref_start,ref_end,num_maps,tec_array,PLOT=False,PLOTNAME=''):
     """
 ## =============================================================================
 ##
@@ -804,6 +820,7 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
         rc('xtick', labelsize=15)
         rc('ytick', labelsize=15)
         plottimes = [x*incr_time for x in range(num_maps)]
+        plt.interactive(False)
         plt.errorbar(plottimes,site_tec[0],site_tec[1])
         plt.axvspan(ref_start/60.0, ref_end/60.0, facecolor='r', alpha=0.5)
         plt.xlabel(r'$\mathrm{Time}$ $\mathrm{(minutes)}$', fontsize=20)
@@ -812,6 +829,10 @@ def ztec_value(my_long,my_lat,points_long,points_lat,ref_long,ref_lat,incr_long,
                     '$\mathrm{'+str(my_long)+'}$ / $\mathrm{Lat.}$ $\mathrm{=}$ $\mathrm{'+str(my_lat)+'}$',\
                     fontsize=20)
         plt.axis([min(plottimes),max(plottimes),0,1.1*max(site_tec[0])])
+
+        if len(PLOTNAME)>0:
+            plt.savefig( PLOTNAME )
+
     if PLOT == False:
         return site_tec
 

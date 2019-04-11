@@ -190,7 +190,7 @@ class simutil:
             elif priority.count("WARN")>0:
                 clr="\x1b[35m"                
                 #toterm=True
-                #priority="INFO" # otherwise casalog will spew to term also.
+                if self.verbose: priority="INFO" # otherwise casalog will spew to term also.
             elif priority=="ERROR":                
                 clr="\x1b[31m"
                 toterm=False  # casalog spews severe to term already
@@ -1104,6 +1104,10 @@ class simutil:
                    integration=None,debug=None,
                    method="tsys-atm",tau0=None,t_sky=None):
         
+        if qa.convert(elevation,"deg")['value']<3:
+            self.msg("Elevation < ALMA limit of 3 deg",priority="error")
+            return False
+
         import glob
         tmpname="tmp"+str(os.getpid())
         i=0
@@ -1166,12 +1170,17 @@ class simutil:
                         antennalist=repodir+"alma.out"+conf+".cfg"
                         self.msg("converted resolution to antennalist "+antennalist)
 
+            repodir = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/simmos/"
+            if not os.path.exists(antennalist) and \
+                     os.path.exists(repodir+antennalist):
+                antennalist = repodir + antennalist
             if os.path.exists(antennalist):
                 stnx, stny, stnz, stnd, padnames, telescope, posobs = self.readantenna(antennalist)
             else:
                 self.msg("antennalist "+antennalist+" not found",priority="error")
                 return False
 
+            nant=len(stnx)
             # diam is only used as a test below, not quantitatively
             diam = pl.average(stnd)
             antnames=padnames
@@ -1199,10 +1208,10 @@ class simutil:
                        nchannels=model_nchan, stokes=stokes)
         sm.setfeed(mode=feeds, pol=[''])
 
-        sm.setlimits(shadowlimit=0.01, elevationlimit='10deg')
+        sm.setlimits(shadowlimit=0.01, elevationlimit='3deg')
         sm.setauto(0.0)
 
-        obslat=qa.convert(obs['m1'],'deg')
+        obslat=qa.convert(posobs['m1'],'deg')
         dec=qa.add(obslat, qa.add(qa.quantity("90deg"),qa.mul(elevation,-1)))
 
         sm.setfield(sourcename="src1", 
@@ -1288,17 +1297,22 @@ class simutil:
         if os.path.exists(tmpname+".T.cal"):
             tb.open(tmpname+".T.cal")
             gain=tb.getcol("CPARAM")
+            flag=tb.getcol("FLAG")
+            # RI TODO average instead of first?
             tb.done()
             # gain is per ANT so square for per baseline;  
             # pick a gain from about the middle of the track
-            # TODO average over the track instead?
-            noiseperbase=1./(gain[0][0][0.5*nint*nant].real)**2
+            # needs to be unflagged!
+            z=pl.where(flag[0][0]==False)[0]
+            nunflagged=len(z)
+#            noiseperbase=1./(gain[0][0][0.5*nint*nant].real)**2
+            noiseperbase=1./(gain[0][0][z[nunflagged/2]].real)**2
         else:
             noiseperbase=0.
 
         theoreticalnoise=noiseperbase/pl.sqrt(nint*nbase*2) # assume 2-poln
-        
-        if debug==None:
+
+        if debug!=True:
             xx=glob.glob(tmpname+"*")
             for k in range(len(xx)):
                 if os.path.isdir(xx[k]):
@@ -1697,6 +1711,7 @@ class simutil:
         Transverse Mercator Projection
         conversion of grid coords n,e to geodetic coords
         revised subroutine of t. vincenty  feb. 25, 1985
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         converted from Fortran R Indebetouw Jan 2009
         ********** symbols and definitions ***********************
         latitude positive north, longitude positive west.
@@ -1918,6 +1933,7 @@ class simutil:
         longitude and latitude (in radians)
 
         converted from Fortran by R. Indebetouw Jan 2009.
+        orig. source: https://www.ngs.noaa.gov/TOOLS/program_descriptions.html
         ri also added other datums and ellipsoids in a helper function
         
         header from original UTMS fortran program:
@@ -2073,6 +2089,7 @@ class simutil:
         The ITRF frame used is not the official ITRF, just a right
         handed Cartesian system with X going through 0 latitude and 0 longitude,
         and Z going through the north pole.  
+        orig. source: http://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
         """
 
         # geodesy/NGS/XYZWIN/
@@ -2104,6 +2121,7 @@ class simutil:
         Elevation is measured relative to the closest point to 
         the (latitude, longitude) on the WGS84 reference
         ellipsoid.
+        orig. source: http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
         """
         # http://www.iausofa.org/
         # http://www.iausofa.org/2013_1202_C/sofa/gc2gde.html
@@ -2384,7 +2402,7 @@ class simutil:
             self.msg("Your image is rotated with respect to Lat/Lon.  I can't cope with that yet",priority="error")
         cellx=qa.mul(cellx,abs(xform[0,0]))
         celly=qa.mul(celly,abs(xform[1,1]))
-        return [qa.tos(cellx),qa.tos(celly)]
+        return [cellx,celly]
 
     ######################################################
     # helper function to get the spectral size from an image
@@ -2620,7 +2638,7 @@ class simutil:
         # we've now found or assigned two direction axes, and changed direction and cell if required
         # next, work on spectral axis:
 
-        model_center=""
+        model_specrefval=""
         model_width=""
         # look for a spectral axis:
         if in_spc['return']:
@@ -2635,16 +2653,12 @@ class simutil:
             axmap[3]=foo
             axassigned[foo]=3
             model_restfreq=in_csys.restfrequency()
-            in_startpix=in_csys.referencepixel(type="spectral")['numeric'][0]
-            model_width=in_csys.increment(type="spectral")['numeric'][0]
-            model_start=in_csys.referencevalue(type="spectral")['numeric'][0]-in_startpix*model_width
-            # this maybe can be done more accurately - for nonregular
-            # grids it may trip things up
-            # start is center of first channel.  for nch=1, that equals center
-            model_center=model_start+0.5*(model_nchan-1)*model_width
-            model_width=str(model_width)+in_csys.units(type="spectral")[0]
-            model_start=str(model_start)+in_csys.units(type="spectral")[0]
-            model_center=str(model_center)+in_csys.units(type="spectral")[0]
+            model_specrefpix=in_csys.referencepixel(type="spectral")['numeric'][0]
+            model_width     =in_csys.increment(type="spectral")['numeric'][0]
+            model_specrefval=in_csys.referencevalue(type="spectral")['numeric'][0]
+            # make quantities
+            model_width=qa.quantity(model_width,in_csys.units(type="spectral")[0])
+            model_specrefval=qa.quantity(model_specrefval,in_csys.units(type="spectral")[0])
             add_spectral_coord=False
             if self.verbose: self.msg("Spectral Coordinate %i parsed" % axmap[3],origin="setup model")                
         else:
@@ -2652,21 +2666,40 @@ class simutil:
             add_spectral_coord=True 
 
 
-        # override incenter?
-        center_replaced=False
+        if add_spectral_coord:                        
+            # find first unused axis - probably at end, but just in case its not:
+            i=0
+            extra_axis=-1
+            while extra_axis<0 and i<4:
+                if axassigned[i]<0: extra_axis=i
+                i+=1
+            if extra_axis<0:
+                in_ia.close()
+                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
+                return False
+
+            axmap[3]=extra_axis
+            axassigned[extra_axis]=3
+            model_nchan=arr.shape[extra_axis]
+
+
+
+        # override specrefval?
+        specref_replaced=False
         if self.isquantity(incenter,halt=False):
             if qa.compare(incenter,"1Hz"): 
                 if (qa.quantity(incenter))['value']>=0:
-                    model_center=incenter
-                    model_restfreq=model_center
-                    center_replaced=True
+                    model_specrefval=incenter
+                    model_specrefpix=pl.floor(model_nchan*0.5)
+                    model_restfreq=incenter
+                    specref_replaced=True
                     if self.verbose: self.msg("setting central frequency to "+incenter,origin="setup model")
-        valid_modcenter=False
-        if not center_replaced:
-            if self.isquantity(model_center,halt=False):
-                if qa.compare(model_center,"1Hz"):
-                    valid_modcenter=True
-            if not valid_modcenter:
+        valid_modspec=False
+        if not specref_replaced:
+            if self.isquantity(model_specrefval,halt=False):
+                if qa.compare(model_specrefval,"1Hz"):
+                    valid_modspec=True
+            if not valid_modspec:
                 in_ia.close()
                 self.msg("Unable to determine model frequency.  Valid 'incenter' parameter must be provided.",priority="error")
                 return False
@@ -2721,23 +2754,6 @@ class simutil:
             # need to add one to the coordsys 
             add_stokes_coord=True 
 
-
-
-        if add_spectral_coord:                        
-            # find first unused axis - probably at end, but just in case its not:
-            i=0
-            extra_axis=-1
-            while extra_axis<0 and i<4:
-                if axassigned[i]<0: extra_axis=i
-                i+=1
-            if extra_axis<0:
-                in_ia.close()
-                self.msg("I can't find an unused axis to make Spectral [%i %i %i %i] " % (axassigned[0],axassigned[1],axassigned[2],axassigned[3]),priority="error",origin="setup model")
-                return False
-
-            axmap[3]=extra_axis
-            axassigned[extra_axis]=3
-            model_nchan=arr.shape[extra_axis]
 
 
         if add_stokes_coord:
@@ -2807,12 +2823,11 @@ class simutil:
         modelcsys.setreferencepixel(model_refpix,"direction")
         if self.verbose: 
             self.msg("sky model image direction = "+model_refdir,origin="setup model")
-            self.msg("sky model image increment = "+str(model_cell),origin="setup model")
+            self.msg("sky model image increment = "+str(model_cell[0]),origin="setup model")
 
         modelcsys.setspectral(refcode="LSRK",restfreq=model_restfreq)
-        modelcsys.setreferencevalue(qa.convert(model_center,modelcsys.units()[3])['value'],type="spectral")
-#        modelcsys.setreferencepixel(0.5*model_nchan,type="spectral") # default is middle chan
-        modelcsys.setreferencepixel(0.5*(model_nchan-1),type="spectral") # but not half-pixel
+        modelcsys.setreferencevalue(qa.convert(model_specrefval,modelcsys.units()[3])['value'],type="spectral")
+        modelcsys.setreferencepixel(model_specrefpix,type="spectral") # but not half-pixel
         modelcsys.setincrement(qa.convert(model_width,modelcsys.units()[3])['value'],type="spectral")
 
 
@@ -2881,7 +2896,7 @@ class simutil:
 
         if self.verbose: self.msg(" ") # add a line after my spewage
 
-        return model_refdir,model_cell,model_size,model_nchan,model_center,model_width,model_stokes
+        return model_refdir,model_cell,model_size,model_nchan,model_specrefval,model_specrefpix,model_width,model_stokes
 
 
 
@@ -3013,9 +3028,10 @@ class simutil:
         cleanlast.write('width                   = 1\n')
         cleanlast.write('outframe                = ""\n')
         cleanlast.write('veltype                 = "radio"\n')
-        cleanstr=cleanstr+",imsize="+str(imsize)+",cell="+str(map(qa.tos,cell))+",phasecenter='"+str(imcenter)+"'"
+        cellstr="['"+str(cell[0]['value'])+str(cell[0]['unit'])+"','"+str(cell[1]['value'])+str(cell[1]['unit'])+"']"
+        cleanstr=cleanstr+",imsize="+str(imsize)+",cell="+cellstr+",phasecenter='"+str(imcenter)+"'"
         cleanlast.write('imsize                  = '+str(imsize)+'\n');
-        cleanlast.write('cell                    = '+str(map(qa.tos,cell))+'\n');
+        cleanlast.write('cell                    = '+cellstr+'\n');
         cleanlast.write('phasecenter             = "'+str(imcenter)+'"\n');
         cleanlast.write('restfreq                = ""\n');
         if stokes != "I":
@@ -3068,10 +3084,9 @@ class simutil:
         cleanlast.write('chaniter                = False\n');
         cleanstr=cleanstr+")"        
         if self.verbose:
-            # RI TODO assumed origin is simanalyze
-            self.msg(cleanstr,priority="warn",origin="simanalyze")
+            self.msg(cleanstr,priority="warn",origin="simutil")
         else:
-            self.msg(cleanstr,priority="info",origin="simanalyze")
+            self.msg(cleanstr,priority="info",origin="simutil")
         cleanlast.write("#"+cleanstr+"\n")
         cleanlast.close()
         
@@ -3080,7 +3095,7 @@ class simutil:
             clean(vis=mstoimage, imagename=imagename, mode=chanmode, 
               niter=niter, threshold=threshold, selectdata=False, nchan=nchan,
               psfmode=psfmode, imagermode=imagermode, ftmachine=ftmachine, 
-              imsize=imsize, cell=map(qa.tos,cell), phasecenter=imcenter,
+              imsize=imsize, cell=[str(cell[0]['value'])+str(cell[0]['unit']),str(cell[1]['value'])+str(cell[1]['unit'])], phasecenter=imcenter,
               stokes=stokes, weighting=weighting, robust=robust,
               interactive=interactive,
               uvtaper=uvtaper,outertaper=outertaper, pbcor=True, mask=mask,

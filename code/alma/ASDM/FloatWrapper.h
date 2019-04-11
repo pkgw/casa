@@ -25,19 +25,16 @@
  */
 # ifndef Float_CLASS
 # define Float_CLASS
-#include <NumberFormatException.h>
+#include <alma/ASDM/NumberFormatException.h>
 
 #include <string>
-
-using std::string;
 
 namespace asdm {
 /**
  * A collection of static methods to perform conversions
  * between strings and float values.
  */
-
-    class Float {
+class Float {
 
 public:
 	/**
@@ -46,14 +43,14 @@ public:
 	 * @return a float.
 	 * @throws NumberFormatException.
 	 */
-	static float parseFloat(const string &s) throw (NumberFormatException);
+	static float parseFloat(const std::string &s) throw (NumberFormatException);
 
 	/**
 	 * Encode a float value into its string representation.
 	 * @param d the float value to be encoded.
 	 * @return the string representing the float value passed as parameter.
 	 */
-	static string toString(float);
+	static std::string toString(float);
 
   	/**	
 	 * The maximum value for a float.

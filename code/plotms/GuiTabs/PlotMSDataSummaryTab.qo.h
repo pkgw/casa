@@ -26,6 +26,8 @@
 #ifndef PLOTMSDATASUMMARYTAB_QO_H_
 #define PLOTMSDATASUMMARYTAB_QO_H_
 
+#include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
+
 #include <plotms/GuiTabs/PlotMSDataSummaryTab.ui.h>
 #include <plotms/Plots/PlotMSPlotParameters.h>
 #include <plotms/PlotMS/PlotMS.h>
@@ -65,8 +67,8 @@ public:
     void setGridSize( int rowCount, int colCount );
 
     // Returns the axes that the user has selected to load/release into the cache.
-     vector<vector<PMS::Axis> > selectedLoadAxes() const;
-     vector<vector<PMS::Axis> > selectedReleaseAxes() const;
+    std::vector<std::vector<PMS::Axis> > selectedLoadAxes() const;
+    std::vector<std::vector<PMS::Axis> > selectedReleaseAxes() const;
 
      //Tell all of the supported plots to update their displays.
     bool plot();
@@ -75,13 +77,13 @@ public:
     void insertData( int index );
 
     //Return the currently supported plots.
-    vector<PlotMSPlot*> getCurrentPlots();
+    std::vector<PlotMSPlot*> getCurrentPlots();
 
     void emptyLayout();
 
 
     //Get the files that the user loaded.
-    vector<casacore::String> getFiles() const;
+    std::vector<casacore::String> getFiles() const;
     void completePlotting( bool success, PlotMSPlot* plot );
 signals:
 	void changed( int index );
@@ -101,6 +103,8 @@ private:
 	//the same canvas are done updating their data in background threads.
     void completePlotting( bool success, int plotIndex);
     void fillLayout();
+
+    void refreshPageHeader();
 
     QList<PlotMSDataCollapsible*> dataList;
     QWidget* scrollWidget;

@@ -41,6 +41,8 @@
 #include <synthesis/TransformMachines/SynthesisError.h>
 #include <synthesis/TransformMachines/BeamCalc.h>
 #include <casa/OS/Timer.h>
+#include <casa/System/AppState.h>
+#include <casa/OS/Directory.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -162,12 +164,35 @@ namespace casa{
       }
 
       if(useInternal){
-	const char *sep=" ";
-	char *aipsPath = strtok(getenv("CASAPATH"),sep);
-	if (aipsPath == NULL)
-	  throw(SynthesisError("CASAPATH not found."));
-	String fullFileName(aipsPath);
-	
+
+        Bool found = False;
+        String fullFileName;
+        const std::list<std::string> &data_path = AppStateSource::fetch( ).dataPath( );
+        
+        // The data path search need to be rewritten to adopt the recommanded setting via python
+        // file for CASA6. 
+        // For now, only the first path that actually exist will be set to the data path (TT 2018.12.10)
+        if (data_path.size() > 0 ) {
+          for ( std::list<std::string>::const_iterator it=data_path.begin(); ! found && it != data_path.end(); ++it ) {
+            Path lpath = Path(*it);
+            String slpath = lpath.absoluteName();
+            Directory ddir(slpath);
+            if  (ddir.exists()) {
+              found = True;
+              fullFileName=slpath;
+              break;
+            }
+          }
+        } 
+        else if(!found) {
+          const char *sep=" ";
+          char *aipsPath = strtok(getenv("CASAPATH"),sep);
+          if (aipsPath == NULL)
+            throw(SynthesisError("CASAPATH not found."));
+          fullFileName=aipsPath;
+          fullFileName+="/data";
+        }
+
 	if(obsName_p=="VLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for VLA STANDARD." << LogIO::POST;
 	  BeamCalc_NumBandCodes_p = VLABeamCalc_NumBandCodes;
@@ -179,7 +204,8 @@ namespace casa{
 	    bandMinFreq_p[i] = VLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = VLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="EVLA" && antType_p=="STANDARD"){
 	  os <<  LogIO::NORMAL << "Will use default geometries for EVLA STANDARD." << LogIO::POST;
@@ -192,7 +218,8 @@ namespace casa{
 	    bandMinFreq_p[i] = EVLABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = EVLABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  //antRespPath_p = fullFileName + "/data/nrao/VLA";
+	  antRespPath_p = fullFileName + "/nrao/VLA";
 	}
 	else if(obsName_p=="ALMA" && (antType_p=="DA" || antType_p=="DV" || antType_p=="PM")){
 	  os <<  LogIO::NORMAL << "Will use default geometries for ALMA DA, DV, and PM." << LogIO::POST;
@@ -208,7 +235,8 @@ namespace casa{
 	    bandMinFreq_p[i] = ALMABandMinFreqDefaults[i]; 
 	    bandMaxFreq_p[i] = ALMABandMaxFreqDefaults[i]; 
 	  }
-	  antRespPath_p = fullFileName + "/data/alma/responses";
+	  //antRespPath_p = fullFileName + "/data/alma/responses";
+	  antRespPath_p = fullFileName + "/alma/responses";
 	}
 	else{
 	  String mesg="We don't have any antenna ray tracing parameters available for observatory "
@@ -307,19 +335,33 @@ namespace casa{
 
   Int BeamCalc::getBandID(Double freq, // in Hz 
 			  const String& obsName,
+			  const String& bandName,
 			  const String& antType,
 			  const MEpoch& obsTime,
 			  const String& otherAntRayPath){
 
     setBeamCalcGeometries(obsName, antType, obsTime, otherAntRayPath); 
 
+    // Check against bandName if it is a non-NULL string.  Otherwise
+    // check against frequency range.  The latter method is only for
+    // backward compatibility reasons and for older MSes which did not
+    // have correct band names in the SPW sub-table.
+    if (bandName != "")
+      for(uInt i=0; i<BeamCalcGeometries_p.nelements(); i++)
+    	  if(String(BeamCalcGeometries_p[i].bandName)==bandName) return i;
+
+    // If the control flow gets here, the given bandName did not match
+    // in SPW names in the MS.  So use the fall-back option of using
+    // the reference frequency to get the band ID (this will lead to
+    // incorrect ID for the edge SPWs which might overlap in frequecy
+    // with the adjecent band).
     for(uInt i=0; i<BeamCalc_NumBandCodes_p; i++){
       if((bandMinFreq_p[i]<=freq)&&(freq<=bandMaxFreq_p[i])){
 	return i;
       }
     }
     ostringstream mesg;
-    mesg << obsName << "/" << antType << "/" << freq << "(Hz) combination not recognized.";
+    mesg << obsName << "/" << bandName << "/" << antType << "/" << freq << "(Hz) combination not recognized.";
     throw(SynthesisError(mesg.str()));
     
   }
@@ -590,8 +632,10 @@ namespace casa{
     Int i;
     Double x, freq, df;
     
+    //LogIO os;
     if((0<=ap->band) && (ap->band<(Int)BeamCalcGeometries_p.size())){
       geom = &(BeamCalcGeometries_p[ap->band]);
+      //os << "Using antenna parameters for " << geom->bandName << " band" << LogIO::POST;
     }
     else{
       SynthesisError err(String("Internal Error: attempt to access beam geometry for non-existing band."));
@@ -1277,7 +1321,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1308,8 +1353,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1337,7 +1382,8 @@ namespace casa{
   {
     Int i, n;
     Double dr2;
-    Double theta, phi;
+    // phi set but not used
+    Double theta /*, phi*/;
     Double r0[3], dr[3], l0[3], l1[3], dl[3], D[3]; 
     Double D2, N[3], ll, rr;
     const Double thetaplus[4] = 
@@ -1368,8 +1414,8 @@ namespace casa{
     l0[2] = a->legfootz;
     l1[0] = l1[1] = 0.0;
     l1[2] = a->legapex;
-    phi = atan2(r0[1], r0[0]);
-    phi=phi;
+    // phi set but not used
+    // phi = atan2(r0[1], r0[0]);
     for(n = 0; n < 4; n++)
       {
 	theta = thetalut[n];
@@ -1396,6 +1442,7 @@ namespace casa{
 
   void BeamCalc::copyBeamCalcGeometry(BeamCalcGeometry* to, BeamCalcGeometry* from){
     sprintf(to->name, "%s", from->name);
+    sprintf(to->bandName, "%s", from->bandName);
     to->sub_h = from->sub_h;
     for(uInt j=0; j<3;j++){
       to->feedpos[j] = from->feedpos[j];
@@ -1422,12 +1469,13 @@ namespace casa{
   
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    // not used
+    // Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant, x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -1512,15 +1560,15 @@ namespace casa{
     // cerr << "max threads " << omp_get_max_threads() 
     // 	 << " threads available " << omp_get_num_threads() 
     // 	 << endl;
-    Int Nth=1;
-#ifdef _OPENMP
-    Nth=max(omp_get_max_threads()-2,1);
-#endif
+    //Int Nth=1;
+    //#ifdef _OPENMP
+    //Nth=max(omp_get_max_threads()-2,1);
+    //#endif
     // Timer tim;
     // tim.mark();
-#pragma omp parallel default(none) firstprivate(Er, El, nx, ny)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
+    //#pragma omp parallel default(none) firstprivate(Er, El, nx, ny)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
     {
-#pragma omp for
+      //#pragma omp for
     for(j = 0; j < ny; j++)
       {
 	for(i = 0; i < nx; i++)
@@ -1685,12 +1733,12 @@ namespace casa{
   //
   Int BeamCalc::calculateAperture(ApertureCalcParams *ap, const Int& whichPoln)
   {
-    Complex fp, Exr, Eyr, Exl, Eyl;
+    //Complex fp, Exr, Eyr, Exl, Eyl;
     Complex Er[3], El[3];
     Complex Pr[2], Pl[2]; 
     Complex q[2];
     //Double dx, dy, Rhole, Rant;//x0, y0, R2, H2, eps;
-    Complex rr, rl, lr, ll, tmp;
+    //Complex rr, rl, lr, ll, tmp;
     Double L0, phase;
     Double sp, cp;
     Double B[3][3];
@@ -1780,19 +1828,20 @@ namespace casa{
     // cerr << "max threads " << omp_get_max_threads() 
     // 	 << " threads available " << omp_get_num_threads() 
     // 	 << endl;
-    Int Nth=1, localWhichPoln=whichPoln;
-#ifdef _OPENMP
-    Nth=max(omp_get_max_threads()-2,1);
-#endif
+    // Int Nth=1, localWhichPoln=whichPoln;
+    Int localWhichPoln=whichPoln;
+    //#ifdef _OPENMP
+    //Nth=max(omp_get_max_threads()-2,1);
+    //#endif
     // Timer tim;
     // tim.mark();
-#if GCC44x
-#pragma omp parallel default(none) firstprivate(Er, El, nx, ny, localWhichPoln)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
-#else
-#pragma omp parallel default(none) firstprivate(Er, El, nx, ny, localWhichPoln)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
-#endif
+    //#if GCC44x
+    //#pragma omp parallel default(none) firstprivate(Er, El, nx, ny, localWhichPoln)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
+    //#else
+    //#pragma omp parallel default(none) firstprivate(Er, El, nx, ny, localWhichPoln)  private(i,j) shared(ap, a, p, L0) num_threads(Nth)
+    //#endif
     {
-#pragma omp for
+      //#pragma omp for
     for(j = 0; j < ny; j++)
       {
 	for(i = 0; i < nx; i++)

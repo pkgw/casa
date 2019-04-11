@@ -36,9 +36,9 @@
 #include <tables/Tables/ScalarColumn.h>
 
 // for importasap and importnro
-#include <singledish/Filler/SingleDishMSFiller.h>
-#include <singledish/Filler/Scantable2MSReader.h>
-#include <singledish/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/NRO2MSReader.h>
+#include <singledishfiller/Filler/Scantable2MSReader.h>
+#include <singledishfiller/Filler/SingleDishMSFiller.h>
 
 #define _ORIGIN LogOrigin("SingleDishMS", __func__, WHERE)
 
@@ -233,6 +233,14 @@ void SingleDishMS::setSelection(Record const &selection, bool const verbose) {
       any_selection = true;
       os << "- TaQL: " << taQLExpr << LogIO::POST;
     }
+    {// reindex
+    	Int ifield;
+    	ifield = selection_.fieldNumber(String("reindex"));
+    	if (ifield > -1) {
+    		Bool reindex = selection_.asBool(ifield);
+    		os << "- Reindex: " << (reindex ? "ON" : "OFF" ) << LogIO::POST;
+    	}
+    }
     if (!any_selection)
       os << "No valid selection parameter is set." << LogIO::WARN;
   }
@@ -374,6 +382,7 @@ bool SingleDishMS::prepare_for_process(string const &in_column_name,
   os << LogIO::DEBUG1 << str << LogIO::POST;
   // Open the MS and select data
   sdh_->open();
+  sdh_->getOutputMs()->flush();
   // set large timebin if not averaging
   Double timeBin;
   int exists = configure_param.fieldNumber("timebin");
@@ -448,7 +457,7 @@ void SingleDishMS::format_selection(Record &selection) {
 
 }
 
-void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb,
+void SingleDishMS::get_data_cube_float(vi::VisBuffer2 const &vb, 
     Cube<Float> &data_cube) {
 //  if (in_column_ == MS::FLOAT_DATA) {
 //    data_cube = vb.visCubeFloat();
@@ -1254,11 +1263,11 @@ void SingleDishMS::doSubtractBaseline(string const& in_column_name,
       size_t const num_chan = static_cast<size_t>(vb->nChannels());
       size_t const num_pol = static_cast<size_t>(vb->nCorrelations());
       size_t const num_row = static_cast<size_t>(vb->nRows());
-      Cube<Float> data_chunk(num_pol, num_chan, num_row, ArrayInitPolicy::NO_INIT);
-      Vector<float> spec(num_chan, ArrayInitPolicy::NO_INIT);
-      Cube<Bool> flag_chunk(num_pol, num_chan, num_row, ArrayInitPolicy::NO_INIT);
-      Vector<bool> mask(num_chan, ArrayInitPolicy::NO_INIT);
-      Vector<bool> mask2(num_chan, ArrayInitPolicy::NO_INIT);
+      Cube<Float> data_chunk(num_pol, num_chan, num_row, ArrayInitPolicies::NO_INIT);
+      Vector<float> spec(num_chan, ArrayInitPolicies::NO_INIT);
+      Cube<Bool> flag_chunk(num_pol, num_chan, num_row, ArrayInitPolicies::NO_INIT);
+      Vector<bool> mask(num_chan, ArrayInitPolicies::NO_INIT);
+      Vector<bool> mask2(num_chan, ArrayInitPolicies::NO_INIT);
       float *spec_data = spec.data();
       bool *mask_data = mask.data();
       bool *mask2_data = mask2.data();
@@ -1328,12 +1337,12 @@ void SingleDishMS::doSubtractBaseline(string const& in_column_name,
         std::vector<std::vector<double> > coeff_mtx_tmp(num_pol);
         
         Array<Float> rms_mtx(IPosition(2, num_pol, 1), (Float)0);
-        Array<Float> cthres_mtx(IPosition(2, num_pol, 1), ArrayInitPolicy::NO_INIT);
-        Array<uInt> citer_mtx(IPosition(2, num_pol, 1), ArrayInitPolicy::NO_INIT);
-        Array<Bool> uself_mtx(IPosition(2, num_pol, 1), ArrayInitPolicy::NO_INIT);
-        Array<Float> lfthres_mtx(IPosition(2, num_pol, 1), ArrayInitPolicy::NO_INIT);
-        Array<uInt> lfavg_mtx(IPosition(2, num_pol, 1), ArrayInitPolicy::NO_INIT);
-        Array<uInt> lfedge_mtx(IPosition(2, num_pol, 2), ArrayInitPolicy::NO_INIT);
+        Array<Float> cthres_mtx(IPosition(2, num_pol, 1), ArrayInitPolicies::NO_INIT);
+        Array<uInt> citer_mtx(IPosition(2, num_pol, 1), ArrayInitPolicies::NO_INIT);
+        Array<Bool> uself_mtx(IPosition(2, num_pol, 1), ArrayInitPolicies::NO_INIT);
+        Array<Float> lfthres_mtx(IPosition(2, num_pol, 1), ArrayInitPolicies::NO_INIT);
+        Array<uInt> lfavg_mtx(IPosition(2, num_pol, 1), ArrayInitPolicies::NO_INIT);
+        Array<uInt> lfedge_mtx(IPosition(2, num_pol, 2), ArrayInitPolicies::NO_INIT);
 
         size_t num_apply_true = 0;
         size_t num_fpar_max = 0;
@@ -1504,19 +1513,19 @@ void SingleDishMS::doSubtractBaseline(string const& in_column_name,
         if (num_apply_true == 0) continue;
 
         Array<Int> fpar_mtx(IPosition(2, num_pol, num_fpar_max),
-                            ArrayInitPolicy::NO_INIT);
+                            ArrayInitPolicies::NO_INIT);
         set_matrix_for_bltable<size_t, Int>(num_pol, num_fpar_max,
                                            fpar_mtx_tmp, fpar_mtx);
         Array<Float> ffpar_mtx(IPosition(2, num_pol, num_ffpar_max),
-                               ArrayInitPolicy::NO_INIT);
+                               ArrayInitPolicies::NO_INIT);
         set_matrix_for_bltable<double, Float>(num_pol, num_ffpar_max,
                                               ffpar_mtx_tmp, ffpar_mtx);
         Array<uInt> masklist_mtx(IPosition(2, num_pol, num_masklist_max),
-                                 ArrayInitPolicy::NO_INIT);
+                                 ArrayInitPolicies::NO_INIT);
         set_matrix_for_bltable<uInt, uInt>(num_pol, num_masklist_max,
                                            masklist_mtx_tmp, masklist_mtx);
         Array<Float> coeff_mtx(IPosition(2, num_pol, num_coeff_max),
-                               ArrayInitPolicy::NO_INIT);
+                               ArrayInitPolicies::NO_INIT);
         set_matrix_for_bltable<double, Float>(num_pol, num_coeff_max,
                                               coeff_mtx_tmp, coeff_mtx);
         Matrix<uInt> masklist_mtx2 = masklist_mtx;
@@ -1856,7 +1865,7 @@ void SingleDishMS::subtractBaselineCspline(string const& in_column_name,
   std::vector<LIBSAKURA_SYMBOL(LSQFitContextFloat) *> bl_contexts;
   bl_contexts.clear();
   size_t const bltype = BaselineType_kCubicSpline;
-  Vector<size_t> boundary(npiece+1, ArrayInitPolicy::NO_INIT);
+  Vector<size_t> boundary(npiece+1, ArrayInitPolicies::NO_INIT);
   size_t *boundary_data = boundary.data();
 
   doSubtractBaseline(in_column_name,
@@ -2079,7 +2088,7 @@ void SingleDishMS::applyBaselineTable(string const& in_column_name,
   }
 
   Block<Int> columns(1);
-  columns[0] = MS::TIME;
+  columns[0] = MS::DATA_DESC_ID;  // (CAS-9918, 2017/4/27 WK)   //columns[0] = MS::TIME;
   prepare_for_process(in_column_name, out_ms_name, columns, false);
   vi::VisibilityIterator2 *vi = sdh_->getVisIter();
   vi->setRowBlocking(kNRowBlocking);
@@ -2579,7 +2588,8 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
                                             string const& out_bloutput_name,
                                             bool const& do_subtract,
                                             string const& in_spw,
-                                            string const& param_file) {
+                                            string const& param_file,
+					    bool const& verbose) {
 
   LogIO os(_ORIGIN);
   os << "Fitting and subtracting baseline using parameters in file "
@@ -2755,7 +2765,7 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
             apply_mtx[0][ipol] = false;
             continue;
           }
-          if (true) {
+          if (verbose) {
             os << "Fitting Parameter" << LogIO::POST;
             os << "[ROW " << orig_rows[irow] << " (nchan " << num_chan << ")" << ", POL" << ipol << "]"
                 << LogIO::POST;
@@ -2840,7 +2850,7 @@ void SingleDishMS::subtractBaselineVariable(string const& in_column_name,
           if (bltype == BaselineType_kCubicSpline) {
             num_boundary = fit_param.npiece+1;
           }
-          Vector<size_t> boundary(num_boundary,ArrayInitPolicy::NO_INIT);
+          Vector<size_t> boundary(num_boundary,ArrayInitPolicies::NO_INIT);
           size_t *boundary_data = boundary.data();
 
           if (write_baseline_text || write_baseline_csv || write_baseline_table) {
@@ -3219,72 +3229,6 @@ void SingleDishMS::findLineAndGetMask(size_t const num_data, float const* data,
 			     avg_limit, minwidth, edge, invert);
   // line mask creation (do not initialize in case of baseline mask)
   linefinder::getMask(num_data, out_mask, line_ranges, invert, !invert);
-}
-
-void SingleDishMS::scale(float const factor, string const& in_column_name,
-    string const& out_ms_name) {
-  LogIO os(_ORIGIN);
-  os << "Multiplying scaling factor = " << factor << LogIO::POST;
-  // in_ms = out_ms
-  // in_column = [FLOAT_DATA|DATA|CORRECTED_DATA], out_column=new MS
-  // no iteration is necessary for the processing.
-  // procedure
-  // 1. iterate over MS
-  // 2. pick single spectrum from in_column
-  // 3. multiply a scaling factor to each spectrum
-  // 4. put single spectrum (or a block of spectra) to out_column
-  prepare_for_process(in_column_name, out_ms_name);
-  vi::VisibilityIterator2 *vi = sdh_->getVisIter();
-  vi->setRowBlocking(kNRowBlocking);
-  vi::VisBuffer2 *vb = vi->getVisBuffer();
-
-  // //DEBUG
-  // Block<Int> scol = vi->getSortColumns().getColumnIds();
-  // cout << "sort columns of iterator = ";
-  // for (size_t i = 0; i < scol.nelements(); ++i)
-  //   cout << scol[i] << ", ";
-  // cout << endl;
-  // cout << "default added = " << (vi->getSortColumns().shouldAddDefaultColumns()? 'T' : 'F') << endl;
-
-  for (vi->originChunks(); vi->moreChunks(); vi->nextChunk()) {
-    for (vi->origin(); vi->more(); vi->next()) {
-      size_t const num_chan = static_cast<size_t>(vb->nChannels());
-      size_t const num_pol = static_cast<size_t>(vb->nCorrelations());
-      size_t const num_row = static_cast<size_t>(vb->nRows());
-      Cube<Float> data_chunk(num_pol, num_chan, num_row);
-      Matrix<Float> data_row(num_pol, num_chan);
-      Vector<float> spectrum(num_chan);
-      // CAUTION!!!
-      // data() method must be used with special care!!!
-      float *spectrum_data = spectrum.data();
-
-      // get a data cube (npol*nchan*nrow) from VisBuffer
-      get_data_cube_float(*vb, data_chunk);
-      // loop over MS rows
-      for (size_t irow = 0; irow < num_row; ++irow) {
-        // loop over polarization
-        for (size_t ipol = 0; ipol < num_pol; ++ipol) {
-          // get a spectrum from data cube
-          get_spectrum_from_cube(data_chunk, irow, ipol, num_chan, spectrum_data);
-
-          // actual execution of single spectrum
-          do_scale(factor, num_chan, spectrum_data);
-
-          // set back a spectrum to data cube
-          set_spectrum_to_cube(data_chunk, irow, ipol, num_chan, spectrum_data);
-        } // end of polarization loop
-      } // end of chunk row loop
-      // write back data cube to Output MS
-      sdh_->fillCubeToOutputMs(vb, data_chunk);
-    } // end of vi loop
-  } // end of chunk loop
-  finalize_process();
-}
-
-void SingleDishMS::do_scale(float const factor, size_t const num_data,
-    float *data) {
-  for (size_t i = 0; i < num_data; ++i)
-    data[i] *= factor;
 }
 
 void SingleDishMS::smooth(string const &kernelType, float const kernelWidth,

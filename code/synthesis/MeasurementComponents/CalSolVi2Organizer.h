@@ -63,7 +63,8 @@ public:
   void addDiskIO(casacore::MeasurementSet* ms,float interval,
 		 casacore::Bool combobs=false,casacore::Bool combscan=false,
 		 casacore::Bool combfld=false,casacore::Bool combspw=false,
-		 casacore::Bool useMSIter2=true);
+		 casacore::Bool useMSIter2=true,
+                 std::shared_ptr<vi::FrequencySelections> freqSel=nullptr);
 
   // Add spoofed data layer factory
   void addSimIO();
@@ -74,10 +75,19 @@ public:
   void addCalForSolving(VisEquation& ve);
 
   // Add chan-averaging layer factory
-  void addChanAve(int chanbin);
+  void addChanAve(casacore::Vector<int> chanbin);
 
   // Add time-averaging layer factory
   void addTimeAve(float timebin);
+
+  // Add calibration specific data filter
+  // config should have the following entries:
+  // "mode" (String) -- calibration mode (only "SDGAIN_OTFD" is supported)
+  //   mode="SDGAIN_OTFD" configuration parameters
+  //     "smooth" (Bool) -- apply smoothing or not (optional; default is False)
+  //     "radius" (String) -- radius of the central region as a quantity string
+  //                          (optional; default is half of beam size)
+  void addCalFilter(casacore::Record const &config);
 
 private:
 
@@ -95,7 +105,7 @@ private:
 		     bool combfld,bool combspw);
 
   // Pointers to the various kinds of layer factories we may use
-  vi::ViiLayerFactory *data_, *cal_, *chanave_, *timeave_;
+  vi::ViiLayerFactory *data_, *cal_, *chanave_, *timeave_, *calfilter_;
 
   //vi::SimpleSimVi2LayerFactory *ss_;
   //vi::CalSolvingVi2LayerFactoryByVE *cal_;

@@ -17,10 +17,11 @@
 #include <casacore/casa/Logging/LogIO.h>
 #include <casacore/casa/Quanta/Quantum.h>
 
+#include <casacore/casa/Utilities/Sort.h>
+
 #include <cassert>
 #include <cmath>
 
-using namespace casacore;
 using namespace casacore;
 
 #define LOG logger_ << LogOrigin("SDDoubleCircleGainCal", __FUNCTION__, WHERE)
@@ -161,6 +162,8 @@ inline void smooth(Int const smooth_size, Vector<Double> const &data,
 }
 
 // interpolation
+// unused
+/*
 inline void interpolateLinear(Vector<Double> const &x0,
     Vector<Double> const &y0, Vector<Double> const &x1, Vector<Double> &y1) {
   // TODO replace with sakura function (need to add double precision version of interpolation function)
@@ -172,7 +175,7 @@ inline void interpolateLinear(Vector<Double> const &x0,
     y1[i] = interpolator(x1[i]);
   }
 }
-
+*/
 // utility
 inline size_t toUnsigned(ssize_t const v) {
   assert(v >= 0);
@@ -180,11 +183,10 @@ inline size_t toUnsigned(ssize_t const v) {
 }
 } // anonymous namespace END
 
-using namespace casacore;
 namespace casa { // namespace casa START
 SDDoubleCircleGainCalImpl::SDDoubleCircleGainCalImpl() :
-    central_region_(-1.0), do_smooth_(false), smooth_size_(-1),
-    observing_frequency_(0.0), antenna_diameter_(0.0), logger_() {
+    central_region_(-1.0), do_smooth_(false), smooth_size_(-1), observing_frequency_(
+        0.0), antenna_diameter_(0.0), logger_() {
 }
 
 SDDoubleCircleGainCalImpl::~SDDoubleCircleGainCalImpl() {
@@ -302,15 +304,23 @@ void SDDoubleCircleGainCalImpl::calibrate(Cube<Float> const &data,
 
   // select data within radius
   auto const data_shape = data.shape();
-  size_t const num_pol = ::toUnsigned(data_shape[0]);
-  size_t const num_chan = ::toUnsigned(data_shape[1]);
   assert(time.nelements() == uInt(data_shape[2]));
   assert(direction.shape()[1] == data_shape[2]);
   assert(direction.shape()[0] == 2);
   findDataWithinRadius(radius, time, data, flag, direction, gain_time, gain,
       gain_flag);
-  size_t num_gain = gain_time.nelements();
+  doCalibrate(gain_time, gain, gain_flag);
+}
+
+void SDDoubleCircleGainCalImpl::doCalibrate(Vector<Double> &gain_time,
+    Cube<Float> &gain, Cube<Bool> &gain_flag) {
+
+  size_t const num_gain = gain_time.nelements();
   LOG << "num_gain = " << num_gain << POSTLOG;
+
+  size_t const num_pol = ::toUnsigned(gain.shape()[0]);
+  size_t const num_chan = ::toUnsigned(gain.shape()[1]);
+  assert(gain.shape()[2] == num_gain);
 
   //LOG << "indices within radius: " << within_radius << POSTLOG;
 
@@ -378,7 +388,7 @@ void SDDoubleCircleGainCalImpl::calibrate(Cube<Float> const &data,
         }
 
         LOG << LogIO::DEBUGGING << "mean value = " << mean_value
-            << " (simple mean " << mean(smoothed_data) << ")" << POSTLOG;
+        << " (simple mean " << mean(smoothed_data) << ")" << POSTLOG;
       }
 
 //      LOG << LogIO::DEBUGGING << "gfactor[" << ipol << "," << ichan << "]=" << work_data
@@ -440,30 +450,10 @@ void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
     Vector<Double> const &time, Cube<Float> const &data,
     Matrix<Double> const &direction, Vector<Double> &gain_time,
     Cube<Float> &gain) {
-  size_t num_data = ::toUnsigned(direction.shape()[1]);
-  // find data within radius
-  Vector<size_t> data_index(num_data);
-  size_t num_gain = 0;
-  for (size_t i = 0; i < num_data; ++i) {
-    Double x = direction(0, i);
-    Double y = direction(1, i);
-    Double r2 = x * x + y * y;
-    if (r2 <= radius * radius) {
-      data_index[num_gain] = i;
-      num_gain++;
-    }
-  }
-
-  // store data for calibration
-  gain_time.resize(num_gain);
-  IPosition gain_shape(data.shape());
-  gain_shape[2] = num_gain;
-  gain.resize(gain_shape);
-  for (size_t i = 0; i < num_gain; ++i) {
-    size_t j = data_index[i];
-    gain_time[i] = time[j];
-    gain.xyPlane(i) = data.xyPlane(j);
-  }
+  Cube<Bool> flag(data.shape(), False);
+  Cube<Bool> gain_flag;
+  findDataWithinRadius(radius, time, data, flag, direction, gain_time, gain,
+      gain_flag);
 }
 
 void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
@@ -498,10 +488,68 @@ void SDDoubleCircleGainCalImpl::findDataWithinRadius(Double const radius,
   }
 }
 
+bool SDDoubleCircleGainCalImpl::findTimeRange(Vector<Double> const &time,
+    Vector<Double> const &interval, Matrix<Double> const &direction,
+    TimeRangeList &timerange) {
+  // radius of the central region
+  Double radius = getRadius();
+
+  // find data within radius
+  size_t num_all_data = time.nelements();
+  Vector<size_t> data_index(num_all_data);
+  size_t num_data = 0;
+  for (size_t i = 0; i < num_all_data; ++i) {
+    Double x = direction(0, i);
+    Double y = direction(1, i);
+    Double r2 = x * x + y * y;
+    if (r2 <= radius * radius) {
+      data_index[num_data] = i;
+      num_data++;
+    }
+  }
+
+  // list of time and interval
+  Vector<Double> time_sel(num_data);
+  Vector<Double> interval_sel(num_data);
+  for (size_t i = 0; i < num_data; ++i) {
+    time_sel[i] = time[data_index[i]];
+    interval_sel[i] = interval[data_index[i]];
+  }
+
+  // sort
+  Sort s(time_sel.data(), num_data);
+  Vector<uInt> index_vector;
+  uInt num_sorted = s.sort(index_vector, num_data);
+  if (num_sorted != index_vector.nelements()) {
+    return false;
+  }
+
+  // conversion from the list of timestamp to TimeRangeList
+  timerange.clear();
+  Double time_from = time_sel[index_vector[0]] - 0.5 * interval_sel[index_vector[0]];
+  Double time_to = time_sel[index_vector[0]] + 0.5 * interval_sel[index_vector[0]];
+  auto iter = index_vector.begin();
+  for (++iter; iter != index_vector.end(); ++iter) {
+    Double current_from = time_sel[*iter] - 0.5 * interval_sel[*iter];
+    Double current_to = time_sel[*iter] + 0.5 * interval_sel[*iter];
+    if (abs(current_from - time_to) < time_to * C::dbl_epsilon) {
+      time_to = current_to;
+    } else {
+      TimeRange range(time_from, time_to);
+      timerange.push_back(range);
+      time_from = current_from;
+      time_to = current_to;
+    }
+  }
+  TimeRange range(time_from, time_to);
+  timerange.push_back(range);
+
+  return true;
+}
+
 //void SDDoubleCircleGainCalImpl::apply(Vector<Double> const &gain_time,
 //    Cube<Float> const &gain, Vector<Double> const &time, Cube<Float> &data) {
 //  // TODO implement
 //  // not necessary to implement? reuse G type application?
 //}
-using namespace casacore;
 }// namespace casa END

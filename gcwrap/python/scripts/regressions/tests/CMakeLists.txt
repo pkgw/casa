@@ -39,13 +39,10 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   cvel_test2.py
   equinox_vis.py
   fits-import-export.py
-  fls3a_hi.py
   h121.py
   ic2233.py
   imagepoltest.py
   imagetest.py
-  irc_hc3n_task.py
-  irc_cs_task.py
   l02d.py
   leo2pt_test.py
   listcal_test.py
@@ -53,10 +50,6 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   ngc2403.py
   ngc5921redux.py
   ngc5921uvcontsub2.py
-  ori_hc3n.py
-  ori_sio.py
-  orionmosaic.py
-#  plotxy_test.py
   pointing_test.py
   polcal_20080224_cband.py
   pylabmem.py
@@ -74,5 +67,8 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   sim_testcube.py
   stokesimaging_test.py
   testcube2.py
-  pipelineTest.py
+  pipelineTest_almaif.py
+  pipelineTest_almasd.py
+  pipelineTest_vla.py
+
 )

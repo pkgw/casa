@@ -25,7 +25,7 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <display/Fit/ResidualHistogramDialog.ui.h>
 #include <casa/aips.h>
 #include <casa/BasicSL/String.h>
@@ -52,7 +52,7 @@ namespace casa {
 		ResidualHistogramDialog( const ResidualHistogramDialog& other );
 		ResidualHistogramDialog operator=( const ResidualHistogramDialog& other );
 		BinPlotWidget* plotWidget;
-        SHARED_PTR<const casacore::ImageInterface<float> > residualImage;
+        std::shared_ptr<const casacore::ImageInterface<float> > residualImage;
 		Ui::ResidualHistogramDialogClass ui;
 	};
 }

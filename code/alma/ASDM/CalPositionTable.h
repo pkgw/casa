@@ -41,19 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -62,11 +62,7 @@
 	
 
 	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
@@ -76,15 +72,15 @@
 	
 
 	
-#include "CPositionMethod.h"
-	
-
-	
-#include "CReceiverBand.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CPositionMethod.h>
+	
+
+	
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -103,20 +99,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -135,7 +135,7 @@ class CalPositionRow;
  * Result of antenna positions calibration performed by TelCal.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalPosition </CAPTION>
@@ -147,7 +147,7 @@ class CalPositionRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -199,21 +199,21 @@ class CalPositionRow;
 	
  * <TR>
  * <TD> antennaPosition </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the position of the antenna. </TD>
  * </TR>
 	
  * <TR>
  * <TD> stationName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the station. </TD>
  * </TR>
 	
  * <TR>
  * <TD> stationPosition </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the position of the station. </TD>
  * </TR>
@@ -233,7 +233,7 @@ class CalPositionRow;
  * </TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna (numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of antennas of reference. </TD>
@@ -241,7 +241,7 @@ class CalPositionRow;
 	
  * <TR>
  * <TD> refAntennaNames </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numAntenna </TD> 
  * <TD> &nbsp;the names of the antennas of reference (one string per antenna). </TD>
  * </TR>
@@ -269,14 +269,14 @@ class CalPositionRow;
 	
  * <TR>
  * <TD> positionOffset </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the measured position offsets (a triple). </TD>
  * </TR>
 	
  * <TR>
  * <TD> positionErr </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the uncertainties on the measured position offsets (a triple). </TD>
  * </TR>
@@ -293,14 +293,14 @@ class CalPositionRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> delayRms </TD> 
+ * <TD> delayRms</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS deviation for the observed delays. </TD>
  * </TR>
 	
  * <TR>
- * <TD> phaseRms </TD> 
+ * <TD> phaseRms</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS deviation for the observed phases. </TD>
@@ -481,7 +481,7 @@ public:
  	 * @param reducedChiSquared
 	
      */
-	CalPositionRow *newRow(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared);
+	CalPositionRow *newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared);
 	
 
 
@@ -560,7 +560,7 @@ public:
 	
  	 *
 	 */
- 	CalPositionRow* getRowByKey(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId);
+ 	CalPositionRow* getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -611,7 +611,7 @@ public:
  	 * @param reducedChiSquared
  	 		 
  	 */
-	CalPositionRow* lookup(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Length > antennaPosition, string stationName, vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, vector<string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, vector<Length > positionOffset, vector<Length > positionErr, double reducedChiSquared); 
+	CalPositionRow* lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Length > antennaPosition, std::string stationName, std::vector<Length > stationPosition, PositionMethodMod::PositionMethod positionMethod, ReceiverBandMod::ReceiverBand receiverBand, int numAntenna, std::vector<std::string > refAntennaNames, Length axesOffset, Length axesOffsetErr, bool axesOffsetFixed, std::vector<Length > positionOffset, std::vector<Length > positionErr, double reducedChiSquared); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -637,6 +637,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

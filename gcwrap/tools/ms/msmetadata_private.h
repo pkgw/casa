@@ -56,7 +56,7 @@ static std::vector<int> _vectorUIntToVectorInt(const std::vector<casacore::uInt>
 
 static std::vector<uint> _vectorIntToVectorUInt(const std::vector<casacore::Int>& inset);
 
-friend msmetadata* ms::metadata(const float maxcache);
+friend class ms;
 
 void _init(const casacore::MeasurementSet *const &ms, const float maxcache);
 

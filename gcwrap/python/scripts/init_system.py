@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import argparse
+import multiprocessing
 from IPython.terminal.prompts import Prompts, Token
 
 try:
@@ -16,8 +17,11 @@ except ImportError, e:
     print "failed to load matplotlib:\n", e
     print "sys.path =", "\n\t".join(sys.path)
 
-from asap_init import *
 from casa_system import casa
+
+if not os.environ.has_key('OMP_NUM_THREADS'):
+    # if OMP_NUM_THREADS is not set, set it to max(1,N_CPU-2)
+    os.environ['OMP_NUM_THREADS'] = str(max(1,multiprocessing.cpu_count()-2))
 
 class _Prompt(Prompts):
      def in_prompt_tokens(self, cli=None):
@@ -27,6 +31,33 @@ class _Prompt(Prompts):
 
 _ip = get_ipython()
 _ip.prompts = _Prompt(_ip)
+
+###
+### provide extra context for T/F errors...
+###
+def true_false_handler(self, etype, value, tb, tb_offset=None):
+    if type(etype) is type(NameError):
+        if str(value) == "name 'T' is not defined" or \
+           str(value) == "name 'F' is not defined" or \
+           str(value) == "name 'true' is not defined" or \
+           str(value) == "name 'false' is not defined" :
+            print "------------------------------------------------------------------------------"
+            print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
+            print "------------------------------------------------------------------------------"
+    ###
+    ### without incrementing the execution_count, you get:
+    ###
+    ###    ERROR! Session/line number was not unique in database. History logging moved to new session 51
+    ###
+    ### on the second syntax error in a row... presumably this will eventually
+    ### be fixed in ipython and then this will need to be removed... but such
+    ### is the current state of affairs in ipython 5.1.0...
+    ###
+    self.execution_count += 1
+    self.showtraceback((etype, value, tb), tb_offset=tb_offset)
+
+_ip.set_custom_exc((BaseException,), true_false_handler)
+
 
 ##
 ## toplevel frame marker
@@ -71,6 +102,12 @@ if os.environ.has_key('CASAPATH') :
             casa['dirs']['doc'] = __casapath__ + "/doc"
         elif os.path.exists(__casapath__ + "/Resources/doc"):
             casa['dirs']['doc'] = __casapath__ + "/Resources/doc"
+        elif os.path.exists(__casapath__ + "/share"):
+            try:
+                os.mkdir(__casapath__ + "/share/doc")
+                casa['dirs']['doc'] = __casapath__ + "/share/doc"
+            except OSError as exc:
+                pass
 
 else :
     __casapath__ = casac.__file__
@@ -204,12 +241,21 @@ argparser.add_argument( "--pipeline",dest='pipeline',action='store_const',const=
                         help='start CASA pipeline run' )
 argparser.add_argument( "--agg",dest='agg',action='store_const',const=True,default=False,
                         help='startup without tkagg' )
+argparser.add_argument( '--iplog',dest='ipython_log',default=False,
+                          const=True,action='store_const',
+                          help='create ipython log' )
+argparser.add_argument( '--nocrashreport',dest='crash_report',default=True,
+                          const=False,action='store_const',
+                          help='do not submit an online report when CASA crashes' )
+argparser.add_argument( '--telemetry',dest='telemetry',default=False,
+                          const=True,action='store_const',
+                          help='Enable telemetry collection' )
 argparser.add_argument( "-c",dest='execute',default=[],nargs=argparse.REMAINDER,
                         help='python eval string or python script to execute' )
 
 casa['flags'], casa['args'] = argparser.parse_known_args( )
 #### must keep args in sync with 'casa' state...
-casa['files']['logfile'] = casa['flags'].logfile
+casa['files']['logfile'] = '/dev/null' if casa['flags'].nologfile or not os.access('.', os.W_OK) else casa['flags'].logfile
 casa['dirs']['rc'] = casa['flags'].rcdir
 
 #### pipeline requires the Agg backend; any use of

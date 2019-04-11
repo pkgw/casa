@@ -23,7 +23,9 @@
  *
  * File NoSuchRow.cpp
  */
-#include "NoSuchRow.h"
+#include <alma/ASDM/NoSuchRow.h>
+
+using std::string;
 
 namespace asdm {
   const string NoSuchRow::ITSNAME = "No such row exception: ";
@@ -49,7 +51,7 @@ namespace asdm {
 	    toTableName + " in this row of table " + fromTableName) {
   }
 
-  NoSuchRow::NoSuchRow(string toTableName, string fromTableName, bool option) :
+  NoSuchRow::NoSuchRow(string toTableName, string fromTableName, bool /* option */ ) :
     message("The optional link to table " + toTableName + " in this row of table " + 
 	    fromTableName + " does not exist! ")  {
   }

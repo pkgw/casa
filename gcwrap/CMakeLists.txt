@@ -34,9 +34,21 @@ if (UseCcache)
     endif(CCACHE_FOUND)
 endif()
 
+if (TELEMETRY_DEFAULT)
+    message("TelemetryToggle set to ${TELEMETRY_DEFAULT}")
+else()
+    message("No command line option provided. Setting TelemetryToggle to False")
+    set (TELEMETRY_DEFAULT False)
+endif()
+
+configure_file( ${CMAKE_SOURCE_DIR}/python/scripts/init_telemetry.py.in ${CMAKE_SOURCE_DIR}/python/scripts/init_telemetry.py )
+
 set( CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/install )
 
 add_definitions ("-DUseCasacoreNamespace")
+add_definitions ("-DWITHOUT_BOOST")
+add_definitions(-DUSE_THREADS)                 # new casacore requirement:
+                                               # https://github.com/casacore/casacore/commit/2184df898452e1de695a04eb2e785419f707434c
 
 execute_process( COMMAND svn info
                    RESULT_VARIABLE SVNINFOSTATUS
@@ -67,7 +79,7 @@ include( target )
 include( CASA )
 
 set( CASA_MAJOR_VERSION 5 )
-set( CASA_MINOR_VERSION 0 )
+set( CASA_MINOR_VERSION 5 )
 set( CASA_PATCH_VERSION 0 )
 set( CASA_API_VERSION "${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}" )
 
@@ -149,10 +161,19 @@ if( CMAKE_BUILD_TYPE STREQUAL Debug )
 endif()
 
 include( UsePrivatePath )
-if( NOT RE_CMAKE )
-    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} )
-endif()
-#string ( REGEX REPLACE /\\/\\.\\./ "" casaroot ${casaroot} )
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT OR CMAKE_INSTALL_PREFIX MATCHES ".*/linux[^/]*$" OR CMAKE_INSTALL_PREFIX MATCHES ".*/darwin[^/]*$")
+    string( REGEX REPLACE /[^/]+/?$ "" casaroot ${CMAKE_SOURCE_DIR} CACHE )
+    message("using traditional configuration where casaroot != install prefix:")
+    message("        casaroot             = ${casaroot}")
+    message("        CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+else( )
+    set( casaroot ${CMAKE_INSTALL_PREFIX} CACHE PATH "toplevel casa directory" FORCE )
+    message("using modern configuraiton where casaroot and install prefix are the same:")
+    message("        casaroot = ${casaroot}")
+endif( )
+
+file(MAKE_DIRECTORY ${casaroot}/share/doc)
 
 #
 # aipshosts is supported for backwards compatibility
@@ -511,20 +532,15 @@ if( NOT CMAKE_C_FLAGS )
   set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 endif()
 
-
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
         set( CMAKE_INSTALL_PREFIX ${casaroot}/${arch} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
-    else()
-        set( CMAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX} CACHE PATH "casa architecture directory" FORCE )
-	set( casaroot ${CMAKE_INSTALL_PREFIX}/.. CACHE PATH "toplevel casa directory" FORCE )
+        set( casaroot ${casaroot} CACHE PATH "toplevel casa directory" FORCE )
    endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 dump( casaroot )
 dump( CMAKE_INSTALL_PREFIX )
-
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
     set( epochdelta 1385614800 )
@@ -560,7 +576,7 @@ find_program( PDFLATEX_COMPILER NAMES pdflatex )
 #set( LATEX2PDF_OPTIONS "htcasa,section+,next,p-width,3"
 #CACHE STRING "LATEX2PDF_CONVERTER options" )
 
-set( CASA_DOC_DIR ${casaroot}/docs ) # Where to put documentation
+set( CASA_DOC_DIR ${casaroot}/share/doc ) # Where to put documentation
 
 find_package( Doxygen )
 
@@ -831,7 +847,6 @@ casa_find( CASACORE
            DEFINITIONS "-DUseCasacoreNamespace"
            INCLUDES casa/aips.h
                     casa/version.h
-                    scimath/Mathematics/MatrixMathLA.h  # declares symbols defined in LAPACK
            INCLUDES_SUFFIXES casacore
            LIBS ${casacore_libs}
            PREFIX_HINTS ${casacore_prefix}
@@ -878,6 +893,7 @@ else()
        alma
        atmosphere
        calanalysis
+       casatools
        casadbus
        casaqt
        components
@@ -1219,7 +1235,7 @@ MESSAGE( STATUS "casa_packages:         " ${casa_packages} )
 casa_find( QWT
   VERSION 5.1.1
   INCLUDES qwt_global.h
-  INCLUDES_SUFFIXES qwt qwt-qt4 qwt5
+  INCLUDES_SUFFIXES qwt qt4/qwt qwt-qt4 qwt5
   PREFIX_HINTS
     ${QWT_ROOT_DIR}
     ${casa_packages}/qwt-5.2.0
@@ -1243,72 +1259,6 @@ casa_find( XERCES
   CPP_VERSION XERCES_FULLVERSIONDOT
   RUN_VERSION "gXercesMajVersion << '.' << gXercesMinVersion << '.' << gXercesRevision"
 )
-
-#
-# Boost
-#
-# Use the Boost finder that ships with CMake. It needs to be told where boost is.
-# If the version is >= 1.35, require also boost-system.
-#
-# Note, find_package( Boost ... ) must be called for every cmake invocation
-# in order to setup non-cached variables
-#
-if( NOT BOOST_ROOT )
-  set( BOOST_ROOT ${casa_packages} )
-endif()
-
-set( boost_components regex program_options filesystem thread)
-find_package( Boost REQUIRED ${boost_components} )
-
-if( NOT Boost_FOUND )
-  message( FATAL_ERROR "Boost could not be found. Please check!" )
-endif()
-
-# For boost >= 1.35, we need to link also to boost-system
-if( Boost_VERSION GREATER 103499 )
-
-  # Force redetection by resetting these variables
-  if( NOT Boost_SYSTEM_FOUND )
-    message( STATUS "Boost version (${Boost_VERSION}) is 1.35.0 or newer" )
-    unset( Boost_FOUND )
-    unset( Boost_INCLUDE_DIR CACHE )
-  endif()
-  set( boost_components regex program_options filesystem system )
-  find_package( Boost REQUIRED ${boost_components} )
-
-  if( NOT Boost_FOUND )
-    message( FATAL_ERROR "Boost-system could not be found. Please check!" )
-  endif()
-endif()
-
-if( NOT Boost_VERSION GREATER 104099 AND NOT CASA_IGNORE_VERSION )
-  message( FATAL_ERROR "Boost version (${Boost_VERSION}) is too old! Must be 104100 (1.41.0) or newer. Please check!" )
-endif()
-
-#
-# boost regex drags in dependencencies on international unicode libraries, if they are not
-# explicitly referenced, loading is left until runtime based upon transitive dependencies.
-# This thwarts creation of a cleanly relocatable distribution.
-#
-if(CMAKE_SYSTEM_NAME STREQUAL Linux AND Boost_LIBRARIES)
-    if(EXISTS "/usr/lib64/libicuuc.so")
-        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicuuc.so" )
-    endif( )
-    if(EXISTS "/usr/lib64/libicudata.so")
-        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicudata.so" )
-    endif( )
-    if(EXISTS "/usr/lib64/libicui18n.so")
-        set( Boost_LIBRARIES "${Boost_LIBRARIES};/usr/lib64/libicui18n.so" )
-    endif( )
-    message(STATUS "Boost_LIBRARIES=${Boost_LIBRARIES}")
-endif( )
-
-
-message( STATUS "Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}; Boost_LIBRARIES=${Boost_LIBRARIES}")
-
-if( NOT Boost_FOUND )
-  message( FATAL_ERROR "Boost could not be found. Please check!" )
-endif()
 
 #
 # RPFITS (Fortran)
@@ -1358,7 +1308,7 @@ endif()
 # The modules must be defined in dependency order!
 # This will set up include paths, and which libraries to link to
 
-casa_add_module( tools CASACORE Boost PYTHON QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
+casa_add_module( tools CASACORE PYTHON QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.
@@ -1411,7 +1361,6 @@ endforeach()
 #PYTHONLIBD = ${pythonlibd}\n
 #PYTHONINCD = ${_ii}\n
 #PYTHONLIB = ${PYTHON_LIBRARIES}\n
-#BOOSTROOT = ${BOOST_ROOT}\n
 #RPFITSLIBD = ${rpfitslibd}\n
 #CFITSIOLIBD = ${cfitsiolibd}\n
 #CFITSIOINCD =  ${CFITSIO_INCLUDE_DIRS}\n
@@ -1447,7 +1396,6 @@ install( FILES
          install/casa2tsum3.xsl
          install/casa2latex.xsl
          install/casa2pycli.xsl
-         install/casa2pypg.xsl
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl

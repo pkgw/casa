@@ -163,8 +163,13 @@ class SynthesisImager
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbpa=casacore::Quantity(0.0,"deg")  );
 
-  casacore::Bool getWeightDensity();
-  virtual casacore::Bool setWeightDensity();
+  //Stores the weight density in an image. Returns the image name 
+  casacore::String getWeightDensity();
+  //set the weight density to the visibility iterator
+  //the default is to set it from the imagestore griwt() image
+  //Otherwise it will use this image passed here; useful for parallelization to
+  //share one grid to all children process
+  virtual casacore::Bool setWeightDensity(const casacore::String& imagename=casacore::String(""));
 
   //the following get rid of the mappers in this object
   void resetMappers();
@@ -177,11 +182,23 @@ class SynthesisImager
   // make the psf images  i.e grid weight rather than data
   void makePSF();
 
+  // Calculate apparent sensitivity (for _Visibility_ spectrum)
+  //  _Image_ spectral grid TBD
+  // Throws an exception because not supported in old VI (see SynthesisImagerVi2)
+  virtual casacore::Record apparentSensitivity();
 
   virtual bool makePB();
   
   virtual void predictModel();
-  //  void makeImage();
+  virtual void makeSdImage(casacore::Bool dopsf=false);
+  ///This should replace makeSDImage and makePSF etc in the long run
+  ///But for now you can do the following images i.e string recognized by type
+  ///"observed", "model", "corrected", "psf", "residual", "singledish-observed", 
+  ///"singledish", "coverage", "holography", "holography-observed"
+  ///For holography the FTmachine should be SDGrid and the baselines
+  //selected should be those that are pointed up with the antenna which is rastering.
+  virtual void makeImage(casacore::String type, const casacore::String& imagename, const casacore::String& complexImage=casacore::String(""), const Int whichModel=0);
+
   /* Access method to the Loop Controller held in this class */
   //SIIterBot& getLoopControls();
 
@@ -194,6 +211,9 @@ class SynthesisImager
  
   const SynthesisParamsGrid& getSynthesisParamsGrid() {return gridpars_p;};
   const SynthesisParamsImage& getSynthesisParamsImage() {return impars_p;};
+  ///This will set the movingSource_p
+  void setMovingSource(const casacore::String& movsource);
+
 
 protected:
  
@@ -236,7 +256,9 @@ protected:
                           const casacore::Bool useAutoCorr,
                           const casacore::Bool useDoublePrec,
                           const casacore::Float rotatePAStep,
-                          const casacore::String Stokes="I");
+                          const casacore::String Stokes="I",
+						  const casacore::Bool doConjConvFunc=false
+ 						);
 
   // Choose between different types of ImageStore types (single term, multiterm, faceted)
   casacore::CountedPtr<SIImageStore> createIMStore(casacore::String imageName, 
@@ -360,8 +382,8 @@ protected:
 
   ///Vi2 stuff
   casacore::Block<const casacore::MeasurementSet *> mss_p;
-  vi::FrequencySelections fselections_p;
-  casacore::CountedPtr<vi::VisibilityIterator2>  vi_p;
+  //vi::FrequencySelections fselections_p;
+  //casacore::CountedPtr<vi::VisibilityIterator2>  vi_p;
 
   // Other Options
   ////////////////////////////////////Till VisibilityIterator2 works as advertised
@@ -394,6 +416,7 @@ protected:
 
   SynthesisParamsGrid gridpars_p;
   SynthesisParamsImage impars_p;
+  String movingSource_p;
 
 
 };

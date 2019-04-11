@@ -26,7 +26,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="string" name="region">
         <description>Region selection. Default is to use the full image.</description>
-        <value/>
+        <type>path</type>
+        <type>string</type>
+        <type>record</type>
+        <value type="string"/>
     </param>
     <param type="string" name="box">
         <description>Rectangular region(s) to select in direction plane. Default is to use the entire direction plane.</description>
@@ -69,7 +72,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <example>append=True</example>
     </param>
     <param type="string"  name="algorithm">
-          <description>Algorithm to use. Supported values are "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
+          <description>Algorithm to use. Supported values are "biweight", "chauvenet", "classic", "fit-half", and "hinges-fences". Minimum match is supported.</description>
           <value>classic</value>
      </param>
      <param type="double" name="fence" subparam="true">
@@ -96,6 +99,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
          <description>Method to use for calculating classical statistics. Supported methods are "auto", "tiled", and "framework". Ignored if algorithm is not "classic".</description>
          <value>auto</value>
      </param>
+     <param type="int"  name="niter" subparam="true">
+          <description>For biweight, this is the maximum number of iterations to attempt. Iterating will stop when either this limit is reached, or the zscore criterion is met. If negative, do a fast, simple computation (see description). Ignored if the algorithm is not "biweight".</description>
+          <value>3</value>
+     </param>
      <constraints>
         <when param="mask">
             <notequals type="string" value="">
@@ -112,6 +119,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </notequals>
         </when>
         <when param="algorithm">
+            <!-- note the default algorithm, classic, must come first in this list, because ... CASA -->
             <equals type="string" value="classic">
                 <default param="clmethod">
                     <value type="string">auto</value>
@@ -136,6 +144,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 </default>
                 <default param="maxiter">
                     <value>-1</value>
+                </default>
+            </equals>
+            <equals type="string" value="biweight">
+                <default param="niter">
+                    <value>3</value>
                 </default>
             </equals>
         </when>
@@ -236,6 +249,42 @@ clmethod     Method to use for calculating classical statistics. Supported metho
     q1           - the first quartile.
     q3           - the third quartile
 
+CURSOR AXES
+The axes parameter allows one to set the cursor axes over which statistics 
+are computed. For example, consider a 3-dimensional image for which axes=[0,2]. 
+The statistics would be computed for each XZ (axes 0 and 2) plane in the
+image.  One could then examine those statistics as a function of the Y
+(axis 1) axis. 
+
+Each statistic is stored in an array in its own field in the returned dictionary.
+The dimensionality of these arrays is equal to the number of axes over which the
+statistics were not evaluated (called the display axes). For example, if the input
+image has four axes, and axes=[0], the output statistic arrays will have three dimensions.
+If axes=[0, 1], the output statistic arrays will have two dimensions.
+
+The shape of the output arrays when axes has a positive number of elements is based on
+the region selection. If there is no region selection, the shape of the statistic arrays
+is just the shape of the image along the display (non-cursor) axes. For example, if the
+input image has dimensions of 300x400x4x80 (RA x Dec x Stokes x Freq) and axes=[0, 1],
+in the absence of a region selection, the shape of the output statistic arrays will be
+4x80. If there is a region selection, the shape of the output statistic arrays will be
+determined by the number of planes along the display axes chosen in the region selection.
+For example, continuing with our example, if axes=[0,1], chans="5~15;30~70", and
+stokes="IV", the output statistic arrays will have shapes of 2x52. Only the selected
+planes will be displayed in the logger output if verbose=True.
+
+In the case where the image has a pixel mask, and/or the mask parameter is specified,
+and because of this specification a plane is entirely masked, this element is included in
+the statistic arrays (usually with a value of 0). It is not included in the logger output
+if verbose=True. One can exclude such elements from computations on the output arrays by
+using the numpy.extract() method. For example, to compute the minimum rms value, not
+including any fully masked planes, one could use
+
+stats = imstat(...)
+rmsmin = numpy.min(numpy.extract(stats['npts']>0, stats['rms']))
+
+Thus in the computation of rmsmin, only the rms elements are considered which have
+associated values of npts that are not zero.
 
 ALGORITHMS
 

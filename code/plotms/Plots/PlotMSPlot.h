@@ -26,6 +26,7 @@
 //# $Id: $
 #ifndef PLOTMSPLOT_H_
 #define PLOTMSPLOT_H_
+#include <vector>
 
 #include <graphics/GenericPlotter/PlotFactory.h>
 #include <plotms/Data/PlotMSCacheBase.h>
@@ -40,10 +41,12 @@ namespace casa {
 
 //# Forward declarations
 class PlotMSPages;
+class PlotMSCacheBase;
 class PMS_PP_Cache;
 class PMS_PP_Canvas;
 class PMS_PP_Axes;
 class PMS_PP_Iteration;
+class PMS_PP_MSData;
 class PMS_PP_Display;
 
 // Class for a single "plot" concept.  Generally speaking this one
@@ -64,6 +67,7 @@ public:
     static void makeParameters(PlotMSPlotParameters& params, PlotMSApp* plotms);
     
     void customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
+    void customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, casacore::uInt dataSize  );
     // Non-Static //
     
     // Constructor which takes the parent PlotMS object.  Starts out with
@@ -108,10 +112,10 @@ public:
     casacore::String spectype() const { return "Unknown";};
     
     // Returns the plots assigned to this plot.
-    vector<MaskedScatterPlotPtr> plots() const;
+    std::vector<MaskedScatterPlotPtr> plots() const;
     
     // Returns the canvases that have been assigned to this plot.
-    vector<PlotCanvasPtr> canvases() const;
+    std::vector<PlotCanvasPtr> canvases() const;
     
     // Attaches/Detaches internal plot objects to their assigned canvases.
     // <group>
@@ -138,7 +142,7 @@ public:
     
     // Returns the visible canvases (accessible via
     // PlotMSPlotter::currentCanvases()) associated with this plot.
-    vector<PlotCanvasPtr> visibleCanvases() const;
+    std::vector<PlotCanvasPtr> visibleCanvases() const;
    
     // Returns all selected regions on all canvases associated with this plot.
     virtual PlotMSRegions selectedRegions() const;
@@ -195,17 +199,17 @@ public:
     // This method should be called when the given canvas (which was owned by
     // this plot) was disowned.
     void canvasWasDisowned(PlotCanvasPtr canvas);
-    vector<PMS::Axis> getCachedAxes();
-    vector<PMS::DataColumn> getCachedData();
+    std::vector<PMS::Axis> getCachedAxes();
+    std::vector<PMS::DataColumn> getCachedData();
 
     casacore::Record locateInfo(int plotIterIndex, const casacore::Vector<PlotRegion>& regions,
-    		bool showUnflagged, bool showFlagged, bool selectAll ) const ;
+        bool showUnflagged, bool showFlagged, bool selectAll ) const ;
 
     PlotLogMessage* locateRange( int plotIterIndex, const casacore::Vector<PlotRegion> & regions,
-    		bool showUnflagged, bool showFlagged);
+        bool showUnflagged, bool showFlagged);
 
     PlotLogMessage* flagRange( int canvasIndex, casa::PlotMSFlagging& flagging,
-    		const casacore::Vector<PlotRegion>& regions, bool showFlagged);
+        const casacore::Vector<PlotRegion>& regions, bool showFlagged);
 
     // Generates and assigns canvases that this plot will be using, with the
     // given PlotMSPages object.  This is called when the plot is first
@@ -235,9 +239,9 @@ public:
     static void cacheLoaded(void *obj, bool wasCanceled){
         PlotMSPlot *cobj = static_cast<PlotMSPlot*>(obj);
         if(cobj != NULL){
-        	cobj->setCacheUpdating( false );
+            cobj->setCacheUpdating( false );
             if ( ! cobj->itsParent_->guiShown() ){
-            	cobj->cacheLoaded_(wasCanceled);
+                cobj->cacheLoaded_(wasCanceled);
             }
         }
     }
@@ -260,7 +264,7 @@ protected:
     // Helper method for selectedRegions() and visibleSelectedRegions() that
     // returns the selected regions for plots in the given canvases.
     PlotMSRegions selectedRegions(
-            const vector<PlotCanvasPtr>& canvases) const;
+            const std::vector<PlotCanvasPtr>& canvases) const;
     
     void constructorSetup();
     void updatePages();
@@ -328,25 +332,33 @@ private:
     void logMessage( const QString& msg ) const;
 
     void clearCanvasProperties( int row, int col);
-    void setCanvasProperties (int row, int col, PMS_PP_Cache*,
-    		PMS_PP_Axes* axes, bool set, PMS_PP_Canvas *canv,
-    		casacore::uInt rows, casacore::uInt cols, PMS_PP_Iteration *iter,
-    		casacore::uInt iteration, PlotMSAveraging averaging );
+    void setCanvasProperties (int row, int col, int numplots, casacore::uInt iteration,
+            PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
+            PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
+            PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
+
+    // range must be modified in certain cases
+    void setAxisRange(PMS::Axis axis, PlotAxis paxis, double min, double max,
+        PlotCanvasPtr& canvas);
+
     // To modify axis label if needed:
     bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
     casacore::String addFreqFrame(casacore::String freqLabel);
     PMS::Axis getCalAxis(casacore::String calType, PMS::Axis axis);
     PMS::Axis getDefaultXAxis();
+    PMS::Axis getGsplineAxis(const casacore::String filename);
+	void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
+	void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.
-    vector<vector<MaskedScatterPlotPtr> > itsPlots_;
+    std::vector<std::vector<MaskedScatterPlotPtr> > itsPlots_;
 
     //Note:  First index for a canvas is the number of rows,
     //second index is the column withen a grid.
-    vector<vector<PlotCanvasPtr> > itsCanvases_;
+    std::vector<std::vector<PlotCanvasPtr> > itsCanvases_;
 
-    vector<vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
+    std::vector<std::vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;
     TCLParams itsTCLParams_;
     int gridRow;
     int gridCol;
@@ -357,6 +369,7 @@ private:
     static const casacore::uInt PIXEL_THRESHOLD;
     static const casacore::uInt MEDIUM_THRESHOLD;
     static const casacore::uInt LARGE_THRESHOLD;
+    static const casacore::uInt XLARGE_THRESHOLD;
 };
 
 }

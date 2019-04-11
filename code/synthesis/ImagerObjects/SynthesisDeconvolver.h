@@ -97,12 +97,13 @@ class SynthesisDeconvolver
   void setMask( casacore::TempImage<casacore::Float> &/*mask*/ );
 
   void setStartingModel();
-  void setupMask();
+  casacore::Bool setupMask();
   void setAutoMask();
+  void checkRestoringBeam(); 
 
 protected:
 
-  SHARED_PTR<SIImageStore> makeImageStore( casacore::String imagename );
+  std::shared_ptr<SIImageStore> makeImageStore( casacore::String imagename );
   /*
   void findMinMax(const casacore::Array<casacore::Float>& lattice,
 					const casacore::Array<casacore::Float>& mask,
@@ -126,10 +127,10 @@ protected:
 
   /////////////// Member Objects
 
-  SHARED_PTR<SDAlgorithmBase> itsDeconvolver;
-  SHARED_PTR<SDMaskHandler> itsMaskHandler;
+  std::shared_ptr<SDAlgorithmBase> itsDeconvolver;
+  std::shared_ptr<SDMaskHandler> itsMaskHandler;
 
-  SHARED_PTR<SIImageStore> itsImages;
+  std::shared_ptr<SIImageStore> itsImages;
 
   casacore::IPosition itsImageShape;
   
@@ -146,6 +147,8 @@ protected:
 
   casacore::uInt itsDeconvolverId;
   casacore::Vector<casacore::Float> itsScales;
+
+  casacore::String itsUseBeam;
 
   ///// for mask
   casacore::String itsMaskType;
@@ -164,14 +167,27 @@ protected:
   casacore::Float itsSidelobeThreshold;
   casacore::Float itsNoiseThreshold;
   casacore::Float itsLowNoiseThreshold;
+  casacore::Float itsNegativeThreshold;
   casacore::Float itsSmoothFactor;
   casacore::Float itsMinBeamFrac;
   casacore::Float itsCutThreshold;
   casacore::Int itsIterDone;
+  casacore::Int itsGrowIterations;
+  casacore::Bool itsDoGrowPrune;
+  casacore::Float  itsMinPercentChange;
+  casacore::Bool itsVerbose;  
+  casacore::Bool itsFastNoise;  
+  casacore::Vector<casacore::Bool> itsChanFlag;
+  casacore::Record itsRobustStats;
+  casacore::Bool initializeChanMaskFlag; 
+  casacore::TempImage<casacore::Float> itsPosMask;
   
   casacore::Bool itsIsMaskLoaded; // Try to get rid of this state variable ! 
   casacore::Bool itsIsInteractive;
- 
+
+  casacore::Float itsMaskSum;
+
+  casacore::Float itsNsigma;
 };
 
 

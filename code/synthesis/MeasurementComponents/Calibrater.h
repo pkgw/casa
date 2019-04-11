@@ -106,7 +106,7 @@ class Calibrater
 
   // Set up apply-able calibration via a Cal Library
   virtual casacore::Bool setcallib(casacore::Record /*callib*/) { throw(casacore::AipsError("Calibrater::setcallib not implemented")); };
-  virtual casacore::Bool setcallib2(casacore::Record callib);
+  virtual casacore::Bool setcallib2(casacore::Record callib, const casacore::MeasurementSet* ms=0);
   casacore::Bool validatecallib(casacore::Record callib);
 
   casacore::Bool setmodel(const casacore::String& modelImage);
@@ -121,7 +121,9 @@ class Calibrater
 		 const casacore::String& apmode="AP",
 		 const casacore::Int minblperant=4,
 		 const casacore::String& refant="",
+		 const casacore::String& refantmode="flex",
 		 const casacore::Bool solnorm=false,
+		 const casacore::String& normtype="mean",
 		 const casacore::Float minsnr=0.0f,
 		 const casacore::String& combine="",
 		 const casacore::Int fillgaps=0,
@@ -131,7 +133,14 @@ class Calibrater
                  const casacore::Float fraction=0.1,
                  const casacore::Int numedge=-1,
                  const casacore::String& radius="",
-                 const casacore::Bool smooth=true);
+                 const casacore::Bool smooth=true,
+                 const casacore::Bool zerorates=false,
+		 const casacore::Bool globalsolve=true,
+       const casacore::Vector<casacore::Double>& delaywindow=casacore::Vector<casacore::Double>(), 
+       const casacore::Vector<casacore::Double>& ratewindow=casacore::Vector<casacore::Double>(),
+		 const casacore::String& solmode="",
+		 const casacore::Vector<casacore::Double>& rmsthresh=casacore::Vector<casacore::Double>()
+);
 
   // Arrange to solve for BPOLY (using casacore::MSSelection syntax)
   casacore::Bool setsolvebandpoly(const casacore::String& table,
@@ -249,7 +258,8 @@ class Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   virtual casacore::Bool smooth(const casacore::String& infile,
@@ -257,6 +267,13 @@ class Calibrater
 				const casacore::String& smoothtype, 
 				const casacore::Double& smoothtime,
 				const casacore::String& fields);
+
+
+  // Apply new reference antenna to calibration
+  virtual casacore::Bool reRefant(const casacore::String& infile,
+				  casacore::String& outfile, 
+				  const casacore::String& refantmode, 
+				  const casacore::String& refant);
 
 
   // casacore::List a calibration table
@@ -351,7 +368,7 @@ class Calibrater
 
   // casacore::MSSelection object
   casacore::MSSelection* mss_p;
-  vi::FrequencySelections* frequencySelections_p;
+  std::shared_ptr<vi::FrequencySelections> frequencySelections_p;
 
   // Meta-info server for calibration
   MSMetaInfoForCal* msmc_p;
@@ -377,6 +394,8 @@ class Calibrater
   casacore::MSHistoryHandler *hist_p;
   casacore::Table historytab_p;
 
+  casacore::Bool usingCalLibrary_;
+
   // Activity record
   casacore::Record actRec_;
 
@@ -389,6 +408,10 @@ class Calibrater
   const bool simdata_p;
   const vi::SimpleSimVi2Parameters ssvp_p;
 
+  // configuration for calibration dependent data filter
+  casacore::Record calFilterConfig_p;
+  void setCalFilterConfiguration(casacore::String const &type,
+      casacore::Record const &config);
 
 };
 
@@ -434,7 +457,7 @@ class OldCalibrater : public Calibrater
 
   // Set up apply-able calibration via a Cal Library
   virtual casacore::Bool setcallib(casacore::Record callib);
-  virtual casacore::Bool setcallib2(casacore::Record callib);
+  virtual casacore::Bool setcallib2(casacore::Record callib, const casacore::MeasurementSet* ms=0);
 
   // Uses *vs_p to ctor the SolvableVisCal
   virtual casacore::Bool setsolve (const casacore::String& type, 
@@ -503,7 +526,8 @@ class OldCalibrater : public Calibrater
 			  const casacore::String& antenna,
 			  const casacore::String& pol,
 			  const casacore::Vector<casacore::Double>& parameter,
-			  const casacore::String& infile);
+			  const casacore::String& infile,
+			  const casacore::Bool& uniform);
 
   // casacore::Smooth  calibration (using casacore::MSSelection syntax
   // NB: uses *vs_p to create SVC

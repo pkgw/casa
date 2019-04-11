@@ -5,6 +5,7 @@ param=$1
 # Get the hint from an environment variable. This is used for detached head builds
 # Default grep is master
 headGrep="\\\-mas-"
+tagid="mas"
 #echo $CASABRANCHHINT
 if [ ! -z $CASABRANCHHINT ]; then
     if [[ $CASABRANCHHINT =~ ^feature.*CAS.* ]] ; then
@@ -15,8 +16,15 @@ if [ ! -z $CASABRANCHHINT ]; then
         b1=${CASABRANCHHINT%/*} # part before the slash
         b2=${CASABRANCHHINT##*/} # part after the slash
         headGrep=$b1-$b2
+    elif [[ $CASABRANCHHINT =~ ^CAS.* ]] ; then
+        headGrep=$CASABRANCHHINT
+    elif [[ $CASABRANCHHINT =~ ^ARD.* ]] ; then
+        headGrep=$CASABRANCHHINT
     elif [[ $CASABRANCHHINT =~ .*release.* ]] ; then
         headGrep=$CASABRANCHHINT
+        tagid="rel"
+    elif [[ $CASABRANCHHINT =~ ^bambooprtest.* ]] ; then
+        headGrep="bambooprtest"
     fi
 fi
 #echo $headGrep
@@ -26,7 +34,7 @@ branch=`git rev-parse --abbrev-ref HEAD`
 
 # Detached HEAD, should have a tag
 if [ $branch == "HEAD" ];then
-    headTag=`git tag --points-at HEAD`
+    headTag=`git tag --points-at HEAD | grep $headGrep`
     if [[ -z "${headTag// }" ]]; then
         # Get the nearest tag and add Desc
         headCommit=`git rev-parse HEAD`
@@ -37,13 +45,21 @@ if [ $branch == "HEAD" ];then
     # You can obtain this by executing  "git merge-base --fork-point master"
     # while in the branch, but before detaching the HEAD
     if [ -z $CASAFORKPOINTHINT ]; then
-        CASAFORKPOINTHINT=`git merge-base master $branch`
+        if [[ $CASABRANCHHINT =~ .*release.* ]]; then
+            CASAFORKPOINTHINT=`git merge-base $CASABRANCHHINT $branch`
+        else
+            CASAFORKPOINTHINT=`git merge-base master $branch`
+        fi
     fi
-    headTag=`git describe --abbrev=0 --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    if [ $tagid == "rel" ]; then
+        headTag=`git describe --abbrev=0 --tags --match='[0-9]*.[0-9]*.[0-9]*-rel-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    else
+        headTag=`git describe --abbrev=0 --tags --match='[0-9]*.[0-9]*.[0-9]*-mas-[0-9]*' $(git rev-parse $CASAFORKPOINTHINT)`
+    fi
     #echo "${headTag##*-};$CASA_VERSION_DESC"
     # --curr #echo "${headTag##*-}; "
     if [ "$param" == "--pretty-print" ];then
-        if [ -n "$CASA_VERSION_DESC" ] && [[ "$CASA_VERSION_DESC" != *"-mas-"* ]]; then
+        if [ -n "$CASA_VERSION_DESC" ] && [[ "$CASA_VERSION_DESC" != *"-$tagid-"* ]]; then
             #echo "${headTag%-mas*}-${headTag##*-}+"
             echo "${headTag}+"
         else
@@ -52,7 +68,7 @@ if [ $branch == "HEAD" ];then
         fi
     else
             # Don't include version desc for master
-            if [[ $CASA_VERSION_DESC == *"-mas-"* ]];then
+            if [[ $CASA_VERSION_DESC == *"-$tagid-"* ]];then
                 echo "${headTag##*-};"
             else
                 echo "${headTag##*-};$CASA_VERSION_DESC"
@@ -95,9 +111,18 @@ elif [[ $branch =~ ^release\/.* ]];then
 else
     #echo "Resolving branch"
     # Using parameter expansion to split the strings
-    b1=${branch%/*} # part before the slash
-    b2=${branch##*/} # rpart after the slash
-    tagMatcher=$b1-$b2
+    # Replace slash in branch name with dash for tags
+    if [[ $string == *"/"* ]]; then
+        b1=${branch%/*} # part before the slash
+        b2=${branch##*/} # rpart after the slash
+        tagMatcher=$b1-$b2
+        #echo "b1: $b1"
+        #echo "b2: $b2"
+    # If there is no slash use the branch name as is
+    else
+        tagMatcher=$branch
+        #echo $tagMatcher
+    fi
     branchTag=`git tag --points-at HEAD | grep \\\-$tagMatcher- | xargs`
     if [[ -z "${branchTag// }" ]]; then
         # Get the nearest tag and add Desca

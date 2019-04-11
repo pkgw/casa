@@ -25,15 +25,16 @@
  */
 //#define _POSIX_C_SOURCE
 
-//#include <regex.h>
+#ifndef WITHOUT_BOOST
 #include <boost/regex.hpp>
-using namespace boost;
+#else
+#include <regex>
+#endif
 
-#include <EntityId.h>
-#include <OutOfBoundsException.h>
-#include <InvalidArgumentException.h>
-using asdm::OutOfBoundsException;
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+using namespace std;
 
 namespace asdm {
 
@@ -59,10 +60,12 @@ namespace asdm {
       cout << "EntityId::validate. Validating '" << x << "'." << endl;   
 
     // Here we use the boost machinery for the regular expressions, assuming its thread safety.
+    // std::regex (optionally used here) is as thread-safe in this context
 
     // We will test two possible syntaxes for the EntityId, since EVLA did not want to follow
     // the rules established by ALMA.
     //
+#ifndef WITHOUT_BOOST
     boost::regex ALMAbasicUIDRegex("^[uU][iI][dD]://[0-9a-zA-Z]+(/[xX][0-9a-fA-F]+){2}(#\\w{1,}){0,}$");
     boost::regex EVLAbasicUIDRegex("^[uU][iI][dD]:///?evla/[0-9a-zA-Z]+/.+$");
 
@@ -74,7 +77,20 @@ namespace asdm {
 	  boost::regex_match(theUID_p, whatEVLA, EVLAbasicUIDRegex))
 	)
       result  = "Invalid format for EntityId: " + x;
-    
+#else
+    std::regex ALMAbasicUIDRegex("^[uU][iI][dD]://[0-9a-zA-Z]+(/[xX][0-9a-fA-F]+){2}(#\\w{1,}){0,}$");
+    std::regex EVLAbasicUIDRegex("^[uU][iI][dD]:///?evla/[0-9a-zA-Z]+/.+$");
+
+    const char * theUID_p = x.c_str();
+    std::cmatch whatALMA, whatEVLA;
+    string result = "";
+
+    if (!(std::regex_match(theUID_p, whatALMA, ALMAbasicUIDRegex) ||
+	  std::regex_match(theUID_p, whatEVLA, EVLAbasicUIDRegex))
+	)
+      result  = "Invalid format for EntityId: " + x;
+#endif
+   
     if (EntityIdVerbose) 
       cout << "EntityId::validate. Validation message is '" << result << "'. (An empty message is a good sign.)" << endl;
     
@@ -107,7 +123,7 @@ namespace asdm {
   }
 
 #ifndef WITHOUT_ACS
-  EntityId::EntityId(IDLEntityId &x) throw (InvalidArgumentException) {
+  EntityId::EntityId(asdmIDLTypes::IDLEntityId &x) throw (InvalidArgumentException) {
     string tmp(x.value);
     string msg = validate(tmp);
     if (msg.length() != 0)

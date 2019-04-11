@@ -7,9 +7,10 @@ def gaincal(vis=None,caltable=None,
 	    field=None,spw=None,intent=None,
 	    selectdata=None,timerange=None,uvrange=None,antenna=None,scan=None,
             observation=None, msselect=None,
-	    solint=None,combine=None,preavg=None,refant=None,minblperant=None,
-	    minsnr=None,solnorm=None,
-	    gaintype=None,smodel=None,calmode=None,append=None,
+	    solint=None,combine=None,preavg=None,
+	    refant=None,refantmode=None,minblperant=None,
+	    minsnr=None,solnorm=None,normtype=None,
+	    gaintype=None,smodel=None,calmode=None,solmode=None,rmsthresh=None,append=None,
 	    splinetime=None,npointaver=None,phasewrap=None,
 	    docallib=None,callib=None,
 	    gaintable=None,gainfield=None,interp=None,spwmap=None,
@@ -31,7 +32,14 @@ def gaincal(vis=None,caltable=None,
                         raise Exception, 'Visibility data set not found - please verify the name'
 
 		# Do data selection according to selectdata
+		casalog.post("NB: gaincal automatically excludes auto-correlations.")
 		if (selectdata):
+			# insist no ACs
+			if len(msselect)>0:
+				msselect='('+msselect+') && ANTENNA1!=ANTENNA2'
+			else:
+				msselect='ANTENNA1!=ANTENNA2'
+
 			# pass all data selection parameters in as specified
 			mycb.selectvis(time=timerange,spw=spw, scan=scan, field=field,
 				     intent=intent, observation=str(observation),
@@ -40,9 +48,10 @@ def gaincal(vis=None,caltable=None,
 		else:
 			# selectdata=F, so time,scan,baseline,uvrange,msselect=''
 			# using spw and field specifications only
+			# also insist no ACs
 			mycb.selectvis(time='',spw=spw,scan='',field=field,intent=intent,
                                      observation='', baseline='', uvrange='',
-                                     chanmode='none', msselect='')
+                                     chanmode='none', msselect='ANTENNA1!=ANTENNA2')
 
 		# set the model, if specified
 		if (len(smodel)>0):
@@ -109,24 +118,29 @@ def gaincal(vis=None,caltable=None,
 		# Set up for solving:  
 		phaseonly=False
 		if (gaintype=='G'):
-			mycb.setsolve(type='G',t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+			mycb.setsolve(type='G',t=solint,combine=combine,preavg=preavg,
+				      refant=refant,refantmode=refantmode,
+				      minblperant=minblperant,
+				      solnorm=solnorm,normtype=normtype,
+				      minsnr=minsnr,table=caltable,
+				      apmode=calmode,solmode=solmode,rmsthresh=rmsthresh,
+				      phaseonly=phaseonly,append=append)
 		elif (gaintype=='T'):
-			mycb.setsolve(type='T',t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+			mycb.setsolve(type='T',t=solint,combine=combine,preavg=preavg,
+				      refant=refant,refantmode=refantmode,
+				      minblperant=minblperant,
+				      solnorm=solnorm,normtype=normtype,
+				      minsnr=minsnr,table=caltable,
+				      apmode=calmode,solmode=solmode,rmsthresh=rmsthresh,phaseonly=phaseonly,append=append)
 		elif (gaintype=='K' or gaintype=='KCROSS' or gaintype=='XY+QU' or gaintype=='XYf+QU'):
 			mycb.setsolve(type=gaintype,t=solint,combine=combine,preavg=preavg,refant=refant,
-				    minblperant=minblperant,
-				    solnorm=solnorm,minsnr=minsnr,table=caltable,
-				    apmode=calmode,phaseonly=phaseonly,append=append)
+				      minblperant=minblperant,
+				      minsnr=minsnr,table=caltable,
+				      apmode=calmode,phaseonly=phaseonly,append=append)
 		elif (gaintype=='GSPLINE'):
 			mycb.setsolvegainspline(table=caltable,append=append,mode=calmode,
-					      refant=refant,splinetime=splinetime,preavg=preavg,
-					      npointaver=npointaver,phasewrap=phasewrap)
+						refant=refant,splinetime=splinetime,preavg=preavg,
+						npointaver=npointaver,phasewrap=phasewrap)
 		mycb.solve()
 
 		reportsolvestats(mycb.activityrec());

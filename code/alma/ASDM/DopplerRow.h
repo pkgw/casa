@@ -55,20 +55,20 @@
 	
 
 	
-#include "CDopplerReferenceCode.h"
+#include <alma/Enumerations/CDopplerReferenceCode.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Doppler.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -82,12 +82,12 @@ class SourceRow;
 
 class DopplerRow;
 typedef void (DopplerRow::*DopplerAttributeFromBin) (EndianIStream& eis);
-typedef void (DopplerRow::*DopplerAttributeFromText) (const string& s);
+typedef void (DopplerRow::*DopplerAttributeFromText) (const std::string& s);
 
 /**
  * The DopplerRow class is a row of a DopplerTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class DopplerRow {
@@ -245,7 +245,7 @@ public:
 	 * 
 	 * @return a vector of SourceRow *
 	 */
-	vector <SourceRow *> getSources();
+	std::vector <SourceRow *> getSources();
 	
 	
 
@@ -499,16 +499,16 @@ void velDefFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, DopplerAttributeFromText> fromTextMethods;
 	
-void dopplerIdFromText (const string & s);
+void dopplerIdFromText (const std::string & s);
 	
 	
-void sourceIdFromText (const string & s);
+void sourceIdFromText (const std::string & s);
 	
 	
-void transitionIndexFromText (const string & s);
+void transitionIndexFromText (const std::string & s);
 	
 	
-void velDefFromText (const string & s);
+void velDefFromText (const std::string & s);
 	
 
 		

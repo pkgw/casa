@@ -50,6 +50,12 @@
 #include <casa/fstream.h>
 #include <casa/sstream.h>
 
+#if QT_VERSION >= 0x050000
+#define UnicodeUTF8 0
+#else
+#define UnicodeUTF8 QApplication::UnicodeUTF8
+#endif
+
 using namespace casacore;
 namespace casa {
 
@@ -274,22 +280,22 @@ namespace casa {
 		//
 		//////// end iteration control items
 
-		threshED_->setText(QApplication::translate("InteractiveClean", "8 mJy", 0, QApplication::UnicodeUTF8));
-		label_5->setText(QApplication::translate("InteractiveClean", "Next Action:", 0, QApplication::UnicodeUTF8));
-		label_2->setText(QApplication::translate("InteractiveClean", "cycles", 0, QApplication::UnicodeUTF8));
-		label_3->setText(QApplication::translate("InteractiveClean", "threshold", 0, QApplication::UnicodeUTF8));
-		label->setText(QApplication::translate("InteractiveClean", "iterations", 0, QApplication::UnicodeUTF8));
-		niterED_->setText(QApplication::translate("InteractiveClean", "100", 0, QApplication::UnicodeUTF8));
-		ncyclesED_->setText(QApplication::translate("InteractiveClean", "60", 0, QApplication::UnicodeUTF8));
-		addRB_->setText(QApplication::translate("InteractiveClean", "Add", 0, QApplication::UnicodeUTF8));
-		eraseRB_->setText(QApplication::translate("InteractiveClean", "Erase", 0, QApplication::UnicodeUTF8));
+		threshED_->setText(QApplication::translate("InteractiveClean", "8 mJy", 0, UnicodeUTF8));
+		label_5->setText(QApplication::translate("InteractiveClean", "Next Action:", 0, UnicodeUTF8));
+		label_2->setText(QApplication::translate("InteractiveClean", "cycles", 0, UnicodeUTF8));
+		label_3->setText(QApplication::translate("InteractiveClean", "threshold", 0, UnicodeUTF8));
+		label->setText(QApplication::translate("InteractiveClean", "iterations", 0, UnicodeUTF8));
+		niterED_->setText(QApplication::translate("InteractiveClean", "100", 0, UnicodeUTF8));
+		ncyclesED_->setText(QApplication::translate("InteractiveClean", "60", 0, UnicodeUTF8));
+		addRB_->setText(QApplication::translate("InteractiveClean", "Add", 0, UnicodeUTF8));
+		eraseRB_->setText(QApplication::translate("InteractiveClean", "Erase", 0, UnicodeUTF8));
 		maskNoMorePB_->setText(QString());
 		stopPB_->setText(QString());
 		maskDonePB_->setText(QString());
-		thisPlaneRB_->setText(QApplication::translate("InteractiveClean", this_freq_, 0, QApplication::UnicodeUTF8));
-		allChanRB_->setText(QApplication::translate("InteractiveClean", all_freq_, 0, QApplication::UnicodeUTF8));
-		thisHiddenRB_->setText(QApplication::translate("InteractiveClean", this_pol_, 0, QApplication::UnicodeUTF8));
-		allHiddenRB_->setText(QApplication::translate("InteractiveClean", all_pol_, 0, QApplication::UnicodeUTF8));
+		thisPlaneRB_->setText(QApplication::translate("InteractiveClean", this_freq_, 0, UnicodeUTF8));
+		allChanRB_->setText(QApplication::translate("InteractiveClean", all_freq_, 0, UnicodeUTF8));
+		thisHiddenRB_->setText(QApplication::translate("InteractiveClean", this_pol_, 0, UnicodeUTF8));
+		allHiddenRB_->setText(QApplication::translate("InteractiveClean", all_pol_, 0, UnicodeUTF8));
 
 		dock->setWidget(widget);
 
@@ -395,7 +401,7 @@ namespace casa {
 	void QtCleanPanelGui::addedData( QString type, QtDisplayData *dd ) {
 		if ( type == "contour" ) {
 			maskdd_ = dd;
-			SHARED_PTR<ImageInterface<Float> > maskim=maskdd_->imageInterface();
+			std::shared_ptr<ImageInterface<Float> > maskim=maskdd_->imageInterface();
 			csys_p=maskim->coordinates();
 			Int dirIndex=csys_p.findCoordinate(Coordinate::DIRECTION);
 			dirCoord_p=csys_p.directionCoordinate(dirIndex);
@@ -596,7 +602,7 @@ void QtCleanPanelGui::NAME( String x, String y, String z, std::vector<int> hidde
 				if ( ! imagereg ) throw AipsError("");
 
 
-				SHARED_PTR<ImageInterface<Float> > maskim=maskdd_->imageInterface();
+				std::shared_ptr<ImageInterface<Float> > maskim=maskdd_->imageInterface();
 				//Write the region as text...will need to add a box/toggle
 				//to the viewer for that
 				//It was requested by some but

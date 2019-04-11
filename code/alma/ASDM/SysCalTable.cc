@@ -30,18 +30,18 @@
  *
  * File SysCalTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <SysCalTable.h>
-#include <SysCalRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SysCalTable.h>
+#include <alma/ASDM/SysCalRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::SysCalTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -176,10 +179,10 @@ namespace asdm {
 		entity.setInstanceVersion("1");
 		
 		// Archive XML
-		archiveAsBin = false;
+		archiveAsBin = true;
 		
 		// File XML
-		fileAsBin = false;
+		fileAsBin = true;
 		
 		// By default the table is considered as present in memory
 		presentInMemory = true;
@@ -310,7 +313,6 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 	//
 
 	
-		
 	
 		
 		
@@ -366,11 +368,11 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		SysCalRow * dummy = checkAndAdd(x, true); // We require the check for uniqueness to be skipped.
 		                                           // by passing true in the second parameter
 		                                           // whose value by default is false.
+		// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
                 if (false) cout << (unsigned long long) dummy;
 	}
 	
 
-	
 
 
 	// 
@@ -386,7 +388,7 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 			
 			
 			
-	SysCalRow*  SysCalTable::checkAndAdd(SysCalRow* x, bool ) {
+	SysCalRow*  SysCalTable::checkAndAdd(SysCalRow* x, bool /* skipCheckUniqueness */ ) {
 		string keystr = Key( 
 						x->getAntennaId() 
 					   , 
@@ -580,7 +582,7 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<SysCalTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syscal=\"http://Alma/XASDM/SysCalTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysCalTable http://almaobservatory.org/XML/XASDM/3/SysCalTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<SysCalTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syscal=\"http://Alma/XASDM/SysCalTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysCalTable http://almaobservatory.org/XML/XASDM/4/SysCalTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -610,11 +612,10 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		//
 		xmlDoc *doc;
 #if LIBXML_VERSION >= 20703
-		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
 		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "SysCal");
 		
@@ -688,9 +689,13 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 				
 		if (!xml.isStr("</SysCalTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -707,7 +712,7 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<SysCalTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syscal=\"http://Alma/XASDM/SysCalTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysCalTable http://almaobservatory.org/XML/XASDM/3/SysCalTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<SysCalTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:syscal=\"http://Alma/XASDM/SysCalTable\" xsi:schemaLocation=\"http://Alma/XASDM/SysCalTable http://almaobservatory.org/XML/XASDM/4/SysCalTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='SysCalTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -988,8 +993,11 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void SysCalTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1043,11 +1051,19 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 	}
 
 	
-	void SysCalTable::setFromFile(const string& directory) {		
+	void SysCalTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysCal.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/SysCal.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/SysCal.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/SysCal.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the SysCal table", "SysCal");
 	}			
@@ -1198,7 +1214,9 @@ SysCalRow* SysCalTable::newRow(SysCalRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

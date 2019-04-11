@@ -209,19 +209,20 @@ using namespace casa::vi;
     // required, use the version without the co-ordinate system below.
     //
     void getParams(casacore::CoordinateSystem& cs, casacore::Float& sampling, 
-		   casacore::Int& xSupport, casacore::Int& ySupport, 
+		   casacore::Int& xSupport, casacore::Int& ySupport, casacore::String& bandName,
 		   const casacore::Double& freqVal, const casacore::Double& wValue, 
 		   const casacore::Int& muellerElement);
     //-------------------------------------------------------------------------
     // Get CF by directly indexing in the list of CFs (data vector)
     inline void getParams(casacore::CoordinateSystem& cs, casacore::Float& sampling, 
-			  casacore::Int& xSupport, casacore::Int& ySupport, 
+			  casacore::Int& xSupport, casacore::Int& ySupport, casacore::String& bandName,
 			  const casacore::Int& i, const casacore::Int& j, const casacore::Int& k)
     {
       cs = cfCells_p(i,j,k)->coordSys_p;
       sampling = cfCells_p(i,j,k)->sampling_p;
       xSupport = cfCells_p(i,j,k)->xSupport_p;
       ySupport = cfCells_p(i,j,k)->ySupport_p;
+      bandName = cfCells_p(i,j,k)->bandName_p;
     }
     void getParams(casacore::Double& freqVal, casacore::Float& sampling, 
 		   casacore::Int& xSupport, casacore::Int& ySupport, 
@@ -312,17 +313,17 @@ using namespace casa::vi;
 
 
     casacore::RigidVector<casacore::Int, 3> setParams(const casacore::Int& i, const casacore::Int& j, const casacore::Int& ipx, const casacore::Int& ipy,
-				  const casacore::Double& freqValue, const casacore::Double& wValue, 
-				  const casacore::Int& muellerElement,
-				  casacore::CoordinateSystem& cs,
-				   const casacore::TableRecord& miscInfo,
+						      const casacore::Double& freqValue, const casacore::String& bandName,
+						      const casacore::Double& wValue, 
+						      const casacore::Int& muellerElement,
+						      casacore::CoordinateSystem& cs,
 						      casacore::Float& sampling,
 						      casacore::Int& xSupport, casacore::Int& ySupport,
-				  const casacore::String& fileName=casacore::String(),
-				  const casacore::Double& conjFreq=0.0,
-				  const casacore::Int& conjPol=-1,
-				  const casacore::String& telescopeName=casacore::String(),
-				  const casacore::Float& diameter=25.0);
+						      const casacore::String& fileName=casacore::String(),
+						      const casacore::Double& conjFreq=0.0,
+						      const casacore::Int& conjPol=-1,
+						      const casacore::String& telescopeName=casacore::String(),
+						      const casacore::Float& diameter=25.0);
     // casacore::RigidVector<casacore::Int, 3> setParams(const casacore::Int& inu, const casacore::Int& iw, const casacore::Int& muellerElement,
     // 				  const casacore::TableRecord& miscInfo);
     void setPointingOffset(const casacore::Vector<casacore::Double>& offset) 
@@ -378,6 +379,9 @@ using namespace casa::vi;
     void getFreqNdxMaps(casacore::Vector<casacore::Vector<casacore::Int> >& freqNdx, casacore::Vector<casacore::Vector<casacore::Int> >& conjFreqNdx);
     inline casacore::Int nearestFreqNdx(const casacore::Int& spw, const casacore::Int& chan, const casacore::Bool conj=false)
     {
+      // Single pixel along the freq. axis but chan, spw > 0 indicates
+      // use of W-only projection on a wide-band data.
+      if (nChan_p == 1) return 0; 
       if (conj) return conjFreqNdxMap_p[spw][chan];
       else  return freqNdxMap_p[spw][chan];
     }

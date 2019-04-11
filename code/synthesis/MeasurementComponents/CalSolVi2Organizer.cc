@@ -32,6 +32,7 @@
 #include <msvis/MSVis/LayeredVi2Factory.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 #include <msvis/MSVis/AveragingTvi2.h>
+#include <synthesis/MeasurementComponents/FiltrationTVI.h>
 #include <casa/aips.h>
 #include <casa/iostream.h>
 
@@ -47,6 +48,7 @@ CalSolVi2Organizer::CalSolVi2Organizer() :
   cal_(NULL),
   chanave_(NULL),
   timeave_(NULL),
+  calfilter_(NULL),
   factories_(),
   vi_(NULL)
 {
@@ -111,7 +113,8 @@ int CalSolVi2Organizer::countSolutions(casacore::Vector<int>& nChunkPerSolve) {
 void CalSolVi2Organizer::addDiskIO(MeasurementSet* ms,Float interval,
 				   Bool combobs,Bool combscan,
 				   Bool combfld,Bool combspw,
-				   Bool useMSIter2) 
+				   Bool useMSIter2,
+                                   std::shared_ptr<FrequencySelections> freqSel) 
 {
 
   //  Must be first specified layer
@@ -122,7 +125,12 @@ void CalSolVi2Organizer::addDiskIO(MeasurementSet* ms,Float interval,
   deriveVI2Sort(sc,combobs,combscan,combfld,combspw);
   IteratingParameters iterpar(interval,SortColumns(sc));
 
-  data_=new VisIterImpl2LayerFactory(ms,iterpar,True,useMSIter2);
+  auto diskLayerFactory=new VisIterImpl2LayerFactory(ms,iterpar,True,useMSIter2);
+
+  if(freqSel)
+    diskLayerFactory->setFrequencySelections(freqSel);
+
+  data_ = diskLayerFactory;
 
   factories_.resize(1);
   factories_[0]=data_;
@@ -186,13 +194,17 @@ void CalSolVi2Organizer::addCalForSolving(VisEquation& ve) {
 }
 
 
-void CalSolVi2Organizer::addChanAve(Int chanbin) {
+void CalSolVi2Organizer::addChanAve(Vector<Int> chanbin) {
 
   // Must not have added one already!
   AlwaysAssert(!chanave_, AipsError);
 
   //  Must be at least one other layer already...
   AlwaysAssert(factories_.nelements()>0, AipsError);
+
+  // Force no averaging with chanbin[i]=0 in ChannelAverageTVI
+  //  (NB: chanbin[i]=1 means nchan averaging)
+  chanbin(chanbin==1)=0;
 
   Record config;
   config.define("chanbin",chanbin);
@@ -226,6 +238,31 @@ void CalSolVi2Organizer::addTimeAve(Float timebin) {
 
 }
 
+// Add data-filtering layer factory
+void CalSolVi2Organizer::addCalFilter(Record const &config) {
+  // Must not have added one already!
+  AlwaysAssert(!timeave_, AipsError);
+
+  //  Must be at least one other layer already...
+  AlwaysAssert(factories_.nelements()>0, AipsError);
+
+  // config must have "mode" field
+  AlwaysAssert(config.isDefined("mode"), AipsError);
+
+  Record configuration(config);
+  String const mode = configuration.asString("mode");
+  if (mode == "SDGAIN_OTFD") {
+    configuration.define("type", (Int)FilteringType::SDDoubleCircleFilter);
+  } else {
+    // not supported
+    configuration.define("type", (Int)FilteringType::NoTypeFilter);
+  }
+
+  calfilter_ = new FiltrationTVILayerFactory(configuration);
+
+  // Add it to the list...
+  this->appendFactory(calfilter_);
+}
 
 void CalSolVi2Organizer::appendFactory(ViiLayerFactory* f) {
 
@@ -243,6 +280,7 @@ void CalSolVi2Organizer::cleanUp() {
   if (cal_) delete cal_;  cal_=NULL;
   if (chanave_) delete chanave_;  chanave_=NULL;
   if (timeave_) delete timeave_;  timeave_=NULL;
+  if (calfilter_) delete calfilter_; calfilter_=NULL;
   factories_.resize(0);
 
 }

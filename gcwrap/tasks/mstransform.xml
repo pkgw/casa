@@ -209,7 +209,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
                 
     <param type="bool" name="usewtspectrum">
-        <description>Create a WEIGHT_SPECTRUM column in the output MS.</description>
+        <description>Force creation of the columns WEIGHT_SPECTRUM and SIGMA_SPECTRUM in the output MS, even if not present in the input MS.</description>
         <value>False</value>
     </param>
 
@@ -256,18 +256,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
 
         <param type="int" name="nchan" subparam="true">
-            <description>Number of channels in the output spw (-1=all).</description>
+            <description>Number of channels in the output spw (-1=all). Used for regridding, together with \'start\' and \'width\'.</description>
             <value>-1</value>
         </param>
 
         <param type="any" name="start" subparam="true">
-            <description>First channel to use in the output spw (mode-dependant)</description>
+            <description>Start of the output visibilities. Used for regridding, together with \'width\' and \'nchan\'. It can be in different units, depending on the regridding mode: first input channel (mode=\'channel\'), first velocity (mode=\'velocity\'), or first frequency (mode=\'frequency\'). Example values: \'5\', \'0.0km/s\', \'1.4GHz\', for channel, velocity, and frequency modes, respectively.</description>
             <any type="variant"/>
             <value type="int">0</value>
         </param>
 
         <param type="any" name="width" subparam="true">
-            <description>Number of input channels that are used to create an output channel.</description>
+	    <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
             <any type="variant"/>
             <value type="int">1</value>
         </param>
@@ -290,7 +290,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
 
         <param type="any" name="phasecenter" subparam="true">
-            <description>Phase center direction to be used for the spectral coordinate transformation: position or field index</description>
+            <description>Phase center direction to be used for the spectral coordinate transformation: direction measure or field index</description>
             <any type="variant"/>
             <value type="string"></value>
         </param>
@@ -325,6 +325,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                <value>radio</value>
             </allowed>
         </param>
+
+	<param type="bool" name="preaverage">
+          <description>Pre-average channels before regridding, when the ratio between the output and and input widths is greater than 2.</description>
+          <value>False</value>
+	</param>
 
     <!-- TIME AVERAGING parameters -->
     <param type="bool" name="timeaverage">
@@ -421,12 +426,26 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         
     <constraints>
           <when param="createmms">
-            <equals type="bool" value="False"/>
+            <equals type="bool" value="False">
+                  <default param="separationaxis"><value type="string">auto</value></default>
+                  <default param="numsubms"><value type="string">auto</value></default>
+
+                  <default param="disableparallel"><value type="bool">False</value></default>
+                  <default param="ddistart"><value type="int">-1</value></default>
+                  <default param="taql"><value type="string"></value></default>
+                  <default param="reindex"><value type="bool">True</value></default>
+            </equals>
             <equals type="bool" value="True">
                   <default param="separationaxis"><value type="string">auto</value></default>
                   <default param="numsubms"><value type="string">auto</value></default>
+
+                  <default param="disableparallel"><value type="bool">False</value></default>
+                  <default param="ddistart"><value type="int">-1</value></default>
+                  <default param="taql"><value type="string"></value></default>
+                  <default param="reindex"><value type="bool">True</value></default>
             </equals>
           </when>
+
           <when param="datacolumn">
             <equals type="string" value="corrected"></equals>
             <equals type="string" value="model">
@@ -439,12 +458,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
              	  <default param="realmodelcol"><value type="bool">False</value></default>           
             </equals>         
           </when>
+
           <when param="chanaverage">
             <equals type="bool" value="False"/>
             <equals type="bool" value="True">
                   <default param="chanbin"><value type="int">1</value></default>
             </equals>
           </when>
+
         <when param="regridms">
             <equals type="bool" value="False"/>
             <equals type="bool" value="True">
@@ -458,8 +479,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 <default param="restfreq"><value type="string"></value></default>
                 <default param="outframe"><value type="string"></value></default>
                 <default param="veltype"><value type="string">radio</value></default>
+                <default param="preaverage"><value type="bool">False</value></default>
             </equals>
-          </when>
+        </when>
+
         <when param="timeaverage">
             <equals type="bool" value="False"/>
             <equals type="bool" value="True">
@@ -467,13 +490,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                   <default param="timespan"><value type="string"></value></default>
                   <default param="maxuvwdistance"><value type="double">0.0</value></default>
             </equals>
-          </when>
+        </when>
+
         <when param="docallib">
             <equals type="bool" value="False"/>
             <equals type="bool" value="True">
                   <default param="callib"><value type="string"></value></default>
             </equals>
-          </when> 
+        </when>
+
         <when param="douvcontsub">
             <equals type="bool" value="False"/>
             <equals type="bool" value="True">
@@ -485,6 +510,46 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                   <default param="niter"><value type="int">1</value></default>          
             </equals>
         </when>      
+
+	<when param="mode">
+	  <equals value="channel">
+	    <default param="nchan"><value type="int">-1</value></default>
+	    <default param="start"><value type="int">0</value>
+	    <description>First input channel to use</description>
+	    </default>
+	    <default param="width"><value type="int">1</value></default>
+	    <default param="interpolation"><value type="string">linear</value></default>
+	  </equals>
+	  <equals value="channel_b">
+	    <default param="nchan"><value type="int">-1</value></default>
+	    <default param="start"><value type="int">0</value>
+	    <description>First input channel to use</description>
+	    </default>
+	    <default param="width"><value type="int">1</value></default>
+	    <default param="interpolation"><value type="string">linear</value></default>
+	  </equals>
+	  <equals value="velocity">
+	    <default param="nchan"><value type="int">-1</value></default>
+	    <default param="start"><value type="string"></value>
+	    <description>Velocity of first channel: e.g \'0.0km/s\'</description>
+	    </default>
+	    <default param="width"><value type="string"></value>
+	    <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
+	    </default>
+	    <default param="interpolation"><value type="string">linear</value></default>
+	  </equals>
+	  <equals value="frequency">
+	    <default param="nchan"><value type="int">-1</value></default>
+	    <default param="start"><value type="string"></value>
+	    <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
+	    </default>
+	    <default param="width"><value type="string"></value>
+	    <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
+	    </default>
+	    <default param="interpolation"><value type="string">linear</value></default>
+	  </equals>
+	</when>
+
     </constraints>
 
 </input>
@@ -660,9 +725,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         default: True (keep completely flagged rows in the output)
 		
 	
-    usewtspectrum -- Create a WEIGHT_SPECTRUM column in the output MS. When set to True,
-                     a WEIGHT_SPECTRUM column will be created using the input WEIGHT column,
-                     such that each channel in the WEIGHT_SPECTRUM will get WEIGHT/nChannels.
+    usewtspectrum -- Force creation of the columns WEIGHT_SPECTRUM and SIGMA_SPECTRUM in the
+                     output MS. This flag can be used to force the creation of
+                     WEIGHT_SPECTRUM and SIGMA_SPECTRUM when they are not present in the
+                     input MS. When set to true, the output WEIGHT_SPECTRUM column will be
+                     populated using the input WEIGHT column, such that each channel in the
+                     WEIGHT_SPECTRUM column will get WEIGHT/nChannels. Note that if the
+                     WEIGHT_SPECTRUM column is present in the input MS the columns will
+                     always be created in the output MS, regardless of the value of this
+                     parameter.
+
         default: False
 
 	
@@ -673,6 +745,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             NOTE: This option is only supported when the number of channels is the same for
                   all the spws. Using this option with different numbers of channels for
                   different spws will result in an error.
+
+            NOTE: If the SPWs have different polarization settings only the common
+                  polarizations will be output. For instance, if SPW 1 has XX XY YX YY and
+                  SPW 2 has XX YY, the output MS will have a single SPW with XX YY polarizations
 
             NOTE: Whenever the data to be combined has different EXPOSURE values 
                   in the spectral windows, mstransform will use the WEIGHT_SPECTRUM 
@@ -712,6 +788,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
              2) When WEIGHT_SPECTRUM/SIGMA_SPECTRUM are present:
                     Avg = SUM(Chan_i*Flag_i*WeightSpectrum_i)/SUM(Flag_i*WeightSpectrum_i)
 
+           If combinespws=True, then chanbin can only be a (int). This is because the
+           channel average then refers to the already combined MS after spw combination,
+           which has a single spw.
+
 
 --- Hanning smoothing parameters --- 
     hanning -- Hanning smooth frequency channel data to remove Gibbs ringing.
@@ -737,9 +817,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             default: 0 --> when mode='channel'
 
             When mode='channel', 'start' means the first channel in the input spw
-            to use when creating the output spw. When mode='frequency',
-            'start' means the lowest frequency of the output spw. If this information
-            is not available, leave it blank and mstransform will calculate it.
+            to use when creating the output spw. When mode='frequency' or mode='velocity',
+            'start' means the frequency or velocity, respectively, of the first output
+            channel. If this information is not available, leave it blank and mstransform
+            will calculate it.
 
         width -- Width of input channels that are used to create an output channel. 
             default: 1
@@ -783,7 +864,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         veltype -- Definition of velocity (as used in mode).
             default: 'radio'
 
-	
+        preaverage -- Pre-average channels before regridding. This is done when the ratio
+                      between the output and and input widths is greater than 2. This has
+                      been disabled since CASA 5.0
+            default: False
+
+
 --- Time averaging parameters ---
     timeaverage -- Average data across time. Partially flagged data is not be included in the average
                    unless all data contributing to a given output channel is flagged. In this case, 
@@ -819,8 +905,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         maxuvwdistance -- Provide a maximum separation of start-to-end baselines 
                           that can be included in an average. (int)
             default: 0.0 (given in meters)
-            
-            
+
 --- On-the-fly calibration parameters ---            
     docallib -- Enable on-the-fly (OTF) calibration as in task applycal
         default: False

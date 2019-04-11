@@ -48,7 +48,7 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -59,24 +59,24 @@
 	
 
 	
-#include "CProcessorType.h"
+#include <alma/Enumerations/CProcessorType.h>
 	
 
 	
-#include "CProcessorSubType.h"
+#include <alma/Enumerations/CProcessorSubType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Processor.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -87,12 +87,12 @@ namespace asdm {
 
 class ProcessorRow;
 typedef void (ProcessorRow::*ProcessorAttributeFromBin) (EndianIStream& eis);
-typedef void (ProcessorRow::*ProcessorAttributeFromText) (const string& s);
+typedef void (ProcessorRow::*ProcessorAttributeFromText) (const std::string& s);
 
 /**
  * The ProcessorRow class is a row of a ProcessorTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class ProcessorRow {
@@ -481,16 +481,16 @@ void processorSubTypeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ProcessorAttributeFromText> fromTextMethods;
 	
-void processorIdFromText (const string & s);
+void processorIdFromText (const std::string & s);
 	
 	
-void modeIdFromText (const string & s);
+void modeIdFromText (const std::string & s);
 	
 	
-void processorTypeFromText (const string & s);
+void processorTypeFromText (const std::string & s);
 	
 	
-void processorSubTypeFromText (const string & s);
+void processorSubTypeFromText (const std::string & s);
 	
 
 		

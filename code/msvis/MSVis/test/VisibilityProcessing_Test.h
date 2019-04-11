@@ -60,7 +60,7 @@ private:
 
     VpTests ();
 
-    std::auto_ptr<po::variables_map> vm_p;
+    std::unique_ptr<po::variables_map> vm_p;
 
 };
 
@@ -178,8 +178,8 @@ class VpNoop : public VisibilityProcessor {
 public:
 
     VpNoop (const casacore::String & name,
-            const vector<casacore::String> & inputNames,
-            const vector<casacore::String> & outputNames,
+            const std::vector<casacore::String> & inputNames,
+            const std::vector<casacore::String> & outputNames,
             casacore::Int nChunkSweeps)
     : VisibilityProcessor (name, inputNames, outputNames),
       nChunkSweeps_p (nChunkSweeps)

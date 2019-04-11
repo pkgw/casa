@@ -99,7 +99,7 @@ _ia = iatool( )
 _rg = rgtool( )
 
 sep = os.sep
-datapath=os.environ.get('CASAPATH').split()[0] + sep + 'data' + sep\
+datapath = os.environ.get('CASAPATH').split()[0] + sep + 'data' + sep\
     + 'regression' + sep + 'unittest' + sep + 'immath' + sep
 
 cas1452_1_im = 'CAS-1452-1.im'
@@ -800,7 +800,7 @@ class immath_test2(unittest.TestCase):
                 
         # FIXME: add links to repository
         for img in imageList2:
-            self.assertTrue(os.path.exists(datapath + img))
+            self.assertTrue(os.path.exists(datapath + img), datapath + img + " does not exist")
             if os.path.isdir(datapath + img):
                 shutil.copytree(datapath + img, img)
             else:
@@ -1510,23 +1510,57 @@ class immath_test3(unittest.TestCase):
         # Note that im.4 has been moved into im.1.
         ok = global_iet_im1.done()
       
-    def test_complex(self):
-        """Test creating and manipulating complex images"""
+    def test_precision(self):
+        """Test ia.imagecalc() support for various precisions"""
         myia = iatool()
-        floatim = "float.im"
-        myia.fromshape(floatim, [2,2], type='f')
-        self.assertTrue(type(myia.getchunk()[0,0]) == numpy.float64)
-        myia.done()
-        complexim = "complex.im"
-        zz = myia.imagecalc(complexim, "complex(" + floatim + ")")
-        self.assertTrue(type(zz.getchunk()[0,0]) == numpy.complex128)
-        complexim2 = "complex2.im"
-        yy = zz.subimage(complexim2)
-        zz.done()
-        yy.done()
-        zz = myia.imagecalc("", complexim + "+" + complexim2)
-        self.assertTrue(type(zz.getchunk()[0,0]) == numpy.complex128)
-        zz.done()
+        myreal = 1.2345678901234567890123456789
+        mycomplex = myreal * (1 + 1j)
+        expec = {}
+        expec['f'] = 'float'
+        expec['d'] = 'double'
+        expec['c'] = 'complex'
+        expec['cd'] = 'dcomplex'
+        shape = [2,2]
+        for mytype in expec.keys():
+            myprec = 'f'
+            if mytype == 'd' or mytype == 'cd':
+                myprec = 'd'
+            out0 = "calc0_" + mytype + ".im"
+            out1 = "calc1_" + mytype + ".im"
+            for i in [0, 1]:
+                if i == 0:
+                    outfile = out0
+                else:
+                    outfile = out1
+                myia.fromshape(outfile, shape, type=mytype)
+                bb = myia.getchunk()
+                if mytype == 'f' or mytype == 'd':
+                    bb[:] = myreal
+                else:
+                    bb[:] = mycomplex
+                myia.putchunk(bb)
+                myia.done()
+            zz = myia.imagecalc("", out0 + "+" + out1, prec=myprec)
+            self.assertTrue(
+                zz.pixeltype() == expec[mytype], 
+                "Wrong image type for " + mytype
+            )
+            cc = zz.getchunk()
+            myia.done()
+            zz.done()
+            if mytype == 'f' or mytype == 'd':
+                expecv = 2*myreal
+            else:
+                expecv = 2*mycomplex
+            if mytype == 'f' or mytype == 'c':
+                self.assertTrue(
+                    numpy.isclose(cc, expecv, 1e-8).all(),
+                    "wrong values for " + mytype
+                )
+            else:
+                self.assertTrue(
+                    (cc == expecv).all(), "wrong values for " + mytype
+                )
         
     def test_8(self):
         """Tests moved from imagetest regression, some are probably useless"""
@@ -1652,21 +1686,37 @@ class immath_test3(unittest.TestCase):
         myia.fromshape(im1, [20, 20])
         myia.fromshape(im2, [20, 20])
         myia.done()
-        kk = myia.imagecalc("", im1 + "+" + im2)
+        expr = im1 + "+" + im2
+        kk = myia.imagecalc("", expr)
         msgs = kk.history()
         kk.done()
-        self.assertTrue("ia.imagecalc" in msgs[-2])
-        self.assertTrue("ia.imagecalc" in msgs[-1])
-
+        teststr = "ia.imagecalc"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
         myia.open(im1)
-        self.assertTrue(myia.calc(im1 + "+" + im2))
+        self.assertTrue(myia.calc(expr))
         msgs = myia.history()
         myia.done()
-        self.assertTrue("ia.calc" in msgs[-2])
-        self.assertTrue("ia.calc" in msgs[-1])
-
+        teststr = "ia.calc"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
+        outfile = "zz_out.im"
+        self.assertTrue(
+            immath(imagename=im1, outfile=outfile, expr=expr),
+            "immath failed"
+        )
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "immath"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        
     def test_flush(self):
-        "CAS-8570: ensure image is flushed to disk when it is created"""
+        """CAS-8570: ensure image is flushed to disk when it is created"""
         myia = iatool()
         myia.fromshape("jj.im", [20,20,20])
         myia.fromshape("kk.im", [20,20,20])
@@ -1675,6 +1725,69 @@ class immath_test3(unittest.TestCase):
         self.assertTrue(myia.open(outfile))
         myia.done()
         zz.done()
+
+    def test_poli_sigma(self):
+        """Verify poli sigma fix, CAS-8880"""
+        snumeric = 0.0044
+        sigma = str(snumeric) + "Jy/beam"
+        imagename = datapath + "poli_sigma_test.im"
+        outfile = "myout.im"
+        immath(imagename=imagename, outfile=outfile, mode='poli', sigma=sigma)
+        myia = iatool()
+        myia.open(imagename)
+        pix = myia.getchunk()
+        expec = numpy.sqrt(pix[:,:,1]**2 + pix[:,:,2]**2 + pix[:,:,3]**2 - snumeric**2)
+        expec = expec.reshape([20, 20, 1])
+        myia.open(outfile)
+        got = myia.getchunk()
+        myia.done()
+        rtol = 1e-5
+        self.assertTrue(numpy.all(numpy.isclose(expec, got, rtol)), "Failed poli sigma test")
+
+    def test_tlpol(self):
+        """CAS-12116 test various polarization modes"""
+        imagename = "mypol.im"
+        myia = iatool()
+        myia.fromshape(imagename, [4, 4, 4])
+        bb = myia.getchunk()
+        bb[:,:,0] = 0
+        bb[:,:,1] = 6
+        bb[:,:,2] = 4
+        bb[:,:,3] = 2
+        myia.putchunk(bb)
+        myia.done()
+        expec = {}
+        expec['poli'] = numpy.sqrt(56.0) 
+        expec['tpoli'] = expec['poli'] 
+        expec['lpoli'] = numpy.sqrt(52.0) 
+        for mode in ['poli', 'lpoli', 'tpoli']:
+            outfile = 'out' + mode + '.im'
+            immath(imagename=imagename, outfile=outfile, mode=mode)
+            myia.open(outfile)
+            bb = myia.getchunk()
+            myia.done()
+            self.assertTrue(
+                numpy.allclose(bb, expec[mode], 1e-7), "Fail mode " + mode
+            )
+        subi = 'noV.im'
+        myia.open(imagename)
+        zz = myia.subimage(subi, region=_rg.box([0,0,0],[3,3,2]))
+        myia.done()
+        zz.done()
+        expec['poli'] = expec['lpoli'] 
+        expec['lpoli'] = numpy.sqrt(52.0) 
+        for mode in ['poli', 'lpoli', 'tpoli']:
+            outfile = 'no_Vout' + mode + '.im'
+            if mode == 'tpoli':
+                self.assertRaises(immath(imagename=subi, outfile=outfile, mode=mode))
+                continue
+            immath(imagename=subi, outfile=outfile, mode=mode)
+            myia.open(outfile)
+            bb = myia.getchunk()
+            myia.done()
+            self.assertTrue(
+                numpy.allclose(bb, expec[mode], 1e-7), "Fail mode " + mode
+            )
 
 def suite():
     return [immath_test1, immath_test2, immath_test3]

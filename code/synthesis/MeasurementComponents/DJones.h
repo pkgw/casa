@@ -284,6 +284,7 @@ public:
 
 };
 
+/*
 
 // **********************************************************
 //  X: position angle calibration (for circulars!)
@@ -540,7 +541,7 @@ public:
 
 };
 
-
+*/
 
 
 } //# NAMESPACE CASA - END

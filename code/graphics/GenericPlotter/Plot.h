@@ -141,6 +141,10 @@ public:
     // Returns the point data used for this plot.
     virtual PlotPointDataPtr pointData() const = 0;
     
+    // Get/set to connect points in step rather than line
+    virtual bool linesStep() const = 0;
+    virtual void setLinesStep(bool linesStep = true) = 0;
+    
     // Returns true if symbols are shown, false otherwise.
     virtual bool symbolsShown() const = 0;
     
@@ -289,6 +293,10 @@ public:
         l->setWidth(width);
         setMaskedLine(*l);
     }
+    // Get/set connect masked points in step rather than line
+    virtual bool maskedLinesStep() const = 0;
+    virtual void setMaskedLinesStep(bool linesStep = true) = 0;
+    
     // </group>
     
     // Returns true if symbols are shown for masked points, false otherwise.
@@ -575,10 +583,10 @@ public:
     virtual void setDataOrigin(PlotRasterData::Origin o) = 0;
     
     // Returns the contour line levels, if any.
-    virtual vector<double> contourLines() const = 0;
+    virtual std::vector<double> contourLines() const = 0;
     
     // Sets the contour line levels.
-    virtual void setContourLines(const vector<double>& lines) = 0;
+    virtual void setContourLines(const std::vector<double>& lines) = 0;
 };
 
 

@@ -29,6 +29,10 @@
 
 #include <QtGui>
 
+#include <QLineEdit>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QPushButton>
 #include <casa/BasicSL/String.h>
 #include <display/Display/WorldCanvasHolder.h>
 #include <display/Display/WorldCanvas.h>
@@ -175,7 +179,7 @@ namespace casa {
 		                          casacore::Quantum<casacore::Vector<double> >& worldX,
 		                          casacore::Quantum<casacore::Vector<double> >& worldY,
 		                          WorldCanvasHolder& wch, casacore::MDirection::Types toSys,
-		                          const vector<int>& xSign,const vector<int>& ySign,
+		                          const std::vector<int>& xSign,const std::vector<int>& ySign,
 		                          bool wrap = true, casacore::String* error = NULL);
 
 		static bool linearToWorld(const casacore::Vector<double>& linearX,
@@ -185,7 +189,7 @@ namespace casa {
 		                          WorldCanvasHolder& wch, casacore::MDirection::Types toSys,
 		                          casacore::String* error = NULL) {
 			return linearToWorld(linearX, linearY, worldX, worldY, wch, toSys,
-			                     vector<int>(), vector<int>(), false, error);
+			                     std::vector<int>(), std::vector<int>(), false, error);
 		}
 
 		static bool linearToPixel(const casacore::Vector<double>& linearX,
@@ -202,7 +206,7 @@ namespace casa {
 			casacore::Vector<double> linX(screenX.size()), linY(screenY.size());
 			return screenToLinear(screenX, screenY, linX, linY, wch) &&
 			       linearToWorld(linX, linY, worldX, worldY, wch, toSys,
-			                     vector<int>(), vector<int>(), false, error);
+			                     std::vector<int>(), std::vector<int>(), false, error);
 		}
 
 		static bool screenToWorld(const casacore::Vector<double>& screenX,
@@ -210,7 +214,7 @@ namespace casa {
 		                          casacore::Quantum<casacore::Vector<double> >& worldX,
 		                          casacore::Quantum<casacore::Vector<double> >& worldY,
 		                          WorldCanvasHolder& wch, casacore::MDirection::Types toSys,
-		                          const vector<int>& xSign, const vector<int>& ySign,
+		                          const std::vector<int>& xSign, const std::vector<int>& ySign,
 		                          casacore::String* error = NULL) {
 			casacore::Vector<double> linX(screenX.size()), linY(screenY.size());
 			return screenToLinear(screenX, screenY, linX, linY, wch) &&
@@ -259,7 +263,7 @@ namespace casa {
 		// Constructor that uses the given colors.  If setText is nonempty, the
 		// chooser is set to the given.  If showButton is true, a "pick" button
 		// is shown for picking colors.
-		QtColorWidget(const vector<casacore::String>& colors, bool showButton = false,
+		QtColorWidget(const std::vector<casacore::String>& colors, bool showButton = false,
 		              casacore::String setText = "", QWidget* parent = NULL);
 
 		// Destructor.
@@ -276,8 +280,8 @@ namespace casa {
 
 
 		// Returns default colors.
-		static vector<casacore::String> defaultColors() {
-			static vector<casacore::String> v(9);
+		static std::vector<casacore::String> defaultColors() {
+			static std::vector<casacore::String> v(9);
 			v[0] = "white";
 			v[1] = "black";
 			v[2] = "red";
@@ -301,7 +305,7 @@ namespace casa {
 		QPushButton* m_button;
 
 		// Initializes GUI members.
-		void init(const vector<casacore::String>& colors, const casacore::String& setText,
+		void init(const std::vector<casacore::String>& colors, const casacore::String& setText,
 		          bool showButton);
 
 	private slots:
@@ -391,7 +395,7 @@ namespace casa {
 		RSOption(double d);
 
 		// casacore::String vector constructor.
-		RSOption(const vector<casacore::String>& v);
+		RSOption(const std::vector<casacore::String>& v);
 
 		// Destructor.
 		~RSOption();
@@ -409,7 +413,7 @@ namespace casa {
 		const casacore::String& asString() const;
 		bool asBool() const;
 		double asDouble() const;
-		const vector<casacore::String>& asStringArray() const;
+		const std::vector<casacore::String>& asStringArray() const;
 		// </group>
 
 		// Operators.
@@ -419,7 +423,7 @@ namespace casa {
 		RSOption& operator=(const casacore::String& str);
 		RSOption& operator=(bool b);
 		RSOption& operator=(double d);
-		RSOption& operator=(const vector<casacore::String>& v);
+		RSOption& operator=(const std::vector<casacore::String>& v);
 		// </group>
 
 	private:
@@ -430,7 +434,7 @@ namespace casa {
 		bool m_isDouble;
 		double m_double;
 		bool m_isStringArray;
-		vector<casacore::String> m_stringArray;
+		std::vector<casacore::String> m_stringArray;
 	};
 
 
@@ -452,7 +456,7 @@ namespace casa {
 
 		// Constructor which takes x and y vectors.  x and y MUST be length 4 or
 		// the handle is invalid.
-		RSHandle(const vector<double>& x, const vector<double>& y,
+		RSHandle(const std::vector<double>& x, const std::vector<double>& y,
 		         int markerHeight = DEFAULT_MARKER_HEIGHT,
 		         const casacore::String& markerColor = DEFAULT_MARKER_COLOR,
 		         Display::Marker markerType = DEFAULT_MARKER_TYPE);
@@ -494,7 +498,7 @@ namespace casa {
 		// Gets the handle vertices coordinates and returns whether the operation
 		// succeeded or not (i.e. if the handle is valid).  If it succeeded, x and
 		// y will be resize to be size 4 if necessary.
-		bool getVertices(vector<double>& x, vector<double>& y) const;
+		bool getVertices(std::vector<double>& x, std::vector<double>& y) const;
 
 		// Draws the handles on the given canvas and returns whether the operation
 		// succeeded or not (i.e. if the handle is valid).  If valid, each of the
@@ -503,7 +507,7 @@ namespace casa {
 
 	private:
 		bool m_isValid;
-		vector<double> m_x, m_y;
+		std::vector<double> m_x, m_y;
 		int m_markerHeight;
 		casacore::String m_markerColor;
 		Display::Marker m_markerType;

@@ -8,6 +8,7 @@ from HTMLParser import HTMLParser
 from subprocess import check_output
 import platform
 
+
 # Supported operating system versions
 osVersions = ["el6", "el7", "osx1011", "osx1012"]
 script_dir = os.path.dirname(os.path.realpath(__file__))
@@ -32,8 +33,8 @@ class MyHTMLParser(HTMLParser):
         return self.links
 
 # sampleUrl=https://svn.cv.nrao.edu/casa/distro/osx/cartadev/master/
-base_url = "https://svn.cv.nrao.edu/casa/distro/"
-url_tail = "/cartadev/dev/"
+base_url = "https://casa.nrao.edu/download/distro/"
+url_tail = "/cartarel/"
 package_name = ""
 
 
@@ -55,6 +56,9 @@ def resolve_os():
             # os = 'osx1011'
             detected_os = 'osx'
     if "Darwin Kernel Version 16" in platform.uname()[3]:
+            # os= 'osx1012'
+            detected_os = 'osx'
+    if "Darwin Kernel Version 17" in platform.uname()[3]:
             # os= 'osx1012'
             detected_os = 'osx'
     print "Found " + detected_os
@@ -178,7 +182,7 @@ if curr_os.startswith("osx"):
     print "Package dir: " + package_dir
 
     # Copy to the right place here
-    check_output(["cp", "-r", package_dir + "/Carta.app", installation_directory])
+    check_output(["cp", "-pR", package_dir + "/Carta.app", installation_directory])
 
     out = check_output(["hdiutil", "detach", package_dir])
     print out

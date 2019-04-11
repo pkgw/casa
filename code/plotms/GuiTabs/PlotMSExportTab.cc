@@ -66,6 +66,7 @@ PlotMSExportTab::PlotMSExportTab(QWidget* parent):
     connect(ui.dpi, SIGNAL(toggled(bool)), this, SLOT(dpiChanged()));
     connect(ui.dpiSpinner, SIGNAL(valueChanged(int)), this, SLOT(dpiChanged()));
     connect(ui.ExportTab::size, SIGNAL(toggled(bool)), this, SLOT(sizeChanged()));
+    connect(itsFileWidget_, SIGNAL(editDone()), this, SLOT(fileSelected()));
 }
 
 PlotMSExportTab::~PlotMSExportTab() { }
@@ -76,6 +77,7 @@ PlotMSExportParam PlotMSExportTab::getExportParams() const {
 	params.setExportRange( rangeStr.toStdString());
 	return params;
 }
+
 
 void PlotMSExportTab::dpiChanged() {
     ui.dpiSpinner->setEnabled(ui.dpi->isChecked());
@@ -108,7 +110,9 @@ String PlotMSExportTab::getMsNameFromPath(String msfilepath)
 void PlotMSExportTab::setExportFormat(PlotExportFormat format)
 {
     itsFileWidget_->setFile(format.location);
+    ui.verbose->setChecked(format.verbose);
     ui.dpiSpinner->setValue(format.dpi);
+    if (!format.location.empty()) fileSelected();
 }
 
 PlotExportFormat PlotMSExportTab::currentlySetExportFormat() const {
@@ -117,6 +121,7 @@ PlotExportFormat PlotMSExportTab::currentlySetExportFormat() const {
             PlotExportFormat::typeForExtension(file) :
             PlotExportFormat::exportFormat(ui.format->currentText().toStdString());
     PlotExportFormat format(t, file);
+	format.verbose = ui.verbose->isChecked();
     format.resolution = ui.highRes->isChecked() ? PlotExportFormat::HIGH :
                                                PlotExportFormat::SCREEN;
     format.dpi = ui.dpi->isChecked() ? ui.dpiSpinner->value() : -1;
@@ -136,6 +141,10 @@ void PlotMSExportTab::closeDialog(){
 
 void PlotMSExportTab::doExport(){
 	done( 1);
+}
+
+void PlotMSExportTab::fileSelected(){
+    ui.exportButton->setFocus();
 }
 
 }

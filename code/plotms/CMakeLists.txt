@@ -32,6 +32,7 @@ qt4_wrap_cpp( outfiles_qoh
   Gui/PlotMSSummaryDialog.qo.h
   Gui/PlotMSTransformationsWidget.qo.h
   Gui/PlotRangeWidget.qo.h
+  Gui/PlotMSPageHeaderDataModel.qo.h
   GuiTabs/PlotMSAnnotatorTab.qo.h
   GuiTabs/PlotMSAxesTab.qo.h
   GuiTabs/PlotMSCacheTab.qo.h
@@ -85,8 +86,10 @@ casa_qt4_wrap_ui( outfiles_ui
   )
 
 casa_qt4_add_resources( outfiles_qrc Gui/PlotMSPlotter.qrc OPTIONS -name Gui )
+casa_qt4_add_resources( outfiles_qrc GuiTabs/GuiTabs.qrc OPTIONS -name GuiTabs )
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/Gui ) 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/GuiTabs ) 
 # because the generated code contain relative paths to the source tree
 
 casa_add_library( plotms
@@ -102,6 +105,7 @@ casa_add_library( plotms
   Actions/ActionExport.cc
   Actions/ActionExportDialog.cc
   Actions/ActionFactory.cc
+  Actions/ActionFlagAll.cc
   Actions/ActionHoldReleaseDrawing.cc
   Actions/ActionInformation.cc
   Actions/ActionIterFirst.cc
@@ -128,6 +132,7 @@ casa_add_library( plotms
   Actions/ActionTrackerDisplay.cc
   Actions/ActionTrackerHover.cc
   Actions/ActionZoom.cc
+  Actions/FlagActionUtil.cc
   Actions/PlotMSAction.cc
   Threads/BackgroundThread.cc
   Threads/CacheThread.cc
@@ -140,10 +145,12 @@ casa_add_library( plotms
   Client/ClientFactory.cc
   Client/ClientScript.cc
   Client/Client.cc
+  Data/PageHeaderCache.cc
   Data/PlotMSCacheBase.cc
   Data/MSCache.cc
   Data/MSCacheVolMeter.cc
   Data/CalCache.cc
+  Data/PlotMSAtm.cc
   Data/PlotMSIndexer.cc
   Data/PlotMSVBAverager.cc
   Gui/PlotMSAnnotator.cc
@@ -157,6 +164,7 @@ casa_add_library( plotms
   Gui/PlotMSSummaryDialog.cc
   Gui/PlotMSTransformationsWidget.cc
   Gui/PlotRangeWidget.cc
+  Gui/PlotMSPageHeaderDataModel.cc
   GuiTabs/PlotMSAnnotatorTab.cc
   GuiTabs/PlotMSAxesTab.cc
   GuiTabs/PlotMSCacheTab.cc
@@ -184,6 +192,7 @@ casa_add_library( plotms
   PlotMS/PlotMSFlagging.cc
   PlotMS/PlotMSIterParam.cc
   PlotMS/PlotMSLabelFormat.cc
+  PlotMS/PlotMSPageHeaderParam.cc
   PlotMS/PlotMSParameters.cc
   PlotMS/PlotMSRegions.cc
   PlotMS/PlotMSSelection.cc
@@ -211,6 +220,7 @@ INSTALL (FILES
 INSTALL (FILES
         Data/PlotMSIndexer.h
         Data/PlotMSVBAverager.h
+        Data/PageHeaderCache.h
 	DESTINATION include/casacode/plotms/Data )
 
 INSTALL (FILES
@@ -225,6 +235,7 @@ INSTALL (FILES
         Gui/PlotMSSummaryDialog.qo.h
         Gui/PlotMSTransformationsWidget.qo.h
         Gui/PlotRangeWidget.qo.h
+        Gui/PlotMSPageHeaderDataModel.qo.h
 	DESTINATION include/casacode/plotms/Gui )
 
 INSTALL (FILES
@@ -258,6 +269,7 @@ INSTALL (FILES
         PlotMS/PlotMSFlagging.h
         PlotMS/PlotMSIterParam.h
         PlotMS/PlotMSLabelFormat.h
+        PlotMS/PlotMSPageHeaderParam.h
         PlotMS/PlotMSParameters.h
         PlotMS/PlotMSRegions.h
         PlotMS/PlotMSSelection.h
@@ -279,31 +291,21 @@ INSTALL (FILES
 casa_add_executable( plotms casaplotms apps/casaplotms/casaplotms.cc )
 
 #TESTING
-# These tests cannot be run on build server -- no display 
-# plotms tested in python with test_plotms.py
-casa_add_demo( plotms test/dAveragingChannel.cc )
-casa_add_demo( plotms test/dAveragingTime.cc )
+# The app tests cannot be run on build server -- no display, 
+# so plotms tested in python with test_plotms.py (with xvfb).
+# Kept one demo dExportPlot to demonstrate running app from C++
+# and one test program for just loading cache,
+# useful for debugging GTs.
 casa_add_demo( plotms test/dExportPlot.cc )
-casa_add_demo( plotms test/dDataSelection.cc )
-casa_add_demo( plotms test/dSymbol.cc )
-casa_add_demo( plotms test/dLegend.cc )
-casa_add_demo( plotms test/dOverPlot.cc )
-casa_add_demo( plotms test/dOverPlot2Files.cc )
-casa_add_demo( plotms test/dOverLeftRightPlot.cc )
-casa_add_demo( plotms test/dOverIterationPlot.cc )
-casa_add_demo( plotms test/dExportRange.cc )
-casa_add_demo( plotms test/dExportRangeRightTop.cc )
-casa_add_demo( plotms test/dExportRangeRightBottom.cc )
-casa_add_demo( plotms test/dExportRangeLeftTop.cc )
-casa_add_demo( plotms test/dExportRangeLeftBottom.cc )
-casa_add_demo( plotms test/dExportRangeInternal.cc )
-casa_add_demo( plotms test/dExportRangePipeline.cc )
-casa_add_demo( plotms test/dTimeColorization.cc )
-casa_add_demo( plotms test/dMultiplePlotTypes.cc)
-casa_add_demo( plotms test/dTimeColorizationAveraging.cc )
-casa_add_demo( plotms test/dTimeIteration.cc )
-casa_add_demo( plotms test/dTimeAveragingIteration.cc )
-casa_add_demo( plotms test/dGridPlacement.cc )
-casa_add_demo( plotms test/dGridPlacementMultiplePlots.cc )
-casa_add_demo( plotms test/dGridPlacementMultipleRuns.cc )
+casa_add_demo( plotms test/dCacheData.cc )
 
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheMetadata_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheVis_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheGeom_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheInvalid_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheLtdVis_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheOverlays_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheCallib_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheSelection_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheTransform_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheAveraging_GT.cc )

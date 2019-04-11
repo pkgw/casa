@@ -163,10 +163,10 @@ public:
     void setYRange(double from, double to);
     
     // Implements RasterPlot::contourLines().
-    vector<double> contourLines() const;
+    std::vector<double> contourLines() const;
     
     // Implements RasterPlot::setContourLines().
-    void setContourLines(const vector<double>& lines);
+    void setContourLines(const std::vector<double>& lines);
     
 protected:
     // QPPlotItem Methods //

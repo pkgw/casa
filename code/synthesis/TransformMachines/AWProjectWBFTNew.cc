@@ -122,8 +122,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //cerr << "SumCFWt: " << getSumOfCFWeights() << " " << max(wtBuf) << " " << sensitivityPatternQualifier_p << endl;
     for(wtImIter.reset(); !wtImIter.atEnd(); wtImIter++)
       {
-	Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
-	pol_l=pol_l; chan_l=chan_l; // Dummy statements to supress silly compiler warnings
+    // These variables no longe appear to be used
+	//Int pol_l=wtImIter.position()(2), chan_l=wtImIter.position()(3);
 	// Lets write some mildly obfuscated code ~[8-)
 	//if ((sensitivityPatternQualifier_p == -1) && (doSumWtNorm))
 	//  sumwt_l = ((sumwt_l = getSumOfCFWeights()(pol_l,chan_l))==0)?1.0:sumwt_l;

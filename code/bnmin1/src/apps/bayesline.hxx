@@ -20,7 +20,7 @@
 namespace Minim {
 
   // Forward declarations
-  class WPPoint;
+  struct WPPoint;
 
   /**
    */

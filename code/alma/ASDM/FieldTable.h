@@ -41,23 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -72,7 +68,11 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+
+	
+
+	
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -81,18 +81,18 @@
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -134,13 +134,13 @@ class FieldRow;
 	
  * <TR>
  * <TD> fieldName </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPoly </TD> 
+ * <TD> numPoly (numPoly)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;number of coefficients of the polynomials. </TD>
@@ -148,21 +148,21 @@ class FieldRow;
 	
  * <TR>
  * <TD> delayDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the delay tracking direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the phase tracking direction. </TD>
  * </TR>
 	
  * <TR>
  * <TD> referenceDir </TD> 
- * <TD> vector<vector<Angle > > </TD>
+ * <TD> std::vector<std::vector<Angle > > </TD>
  * <TD>  numPoly, 2 </TD> 
  * <TD> &nbsp;the reference direction. </TD>
  * </TR>
@@ -172,56 +172,56 @@ class FieldRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> time </TD> 
+ * <TD> time</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; value used as the origin for the polynomials. </TD>
  * </TR>
 	
  * <TR>
- * <TD> code </TD> 
- * <TD> string </TD>
+ * <TD> code</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; describes the function of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionCode </TD> 
+ * <TD> directionCode</TD> 
  * <TD> DirectionReferenceCodeMod::DirectionReferenceCode </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the direction reference code of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> directionEquinox </TD> 
+ * <TD> directionEquinox</TD> 
  * <TD> ArrayTime </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the direction reference equinox of the field. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocNature </TD> 
- * <TD> string </TD>
+ * <TD> assocNature</TD> 
+ * <TD> std::string </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; identifies the nature of the association with the row refered to by fieldId. </TD>
  * </TR>
 	
  * <TR>
- * <TD> ephemerisId </TD> 
+ * <TD> ephemerisId</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a collection of rows in the EphemerisTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> sourceId </TD> 
+ * <TD> sourceId</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; refers to a collection of rows in SourceTable. </TD>
  * </TR>
 	
  * <TR>
- * <TD> assocFieldId </TD> 
+ * <TD> assocFieldId</TD> 
  * <TD> Tag </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; Associated Field ID </TD>
@@ -374,7 +374,7 @@ public:
  	 * @param referenceDir
 	
      */
-	FieldRow *newRow(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir);
+	FieldRow *newRow(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir);
 	
 
 
@@ -467,7 +467,7 @@ public:
  	 * @param referenceDir
  	 		 
  	 */
-	FieldRow* lookup(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir); 
+	FieldRow* lookup(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -493,6 +493,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

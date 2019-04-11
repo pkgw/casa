@@ -58,7 +58,8 @@ public:
  
   // Allowed types of VisCal matrices - 'correct' order
   //  enum Type{UVMOD,Mf,M,K,B,G,D,C,E,P,T,EP,F};
-  enum Type{Test=0,ANoise,M,KAntPos,K,B,G,J,D,X,C,P,E,T,F,A,ALL};
+  //  enum Type{Test=0,ANoise,M,KAntPos,K,B,G,J,D,X,C,P,E,T,F,A,ALL};
+  enum Type{Test=0,ANoise,M,KAntPos,B,K,G,J,D,X,C,P,E,T,F,A,ALL};
 
   // Enumeration of parameter types (casacore::Complex, Real, or Both)
   enum ParType{Co,Re,CoRe};
@@ -114,6 +115,14 @@ public:
   //  (always true for non-tabular?)
   virtual casacore::Vector<casacore::Bool> spwOK() { return casacore::Vector<casacore::Bool>(nSpw(),true); };
   virtual casacore::Bool spwOK(casacore::Int) { return true; };
+
+  // Calibration available?
+  //  (always true for non-tabular)
+  virtual casacore::Bool calAvailable(vi::VisBuffer2&) { return true;};
+
+  // Calibration expected AND available? 
+  //  (always assume true for non-tabular)
+  virtual casacore::Bool VBOKforCalApply(vi::VisBuffer2&) { return true;};
 
   // Frequency-dependent Parameters?  Nominally not.
   virtual casacore::Bool freqDepPar() { return false; };
@@ -210,6 +219,11 @@ public:
   virtual void setApplyParCurrSpw(const casacore::Cube<float> rpar,
 				  bool sync=false, bool doInv=false);
 
+  // Access (public) to current solution parameters and matrices
+  inline virtual casacore::Cube<casacore::Complex>& currCPar()  {return (*currCPar_[currSpw()]);};
+  inline virtual casacore::Cube<casacore::Float>&   currRPar()  {return (*currRPar_[currSpw()]);};
+  inline virtual casacore::Cube<casacore::Bool>&    currParOK() {return (*currParOK_[currSpw()]);};
+
 
 protected:
 
@@ -238,6 +252,7 @@ protected:
   inline casacore::Int&    currScan()                { return currScan_(currSpw()); };
   inline casacore::Int&    currObs()                 { return currObs_(currSpw()); };
   inline casacore::Int&    currField()               { return currField_(currSpw()); };
+  inline casacore::Int&    currIntent()              { return currIntent_(currSpw()); };
   inline casacore::Vector<casacore::Double>& currFreq()        { return currFreq_; };
 
   inline casacore::Double& refTime()                 { return refTime_; };
@@ -253,11 +268,6 @@ protected:
 
   // Access to matrix renderings of Visibilities
   inline VisVector& V() { return (*V_[currSpw()]); };
-
-  // Access to current solution parameters and matrices
-  inline virtual casacore::Cube<casacore::Complex>& currCPar()  {return (*currCPar_[currSpw()]);};
-  inline virtual casacore::Cube<casacore::Float>&   currRPar()  {return (*currRPar_[currSpw()]);};
-  inline virtual casacore::Cube<casacore::Bool>&    currParOK() {return (*currParOK_[currSpw()]);};
 
   // Validation of calibration parameters
   inline void invalidateP() {PValid_(currSpw())=false;};
@@ -366,6 +376,7 @@ private:
   casacore::Vector<casacore::Int> currScan_;
   casacore::Vector<casacore::Int> currObs_;
   casacore::Vector<casacore::Int> currField_;
+  casacore::Vector<casacore::Int> currIntent_;
   casacore::Vector<casacore::Double> currFreq_;
   casacore::Vector<casacore::Double> lastTime_;
   casacore::Double refTime_;

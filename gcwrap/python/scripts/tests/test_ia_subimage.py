@@ -127,7 +127,6 @@ class ia_subimage_test(unittest.TestCase):
         myia.done()
         self.assertFalse(imsubimage(imname, "junk", mask=mask3, stretch=True))
 
-
     def test_beams(self):
         """ Test per plane beams """
         myia = self.myia
@@ -184,13 +183,29 @@ class ia_subimage_test(unittest.TestCase):
         beams = myia.restoringbeam()
         self.assertTrue(len(beams['beams']) == 12)
         
-    def test_complex(self):
-        """Test complex valued image support"""
+    def test_precision(self):
+        """Test various precision valued image support"""
         myia = self.myia
-        myia.fromshape("",[2,2], type='c')
-        subim = myia.subimage()
-        myia.done()
-        self.assertTrue(type(subim.getchunk()[0,0]) == numpy.complex128)
+        j = 1.2345678901234567890123456789
+        k = j*(1+1j)
+        for mytype in ['f', 'c', 'd', 'cd']:
+            myia.fromshape("",[2,2], type=mytype)
+            zz = myia.getchunk()
+            expectype = type(zz[0, 0])
+            if mytype == 'f' or mytype =='d':
+                zz[:] = j
+            else:
+                zz[:] = k
+            myia.putchunk(zz)
+            subim = myia.subimage()
+            myia.done()
+            yy = subim.getchunk()
+            subim.done()
+            self.assertTrue(type(yy[0,0]) == expectype)
+            if mytype == 'f' or mytype == 'c':
+                self.assertTrue(numpy.isclose(yy, zz, 1e-8, 1e-8).all())
+            else:
+                self.assertTrue((yy == zz).all())
 
     def test_CAS7704(self):
         """Test CAS-7704, chans can be specified with region file"""
@@ -308,12 +323,33 @@ class ia_subimage_test(unittest.TestCase):
     def test_history(self):
         """verify history writing"""
         myia = iatool()
-        myia.fromshape("zz",[20, 20])
+        imagename = "zz.im"
+        myia.fromshape(imagename, [20, 20])
         myia = myia.subimage()
         msgs = myia.history()
-        myia.done()       
-        self.assertTrue("ia.subimage" in msgs[-2])
-        self.assertTrue("ia.subimage" in msgs[-1])
+        myia.done()
+        teststr = "ia.subimage"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+        # verify no history written if dohistory set to False
+        ia2 = iatool()
+        ia2.dohistory(False)
+        ia2.fromshape("gg",[20, 20])
+        msgs = ia2.history()
+        ia2 = ia2.subimage()
+        ia2.done()
+        for m in msgs:
+            self.assertFalse(teststr in msgs, "History unexpectedly written")   
+        
+        outfile = "zz_out.im"
+        imsubimage(imagename=imagename, outfile=outfile)
+        myia.open(outfile)
+        msgs = myia.history()
+        myia.done()
+        teststr = "version"
+        self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")
+        teststr = "imsubimage"
+        self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
 def suite():
     return [ia_subimage_test]

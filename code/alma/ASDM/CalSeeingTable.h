@@ -41,38 +41,34 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
 
 	
-#include "CAtmPhaseCorrection.h"
-	
-
-	
-
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
@@ -95,20 +91,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -127,7 +127,7 @@ class CalSeeingRow;
  * The seeing parameters deduced from TelCal calibrations.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of CalSeeing </CAPTION>
@@ -182,7 +182,7 @@ class CalSeeingRow;
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the range of frequencies over which this result is valid. </TD>
  * </TR>
@@ -195,7 +195,7 @@ class CalSeeingRow;
  * </TR>
 	
  * <TR>
- * <TD> numBaseLengths </TD> 
+ * <TD> numBaseLengths (numBaseLengths)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of baselines for which the the RMS phase data is evaluated. </TD>
@@ -203,14 +203,14 @@ class CalSeeingRow;
 	
  * <TR>
  * <TD> baselineLengths </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numBaseLengths </TD> 
  * <TD> &nbsp;the lengths of the baselines (one value per baseline). </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseRMS </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  numBaseLengths </TD> 
  * <TD> &nbsp;the RMS of phase fluctuations (one value per baseline). </TD>
  * </TR>
@@ -234,21 +234,21 @@ class CalSeeingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> exponent </TD> 
+ * <TD> exponent</TD> 
  * <TD> float </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the exponent of the spatial structure function. </TD>
  * </TR>
 	
  * <TR>
- * <TD> outerScale </TD> 
+ * <TD> outerScale</TD> 
  * <TD> Length </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the outer scale. </TD>
  * </TR>
 	
  * <TR>
- * <TD> outerScaleRMS </TD> 
+ * <TD> outerScaleRMS</TD> 
  * <TD> Angle </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the RMS of phase fluctuations at scale length outerScale. </TD>
@@ -415,7 +415,7 @@ public:
  	 * @param seeingError
 	
      */
-	CalSeeingRow *newRow(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
+	CalSeeingRow *newRow(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError);
 	
 
 
@@ -529,7 +529,7 @@ public:
  	 * @param seeingError
  	 		 
  	 */
-	CalSeeingRow* lookup(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
+	CalSeeingRow* lookup(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -555,6 +555,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

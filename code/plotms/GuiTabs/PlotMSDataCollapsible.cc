@@ -40,7 +40,7 @@ PlotMSDataCollapsible::PlotMSDataCollapsible(PlotMSPlotter* plotter,
       minimizeAction( "Minimize", this ),
       maximizeAction( "Maximize", this ),
       closeAction( "Close", this ),
-      SIZE_COLLAPSED( 50 ), SIZE_EXPANDED( 525 ), SIZE_WIDTH( 200 ){
+      PMS_SIZE_COLLAPSED(50), PMS_SIZE_EXPANDED(525), PMS_SIZE_WIDTH(200){
 	ui.setupUi(this);
 	nameLabel = new QLineEdit( this );
 	nameLabel->setEnabled( false );
@@ -79,19 +79,19 @@ PlotMSDataTab* PlotMSDataCollapsible::getSingleData(){
 
 
 QSize PlotMSDataCollapsible::minimumSizeHint() const {
-	QSize hint ( SIZE_WIDTH, minimumSize );
+	QSize hint ( PMS_SIZE_WIDTH, minimumSize );
 	return hint;
 }
 
 
 QSize PlotMSDataCollapsible::sizeHint() const {
-	QSize hint ( SIZE_WIDTH, minimumSize );
+	QSize hint ( PMS_SIZE_WIDTH, minimumSize );
 	return hint;
 }
 
 bool PlotMSDataCollapsible::isMinimized() const {
 	bool minimized = false;
-	if ( minimumSize == SIZE_COLLAPSED ){
+	if ( minimumSize == PMS_SIZE_COLLAPSED ){
 		minimized = true;
 	}
 	return minimized;
@@ -126,7 +126,7 @@ void PlotMSDataCollapsible::minimizeDisplay() {
 	ui.widgetLayout->insertWidget(0, nameLabel );
 	ui.minMaxButton->setText("Maximize");
 
-	minimumSize = SIZE_COLLAPSED;
+	minimumSize = PMS_SIZE_COLLAPSED;
 }
 
 void PlotMSDataCollapsible::maximizeDisplay() {
@@ -140,7 +140,7 @@ void PlotMSDataCollapsible::maximizeDisplay() {
 
 	ui.minMaxButton->setText("Minimize");
 
-	minimumSize = SIZE_EXPANDED;
+	minimumSize = PMS_SIZE_EXPANDED;
 }
 
 void PlotMSDataCollapsible::resetHeight( int diff ){
@@ -150,7 +150,7 @@ void PlotMSDataCollapsible::resetHeight( int diff ){
 		heightChange = true;
 	}
 	else if ( diff < 0 ){
-		int freeSpace = minimumSize - SIZE_EXPANDED;
+		int freeSpace = minimumSize - PMS_SIZE_EXPANDED;
 		int decreaseAmount = qMin( freeSpace+1, -1 * diff );
 		if ( decreaseAmount > 0 ){
 			minimumSize = minimumSize - decreaseAmount;
@@ -280,10 +280,6 @@ void PlotMSDataCollapsible::showContextMenu( const QPoint& location ) {
 	else if ( selectedAction == &maximizeAction ){
 		openCloseDisplay();
 	}
-	else {
-		qDebug() << "Unrecognized action Collapsible::contextMenu";
-	}
-
 }
 
 String PlotMSDataCollapsible::getFile() const {

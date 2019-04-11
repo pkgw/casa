@@ -236,7 +236,7 @@ public:
   PBMath(const PBMath &other);
 
   // destructor
-  ~PBMath();
+  virtual ~PBMath();
   
   //operator=   returns a reference to the PBMath; reference counted pointer
   PBMath& operator=(const PBMath& other);
@@ -364,7 +364,7 @@ public:
 		       const casacore::Int iChan,  
 		       const SkyJones::SizeType);
 
-  casacore::Int support (const casacore::CoordinateSystem& cs);
+  virtual casacore::Int support (const casacore::CoordinateSystem& cs);
 
   // given the Telescope name and the frequency, guess the most approrpiate
   // CommonPB primary beam type and the band
@@ -382,10 +382,12 @@ public:
   // return a PBMathInteface for a commonPB ; caller needs to delete pointer
   static PBMathInterface* pbMathInterfaceForCommonPB(const PBMath::CommonPB ipb, bool useSymmetricBeam);
 
+  // return a PBMathInteface from a Vpmanager record ; caller needs to delete pointer
+  static PBMathInterface* pbMathInterfaceFromRecord(const casacore::RecordInterface& rec);
   // gives the name of the PB Class that has been used
   void namePBClass(casacore::String & name) {  pb_pointer_p->namePBClass(name); }  
 
-
+  
   // Gradient stuff: this needs more thought, as it is not
   // really connected with the stuff in VPSkyJones and all.
   // This will return the partial derivatives of chi^2 w.r.t
@@ -437,10 +439,10 @@ private:
   // These should probably move to casacore::RecordInterface when we are happy with their performance
   // <group>
 
-  casacore::Bool getQuantity(const casacore::RecordInterface& rec, const casacore::String& item, 
-		   casacore::Quantity& returnedQuantity) const;
-  casacore::Bool getMDirection(const casacore::RecordInterface& rec, const casacore::String& item, 
-		     casacore::MDirection& returnedMDirection) const;
+  static casacore::Bool getQuantity(const casacore::RecordInterface& rec, const casacore::String& item, 
+		   casacore::Quantity& returnedQuantity) ;
+  static casacore::Bool getMDirection(const casacore::RecordInterface& rec, const casacore::String& item, 
+		     casacore::MDirection& returnedMDirection);
   //casacore::Function to initialize the state of the tool
   void initByTelescope(PBMath::CommonPB myPBType, casacore::Bool useSymmetricBeam=false, 
 		       casacore::Double frequency=0.0);

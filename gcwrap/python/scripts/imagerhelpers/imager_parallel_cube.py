@@ -57,7 +57,11 @@ class PyParallelCubeSynthesisImager():
         # to define final image coordinates, run selecdata and definemage
         self.SItool = casac.synthesisimager()
         #print "allselpars=",allselpars
-        for mss in sorted( allselpars.keys() ):
+        origspw={}
+        for mss in sorted( allselpars.keys() ): 
+#            if(self.allimpars['0']['specmode']=='cubedata'):
+#                self.allselpars[mss]['outframe']='Undefined'
+            origspw[mss]={'spw':allselpars[mss]['spw']}
             self.SItool.selectdata( allselpars[mss] )
         for fid in sorted( allimagepars.keys() ):
             self.SItool.defineimage( allimagepars[fid], self.allgridpars[fid] )
@@ -71,7 +75,7 @@ class PyParallelCubeSynthesisImager():
         #print "********************** ", alldataimpars.keys()
         #for kk in alldataimpars.keys():
         #    print "KEY : ", kk , " --->", alldataimpars[kk].keys()
-
+            
         # reorganize allselpars and allimpars for partitioned data        
         synu = casac.synthesisutils()
         self.allselpars={}
@@ -87,22 +91,28 @@ class PyParallelCubeSynthesisImager():
             selparsPerNode= {tnode:{}}
             imparsPerNode= {tnode:{}}
             for fid in allimagepars.iterkeys():
+                ###restoring original spw selection just to allow weight density to be the same
+                ###ultimately should be passed by MPI if done this way
+                for mss in origspw.keys():
+                    alldataimpars[fid][nodeidx][mss]['spw']=origspw[mss]['spw']
                 for ky in alldataimpars[fid][nodeidx].iterkeys():
-                    selparsPerNode[tnode]={}
+###                commenting this as it is resetting the selpars when key is not "msxxx" 
+##                    selparsPerNode[tnode]={}
                     if ky.find('ms')==0:
                         # data sel per field
                         selparsPerNode[tnode][ky] = alldataimpars[fid][nodeidx][ky].copy();
                         if alldataimpars[fid][nodeidx][ky]['spw']=='-1':
                             selparsPerNode[tnode][ky]['spw']=''
-                        else: 
-                            # remove chan selections (will be adjusted by tuneSelectData)
-                            newspw=selparsPerNode[tnode][ky]['spw']
-                            newspwlist = newspw.split(',')
-                            spwsOnly = ''
-                            for sp in newspwlist:
-                                if spwsOnly!='': spwsOnly+=','
-                                spwsOnly+=sp.split(':')[0]   
-                            selparsPerNode[tnode][ky]['spw']=spwsOnly
+                        #else:
+                        ####using original spw selection for weight calculation
+                        #    # remove chan selections (will be adjusted by tuneSelectData)
+                        #   newspw=selparsPerNode[tnode][ky]['spw']
+                        #  newspwlist = newspw.split(',')
+                        #    spwsOnly = ''
+                        #    for sp in newspwlist:
+                        #        if spwsOnly!='': spwsOnly+=','
+                        #        spwsOnly+=sp.split(':')[0]   
+                        #       selparsPerNode[tnode][ky]['spw']=spwsOnly
 
                 imparsPerNode[tnode][fid] = allimagepars[fid].copy()
                 imparsPerNode[tnode][fid]['csys'] = alldataimpars[fid][nodeidx]['coordsys'].copy()
@@ -116,8 +126,8 @@ class PyParallelCubeSynthesisImager():
             self.allimpars.update(imparsPerNode)
 
 
-        #print "****** SELPARS in init **********", self.allselpars
-        #print "****** SELIMPARS in init **********", self.allimpars
+            #print "****** SELPARS in init **********", self.allselpars
+            #print "****** SELIMPARS in init **********", self.allimpars
         
         joblist=[]
         #### MPIInterface related changes
@@ -127,11 +137,11 @@ class PyParallelCubeSynthesisImager():
             joblist.append( self.PH.runcmd("from imagerhelpers.imager_base import PySynthesisImager", node) )
         self.PH.checkJobs( joblist )
 
+        self.exitflag={}
         joblist=[]
         #### MPIInterface related changes
         #for node in range(0,self.NN):
         for node in self.listOfNodes:
-
             joblist.append( self.PH.runcmd("paramList = ImagerParameters()", node) )
             joblist.append( self.PH.runcmd("paramList.setSelPars("+str(self.allselpars[str(node)])+")", node) )
             joblist.append( self.PH.runcmd("paramList.setImagePars("+str(self.allimpars[str(node)])+")", node) )
@@ -145,6 +155,8 @@ class PyParallelCubeSynthesisImager():
             joblist.append( self.PH.runcmd("paramList.checkParameters()", node) )
 
             joblist.append( self.PH.runcmd("imager = PySynthesisImager(params=paramList)", node) )
+
+            self.exitflag[str(node)] = False
 
         self.PH.checkJobs( joblist )
 
@@ -196,24 +208,54 @@ class PyParallelCubeSynthesisImager():
     def runMajorCycle(self):
         joblist=[]
         for node in self.listOfNodes:
-            joblist.append( self.PH.runcmd("imager.runMajorCycle()", node) )
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("imager.runMajorCycle()", node) )
         self.PH.checkJobs( joblist )
 
     def runMinorCycle(self):
         joblist=[]
         for node in self.listOfNodes:
-            joblist.append( self.PH.runcmd("imager.runMinorCycle()", node) )
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("imager.runMinorCycle()", node) )
         self.PH.checkJobs( joblist )
 
     ## Merge the results from all pieces. Maintain an 'active' list of nodes...
     def hasConverged(self):
-        self.PH.runcmdcheck("rest = imager.hasConverged()")
+
+        joblist=[]
+        for node in self.listOfNodes:
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("rest = imager.hasConverged()", node) )
+        self.PH.checkJobs( joblist )
+
+#        self.PH.runcmdcheck("rest = imager.hasConverged()")
 
         retval = True
         for node in self.listOfNodes:
-             rest = self.PH.pullval("rest", node )
-             retval = retval and rest[node]
-             print "Node " , node , " converged : ", rest[node];
+            if self.exitflag[str(node)]==False:
+                rest = self.PH.pullval("rest", node )
+                retval = retval and rest[node]
+                self.exitflag[str(node)] = rest[node]
+                casalog.post("Node " + str(node) + " converged : " + str(rest[node]) , "INFO")
+
+        return retval
+
+    def updateMask(self):
+
+        joblist=[]
+        for node in self.listOfNodes:
+            if self.exitflag[str(node)]==False:
+                joblist.append( self.PH.runcmd("maskchanged = imager.updateMask()", node) )
+        self.PH.checkJobs( joblist )
+
+#        self.PH.runcmdcheck("maskchanged = imager.updateMask()")
+
+        retval = False
+        for node in self.listOfNodes:
+            if self.exitflag[str(node)]==False:
+                rest = self.PH.pullval("maskchanged", node )
+                retval = retval or rest[node]
+                casalog.post("Node " + str(node) + " maskchanged : ", str(rest[node]) , "INFO")
 
         return retval
 
@@ -266,7 +308,8 @@ class PyParallelCubeSynthesisImager():
                         except:
                             casalog.post("Cleaning up the existing file named "+fullconcatimname,"DEBUG")
                             os.remove(fullconcatimname)
-                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type      
+                    # set tempclose = false to avoid a long accessing issue
+                    cmd = 'imageconcat inimages='+subimliststr+' outimage='+"'"+fullconcatimname+"'"+' type='+type+' tempclose=false'      
                     # run virtual concat
                     ret=os.system(cmd)
                     if ret!=0:

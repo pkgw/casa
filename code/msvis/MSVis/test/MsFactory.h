@@ -272,6 +272,25 @@ private:
     const casacore::Int c_p;
 };
 
+class GenerateFloatData : public Generator<casacore::Float> {
+
+public:
+
+    GenerateFloatData (casacore::Int c) : c_p (c) {}
+
+    casacore::Float
+    operator () (const FillState & fillState, casacore::Int channel, casacore::Int correlation) const {
+
+        casacore::Float r = fillState.rowNumber_p * 10 + 
+            fillState.spectralWindow_p + channel * 100 + correlation * 1000;
+        return r;
+    }
+
+private:
+
+    const casacore::Int c_p;
+};
+
 
 class GenerateWeightSpectrum : public Generator<casacore::Float> {
 
@@ -314,10 +333,12 @@ public:
 
     //// void addColumn (casacore::MSMainEnums::PredefinedColumns columnId);
     void addWeightSpectrum (casacore::Bool addIt);
+    void addFloatData (casacore::Bool addIt);
 
     void addCubeColumn (casacore::MSMainEnums::PredefinedColumns columnId,
                         const casacore::String & dataStorageMangerName);
 
+    void removeColumn (casacore::MSMainEnums::PredefinedColumns columnId);
 
     void addFeeds (casacore::Int nFeeds);
     void addField (const casacore::String & name,
@@ -363,6 +384,7 @@ protected:
     void fillVisCubeCorrected (FillState & fillState);
     void fillVisCubeModel (FillState & fillState);
     void fillVisCubeObserved (FillState & fillState);
+    void fillVisFloatData (FillState & fillState);
     void fillWeight (FillState & fillState);
     void fillSigma (FillState & fillState);
     void fillUvw (FillState & fillState);
@@ -372,8 +394,6 @@ protected:
     void fillFlagCategories (const FillState & fillState);
 
 private:
-
-    typedef std::set<casacore::MSMainEnums::PredefinedColumns> ColumnIds;
 
     class Columns {
 
@@ -443,6 +463,7 @@ private:
             generatorMap_p [casacore::MSMainEnums::CORRECTED_DATA] = new GenerateVisibility (1);
             generatorMap_p [casacore::MSMainEnums::MODEL_DATA] = new GenerateVisibility (2);
             generatorMap_p [casacore::MSMainEnums::DATA] = new GenerateVisibility (0);
+            generatorMap_p [casacore::MSMainEnums::FLOAT_DATA] = new GenerateFloatData (3);
             generatorMap_p [casacore::MSMainEnums::WEIGHT] = new GenerateUsingRow<casacore::Float> (4);
             generatorMap_p [casacore::MSMainEnums::WEIGHT_SPECTRUM] = new GenerateWeightSpectrum ();
             generatorMap_p [casacore::MSMainEnums::CORRECTED_WEIGHT_SPECTRUM] = new GenerateWeightSpectrumCorrected ();
@@ -492,14 +513,14 @@ private:
     };
 
     casacore::Bool addWeightSpectrum_p;
+    casacore::Bool addFloatData_p;
     Columns columns_p;
-    ColumnIds columnIds_p;
     Generators generators_p;
     casacore::Bool includeAutocorrelations_p;
     casacore::MeasurementSet * ms_p;
     casacore::Int nAntennas_p;
     casacore::Int nRows_p;
-    casacore::NewMSSimulator * simulator_p;
+    std::unique_ptr<casacore::NewMSSimulator> simulator_p;
     casacore::Double timeEnd_p;
     casacore::Double timeInterval_p;
     casacore::Double timeStart_p;

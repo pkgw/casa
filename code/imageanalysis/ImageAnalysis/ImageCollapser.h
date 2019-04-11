@@ -72,8 +72,6 @@ public:
     // perform the collapse and return the resulting image.
     SPIIT collapse() const;
 
-	static const map<casacore::uInt, T (*)(const casacore::Array<T>&)>* funcMap();
-
 	casacore::String getClass() const { const static casacore::String name = "ImageCollapser"; return name; }
 
 protected:
@@ -92,10 +90,13 @@ private:
 	casacore::IPosition _axes;
     ImageCollapserData::AggregateType _aggType;
 
-	static map<casacore::uInt, T (*)(const casacore::Array<T>&)> _funcMap;
-
     // disallow default constructor
     ImageCollapser();
+
+    void _doFluxUnits(
+        casacore::TempImage<T>& tmpIm,
+        const std::shared_ptr<const casacore::SubImage<T>> subImage
+    ) const;
 
     void _invert();
 
@@ -103,15 +104,16 @@ private:
 
     void _checkFlux(SPCIIT subImage) const;
 
+    void _doDegenerateAxesCase(
+        casacore::TempImage<T>& tmpIm, SPCIIT subImage
+    ) const;
+
     void _doLowPerf(
         TempImage<T>& tmpIm, SPCIIT subImage, T npixPerBeam
     ) const;
 
     // necessary to improve performance
-    void _doMedian(
-        SPCIIT image,
-		casacore::TempImage<T>& outImage
-    ) const;
+    void _doHighPerf(SPCIIT image, casacore::TempImage<T>& outImage) const;
 
     // returns true if miscellaneous info was copied
     Bool _doMultipleBeams(
@@ -123,9 +125,8 @@ private:
 
     LatticeStatsBase::StatisticsTypes _getStatsType() const;
 
-	static void _zeroNegatives(casacore::Array<T>& arr);
+    static void _zeroNegatives(casacore::Array<T>& arr);
 
-	static const map<casacore::uInt, T (*)(const casacore::Array<T>&)>& _getFuncMap();
 };
 }
 

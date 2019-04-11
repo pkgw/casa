@@ -37,18 +37,17 @@
 #include <vector>
 #include <map>
 
-#include <Representable.h>
-#include <Entity.h>
-#include <EntityId.h>
-#include <ArrayTime.h>
-#include <IllegalAccessException.h>
-#include <InvalidArgumentException.h>
+#include <alma/ASDM/Representable.h>
+#include <alma/ASDM/Entity.h>
+#include <alma/ASDM/EntityId.h>
+#include <alma/ASDM/ArrayTime.h>
+#include <alma/ASDM/IllegalAccessException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h> /// <-------------------
-//using namespace asdmIDL;   /// <-------------------
 #endif
 
 /*\file ASDM.h
@@ -72,6 +71,9 @@ class AntennaTable;
 
 //class asdm::CalAmpliTable;
 class CalAmpliTable;
+
+//class asdm::CalAntennaSolutionsTable;
+class CalAntennaSolutionsTable;
 
 //class asdm::CalAppPhaseTable;
 class CalAppPhaseTable;
@@ -205,6 +207,9 @@ class PolarizationTable;
 //class asdm::ProcessorTable;
 class ProcessorTable;
 
+//class asdm::PulsarTable;
+class PulsarTable;
+
 //class asdm::ReceiverTable;
 class ReceiverTable;
 
@@ -305,6 +310,12 @@ public:
 	 * @return The table CalAmpli as a CalAmpliTable.
 	 */
 	CalAmpliTable & getCalAmpli () const;
+
+	/**
+	 * Get the table CalAntennaSolutions.
+	 * @return The table CalAntennaSolutions as a CalAntennaSolutionsTable.
+	 */
+	CalAntennaSolutionsTable & getCalAntennaSolutions () const;
 
 	/**
 	 * Get the table CalAppPhase.
@@ -571,6 +582,12 @@ public:
 	ProcessorTable & getProcessor () const;
 
 	/**
+	 * Get the table Pulsar.
+	 * @return The table Pulsar as a PulsarTable.
+	 */
+	PulsarTable & getPulsar () const;
+
+	/**
 	 * Get the table Receiver.
 	 * @return The table Receiver as a ReceiverTable.
 	 */
@@ -677,7 +694,7 @@ public:
 	  * @return a string containing the XML representation of this.
 	  * @throws ConversionException.
 	  */
-	virtual std::string toXML();
+	virtual std::string toXML() const;
 	
 	/**
 	 * Write this ASDM dataset to the specified directory
@@ -688,7 +705,7 @@ public:
 	 * not overwrite any existing file; a ConversionException is also
 	 * thrown in this case.
 	 */
-	void toXML(std::string directory) ;
+	void toXML(std::string directory) const;
 	
 	/**
 	 * Get an ASDM dataset, given the full path name of the 
@@ -729,7 +746,7 @@ public:
 	 * @param mimeMsg the string containing the MIME message.
 	 * @throws ConversionException
 	 */
-	 void setFromMIME(const std::string & mimeMsg);	
+	 void setFromMIME(const std::string & /* mimeMsg */);	
 
 	/**
 	 * Write this ASDM dataset to the specified directory
@@ -937,21 +954,21 @@ public:
 	
  	/**
  	 * Get xmlnsPrefix.
- 	 * @return xmlnsPrefix as string
+ 	 * @return xmlnsPrefix as std::string
  	 */
- 	string getXmlnsPrefix() const;
+ 	std::string getXmlnsPrefix() const;
 	
  
  	
  	
  	/**
- 	 * Set xmlnsPrefix with the specified string.
- 	 * @param xmlnsPrefix The string value to which xmlnsPrefix is to be set.
+ 	 * Set xmlnsPrefix with the specified std::string.
+ 	 * @param xmlnsPrefix The std::string value to which xmlnsPrefix is to be set.
  	 
  		
  			
  	 */
- 	void setXmlnsPrefix (string xmlnsPrefix);
+ 	void setXmlnsPrefix (std::string xmlnsPrefix);
   		
 	
 	
@@ -1023,6 +1040,11 @@ private:
 	 * The table CalAmpli
 	 */
 	CalAmpliTable * calAmpli;
+
+	/**
+	 * The table CalAntennaSolutions
+	 */
+	CalAntennaSolutionsTable * calAntennaSolutions;
 
 	/**
 	 * The table CalAppPhase
@@ -1245,6 +1267,11 @@ private:
 	ProcessorTable * processor;
 
 	/**
+	 * The table Pulsar
+	 */
+	PulsarTable * pulsar;
+
+	/**
 	 * The table Receiver
 	 */
 	ReceiverTable * receiver;
@@ -1373,7 +1400,7 @@ private:
 	
 	
 
-	string xmlnsPrefix;
+	std::string xmlnsPrefix;
 
 	
 	
@@ -1381,8 +1408,8 @@ private:
 
 	
 	void error() ; // throw(ConversionException);
-	static std::string getXMLEntity(EntityId id); // throw(ConversionException);
-	static void putXMLEntity(std::string xml); // throw(ConversionException);
+	static std::string getXMLEntity(EntityId /* id */); // throw(ConversionException);
+	static void putXMLEntity(std::string /* xml */); // throw(ConversionException);
 	
 	XSLTransformer xslTransformer;
 	

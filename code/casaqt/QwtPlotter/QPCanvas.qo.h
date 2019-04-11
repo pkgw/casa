@@ -137,6 +137,7 @@ public:
     
     // Implements PlotCanvas::background().
     PlotAreaFillPtr background() const;
+    PlotAreaFillPtr defaultBackground() const;
     
     // Implements PlotCanvas::setBackground().
     void setBackground(const PlotAreaFill& areaFill);
@@ -215,7 +216,7 @@ public:
     // Overrides PlotCanvas::setAxesRanges().
     void setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
                        PlotAxis yAxis, double yFrom, double yTo);
-    
+
     // Implements PlotCanvas::axesAutoRescale().
     bool axesAutoRescale() const;
 
@@ -579,8 +580,13 @@ private:
     // </group>
     
     const QwtScaleDiv* getAxisScaleDiv(int axisId) const;
+	// set time scale to even hh:mm
+	void setTimeScaleDiv(PlotAxis axis, double from, double to);
 	
     QSize minSizeHint;
+
+    // default background
+    PlotAreaFillPtr defaultBackground_;
 
 
 private slots:    

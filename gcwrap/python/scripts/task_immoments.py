@@ -83,9 +83,12 @@
 # <todo>
 # </todo>
 
-import os
+import os, sys, time
 from taskinit import *
-_rg = rgtool( )
+from stat import S_ISDIR, ST_MTIME, ST_MODE
+from ialib import write_image_history
+
+_rg = rgtool()
 
 def immoments(
     imagename, moments, axis, region, box, chans, stokes,
@@ -95,10 +98,13 @@ def immoments(
     casalog.origin('immoments')
     _myia = iatool()
     try:
+        if (len(outfile) == 0):
+            raise Exception, "outfile must be specified" 
+        _myia.dohistory(False)
         # First check to see if the output file exists.  If it
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
-        if ( len( outfile ) > 0 and os.path.exists( outfile ) ):
+        if os.path.exists(outfile):
             raise Exception, 'Output file, '+outfile+\
               ' exists. immoment can not proceed, please\n'\
               'remove it or change the output file name.'
@@ -109,20 +115,59 @@ def immoments(
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
             stokescontrol="a", region=region
         )
-        if isinstance( axis, str ):
+        if isinstance(axis, str):
              axis = _myia.coordsys().findaxisbyname(axis)
-        retValue = _myia.moments(
+        outia = _myia.moments(
             moments=moments, axis=int(axis), mask=mask,
             region=reg, includepix=includepix,
             excludepix=excludepix, outfile=outfile, drop=False,
             stretch=stretch
         )
-        retValue.done()
+        created_images = _immoments_get_created_images(outia.name(), outfile)
+        created_images.append(outia)
+        try:
+            param_names = immoments.func_code.co_varnames[:immoments.func_code.co_argcount]
+            param_vals = [eval(p) for p in param_names]
+            method = sys._getframe().f_code.co_name
+            for im in created_images:
+                write_image_history(
+                    im, method, param_names, param_vals, casalog
+                )
+        except Exception, instance:
+            casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, x:
-        _myia.done()
-        print '*** Error ***: ' + str(x)
+    except Exception, instance:
+        casalog.post('*** Error *** ' + str(instance), 'SEVERE') 
         raise
     finally:
         _myia.done()
+        if outia:
+            outia.done()
 
+
+def _immoments_get_created_images(out1name, outfile):
+    dirpath = os.path.dirname(out1name)
+    target_time = os.path.getmtime(out1name)
+    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath) \
+        if os.path.basename(fn).startswith(outfile) and os.path.isdir(fn))
+    entries2 = []
+    for path in entries:
+        # we must explicitly check for file existence, because file
+        # read before may have been deleted by another process
+        # CAS-11205
+        if os.path.exists(path):
+            entries2.append((os.stat(path), path))
+    entries3 = []
+    for stat, path in entries2:
+        if os.path.exists(path):
+            entries3.append((stat.st_mtime, path))
+    # reverse sort by time
+    zz = sorted(entries3)
+    zz.reverse()
+    created_images = []
+    for mdate, path in zz:
+        if mdate < target_time:
+            break
+        if os.path.exists(path) and path != out1name:
+            created_images.append(path)
+    return created_images

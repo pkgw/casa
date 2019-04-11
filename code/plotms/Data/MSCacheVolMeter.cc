@@ -42,6 +42,7 @@
 #include <plotms/Data/PlotMSVBAverager.h>
 #include <plotms/PlotMS/PlotMS.h>
 #include <tables/Tables/Table.h>
+#include <synthesis/Utilities/AppRC.h>
 
 using namespace casacore;
 namespace casa {
@@ -244,6 +245,8 @@ String MSCacheVolMeter::evalVolume(map<PMS::Axis,Bool> axes, Vector<Bool> axesma
 				break;
 			case PMS::AZIMUTH:
 			case PMS::ELEVATION:
+			case PMS::RA:
+			case PMS::DEC:
 				axisVol = sizeof(Double) * nAnt_ * sum(nPerDDID_);
 				break;
 			case PMS::PARANG:
@@ -263,6 +266,9 @@ String MSCacheVolMeter::evalVolume(map<PMS::Axis,Bool> axes, Vector<Bool> axesma
 			case PMS::SNR:
 			case PMS::TEC:
 			case PMS::WTxAMP:
+			case PMS::ANTPOS:
+			case PMS::ATM:
+			case PMS::TSKY:
 			case PMS::NONE:
 				break;
 			} // switch
@@ -298,72 +304,41 @@ String MSCacheVolMeter::evalVolume(map<PMS::Axis,Bool> axes, Vector<Bool> axesma
 	Double totalVolGB = Double(totalVol)/1.0e9;  // in GB
 	Double bytesPerPt = Double(totalVol)/Double(totalPoints);  // bytes/pt
 
-	// Detect if "free" memory should be considered
-	String arcpmsif("");
-	Bool ignoreFree=(Aipsrc::find(arcpmsif,"plotms.ignorefree") && arcpmsif=="T");
-
-	// Memory info from HostInfo
-	uInt hostMemTotalKB = uInt(HostInfo::memoryTotal(true));
-	uInt hostMemFreeKB  = uInt(HostInfo::memoryFree());
-
-	/*
-  cout << "HostInfo::memoryTotal(false) = " << HostInfo::memoryTotal(false) << endl;
-  cout << "HostInfo::memoryTotal(true)  = " << hostMemTotalKB << endl;
-  cout << "HostInfo::memoryFree()       = " << hostMemFreeKB << endl;
-  cout << boolalpha;
-  cout << "arcpmsif   = " << arcpmsif << endl;
-  cout << "ignoreFree = " << ignoreFree << endl;
-	 */
-
-	// Memory available to plotms is the min of user's casarc and free
-	Double hostMemGB = Double(min(hostMemTotalKB,hostMemFreeKB))/1.0e6; // in GB
-	// Override usual calculation if ignoreFree
-	if (ignoreFree)
-		hostMemGB = Double(hostMemTotalKB)/1.0e6;
-
-	Double fracMem = 100.0 * totalVolGB/hostMemGB;  // fraction require in %
+	// Memory limit from CASA_MAX_MEMORY env variable, 
+    // .casarc, or host MemTotal (in that order) in Bytes converted to GB
+	Double memAvailGB = AppRC::getMemoryAvailable() / 1.0e9;
+	Double fracMem = 100.0 * totalVolGB / memAvailGB;  // fraction require in %
  
-	stringstream ss;
-
-	if (ignoreFree)
-		ss << "Use of 'plotms.ignorefree: T' in the .casarc file may cause" << endl
-		<< "your machine to swap for very large plots." << endl;
-
 	// Report number of points to be plotted.
+	stringstream ss;
 	ss << "Data selection will yield a total of " << totalPoints
 			<< " plottable points (flagged and unflagged).";
-
-	// Report require memory
+	// Report required memory
 	ss << endl<< "The plotms cache will require an estimated "
 			<< totalVolGB << " GB of memory (" << bytesPerPt << " bytes/point)." << endl
 			<< "This is " << fracMem << "% of the memory avail. to CASA ("
-			<< ((ignoreFree||(hostMemTotalKB<hostMemFreeKB)) ? "total=" : "free=")
-			<< hostMemGB << " GB).";
+			<< memAvailGB << " GB).";
 
 	// Trap too many points
 	Bool toomany(false);
-	if (totalPoints>UINT_MAX) {
-		ss << endl
-				<< "Too many points!  CASA plotms cannot plot more than " << UINT_MAX << " points.";
+	if (totalPoints > UINT_MAX) {
+		ss << endl << "Too many points!  CASA plotms cannot plot more than " << UINT_MAX << " points.";
 		toomany=true;
 	}
-
 	// Trap insufficient memory
 	Bool toomuch(false);
-	if (totalVolGB>hostMemGB) {
-		ss << endl
-				<< "Insufficient memory!";
+	if (totalVolGB > memAvailGB) {
+		ss << endl << "Insufficient memory!";
 		toomuch=true;
 	}
-
 	// Throw exception if toomuch or toomany
 	if (toomuch || toomany)
 		throw(AipsError(ss.str()));
-
 	return ss.str();
-
 }
+
 // =======================================================================
+// Same method with visbuffer structure from MSTransformIteratorFactory
 String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 	map<PMS::Axis,Bool> axes) {
 
@@ -460,6 +435,8 @@ String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 				break;
 			case PMS::AZIMUTH:
 			case PMS::ELEVATION:
+			case PMS::RA:
+			case PMS::DEC:
 				axisVol = sizeof(Double)*nAnt_ * nChunks;
 				break;
 			case PMS::PARANG:
@@ -478,6 +455,9 @@ String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 			case PMS::OPAC:
 			case PMS::SNR:
 			case PMS::TEC:
+			case PMS::ANTPOS:
+			case PMS::ATM:
+			case PMS::TSKY:
 			case PMS::NONE:
 				break;
 			} // switch
@@ -499,61 +479,32 @@ String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 	Double totalVolGB = Double(totalVol) / 1.0e9;  // in GB
 	Double bytesPerPt = Double(totalVol) / Double(totalPoints);  // bytes/pt
 
-	// Detect if "free" memory should be considered
-	String arcpmsif("");
-	Bool ignoreFree=(Aipsrc::find(arcpmsif,"plotms.ignorefree") && arcpmsif=="T");
-
-	// Memory info from HostInfo
-	uInt hostMemTotalKB = uInt(HostInfo::memoryTotal(true));
-	uInt hostMemFreeKB = uInt(HostInfo::memoryFree());
-
-	/*
-  cout << "HostInfo::memoryTotal(false) = " << HostInfo::memoryTotal(false) << endl;
-  cout << "HostInfo::memoryTotal(true)  = " << hostMemTotalKB << endl;
-  cout << "HostInfo::memoryFree()       = " << hostMemFreeKB << endl;
-  cout << boolalpha;
-  cout << "arcpmsif   = " << arcpmsif << endl;
-  cout << "ignoreFree = " << ignoreFree << endl;
-	*/
-
-	// Memory available to plotms is the min of user's casarc and free
-	Double hostMemGB = Double(min(hostMemTotalKB, hostMemFreeKB))/1.0e6; // in GB
-	// Override usual calculation if ignoreFree
-	if (ignoreFree)
-		hostMemGB = Double(hostMemTotalKB) / 1.0e6;
-
-	Double fracMem = 100.0 * totalVolGB / hostMemGB;  // fraction require in %
-
-	stringstream ss;
-
-	if (ignoreFree)
-		ss << "Use of 'plotms.ignorefree: T' in the .casarc file may cause" << endl
-		<< "your machine to swap for very large plots." << endl;
+	// Memory limit from CASA_MAX_MEMORY env variable, 
+    // .casarc, or host MemTotal (in that order) in Bytes converted to GB
+	Double memAvailGB = AppRC::getMemoryAvailable() / 1.0e9;
+	Double fracMem = 100.0 * totalVolGB / memAvailGB;  // fraction require in %
 
 	// Report number of points to be plotted.
+	stringstream ss;
 	ss << "Data selection will yield a total of " << totalPoints
 			<< " plottable points (flagged and unflagged).";
-
-	// Report require memory
+	// Report required memory
 	ss << endl<< "The plotms cache will require an estimated "
 			<< totalVolGB << " GB of memory (" << bytesPerPt << " bytes/point)." << endl
 			<< "This is " << fracMem << "% of the memory avail. to CASA ("
-			<< ((ignoreFree||(hostMemTotalKB<hostMemFreeKB)) ? "total=" : "free=")
-			<< hostMemGB << " GB).";
+			<< memAvailGB << " GB).";
 
 	// Trap too many points
 	Bool toomany(false);
-	if (totalPoints>UINT_MAX) {
-		ss << endl
-				<< "Too many points!  CASA plotms cannot plot more than " << UINT_MAX << " points.";
+	if (totalPoints > UINT_MAX) {
+		ss << endl << "Too many points!  CASA plotms cannot plot more than " << UINT_MAX << " points.";
 		toomany=true;
 	}
 
 	// Trap insufficient memory
 	Bool toomuch(false);
-	if (totalVolGB>hostMemGB) {
-		ss << endl
-				<< "Insufficient memory!";
+	if (totalVolGB > memAvailGB) {
+		ss << endl << "Insufficient memory!";
 		toomuch=true;
 	}
 

@@ -30,18 +30,18 @@
  *
  * File CalBandpassTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CalBandpassTable.h>
-#include <CalBandpassRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalBandpassTable.h>
+#include <alma/ASDM/CalBandpassRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CalBandpassTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -115,7 +118,21 @@ namespace asdm {
 		
 			, "numBaseline"
 		
+			, "numFreq"
+		
 			, "rms"
+		
+			, "frequencyRange"
+		
+			, "numSpectralWindow"
+		
+			, "chanFreqStart"
+		
+			, "chanFreqStep"
+		
+			, "numSpectralWindowChan"
+		
+			, "spectrum"
 				
 	};
 	
@@ -131,7 +148,7 @@ namespace asdm {
     
     	 "basebandName" , "sideband" , "atmPhaseCorrection" , "typeCurve" , "receiverBand" , "calDataId" , "calReductionId" , "startValidTime" , "endValidTime" , "numAntenna" , "numPoly" , "numReceptor" , "antennaNames" , "refAntennaName" , "freqLimits" , "polarizationTypes" , "curve" , "reducedChiSquared" 
     	,
-    	 "numBaseline" , "rms" 
+    	 "numBaseline" , "numFreq" , "rms" , "frequencyRange" , "numSpectralWindow" , "chanFreqStart" , "chanFreqStep" , "numSpectralWindowChan" , "spectrum" 
     
 	};
 	        			
@@ -311,7 +328,7 @@ namespace asdm {
  	 * @param reducedChiSquared 
 	
      */
-	CalBandpassRow* CalBandpassTable::newRow(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared){
+	CalBandpassRow* CalBandpassTable::newRow(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared){
 		CalBandpassRow *row = new CalBandpassRow(*this);
 			
 		row->setBasebandName(basebandName);
@@ -590,7 +607,7 @@ CalBandpassRow* CalBandpassTable::newRow(CalBandpassRow* row) {
  * @param reducedChiSquared.
  	 		 
  */
-CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared) {
+CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared) {
 		CalBandpassRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -651,7 +668,7 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CalBandpassTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clbndp=\"http://Alma/XASDM/CalBandpassTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalBandpassTable http://almaobservatory.org/XML/XASDM/3/CalBandpassTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n");
+		buf.append("<CalBandpassTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clbndp=\"http://Alma/XASDM/CalBandpassTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalBandpassTable http://almaobservatory.org/XML/XASDM/4/CalBandpassTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -680,12 +697,11 @@ CalBandpassRow* CalBandpassTable::lookup(BasebandNameMod::BasebandName basebandN
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "CalBandpass");
 		
@@ -759,9 +775,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</CalBandpassTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -778,7 +798,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CalBandpassTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clbndp=\"http://Alma/XASDM/CalBandpassTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalBandpassTable http://almaobservatory.org/XML/XASDM/3/CalBandpassTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n";
+		oss << "<CalBandpassTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:clbndp=\"http://Alma/XASDM/CalBandpassTable\" xsi:schemaLocation=\"http://Alma/XASDM/CalBandpassTable http://almaobservatory.org/XML/XASDM/4/CalBandpassTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CalBandpassTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -804,7 +824,14 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		oss << "<reducedChiSquared/>\n"; 
 
 		oss << "<numBaseline/>\n"; 
+		oss << "<numFreq/>\n"; 
 		oss << "<rms/>\n"; 
+		oss << "<frequencyRange/>\n"; 
+		oss << "<numSpectralWindow/>\n"; 
+		oss << "<chanFreqStart/>\n"; 
+		oss << "<chanFreqStep/>\n"; 
+		oss << "<numSpectralWindowChan/>\n"; 
+		oss << "<spectrum/>\n"; 
 		oss << "</Attributes>\n";		
 		oss << "</CalBandpassTable>\n";
 
@@ -959,7 +986,21 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
     	 
     attributesSeq.push_back("numBaseline") ; 
     	 
+    attributesSeq.push_back("numFreq") ; 
+    	 
     attributesSeq.push_back("rms") ; 
+    	 
+    attributesSeq.push_back("frequencyRange") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindow") ; 
+    	 
+    attributesSeq.push_back("chanFreqStart") ; 
+    	 
+    attributesSeq.push_back("chanFreqStep") ; 
+    	 
+    attributesSeq.push_back("numSpectralWindowChan") ; 
+    	 
+    attributesSeq.push_back("spectrum") ; 
     	
      
     
@@ -1059,8 +1100,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void CalBandpassTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1114,11 +1158,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void CalBandpassTable::setFromFile(const string& directory) {		
+	void CalBandpassTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalBandpass.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CalBandpass.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/CalBandpass.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/CalBandpass.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the CalBandpass table", "CalBandpass");
 	}			
@@ -1269,7 +1321,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

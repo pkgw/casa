@@ -157,7 +157,13 @@ public:
     // Gets the mins/maxes for just the unmasked points.
     virtual bool unmaskedMinsMaxes(double& xMin, double& xMax, double& yMin,
                                    double& yMax) = 0;
-    
+
+    // Returns whether data is plotted in reverse order (right to left),
+	// needed when connecting points
+    virtual bool reverseConnect(unsigned int index) const = 0;
+
+    // Returns whether to plot conjugate data (e.g. UV plots)
+    virtual bool plotConjugates() const = 0;
     
     // IMPLEMENTED METHODS //
     
@@ -228,6 +234,8 @@ public:
     // Returns the bin index number for the given index.  MUST be between 0 and
     // numBins().
     virtual unsigned int binAt(unsigned int i) const = 0;
+    virtual unsigned int connectBinAt(unsigned int i) const {
+        return binAt(i); };
     
     
     // IMPLEMENTED METHODS //
@@ -289,7 +297,7 @@ public:
     virtual double valueAt(double x, double y) const = 0;
     
     // Gets color bar values.
-    virtual vector<double>* colorBarValues(unsigned int max = 1000) const = 0;
+    virtual std::vector<double>* colorBarValues(unsigned int max = 1000) const = 0;
 };
 INHERITANCE_POINTER2(PlotRasterData, PlotRasterDataPtr, PlotData, PlotDataPtr)
 
@@ -311,7 +319,7 @@ public:
     
     // casacore::Data using different standard containers.
     // <group>
-    PlotSingleDataImpl(vector<T>& value, bool shouldDelete = false):
+    PlotSingleDataImpl(std::vector<T>& value, bool shouldDelete = false):
             m_vector(&value), m_cvector(NULL), m_array(NULL), m_arraySize(0),
             m_shouldDelete(shouldDelete) {
         recalculateMinMax(); }
@@ -398,7 +406,7 @@ public:
     }
     
 private:
-    vector<T>* m_vector;
+    std::vector<T>* m_vector;
     casacore::Vector<T>* m_cvector;
     T* m_array;
     unsigned int m_arraySize;
@@ -422,7 +430,7 @@ class PlotPointDataImpl : public virtual PlotPointData {
 public:
     // X/Y constructors.
     // <group>
-    PlotPointDataImpl(vector<T>& x, vector<T>& y, bool shouldDelete = false) :
+    PlotPointDataImpl(std::vector<T>& x, std::vector<T>& y, bool shouldDelete = false) :
             m_xData(x, shouldDelete), m_yData(y, shouldDelete) { }
     PlotPointDataImpl(casacore::Vector<T>& x, casacore::Vector<T>& y, bool shouldDelete = false) :
             m_xData(x, shouldDelete), m_yData(y, shouldDelete) { }
@@ -432,7 +440,7 @@ public:
     
     // Y constructors.
     // <group>
-    PlotPointDataImpl(vector<T>& y, bool shouldDelete = false) :
+    PlotPointDataImpl(std::vector<T>& y, bool shouldDelete = false) :
             m_yData(y, shouldDelete) { }
     PlotPointDataImpl(casacore::Vector<T>& y, bool shouldDelete = false) :
             m_yData(y, shouldDelete) { }
@@ -545,8 +553,8 @@ public:
     
 private:
     PlotSingleDataPtr m_data;    // Data.
-    vector<unsigned int> m_bins; // Bins with count.
-    vector<prange_t> m_ranges;   // Cached bin ranges.
+    std::vector<unsigned int> m_bins; // Bins with count.
+    std::vector<prange_t> m_ranges;   // Cached bin ranges.
     unsigned int m_max;          // Highest bin count.
 };
 
@@ -558,7 +566,7 @@ class PlotMaskedPointDataImpl : public virtual PlotMaskedPointData,
 public:
     // X/Y constructors.
     // <group>
-    PlotMaskedPointDataImpl(vector<T>& x, vector<T>& y, vector<bool>& mask,
+    PlotMaskedPointDataImpl(std::vector<T>& x, std::vector<T>& y, std::vector<bool>& mask,
             bool shouldDelete = false) :
             PlotPointDataImpl<T>(x, y, shouldDelete), m_maskVector(&mask),
             m_maskCVector(NULL), m_maskArray(NULL), m_maskArraySize(0),
@@ -577,7 +585,7 @@ public:
     
     // Y constructors.
     // <group>
-    PlotMaskedPointDataImpl(vector<T>& y, vector<bool>& mask,
+    PlotMaskedPointDataImpl(std::vector<T>& y, std::vector<bool>& mask,
             bool shouldDelete = false) :
             PlotPointDataImpl<T>(y, shouldDelete), m_maskVector(&mask),
             m_maskCVector(NULL), m_maskArray(NULL), m_maskArraySize(0),
@@ -603,6 +611,9 @@ public:
         }
     }
     
+    virtual bool reverseConnect(unsigned int /*index*/) const { return false; };
+    virtual bool plotConjugates() const { return false; };
+
     // Overrides PlotPointDataImpl::willDeleteData().
     bool willDeleteData() const {
         return PlotPointDataImpl<T>::willDeleteData() && m_shouldDeleteMask; }
@@ -638,7 +649,7 @@ public:
         return getMaskedOrUnmaskedMinsMaxes(xMin, xMax, yMin, yMax, false); }
     
 private:
-    vector<bool>* m_maskVector;
+    std::vector<bool>* m_maskVector;
     casacore::Vector<bool>* m_maskCVector;
     bool* m_maskArray;
     unsigned int m_maskArraySize;
@@ -712,7 +723,7 @@ class PlotScalarErrorDataImpl : public virtual PlotErrorData,
 public:
     // Scalar error for top, bottom, left, and right.
     // <group>
-    PlotScalarErrorDataImpl(vector<T>& x, vector<T>& y, T xLeftError,
+    PlotScalarErrorDataImpl(std::vector<T>& x, std::vector<T>& y, T xLeftError,
             T xRightError, T yBottomError, T yTopError,
             bool shouldDelete=false): PlotPointDataImpl<T>(x, y, shouldDelete),
             m_xLeftError(xLeftError), m_xRightError(xRightError),
@@ -732,7 +743,7 @@ public:
     
     // Single error for x and y.
     // <group>
-    PlotScalarErrorDataImpl(vector<T>& x, vector<T>& y, T xError, T yError,
+    PlotScalarErrorDataImpl(std::vector<T>& x, std::vector<T>& y, T xError, T yError,
             bool shouldDelete=false): PlotPointDataImpl<T>(x, y, shouldDelete),
             m_xLeftError(xError), m_xRightError(xError),
             m_yBottomError(yError), m_yTopError(yError) { }
@@ -749,7 +760,7 @@ public:
     
     // Single error for all values.
     // <group>
-    PlotScalarErrorDataImpl(vector<T>& x, vector<T>& y, T error,
+    PlotScalarErrorDataImpl(std::vector<T>& x, std::vector<T>& y, T error,
             bool shouldDelete=false): PlotPointDataImpl<T>(x, y, shouldDelete),
             m_xLeftError(error), m_xRightError(error), m_yBottomError(error),
             m_yTopError(error) { }
@@ -808,8 +819,8 @@ public:
             PlotPointDataImpl<T>(x, y, size, shouldDelete),
             m_xError(xError, xError, size, shouldDelete),
             m_yError(yError, yError, size, shouldDelete) { }
-    PlotErrorDataImpl(vector<T>& x, vector<T>& y, vector<T>& xError, 
-            vector<T>& yError, bool shouldDelete = false) :
+    PlotErrorDataImpl(std::vector<T>& x, std::vector<T>& y, std::vector<T>& xError, 
+            std::vector<T>& yError, bool shouldDelete = false) :
             PlotPointDataImpl<T>(x, y, shouldDelete),
             m_xError(xError, xError, shouldDelete),
             m_yError(yError, yError, shouldDelete) { }
@@ -828,9 +839,9 @@ public:
             PlotPointDataImpl<T>(x, y, size, shouldDelete),
             m_xError(xLeftError, xRightError, size, shouldDelete),
             m_yError(yBottomError, yTopError, size, shouldDelete) { }
-    PlotErrorDataImpl(vector<T>& x, vector<T>& y, vector<T>& xLeftError,
-            vector<T>& xRightError, vector<T>& yBottomError,
-            vector<T>& yTopError, bool shouldDelete = false) :
+    PlotErrorDataImpl(std::vector<T>& x, std::vector<T>& y, std::vector<T>& xLeftError,
+            std::vector<T>& xRightError, std::vector<T>& yBottomError,
+            std::vector<T>& yTopError, bool shouldDelete = false) :
             PlotPointDataImpl<T>(x, y, shouldDelete),
             m_xError(xLeftError, xRightError, shouldDelete),
             m_yError(yBottomError, yTopError, shouldDelete) { }
@@ -1017,8 +1028,8 @@ public:
     }
     
     // Implements PlotRasterData::colorBarValues().
-    vector<double>* colorBarValues(unsigned int max = 1000) const {
-        vector<double>* v = new vector<double>();
+    std::vector<double>* colorBarValues(unsigned int max = 1000) const {
+        std::vector<double>* v = new std::vector<double>();
 
         double val;
         bool found;

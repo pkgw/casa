@@ -113,14 +113,14 @@ private:
   void ExtendFlags();
   void FillChunkFlags();
 
-  casacore::uInt itime;  
+  // casacore::uInt itime;  
   VisibilityIterator &vi; 
   VisBuffer &vb;
-  casacore::uInt TimeStamps;
+  // casacore::uInt TimeStamps;
   casacore::String msname;
   casacore::Vector<casacore::Int> ant1,ant2;
   
-  casacore::Cube <casacore::Complex> *vv; 	// visCube ptr - for one timestamp
+  // casacore::Cube <casacore::Complex> *vv; 	// visCube ptr - for one timestamp
   casacore::Cube <casacore::Complex> vc; 	// visCube ptr - for one timestamp
   casacore::Cube <casacore::Bool> ff; 	// flagCube ptr - for one timestamp
   casacore::Vector <casacore::Bool> fr;     // rowflag ptr - for one timestamp
@@ -143,7 +143,7 @@ private:
   casacore::Float T_TOL,F_TOL,ANT_TOL,BASELN_TOL; // casacore::Input parameters
   casacore::uInt FlagLevel,CorrChoice,NumTime,MaxNPieces;//casacore::Input parameters
   casacore::Bool ShowPlots,DryRun,IgnorePreflags;
-  casacore::uInt nPol;
+  // casacore::uInt nPol;
   casacore::Bool FreqLineFit;
   casacore::Bool StopAndExit;
   casacore::String Column;
@@ -153,8 +153,8 @@ private:
   
   casacore::IPosition cubepos,matpos; 
 
-  casacore::uInt passcnt;
-  casacore::uInt iterRowcnt;
+  // casacore::uInt passcnt;
+  // casacore::uInt iterRowcnt;
   casacore::uInt iterTimecnt;
   casacore::uInt timecnt;
 

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <vector>
+#include "CrashReportHelper.h"
 
 using namespace std;
 using google_breakpad::HTTPUpload;
@@ -99,6 +100,7 @@ private:
     void captureAdditionalInformation ();
     void captureOne (const string & command,
                      const string & filename);
+    void writeAnonId ();
     void cleanup ();
     void createArchiveFile ();
     bool doSystem (const string & command, bool throwOnError);
@@ -177,12 +179,13 @@ CrashReportPoster::captureAdditionalInformation ()
     captureOne ("cat /proc/meminfo", "meminfo.txt");
     captureOne ("mount", "mountinfo.txt");
     captureOne ("lsb_release -a", "lsbinfo.txt");
-    captureOne ("uname -a", "unameinfo.txt");
+    captureOne ("uname -srvmp", "unameinfo.txt");
     if (logFile_p.size() > 0){
         captureOne ("cat " + logFile_p, "casa.log");
     } else {
         captureOne ("echo '--> No log file provided.'", "casa.log");
     }
+    writeAnonId ();
 
 #else
 
@@ -192,15 +195,34 @@ CrashReportPoster::captureAdditionalInformation ()
     captureOne ("sysctl -a machdep", "machdep.txt");
     captureOne ("vm_stat", "meminfo.txt");
     captureOne ("mount", "mountinfo.txt");
-    captureOne ("lsb_release -a", "lsbinfo.txt");
-    captureOne ("uname -a", "unameinfo.txt");
+    //captureOne ("lsb_release -a", "lsbinfo.txt");
+    captureOne ("uname -srvmp", "unameinfo.txt");
     if (logFile_p.size() > 0){
         captureOne ("cat " + logFile_p, "casa.log");
     } else {
         captureOne ("echo '--> No log file provided.'", "casa.log");
     }
-
+    writeAnonId ();
 #endif
+}
+
+void
+CrashReportPoster::writeAnonId ()
+{
+    // Execute the command, if given and then add the filename holding
+    // the result to the manifest of the crash archive.  If there is no
+    // command, the filename is simply added to the manifest.
+
+    bool ok = true;
+    casac::CrashReportHelper ch;
+    string filename = ch.getUniqueId() + ".id";
+    if (filename.size() > 0){
+        ok = doSystem ("touch " + filename, false);
+    }
+
+    if (ok) {
+        manifest_p.push_back (filename);
+    }
 }
 
 void

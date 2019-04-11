@@ -30,18 +30,18 @@
  *
  * File CorrelatorModeTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <CorrelatorModeTable.h>
-#include <CorrelatorModeRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CorrelatorModeTable.h>
+#include <alma/ASDM/CorrelatorModeRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::CorrelatorModeTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -261,7 +264,7 @@ namespace asdm {
  	 * @param correlatorName 
 	
      */
-	CorrelatorModeRow* CorrelatorModeTable::newRow(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName){
+	CorrelatorModeRow* CorrelatorModeTable::newRow(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName){
 		CorrelatorModeRow *row = new CorrelatorModeRow(*this);
 			
 		row->setNumBaseband(numBaseband);
@@ -497,7 +500,7 @@ CorrelatorModeRow* CorrelatorModeTable::newRow(CorrelatorModeRow* row) {
  * @param correlatorName.
  	 		 
  */
-CorrelatorModeRow* CorrelatorModeTable::lookup(int numBaseband, vector<BasebandNameMod::BasebandName > basebandNames, vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, vector<AxisNameMod::AxisName > axesOrderArray, vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
+CorrelatorModeRow* CorrelatorModeTable::lookup(int numBaseband, std::vector<BasebandNameMod::BasebandName > basebandNames, std::vector<int > basebandConfig, AccumModeMod::AccumMode accumMode, int binMode, int numAxes, std::vector<AxisNameMod::AxisName > axesOrderArray, std::vector<FilterModeMod::FilterMode > filterMode, CorrelatorNameMod::CorrelatorName correlatorName) {
 		CorrelatorModeRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -558,7 +561,7 @@ CorrelatorModeRow* CorrelatorModeTable::lookup(int numBaseband, vector<BasebandN
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<CorrelatorModeTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cormod=\"http://Alma/XASDM/CorrelatorModeTable\" xsi:schemaLocation=\"http://Alma/XASDM/CorrelatorModeTable http://almaobservatory.org/XML/XASDM/3/CorrelatorModeTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n");
+		buf.append("<CorrelatorModeTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cormod=\"http://Alma/XASDM/CorrelatorModeTable\" xsi:schemaLocation=\"http://Alma/XASDM/CorrelatorModeTable http://almaobservatory.org/XML/XASDM/4/CorrelatorModeTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -587,12 +590,11 @@ CorrelatorModeRow* CorrelatorModeTable::lookup(int numBaseband, vector<BasebandN
 		// Look for a version information in the schemaVersion of the XML
 		//
 		xmlDoc *doc;
-		#if LIBXML_VERSION >= 20703
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
+#if LIBXML_VERSION >= 20703
+        doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS|XML_PARSE_HUGE);
 #else
-doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
+		doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", NULL, XML_PARSE_NOBLANKS);
 #endif
-
 		if ( doc == NULL )
 			throw ConversionException("Failed to parse the xmlHeader into a DOM structure.", "CorrelatorMode");
 		
@@ -666,9 +668,13 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 				
 		if (!xml.isStr("</CorrelatorModeTable>")) 
 		error();
-			
-		archiveAsBin = false;
-		fileAsBin = false;
+		
+		//Does not change the convention defined in the model.	
+		//archiveAsBin = false;
+		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -685,7 +691,7 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<CorrelatorModeTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cormod=\"http://Alma/XASDM/CorrelatorModeTable\" xsi:schemaLocation=\"http://Alma/XASDM/CorrelatorModeTable http://almaobservatory.org/XML/XASDM/3/CorrelatorModeTable.xsd\" schemaVersion=\"3\" schemaRevision=\"1.64\">\n";
+		oss << "<CorrelatorModeTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cormod=\"http://Alma/XASDM/CorrelatorModeTable\" xsi:schemaLocation=\"http://Alma/XASDM/CorrelatorModeTable http://almaobservatory.org/XML/XASDM/4/CorrelatorModeTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='CorrelatorModeTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -936,8 +942,11 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			append(aRow);
       	}   	
     }
-    archiveAsBin = true;
-    fileAsBin = true;
+    //Does not change the convention defined in the model.	
+    //archiveAsBin = true;
+    //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void CorrelatorModeTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -991,11 +1000,19 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 	}
 
 	
-	void CorrelatorModeTable::setFromFile(const string& directory) {		
+	void CorrelatorModeTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CorrelatorMode.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/CorrelatorMode.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/CorrelatorMode.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/CorrelatorMode.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the CorrelatorMode table", "CorrelatorMode");
 	}			
@@ -1146,7 +1163,9 @@ doc = xmlReadMemory(tableInXML.data(), tableInXML.size(), "XMLTableHeader.xml", 
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

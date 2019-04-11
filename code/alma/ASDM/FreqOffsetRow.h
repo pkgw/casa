@@ -48,15 +48,15 @@
 
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -68,15 +68,15 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file FreqOffset.h
-    \brief Generated from model's revision "1.64", branch "HEAD"
+    \brief Generated from model's revision "-1", branch ""
 */
 
 namespace asdm {
@@ -96,12 +96,12 @@ class FeedRow;
 
 class FreqOffsetRow;
 typedef void (FreqOffsetRow::*FreqOffsetAttributeFromBin) (EndianIStream& eis);
-typedef void (FreqOffsetRow::*FreqOffsetAttributeFromText) (const string& s);
+typedef void (FreqOffsetRow::*FreqOffsetAttributeFromText) (const std::string& s);
 
 /**
  * The FreqOffsetRow class is a row of a FreqOffsetTable.
  * 
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  */
 class FreqOffsetRow {
@@ -335,7 +335,7 @@ public:
 	 * 
 	 * @return a vector of FeedRow *
 	 */
-	vector <FeedRow *> getFeeds();
+	std::vector <FeedRow *> getFeeds();
 	
 	
 
@@ -606,19 +606,19 @@ void offsetFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FreqOffsetAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void offsetFromText (const string & s);
+void offsetFromText (const std::string & s);
 	
 
 		

@@ -40,6 +40,7 @@ casa_add_library( msvis
   MSVis/MsAverager.cc
   MSVis/MsRows.cc
   MSVis/Partition.cc
+  MSVis/PassThroughTVI.cc
   MSVis/PhaseShiftTvi.cc
   MSVis/PointingDirectionCache.cc
   MSVis/Reweighter.cc
@@ -88,19 +89,19 @@ casa_add_library( msvis
 ####  MSVis/VisBufferAsyncWrapper2.cc
 ####  MSVis/VisBufferImplAsync2.cc
 ####  MSVis/VisibilityIteratorImplAsync2.cc
-  MSVis/statistics/Vi2ChunkAntennaDataProvider.cc
-  MSVis/statistics/Vi2ChunkArrayIdDataProvider.cc
-  MSVis/statistics/Vi2ChunkDataDescriptionIdsDataProvider.cc
-  MSVis/statistics/Vi2ChunkFeedDataProvider.cc
-  MSVis/statistics/Vi2ChunkFieldIdDataProvider.cc
-  MSVis/statistics/Vi2ChunkFlagCubeDataProvider.cc
-  MSVis/statistics/Vi2ChunkFlagRowDataProvider.cc
-  MSVis/statistics/Vi2ChunkFloatVisDataProvider.cc
-  MSVis/statistics/Vi2ChunkIntervalDataProvider.cc
-  MSVis/statistics/Vi2ChunkScanDataProvider.cc
-  MSVis/statistics/Vi2ChunkTimeDataProvider.cc
-  MSVis/statistics/Vi2ChunkUVRangeDataProvider.cc
-  MSVis/statistics/Vi2ChunkWeightSpectrumDataProvider.cc
+  MSVis/statistics/Vi2AntennaDataProvider.cc
+  MSVis/statistics/Vi2ArrayIdDataProvider.cc
+  MSVis/statistics/Vi2DataDescriptionIdsDataProvider.cc
+  MSVis/statistics/Vi2FeedDataProvider.cc
+  MSVis/statistics/Vi2FieldIdDataProvider.cc
+  MSVis/statistics/Vi2FlagCubeDataProvider.cc
+  MSVis/statistics/Vi2FlagRowDataProvider.cc
+  MSVis/statistics/Vi2FloatVisDataProvider.cc
+  MSVis/statistics/Vi2IntervalDataProvider.cc
+  MSVis/statistics/Vi2ScanDataProvider.cc
+  MSVis/statistics/Vi2TimeDataProvider.cc
+  MSVis/statistics/Vi2UVRangeDataProvider.cc
+  MSVis/statistics/Vi2WeightSpectrumDataProvider.cc
   MSVis/statistics/Vi2StatsAmplitudeIterator.cc
   MSVis/statistics/Vi2StatsBoolIterator.cc
   MSVis/statistics/Vi2StatsFlagsIterator.cc
@@ -132,6 +133,7 @@ install (FILES
 	MSVis/MSUtil.h
 	MSVis/MsAverager.h
 	MSVis/Partition.h
+	MSVis/PassThroughTVI.h
 	MSVis/PhaseShiftTvi.h
 	MSVis/Reweighter.h
 	MSVis/PointingDirectionCache.h
@@ -188,28 +190,33 @@ install (FILES
 	)
 
 install (FILES
-	MSVis/statistics/Vi2ChunkAntennaDataProvider.h
-	MSVis/statistics/Vi2ChunkArrayIdDataProvider.h
-	MSVis/statistics/Vi2ChunkCorrectedVisDataProvider.h
-	MSVis/statistics/Vi2ChunkDataDescriptionIdsDataProvider.h
-	MSVis/statistics/Vi2ChunkDataProvider.h
-	MSVis/statistics/Vi2ChunkFeedDataProvider.h
-	MSVis/statistics/Vi2ChunkFieldIdDataProvider.h
-	MSVis/statistics/Vi2ChunkFlagCubeDataProvider.h
-	MSVis/statistics/Vi2ChunkFlagRowDataProvider.h
-	MSVis/statistics/Vi2ChunkFloatVisDataProvider.h
-	MSVis/statistics/Vi2ChunkIntervalDataProvider.h
-	MSVis/statistics/Vi2ChunkModelVisDataProvider.h
-	MSVis/statistics/Vi2ChunkObservedVisDataProvider.h
-	MSVis/statistics/Vi2ChunkScanDataProvider.h
-        MSVis/statistics/Vi2ChunkStatisticsIteratee.h
-	MSVis/statistics/Vi2ChunkTimeDataProvider.h
-	MSVis/statistics/Vi2ChunkUVRangeDataProvider.h
-	MSVis/statistics/Vi2ChunkVisAmplitudeProvider.h
-	MSVis/statistics/Vi2ChunkVisImaginaryProvider.h
-	MSVis/statistics/Vi2ChunkVisPhaseProvider.h
-	MSVis/statistics/Vi2ChunkVisRealProvider.h
-	MSVis/statistics/Vi2ChunkWeightSpectrumDataProvider.h
+	MSVis/test/TestUtilsTVI.h 
+	DESTINATION include/casacode/msvis/MSVis/test
+	)       
+
+install (FILES
+	MSVis/statistics/Vi2AntennaDataProvider.h
+	MSVis/statistics/Vi2ArrayIdDataProvider.h
+	MSVis/statistics/Vi2CorrectedVisDataProvider.h
+	MSVis/statistics/Vi2DataDescriptionIdsDataProvider.h
+	MSVis/statistics/Vi2DataProvider.h
+	MSVis/statistics/Vi2FeedDataProvider.h
+	MSVis/statistics/Vi2FieldIdDataProvider.h
+	MSVis/statistics/Vi2FlagCubeDataProvider.h
+	MSVis/statistics/Vi2FlagRowDataProvider.h
+	MSVis/statistics/Vi2FloatVisDataProvider.h
+	MSVis/statistics/Vi2IntervalDataProvider.h
+	MSVis/statistics/Vi2ModelVisDataProvider.h
+	MSVis/statistics/Vi2ObservedVisDataProvider.h
+	MSVis/statistics/Vi2ScanDataProvider.h
+        MSVis/statistics/Vi2StatisticsIteratee.h
+	MSVis/statistics/Vi2TimeDataProvider.h
+	MSVis/statistics/Vi2UVRangeDataProvider.h
+	MSVis/statistics/Vi2VisAmplitudeProvider.h
+	MSVis/statistics/Vi2VisImaginaryProvider.h
+	MSVis/statistics/Vi2VisPhaseProvider.h
+	MSVis/statistics/Vi2VisRealProvider.h
+	MSVis/statistics/Vi2WeightSpectrumDataProvider.h
 	MSVis/statistics/Vi2StatsAmplitudeIterator.h
 	MSVis/statistics/Vi2StatsBoolIterator.h
 	MSVis/statistics/Vi2StatsDataIterator.h
@@ -223,24 +230,34 @@ install (FILES
 	DESTINATION include/casacode/msvis/MSVis/statistics
 	)
 
+install (FILES
+	MSVis/util/Future.h
+	MSVis/util/Try.h
+	DESTINATION include/casacode/msvis/MSVis/util
+	)
+
 casa_add_assay( msvis MSVis/test/tVisibilityIterator.cc )
 casa_add_assay( msvis MSVis/test/tVisibilityIteratorAsync.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tHanningSmooth.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tMSCalEnums.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tUVSub.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tVisIter.cc )
-casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/VisibilityIterator_Test.cc MsFactory.cc )
 
 # Following line commented out until a problem related to the older cmake used on Jenkins (dev machine using 2.8.12.2)
 # Uncomment this when that problem is resolved
 #
 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc)
+
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/PointingDirectionCache_Test.cc) 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/VisibilityIterator_Gtest.cc MSVis/test/MsFactory.cc) 
 casa_add_google_test (NOT_ON_APPLE MODULES msvis SOURCES MSVis/test/MSChecker_Gtest.cc MSVis/test/MSCheckerTest.cc) 
 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/tSimpleSimVi2_GT.cc) 
-casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc) 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc) 
+
+casa_add_google_test(MODULES msvis SOURCES MSVis/test/Future_Test.cc)
+casa_add_google_test(MODULES msvis SOURCES MSVis/test/Try_Test.cc)
 
 #casa_add_unit_test (msvis MSVis/test/VisibilityIterator_Test.cc MSVis/test/MsFactory.cc) 

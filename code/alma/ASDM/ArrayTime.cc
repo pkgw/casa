@@ -27,18 +27,15 @@
 #include <cmath>
 using std::fmod;
 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 
-#include <DoubleWrapper.h>
-#include <LongWrapper.h>
-#include <IntegerWrapper.h>
-#include <InvalidArgumentException.h>
-#include <NumberFormatException.h>
-using asdm::Double;
-using asdm::Long;
-using asdm::Integer;
-using asdm::InvalidArgumentException;
-using asdm::NumberFormatException;
+#include <alma/ASDM/DoubleWrapper.h>
+#include <alma/ASDM/LongWrapper.h>
+#include <alma/ASDM/IntegerWrapper.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+#include <alma/ASDM/NumberFormatException.h>
+
+using namespace std;
 
 namespace asdm {
 
@@ -125,7 +122,7 @@ namespace asdm {
    * @return A new Time formed by adding an Interval
    * to the specified Time. 
    */
-  ArrayTime ArrayTime::add(const ArrayTime &time, const Interval &) {
+  ArrayTime ArrayTime::add(const ArrayTime &time, const Interval & /* interval */) {
     ArrayTime t(time);
     //t.add(interval);
     return t;
@@ -139,7 +136,7 @@ namespace asdm {
    * @return A new Time formed by subtracting an Interval
    * from the specified Time. 
    */
-  ArrayTime ArrayTime::sub(const ArrayTime &time, const Interval &) {
+  ArrayTime ArrayTime::sub(const ArrayTime &time, const Interval & /* interval */) {
     ArrayTime t(time);
     //t.sub(interval);
     return t;
@@ -211,7 +208,7 @@ namespace asdm {
    * Create a Time from an IDL time object.
    * @param t The IDL time object.
    */
-  ArrayTime::ArrayTime (const IDLArrayTime &t) {
+  ArrayTime::ArrayTime (const asdmIDLTypes::IDLArrayTime &t) {
     *this = t.value;
   }
 #endif
@@ -292,8 +289,8 @@ namespace asdm {
    * Return an IDL Time object.
    * @return An IDL Time object.
    */
-  IDLArrayTime ArrayTime::toIDLArrayTime() const {
-    IDLArrayTime x;
+  asdmIDLTypes::IDLArrayTime ArrayTime::toIDLArrayTime() const {
+    asdmIDLTypes::IDLArrayTime x;
     x.value = get();
     return x;
   }

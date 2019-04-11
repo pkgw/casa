@@ -35,6 +35,7 @@
 #include <casacore/casa/Logging/LogIO.h>
 #include <iomanip>
 using namespace casa;
+using namespace casacore;
 Int main(){
   CoordinateSystem cs;
   CoordinateUtil::addDirAxes(cs);
@@ -53,8 +54,9 @@ Int main(){
   PagedImage<Complex> im(IPosition(4, 1000, 1000, 1, 1), cs, "GULU");
   PBMath1DEVLA pbm(Quantity(0.7, "deg"), True, 1.425e9);
   std::vector<double> freqs={1.e9, 2.e9, 4.e9, 8.e9, 16.e9, 32.e9, 48.e9};
+  std::vector<String> band={"L", "S", "C", "X", "U", "K", "A", "Q"};
   pbm.summary(10);
-  std::vector<Complex> refval={Complex(0.998942792416,0), Complex(0.995834052563,0), Complex(0.984491288662,0), Complex(0.939067363739,0), Complex(0.770893454552,0), Complex(0.316897362471,0), Complex(0.0408035330474,0)};
+  std::vector<Complex> refval={Complex(0.998942792416,0), Complex(0.995834052563,0), Complex(0.983281731606), Complex(0.937161207199,0), Complex(0.770893454552,0), Complex(0.316897362471,0), Complex(0.0408035330474,0)};
   for (unsigned int k=0; k< freqs.size(); ++k){
     im.set(Complex(1.0));
     
@@ -69,6 +71,7 @@ Int main(){
     pixworld[3]=freqs[k];
     cs.setReferenceValue(pixworld);
     im.setCoordinateInfo(cs);
+    pbm.setBandOrFeedName(band[k]);
     pbm.applyPB(im, im, thedir);
     im.flush();
     cerr << std::setprecision(12) << "Value at (0, 50) for " << freqs[k] << "  " << im.getAt(IPosition(4,0,50,0,0)) << endl; 

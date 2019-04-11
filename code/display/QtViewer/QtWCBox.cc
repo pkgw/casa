@@ -47,6 +47,7 @@
 #include <casa/Utilities/LinearSearch.h>
 #include <casa/BasicSL/String.h>
 #include <measures/Measures/Stokes.h>
+#include <casa/Quanta/UnitMap.h>
 
 #include <casa/iomanip.h>
 #include <casa/iostream.h>

@@ -30,6 +30,7 @@
 #define _SYNTHESIS_SKY_CAL_H_
 
 #include <casa/Arrays/Matrix.h>
+#include <casa/Exceptions/Error.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -208,11 +209,17 @@ public:
       flag(f);
     }
     
+    constexpr size_t nPolCal = 2;
+
     casacore::Bool deleteIt;
     DataType *data = v.getStorage(deleteIt);
-    for (size_t i = 0; i < npol_ * nchan_; ++i) {
-      // (ON - OFF) / OFF
-      data[i] = (data[i] - m_[i]) / m_[i];
+    for (size_t i = 0; i < nchan_; ++i) {
+      auto const iData = i * npol_;
+      auto const iMat = i * nPolCal;
+      for (size_t j = 0; j < npol_; ++j) {
+        // (ON - OFF) / OFF
+        data[iData+j] = (data[iData+j] - m_[iMat+j]) / m_[iMat+j];
+      }
     }
     v.putStorage(data, deleteIt);
   }
@@ -232,15 +239,17 @@ public:
   {
     if (!ok_) throw(casacore::AipsError("Illegal use of SkyCal::applyFlag(vflag)."));
 
+    constexpr size_t nPolCal = 2;
+
     if (scalardata_) {
       for (size_t i = 0; i < nchan_; ++i) {
-        vflag[i] |= (!ok_[0]);
+        vflag[i] |= (!ok_[i*nPolCal]);
       }
     }
     else {
       for (size_t i = 0; i < nchan_; ++i) {
         for (size_t j = 0; j < npol_; ++j) {
-          vflag[i] |= !(ok_[i*npol_ + j]);
+          vflag[i] |= !(ok_[i*nPolCal + j]);
         }
       }
     }
@@ -248,10 +257,16 @@ public:
   
   void flag(casacore::Matrix<casacore::Bool>& v)
   {
+    constexpr size_t nPolCal = 2;
+
     casacore::Bool deleteIt;
     casacore::Bool *data = v.getStorage(deleteIt);
-    for (size_t i = 0; i < typesize(); ++i) {
-      data[i] |= (!ok_[i]); // data: false is valid, ok_: true is valid
+    for (size_t i = 0; i < nchan_; ++i) {
+      auto const iData = i * npol_;
+      auto const iMat = i * nPolCal;
+      for (size_t j = 0; j < npol_; ++j) {
+        data[iData+j] |= (!ok_[iMat+j]); // data: false is valid, ok_: true is valid
+      }
     }
     v.putStorage(data, deleteIt);
   }
@@ -266,10 +281,13 @@ public:
   }
 
   // print it out
+    // unused
+  /*
   friend std::ostream& operator<<(std::ostream& os, const SkyCal<DataType, CalDataType>& mat)
   {
     return os;
   }
+  */
 
 protected:
 

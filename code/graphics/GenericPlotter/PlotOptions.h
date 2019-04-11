@@ -856,6 +856,7 @@ public:
     // Public Members
     // <group>
     Type type;             // export type
+	bool verbose;          // verbose text export
     casacore::String location;       // export location
     Resolution resolution; // export resolution
     int dpi;               // export dpi (if applicable)

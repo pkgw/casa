@@ -1,7 +1,7 @@
 #ifndef IMAGEANALYSIS_STATIMAGECREATOR_H
 #define IMAGEANALYSIS_STATIMAGECREATOR_H
 
-#include <imageanalysis/ImageAnalysis/ImageStatsConfigurator.h>
+#include <imageanalysis/ImageAnalysis/ImageStatsBase.h>
 
 #include <casacore/scimath/Mathematics/Interpolate2D.h>
 
@@ -9,7 +9,7 @@
 
 namespace casa {
 
-class StatImageCreator : public ImageStatsConfigurator {
+class StatImageCreator : public ImageStatsBase<Float> {
 	// <summary>
 	// Create a "statistic" image from an image.
 	// </summary>
@@ -51,6 +51,9 @@ public:
 	// not the resulting subimage if a region was also specified.
 	void setAnchorPosition(Int x, Int y);
 
+    // rounds reference pixel to nearest ints, if necessary
+    void useReferencePixelAsAnchor();
+
 	// set spacing between grid pixels.
 	void setGridSpacing(uInt x, uInt y);
 
@@ -84,16 +87,8 @@ protected:
 
 private:
 
-    static const casacore::Double PHI;
-
     Quantity _xlen = Quantity(1, "pix");
     Quantity _ylen = Quantity(1, "pix");
-    // blc of the data chunk offset from the grid point, in pixels
-    uInt _xoff = 0;
-    uInt _yoff = 0;
-    // x,y chunksize, in pixels
-    uInt _xsize = 1;
-    uInt _ysize = 1;
 
     std::pair<uInt, uInt> _grid = std::make_pair(1,1);
     // _anchor pixel world coordinates
@@ -105,17 +100,36 @@ private:
     casacore::StatisticsData::STATS _statType
         = casacore::StatisticsData::STDDEV;
     casacore::Bool _doMask = casacore::False;
-    casacore::Bool _doPhi = casacore::False;
+    casacore::Bool _doProbit = casacore::False;
 
     void _doInterpolation(
-        TempImage<Float>& output, TempImage<Float>& store,
-        SPCIIF subImage, uInt nxpts, uInt nypts, Int xstart, Int ystart
+        SPIIF output, TempImage<Float>& store, SPCIIF subImage,
+        uInt nxpts, uInt nypts, Int xstart, Int ystart
     ) const;
 
     void _computeStat(
-        TempImage<Float>& writeTo,
-        SPCIIF subImage, uInt nxpts, uInt nypts,
-        Int xstart, Int ystart
+        TempImage<Float>& writeTo, SPCIIF subImage, uInt nxpts,
+        uInt nypts, Int xstart, Int ystart
+    );
+
+    void _doStatsLoop(
+        casacore::TempImage<Float>& writeTo,
+        casacore::RO_MaskedLatticeIterator<Float>& lattIter,
+        casacore::uInt nxpts, casacore::uInt nypts, casacore::Int xstart,
+        casacore::Int ystart, casacore::uInt xBlcOff, casacore::uInt yBlcOff,
+        casacore::uInt xChunkSize, casacore::uInt yChunkSize,
+        const casacore::IPosition& imshape,
+        const casacore::IPosition& chunkShape,
+        std::shared_ptr<casacore::Array<casacore::Bool>> regionMask,
+        std::shared_ptr<
+            casacore::StatisticsAlgorithm<
+                casacore::Double,
+                casacore::Array<casacore::Float>::const_iterator,
+                casacore::Array<casacore::Bool>::const_iterator,
+                casacore::Array<casacore::Float>::const_iterator
+            >
+        >& alg, const casacore::Array<casacore::Bool>& regMaskCopy,
+        const casacore::IPosition& loopAxes, casacore::uInt nPts
     );
 
     // start is the pixel offset in the result matrix relative the
@@ -125,20 +139,21 @@ private:
     // corresponds to pixel (start/pointsPerCell - 1) in the storage matrix (which
     // is always negative and always greater than -1).
     void _interpolate(
-        Matrix<Float>& result, Matrix<Bool>& resultMask,
-        const Matrix<Float>& storage,
-        const Matrix<Bool>& storeMask,
-        const std::pair<uInt, uInt>& start
+        casacore::Matrix<casacore::Float>& result,
+        casacore::Matrix<casacore::Bool>& resultMask,
+        const casacore::Matrix<casacore::Float>& storage,
+        const casacore::Matrix<casacore::Bool>& storeMask,
+        const std::pair<casacore::uInt, casacore::uInt>& start
     ) const;
 
     // the Blc offsets are the pixel offsets from the grid point
     void _nominalChunkInfo(
-        SHARED_PTR<Array<Bool>>& chunkMask,
+        std::shared_ptr<Array<Bool>>& chunkMask,
         uInt& xBlcOff, uInt& yBlcOff, uInt& xChunkSize, uInt& yChunkSize,
         SPCIIF subimage
     ) const;
 
-    SHARED_PTR<StatisticsAlgorithm<
+    std::shared_ptr<StatisticsAlgorithm<
         Double, Array<Float>::const_iterator, Array<Bool>::const_iterator>
     > _getStatsAlgorithm(String& algName) const;
 

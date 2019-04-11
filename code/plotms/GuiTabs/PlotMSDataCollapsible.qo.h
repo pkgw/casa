@@ -26,7 +26,7 @@
 #ifndef PLOTMSDATACOLLAPSIBLE_QO_H
 #define PLOTMSDATACOLLAPSIBLE_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/BasicSL/String.h>
 #include <plotms/GuiTabs/PlotMSDataCollapsible.ui.h>
 #include <plotms/Plots/PlotMSPlotParameters.h>
@@ -88,8 +88,8 @@ public:
     //Returns whether or not the plot is displayed by this Collapsible.
     bool managesPlot(PlotMSPlot* plot ) const;
 
-    vector<PMS::Axis> getSelectedLoadAxes() const;
-    vector<PMS::Axis> getSelectedReleaseAxes() const;
+    std::vector<PMS::Axis> getSelectedLoadAxes() const;
+    std::vector<PMS::Axis> getSelectedReleaseAxes() const;
 
     //Returns whether this plot will be plotted, i.e.,
     //its gridRow and gridCol are nonnegative AND there is an empty location
@@ -128,9 +128,9 @@ private:
     QAction minimizeAction;
     QAction maximizeAction;
     QAction closeAction;
-    const int SIZE_COLLAPSED;
-    const int SIZE_EXPANDED;
-    const int SIZE_WIDTH;
+    const int PMS_SIZE_COLLAPSED;
+    const int PMS_SIZE_EXPANDED;
+    const int PMS_SIZE_WIDTH;
     int minimumSize;
 
     QLineEdit* nameLabel;

@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -52,27 +52,27 @@
 	
 
 	
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CStokesParameter.h>
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -91,7 +91,7 @@ class PolarizationRow;
  * Polarization information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Polarization </CAPTION>
@@ -113,7 +113,7 @@ class PolarizationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numCorr </TD> 
+ * <TD> numCorr (numCorr)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;Number of correlation products </TD>
@@ -121,14 +121,14 @@ class PolarizationRow;
 	
  * <TR>
  * <TD> corrType </TD> 
- * <TD> vector<StokesParameterMod::StokesParameter > </TD>
+ * <TD> std::vector<StokesParameterMod::StokesParameter > </TD>
  * <TD>  numCorr </TD> 
  * <TD> &nbsp;Correlation type </TD>
  * </TR>
 	
  * <TR>
  * <TD> corrProduct </TD> 
- * <TD> vector<vector<PolarizationTypeMod::PolarizationType > > </TD>
+ * <TD> std::vector<std::vector<PolarizationTypeMod::PolarizationType > > </TD>
  * <TD>  numCorr, 2 </TD> 
  * <TD> &nbsp;Correlation product. </TD>
  * </TR>
@@ -277,7 +277,7 @@ public:
  	 * @param corrProduct
 	
      */
-	PolarizationRow *newRow(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct);
+	PolarizationRow *newRow(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct);
 	
 
 
@@ -366,7 +366,7 @@ public:
  	 * @param corrProduct
  	 		 
  	 */
-	PolarizationRow* lookup(int numCorr, vector<StokesParameterMod::StokesParameter > corrType, vector<vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
+	PolarizationRow* lookup(int numCorr, std::vector<StokesParameterMod::StokesParameter > corrType, std::vector<std::vector<PolarizationTypeMod::PolarizationType > > corrProduct); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -392,6 +392,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

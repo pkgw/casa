@@ -98,14 +98,18 @@ namespace casa {
 		ui.imageHolder->setLayout( holderLayout );
 	}
 
-	void ImageManagerDialog::setImageHolders( DisplayDataHolder* registeredImages,
-	        DisplayDataHolder* images ) {
+	void ImageManagerDialog::setImageHolders( std::shared_ptr<ImageManagerDialog> holder,
+	                                          std::shared_ptr<DisplayDataHolder> registeredImages,
+	                                          std::shared_ptr<DisplayDataHolder> images ) {
+		if ( holder.get( ) != this )
+			fprintf( stderr, "ImageManagerDialog::setImageHolders(...): error, parameter inconsistency..." );
+
 		//Store the list of all images and add them to the
 		//master image combo selection box.
 		allImages = images;
 		displayedImages = registeredImages;
 		if ( allImages != NULL && displayedImages != NULL ){
-			allImages->setImageTracker( this );
+			allImages->setImageTracker( std::dynamic_pointer_cast<ImageTracker>(holder) );
 
 			//Add the images to the scroll.
 			for ( DisplayDataHolder::DisplayDataIterator iter = allImages->beginDD();
@@ -221,7 +225,7 @@ namespace casa {
 			String ddType(imageData->dataType());
 
 			//Get the path
-            SHARED_PTR<ImageInterface<float> > image = imageData->imageInterface();
+            std::shared_ptr<ImageInterface<float> > image = imageData->imageInterface();
 			if ( image ) {
 				String path = image->name();
 
@@ -335,7 +339,7 @@ namespace casa {
 				ColormapDefinition* hueDefinition = hueMap->definition();
 				double baseColorMin;
 				double baseColorMax;
-                SHARED_PTR<ImageInterface<float> > hueInterface = colorDD->imageInterface();
+                std::shared_ptr<ImageInterface<float> > hueInterface = colorDD->imageInterface();
 				getIntensityMinMax( hueInterface, &baseColorMin, &baseColorMax );
 
 				for ( DisplayDataHolder::DisplayDataIterator iter = allImages->beginDD();
@@ -344,7 +348,7 @@ namespace casa {
 					if ( (*iter) != saturationDD ){
 						double intensityMin;
 						double intensityMax;
-                        SHARED_PTR<ImageInterface<float> > ddInterface = (*iter)->imageInterface();
+                        std::shared_ptr<ImageInterface<float> > ddInterface = (*iter)->imageInterface();
 						getIntensityMinMax( ddInterface, &intensityMin, &intensityMax );
 						ddMap = generateMasterDefinition( hueDefinition,
 								baseColorMin, baseColorMax, intensityMin, intensityMax );
@@ -481,7 +485,7 @@ namespace casa {
 	}
 
 
-	bool ImageManagerDialog::getIntensityMinMax( SHARED_PTR<ImageInterface<float> > img,
+	bool ImageManagerDialog::getIntensityMinMax( std::shared_ptr<ImageInterface<float> > img,
 	        double* intensityMin, double* intensityMax ) {
 		ImageStatistics<Float> stats(*img, false);
 		bool success = true;

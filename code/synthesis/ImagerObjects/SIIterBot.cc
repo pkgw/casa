@@ -21,8 +21,10 @@
 //# $Id: $
 
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/session/DBusSession.h>
 #include <casadbus/utilities/Conversion.h>
+#endif
 
 /* Include file for the lock guard */
 #include <mutex>
@@ -61,7 +63,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	////////////////////////////////////
   
 	// All SIIterBot_states must have 'type' and 'name' defined.
-	SIIterBot_state::SIIterBot_state( SHARED_PTR<SIIterBot_callback> cb ) :
+	SIIterBot_state::SIIterBot_state( std::shared_ptr<SIIterBot_callback> cb ) :
 						itsDescription("no description is currently available..."),
 						itsMinPsfFraction(0.05),
 						itsMaxPsfFraction(0.8),
@@ -74,6 +76,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						itsPeakResidualNoMask(0.0),
 						itsPrevPeakResidualNoMask(-1.0),
 						itsMinPeakResidualNoMask(1e+9),
+                                                itsNsigma(0.0),
+                                                itsNsigmaThreshold(0.0),
+						itsMadRMS(0.0),
+						itsMaskSum(-1.0),
+						itsPrevMajorCycleCount(0),
 						itsControllerCount(0),
 						itsNiter(0),
 						itsCycleNiter(0),
@@ -82,6 +89,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 						itsCycleThreshold(0.0),
 						itsInteractiveThreshold(0.0),
 						itsIsCycleThresholdAuto(true),
+						itsIsThresholdAuto(false),
 						itsCycleFactor(1.0),
 						itsLoopGain(0.1),
 						itsStopFlag(false),
@@ -152,28 +160,49 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		int stopCode=0;
 
 		Float usePeakRes;
-		if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
+		//if(lastcyclecheck==True){usePeakRes = itsMinorCyclePeakResidual; }
+		if(lastcyclecheck==True){
+                  usePeakRes = itsMinorCyclePeakResidual; 
+                }
 		else{usePeakRes = itsPeakResidual; }
+
+                // for debugging, remove it later
+                os<<LogIO::DEBUG1<<"cleanComplete-- itsCycleThreshold without itsThreshold limit="<<itsCycleThreshold<<LogIO::POST;
                 
 		//		cout << "itsMajorDone="<<itsMajorDone<<" itsIterDone="<<itsIterDone<< " itsInitPeakResidual="<<itsInitPeakResidual<<" itsPeakResidual="<<itsPeakResidual <<" itsPrevPeakResidual : " <<  itsPrevPeakResidual << " itsStopFlag="<<itsStopFlag<<endl;
 
 		if( itsPeakResidual>0 && itsPrevPeakResidual>0 && 
 		    fabs(itsPeakResidual - itsPrevPeakResidual)/fabs(itsPrevPeakResidual) > 2.0 )
 		  {
-		    os << "[WARN] Peak residual increased from " << itsPrevPeakResidual << " to " << itsPeakResidual << LogIO::POST;
+		    os << "[WARN] Peak residual (within the mask) increased from " << itsPrevPeakResidual << " to " << itsPeakResidual << LogIO::POST;
 		  }
-
+                // for debugging, remove it later
+                os <<LogIO::DEBUG1<<"itsThreshold="<<itsThreshold<<" itsNsigmaThreshold===="<<itsNsigmaThreshold<<LogIO::POST;
+                os <<LogIO::DEBUG1<<"usePeakRes="<<usePeakRes<<" itsPeakResidual="<<itsPeakResidual<<" itsPrevPeakRes="<<itsPrevPeakResidual<<LogIO::POST;
+                os <<LogIO::DEBUG1<<"itsIterDone="<<itsIterDone<<" itsNiter="<<itsNiter<<LogIO::POST;
 		/// This may interfere with some other criterion... check.
-		if ( itsMajorDone==0 && itsIterDone==0 ) { stopCode=0; }
+                Float tol = 0.01; // threshold test torelance (CAS-11278)
+		if ( itsMajorDone==0 && itsIterDone==0 )
+                  {
+                     if (itsMaskSum==0.0) { stopCode=7; } // if zero mask is detected it should exit right away
+                     else { stopCode=0; }
+                   }
 		else if ( itsIterDone >= itsNiter || 
 		     itsPeakResidual <= itsThreshold ||
+                     itsPeakResidual <= itsNsigmaThreshold ||
+	             abs(itsPeakResidual - itsThreshold)/itsThreshold < tol ||   
+	             abs(itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ||   
 		     itsStopFlag )
 		  {
 		    //		    os << "Reached global stopping criteria : ";
 
 		    if( itsIterDone >= itsNiter ) { stopCode=1; }
 		    //os << "Numer of iterations. "; // (" << itsIterDone << ") >= limit (" << itsNiter << ")" ;
-		    if( usePeakRes <= itsThreshold ) {stopCode=2; }
+		    if( usePeakRes <= itsThreshold || (usePeakRes-itsThreshold)/itsThreshold < tol) {stopCode=2; }
+                    else if ( usePeakRes <= itsNsigmaThreshold || (itsPeakResidual - itsNsigmaThreshold)/itsNsigmaThreshold < tol ) {
+                      if (itsNsigmaThreshold!=0.0) { stopCode=8; } // for nsigma=0.0 this mode is turned off
+                    }
+                    
 		    //os << "Peak residual (" << itsPeakResidual << ") <= threshold(" << itsThreshold << ")";
 		    if( itsStopFlag ) {stopCode=3;}
 		      //os << "Forced stop. ";
@@ -183,42 +212,36 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  }
 		else // not converged yet... but....if nothing has changed in this round... also stop
 		  {
-		    if( itsIterDone>0 && fabs(itsPrevPeakResidual - itsPeakResidual)<1e-10) 
-		     {stopCode = 4;}
-
-		    /*
-                    // another non-convergent condition: diverging (relative increase is more than 5 times across one major cycle)
-                    else if ( itsIterDone > 0 && 
-			      fabs(itsPeakResidual-itsPrevPeakResidual)/fabs(itsPrevPeakResidual)  > 5.0) 
-                      {
-			cout << "(5) Peak res : " << itsPeakResidual 
-			     << "  Dev from prev peak res " << itsPrevPeakResidual << endl; 
-			stopCode = 5;}
-
-		    // divergence check, 5 times increase from the minimum peak residual so far (across all previous major cycles).
-		    else if ( itsIterDone > 0 && 
-			      (fabs(itsPeakResidual)-itsMinPeakResidual)/itsMinPeakResidual  > 5.0 )
-                      {
-			cout << "(6) Peak res : " << itsPeakResidual 
-			     <<  "    Dev from min peak res " << itsMinPeakResidual << endl; 
-			stopCode = 6;}
-		    */
-                    // another non-convergent condition: diverging (relative increase is more than 5 times across one major cycle)
+		    
+		    if (itsMaskSum==0.0)
+		      {
+			//cout << "(7) Mask is all zero.Stopping" << endl;
+			stopCode = 7;
+		      }
+		    // Nothing has changed across the last set of minor cycle iterations and major cycle.
+		    else if( itsIterDone>0 && 
+			     //itsMaskSum>0.0 &&
+			     			     (itsMajorDone>itsPrevMajorCycleCount) && 
+			     fabs(itsPrevPeakResidual - itsPeakResidual)<1e-10) 
+		      {stopCode = 4;}
+		    
+                    // another non-convergent condition: diverging (relative increase is more than 3 times across one major cycle)
                     else if ( itsIterDone > 0 && 
 			      fabs(itsPeakResidualNoMask-itsPrevPeakResidualNoMask)/fabs(itsPrevPeakResidualNoMask)  > 3.0) 
                       {
-			cout << "(5) Peak res (no mask) : " << itsPeakResidualNoMask 
-			     << "  Dev from prev peak res " << itsPrevPeakResidualNoMask << endl; 
+			//cout << "(5) Peak res (no mask) : " << itsPeakResidualNoMask 
+			//     << "  Dev from prev peak res " << itsPrevPeakResidualNoMask << endl; 
 			stopCode = 5;}
 
-		    // divergence check, 5 times increase from the minimum peak residual so far (across all previous major cycles).
+		    // divergence check, 3 times increase from the minimum peak residual so far (across all previous major cycles).
 		    else if ( itsIterDone > 0 && 
 			      (fabs(itsPeakResidualNoMask)-itsMinPeakResidualNoMask)/itsMinPeakResidualNoMask  > 3.0 )
                       {
-			cout << "(6) Peak res (no mask): " << itsPeakResidualNoMask 
-			     <<  "    Dev from min peak res " << itsMinPeakResidualNoMask << endl; 
-			stopCode = 6;}
-
+			//cout << "(6) Peak res (no mask): " << itsPeakResidualNoMask 
+			//    <<  "    Dev from min peak res " << itsMinPeakResidualNoMask << endl; 
+			stopCode = 6;
+		      }
+		    
 		  }
 
 		/*
@@ -248,6 +271,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      {itsMinPeakResidualNoMask = fabs(itsPeakResidualNoMask);}
 		    
 		    itsPrevPeakResidualNoMask = itsPeakResidualNoMask;
+
+		    itsPrevMajorCycleCount = itsMajorDone;
 
 		  }
 		
@@ -284,8 +309,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		/* The minor cycle will stop based on the cycle parameters. */
 		Int maxCycleIterations = itsCycleNiter;
 		Float cycleThreshold     = itsCycleThreshold;
+                //os<<"SIIterBot getMinorCycleControls cycleThreshold init ="<<cycleThreshold<<LogIO::POST;
 		maxCycleIterations = min(maxCycleIterations, itsNiter - itsIterDone);
 		cycleThreshold = max(cycleThreshold, itsThreshold);
+                //os<<"SIIterBot getMinorCycleControls cycleThreshold="<<cycleThreshold<<LogIO::POST;
+                Bool thresholdReached = (cycleThreshold==itsThreshold)? True : False;
 		/*
 		if (itsInteractiveMode) {
 			maxCycleIterations = min(maxCycleIterations, itsInteractiveNiter);
@@ -295,11 +323,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define( RecordFieldId("cycleniter"),  maxCycleIterations);
 		returnRecord.define( RecordFieldId("cyclethreshold"), cycleThreshold);
 		returnRecord.define( RecordFieldId("loopgain"), itsLoopGain);
+                returnRecord.define( RecordFieldId("thresholdreached"), thresholdReached);
+		returnRecord.define( RecordFieldId("nsigma"), itsNsigma);
 
 		return returnRecord;
 	}
 
 	void SIIterBot_state::mergeCycleInitializationRecord(Record& initRecord){
+		//FOR DEBUG - TT 2018/04/16
+                LogIO os( LogOrigin("SIIterBot_state",__FUNCTION__,WHERE) );
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);  
     
 		itsPeakResidual = max( itsPeakResidual,
@@ -307,6 +339,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsMaxPsfSidelobe =  max( itsMaxPsfSidelobe, initRecord.asFloat(RecordFieldId("maxpsfsidelobe")) );
 
 		itsPeakResidualNoMask = max( itsPeakResidualNoMask, initRecord.asFloat(RecordFieldId("peakresidualnomask")));
+		itsMadRMS = max( itsMadRMS, initRecord.asFloat(RecordFieldId("madrms")) );
+                
+                // for debug
+                //if (initRecord.isDefined("nsigma")) 
+                //{
+                //  cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigma))="<<initRecord.asFloat(RecordFieldId("nsigma"))<<endl;
+                //}
+                //else {
+                // cerr<<"nsigma is NOT DEFINED in initRecord!!!"<<endl;
+                //}
+
+                //cerr<<"SIIterBot_state:mergeCycleInitRec::initRecord.asFloat(RecordFieldId(nsigmathreshold))="<<initRecord.asFloat(RecordFieldId("nsigmathreshold"))<<endl;
+                //itsNsigmaThreshold = max(itsNsigmaThreshold, initRecord.asFloat(RecordFieldId("nsigmathreshold")));
+                itsNsigmaThreshold = initRecord.asFloat(RecordFieldId("nsigmathreshold"));
+    
+		
+		///itsMaskSum += initRecord.asFloat(RecordFieldId("masksum"));
+		/*
+		  It has been reset to -1.0.
+		  If no masks have changed, it should remain at -1.0
+		  If any mask has changed, the sum will come in, and should be added to this.
+		 */
+		Float thismasksum = initRecord.asFloat(RecordFieldId("masksum"));
+		if( thismasksum != -1.0 )
+		  {
+		    if ( itsMaskSum == -1.0 ) itsMaskSum = thismasksum;
+		    else itsMaskSum += thismasksum;
+		  }
 
 		if ( itsPrevPeakResidual == -1.0 ) itsPrevPeakResidual = itsPeakResidual;
 		if ( itsPrevPeakResidualNoMask == -1.0 ) itsPrevPeakResidualNoMask = itsPeakResidualNoMask;
@@ -412,10 +472,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//    summaryUpdate();
 	}
 
+#if defined(WITHOUT_DBUS)
+	casac::variant SIIterBot_state::getSummary( ) {
+		std::cout << __FUNCTION__ << " executing" << std::endl;
+		return casac::variant( );
+	}
+#else
 	DBus::Variant SIIterBot_state::getSummary( ) {
 		std::cout << __FUNCTION__ << " executing" << std::endl;
 		return DBus::Variant( );
 	}
+#endif
 
 	int SIIterBot_state::getNumberOfControllers( ) {
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);    
@@ -438,16 +505,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void SIIterBot_state::incrementMajorCycleCount( ) {
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);
+		itsPrevMajorCycleCount = itsMajorDone;
 		itsMajorDone++;
 
 		/* Interactive iteractions update */ 
 		itsInteractiveIterDone += itsMaxCycleIterDone;
+		
+		resetMinorCycleInitInfo();
+	}
 
+	void SIIterBot_state::resetMinorCycleInitInfo( ) {
 		/* Get ready to do the minor cycle */
 		itsPeakResidual = 0;
 		itsPeakResidualNoMask = 0;
 		itsMaxPsfSidelobe = 0;
 		itsMaxCycleIterDone = 0;
+		itsMaskSum = -1.0;
 	}
 
 	Int SIIterBot_state::getMajorCycleCount( ) {
@@ -485,7 +558,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		psffraction = max(psffraction, itsMinPsfFraction);
 		psffraction = min(psffraction, itsMaxPsfFraction);
     
+                //cerr<<"updateCycleThresh: itsMaxPsfSidelobe="<<itsCycleFactor<<" itsMinPsfFraction="<<itsMinPsfFraction<<" itsMaxPsfFraction="<<itsMaxPsfFraction<<endl;
+                //cerr<<"updateCycleThresh: itsCycleFactor="<<itsCycleFactor<<" psffraction="<<psffraction<<endl;
+                //cerr<<"updateCycleThresh: itsPeakRes ="<<itsPeakResidual<<endl;
 		itsCycleThreshold = itsPeakResidual * psffraction;
+                //cerr<<"updateCycleThresh: itsCycleThreshold ="<<itsCycleThreshold<<endl;
 		pushDetails();
 	}
 
@@ -536,6 +613,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		returnRecord.define(RecordFieldId("interactiveniter"),itsInteractiveNiter);
 
 		returnRecord.define( RecordFieldId("threshold"),  itsThreshold);    
+		returnRecord.define( RecordFieldId("nsigma"),  itsNsigma);    
 		if( itsIsCycleThresholdAuto == true )  updateCycleThreshold();
 		itsIsCycleThresholdAuto = true; /* Reset this, for the next round */
 
@@ -586,7 +664,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void SIIterBot_state::changeThreshold( Float threshold ) {
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);    
-		itsThreshold = threshold;
+
+		if( threshold == -1.0 ) {
+		  itsThreshold = 0.0;
+		  itsIsThresholdAuto = true;
+		}
+		else { 
+		  itsThreshold = threshold; 
+		  itsIsThresholdAuto = false;
+		}
 	}
 
 	void SIIterBot_state::changeCycleThreshold( Float cyclethreshold ) {
@@ -636,6 +722,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsMaxPsfFraction = maxpsffraction;
 	}
 
+	void SIIterBot_state::changeNsigma( Float nsigma) {
+		std::lock_guard<std::recursive_mutex> guard(recordMutex);    
+		itsNsigma = nsigma;
+	}
+
 	void SIIterBot_state::setControlsFromRecord( Record &recordIn ) {
 		LogIO os( LogOrigin("SIIterBot_state",__FUNCTION__,WHERE) );
 		std::lock_guard<std::recursive_mutex> guard(recordMutex);
@@ -654,9 +745,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (recordIn.isDefined("threshold")) 
 		    changeThreshold( readThreshold( recordIn, "threshold" ) );
 		
-		if (recordIn.isDefined("cyclethreshold")) 
+		if (recordIn.isDefined("cyclethreshold")){ 
 		    changeCycleThreshold( readThreshold( recordIn, "cyclethreshold" ) );
-
+                }
 		if (recordIn.isDefined("interactivethreshold")) 
 			changeInteractiveThreshold(recordIn.asFloat(RecordFieldId("interactivethreshold")));
 
@@ -672,8 +763,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (recordIn.isDefined("minpsffraction"))
 			changeMinPsfFraction(recordIn.asFloat( RecordFieldId("minpsffraction")));
 
-		if (recordIn.isDefined("maxpsffraction"))
+		if (recordIn.isDefined("maxpsffraction")) {
 			changeMaxPsfFraction(recordIn.asFloat( RecordFieldId("maxpsffraction")));
+                }
+		if (recordIn.isDefined("nsigma"))
+			changeNsigma(recordIn.asFloat( RecordFieldId("nsigma")));
 
 		//		printOut("After Setting : ", false);
 
@@ -748,7 +842,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	}
 
-	SIIterBot_adaptor::SIIterBot_adaptor( SHARED_PTR<SIIterBot_state> s, const std::string &bus_name, const std::string &object_path) :
+	SIIterBot_adaptor::SIIterBot_adaptor( std::shared_ptr<SIIterBot_state> s, const std::string &bus_name, const std::string &object_path) :
 #ifdef INTERACTIVE_ITERATION
 				dbus::address(bus_name),
 				DBus::ObjectAdaptor( DBusSession::instance().connection( ), object_path ),

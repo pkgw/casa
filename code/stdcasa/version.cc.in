@@ -3,18 +3,22 @@
 // first namespace block since the shell commands are fairly simple
 // and can be confused by altering even one character in this section.
 
+#include <casacore/casa/Exceptions/Error.h>
 #include <stdcasa/version.h>
 #include <cstdlib>
 #include <numeric>
 #include <cstdlib>
 #include <cctype>
 #include <string>
+#include <algorithm>
 using std::getenv;
 using std::accumulate;
 using std::isdigit;
 using std::stoi;
 using std::string;
 using std::to_string;
+using std::min;
+using casacore::AipsError;
 
 namespace casa {
 
@@ -93,6 +97,69 @@ namespace casa {
             if ( desc ) version = desc;
         }
         return version;
+    }
+
+    std::string VersionInfo::str( ) {
+        static bool initialized = false;
+        static std::string version = to_string(major( )) + "." +
+                                     to_string(minor( )) + "." +
+                                     to_string(patch( )) + "-" +
+                                     to_string(feature( ));
+        if ( initialized == false ) {
+            initialized = true;
+            char *desc = getenv("CASA_VERSION_STR");
+            if ( desc ) version = desc;
+        }
+        return version;
+    }
+
+    bool VersionInfo::compare(const  string& comparitor,  const std::vector<int>& vec) {
+        std::vector<int> current_version { major( ), minor( ), patch( ), feature( ) };
+        for ( unsigned int i=0; i < vec.size( ); ++i )
+            if ( vec[i] < 0 ) throw(AipsError("negative values not allowed in version numbers"));
+
+        unsigned int limit = min(current_version.size( ),vec.size( ));
+        if ( comparitor == ">" ) {
+            for ( unsigned int i=0; i < limit; ++i ) {
+                if ( current_version[i] > vec[i] ) return true;
+                else if ( current_version[i] < vec[i] ) return false;
+            }
+            for ( unsigned int i=limit; i < current_version.size( ); ++i )
+                if ( current_version[i] > 0 ) return true;
+            return false;
+        } else if ( comparitor == "<" ) {
+            for ( unsigned int i=0; i < limit; ++i ) {
+                if ( current_version[i] > vec[i] ) return false;
+                else if ( current_version[i] < vec[i] ) return true;
+            }
+            return false;
+        } else if ( comparitor == ">=" ) {
+            for ( unsigned int i=0; i < limit; ++i ) {
+                if ( current_version[i] > vec[i] ) return true;
+                else if ( current_version[i] < vec[i] ) return false;
+            }
+            return true;
+        } else if ( comparitor == "<=" ) {
+            for ( unsigned int i=0; i < limit; ++i ) {
+                if ( current_version[i] > vec[i] ) return false;
+                else if ( current_version[i] < vec[i] ) return true;
+            }
+            for ( unsigned int i=limit; i < current_version.size( ); ++i )
+                if ( current_version[i] > 0 ) return false;
+            return true;
+        } else if ( comparitor == "=" || comparitor == "==" ) {
+            for ( unsigned int i=0; i < limit; ++i ) {
+                if ( current_version[i] != vec[i] ) return false;
+            }
+            for ( unsigned int i=limit; i < current_version.size( ); ++i )
+                if ( current_version[i] > 0 ) return false;
+            return true;
+        } else if ( comparitor == "!=" ) {
+            return ! compare("=",vec);
+        } else {
+            throw(AipsError("unknown comparator"));
+        }
+        return false;
     }
 
 } //# NAMESPACE CASA - END

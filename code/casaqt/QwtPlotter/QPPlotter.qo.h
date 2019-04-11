@@ -32,6 +32,11 @@
 #include <graphics/GenericPlotter/Plotter.h>
 #include <casaqt/QwtPlotter/QPPlotter.ui.h>
 
+#include <casaqt/QwtPlotter/QtPageHeaderDataModel.h>
+#include <casaqt/QwtPlotter/QPHeaderTableWidget.qo.h>
+#include <plotms/Gui/PlotMSPageHeaderDataModel.qo.h>
+
+
 #include <QtGui>
 
 namespace casa {
@@ -126,7 +131,7 @@ public:
     // Implements Plotter::close().
     void close();
     
-    vector<QPExportCanvas*> getGridComponents();
+    std::vector<QPExportCanvas*> getGridComponents();
     
     // Implements Plotter::canvasLayout().
     PlotCanvasLayoutPtr canvasLayout();
@@ -160,7 +165,7 @@ public:
     int addPanel(PlotPanelPtr panel);
     
     // Implements Plotter::allPanels().
-    vector<PlotPanelPtr> allPanels();
+    std::vector<PlotPanelPtr> allPanels();
     
     // Implements Plotter::numPanels().
     unsigned int numPanels();
@@ -202,7 +207,7 @@ public:
     void registerResizeHandler(PlotResizeEventHandlerPtr handler);
     
     // Implements Plotter::allResizeHandlers().
-    vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
+    std::vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
     
     // Implements Plotter::unregisterResizeHandlers().
     void unregisterResizeHandler(PlotResizeEventHandlerPtr handler);
@@ -213,18 +218,34 @@ public:
     const QWidget* canvasWidget() const;
     QWidget* canvasWidget();
     // </group>
+    // Returns the frame used to hold the page header.
+    const QWidget* pageHeaderWidget() const;
+    QWidget* pageHeaderWidget();
     
+    QPHeaderTable* pageHeaderTable();
+
     // Overrides QWidget::sizeHint() to return an invalid size.
     QSize sizeHint() const;
     
     // Overrides QWidget::minimumSizeHint() to return an invalid size.
     QSize minimumSizeHint() const;
+
+    // Implements Plotter::makeSquarePlot to set width=height
+    virtual void makeSquarePlot(bool square, bool waveplot=false);
+    inline int plotWidth() { return m_plotWidth; }
+    inline int plotHeight() { return m_plotHeight; }
     
     virtual bool exportPlot(const PlotExportFormat& format );
 
-	//Return the number of rows and columns in the current grid.
+    //Return the number of rows and columns in the current grid.
     int getRowCount();
     int getColCount();
+
+    // Implements Plotter::refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel)
+    void refreshPageHeaderDataModel(PageHeaderDataModelPtr dataModel);
+    void setHeaderTableDataModel(QAbstractItemModel *model);
+    void refreshPageHeader();
+
 protected:
     // For catching resize events.
     void resizeEvent(QResizeEvent* event);
@@ -238,17 +259,21 @@ protected:
             bool entering, const casacore::String& message = casacore::String());
     
 private:
+    // Page Header Table
+    QPHeaderTable *headerTable;
+    QAbstractItemModel *newHeaderTableDataModel;
+
     // Canvas layout.
     PlotCanvasLayoutPtr m_layout;
     
     // Standard tools for canvases.
-    vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
+    std::vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
     
     // Registered handlers.
-    vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
+    std::vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
     
     // Panels.
-    vector<PlotPanelPtr> m_panels;
+    std::vector<PlotPanelPtr> m_panels;
     
     // Flag for whether a resize event should be emitted.
     bool m_emitResize;
@@ -261,7 +286,7 @@ private:
     // </group>
     
     QList<QPAxis*> externalAxes;
-    
+
     // Sets up the canvas QFrame for the current layout.
     void setupCanvasFrame();
     
@@ -270,6 +295,10 @@ private:
     
     void clearExternalAxes();
     void emptyLayout();
+
+    // for exports
+    int m_plotWidth;
+    int m_plotHeight;
 
     // Static //
     

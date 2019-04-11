@@ -79,7 +79,7 @@ namespace casa {
 			//Important for the statement below to be first so we don't
 			//get into an infinite loop.
 			controlling_dd = controlDD;
-			if ( imageTracker != NULL ) {
+			if ( imageTracker ) {
 				imageTracker->masterImageSelected( controlDD );
 			}
 
@@ -204,7 +204,7 @@ namespace casa {
 			if ( masterCoordinate ){
 				setDDControlling( dd );
 			}
-			if ( imageTracker != NULL ) {
+			if ( imageTracker ) {
 				imageTracker->imageAdded( dd, position, autoRegister, masterCoordinate, masterSaturation, masterHue );
 			}
 		}
@@ -258,7 +258,7 @@ namespace casa {
 		return removed;
 	}
 
-	void DisplayDataHolder::setImageTracker( ImageTracker* tracker ) {
+	void DisplayDataHolder::setImageTracker( std::shared_ptr<ImageTracker> tracker ) {
 		imageTracker = tracker;
 	}
 

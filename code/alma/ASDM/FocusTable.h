@@ -41,27 +41,23 @@
 
 
 	
-#include <Angle.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -71,20 +67,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -103,7 +103,7 @@ class FocusRow;
  * Contains the focus information.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Focus </CAPTION>
@@ -142,14 +142,14 @@ class FocusRow;
 	
  * <TR>
  * <TD> focusOffset </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;focus offset relative to the tracked position (a triple ). </TD>
  * </TR>
 	
  * <TR>
  * <TD> focusRotationOffset </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;focus rotation offset relative to the tracked position (tip, tilt). </TD>
  * </TR>
@@ -166,15 +166,15 @@ class FocusRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> measuredFocusPosition </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> measuredFocusPosition</TD> 
+ * <TD> std::vector<Length > </TD>
  * <TD>  3  </TD>
  * <TD>&nbsp; the measured focus position. </TD>
  * </TR>
 	
  * <TR>
- * <TD> measuredFocusRotation </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> measuredFocusRotation</TD> 
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the measured focus rotation (tip, tilt). </TD>
  * </TR>
@@ -328,7 +328,7 @@ public:
  	 * @param focusModelId
 	
      */
-	FocusRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId);
+	FocusRow *newRow(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId);
 	
 
 
@@ -445,7 +445,7 @@ public:
  	 * @param focusModelId
  	 		 
  	 */
-	FocusRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId); 
+	FocusRow* lookup(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -471,6 +471,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

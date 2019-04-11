@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -50,35 +50,35 @@
 	
 
 	
-#include "CTimeScale.h"
+#include <alma/Enumerations/CTimeScale.h>
 	
 
 	
-#include "CDataScale.h"
+#include <alma/Enumerations/CDataScale.h>
 	
 
 	
-#include "CDataScale.h"
+#include <alma/Enumerations/CDataScale.h>
 	
 
 	
-#include "CWeightType.h"
+#include <alma/Enumerations/CWeightType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -97,7 +97,7 @@ class ScaleRow;
  * Specifies the time scales and units used in the dataset. 
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Scale </CAPTION>
@@ -409,6 +409,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

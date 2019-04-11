@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ObservationRow.h>
-#include <ObservationTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ObservationRow.h>
+#include <alma/ASDM/ObservationTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::ObservationRow;
 using asdm::ObservationTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ObservationRow::~ObservationRow() {
@@ -269,7 +266,9 @@ void ObservationRow::observationIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ObservationRow::observationIdFromText(const string & s) {
 		 
+          
 		observationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -408,11 +407,11 @@ void ObservationRow::observationIdFromBin(EndianIStream& eis) {
 	 * Return true if all required attributes of the value part are equal to their homologues
 	 * in x and false otherwise.
 	 *
-	 * @param x a pointer on the ObservationRow whose required attributes of the value part 
+
 	 * will be compared with those of this.
 	 * @return a boolean.
 	 */
-	bool ObservationRow::equalByRequiredValue(ObservationRow* x) {
+	bool ObservationRow::equalByRequiredValue(ObservationRow* ) {
 		
 		return true;
 	}	

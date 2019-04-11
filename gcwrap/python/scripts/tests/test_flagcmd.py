@@ -449,7 +449,7 @@ class test_unapply(test_base):
 
         ant_name = 'VA01'
         # Flag with antint
-        in_cmd = "antenna={0} spw='0' minchanfrac=0.8".format(ant_name)
+        in_cmd = "antint_ref_antenna={0} spw='0' minchanfrac=0.8".format(ant_name)
         filename = create_input(in_cmd)
         flagcmd(vis=self.vis, inpmode='list', inpfile=filename, action='apply',
                 savepars=True, flagbackup=False)
@@ -472,11 +472,11 @@ class test_unapply(test_base):
         unapplied_flagged = unapplied_res['antenna'][ant_name]['flagged']
 
         self.assertEqual(unapplied_res['total'], 2854278)
-        self.assertEqual(unapplied_res['flagged'], 528948)
-        self.assertEqual(man_flagged, 197946)
-        self.assertEqual(antint_flagged, 196434)
-        self.assertEqual(unapplied_flagged, 1512)
-        self.assertEqual(unapplied_res['antenna'][ant_name]['flagged'], 1512)
+        self.assertEqual(unapplied_res['flagged'], 0)
+        self.assertEqual(man_flagged, 203994)
+        self.assertEqual(antint_flagged, 203994)
+        self.assertEqual(unapplied_flagged, 0)
+        self.assertEqual(unapplied_res['antenna'][ant_name]['flagged'], 0)
 
     def test_uquack(self):
         '''flagcmd: unapply quack agent'''
@@ -806,7 +806,8 @@ class test_antint(test_base):
         spw_spec = '0'
         flagdata(vis=self.vis, mode='unflag');
         flagcmd(vis=self.vis, inpmode='list',
-                inpfile=["mode=antint antenna='{0}' spw='{1}'".format(ant_name, spw_spec),
+                inpfile=["mode=antint antint_ref_antenna='{0}' spw='{1}'".format(ant_name,
+                                                                             spw_spec),
                          "mode=summary spw='{0}'".format(spw_spec)],
                 action='apply', flagbackup=False)
 
@@ -828,13 +829,13 @@ class test_antint(test_base):
         flagdata(vis=self.vis,mode='unflag', flagbackup=False);
         # Flag passing parameter values in the command string
         flagcmd(vis=self.vis, inpmode='list', 
-                inpfile=["mode=antint antenna='{0}' spw='{1}' minchanfrac={2} verbose=True".
+                inpfile=["mode=antint antint_ref_antenna='{0}' spw='{1}' minchanfrac={2} verbose=True".
                          format(antenna_spec, spw_spec, threshold_spec)], action='apply',
                 flagbackup=False)
         res_str = flagdata(vis=self.vis, mode='summary') 
 
         self.assertEqual(res_str['total'], 832000)
-        self.assertEqual(res_str['flagged'], 32000)
+        self.assertEqual(res_str['flagged'], 416000)
         self.assertEqual(res_str['antenna'][antenna_spec]['total'], 64000)
         self.assertEqual(res_str['antenna'][antenna_spec]['flagged'], 32000)
 
@@ -875,15 +876,24 @@ class test_rflag(test_base):
 
 
         # (3) flagcmd : Send in the same text files produces/used in (1)
-#        input1 = "{'name':'Rflag','timedev':[[1.0,9.0,0.038859],[1.0,10.0,0.162833]]}\n"
-#        input2 = "{'name':'Rflag','freqdev':[[1.0,9.0,0.079151],[1.0,10.0,0.205693]]}\n"
-        input1 = "{'name':'Rflag','timedev':[[1.0,9.0,0.038859101518899999],[1.0,10.0,0.16283325492600001]]}\n"
-        input2 = "{'name':'Rflag','freqdev':[[1.0,9.0,0.079151260994399994],[1.0,10.0,0.20569361620099999]]}\n"
+        # Note after CAS-5808 flagdata multiplies by the time/freqdevscale
+        # factors when action='apply'. Default scale factors are 5.
+        tdev1 = 0.038859101518899999
+        tdev2 = 0.16283325492600001
+        input1 = ("{'name':'Rflag'," +
+                  "'timedev':[[1.0,9.0,{0}],[1.0,10.0,{1}]]".
+                  format(tdev1, tdev2) + "}\n")
+        fdev1 = 0.079151260994399994
+        fdev2 = 0.20569361620099999
+        input2 = ("{'name':'Rflag'," +
+                  "'freqdev':[[1.0,9.0,{0}],[1.0,10.0,{1}]]".
+                  format(fdev1, fdev2) + "}\n")
         filename1 = create_input(input1,'tdevfile.txt')
         filename2 = create_input(input2,'fdevfile.txt')
 
-        commlist=["mode='rflag' spw='9,10' extendflags=False timedev='"+filename1+"' "+\
-                   "freqdev='"+filename2+"'"]
+        commlist=["mode='rflag' spw='9,10' extendflags=False timedev='" +
+                  filename1+"' "+ "freqdev='" + filename2 +
+                  "' timedevscale=5 freqdevscale=5"]
 
 #        flagdata(vis=self.vis,mode='unflag', flagbackup=False);
         flagcmd(vis=self.vis, inpmode='list', inpfile=commlist, action='apply', flagbackup=False)
@@ -892,12 +902,11 @@ class test_rflag(test_base):
 
 
         # (4) Give the values directly in the cmd input.....
-        commstr = "mode='rflag' spw='9,10' extendflags=False timedev=[[1.0,9.0,0.038859101518899999],[1.0,10.0,0.16283325492600001]] "+\
-                   "freqdev=[[1.0,9.0,0.079151260994399994],[1.0,10.0,0.20569361620099999]]"
-#        commlist=["mode='rflag' spw='9,10' extendflags=False ' \
-#                  'timedev=[[1.0,9.0,0.038859],[1.0,10.0,0.162833]] \
-#                          freqdev=[[1.0,9.0,0.079151],[1.0,10.0,0.205693]]"]
-
+        commstr = ("mode='rflag' spw='9,10' extendflags=False "
+                   "timedev=[[1.0,9.0,{0}],[1.0,10.0,{1}]] "
+                   "freqdev=[[1.0,9.0,{2}],[1.0,10.0,{3}]] "
+                   "timedevscale=5 freqdevscale=5".
+                   format(tdev1, tdev2, fdev1, fdev2))
         flagdata(vis=self.vis,mode='unflag', flagbackup=False);
         flagcmd(vis=self.vis, inpmode='list', inpfile=[commstr], action='apply', flagbackup=False)
         res4 = flagdata(vis=self.vis, mode='summary')
@@ -907,30 +916,35 @@ class test_rflag(test_base):
 
         # (5) Use the outcmd.txt file generated by (2). 
         #       i.e. re-run the threshold-generation of (2) with savepars=True
-        flagdata(vis=self.vis,mode='unflag', flagbackup=False);
-        flagdata(vis=self.vis, mode='rflag', spw='9,10', timedev='', \
-                      freqdev=[],action='calculate',savepars=True,outfile='outcmd.txt',
-                      extendflags=False);
+        flagdata(vis=self.vis, mode='unflag', flagbackup=False);
+        flagdata(vis=self.vis, mode='rflag', spw='9,10',
+                 timedev='', freqdev=[],
+                 action='calculate', savepars=True, outfile='outcmd.txt',
+                 extendflags=False);
+        # Note after CAS-5808, when mode='rflag' and action='calculate' the
+        # time/freqdevscale parameters are ignored, or forced to 1.0.
+        # So the threshold scale for res3 and res4 is x 5.0 whereas the
+        # scale for res5 is X 1.0
         flagcmd(vis=self.vis, inpmode='list', inpfile='outcmd.txt');
         res5 = flagdata(vis=self.vis, mode='summary')
         print "(5) Finished flagcmd test : using outcmd.txt from flagdata (test 2) : ", res5['flagged']
 
-        self.assertEqual(res3['flagged'],res4['flagged']);
-        self.assertEqual(res3['flagged'],res5['flagged']);
-        self.assertEqual(res3['flagged'], 39504.0)
+        self.assertEqual(res3['flagged'], res4['flagged']);
+        self.assertEqual(res5['flagged'], 39504);
+        self.assertEqual(res3['flagged'], 5971.0)
 
     def test_rflagauto(self):
         """flagcmd:: Test of rflag with defaults
         """
-        # (6) flagcmd AUTO. Should give same answers as test_flagdata[test_rflag1]
+        # (6) flagcmd AUTO. Should give same answers as test_flagdata[test_rflag_auto_thresholds]
         flagdata(vis=self.vis,mode='unflag');
-        flagcmd(vis=self.vis, inpmode='list', inpfile=['mode=rflag spw=9,10 extendflags=False'], 
-                action='apply',
-                flagbackup=False)
+        flagcmd(vis=self.vis, inpmode='list',
+                inpfile=['mode=rflag spw=9,10 extendflags=False'],
+                action='apply', flagbackup=False)
         res6 = flagdata(vis=self.vis, mode='summary')
         print "(6) Finished flagcmd test : auto : ", res6['flagged']
 
-        #(7) flagdata AUTO (same as test_flagdata[test_rflag1])
+        #(7) flagdata AUTO (same as test_flagdata[test_rflag_auto_thresholds])
         #flagdata(vis=self.vis,mode='unflag');
         #flagdata(vis=self.vis, mode='rflag', spw='9,10');
         #res7 = flagdata(vis=self.vis, mode='summary')

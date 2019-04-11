@@ -23,11 +23,12 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: ATCAFillerImpl.cc,v 1.12 2007/02/23 02:08:49 gvandiep Exp $
 
 
 #include <atnf/atca/ATCAFiller.h>
+#include <atnf/atca/ATAtmosphere.h>
 #include <casa/Arrays/Cube.h>
+#include <casa/Utilities/GenSort.h>
 #include <scimath/Mathematics/FFTServer.h>
 #include <casa/OS/DirectoryIterator.h>
 #include <casa/OS/RegularFile.h>
@@ -35,7 +36,8 @@
 #include <RPFITS.h>
 #include <ms/MeasurementSets/MSTileLayout.h>
 
-using namespace casa;
+using namespace casacore;
+namespace casa {
 
 Int myround(Double x) { return Int(floor(x+0.5));}
 
@@ -51,7 +53,11 @@ birdie_p(false),
 reweight_p(false),
 noxycorr_p(false),
 obsType_p(0),
+hires_p(false),
 init_p(false),
+lastUT_p(0),
+bandWidth1_p(0),
+numChan1_p(0),
 shadow_p(0),
 autoFlag_p(true),
 flagScanType_p(false),
@@ -70,6 +76,7 @@ Bool ATCAFiller::open(const String& msName, const Vector<String>& rpfitsFiles,
   LogOrigin orig("ATCAFiller", "open()", WHERE);
   os_p = LogIO(orig);  
   rpfitsFiles_p = Directory::shellExpand(rpfitsFiles, false);
+  GenSort<String>::sort(rpfitsFiles_p);
   if (rpfitsFiles_p.nelements() > 0) {
      os_p << LogIO::NORMAL << "Expanded file names are : " << endl;
      for (uInt i=0; i<rpfitsFiles_p.nelements(); i++) {
@@ -1707,6 +1714,10 @@ void ATCAFiller::checkField() {
 
 void ATCAFiller::storeSysCal() 
 {
+  // Conversion factor for atmospheric pressure
+  Vector<String> const pressure_unit = msc_p->weather().pressure().keywordSet().asArrayString("QuantumUnits");
+  auto const pressure_conversion = Quantum<Double>(1.0, Unit("mbar")).getValue(Unit(pressure_unit[0]));
+
   // RPFITS SysCal table layout:
   // sc_.sc_ant = 7 (1-6 is antenna 1-6 syscal data, 7th has ant=0 weather data)
   // sc_cal(q,if,ant) (in practice sc_.sc_if is always 1 since ~1999)
@@ -1744,7 +1755,7 @@ void ATCAFiller::storeSysCal()
             msc_p->weather().temperature().put(row,  
                 Double(sc_.sc_cal[scq*(i+scif*ant)+1])+273.15); // C to K
             msc_p->weather().pressure().put(row,    
-                Double(sc_.sc_cal[scq*(i+scif*ant)+2])*100.0); // mBar to Pa
+                Double(sc_.sc_cal[scq*(i+scif*ant)+2])*pressure_conversion); // mBar to Pa/hPa
             msc_p->weather().relHumidity().put(row,  
                 Double(sc_.sc_cal[scq*(i+scif*ant)+3]));
             msc_p->weather().windSpeed().put(row,   
@@ -2427,3 +2438,15 @@ Bool ATCAFiller::samplerFlag(Int row, Double posNegTolerance,
   }
   return flag;
 }
+
+Vector<Double> ATCAFiller::opacities(Vector<Double> fGHz, Float tempK,Float humi,Float press,
+                                     Float height) {
+  // use (former) ASAP/Miriad code to calculate zenith opacities at a range of frequencies
+  // given the surface weather conditions
+  
+  ATAtmosphere atm = ATAtmosphere(tempK,press*100.,humi/100.);
+  atm.setObservatoryElevation(height);
+  return atm.zenithOpacities(fGHz*1e9);
+}
+
+} //# end casa namespace

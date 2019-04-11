@@ -67,6 +67,8 @@ class PVGenerator : public ImageTask<casacore::Float> {
 
 public:
 
+    PVGenerator() = delete;
+
     // The region selection in the constructor only applies to the non-direction coordinates.
     // The direction coordinate limits are effectively set by calling setEndPoints()
     // after construction. The region selection in the constructor is only for things like
@@ -84,6 +86,8 @@ public:
         const casacore::String& stokes, const casacore::String& maskInp,
         const casacore::String& outname, const casacore::Bool overwrite
     );
+
+    PVGenerator(const PVGenerator&) = delete;
 
     // destructor
     ~PVGenerator();
@@ -147,8 +151,8 @@ protected:
         return CasacRegionManager::USE_ALL_STOKES;
     }
 
-    inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-        vector<casacore::Coordinate::Type> v;
+    inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+        std::vector<casacore::Coordinate::Type> v;
         v.push_back(casacore::Coordinate::SPECTRAL);
         v.push_back(casacore::Coordinate::DIRECTION);
         return v;
@@ -157,14 +161,10 @@ protected:
     virtual casacore::Bool _mustHaveSquareDirectionPixels() const {return true;}
 
 private:
-    std::unique_ptr<vector<casacore::Double> > _start, _end;
+    std::unique_ptr<std::vector<casacore::Double> > _start, _end;
     casacore::uInt _width;
     casacore::String _unit;
     static const casacore::String _class;
-
-
-    // disallow default constructor
-    PVGenerator();
 
     void _checkRotatedImageSanity(
         SPCIIF rotated, const Vector<Double>& rotPixStart,
@@ -178,7 +178,7 @@ private:
     ) const;
 
     SPCIIF _doRotate(
-        SPIIF subImage, const vector<Double>& start, const vector<Double>& end,
+        SPIIF subImage, const std::vector<Double>& start, const std::vector<Double>& end,
         Int xAxis, Int yAxis, Double halfwidth, Double paInRad
     ) const;
 
@@ -187,15 +187,15 @@ private:
     void _checkWidth(const casacore::Int64 xShape, const casacore::Int64 yShape) const;
 
     void _checkWidthSanity(
-        Double paInRad, Double halfwidth, const vector<Double>& start,
-        const vector<Double>& end, SPCIIF subImage, Int xAxis, Int yAxis
+        Double paInRad, Double halfwidth, const std::vector<Double>& start,
+        const std::vector<Double>& end, SPCIIF subImage, Int xAxis, Int yAxis
     ) const;
 
     casacore::Quantity _increment() const;
 
     void _moveRefPixel(
-        SPIIF subImage, CoordinateSystem& subCoords, const vector<Double>& start,
-        const vector<Double>& end, Double paInRad, Int xAxis, Int yAxis
+        SPIIF subImage, CoordinateSystem& subCoords, const std::vector<Double>& start,
+        const std::vector<Double>& end, Double paInDeg, Int xAxis, Int yAxis
     ) const;
     
     static casacore::String _pairToString(const std::pair<casacore::Double, casacore::Double>& p);

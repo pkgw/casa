@@ -25,10 +25,6 @@ casa_add_library( singledish
     SingleDish/LineFinder.cc
     SingleDish/SDMSManager.cc
     SingleDish/SingleDishMS.cc
-    Filler/NRO2MSReader.cc
-    Filler/PThreadUtil.cc
-    Filler/Scantable2MSReader.cc
-    Filler/SingleDishMSFiller.cc
 )
 
 install (FILES
@@ -41,29 +37,6 @@ install (FILES
     DESTINATION include/casacode/singledish/SingleDish
 )
 
-install (FILES
-    Filler/FillerUtil.h
-    Filler/PThreadUtil.h
-    Filler/AntennaRecord.h
-    Filler/DataRecord.h
-    Filler/FieldRecord.h
-    Filler/ObservationRecord.h
-    Filler/ProcessorRecord.h
-    Filler/SourceRecord.h
-    Filler/SpectralWindowRecord.h
-    Filler/SysCalRecord.h
-    Filler/WeatherRecord.h
-    Filler/ScantableIterator.h
-    Filler/DataAccumulator.h
-    Filler/ReaderInterface.h
-    Filler/NRO2MSReader.h
-    Filler/NROData.h
-    Filler/Scantable2MSReader.h
-    Filler/SingleDishMSFiller.h
-    Filler/SingleDishMSFiller.tcc
-    DESTINATION include/casacode/singledish/Filler
-)
-
 ### traditional c++ codes for testing ###
 #casa_add_assay( singledish
 #    SingleDish/test/tLineFinder.cc
@@ -72,4 +45,3 @@ install (FILES
 casa_add_google_test (NOT_ON_APPLE MODULES singledish SOURCES SingleDish/test/LineFindingUtils_GTest.cc)
 casa_add_google_test (NOT_ON_APPLE MODULES singledish SOURCES SingleDish/test/LineFinder_GTest.cc)
 casa_add_google_test (MODULES singledish SOURCES SingleDish/test/SingleDishMS_GTest.cc)
-casa_add_google_test (MODULES singledish SOURCES Filler/test/SingleDishMSFiller_GTest.cc)

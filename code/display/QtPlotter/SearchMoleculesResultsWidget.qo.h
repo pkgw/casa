@@ -25,7 +25,7 @@
 #ifndef SEARCHMOLECULESRESULTSWIDGET_QO_H
 #define SEARCHMOLECULESRESULTSWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <casa/Containers/Record.h>
 #include <display/QtPlotter/SearchMoleculesResultsWidget.ui.h>
 #include <display/QtPlotter/SearchMoleculesResultDisplayer.h>
@@ -46,7 +46,7 @@ namespace casa {
 		               QList<QString>& resolvedQNSs, QString frequencyUnit) const;
 		int getLineCount() const;
 		int getSelectedLineCount() const;
-		void displaySearchResults( const vector<SplatResult>& results, int offset, int totalCount );
+		void displaySearchResults( const std::vector<SplatResult>& results, int offset, int totalCount );
 
 	private:
 

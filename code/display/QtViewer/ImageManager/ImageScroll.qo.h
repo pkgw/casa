@@ -27,7 +27,7 @@
 
 #include <display/QtViewer/ImageManager/ImageView.qo.h>
 #include <display/QtViewer/ImageManager/ImageScroll.ui.h>
-#include <QtGui/QWidget>
+#include <QWidget>
 
 class QDragMoveEvent;
 class QDragEnterEvent;

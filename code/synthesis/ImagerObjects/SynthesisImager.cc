@@ -56,7 +56,9 @@
 #include <ms/MSSel/MSSelection.h>
 
 
+#if ! defined(WITHOUT_DBUS)
 #include <synthesis/ImagerObjects/SIIterBot.h>
+#endif
 #include <synthesis/ImagerObjects/SynthesisImager.h>
 
 #include <synthesis/ImagerObjects/SynthesisUtilMethods.h>
@@ -82,8 +84,10 @@
 #include <synthesis/TransformMachines/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines/NoOpATerm.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
+#endif
 #include <casacore/casa/Utilities/Regex.h>
 #include <casacore/casa/OS/Directory.h>
 
@@ -103,7 +107,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   SynthesisImager::SynthesisImager() : itsMappers(SIMapperCollection()), writeAccess_p(True),
-				       gridpars_p(), impars_p()
+				       gridpars_p(), impars_p(), movingSource_p("")
   {
 
      imwgt_p=VisImagingWeight("natural");
@@ -140,7 +144,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    cerr << "IN DESTR"<< endl;
     //    VisModelData::listModel(mss4vi_p[0]);
 
-    SynthesisUtilMethods::getResource("End Run");
+    SynthesisUtilMethods::getResource("End SynthesisImager");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO os( LogOrigin("SynthesisImager","selectData",WHERE) );
 
-    SynthesisUtilMethods::getResource("Start Run");
+    SynthesisUtilMethods::getResource("Start SelectData");
 
     try
       {
@@ -820,6 +824,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   if(itsMappers.nMappers() < 1)
 		   ThrowCc("defineimage has to be run before tuneSelectData");
 
+	   if(impars_p.mode=="cubesource")
+	     return dataSel_p;
 	   os << "Tuning frequency data selection to match image spectral coordinates" << LogIO::POST;
 
 	   Vector<SynthesisParamsSelect> origDatSel(dataSel_p.nelements());
@@ -832,7 +838,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   */
 	   Int nchannel=itsMaxShape[3];
 	   CoordinateSystem cs=itsMaxCoordSys;
-	   cs.setSpectralConversion("LSRK");
+	   MFrequency::Types freqframe=cs.spectralCoordinate(cs.findCoordinate(Coordinate::SPECTRAL)).frequencySystem(False);
+	   if(freqframe != MFrequency::REST &&  freqframe != MFrequency::Undefined)
+	     cs.setSpectralConversion("LSRK");
 	   Vector<Double> pix(4);
 	   pix[0]=0; pix[1]=0; pix[2]=0; pix[3]=-0.5;
 	   Double freq1=cs.toWorld(pix)[3];
@@ -852,6 +860,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   //Record outRec=SynthesisUtilMethods::cubeDataPartition(selpars, 1, freq1, freq2);
 	   //Record partRec=outRec.asRecord("0");
 
+	   if(mss_p.nelements() >0){
+	     for (uInt k=0; k < mss_p.nelements(); ++k){
+	       if(mss_p[k])
+		 delete mss_p[k];
+	     }
+	     mss_p.resize(0, true, false);
+	   }
 	   ///resetting the block ms
 	   mss4vi_p.resize(0,true, false);
 	   //resetting data selection stored
@@ -994,6 +1009,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
     }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Record SynthesisImager::apparentSensitivity() 
+  {
+
+    throw( AipsError("apparentSensitivity calculation not supported in SynthesisImager (VI1)") );
+    return Record();
+
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1046,8 +1072,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	  }
     	  else if ((type=="robust")||(type=="uniform")||(type=="briggs")) {
     		  if(!imageDefined_p) throw(AipsError("Please define image first"));
-    		  Quantity actualFieldOfView(fieldofview);
-    		  Int actualNPixels(npixels);
+    		  Quantity actualFieldOfView_x(fieldofview), actualFieldOfView_y(fieldofview) ;
+    		  Int actualNPixels_x(npixels),actualNPixels_y(npixels) ;
     		  String wtype;
     		  if(type=="briggs") {
     			  wtype = "Briggs";
@@ -1055,40 +1081,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     		  else {
     			  wtype = "Uniform";
     		  }
-    		  if(actualFieldOfView.get().getValue()==0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualNPixels_y=ny;
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image"
     					  << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()>0.0&&actualNPixels==0) {
-    			  actualNPixels=nx;
+    		  else if(actualFieldOfView_x.get().getValue()>0.0&&actualNPixels_x==0) {
+    			  actualNPixels_x=nx;
+    			  actualNPixels_y=ny;
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+			                  << actualFieldOfView_y.get("arcsec").getValue()  << " arcsec" << LogIO::POST;
     		  }
-    		  else if(actualFieldOfView.get().getValue()==0.0&&actualNPixels>0) {
-    			  actualFieldOfView=Quantity(actualNPixels*cellx.get("rad").getValue(),
-    					  "rad");
+    		  else if(actualFieldOfView_x.get().getValue()==0.0&&actualNPixels_x>0) {
+    			  actualFieldOfView_x=Quantity(actualNPixels_x*cellx.get("rad").getValue(),"rad");
+    			  actualFieldOfView_y=Quantity(actualNPixels_y*celly.get("rad").getValue(),"rad");
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over full image field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  else {
     			  os << LogIO::NORMAL // Loglevel INFO
     					  << wtype
     					  << " weighting: sidelobes will be suppressed over specified field of view: "
-    					  << actualFieldOfView.get("arcsec").getValue() << " arcsec" << LogIO::POST;
+			                  << actualFieldOfView_x.get("arcsec").getValue() << " arcsec by " 
+    					  << actualFieldOfView_y.get("arcsec").getValue() << " arcsec" << LogIO::POST;
     		  }
     		  os << LogIO::DEBUG1
-    				  << "Weighting used " << actualNPixels << " uv pixels."
-    				  << LogIO::POST;
-    		  Quantity actualCellSize(actualFieldOfView.get("rad").getValue()/actualNPixels, "rad");
+		     << "Weighting used " << actualNPixels_x << " by " << actualNPixels_y << " uv pixels."
+		     << LogIO::POST;
+    		  Quantity actualCellSize_x(actualFieldOfView_x.get("rad").getValue()/actualNPixels_x, "rad");
+    		  Quantity actualCellSize_y(actualFieldOfView_y.get("rad").getValue()/actualNPixels_y, "rad");
 
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
@@ -1097,8 +1129,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		  imwgt_p=VisImagingWeight(*rvi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels, actualNPixels, actualCellSize,
-                                 actualCellSize, 0, 0, multiField);
+                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
+                                 actualCellSize_y, 0, 0, multiField);
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -1150,21 +1182,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //// Get/Set Weight Grid.... write to disk and read
 
   /// todo : do for full mapper list, and taylor terms.
-  Bool SynthesisImager::getWeightDensity( )
+  String SynthesisImager::getWeightDensity( )
   {
+    String outname("");
     LogIO os(LogOrigin("SynthesisImager", "getWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices;
-	imwgt_p.getWeightDensity( densitymatrices );
-	if ( densitymatrices.nelements()>0 )
+	
+	IPosition newshape;
+	Vector<Int> shpOfGrid=imwgt_p.shapeOfdensityGrid();
+	if(shpOfGrid(2) > 1){
+	  newshape=IPosition(5,shpOfGrid[0], shpOfGrid[1],1,1,shpOfGrid[2]);
+	}
+	IPosition where=	IPosition(Vector<Int>((itsMappers.imageStore(0)->gridwt(newshape))->shape().nelements(),0));
+	if ( shpOfGrid[2] > 0 )
 	  {
-	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	      {
-		//cout << "Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
-		itsMappers.imageStore(fid)->gridwt(0)->put(densitymatrices[fid]);
-	      }
-	  }
+	    imwgt_p.toImageInterface(*(itsMappers.imageStore(0)->gridwt(newshape)));	    	  }
+	outname=itsMappers.imageStore(0)->gridwt()->name();
 	itsMappers.releaseImageLocks();
 
       }
@@ -1172,27 +1206,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
 	throw(AipsError("In getWeightDensity : "+x.getMesg()));
       }
-    return true;
+    return outname;
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /// todo : do for full mapper list, and taylor terms.
   
-  Bool SynthesisImager::setWeightDensity( )
+  Bool SynthesisImager::setWeightDensity(const String& weightimagename)
   {
     LogIO os(LogOrigin("SynthesisImager", "setWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices(itsMappers.nMappers());
-	for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	  {
-	    Array<Float> arr;
-	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
-	    densitymatrices[fid].reference( arr );
-	    //cout << "Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
-	  }
 
+	//Array<Float> arr;
+	///Use image 0 for weight density shape
+	//itsMappers.imageStore(0)->gridwt()->get(arr,true);
+	if(weightimagename.size() !=0){
+	  Table::isReadable(weightimagename, True);
+	  PagedImage<Float> im(weightimagename);
+	  imwgt_p=VisImagingWeight(im);
+	}
+	else{
+	  imwgt_p=VisImagingWeight(*(itsMappers.imageStore(0)->gridwt()));
 
-	imwgt_p.setWeightDensity( densitymatrices );
+	}
 	rvi_p->useImagingWeight(imwgt_p);
 	itsMappers.releaseImageLocks();
 
@@ -1231,34 +1267,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     try
       {
+	// Prepare miscellaneous image information
+	auto objectName = msc.field().name()(msc.fieldId()(0));
+	///// misc info fpr ImageStore. This will go to the 'miscinfo' table keyword
+	Record miscInfo;
+	auto telescop=msc.observation().telescopeName()(0);
+	miscInfo.define("INSTRUME", telescop);
+	miscInfo.define("distance", distance.get("m").getValue());
 	
 	if( mappertype=="default" || mappertype=="imagemosaic" )
 	  {
-	    imstor=std::make_shared<SIImageStore>(imageName, cSys, imShape, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
-	    //	    imstor=new SIImageStore(imageName, cSys, imShape, facets, overwrite, (useweightimage || (mappertype=="imagemosaic") ));
+            imstor = std::make_shared<SIImageStore>(imageName, cSys, imShape, objectName,
+                                                    miscInfo, overwrite,
+                                                    (useweightimage || (mappertype=="imagemosaic")
+                                                     ));
 	  }
 	else if (mappertype == "multiterm" )  // Currently does not support imagemosaic.
 	  {
-	    //cout << "Making multiterm IS with nterms : " << ntaylorterms << endl;
-	    imstor=new SIImageStoreMultiTerm(imageName, cSys, imShape, facets, overwrite, ntaylorterms, useweightimage);
+            // upcast with shared_ptr and then assign to CountedPtr<SIImageStore>
+            std::shared_ptr<SIImageStore> multiTermStore =
+                std::make_shared<SIImageStoreMultiTerm>(imageName, cSys, imShape,
+                                                        objectName, miscInfo, facets,
+                                                        overwrite, ntaylorterms, useweightimage);
+            imstor = multiTermStore;
 	  }
 	else
 	  {
 	    throw(AipsError("Internal Error : Invalid mapper type in SynthesisImager::createIMStore"));
 	  }
-	
-	// Fill in miscellaneous information needed by FITS
-	//ROMSColumns msc(mss4vi_p[0]);
-	Record info;
-	
-	String objectName=msc.field().name()(msc.fieldId()(0));
-	String telescop=msc.observation().telescopeName()(0);
-	info.define("OBJECT", objectName);
-	info.define("TELESCOP", telescop);
-	info.define("INSTRUME", telescop);
-	info.define("distance", distance.get("m").getValue());
-	////////////// Send misc info into ImageStore. 
-	imstor->setImageInfo( info );
 
 	// Get polRep from 'msc' here, and send to imstore. 
 	StokesImageUtil::PolRep polRep(StokesImageUtil::CIRCULAR);
@@ -1288,6 +1324,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  {
 	    imstor->setModelImage( startmodel );
 	  }
+
+	imstor->releaseLocks();
 
       }
     catch(AipsError &x)
@@ -1482,13 +1520,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           // heuristic factors multiplied to imshape based on gridder
           size_t fudge_factor = 15;
           if (ftm->name()=="MosaicFTNew") {
-              fudge_factor = 15;
+              fudge_factor = 20;
           }
           else if (ftm->name()=="GridFT") {
               fudge_factor = 9;
           }
 
-          size_t required_mem = fudge_factor * sizeof(Float);
+          Double required_mem = fudge_factor * sizeof(Float);
           for (size_t i = 0; i < imshape.nelements(); i++) {
               // gridding pads image and increases to composite number
               if (i < 2) {
@@ -1507,7 +1545,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           }
           // assumes all processes need the same amount of memory
           required_mem *= nlocal_procs;
-
           Double usr_memfrac, usr_mem;
           AipsrcValue<Double>::find(usr_memfrac, "system.resources.memfrac", 80.);
           AipsrcValue<Double>::find(usr_mem, "system.resources.memory", -1024.);
@@ -1516,9 +1553,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               memory_avail = usr_mem * 1024. * 1024.;
           }
           else {
-              memory_avail = HostInfo::memoryTotal(false) * (usr_memfrac / 100.) * 1024.;
+	    memory_avail = Double(HostInfo::memoryFree()) * (usr_memfrac / 100.) * 1024.;
           }
-
 
           // compute required chanchunks to fit into the available memory
           chanchunks = (int)std::ceil((Double)required_mem / memory_avail);
@@ -1684,7 +1720,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
 
-      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes);
+      createMosFTMachine(theFT, theIFT, padding, useAutocorr, useDoublePrec, rotatePAStep, stokes, conjBeams);
     }
     else
       {
@@ -1862,7 +1898,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // With lazy fill ON, CFCache loads the required CFs on-demand
     // from the disk.  And periodically triggers garbage collection to
     // release CFs that aren't required immediately.
-    cfCacheObj->setLazyFill(SynthesisUtils::getenv("CFCache.LAZYFILL",0)==1);
+    cfCacheObj->setLazyFill(SynthesisUtils::getenv("CFCache.LAZYFILL",1)==1);
 
     //    cerr << "Setting wtImagePrefix to " << imageNamePrefix.c_str() << endl;
     cfCacheObj->setWtImagePrefix(imageNamePrefix.c_str());
@@ -1936,7 +1972,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	vpman->reset();
       }
 
-    os << "Temporary alert : The state of the vpmanager tool has been modified by loading these primary beam models. If any of your scripts rely on the vpmanager state being preserved throughout your CASA session, please use vp.saveastable() and vp.loadfromtable() as needed. This 'feature'/warning will hopefully go away by the 4.7 release." << LogIO::POST;
+    
     
 
     //    PBMath::CommonPB kpb;
@@ -1962,7 +1998,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }// get VPRecord
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes){
+  void SynthesisImager:: createMosFTMachine(CountedPtr<FTMachine>& theFT,CountedPtr<FTMachine>&  theIFT, const Float /*padding*/, const Bool useAutoCorr, const Bool useDoublePrec, const Float rotatePAStep, const String stokes, const Bool /*doConjBeam*/){
     
     LogIO os(LogOrigin("SynthesisImager", "createMosFTMachine",WHERE));
    
@@ -2148,7 +2184,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     	}
     	//cerr << "IN SYNTHE_IMA" << endl;
     	//VisModelData::listModel(rvi_p->getMeasurementSet());
-	//SynthesisUtilMethods::getResource("Before finalize for all mappers");
+	SynthesisUtilMethods::getResource("Before finalize for all mappers");
     	if(!dopsf) itsMappers.finalizeDegrid(*vb);
     	itsMappers.finalizeGrid(*vb, dopsf);
 
@@ -2340,12 +2376,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
   }// end of predictModel
 
-  /*
-  void SynthesisImager::makeImage()
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  void SynthesisImager::makeSdImage(Bool dopsf)
   {
-    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+    LogIO os( LogOrigin("SynthesisImager","makeSdImage",WHERE) );
 
-    Bool dopsf=false;
+//    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
     {
@@ -2374,9 +2410,106 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     unlockMSs();
 
-  }// end makeImage
-  */
+  }// end makeSdImage
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  void SynthesisImager::makeImage(String type, const String& imagename, const String& complexImage, const Int whichModel)
+  {
+    LogIO os( LogOrigin("SynthesisImager","makeImage",WHERE) );
+
+    
+    FTMachine::Type seType(FTMachine::OBSERVED);
+    if(type=="observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="model") {
+      seType=FTMachine::MODEL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="corrected") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="psf") {
+      seType=FTMachine::PSF;
+      os << "Making point spread function "
+	 << LogIO::POST;
+    }
+    else if (type=="residual") {
+      seType=FTMachine::RESIDUAL;
+      os << LogIO::NORMAL // Loglevel INFO
+         << "Making dirty image from " << type << " data "
+	 << LogIO::POST;
+    }
+    else if (type=="singledish-observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from observed data" << LogIO::POST;
+    }
+    else if (type=="singledish") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL 
+         << "Making single dish image from corrected data" << LogIO::POST;
+    }
+    else if (type=="coverage") {
+      seType=FTMachine::COVERAGE;
+      os << LogIO::NORMAL 
+         << "Making single dish coverage function "
+	 << LogIO::POST;
+    }
+    else if (type=="holography") {
+      seType=FTMachine::CORRECTED;
+      os << LogIO::NORMAL
+         << "Making complex holographic image from corrected data "
+	 << LogIO::POST;
+    }
+    else if (type=="holography-observed") {
+      seType=FTMachine::OBSERVED;
+      os << LogIO::NORMAL 
+         << "Making complex holographic image from observed data "
+	 << LogIO::POST;
+    }
+
+
+    String imageName=(itsMappers.imageStore(whichModel))->getName();
+    String cImageName(complexImage);
+    Bool keepComplexImage=(complexImage!="")||(type.contains("holography"));
+    if(complexImage=="") {
+      cImageName=imageName+".compleximage";
+    }
+    PagedImage<Float> theImage((itsMappers.imageStore(whichModel))->getShape(), (itsMappers.imageStore(whichModel))->getCSys(), imagename);
+    PagedImage<Complex> cImageImage(theImage.shape(),
+				    theImage.coordinates(),
+				    cImageName);
+    if(!keepComplexImage)
+      cImageImage.table().markForDelete();
+
+
+    Matrix<Float> weight;
+    (itsMappers.getFTM(whichModel))->makeImage(seType, *rvi_p, cImageImage, weight);
+   
+ if(seType==FTMachine::PSF){
+       StokesImageUtil::ToStokesPSF(theImage, cImageImage);
+       StokesImageUtil::normalizePSF(theImage);
+    }
+    else{
+      StokesImageUtil::To(theImage, cImageImage);
+    }
+    
+
+    unlockMSs();
+
+  }// end makeImage
+
+
+
 
  
 
@@ -2691,8 +2824,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   
     for(rvi_p->originChunks(); rvi_p->moreChunks(); rvi_p->nextChunk()){
       Bool fieldDone=false;
-      for (uInt k=0;  k < fieldsDone.nelements(); ++k)
+      for (uInt k=0;  k < fieldsDone.nelements(); ++k){
 	fieldDone=fieldDone || (vb.fieldId()==fieldsDone(k));
+      }
       if(!fieldDone){
 	++fieldCounter;
 	fieldsDone.resize(fieldCounter, true);
@@ -2709,7 +2843,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return True;
   }// end makePB
 
-
+  /////===========
+  void SynthesisImager::setMovingSource(const String& movingSource){
+    movingSource_p=movingSource;
+  }
+  
 
 } //# NAMESPACE CASA - END
 

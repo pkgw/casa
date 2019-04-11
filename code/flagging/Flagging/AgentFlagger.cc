@@ -40,6 +40,12 @@
 #include <iostream>
 #include <vector>
 
+#include <flagging/Flagging/FlagCalTableHandler.h>
+#include <flagging/Flagging/FlagMSHandler.h>
+#if ! defined(WITHOUT_DBUS)
+#include <flagging/Flagging/FlagAgentDisplay.h>
+#endif
+
 using namespace casacore;
 namespace casa {
 
@@ -53,7 +59,9 @@ AgentFlagger::AgentFlagger ()
 {
 	fdh_p = NULL;
 	summaryAgent_p = NULL;
+#if ! defined(WITHOUT_DBUS)
 	displayAgent_p = NULL;
+#endif
 
 	done();
 }
@@ -118,9 +126,11 @@ AgentFlagger::done()
 		summaryAgent_p = NULL;
 	}
 
+#if ! defined(WITHOUT_DBUS)
 	if(displayAgent_p){
 		displayAgent_p = NULL;
 	}
+#endif
 
 	mode_p = "";
 	agents_config_list_p.clear();
@@ -370,11 +380,10 @@ AgentFlagger::parseAgentParameters(Record agent_params)
 		if (agentParams_p.isDefined("datacolumn"))
 			agentParams_p.get("datacolumn", datacolumn);
 
-		os << LogIO::NORMAL << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
+		os << LogIO::NORMAL3 << "Validating data column "<<datacolumn<<" based on input type"<< LogIO::POST;
 
 		if(!validateDataColumn(datacolumn)){
-	        os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"
-	                << LogIO::POST;
+			os << LogIO::WARN<< "Cannot parse agent parameters "<< LogIO::POST;
 			return false;
 		}
 
@@ -584,6 +593,10 @@ AgentFlagger::initAgents()
 		String mode;
 		agent_rec.get("mode", mode);
 
+        /*
+         * Special considerations for some agents
+         */
+
         // If clip agent is mixed with other agents and time average is true, skip it
         if ((mode.compare("clip") == 0 and list_size > 1) or
         		(mode.compare("rflag") == 0 and list_size > 2) or
@@ -594,9 +607,21 @@ AgentFlagger::initAgents()
         	if (exists >= 0) agent_rec.get("timeavg", tavg);
 
             if (tavg){
-                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=true in list mode" << LogIO::POST;
+                os << LogIO::WARN << "Cannot have " << mode <<" mode with timeavg/channelavg=True in list mode" << LogIO::POST;
                 continue;
             }
+        }
+
+        // If quack mode with quackincrement = true, skip it
+        if (mode.compare("quack") == 0 and i > 0 and list_size > 1){
+        	Bool quackincrement = false;
+        	int exists = agent_rec.fieldNumber ("quackincrement");
+        	if (exists >= 0) agent_rec.get("quackincrement", quackincrement);
+
+			if (quackincrement){
+        		os << LogIO::WARN << "Cannot have quackincrement=True in list mode. Agent will be ignored!" << LogIO::POST;
+        		continue;
+        	}
         }
 
 		// Set the new time interval only once
@@ -688,9 +713,11 @@ AgentFlagger::initAgents()
 */
 
 		// Get the display agent.
+#if ! defined(WITHOUT_DBUS)
 		if (mode.compare("display") == 0){
 			displayAgent_p = (FlagAgentDisplay *) fa;
 		}
+#endif
 
 		// Add the agent to the FlagAgentList
 		agents_list_p.push_back(fa);
@@ -785,8 +812,10 @@ AgentFlagger::run(Bool writeflags, Bool sequential)
 	combinedReport = agents_list_p.gatherReports();
 
 	// Send reports to display agent
+#if ! defined(WITHOUT_DBUS)
 	if (displayAgent_p)
 		displayAgent_p->displayReports(combinedReport);
+#endif
 
 	agents_list_p.clear();
 
@@ -991,7 +1020,8 @@ AgentFlagger::restoreFlagVersion(Vector<String> versionname, String merge)
 	catch (AipsError x)
 	{
 		os << LogIO::SEVERE << "Could not restore Flag Version : " << x.getMesg() << LogIO::POST;
-		return false;
+		throw AipsError(x);
+//		return false;
 	}
 	return true;
 }
@@ -1056,6 +1086,7 @@ AgentFlagger::isModeValid(String mode)
 		if (mode.compare("manual") == 0 or mode.compare("clip") == 0 or
 				mode.compare("quack") == 0 or mode.compare("tfcrop") == 0 or
 				mode.compare("extend") == 0 or mode.compare("rflag") == 0 or
+				mode.compare("antint") == 0 or 
 				mode.compare("unflag") == 0 or mode.compare("summary") == 0
 				or mode.compare("display") == 0) {
 
@@ -1078,7 +1109,7 @@ AgentFlagger::validateDataColumn(String datacol)
     Bool ret = false;
     datacol.upcase();
 
-    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__, WHERE));
+    LogIO os(LogOrigin("AgentFlagger", __FUNCTION__));
 
     // The validation depends on the type of input
     if (isMS_p) {
@@ -1088,17 +1119,17 @@ AgentFlagger::validateDataColumn(String datacol)
             datacolumn = "CORRECTED_DATA";
         else if(datacol.compare("MODEL") == 0)
             datacolumn = "MODEL_DATA";
-        else if(datacol.compare("RESIDUAL") == 0)
-            datacolumn = "RESIDUAL";
-        else if(datacol.compare("RESIDUAL_DATA") == 0)
-            datacolumn = "RESIDUAL_DATA";
-        else if(datacol.compare("FLOAT_DATA") == 0)
+         else if(datacol.compare("FLOAT_DATA") == 0)
             datacolumn = "FLOAT_DATA";
         else if(datacol.compare("WEIGHT_SPECTRUM") == 0)
             datacolumn = "WEIGHT_SPECTRUM";
         else if(datacol.compare("WEIGHT") == 0)
             datacolumn = "WEIGHT";
-        else
+        else if(datacol.compare("RESIDUAL") == 0)
+             datacolumn = "CORRECTED_DATA";
+         else if(datacol.compare("RESIDUAL_DATA") == 0)
+             datacolumn = "DATA";
+       else
             datacolumn = "";
     }
     else {
@@ -1107,12 +1138,30 @@ AgentFlagger::validateDataColumn(String datacol)
                 (datacol.compare("SNR") == 0))
             datacolumn = datacol;
     }
-    // Check if requested column exist. Residual is calculated later from CORRECTED-MODEL
-    if (datacolumn.compare("RESIDUAL") == 0 or datacolumn.compare("RESIDUAL_DATA") == 0){
-    	ret = true;
+
+    // Check if main tables exist
+    if (fdh_p->checkIfColumnExists(datacolumn)) {
+            ret = true;
     }
-    else if (fdh_p->checkIfColumnExists(datacolumn))
-        ret = true;
+    else {
+    	os << LogIO::WARN << "Data column "<< datacolumn << " does not exist in input data"  << LogIO::POST;
+    }
+
+    // Check if other columns were requested also
+    // RESIDUAL is calculated later from CORRECTED-MODEL
+    // RESIDUAL_DATA is calculated later from DATA-MODEL
+
+    if (datacol.compare("RESIDUAL") == 0 or datacol.compare("RESIDUAL_DATA")==0){
+    	ret = false;
+    	// check if  MODEL _DATA or virtual MODEL_DATA exist
+    	if (fdh_p->checkIfColumnExists("MODEL_DATA") or fdh_p->checkIfSourceModelColumnExists()){
+    		ret = true;
+    	}
+    	else {
+	        os << LogIO::WARN << "Data column MODEL_DATA or virtual MODEL_DATA  does not exist in input data" << LogIO::POST;
+    	}
+
+    }
 
     return ret;
 }
@@ -1398,11 +1447,12 @@ AgentFlagger::parseTfcropParameters(String field, String spw, String array, Stri
 //
 // ---------------------------------------------------------------------
 bool
-AgentFlagger::parseAntIntParameters(String field, String spw, String array, 
-				    String feed, String scan, String antenna,
+AgentFlagger::parseAntIntParameters(String field, String spw, String /* array */, 
+				    String /* feed */, String scan, String antenna,
 				    String uvrange, String timerange, 
 				    String correlation, String intent,
-				    String observation, Double minchanfrac,
+				    String observation, String antint_ref_antenna,
+				    Double minchanfrac,
 				    Bool verbose, Bool apply)
 {
 
@@ -1427,6 +1477,7 @@ AgentFlagger::parseAntIntParameters(String field, String spw, String array,
 	agent_record.define("correlation", correlation);
 	agent_record.define("intent", intent);
 	agent_record.define("observation", observation);
+	agent_record.define("antint_ref_antenna", antint_ref_antenna);
 	agent_record.define("minchanfrac", minchanfrac);
 	agent_record.define("verbose", verbose);
 	agent_record.define("apply", apply);

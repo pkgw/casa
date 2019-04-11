@@ -41,7 +41,7 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -50,15 +50,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -67,20 +63,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -99,7 +99,7 @@ class FocusModelRow;
  * Contains the focus model data (function of elevation and temperature).
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of FocusModel </CAPTION>
@@ -144,7 +144,7 @@ class FocusModelRow;
  * </TR>
 	
  * <TR>
- * <TD> numCoeff </TD> 
+ * <TD> numCoeff (numCoeff)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of coefficients. </TD>
@@ -152,28 +152,28 @@ class FocusModelRow;
 	
  * <TR>
  * <TD> coeffName </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the names of the coefficients (one string per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffFormula </TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;textual representations of the fitted functions (one string per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> coeffVal </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numCoeff </TD> 
  * <TD> &nbsp;the values of the coefficients used (one value per coefficient). </TD>
  * </TR>
 	
  * <TR>
  * <TD> assocNature </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;nature of the association with the row refered to by associatedFocusModelId. </TD>
  * </TR>
@@ -341,7 +341,7 @@ public:
  	 * @param assocFocusModelId
 	
      */
-	FocusModelRow *newRow(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId);
+	FocusModelRow *newRow(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId);
 	
 
 
@@ -453,7 +453,7 @@ public:
  	 * @param assocFocusModelId
  	 		 
  	 */
-	FocusModelRow* lookup(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffVal, string assocNature, int assocFocusModelId); 
+	FocusModelRow* lookup(Tag antennaId, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, int numCoeff, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffVal, std::string assocNature, int assocFocusModelId); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -479,6 +479,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

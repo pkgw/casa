@@ -30,41 +30,57 @@
 #include <casa/Logging/LogIO.h>
 #include <casa/Logging/LogMessage.h>
 
+#if defined(WITHOUT_DBUS)
+#include <stdcasa/variant.h>
+#else
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 namespace casa { //# NAMESPACE CASA - BEGIN
   casacore::Bool clone(const casacore::String& imageName, const casacore::String& newImageName);
+#if ! defined(WITHOUT_DBUS)
   class ViewerProxy;
-  
+#endif
   class new_interactive_clean_callback 
   {
   public:
     new_interactive_clean_callback( ) { }
+#if defined(WITHOUT_DBUS)
+    casac::variant result( ) { return result_; }
+  private:
+    casac::variant result_;
+#else
     casa::dbus::variant result( ) { return casa::dbus::toVariant(result_); }
     bool callback( const DBus::Message & msg );
   private:
     DBus::Variant result_;
+#endif
   };
   
   class InteractiveMasking 
   {
   public:
     InteractiveMasking() :
-      viewer_p(0), clean_panel_p(0), image_id_p(0), mask_id_p(0),
+#if ! defined(WITHOUT_DBUS)
+      viewer_p(0),
+#endif
+      clean_panel_p(0), image_id_p(0), mask_id_p(0),
       prev_image_id_p(0), prev_mask_id_p(0)
     {};
     
     ~InteractiveMasking()
     {
+#if ! defined(WITHOUT_DBUS)
       if ( viewer_p ) 
 	{
 	  // viewer_p->close( clean_panel_p );
 	  viewer_p->done();
 	  delete viewer_p;
 	}
+#endif
     };
     /*
     casacore::Int interactivemask(const casacore::String& image, const casacore::String& mask, 
@@ -74,8 +90,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Int interactivemask(const casacore::String& image, const casacore::String& mask, 
 			casacore::Int& niter, casacore::Int& cycleniter, casacore::String& thresh, casacore::String& cyclethresh, 
 			const casacore::Bool forceReload=false);
+
+    casacore::Float maskSum(const casacore::String& maskname);
+
   private:
+#if ! defined(WITHOUT_DBUS)
     ViewerProxy *viewer_p;
+#endif
     int clean_panel_p;
     int image_id_p;
     int mask_id_p;

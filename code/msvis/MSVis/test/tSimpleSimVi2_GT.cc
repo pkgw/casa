@@ -228,7 +228,7 @@ TEST_F( SimpleSimVi2Test , SimpleSimVi2Parameters_NonTrivial2 ) {
 TEST_F( SimpleSimVi2Test , SimpleSimVi2_Trivial ) {
 
   SimpleSimVi2Factory s0f(s0);
-  VisibilityIterator2 *vi = new VisibilityIterator2(s0f);
+  std::unique_ptr<VisibilityIterator2> vi (new VisibilityIterator2(s0f));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   vi->originChunks();
@@ -278,7 +278,7 @@ TEST_F( SimpleSimVi2Test , SimpleSimVi2_Trivial ) {
 
 TEST_F( SimpleSimVi2Test , SimpleSimVi2_NonTrivial1 ) {
   SimpleSimVi2Factory s1f(s1);
-  VisibilityIterator2 *vi = new VisibilityIterator2(s1f);
+  std::unique_ptr<VisibilityIterator2> vi (new VisibilityIterator2(s1f));
   VisBuffer2 *vb = vi->getImpl()->getVisBuffer();
 
   vi->originChunks();
@@ -371,3 +371,19 @@ TEST_F( SimpleSimVi2Test , SimpleSimVi2_NonTrivial1 ) {
 }
 
 
+TEST_F( SimpleSimVi2Test , SimpleSimVi2_SubtTables ) {
+  SimpleSimVi2Factory s1f(s1);
+  std::unique_ptr<VisibilityIterator2> vi (new VisibilityIterator2(s1f));
+
+  auto& antennaSubtablecols = vi->antennaSubtablecols();
+  EXPECT_EQ(uInt(NANT), antennaSubtablecols.nrow());
+
+  auto& spwSubtablecols = vi->spectralWindowSubtablecols();
+  EXPECT_EQ(uInt(NSPW), spwSubtablecols.nrow());
+
+  auto& ddSubtablecols = vi->dataDescriptionSubtablecols();
+  EXPECT_EQ(uInt(NSPW), ddSubtablecols.nrow());
+
+  auto& polSubtablecols = vi->polarizationSubtablecols();
+  EXPECT_EQ(uInt(1), polSubtablecols.nrow());
+}

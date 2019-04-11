@@ -502,7 +502,8 @@ PBMath1D::apply(const ImageInterface<Complex>& in,
   RO_LatticeIterator<Complex> li(in, LatticeStepper(in.shape(), ncs, IPosition(4,0,1,2,3) )  );
   LatticeIterator<Complex> oli(out, LatticeStepper(in.shape(), ncs, IPosition(4,0,1,2,3)) );
 
-  Complex taper;
+  // taper no longer appears to be used
+  //Complex taper;
   //Float r2=0.0;
   //Float r=0.0;
 

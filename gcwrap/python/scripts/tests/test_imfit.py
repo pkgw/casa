@@ -70,6 +70,7 @@ import hashlib
 import shutil
 from __main__ import *
 import unittest
+import numpy
 
 
 noisy_image = "gaussian_model_with_noise.im"
@@ -1284,8 +1285,6 @@ class imfit_test(unittest.TestCase):
                 near(mycl.getfluxvalue(1)[0], 1145.9896413, epsilon),
                 str(code) + " didn't get right flux for comp 1"
             )
-            print "*** got ", mycl.getfluxvalue(2)[0]
-
             self.assertTrue(
                 near(mycl.getfluxvalue(2)[0], 3143.99613138, epsilon),
                 str(code) + " didn't get right flux for comp 2"
@@ -1298,6 +1297,21 @@ class imfit_test(unittest.TestCase):
             self.assertTrue(
                 all(res['converged']),
                 "One or more of the converged elements are False"
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component0']['pixelcoords'], [24.30, 46.43],
+                atol=0.01).all()
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component1']['pixelcoords'], [26.71, 44.39],
+                atol=0.01).all()
+            )
+            self.assertTrue(numpy.isclose(
+                res['results']['component2']['pixelcoords'], [54.74, 40.89],
+                atol=0.01).all()
+            )
+            self.assertTrue(
+                numpy.isclose(res['pixelsperarcsec'], 1.0/60).all()
             )
 
     def test_xx_fit(self):
@@ -1850,12 +1864,23 @@ class imfit_test(unittest.TestCase):
         model = "mymod.im"
         myia.open(image)
         myia.fitcomponents(residual=resid, model=model)
+        teststr = "ia.fitcomponents"
         for im in (resid, model):
             myia.open(im)
             msgs = myia.history()
             myia.done()
-            self.assertTrue("ia.fitcomponents" in msgs[-2])    
-            self.assertTrue("ia.fitcomponents" in msgs[-1])
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")    
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
+            
+        imfit(imagename=image, residual=resid, model=model)
+        for im in (resid, model):
+            myia.open(im)
+            msgs = myia.history()
+            myia.done()
+            teststr = "version"
+            self.assertTrue(teststr in msgs[-2], "'" + teststr + "' not found")   
+            teststr = "imfit" 
+            self.assertTrue(teststr in msgs[-1], "'" + teststr + "' not found")
 
     def test_summary(self):
         """Test summary file, CAS-3478"""
@@ -1871,5 +1896,24 @@ class imfit_test(unittest.TestCase):
         zz = imfit(imagename=image, estimates=estimates, summary=summary)
         self.assertTrue(sum(1 for line in open(summary)) == 6, "summary line count")
         
+    def test_precision(self):
+        """Test double precision image works"""
+        myfn = fntool()
+        g2d = myfn.gaussian2d(1, [50,60], [20,10], "-20deg")
+        nxpix = 120
+        nypix = 100
+        pixels = numpy.zeros([nxpix, nypix], dtype=np.float64)
+        for x in range(nxpix):
+            for y in range(nypix):
+                pixels[x, y] = g2d.f([x, y])
+        myia = iatool()
+        for mytype in ['f', 'd']:
+            myia.fromarray("", pixels, type=mytype)
+            zz = myia.fitcomponents()
+            myia.done()
+            self.assertTrue(
+                zz['converged'][0], "did not converge for type " + mytype
+            )
+            
 def suite():
     return [imfit_test]

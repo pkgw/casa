@@ -41,56 +41,56 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
 	
 
 	
-#include "CReceiverBand.h"
+
+	
+
+	
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
 	
-#include "CReceiverSideband.h"
+#include <alma/Enumerations/CReceiverSideband.h>
 	
 
 	
-#include "CNetSideband.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -109,7 +109,7 @@ class ReceiverRow;
  * Receiver properties.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Receiver </CAPTION>
@@ -150,13 +150,13 @@ class ReceiverRow;
 	
  * <TR>
  * <TD> name </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the name of the frontend. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numLO </TD> 
+ * <TD> numLO (numLO)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of frequencies of the local oscillator. </TD>
@@ -171,7 +171,7 @@ class ReceiverRow;
 	
  * <TR>
  * <TD> freqLO </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  numLO </TD> 
  * <TD> &nbsp;the frequencies of the local oscillator. </TD>
  * </TR>
@@ -185,7 +185,7 @@ class ReceiverRow;
 	
  * <TR>
  * <TD> sidebandLO </TD> 
- * <TD> vector<NetSidebandMod::NetSideband > </TD>
+ * <TD> std::vector<NetSidebandMod::NetSideband > </TD>
  * <TD>  numLO </TD> 
  * <TD> &nbsp;the sideband conversions. </TD>
  * </TR>
@@ -344,7 +344,7 @@ public:
  	 * @param sidebandLO
 	
      */
-	ReceiverRow *newRow(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO);
+	ReceiverRow *newRow(Tag spectralWindowId, ArrayTimeInterval timeInterval, std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO);
 	
 
 
@@ -457,7 +457,7 @@ public:
  	 * @param sidebandLO
  	 		 
  	 */
-	ReceiverRow* lookup(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO); 
+	ReceiverRow* lookup(Tag spectralWindowId, ArrayTimeInterval timeInterval, std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -483,6 +483,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 

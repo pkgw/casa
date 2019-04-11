@@ -37,7 +37,7 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 UVContSubTVI::UVContSubTVI(	ViImplementation2 * inputVii,
 								const Record &configuration):
-								FreqAxisTVI (inputVii,configuration)
+								FreqAxisTVI (inputVii)
 {
 	fitOrder_p = 0;
 	want_cont_p = False;
@@ -340,7 +340,7 @@ template<class T> void UVContSubTVI::transformDataCube(	const Cube<T> &inputVis,
 	}
 
 	// Reshape output data before passing it to the DataCubeHolder
-	outputVis.resize(getVisBufferConst()->getShape(),False);
+	outputVis.resize(getVisBuffer()->getShape(),False);
 
 	// Get input flag Cube
 	const Cube<Bool> &flagCube = vb->flagCube();

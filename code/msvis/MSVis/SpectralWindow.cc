@@ -81,7 +81,7 @@ SpectralWindows::SpectralWindows (const MeasurementSet * ms)
 {
     // Get the Spectral Columns Object
 
-    auto_ptr <ROMSColumns> msColumns (new ROMSColumns (* ms));
+    unique_ptr <ROMSColumns> msColumns (new ROMSColumns (* ms));
     const ROMSSpWindowColumns & spectralWindowColumns = msColumns->spectralWindow();
 
     // Create on spectral window object per row in the table.

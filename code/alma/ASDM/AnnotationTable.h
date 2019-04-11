@@ -41,23 +41,19 @@
 
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Interval.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
@@ -66,11 +62,11 @@
 	
 
 	
-#include "CBasebandName.h"
-	
 
 	
 
+	
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -85,20 +81,26 @@
 
 	
 
+	
+
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -117,7 +119,7 @@ class AnnotationRow;
  * The Annotation Table is intended to offer space for unexpected data to be  added in the software development process at short notice, without  redefining the data model.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Annotation </CAPTION>
@@ -147,14 +149,14 @@ class AnnotationRow;
 	
  * <TR>
  * <TD> issue </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;name of this annotation. </TD>
  * </TR>
 	
  * <TR>
  * <TD> details </TD> 
- * <TD> string </TD>
+ * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;details of this annotation. </TD>
  * </TR>
@@ -164,78 +166,85 @@ class AnnotationRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numAntenna </TD> 
+ * <TD> numAntenna(numAntenna)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of antennas. </TD>
  * </TR>
 	
  * <TR>
- * <TD> basebandName </TD> 
- * <TD> vector<BasebandNameMod::BasebandName > </TD>
+ * <TD> basebandName</TD> 
+ * <TD> std::vector<BasebandNameMod::BasebandName > </TD>
  * <TD>  numBaseband  </TD>
  * <TD>&nbsp; an array of numBaseband baseband names. </TD>
  * </TR>
 	
  * <TR>
- * <TD> numBaseband </TD> 
+ * <TD> numBaseband(numBaseband)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; number of basebands. </TD>
  * </TR>
 	
  * <TR>
- * <TD> interval </TD> 
+ * <TD> interval</TD> 
  * <TD> Interval </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; time interval </TD>
  * </TR>
 	
  * <TR>
- * <TD> dValue </TD> 
+ * <TD> dValue</TD> 
  * <TD> double </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; scalar data. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vdValue </TD> 
- * <TD> vector<double > </TD>
+ * <TD> vdValue</TD> 
+ * <TD> std::vector<double > </TD>
  * <TD>    </TD>
  * <TD>&nbsp; useful to store an array of double values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vvdValues </TD> 
- * <TD> vector<vector<double > > </TD>
+ * <TD> vvdValues</TD> 
+ * <TD> std::vector<std::vector<double > > </TD>
  * <TD>  ,   </TD>
  * <TD>&nbsp; useful to store an array of array(s) of double values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> llValue </TD> 
+ * <TD> llValue</TD> 
  * <TD> int64_t </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; useful to record a long long data. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vllValue </TD> 
- * <TD> vector<int64_t > </TD>
+ * <TD> vllValue</TD> 
+ * <TD> std::vector<int64_t > </TD>
  * <TD>    </TD>
  * <TD>&nbsp; useful to store an array of array(s) of long long values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> vvllValue </TD> 
- * <TD> vector<vector<int64_t > > </TD>
+ * <TD> vvllValue</TD> 
+ * <TD> std::vector<std::vector<int64_t > > </TD>
  * <TD>  ,   </TD>
  * <TD>&nbsp; useful to store an array of array(s) long long values. </TD>
  * </TR>
 	
  * <TR>
- * <TD> antennaId </TD> 
- * <TD> vector<Tag>  </TD>
+ * <TD> sValue</TD> 
+ * <TD> std::string </TD>
+ * <TD>  &nbsp; </TD>
+ * <TD>&nbsp; details of this annotation. </TD>
+ * </TR>
+	
+ * <TR>
+ * <TD> antennaId</TD> 
+ * <TD> std::vector<Tag>  </TD>
  * <TD>  numAntenna  </TD>
  * <TD>&nbsp; refers to a collection of rows in the AntennaTable. </TD>
  * </TR>
@@ -383,7 +392,7 @@ public:
  	 * @param details
 	
      */
-	AnnotationRow *newRow(ArrayTime time, string issue, string details);
+	AnnotationRow *newRow(ArrayTime time, std::string issue, std::string details);
 	
 
 
@@ -472,7 +481,7 @@ public:
  	 * @param details
  	 		 
  	 */
-	AnnotationRow* lookup(ArrayTime time, string issue, string details); 
+	AnnotationRow* lookup(ArrayTime time, std::string issue, std::string details); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -498,6 +507,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

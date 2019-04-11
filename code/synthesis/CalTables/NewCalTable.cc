@@ -155,11 +155,10 @@ NewCalTable::NewCalTable(String tableName,VisCalEnum::VCParType parType,
 NewCalTable::NewCalTable (const String& tableName, Table::TableOption access, 
 			  Table::TableType ttype): Table(tableName,access)
 {
-// Construct from an exisiting cal table, and access option.
+// Construct from an existing cal table, and access option.
 // 
 // Input:
 //    tableName        const String&         Cal table name
-//    ctableDesc       const CalTableDesc&   Cal table descriptor
 //    access           Table::TableOption    Access mode
 //    ttype            Table::TableType      Memory or Plain
 //
@@ -176,6 +175,21 @@ NewCalTable::NewCalTable (const String& tableName, Table::TableOption access,
   attachSubTables();
 
 };
+
+NewCalTable::NewCalTable (const String& tableName,
+    const casacore::TableLock& lockOptions, Table::TableOption access,
+    Table::TableType ttype): Table(tableName, lockOptions, access)
+{
+  // Construct from an existing cal table, with lock, access, and type options.
+  if (ttype==Table::Memory) 
+    *this = this->copyToMemoryTable(tableName+".tempMemCalTable");
+  if (!this->tableDesc().isColumn(NCT::fieldName(NCT::OBSERVATION_ID)) ||
+      !this->keywordSet().isDefined("OBSERVATION")) {
+    addPhoneyObs();
+  }
+  attachSubTables();
+}
+//----------------------------------------------------------------------------
 
 // Factory method that has Back Compat option
 NewCalTable NewCalTable::createCT(const String& tableName, 
@@ -247,6 +261,46 @@ NewCalTable::NewCalTable(String tableName, String CorF,
   }
 
 }
+
+// Create an empty NewCalTable from a SimpleSimVi2Parameters object
+NewCalTable::NewCalTable(String tableName, String CorF, String caltype,
+			 const vi::SimpleSimVi2Parameters& ssp,
+			 Bool disk,Bool verbose) :
+  Table()
+{
+
+  if (CorF!="Complex" &&
+      CorF!="Float")
+    throw(AipsError("CorF must be 'Complex' or 'Float'"));
+
+  CTDesc nctd(CorF,"none",caltype,"circ");
+
+  // Form underlying generic Table according to the supplied desc
+  SetupNewTable calMainTab(tableName+".tempMemCalTable",nctd.calMainDesc(),Table::New);
+  Table tab(calMainTab, Table::Memory, 0, false); 
+  *this = tab;
+  
+  // Set the table info record
+  this->setTableInfo();
+
+  // Add (empty) subtables
+  this->createSubTables();
+
+  // Fill generic subtables, according to SimpleSimVi2Parameters
+  fillGenericObs(ssp);
+  fillGenericField(ssp);
+  fillGenericAntenna(ssp);
+  fillGenericSpw(ssp);
+
+  if (disk) {
+    // Write it out to disk
+    if (verbose) cout << "Writing out to disk: "+tableName << endl;
+    this->writeToDisk(tableName);
+  }
+
+}
+
+
 
 //----------------------------------------------------------------------------
 
@@ -411,6 +465,15 @@ Bool NewCalTable::isComplex() {
 //----------------------------------------------------------------------------
 String NewCalTable::polBasis() {
   return this->keywordSet().asString("PolBasis");
+}
+
+//----------------------------------------------------------------------------
+String NewCalTable::CASAvers() {
+  if (this->keywordSet().fieldNumber("CASA_Version")==-1)
+    // Handle non-existent keyword
+    return String("Unknown");
+  else
+    return this->keywordSet().asString("CASA_Version");
 }
 
 //----------------------------------------------------------------------------
@@ -753,6 +816,52 @@ void NewCalTable::fillGenericSpw(Int nSpw,Vector<Int>& nChan) {
   for (Int ispw=0;ispw<nSpw;++ispw) {
     Double refFreq(60.0e9+Double(ispw)*1.0e9);  // Every GHz
     Double width(1.0e6);  // 1 MHz channels
+    Vector<Double> chanfreq(nChan(ispw),refFreq);
+    for (Int ich=0;ich<nChan(ispw);++ich) chanfreq(ich)+=(Double(ich)+0.5)*width;
+
+    sc.name().put(ispw,("SPW_"+String::toString(ispw)));
+    sc.refFrequency().put(ispw,refFreq);
+    sc.numChan().put(ispw,nChan(ispw));
+    sc.chanFreq().put(ispw,chanfreq);
+    
+    Vector<Double> res(nChan(ispw),width);
+
+    sc.chanWidth().put(ispw,res);
+    sc.effectiveBW().put(ispw,res);
+    sc.resolution().put(ispw,res);
+    sc.totalBandwidth().put(ispw,sum(res));
+    sc.flagRow().put(ispw,false);
+  }
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericObs(const vi::SimpleSimVi2Parameters& /*ssp*/) { 
+  this->fillGenericObs(1); // Just one, for now
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericField(const vi::SimpleSimVi2Parameters& ssp) { 
+  this->fillGenericField(ssp.nField_);
+}
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericAntenna(const vi::SimpleSimVi2Parameters& ssp) { 
+  this->fillGenericAntenna(ssp.nAnt_);
+}
+
+
+//----------------------------------------------------------------------------
+void NewCalTable::fillGenericSpw(const vi::SimpleSimVi2Parameters& ssp) { 
+
+  // Gather info from the SimpleSimVi2Parameters
+  const Int& nSpw(ssp.nSpw_);
+  const Vector<Int>& nChan(ssp.nChan_);
+
+  this->spectralWindow().addRow(nSpw);
+  MSSpWindowColumns sc(this->spectralWindow());
+  for (Int ispw=0;ispw<nSpw;++ispw) {
+    const Double& refFreq(ssp.refFreq_(ispw));
+    const Double& width(ssp.df_(ispw));
     Vector<Double> chanfreq(nChan(ispw),refFreq);
     for (Int ich=0;ich<nChan(ispw);++ich) chanfreq(ich)+=(Double(ich)+0.5)*width;
 

@@ -115,7 +115,7 @@ namespace casa{
   //
   Double getCurrentTimeStamp(const VisBuffer2& vb)
   {
-    LogIO os(LogOrigin("Utils", "getCurrentTimeStamp", WHERE));
+    //LogIO os(LogOrigin("Utils", "getCurrentTimeStamp", WHERE));
 
     Int N=vb.nRows();
     for(Int i=0;i<N;i++)
@@ -752,32 +752,41 @@ namespace casa{
   // or from a env. variable (in this precidence order).
   //
   template <class T>
-  T SynthesisUtils::getenv(const char *name,const T defaultVal)
-  {
-    stringstream defaultStr;
-    defaultStr << defaultVal;
-    T val;
-    uInt handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
-    String strVal = Aipsrc::get(handle);
-    stringstream toT(strVal);
-    toT >> val;
-    // Looks like Aipsrc did not find the named variable.  See if an
-    // env. variable is defined.
-    if (val==defaultVal)
+    T SynthesisUtils::getenv(const char *name, const T defaultVal)
+    {
+      T val=defaultVal;
+      stringstream defaultStr;
+      defaultStr << defaultVal;
       {
 	char *valStr=NULL;
-	if ((valStr = std::getenv(name)) != NULL)
+	std::string tt(name);
+	unsigned long pos;
+	while((pos=tt.find(".")) != tt.npos)
+	  tt.replace(pos, 1, "_");
+
+	if ((valStr = std::getenv(tt.c_str())) != NULL)
 	  {
 	    stringstream toT2(valStr);
 	    toT2 >> val;
 	  }
       }
-    return val;
-  }
+      // If environment variable was not found (val remained set to the
+      // defaulVal), look in ~/.aipsrc.
+      if (val==defaultVal)
+	{
+	  uint handle = Aipsrc::registerRC(name, defaultStr.str().c_str());    
+	  String strVal = Aipsrc::get(handle);
+	  stringstream toT(strVal);
+	  toT >> val;
+	}
+      return val;
+    }
+    template 
+    Int SynthesisUtils::getenv(const char *name, const Int defaultVal);
   template 
-  Int SynthesisUtils::getenv(const char *name, const Int defaultVal);
-template 
-  Bool SynthesisUtils::getenv(const char *name, const Bool defaultVal);
+    Bool SynthesisUtils::getenv(const char *name, const Bool defaultVal);
+  template 
+    Float SynthesisUtils::getenv(const char *name, const Float defaultVal);
 
   Float SynthesisUtils::libreSpheroidal(Float nu) 
   {
@@ -1240,6 +1249,51 @@ template
 	  cfc.pa_p=Quantity(actualPA, "rad");
 	}
     };
+
+
+    //
+    // Parser for parsing the NAME field of the SPECTRAL_WINDOW sub-table.
+    // Returns a vector of string containing tokens separated by "#"
+    // in the supplied band name string.
+    //
+    casacore::Vector<casacore::String> SynthesisUtils::parseBandName(const casacore::String& bandName)
+    {
+      casacore::Vector<casacore::String> tokens;
+
+      // Allow a blank band name for older MSes where this is sometimes left blank.
+      if (bandName == "")
+	{
+	  tokens.resize(1);tokens="";
+	  return tokens;
+	}
+
+      char *tok, *name;
+      int i=0;
+
+      name = (char *)bandName.c_str();
+      if ((tok = std::strtok(name,"#"))!=NULL)
+	{
+	  tokens.resize(i+1,true); tokens(i)="";
+	  tokens(i++).assign(tok);
+	}
+
+      while ((tok = std::strtok(NULL,"#"))!=NULL)
+	{
+	  tokens.resize(i+1,true); tokens(i)="";
+	  tokens(i++).assign(tok);
+	}
+      if (tokens(0)=="")
+	{
+	  LogIO log_l(LogOrigin("SynthesisUtils", "parseBandName"));
+	  log_l << "Error while parsing band name \"" << bandName << "\"" << LogIO::EXCEPTION;
+	}
+
+      // for (i=0;i<3;i++)
+      // 	if (tokens(i)=="") log_l << "Error while parsing band name \"" << bandName << LogIO::EXCEPTION;
+      return tokens;
+    }
+
+
   
   
   template

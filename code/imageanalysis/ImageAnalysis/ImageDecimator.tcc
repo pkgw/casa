@@ -50,7 +50,7 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
         "The value of factor cannot be greater than the "
         "number of pixels along the specified axis"
     );
-    casacore::LogOrigin lor = casacore::LogOrigin(getClass(), __func__);
+    casacore::LogOrigin lor(getClass(), __func__);
     *this->_getLog() << lor;
     auto subImage = SubImageFactory<T>::createSubImageRO(
         *this->_getImage(), *this->_getRegion(), this->_getMask(), 0,
@@ -63,15 +63,15 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
             << "copy of the selected image." << casacore::LogIO::POST;
         return this->_prepareOutputImage(*subImage);
     }
-    casacore::CoordinateSystem csys = subImage->coordinates();
-    casacore::Vector<casacore::Double> refPix = csys.referencePixel();
+    auto csys = subImage->coordinates();
+    auto refPix = csys.referencePixel();
     refPix[_axis] /= _factor;
     csys.setReferencePixel(refPix);
     casacore::Vector<casacore::Double> inc = csys.increment();
     inc[_axis] *= _factor;
     csys.setIncrement(inc);
-    casacore::IPosition subShape = subImage->shape();
-    casacore::IPosition shape = subShape;
+    auto subShape = subImage->shape();
+    auto shape = subShape;
     // integer division
     shape[_axis] = shape[_axis]/_factor;
     if (
@@ -81,19 +81,19 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
         shape[_axis]++;
     }
     casacore::TempImage<T> out(shape, csys);
-    casacore::IPosition cursorShape = shape;
+    auto cursorShape = shape;
     cursorShape[_axis] = _factor;
     casacore::LatticeStepper stepper(subShape, cursorShape);
     casacore::RO_MaskedLatticeIterator<T> inIter(*subImage, stepper);
     inIter.reset();
-    casacore::Bool isMasked = subImage->isMasked();
-    casacore::uInt ndim = subImage->ndim();
+    auto isMasked = subImage->isMasked();
+    auto ndim = subImage->ndim();
     casacore::IPosition begin(ndim, 0);
-    casacore::IPosition end = cursorShape - 1;
-    SHARED_PTR<casacore::ArrayLattice<casacore::Bool> > outMask(
-        isMasked ? new casacore::ArrayLattice<casacore::Bool>(out.shape()) : 0
+    auto end = cursorShape - 1;
+    std::shared_ptr<casacore::ArrayLattice<casacore::Bool>> outMask(
+        isMasked ? new casacore::ArrayLattice<casacore::Bool>(out.shape()) : nullptr
     );
-    casacore::IPosition outPos = begin;
+    auto outPos = begin;
     if (_function == ImageDecimatorData::COPY) {
         end[_axis] = 0;
         while(! inIter.atEnd() && outPos[_axis]<shape[_axis]) {
@@ -116,7 +116,6 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
             ImageCollapserData::MEAN, "", false
         );
         std::unique_ptr<casacore::Record> reg;
-
         casacore::Vector<casacore::Double> start(ndim);
         casacore::Vector<casacore::Int> lattShape(ndim);
         casacore::Vector<casacore::Double> stop(ndim);
@@ -126,11 +125,10 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
             lattShape[i] = subShape[i];
         }
         SPIIT collapsed;
-        while(! inIter.atEnd() && outPos[_axis]<shape[_axis]) {
+        while(! inIter.atEnd() && (outPos[_axis] < shape[_axis])) {
             reg.reset(
                 casacore::RegionManager::box(
-                    start, stop,
-                    lattShape, comment
+                    start, stop, lattShape, comment
                 )
             );
             collapser.setRegion(*reg);
@@ -145,7 +143,7 @@ template<class T> SPIIT ImageDecimator<T>::decimate() const {
                     outMask->putSlice(mask, outPos);
                 }
             }
-            const casacore::Array<T> data = collapsed->get();
+            const auto data = collapsed->get();
             out.putSlice(data, outPos);
             inIter++;
             outPos[_axis]++;

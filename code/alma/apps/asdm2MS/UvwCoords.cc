@@ -1,10 +1,13 @@
-#include "UvwCoords.h"
-#include "Error.h"
+#include <alma/apps/asdm2MS/UvwCoords.h>
+#include <alma/ASDMBinaries/Error.h>
 
 #include <measures/Measures/MFrequency.h>
 
-UvwCoords::UvwCoords( ASDM* const datasetPtr )
-{
+using namespace asdm;
+using namespace std;
+using namespace casacore;
+
+UvwCoords::UvwCoords( ASDM* const datasetPtr ) {
   // All the antenna positions for antennas in the antenna table:
   // ------------------------------------------------------------ 
   AntennaTable&        antennas = datasetPtr->getAntenna(); 
@@ -25,7 +28,7 @@ UvwCoords::UvwCoords( ASDM* const datasetPtr )
     for(unsigned int nc=0; nc<3; nc++)stationPos[nc]=staCoords[nc].get();
 
     antennaPos = antPos(stationPos,antOffset);
-    Vector<Quantity> vq; vq.resize(3);
+    casacore::Vector<Quantity> vq; vq.resize(3);
     for(unsigned int nc=0; nc<3; nc++)vq[nc]=Quantity(antennaPos[nc],"m");
     MVPosition mvp(vq);
     MPosition posref( mvp, MPosition::ITRF );
@@ -50,7 +53,7 @@ UvwCoords::UvwCoords( ASDM* const datasetPtr )
     vector<SwitchCycleRow*> v_sr= v_configDesc[n]->getSwitchCyclesUsingSwitchCycleId();
 
     if (v_sr.size() != numspw)
-      Error(FATAL, "It seems that the arrays 'switchCycleId' and 'dataDescriptionId' do not have the same size in one row of the ConfigDescription table !");
+      Error(FATAL, string("It seems that the arrays 'switchCycleId' and 'dataDescriptionId' do not have the same size in one row of the ConfigDescription table !"));
 
     for(unsigned int nspw=0; nspw<numspw; nspw++)
       arrayParam.nrepeat += v_sr[nspw]->getNumStep();
@@ -212,7 +215,7 @@ void UvwCoords::uvw_bl( const vector<Tag>& v_antennaId,
 void UvwCoords::uvw_bl( Tag configDescriptionId, 
 			const vector<vector<Angle> >& phaseDir,
 			double timeCentroid,
-			Enum<CorrelationMode> correlationMode,
+			Enum<CorrelationModeMod::CorrelationMode> correlationMode,
 			bool reverse, bool autoTrailing, 
 			vector<Vector<casacore::Double> >& v_uvw,
 			casacore::MSFieldColumns* /* msfc_p */){
@@ -266,7 +269,7 @@ void UvwCoords::uvw_bl( Tag configDescriptionId,
 void UvwCoords::uvw_bl( Tag configDescriptionId, 
 			const vector<vector<Angle> >& phaseDir,
 			const vector<double>& v_timeCentroid,
-			Enum<CorrelationMode> correlationMode,
+			Enum<CorrelationModeMod::CorrelationMode> correlationMode,
 			bool reverse, bool autoTrailing, 
 			vector<Vector<casacore::Double> >& v_uvw,
 			casacore::MSFieldColumns* /* msfc_p */){
@@ -339,7 +342,7 @@ void UvwCoords::uvw_bl( Tag configDescriptionId,
 }
 
 void UvwCoords::uvw_bl( asdm::MainRow* mainRow, vector<pair<unsigned int,double> > v_tci, 
-			Enum<CorrelationMode> correlationMode,
+			Enum<CorrelationModeMod::CorrelationMode> correlationMode,
  			pair<bool,bool> dataOrder, vector<Vector<casacore::Double> >& v_uvw){
 
   vector<double> v_timeCentroid;
@@ -353,7 +356,7 @@ void UvwCoords::uvw_bl( asdm::MainRow* mainRow, vector<pair<unsigned int,double>
 }
 
 
-void UvwCoords::uvw_bl( asdm::MainRow* mainRow, vector<double> v_timeCentroid, Enum<CorrelationMode> correlationMode,
+void UvwCoords::uvw_bl( asdm::MainRow* mainRow, vector<double> v_timeCentroid, Enum<CorrelationModeMod::CorrelationMode> correlationMode,
  			pair<bool,bool> dataOrder, vector<Vector<casacore::Double> >& v_uvw, casacore::MSFieldColumns* /* msfc_p */){
 
   bool coutest=false;

@@ -1,13 +1,14 @@
 import os
 import shutil
 from taskinit import *
+from ialib import write_image_history
 
 def imregrid(
     imagename, template, output, asvelocity, axes, shape,
     interpolation, decimate, replicate, overwrite
 ):
     _myia = None
-    _tmp = None
+    outia = None
     csys = None
     try:
         casalog.origin('imregrid')
@@ -20,6 +21,7 @@ def imregrid(
                 casalog.post("output was not specified - defaulting to\n\t"
                      + output, 'INFO')
         _myia = iatool()
+        _myia.dohistory(False)
         # Figure out what the user wants.
         if not isinstance(template, dict):
             if template.lower() == 'get':
@@ -33,14 +35,28 @@ def imregrid(
                 'HADEC', 'AZEL', 'AZELSW', 'AZELNE', 'ECLIPTIC',
                 'MECLIPTIC', 'TECLIPTIC', 'SUPERGAL'
             ):
-                _imregrid_to_new_ref_frame(
-                    _myia, imagename, template, output,
-                    axes, shape, overwrite
+                outia = _imregrid_to_new_ref_frame(
+                    _myia, imagename, template, output, axes,
+                    shape, overwrite, interpolation, decimate
                 )
+                try:
+                    param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                    param_vals = [eval(p) for p in param_names]   
+                    write_image_history(
+                        outia, sys._getframe().f_code.co_name,
+                        param_names, param_vals, casalog
+                    )
+                except Exception, instance:
+                    casalog.post(
+                        "*** Error \'%s\' updating HISTORY" % (instance), 'WARN'
+                    )
+                outia.done()
                 return True
-            else:                   # Don't use a template named 'get', people.
-                if not os.path.isdir(template) or not os.access(template,
-                                                                os.R_OK):
+            else:
+                if (
+                    not os.path.isdir(template)
+                    or not os.access(template, os.R_OK)
+                ):
                     raise TypeError, 'Cannot read template image ' + template
                 template_ia = iatool()
                 template_ia.open(template)
@@ -52,21 +68,27 @@ def imregrid(
                 imshape = image_ia.shape()
                 axestoregrid = axes
                 if (axes[0] < 0):
-                    # default value of axes, need to determine actual axes to send to ia.regrid()
+                    # default value of axes, need to determine actual axes to
+                    # send to ia.regrid()
                     axestoregrid = []
                     image_ncoords = image_csys.ncoordinates()
                     for i in range(image_ncoords):
                         ctype = image_csys.coordinatetype(i)[0]
                         template_coord = template_csys.findcoordinate(ctype)
                         if ctype != 'Stokes' and template_coord["return"]:
-                            # only regrid if not Stokes axis and coordinate exists in template
+                            # only regrid if not Stokes axis and coordinate
+                            # exists in template
                             for template_pix_axis in template_coord['pixel']:
                                 if tempshape[template_pix_axis] > 1:
-                                    # only regrid if template axis is not degenerate
-                                    world_axes = image_csys.findcoordinate(ctype)['pixel']
+                                    # only regrid if template axis is not
+                                    # degenerate
+                                    world_axes = image_csys.findcoordinate(
+                                        ctype
+                                    )['pixel']
                                     for world_pix_axis in world_axes:
                                         if imshape[world_pix_axis] > 1:
-                                            # only regrid if the world axis is not degenerate
+                                            # only regrid if the world axis is
+                                            # not degenerate
                                             axestoregrid.append(world_pix_axis)
                     # eliminate dups
                     axestoregrid = list(set(axestoregrid))
@@ -93,42 +115,53 @@ def imregrid(
         # put this in its own try/catch so, if exception, the message is not
         # logged twice
         try:
-            _tmp = _myia.regrid(
+            outia = _myia.regrid(
                 outfile=output, shape=shape, csys=csys.torecord(),
                 axes=axes, asvelocity=asvelocity,
                 method=interpolation, decimate=decimate,
                 replicate=replicate, overwrite=overwrite
             )
+            try:
+                param_names = imregrid.func_code.co_varnames[:imregrid.func_code.co_argcount]
+                param_vals = [eval(p) for p in param_names]   
+                write_image_history(
+                    outia, sys._getframe().f_code.co_name,
+                    param_names, param_vals, casalog
+                )
+            except Exception, instance:
+                casalog.post(
+                    "*** Error \'%s\' updating HISTORY" % (instance), 'WARN'
+                )
             return True
         except Exception, instance:
             # The error message has already been logged by ia.regrid()
             return False
-        
     except Exception, instance:
         casalog.post("Error: " + str(instance), "SEVERE")
         raise instance
     finally:
         if _myia:
             _myia.done()
-        if _tmp:
-            _tmp.done()
+        if outia:
+            outia.done()
         if csys:
             csys.done()
-            
+
 def _imregrid_to_new_ref_frame(
-    _myia, imagename, template, output,
-    axes, shape, overwrite
+    _myia, imagename, template, output, axes,
+    shape, overwrite, interpolation, decimate
 ):
     _myia.open(imagename)
     csys = _myia.coordsys()
     if len(shape) > 0 and shape != [-1]:
          casalog.post(
-            "Specified shape parameter will be ignored when regridding to a new reference frame",
-            "WARN"
+            "Specified shape parameter will be ignored when regridding to a "
+            + "new reference frame", "WARN"
         )
     if len(axes) > 0 and axes != [-1]:
         casalog.post(
-            "Specified axes parameter will be ignored when regridding to a new reference frame",
+            "Specified axes parameter will be ignored when "
+            + "regridding to a new reference frame",
             "WARN"
         )
     dirinfo = csys.findcoordinate("direction")
@@ -145,15 +178,24 @@ def _imregrid_to_new_ref_frame(
         subi = _myia.subimage(output)
         _myia.done()
         csys.done()
-        subi.done()
-        return True
+        return subi
+    if (csys.projection()['type'] == 'SFL'):
+        raise Exception(
+            "The direction coordinate of this image has a projection "
+            "of SFL. Because of the constraints of this projection, "
+            "this image cannot be easily rotated. You may wish to "
+            "consider temporarily modifying the projection using "
+            "cs.setprojection() to allow rotation of the image."
+        )
     casalog.post(
         "Changing coordinate system from " + oldrefcode
         + " to " + newrefcode, 'INFO'
     )
     diraxes = dirinfo['pixel']
     if len(diraxes) != 2:
-        raise Exception("Unsupported number of direction axes. There must be exactly 2.")
+        raise Exception(
+            "Unsupported number of direction axes. There must be exactly 2."
+        )
     dirrefpix = csys.referencepixel("direction")["numeric"]
     shape = _myia.shape()
     centerpix = [int(shape[diraxes[0]]/2), int(shape[diraxes[1]]/2)]
@@ -175,10 +217,15 @@ def _imregrid_to_new_ref_frame(
         tsub = _myia.subimage()
         _myia.done()
         _myia = tsub
+        _myia.dohistory(False)
         _myia.setcoordsys(csys.torecord())
+    doref = (
+        csys.referencecode("direction")[0] == csys.conversiontype("direction")
+    )
     angle = csys.convertdirection(newrefcode)
-    mysin = qa.getvalue(qa.sin(angle))
-    mycos = qa.getvalue(qa.cos(angle))
+    myqa = qatool()
+    mysin = myqa.getvalue(myqa.sin(angle))
+    mycos = myqa.getvalue(myqa.cos(angle))
     xnew = 0
     ynew = 0
     for xx in [-centerpix[0], centerpix[0]]:
@@ -189,42 +236,45 @@ def _imregrid_to_new_ref_frame(
     if pad > 0:
         casalog.post(
             "Padding image by " + str(pad)
-            + " pixels so no pixels are cut off in the rotation",
+            + " pixels so no pixels are cut off in the regridding",
             "NORMAL"
         )
-        _myia = _myia.pad("", pad, wantreturn=True) 
+        _myia = _myia.pad("", pad, wantreturn=True)
+        _myia.dohistory(False)
         shape = _myia.shape()
         newrefpix = csys.referencepixel()['numeric']
         newrefpix[diraxes[0]] = newrefpix[diraxes[0]] + pad
         newrefpix[diraxes[1]] = newrefpix[diraxes[1]] + pad
         csys.setreferencepixel(newrefpix)            
-    casalog.post(
-        "Will rotate direction coordinate by "
-        + qa.tos(qa.convert(angle, "deg"))
-      , 'NORMAL'
+    regridded = _myia.regrid(
+        outfile="",shape=shape, csys=csys.torecord(), axes=diraxes,
+        method=interpolation, decimate=decimate ,doref=doref
     )
-    rot = _myia.rotate(outfile="", shape=shape, pa=angle)
-    rot.rotatebeam(angle=angle)
-    rot.setcoordsys(csys.torecord())
+    regridded.dohistory(False)
+    # beam is rotated counterclockwise
+    angle_in_deg = format("%7.3f" % myqa.convert(angle, "deg")['value'])
+    casalog.post(
+        "Will rotate beams counterclockwise by " + angle_in_deg + " degrees, "
+        + "if necessary, to account for angle between original and new frame "
+        + "at the reference pixel", 'NORMAL'
+    )
+    regridded.rotatebeam(angle=myqa.mul(-1, angle))
     # now crop
-                
     casalog.post("Cropping masked image boundaries", "NORMAL")
-    cropped = rot.crop(outfile=output, axes=diraxes, overwrite=overwrite)
-    cropped.done()   
-    rot.done()
+    cropped = regridded.crop(outfile=output, axes=diraxes, overwrite=overwrite) 
+    regridded.done()
     _myia.done()
-    return True
+    return cropped
 
 def _imregrid_handle_default_shape(
     imshape, image_csys, template_csys, 
     axestoregrid, tempshape, original_axes
 ):
-    # CAS-4959, output shape should have template shape
-    # for axes being regridded, input image shape for axes
-    # not being regridded,
-    # CAS-4960 in cases where the input image and template both have multiple stokes,
-    # the number of pixels on the output stokes axis is to be the number of stokes the
-    # input and template have in common
+    # CAS-4959, output shape should have template shape for axes being
+    # regridded, input image shape for axes not being regridded, CAS-4960 in
+    # cases where the input image and template both have multiple stokes, the
+    # number of pixels on the output stokes axis is to be the number of stokes
+    # the input and template have in common
     shape = imshape
     targetaxesnames = image_csys.names()
     template_spectral_info = template_csys.findcoordinate("Spectral")
@@ -236,8 +286,8 @@ def _imregrid_handle_default_shape(
         atr_count = 0
         for j in atr:
             if i == j:
-                # axis numbers may not correspond so have to look for the template axis
-                # location by the axis name, CAS-4960
+                # axis numbers may not correspond so have to look for the
+                # template axis location by the axis name, CAS-4960
                 template_axis = template_csys.findaxisbyname(targetaxesnames[i])
                 template_axis_length = tempshape[template_axis]
                 if (

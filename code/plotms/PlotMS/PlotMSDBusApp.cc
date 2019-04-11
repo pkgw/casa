@@ -28,6 +28,7 @@
 #include <plotms/Actions/ActionFactory.h>
 #include <plotms/Actions/PlotMSAction.h>
 #include <plotms/PlotMS/PlotMSFlagging.h>
+#include <plotms/PlotMS/PlotMSPageHeaderParam.h>
 #include <graphics/GenericPlotter/PlotOptions.h>
 
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
@@ -54,6 +55,8 @@ const String PlotMSDBusApp::PARAM_AVERAGING = "averaging";
 const String PlotMSDBusApp::PARAM_AXIS_X = "xAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
+const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
+const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -61,6 +64,10 @@ const String PlotMSDBusApp::PARAM_LEGENDPOSITION = "legendPosition";
 const String PlotMSDBusApp::PARAM_CLEARSELECTIONS = "clearSelections";
 const String PlotMSDBusApp::PARAM_DATACOLUMN_X = "xDataColumn";
 const String PlotMSDBusApp::PARAM_DATACOLUMN_Y = "yDataColumn";
+const String PlotMSDBusApp::PARAM_FRAME_X = "xFrame";
+const String PlotMSDBusApp::PARAM_FRAME_Y = "yFrame";
+const String PlotMSDBusApp::PARAM_INTERP_X = "xInterp";
+const String PlotMSDBusApp::PARAM_INTERP_Y = "yInterp";
 const String PlotMSDBusApp::PARAM_DATA_INDEX = "overplotDataIndex";
 const String PlotMSDBusApp::PARAM_FILENAME = "filename";
 const String PlotMSDBusApp::PARAM_FLAGGING = "flagging";
@@ -71,11 +78,13 @@ const String PlotMSDBusApp::PARAM_PRIORITY = "priority";
 const String PlotMSDBusApp::PARAM_SELECTION = "selection";
 const String PlotMSDBusApp::PARAM_TRANSFORMATIONS = "transformations";
 const String PlotMSDBusApp::PARAM_CALIBRATION = "calibration";
+const String PlotMSDBusApp::PARAM_PAGE_HEADER_ITEMS = "pageHeaderItems";
 const String PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY = "updateImmediately";
 const String PlotMSDBusApp::PARAM_WIDTH = "width";
 
 const String PlotMSDBusApp::PARAM_EXPORT_FILENAME = "plotfile";
 const String PlotMSDBusApp::PARAM_EXPORT_FORMAT = "expformat";
+const String PlotMSDBusApp::PARAM_EXPORT_VERBOSE = "verbose";
 const String PlotMSDBusApp::PARAM_EXPORT_RANGE = "exprange";
 const String PlotMSDBusApp::PARAM_EXPORT_HIGHRES = "highres";
 const String PlotMSDBusApp::PARAM_EXPORT_DPI = "dpi";
@@ -120,6 +129,8 @@ const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLSIZE = "flaggedsymbolsize";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLCOLOR = "flaggedsymbolcolor";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLFILL = "flaggedsymbolfill";
 const String PlotMSDBusApp::PARAM_FLAGGEDSYMBOLOUTLINE = "flaggedsymboloutline";
+const String PlotMSDBusApp::PARAM_XCONNECTOR = "xconnector";
+const String PlotMSDBusApp::PARAM_TIMECONNECTOR = "timeconnector";
 
 
 const String PlotMSDBusApp::METHOD_GETLOGPARAMS = "getLogParams";
@@ -148,7 +159,6 @@ const String PlotMSDBusApp::METHOD_ISDRAWING   = "isDrawing";
 const String PlotMSDBusApp::METHOD_ISCLOSED  = "isClosed";
 
 const String PlotMSDBusApp::METHOD_LOCATEINFO = "locateInfo";
-
 
 
 /* 
@@ -399,6 +409,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				ret.define(PARAM_AXIS_Y, PMS::axis(c->yAxis()));
 				ret.define(PARAM_DATACOLUMN_Y,
 						PMS::dataColumn(c->yDataColumn()));
+				ret.define(PARAM_SHOWATM, c->showAtm());
+				ret.define(PARAM_SHOWTSKY, c->showTsky());
 			}
 
 			if (disp!=NULL)  {
@@ -476,6 +488,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppp.setGroup<PMS_PP_Canvas>();
 			ppcan = ppp.typedGroup<PMS_PP_Canvas>();
 		}
+
+		PMS_PP_PageHeader* pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		if (pp_pgheader == NULL) {
+			ppp.setGroup<PMS_PP_PageHeader>();
+			pp_pgheader = ppp.typedGroup<PMS_PP_PageHeader>();
+		}
+
 		PMS_PP_Iteration* ppiter = ppp.typedGroup<PMS_PP_Iteration>();
 		if (ppiter == NULL) {
 			ppp.setGroup<PMS_PP_Iteration>();
@@ -514,6 +533,13 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			PlotMSCalibration calib = ppdata->calibration();
 			calib.fromRecord(parameters.asRecord(PARAM_CALIBRATION));
 			ppdata->setCalibration(calib);
+		}
+
+		if(parameters.isDefined(PARAM_PAGE_HEADER_ITEMS) &&
+				parameters.dataType(PARAM_PAGE_HEADER_ITEMS) == TpString) {
+			PageHeaderItems headerItems;
+			headerItems.setItems(parameters.asString(PARAM_PAGE_HEADER_ITEMS));
+			pp_pgheader->setPageHeaderItems(headerItems);
 		}
 
 		if(parameters.isDefined(PARAM_ITERATE) &&
@@ -560,6 +586,47 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			if(ok){
 				ppcache->setYDataColumn(dc, dataIndex);
 			}
+		}
+		PMS::CoordSystem cs;
+		if(parameters.isDefined(PARAM_FRAME_X) &&
+				parameters.dataType(PARAM_FRAME_X) == TpString) {
+			cs = PMS::coordSystem(parameters.asString(PARAM_FRAME_X), &ok);
+			if(ok){
+				ppcache->setXFrame(cs, dataIndex);
+			}
+		}
+		if(parameters.isDefined(PARAM_FRAME_Y) &&
+				parameters.dataType(PARAM_FRAME_Y) == TpString) {
+			cs = PMS::coordSystem(parameters.asString(PARAM_FRAME_Y), &ok);
+			if(ok){
+				ppcache->setYFrame(cs, dataIndex);
+			}
+		}
+		PMS::InterpMethod im;
+		if(parameters.isDefined(PARAM_INTERP_X) &&
+				parameters.dataType(PARAM_INTERP_X) == TpString) {
+			im = PMS::interpMethod(parameters.asString(PARAM_INTERP_X), &ok);
+			if(ok){
+				ppcache->setXInterp(im, dataIndex);
+			}
+		}
+		if(parameters.isDefined(PARAM_INTERP_Y) &&
+				parameters.dataType(PARAM_INTERP_Y) == TpString) {
+			im = PMS::interpMethod(parameters.asString(PARAM_INTERP_Y), &ok);
+			if(ok){
+				ppcache->setYInterp(im, dataIndex);
+			}
+		}
+
+		if(parameters.isDefined(PARAM_SHOWATM) &&
+				parameters.dataType(PARAM_SHOWATM) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWATM);
+			ppcache->setShowAtm(show);
+		}
+		if(parameters.isDefined(PARAM_SHOWTSKY) &&
+				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWTSKY);
+			ppcache->setShowTsky(show);
 		}
 
 
@@ -690,6 +757,17 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppdisp->setFlaggedSymbol(ps, dataIndex);
 		}
 
+		if(parameters.isDefined(PARAM_XCONNECTOR) &&
+			parameters.dataType(PARAM_XCONNECTOR) == TpString)   {
+			String xconnector = parameters.asString(PARAM_XCONNECTOR);
+			ppdisp->setXConnect(xconnector, dataIndex);
+		}
+		if(parameters.isDefined(PARAM_TIMECONNECTOR) &&
+				parameters.dataType(PARAM_TIMECONNECTOR) == TpBool)   {
+			bool timeconnector = parameters.asBool(PARAM_TIMECONNECTOR);
+			ppdisp->setTimeConnect(timeconnector, dataIndex);
+		}
+
 		if(parameters.isDefined(PARAM_COLORIZE) &&
 				parameters.dataType(PARAM_COLORIZE) == TpBool)   {
 			bool want = parameters.asBool(PARAM_COLORIZE);
@@ -813,6 +891,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 	}
 	else if(methodName == METHOD_SHOW || methodName == METHOD_HIDE) {
 		itsPlotms_.showGUI(methodName == METHOD_SHOW);
+		itsPlotms_.allowPopups(false); // default for task
 		if(itsPlotms_.guiShown() && itsUpdateFlag_) {
 			bool completed = update();
 			if ( !completed ){
@@ -913,6 +992,9 @@ bool PlotMSDBusApp::_savePlot(const Record& parameters) {
 		}
 		if(ok) {
 			PlotExportFormat format(type, filename);
+			format.verbose = parameters.isDefined(PARAM_EXPORT_VERBOSE) ?
+				parameters.asBool(PARAM_EXPORT_VERBOSE) : True;
+			
 			format.resolution = (
 					parameters.isDefined(PARAM_EXPORT_HIGHRES)
 					&& parameters.asBool(PARAM_EXPORT_HIGHRES)
@@ -944,6 +1026,10 @@ void PlotMSDBusApp::dbusXmlReceived(const QtDBusXML& xml) {
 void PlotMSDBusApp::log(const String& m) {
 	itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS,
 			m, PMS::LOG_EVENT_DBUS);
+}
+
+void PlotMSDBusApp::logWarn(const String& m) {
+    itsPlotms_.getLogger()->postMessage(PMS::LOG_ORIGIN, PMS::LOG_ORIGIN_DBUS, m, PMS::LOG_EVENT_DBUSWARN);
 }
 
 bool PlotMSDBusApp::plotParameters(int& plotIndex) const {

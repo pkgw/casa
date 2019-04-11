@@ -1,5 +1,6 @@
 from mpi4casa.MPIEnvironment import MPIEnvironment
 
+
 def casalogger(logfile=''):
     """
     Spawn a new casalogger using logfile as the filename.
@@ -34,22 +35,15 @@ def casalogger(logfile=''):
         print 'Unrecognized OS: No logger available'
 
 
-thelogfile = ''
-
-if casa['files'].has_key('logfile') :
-    thelogfile = casa['files']['logfile']
-if casa['flags'].nologfile:
-    thelogfile = 'null'
-
 deploylogger = True
 
-if not os.access('.', os.W_OK) :
-    print
-    print "********************************************************************************"
-    print "Warning: no write permission in current directory, no log files will be written."
-    print "********************************************************************************"
+if not os.access('.', os.W_OK):
+    if casa['flags'].nologfile == False:
+        print
+        print "********************************************************************************"
+        print "Warning: no write permission in current directory, no log files will be written."
+        print "********************************************************************************"
     deploylogger = False
-    thelogfile = 'null'
 
 if casa['flags'].nologger :
     deploylogger = False
@@ -61,23 +55,17 @@ if casa['flags'].nogui :
 if MPIEnvironment.is_mpi_enabled and not MPIEnvironment.is_mpi_client:
     deploylogger = False
 
-if thelogfile == 'null':
-    pass
-else:
-    if thelogfile.strip() != '' :
-        if deploylogger:
-            casalogger(thelogfile)
-    else:
-        thelogfile = 'casapy-'+time.strftime("%Y%m%d-%H%M%S", time.gmtime())+'.log'
-        try:
-            open(thelogfile, 'a').close()
-        except:
-            pass
-        if deploylogger:
-            casalogger(thelogfile)
+if deploylogger and casa['files']['logfile'] != '/dev/null':
+    casalogger(casa['files']['logfile'])
 
+if (casa['state']['telemetry-enabled']):
+    casalog = casac.logsink(casa['files']['logfile'], True, casa['files']['telemetry-logfile'])
+    casatelemetry.setCasaLog(casalog)
+    if not MPIEnvironment.is_mpi_enabled or (MPIEnvironment.is_mpi_enabled and MPIEnvironment.is_mpi_client):
+        casatelemetry.submitStatistics()
+else :
+    casalog = casac.logsink(casa['files']['logfile'])
 
-casalog = casac.logsink(casa['files']['logfile'])
 
 processor_origin = MPIEnvironment.processor_origin
 casalog.processorOrigin(processor_origin)

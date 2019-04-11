@@ -41,42 +41,42 @@
 
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
-
-	
-
-	
 
 	
 
 	
 
 	
-#include "CHolographyChannelType.h"
+
+	
+
+	
+#include <alma/Enumerations/CHolographyChannelType.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -95,7 +95,7 @@ class HolographyRow;
  * Used for Single-Dish holography with a fixed transmitter.
  * <BR>
  
- * Generated from model's revision "1.64", branch "HEAD"
+ * Generated from model's revision "-1", branch ""
  *
  * <TABLE BORDER="1">
  * <CAPTION> Attributes of Holography </CAPTION>
@@ -131,7 +131,7 @@ class HolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numCorr </TD> 
+ * <TD> numCorr (numCorr)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of stored correlations. </TD>
@@ -139,7 +139,7 @@ class HolographyRow;
 	
  * <TR>
  * <TD> type </TD> 
- * <TD> vector<HolographyChannelTypeMod::HolographyChannelType > </TD>
+ * <TD> std::vector<HolographyChannelTypeMod::HolographyChannelType > </TD>
  * <TD>  numCorr </TD> 
  * <TD> &nbsp;identifies the types of the correlation signals. </TD>
  * </TR>
@@ -290,7 +290,7 @@ public:
  	 * @param type
 	
      */
-	HolographyRow *newRow(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type);
+	HolographyRow *newRow(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type);
 	
 
 
@@ -381,7 +381,7 @@ public:
  	 * @param type
  	 		 
  	 */
-	HolographyRow* lookup(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type); 
+	HolographyRow* lookup(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
@@ -407,6 +407,9 @@ private:
 	std::string version ; 
 	
 	Entity entity;
+	
+
+	
 	
 
 	// A map for the autoincrementation algorithm

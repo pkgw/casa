@@ -26,7 +26,7 @@
 #ifndef PLOTMSSUMMARYDIALOG_QO_H
 #define PLOTMSSUMMARYDIALOG_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <plotms/Gui/PlotMSSummaryDialog.ui.h>
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <casa/BasicSL/String.h>
@@ -48,9 +48,11 @@ public:
     //Is the summary verbose?
     bool isVerbose() const;
     casacore::String getFileName() const;
-    void filesChanged(const vector<casacore::String>& fileNamees);
+    void filesChanged(const std::vector<casacore::String>& fileNamees);
     //Return the summary type.
     PMS::SummaryType getSummaryType() const;
+    PMS::CTSummaryType getCTSummaryType() const;
+	inline bool isMS() { return isMS_; }
     ~PlotMSSummaryDialog();
 
 private slots:
@@ -60,6 +62,8 @@ private slots:
 private:
     PlotMSSummaryDialog* summarizeDialog;
     Ui::PlotMSSummaryDialogClass ui;
+
+	bool isMS_;
 };
 
 }

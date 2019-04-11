@@ -26,7 +26,7 @@
 #ifndef DATASYMBOLWIDGET_QO_H
 #define DATASYMBOLWIDGET_QO_H
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include <plotms/GuiTabs/PlotMSDataSymbolWidget.ui.h>
 
 namespace casa {
@@ -56,6 +56,7 @@ signals:
 
 private slots:
 	void symbolColorizeChanged();
+	void connectorChanged();
 
 private:
     // Symbol widgets for unflagged and flagged points, respectively.

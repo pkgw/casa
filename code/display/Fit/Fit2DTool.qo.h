@@ -25,7 +25,7 @@
 #ifndef FIT2DTOOL_QO_H
 #define FIT2DTOOL_QO_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 #include <QProgressDialog>
 #include <QFileDialog>
 #include <casa/aipstype.h>
@@ -52,7 +52,7 @@ namespace casa {
 
 	public:
 		Fit2DTool(QWidget *parent = 0);
-		void setImage( SHARED_PTR<const casacore::ImageInterface<float> > image);
+		void setImage( std::shared_ptr<const casacore::ImageInterface<float> > image);
 		bool setImageRegion( casacore::ImageRegion* imageRegion, int id );
 		void deleteImageRegion( int id );
 		void imageRegionSelected( int id );
@@ -117,7 +117,7 @@ namespace casa {
 		void updateFrame();
 
 		const QString REGION_LABEL;
-        SHARED_PTR<const casacore::ImageInterface<float> > image;
+        std::shared_ptr<const casacore::ImageInterface<float> > image;
 		QList<RegionShape*> fitMarkers;
 		Gaussian2DFitter* fitter;
 		ColorComboDelegate* fitColorDelegate;

@@ -147,20 +147,51 @@ void QPScaleDraw::setReferenceValue(bool on, double value) {
 }
 
 QwtText QPScaleDraw::label(double value) const {
-    if(m_referenceSet) value -= m_referenceValue;
-    if(m_scale == DATE_MJ_DAY || m_scale == DATE_MJ_SEC) {
-	// Relative dates should always be positive values;
-	// if not, default axes range 0-1000 used since no data
-	// and subtracting reference time invalid 
-	if (m_referenceSet && (value < 0.0)) 
-		value = 0.0;
-	String dateString = Plotter::formattedDateString(m_referenceSet ? m_relativeDateFormat : m_dateFormat, value, m_scale, m_referenceSet);
-        return QString(Plotter::formattedDateString(
-                m_referenceSet ? m_relativeDateFormat : m_dateFormat, value,
-                m_scale, m_referenceSet).c_str());        
-    } else return QwtScaleDraw::label(value);
+	if(m_referenceSet) value -= m_referenceValue;
+	if(m_scale == DATE_MJ_DAY || m_scale == DATE_MJ_SEC) {
+		// Relative dates should always be positive values;
+		// converting neg double to date doesn't work.
+		// If ref value is 0 then all values are zero
+		int timePrecision;
+		if (m_referenceSet && (m_referenceValue==0.0 || value < 0.0)) {
+			value = 0.0;
+			timePrecision = 0;
+		} else {
+			timePrecision = getTickPrecision();
+			if (timePrecision > 4) timePrecision = 4;
+		}
+		return QString(Plotter::formattedDateString(
+			m_referenceSet ? m_relativeDateFormat : m_dateFormat, value,
+			m_scale, m_referenceSet, timePrecision).c_str());
+	} else {
+		int tprecision = getTickPrecision();
+		if (tprecision >=0) {
+			stringstream ss;
+			if (tprecision > 5) tprecision=5;
+			ss.precision(tprecision);
+			ss << fixed << value;
+			return QString(ss.str().c_str());
+		} else {  // with shared axis, ticks are not set
+			return QwtScaleDraw::label(value);
+		}
+	}
 }
 
+int QPScaleDraw::getTickPrecision() const {
+	// find tick step to get precision and make labels uniform
+	QList<double> ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
+	if (ticks.size() == 0) {
+		return -1;
+	} else {
+		double step = abs(ticks[1] - ticks[0]);
+		int tickPrecision = floor(log10(step));
+		if (tickPrecision > 0) // int
+			tickPrecision = 0;
+		else
+			tickPrecision = abs(tickPrecision);
+		return tickPrecision;
+	}
+}
 
 //////////////////////////
 // QPLEGEND DEFINITIONS //

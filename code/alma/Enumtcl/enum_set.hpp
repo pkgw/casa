@@ -3,12 +3,9 @@
 #include <bitset>
 #include <vector>
 
-using namespace std;
-
 template<typename type>
 struct enum_set_traits
 {
-  // friend struct enum_set_traiter; // commented out so it will build on llvm
   typedef type enum_type;
   static const bool         is_specialized = false;
   static const type         first = type();

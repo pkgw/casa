@@ -14,15 +14,13 @@
 
 #if     !defined(_ASSOCIATEDFIELDNATURE_H)
 
-#include <CAssociatedFieldNature.h>
+#include <alma/Enumerations/CAssociatedFieldNature.h>
 #define _ASSOCIATEDFIELDNATURE_H
 #endif 
 
 #if     !defined(_ASSOCIATEDFIELDNATURE_HH)
 
-#include "Enum.hpp"
-
-using namespace AssociatedFieldNatureMod;
+#include <alma/Enumtcl/Enum.hpp>
 
 template<>
  struct enum_set_traits<AssociatedFieldNatureMod::AssociatedFieldNature> : public enum_set_traiter<AssociatedFieldNatureMod::AssociatedFieldNature,3,AssociatedFieldNatureMod::PHASE_REFERENCE> {};
@@ -31,21 +29,21 @@ template<>
 class enum_map_traits<AssociatedFieldNatureMod::AssociatedFieldNature,void> : public enum_map_traiter<AssociatedFieldNatureMod::AssociatedFieldNature,void> {
 public:
   static bool   init_;
-  static string typeName_;
-  static string enumerationDesc_;
-  static string order_;
-  static string xsdBaseType_;
+  static std::string typeName_;
+  static std::string enumerationDesc_;
+  static std::string order_;
+  static std::string xsdBaseType_;
   static bool   init(){
     EnumPar<void> ep;
-    m_.insert(pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
+    m_.insert(std::pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
      (AssociatedFieldNatureMod::ON,ep((int)AssociatedFieldNatureMod::ON,"ON","un-documented")));
-    m_.insert(pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
+    m_.insert(std::pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
      (AssociatedFieldNatureMod::OFF,ep((int)AssociatedFieldNatureMod::OFF,"OFF","un-documented")));
-    m_.insert(pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
+    m_.insert(std::pair<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> >
      (AssociatedFieldNatureMod::PHASE_REFERENCE,ep((int)AssociatedFieldNatureMod::PHASE_REFERENCE,"PHASE_REFERENCE","un-documented")));
     return true;
   }
-  static map<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> > m_;
+  static std::map<AssociatedFieldNatureMod::AssociatedFieldNature,EnumPar<void> > m_;
 };
 #define _ASSOCIATEDFIELDNATURE_HH
 #endif
