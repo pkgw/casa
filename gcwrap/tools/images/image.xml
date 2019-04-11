@@ -1238,70 +1238,72 @@ collapsed.done()
                 <description>Method to use for calculating pixel values of output. Supported values are "copy" or "mean".</description>
                 <value>copy</value>
             </param>
-            	<param type="any" direction="in" name="region">
-            	<any type="variant" limittypes="string record"/>
-            	<description>Region selection. Default is to use the full image.</description>
-            	<value type="string"/>
-        	</param>
-        	<param type="string"  name="mask">
-            	<description>Mask to use. Default setting is none. </description>
-            	<value type="string"/>
-       		</param>
-       	 	<param type="bool"  name="overwrite">
-         	   <description>Overwrite (unprompted) pre-existing output file? Ignored if "outfile" is left blank. </description>
-        	    <value>false</value>
-       		</param>
-        	<param type="bool"  name="stretch">
-         	   <description>Stretch the mask if necessary and possible? Default value is False.</description>
-         	   <value>false</value>
-        	</param>
+                <param type="any" direction="in" name="region">
+                <any type="variant" limittypes="string record"/>
+                <description>Region selection. Default is to use the full image.</description>
+                <value type="string"/>
+            </param>
+            <param type="string"  name="mask">
+                <description>Mask to use. Default setting is none. </description>
+                <value type="string"/>
+            </param>
+            <param type="bool"  name="overwrite">
+               <description>Overwrite (unprompted) pre-existing output file? Ignored if "outfile" is left blank. </description>
+                <value>false</value>
+            </param>
+            <param type="bool"  name="stretch">
+               <description>Stretch the mask if necessary and possible? Default value is False.</description>
+               <value>false</value>
+            </param>
         </input>
         <returns type="image"/>
-		<description>
-			This application removes planes along the specified axis of an image. It supports both float valued and complex
-			valued images. The factor parameter represents the factor by which to reduce the number
-			of planes. 
-			
-			The method parameter represents how to calculate the pixel values of the output image. A
-			value of method="copy" means that every factorth plane of the selected region in the input
-			image will be directly copied to the corresponding plane in the output image. So, if one
-			wanted to copy every third spectral plane in the input image to the output image, one would
-			specify factor=3 and method="copy". If the selected region along the specified axis had 11
-			planes, then there would be 4 output planes which would map to planes 0, 3, 6, and 9 of
-			the specified region of input image. A value of method="mean" indicates that each of
-			factor number of planes in the range starting at each factorth plane should be averaged to 
-			produce the corresponding output plane. So, if one specified factor=3 and method="mean" along 
-			an axis of the selected region of the input image which had 11 pixels, the corresponding axis
-			in the output image would have three pixels and the pixel values for each of those output
-			planes would corresponding to averaging along that axis planes 0-2, 3-5, and 6-8 of the
-			selected region of the input image. Note that the remaining planes, 9 and 10, in the selected
-			region of the input image would be ignored because the last interval must have exactly
-			factor number of planes in order to be included in the output image.
-			
-			The coordinate system of the output image takes into account the decimation; that is, along the
-			decimated axis, the increment of the output image is factor times that of the input image, and
-			the reference pixel of the output image is located at pixel 1/factor times the reference pixel
-			in the input image.
-			
-			This method returns an image analysis tool which references the output image. If this tool
-			is not desired, one should capture it anyway and then close() it immediately to free up
-			resources.
-			
-			Images with multiple beams are not supported; please convolve a multi-beam image to a single
-			resolution before running this application.
-		</description>
-		<example>
-			# Copy verbatim every 5th plane of axis 2 of the input image
-			ia.open("myim.im")
-			decimated = ia.decimate("dec1.im", axis=2, factor=5, method="copy")
-			# do stuff with decimated and then close it
-			decimated.close()
-			
-			# Decimte by averaging every 7 planes of the input image along axis 2
-			decimated = ia.decimate("dec2.im", axis=2, factor=7, method="mean")
-			# do stuff with decimated and then close it
-			decimated.close()
-		</example>
+        <description>
+            This application removes planes along the specified axis of an image. It supports both float valued and complex
+            valued images. The factor parameter represents the factor by which to reduce the number
+            of planes. 
+            
+            The method parameter represents how to calculate the pixel values of the output image. A
+            value of method="copy" means that every factorth plane of the selected region in the input
+            image will be directly copied to the corresponding plane in the output image. So, if one
+            wanted to copy every third spectral plane in the input image to the output image, one would
+            specify factor=3 and method="copy". If the selected region along the specified axis had 11
+            planes, then there would be 4 output planes which would map to planes 0, 3, 6, and 9 of
+            the specified region of input image. A value of method="mean" indicates that each of
+            factor number of planes in the range starting at each factorth plane should be averaged to 
+            produce the corresponding output plane. So, if one specified factor=3 and method="mean" along 
+            an axis of the selected region of the input image which had 11 pixels, the corresponding axis
+            in the output image would have three pixels and the pixel values for each of those output
+            planes would corresponding to averaging along that axis planes 0-2, 3-5, and 6-8 of the
+            selected region of the input image. Note that the remaining planes, 9 and 10, in the selected
+            region of the input image would be ignored because the last interval must have exactly
+            factor number of planes in order to be included in the output image.
+            
+            The coordinate system of the output image takes into account the decimation; that is, along the
+            decimated axis, the increment of the output image is factor times that of the input image, and
+            the reference pixel of the output image is located at pixel 1/factor times the reference pixel
+            in the input image.
+            
+            This method returns an image analysis tool which references the output image. If this tool
+            is not desired, one should capture it anyway and then close() it immediately to free up
+            resources.
+            
+            Images with multiple beams are not supported; please convolve a multi-beam image to a single
+            resolution before running this application.
+        </description>
+        <example>
+            # Copy verbatim every 5th plane of axis 2 of the input image
+            ia.open("myim.im")
+            decimated = ia.decimate("dec1.im", axis=2, factor=5, method="copy")
+            # do stuff with decimated and then close it
+            decimated.close()
+            
+            # Decimate by averaging every 7 planes of the input image along axis 2
+            decimated = ia.decimate("dec2.im", axis=2, factor=7, method="mean")
+            # do stuff with decimated and then close it
+            decimated.close()
+            # close input ia tool
+            ia.close()
+        </example>
     </method>
 
     <method type="function" name="dohistory">

@@ -860,7 +860,7 @@ record* measures::shift(const record& v, const variant& offset, const variant& p
 			"pa must be an angular quantity"
 		);
 		MeasureHolder in;
-		std::auto_ptr<Record> x(toRecord(v));
+		std::unique_ptr<Record> x(toRecord(v));
 		String error;
 		ThrowIf(
 			!in.fromRecord(error, *x),

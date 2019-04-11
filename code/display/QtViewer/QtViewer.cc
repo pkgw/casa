@@ -25,7 +25,9 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 //# $Id$
+#if ! defined(WITHOUT_DBUS)
 #include <display/QtViewer/QtDBusViewerAdaptor.qo.h>
+#endif
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
 #include <display/QtViewer/QtCleanPanelGui.qo.h>
@@ -45,7 +47,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	QtViewer::QtViewer( const std::list<std::string> &args, bool is_server, const char *dbus_name ) :
-		QtViewerBase(is_server), dbus_(NULL), args_(args), is_server_(is_server) {
+		QtViewerBase(is_server),
+#if ! defined(WITHOUT_DBUS)
+		dbus_(NULL),
+#endif
+		args_(args), is_server_(is_server) {
 
 		name_ = (is_server_ ? "view_server" : "viewer");
 		dbus_name_ = (dbus_name ? dbus_name : 0);
@@ -66,10 +72,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//   casa::qInitResources_QtViewer()     :-)   dk
 
 		if ( is_server_ ) {
+#if ! defined(WITHOUT_DBUS)
 			dbus_ = new QtDBusViewerAdaptor(this);
 			dbus_->connectToDBus(dbus_name_);
 		} else {
 			dbus_ = 0;
+#else
+			fprintf( stderr, "CONNECTION TO DBUS WOULD HAPPEN HERE\n" );
+			fflush( stderr );
+#endif
 		}
 	}
 

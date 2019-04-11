@@ -115,7 +115,31 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Vector<Double> WADMAxisLabellerWorldMin, WADMAxisLabellerWorldMax;
 
 		Int WADMAxisLabellerSpecCoordIdx = -1;
-		SpectralCoordinate WADMAxisLabellerSpecCoord;
+		/***********************************************************************************
+		 ***********************************************************************************
+		 **** With casacore commit: https://github.com/casacore/casacore/pull/817       ****
+		 **** it is no longer possible to create a global SpectralCoordinate variable.  ****
+		 **** Creating a global SpectralCoordinate variable results in an infinite loop ****
+		 **** of MeasConvert initialization....                                         ****
+		 ****  casacore::Allocator_private::BulkAllocatorImpl<...>::destroy(...)        ****
+		 ****  casacore::Block<unsigned int>::deinit (...)                              ****
+		 ****  casacore::Block<unsigned int>::resize (...)                              ****
+		 ****  casacore::Block<unsigned int>::resize (...)                              ****
+		 ****  casacore::MeasConvert<MDoppler>::addMethod (...)                         ****
+		 ****  casacore::MCDoppler::getConvert (...)                                    ****
+		 ****  casacore::MeasConvert<MDoppler>::create (...)                            ****
+		 ****  casacore::MeasConvert<MDoppler>::MeasConvert (...)                       ****
+		 ****  casacore::VelocityMachine::init (...)                                    ****
+		 ****  casacore::VelocityMachine::VelocityMachine (...)                         ****
+		 ****  casacore::SpectralCoordinate::makeVelocityMachine (...)                  ****
+		 ****  casacore::SpectralCoordinate::SpectralCoordinate (...)                   ****
+		 ****  __static_initialization_and_destruction_0 (...)                          ****
+		 ***********************************************************************************
+		 **********************************************************************************/
+		SpectralCoordinate &WADMAxisLabellerSpecCoord( ) {
+			static SpectralCoordinate coord;
+			return coord;
+		}
 
 		Int WADMAxisLabellerVelAxis = -1;
 		Bool WADMAxisLabellerAbsolute = true;
@@ -142,7 +166,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		                   double *, int *ierr, int) {
 			// ASSUME everything has been set up correctly, ie.
 			// (WADMAxisLabellerCoordinateSystem != NULL)
-
 			static int err;
 			err = 0;
 
@@ -212,7 +235,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Convert absolute velocity to absolute frequency
 
-						if (!WADMAxisLabellerSpecCoord.velocityToFrequency(frequency, velocity)) {
+						if (!WADMAxisLabellerSpecCoord( ).velocityToFrequency(frequency, velocity)) {
 							err = 2;
 							cerr << "Problem (err=2) when converting velocity to frequency." << endl;
 							break;
@@ -300,7 +323,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 #endif
 // Convert absolute frequency to absolute velocity
 
-							if (!WADMAxisLabellerSpecCoord.frequencyToVelocity (velocity, frequency)) {
+							if (!WADMAxisLabellerSpecCoord( ).frequencyToVelocity (velocity, frequency)) {
 								cerr << "Problem (err=3) when converting frequency to velocity!" << endl;
 								err = 3;
 							} else {
@@ -412,20 +435,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // nlfunc needs these
 
 				WADMAxisLabellerSpecCoordIdx = i;
-				WADMAxisLabellerSpecCoord = pCS->spectralCoordinate(i);
+				WADMAxisLabellerSpecCoord( ) = pCS->spectralCoordinate(i);
 
 // We are going to need the velocity at the reference value
 // so we can convert relative velocity back to frequency
 
 				if (specAxis != -1) {
 					Double velRef;
-					if (!WADMAxisLabellerSpecCoord.frequencyToVelocity(velRef,
-					        WADMAxisLabellerSpecCoord.referenceValue()[0])) {
+					if (!WADMAxisLabellerSpecCoord( ).frequencyToVelocity(velRef,
+					        WADMAxisLabellerSpecCoord( ).referenceValue()[0])) {
 						return false;
 					}
 					WADMAxisLabellerVelRef = velRef;
 					WADMAxisLabellerVelAxis = specAxis;
-					WADMAxisLabellerFreqRef = WADMAxisLabellerSpecCoord.referenceValue()(0);
+					WADMAxisLabellerFreqRef = WADMAxisLabellerSpecCoord( ).referenceValue()(0);
 				}
 			}
 			break;

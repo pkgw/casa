@@ -610,7 +610,8 @@ class ImagerParameters():
         if imagename.count('/'):
             splitname = imagename.split('/')
             prefix = splitname[ len(splitname)-1 ]
-            dirname = './' + imagename[0: len(imagename)-len(prefix)]   # has '/' at end
+            ### if it has a leading / then absolute path is assumed
+            dirname = (imagename[0: len(imagename)-len(prefix)])  if (imagename[0] == '/') else    ('./' + imagename[0: len(imagename)-len(prefix)]) # has '/' at end
 
         inamelist = [fn for fn in os.listdir(dirname) if any([fn.startswith(prefix)])];
 
@@ -645,7 +646,8 @@ class ImagerParameters():
             if imagename.count('/'):
                 splitname = imagename.split('/')
                 prefix = splitname[ len(splitname)-1 ]
-                dirname = './' + imagename[0: len(imagename)-len(prefix)]   # has '/' at end
+                dirname = (imagename[0: len(imagename)-len(prefix)])  if (imagename[0] == '/') else    ('./' + imagename[0: len(imagename)-len(prefix)]) # has '/' at end
+                
 
             dirnames[immod] = dirname
             prefixes[immod] = prefix

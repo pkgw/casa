@@ -35,7 +35,7 @@
 
 #include <QPainter>
 #include <QDebug>
-
+#include <iomanip>
 using namespace casacore;
 namespace casa {
 
@@ -53,10 +53,12 @@ const String QPScatterPlot::CLASS_NAME = "QPScatterPlot";
 QPScatterPlot::QPScatterPlot(PlotPointDataPtr data, const String& title):
         m_data(data), m_symbol(QPFactory::defaultPlotSymbol()),
         m_line(QPFactory::defaultPlotLine()),
+        m_step(false),
         m_maskedSymbol(QPFactory::defaultPlotMaskedSymbol()),
         m_maskedLine(QPFactory::defaultPlotLine()),
         m_errorLine(QPFactory::defaultPlotLine()),
-        m_errorCap(QPFactory::DEFAULT_ERROR_CAP) {
+        m_errorCap(QPFactory::DEFAULT_ERROR_CAP),
+        m_maskedStep(false) {
     QPPlotItem::setTitle(title);
     
     if(!data.null()) {
@@ -75,10 +77,12 @@ QPScatterPlot::QPScatterPlot(PlotPointDataPtr data, const String& title):
 QPScatterPlot::QPScatterPlot(const ScatterPlot& copy) :
         m_data(copy.pointData()), m_symbol(QPFactory::defaultPlotSymbol()),
         m_line(QPFactory::defaultPlotLine()),
+        m_step(false),
         m_maskedSymbol(QPFactory::defaultPlotMaskedSymbol()),
         m_maskedLine(QPFactory::defaultPlotLine()),
         m_errorLine(QPFactory::defaultPlotLine()),
-        m_errorCap(QPFactory::DEFAULT_ERROR_CAP) {
+        m_errorCap(QPFactory::DEFAULT_ERROR_CAP), 
+        m_maskedStep(false) {
     QPPlotItem::setTitle(copy.title());
     
     if(!m_data.null()) {
@@ -459,56 +463,177 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             }
         }
     }
-    
+
+    unsigned int numBins(1);
+    if (!m_coloredData.null()) numBins = m_coloredData->numBins();
     // Draw normal/masked lines
     bool drawLine = m_line.style() != PlotLine::NOLINE,
          drawMaskedLine = !m_maskedData.null() &&
-                          m_maskedLine.style() != PlotLine::NOLINE;
+                          m_maskedLine.style() != PlotLine::NOLINE,
+         diffColorLine = !m_coloredData.null() && m_coloredData->isBinned();
     if(drawLine || drawMaskedLine) {
-        double tempx, tempy, tempx2, tempy2;
-        int ix, iy, ix2, iy2;
+        // connect last point to this point
+        double lastx, lasty, thisx, thisy;
+        int lastix, lastiy, thisix, thisiy;
         if(!m_maskedData.null()) {
-            bool mask;
+            bool lastmask, thismask, sameMask;
+            bool sameBin(true), sameLine(true);
             
             // set the painter's pen only once if possible
-            bool samePen = m_line.asQPen() == m_maskedLine.asQPen();
-            if(!drawMaskedLine || samePen) p->setPen(m_line.asQPen());
-            
-            m_maskedData->xyAndMaskAt(drawIndex, tempx, tempy, mask);
-            ix = xMap.transform(tempx); iy = yMap.transform(tempy);
-            
-            for(unsigned int i = drawIndex + 1; i < n; i++) {
-                m_maskedData->xAndYAt(i, tempx2, tempy2);
-                ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                if(drawLine && !mask) {
-                    if(drawMaskedLine && !samePen) p->setPen(m_line.asQPen());
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                        p->drawLine(ix, iy, ix2, iy2);
-                } else if(drawMaskedLine && mask) {
-                    if(drawLine && !samePen) p->setPen(m_maskedLine.asQPen());
-                    ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                    if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                        p->drawLine(ix, iy, ix2, iy2);
-                }
-                tempx = tempx2; tempy = tempy2;
-                ix = ix2; iy = iy2;
+            // if unmasked==masked color or only one unmasked/masked line used
+            bool samePen(m_line.asQPen() == m_maskedLine.asQPen());
+            if (!drawMaskedLine || samePen) p->setPen(m_line.asQPen());
+            if (!drawLine) p->setPen(m_maskedLine.asQPen());
+           
+            // get first point
+            m_maskedData->xyAndMaskAt(drawIndex, lastx, lasty, lastmask);
+            lastix = xMap.transform(lastx);
+            lastiy = yMap.transform(lasty);
+
+            unsigned int thisColorBin;  // for colorized data
+            unsigned int lastConnectBin, thisConnectBin; // whether to connect
+            if (diffColorLine) {
+                lastConnectBin = m_coloredData->connectBinAt(drawIndex);
             }
-            
+            for(unsigned int i = drawIndex + 1; i < n; i++) {
+                // get this point
+                m_maskedData->xyAndMaskAt(i, thisx, thisy, thismask);
+                thisix = xMap.transform(thisx);
+                thisiy = yMap.transform(thisy);
+                // don't connect nan and inf points, or points at same x 
+                if (!casacore::isNaN(thisx) && !casacore::isNaN(thisy) &&
+                    !casacore::isInf(thisx) && !casacore::isInf(thisy) &&
+                    (thisx != lastx)) {
+
+                    bool reversed(m_maskedData->reverseConnect(i));
+                    if (diffColorLine) {  // set pen for colorized plot
+                        QPen linePen;
+                        if (!drawMaskedLine || samePen)
+                           linePen = m_line.asQPen();
+                        if (!drawLine)
+                           linePen = m_maskedLine.asQPen();
+                        thisColorBin = m_coloredData->binAt(i);
+						thisConnectBin = m_coloredData->connectBinAt(i);
+                        sameBin = (thisConnectBin==lastConnectBin);
+                        unsigned int colorBin = thisColorBin % numBins;
+                        QBrush coloredBrush = m_coloredBrushes[colorBin];
+                        linePen.setBrush(coloredBrush);
+                        QColor brushColor = coloredBrush.color();
+                        linePen.setColor(brushColor);
+                        p->setPen(linePen);
+                        // compare connect bins then save for next point
+                        if (reversed)
+                            sameLine = sameBin && (thisx < lastx); // for colorized data
+                        else
+                            sameLine = sameBin && (thisx > lastx); // for colorized data
+                        lastConnectBin = thisConnectBin;
+                    }
+
+                    sameMask = (thismask==lastmask); // only connect same-masked points
+                    bool secondpoint(i==drawIndex+1), morepoints(i<n-1);
+
+                    double nextx, nexty;
+                    bool nextmask;
+                    if (morepoints) {
+                        m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
+                    }
+
+                    if (drawLine && !thismask) { // connect unflagged pts
+                        if(drawMaskedLine && !samePen && !diffColorLine)
+                            p->setPen(m_line.asQPen()); // set pen for unflagged symbols
+                        if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
+                            if (m_step) {  // need midpoint for step
+                                if (sameMask && sameLine) { // connect to last point
+                                    int ixdiff(((lastix + thisix)/2) - lastix); // midpoint for step
+                                    // 3 lines: last pt to mid; vertical line; mid to this point
+                                    p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
+                                    p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
+                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+
+                                    if (secondpoint) { // draw leading line for first point in plot
+                                        p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
+                                    }
+
+                                    // normally, next point draws trailing line for last point unless:
+                                    // 1. this is last point in plot or in this line (bin changes)
+                                    // 2. same bin but mask changes for next point
+                                    if (!morepoints || (morepoints && (m_coloredData->connectBinAt(i+1)!=thisConnectBin))) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // last point
+                                    }
+                                    if ((morepoints && (m_coloredData->connectBinAt(i+1) == thisConnectBin)) &&
+                                        (nextmask != thismask)) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy); // mask changes
+                                    }
+                                } else if ((i < n-1) && (m_coloredData->connectBinAt(i+1)==thisConnectBin))  {
+                                    // first point in new line, use next point to draw leading line
+                                    if (nextmask==thismask) {
+                                        int nextix(xMap.transform(nextx));
+                                        int ixdiff(((thisix + nextix)/2) - thisix);
+                                        // don't want ix<0
+                                        if (ixdiff > thisix) ixdiff=thisix;
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
+                                }
+                            } else if (sameMask && sameLine) { // connect last point to this point
+                                p->drawLine(lastix, lastiy, thisix, thisiy);
+                            }
+                        }
+                    } else if(drawMaskedLine && thismask) { // connect flagged points
+                        if(drawLine && !samePen && !diffColorLine)
+                            p->setPen(m_maskedLine.asQPen());  // set pen for flagged symbols
+                        if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy)) {
+                            if (m_maskedStep) {
+                                if (sameMask && sameLine) {
+                                    int ixdiff(((lastix + thisix)/2) - lastix); // midpoint for step
+                                    p->drawLine(lastix, lastiy, thisix-ixdiff, lastiy);
+                                    p->drawLine(thisix-ixdiff, lastiy, thisix-ixdiff, thisiy);
+                                    p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    if (secondpoint) {
+                                        p->drawLine(lastix-ixdiff, lastiy, lastix, lastiy);
+                                    }
+                                    if (!morepoints || (morepoints && (m_coloredData->connectBinAt(i+1)!=thisConnectBin))) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+                                    }
+                                    if ((morepoints && (m_coloredData->connectBinAt(i+1) == thisConnectBin)) &&
+                                        (nextmask != thismask)) {
+                                        p->drawLine(thisix, thisiy, thisix+ixdiff, thisiy);
+                                    }
+                                } else if ((i < n-1) && (m_coloredData->connectBinAt(i+1)==thisConnectBin))  {
+                                    double nextx, nexty;
+                                    bool nextmask;
+                                    m_maskedData->xyAndMaskAt(i+1, nextx, nexty, nextmask);
+                                    if (nextmask==thismask) {
+                                        int nextix(xMap.transform(nextx));
+                                        int ixdiff(((thisix + nextix)/2) - thisix);
+                                        if (ixdiff > thisix) ixdiff=thisix;
+                                        p->drawLine(thisix-ixdiff, thisiy, thisix, thisiy);
+                                    }
+                                }
+                            } else if (sameMask && sameLine) { // connect last point to this point
+                                p->drawLine(lastix, lastiy, thisix, thisiy);
+                            }
+                        }
+                    }
+                }
+                lastx = thisx; lasty = thisy;
+                lastix = thisix; lastiy = thisiy;
+                lastmask = thismask;
+            }
         } else {
             p->setPen(m_line.asQPen());
-            m_data->xAndYAt(drawIndex, tempx, tempy);
-            ix = xMap.transform(tempx); iy = yMap.transform(tempy);
+            m_data->xAndYAt(drawIndex, lastx, lasty);
+            lastix = xMap.transform(lastx);
+            lastiy = yMap.transform(lasty);
             for(unsigned int i = drawIndex + 1; i < n; i++) {
-                m_data->xAndYAt(i, tempx2, tempy2);
-                ix2 = xMap.transform(tempx2); iy2 = yMap.transform(tempy2);
-                if(brect.contains(ix, iy) || brect.contains(ix2, iy2))
-                    p->drawLine(ix, iy, ix2, iy2);
-                tempx = tempx2; tempy = tempy2;
-                ix = ix2; iy = iy2;
+                m_data->xAndYAt(i, thisx, thisy);
+                thisix = xMap.transform(thisx); thisiy = yMap.transform(thisy);
+                if(brect.contains(lastix, lastiy) || brect.contains(thisix, thisiy))
+                    p->drawLine(lastix, lastiy, thisix, thisiy);
+                lastix = thisix; lastiy = thisiy;
             }
         }
     }
-        
+ 
     // Draw normal/masked symbols
     bool drawSymbol = m_symbol.symbol() != PlotSymbol::NOSYMBOL,
          drawMaskedSymbol = !m_maskedData.null() &&
@@ -565,7 +690,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(brush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -596,7 +722,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(mbrush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -645,7 +772,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(brush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -666,7 +794,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                             if(!sameBrush) p->setBrush(mbrush);
                         }
                         if(diffColor) {
-                            QBrush coloredBrush = m_coloredBrushes[m_coloredData->binAt(i)];
+                            unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
+                            QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
@@ -692,7 +821,8 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                                        yMap.transform(tempy)));
                 if(!brect.intersects(rect)) continue;
                 if(diffColor) {
-                    p->setBrush(m_coloredBrushes[m_coloredData->binAt(i)]);
+                    unsigned int colorBin = m_coloredData->binAt(i) % numBins;
+                    p->setBrush(m_coloredBrushes[colorBin]);
                 }
                 m_symbol.draw(p, rect);
             }

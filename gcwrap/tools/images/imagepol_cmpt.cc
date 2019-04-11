@@ -56,7 +56,7 @@ imagepol::open(const variant& image){
 		if(itsImPol) delete itsImPol;
 		if(image.type()==variant::RECORD){
 			variant localvar(image);
-			std::auto_ptr<Record> tmp(
+			std::unique_ptr<Record> tmp(
 				toRecord(localvar.asRecord())
 			);
 			TempImage<Float> tmpim;
