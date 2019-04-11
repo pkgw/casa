@@ -2839,7 +2839,7 @@ TEST_F(TestDirection, setDirectionColumn  )
 {
 
     // =TUNABLE
-      setMaxAntenna(3);         // more than zero 
+      setMaxAntenna(1);         // more than zero 
       setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
 
     // set Examination Condition (revised by CAS-8418) //

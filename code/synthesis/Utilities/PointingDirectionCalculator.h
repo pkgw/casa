@@ -375,7 +375,7 @@ private:
         casa::SplineInterpolation                     *currSpline_ = nullptr;   
 
      // Spline Object for each Direction-Column 
-        std::unique_ptr<casa::SplineInterpolation>     splineObj_[PtColID::nItems];
+        std::unique_ptr<casa::SplineInterpolation>     splineObj_[PtColID::nItems] = {};
 
      // Internal conditions to check limitted service.  
         casacore::Vector<bool>                         initializeReady_  ;

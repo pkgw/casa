@@ -1017,6 +1017,7 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
 
         // SWITCH Master pointer  // 
         currSpline_ = splineObj_[DirColNo].get();
+        assert(currSpline!=nullptr);
  
         return true;   // Servece already OK //
     }
@@ -1034,6 +1035,7 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
           coefficientReady_ [DirColNo] = spTemp-> isCoefficientReady();
 
         // move to Spline obj. //
+          assert(splineObj_[DirColNo]!=nullptr);
           splineObj_[DirColNo] = std::move(spTemp);
 
         // copy to Master pointer, if this is desired.  // 
@@ -1244,39 +1246,7 @@ void SplineInterpolation::init(MeasurementSet const &ms,
     // Table Active ..
       stsCofficientReady = true;
 
-
-}
-
-// Dump Coefficient Table ..//
-void SplineInterpolation::dumpCsvCoeff()
-{
-    FILE* fp = fopen( "coeff.csv","w" );
-
-    for(uInt ant=0; ant < coeff_.size(); ant++ )
-    {
-        uInt size2 = coeff_[ant].size();
-        printf( "AntID=%u, size=%u \n",ant, size2);
-        for(uInt i=0; i< size2; i++)
-        {
-            Double x_c0 = coeff_[ant][i][0][0];
-            Double x_c1 = coeff_[ant][i][0][1];
-            Double x_c2 = coeff_[ant][i][0][2];
-            Double x_c3 = coeff_[ant][i][0][3];
-
-            Double y_c0 = coeff_[ant][i][1][0];
-            Double y_c1 = coeff_[ant][i][1][1];
-            Double y_c2 = coeff_[ant][i][1][2];
-            Double y_c3 = coeff_[ant][i][1][3];
-
-            fprintf(fp,"Spline::COEFF[%d],%4d,", ant, i );
-            fprintf(fp, "X, %-12.5e, %-12.5e, %-12.5e, %-12.5e,|,",
-                    x_c0, x_c1, x_c2, x_c3 );
-                
-            fprintf(fp, "Y, %-12.5e, %-12.5e, %-12.5e, %-12.5e \n",
-                    y_c0, y_c1, y_c2, y_c3 );
-        }
-    }
-    fclose(fp);
+    // In case COEFF inspection needed, locate dump here. //
 
 }
 
@@ -1289,6 +1259,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 {
     debuglog << "SplineInterpolation::calculate()" << debugpost;
 
+#if 1
     // Error check //
     uInt arraySize = coeff_[antID].size();
     if(  index >= arraySize)
@@ -1298,9 +1269,24 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         ss << "Bugcheck. Requested Index is too large." << endl; 
         throw AipsError(ss.str());
     }
-
+#endif 
     // Coefficient //
 
+#if 1
+    auto pCoeff_1 =coeff_[antID][index][0];
+    auto pCoeff_2 =coeff_[antID][index][1];
+
+    Double a0 = pCoeff_1[0];
+    Double a1 = pCoeff_1[1];
+    Double a2 = pCoeff_1[2];
+    Double a3 = pCoeff_1[3];
+
+    Double b0 = pCoeff_2[0];
+    Double b1 = pCoeff_2[1];
+    Double b2 = pCoeff_2[2];
+    Double b3 = pCoeff_2[3];
+
+#else
     Double a0 = coeff_[antID][index][0][0];
     Double a1 = coeff_[antID][index][0][1];
     Double a2 = coeff_[antID][index][0][2];
@@ -1310,6 +1296,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     Double b1 = coeff_[antID][index][1][1];
     Double b2 = coeff_[antID][index][1][2];
     Double b3 = coeff_[antID][index][1][3];
+#endif 
 
    // Spline Calc //
 
