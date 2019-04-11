@@ -87,6 +87,8 @@ namespace casa{
       {
 	int numRow_p = vb.nRows();
 	antOffsets.resize(numRow_p); // The array is resized to fit for a given vb
+	if (PO_DEBUG_P==1)
+	  cerr << "-------------------------------------------------------------------------" << endl;
 	for (int irow=0; irow<numRow_p;irow++)
 	  {
 	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, dc_p.directionType(), doPointing); 
@@ -98,8 +100,20 @@ namespace casa{
 	    thePixDir2_l = toPix(vb, antDir2, antDir1);
 	    thePix_p = (thePixDir1_l + thePixDir2_l)/2.;
 	    antOffsets(irow) = gradPerPixel(thePix_p);
+	    if (PO_DEBUG_P==1)
+	      {
+		cerr << irow << " " 
+		     << vb.antenna1()[irow] << " " << vb.antenna2()[irow] << " " 
+		     << antDir1 << " " << antDir2 << " "
+		     << vb.direction1()(irow) << " " << vb.direction2()(irow) << " "
+		     << toPix(vb, antDir1, antDir2) << " " << toPix(vb, antDir2,antDir1)
+		     << endl;
+		
+	      }
 	    //cerr << irow << " " << antOffsets[irow]<< endl;
 	  }
+	if (PO_DEBUG_P==1)
+	  cerr << "=========================================================================" << endl;
       }
     else
       {
