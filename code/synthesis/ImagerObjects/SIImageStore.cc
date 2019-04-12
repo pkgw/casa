@@ -2841,12 +2841,19 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
   if (hasPB()) {
     // set bool mask: False = masked
     pbmask = LatticeExpr<Bool> (iif(*pb() > pbmasklevel, True, False));
+    os << LogIO::DEBUG1 << "pbmask to be attached===> nfalse(pbmask.getMask())="<<nfalse(pbmask.getMask())<<endl; 
   }
   
    
   Record thestats;
   if (fastcalc) { // older calculation 
-    thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    // need to apply pbmask if present to be consistent between fastcalc = true and false.
+    //TempImage<Float>* tempRes = new TempImage<Float>(residual()->shape(), residual()->coordinates(), SDMaskHandler::memoryToUse());
+    auto tempRes = std::shared_ptr<TempImage<Float>>(new TempImage<Float>(residual()->shape(), residual()->coordinates(), SDMaskHandler::memoryToUse()));
+    tempRes->copyData(*residual());
+    tempRes->attachMask(pbmask);
+    //thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    thestats = SDMaskHandler::calcImageStatistics(*tempRes, LELmask, regionPtr, True);
   }
   else { // older way to calculate 
     // use the new statistic calculation algorithm
