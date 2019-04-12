@@ -2503,7 +2503,7 @@ TEST_F(TestDirection, InterpolationSingle )
     // define Number of Antenna prepeared in MS //
     // =TUNABLE
       setMaxAntenna(1);         // more than zero 
-      setMaxPointingColumns(4); // from 1 to 5 (see  PtColID::nItems;) 
+      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
 
     // set Examination Condition (revised by CAS-8418) //
 
@@ -4251,6 +4251,23 @@ TEST_F(TestSetFrame, setFrame )
         }
 }
 
+
+TEST_F(TestDirection, LeakTest )
+{
+
+    const String MsName = DefaultLocalMsName;     
+
+    // Create Object //
+    
+    MeasurementSet ms1( MsName.c_str() );
+
+    PointingDirectionCalculator calc1(ms1);
+ 
+    printf("calling setDirectionColumn() \n");
+    calc1.setDirectionColumn( "TARGET"  );
+
+
+}
 
 }  // END namespace
 

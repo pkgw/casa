@@ -301,7 +301,7 @@ public:
 
     // Spline Object handle (on Debug)
 
-    inline casa::SplineInterpolation      *getCurrentSplineObj() { return currSpline_; }
+    inline casa::SplineInterpolation      *getCurrentSplineObj() {return currSpline_; }
 
     // Curret Direction column (=accessor in this source) (on Debug)
 
@@ -458,31 +458,6 @@ private:
         // Coeff debug in csv. //
           void dumpCsvCoeff();
 
-};
-
-//+
-// CAS-8418
-// Antenna Boundary Class
-//-
-class AntennaBoundary {
-public:
-         AntennaBoundary(casacore::MeasurementSet const &ms) ;
-        ~AntennaBoundary() { };
-
-        std::pair<casacore::uInt, casacore::uInt>  getAntennaBoundary( casacore::uInt n );
-    
-        casacore::uInt  getNumOfAntenna() {return numAntennaBoundary_ - 1;}
-
-        casacore::MSPointing  getPointingHandle() { return hPointing_; };
-
-private:
-       //  AntennaBoundary on Pointing Tablle 
-         casacore::Vector<casacore::uInt>            antennaBoundary_;
-         casacore::uInt                              numAntennaBoundary_;
-     
-       // Pointing Table handle
-         casacore::MSPointing hPointing_; 
- 
 };
 
 
