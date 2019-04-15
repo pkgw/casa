@@ -106,7 +106,7 @@ namespace LibAIR2 {
 	src.push_back(d.g_source()[i]);
       }
     }
-    std::auto_ptr<InterpArrayData> 
+    std::unique_ptr<InterpArrayData> 
       res(new InterpArrayData(time, 
 			      el,
 			      az,

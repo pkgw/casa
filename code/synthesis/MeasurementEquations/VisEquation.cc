@@ -60,6 +60,7 @@ VisEquation::VisEquation() :
   pivot_(VisCal::ALL),  // at the sky
   //  spwOK_(),
   useInternalModel_(false),
+  nVisTotal_(0),
   prtlev_(VISEQPRTLEV)
 {
   if (prtlev()>0) cout << "VE::VE()" << endl;
@@ -140,6 +141,9 @@ void VisEquation::setapply(PtrBlock<VisCal*>& vcin) {
   //  (for currently specified solve/apply types)
   //  TBD: only needed in setsolve?
   //  setFreqDep();
+
+  // Initialize visibility counter
+  nVisTotal_=0;
 
 }
 
@@ -236,6 +240,9 @@ void VisEquation::correct(VisBuffer& vb, Bool trial) {
   // (this is a no-op if no sort necessary)
   vb.sortCorr();
 
+  // Accumulate visibility count
+  nVisTotal_+=(vb.nCorr()*vb.nChannel()*vb.nRow());
+
   // Apply each VisCal in left-to-right order 
   for (Int iapp=0;iapp<napp_;iapp++)
     vc()[iapp]->correct(vb,trial);
@@ -255,6 +262,9 @@ void VisEquation::correct2(vi::VisBuffer2& vb, Bool trial, Bool doWtSp) {
 
   if (napp_==0) throw(AipsError("Nothing to Apply"));
 
+  // Accumulate visibility count
+  nVisTotal_+=(vb.nCorrelations()*vb.nChannels()*vb.nRows());
+
   // Apply each VisCal in left-to-right order 
   for (Int iapp=0;iapp<napp_;iapp++)
     vc()[iapp]->correct2(vb,trial,doWtSp);
@@ -268,6 +278,10 @@ Record VisEquation::actionRec() {
   // Add in each VisCal's record
   for (Int iapp=0;iapp<napp_;iapp++)
     cf.defineRecord(iapp,vc()[iapp]->actionRec());
+
+  // The TOTAL number of visibilities that passed through the VisEquationp
+  cf.define("nVisTotal",nVisTotal_);
+
   return cf;
 }
 
@@ -387,6 +401,88 @@ void VisEquation::collapse(VisBuffer& vb) {
 }
 
 //----------------------------------------------------------------------
+void VisEquation::diffModelStokes(vi::VisBuffer2& vb, std::map<String,Cube<Complex> > dMdS) {
+
+  Int nCorr(vb.nCorrelations());
+  if (nCorr<4)
+    throw(AipsError("Cannot differentiate w.r.t. Model Stokes unless data has four correlations"));
+
+  Int nChan(vb.nChannels());
+  Int nRow(vb.nRows());
+
+  // Incoming map should be empty
+  dMdS.clear();
+
+  // Basis-dependent indexing
+  Slice Isl(0,2,3);  // not basis-specific
+  Slice Qsl0,Qsl1,Usl0,Usl1,Vsl0,Vsl1;
+  Bool doCirc(true);
+  if (vb.correlationTypes()(0)==5) {
+    // Circular
+    doCirc=true;  
+    Qsl0=Slice(1);  // cross-hand
+    Qsl1=Slice(2);
+    Usl0=Slice(1);  // cross-hand
+    Usl1=Slice(2);
+    Vsl0=Slice(0);  // parallel-hand
+    Vsl1=Slice(3);
+  }
+  else if (vb.correlationTypes()(0)==9) {
+    // Linear
+    doCirc=false;  
+    Qsl0=Slice(0);  // parallel-hand
+    Qsl1=Slice(3);
+    Usl0=Slice(1);  // cross-hand
+    Usl1=Slice(2);
+    Vsl0=Slice(1);  // cross-hand
+    Vsl1=Slice(2);
+  }
+  else
+    throw(AipsError("Cannot differentiate w.r.t. Model Stokes for unrecognized polarization basis"));
+
+  Complex cOne(1,0), cIm(0,1);
+
+  String I("I");
+  dMdS[I]=Cube<Complex>(nCorr,nChan,nRow,0.0);
+  Cube<Complex>& dMdI(dMdS[I]);
+  dMdI(Isl,Slice(),Slice()).set(cOne);  // not basis-specific
+
+  String Q("Q");
+  dMdS[Q]=Cube<Complex>(nCorr,nChan,nRow,0.0);
+  Cube<Complex>& dMdQ(dMdS[Q]);
+  dMdQ(Qsl0,Slice(),Slice()).set(cOne);
+  dMdQ(Qsl1,Slice(),Slice()).set( (doCirc ? cOne : -cOne) );
+
+  String U("U");
+  dMdS[U]=Cube<Complex>(nCorr,nChan,nRow,0.0);
+  Cube<Complex>& dMdU(dMdS[U]);
+  dMdU(Usl0,Slice(),Slice()).set( (doCirc ? cIm : cOne) );
+  dMdU(Usl1,Slice(),Slice()).set( (doCirc ? -cIm : cOne) );
+
+  String V("V");
+  dMdS[V]=Cube<Complex>(nCorr,nChan,nRow,0.0);
+  Cube<Complex>& dMdV(dMdS[V]);
+  dMdV(Vsl0,Slice(),Slice()).set( (doCirc ? cOne : cIm) );
+  dMdV(Vsl1,Slice(),Slice()).set( (doCirc ? -cOne : -cIm) );
+
+  Int ridx=napp_-1;
+ 
+  // Corrupt MODEL down to solved-for term (incl. same type as solved-for term)
+  while (ridx>-1    && vc()[ridx]->type() >= svc().type()) {
+    vc()[ridx]->corrupt2(vb,dMdI);
+    vc()[ridx]->corrupt2(vb,dMdQ);
+    vc()[ridx]->corrupt2(vb,dMdU);
+    vc()[ridx]->corrupt2(vb,dMdV);
+    ridx--;
+  }
+
+}
+
+
+
+
+
+//----------------------------------------------------------------------
 void VisEquation::collapse2(vi::VisBuffer2& vb) {
 
   if (prtlev()>0) cout << "VE::collapse2(VB2)" << endl;
@@ -440,6 +536,13 @@ void VisEquation::collapse2(vi::VisBuffer2& vb) {
   if (svc().normalizable())
     divideCorrByModel(vb);
   
+
+  // Make fractional visibilities, if appropriate 
+  // (e.g., for some polarization calibration solves on point-like calibrators)
+  if (svc().divideByStokesIModelForSolve())
+    divideByStokesIModel(vb);
+
+
 }
 
 void VisEquation::divideCorrByModel(vi::VisBuffer2& vb) {
@@ -504,6 +607,67 @@ void VisEquation::divideCorrByModel(vi::VisBuffer2& vb) {
 	  ++flp;
 	  ++wtp;
 	} // icorr
+      }	// ichan  
+    } // !flagRow
+  } // irow
+  
+  // Set unchan'd weight, in case someone wants it
+  // NB: Use of median increases cost by ~100%
+  // NB: use of mean increases cost by ~50%
+  //  ...but both are inaccurate if some channels flagged,
+  //  and it should not be necessary to do this here
+  vb.setWeight(partialMedians(vb.weightSpectrum(),IPosition(1,1),True));
+  //vb.setWeight(partialMeans(vb.weightSpectrum(),IPosition(1,1)));
+
+}
+
+void VisEquation::divideByStokesIModel(vi::VisBuffer2& vb) {
+
+  Int nCorr(vb.nCorrelations());
+
+  // This divides corrected data and model by the Stokes I model 
+  //  ... and updates weightspec accordingly
+
+  Cube<Complex> c(vb.visCubeCorrected());
+  Cube<Complex> m(vb.visCubeModel());
+  Cube<Bool> fl(vb.flagCube());
+  Cube<Float> w(vb.weightSpectrum());
+
+  Complex cOne(1.0);
+
+  for (Int irow=0;irow<vb.nRows();++irow) {
+    if (vb.flagRow()(irow)) {
+      // Row flagged, make sure cube also flagged, weight/data zeroed
+      c(Slice(),Slice(),Slice(irow,1,1))=0.0f;
+      w(Slice(),Slice(),Slice(irow,1,1))=0.0f;
+      fl(Slice(),Slice(),Slice(irow,1,1))=True;
+    }
+    else {
+      Bool *flp=&fl(0,0,irow);
+      Float *wtp=&w(0,0,irow);
+      Complex *cvp=&c(0,0,irow);
+      Complex *mvp=&m(0,0,irow);
+
+      for (Int ichan=0;ichan<vb.nChannels();++ichan) {
+	Complex Imod(0.0);
+	Float Iamp2(1.0);
+	if (!fl(0,ichan,irow) && !fl(nCorr-1,ichan,irow)) {
+	  Imod=(m(0,ichan,irow) + m(nCorr-1,ichan,irow))/2.0f;
+	  Iamp2=real(Imod*conj(Imod));  // squared model amp (for weight adjust)
+	  if (Iamp2>0.0f) {
+	    for (Int icorr=0;icorr<nCorr;++icorr) {
+	      Float& W(*wtp);
+	      Complex& C(*cvp);
+	      Complex& M(*mvp);
+	      C/=Imod;
+	      M/=Imod;
+	      W*=Iamp2;
+	      ++cvp;
+	      ++mvp;
+	      ++wtp;
+	    } // icorr
+	  } // non-zero Imod
+	} // parallel hands not flagged
       }	// ichan  
     } // !flagRow
   } // irow

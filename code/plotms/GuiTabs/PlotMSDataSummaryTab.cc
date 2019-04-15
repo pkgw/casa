@@ -57,8 +57,13 @@ PlotMSDataSummaryTab::PlotMSDataSummaryTab(PlotMSPlotter* parent) :
 
 	 // Add as watcher.
 	parent->getParent()->getPlotManager().addWatcher(this);
+
+	layout()->setAlignment(Qt::AlignTop);
     
     scrollWidget = new QWidget( ui.dataScroll );
+    //scrollWidget->setStyleSheet("QScrollArea#scrollWidget { background-color: green; }");
+    //scrollWidget->setMaximumHeight(850);
+
     ui.dataScroll->setWidget( scrollWidget );
     ui.dataScroll->setWidgetResizable( true );
     QVBoxLayout* scrollLayout = new QVBoxLayout();

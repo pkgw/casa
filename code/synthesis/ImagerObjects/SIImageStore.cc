@@ -234,13 +234,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  itsMiscInfo=imptr->miscInfo();
 	}
 	else
-	  { 
+	  {
 	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
 	    buildImage( imptr, (itsImageName+String(".gridwt")) );
 	  }
-	  
-	itsImageShape = imptr->shape();
+
+	itsImageShape=imptr->shape();
 	itsCoordSys = imptr->coordinates();
+	
       }
     else
       {
@@ -252,7 +253,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
 
 	
-    if( doesImageExist(itsImageName+String(".sumwt"))  )
+    if( doesImageExist(itsImageName+String(".sumwt")) )
       {
 	std::shared_ptr<ImageInterface<Float> > imptr;
 	//imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
@@ -271,7 +272,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else
       {
-	throw( AipsError( "SumWt information does not exist. Please create either a PSF or Residual" ) );
+	  throw( AipsError( "SumWt information does not exist. Please create either a PSF or Residual" ) );
       }
 
       }// if psf or residual exist...
@@ -855,7 +856,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	return;
       }
 
-    std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    // master merge 2019.01.08 - leaving in the commnets for now but clean up after it is verified 
+    //SHARED_PTR<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
+    //SHARED_PTR<ImageInterface<Float> > newmodel;
+    std::shared_ptr<ImageInterface<Float> > newmodel;
+    buildImage(newmodel, modelname);
+    // in master
+    //std::shared_ptr<PagedImage<Float> > newmodel( new PagedImage<Float>( modelname ) ); //+String(".model") ) );
 
     Bool hasMask = newmodel->isMasked(); /// || newmodel->hasPixelMask() ;
     
@@ -1058,9 +1065,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     accessImage( itsMask, itsParentMask, imageExts(MASK) );
     return itsMask;
   }
-  std::shared_ptr<ImageInterface<Float> > SIImageStore::gridwt(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::gridwt(IPosition newshape)
+
   {
-    accessImage( itsGridWt, itsParentGridWt, imageExts(GRIDWT) );
+    if(newshape.empty()){
+      accessImage( itsGridWt, itsParentGridWt, imageExts(GRIDWT) );
+    }
+    else{
+      if(!itsGridWt  || (itsGridWt && (itsGridWt->shape() != newshape))){
+	itsGridWt.reset();  // deassign previous one hopefully it'll close it
+	CoordinateSystem newcoordsys=itsCoordSys;
+	if(newshape.nelements() > 4){
+	  Matrix<Double> pc(1,1);      pc = 1.0;
+	  LinearCoordinate zc(Vector<String>(1, "FIELD_ORDER"), Vector<String>(1, ""), Vector<Double>(1, 0.0), Vector<Double>(1,1.0), pc, Vector<Double>(1,0.0));
+	  newcoordsys.addCoordinate(zc);
+	  itsGridWt.reset(new PagedImage<Float>(newshape, newcoordsys, itsImageName+ imageExts(GRIDWT)));
+	}
+
+      }
+    }
     /// change the coordinate system here, to uv.
     return itsGridWt;
   }
@@ -1198,8 +1221,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
   {
     LogIO os( LogOrigin("SIImageStore","setWeightDensity",WHERE) );
-
-    gridwt()->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
+    //gridwt()->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
+    //looks like you have to call them before hand or it crashes in parallel sometimes
+    IPosition shape=(imagetoset->gridwt())->shape();
+    os << LogIO::DEBUG2 << "SHAPES " << imagetoset->gridwt()->shape() << "   " << gridwt()->shape() << endl;
+    (gridwt(shape))->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
 
   }
 
@@ -2672,10 +2698,12 @@ Float SIImageStore::getPeakResidual()
 {
     LogIO os( LogOrigin("SIImageStore","getPeakResidual",WHERE) );
 
-    LatticeExprNode pres( max(abs( *residual() ) ));
+    ArrayLattice<Bool> pixelmask(residual()->getMask());
+    LatticeExpr<Float> resd(iif(pixelmask,abs(*residual()),0));
+    //LatticeExprNode pres( max(abs( *residual() ) ));
+    LatticeExprNode pres( max(abs(resd) ));
     Float maxresidual = pres.getFloat();
 
-    //    Float maxresidual = max( residual()->get() );
 
     return maxresidual;
   }
@@ -2686,7 +2714,8 @@ Float SIImageStore::getPeakResidualWithinMask()
         Float minresmask, maxresmask, minres, maxres;
     //findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
 
-    findMinMaxLattice(*residual(), *mask() , maxres,maxresmask, minres, minresmask);
+    ArrayLattice<Bool> pixelmask(residual()->getMask());
+    findMinMaxLattice(*residual(), *mask() , pixelmask, maxres,maxresmask, minres, minresmask);
     
     //return maxresmask;
     return max( abs(maxresmask), abs(minresmask) );
@@ -2861,15 +2890,18 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
     LogIO os( LogOrigin("SIImageStore","printImageStats",WHERE) );
     Float minresmask=0, maxresmask=0, minres=0, maxres=0;
     //    findMinMax( residual()->get(), mask()->get(), minres, maxres, minresmask, maxresmask );
+    ArrayLattice<Bool> pixelmask(residual()->getMask());
     if(hasMask())
       {
-	findMinMaxLattice(*residual(), *mask() , maxres,maxresmask, minres, minresmask);
+	findMinMaxLattice(*residual(), *mask() , pixelmask, maxres,maxresmask, minres, minresmask);
       }
     else
       {
-	LatticeExprNode pres( max( *residual() ) );
+	//LatticeExprNode pres( max( *residual() ) );
+	LatticeExprNode pres( max( iif(pixelmask,*residual(),0) ) );
 	maxres = pres.getFloat();
-	LatticeExprNode pres2( min( *residual() ) );
+	//LatticeExprNode pres2( min( *residual() ) );
+	LatticeExprNode pres2( min( iif(pixelmask,*residual(),0) ) );
 	minres = pres2.getFloat();
       }
 
@@ -2881,6 +2913,15 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
 
     os << "[" << itsImageName << "] Total Model Flux : " << getModelFlux() << LogIO::POST; 
 
+    
+    Record*  regionPtr=0;
+    String LELmask("");
+    Record thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    Array<Double> maxs, mins;
+    thestats.get(RecordFieldId("max"), maxs);
+    thestats.get(RecordFieldId("min"), mins);
+    //os << LogIO::DEBUG1 << "Max : " << maxs << LogIO::POST;
+    //os << LogIO::DEBUG1 << "Min : " << mins << LogIO::POST;
     
   }
 
@@ -2899,9 +2940,13 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
 
 Bool SIImageStore::findMinMaxLattice(const Lattice<Float>& lattice, 
 				     const Lattice<Float>& mask,
+                                     const Lattice<Bool>& pixelmask,
 				     Float& maxAbs, Float& maxAbsMask, 
 				     Float& minAbs, Float& minAbsMask )
 {
+
+  //FOR DEGUG
+  //LogIO os( LogOrigin("SIImageStore","findMinMaxLattice",WHERE) );
 
   maxAbs=0.0;maxAbsMask=0.0;
   minAbs=1e+10;minAbsMask=1e+10;
@@ -2911,7 +2956,8 @@ Bool SIImageStore::findMinMaxLattice(const Lattice<Float>& lattice,
   {
     RO_LatticeIterator<Float> li(lattice, ls);
     RO_LatticeIterator<Float> mi(mask, ls);
-    for(li.reset(),mi.reset();!li.atEnd();li++, mi++) {
+    RO_LatticeIterator<Bool> pmi(pixelmask, ls);
+    for(li.reset(),mi.reset(),pmi.reset();!li.atEnd();li++, mi++, pmi++) {
       IPosition posMax=li.position();
       IPosition posMin=li.position();
       IPosition posMaxMask=li.position();
@@ -2920,16 +2966,24 @@ Bool SIImageStore::findMinMaxLattice(const Lattice<Float>& lattice,
       Float minVal=0.0;
       Float maxValMask=0.0;
       Float minValMask=0.0;
-      
-      minMaxMasked(minValMask, maxValMask, posMin, posMax, li.cursor(), mi.cursor());
 
-      minMax( minVal, maxVal, posMin, posMax, li.cursor() );
-    
+
+      // skip if lattice chunk is masked entirely.
+      if(ntrue(pmi.cursor()) > 0 ) {
+        MaskedArray<Float> marr(li.cursor(), pmi.cursor());
+        MaskedArray<Float> marrinmask(li.cursor() * mi.cursor(), pmi.cursor());
+      //minMax( minVal, maxVal, posMin, posMax, li.cursor() );
+      minMax( minVal, maxVal, posMin, posMax, marr );
+      //minMaxMasked(minValMask, maxValMask, posMin, posMax, li.cursor(), mi.cursor());
+      minMax(minValMask, maxValMask, posMin, posMax, marrinmask);
+      
+      //os<<"DONE minMax"<<LogIO::POST; 
       if( (maxVal) > (maxAbs) ) maxAbs = maxVal;
       if( (maxValMask) > (maxAbsMask) ) maxAbsMask = maxValMask;
 
       if( (minVal) < (minAbs) ) minAbs = minVal;
       if( (minValMask) < (minAbsMask) ) minAbsMask = minValMask;
+      }
 
     }
   }

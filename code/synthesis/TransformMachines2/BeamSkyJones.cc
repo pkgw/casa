@@ -94,7 +94,8 @@ void BeamSkyJones::reset()
 {
   lastFieldId_p=-1;
   lastArrayId_p=-1;
-  lastMSId_p=0;  
+  lastMSId_p=0;
+  lastTime_p=-1.0;
   telescope_p="";
 }
 
@@ -175,6 +176,13 @@ Bool BeamSkyJones::changed(const vi::VisBuffer2& vb, Int row)
      vb.fieldId()(0)!=lastFieldId_p)  {
         lastUpdateVisBuffer_p=NULL; // invalidate index cache
         return true;
+  }
+
+  MDirection::Types pointingdirType=MDirection::castType(lastDirections_p[lastUpdateIndex1_p].getRef().getType());
+  //if in a local frame and time change => pointing  most probably changed
+  if((pointingdirType >= MDirection::HADEC) && (pointingdirType <= MDirection::AZELSWGEO)){
+    if(lastTime_p != vb.time()(0))
+      return True;
   }
   
   //if (lastUpdateIndex1_p<0 || lastUpdateIndex2_p<0) return true;
@@ -284,7 +292,7 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   lastFieldId_p=vb.fieldId()(0);
   lastArrayId_p=vb.arrayId()(0);
   lastMSId_p=vb.msId();
-
+  lastTime_p=vb.time()(0);
   if(!vbutil_p){
     vbutil_p=new VisBufferUtil(vb);
   }

@@ -210,7 +210,10 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
+                    print "pstr after checkims=",pstr
                     pstr += self.check_keywords(imexist)
+                    print "pstr after check_keywords=",pstr
+
 
           if imexistnot != None:
                if type(imexistnot)==list:
@@ -512,9 +515,13 @@ class TestHelpers():
              tbt.open(imname)
              keys = tbt.getkeywords()
          except RuntimeError as exc:
-             if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             #if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             if os.path.isfile(os.path.join(os.path.abspath(imname), 'imageconcat.json')):
                  # Looks like a refconcat image, nothing to check
-                 return ''
+                 #return ''
+                 # make a bit more informative
+                 pstr = 'Looks like it is a refconcat image. Skipping the imageinfo keywords check.'
+                 return pstr
              else:
                  pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
                  return pstr

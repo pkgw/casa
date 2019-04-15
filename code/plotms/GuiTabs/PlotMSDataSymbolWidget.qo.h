@@ -56,6 +56,7 @@ signals:
 
 private slots:
 	void symbolColorizeChanged();
+	void connectorChanged();
 
 private:
     // Symbol widgets for unflagged and flagged points, respectively.

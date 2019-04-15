@@ -28,12 +28,14 @@ class plotms_test_base(unittest.TestCase):
 
     testms  = "pm_ngc5921.ms"
     testms2 = "ngc5921.ms"
+    testms3 = "sun.subset.pentagon.ms"
     testcaltable = 'ngc5921.ref1a.gcal'
     outputDir="/tmp/" + str(os.getpid()) + "/"
     plotfile_jpg = "/tmp/myplot.jpg"
     display = os.environ.get("DISPLAY")
     ms = os.path.join(outputDir, testms)
     ms2 = os.path.join(outputDir, testms2)
+    ms3 = os.path.join(outputDir, testms3)
     caltable = os.path.join(outputDir, testcaltable)
 
     def cleanUp(self):
@@ -66,6 +68,11 @@ class plotms_test_base(unittest.TestCase):
         if not os.path.exists(self.caltable):
             shutil.copytree(os.path.join(calpath, self.testcaltable),
                     self.caltable, symlinks=True)
+
+    def setUppointingdata(self):
+        if not os.path.exists(self.ms3):
+            shutil.copytree(os.path.join(datapath,self.testms3),
+                    self.ms3, symlinks=True)
 
     def checkPlotfile(self, plotfileName, minSize, maxSize=None):
         self.assertTrue(os.path.isfile(plotfileName), "Plot was not created")
@@ -419,6 +426,7 @@ class test_axis(plotms_test_base):
     def setUp(self):
         self.checkDisplay()
         self.setUpdata()
+        self.setUppointingdata()
         
     def tearDown(self):
         self.tearDowndata()
@@ -571,13 +579,16 @@ class test_axis(plotms_test_base):
                 'sigma', 'sigmasp', 'flag', 'flagrow', 'uvdist', 
                 'uvwave', 'u', 'v', 'w', 'uwave', 'vwave', 'wwave', 
                 'azimuth', 'elevation', 'hourang', 'parang', 
-                'ant', 'ant-azimuth', 'ant-elevation', 'ant-parang',
+                'ant', 'ant-azimuth', 'ant-elevation', 'ant-parang', 'ant-ra', 'ant-dec',
                 'observation', 'intent']
         for axis in axes:
             filename = "testAxis10_" + axis + ".jpg"
             plotfile = os.path.join(self.outputDir, filename)
             self.removePlotfile(plotfile)
-            res = plotms(vis=self.ms, plotfile=plotfile, highres=True,
+            axis_vis = self.ms
+            if axis in ['ant-ra','ant-dec']:
+                axis_vis = self.ms3
+            res = plotms(vis=axis_vis, plotfile=plotfile, highres=True,
                          showgui=False, yaxis=axis)
             self.assertTrue(res)
             self.checkPlotfile(plotfile, 40000)
@@ -630,8 +641,76 @@ class test_axis(plotms_test_base):
         self.checkPlotfile(self.plotfile_jpg, 190000)
         print
 
+    def test_axis_radec_params(self,debug=False):
+        '''test_axis_radec_params: Test ant-ra/ant-dec parameters'''
+        yx_axes = [('ant-ra','time'),
+                   ('ant-dec','time'),
+                   ('ant-dec','ant-ra')
+                  ]
+        interp_methods = ['nearest','cubic']
+        # Sub-plots grid
+        grid_cols = len(yx_axes)
+        grid_rows = len(interp_methods)
+        n_plots = grid_rows*grid_cols
+        # Create 1 plot file per supported reference frame
+        ref_frames = {'icrs':30000,'j2000':30000,'azelgeo':30000}
+        for ref_frame, plot_min_size in ref_frames.iteritems():
+            # Plot file
+            plot_filename = "testAxis13_radec_" + ref_frame + ".png"
+            plot_dir = self.outputDir if not debug else '/tmp'
+            plot_path = os.path.join(plot_dir, plot_filename)
+            self.removePlotfile(plot_path)
+            # Create sub-plots, export plot when plotting last sub-plot
+            plot_index = 0
+            for row, interp_method in enumerate(interp_methods):
+                for col, (y_axis,x_axis) in enumerate(yx_axes):
+                    is_first_plot = (plot_index == 0)
+                    is_last_plot = ( (plot_index + 1) == n_plots)
+                    title_fmt = 'ref={ref_frame}, interp={interp}'
+                    title = title_fmt.format(ref_frame=ref_frame,
+                                             interp=interp_method)
+                    res = plotms(
+                              vis = self.ms3,
+                              #
+                              title = title,
+                              titlefont = 10,
+                              #
+                              gridrows = grid_rows,
+                              gridcols = grid_cols,
+                              #
+                              rowindex = row,
+                              colindex = col,
+                              plotindex = plot_index,
+                              #
+                              xaxis = x_axis,
+                              xframe = ref_frame,
+                              xinterp = interp_method,
+                              #
+                              yaxis = y_axis,
+                              yframe = ref_frame,
+                              yinterp = interp_method,
+                              #
+                              coloraxis = 'spw',
+                              #
+                              plotfile = plot_path if is_last_plot else '',
+                              width = 1024,
+                              height = 768,
+                              highres = True,
+                              overwrite = True,
+                              #
+                              clearplots = is_first_plot
+                          )
+                    self.assertTrue(res)
+                    plot_index = plot_index + 1
+                    # Note: last plotms call is blocking : plotms waits 
+                    #        until all plots are drawn before exporting
+            self.checkPlotfile(plot_path, plot_min_size)
+            if not debug:
+                self.removePlotfile(plot_path)
+        print
+
 # ------------------------------------------------------------------------------
-       
+
 class test_calibration(plotms_test_base):
     ''' test plotms callib parameter '''
 

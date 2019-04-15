@@ -46,6 +46,7 @@
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisBufferUtil.h>
 #include <msvis/MSVis/ViFrequencySelection.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
 namespace casa {
 
@@ -192,12 +193,16 @@ private:
   void mapIntentNamesToIds();   // create map
   // Use map to assign intent ids
   casacore::Vector<casacore::Int> assignIntentIds(casacore::Vector<casacore::Int>& stateIds);
+  // Check if plotting antennas pointing directions is supported for the given MeasurementSet
+  bool pointingsPlotSupported(const MeasurementSet* const &ms);
 
   // Provisional flagging helpers
   casacore::Vector<casacore::Int> nVBPerAve_;
 
   // VisIterator pointer
   vi::VisibilityIterator2* vi_p;
+
+  vi::PointingInterpolationTVI* piTvi_;
 
   // Volume meter for volume calculation
   MSCacheVolMeter* vm_;

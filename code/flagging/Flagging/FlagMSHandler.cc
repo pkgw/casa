@@ -471,7 +471,7 @@ FlagMSHandler::generateIterator()
       factories.push_back(directMsVIFactory.get());
 
       //Add a time averaging layer if so requested
-      std::auto_ptr<vi::AveragingVi2LayerFactory> timeAvgFactory;
+      std::unique_ptr<vi::AveragingVi2LayerFactory> timeAvgFactory;
       if(enableTimeAvg_p)
       {
         // Time averaging in clip mode uses the Time Averaging Iterator

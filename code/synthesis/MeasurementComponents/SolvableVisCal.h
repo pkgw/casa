@@ -141,6 +141,8 @@ public:
   inline casacore::Vector<casacore::Int>& refantlist()     { return urefantlist_; };
   inline casacore::Int&         minblperant()    { return minblperant_; };
   inline casacore::String&      apmode()         { return apmode_; };
+  inline casacore::String&      solmode()        { return solmode_; };
+  inline casacore::Vector<casacore::Float>& rmsthresh()      { return rmsthresh_; };
   inline casacore::String&      solint()         { return solint_; };
   inline casacore::String&      fsolint()        { return fsolint_; };
   inline casacore::Double&      preavg()         { return preavg_; };
@@ -175,6 +177,10 @@ public:
   // Does normalization by MODEL_DATA commute with this VisCal?
   //   (if so, permits pre-solve time-averaging)
   virtual casacore::Bool normalizable()=0;
+
+  // Should data and model be divided by Stokes I model  before average+solve?
+  //   (Nominally false, for now)
+  virtual casacore::Bool divideByStokesIModelForSolve() { return false; };
 
   // Is this type capable of accumulation?  (nominally no)
   virtual casacore::Bool accumulatable() { return false; };
@@ -351,6 +357,9 @@ public:
 
   // Retrieve the cal flag info as a record
   virtual casacore::Record actionRec();
+
+  // Retrieve solve-related info via Record
+  virtual casacore::Record solveActionRec();
 
   // Accumulate another VisCal onto this one
   virtual void accumulate(SolvableVisCal* incr,
@@ -608,6 +617,10 @@ private:
 
   // Solving mode
   casacore::String apmode_;
+
+  // Solver iteration mode
+  casacore::String solmode_;
+  casacore::Vector<casacore::Float> rmsthresh_;
 
   // User-specified full solint string
   casacore::String usolint_;

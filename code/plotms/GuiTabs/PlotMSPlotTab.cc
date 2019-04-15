@@ -396,7 +396,9 @@ PlotMSAxesTab* PlotMSPlotTab::insertAxesSubtab (int index)
           connect( tab, SIGNAL(yAxisIdentifierRemoved(int)),
         		  this, SLOT(removeAxisIdentifier(int)));
      }
+     //tab->setStyleSheet(QString("background-color: white"));
      insertSubtab (index, tab);
+     //tab->window()->update();
      return tab;
 }
 
