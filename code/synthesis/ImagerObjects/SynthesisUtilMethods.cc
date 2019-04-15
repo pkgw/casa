@@ -2043,6 +2043,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    throw(AipsError("spw selection failed")); 
 	  //cerr << "datafstart " << datafstart << " end " << datafend << endl;
 	  
+    std::cout << "buildCoordinateSystem() <0>" << std::flush << std::endl;
+    std::cout << "   mode         = " << mode << std::flush << std::endl;
+    std::cout << "   movingSource = " << movingSource << std::flush << std::endl;
 	  if (mode=="cubedata") {
 	    
 	    freqmin = datafstart;
@@ -2054,8 +2057,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    String ephemtab(movingSource);
 	    if(movingSource=="TRACKFIELD"){
+    std::cout << "buildCoordinateSystem() <1>" << std::flush << std::endl;
 	      Int fieldID=ROMSColumns(*mss[j]).fieldId()(0);
 	      ephemtab=Path(ROMSColumns(*mss[j]).field().ephemPath(fieldID)).absoluteName();
+    std::cout << "buildCoordinateSystem() <ephemtab = '" << ephemtab << "'>" << std::flush << std::endl;
 	    }
 	    MEpoch refep=ROMSColumns(*mss[j]).timeMeas()(0);
 	    Quantity refsysvel;
@@ -2070,6 +2075,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    */
 	  }
 	  else {
+    std::cout << "buildCoordinateSystem() <2>" << std::flush << std::endl;
 	    
 	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
 	    //cerr << "before " << freqmin << "   " << freqmax << endl;

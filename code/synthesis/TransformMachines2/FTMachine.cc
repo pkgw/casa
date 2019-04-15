@@ -1880,15 +1880,18 @@ using namespace casa::vi;
   
   
   void FTMachine::setMovingSource(const String& sname, const String& ephtab){
+    std::cout << "setMovingSource() <0>" << std::flush << std::endl;
     String sourcename=sname;
     String ephemtab=ephtab;
     //if a table is given as sourcename...assume ephemerides
     if(Table::isReadable(sourcename, False)){
+    std::cout << "setMovingSource() <1>" << std::flush << std::endl;
       sourcename="COMET";
       ephemtab=sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
+    std::cout << "setMovingSource() <2>" << std::flush << std::endl;
       //if(name().contains("MosaicFT"))
       //	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
       fixMovingSource_p=True;
@@ -1899,6 +1902,7 @@ using namespace casa::vi;
       return;
     }
 
+    std::cout << "setMovingSource() <3>" << std::flush << std::endl;
     MDirection::Types refType;
     Bool  isValid = MDirection::getType(refType, sourcename);
     if(!isValid)

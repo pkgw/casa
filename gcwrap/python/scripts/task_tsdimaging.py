@@ -786,7 +786,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             stokes=stokes,
             # fix specmode to 'cubedata'
             # output spectral coordinate will be determined based on mode, start, and width 
-            specmode='cube',
+            #specmode='cube',
+            specmode='cubesource',
             gridder='singledish',
             # single dish specific parameters
             gridfunction=gridfunction,
@@ -819,6 +820,30 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## (3) Construct the PySynthesisImager object, with all input parameters
         
         casalog.post('*** Creating imager object ***', origin=origin)
+        print '-----------------------------------------------------------'
+        print 'paramList = '
+        print 'SelPars: '
+        print str(paramList.allselpars)
+        print '----------------------------'
+        print 'ImagePars: '
+        print str(paramList.allimpars)
+        print '----------------------------'
+        print 'GridPars: '
+        print str(paramList.allgridpars)
+        print '----------------------------'
+        print 'NormPars: '
+        print str(paramList.allnormpars)
+        print '----------------------------'
+        print 'WeightPars: '
+        print str(paramList.weightpars)
+        print '----------------------------'
+        print 'DecPars: '
+        print str(paramList.alldecpars)
+        print '----------------------------'
+        print 'IterPars: '
+        print str(paramList.iterpars)
+        print '----------------------------'
+        print '-----------------------------------------------------------'
         imager = PySynthesisImager(params=paramList)
             
         ## (4) Initialize various modules. 
