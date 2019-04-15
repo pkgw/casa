@@ -201,10 +201,10 @@ public:
   // <group>
   virtual SkyComponent& apply(SkyComponent& in,
 			      SkyComponent& out,
-			      const VisBuffer& vb, casacore::Int row, casacore::Bool forward=true) = 0;
+			      const VisBuffer& vb, casacore::Int row, casacore::Bool forward=true, casacore::Bool fullSpectrum=false) = 0;
   virtual SkyComponent& applySquare(SkyComponent& in,
 				    SkyComponent& out,
-				    const VisBuffer& vb, casacore::Int row) = 0;
+				    const VisBuffer& vb, casacore::Int row, casacore::Bool fullspectrum=false) = 0;
   // </group>
 
   // Has this operator changed since the last application?

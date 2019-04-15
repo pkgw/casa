@@ -72,6 +72,7 @@
 #include <casa/Arrays/Slice.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
+#include <imageanalysis/Images/ComponentListImage.h>
 #include <images/Images/ImageBeamSet.h>
 #include <synthesis/MeasurementEquations/ClarkCleanProgress.h>
 #include <lattices/LatticeMath/LatticeCleanProgress.h>
@@ -1715,7 +1716,7 @@ Bool Imager::pb(const String& inimage,
 	return false;
       }
       inComps_pointer = new ComponentList(incomps);
-      outComps_pointer = new ComponentList( inComps_pointer->copy() );
+      //outComps_pointer = new ComponentList( inComps_pointer->copy() );
     }
     if (inimage !="") {
       if(!Table::isReadable(inimage)) {
@@ -1817,8 +1818,9 @@ Bool Imager::pb(const String& inimage,
 	return false;
       }
       Int ncomponents = inComps_pointer->nelements();
+      outComps_pointer = new ComponentList();
       for (Int icomp=0;icomp<ncomponents;++icomp) {
-	SkyComponent component=outComps_pointer->component(icomp);
+	SkyComponent component=(inComps_pointer->component(icomp)).copy();
 	if (operation=="apply") {
 	  myPBp->applyPB(component, component, pointingCenter, 
 			 qFreq, pa, squintType_p, false);
@@ -1826,6 +1828,11 @@ Bool Imager::pb(const String& inimage,
 	  myPBp->applyPB(component, component, pointingCenter, 
 			 qFreq, pa, squintType_p, true);
 	}
+	outComps_pointer->add(component);
+      }
+      if(outImage_pointer){
+	ComponentListImage clImage(*outComps_pointer, outImage_pointer->coordinates(), outImage_pointer->shape());
+	outImage_pointer->copyData(LatticeExpr<Float>((*outImage_pointer)+clImage));
       }
     }
     if (myPBp) delete myPBp;
