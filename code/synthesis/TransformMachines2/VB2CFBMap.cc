@@ -48,6 +48,7 @@ using namespace vi;
     VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p(),doPointing_p(false)
     {
       phaseGradCalculator_p = new PhaseGrad();
+      newPhaseGradComputed_p = false;
     };
 
     VB2CFBMap& VB2CFBMap::operator=(const VB2CFBMap& other)
@@ -67,23 +68,22 @@ using namespace vi;
 				       const vi::VisBuffer2& vb,
 				       const int& row)
     {
-      //if (phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb))
       if (doPointing_p)
 	{
-
-	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, row);
+	  if (phaseGradCalculator_p->needsNewPhaseGrad(pointingOffset, vb, 0))
+	    {
+	      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
+	      newPhaseGradComputed_p=true;
+	    }
 	}
       else
 	{
 	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
 	}
-      //cerr<<"doPointing VB2CFBMap::sPGPR: "<<<<endl;
-      //cerr<<"Shape of PointingOffset VB2CFBMap::sPGPR :"<< pointingOffset.shape() << " " << pointingOffset[row].shape() << endl;
 	{
-	  cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
+	  //cfPhaseGrad_p(row).assign(phaseGradCalculator_p->getFieldPointingGrad());
+	  cfPhaseGrad_p(row).reference(phaseGradCalculator_p->field_phaseGrad_p);
 	}
-	//	visResampler_p->setFieldPhaseGrad(phaseGradCalculator_p.getFieldPointingGrad());
-      
     }
     
     Int VB2CFBMap::makeVBRow2CFBMap(CFStore2& cfs,
@@ -105,6 +105,7 @@ using namespace vi;
       Quantity pa(getPA(vb),"rad");
       //PolOuterProduct outerProduct;
       Int statusCode=CFDefs::MEMCACHE;
+
       for (Int irow=0;irow<nRow;irow++)
 	{
 	  //
@@ -126,7 +127,8 @@ using namespace vi;
 	    }
 	  catch (CFNotCached& x)
 	    {
-	      LogIO log_l(LogOrigin("VB2CFBMap", "makeVBRow2CFMap"));
+	      LogIO log_l(LogOrigin("VB2CFBMap", "makeVBRow2CFBMap[R&D]"));
+
 	      log_l << "CFs not cached for " << pa.getValue("deg") 
 		    << " deg, dPA = " << dPA.getValue("deg") 
 		    << " Field ID = " << vb.fieldId()(0);
@@ -148,6 +150,12 @@ using namespace vi;
 	      vb2CFBMap_p(irow) = cfb_l;
 	    }
 	}
+      // {
+      // 	double n=0;
+      // 	for (int i=0;i<cfPhaseGrad_p.nelements();i++)
+      // 	  n+=cfPhaseGrad_p[i].shape().product()*sizeof(casacore::Complex);
+      // 	log_l << "Size of VB2CFBMap::cfPhaseGrad_p = " << n << " bytes" << LogIO::POST;
+      // }
       return statusCode;
     }
 }
