@@ -144,10 +144,8 @@ namespace casa{
 
     //    virtual void setFeedStokes(const casacore::Vector<casacore::Int>& feedStokes) = 0;
     virtual casacore::Bool findSupport(casacore::Array<casacore::Complex>& func, casacore::Float& threshold,casacore::Int& origin, casacore::Int& R)=0;
-    /* virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image, */
-    /* 								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0; */
-    virtual casacore::Vector<casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0;
+    virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+					      const VisBuffer2& vb) = 0;
 
     // virtual void setParams(const casacore::Vector<casacore::Int>& polMap, const casacore::Vector<casacore::Int>& feedStokes)
     // {setPolMap(polMap); setFeedStokes(feedStokes);};
@@ -161,6 +159,12 @@ namespace casa{
     virtual void setPointingOffsets(const casacore::CountedPtr<refim::PointingOffsets>& po){po_p=po;};
     virtual casacore::CountedPtr<CFTerms> getTerm(const casacore::String& /*name*/) {return NULL;}
     virtual int getOversampling(){return 1;};
+
+    virtual casacore::Vector<casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0;
+
+
+
   private:
     casacore::Int nDim;
   protected:

@@ -48,7 +48,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    class VB2CFBMap
    {
    public:
-   VB2CFBMap();
+     VB2CFBMap();
      
      ~VB2CFBMap() {};
      
@@ -64,27 +64,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
      					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
      					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
      					    const casacore::Vector<casacore::Vector<casacore::Double>>& pointingOffset);
-     /* virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs, */
-     /* 					    const VisBuffer2& vb, const casacore::Quantity& dPA, */
-     /* 					    const casacore::Vector<casacore::Int>& dataChan2ImChanMap, */
-     /* 					    const casacore::Vector<casacore::Int>& dataPol2ImPolMap, */
-     /* 					    const casacore::Vector<casacore::Vector<casacore::Double>>& pointingOffset, */
-     /* 					    const casacore::Bool& doPointing); */
-
      void setPhaseGradPerRow(const casacore::Vector< casacore::Vector<double> >& pointingOffset,
 			     const casacore::CountedPtr<CFBuffer>& cfb,
 			     const vi::VisBuffer2& vb,
 			     const int& row);
      inline casacore::Matrix<casacore::Complex>& getCFPhaseGrad(const int& row)//, const int& ant0, const int& ant1)
      {return cfPhaseGrad_p(row);}
-     inline casacore::CountedPtr<CFBuffer>& getCFB(const int& row)//, const int& ant0, const int& ant1)
-     {return vb2CFBMap_p(row);}
      void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
-   protected:
+  //   protected:
      casacore::Vector<casacore::CountedPtr<CFBuffer > > vb2CFBMap_p;
      casacore::Vector<casacore::Matrix<casacore::Complex> > cfPhaseGrad_p;
      casacore::CountedPtr<PhaseGrad> phaseGradCalculator_p;
      bool doPointing_p;
+     
    };
  }
 }

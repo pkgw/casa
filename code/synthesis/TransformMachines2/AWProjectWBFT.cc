@@ -862,13 +862,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //timer_p.mark();
     visResamplerWt_p->copy(*visResampler_p);
     
-    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb,doPointing));
     //cerr << "AWPWB: " << pointingOffset << endl;
     // visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
     // 				      paChangeDetector.getParAngleTolerance(),
     // 				      chanMap,polMap,pointingOffset);
     //    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
-    vb2CFBMap_p->setDoPointing(doPointing);
     vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);

@@ -35,14 +35,16 @@
 #include <casa/Arrays/Array.h>
 #include <casa/Utilities/CountedPtr.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/TransformMachines2/ConvolutionFunction.h>
 #include <synthesis/TransformMachines2/CFBuffer.h>
 #include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <synthesis/TransformMachines2/VB2CFBMap.h>
-using namespace casacore;
 namespace casa{
-  using namespace vi;
+using namespace vi;
   namespace refim{
+  Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
+
     VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p(),doPointing_p(false)
     {
       phaseGradCalculator_p = new PhaseGrad();
@@ -54,7 +56,7 @@ namespace casa{
 	{
 	  phaseGradCalculator_p = other.phaseGradCalculator_p;
 	  cfPhaseGrad_p.assign(other.cfPhaseGrad_p);
-	  vb2CFBMap_p.assign(vb2CFBMap_p);
+	  vb2CFBMap_p.assign(other.vb2CFBMap_p);
 	  doPointing_p = other.doPointing_p;
 	}
       return *this;
@@ -148,5 +150,5 @@ namespace casa{
 	}
       return statusCode;
     }
-  }
+}
 }
