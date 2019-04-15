@@ -49,8 +49,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PhaseGrad
   {
   public:
-    PhaseGrad():field_phaseGrad_p(), antenna_phaseGrad_p(), cachedCFBPtr_p(NULL), maxCFShape_p(2)
-    {cached_FieldOffset_p[0] = cached_FieldOffset_p[1] = cached_AntennaOffset_p[0] = cached_AntennaOffset_p[1] = 0;}
+    PhaseGrad():field_phaseGrad_p(), antenna_phaseGrad_p(), cached_FieldOffset_p(), cachedCFBPtr_p(NULL), maxCFShape_p(2)
+    {};
 
     ~PhaseGrad() {};
 
@@ -58,6 +58,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     inline const casacore::Matrix<casacore::Complex>& getFieldPointingGrad() {return field_phaseGrad_p;}
     inline const casacore::Matrix<casacore::Complex>& getAntennaPointingGrad() {return antenna_phaseGrad_p;}
+    bool needsNewPhaseGrad(const casacore::Vector<casacore::Vector<double> >& pointingOffset,
+			   const vi::VisBuffer2& vb,
+			   const int& row);
     //    void getPhaseGrad(casacore::Matrix<casacore::Complex>& fullPhaseGrad) {fullPhaseGrad = antenna_phaseGrad_p + sky_phaseGrad_p;}
 
     bool ComputeFieldPointingGrad(const casacore::Vector<double>& pointingOffset,
@@ -77,7 +80,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //  private:
     casacore::Matrix<casacore::Complex> field_phaseGrad_p;
     casacore::Matrix<casacore::Complex> antenna_phaseGrad_p;
-    casacore::Double cached_FieldOffset_p[2], cached_AntennaOffset_p[2];
+    casacore::Vector<casacore::RigidVector<double, 2> > cached_FieldOffset_p;
     CFBuffer* cachedCFBPtr_p;
     casacore::Vector<int> maxCFShape_p;
   };

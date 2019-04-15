@@ -70,12 +70,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			     const int& row);
      inline casacore::Matrix<casacore::Complex>& getCFPhaseGrad(const int& row)//, const int& ant0, const int& ant1)
      {return cfPhaseGrad_p(row);}
-     void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
+     void setDoPointing(const bool& dop=false) {doPointing_p = dop;newPhaseGradComputed_p=false;}
   //   protected:
      casacore::Vector<casacore::CountedPtr<CFBuffer > > vb2CFBMap_p;
      casacore::Vector<casacore::Matrix<casacore::Complex> > cfPhaseGrad_p;
      casacore::CountedPtr<PhaseGrad> phaseGradCalculator_p;
-     bool doPointing_p;
+     bool doPointing_p, newPhaseGradComputed_p;
      
    };
  }
