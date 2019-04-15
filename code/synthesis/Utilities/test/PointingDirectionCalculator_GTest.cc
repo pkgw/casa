@@ -4252,22 +4252,94 @@ TEST_F(TestSetFrame, setFrame )
 }
 
 
-TEST_F(TestDirection, LeakTest )
+TEST_F(TestDirection, LeakTest1 )
 {
-
     const String MsName = DefaultLocalMsName;     
 
     // Create Object //
     
     MeasurementSet ms1( MsName.c_str() );
+ 
+}
+TEST_F(TestDirection, LeakTest2 )
+{
+    const String MsName = DefaultLocalMsName;
+   
+    // Create Object //
+    
+    MeasurementSet ms1( MsName.c_str() );
+    PointingDirectionCalculator calc1(ms1);
+   
+}
 
+
+TEST_F(TestDirection, LeakTest3 )
+{
+    const String MsName = DefaultLocalMsName;     
+
+    // Create Object //
+    
+    MeasurementSet ms1( MsName.c_str() );
     PointingDirectionCalculator calc1(ms1);
  
-    printf("calling setDirectionColumn() \n");
     calc1.setDirectionColumn( "TARGET"  );
-
-
+    calc1.setDirectionColumn( "POINTING_OFFSET"  );
+    calc1.setDirectionColumn( "SOURCE_OFFSET"  );
+    calc1.setDirectionColumn( "ENCODER"  );
 }
+
+
+TEST_F(TestDirection, Leak4  )
+{
+
+    // =TUNABLE
+      setMaxAntenna(1);         // more than zero 
+      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
+
+    // set Examination Condition (revised by CAS-8418) //
+ 
+      uInt numRow = 1000;
+      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
+      setCondition( numRow,       // number of row
+                     0.01,          // Pointing Interval
+                     0.01,         // Main Interval
+                     8E-06  );  // Error limit 
+ 
+ 
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+ 
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
+
+    // Add INTERPOLATION TEST DATA 
+      writeOnPointing();
+
+    // Easy Access //
+      start(DefaultLocalMsName);
+      expectedNrow = pdc->getNrowForSelectedMS();
+      EXPECT_NE((uInt)0, expectedNrow );
+
+    showTime();
+
+    uInt Count =1 ;		// Debug option to check memory leak etc. //
+    for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
+    {
+        for(size_t k=0; k < pColLis_.size(); k++)
+        {     
+            String ColName = pColLis_.name(k);
+            Description("Column Name" , ColName );
+
+            // UNIT TEST //
+            EXPECT_NO_THROW( pdc->setDirectionColumn( ColName ) );
+            inspectAccessor(*pdc);
+        }
+    }    
+
+
+    showTime();
+}
+
 
 }  // END namespace
 

@@ -307,11 +307,6 @@ public:
 
     inline PtColID  getCurretAccessorId()  { return  accessorId_ ; };
 
-    // Spline device status (Only for Debug) //
-
-    bool isInitializeDone (casacore::uInt n)   {return initializeReady_ [n]; }
-    bool isCoefficientReady(casacore::uInt n)   {return coefficientReady_[n]; }
-
 private:
 
     void init();
@@ -366,17 +361,22 @@ private:
 
 //+
 // CAS-8418 Spline Extended
+//  (Initial values on the top of Constructor)
 //-
 
      // Spline Type , Initialized in Constructor. 'true' enables Spline Interpoation. //
         bool useSplineInterpolation_ ;      
 
      // Current Spline Object (become active with specified Direction Column)
-        casa::SplineInterpolation                     *currSpline_ = nullptr;   
+        casa::SplineInterpolation                     *currSpline_ ;   
 
      // Spline Object for each Direction-Column 
-        std::unique_ptr<casa::SplineInterpolation>     splineObj_[PtColID::nItems] = {};
 
+#if 0
+        std::unique_ptr<casa::SplineInterpolation>     splineObj_[PtColID::nItems];
+#else
+        casacore::vector<std::unique_ptr<casa::SplineInterpolation> >    splineObj_;
+#endif
      // Internal conditions to check limitted service.  
         casacore::Vector<bool>                         initializeReady_  ;
         casacore::Vector<bool>                         coefficientReady_ ;

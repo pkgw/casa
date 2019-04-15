@@ -162,7 +162,10 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
+
   /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
+  /*CAS-8418*/ currSpline_(nullptr), 
+  /*CAS-8418*/ splineObj_(PointingDirectionCalculator::PtColID::nItems),
   /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
   /*CAS-8418*/ coefficientReady_(PointingDirectionCalculator::PtColID::nItems,false), // Spline Coefficient Ready
   /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
