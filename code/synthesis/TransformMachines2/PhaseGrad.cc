@@ -112,8 +112,8 @@ namespace casa{
 	  Vector<int> convOrigin = maxCFShape_p/2;
 	  
 	  field_phaseGrad_p.resize(nx,ny);
-	  cached_FieldOffset_p[row][0] = pointingOffset[row][0];
-	  cached_FieldOffset_p[row][1] = pointingOffset[row][1];
+	  cached_FieldOffset_p[row](0) = pointingOffset[row][0];
+	  cached_FieldOffset_p[row](1) = pointingOffset[row][1];
 	  
 	  for(int ix=0;ix<nx;ix++)
 	    {
