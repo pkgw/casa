@@ -117,7 +117,6 @@ public:
 
 private:
 
-    uInt  pos =0;  
     std::vector<MSDef> TestMSList 
     {
         // Exeption(bool)  , Filename //
@@ -710,7 +709,6 @@ private:
       # define ExistingRowCount  3843
       # define RowCountToPrepare 5040
 
-      const uInt defaultTestingRowCnt_    =  RowCountToPrepare; 
       uInt currentDefaultTestingRowCnt_   =  RowCountToPrepare; 
 
       const uInt defInerpolationTestPointingTableRow_   = ExistingRowCount;
@@ -883,8 +881,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         // Designed Function of POINITNG location
         //-
 
-        Double X2[DirColCount] = {}; // all clear
-        Double Y2[DirColCount] = {}; // all clear 
+        Double X2[DirColCount];
+        Double Y2[DirColCount]; 
       
         //+ 
         //  Trajectory Function execution
