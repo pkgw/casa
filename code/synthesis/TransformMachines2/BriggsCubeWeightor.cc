@@ -269,18 +269,19 @@ using namespace casa::vi;
 
 	    //}
 	    //////
-	     imweight(chn,row)=weight(chn%nChanWt,row);
+	    imweight(chn,row)=0.0;
 	    if((ucell>0)&&(ucell<nx_p)&&(vcell>0)&&(vcell<ny_p)) {
 	      Float gwt=grids_p[index]->getAt(pos);
 	      if(gwt >0){
+		imweight(chn,row)=weight(chn%nChanWt,row);
 		imweight(chn,row)/=gwt*f2_p[index][pos[3]]+d2_p[index][pos[3]];
 		sumwt+=imweight(chn,row);
 	      }
 	    }
-	    else {
-	      imweight(chn,row)=0.0;
+	    //else {
+	    // imweight(chn,row)=0.0;
 	      //ndrop++;
-	    }
+	    //}
 	  }
 	  else{
 	    imweight(chn,row)=0.0;
