@@ -509,26 +509,12 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     debuglog << "done getDirection" << debugpost;
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
-//----------------------------------------------------------
-// doGetdiretion [wraper]
-// - located NEW , NEW2
-// - NEW2 has separated internal path for LINEAR and SPLINE
-//-----------------------------------------------------------
-Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow)
-{
-    // In case Old source is needed, please locate Org.source and
-    // select select statement for your debug. 
-
-#if 1
-    return (doGetDirectionNew2(irow));
-#else
-    return (doGetDirectionNew(irow));
-#endif 
-}
 
 //----------------------------------
-// CAS-8418 NEW doGetDirection(i)
+// CAS-8418 pre-NEW doGetDirection(i)
+// (Obsoleted)
 //----------------------------------
+#if 0
 Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
@@ -668,10 +654,17 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
 
     return outVal;
 }
+#endif 
+//**************************************************
+// CAS-8418
+// doGetDirection(irow)
+// - Spline Interpolation is executed, except
+//   number of data is insufficient
+// - Interpolation path in the module was separated. 
+//***************************************************
+Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
 
-Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
-
-// sec:1 Linear / Spline common//
+// sec:1 Linear , Spline common//
 
     debuglog << "doGetDirection(" << irow << ")" << debugpost;
     Double currentTime =
@@ -690,7 +683,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
             << debugpost;
     //+
     // Check section on series of pointing data 
-    // by 'Binary match' wth Pointing Table //
+    // by 'Binary match' wth Pointing Table 
     // -
     MDirection direction;
     assert(accessor_ != NULL);
@@ -706,7 +699,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
     } else {
         debuglog << "linear interpolation " << debugpost;
 
-        // commonl used result buffer .. //
+        // commonly used result buffer .. //
           Vector<Double> interpolated(2);
 
         if(useSplineInterpolation_)     // SPLINE //
@@ -714,15 +707,13 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
             //+
             // CAS-8418::  Spline Interpolation section.
             //-
-  
+
             uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
  
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
  
             // determin section on 'uIndex'
-            //  please refer exact return code of binarySearch() 
- 
             uInt uIndex;
             if( index >=1 ){
                 uIndex = index-1;
@@ -754,7 +745,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
             // Convert the interpolated diretion from MDirection to Vector //
               direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
         }
-        else // LINEAR //
+        else // LINEAR (basically same as original code)//
         {
             Double t0 = pointingTimeUTC_[index - 1];
             Double t1 = pointingTimeUTC_[index];
@@ -796,10 +787,9 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew2(uInt irow) {
               direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
    
         }
-
- 
     }
-    // CAS-8418:: following section is same as original //
+
+    // CAS-8418:: Ending Section,following section is same as original //
     debuglog << "direction = "
             << direction.getAngle("rad").getValue() << " (unit rad reference frame "
             << direction.getRefString()
@@ -1050,7 +1040,7 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
           coefficientReady_ [DirColNo] = spTemp-> isCoefficientReady();
 
         // move to Spline obj. //
-          assert(splineObj_[DirColNo] == false); // MUST BE CLEAN //
+          assert(splineObj_[DirColNo] == false); // MUST BE CLEAN (see C++11 for this statement) //
           splineObj_[DirColNo] = std::move(spTemp);
 
         // copy to Master pointer, if this is desired.  // 
@@ -1059,13 +1049,9 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
         // Obj. available //
            initializeReady_[DirColNo] = true;
 
-        //<TRAP>
-            //    int *ptr = new int [10000];
- 
         return true;
     } 
    
- 
     //+
     // Initialize Faiure.
     //-
@@ -1306,7 +1292,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 {
     debuglog << "SplineInterpolation::calculate()" << debugpost;
 
-#if 1
     // Error check //
     uInt arraySize = coeff_[antID].size();
     if(  index >= arraySize)
@@ -1316,7 +1301,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
         ss << "Bugcheck. Requested Index is too large." << endl; 
         throw AipsError(ss.str());
     }
-#endif 
     // Coefficient //
 
 #if 1

@@ -2390,7 +2390,9 @@ std::vector<ParamList>  paramListS[] =
     },
     // Senario 1 (Test Count Dependency) //
     {
-      {true, 0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true,  0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {false, 0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+
       {true, 0,1510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1530, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
@@ -2400,7 +2402,6 @@ std::vector<ParamList>  paramListS[] =
       {true, 0,1570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1595, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
     },
 
     // Senario 2 (all AntenaID) //
@@ -2825,7 +2826,6 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 // Revised Edition (CAS-8418)
 //  (replaced from old to new)
 //------------------------------
-
 
 void showTime()
 {
@@ -4252,94 +4252,6 @@ TEST_F(TestSetFrame, setFrame )
 }
 
 
-TEST_F(TestDirection, LeakTest1 )
-{
-    const String MsName = DefaultLocalMsName;     
-
-    // Create Object //
-    
-    MeasurementSet ms1( MsName.c_str() );
- 
-}
-TEST_F(TestDirection, LeakTest2 )
-{
-    const String MsName = DefaultLocalMsName;
-   
-    // Create Object //
-    
-    MeasurementSet ms1( MsName.c_str() );
-    PointingDirectionCalculator calc1(ms1);
-   
-}
-
-
-TEST_F(TestDirection, LeakTest3 )
-{
-    const String MsName = DefaultLocalMsName;     
-
-    // Create Object //
-    
-    MeasurementSet ms1( MsName.c_str() );
-    PointingDirectionCalculator calc1(ms1);
- 
-    calc1.setDirectionColumn( "TARGET"  );
-    calc1.setDirectionColumn( "POINTING_OFFSET"  );
-    calc1.setDirectionColumn( "SOURCE_OFFSET"  );
-    calc1.setDirectionColumn( "ENCODER"  );
-}
-
-
-TEST_F(TestDirection, Leak4  )
-{
-
-    // =TUNABLE
-      setMaxAntenna(1);         // more than zero 
-      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
-
-    // set Examination Condition (revised by CAS-8418) //
- 
-      uInt numRow = 1000;
-      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
-      setCondition( numRow,       // number of row
-                     0.01,          // Pointing Interval
-                     0.01,         // Main Interval
-                     8E-06  );  // Error limit 
- 
- 
-    // Prepate Antenna (for Multple-set) //
-      prepareAntenna();
- 
-    // Increase(Append)  Row on MS for large-file.:
-      prepareRows();
-
-    // Add INTERPOLATION TEST DATA 
-      writeOnPointing();
-
-    // Easy Access //
-      start(DefaultLocalMsName);
-      expectedNrow = pdc->getNrowForSelectedMS();
-      EXPECT_NE((uInt)0, expectedNrow );
-
-    showTime();
-
-    uInt Count =1 ;		// Debug option to check memory leak etc. //
-    for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
-    {
-        for(size_t k=0; k < pColLis_.size(); k++)
-        {     
-            String ColName = pColLis_.name(k);
-            Description("Column Name" , ColName );
-
-            // UNIT TEST //
-            EXPECT_NO_THROW( pdc->setDirectionColumn( ColName ) );
-            inspectAccessor(*pdc);
-        }
-    }    
-
-
-    showTime();
-}
-
 
 }  // END namespace
 
@@ -4352,6 +4264,7 @@ TEST_F(TestDirection, Leak4  )
 -  7-DEC-18: Added initialize (CAS-12114,old 11427-2)
 -  4-APR-19: Internal Feature freazed. 
              Ommiteed some test conditions to finish within 3 min.
+- 15-APR-19  Changed InterpolationListed. 
  **********************************************************************/
 
 int main (int nArgs, char * args [])
