@@ -163,7 +163,7 @@ PointingDirectionCalculator::PointingDirectionCalculator(
         lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
 
-  /*CAS-8418*/ useSplineInterpolation_(true),	// Set when Spline is used. 
+  /*CAS-8418*/ useSplineInterpolation_(true),	////!!  Set, when Spline is used.  ////
   /*CAS-8418*/ currSpline_(nullptr), 
   /*CAS-8418*/ splineObj_(PointingDirectionCalculator::PtColID::nItems),
   /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
