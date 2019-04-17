@@ -2824,7 +2824,7 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 // Revised Edition (CAS-8418)
 //  (replaced from old to new)
 //------------------------------
-
+#if 0
 void showTime()
 {
     struct timespec ts;
@@ -2832,7 +2832,7 @@ void showTime()
     clock_gettime(CLOCK_REALTIME, &ts);
     printf("time:    %10ld.%09ld CLOCK_REALTIME\n", ts.tv_sec, ts.tv_nsec);
 }
-
+#endif  
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
@@ -2865,7 +2865,7 @@ TEST_F(TestDirection, setDirectionColumn  )
       expectedNrow = pdc->getNrowForSelectedMS();
       EXPECT_NE((uInt)0, expectedNrow );
 
-    showTime();
+///    shoiwTime();
 
     uInt Count =1 ;		// Debug option to check memory leak etc. //
     for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
@@ -2881,7 +2881,7 @@ TEST_F(TestDirection, setDirectionColumn  )
         }
     }    
 
-    showTime();
+///    showTime();
 }
 /*----------------------------------------------------------
   getDirection() and MovingSourceCorrection
