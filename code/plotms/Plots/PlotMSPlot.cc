@@ -1784,7 +1784,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	canvas->setAxesAutoRescale(true);
 	bool makeSquare(false), waveplot(false);  // true if uv/uvwave plot
 	if (set) {
-		double xmin, xmax, ymin, ymax, xymax;
+		double xmin, xmax, ymin, ymax, xymax = 0;
 
 		bool displayUnflagged = (displayParams->unflaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
 		bool displayFlagged = (displayParams->flaggedSymbol()->symbol() != PlotSymbol::NOSYMBOL);
