@@ -151,9 +151,9 @@ private:
     };
 };
 
-//+
+//********************************
 // Direction Column List
-//-
+//********************************
 class PointingColumnList 
 {
 public:
@@ -164,15 +164,8 @@ private:
          = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
 };
 
-
-//***************************
-// DEBUG flags
-//***************************
-
-    /* nothing at the moment */
-
 //****************************************
-// Execution / Running Enviromnent
+// Running Enviromnent
 // CASAPATH is the base directory
 //****************************************
 
@@ -232,6 +225,7 @@ private:
 };
 
 //************************************** 
+// DefaultNames 
 // Programme Wide Names and Definition 
 //**************************************
 
@@ -331,12 +325,11 @@ void BaseClass::Description(const String &Title, const String &Param)
     printf("+---------------------------------------------------\n");
 }
 
-//**************************************************************************
+//+
 //  Copying a MeasurementSet template from Master Repository.
-//
-//   This is for Some testing items which must contain planned Data in the MS.
-//   After copying, This UT programme moify the MS for each purpose.
-//***************************************************************************
+//   - This is for Some testing items which must contain planned Data in the MS.
+//   - After copying, This UT programme moify the MS for each purpose.
+//-
 void BaseClass::CopyDefaultMStoWork()
 {
     // Maser MS // 
@@ -367,7 +360,6 @@ void BaseClass::CopyDefaultMStoWork()
 // The Working File is to be deleted 
 //  whenever One Test Fixture ends. 
 //-
-
 void BaseClass::DeleteWorkingMS()
 {
     String dst         = names.DefaultLocalMsName();
@@ -387,8 +379,7 @@ void BaseClass::DeleteWorkingMS()
 //*****************************************************
 // Interpolation Testing Trajectory lcass
 // (implemented by Singleton) 
-//****************************************************
-
+//*****************************************************
 class TrajectoryFunction
 {
     typedef void (*FUNCTYPE)(Double, Double&, Double& ); // Function typdef //
@@ -597,15 +588,11 @@ static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
         Function_SplineSpecial         // 9
     };   
 
- 
-
 }; // end class
 
 //************************************************************
-// Tuning MS Configulation for testing mainly getDirection() 
-//   for Interporation Verification.
-//  - Generate testing trajectry in Direction
-//  -  Interval(POINTING, MAIN) tunable. ( in initialize() ).
+// Tuning MS Configulation for testing, 
+//  for Interporation Verification mainly by getDirection().
 //************************************************************
 
 class TuneMSConfig  /*: public BaseClass */ 
@@ -683,8 +670,9 @@ public:
 
       bool ifCoeffLocTest() { return fgCoeffLocationTest; }
       void setCoeffLocTest(bool val) { fgCoeffLocationTest = val; }  // indicate special traj.func //
-
+ 
 private:
+
     // Commmon Initialize//
       void init();
 
@@ -724,23 +712,23 @@ private:
       Double  requiredNrowInPointing_ = 0;    //   internally calculated
       Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
-        Double  extraNrowInPointing_ ;   // calculated when start
-        Double extraNrowInMain_ ;       // calculated when start
+      Double  extraNrowInPointing_ ;   // calculated when start
+      Double extraNrowInMain_ ;       // calculated when start
 
-       // Error Limit (threshold) in GoogleTest Macro //
+    // Error Limit (threshold) in GoogleTest Macro //
 
-        Double errorLimit_ ;
-        Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
-
+      Double errorLimit_ ;
+      Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
 
     // Interval Second.
 
-         Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
-         Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
+       Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
+       Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
+    //+
     // Number of Antenna , Number of avilable Pointing Columns
     //   to prepeare for the Test  
-
+    //-
         uInt prepareMaxAntenna_         = 1;    // Tunable //
         uInt prepareMaxPointingColumns_ = 1;    // Tunable //
 
@@ -1743,10 +1731,6 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 void  MsEdit::writePseudoOnMainTable(Double div)
 {
 
-//******************
-// CAS-8418 CODE 
-//******************
-
     MainTableAccess   mta(MsName_,true);
 
     uInt nrow_ms = mta.getNrow();
@@ -1783,8 +1767,6 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 
      mta.flush(); 
 }
-
-
 
 //+
 // PointingDirectionCalculator Class 
@@ -1872,7 +1854,6 @@ TEST_F(TestMeasurementSet, variousConstructor )
 
 TEST_F(TestMeasurementSet, RowId_inMS )
 {
-
     TestDescription( "RowId functions  by various MS"  );
 
     String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
@@ -2821,18 +2802,18 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 }
 
 //------------------------------
-// Revised Edition (CAS-8418)
-//  (replaced from old to new)
+// Get precise Time Info.
+//  C++11 :
 //------------------------------
-#if 0
 void showTime()
 {
+#if 0 // C -code //
     struct timespec ts;
     clock_getres(CLOCK_REALTIME, &ts);
     clock_gettime(CLOCK_REALTIME, &ts);
     printf("time:    %10ld.%09ld CLOCK_REALTIME\n", ts.tv_sec, ts.tv_nsec);
+#endif 
 }
-#endif  
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
@@ -2865,7 +2846,8 @@ TEST_F(TestDirection, setDirectionColumn  )
       expectedNrow = pdc->getNrowForSelectedMS();
       EXPECT_NE((uInt)0, expectedNrow );
 
-///    shoiwTime();
+    // show time (reserved) //
+      showTime();
 
     uInt Count =1 ;		// Debug option to check memory leak etc. //
     for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
@@ -2881,8 +2863,9 @@ TEST_F(TestDirection, setDirectionColumn  )
         }
     }    
 
-///    showTime();
+    showTime();
 }
+
 /*----------------------------------------------------------
   getDirection() and MovingSourceCorrection
 
@@ -2894,7 +2877,6 @@ TEST_F(TestDirection, setDirectionColumn  )
 ------------------------------------------------------------*/
 TEST_F(TestDirection, MovingSourceCorrection  )
 {
-
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
     const String MsName = DefaultLocalMsName;     
 
