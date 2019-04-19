@@ -19,7 +19,7 @@ Convert ASAP Scantable data  into a CASA visibility file (MS)
 <description>Name of input ASAP Scantable data
                      Default: none
 
-                        Example: asdm='mydata.asap'
+                        Example: infile='mydata.asap'
 </description>
           <value></value>
     </param>
