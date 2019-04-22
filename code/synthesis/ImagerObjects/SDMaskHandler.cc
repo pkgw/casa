@@ -2171,6 +2171,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
   }//end of makeAutoMaskByThreshold2
 
+  // *** auto-multithresh  ***
   // for implemtation of Amanda's algorithm
   void SDMaskHandler::autoMaskByMultiThreshold(ImageInterface<Float>& mask,
                                           TempImage<Float>& posmask,
@@ -2324,7 +2325,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition imshp=res.shape();
     IPosition imstart(4, 0, 0, 0, 0);
     IPosition imlength(4, imshp(0),imshp(1), imshp(2), imshp(3));
-    ArrayLattice<Bool>  pixmasklat(res.getMask()); 
+    //will be done as per-plane later
+    //ArrayLattice<Bool>  pixmasklat(res.getMask()); 
     // for debug
     //Array<Bool>  pixmask(res.getMaskSlice(imstart, imlength)); 
     //os<<" ntrue(pixmaskinit) = "<<ntrue(pixmaskinit)<<LogIO::POST;
@@ -2361,30 +2363,38 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     IPosition statshp = mdns.shape();
     IPosition chindx = statshp;
     ///Int nchan = res.shape()(specAxis);
-    Vector<Float> maskThreshold(nchan);
-    Vector<Float> lowMaskThreshold(nchan);
-    Vector<Float> negativeMaskThreshold(nchan);
-    Vector<String> ThresholdType(nchan);
-    Vector<Bool> pruned(nchan);
+    //should store in Matrix to support pol and chan
+    //Vector<Float> maskThreshold(nchan);
+    //Vector<Float> lowMaskThreshold(nchan);
+    //Vector<Float> negativeMaskThreshold(nchan);
+    //Vector<String> ThresholdType(nchan);
+    //Vector<Bool> pruned(nchan);
+    Int poldim = (npol == -1? 1:npol); 
+    Int chandim = (nchan == -1? 1:nchan); 
+    Matrix<Float> maskThreshold(poldim, chandim);
+    Matrix<Float> lowMaskThreshold(poldim, chandim);
+    Matrix<Float> negativeMaskThreshold(poldim, chandim);
+    Matrix<String> ThresholdType(poldim, chandim);
+    Matrix<Bool> pruned(poldim, chandim);
 
     //for (uInt ich=0; ich < mads.nelements(); ich++) {
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
     // for loop for Stokes as well?
-    for (uInt ipol=0; ipol < (uInt)npol; ipol++) {
-      if (nchan!=-1) {
-        if(npol==-1 || npol==1) {
-          chindx(0) = ich;
+      for (uInt ipol=0; ipol < (uInt)npol; ipol++) {
+        if (nchan!=-1) {
+          if(npol==-1 || npol==1) {
+            chindx(0) = ich;
+          }
+          else {
+            chindx(0) = ipol;
+            chindx(1) = ich;
+          }
         }
-        else {
+        else { // pol only
           chindx(0) = ipol;
-          chindx(1) = ich;
         }
-      }
-      else { // pol only
-        chindx(0) = ipol;
-      }
       
-      // turn on a new definition for new stats --- remove old one once tested
+        // turn on a new definition for new stats --- remove old one once tested
       //if (newstats) {
       //  os<<LogIO::DEBUG1<<"Using the new statistics ..."<<LogIO::POST;
       //  sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
@@ -2405,33 +2415,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //  negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
       //}
       
-      // include location (=median)  for both fastnoise=true and false
-      Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
-      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)maxs(chindx); 
-      //sidelobeThreshold = (Float)mdns(chindx) + sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
-      //noiseThreshold = (Float)mdns(chindx) + noiseThresholdFactor * (Float)resRmss(chindx);
-      //lowNoiseThreshold = (Float)mdns(chindx) + lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-      //negativeThreshold = (Float)mdns(chindx) + negativeThresholdFactor * (Float)resRmss(chindx);
-      // start with no offset 
-      sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
-      noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
-      lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
-      negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
-      negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx);
-      // add the offset
-      sidelobeThreshold += (Float)mdns(chindx); 
-      noiseThreshold += (Float)mdns(chindx);
-      lowNoiseThreshold += (Float)mdns(chindx); 
-      negativeThreshold += (Float)mdns(chindx);
-      maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
-      lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
-      //negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold);
-      ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
+        // include location (=median)  for both fastnoise=true and false
+        os<<"CHINDX="<<chindx<<LogIO::POST;
+        Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
+        os<<"absmax="<<absmax<<LogIO::POST;
+        // start with no offset 
+        sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
+        noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
+        lowNoiseThreshold = lowNoiseThresholdFactor * (Float)resRmss(chindx); 
+        negativeThreshold = negativeThresholdFactor * (Float)resRmss(chindx);
+        //negativeMaskThreshold(ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx);
+        negativeMaskThreshold(ipol, ich) = (-1.0)*max(sidelobeThreshold, negativeThreshold) + (Float)mdns(chindx);
+        // add the offset
+        sidelobeThreshold += (Float)mdns(chindx); 
+        noiseThreshold += (Float)mdns(chindx);
+        lowNoiseThreshold += (Float)mdns(chindx); 
+        negativeThreshold += (Float)mdns(chindx);
+        //maskThreshold(ich) = max(sidelobeThreshold, noiseThreshold);
+        maskThreshold(ipol, ich) = max(sidelobeThreshold, noiseThreshold);
+        //lowMaskThreshold(ich) = max(sidelobeThreshold, lowNoiseThreshold);
+        lowMaskThreshold(ipol, ich) = max(sidelobeThreshold, lowNoiseThreshold);
+        //ThresholdType(ich) = (maskThreshold(ich) == sidelobeThreshold? "sidelobe": "noise");
+        ThresholdType(ipol, ich) = (maskThreshold(ipol, ich) == sidelobeThreshold? "sidelobe": "noise");
 
-      os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
-      os << LogIO::DEBUG1 <<" negativeThreshold(abs)="<<negativeThreshold<<", all thresholds include  location ="<<(Float)mdns(chindx)<<LogIO::POST;
-      os << LogIO::DEBUG1 <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
-    } // for-ipol
+        os << LogIO::DEBUG1 <<" sidelobeTreshold="<<sidelobeThreshold<<" noiseThreshold="<<noiseThreshold<<" lowNoiseThreshold="<<lowNoiseThreshold<<LogIO::POST;
+        os << LogIO::DEBUG1 <<" negativeThreshold(abs)="<<negativeThreshold<<", all thresholds include  location ="<<(Float)mdns(chindx)<<LogIO::POST;
+        //os << LogIO::DEBUG1 <<" Using "<<ThresholdType(ich)<<" threshold for chan "<<String::toString(ich)<<" threshold="<<maskThreshold(ich)<<LogIO::POST;
+        os << LogIO::DEBUG1 <<" Using "<<ThresholdType(ipol, ich)<<" threshold for pol "<<String::toString(ipol)<<",  chan "<String::toString(ich)<<" threshold="<<maskThreshold(ipol, ich)<<LogIO::POST;
+      } // for-ipol
     } // for-ich
 
 
@@ -2440,13 +2451,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     planeshp(0) = imshp(0); 
     planeshp(1) = imshp(1); 
     
-    Vector<uInt> nreg;
-    Vector<uInt> npruned;
+    //TODO: Need to store in Matrix????
+    Vector<uInt> nreg(nchan,0);
+    Vector<uInt> npruned(nchan,0);
     Vector<Float> dummysizes;
-    Vector<uInt> ngrowreg;
-    Vector<uInt> ngrowpruned;
-    Vector<Float> negmaskpixs;
+    Vector<uInt> ngrowreg(nchan,0);
+    Vector<uInt> ngrowpruned(nchan,0);
+    Vector<Float> negmaskpixs(nchan,0);
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
+     os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<"***"<<LogIO::POST;
      //for (uInt ipol=0; ipol < npol; ipol++ ) {  
      // Below corresponds to createThresholdMask in Amanda's Python code.
       //LatticeExpr<Float> themask; 
@@ -2495,7 +2508,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	       << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
 
         // THIS NEEDS TO BE DONE IN PER-PLANE...
-        if (res.hasPixelMask()) {
+        //if (res.hasPixelMask()) {
+        if (planeResImage.hasPixelMask()) {
+          os << LogIO::DEBUG1 <<" HAS MASK....ich="<<ich<<LogIO::POST;
+          ArrayLattice<Bool> pixmasklat(planeResImage.getMask()); 
           maskedRes.copyData( (LatticeExpr<Float>)( iif(pixmasklat, maskedRes, 0.0 ) ) );
           //for debug
           //Array<Float> testdata;
@@ -2516,7 +2532,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	os << LogIO::NORMAL << "Start pruning: the initial threshold mask" << LogIO::POST;
 	timer.mark();
 	//std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
-	std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag, allPruned, nreg, npruned, pruneSize);
+        //temporary storage for single plane results
+        Vector<uInt> nreg1elem, npruned1elem;
+	std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag1elem, allPruned, nreg1elem, npruned1elem, pruneSize, false);
+        nreg(ich) = nreg1elem(0);
+        npruned(ich) = npruned1elem(0);
 	//tempmask.copyData(*(tempIm_ptr.get()));
 	planeTempMask.copyData(*(tempIm_ptr.get()));
 	//TODO MOVE THIS SECTION outside the for-loop
@@ -2727,8 +2747,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
 	  timer.mark();
 	  Vector<Bool> dummy(0);
+          Vector<uInt> ngrowreg1elem, ngrowpruned1elem;
 	  //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
-	  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(subprevmask, chanFlag1elem, dummy, ngrowreg, ngrowpruned, pruneSize);
+	  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(subprevmask, chanFlag1elem, dummy, ngrowreg1elem, ngrowpruned1elem, pruneSize, false);
+          ngrowreg(ich) = ngrowreg1elem(0);
+          ngrowpruned(ich) = ngrowpruned1elem(0);
 	  //prevmask.copyData( *(tempPrunedMask_ptr.get()) );
 	  subprevmask.copyData( *(tempPrunedMask_ptr.get()) );
 	  os << LogIO::NORMAL << "End pruning: time to prune the grow mask: real " 
@@ -2829,7 +2852,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//negCutThresholdValue(ich) = cutThreshold * negmaskmaxs(chindx);
 	negCutThresholdValue(0) = cutThreshold * negmaskmaxs(chindx);
 	//makeMaskByPerChanThreshold(*negmask, chanFlag, thenegmask, negCutThresholdValue, negmaskpixs); 
-	makeMaskByPerChanThreshold(*negmask, chanFlag1elem, subnegmask, negCutThresholdValue, negmaskpixs); 
+	makeMaskByPerChanThreshold(*negmask, chanFlag1elem, subnegmask, negCutThresholdValue, negmaskpixs1elem); 
+        negmaskpixs(ich) = negmaskpixs1elem(0);
 	if (isEmptyMask(subnegmask) ){
 	  os<<"No negative region was found by auotmask."<<LogIO::POST;
 	}
@@ -2853,14 +2877,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       // modify start for chan/pol
       // image.putSlice(indata,start, stride)
       Array<Float> maskdata, posmaskdata, negmaskdata;
+      // all images are single planes
       IPosition stride(4,1,1,1,1);
-      subMask.doGetSlice(maskdata, sl); 
-      subposmask.doGetSlice(posmaskdata, sl); 
-      subnegmask.getSlice(negmaskdata, sl); 
+      IPosition plstart(4,0,0,0,0); 
+      Slicer plsl(plstart, length); 
+      subMask.doGetSlice(maskdata, plsl); 
+      subposmask.doGetSlice(posmaskdata, plsl); 
+      subnegmask.getSlice(negmaskdata, plsl); 
 
-      mask.putSlice(maskdata,start,stride);
-      posmask.putSlice(posmaskdata,start,stride);
-      thenegmask.putSlice(negmaskdata,start,stride);
+      mask.putSlice(maskdata,plstart,stride);
+      posmask.putSlice(posmaskdata,plstart,stride);
+      thenegmask.putSlice(negmaskdata,plstart,stride);
       // 
     } // the main per plane for-loop end  for-ich
 
@@ -3654,7 +3681,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
   //yet another pruneRegions - using connect component labelling with depth first search alogirthm ..
-  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize)
+  std::shared_ptr<casacore::ImageInterface<Float> >  SDMaskHandler::YAPruneRegions(const ImageInterface<Float>& image, Vector<Bool>& chanflag, Vector<Bool>& allpruned, Vector<uInt>& nreg, Vector<uInt>& npruned, Double prunesize, Bool showchanlabel)
   {
     LogIO os( LogOrigin("SDMaskHandler", "YAPruneRegions",WHERE) );
     Timer timer;
@@ -3741,7 +3768,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	} // if-sumMaskVal!=0
 	// log reporting ...
-	String chanlabel = "[C"+String::toString(ich)+"]";
+        String chanlabel("");
+        if (showchanlabel) {
+	   chanlabel = "[C"+String::toString(ich)+"]";
+        }
 	if (removeBySize>0) {
 	  os <<LogIO::DEBUG1<<chanlabel<<" pruneRegions removed "<<removeBySize<<" regions (out of "<<nBlob<<" ) from the mask image. "<<LogIO::POST;
 	  if (recordPruned) {
@@ -3774,7 +3804,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       else {
         nreg[ich] = 0;
         npruned[ich] = 0;
-        os<<LogIO::DEBUG1<<"Skipping chan "<<ich<<" from pruning"<<LogIO::POST;
+        if (showchanlabel) {
+          os<<LogIO::DEBUG1<<"Skipping chan "<<ich<<" from pruning"<<LogIO::POST;
+        }
+        else {
+          os<<LogIO::DEBUG1<<"Skipping this plane from pruning"<<LogIO::POST;
+        }
+           
       }
     } 
     return std::shared_ptr<ImageInterface<Float> >(fullIm);

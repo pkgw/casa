@@ -243,7 +243,8 @@ public:
                                                    casacore::Vector<casacore::Bool>& allpruned, 
                                                    casacore::Vector<casacore::uInt>& nreg,
                                                    casacore::Vector<casacore::uInt>& npruned,
-                                                   casacore::Double prunesize=0.0);
+                                                   casacore::Double prunesize=0.0, 
+                                                   casacore::Bool showchanlabel=true);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
