@@ -79,7 +79,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     {
         if (this != other) {
             std::map<K,V>::operator=(*other);
-            this.defaultVal = other->defaultVal;
+            this->defaultVal = other->defaultVal;
         }
         return this;
     }
