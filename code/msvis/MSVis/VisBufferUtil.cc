@@ -623,61 +623,109 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
  }
 
  MDirection VisBufferUtil::getPointingDir(const VisBuffer& vb, const Int antid, const Int vbrow){
-	 Timer tim;
-	 tim.mark();
-	 //MDirection outdir;
-	 if(oldMSId_p != vb.msId()){
-		 tim.mark();
-		 oldMSId_p=vb.msId();
-		 if(timeAntIndex_p.shape()(0) < (oldMSId_p+1)){
-			 timeAntIndex_p.resize(oldMSId_p+1, true);
-		 	 cachedPointingDir_p.resize(oldMSId_p+1, true);
-		 }
-		 if(  timeAntIndex_p[oldMSId_p].empty()){
-			 Vector<Double> tOrig;
-			 vb.msColumns().time().getColumn(tOrig);
-			 Vector<Double> t;
-			 rejectConsecutive(tOrig, t);
-			 Vector<uInt>  uniqIndx;
-			 uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
-			 uInt nAnt=vb.msColumns().antenna().nrow();
-			 const ROMSPointingColumns& mspc=vb.msColumns().pointing();
-			 Int guessIndex=0;
-			 for (uInt k=0; k <nTimes; ++k){
-				 for (uInt a=0; a < nAnt; ++a){
-					 std::ostringstream oss;
-					 oss.precision(13);
-					 oss << t[uniqIndx[k]] << "_" << a;
-					 String key=oss.str();
-					 //String key=String::toString(t[uniqIndx[k]])+String("_")+String::toString(a);
-					 Int row=mspc.pointingIndex(a, t[uniqIndx[k]], guessIndex);
-					 //cerr << "String "<< key << "pointing row "<< row << endl;
-					 timeAntIndex_p[oldMSId_p][key]=row > -1 ? cachedPointingDir_p[oldMSId_p].shape()[0] : -1;
-					 guessIndex=row;
-					 if(row >-1){
-						 cachedPointingDir_p[oldMSId_p].resize(cachedPointingDir_p[oldMSId_p].nelements()+1, true);
-						 cachedPointingDir_p[oldMSId_p][cachedPointingDir_p[oldMSId_p].nelements()-1]=mspc.directionMeas(row);
-					 }
+	
+   Timer tim;
+   tim.mark();
+   const ROMSColumns& msc=vb.msColumns();
+   //cerr << "oldMSId_p " << oldMSId_p << " vb " <<  vb.msId() << endl;
+   if(vb.msId() < 0)
+     throw(AipsError("VisBuffer is not attached to an ms so cannot get pointing "));
+   if(oldMSId_p != vb.msId()){
+     oldMSId_p=vb.msId();
+     if(timeAntIndex_p.shape()(0) < (oldMSId_p+1)){
+       timeAntIndex_p.resize(oldMSId_p+1, true);
+       cachedPointingDir_p.resize(oldMSId_p+1, true);
+     }
+     if(  timeAntIndex_p[oldMSId_p].empty()){
+       Vector<Double> tOrig;
+       msc.time().getColumn(tOrig);
+       Vector<Double> t;
+       rejectConsecutive(tOrig, t);
+       Vector<uInt>  uniqIndx;
+       uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
+       uInt nAnt=msc.antenna().nrow();
+       const ROMSPointingColumns& mspc=msc.pointing();
+       Vector<Double> tUniq(nTimes);
+       for (uInt k=0; k <nTimes; ++k){
+	 tUniq[k]= t[uniqIndx[k]];
+       }
+       Bool tstor, timcolstor, intcolstor, antcolstor;
+       Double * tuniqptr=tUniq.getStorage(tstor);
+       Int cshape=cachedPointingDir_p[oldMSId_p].shape()[0];
+       cachedPointingDir_p[oldMSId_p].resize(cshape+nTimes*nAnt, True);
+       Vector<Double> timecol;
+       Vector<Double> intervalcol;
+       Vector<Int> antcol;
+       mspc.time().getColumn(timecol, True);
+       mspc.interval().getColumn(intervalcol, True);
+       mspc.antennaId().getColumn(antcol, True);
+       Double *tcolptr=timecol.getStorage(timcolstor);
+       Double *intcolptr=intervalcol.getStorage(intcolstor);
+       Int * antcolptr=antcol.getStorage(antcolstor);
+       Int npointrow=msc.pointing().nrow();
+#pragma omp parallel for firstprivate(nTimes, tuniqptr, tcolptr, antcolptr, intcolptr, npointrow), shared(mspc)
+       for (uInt a=0; a < nAnt; ++a){
+	 
+	 //Double wtime1=omp_get_wtime();
+	 Vector<Int> indices;
+	 Vector<MDirection> theDirs(nTimes);
+	 pointingIndex(tcolptr, antcolptr, intcolptr, npointrow, a, nTimes, tuniqptr, indices);
+	 
+#pragma omp critical
+	 {
+	   for (uInt k=0; k <nTimes; ++k){
+	     
+	     
+	     std::ostringstream oss;
+	     oss.precision(13);
+	     oss << tuniqptr[k] << "_" << a;
+	     String key=oss.str();
+	     
+	     timeAntIndex_p[oldMSId_p][key]=indices[k] > -1 ? cshape : -1;
+	     
+	     if(indices[k] >-1){
+	       
+	       cachedPointingDir_p[oldMSId_p][cshape]=mspc.directionMeas(indices[k]);
+	       cshape+=1;
+	     }
+	     
+	     
+	   }
+	 }//end critical
+	 
+	 
+       }
+       
+       cachedPointingDir_p[oldMSId_p].resize(cshape, True);
+     }
+     
+   }
 
-				 }
-			 }
-
-		 }
-		 tim.show("After caching all ant pointings");
-	 }
-
-	 /////
-	 //	 String index=String::toString(vb.time()(vbrow))+String("_")+String::toString(antid);
-	 std::ostringstream oss;
-	 oss.precision(13);
-	 oss << vb.time()(vbrow) << "_" << antid  ;
-	 String index=oss.str();
-	 Int rowincache=timeAntIndex_p[oldMSId_p][index];
-	 //cerr << "key "<< index << " index " << rowincache << endl;
-	 tim.show("retrieved cache");
-	 if(rowincache <0)
-		 return vb.phaseCenter();
-	 return cachedPointingDir_p[oldMSId_p][rowincache];
+   /////
+   //	 String index=String::toString(vb.time()(vbrow))+String("_")+String::toString(antid);
+   std::ostringstream oss;
+   oss.precision(13);
+   oss << vb.time()(vbrow) << "_" << antid  ;
+   String index=oss.str();
+   //cerr << "index "<< index << endl;
+   ////////////
+   /*
+  for (auto it = timeAntIndex_p[oldMSId_p].begin(); it != timeAntIndex_p[oldMSId_p].end();       ++it)
+    {
+      cerr << (*it).first << " --> " << (*it).second << endl;
+    }
+   */
+   /////////////
+   Int rowincache=timeAntIndex_p[oldMSId_p][index];
+	 ///////TESTOO
+	 /* if(rowincache>=0){
+	   cerr << "msid " << oldMSId_p << " key "<< index << " index " << rowincache<<  "   "  << cachedPointingDir_p[oldMSId_p][rowincache] << endl;
+	   }*/
+	 /////////////
+	 //tim.show("retrieved cache");
+   if(rowincache <0)
+     return vb.phaseCenter();
+   return cachedPointingDir_p[oldMSId_p][rowincache];
 
 
 

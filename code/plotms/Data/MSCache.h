@@ -193,6 +193,8 @@ private:
   void mapIntentNamesToIds();   // create map
   // Use map to assign intent ids
   casacore::Vector<casacore::Int> assignIntentIds(casacore::Vector<casacore::Int>& stateIds);
+  // Check if plotting antennas pointing directions is supported for the given MeasurementSet
+  bool pointingsPlotSupported(const MeasurementSet* const &ms);
 
   // Provisional flagging helpers
   casacore::Vector<casacore::Int> nVBPerAve_;

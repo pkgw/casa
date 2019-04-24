@@ -466,6 +466,24 @@ bool synthesisimager::setweighting(const std::string& type,
     return rstat;
   }
 
+
+  casac::record* synthesisimager::apparentsens()
+  {
+    casac::record* rstat(0);
+    try{ 
+
+      itsImager = makeSI();
+      itsImager->makePSF();
+      rstat = fromRecord( itsImager->apparentSensitivity() );
+
+    } catch (AipsError x) { 
+      RETHROW(x);
+    }
+    return rstat;
+  }
+
+
+
   bool synthesisimager::drygridding(const std::vector<std::string>& cfList)
   {
     Bool rstat(false);

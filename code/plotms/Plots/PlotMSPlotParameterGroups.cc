@@ -1253,6 +1253,8 @@ const String PMS_PP_Display::REC_FLAGGEDS = "flaggedSymbols";
 const String PMS_PP_Display::REC_TITLES = "titles";
 const String PMS_PP_Display::REC_COLFLAGS = "colorizeFlags";
 const String PMS_PP_Display::REC_COLAXES = "colorizeAxes";
+const String PMS_PP_Display::REC_XCONNECT = "xConnect";
+const String PMS_PP_Display::REC_TIMECONNECT = "timeConnect";
 
 
 PMS_PP_Display::PMS_PP_Display(PlotFactoryPtr factory) : PlotMSPlotParameters::Group(factory)
@@ -1296,6 +1298,13 @@ Record PMS_PP_Display::toRecord() const {
 
 	rec.define(REC_COLFLAGS, Vector<bool>(itsColorizeFlags_));
 	rec.define(REC_COLAXES, PMS::toIntVector<PMS::Axis>(itsColorizeAxes_));
+
+	Record tmpRec4;
+	for (unsigned int i = 0; i < itsXConnects_.size(); i++){
+		tmpRec4.define(i, itsXConnects_[i]);
+	}
+	rec.defineRecord(REC_XCONNECT, tmpRec4);
+	rec.define(REC_TIMECONNECT, Vector<bool>(itsTimeConnects_));
 
 	return rec;
 }
@@ -1377,6 +1386,28 @@ void PMS_PP_Display::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
+	
+	if (record.isDefined(REC_XCONNECT) && record.dataType(REC_XCONNECT) == TpRecord)
+	{
+		const Record& tmpRec = record.asRecord(REC_XCONNECT);
+		itsXConnects_.resize(tmpRec.nfields());
+		for (unsigned int i= 0; i < itsXConnects_.size() && i < tmpRec.nfields(); i++) {
+			String value = tmpRec.asString(i);
+			if (tmpRec.dataType(i)==TpString && itsXConnects_[i] != value) {
+				itsXConnects_[i] = value;
+				valuesChanged = true;
+			}
+		}
+	}
+	if (record.isDefined(REC_TIMECONNECT) && record.dataType(REC_TIMECONNECT) == TpArrayBool)
+	{
+		vector<bool> tmp;
+		record.asArrayBool(REC_TIMECONNECT).tovector(tmp);
+		if (itsTimeConnects_ != tmp) {
+			itsTimeConnects_ = tmp;
+			valuesChanged = true;
+		}
+	}
 
 	if (valuesChanged) updated();
 }
@@ -1403,6 +1434,8 @@ PMS_PP_Display& PMS_PP_Display::assign( const PMS_PP_Display* o ){
 		itsTitleFormats_ = o->itsTitleFormats_;
 		itsColorizeFlags_ = o->itsColorizeFlags_;
 		itsColorizeAxes_ = o->itsColorizeAxes_;
+		itsXConnects_ = o->itsXConnects_;
+		itsTimeConnects_ = o->itsTimeConnects_;
 
 		updated();
 	}
@@ -1441,12 +1474,20 @@ bool PMS_PP_Display::operator==(const Group& other) const
 		}
 	}
 	if (itsTitleFormats_ != o->itsTitleFormats_) return false;
-	if (itsColorizeFlags_.size() != o->itsColorizeFlags_.size() || itsColorizeAxes_.size() != o->itsColorizeAxes_.size() || itsColorizeFlags_.size() != itsColorizeAxes_.size()) return false;
+	if ((itsColorizeFlags_.size() != o->itsColorizeFlags_.size()) || 
+		(itsColorizeAxes_.size() != o->itsColorizeAxes_.size()) || 
+		(itsColorizeFlags_.size() != itsColorizeAxes_.size())) return false;
 	for (unsigned int i = 0; i < itsColorizeFlags_.size(); i++){
-		if (itsColorizeFlags_[i] != o->itsColorizeFlags_[i] ||
-				(itsColorizeFlags_[i] && itsColorizeAxes_[i] != o->itsColorizeAxes_[i])){
+		if ((itsColorizeFlags_[i] != o->itsColorizeFlags_[i]) ||
+		    (itsColorizeFlags_[i] && (itsColorizeAxes_[i] != o->itsColorizeAxes_[i]))){
 			return false;
 		}
+	}
+	if ((itsXConnects_.size() != o->itsXConnects_.size()) ||
+	    (itsTimeConnects_.size() != o->itsTimeConnects_.size())) return false;
+	for (unsigned int i = 0; i < itsXConnects_.size(); i++){
+		if ((itsXConnects_[i] != o->itsXConnects_[i]) ||
+			(itsTimeConnects_[i] != o->itsTimeConnects_[i])) return false;
 	}
 	return true;
 }
@@ -1459,6 +1500,8 @@ void PMS_PP_Display::setDefaults()
 	itsTitleFormats_ = vector<PlotMSLabelFormat>(1, PlotMSLabelFormat(PMS::DEFAULT_TITLE_FORMAT));
 	itsColorizeFlags_ = vector<bool>(1, false);
 	itsColorizeAxes_ = vector<PMS::Axis>(1, PMS::DEFAULT_COLOR_AXIS);
+	itsXConnects_ = vector<casacore::String>(1, "none");
+	itsTimeConnects_ = vector<bool>(1, false);
 
 }
 
@@ -1485,7 +1528,6 @@ void PMS_PP_Display::setUnflaggedSymbol (const PlotSymbolPtr & value, unsigned i
 		itsUnflaggedSymbols_[index]->fromRecord( newValueRecord );
 		changed = true;
 	}
-
 
 	if ( changed ){
 		updated();
@@ -1518,7 +1560,18 @@ void PMS_PP_Display::setColorize (const bool & value, unsigned int index ) {
 	}
 }
 
-
+void PMS_PP_Display::setConnect(const casacore::String& xconnect, const bool& timeconnect,
+		unsigned int index) {
+	if (index >= itsXConnects_.size())
+		itsXConnects_.resize (index + 1, "none");
+	if (index >= itsTimeConnects_.size())
+		itsTimeConnects_.resize (index + 1, false);
+	if (itsXConnects_[index]!= xconnect || itsTimeConnects_[index]!= timeconnect) {
+		itsXConnects_[index] = xconnect;
+		itsTimeConnects_[index] = timeconnect;
+		updated();
+	}
+}
 
 void PMS_PP_Display::resizeVectors(unsigned int newSize)
 {
@@ -1528,6 +1581,8 @@ void PMS_PP_Display::resizeVectors(unsigned int newSize)
 	itsTitleFormats_.resize(newSize, PlotMSLabelFormat(PMS::DEFAULT_TITLE_FORMAT));
 	itsColorizeFlags_.resize(newSize, false);
 	itsColorizeAxes_.resize(newSize, PMS::DEFAULT_COLOR_AXIS);
+	itsXConnects_.resize(newSize, "none");
+	itsTimeConnects_.resize(newSize, false);
 
 	for (unsigned int i = 0; i < newSize; i++)
 	{

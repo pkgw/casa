@@ -190,6 +190,7 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                     _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
                 }
                 start[1] = row[1];
+                ThrowIf(start[1] < 0, "Invalid channel selection in spw " + String::toString(spw));
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
@@ -1412,6 +1413,18 @@ void StatWtTVI::summarizeFlagging() const {
     log << LogIO::NORMAL << "TOTAL FLAGGED DATA AFTER RUNNING STATWT: "
         << total << "%" << LogIO::POST;
     log << LogIO::NORMAL << std::endl << LogIO::POST;
+    if (_nOrigFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT ALL THE DATA IN THE INPUT "
+            << "MS/SELECTION WERE FLAGGED PRIOR TO RUNNING STATWT"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
+    else if (_nOrigFlaggedPts + _nNewFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE DATA "
+            "IN THE REQUESTED SELECTION THAT WASN'T ORIGINALLY FLAGGED"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
     String col0 = "SPECTRAL_WINDOW";
     String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";
     String col2 = "SAMPLES_WHERE_REAL_PART_VARIANCE_DIFFERS_BY_>50%_FROM_"
@@ -1430,16 +1443,28 @@ void StatWtTVI::summarizeFlagging() const {
 }
 
 void StatWtTVI::summarizeStats(Double& mean, Double& variance) const {
-    mean = _wtStats->getStatistic(StatisticsData::MEAN);
-    variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
     LogIO log(LogOrigin("StatWtTVI", __func__));
-    log << LogIO::NORMAL << "The mean of the computed weights is "
-        << mean << LogIO::POST;
-    log << LogIO::NORMAL << "The variance of the computed weights is "
-        << variance << LogIO::POST;
-    log << LogIO::NORMAL << "Weights which had corresponding flags of True "
-        << "prior to running this application were not used to compute these "
-        << "stats." << LogIO::POST;
+    try {
+        mean = _wtStats->getStatistic(StatisticsData::MEAN);
+        variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
+        log << LogIO::NORMAL << "The mean of the computed weights is "
+            << mean << LogIO::POST;
+        log << LogIO::NORMAL << "The variance of the computed weights is "
+            << variance << LogIO::POST;
+        log << LogIO::NORMAL << "Weights which had corresponding flags of True "
+            << "prior to running this application were not used to compute these "
+            << "stats." << LogIO::POST;
+    }
+    catch (const AipsError& x) {
+        log << LogIO::WARN << "There was a problem calculating the mean and "
+            << "variance of the weights computed by this application. Perhaps there "
+            << "was something amiss with the input MS and/or the selection criteria. "
+            << "Examples of such issues are that all the data were originally flagged "
+            << "or that the sample size was consistently too small for computations "
+            << "of variances" << LogIO::POST;
+        setNaN(mean);
+        setNaN(variance);
+    }
 }
 
 void StatWtTVI::origin() {

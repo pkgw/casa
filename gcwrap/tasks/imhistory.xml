@@ -11,29 +11,72 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <!--                                                          -->
 
 <task type="function" name="imhistory" category="analysis">
-
 <shortdescription>Retrieve and modify image history</shortdescription>
+<description>
+Retrieve and modify image history.
+
+This task provides access to the logtable of an image, where generally
+history information is stored. Two operation modes are supported. When
+mode="list", the history messages are returned as an array of
+strings. If verbose=True, this information is also written to the
+logger. When mode="append", a specified message (along with its
+specified origin) are appended to the logtable and True is returned if
+successful.
+</description>
 
 <input>
     <param type="string" name="imagename" mustexist="true">
-    	<description>Name of the input image</description>
+<shortdescription>Name of the input spectral line image</shortdescription>
+<description>Name of the input (CASA, FITS, MIRIAD) image
+                     Default: none
+
+                        Example: imagename='ngc5921.im'
+</description>
     	<value/>
         <example>imagename='ngc5921.im'</example>
     </param>
+
     <param type="string" name="mode">
-        <description>Mode to run in, "list" to retrieve history, "append" to append a record to history.</description>
+<shortdescription>Mode to run in, "list" to retrieve history, "append" to append a record to history.</shortdescription>
+<description>Operating mode.
+                     Default: 'list' (retrieve history)
+                     Options: 'list|append' ('append' to append a
+		     record to history)
+</description>
         <value>list</value>
     </param>
+
     <param type="bool" name="verbose" subparam="true">
-        <description>Write history to logger if mode="list"?</description>
+<shortdescription>Write history to logger if mode="list"?</shortdescription>
+<description>Write history to logger if mode="list"?
+                     Subparameter of mode='list'
+                     Default: True
+                     Options: True|False
+</description>
         <value>True</value>
     </param>
+
     <param type="string" name="origin" subparam="true">
-        <description>Origin of appended message. Only used for mode="append".</description>
+<shortdescription>Origin of appended message. Only used for mode="append".</shortdescription>
+<description>Origin of appended message. 
+                     Subparameter of mode='append'
+                     Default: 'imhistory'
+
+                     The user can specify any string. This string will
+		     appear as a tag at the start of the appended line
+		     in the image history. Only used for mode="append".
+</description>
         <value>imhistory</value>
     </param>
+
     <param type="string" name="message" subparam="true">
-        <description>Message to append. Only used of mode="append".</description>
+<shortdescription>Message to append. Only used of mode="append".</shortdescription>
+<description>Message to append. 
+                     Subparameter of mode='append'
+                     Default: none
+
+                     Only used of mode="append".
+</description>
         <value/>
     </param>
     <constraints>
@@ -57,28 +100,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <returns type="variant"/>
 
 <example>
-PARAMETER SUMMARY
-imagename        Name of the input (CASA, FITS, MIRIAD) image
-mode             Operating mode. Either "list" or "append" is accepted.
-verbose          Log history if mode="list"?
-origin           Origin of appended message if mode="append". The user can specify any string.
-                 This string will appear as a tag at the start of the appended line in the image
-                 history. Default value is imhistory.
-message          Message to append if mode="append".
-
-This task provides access to the logtable of an image, where generally history information is
-stored. Two operation modes are supported. When mode="list", the history messages are returned
-as an array of strings. If verbose=True, this information is also written to the logger. When
-mode="append", a specified message (along with its specified origin) are appended to the logtable
-and True is returned if successful.
-
-# get image history, print to log window, and store as an array of
-# strings in variable x
-x = imhistory("my.im", mode="list", verbose=True) 
-
-# append a message
-imhistory("my.im", origin="myorigin", message="ETI signal found in this image!")
-
+FOR MORE INFORMATION, SEE THE TASK PAGES OF IMHISTORY IN CASA DOCS:
+https://casa.nrao.edu/casadocs/
 </example>
 
 </task>

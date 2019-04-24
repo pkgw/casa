@@ -6,35 +6,33 @@ xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="simalma" category="simulation">
+<shortdescription>Simulation task for ALMA </shortdescription>
+<description>
+This task simulates ALMA observation including 12-m, ACA 7-m and total
+power arrays, and images and analyzes simulated data.
 
-  <shortdescription>Simulation task for ALMA </shortdescription>
-  <description>
-    This task simulates ALMA observation including 12-m, ACA 7-m and total
-    power arrays, and images and analyzes simulated data.
+This task makes multiple calls to simobserve (to calculate
+visibilities and total power spectra), followed by gridding of total
+power spectra (if total power is requested), concatenation of the
+simulated visibilities, calls to the simanalyze task for visibility
+inversion and deconvolution and calculation of difference and fidelity
+images, and feathering of single dish and interferometric data.
 
-    This task makes multiple calls to simobserve (to calculate visibilities
-    and total power spectra), followed by gridding of total power spectra
-    (if total power is requested), concatenation of the simulated
-    visibilities, calls to the simanalyze task for visibility inversion and
-    deconvolution and calculation of difference and fidelity images,
-    and feathering of single dish and interferometric data.
+These steps may not all be familiar to new users, so the simalma task
+runs by default in a "dryrun" mode, in which it assesses the user's
+input parameters and sky model, and prints an informational report
+including the required calls to other CASA tasks, both to the screen
+and to a text file in the project directory (defined below).
 
-    These steps may not all be familiar to new users, so the simalma task
-    runs by default in a "dryrun" mode, in which it assesses the user's
-    input parameters and sky model, and prints an informational report
-    including the required calls to other CASA tasks, both to the screen
-    and to a text file in the project directory (defined below).
+The user can modify their parameters based on the information, then
+either run with dryrun=False to actually call the other tasks to
+create the simulated data, or run the other tasks individually one at
+a time to better understand and control the process.
 
-    The user can modify their parameters based on the information,
-    then either run with dryrun=False to actually call the other tasks
-    to create the simulated data, or run the other tasks individually
-    one at a time to better understand and control the process.
-
-    NOTE The ALMA project is refining the optimal method of combining the
-    three types of data.  If that best practice is changed after this
-    release of CASA, the user can control the process by modifying the calls
-    to the other CASA tasks.
-
+NOTE The ALMA project is refining the optimal method of combining the
+three types of data.  If that best practice is changed after this
+release of CASA, the user can control the process by modifying the
+calls to the other CASA tasks.
 </description>
 <example>
     -------------------------------
@@ -139,7 +137,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
               ['alma.cycle1;0.3arcsec','alma.cycle1.1.cfg','aca.i.cfg']
 
     hourangle -- hour angle of observation e.g. '-3h'
-       * note that if you don't add a unit, it will assume seconds.
 
     totaltime --- total time of observations. This should either be a scalar
          time quantity expressed as a string e.g. '1h', '3600sec', '10min',

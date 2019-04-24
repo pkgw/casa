@@ -201,6 +201,10 @@ public:
 				      casacore::CountedPtr<refim::FTMachine> iftmachine,
 				      casacore::uInt ntaylorterms=1);
 
+  // Calculate apparent sensitivity (for _Visibility_ spectrum)
+  //  _Image_ spectral grid TBD
+  virtual casacore::Record apparentSensitivity();
+
   bool makePB();
   bool makePrimaryBeam(PBMath& pbMath);
   void  andFreqSelection(const casacore::Int msId, const casacore::Int spwId,  const casacore::Double freqBeg, const casacore::Double freqEnd, const casacore::MFrequency::Types frame);

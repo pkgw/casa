@@ -484,6 +484,7 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
      def test_iterbot_cube_2(self):
           """ [iterbot] Test_Iterbot_cube_2 : High threshold, iterate only on line channels. """
           self.prepData('refim_point_withline.ms')
@@ -613,6 +614,7 @@ class test_multifield(testref_base):
           self.checkfinal(report)
 
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
      def test_multifield_both_cube(self):
           """ [multifield] Test_Multifield_both_cube : Two fields, both cube"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -1764,6 +1766,7 @@ class test_cube(testref_base):
           self.checkfinal(estr+report2)
 
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
      def test_cube_chanchunks(self):
           """ [cube] Test channel chunking for large cubes """
           self.prepData('refim_point.ms')
@@ -1848,6 +1851,7 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'1.mask', self.img+'2.mask'], imval=[(self.img+'1.mask',0.0,[50,50,0,1]),(self.img+'1.mask',1.0,[50,50,0,2]),(self.img+'1.mask',1.0,[50,50,0,10]),(self.img+'1.mask',0.0,[50,50,0,11]),(self.img+'2.mask',1.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,50,0,4]),(self.img+'2.mask',0.0,[50,50,0,10])])
           self.checkfinal(report)
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
      def test_mask_5(self):
           """ [mask] test_mask_5 : Input cube mask that has different chan
           ranges (use mask from the 1st tclean with a different channel range in the 2nd tclean run)"""

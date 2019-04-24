@@ -38,7 +38,6 @@
 #include<coordinates/Coordinates/DirectionCoordinate.h>
 
 
-
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -492,6 +491,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      blc[4]=fid;
 	      im.getSlice(lala, blc, IPosition(5, nx_p, ny_p,1,1,1), True);
 	      gwt_p[fid]->put( lala.reform(IPosition(2, nx_p, ny_p)));
+
 	    }
 	}
 	else{
@@ -499,6 +499,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  im.get(lala, True);
 	  gwt_p[0]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
 	  gwt_p[0]->put( lala.reform(IPosition(2, nx_p, ny_p)));
+
 	}
       const TableRecord& rec=im.miscInfo();
       if(rec.isDefined("d2")){
@@ -519,6 +520,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
       activeFieldIndex_p=0;
       gwt_p[0]->get(a_gwt_p);
+
       
  }
 
@@ -536,6 +538,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       if(retval(2) > 0){
 	retval[0]=gwt_p[0]->shape()(0);
 	retval[1]=gwt_p[0]->shape()(1);
+
       }
       
       return retval;
@@ -552,6 +555,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	gwt_p[fid]->get(a_gwt_p);
 	where[lastAx]=fid;
 	im.putSlice(a_gwt_p, where);
+
       }
       Record rec;
       rec.define("d2", d2_p);

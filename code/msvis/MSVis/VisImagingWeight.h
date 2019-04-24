@@ -37,8 +37,9 @@ namespace casacore{
 
 template<class T> class Matrix;
 template<class T> class Vector;
- template<class T> class ImageInterface;
- template<class T> class TempLattice;
+template<class T> class ImageInterface;
+template<class T> class TempLattice;
+
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN

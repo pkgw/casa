@@ -48,7 +48,7 @@ namespace Minim {
       throw Error(buf.str( ));
     }
 
-    std::auto_ptr< std::list<MCPoint> > res
+    std::unique_ptr< std::list<MCPoint> > res
       (new std::list<MCPoint> ) ;
 
     // Current point in chain
