@@ -1074,39 +1074,6 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                         (*gsl_vector_ptr(v, iparam2 + 2)) += (w*-ws*-wDt) * gsl_vector_get(u, count + 0);
                         (*gsl_vector_ptr(v, iparam2 + 2)) += (w*+wc*-wDt) * gsl_vector_get(u, count + 1);
                     }
-                    // JTJ part. I'm calculating these from the CblasNoTrans version.
-                    // JTJ[i, k] = sum_j JT[i, j] * J[j, k] , which is to say
-                    // JTJ[i, k] = sum_j J[j, i] * J[j, k].
-                    // We're summing over the count + i vectors.
-                    //
-                    // Note that terms like (-ws*-1.0) * (-ws*-1.0) + (+wc*-1.0) * (+wc*-1.0)
-                    // can be simplified to (ws*ws) + (wc*wc) and that that reduces to 1.
-                    // But I'd like to have regression tests for some of that I guess.
-                    if (JTJ) {
-                        // J[count + 0, iparam2 + 0] * J[count + 0, iparam2 + 0]
-                        // J[count + 1, iparam2 + 0] * J[count + 1, iparam2 + 0]
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 0, iparam2 + 0)) +=
-                            w0*-1.0*-1.0*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam2 + 1] * J[count + 0, iparam2 + 0]
-                        // J[count + 1, iparam2 + 1] * J[count + 1, iparam2 + 0]                        
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 0)) +=
-                            w0*-wDf*-1.0*((-ws) * (-ws) + (+wc) * (+wc));  
-                        // J[count + 0, iparam2 + 1]^2
-                        // J[count + 1, iparam2 + 1]^2 
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 1)) +=
-                            w0*-wDf*-wDf*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 0]
-                        // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 0] 
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 0)) +=
-                            w0*-wDt*-1.0*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam2 + 2] * J[count + 0, iparam2 + 1]
-                        // J[count + 1, iparam2 + 2] * J[count + 1, iparam2 + 1]
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 1)) +=
-                            w0*-wDt*-wDf*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam2 + 2]^2 and J[count + 1, iparam2 + 2]^2
-                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 2)) +=
-                            w0*-wDt*-wDt*((-ws) * (-ws) + (+wc) * (+wc));  
-                    }
 
                 }
                 if (iparam1 >= 0) {
@@ -1128,28 +1095,49 @@ expb_df(CBLAS_TRANSPOSE_t TransJ, const gsl_vector* x, const gsl_vector *u, void
                         (*gsl_vector_ptr(v, iparam1 + 2)) += gsl_vector_get(u, count + 0) * (w*-ws*+wDt);
                         (*gsl_vector_ptr(v, iparam1 + 2)) += gsl_vector_get(u, count + 1) * (w*+wc*+wDt);
                     } 
-                    if (JTJ) {
-                        // J[count + 0, iparam1 + 0]^2 and J[count + 1, iparam1 + 0]^2
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 0, iparam1 + 0)) +=
-                            w0*1.0*1.0*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam1 + 1] * J[count + 0, iparam1 + 0]
-                        // and J[count + 1, iparam1 + 1] * J[count + 1, iparam1 + 0]
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 0)) +=
-                            w0*wDf*1.0*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam1 + 1]^2 and J[count + 1, iparam1 + 1]^2 
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 1)) +=
-                            w0*wDf*wDf*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 0]
-                        // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 0] 
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 0)) +=
-                            w0*wDt*1.0*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam1 + 2] * J[count + 0, iparam1 + 1]
-                        // J[count + 1, iparam1 + 2] * J[count + 1, iparam1 + 1]
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 1)) +=
-                            w0*wDt*wDf*((-ws) * (-ws) + (+wc) * (+wc));
-                        // J[count + 0, iparam1 + 2]^2 and  J[count + 1, iparam1 + 2]^2
-                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 2)) +=
-                            w0*wDt*wDt*((-ws) * (-ws) + (+wc) * (+wc));  
+                }
+                if (JTJ) {
+                    Double p0 = 1.0;
+                    Double p1 = wDf;
+                    Double p2 = wDt;
+                    Double wterm = (-ws) * (-ws) + (+wc) * (+wc);
+                    if (fabs(1-wterm) > 1e-15)
+                        throw AipsError("Insufficiently at one");
+                    if (iparam2 >= 0) {
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 0, iparam2 + 0)) += w0*-p0*-p0;
+                        //
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 0)) += w0*-p1*-p0;  
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 1, iparam2 + 1)) += w0*-p1*-p1;
+                        //
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 0)) += w0*-p2*-p0;
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 1)) += w0*-p2*-p1;
+                        (*gsl_matrix_ptr(JTJ, iparam2 + 2, iparam2 + 2)) += w0*-p2*-p2;  
+                    }
+                    if (iparam1 >= 0) {
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 0, iparam1 + 0)) += w0*p0*p0;
+                        //
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 0)) += w0*p1*p0;
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 1, iparam1 + 1)) += w0*p1*p1;
+                        //
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 0)) += w0*p2*p0;
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 1)) += w0*p2*p1;
+                        (*gsl_matrix_ptr(JTJ, iparam1 + 2, iparam1 + 2)) += w0*p2*p2;  
+                    }
+                    if ((iparam1>=0) && (iparam2>=0) && (iparam1 != iparam2)) {
+                        Int jparam2 = max(iparam2, iparam1);
+                        Int jparam1 = min(iparam2, iparam1);
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 0, jparam1 + 0)) += w0*-p0*p0;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 0, jparam1 + 1)) += w0*-p0*p1;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 0, jparam1 + 2)) += w0*-p0*p2;
+                        //
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 1, jparam1 + 0)) += w0*-p1*p0;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 1, jparam1 + 1)) += w0*-p1*p1;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 1, jparam1 + 2)) += w0*-p1*p2;
+                        //
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 2, jparam1 + 0)) += w0*-p2*p0;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 2, jparam1 + 1)) += w0*-p2*p1;
+                        (*gsl_matrix_ptr(JTJ, jparam2 + 2, jparam1 + 2)) += w0*-p2*p2;
+
                     }
                 }
                 count += 2;
