@@ -34,7 +34,9 @@
 #include <synthesis/TransformMachines2/GridFT.h>
 #include <scimath/Mathematics/InterpolateArray1D.h>
 
-
+namespace casacore{
+  class RecordInterface;
+}
 namespace casa{ //# namespace casa
 
  namespace vi{ class VisBuffer2;
@@ -48,8 +50,9 @@ class BriggsCubeWeightor{
    BriggsCubeWeightor(vi::VisibilityIterator2& vi, const casacore::String& rmode,
 		       const casacore::Quantity& noise, const casacore::Double robust,
 		       const casacore::ImageInterface<casacore::Complex>& templateimage,
+                      const casacore::RecordInterface& inrec,
 		       const casacore::Int superUniformBox=0,
-		      const casacore::Bool multiField=false , casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::InterpolationMethod interpMethod=casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::nearestNeighbour);
+		      const casacore::Bool multiField=false);
    //This constructor will require that init be called at a later stage
    BriggsCubeWeightor(const casacore::String& rmode,
 		       const casacore::Quantity& noise,
@@ -59,9 +62,11 @@ class BriggsCubeWeightor{
     
     void weightUniform(casacore::Matrix<casacore::Float>& imweight, const vi::VisBuffer2& vb);
     //initialize
-    void init(vi::VisibilityIterator2& vi,const casacore::ImageInterface<casacore::Complex>& templateimage,const casacore::InterpolateArray1D<casacore::Double, casacore::Complex>::InterpolationMethod interpMethod, const casacore::Bool freqFrameValid=true);
+    // inRec is a record interface from FTMachine that is used to set the state of the weight gridder ftmachines
+    //contains frame info etc.
+    void init(vi::VisibilityIterator2& vi,const casacore::ImageInterface<casacore::Complex>& templateimage, const casacore::RecordInterface& inRec);
   private:
-    void initializeFTMachine(const casacore::uInt index, const casacore::ImageInterface<casacore::Complex>& templateimage, const casacore::Int uvbox=0);
+    void initializeFTMachine(const casacore::uInt index, const casacore::ImageInterface<casacore::Complex>& templateimage, const casacore::RecordInterface& inrec);
     void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
     casacore::Block<casacore::CountedPtr<casacore::ImageInterface<casacore::Float> > > grids_p;
     

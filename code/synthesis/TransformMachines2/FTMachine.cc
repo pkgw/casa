@@ -538,7 +538,11 @@ using namespace casa::vi;
   void FTMachine::initBriggsWeightor(vi::VisibilityIterator2& vi){
     ///Lastly initialized Briggs cube weighting scheme
     if(!briggsWeightor_p.null()){
-      briggsWeightor_p->init(vi, *image, freqInterpMethod_p, freqFrameValid_p);
+      String error;
+      Record rec;
+      if(!toRecord(error, rec))
+        throw (AipsError("Could not initialize BriggsWeightor")); 
+      briggsWeightor_p->init(vi, *image, rec);
 
     }
   }
@@ -1411,7 +1415,6 @@ using namespace casa::vi;
     outRecord.define("nchan", nchan);
     outRecord.define("nvischan", nvischan);
     outRecord.define("nvispol", nvispol);
-    saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
     //no need to save uvwMachine_p
     outRecord.define("douvwrotation", doUVWRotation_p);
     outRecord.define("freqinterpmethod", static_cast<Int>(freqInterpMethod_p));
@@ -1428,13 +1431,11 @@ using namespace casa::vi;
     outRecord.define("chanmap", chanMap);
     outRecord.define("polmap", polMap);
     outRecord.define("nvischanmulti", nVisChan_p);
-    spectralCoord_p.save(outRecord, "spectralcoord");
+
+    //save moving source related variables
+    storeMovingSourceState(error, outRecord);
     //outRecord.define("doconversion", doConversion_p);
     outRecord.define("pointingdircol", pointingDirCol_p);
-    saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
-    outRecord.define("fixmovingsource", fixMovingSource_p);
-    saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
-    movingDirShift_p=MVDirection(0.0);
     outRecord.define("usedoublegrid", useDoubleGrid_p);
     outRecord.define("cfstokes", cfStokes_p);
     outRecord.define("polinuse", polInUse_p);
@@ -1540,12 +1541,7 @@ using namespace casa::vi;
     }
     
    
-    { const Record rec=inRecord.asRecord("mlocation_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      mLocation_p=mh.asMPosition();
-    }
+   
     inRecord.get("douvwrotation", doUVWRotation_p);
    
     //inRecord.get("spwchanselflag", spwChanSelFlag_p);
@@ -1563,26 +1559,10 @@ using namespace casa::vi;
     inRecord.get("chanmap", chanMap);
     inRecord.get("polmap", polMap);
     inRecord.get("nvischanmulti", nVisChan_p);
-    SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
-    if(tmpSpec){
-      spectralCoord_p=*tmpSpec;
-      delete tmpSpec;
-    }
     //inRecord.get("doconversion", doConversion_p);
     inRecord.get("pointingdircol", pointingDirCol_p);
-    { const Record rec=inRecord.asRecord("movingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      movingDir_p=mh.asMDirection();
-    }
-    inRecord.get("fixmovingsource", fixMovingSource_p);
-    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      firstMovingDir_p=mh.asMDirection();
-    }
+    
+    
     inRecord.get("usedoublegrid", useDoubleGrid_p);
     inRecord.get("cfstokes", cfStokes_p);
     inRecord.get("polinuse", polInUse_p);
@@ -1604,9 +1584,73 @@ using namespace casa::vi;
     doneThreadPartition_p=-1;
     vbutil_p=nullptr;
     briggsWeightor_p=nullptr;
+    if(!recoverMovingSourceState(error, inRecord))
+      return False;
     return true;
   };
+  Bool FTMachine::storeMovingSourceState(String& error, RecordInterface& outRecord){
 
+    Bool retval=True;
+    retval=retval && saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
+    spectralCoord_p.save(outRecord, "spectralcoord");
+    retval=retval && saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
+    outRecord.define("fixmovingsource", fixMovingSource_p);
+    retval=retval && saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
+    movingDirShift_p=MVDirection(0.0);
+    if( mFrame_p.comet()){
+      String ephemTab=MeasComet(*(mFrame_p.comet())).getTablePath();
+      outRecord.define("ephemeristable",ephemTab);
+    }
+    return retval;
+  }
+  Bool FTMachine::recoverMovingSourceState(String& error, const RecordInterface& inRecord){
+    Bool retval=True;
+    inRecord.get("fixmovingsource", fixMovingSource_p);
+    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      firstMovingDir_p=mh.asMDirection();
+    }
+    { const Record rec=inRecord.asRecord("movingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      movingDir_p=mh.asMDirection();
+    }
+     { const Record rec=inRecord.asRecord("mlocation_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      mLocation_p=mh.asMPosition();
+    }
+     SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
+    if(tmpSpec){
+      spectralCoord_p=*tmpSpec;
+      delete tmpSpec;
+    }
+    if(inRecord.isDefined("ephemeristable")){
+      String ephemtab;
+      inRecord.get("ephemeristable", ephemtab);
+      MeasComet laComet;
+      if(Table::isReadable(ephemtab, False)){
+	Table laTable(ephemtab);
+	Path leSentier(ephemtab);
+	laComet=MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+        laComet= MeasComet(ephemtab);
+      }
+      if(!mFrame_p.comet())
+	mFrame_p.set(laComet);
+      else
+	mFrame_p.resetComet(laComet);
+    }
+    
+    return retval;
+  }
+  
+  
   void FTMachine::getImagingWeight(Matrix<Float>& imwgt, const vi::VisBuffer2& vb){
     //cerr << "BRIGGSweightor " << briggsWeightor_p.null()  << " or " << !briggsWeoght_p << endl;
     if(briggsWeightor_p.null()){

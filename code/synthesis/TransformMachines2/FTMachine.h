@@ -385,6 +385,7 @@ protected:
   friend class VisModelData;
   friend class MultiTermFT;
   friend class MultiTermFTNew;
+  friend class BriggsCubeWeightor;
   casacore::LogIO logIO_p;
 
   casacore::LogIO& logIO();
@@ -482,9 +483,11 @@ protected:
 
 
   void setSpectralFlag(const vi::VisBuffer2& vb, casacore::Cube<casacore::Bool>& modflagcube);
+  //Save/Recover some elements of state of ftmachine in/from record
+  casacore::Bool storeMovingSourceState(casacore::String& error, casacore::RecordInterface& outRecord);
   //helper to save Measures in a record
   casacore::Bool saveMeasure(casacore::RecordInterface& rec, const casacore::String& name, casacore::String& error, const casacore::Measure& ms);
-
+  casacore::Bool recoverMovingSourceState(casacore::String& error, const casacore::RecordInterface& inRecord);
   casacore::Matrix<casacore::Double> negateUV(const vi::VisBuffer2& vb);
 
   // Private variables needed for spectral frame conversion 

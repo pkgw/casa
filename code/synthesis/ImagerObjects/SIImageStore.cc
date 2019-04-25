@@ -1944,10 +1944,10 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 
     //// Replace null beams by a tiny tiny beam, just to get past the ImageInfo restriction that
     //// all planes must have non-null beams.
-    Quantity majax(1e-06,"arcsec"),minax(1e-06,"arcsec"),pa(0.0,"deg");
-    GaussianBeam defaultbeam;
-    defaultbeam.setMajorMinor(majax,minax);
-    defaultbeam.setPA(pa);
+    //Quantity majax(1e-06,"arcsec"),minax(1e-06,"arcsec"),pa(0.0,"deg");
+    GaussianBeam defaultbeam=itsPSFBeams.getMaxAreaBeam();
+    //defaultbeam.setMajorMinor(majax,minax);
+    //defaultbeam.setPA(pa);
     for( Int chanid=0; chanid<nchan;chanid++) {
       for( Int polid=0; polid<npol; polid++ ) {
 	if( (itsPSFBeams.getBeam(chanid, polid)).isNull() ) 

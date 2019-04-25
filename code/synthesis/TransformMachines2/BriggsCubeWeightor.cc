@@ -30,6 +30,7 @@
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Vector.h>
+#include <casa/Containers/Record.h>
 #include<msvis/MSVis/VisImagingWeight.h>
 #include <msvis/MSVis/VisBuffer2.h>
 #include <msvis/MSVis/VisibilityIterator2.h>
@@ -67,8 +68,8 @@ using namespace casa::vi;
   BriggsCubeWeightor::BriggsCubeWeightor(vi::VisibilityIterator2& vi,
 				       const String& rmode, const Quantity& noise,
 				       const Double robust,
-				       const ImageInterface<Complex>& templateimage,
-					 const Int superUniformBox, const Bool multiField, const InterpolateArray1D<Double, Complex>::InterpolationMethod interpMethod){
+                                         const ImageInterface<Complex>& templateimage, const RecordInterface& inrec,
+					 const Int superUniformBox, const Bool multiField){
     rmode_p=rmode;
     noise_p=noise;
     robust_p=robust;
@@ -77,7 +78,7 @@ using namespace casa::vi;
     initialized_p=False;
     refFreq_p=-1.0;
     
-    init(vi, templateimage,interpMethod);
+    init(vi, templateimage,inrec);
 
 
 
@@ -85,12 +86,12 @@ using namespace casa::vi;
   }
 				       
  void BriggsCubeWeightor::init(vi::VisibilityIterator2& vi,
-			       const ImageInterface<Complex>& templateimage, const InterpolateArray1D<Double, Complex>::InterpolationMethod interpMethod, const Bool freqFrameValid)
+			       const ImageInterface<Complex>& templateimage, const RecordInterface& inRec)
  {
   LogIO os(LogOrigin("BriggsCubeWeightor", "constructor", WHERE));
 
-  freqInterpMethod_p=interpMethod;
-  freqFrameValid_p=freqFrameValid;
+  //freqInterpMethod_p=interpMethod;
+  //freqFrameValid_p=freqFrameValid;
   //chanchunk may call the same object
   if(initialized_p && nx_p==templateimage.shape()(0) && ny_p==templateimage.shape()(1)){
     CoordinateSystem cs=templateimage.coordinates();
@@ -144,7 +145,7 @@ using namespace casa::vi;
   Vector<Matrix<Double> > sumWgts(nIndices);
   
   for(int index=0; index < nIndices; ++index){
-    initializeFTMachine(index, templateimage);
+    initializeFTMachine(index, templateimage, inRec);
     Matrix<Float> dummy;
     
     ft_p[index]->initializeToSky(newTemplate, dummy, *vb);
@@ -297,7 +298,7 @@ using namespace casa::vi;
     
   }
 
-void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterface<Complex>& templateimage, const Int uvbox){
+void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterface<Complex>& templateimage, const RecordInterface& inRec){
   Int nchan=templateimage.shape()(3);
   if(ft_p.nelements() <= index){
     ft_p.resize(index+1);
@@ -308,8 +309,15 @@ void BriggsCubeWeightor::initializeFTMachine(const uInt index, const ImageInterf
     d2_p[index]=Vector<Float>(nchan, 0.0);
   }
   ft_p[index]=new refim::GridFT(Long(1000000), Int(200), "BOX",1.0, true, false);
+  Int tmpInt;
+  inRec.get("freqinterpmethod", tmpInt);
+  freqInterpMethod_p=static_cast<InterpolateArray1D<Double, Complex >::InterpolationMethod>(tmpInt);
   ft_p[index]->setFreqInterpolation(freqInterpMethod_p);
+  inRec.get("freqframevalid", freqFrameValid_p);
   ft_p[index]->setFrameValidity(freqFrameValid_p);
+  String error;
+  if(!(ft_p[index]->recoverMovingSourceState(error, inRec)))
+    throw(AipsError("BriggsCubeWeightor could not get the state of the ftmachine:" + error));
   //remember to make the stokes I
   grids_p[index]=new TempImage<Float>(templateimage.shape(), templateimage.coordinates(), 0.0);
   
