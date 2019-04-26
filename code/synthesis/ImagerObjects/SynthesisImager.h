@@ -182,6 +182,10 @@ class SynthesisImager
   // make the psf images  i.e grid weight rather than data
   void makePSF();
 
+  // Calculate apparent sensitivity (for _Visibility_ spectrum)
+  //  _Image_ spectral grid TBD
+  // Throws an exception because not supported in old VI (see SynthesisImagerVi2)
+  virtual casacore::Record apparentSensitivity();
 
   virtual bool makePB();
   

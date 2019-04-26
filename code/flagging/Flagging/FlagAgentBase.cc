@@ -2524,6 +2524,11 @@ FlagAgentBase::processAntennaPair(Int antenna1,Int antenna2)
 				computeAntennaPairFlags(*(flagDataHandler_p->visibilityBuffer_p),visibilitiesMap,flagsMap,antennaPair.first,antennaPair.second,*antennaRows);
 			}
 		}
+
+                // Delete antenna pair rows - prob generateAntennaPairRowsIndex should
+                // not return a pointer, but that requires a long cascade of changes elsewhere
+                delete antennaRows;
+
 	}
 	else
 	{

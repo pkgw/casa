@@ -832,13 +832,23 @@ HPX HEALPix grid.  -->
     </param>
 
 <param type="any" name="psfphasecenter"  subparam="true"> 
-     <shortdescription>Phase center of the image</shortdescription>
-<description>For mosaic use psf centered of this optional direction
-               example: psfphasecenter=6
-                        psfphasecenter='J2000 19h30m00 -40d00m00'
-                        psfphasecenter='J2000 292.5deg  -40.0deg'
-                        psfphasecenter='J2000 5.105rad  -0.698rad'
-                        psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458' 
+     <shortdescription>optional direction to calculate psf for mosaic (default is image phasecenter)</shortdescription>
+     <description>For mosaic use psf centered on this
+			     optional direction. You may need to use
+			     this if for example the mosaic does not
+			     have any pointing in the center of the
+			     image. Another reason; as the psf is
+			     approximate for a mosaic, this may help
+			     to deconvolve a non central bright source
+			     well and quickly.
+
+			     example:
+
+			        psfphasecenter=6 #center psf on field 6
+				psfphasecenter='J2000 19h30m00 -40d00m00'
+				psfphasecenter='J2000 292.5deg -40.0deg'
+				psfphasecenter='J2000 5.105rad -0.698rad'
+				psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458'
 </description>
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
@@ -2768,20 +2778,7 @@ HPX HEALPix grid.  -->
 
   <example>
 
-     This is the first release of our refactored imager code. Although most features have
-     been used and validated, there are many details that have not been thoroughly tested.
-     Feedback will be much appreciated.
-
-
-     Usage Examples :
-     -----------------------
-
-     (A) A suite of test programs that demo all usable modes of tclean on small test datasets
-           https://svn.cv.nrao.edu/svn/casa/branches/release-4_5/gcwrap/python/scripts/tests/test_refimager.py
-     (B) A set of demo examples for ALMA imaging
-           https://casaguides.nrao.edu/index.php/TCLEAN_and_ALMA
-
-
+    Please refer to the CASAdocs pages for the task tclean for examples.
 
   </example>
 

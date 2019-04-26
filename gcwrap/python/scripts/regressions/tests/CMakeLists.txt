@@ -68,6 +68,7 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   stokesimaging_test.py
   testcube2.py
   pipelineTest_almaif.py
+  pipelineTest_almasd.py
   pipelineTest_vla.py
 
 )
