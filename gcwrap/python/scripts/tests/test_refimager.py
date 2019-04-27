@@ -32,7 +32,10 @@
 #  --- Get test datasets :  svn co https://svn.cv.nrao.edu/svn/casa-data/trunk/regression/unittest/clean/refimager
 #
 # ########################################################################
-# SKIPPED TESTS (as of 2019.02.05 - Seven tests total)
+# SKIPPED TESTS 
+# More tests were added to skip (as of 2019,04,26)
+#
+# (as of 2019.02.05 - Seven tests total)
 # The following tests are currently skipped as the supports of the particular
 # modes are not available in parallel mode yet
 # =>   
@@ -46,6 +49,21 @@
 # =>  test_multifield_facets_mfs
 #     test_multifield_facets_mtmfs
 #     test_cube_D1
+# 
+# Added to skip at least for 5.5
+#     test_iterbot_cube_2 (was failing in master)
+#     test_multifield_both_cube (was failing in master)
+#     test_cube_chanchunks
+#     test_cube_chanchunks_savemodel (possible race conditions)
+#     test_mask_5 (was failing in master)
+#     test_modelvis_2 (possible race conditions)
+#     test_modelvis_5 (possible race conditions)
+#     test_modelvis_7 (possible race conditions)
+#     test_modelvis_9 (possible race conditions)
+#     test_modelvis_10 (possible race conditions)
+#     test_modelvis_11 (possible race conditions)
+#     test_startmodel_with_mask_mfs(possible race conditions)
+#     test_startmodel_with_mask_mtmfs(possible race conditions)
 ##########################################################################
 #
 #  Datasets
