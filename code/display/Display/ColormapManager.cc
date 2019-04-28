@@ -87,25 +87,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		} else {
 			// ok, let's see if we can replace cmapToReplace:
-			ColormapInfo *mi = itsInfoMap[cmapToReplace];
-			mi->unref(); // decrement ref of cmapToReplace no matter what.
-			cmapToReplace->unregisterPCColorTable(itsPCColorTable);
-			if (mi->refCount() != 0) {
-				// we cannot, so just register in the usual way.
-				registerColormap(cmap);
-				return;
-			}
-			// okilidokile, on with the substitution
-			ColormapInfo *minew = new ColormapInfo(cmap, 1.0, 0, 0);
-			minew->ref();
-			itsInfoMap[cmap] = minew;
-			minew->setWeight(mi->weight());
-			minew->setOffset(mi->offset());
-			minew->setSize(mi->size());
-			delete mi;
-			cmapToReplace->unregisterPCColorTable(itsPCColorTable);
-			cmap->registerPCColorTable(itsPCColorTable);
-			reinstallColormaps();
+            auto iter = itsInfoMap.find(cmapToReplace);
+            if ( iter != itsInfoMap.end( ) ) {
+                ColormapInfo *mi = iter->second;
+                itsInfoMap.erase(iter);
+                mi->unref(); // decrement ref of cmapToReplace no matter what.
+                cmapToReplace->unregisterPCColorTable(itsPCColorTable);
+                if (mi->refCount() != 0) {
+                    // we cannot, so just register in the usual way.
+                    registerColormap(cmap);
+                    return;
+                }
+                // okilidokile, on with the substitution
+                ColormapInfo *minew = new ColormapInfo(cmap, 1.0, 0, 0);
+                minew->ref();
+                itsInfoMap[cmap] = minew;
+                minew->setWeight(mi->weight());
+                minew->setOffset(mi->offset());
+                minew->setSize(mi->size());
+                cmapToReplace->unregisterPCColorTable(itsPCColorTable);
+                cmap->registerPCColorTable(itsPCColorTable);
+                reinstallColormaps();
+                delete mi;
+            }
 		}
 		return;
 	}

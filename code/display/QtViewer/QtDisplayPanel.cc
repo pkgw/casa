@@ -1273,7 +1273,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// These are torn down and then rebuilt because the setOptions
 			// call below may change the set of underlying canvases.
 
-
 			Bool needsRefresh = pd_->setOptions(opts, chgdOpts);
 			pd_->setBlinkMode( !modeZ_ );
 			installEventHandlers_();
@@ -1600,9 +1599,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Total proportion of pc_ requested for colorbar panels
 		// displaying now (to check for for crowding of main pd_).
 		Float requestedsz = 0.;
+		int j = 0;
 		for ( auto dd : newCBDDs ) {
-			newcbpszs[i] = cbPanelSpace_(dd);
-			requestedsz += newcbpszs[i];
+			newcbpszs[j] = cbPanelSpace_(dd);
+			requestedsz += newcbpszs[j];
+			++j;
 		}
 
 		// Colorbars must be reduced in size so that they fit within

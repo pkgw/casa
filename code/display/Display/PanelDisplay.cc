@@ -470,14 +470,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		// remove any leftover WC{H}s
+		std::list<WorldCanvasHolder*> wch_del;
+		std::list<WorldCanvas*> wc_del;
 		if ( wch_iter != itsWCHList.end( ) ) {
-			for ( std::list<WorldCanvasHolder*>::iterator i = wch_iter; i != itsWCHList.end( ); ++i ) delete *i;
-			itsWCHList.erase( wch_iter, itsWCHList.end( ) );
+			wch_del.splice( wch_del.begin( ),
+							itsWCHList, wch_iter, itsWCHList.end( ) );
 		}
 		if ( wc_iter != itsWCList.end( ) ) {
-			for ( std::list<WorldCanvas*>::iterator i = wc_iter; i != itsWCList.end( ); ++i ) delete *i;
-			itsWCList.erase( wc_iter, itsWCList.end( ) );
+			wc_del.splice( wc_del.begin( ),
+						   itsWCList, wc_iter, itsWCList.end( ) );
 		}
+
+        for ( auto d : wch_del ) {
+            // lo, our parent (MultiWCHolder) maintains a DUPLICATE list
+            // of WorldCanvasHolders, and it's even called the same thing
+            // so convienient...
+            removeWCHolder(*d);
+            delete d;
+        }
+        for ( auto w : wc_del ) delete w;
 
 		updateTools(false,true);	// (restore mouse tools).
 		setDefaultOptions();
