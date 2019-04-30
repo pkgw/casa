@@ -804,18 +804,21 @@ def simobserve(
             else:                
                 haoffset="no"
                 # is this a time quantity?
+                if qa.isquantity(str(hourangle)+"h"): 
+                    if qa.compare(str(hourangle)+"h","s"):
+                        haoffset=qa.convert(qa.quantity(str(hourangle)+
+                                                        "h"),'s')['value']
                 if qa.isquantity(hourangle):
                     qha=qa.convert(hourangle,"s")
                     if qa.compare(qha,"s"):
                         haoffset=qa.convert(qha,'s')['value']
-                elif qa.isquantity(str(hourangle)+"h"):
-                    if qa.compare(hourangle+"h","s"):
-                        haoffset=qa.convert(qa.quantity(str(hourangle)+"h"),'s')['value']
             if haoffset=="no":
                 msg("Cannot interpret your hourangle parameter "+hourangle+
-                    " as a time quantity e.g. '5h', 30min'",origin="simobserve",priority="error")
+                    " as a time quantity e.g. '5h', 30min'",
+                    origin="simobserve",priority="error")
             else:
-                msg("You desire an hour angle of "+str(haoffset/3600.)+" hours",origin="simobserve")
+                msg("You desire an hour angle of "+
+                    str(haoffset/3600.)+" hours",origin="simobserve")
 
             refdate=refdate+"/00:00:00"
             usehourangle=True
