@@ -9,6 +9,7 @@ _cu = __casac__.utils.utils()
 
 from casa_system_defaults import casa
 casa['version'] = _cu.version_string( )
+casa['variant'] = _cu.version_variant( )
 casa['version_desc'] = _cu.version_desc( )
 
 ###########################################################################
@@ -19,5 +20,5 @@ casa['build'] = {  'time': casadef.build_time,
 casa['source'] = { 'url': casadef.subversion_url,
                    'revision': casadef.subversion_revision }
 ###########################################################################
-         
+
 procmgr = _procmgr( )

@@ -9,14 +9,17 @@ class __doc(object):
     def __init__( self ):
 
         version = "%d.%d.%d" % tuple(cu.version( )[:3])
+        casavariant = ""
+        if (cu.version_variant().strip() != ""):
+            casavariant = cu.version_variant().strip().lower() + "-"
 
-        self.__task_url = "https://casa.nrao.edu/PloneResource/casa-" + version + "/taskXml/"
-        self.__tool_url = "https://casa.nrao.edu/PloneResource/casa-" + version + "/toolXml/"
-        self.__toc_url = "https://casa.nrao.edu/casadocs/casa-" + version + "/global-task-list"
-        self.__start_url = "https://casa.nrao.edu/casadocs/casa-" + version
+        self.__task_url = "https://casa.nrao.edu/PloneResource/casa-" + casavariant + version + "/taskXml/"
+        self.__tool_url = "https://casa.nrao.edu/PloneResource/casa-" + casavariant + version + "/toolXml/"
+        self.__toc_url = "https://casa.nrao.edu/casadocs/casa-" + casavariant + version + "/global-task-list"
+        self.__start_url = "https://casa.nrao.edu/casadocs/casa-" + casavariant + version
 
-        self.__task_prefix = "https://casa.nrao.edu/casadocs/casa-" + version + "/global-task-list/task_"
-        self.__tool_prefix = "https://casa.nrao.edu/casadocs/casa-" + version + "/global-tool-list/tool_"
+        self.__task_prefix = "https://casa.nrao.edu/casadocs/casa-" + casavariant + version + "/global-task-list/task_"
+        self.__tool_prefix = "https://casa.nrao.edu/casadocs/casa-" + casavariant + version + "/global-tool-list/tool_"
 
         self.__task_list = [ ]
         self.__tool_list = [ ]
