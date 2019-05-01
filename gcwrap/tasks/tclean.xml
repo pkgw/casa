@@ -663,8 +663,55 @@ HPX HEALPix grid.  -->
 	    </allowed>
     </param>
 <param type="bool" name="perchanweightdensity" subparam="true">
-           <shortdescription>wherther to calculate weight density per channel in Briggs style weighting or not</shortdescription>
-<description>When calculating weight density for Briggs style weighting whether to calculate the weight density for a cube for each channel independently or a common weight density for all the selected data. This has no meaning for continuum imaging.
+           <shortdescription>whether to calculate weight density per channel in Briggs style weighting or not</shortdescription>
+           <description>
+                         When calculating weight density for Briggs
+                         style weighting in a cube, this parameter
+                         determines whether to calculate the weight
+                         density for each channel independently or a
+                         common weight density for all of the selected
+                         data (the default). This parameter has no
+                         meaning for continuum (specmode='mfs')
+                         imaging but for cube imaging
+                         perchanweightdensity=True is a recommended
+                         alternative option that provides more uniform
+                         sensitivity per channel for cubes, but with
+                         generally larger psfs than the
+                         perchanweightdensity=False (prior behavior)
+                         option. When using Briggs style weight with
+                         perchanweightdensity=True, the imaging weight
+                         density calculations use only the weights of
+                         data that contribute specifically to that
+                         channel. On the other hand, when
+                         perchanweightdensity=False, the imaging
+                         weight density calculations sum all of the
+                         weights from all of the data channels
+                         selected whose (u,v) falls in a given uv cell
+                         on the weight density grid. Since the
+                         aggregated weights, in any given uv cell,
+                         will change depending on the number of
+                         channels included when imaging, the psf
+                         calculated for a given frequency channel will
+                         also necessarily change, resulting in
+                         variability in the psf for a given frequency
+                         channel when perchanweightdensity=False. In
+                         general, perchanweightdensity=False results
+                         in smaller psfs for the same value of
+                         robustness compared to
+                         perchanweightdensity=True, but the rms noise
+                         as a function of channel varies and increases
+                         toward the edge channels;
+                         perchanweightdensity=True provides more
+                         uniform sensitivity per channel for
+                         cubes. This may make it harder to find
+                         estimates of continuum when
+                         perchanweightdensity=False. If you intend to
+                         image a large cube in many smaller subcubes
+                         and subsequently concatenate, it is advisable
+                         to use perchanweightdensity=True to avoid
+                         surprisingly varying sensitivity and psfs
+                         across the concatenated cube.
+             
 </description>
 	    <value type="bool">False</value>
     </param>
@@ -1463,8 +1510,8 @@ HPX HEALPix grid.  -->
 <!--============================================== -->
 
     <param type="string" name="weighting">
-           <shortdescription>Weighting scheme (natural,uniform,briggs, briggsabs)</shortdescription>
-<description>Weighting scheme (natural,uniform,briggs,superuniform,radial)
+           <shortdescription>Weighting scheme (natural,uniform,briggs, briggsabs[experimental])</shortdescription>
+<description>Weighting scheme (natural,uniform,briggs,superuniform,radial, briggsabs)
 
                        During gridding of the dirty or residual image, each visibility value is
                        multiplied by a weight before it is accumulated on the uv-grid.
@@ -1504,7 +1551,7 @@ HPX HEALPix grid.  -->
                                                          vary smoothly between 'natural' and 'uniform' and
                                                          allow customized trade-offs between PSF shape and
 							 imaging sensitivity.
-			weighting='briggsabs' :
+			weighting='briggsabs' : Experimental option.
 			                                 Same as Briggs except the formula is different A=
 							 robust*robust and B is dependent on the
 							 noise per visibility estimated. Giving noise='0Jy'
