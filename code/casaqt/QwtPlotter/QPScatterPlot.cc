@@ -491,7 +491,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
             lastiy = yMap.transform(lasty);
 
             unsigned int thisColorBin;  // for colorized data
-            unsigned int lastConnectBin, thisConnectBin; // whether to connect
+            unsigned int lastConnectBin = 0, thisConnectBin = 0; // whether to connect
             if (diffColorLine) {
                 lastConnectBin = m_coloredData->connectBinAt(drawIndex);
             }

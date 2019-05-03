@@ -1,0 +1,20 @@
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package rpc.img;
+
+service view {
+    // create a new panel (which may or may not be immediately 
+    rpc panel (NewPanel) returns (PanelId);
+}
+
+message PanelId {
+    uint32 id = 1;
+}
+
+message NewPanel {
+    string type = 1;         // "viewer" or "clean" or "clean2" or viewer restore file
+    bool hidden = 2;         // should new panel be visible
+}

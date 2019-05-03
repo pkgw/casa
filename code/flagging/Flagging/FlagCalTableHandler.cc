@@ -74,15 +74,15 @@ FlagCalTableHandler::open()
 	originalCalTable_p = new NewCalTable(tablename_p,Table::Update,Table::Plain);
 
 	// Read field names
-	ROMSFieldColumns *fieldSubTable = new ROMSFieldColumns(originalCalTable_p->field());
-	fieldNames_p = new Vector<String>(fieldSubTable->name().getColumn());
+	ROMSFieldColumns fieldSubTable(originalCalTable_p->field());
+	fieldNames_p = new Vector<String>(fieldSubTable.name().getColumn());
 	*logger_p << LogIO::DEBUG1 << "Field names are " << *fieldNames_p << LogIO::POST;
 
 	// Read antenna names and diameters from Antenna table
-	ROMSAntennaColumns *antennaSubTable = new ROMSAntennaColumns(originalCalTable_p->antenna());
-	antennaNames_p = new Vector<String>(antennaSubTable->name().getColumn());
-	antennaDiameters_p = new Vector<Double>(antennaSubTable->dishDiameter().getColumn());
-	antennaPositions_p = new ROScalarMeasColumn<MPosition>(antennaSubTable->positionMeas());
+	ROMSAntennaColumns antennaSubTable(originalCalTable_p->antenna());
+	antennaNames_p = new Vector<String>(antennaSubTable.name().getColumn());
+	antennaDiameters_p = new Vector<Double>(antennaSubTable.dishDiameter().getColumn());
+	antennaPositions_p = new ROScalarMeasColumn<MPosition>(antennaSubTable.positionMeas());
 	*logger_p << LogIO::DEBUG1 << "There are " << antennaNames_p->size() << " antennas with names: " << *antennaNames_p << LogIO::POST;
 
 	// File the baseline to Ant1xAnt2 map

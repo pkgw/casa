@@ -141,6 +141,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_msmd.py
   test_mstransform.py
   test_mstransform_mms.py
+  test_mstransform_subset.py
   test_mst_cvel.py
   test_mst_cvelB.py
   test_mst_split.py

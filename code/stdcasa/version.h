@@ -45,13 +45,14 @@ class VersionInfo {
     static std::string desc( );     // description: e.g.          " ID cc37ed0c4a"
     static std::string info( );     // combined string: e.g.      "5.0.0-565 ID cc37ed0c4a"
     static std::string str( );      // combined string: e.g.      "5.0.0-565"
+    static std::string variant( );  // "Instrument" variant: e.g.          "ALMA"
 
     // compare the version included in 'vec' against the current version.
     // 'comparitor' is one of: ">", "<", ">=", "<=", "=", "!="
     static bool compare(const  std::string& comparitor,  const std::vector<int>& vec);
 
-    // Summarize the above into an ostream. Note that an 
-    // <src>ostringstream</src> can be converted to a 
+    // Summarize the above into an ostream. Note that an
+    // <src>ostringstream</src> can be converted to a
     // <linkto class="String">String</linkto> via a constructor.
     // This information is NOT prepended with "AIPS++ version:" or anything
     // like that. You may wish to add this yourself. The date is also not
@@ -63,5 +64,3 @@ class VersionInfo {
 } //# NAMESPACE CASA - END
 
 #endif
-
-

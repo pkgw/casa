@@ -32,3 +32,8 @@ install(FILES
     Proc/Registrar.h
 	DESTINATION include/casacode/casatools/Proc
 )
+
+install(FILES
+    Data/Opt.h
+	DESTINATION include/casacode/casatools/Data
+)

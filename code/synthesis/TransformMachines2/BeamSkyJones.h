@@ -282,7 +282,7 @@ private:
   casacore::Int lastArrayId_p;
 
   casacore::Int lastMSId_p;
-
+  casacore::Double lastTime_p;
   BeamSquint::SquintType doSquint_p;
 
   casacore::Double  parallacticAngleIncrement_p; // a parallactic angle threshold
