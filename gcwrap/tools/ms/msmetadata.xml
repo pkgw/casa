@@ -277,7 +277,7 @@ windows in the dataset and close the tool.
             <shortdescription>Get the station names of the specified antennas.</shortdescription>
             <input>
                 <param type="any" direction="in" name="which">
-                    <any type="variant" limittypes="int string intarray stringarray"/>
+                    <any type="variant" limittypes="int string intArray stringArray"/>
                     <description>Zero-based antenna ID(s) in the ANTENNA table or antenna name(s). Single numeric id less than zero retrieves all station names.</description>
                     <value type="int">-1</value>
                 </param>
@@ -286,7 +286,7 @@ windows in the dataset and close the tool.
                     <value>-1</value>
                 </param>
             </input>
-            <returns type="stringarray"/>
+            <returns type="stringArray"/>
             <description>
                 Get the station names of the specified antennas. If a specified antenna name is listed multiple
                 times in the ANTENNA table, obsid is negative, and which is specified as an array of names, then
@@ -336,7 +336,7 @@ windows in the dataset and close the tool.
             <shortdescription>Get the bandwidths in Hz for the specified spectral windows. If spw less than zero, return bandwidths for all spectral windows.</shortdescription>
             <input>
                 <param type="any" direction="in" name="spw">
-                <any type="variant" limittypes="int intarray"/>
+                <any type="variant" limittypes="int intArray"/>
                     <description>Spectral window IDs, if integer less than zero, return bandwidths for all spectral windows.</description>
                     <value type="int">-1</value>
                 </param>
