@@ -1007,10 +1007,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void QtDisplayPanel::unregisterRegionShape(RegionShape *rs) {
-		std::list<RegionShape*> orig = rshapes_;
 		hold();
-		rshapes_.clear( );
-		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(rshapes_), [&](RegionShape *r){return r != rs;} );
+		rshapes_.remove_if([&](RegionShape *r){return r == rs;});
+		pd_->removeDisplayData(*rs);
 		release();
 	}
 
