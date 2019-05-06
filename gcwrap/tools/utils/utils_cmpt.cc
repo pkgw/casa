@@ -495,6 +495,10 @@ std::string
 utils::version_desc( ) { return VersionInfo::desc( ); }
 
 std::string
+utils::version_variant( ) { return VersionInfo::variant( ); }
+
+
+std::string
 utils::version_info( ) { return VersionInfo::info( ); }
 
 std::string

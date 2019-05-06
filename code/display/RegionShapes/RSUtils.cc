@@ -502,8 +502,8 @@ namespace casa {
 			return false;
 		}
 
-		if(!screenX.size() == linearX.size()) screenX.resize(linearX.size());
-		if(!screenY.size() == linearY.size()) screenX.resize(linearX.size());
+		if(screenX.size() != linearX.size()) screenX.resize(linearX.size());
+		if(screenY.size() != linearY.size()) screenX.resize(linearX.size());
 
 		WorldCanvas* wc = wch.worldCanvas();
 
