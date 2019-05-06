@@ -2542,6 +2542,7 @@ class test_modelvis(testref_base):
           hasmodcol, modsum, hasvirmod = self.th.checkmodel(self.msfile)
           self.assertTrue( hasmodcol==True and modsum>0.0 and hasvirmod==False )
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily")
      def test_modelvis_3(self):
           """ [modelpredict] Test_modelvis_3 : mfs with save virtual model """
           self.prepData("refim_twochan.ms")
@@ -2585,6 +2586,7 @@ class test_modelvis(testref_base):
           hasmodcol, modsum, hasvirmod = self.th.checkmodel(self.msfile)
           self.assertTrue( hasmodcol==True and modsum>0.0 and hasvirmod==False )
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily")
      def test_modelvis_6(self):
           """ [modelpredict] Test_modelvis_6 : mt-mfs with save virtual model """
           self.prepData("refim_twochan.ms")
@@ -2621,6 +2623,7 @@ class test_modelvis(testref_base):
           self.checkfinal(reportcv)
 
 
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily")
      def test_modelvis_8(self):
           """ [modelpredict] Test_modelvis_8 : cube with chan selection and save virtual model """
           ## check explicit channels ...
