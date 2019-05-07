@@ -698,6 +698,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       (*convSupportBlock_p[actualConvIndex_p])=convSupport_p;
      
       //cerr << "convSize " << newConvSize << "  " << newRealConvSize<< " lattSize " << lattSize << endl;
+      LogIO os(LogOrigin("HetArrConvFunc", "findConvFunction", WHERE));
+      os << "convolution function support: " << convSupport_p  << LogIO::POST;
 
       if(newConvSize < lattSize){
 	IPosition blc(5, (lattSize/2)-(newConvSize/2),
