@@ -427,7 +427,7 @@ class test_onefield(testref_base):
 
 
      def test_onefield_mtmfs_restoringbeam(self):
-          """ [onefield] Test explicit restoring beams for mtmfs : Test peak flux with niter=0, compared with smoothing vs restoringbeam"""
+          """ [onefield] Test explicit restoring beams for mtmfs : Test peak flux with niter=0, compared with smoothing vs   restoringbeam"""
           
           self.prepData('refim_point.ms')
           
