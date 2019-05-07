@@ -431,9 +431,6 @@ private:
           void init( casacore::MeasurementSet const &ms, 
                      PointingDirectionCalculator::ACCESSOR const my_accessor);
 
-        // SDPos Permanent OBJ. //
-          std::unique_ptr<SDPosInterpolator> sdpPermanent;
-
         // Coefficient (set up by SDPosInterpolator)
           casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
           coeff_;

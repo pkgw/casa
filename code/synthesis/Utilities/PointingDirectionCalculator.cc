@@ -1271,23 +1271,10 @@ void SplineInterpolation::init(MeasurementSet const &ms,
     // SDPosInterpolator Objct 
     //   - create Coefficient Table - 
     //-
-#if 0
       SDPosInterpolator  sdp (tmp_time, tmp_dir);
 
     // Obtain Coeff (copy object) //
       coeff_ = sdp.getSplineCoeff();
-#else
- 
-      unique_ptr<SDPosInterpolator> sdpTemp( new SDPosInterpolator(tmp_time, tmp_dir));
-      sdpPermanent  = std::move(sdpTemp);
-
-    // Obtain Coeff (copy object) //
-      coeff_ = sdpPermanent->getSplineCoeff();
-
-#endif  
-
-
-
 
     // Table Active ..
       stsCofficientReady = true;
