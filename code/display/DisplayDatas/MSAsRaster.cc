@@ -2379,7 +2379,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// so that we could just use activeZIndex_ instead of retrieving it
 		// here explicitly..
 
-		Int zIndex;
+		Int zIndex = 0;
 		Bool zIndexExists;
 		const AttributeBuffer *wchRestrs = wch.restrictionBuffer();
 		zIndexExists = wchRestrs->getValue("zIndex",zIndex);
@@ -3381,7 +3381,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		WorldCanvasHolder *wch = findHolder(wc);
 		if(wch==0) return;			//shouldn't happen.
-		Int zStart;
+		Int zStart = 0;
 		Bool zStartExists;
 		const AttributeBuffer *wchRestrs = wch->restrictionBuffer();
 		zStartExists = wchRestrs->getValue("zIndex",zStart);

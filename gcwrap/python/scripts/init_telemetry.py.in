@@ -13,7 +13,8 @@ import datetime
 def logShutdown():
     if (casa['state']['telemetry-enabled'] == True):
         casalog.origin("CASAStop")
-        casalog.poststat("Stopping CASA at: " + str(datetime.datetime.now()) + " Version " + casa['build']['version'] + " Platform: " + platform.platform() +  " Start time: " + casa['state']['telemetry-starttime'])
+        casalog.poststat("Stopping CASA at: " + str(datetime.datetime.now()) + " Version " + casa['build']['version'] \
+            + " Platform: " + platform.platform() +  " Start time: " + casa['state']['telemetry-starttime'] + " Variant: " + casa['variant'])
 
 casa['state']['telemetry-enabled'] = ${TELEMETRY_DEFAULT}
 

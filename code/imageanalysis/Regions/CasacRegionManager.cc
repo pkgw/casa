@@ -785,7 +785,7 @@ String CasacRegionManager::_stokesFromRecord(
             : csys.stokesCoordinate().stokes().size() - 1;
     }
     else {
-        ImageRegion *imreg = ImageRegion::fromRecord(region, "");
+        std::unique_ptr<ImageRegion> imreg(ImageRegion::fromRecord(region, ""));
         Array<Float> blc, trc;
         Bool oneRelAccountedFor = false;
         if (imreg->isLCSlicer()) {
