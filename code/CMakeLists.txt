@@ -1,4 +1,4 @@
-# CASA - Common Astronomy Software Applications
+# CASA - Common Astronomy Software Applications 
 # Copyright (C) 2010 by ESO (in the framework of the ALMA collaboration)
 # Copyright (C) 2010-2013 Associated Universities, Inc. Washington DC, USA.
 #
