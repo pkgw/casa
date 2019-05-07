@@ -284,14 +284,14 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
       //////openmp like to share reference param ...but i don't like to share
      Int cpConvSize=maxConvSize;
      //cerr << "orig convsize " << convSize << endl;
-     Int cpWConvSize=wConvSize;
+     // Int cpWConvSize=wConvSize;
      Double cpWscale=wScale;
      Int wstart=planesPerChunk*chunkId;
      Int wend=wstart+chunksize(chunkId)-1;
 #ifdef _OPENMP
      omp_set_nested(0);
 #endif
-#pragma omp parallel for default(none) firstprivate(cpWConvSize, cpConvSize, convFuncPtr, s0, s1, wsaveptr, lsav, cor, inner, cpWscale,  wstart, wend) 
+#pragma omp parallel for default(none) firstprivate(/*cpWConvSize,*/ cpConvSize, convFuncPtr, s0, s1, wsaveptr, lsav, cor, inner, cpWscale,  wstart, wend) 
      for (Int iw=wstart; iw < (wend+1)  ; ++iw) {
        Matrix<Complex> screen1(cpConvSize, cpConvSize);
        makeGWplane(screen1, iw, s0, s1, wsaveptr, lsav, inner, cor, cpWscale);
@@ -311,7 +311,7 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
      convFuncPtr=convFuncSect.getStorage(convFuncStor);
      Int thischunkSize=chunksize(chunkId);
      //cerr << "chunkId* planesPerChunk " << chunkId* planesPerChunk << "  chunksize " << thischunkSize << endl;
-#pragma omp parallel for default(none) firstprivate(suppstor, cpConvSize, cpWConvSize, convFuncPtr, maxConvSize, thischunkSize, wstart, planesPerChunk, chunkId) reduction(+: warner)      
+#pragma omp parallel for default(none) firstprivate(suppstor, cpConvSize, /*cpWConvSize,*/ convFuncPtr, maxConvSize, thischunkSize, wstart, planesPerChunk, chunkId) reduction(+: warner)      
      for (Int iw=0; iw<thischunkSize; iw++) {
        Bool found=false;
        Int trial=0;

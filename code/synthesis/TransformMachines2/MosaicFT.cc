@@ -1070,9 +1070,9 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 
 
   //Tell the gridder to grid the weights too ...need to do that once only
-  Int doWeightGridding=1;
-  if(doneWeightImage_p)
-    doWeightGridding=-1;
+  //Int doWeightGridding=1;
+  //if(doneWeightImage_p)
+  //  doWeightGridding=-1;
   Bool del;
   //    IPosition s(flags.shape());
   const IPosition& fs=flags.shape();
@@ -1190,7 +1190,7 @@ Int  ixsub, iysub, icounter;
   if(useDoubleGrid_p) {
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
     
-#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc,xsect, ysect, nxsect, nysect) shared(swgtptr) 
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, /*doWeightGridding,*/ datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc,xsect, ysect, nxsect, nysect) shared(swgtptr) 
     {   
 #pragma omp for schedule(dynamic)      
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1273,7 +1273,7 @@ Int  ixsub, iysub, icounter;
     //cerr << "maps "  << convChanMap_p << "   " << chanMap  << endl;
     //cerr << "nchan " << nchan << "  nchanconv " << nChanConv << endl;
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc, xsect, ysect, nxsect, nysect)  shared(swgtptr) 
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, /*doWeightGridding,*/ datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc, xsect, ysect, nxsect, nysect)  shared(swgtptr) 
     {   
 #pragma omp for schedule(dynamic)      
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
