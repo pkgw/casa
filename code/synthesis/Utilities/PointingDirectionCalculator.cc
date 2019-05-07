@@ -999,19 +999,19 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
 {
     debuglog << "initializeSplinefromPointingColumn, columNo=" << DirColNo << debugpost;
 
+    String colName = dirColList[DirColNo] ;
+    PointingDirectionCalculator::ACCESSOR acc   = accList[DirColNo] ;
+
     //+
     // Column Range check 
     //-
-    if( DirColNo >= PointingDirectionCalculator::PtColID::nItems )
+    if( DirColNo >PointingDirectionCalculator::PtColID::nItems )
     {
         stringstream ss;
-        ss << "Bad Column Id on Pointing Table." << endl;
+        ss << "Bugcheck. No column on Pointing Table." << endl;
         throw AipsError(ss.str());
         return false;  // Bad Param //
     }
-
-    String colName = dirColList[DirColNo] ;
-    PointingDirectionCalculator::ACCESSOR acc   = accList[DirColNo] ;
 
     //+
     // CASE 1: Spline Object is already available.
@@ -1060,7 +1060,6 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
     ss << "FAILED:: No spline obj, atempted to make. No column on Pointing Table." << endl;
     throw AipsError(ss.str());
    
-    return false;
 }
 
 //***************************************************
@@ -1163,6 +1162,13 @@ std::pair<casacore::uInt, casacore::uInt> AntennaBoundary::getAntennaBoundary( c
 //  CAS-8418: 
 //  Spline Inerpolation  methods
 //***************************************************
+class PDCalcEx : public PointingDirectionCalculator 
+{
+public:
+        uInt nn;
+private:
+        uInt pp;
+};
 
 // constructor (for each accessor) //
 SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, 
