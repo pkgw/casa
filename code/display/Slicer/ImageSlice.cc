@@ -309,7 +309,7 @@ namespace casa {
 		// int infoCount = info.size();
 		// Assert( segmentCount = infoCount - 1 );
         // FIXME? shouldn't this be ==, not =?
-		Assert( segmentCount = info.size() - 1 );
+		Assert( segmentCount == info.size() - 1 );
 		for ( int i = 0; i< segmentCount; i++ ) {
 			segments[i]->updateEnds( info[i], info[i+1]);
 		}
