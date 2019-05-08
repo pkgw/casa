@@ -42,7 +42,7 @@
 <code>
   <include>tools/plotms/plotms_forward.h</include>
   <private>
-	  <include>tools/plotms/plotms_private.h</include>
+    <include>tools/plotms/plotms_private.h</include>
   </private>
 </code>
 
@@ -1614,7 +1614,7 @@ and outline.
     </param>
     <param type="string" name="color">
       <description>color of the symbol, in hex (ex. "0000ff")</description>
-	  <value>0000ff</value>
+      <value>0000ff</value>
     </param>
     <param type="string" name="fill">
       <description>point fill type (fill, mesh1, mesh2, mesh3, no fill)</description>
@@ -1684,7 +1684,34 @@ and outline.
       <description>the index of the data in an overplot plot to apply this change</description>
       <value>0</value>
     </param>
-    
+
+  </input>
+  <example />
+  <returns />
+</method>
+
+<method type="function" name="setConnect">
+  <keyword>setConnect</keyword>
+  <shortdescription>Whether to connect the points in the plot</shortdescription>
+  <description> Sets the point connector and whether to connect dots along x-axis or time axis</description>
+  <input>
+    <param type="string" name="xconnector">
+      <description>connector type (none, line, step)</description>
+      <value>none</value>
+    </param>
+    <param type="bool" name="timeconnector">
+      <description>connect points in time rather than x-axis</description>
+      <value>false</value>
+    </param>
+
+    <param type="bool" name="updateImmediately">
+      <description>whether to apply this change immediately, IF the window is currently shown</description>
+      <value>true</value>
+    </param>
+    <param type="int" name="plotIndex">
+      <description>Index of the plot (0-based).</description>
+      <value>0</value>
+    </param>
   </input>
   <example />
   <returns />

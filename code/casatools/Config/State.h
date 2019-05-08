@@ -88,8 +88,8 @@ namespace casatools {   /** namespace for CASAtools classes within "CASA code" *
         // returns true if a registration for 'id' was found
         bool removeService( std::string id ) { return registrar.remove(id); }
         // returns assigned identifier (likely based upon the proposed_id)
-        ServiceId addService( std::string proposed_id, std::string type, std::string uri ) {
-            return registrar.add(ServiceId(proposed_id, type, uri));
+        ServiceId addService( std::string proposed_id, std::string uri, const std::list<std::string> &types ) {
+            return registrar.add(ServiceId(proposed_id, uri, types));
         }
         ServiceId addService( const ServiceId &new_service ) {
             return registrar.add(new_service);

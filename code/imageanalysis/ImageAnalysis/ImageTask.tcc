@@ -364,15 +364,13 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
     const casacore::IPosition *const outShape, const casacore::CoordinateSystem *const coordsys,
     const casacore::String *const outname, casacore::Bool overwrite, casacore::Bool dropDegen
 ) const {
-    casacore::IPosition oShape = outShape == 0 ? image.shape() : *outShape;
-    casacore::CoordinateSystem csys = coordsys == 0 ? image.coordinates() : *coordsys;
-    std::shared_ptr<casacore::TempImage<T> > tmpImage(
+    auto oShape = outShape == 0 ? image.shape() : *outShape;
+    casacore::CoordinateSystem csys = coordsys ? *coordsys : image.coordinates();
+    std::shared_ptr<casacore::TempImage<T>> tmpImage(
         new casacore::TempImage<T>(casacore::TiledShape(oShape), csys)
     );
-    if (mask != 0) {
-        if (! ImageMask::isAllMaskTrue(*mask)) {
-            tmpImage->attachMask(*mask);
-        }
+    if (mask && (! ImageMask::isAllMaskTrue(*mask))) {
+        tmpImage->attachMask(*mask);
     }
     // because subimages can have two types of masks, a region mask and
     // a pixel mask, but most other types of images really just have a
@@ -381,7 +379,8 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
         // A paged array is stored on disk and is preferred over an
         // ArrayLattice which will exhaust memory for large images.
         std::unique_ptr<casacore::Lattice<casacore::Bool>> mymask;
-        if (image.size() > 4096*4096) {
+        const static auto mmasksize = 4096*4096;
+        if (image.size() > mmasksize) {
             mymask.reset(new casacore::PagedArray<casacore::Bool>(image.shape()));
         }
         else {
@@ -392,7 +391,7 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
             tmpImage->attachMask(*mymask);
         }
     }
-    casacore::String myOutname = outname ? *outname : _outname;
+    auto myOutname = outname ? *outname : _outname;
     if (! outname) {
         overwrite = _overwrite;
     }
@@ -417,6 +416,8 @@ template <class T> SPIIT ImageTask<T>::_prepareOutputImage(
     }
     casacore::ImageUtilities::copyMiscellaneous(*outImage, image);
     _doHistory(outImage);
+    // CAS-9267 force metadata to be written to disk, in case of PagedImage
+    outImage->flush();
     return outImage;
 }
 

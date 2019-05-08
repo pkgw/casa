@@ -1536,7 +1536,8 @@ Fourier transform the specified model (and optionally componentlist)
 and insert into the MODEL\_DATA column. The current contents of
 the MODEL\_DATA column are replaced unless incremental is set to
 T (in which case the results are added to the column).
-phasecentertime is optional useful for field which is have time varying phasecenters (polynomials or ephemerides phasecenters). The default is to calculate the phasecenter at each time in the data but the time provided here can be used to calculate phasecenters
+phasecentertime is optional useful for field which is have time varying phasecenters (polynomials or ephemerides phasecenters). The default is to calculate the phasecenter at each time in the data but the time provided here can be used to calculate phasecenters.
+If the function setvp is run prior to running ft with a componentlist, then the spectral variation of each component in the componentlist will include the multiplicative term of the beam value for each channel frequency. So a flat spectrum component will show the frequency variation of the beam in the predicted visibilities..
 </description>
 <input>
 

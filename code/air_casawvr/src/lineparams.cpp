@@ -67,7 +67,7 @@ namespace LibAIR2 {
     // 2.333884e-021, 195.908398, 2.9114e-003f, 1.6149e-002f, 0.77f,
     // -5.0298e-005f, 1 }
     
-    std::auto_ptr<HITRAN_entry> res ( new HITRAN_entry);
+    std::unique_ptr<HITRAN_entry> res ( new HITRAN_entry);
     
     res->freq=183.310107;
     res->S   =2.333884e-021;
@@ -88,7 +88,7 @@ namespace LibAIR2 {
     // Actual entry in HiTRAN: { 22.235337, 1.317288e-023, 642.425753,
     // 2.7871e-003f, 1.0554e-002f, 0.64f, -2.3374e-005f, 1 },
 
-    std::auto_ptr<HITRAN_entry> res ( new HITRAN_entry);
+    std::unique_ptr<HITRAN_entry> res ( new HITRAN_entry);
     
     res->freq=22.235337;
     res->S   =1.317288e-023;
@@ -105,7 +105,7 @@ namespace LibAIR2 {
 
   ContinuumParams *  MkWaterGrossCont(void)
   {
-    std::auto_ptr<ContinuumParams> res ( new ContinuumParams);
+    std::unique_ptr<ContinuumParams> res ( new ContinuumParams);
 
     res->C0 = 6.1e-48;
     res->T0 = 300.0  ;

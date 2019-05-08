@@ -8,25 +8,61 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="calstat" category="calibration">
 <shortdescription>Displays statistical information on a calibration table</shortdescription>
+  <description>
+This task returns statistical information about a column in a
+calibration table. The following values are computed: mean value, sum
+of values, sum of squared values, median, median absolute deviation,
+quartile, minimum, maximum, variance, standard deviation, root mean
+square.
+</description>
+<example>
+  </example>
 
 <input>
     <param type="string" name="caltable" mustexist="true">
-	    <description>Name of input calibration table</description>
+<shortdescription>Name of input calibration table</shortdescription>
+<description>Name of input calibration table
+                     Default: ''
+
+                        Example: vis='ggtau.1mm.amp.gcal'
+</description>
 	    <value></value>
     </param>
 
     <param type="string" name="axis">
-        <description>Which values to use</description>
+<shortdescription>Which values to use</shortdescription>
+<description>Which data to analyze.
+                     Default: 'amplitude'
+                     Options: 'amp', 'amplitude', 'phase', 'real',
+		     'imag', 'imaginary'. Also, the name of any real
+		     valued MS column can be given, e.g. TIME,
+		     POLY_COEFF_AMP, REF_ANT, ANTENNA1, FLAG, ...
+
+                     Note: the phase of a complex number is in
+		     radians in the range [-pi; pi].
+</description>
         <value type="string">amplitude</value>
     </param>
 
     <param type="string" name="datacolumn" subparam="true">
-      <description>Which data column to use</description>
+<shortdescription>Which data column to use</shortdescription>
+<description>Which data column to use if axis is 'amp', 'amplitude', 'phase', 'real', 'imag' or 'imaginary'.
+                     Default: 'gain'
+</description>
       <value type="string">gain</value>
     </param>
 
     <param type="bool" name="useflags">
-        <description>Take flagging into account? (not implemented)</description>
+<shortdescription>Take flagging into account? (not implemented)</shortdescription>
+<description>Take flagging into account? (not implemented, this
+parameter  has no effect!)
+                     Default: False
+                    
+                     If useflags=False, flagged values are included in
+		     the statistics. 
+                     If useflags=True, any flagged values are not used
+		     in the statistics.
+</description>
         <value>True</value>
         <example>useflags=True</example>
     </param>
@@ -67,39 +103,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <returns type="void"/>
 
 <example>
-        This task returns statistical information about a column in a calibration table.
 
-        The following values are computed: mean value, sum of values, sum of squared values,
-        median, median absolute deviation, quartile, minimum, maximum,
-        variance, standard deviation, root mean square.
+For more information, see the task pages of calstat in CASA Docs:
 
-        Keyword arguments:
+https://casa.nrao.edu/casadocs/
 
-        caltable -- Name of input calibration table
-                  default: '', example: vis='ggtau.1mm.amp.gcal'
-
-        axis -- Which data to analyze. The possible values are 'amp', 'amplitude', 'phase',
-                'real', 'imag', 'imaginary'. Also, the name of any real valued MS column can be 
-                given, e.g. TIME, POLY_COEFF_AMP, REF_ANT, ANTENNA1, FLAG, ...
-
-                default: 'amplitude'
-                axis='gain'
-
-                The phase of a complex number is in radians in the range [-pi; pi[.
-
-
-        datacolumn -- Which data column to use if axis is 'amp', 'amplitude',
-                      'phase', 'real', 'imag' or 'imaginary'.
-                default: 'gain'
-                datacolumn='gain'
-
-        useflags -- Take MS flags into account (not implemented, this parameter 
-                    has no effect!)
-                default: False
-                useflag=False
-                useflag=True
-        If useflags=False, flagged values are included in the statistics.
-        If useflags=True, any flagged values are not used in the statistics.
 </example>
 
 </task>

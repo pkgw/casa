@@ -7,6 +7,7 @@ import time
 import re;
 from taskinit import *
 import copy
+import pdb
 
 from imagerhelpers.imager_base import PySynthesisImager
 from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
@@ -177,6 +178,12 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         if (not cfcExists):
             self.dryGridding();
 
+        ##weighting with mosfield=True
+        if( (self.weightpars['type']=='briggs')  and (self.weightpars['multifield'])):
+            self.toolsi.setweighting(**self.weightpars)
+            ###master create the weight density for all fields
+            self.toolsi.getweightdensity()
+            
         # Clean up the single imager (MAIN node)
         self.toolsi.done()
         self.toolsi = None
@@ -291,37 +298,76 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
         ## Set weight parameters and accumulate weight density (natural)
         joblist=[];
-        for node in self.listOfNodes:
-            ## Set weighting pars
-            joblist.append( self.PH.runcmd("toolsi.setweighting( **" + str(self.weightpars) + ")", node ) )
-        self.PH.checkJobs( joblist )
+        if( (self.weightpars['type']=='briggs')  and (self.weightpars['multifield'])):
+            ###master created the weight density for all fields
+            ##Should have been in  initializeImagersBase_New but it is not being called !
+            self.toolsi = casac.synthesisimager()
+            for mss in sorted( self.selpars.keys() ):
+                self.toolsi.selectdata( self.selpars[mss] )
+            for fld in range(0,self.NF):
+                self.toolsi.defineimage( impars=self.allimpars[str(fld)], gridpars = self.allgridpars[str(fld)] )
+            self.toolsi.setweighting(**self.weightpars)
+            ###master create the weight density for all fields
+            weightimage=self.toolsi.getweightdensity()
+            self.toolsi.done()
+            self.toolsi=None
+            destWgtim=weightimage+'_moswt'
+            shutil.move(weightimage, destWgtim)
+            joblist=[];
+            for node in self.listOfNodes:
+                joblist.append( self.PH.runcmd("toolsi.setweightdensity('"+str(destWgtim)+"')", node ) )
+            self.PH.checkJobs( joblist )
+            #for node in self.listOfNodes:
+            #    ## Set weighting pars
+            #   joblist.append( self.PH.runcmd("toolsi.setweighting( **" + str(self.weightpars) + ")", node ) )
+            #self.PH.checkJobs( joblist )
+            #joblist=[];
+            #for node in self.listOfNodes:
+            #    joblist.append( self.PH.runcmd("toolsi.getweightdensity()", node ) )
+            #self.PH.checkJobs( joblist )
+            
+            #for immod in range(0,self.NF):
+            #    #self.PStools[immod].gatherweightdensity()
+             #   self.PStools[immod].scatterweightdensity()
+            ## Set weight density for each nodel
+            #joblist=[];
+            #for node in self.listOfNodes:
+             #   joblist.append( self.PH.runcmd("toolsi.setweightdensity()", node ) )
+            #self.PH.checkJobs( joblist )
+       #### end of multifield or mosweight
+        else:
+            joblist=[];
+            for node in self.listOfNodes:
+                ## Set weighting pars
+                joblist.append( self.PH.runcmd("toolsi.setweighting( **" + str(self.weightpars) + ")", node ) )
+            self.PH.checkJobs( joblist )
 
-        ## If only one field, do the get/gather/set of the weight density.
-        if self.NF == 1 and self.allimpars['0']['stokes']=="I":   ## Remove after gridded wts appear for all fields correctly (i.e. new FTM).
+            ## If only one field, do the get/gather/set of the weight density.
+            if self.NF == 1 and self.allimpars['0']['stokes']=="I":   ## Remove after gridded wts appear for all fields correctly (i.e. new FTM).
    
-          if self.weightpars['type'] != 'natural' :  ## For natural, this array isn't created at all.
+                if self.weightpars['type'] == 'briggs' :  ## For natural, this array isn't created at all.
                                                                        ## Remove when we switch to new FTM
 
-            casalog.post("Gathering/Merging/Scattering Weight Density for PSF generation","INFO")
+                    casalog.post("Gathering/Merging/Scattering Weight Density for PSF generation","INFO")
 
-            joblist=[];
-            for node in self.listOfNodes:
-                joblist.append( self.PH.runcmd("toolsi.getweightdensity()", node ) )
-            self.PH.checkJobs( joblist )
+                    joblist=[];
+                    for node in self.listOfNodes:
+                        joblist.append( self.PH.runcmd("toolsi.getweightdensity()", node ) )
+                    self.PH.checkJobs( joblist )
 
-           ## gather weightdensity and sum and scatter
-            print "******************************************************"
-            print " gather and scatter now "
-            print "******************************************************"
-            for immod in range(0,self.NF):
-                self.PStools[immod].gatherweightdensity()
-                self.PStools[immod].scatterweightdensity()
+                    ## gather weightdensity and sum and scatter
+                    print "******************************************************"
+                    print " gather and scatter now "
+                    print "******************************************************"
+                    for immod in range(0,self.NF):
+                        self.PStools[immod].gatherweightdensity()
+                        self.PStools[immod].scatterweightdensity()
 
-           ## Set weight density for each nodel
-            joblist=[];
-            for node in self.listOfNodes:
-                joblist.append( self.PH.runcmd("toolsi.setweightdensity()", node ) )
-            self.PH.checkJobs( joblist )
+                    ## Set weight density for each nodel
+                    joblist=[];
+                    for node in self.listOfNodes:
+                        joblist.append( self.PH.runcmd("toolsi.setweightdensity()", node ) )
+                    self.PH.checkJobs( joblist )
 
 
 

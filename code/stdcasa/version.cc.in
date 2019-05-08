@@ -84,12 +84,24 @@ namespace casa {
         return version;
     }
 
+    std::string VersionInfo::variant( ) {
+        static bool initialized = false;
+        static std::string casavariant("@CASA_VARIANT@");
+        if ( initialized == false ) {
+            initialized = true;
+            char *v = getenv("CASA_VARIANT");
+            if ( v ) casavariant = v;
+        }
+        return casavariant;
+    }
+
+
     std::string VersionInfo::info( ) {
         static bool initialized = false;
         static std::string version = to_string(major( )) + "." +
                                      to_string(minor( )) + "." +
                                      to_string(patch( )) + "-" +
-                                     to_string(feature( )) + 
+                                     to_string(feature( )) +
                                      (desc( ).size( ) > 0 ? " " + desc( ) : "");
         if ( initialized == false ) {
             initialized = true;
@@ -119,13 +131,18 @@ namespace casa {
             if ( vec[i] < 0 ) throw(AipsError("negative values not allowed in version numbers"));
 
         unsigned int limit = min(current_version.size( ),vec.size( ));
+        //std::cerr<< "Limit: " << limit << std::endl;
         if ( comparitor == ">" ) {
+
             for ( unsigned int i=0; i < limit; ++i ) {
+            //std::cerr<< "Test: " << current_version[i] << " " << vec[i] << std::endl;
                 if ( current_version[i] > vec[i] ) return true;
                 else if ( current_version[i] < vec[i] ) return false;
             }
-            for ( unsigned int i=limit; i < current_version.size( ); ++i )
-                if ( current_version[i] > 0 ) return true;
+            for ( unsigned int i=limit; i < current_version.size( ); ++i ) {
+                //std::cerr<< "Test2: i:" << i << " current_version.size()" << current_version.size() << "current_version[i]" << current_version[i]<< std::endl;
+                if ( current_version[i] >= 0 ) return true;
+            }
             return false;
         } else if ( comparitor == "<" ) {
             for ( unsigned int i=0; i < limit; ++i ) {
