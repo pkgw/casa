@@ -287,7 +287,7 @@ namespace asdm {
 
 
 CalDeviceRow* CalDeviceTable::newRow(CalDeviceRow* row) {
-	return new CalDeviceRow(*this, *row);
+	return new CalDeviceRow(*this, row);
 }
 
 	//

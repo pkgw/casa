@@ -1371,7 +1371,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalHolographyRow (CalHolographyTable &table, CalHolographyRow &row);
+	 CalHolographyRow (CalHolographyTable &table, CalHolographyRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

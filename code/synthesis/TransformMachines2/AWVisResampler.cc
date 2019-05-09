@@ -534,7 +534,7 @@ namespace casa{
 			      (fabs(pointingOffset(0))>0) ||  
 			      (fabs(pointingOffset(1))>0)
 			      );
-   Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
+   // Bool isGridSinglePrecision=(typeid(gridStore[0]) == typeid(wt));
 
    //   Double conjRefFreq = vbs.imRefFreq();
    Int vbSpw = (vbs.vb_p)->spectralWindows()(0);
@@ -670,7 +670,7 @@ namespace casa{
 					  
 					  
 					  convOrigin=cfShape/2;
-					  Bool psfOnly=((dopsf==true) && (accumCFs==false));
+					  // Bool psfOnly=((dopsf==true) && (accumCFs==false));
 					  if (finitePointingOffsets )
 					    cachePhaseGrad_p(pointingOffset, cfShape, convOrigin, cfRefFreq, vbs.imRefFreq(),
 							     vbSpw, vbFieldID);

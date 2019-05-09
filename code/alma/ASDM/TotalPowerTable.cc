@@ -331,7 +331,7 @@ namespace asdm {
 
 
 TotalPowerRow* TotalPowerTable::newRow(TotalPowerRow* row) {
-	return new TotalPowerRow(*this, *row);
+	return new TotalPowerRow(*this, row);
 }
 
 	//

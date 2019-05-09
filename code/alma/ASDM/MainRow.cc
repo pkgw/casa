@@ -2005,10 +2005,10 @@ timeSampling = CTimeSampling::from_int(0);
 		
 	}
 	
-	MainRow::MainRow (MainTable &t, MainRow &row) : table(t) {
+	MainRow::MainRow (MainTable &t, MainRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2042,34 +2042,34 @@ timeSampling = CTimeSampling::from_int(0);
 		else {
 	
 		
-			time = row.time;
+			time = row->time;
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
-			fieldId = row.fieldId;
-		
-		
+			fieldId = row->fieldId;
 		
 		
-			numAntenna = row.numAntenna;
 		
-			timeSampling = row.timeSampling;
 		
-			interval = row.interval;
+			numAntenna = row->numAntenna;
 		
-			numIntegration = row.numIntegration;
+			timeSampling = row->timeSampling;
 		
-			scanNumber = row.scanNumber;
+			interval = row->interval;
 		
-			subscanNumber = row.subscanNumber;
+			numIntegration = row->numIntegration;
 		
-			dataSize = row.dataSize;
+			scanNumber = row->scanNumber;
 		
-			dataUID = row.dataUID;
+			subscanNumber = row->subscanNumber;
 		
-			stateId = row.stateId;
+			dataSize = row->dataSize;
 		
-			execBlockId = row.execBlockId;
+			dataUID = row->dataUID;
+		
+			stateId = row->stateId;
+		
+			execBlockId = row->execBlockId;
 		
 		
 		

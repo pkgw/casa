@@ -249,7 +249,7 @@ namespace asdm {
 
 
 SquareLawDetectorRow* SquareLawDetectorTable::newRow(SquareLawDetectorRow* row) {
-	return new SquareLawDetectorRow(*this, *row);
+	return new SquareLawDetectorRow(*this, row);
 }
 
 	//

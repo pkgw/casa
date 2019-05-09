@@ -5464,10 +5464,10 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		
 	}
 	
-	SpectralWindowRow::SpectralWindowRow (SpectralWindowTable &t, SpectralWindowRow &row) : table(t) {
+	SpectralWindowRow::SpectralWindowRow (SpectralWindowTable &t, SpectralWindowRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -5587,191 +5587,191 @@ measFreqRef = CFrequencyReferenceCode::from_int(0);
 		else {
 	
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
 		
 		
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			netSideband = row.netSideband;
+			netSideband = row->netSideband;
 		
-			numChan = row.numChan;
+			numChan = row->numChan;
 		
-			refFreq = row.refFreq;
+			refFreq = row->refFreq;
 		
-			sidebandProcessingMode = row.sidebandProcessingMode;
+			sidebandProcessingMode = row->sidebandProcessingMode;
 		
-			totBandwidth = row.totBandwidth;
+			totBandwidth = row->totBandwidth;
 		
-			windowFunction = row.windowFunction;
-		
-		
+			windowFunction = row->windowFunction;
 		
 		
-		if (row.numBinExists) {
-			numBin = row.numBin;		
+		
+		
+		if (row->numBinExists) {
+			numBin = row->numBin;		
 			numBinExists = true;
 		}
 		else
 			numBinExists = false;
 		
-		if (row.chanFreqStartExists) {
-			chanFreqStart = row.chanFreqStart;		
+		if (row->chanFreqStartExists) {
+			chanFreqStart = row->chanFreqStart;		
 			chanFreqStartExists = true;
 		}
 		else
 			chanFreqStartExists = false;
 		
-		if (row.chanFreqStepExists) {
-			chanFreqStep = row.chanFreqStep;		
+		if (row->chanFreqStepExists) {
+			chanFreqStep = row->chanFreqStep;		
 			chanFreqStepExists = true;
 		}
 		else
 			chanFreqStepExists = false;
 		
-		if (row.chanFreqArrayExists) {
-			chanFreqArray = row.chanFreqArray;		
+		if (row->chanFreqArrayExists) {
+			chanFreqArray = row->chanFreqArray;		
 			chanFreqArrayExists = true;
 		}
 		else
 			chanFreqArrayExists = false;
 		
-		if (row.chanWidthExists) {
-			chanWidth = row.chanWidth;		
+		if (row->chanWidthExists) {
+			chanWidth = row->chanWidth;		
 			chanWidthExists = true;
 		}
 		else
 			chanWidthExists = false;
 		
-		if (row.chanWidthArrayExists) {
-			chanWidthArray = row.chanWidthArray;		
+		if (row->chanWidthArrayExists) {
+			chanWidthArray = row->chanWidthArray;		
 			chanWidthArrayExists = true;
 		}
 		else
 			chanWidthArrayExists = false;
 		
-		if (row.correlationBitExists) {
-			correlationBit = row.correlationBit;		
+		if (row->correlationBitExists) {
+			correlationBit = row->correlationBit;		
 			correlationBitExists = true;
 		}
 		else
 			correlationBitExists = false;
 		
-		if (row.effectiveBwExists) {
-			effectiveBw = row.effectiveBw;		
+		if (row->effectiveBwExists) {
+			effectiveBw = row->effectiveBw;		
 			effectiveBwExists = true;
 		}
 		else
 			effectiveBwExists = false;
 		
-		if (row.effectiveBwArrayExists) {
-			effectiveBwArray = row.effectiveBwArray;		
+		if (row->effectiveBwArrayExists) {
+			effectiveBwArray = row->effectiveBwArray;		
 			effectiveBwArrayExists = true;
 		}
 		else
 			effectiveBwArrayExists = false;
 		
-		if (row.freqGroupExists) {
-			freqGroup = row.freqGroup;		
+		if (row->freqGroupExists) {
+			freqGroup = row->freqGroup;		
 			freqGroupExists = true;
 		}
 		else
 			freqGroupExists = false;
 		
-		if (row.freqGroupNameExists) {
-			freqGroupName = row.freqGroupName;		
+		if (row->freqGroupNameExists) {
+			freqGroupName = row->freqGroupName;		
 			freqGroupNameExists = true;
 		}
 		else
 			freqGroupNameExists = false;
 		
-		if (row.lineArrayExists) {
-			lineArray = row.lineArray;		
+		if (row->lineArrayExists) {
+			lineArray = row->lineArray;		
 			lineArrayExists = true;
 		}
 		else
 			lineArrayExists = false;
 		
-		if (row.measFreqRefExists) {
-			measFreqRef = row.measFreqRef;		
+		if (row->measFreqRefExists) {
+			measFreqRef = row->measFreqRef;		
 			measFreqRefExists = true;
 		}
 		else
 			measFreqRefExists = false;
 		
-		if (row.nameExists) {
-			name = row.name;		
+		if (row->nameExists) {
+			name = row->name;		
 			nameExists = true;
 		}
 		else
 			nameExists = false;
 		
-		if (row.oversamplingExists) {
-			oversampling = row.oversampling;		
+		if (row->oversamplingExists) {
+			oversampling = row->oversampling;		
 			oversamplingExists = true;
 		}
 		else
 			oversamplingExists = false;
 		
-		if (row.quantizationExists) {
-			quantization = row.quantization;		
+		if (row->quantizationExists) {
+			quantization = row->quantization;		
 			quantizationExists = true;
 		}
 		else
 			quantizationExists = false;
 		
-		if (row.refChanExists) {
-			refChan = row.refChan;		
+		if (row->refChanExists) {
+			refChan = row->refChan;		
 			refChanExists = true;
 		}
 		else
 			refChanExists = false;
 		
-		if (row.resolutionExists) {
-			resolution = row.resolution;		
+		if (row->resolutionExists) {
+			resolution = row->resolution;		
 			resolutionExists = true;
 		}
 		else
 			resolutionExists = false;
 		
-		if (row.resolutionArrayExists) {
-			resolutionArray = row.resolutionArray;		
+		if (row->resolutionArrayExists) {
+			resolutionArray = row->resolutionArray;		
 			resolutionArrayExists = true;
 		}
 		else
 			resolutionArrayExists = false;
 		
-		if (row.numAssocValuesExists) {
-			numAssocValues = row.numAssocValues;		
+		if (row->numAssocValuesExists) {
+			numAssocValues = row->numAssocValues;		
 			numAssocValuesExists = true;
 		}
 		else
 			numAssocValuesExists = false;
 		
-		if (row.assocNatureExists) {
-			assocNature = row.assocNature;		
+		if (row->assocNatureExists) {
+			assocNature = row->assocNature;		
 			assocNatureExists = true;
 		}
 		else
 			assocNatureExists = false;
 		
-		if (row.assocSpectralWindowIdExists) {
-			assocSpectralWindowId = row.assocSpectralWindowId;		
+		if (row->assocSpectralWindowIdExists) {
+			assocSpectralWindowId = row->assocSpectralWindowId;		
 			assocSpectralWindowIdExists = true;
 		}
 		else
 			assocSpectralWindowIdExists = false;
 		
-		if (row.imageSpectralWindowIdExists) {
-			imageSpectralWindowId = row.imageSpectralWindowId;		
+		if (row->imageSpectralWindowIdExists) {
+			imageSpectralWindowId = row->imageSpectralWindowId;		
 			imageSpectralWindowIdExists = true;
 		}
 		else
 			imageSpectralWindowIdExists = false;
 		
-		if (row.dopplerIdExists) {
-			dopplerId = row.dopplerId;		
+		if (row->dopplerIdExists) {
+			dopplerId = row->dopplerId;		
 			dopplerIdExists = true;
 		}
 		else

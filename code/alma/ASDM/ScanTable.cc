@@ -303,7 +303,7 @@ namespace asdm {
 
 
 ScanRow* ScanTable::newRow(ScanRow* row) {
-	return new ScanRow(*this, *row);
+	return new ScanRow(*this, row);
 }
 
 	//

@@ -35,7 +35,9 @@ namespace {
 							 const casa::vi::IteratingParameters& iterpar) {
     return new casa::vi::CalibratingVi2Factory(ms,calrec,iterpar);  // A concrete one from the synthesis side
   }
-
+  
+  // FIXME each of the next two lines produces compiler warnings re: unused variables 
+  // initCViFacGenerator and initCViFac_byRec_Generator
   bool initCViFacGenerator = casa::vi::CalibratingVi2FactoryI::setGenerator(generateCViFac);
   bool initCViFac_byRec_Generator = casa::vi::CalibratingVi2FactoryI::set_byRec_Generator(generateCViFac_byRec);
 }

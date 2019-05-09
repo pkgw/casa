@@ -5330,10 +5330,10 @@ pointingMethod = CPointingMethod::from_int(0);
 		
 	}
 	
-	CalPointingRow::CalPointingRow (CalPointingTable &t, CalPointingRow &row) : table(t) {
+	CalPointingRow::CalPointingRow (CalPointingTable &t, CalPointingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -5433,138 +5433,138 @@ pointingMethod = CPointingMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			ambientTemperature = row.ambientTemperature;
-		
-			antennaMake = row.antennaMake;
-		
-			atmPhaseCorrection = row.atmPhaseCorrection;
-		
-			direction = row.direction;
-		
-			frequencyRange = row.frequencyRange;
-		
-			pointingModelMode = row.pointingModelMode;
-		
-			pointingMethod = row.pointingMethod;
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			collOffsetRelative = row.collOffsetRelative;
-		
-			collOffsetAbsolute = row.collOffsetAbsolute;
-		
-			collError = row.collError;
-		
-			collOffsetTied = row.collOffsetTied;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.averagedPolarizationsExists) {
-			averagedPolarizations = row.averagedPolarizations;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			ambientTemperature = row->ambientTemperature;
+		
+			antennaMake = row->antennaMake;
+		
+			atmPhaseCorrection = row->atmPhaseCorrection;
+		
+			direction = row->direction;
+		
+			frequencyRange = row->frequencyRange;
+		
+			pointingModelMode = row->pointingModelMode;
+		
+			pointingMethod = row->pointingMethod;
+		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			collOffsetRelative = row->collOffsetRelative;
+		
+			collOffsetAbsolute = row->collOffsetAbsolute;
+		
+			collError = row->collError;
+		
+			collOffsetTied = row->collOffsetTied;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->averagedPolarizationsExists) {
+			averagedPolarizations = row->averagedPolarizations;		
 			averagedPolarizationsExists = true;
 		}
 		else
 			averagedPolarizationsExists = false;
 		
-		if (row.beamPAExists) {
-			beamPA = row.beamPA;		
+		if (row->beamPAExists) {
+			beamPA = row->beamPA;		
 			beamPAExists = true;
 		}
 		else
 			beamPAExists = false;
 		
-		if (row.beamPAErrorExists) {
-			beamPAError = row.beamPAError;		
+		if (row->beamPAErrorExists) {
+			beamPAError = row->beamPAError;		
 			beamPAErrorExists = true;
 		}
 		else
 			beamPAErrorExists = false;
 		
-		if (row.beamPAWasFixedExists) {
-			beamPAWasFixed = row.beamPAWasFixed;		
+		if (row->beamPAWasFixedExists) {
+			beamPAWasFixed = row->beamPAWasFixed;		
 			beamPAWasFixedExists = true;
 		}
 		else
 			beamPAWasFixedExists = false;
 		
-		if (row.beamWidthExists) {
-			beamWidth = row.beamWidth;		
+		if (row->beamWidthExists) {
+			beamWidth = row->beamWidth;		
 			beamWidthExists = true;
 		}
 		else
 			beamWidthExists = false;
 		
-		if (row.beamWidthErrorExists) {
-			beamWidthError = row.beamWidthError;		
+		if (row->beamWidthErrorExists) {
+			beamWidthError = row->beamWidthError;		
 			beamWidthErrorExists = true;
 		}
 		else
 			beamWidthErrorExists = false;
 		
-		if (row.beamWidthWasFixedExists) {
-			beamWidthWasFixed = row.beamWidthWasFixed;		
+		if (row->beamWidthWasFixedExists) {
+			beamWidthWasFixed = row->beamWidthWasFixed;		
 			beamWidthWasFixedExists = true;
 		}
 		else
 			beamWidthWasFixedExists = false;
 		
-		if (row.offIntensityExists) {
-			offIntensity = row.offIntensity;		
+		if (row->offIntensityExists) {
+			offIntensity = row->offIntensity;		
 			offIntensityExists = true;
 		}
 		else
 			offIntensityExists = false;
 		
-		if (row.offIntensityErrorExists) {
-			offIntensityError = row.offIntensityError;		
+		if (row->offIntensityErrorExists) {
+			offIntensityError = row->offIntensityError;		
 			offIntensityErrorExists = true;
 		}
 		else
 			offIntensityErrorExists = false;
 		
-		if (row.offIntensityWasFixedExists) {
-			offIntensityWasFixed = row.offIntensityWasFixed;		
+		if (row->offIntensityWasFixedExists) {
+			offIntensityWasFixed = row->offIntensityWasFixed;		
 			offIntensityWasFixedExists = true;
 		}
 		else
 			offIntensityWasFixedExists = false;
 		
-		if (row.peakIntensityExists) {
-			peakIntensity = row.peakIntensity;		
+		if (row->peakIntensityExists) {
+			peakIntensity = row->peakIntensity;		
 			peakIntensityExists = true;
 		}
 		else
 			peakIntensityExists = false;
 		
-		if (row.peakIntensityErrorExists) {
-			peakIntensityError = row.peakIntensityError;		
+		if (row->peakIntensityErrorExists) {
+			peakIntensityError = row->peakIntensityError;		
 			peakIntensityErrorExists = true;
 		}
 		else
 			peakIntensityErrorExists = false;
 		
-		if (row.peakIntensityWasFixedExists) {
-			peakIntensityWasFixed = row.peakIntensityWasFixed;		
+		if (row->peakIntensityWasFixedExists) {
+			peakIntensityWasFixed = row->peakIntensityWasFixed;		
 			peakIntensityWasFixedExists = true;
 		}
 		else

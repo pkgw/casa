@@ -7297,7 +7297,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
         // calculate spectral index
         // fit the per-spw fluxes to get spectral index
         LinearFit<Double> fitter;
-        uInt myfitorder; 
+        uInt myfitorder = 0; 
         if (fitorder < 0) {
           logSink() << LogIO::WARN
                     << "fitorder=" << fitorder 
@@ -7306,6 +7306,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
           myfitorder = 1;
          }
          else if (nValidFlux==2 && fitorder>1) {
+             // note that myfitorder does not get set in this conditional branch, is that 
+             // the correct thing not to do? (myfitorder was prevously unitialized at this point).
           logSink() << LogIO::WARN
                    << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
                    << ". Use fitorder=1." <<LogIO::POST;

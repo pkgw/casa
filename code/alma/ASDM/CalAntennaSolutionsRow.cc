@@ -2834,10 +2834,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalAntennaSolutionsRow::CalAntennaSolutionsRow (CalAntennaSolutionsTable &t, CalAntennaSolutionsRow &row) : table(t) {
+	CalAntennaSolutionsRow::CalAntennaSolutionsRow (CalAntennaSolutionsTable &t, CalAntennaSolutionsRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2883,46 +2883,46 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			numReceptor = row.numReceptor;
+			startValidTime = row->startValidTime;
 		
-			refAntennaName = row.refAntennaName;
+			endValidTime = row->endValidTime;
 		
-			direction = row.direction;
+			numReceptor = row->numReceptor;
 		
-			frequencyRange = row.frequencyRange;
+			refAntennaName = row->refAntennaName;
 		
-			integrationTime = row.integrationTime;
+			direction = row->direction;
 		
-			polarizationTypes = row.polarizationTypes;
+			frequencyRange = row->frequencyRange;
 		
-			correctionValidity = row.correctionValidity;
+			integrationTime = row->integrationTime;
 		
-			phaseAnt = row.phaseAnt;
+			polarizationTypes = row->polarizationTypes;
 		
-			phaseAntRMS = row.phaseAntRMS;
+			correctionValidity = row->correctionValidity;
 		
-			amplitudeAnt = row.amplitudeAnt;
+			phaseAnt = row->phaseAnt;
 		
-			amplitudeAntRMS = row.amplitudeAntRMS;
+			phaseAntRMS = row->phaseAntRMS;
+		
+			amplitudeAnt = row->amplitudeAnt;
+		
+			amplitudeAntRMS = row->amplitudeAntRMS;
 		
 		
 		

@@ -1011,7 +1011,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FeedRow (FeedTable &table, FeedRow &row);
+	 FeedRow (FeedTable &table, FeedRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

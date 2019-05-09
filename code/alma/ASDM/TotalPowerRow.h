@@ -967,7 +967,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 TotalPowerRow (TotalPowerTable &table, TotalPowerRow &row);
+	 TotalPowerRow (TotalPowerTable &table, TotalPowerRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
