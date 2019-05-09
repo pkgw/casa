@@ -1050,7 +1050,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalPrimaryBeamRow (CalPrimaryBeamTable &table, CalPrimaryBeamRow &row);
+	 CalPrimaryBeamRow (CalPrimaryBeamTable &table, CalPrimaryBeamRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

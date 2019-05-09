@@ -223,7 +223,7 @@ std::string getexepath() {
 template<class T, class R, class RFilter>
   struct ParserContext {
   public:
-    enum StatesEnum {START, IN_TABLE, IN_ENTITY, AFTER_ENTITY, IN_CONTAINER_ENTITY, AFTER_CONTAINER_ENTITY, IN_ROW, AFTER_ROW, IN_ATTRIBUTE, END};
+    enum StatesEnum {UNSET, START, IN_TABLE, IN_ENTITY, AFTER_ENTITY, IN_CONTAINER_ENTITY, AFTER_CONTAINER_ENTITY, IN_ROW, AFTER_ROW, IN_ATTRIBUTE, END};
     asdm::ASDM*			asdm_p;
     unsigned int		maxNumberOfRowsInMem;
     std::shared_ptr<R>	row_sp;
@@ -295,7 +295,7 @@ template <class	T, class R, class RFilter>
    */ 
   static void start_element_callback(void *v_p, const xmlChar *name, const xmlChar **) {
     const xmlChar* expectedElement = NULL;
-    typename ParserContext<T, R, RFilter>::StatesEnum nextState;
+    typename ParserContext<T, R, RFilter>::StatesEnum nextState = ParserContext<T, R, RFilter>::UNSET;
 
     if (V2CTX_P(v_p)->debug) TableSAXReader<T, R, RFilter>::enterElementInfo(V2CTX_P(v_p), name);
     V2CTX_P(v_p)->depth++; 
@@ -358,7 +358,7 @@ template <class	T, class R, class RFilter>
    *
    */
   static void end_element_callback(void *v_p, const xmlChar* name) {
-    typename ParserContext<T, R, RFilter>::StatesEnum nextState;
+    typename ParserContext<T, R, RFilter>::StatesEnum nextState = ParserContext<T, R, RFilter>::UNSET;
     typename ParserContext<T, R, RFilter>::StatesEnum currentState = V2CTX_P(v_p)->state;
 
     V2CTX_P(v_p)->depth--;

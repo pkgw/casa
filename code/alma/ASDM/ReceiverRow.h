@@ -603,7 +603,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ReceiverRow (ReceiverTable &table, ReceiverRow &row);
+	 ReceiverRow (ReceiverTable &table, ReceiverRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

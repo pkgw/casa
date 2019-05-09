@@ -392,7 +392,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 PolarizationRow (PolarizationTable &table, PolarizationRow &row);
+	 PolarizationRow (PolarizationTable &table, PolarizationRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

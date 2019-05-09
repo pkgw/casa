@@ -257,7 +257,7 @@ namespace asdm {
 
 
 DopplerRow* DopplerTable::newRow(DopplerRow* row) {
-	return new DopplerRow(*this, *row);
+	return new DopplerRow(*this, row);
 }
 
 	//

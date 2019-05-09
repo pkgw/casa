@@ -1095,7 +1095,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalPositionRow (CalPositionTable &table, CalPositionRow &row);
+	 CalPositionRow (CalPositionTable &table, CalPositionRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

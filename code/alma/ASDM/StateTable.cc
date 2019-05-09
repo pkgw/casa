@@ -263,7 +263,7 @@ namespace asdm {
 
 
 StateRow* StateTable::newRow(StateRow* row) {
-	return new StateRow(*this, *row);
+	return new StateRow(*this, row);
 }
 
 	//

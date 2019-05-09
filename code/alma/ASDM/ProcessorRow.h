@@ -392,7 +392,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ProcessorRow (ProcessorTable &table, ProcessorRow &row);
+	 ProcessorRow (ProcessorTable &table, ProcessorRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

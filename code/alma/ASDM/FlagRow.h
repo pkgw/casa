@@ -980,7 +980,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FlagRow (FlagTable &table, FlagRow &row);
+	 FlagRow (FlagTable &table, FlagRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

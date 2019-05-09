@@ -275,7 +275,7 @@ namespace asdm {
 
 
 PulsarRow* PulsarTable::newRow(PulsarRow* row) {
-	return new PulsarRow(*this, *row);
+	return new PulsarRow(*this, row);
 }
 
 	//

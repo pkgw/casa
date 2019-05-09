@@ -335,7 +335,7 @@ namespace asdm {
 
 
 SourceRow* SourceTable::newRow(SourceRow* row) {
-	return new SourceRow(*this, *row);
+	return new SourceRow(*this, row);
 }
 
 	//

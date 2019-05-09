@@ -4423,10 +4423,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalBandpassRow::CalBandpassRow (CalBandpassTable &t, CalBandpassRow &row) : table(t) {
+	CalBandpassRow::CalBandpassRow (CalBandpassTable &t, CalBandpassRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4506,106 +4506,106 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			sideband = row.sideband;
+			sideband = row->sideband;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			typeCurve = row.typeCurve;
+			typeCurve = row->typeCurve;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numAntenna = row.numAntenna;
-		
-			numPoly = row.numPoly;
-		
-			numReceptor = row.numReceptor;
-		
-			antennaNames = row.antennaNames;
-		
-			refAntennaName = row.refAntennaName;
-		
-			freqLimits = row.freqLimits;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			curve = row.curve;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numBaselineExists) {
-			numBaseline = row.numBaseline;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numAntenna = row->numAntenna;
+		
+			numPoly = row->numPoly;
+		
+			numReceptor = row->numReceptor;
+		
+			antennaNames = row->antennaNames;
+		
+			refAntennaName = row->refAntennaName;
+		
+			freqLimits = row->freqLimits;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			curve = row->curve;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->numBaselineExists) {
+			numBaseline = row->numBaseline;		
 			numBaselineExists = true;
 		}
 		else
 			numBaselineExists = false;
 		
-		if (row.numFreqExists) {
-			numFreq = row.numFreq;		
+		if (row->numFreqExists) {
+			numFreq = row->numFreq;		
 			numFreqExists = true;
 		}
 		else
 			numFreqExists = false;
 		
-		if (row.rmsExists) {
-			rms = row.rms;		
+		if (row->rmsExists) {
+			rms = row->rms;		
 			rmsExists = true;
 		}
 		else
 			rmsExists = false;
 		
-		if (row.frequencyRangeExists) {
-			frequencyRange = row.frequencyRange;		
+		if (row->frequencyRangeExists) {
+			frequencyRange = row->frequencyRange;		
 			frequencyRangeExists = true;
 		}
 		else
 			frequencyRangeExists = false;
 		
-		if (row.numSpectralWindowExists) {
-			numSpectralWindow = row.numSpectralWindow;		
+		if (row->numSpectralWindowExists) {
+			numSpectralWindow = row->numSpectralWindow;		
 			numSpectralWindowExists = true;
 		}
 		else
 			numSpectralWindowExists = false;
 		
-		if (row.chanFreqStartExists) {
-			chanFreqStart = row.chanFreqStart;		
+		if (row->chanFreqStartExists) {
+			chanFreqStart = row->chanFreqStart;		
 			chanFreqStartExists = true;
 		}
 		else
 			chanFreqStartExists = false;
 		
-		if (row.chanFreqStepExists) {
-			chanFreqStep = row.chanFreqStep;		
+		if (row->chanFreqStepExists) {
+			chanFreqStep = row->chanFreqStep;		
 			chanFreqStepExists = true;
 		}
 		else
 			chanFreqStepExists = false;
 		
-		if (row.numSpectralWindowChanExists) {
-			numSpectralWindowChan = row.numSpectralWindowChan;		
+		if (row->numSpectralWindowChanExists) {
+			numSpectralWindowChan = row->numSpectralWindowChan;		
 			numSpectralWindowChanExists = true;
 		}
 		else
 			numSpectralWindowChanExists = false;
 		
-		if (row.spectrumExists) {
-			spectrum = row.spectrum;		
+		if (row->spectrumExists) {
+			spectrum = row->spectrum;		
 			spectrumExists = true;
 		}
 		else

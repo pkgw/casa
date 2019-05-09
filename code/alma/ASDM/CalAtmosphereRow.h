@@ -1692,7 +1692,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalAtmosphereRow (CalAtmosphereTable &table, CalAtmosphereRow &row);
+	 CalAtmosphereRow (CalAtmosphereTable &table, CalAtmosphereRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

@@ -912,10 +912,10 @@ type = CStationType::from_int(0);
 		
 	}
 	
-	StationRow::StationRow (StationTable &t, StationRow &row) : table(t) {
+	StationRow::StationRow (StationTable &t, StationRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -935,22 +935,22 @@ type = CStationType::from_int(0);
 		else {
 	
 		
-			stationId = row.stationId;
+			stationId = row->stationId;
 		
 		
 		
 		
-			name = row.name;
+			name = row->name;
 		
-			position = row.position;
+			position = row->position;
 		
-			type = row.type;
-		
-		
+			type = row->type;
 		
 		
-		if (row.timeExists) {
-			time = row.time;		
+		
+		
+		if (row->timeExists) {
+			time = row->time;		
 			timeExists = true;
 		}
 		else
