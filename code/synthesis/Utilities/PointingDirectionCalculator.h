@@ -315,7 +315,9 @@ private:
     void resetTime(casacore::Double const timestamp);
     void inspectAntenna();
     void configureMovingSourceCorrection();
+
     casacore::Vector<casacore::Double> doGetDirection(casacore::uInt irow);
+    casacore::Vector<casacore::Double> doGetDirection(casacore::uInt irow, casacore::uInt antID);
 
     // table access stuff
 

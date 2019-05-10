@@ -694,7 +694,7 @@ private:
     //  => see PseudoPointing
     //-
 
-      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime);
+      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, uInt option);
 
     //+
     //  Relative Time (r_time) and Total Time
@@ -845,7 +845,7 @@ void TuneMSConfig::Initialize( )
 //  both for Pointing and Main.
 //-
 
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime, uInt option)
 {
         uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
 
@@ -900,7 +900,18 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         for(uInt n=0;n<DirColCount;n++) {
             TrajectoryFunction::getInstance().calc( r_time__, X2[n], Y2[n] );
         }
-#endif 
+#endif
+
+#if 1
+        // Attempt to alter //
+        if(option ==1 )
+        {
+            for(uInt n=0;n<DirColCount;n++) {
+                X2[n] += 0.0; 
+                Y2[n] += 0.0;
+           }
+        }
+#endif  
         // Probe the range //
 
         for(uInt n=0;n<DirColCount;n++) {
@@ -924,16 +935,17 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 }
 
 
-TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime)
+TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime )
 {
     // privide local conditon on private variables //
       Interval__ =   pointingIntervalSec_;
       r_time__   =   deltaTime/availableNrowInPointing_;
              
-      return(pseudoPointingBaseInfo(deltaTime));
+      uInt option = 0;
+      return(pseudoPointingBaseInfo(deltaTime, option));
 }
              
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime )
 {
     // privide local conditon on private variables //
  
@@ -967,7 +979,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
         intervalRatioAdj_ = 1;
     }
 
-    return(pseudoPointingBaseInfo(deltaTime));
+    uInt option = 0;
+    return(pseudoPointingBaseInfo(deltaTime, option));
 
 }
 
@@ -2143,7 +2156,7 @@ protected:
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
         //*
-          bool showCofficient = false;
+          bool showCofficient = true;
 
         //*
         // Fixture::CompareInterpolation option 
@@ -2501,7 +2514,7 @@ TEST_F(TestDirection, InterpolationSingle )
 
     // define Number of Antenna prepeared in MS //
     // =TUNABLE
-      setMaxAntenna(1);         // more than zero 
+      setMaxAntenna(5);         // more than zero (usually =1 ) 
       setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
 
     // set Examination Condition (revised by CAS-8418) //
@@ -2509,8 +2522,8 @@ TEST_F(TestDirection, InterpolationSingle )
       uInt numRow = 1000;
       selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
       setCondition( numRow,       // number of row
-                    0.05,          // Pointing Interval
-                    0.01,         // Main Interval
+                    1.0,          // Pointing Interval
+                    1.0,         // Main Interval
                     8E-06  );  // Error limit 
 
 
@@ -2525,8 +2538,7 @@ TEST_F(TestDirection, InterpolationSingle )
     //   For all regisetered Antenna 
     //-
 
-    for(uInt pcol=0; pcol < getMaxPointingColumn() ; pcol++)  // THIS IS NOT A SECURE CODE // 
-
+    for(uInt pcol=0; pcol < getMaxPointingColumn() ; pcol++) 
     {
         for(uInt ant=0;ant< getMaxAntenna() ; ant++)
         {   

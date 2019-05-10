@@ -69,7 +69,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-//   #define DIRECTIONCALC_DEBUG
+     #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -494,8 +494,11 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
             debuglog << "start index " << j << debugpost;
 
             // doGetDirection call //
+#if 0
             Vector<Double> direction = doGetDirection(j);
-
+#else
+            Vector<Double> direction = doGetDirection(j,currentAntenna);
+#endif
             debuglog << "index for lat: " << (j * increment)
                     << " (cf. outDirectionFlattened.nelements()="
                     << outDirectionFlattened.nelements() << ")" << debugpost;
@@ -510,151 +513,6 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
     return Matrix < Double > (outShape, outDirectionFlattened.data());
 }
 
-//----------------------------------
-// CAS-8418 pre-NEW doGetDirection(i)
-// (Obsoleted)
-//----------------------------------
-#if 0
-Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
-    debuglog << "doGetDirection(" << irow << ")" << debugpost;
-    Double currentTime =
-            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
-    resetTime(currentTime);
-
-    // search and interpolate if necessary
-    Bool exactMatch;
-    uInt const nrowPointing = pointingTimeUTC_.nelements();
-    // pointingTableIndexCache_ is not so effective in terms of performance
-    // simple binary search may be enough,
-    Int index = binarySearch(exactMatch, pointingTimeUTC_, currentTime,
-            nrowPointing, 0);
-    debuglog << "binarySearch result " << index << debugpost;
-    debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
-            << debugpost;
-    //+
-    // Check section on series of pointing data 
-    // by 'Binary match' wth Pointing Table //
-    // -
-    MDirection direction;
-    assert(accessor_ != NULL);
-    if (exactMatch) {
-        debuglog << "exact match" << debugpost;
-        direction = accessor_(*pointingColumns_, index);
-    } else if (index <= 0) {
-        debuglog << "take 0th row" << debugpost;
-        direction = accessor_(*pointingColumns_, 0);
-    } else if (index > (Int) (nrowPointing - 1)) {
-        debuglog << "take final row" << debugpost;
-        direction = accessor_(*pointingColumns_, nrowPointing - 1);
-    } else {
-        debuglog << "linear interpolation " << debugpost;
-
-        //+
-        // Following section was copied from original (same logic)
-        //-
-
-        Double t0 = pointingTimeUTC_[index - 1];
-        Double t1 = pointingTimeUTC_[index];
-        Double dt = t1 - t0;
-
-        debuglog << "Interpolate between " << setprecision(16) << index - 1
-                << " (" << t0 << ") and " << index << " (" << t1 << ")"
-                << debugpost;
-        MDirection dir1 = accessor_(*pointingColumns_, index - 1);
-        MDirection dir2 = accessor_(*pointingColumns_, index);
-
-        String dirRef1 = dir1.getRefString();
-        String dirRef2 = dir2.getRefString();
- 
-        MDirection::Types refType1, refType2;
-        MDirection::getType(refType1, dirRef1);
-        MDirection::getType(refType2, dirRef2);
-
-        debuglog << "dirRef1 = " << dirRef1 << " ("
-                << MDirection::showType(refType1) << ")" << debugpost;
-
-        if (dirRef1 != dirRef2) {
-            MeasFrame referenceFrameLocal((pointingColumns_->timeMeas())(index),
-                    *(referenceFrame_.position()));
-            dir2 = MDirection::Convert(dir2,
-                    MDirection::Ref(refType1, referenceFrameLocal))();
-        }
-
-        //+
-        // CAS-8418::  Spline Interpolation section.
-        //   using original var. see above for t0,t1,dt and nrowPointing.
-        //-
-
-        uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
-        Double dtime =  (currentTime - t0) ;
-
-        // determin section on 'uIndex'
-        //  please refer exact return code of binarySearch() 
-            
-        uInt uIndex;
-        if( index >=1 )
-        {  
-            uIndex = index-1;
-        }
-        else if (index > (Int)(nrowPointing-1) )
-        {
-            uIndex = nrowPointing-1;
-        }
-        else // Out of Range //
-        { 
-            stringstream ss; ss  << "BUGCHECK, never come here. "  << endl;
-            throw AipsError( ss.str() ); 
-        }
-
-        //+
-        // In limmited case, use Linear Interpolation.
-        //-
-        Vector<Double> interpolated(2);
-        if(useSplineInterpolation_)
-        {
-            // getCurrentSplineObj() referes, current Spline Obj. //
-            interpolated = getCurrentSplineObj()-> calculate(uIndex, dtime, antID );
-        }
-        else // Linear (copied from original) //
-        {
-            Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
-            Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
-            Vector<Double> scanRate = dirVal2 - dirVal1;
-
-            interpolated = dirVal1 + scanRate * (currentTime - t0) / dt;
-        }
-
-        // Convert the interpolated diretion from MDirection to Vector //
-          direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
-        
-    }
-
-    // CAS-8418:: Linear/Spline common path, same as original code  //
-
-    debuglog << "direction = "
-            << direction.getAngle("rad").getValue() << " (unit rad reference frame "
-            << direction.getRefString()
-            << ")" << debugpost;
-
-    // return Value //
-      Vector<Double> outVal(2);
-
-    if (direction.getRefString() == MDirection::showType(directionType_)) {
-        outVal = direction.getAngle("rad").getValue();
-    } else {
-        MDirection converted = (*directionConvert_)(direction);
-        outVal = converted.getAngle("rad").getValue();
-        debuglog << "converted = " << outVal << "(unit rad reference frame "
-                << converted.getRefString() << ")" << debugpost;
-    }
-
-    // moving source correction
-    assert(movingSourceCorrection_ != NULL);
-    movingSourceCorrection_(movingSourceConvert_, directionConvert_, outVal);
-
-    return outVal;
-}
-#endif 
 //**************************************************
 // CAS-8418
 // doGetDirection(irow)
@@ -662,11 +520,14 @@ Vector<Double> PointingDirectionCalculator::doGetDirectionNew(uInt irow) {
 //   number of data is insufficient
 // - Interpolation path in the module was separated. 
 //***************************************************
+#if 0
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
-
+#else
+Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID) {
+#endif 
 // sec:1 Linear , Spline common//
 
-    debuglog << "doGetDirection(" << irow << ")" << debugpost;
+    debuglog << "doGetDirection(" << irow << "," << antID << ")" << debugpost;
     Double currentTime =
             timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
     resetTime(currentTime);
@@ -707,9 +568,9 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
             //+
             // CAS-8418::  Spline Interpolation section.
             //-
-
-            uInt antID = lastAntennaIndex_;   // WARNING: depends on resetAntennaPosition() // 
- 
+#if 0
+            uInt antID = lastAntennaIndex_;   // BUGIFX : antID must be given from caller. // 
+#endif 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
  
@@ -831,7 +692,11 @@ Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
         resetTime(i);
     }
     debuglog << "doGetDirection" << debugpost;
+#if 0
     Vector<Double> direction = doGetDirection(i);
+#else
+    Vector<Double> direction = doGetDirection(i,currentAntennaIndex);
+#endif 
     return direction;
 }
 
