@@ -51,7 +51,7 @@ Convert ASAP Scantable data  into a CASA visibility file (MS)
                      Default: False (do not overwrite)
                      Options: False|True
 </description>
-	    <value>False</value>
+      <value>False</value>
     </param>
 
     <param type="bool" name="parallel">
@@ -60,7 +60,7 @@ Convert ASAP Scantable data  into a CASA visibility file (MS)
                      Default: False (serial execution)
                      Options: False|True
 </description>
-	    <value>False</value>
+      <value>False</value>
     </param>
 
     </input>
