@@ -149,8 +149,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
                    default: '' (all)
                    If antenna string is a non-negative integer, it is
-                    assumed to be an antenna index, otherwise, it is
-                    considered an antenna name.
+                   assumed to be an antenna index, otherwise, it is
+                   considered an antenna name.
                    antenna='5\&amp;6'; baseline between antenna index 5 and
                                  index 6.
                    antenna='VA05\&amp;VA06'; baseline between VLA antenna 5
@@ -466,12 +466,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
                    NOTE: the on-sky FWHM in arcsec is roughly  the uv taper/200 (klambda).
                    default: uvtaper=[]; no Gaussian taper applied
-                    example: uvtaper=['5klambda']  circular taper
-                                 FWHM=5 kilo-lambda
+                   example: uvtaper=['5klambda']  circular taper
+                                FWHM=5 kilo-lambda
                             uvtaper=['5klambda','3klambda','45.0deg']
                             uvtaper=['10arcsec'] on-sky FWHM 10 arcseconds
                             uvtaper=['300.0'] default units are lambda
-                                 in aperture plane
+                                in aperture plane
 
 </description>
             <value type="vector">
