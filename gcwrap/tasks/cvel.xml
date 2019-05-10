@@ -344,7 +344,7 @@ Hanning smoothing may not be necessary.
            examples:
                spw = '0,1'; mode = 'channel'
                   will produce a single spw containing all channels in spw 
-                        0 and 1
+                       0 and 1
                spw='0:5~28^2'; mode = 'channel'
                   will produce a single spw made with channels 
                        (5,7,9,...,25,27)
