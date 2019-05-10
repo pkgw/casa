@@ -262,7 +262,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ObservationRow (ObservationTable &table, ObservationRow &row);
+	 ObservationRow (ObservationTable &table, ObservationRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

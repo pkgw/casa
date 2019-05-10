@@ -2984,10 +2984,10 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FeedRow::FeedRow (FeedTable &t, FeedRow &row) : table(t) {
+	FeedRow::FeedRow (FeedTable &t, FeedRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3041,71 +3041,71 @@ void FeedRow::skyCouplingSpectrumFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			beamOffset = row.beamOffset;
-		
-			focusReference = row.focusReference;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			polResponse = row.polResponse;
-		
-			receptorAngle = row.receptorAngle;
-		
-			receiverId = row.receiverId;
+			feedId = row->feedId;
 		
 		
 		
 		
-		if (row.feedNumExists) {
-			feedNum = row.feedNum;		
+			numReceptor = row->numReceptor;
+		
+			beamOffset = row->beamOffset;
+		
+			focusReference = row->focusReference;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			polResponse = row->polResponse;
+		
+			receptorAngle = row->receptorAngle;
+		
+			receiverId = row->receiverId;
+		
+		
+		
+		
+		if (row->feedNumExists) {
+			feedNum = row->feedNum;		
 			feedNumExists = true;
 		}
 		else
 			feedNumExists = false;
 		
-		if (row.illumOffsetExists) {
-			illumOffset = row.illumOffset;		
+		if (row->illumOffsetExists) {
+			illumOffset = row->illumOffset;		
 			illumOffsetExists = true;
 		}
 		else
 			illumOffsetExists = false;
 		
-		if (row.positionExists) {
-			position = row.position;		
+		if (row->positionExists) {
+			position = row->position;		
 			positionExists = true;
 		}
 		else
 			positionExists = false;
 		
-		if (row.skyCouplingExists) {
-			skyCoupling = row.skyCoupling;		
+		if (row->skyCouplingExists) {
+			skyCoupling = row->skyCoupling;		
 			skyCouplingExists = true;
 		}
 		else
 			skyCouplingExists = false;
 		
-		if (row.numChanExists) {
-			numChan = row.numChan;		
+		if (row->numChanExists) {
+			numChan = row->numChan;		
 			numChanExists = true;
 		}
 		else
 			numChanExists = false;
 		
-		if (row.skyCouplingSpectrumExists) {
-			skyCouplingSpectrum = row.skyCouplingSpectrum;		
+		if (row->skyCouplingSpectrumExists) {
+			skyCouplingSpectrum = row->skyCouplingSpectrum;		
 			skyCouplingSpectrumExists = true;
 		}
 		else

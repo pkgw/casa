@@ -37,7 +37,7 @@
 #include <plotms/PlotMS/PlotMSConstants.h>
 #include <plotms/Data/PlotMSCacheBase.h>
 
-
+#include <unordered_map>
 
 namespace casa {
 
@@ -63,13 +63,15 @@ public:
     
   // Constructor which takes parent PlotMSCache, x and y axes (non-iteration)
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
-    PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData, int index);
+    PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+    casacore::String xconnect, bool timeconnect, int index);
 
 protected:
   // Constructor which supports iteration
   PlotMSIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis, 
     PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-    PMS::Axis iterAxis, casacore::Int iterValue, int index);
+    PMS::Axis iterAxis, casacore::Int iterValue,
+    casacore::String xconnect, bool timeconnect, int index);
   friend class PlotMSIndexerFactory;
 
 public:
@@ -111,7 +113,7 @@ public:
   // <group>
   unsigned int numBins() const;
   unsigned int binAt(unsigned int i) const;
-  bool isBinned() const;
+  bool isBinned() const;  // affects colorizing points
   // </group>
 
   // Set up indexing for the plot 
@@ -135,9 +137,9 @@ public:
                     casacore::Bool showUnflagged, casacore::Bool showFlagged,
                     casacore::Bool selectAll = true);
   PlotLogMessage* locateRange(const casacore::Vector<PlotRegion>& regions,
-			      casacore::Bool showUnflagged, casacore::Bool showFlagged);
+      casacore::Bool showUnflagged, casacore::Bool showFlagged);
   PlotLogMessage* flagRange(const PlotMSFlagging& flagging,
-			    const casacore::Vector<PlotRegion>& regions, casacore::Bool flag = true);
+      const casacore::Vector<PlotRegion>& regions, casacore::Bool flag = true);
 
 
   // Report meta info for current value of currChunk_/irel_
@@ -168,8 +170,13 @@ public:
   casacore::Int getIndex0001(casacore::Int ch,casacore::Int irel) { return (irel/nperant_(ch))%iantmax_(ch);};
 
 
-  // 
+  // set colorize and whether binned data has coloraxis;
+  // connected points are binned too
   bool colorize(bool doColorize, PMS::Axis colorizeAxis);
+
+  bool setConnect(casacore::String xconnect, bool timeconnect);
+  virtual bool reverseConnect(unsigned int index) const;
+  unsigned int connectBinAt(unsigned int i) const;
 
   bool plotConjugates() const { return (PMS::axisIsUV(currentX_) && 
           PMS::axisIsUV(currentY_)); }
@@ -177,7 +184,7 @@ public:
 protected:
   PlotMSCacheBase* getCache() { return plotmscache_; }
   // Set currChunk_ according to a supplied index
-  void setChunk(casacore::uInt i) const;
+  void setChunk(casacore::uInt i, bool ignoreReindex=false) const;
   void setReady(bool isReady=true) { indexerReady_ = isReady; };
 
 private:
@@ -185,9 +192,15 @@ private:
   // Forbid copy for now
   PlotMSIndexer(const PlotMSIndexer& mc);
 
-  // get method for data axes depends on column
+  // get method for x and y axes depends on column
   void setMethod(CacheMemPtr& getmethod, PMS::Axis axis, PMS::DataColumn data);
-  void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis); 
+
+  // index for iteraxis
+  void setIndexer(IndexerMethPtr& indexmethod, PMS::Axis axis);
+
+  // Reindex for connecting points
+  void reindexForConnect();
+
   //  void setCollapser(CollapseMethPtr& collmethod, PMS::Axis axis);
 
   // Generate collapsed versions of the plmask 
@@ -247,8 +260,8 @@ private:
   IndexerMethPtr XIndexer_, YIndexer_, ColIndexer_;
   //  CollapseMethPtr collapseXMask_, collapseYMask_;
 
-  // The in-focus chunk and relative index offset
 protected:
+  // The in-focus chunk and relative index offset
   mutable casacore::Int currChunk_, irel_;
 
 private:
@@ -268,7 +281,7 @@ private:
   // Current setup/state.
   PMS::Axis currentX_, currentY_;
   PMS::DataColumn currentXdata_, currentYdata_;
-  bool indexerReady_;
+  bool indexerReady_, connectReady_;
 
   // Indexing parameters
   casacore::Vector<casacore::Int> icorrmax_, ichanmax_, ibslnmax_, idatamax_;
@@ -293,7 +306,14 @@ private:
   bool itsColorize_;
   PMS::Axis itsColorizeAxis_;
   // </group>
-  
+
+  // Reindex and bin when connecting points
+  casacore::String itsXConnect_;
+  bool itsTimeConnect_;
+  // map<chunk, decrease> : frequencies decrease with channel in chunk
+  // (for reverseConnect)
+  std::map<casacore::uInt, bool> freqsDecrease_;
+
   // Cope with const-ness in the get methods
 protected:
   PlotMSIndexer* self;
@@ -329,7 +349,8 @@ public:
 	// Constructor which supports iteration
 	PlotMSRaDecIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
 	PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-	PMS::Axis iterAxis, casacore::Int iterValue, int index);
+	PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnect,
+	bool timeconnect, int index);
 
 	// Destructor
 	~PlotMSRaDecIndexer() {}
@@ -379,8 +400,8 @@ class PlotMSIndexerFactory {
 public:
 static PlotMSIndexer* initIndexer(PlotMSCacheBase* plotmscache, PMS::Axis xAxis,
   PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
-  PMS::Axis iterAxis, casacore::Int iterValue, int index,
-  bool makeRaDecIndexer=false);
+  PMS::Axis iterAxis, casacore::Int iterValue, casacore::String xconnect,
+  bool timeconnect, int index, bool makeRaDecIndexer=false);
 };
 
 }

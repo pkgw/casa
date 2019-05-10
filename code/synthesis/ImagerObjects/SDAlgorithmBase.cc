@@ -140,7 +140,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
             //Float nsigma = 150.0; // will set by user, fixed for 3sigma for now.
             Float nsigma = loopcontrols.getNsigma();
-            os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
+            //os<<"robustrms nelements="<<robustrms.nelements()<<LogIO::POST;
             Float nsigmathresh; 
             if (robustrms.nelements()==0) {
               nsigmathresh = 0.0; 

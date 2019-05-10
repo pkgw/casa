@@ -120,7 +120,7 @@ SpectralList SpectralListFactory::create(
 			log << myfunc[i] << " does not minimally match 'gaussian' or 'lorentzian'"
 				<< LogIO::EXCEPTION;
 		}
-		std::auto_ptr<PCFSpectralElement> pcf(
+		std::unique_ptr<PCFSpectralElement> pcf(
 			doGauss
 				? dynamic_cast<PCFSpectralElement*>(
 					new GaussianSpectralElement(

@@ -435,7 +435,7 @@ namespace asdm {
 
 
 CalAtmosphereRow* CalAtmosphereTable::newRow(CalAtmosphereRow* row) {
-	return new CalAtmosphereRow(*this, *row);
+	return new CalAtmosphereRow(*this, row);
 }
 
 	//

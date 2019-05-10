@@ -801,10 +801,10 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	AlmaRadiometerRow::AlmaRadiometerRow (AlmaRadiometerTable &t, AlmaRadiometerRow &row) : table(t) {
+	AlmaRadiometerRow::AlmaRadiometerRow (AlmaRadiometerTable &t, AlmaRadiometerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -822,7 +822,7 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			almaRadiometerId = row.almaRadiometerId;
+			almaRadiometerId = row->almaRadiometerId;
 		
 		
 		
@@ -830,15 +830,15 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 		
 		
-		if (row.numAntennaExists) {
-			numAntenna = row.numAntenna;		
+		if (row->numAntennaExists) {
+			numAntenna = row->numAntenna;		
 			numAntennaExists = true;
 		}
 		else
 			numAntennaExists = false;
 		
-		if (row.spectralWindowIdExists) {
-			spectralWindowId = row.spectralWindowId;		
+		if (row->spectralWindowIdExists) {
+			spectralWindowId = row->spectralWindowId;		
 			spectralWindowIdExists = true;
 		}
 		else

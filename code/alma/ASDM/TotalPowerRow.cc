@@ -2681,10 +2681,10 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 		
 	}
 	
-	TotalPowerRow::TotalPowerRow (TotalPowerTable &t, TotalPowerRow &row) : table(t) {
+	TotalPowerRow::TotalPowerRow (TotalPowerTable &t, TotalPowerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2726,44 +2726,44 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			time = row.time;
+			time = row->time;
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
-			fieldId = row.fieldId;
-		
-		
-		
-		
-			scanNumber = row.scanNumber;
-		
-			subscanNumber = row.subscanNumber;
-		
-			integrationNumber = row.integrationNumber;
-		
-			uvw = row.uvw;
-		
-			exposure = row.exposure;
-		
-			timeCentroid = row.timeCentroid;
-		
-			floatData = row.floatData;
-		
-			flagAnt = row.flagAnt;
-		
-			flagPol = row.flagPol;
-		
-			interval = row.interval;
-		
-			stateId = row.stateId;
-		
-			execBlockId = row.execBlockId;
+			fieldId = row->fieldId;
 		
 		
 		
 		
-		if (row.subintegrationNumberExists) {
-			subintegrationNumber = row.subintegrationNumber;		
+			scanNumber = row->scanNumber;
+		
+			subscanNumber = row->subscanNumber;
+		
+			integrationNumber = row->integrationNumber;
+		
+			uvw = row->uvw;
+		
+			exposure = row->exposure;
+		
+			timeCentroid = row->timeCentroid;
+		
+			floatData = row->floatData;
+		
+			flagAnt = row->flagAnt;
+		
+			flagPol = row->flagPol;
+		
+			interval = row->interval;
+		
+			stateId = row->stateId;
+		
+			execBlockId = row->execBlockId;
+		
+		
+		
+		
+		if (row->subintegrationNumberExists) {
+			subintegrationNumber = row->subintegrationNumber;		
 			subintegrationNumberExists = true;
 		}
 		else

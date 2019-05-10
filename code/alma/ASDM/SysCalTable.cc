@@ -305,7 +305,7 @@ namespace asdm {
 
 
 SysCalRow* SysCalTable::newRow(SysCalRow* row) {
-	return new SysCalRow(*this, *row);
+	return new SysCalRow(*this, row);
 }
 
 	//

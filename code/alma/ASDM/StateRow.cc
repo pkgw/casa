@@ -1029,10 +1029,10 @@ calDeviceName = CCalibrationDevice::from_int(0);
 		
 	}
 	
-	StateRow::StateRow (StateTable &t, StateRow &row) : table(t) {
+	StateRow::StateRow (StateTable &t, StateRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1054,24 +1054,24 @@ calDeviceName = CCalibrationDevice::from_int(0);
 		else {
 	
 		
-			stateId = row.stateId;
+			stateId = row->stateId;
 		
 		
 		
 		
-			calDeviceName = row.calDeviceName;
+			calDeviceName = row->calDeviceName;
 		
-			sig = row.sig;
+			sig = row->sig;
 		
-			ref = row.ref;
+			ref = row->ref;
 		
-			onSky = row.onSky;
-		
-		
+			onSky = row->onSky;
 		
 		
-		if (row.weightExists) {
-			weight = row.weight;		
+		
+		
+		if (row->weightExists) {
+			weight = row->weight;		
 			weightExists = true;
 		}
 		else

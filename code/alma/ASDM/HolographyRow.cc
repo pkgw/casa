@@ -874,10 +874,10 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 		
 	}
 	
-	HolographyRow::HolographyRow (HolographyTable &t, HolographyRow &row) : table(t) {
+	HolographyRow::HolographyRow (HolographyTable &t, HolographyRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -895,18 +895,18 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			holographyId = row.holographyId;
+			holographyId = row->holographyId;
 		
 		
 		
 		
-			distance = row.distance;
+			distance = row->distance;
 		
-			focus = row.focus;
+			focus = row->focus;
 		
-			numCorr = row.numCorr;
+			numCorr = row->numCorr;
 		
-			type = row.type;
+			type = row->type;
 		
 		
 		

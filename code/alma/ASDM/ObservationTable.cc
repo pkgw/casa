@@ -225,7 +225,7 @@ namespace asdm {
 
 
 ObservationRow* ObservationTable::newRow(ObservationRow* row) {
-	return new ObservationRow(*this, *row);
+	return new ObservationRow(*this, row);
 }
 
 	//

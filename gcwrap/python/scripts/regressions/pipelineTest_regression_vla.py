@@ -7,7 +7,7 @@ import numpy as np
 import pipeline
 
 pathname = os.environ.get('CASAPATH').split()[0]
-rootdatapath = pathname+'/data/regression/pipeline/'
+rootdatapath = pathname+'/data/regression/pipeline/vla/'
 
 
 '''Initial VLA pipeline regression
@@ -16,6 +16,8 @@ rootdatapath = pathname+'/data/regression/pipeline/'
    Update April 20, 2018
    Update June  01, 2018
    Update Feb   22, 2019   Added imaging statistics
+   Update March 18, 2019   Switched to new data directory
+   Update March 28, 2019   Updated VLA imaging test
 '''
 
 THISHOME  = "working/"
@@ -140,9 +142,10 @@ def stats():
         # value_compare = 0.718519030402  # CASA-prerelease 5.3.0-26,  pipeline r40909
         # value_compare =  0.718342661383 # CASA-prerelease 5.3.0-114, pipeline r41386
         # value_compare =  0.717434107414 # CASA-prerelease 5.4.0-3,   pipeline r41527
-        value_compare = 0.7174272925736047 # CASA-prerelease 5.5.0-94, pipeline r42309
-        casaversion = 'CASA-prerelease 5.5.0-94'
-        pipelinerevision = 'pipeline r42309 (trunk)'
+        # value_compare = 0.7174272925736047 # CASA-prerelease 5.5.0-94, pipeline r42309
+        value_compare = 0.717436873734 # CASA-prerelease 5.5.0-125, pipeline r42354
+        casaversion = 'CASA-prerelease 5.5.0-125'
+        pipelinerevision = 'pipeline r42354 (trunk)'
         
         result_bool = np.isclose(fluxlist[0][0], value_compare, rtol=rtol, atol=atol, equal_nan=False)
         
@@ -171,7 +174,8 @@ def stats():
         imlist = context.results[19].read().results
         
         # Test image RMS
-        value_compare = [0.00093823650812654589, 0.0081490810756300238]
+        # value_compare = [0.00094563270676711257, 0.0066069063559208024]  # RHEL6
+        value_compare = [0.0009229987336365489, 0.0071342379411150824] # RHEl7
         result_bool = [(np.isclose(imlist[i].image_rms, value_compare[i], rtol=rtol, atol=atol, equal_nan=False), os.path.basename(imlist[i].image)) for i in [0,1]]
 
         printmsg(logfile, "Accepted test RMS values are: {!s} from {!s}, {!s}".format(str(value_compare), casaversion, pipelinerevision))

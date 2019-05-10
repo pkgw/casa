@@ -1607,10 +1607,10 @@ correlatorName = CCorrelatorName::from_int(0);
 		
 	}
 	
-	CorrelatorModeRow::CorrelatorModeRow (CorrelatorModeTable &t, CorrelatorModeRow &row) : table(t) {
+	CorrelatorModeRow::CorrelatorModeRow (CorrelatorModeTable &t, CorrelatorModeRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1638,28 +1638,28 @@ correlatorName = CCorrelatorName::from_int(0);
 		else {
 	
 		
-			correlatorModeId = row.correlatorModeId;
+			correlatorModeId = row->correlatorModeId;
 		
 		
 		
 		
-			numBaseband = row.numBaseband;
+			numBaseband = row->numBaseband;
 		
-			basebandNames = row.basebandNames;
+			basebandNames = row->basebandNames;
 		
-			basebandConfig = row.basebandConfig;
+			basebandConfig = row->basebandConfig;
 		
-			accumMode = row.accumMode;
+			accumMode = row->accumMode;
 		
-			binMode = row.binMode;
+			binMode = row->binMode;
 		
-			numAxes = row.numAxes;
+			numAxes = row->numAxes;
 		
-			axesOrderArray = row.axesOrderArray;
+			axesOrderArray = row->axesOrderArray;
 		
-			filterMode = row.filterMode;
+			filterMode = row->filterMode;
 		
-			correlatorName = row.correlatorName;
+			correlatorName = row->correlatorName;
 		
 		
 		

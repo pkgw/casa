@@ -543,7 +543,7 @@ QImage QPExporter::produceScreenImage(const PlotExportFormat& format,
     }
 
     int xpos=0, ypos=0, icanv=0;
-    int canvWidth, canvHeight;
+    int canvWidth, canvHeight = 0;
     QImage canvImage;
     QRect printGeom;
 

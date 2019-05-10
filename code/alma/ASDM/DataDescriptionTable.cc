@@ -251,7 +251,7 @@ namespace asdm {
 
 
 DataDescriptionRow* DataDescriptionTable::newRow(DataDescriptionRow* row) {
-	return new DataDescriptionRow(*this, *row);
+	return new DataDescriptionRow(*this, row);
 }
 
 	//

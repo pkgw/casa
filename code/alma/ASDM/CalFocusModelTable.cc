@@ -351,7 +351,7 @@ namespace asdm {
 
 
 CalFocusModelRow* CalFocusModelTable::newRow(CalFocusModelRow* row) {
-	return new CalFocusModelRow(*this, *row);
+	return new CalFocusModelRow(*this, row);
 }
 
 	//

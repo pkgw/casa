@@ -389,7 +389,7 @@ namespace asdm {
 
 
 CalFocusRow* CalFocusTable::newRow(CalFocusRow* row) {
-	return new CalFocusRow(*this, *row);
+	return new CalFocusRow(*this, row);
 }
 
 	//

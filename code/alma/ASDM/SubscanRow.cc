@@ -1768,10 +1768,10 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 		
 	}
 	
-	SubscanRow::SubscanRow (SubscanTable &t, SubscanRow &row) : table(t) {
+	SubscanRow::SubscanRow (SubscanTable &t, SubscanRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1805,39 +1805,39 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
-			scanNumber = row.scanNumber;
+			scanNumber = row->scanNumber;
 		
-			subscanNumber = row.subscanNumber;
-		
-		
-		
-		
-			startTime = row.startTime;
-		
-			endTime = row.endTime;
-		
-			fieldName = row.fieldName;
-		
-			subscanIntent = row.subscanIntent;
-		
-			numIntegration = row.numIntegration;
-		
-			numSubintegration = row.numSubintegration;
+			subscanNumber = row->subscanNumber;
 		
 		
 		
 		
-		if (row.subscanModeExists) {
-			subscanMode = row.subscanMode;		
+			startTime = row->startTime;
+		
+			endTime = row->endTime;
+		
+			fieldName = row->fieldName;
+		
+			subscanIntent = row->subscanIntent;
+		
+			numIntegration = row->numIntegration;
+		
+			numSubintegration = row->numSubintegration;
+		
+		
+		
+		
+		if (row->subscanModeExists) {
+			subscanMode = row->subscanMode;		
 			subscanModeExists = true;
 		}
 		else
 			subscanModeExists = false;
 		
-		if (row.correlatorCalibrationExists) {
-			correlatorCalibration = row.correlatorCalibration;		
+		if (row->correlatorCalibrationExists) {
+			correlatorCalibration = row->correlatorCalibration;		
 			correlatorCalibrationExists = true;
 		}
 		else

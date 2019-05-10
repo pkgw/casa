@@ -41,7 +41,8 @@
 #include <measures/Measures/MeasTable.h>
 #include <components/ComponentModels/Flux.h>
 #include <components/ComponentModels/ComponentShape.h>
-
+#include <components/ComponentModels/TabularSpectrum.h>
+#include <components/ComponentModels/ConstantSpectrum.h>
 #include <synthesis/TransformMachines/BeamSkyJones.h>
 #include <synthesis/TransformMachines/PBMath.h>
 
@@ -77,7 +78,7 @@ BeamSkyJones::BeamSkyJones(
      parallacticAngleIncrement_p(parallacticAngleIncrement.getValue("rad")),
      skyPositionThreshold_p(skyPositionThreshold.getValue("rad")),
      lastUpdateVisBuffer_p(NULL), lastUpdateRow_p(-1),
-     lastUpdateIndex1_p(-1), lastUpdateIndex2_p(-1), hasBeenApplied(false)
+     lastUpdateIndex1_p(-1), lastUpdateIndex2_p(-1), hasBeenApplied(false), vbutil_p(nullptr)
      
 {  
   reset();
@@ -88,7 +89,8 @@ void BeamSkyJones::reset()
 {
   lastFieldId_p=-1;
   lastArrayId_p=-1;
-  lastMSId_p=0;  
+  lastMSId_p=0;
+  lastTime_p=-1.0;
   telescope_p="";
 }
 
@@ -163,8 +165,15 @@ Bool BeamSkyJones::changed(const VisBuffer& vb, Int row)
         lastUpdateVisBuffer_p=NULL; // invalidate index cache
         return true;
   }
-  
-  //if (lastUpdateIndex1_p<0 || lastUpdateIndex2_p<0) return true;
+
+  MDirection::Types pointingdirType=MDirection::castType(lastDirections_p[lastUpdateIndex1_p].getRef().getType());
+  //if in a local frame and time change point most probably changed
+  if((pointingdirType >= MDirection::HADEC) && (pointingdirType <= MDirection::AZELSWGEO)){
+    if(lastTime_p != vb.time()(0))
+      return True;
+  }
+
+    //if (lastUpdateIndex1_p<0 || lastUpdateIndex2_p<0) return true;
   
   updatePBMathIndices(vb,row); // lastUpdateIndex?_p are now valid
 
@@ -176,7 +185,7 @@ Bool BeamSkyJones::changed(const VisBuffer& vb, Int row)
        return true; // it's a first call of this method and setPBMath has
                     // definitely been called before
 
- 
+  
 
   // Obtaining a reference on parallactic angles is a fast operation as
   // caching is implemented inside VisBuffer.
@@ -191,7 +200,7 @@ Bool BeamSkyJones::changed(const VisBuffer& vb, Int row)
       if (abs(feed1_pa-lastParallacticAngles_p[lastUpdateIndex1_p]) >
               parallacticAngleIncrement_p) return true;
 
-  if (lastUpdateIndex2_p!=-1)
+   if (lastUpdateIndex2_p!=-1)
       if (abs(feed2_pa-lastParallacticAngles_p[lastUpdateIndex2_p]) >
               parallacticAngleIncrement_p) return true;
 
@@ -268,17 +277,20 @@ void BeamSkyJones::update(const VisBuffer& vb, Int row)
   // for debug
   //cout<<endl<<"BeamSkyJones::update nrow="<<vb.nRow()<<" row="<<row<<" feed1="<<vb.feed1()(0)<<" feed2="<<vb.feed2()(0)<<endl<<endl;
   //
-  
-  if (row<0) row=0;
+   if (row<0) row=0;
   
   lastFieldId_p=vb.fieldId();
   lastArrayId_p=vb.arrayId();
   lastMSId_p=vb.msId();
-
+  lastTime_p=vb.time()(0);
+  if(!vbutil_p){
+    vbutil_p=new VisBufferUtil(vb);
+  }
   // The pointing direction depends on feed, antenna, pointing errors, etc  
-  MDirection pointingDirection1_p = vb.direction1()(row);
-  MDirection pointingDirection2_p = vb.direction2()(row);
-    
+  //MDirection pointingDirection1_p = vb.direction1()(row);
+  //MDirection pointingDirection2_p = vb.direction2()(row);
+  MDirection pointingDirection1 = vbutil_p->getPointingDir(vb, vb.antenna1()(row), row);
+  MDirection pointingDirection2 = vbutil_p->getPointingDir(vb, vb.antenna2()(row), row);
   // Look up correct telescope
   const ROMSObservationColumns& msoc=vb.msColumns().observation();
   telescope_p = msoc.telescopeName()(vb.arrayId());
@@ -312,10 +324,10 @@ void BeamSkyJones::update(const VisBuffer& vb, Int row)
   }
   */ 
   if (lastUpdateIndex1_p!=-1)
-      lastDirections_p[lastUpdateIndex1_p]=pointingDirection1_p;
+      lastDirections_p[lastUpdateIndex1_p]=pointingDirection1;
 
   if (lastUpdateIndex2_p!=-1)
-      lastDirections_p[lastUpdateIndex2_p]=pointingDirection2_p;
+      lastDirections_p[lastUpdateIndex2_p]=pointingDirection2;
   
   // Obtaining a reference on parallactic angles is a fast operation as
   // caching is implemented inside VisBuffer.
@@ -437,7 +449,7 @@ SkyComponent&
 BeamSkyJones::apply(SkyComponent& in,
 		    SkyComponent& out,
 		    const VisBuffer& vb, Int row,
-		    Bool forward)
+		    Bool forward, Bool fullspectral)
 {
   if(changed(vb, row)) update(vb, row);
   hasBeenApplied=true;
@@ -453,21 +465,64 @@ BeamSkyJones::apply(SkyComponent& in,
     PBMath myPBMath;
     MDirection compdir=in.shape().refDirection();
     MDirection::Types dirType=MDirection::castType(compdir.getRef().getType());
-    if (getPBMath(lastUpdateIndex1_p, myPBMath)) 
-      return myPBMath.applyPB(in, out, convertDir(vb, lastDirections_p[lastUpdateIndex1_p], dirType),
-			      Quantity(vb.frequency()(0), "Hz"), 
+    if (getPBMath(lastUpdateIndex1_p, myPBMath)) {
+      	if(!fullspectral){
+	  return myPBMath.applyPB(in, out, convertDir(vb, lastDirections_p[lastUpdateIndex1_p], dirType), 
+				  Quantity(vb.frequency()(0), "Hz"), 
+				  lastParallacticAngles_p[lastUpdateIndex1_p],
+				  doSquint_p, False, threshold(), forward);
+	  
+	  
+	}
+	else{
+	  //Damn people call this with in==out
+	  //out=in.copy();
+	  uInt nchan=vb.frequency().nelements();
+	  Vector<Flux<Double> > vals(nchan, Flux<Double>(0.0));
+	  Vector<MVFrequency> fs(nchan);
+	  
+	   Vector<Double> freqs(nchan);
+	   Bool conv;
+	   SkyComponent tmp;
+	   vb.lsrFrequency(vb.spectralWindow(), freqs,  conv);
+	   for (uInt k=0; k < nchan; ++k){
+	     tmp=in.copy();
+	     myPBMath.applyPB(in, tmp, convertDir(vb, lastDirections_p[lastUpdateIndex1_p], dirType), 
+			      Quantity(vb.frequency()(k), "Hz"), 
 			      lastParallacticAngles_p[lastUpdateIndex1_p],
-			      doSquint_p, false, threshold(), forward);
+			      doSquint_p, False, threshold(), forward);
+	     vals[k]=tmp.flux();
+	     //	     cerr << "freq " << freqs(k) << " flux " << vals[k].value() << endl;
+	     fs[k]=MVFrequency(Quantity(freqs(k), "Hz"));
+	     
+	   }
+	   CountedPtr<SpectralModel> spModel;
+	   if(fs.nelements() >1){
+	     spModel=new TabularSpectrum();
+	     static_cast<TabularSpectrum *>(spModel.get())->setValues(fs, vals, MFrequency::Ref(MFrequency::LSRK));
+	   }
+	   else{
+	      spModel=new ConstantSpectrum();
+	   }
+	   out=tmp.copy();
+	   spModel->setRefFrequency(MFrequency(fs[nchan-1], MFrequency::LSRK));
+	   out.setSpectrum(*spModel);
+	   
+
+
+	}
+      }
       else 
       throw(AipsError("BeamSkyJones::apply(SkyComponent,...) - PBMath not found"));    
   }
+  return out;
 }; 
 
 
 SkyComponent& 
 BeamSkyJones::applySquare(SkyComponent& in,
 		    SkyComponent& out,
-		    const VisBuffer& vb, Int row)
+			  const VisBuffer& vb, Int row, Bool /*fullspectral*/)
 {
   if(changed(vb, row)) update(vb, row);
   hasBeenApplied=true;

@@ -1061,17 +1061,12 @@ namespace asdmbinaries {
     }
   }
 
-#if defined(__APPLE__)
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __DARWIN_LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __DARWIN_BIG_ENDIAN);
-#else 
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __BIG_ENDIAN);
-#endif
+  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian");
+  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian");
   const ByteOrder* ByteOrder::Machine_Endianity = ByteOrder::machineEndianity();
 
-  ByteOrder::ByteOrder(const string& name, int endianity):
-    name_(name), endianity_(endianity){;}
+  ByteOrder::ByteOrder(const string& name):
+    name_(name) {;}
 
   ByteOrder::~ByteOrder() {;}
 

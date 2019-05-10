@@ -484,7 +484,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SeeingRow (SeeingTable &table, SeeingRow &row);
+	 SeeingRow (SeeingTable &table, SeeingRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

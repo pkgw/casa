@@ -271,7 +271,7 @@ namespace asdm {
 
 
 FreqOffsetRow* FreqOffsetTable::newRow(FreqOffsetRow* row) {
-	return new FreqOffsetRow(*this, *row);
+	return new FreqOffsetRow(*this, row);
 }
 
 	//

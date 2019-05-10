@@ -1,7 +1,8 @@
-using namespace std;
 #include <string>
 #include <iostream>
 #include <cstdio>
+
+using namespace std;
 
 #include <alma/ASDMBinaries/Error.h>
 

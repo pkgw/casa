@@ -343,7 +343,7 @@ namespace asdm {
 
 
 CalCurveRow* CalCurveTable::newRow(CalCurveRow* row) {
-	return new CalCurveRow(*this, *row);
+	return new CalCurveRow(*this, row);
 }
 
 	//

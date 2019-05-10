@@ -277,7 +277,7 @@ namespace asdm {
 
 
 FocusRow* FocusTable::newRow(FocusRow* row) {
-	return new FocusRow(*this, *row);
+	return new FocusRow(*this, row);
 }
 
 	//

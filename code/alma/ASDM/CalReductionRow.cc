@@ -1676,10 +1676,10 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 		
 	}
 	
-	CalReductionRow::CalReductionRow (CalReductionTable &t, CalReductionRow &row) : table(t) {
+	CalReductionRow::CalReductionRow (CalReductionTable &t, CalReductionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1709,30 +1709,30 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			calReductionId = row.calReductionId;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-			numApplied = row.numApplied;
+			numApplied = row->numApplied;
 		
-			appliedCalibrations = row.appliedCalibrations;
+			appliedCalibrations = row->appliedCalibrations;
 		
-			numParam = row.numParam;
+			numParam = row->numParam;
 		
-			paramSet = row.paramSet;
+			paramSet = row->paramSet;
 		
-			numInvalidConditions = row.numInvalidConditions;
+			numInvalidConditions = row->numInvalidConditions;
 		
-			invalidConditions = row.invalidConditions;
+			invalidConditions = row->invalidConditions;
 		
-			timeReduced = row.timeReduced;
+			timeReduced = row->timeReduced;
 		
-			messages = row.messages;
+			messages = row->messages;
 		
-			software = row.software;
+			software = row->software;
 		
-			softwareVersion = row.softwareVersion;
+			softwareVersion = row->softwareVersion;
 		
 		
 		

@@ -2351,10 +2351,10 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 		
 	}
 	
-	CalDataRow::CalDataRow (CalDataTable &t, CalDataRow &row) : table(t) {
+	CalDataRow::CalDataRow (CalDataTable &t, CalDataRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2402,65 +2402,65 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 		else {
 	
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
 		
 		
 		
-			startTimeObserved = row.startTimeObserved;
+			startTimeObserved = row->startTimeObserved;
 		
-			endTimeObserved = row.endTimeObserved;
+			endTimeObserved = row->endTimeObserved;
 		
-			execBlockUID = row.execBlockUID;
+			execBlockUID = row->execBlockUID;
 		
-			calDataType = row.calDataType;
+			calDataType = row->calDataType;
 		
-			calType = row.calType;
+			calType = row->calType;
 		
-			numScan = row.numScan;
+			numScan = row->numScan;
 		
-			scanSet = row.scanSet;
-		
-		
+			scanSet = row->scanSet;
 		
 		
-		if (row.assocCalDataIdExists) {
-			assocCalDataId = row.assocCalDataId;		
+		
+		
+		if (row->assocCalDataIdExists) {
+			assocCalDataId = row->assocCalDataId;		
 			assocCalDataIdExists = true;
 		}
 		else
 			assocCalDataIdExists = false;
 		
-		if (row.assocCalNatureExists) {
-			assocCalNature = row.assocCalNature;		
+		if (row->assocCalNatureExists) {
+			assocCalNature = row->assocCalNature;		
 			assocCalNatureExists = true;
 		}
 		else
 			assocCalNatureExists = false;
 		
-		if (row.fieldNameExists) {
-			fieldName = row.fieldName;		
+		if (row->fieldNameExists) {
+			fieldName = row->fieldName;		
 			fieldNameExists = true;
 		}
 		else
 			fieldNameExists = false;
 		
-		if (row.sourceNameExists) {
-			sourceName = row.sourceName;		
+		if (row->sourceNameExists) {
+			sourceName = row->sourceName;		
 			sourceNameExists = true;
 		}
 		else
 			sourceNameExists = false;
 		
-		if (row.sourceCodeExists) {
-			sourceCode = row.sourceCode;		
+		if (row->sourceCodeExists) {
+			sourceCode = row->sourceCode;		
 			sourceCodeExists = true;
 		}
 		else
 			sourceCodeExists = false;
 		
-		if (row.scanIntentExists) {
-			scanIntent = row.scanIntent;		
+		if (row->scanIntentExists) {
+			scanIntent = row->scanIntent;		
 			scanIntentExists = true;
 		}
 		else

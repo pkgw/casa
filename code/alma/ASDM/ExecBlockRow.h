@@ -1473,7 +1473,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ExecBlockRow (ExecBlockTable &table, ExecBlockRow &row);
+	 ExecBlockRow (ExecBlockTable &table, ExecBlockRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

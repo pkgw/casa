@@ -335,7 +335,7 @@ namespace asdm {
 
 
 PointingRow* PointingTable::newRow(PointingRow* row) {
-	return new PointingRow(*this, *row);
+	return new PointingRow(*this, row);
 }
 
 	//

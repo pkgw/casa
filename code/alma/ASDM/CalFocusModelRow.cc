@@ -2702,10 +2702,10 @@ antennaMake = CAntennaMake::from_int(0);
 		
 	}
 	
-	CalFocusModelRow::CalFocusModelRow (CalFocusModelTable &t, CalFocusModelRow &row) : table(t) {
+	CalFocusModelRow::CalFocusModelRow (CalFocusModelTable &t, CalFocusModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2749,44 +2749,44 @@ antennaMake = CAntennaMake::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			polarizationType = row.polarizationType;
+			polarizationType = row->polarizationType;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			antennaMake = row.antennaMake;
+			startValidTime = row->startValidTime;
 		
-			numCoeff = row.numCoeff;
+			endValidTime = row->endValidTime;
 		
-			numSourceObs = row.numSourceObs;
+			antennaMake = row->antennaMake;
 		
-			coeffName = row.coeffName;
+			numCoeff = row->numCoeff;
 		
-			coeffFormula = row.coeffFormula;
+			numSourceObs = row->numSourceObs;
 		
-			coeffValue = row.coeffValue;
+			coeffName = row->coeffName;
 		
-			coeffError = row.coeffError;
+			coeffFormula = row->coeffFormula;
 		
-			coeffFixed = row.coeffFixed;
+			coeffValue = row->coeffValue;
 		
-			focusModel = row.focusModel;
+			coeffError = row->coeffError;
 		
-			focusRMS = row.focusRMS;
+			coeffFixed = row->coeffFixed;
 		
-			reducedChiSquared = row.reducedChiSquared;
+			focusModel = row->focusModel;
+		
+			focusRMS = row->focusRMS;
+		
+			reducedChiSquared = row->reducedChiSquared;
 		
 		
 		
