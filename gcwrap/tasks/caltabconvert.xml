@@ -47,12 +47,12 @@ old-style caltable.
                      Options: "complex" or "float"
 
                      Note: The old-style caltables do not have this
-		     information, so it is imperative that users get
-		     it correct.  "complex" refers to caltables that
-		     have complex gains (e.g., produced by gaincal,
-		     bpcal, etc.). "float" refers to caltables that
-		     real numbers such as delays (e.g., produced by
-		     gencal).
+                     information, so it is imperative that users get
+                     it correct.  "complex" refers to caltables that
+                     have complex gains (e.g., produced by gaincal,
+                     bpcal, etc.). "float" refers to caltables that
+                     real numbers such as delays (e.g., produced by
+                     gencal).
 </description>
       <value>complex</value>
     </param>
@@ -61,7 +61,7 @@ old-style caltable.
 <shortdescription>Name of the new-style caltable.  If not specified, the suffix ".new" is appended to the name of old-style caltable.</shortdescription>
 <description>Name of the new-style caltable.  
                      Default: '' (the suffix ".new" is appended to the
-		     name of old-style caltable)
+                     name of old-style caltable)
 </description>
       <value></value>
     </param>
