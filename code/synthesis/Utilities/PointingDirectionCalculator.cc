@@ -69,7 +69,7 @@ using namespace std;
 //   debuglog << "Any message" << any_value << debugpost;
 //
   
-     #define DIRECTIONCALC_DEBUG
+//   #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -311,26 +311,6 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
-#if 0   // CAS-8418:: Old code //
-
-    if (directionColumnName_ == "DIRECTION") {
-        accessor_ = directionAccessor;
-    } else if (directionColumnName_ == "TARGET") {
-        accessor_ = targetAccessor;
-    } else if (directionColumnName_ == "POINTING_OFFSET") {
-        accessor_ = pointingOffsetAccessor;
-    } else if (directionColumnName_ == "SOURCE_OFFSET") {
-        accessor_ = sourceOffsetAccessor;
-    } else if (directionColumnName_ == "ENCODER") {
-        accessor_ = encoderAccessor;
-    } else {
-        stringstream ss;
-        ss << "Column \"" << columnNameUpcase << "\" is not supported.";
-        throw AipsError(ss.str());
-    }
-
-#else
-
 //+  
 // New code reuired by CAS-8418  
 //   - When setDirectionColumn is called , 
@@ -392,8 +372,8 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 #endif 
  
      debuglog << "initializeSplinefromPointingColumn, Normal End." << debugpost;
-#endif 
-// ---org code ---
+
+     // ---org code ---
      configureMovingSourceCorrection();
 }
 
@@ -571,7 +551,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             // CAS-8418::  Spline Interpolation section.
             //-
 #ifdef  OLD_DOGET
-            uInt antID = 0; // lastAntennaIndex_;  // OLD code with problem: antID must be given from caller. // 
+            uInt antID = lastAntennaIndex_;  // OLD code with problem: antID must be given from caller. // 
 #endif 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;

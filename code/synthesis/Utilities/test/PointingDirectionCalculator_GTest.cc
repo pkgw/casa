@@ -685,6 +685,7 @@ public:
       void setCoeffLocTest(bool val) { fgCoeffLocationTest = val; }  // indicate special traj.func //
 
 private:
+
     // Commmon Initialize//
       void init();
 
@@ -694,7 +695,7 @@ private:
     //  => see PseudoPointing
     //-
 
-      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, uInt antennaId);
+      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, const uInt antennaId);
 
     //+
     //  Relative Time (r_time) and Total Time
@@ -724,27 +725,27 @@ private:
       Double  requiredNrowInPointing_ = 0;    //   internally calculated
       Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
-        Double  extraNrowInPointing_ ;   // calculated when start
-        Double extraNrowInMain_ ;       // calculated when start
+      Double  extraNrowInPointing_ ;   // calculated when start
+      Double extraNrowInMain_ ;       // calculated when start
 
-       // Error Limit (threshold) in GoogleTest Macro //
+    // Error Limit (threshold) in GoogleTest Macro //
 
-        Double errorLimit_ ;
-        Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
+      Double errorLimit_ ;
+      Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
 
 
     // Interval Second.
 
-         Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
-         Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
+      Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
+      Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
     // Number of Antenna , Number of avilable Pointing Columns
     //   to prepeare for the Test  
 
-        uInt prepareMaxAntenna_         = 1;    // Tunable //
-        uInt prepareMaxPointingColumns_ = 1;    // Tunable //
+      uInt prepareMaxAntenna_         = 1;    // Tunable //
+      uInt prepareMaxPointingColumns_ = 1;    // Tunable //
 
-        bool fgCoeffLocationTest  = false; 
+      bool fgCoeffLocationTest  = false; 
 
 };
 
@@ -845,7 +846,7 @@ void TuneMSConfig::Initialize( )
 //  both for Pointing and Main.
 //-
 
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime, uInt antennaId)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime, const uInt antennaId)
 {
         uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
 
@@ -894,8 +895,10 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
             TrajectoryFunction::getInstance().calc( r_time__, X2[n], Y2[n] );
         }
 
-        // Attempt to shift by small value. 
-        //  (in order to detect wrong anteena ID use.
+        //+
+        // Attempt to add small offset by each antena. 
+        //  in order to detect wrong anteena ID access by Bug.
+        //-
 
         if(true)
         {
@@ -929,7 +932,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 }
 
 
-TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime, uInt antennaId )
+TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime, const uInt antennaId )
 {
     // privide local conditon on private variables //
       Interval__ =   pointingIntervalSec_;
@@ -938,17 +941,20 @@ TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double
       return(pseudoPointingBaseInfo(deltaTime, antennaId));
 }
              
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime, uInt antennaId )
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime, const uInt antennaId )
 {
     // privide local conditon on private variables //
  
     Interval__ = mainIntervalSec_;
 
     //+
-    // Problem Fixed: (CAS-8418)
+    // Number of data in Pointing and Main Table
+    //  to be compared.
     //
-    // Determine number of row of Pointing and Main table.
-    // this depends on which total time is longer.
+    // 1) Determine number of row of Pointing and Main table.
+    //    this depends on which total time is longer.
+    //
+    // intervalRatioAdj_ controls end of loop
     //-
 
      uInt nRow   =  requiredMainTestingRow_;
@@ -2143,7 +2149,7 @@ protected:
           uInt usingColumn_  = 0;         // used Column(ID) in this test.
 
         // Number of Devide Count to make dt.  
-          const uInt  deltaTimeDivCount_     = 10;
+          const uInt  deltaTimeDivCount_     = 3;
         
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
