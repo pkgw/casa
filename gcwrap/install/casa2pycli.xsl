@@ -79,7 +79,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
                 </xsl:choose>
                 <xsl:text>
 </xsl:text>
-<xsl:text>		   Default Value: </xsl:text><xsl:value-of select="aps:value"/>
+<xsl:text>                   Default Value: </xsl:text><xsl:value-of select="aps:value"/>
 <xsl:if test="aps:allowed">
         <xsl:text>
                    Allowed Values:</xsl:text>
