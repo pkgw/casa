@@ -75,10 +75,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <param type="doubleArray" name="sourcepar">
   <description>Starting guess for component parameters (3 values for type P, 5 for G and D)</description>
   <value>
-		   <value>1.0</value>
-		   <value>0.0</value>
-		   <value>0.0</value>
-          </value>
+                   <value>1.0</value>
+                   <value>0.0</value>
+                   <value>0.0</value>
+  </value>
   </param>
 
   <param type="boolArray" name="varypar">
