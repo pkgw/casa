@@ -1,4 +1,4 @@
-///i/# PointingDirectionCalculator.cc: Implementation of PointingDirectionCalculator.h
+//# PointingDirectionCalculator.cc: Implementation of PointingDirectionCalculator.h
 //# All helper functions of imager moved here for readability
 //# Copyright (C) 1997,1998,1999,2000,2001,2002,2003
 //# Associated Universities, Inc. Washington DC, USA.
@@ -494,7 +494,10 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
             debuglog << "start index " << j << debugpost;
 
             // doGetDirection call //
-#if 0
+     
+// # define   OLD_DOGET
+
+#ifdef  OLD_DOGET
             Vector<Double> direction = doGetDirection(j);
 #else
             Vector<Double> direction = doGetDirection(j,currentAntenna);
@@ -520,16 +523,15 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 //   number of data is insufficient
 // - Interpolation path in the module was separated. 
 //***************************************************
-#if 0
+#ifdef  OLD_DOGET
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
+     debuglog << "doGetDirection(" << irow << "," << lastAntennaIndex_ << ")" << debugpost;
 #else
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID) {
+     debuglog << "doGetDirection(" << irow << "," << antID << ")" << debugpost;
 #endif 
-// sec:1 Linear , Spline common//
-
-    debuglog << "doGetDirection(" << irow << "," << antID << ")" << debugpost;
-    Double currentTime =
-            timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
+// sec:1 Linear , Spline common// 
+    Double currentTime =  timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
     resetTime(currentTime);
 
     // search and interpolate if necessary
@@ -568,8 +570,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             //+
             // CAS-8418::  Spline Interpolation section.
             //-
-#if 0
-            uInt antID = lastAntennaIndex_;   // BUGIFX : antID must be given from caller. // 
+#ifdef  OLD_DOGET
+            uInt antID = 0; // lastAntennaIndex_;  // OLD code with problem: antID must be given from caller. // 
 #endif 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
@@ -692,7 +694,8 @@ Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
         resetTime(i);
     }
     debuglog << "doGetDirection" << debugpost;
-#if 0
+
+#ifdef  OLD_DOGET
     Vector<Double> direction = doGetDirection(i);
 #else
     Vector<Double> direction = doGetDirection(i,currentAntennaIndex);

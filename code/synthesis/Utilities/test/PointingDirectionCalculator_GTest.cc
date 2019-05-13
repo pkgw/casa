@@ -644,8 +644,8 @@ public:
 
     // Pseudo Trace(Direction) for the Test
 
-      PseudoPointingData     pseudoPointingInfoPointing(Double tn);
-      PseudoPointingData     pseudoPointingInfoMain2    (Double tn);
+      PseudoPointingData     pseudoPointingInfoPointing(Double tn, uInt ant);
+      PseudoPointingData     pseudoPointingInfoMain2    (Double tn, uInt ant);
 
     // available POINTING TABLE count //
 
@@ -694,7 +694,7 @@ private:
     //  => see PseudoPointing
     //-
 
-      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, uInt option);
+      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, uInt antennaId);
 
     //+
     //  Relative Time (r_time) and Total Time
@@ -845,7 +845,7 @@ void TuneMSConfig::Initialize( )
 //  both for Pointing and Main.
 //-
 
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime, uInt option)
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime, uInt antennaId)
 {
         uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
 
@@ -890,28 +890,22 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         //-
 
         // prepare five sets // 
-#if 0
-        TrajectoryFunction::getInstance().calc( r_time__, X2[0], Y2[0] );
-        TrajectoryFunction::getInstance().calc( r_time__, X2[1], Y2[1] );
-        TrajectoryFunction::getInstance().calc( r_time__, X2[2], Y2[2] );
-        TrajectoryFunction::getInstance().calc( r_time__, X2[3], Y2[3] );
-        TrajectoryFunction::getInstance().calc( r_time__, X2[4], Y2[4] );
-#else
         for(uInt n=0;n<DirColCount;n++) {
             TrajectoryFunction::getInstance().calc( r_time__, X2[n], Y2[n] );
         }
-#endif
 
-#if 1
-        // Attempt to alter //
-        if(option ==1 )
+        // Attempt to shift by small value. 
+        //  (in order to detect wrong anteena ID use.
+
+        if(true)
         {
+            const Double offsetConst = 0.0001;
             for(uInt n=0;n<DirColCount;n++) {
-                X2[n] += 0.0; 
-                Y2[n] += 0.0;
+                X2[n] += offsetConst * (Double)antennaId; 
+                Y2[n] += offsetConst * (Double)antennaId;
            }
         }
-#endif  
+ 
         // Probe the range //
 
         for(uInt n=0;n<DirColCount;n++) {
@@ -935,17 +929,16 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 }
 
 
-TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime )
+TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime, uInt antennaId )
 {
     // privide local conditon on private variables //
       Interval__ =   pointingIntervalSec_;
       r_time__   =   deltaTime/availableNrowInPointing_;
              
-      uInt option = 0;
-      return(pseudoPointingBaseInfo(deltaTime, option));
+      return(pseudoPointingBaseInfo(deltaTime, antennaId));
 }
              
-TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime )
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime, uInt antennaId )
 {
     // privide local conditon on private variables //
  
@@ -979,8 +972,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
         intervalRatioAdj_ = 1;
     }
 
-    uInt option = 0;
-    return(pseudoPointingBaseInfo(deltaTime, option));
+    return(pseudoPointingBaseInfo(deltaTime, antennaId));
 
 }
 
@@ -1678,7 +1670,7 @@ void  MsEdit::writePseudoOnPointing()
                 // Calculate Pseudo-Direction based on timeOnPoint //
 
                 TuneMSConfig::PseudoPointingData  psd_data  
-                        = tuneMS.pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
+                        = tuneMS.pseudoPointingInfoPointing(timeOnPoint, ant); // generated pseudo data. (Pointing) //
  
                 if( tuneMS.ifCoeffLocTest() )
                 {
@@ -1776,7 +1768,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
             // Pseudo Data (TEST DATA );
 
             TuneMSConfig::PseudoPointingData  psd_data
-                   = tuneMS.pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
+                   = tuneMS.pseudoPointingInfoMain2( (Double)row, ant); // generated pseudo data. (Main table) //
 
             // Time Set  //
 
@@ -2150,8 +2142,8 @@ protected:
    
           uInt usingColumn_  = 0;         // used Column(ID) in this test.
 
-        // Number of Devide Count   
-          const uInt  deltaTimeDivCount_     = 3;
+        // Number of Devide Count to make dt.  
+          const uInt  deltaTimeDivCount_     = 10;
         
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
@@ -2178,9 +2170,9 @@ private:
 //     dt : displacement betweeen measure point
 //     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
 //------------------------------------------------
-std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt ant )
+std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt antId )
 {
-    printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, ant);
+    printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, antId);
     const String MsName = DefaultLocalMsName;
 
     // Create Object //
@@ -2198,7 +2190,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
     // selectData on generated MS
     //  Antenna name is ANT0, ANT1, AT2
     //-
-        const String AntSel = "ZZ0" + std::to_string(ant)+ "&&ZZ00"; 
+        const String AntSel = "ZZ0" + std::to_string(antId)+ "&&ZZ00"; 
 
         calc.selectData( AntSel,  "","","","","","","","","" );
         /* uInt match_row = calc.getNrowForSelectedMS();    */
@@ -2254,7 +2246,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
         // Direction by generated/estimated //
 
           TuneMSConfig::PseudoPointingData  gen_out2
-                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row  + div ); 
+                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row + div, antId ); 
                     // dt:Interpolation offset  (sec)
 
           Double generated_1 = gen_out2.position[colNo].first;
