@@ -720,7 +720,6 @@ class TestHelpers():
              if ret.keys()[0].count('node'):
                  mergedret={}
                  nodenames = ret.keys()
-                 print "ret NOW=",ret
                  # must be parallel cube results
                  if parlist.count('iterdone'):
                      retIterdone = 0
