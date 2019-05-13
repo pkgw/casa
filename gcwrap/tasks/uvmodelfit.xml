@@ -11,58 +11,58 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         Fit a single component source model to the uv data
 </description>
 <input>
-	<param type="string" name="vis" mustexist="true">
+  <param type="string" name="vis" mustexist="true">
 		<description>Name of input visibility file</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="string" name="field">
+  <param type="string" name="field">
 		<description>Select field using field id(s) or field name(s)</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="string" name="spw">
+  <param type="string" name="spw">
 		<description>Select spectral window/channels</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="bool" name="selectdata">
+  <param type="bool" name="selectdata">
 		<description>Other data selection parameters</description>
 		<value>True</value>
-	</param>
+  </param>
 
-	<param type="string" name="timerange" subparam="true">
+  <param type="string" name="timerange" subparam="true">
 		<description>Select data based on time range</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="any" name="uvrange" subparam="true">
+  <param type="any" name="uvrange" subparam="true">
 		<description>Select data within uvrange (default units meters)</description>
 		<any type="variant"/>
 		<value type="string"></value>
-	</param>
+  </param>
 
-	<param type="string" name="antenna" subparam="true">
+  <param type="string" name="antenna" subparam="true">
 		<description>Select data based on antenna/baseline</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="string" name="scan" subparam="true">
+  <param type="string" name="scan" subparam="true">
 		<description>Scan number range</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="string" name="msselect" subparam="true">
+  <param type="string" name="msselect" subparam="true">
 		<description>Optional complex data selection (ignore for now)</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="int" name="niter">
+  <param type="int" name="niter">
 		<description>Number of fitting iterations to execute</description>
 		<value>5</value>
-	</param>
+  </param>
 
-	<param type="string" name="comptype">
+  <param type="string" name="comptype">
 		<description>component model type: P(oint), G(aussian), or D(isk)</description>
 		<value>P</value>
 		<allowed kind="enum">
@@ -70,26 +70,26 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    <value>G</value>
                    <value>D</value>
 		</allowed>
-	</param>
+  </param>
 
-	<param type="doubleArray" name="sourcepar">
+  <param type="doubleArray" name="sourcepar">
 		<description>Starting guess for component parameters (3 values for type P, 5 for G and D)</description>
 		<value>
 		   <value>1.0</value>
 		   <value>0.0</value>
 		   <value>0.0</value>
 	        </value>
-	</param>
+  </param>
 
-	<param type="boolArray" name="varypar">
+  <param type="boolArray" name="varypar">
 		<description>Control which parameters to let vary in the fit</description>
 		<value></value>
-	</param>
+  </param>
 
-	<param type="string" name="outfile">
+  <param type="string" name="outfile">
 		<description>Optional output component list table</description>
 		<value></value>
-	</param>
+  </param>
    <constraints>
   <when param="selectdata">
     <equals type="bool" value="True">
