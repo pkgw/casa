@@ -364,18 +364,18 @@
 
 
 
-		</example>
+        </example>
 
-		<!-- Possible text for timeaverage when useweights is enabled:
-		     timeaverage - Average data in time. Flagged data will be included in the
-		     average calculation, unless the parameter useflags is set to True. In this
-		     case only partially flagged rows will be used in the average.
-		     WEIGHT_SPECTRUM/SIGMA_SPECTRUM will be used, if present and useweights is
-		     set to True, in addition to the flags to compute a weighted average. The
-		     calculation is done in the same way as for the channel average case but
-		     across the time axis.  Otherwise (if WEIGHT_SPECTRUM/SIGMA_SPECTRUM are
-		     not present) visstat will use WEIGHT/SIGMA instead.
-		-->
+        <!-- Possible text for timeaverage when useweights is enabled:
+             timeaverage - Average data in time. Flagged data will be included in the
+             average calculation, unless the parameter useflags is set to True. In this
+             case only partially flagged rows will be used in the average.
+             WEIGHT_SPECTRUM/SIGMA_SPECTRUM will be used, if present and useweights is
+             set to True, in addition to the flags to compute a weighted average. The
+             calculation is done in the same way as for the channel average case but
+             across the time axis.  Otherwise (if WEIGHT_SPECTRUM/SIGMA_SPECTRUM are
+             not present) visstat will use WEIGHT/SIGMA instead.
+        -->
 
     </task>
 
