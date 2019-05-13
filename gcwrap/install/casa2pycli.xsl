@@ -96,7 +96,7 @@ class </xsl:text><xsl:value-of select="@name"/><xsl:text>_cli_:</xsl:text>
 </xsl:for-each>
 <xsl:if test="aps:returns">
         <xsl:for-each select="aps:returns">
-                <xsl:text>	Returns: </xsl:text><xsl:value-of select="@type"/><xsl:text>
+                <xsl:text>        Returns: </xsl:text><xsl:value-of select="@type"/><xsl:text>
 </xsl:text>
 </xsl:for-each>
 </xsl:if>
