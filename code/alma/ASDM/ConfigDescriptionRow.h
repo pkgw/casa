@@ -1225,7 +1225,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ConfigDescriptionRow (ConfigDescriptionTable &table, ConfigDescriptionRow &row);
+	 ConfigDescriptionRow (ConfigDescriptionTable &table, ConfigDescriptionRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

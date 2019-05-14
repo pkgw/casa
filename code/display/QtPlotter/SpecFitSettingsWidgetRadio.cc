@@ -404,16 +404,16 @@ namespace casa {
 		                            10, 0 );
 		int pos = 0;
 		QString msg( "Row "+QString::number(rowIndex)+" of the initial estimate table is invalid.\n");
-		if ( ! validator.validate(peakStr, pos) == QValidator::Acceptable ) {
+		if ( validator.validate(peakStr, pos) != QValidator::Acceptable ) {
 			validEstimate = false;
 			msg.append( "Please check that the following numbers are valid:\n");
 			msg.append( "  peak");
 		}
-		if ( !validator.validate(centerStr, pos) == QValidator::Acceptable ) {
+		if ( validator.validate(centerStr, pos) != QValidator::Acceptable ) {
 			validEstimate = false;
 			msg.append( "\n  center");
 		}
-		if ( !validator.validate( fwhmStr, pos) == QValidator::Acceptable ) {
+		if ( validator.validate( fwhmStr, pos) != QValidator::Acceptable ) {
 			validEstimate = false;
 			msg.append( "\n  FWHM");
 		}
@@ -421,7 +421,7 @@ namespace casa {
 		//zero or one instance of the characters "pcf" in any order.
 		QRegExp fixedRe("p?c?f?|p?f?c?|c?p?f?|c?f?p?|f?c?p?|f?p?c?");
 		QRegExpValidator validatorFixed(fixedRe, 0 );
-		if ( !validatorFixed.validate(fixedStr, pos)  == QValidator::Acceptable ) {
+		if ( validatorFixed.validate(fixedStr, pos) != QValidator::Acceptable ) {
 			validEstimate = false;
 			msg.append( "\nPlease check that the fixed string contains only the characters 'p', 'c', and 'f' at most once in any order.");
 		}

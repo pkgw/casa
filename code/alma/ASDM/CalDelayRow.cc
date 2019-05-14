@@ -3379,10 +3379,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalDelayRow::CalDelayRow (CalDelayTable &t, CalDelayRow &row) : table(t) {
+	CalDelayRow::CalDelayRow (CalDelayTable &t, CalDelayRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3444,79 +3444,79 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			refAntennaName = row.refAntennaName;
-		
-			numReceptor = row.numReceptor;
-		
-			delayError = row.delayError;
-		
-			delayOffset = row.delayOffset;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			reducedChiSquared = row.reducedChiSquared;
-		
-			appliedDelay = row.appliedDelay;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.crossDelayOffsetExists) {
-			crossDelayOffset = row.crossDelayOffset;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			refAntennaName = row->refAntennaName;
+		
+			numReceptor = row->numReceptor;
+		
+			delayError = row->delayError;
+		
+			delayOffset = row->delayOffset;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+			appliedDelay = row->appliedDelay;
+		
+		
+		
+		
+		if (row->crossDelayOffsetExists) {
+			crossDelayOffset = row->crossDelayOffset;		
 			crossDelayOffsetExists = true;
 		}
 		else
 			crossDelayOffsetExists = false;
 		
-		if (row.crossDelayOffsetErrorExists) {
-			crossDelayOffsetError = row.crossDelayOffsetError;		
+		if (row->crossDelayOffsetErrorExists) {
+			crossDelayOffsetError = row->crossDelayOffsetError;		
 			crossDelayOffsetErrorExists = true;
 		}
 		else
 			crossDelayOffsetErrorExists = false;
 		
-		if (row.numSidebandExists) {
-			numSideband = row.numSideband;		
+		if (row->numSidebandExists) {
+			numSideband = row->numSideband;		
 			numSidebandExists = true;
 		}
 		else
 			numSidebandExists = false;
 		
-		if (row.refFreqExists) {
-			refFreq = row.refFreq;		
+		if (row->refFreqExists) {
+			refFreq = row->refFreq;		
 			refFreqExists = true;
 		}
 		else
 			refFreqExists = false;
 		
-		if (row.refFreqPhaseExists) {
-			refFreqPhase = row.refFreqPhase;		
+		if (row->refFreqPhaseExists) {
+			refFreqPhase = row->refFreqPhase;		
 			refFreqPhaseExists = true;
 		}
 		else
 			refFreqPhaseExists = false;
 		
-		if (row.sidebandsExists) {
-			sidebands = row.sidebands;		
+		if (row->sidebandsExists) {
+			sidebands = row->sidebands;		
 			sidebandsExists = true;
 		}
 		else

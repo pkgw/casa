@@ -2200,10 +2200,10 @@ basebandName = CBasebandName::from_int(0);
 		
 	}
 	
-	CalAmpliRow::CalAmpliRow (CalAmpliTable &t, CalAmpliRow &row) : table(t) {
+	CalAmpliRow::CalAmpliRow (CalAmpliTable &t, CalAmpliRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2241,40 +2241,40 @@ basebandName = CBasebandName::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			apertureEfficiency = row.apertureEfficiency;
-		
-			apertureEfficiencyError = row.apertureEfficiencyError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.correctionValidityExists) {
-			correctionValidity = row.correctionValidity;		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			apertureEfficiency = row->apertureEfficiency;
+		
+			apertureEfficiencyError = row->apertureEfficiencyError;
+		
+		
+		
+		
+		if (row->correctionValidityExists) {
+			correctionValidity = row->correctionValidity;		
 			correctionValidityExists = true;
 		}
 		else

@@ -2276,10 +2276,10 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		
 	}
 	
-	CalSeeingRow::CalSeeingRow (CalSeeingTable &t, CalSeeingRow &row) : table(t) {
+	CalSeeingRow::CalSeeingRow (CalSeeingTable &t, CalSeeingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2323,52 +2323,52 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		else {
 	
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			integrationTime = row.integrationTime;
-		
-			numBaseLengths = row.numBaseLengths;
-		
-			baselineLengths = row.baselineLengths;
-		
-			phaseRMS = row.phaseRMS;
-		
-			seeing = row.seeing;
-		
-			seeingError = row.seeingError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.exponentExists) {
-			exponent = row.exponent;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			integrationTime = row->integrationTime;
+		
+			numBaseLengths = row->numBaseLengths;
+		
+			baselineLengths = row->baselineLengths;
+		
+			phaseRMS = row->phaseRMS;
+		
+			seeing = row->seeing;
+		
+			seeingError = row->seeingError;
+		
+		
+		
+		
+		if (row->exponentExists) {
+			exponent = row->exponent;		
 			exponentExists = true;
 		}
 		else
 			exponentExists = false;
 		
-		if (row.outerScaleExists) {
-			outerScale = row.outerScale;		
+		if (row->outerScaleExists) {
+			outerScale = row->outerScale;		
 			outerScaleExists = true;
 		}
 		else
 			outerScaleExists = false;
 		
-		if (row.outerScaleRMSExists) {
-			outerScaleRMS = row.outerScaleRMS;		
+		if (row->outerScaleRMSExists) {
+			outerScaleRMS = row->outerScaleRMS;		
 			outerScaleRMSExists = true;
 		}
 		else

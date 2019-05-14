@@ -353,7 +353,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SquareLawDetectorRow (SquareLawDetectorTable &table, SquareLawDetectorRow &row);
+	 SquareLawDetectorRow (SquareLawDetectorTable &table, SquareLawDetectorRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

@@ -620,10 +620,10 @@ bandType = CDetectorBandType::from_int(0);
 		
 	}
 	
-	SquareLawDetectorRow::SquareLawDetectorRow (SquareLawDetectorTable &t, SquareLawDetectorRow &row) : table(t) {
+	SquareLawDetectorRow::SquareLawDetectorRow (SquareLawDetectorTable &t, SquareLawDetectorRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -637,14 +637,14 @@ bandType = CDetectorBandType::from_int(0);
 		else {
 	
 		
-			squareLawDetectorId = row.squareLawDetectorId;
+			squareLawDetectorId = row->squareLawDetectorId;
 		
 		
 		
 		
-			numBand = row.numBand;
+			numBand = row->numBand;
 		
-			bandType = row.bandType;
+			bandType = row->bandType;
 		
 		
 		

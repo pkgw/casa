@@ -277,7 +277,7 @@ namespace asdm {
 
 
 FlagCmdRow* FlagCmdTable::newRow(FlagCmdRow* row) {
-	return new FlagCmdRow(*this, *row);
+	return new FlagCmdRow(*this, row);
 }
 
 	//

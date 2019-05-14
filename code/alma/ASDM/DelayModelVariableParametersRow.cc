@@ -2152,10 +2152,10 @@ polarOffsetsType = CDifferenceType::from_int(0);
 		
 	}
 	
-	DelayModelVariableParametersRow::DelayModelVariableParametersRow (DelayModelVariableParametersTable &t, DelayModelVariableParametersRow &row) : table(t) {
+	DelayModelVariableParametersRow::DelayModelVariableParametersRow (DelayModelVariableParametersTable &t, DelayModelVariableParametersRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2199,55 +2199,55 @@ polarOffsetsType = CDifferenceType::from_int(0);
 		else {
 	
 		
-			delayModelVariableParametersId = row.delayModelVariableParametersId;
+			delayModelVariableParametersId = row->delayModelVariableParametersId;
 		
 		
 		
 		
-			time = row.time;
+			time = row->time;
 		
-			ut1_utc = row.ut1_utc;
+			ut1_utc = row->ut1_utc;
 		
-			iat_utc = row.iat_utc;
+			iat_utc = row->iat_utc;
 		
-			timeType = row.timeType;
+			timeType = row->timeType;
 		
-			gstAtUt0 = row.gstAtUt0;
+			gstAtUt0 = row->gstAtUt0;
 		
-			earthRotationRate = row.earthRotationRate;
+			earthRotationRate = row->earthRotationRate;
 		
-			polarOffsets = row.polarOffsets;
+			polarOffsets = row->polarOffsets;
 		
-			polarOffsetsType = row.polarOffsetsType;
+			polarOffsetsType = row->polarOffsetsType;
 		
-			delayModelFixedParametersId = row.delayModelFixedParametersId;
-		
-		
+			delayModelFixedParametersId = row->delayModelFixedParametersId;
 		
 		
-		if (row.nutationInLongitudeExists) {
-			nutationInLongitude = row.nutationInLongitude;		
+		
+		
+		if (row->nutationInLongitudeExists) {
+			nutationInLongitude = row->nutationInLongitude;		
 			nutationInLongitudeExists = true;
 		}
 		else
 			nutationInLongitudeExists = false;
 		
-		if (row.nutationInLongitudeRateExists) {
-			nutationInLongitudeRate = row.nutationInLongitudeRate;		
+		if (row->nutationInLongitudeRateExists) {
+			nutationInLongitudeRate = row->nutationInLongitudeRate;		
 			nutationInLongitudeRateExists = true;
 		}
 		else
 			nutationInLongitudeRateExists = false;
 		
-		if (row.nutationInObliquityExists) {
-			nutationInObliquity = row.nutationInObliquity;		
+		if (row->nutationInObliquityExists) {
+			nutationInObliquity = row->nutationInObliquity;		
 			nutationInObliquityExists = true;
 		}
 		else
 			nutationInObliquityExists = false;
 		
-		if (row.nutationInObliquityRateExists) {
-			nutationInObliquityRate = row.nutationInObliquityRate;		
+		if (row->nutationInObliquityRateExists) {
+			nutationInObliquityRate = row->nutationInObliquityRate;		
 			nutationInObliquityRateExists = true;
 		}
 		else

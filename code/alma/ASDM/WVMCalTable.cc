@@ -305,7 +305,7 @@ namespace asdm {
 
 
 WVMCalRow* WVMCalTable::newRow(WVMCalRow* row) {
-	return new WVMCalRow(*this, *row);
+	return new WVMCalRow(*this, row);
 }
 
 	//

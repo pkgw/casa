@@ -2074,10 +2074,10 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 		
 	}
 	
-	PulsarRow::PulsarRow (PulsarTable &t, PulsarRow &row) : table(t) {
+	PulsarRow::PulsarRow (PulsarTable &t, PulsarRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2123,66 +2123,66 @@ void PulsarRow::refFrequencyFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			pulsarId = row.pulsarId;
+			pulsarId = row->pulsarId;
 		
 		
 		
 		
-			refTime = row.refTime;
+			refTime = row->refTime;
 		
-			refPulseFreq = row.refPulseFreq;
+			refPulseFreq = row->refPulseFreq;
 		
-			refPhase = row.refPhase;
+			refPhase = row->refPhase;
 		
-			numBin = row.numBin;
-		
-		
+			numBin = row->numBin;
 		
 		
-		if (row.numPolyExists) {
-			numPoly = row.numPoly;		
+		
+		
+		if (row->numPolyExists) {
+			numPoly = row->numPoly;		
 			numPolyExists = true;
 		}
 		else
 			numPolyExists = false;
 		
-		if (row.phasePolyExists) {
-			phasePoly = row.phasePoly;		
+		if (row->phasePolyExists) {
+			phasePoly = row->phasePoly;		
 			phasePolyExists = true;
 		}
 		else
 			phasePolyExists = false;
 		
-		if (row.timeSpanExists) {
-			timeSpan = row.timeSpan;		
+		if (row->timeSpanExists) {
+			timeSpan = row->timeSpan;		
 			timeSpanExists = true;
 		}
 		else
 			timeSpanExists = false;
 		
-		if (row.startPhaseBinExists) {
-			startPhaseBin = row.startPhaseBin;		
+		if (row->startPhaseBinExists) {
+			startPhaseBin = row->startPhaseBin;		
 			startPhaseBinExists = true;
 		}
 		else
 			startPhaseBinExists = false;
 		
-		if (row.endPhaseBinExists) {
-			endPhaseBin = row.endPhaseBin;		
+		if (row->endPhaseBinExists) {
+			endPhaseBin = row->endPhaseBin;		
 			endPhaseBinExists = true;
 		}
 		else
 			endPhaseBinExists = false;
 		
-		if (row.dispersionMeasureExists) {
-			dispersionMeasure = row.dispersionMeasure;		
+		if (row->dispersionMeasureExists) {
+			dispersionMeasure = row->dispersionMeasure;		
 			dispersionMeasureExists = true;
 		}
 		else
 			dispersionMeasureExists = false;
 		
-		if (row.refFrequencyExists) {
-			refFrequency = row.refFrequency;		
+		if (row->refFrequencyExists) {
+			refFrequency = row->refFrequency;		
 			refFrequencyExists = true;
 		}
 		else

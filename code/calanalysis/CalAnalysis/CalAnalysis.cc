@@ -3438,7 +3438,7 @@ Bool& CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
       oFlagCube = oFlagCol( uiRow );
 
       // Map the spectral window
-      uInt s;
+      uInt s = 0;
       if ( !where( oSPWGroup[g][r], oSPWUniqueGroup[g], s ) ) {
         *poSuccess = false;
         return( *poSuccess );
@@ -3450,7 +3450,7 @@ Bool& CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
       Vector<uInt> oChannelC( oInput.oChannel[oSPWMap[s]] );
 
       // Map the time
-      uInt t;
+      uInt t = 0;
       if ( !where( oTimeGroup[g][r], oTimeUniqueGroup[g], t ) ) {
          *poSuccess = false;
         return( *poSuccess );

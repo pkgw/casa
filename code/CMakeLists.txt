@@ -72,10 +72,12 @@ include( target )
 include( CASA )
 
 set( CASA_VERSION_MAJOR   5   )
-set( CASA_VERSION_MINOR   5   )
+set( CASA_VERSION_MINOR   6   )
 set( CASA_VERSION_PATCH   0   )
 set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
 set( CASA_VERSION_DESC    "" )
+# CASA/ALMA/VLA etc...
+set( CASA_VARIANT  "" )
 
 if( CASA_VERSION_FEATURE STREQUAL "0" )
     execute_process( COMMAND svn info
@@ -95,7 +97,7 @@ if( CASA_VERSION_FEATURE STREQUAL "0" )
                             OUTPUT_STRIP_TRAILING_WHITESPACE )
 
     else( )
-        execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/resolvegitrevision.sh
+        execute_process( COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/install/resolvegitrevision.pl
                          WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
                          OUTPUT_VARIABLE CASA_VERSION_FEATURE_AND_BRANCH_TAG # Getting a list
                          OUTPUT_STRIP_TRAILING_WHITESPACE )
@@ -104,8 +106,10 @@ if( CASA_VERSION_FEATURE STREQUAL "0" )
         message(STATUS "len = ${len}")
         list ( GET CASA_VERSION_FEATURE_AND_BRANCH_TAG 0 CASA_VERSION_FEATURE)
         list ( GET CASA_VERSION_FEATURE_AND_BRANCH_TAG 1 BRANCH_TAG)
+        list ( GET CASA_VERSION_FEATURE_AND_BRANCH_TAG 2 CASA_VARIANT)
         message("CASA_VERSION_FEATURE: ${CASA_VERSION_FEATURE}")
         message("CASA_VERSION_DESC: ${BRANCH_TAG}")
+        message("CASA_VARIANT: ${CASA_VARIANT}")
         set(CASA_VERSION_DESC " ${BRANCH_TAG}")
     endif( )
 endif( )

@@ -1056,7 +1056,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalPointingModelRow (CalPointingModelTable &table, CalPointingModelRow &row);
+	 CalPointingModelRow (CalPointingModelTable &table, CalPointingModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

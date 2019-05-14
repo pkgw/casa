@@ -323,7 +323,7 @@ namespace asdm {
 
 
 ConfigDescriptionRow* ConfigDescriptionTable::newRow(ConfigDescriptionRow* row) {
-	return new ConfigDescriptionRow(*this, *row);
+	return new ConfigDescriptionRow(*this, row);
 }
 
 	//

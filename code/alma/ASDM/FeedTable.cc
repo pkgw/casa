@@ -315,7 +315,7 @@ namespace asdm {
 
 
 FeedRow* FeedTable::newRow(FeedRow* row) {
-	return new FeedRow(*this, *row);
+	return new FeedRow(*this, row);
 }
 
 	//

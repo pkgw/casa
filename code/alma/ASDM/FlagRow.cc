@@ -2663,10 +2663,10 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FlagRow::FlagRow (FlagTable &t, FlagRow &row) : table(t) {
+	FlagRow::FlagRow (FlagTable &t, FlagRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2718,75 +2718,75 @@ void FlagRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			flagId = row.flagId;
+			flagId = row->flagId;
 		
 		
 		
 		
-			startTime = row.startTime;
+			startTime = row->startTime;
 		
-			endTime = row.endTime;
+			endTime = row->endTime;
 		
-			reason = row.reason;
+			reason = row->reason;
 		
-			numAntenna = row.numAntenna;
+			numAntenna = row->numAntenna;
 		
-			antennaId = row.antennaId;
-		
-		
+			antennaId = row->antennaId;
 		
 		
-		if (row.numPolarizationTypeExists) {
-			numPolarizationType = row.numPolarizationType;		
+		
+		
+		if (row->numPolarizationTypeExists) {
+			numPolarizationType = row->numPolarizationType;		
 			numPolarizationTypeExists = true;
 		}
 		else
 			numPolarizationTypeExists = false;
 		
-		if (row.numSpectralWindowExists) {
-			numSpectralWindow = row.numSpectralWindow;		
+		if (row->numSpectralWindowExists) {
+			numSpectralWindow = row->numSpectralWindow;		
 			numSpectralWindowExists = true;
 		}
 		else
 			numSpectralWindowExists = false;
 		
-		if (row.numPairedAntennaExists) {
-			numPairedAntenna = row.numPairedAntenna;		
+		if (row->numPairedAntennaExists) {
+			numPairedAntenna = row->numPairedAntenna;		
 			numPairedAntennaExists = true;
 		}
 		else
 			numPairedAntennaExists = false;
 		
-		if (row.numChanExists) {
-			numChan = row.numChan;		
+		if (row->numChanExists) {
+			numChan = row->numChan;		
 			numChanExists = true;
 		}
 		else
 			numChanExists = false;
 		
-		if (row.polarizationTypeExists) {
-			polarizationType = row.polarizationType;		
+		if (row->polarizationTypeExists) {
+			polarizationType = row->polarizationType;		
 			polarizationTypeExists = true;
 		}
 		else
 			polarizationTypeExists = false;
 		
-		if (row.channelExists) {
-			channel = row.channel;		
+		if (row->channelExists) {
+			channel = row->channel;		
 			channelExists = true;
 		}
 		else
 			channelExists = false;
 		
-		if (row.pairedAntennaIdExists) {
-			pairedAntennaId = row.pairedAntennaId;		
+		if (row->pairedAntennaIdExists) {
+			pairedAntennaId = row->pairedAntennaId;		
 			pairedAntennaIdExists = true;
 		}
 		else
 			pairedAntennaIdExists = false;
 		
-		if (row.spectralWindowIdExists) {
-			spectralWindowId = row.spectralWindowId;		
+		if (row->spectralWindowIdExists) {
+			spectralWindowId = row->spectralWindowId;		
 			spectralWindowIdExists = true;
 		}
 		else

@@ -799,10 +799,10 @@ velDef = CDopplerReferenceCode::from_int(0);
 		
 	}
 	
-	DopplerRow::DopplerRow (DopplerTable &t, DopplerRow &row) : table(t) {
+	DopplerRow::DopplerRow (DopplerTable &t, DopplerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -818,16 +818,16 @@ velDef = CDopplerReferenceCode::from_int(0);
 		else {
 	
 		
-			dopplerId = row.dopplerId;
+			dopplerId = row->dopplerId;
 		
-			sourceId = row.sourceId;
-		
-		
+			sourceId = row->sourceId;
 		
 		
-			transitionIndex = row.transitionIndex;
 		
-			velDef = row.velDef;
+		
+			transitionIndex = row->transitionIndex;
+		
+			velDef = row->velDef;
 		
 		
 		

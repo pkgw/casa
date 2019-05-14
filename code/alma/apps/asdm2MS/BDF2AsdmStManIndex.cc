@@ -24,7 +24,7 @@ BDF2AsdmStManIndex::BDF2AsdmStManIndex() {
 
 BDF2AsdmStManIndex::BDF2AsdmStManIndex(const vector<string>& bdfNames, bool isBigEndian, const string& fname) {
   LOGENTER("BDF2AsdmStManIndex::BDF2AsdmStManIndex");
-  this->numberOfDataDescriptions = numberOfDataDescriptions;
+  this->numberOfDataDescriptions = 0;
   this->bdfNames.resize(bdfNames.size());
 
   int i = 0;
@@ -63,7 +63,7 @@ BDF2AsdmStManIndex::BDF2AsdmStManIndex(const vector<string>& bdfNames, bool isBi
 
 void BDF2AsdmStManIndex::init(const vector<string>& bdfNames, bool isBigEndian, const string& fname) {
   LOGENTER("BDF2AsdmStManIndex::init");
-  this->numberOfDataDescriptions = numberOfDataDescriptions;
+  this->numberOfDataDescriptions = 0;
   this->bdfNames.resize(bdfNames.size());
 
   int i = 0;
