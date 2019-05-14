@@ -790,6 +790,8 @@ const String PMS_PP_Canvas::REC_YFONTSSET = "yFontsSet";
 const String PMS_PP_Canvas::REC_YAXISFONTS = "yAxisFonts";
 const String PMS_PP_Canvas::REC_SHOWXAXES = "showXAxes";
 const String PMS_PP_Canvas::REC_SHOWYAXES = "showYAxes";
+const String PMS_PP_Canvas::REC_SHOWXLABELS = "showXLabels";
+const String PMS_PP_Canvas::REC_SHOWYLABELS = "showYLabels";
 const String PMS_PP_Canvas::REC_SHOWLEGENDS = "showLegends";
 const String PMS_PP_Canvas::REC_LEGENDSPOS = "legendPositions";
 const String PMS_PP_Canvas::REC_TITLES = "canvasTitleFormats";
@@ -827,6 +829,8 @@ Record PMS_PP_Canvas::toRecord() const
 	}
 	rec.define(REC_SHOWXAXES, Vector<bool>(itsXAxesShown_));
 	rec.define(REC_SHOWYAXES, Vector<bool>(itsYAxesShown_));
+	rec.define(REC_SHOWXLABELS, Vector<bool>(itsXLabelsShown_));
+	rec.define(REC_SHOWYLABELS, Vector<bool>(itsYLabelsShown_));
 	rec.define(REC_XFONTSSET, Vector<bool>(itsXFontsSet_));
 	rec.define(REC_YFONTSSET, Vector<bool>(itsYFontsSet_));
 	rec.define(REC_XAXISFONTS, Vector<int>(itsXAxisFonts_));
@@ -942,6 +946,26 @@ void PMS_PP_Canvas::fromRecord(const Record& record)
 		if (itsYAxesShown_ != tmp)
 		{
 			itsYAxesShown_ = tmp;
+			valuesChanged = true;
+		}
+	}
+    if (record.isDefined(REC_SHOWXLABELS) && record.dataType(REC_SHOWXLABELS) == TpArrayBool)
+	{
+		vector<bool> tmp;
+		record.asArrayBool(REC_SHOWXLABELS).tovector(tmp);
+		if (itsXLabelsShown_ != tmp)
+		{
+			itsXLabelsShown_ = tmp;
+			valuesChanged = true;
+		}
+	}
+    if (record.isDefined(REC_SHOWYLABELS) && record.dataType(REC_SHOWYLABELS) == TpArrayBool)
+	{
+		vector<bool> tmp;
+		record.asArrayBool(REC_SHOWYLABELS).tovector(tmp);
+		if (itsYLabelsShown_ != tmp)
+		{
+			itsYLabelsShown_ = tmp;
 			valuesChanged = true;
 		}
 	}
@@ -1094,6 +1118,8 @@ PMS_PP_Canvas& PMS_PP_Canvas::assign(const PMS_PP_Canvas* o ){
 		itsYAxisFonts_ = o->itsYAxisFonts_;
 		itsXAxesShown_ = o->itsXAxesShown_;
 		itsYAxesShown_ = o->itsYAxesShown_;
+		itsXLabelsShown_ = o->itsXLabelsShown_;
+		itsYLabelsShown_ = o->itsYLabelsShown_;
 		itsLegendsShown_ = o->itsLegendsShown_;
 		itsLegendsPos_ = o->itsLegendsPos_;
 		itsTitles_ = o->itsTitles_;
@@ -1123,6 +1149,8 @@ bool PMS_PP_Canvas::operator==(const Group& other) const
 	if (itsYAxisFonts_ != o->itsYAxisFonts_) return false;
 	if (itsXAxesShown_ != o->itsXAxesShown_) return false;
 	if (itsYAxesShown_ != o->itsYAxesShown_) return false;
+	if (itsXLabelsShown_ != o->itsXLabelsShown_) return false;
+	if (itsYLabelsShown_ != o->itsYLabelsShown_) return false;
 	if (itsLegendsShown_.size() != o->itsLegendsShown_.size() || itsLegendsPos_.size() != o->itsLegendsPos_.size() || itsLegendsShown_.size() != itsLegendsPos_.size()) return false;
 	for (unsigned int i = 0; i < itsLegendsShown_.size(); i++) if (itsLegendsShown_[i] != o->itsLegendsShown_[i] || (itsLegendsShown_[i] && itsLegendsPos_[i] != o->itsLegendsPos_[i])) return false;
 	if (itsTitles_ != o->itsTitles_) return false;
@@ -1146,6 +1174,8 @@ void PMS_PP_Canvas::setDefaults()
 	itsYAxisFonts_ = vector<Int>(1, PMS::DEFAULT_FONT);
 	itsXAxesShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXIS);
 	itsYAxesShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXIS);
+	itsXLabelsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWLABEL);
+	itsYLabelsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWLABEL);
 	itsLegendsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWLEGEND);
 	itsLegendsPos_ = vector<PlotCanvas::LegendPosition>(1, PMS::DEFAULT_LEGENDPOSITION);
 	itsTitles_ = vector<PlotMSLabelFormat>(1, PlotMSLabelFormat(PMS::DEFAULT_TITLE_FORMAT));

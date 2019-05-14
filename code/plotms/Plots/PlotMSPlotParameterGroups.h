@@ -1108,6 +1108,51 @@ public:
 		}
 	}
 
+	const vector < bool > &xLabelsShown() const {
+		return itsXLabelsShown_;
+	}
+	void showXLabel (const vector < bool > &value) {
+		if (itsXLabelsShown_ != value) {
+			itsXLabelsShown_ = value;
+			updated();
+		}
+	}
+	bool xLabelShown (unsigned int index = 0) const {
+		if (index >= itsXLabelsShown_.size())
+			const_cast < vector < bool > &>(itsXLabelsShown_).resize (index + 1);
+		return itsXLabelsShown_[index];
+	}
+	void showXLabel (const bool & value, unsigned int index = 0) {
+		if (index >= itsXLabelsShown_.size())
+			itsXLabelsShown_.resize (index + 1);
+		if (itsXLabelsShown_[index] != value) {
+			itsXLabelsShown_[index] = value;
+			updated();
+		}
+	}
+
+	const vector < bool > &yLabelsShown() const {
+		return itsYLabelsShown_;
+	}
+	void showYLabel (const vector < bool > &value) {
+		if (itsYLabelsShown_ != value) {
+			itsYLabelsShown_ = value;
+			updated();
+		}
+	}
+	bool yLabelShown (unsigned int index = 0) const {
+		if (index >= itsYLabelsShown_.size())
+			const_cast < vector < bool > &>(itsYLabelsShown_).resize (index + 1);
+		return itsYLabelsShown_[index];
+	}
+	void showYLabel (const bool & value, unsigned int index = 0) {
+		if (index >= itsYLabelsShown_.size())
+			itsYLabelsShown_.resize (index + 1);
+		if (itsYLabelsShown_[index] != value) {
+			itsYLabelsShown_[index] = value;
+			updated();
+		}
+	}
 
 	const vector < bool > &legendsShown() const {
 		return itsLegendsShown_;
@@ -1328,6 +1373,8 @@ private:
 	std::vector<casacore::Int> itsYAxisFonts_;
 	std::vector<bool> itsXAxesShown_;
 	std::vector<bool> itsYAxesShown_;
+	std::vector<bool> itsXLabelsShown_;
+	std::vector<bool> itsYLabelsShown_;
 	std::vector<bool> itsLegendsShown_;
 	std::vector<PlotCanvas::LegendPosition > itsLegendsPos_;
 	std::vector<PlotMSLabelFormat> itsTitles_;
@@ -1347,6 +1394,8 @@ private:
 	static const casacore::String REC_YAXISFONTS;
 	static const casacore::String REC_SHOWXAXES;
 	static const casacore::String REC_SHOWYAXES;
+	static const casacore::String REC_SHOWXLABELS;
+	static const casacore::String REC_SHOWYLABELS;
 	static const casacore::String REC_SHOWLEGENDS;
 	static const casacore::String REC_LEGENDSPOS;
 	static const casacore::String REC_TITLES;

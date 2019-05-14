@@ -1718,22 +1718,17 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 	bool commonX = iterParams->isCommonAxisX();
 	bool commonY = iterParams->isCommonAxisY();
 	canvas->setCommonAxes( commonX, commonY );
-	// showX and showY determine whether axes are visible at all.
 	bool showX = set && canvParams->xAxisShown();
 	bool showY = set && canvParams->yAxisShown();
-	PlotAxis cx = axesParams->xAxis();
-	canvas->showAxis(cx, showX);
-	for ( int i = 0; i < yAxisCount; i++ ) {
-		PlotAxis cy = axesParams->yAxis( i );
-		canvas->showAxis(cy, showY);
-	}
 
 	// xaxis, scale (TIME/NORMAL), ref value
 	PMS::Axis x = cacheParams->xAxis();
+	PlotAxis cx = axesParams->xAxis();
 	if (x==PMS::NONE) {
 		x = getDefaultXAxis();
 		cacheParams->setXAxis(x);
 	}
+	canvas->showAxis(cx, showX);
 	canvas->setAxisScale(cx, PMS::axisScale(x));
 	bool xref = itsCache_->hasReferenceValue(x);
 	double xrefval = itsCache_->referenceValue(x);
@@ -1755,6 +1750,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		}
 		// yaxis scale
 		PlotAxis cy = axesParams->yAxis( i );
+		canvas->showAxis(cy, showY);
 		canvas->setAxisScale(cy, PMS::axisScale(y));
 		// yaxis ref value
 		bool yref = itsCache_->hasReferenceValue(y);
@@ -1886,7 +1882,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		vector<double> yRefVals;
 		vector<PMS::DataColumn> yDatas;
 		// x-axis label 
-		if (showX) {
+		if (showX && canvParams->xLabelShown()) {
 			if (allCalTables && PMS::axisIsData(x)) // convert xaxis to cal axis depending on type (e.g. "Amp"->"Tsys")
 				x = getCalAxis(calTypes(0), x);
 			// data col may have been changed during loading if no col
@@ -1902,8 +1898,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			canvas->setAxisLabel(cx, xLabelSingle);
 		}
 		// y-axis label(s)
-		if(showY) {
+		if (showY && canvParams->yLabelShown()) {
 			casacore::String yLabelLeft(""), yLabelRight("");
+			casacore::String yLabelLeftLast(""), yLabelRightLast("");
 			for ( int i=0; i<canvasPlotCount; i++ ){
 				PlotMSPlotParameters plotParams = canvasPlots[i]->parameters();
 				PMS_PP_Cache *plotCacheParams = plotParams.typedGroup<PMS_PP_Cache>();
@@ -1926,7 +1923,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					// data col may have been changed during loading if no col
 					PMS::DataColumn yDataColumn = plotCacheBase.getYDataColumn(j);
 					yDatas.push_back(yDataColumn); // save for title
-					casacore::String yLabelSingle = canvParams->yLabelFormat( ).getLabel(y, yref, yrefval, yDataColumn, polnRatio);
+					casacore::String yLabelSingle = canvParams->yLabelFormat().getLabel(
+						y, yref, yrefval, yDataColumn, polnRatio);
 					if (y==PMS::TIME && yLabelSingle.contains("1858")) // yrefval==0
 						yLabelSingle.gsub("(from 1858/11/17)", "");
 					if (y == PMS::FREQUENCY)
@@ -1936,13 +1934,23 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					if (isCalTable && yLabelSingle.contains("Corr"))
 						yLabelSingle.gsub("Corr", "Poln");
 					if ( cy == Y_LEFT ){
-						if ( yLabelLeft.size() > 0 )
+						std::cout << "PDEBUG: label=" << yLabelLeft << " new=" << yLabelSingle << std::endl;
+						if (yLabelLeft.empty()) {
+							yLabelLeft = yLabelSingle;
+						} else if (yLabelSingle != yLabelLeftLast) {
 							yLabelLeft.append( ", ");
-						yLabelLeft.append( yLabelSingle );
+							yLabelLeft.append( yLabelSingle );
+						}
+						yLabelLeftLast = yLabelSingle;
+						std::cout << "PDEBUG: label now=" << yLabelLeft << std::endl;
 					} else {
-						if ( yLabelRight.size() > 0 )
+						if (yLabelRight.empty()) {
+							yLabelRight = yLabelSingle;
+						} else if (yLabelSingle != yLabelRightLast) {
 							yLabelRight.append( ", ");
-						yLabelRight.append( yLabelSingle );
+							yLabelRight.append( yLabelSingle );
+						}
+						yLabelRightLast = yLabelSingle;
 					}
 				}
 			}

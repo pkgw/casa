@@ -228,11 +228,9 @@ void PlotCanvas::setBackground(const String& color,
 
 
 
-#if (0)  // checking hypothesis: this is not used anywhere
 bool PlotCanvas::isAxisShown(PlotAxis axis) const { 
 	return shownAxes() & axis; 
 }
-#endif
 
 
 /* DSW: SITE OF X-Y SHORTCIRCUIT */

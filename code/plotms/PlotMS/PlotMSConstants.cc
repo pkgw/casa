@@ -322,6 +322,7 @@ const String PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT =
 const bool PMS::DEFAULT_FONTSET = false;
 const int PMS::DEFAULT_FONT = 0;
 const bool PMS::DEFAULT_SHOWAXIS = true;
+const bool PMS::DEFAULT_SHOWLABEL = true;
 const bool PMS::DEFAULT_SHOWLEGEND = false;
 const PlotCanvas::LegendPosition PMS::DEFAULT_LEGENDPOSITION =
     PlotCanvas::INT_URIGHT;

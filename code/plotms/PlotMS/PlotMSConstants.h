@@ -349,6 +349,7 @@ public:
     static const bool DEFAULT_FONTSET;
     static const int DEFAULT_FONT;
     static const bool DEFAULT_SHOWAXIS;
+    static const bool DEFAULT_SHOWLABEL;
     static const bool DEFAULT_SHOWLEGEND;
     static const PlotCanvas::LegendPosition DEFAULT_LEGENDPOSITION;
     static const bool DEFAULT_SHOW_GRID;

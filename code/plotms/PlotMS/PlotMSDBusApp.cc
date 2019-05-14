@@ -96,6 +96,8 @@ const String PlotMSDBusApp::PARAM_COLORIZE = "colorize";
 const String PlotMSDBusApp::PARAM_COLORAXIS = "coloraxis";
 const String PlotMSDBusApp::PARAM_CANVASTITLE = "canvastitle";
 const String PlotMSDBusApp::PARAM_CANVASTITLEFONT = "canvastitlefont";
+const String PlotMSDBusApp::PARAM_SHOWXLABEL = "showxlabel";
+const String PlotMSDBusApp::PARAM_SHOWYLABEL = "showylabel";
 const String PlotMSDBusApp::PARAM_XAXISLABEL = "xaxislabel";
 const String PlotMSDBusApp::PARAM_YAXISLABEL = "yaxislabel";
 const String PlotMSDBusApp::PARAM_XAXISFONT = "xaxisfont";
@@ -422,6 +424,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			if (can!=NULL)   {
 				ret.define(PARAM_CANVASTITLE,  can->titleFormat().format);
 				ret.define(PARAM_CANVASTITLEFONT,  can->titleFont());
+				ret.define(PARAM_SHOWXLABEL,  can->xLabelShown());
+				ret.define(PARAM_SHOWYLABEL,  can->yLabelShown());
 				ret.define(PARAM_XAXISLABEL,  can->xLabelFormat().format);
 				ret.define(PARAM_YAXISLABEL,  can->yLabelFormat().format);
 				ret.define(PARAM_XAXISFONT,  can->xAxisFont());
@@ -641,11 +645,22 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppcan->setTitleFormat(f);
 		}
 
-        if(parameters.isDefined(PARAM_CANVASTITLEFONT) &&
+		if(parameters.isDefined(PARAM_CANVASTITLEFONT) &&
 				parameters.dataType(PARAM_CANVASTITLEFONT) == TpInt)   {
 			Int size = parameters.asInt(PARAM_CANVASTITLEFONT);
-            ppcan->setTitleFontSet((size > 0));
+			ppcan->setTitleFontSet((size > 0));
 			ppcan->setTitleFont(size);
+		}
+
+		if(parameters.isDefined(PARAM_SHOWXLABEL) &&
+				parameters.dataType(PARAM_SHOWXLABEL) == TpBool)   {
+			Bool showX = parameters.asBool(PARAM_SHOWXLABEL);
+			ppcan->showXLabel(showX, index);
+		}
+		if(parameters.isDefined(PARAM_SHOWYLABEL) &&
+				parameters.dataType(PARAM_SHOWYLABEL) == TpBool)   {
+			Bool showY = parameters.asBool(PARAM_SHOWYLABEL);
+			ppcan->showYLabel(showY, index);
 		}
 
 		if(parameters.isDefined(PARAM_XAXISLABEL) &&

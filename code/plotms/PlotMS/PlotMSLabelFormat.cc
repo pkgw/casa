@@ -90,15 +90,15 @@ const String& PlotMSLabelFormat::TAG_ENDIF_YREFVALUE() {
 String PlotMSLabelFormat::TAG(const String& tag) {
     return TAGSEPARATOR() + tag + TAGSEPARATOR(); }
 
-void PlotMSLabelFormat::addDataToTag( String& tag, PMS::Axis axis, PMS::DataColumn column ){
-	if ( PMS::axisIsData(axis) ){
-	    if ( column != PMS::DATA ){
-	    	String axisData = PMS::dataColumn(column);
-			axisData.gsub("_vector", " (vector)");
-			axisData.gsub("_scalar", " (scalar)");
-	        tag = tag + ":"+axisData;
-	    }
-	}
+void PlotMSLabelFormat::addDataToTag(String& tag, PMS::Axis axis, PMS::DataColumn column) {
+    if ( PMS::axisIsData(axis) ){
+        if ( column != PMS::DATA ){
+            String axisData = PMS::dataColumn(column);
+            axisData.gsub("_vector", " (vector)");
+            axisData.gsub("_scalar", " (scalar)");
+            tag = tag + ":"+axisData;
+        }
+    }
 }
 
 void PlotMSLabelFormat::addPolnRatioToTag( String& tag, PMS::Axis axis ) {
@@ -139,13 +139,13 @@ String PlotMSLabelFormat::getLabel(const String& format, PMS::Axis axis,
     PMS::AxisUnit xUnit = PMS::axisUnit(xAxis);
     vector<PMS::AxisUnit> yUnits;
     for ( int i = 0; i < yAxisCount; i++ ){
-    	yUnits.push_back(PMS::axisUnit(yAxes[i]));
+        yUnits.push_back(PMS::axisUnit(yAxes[i]));
     }
     PlotAxisScale scale = PMS::axisScale(axis);
     PlotAxisScale xScale = PMS::axisScale(xAxis);
     vector<PlotAxisScale> yScales;
     for ( int i = 0; i < yAxisCount; i++ ){
-    	yScales.push_back( PMS::axisScale(yAxes[i]) );
+        yScales.push_back( PMS::axisScale(yAxes[i]) );
     }
     bool isDate = scale == DATE_MJ_DAY || scale == DATE_MJ_SEC,
         xIsDate = xScale == DATE_MJ_DAY || xScale == DATE_MJ_SEC;
@@ -155,38 +155,47 @@ String PlotMSLabelFormat::getLabel(const String& format, PMS::Axis axis,
     }
     
     String tempFormat = format, token, tag;
+    String lastYTag;
     bool tokenWasTag, ifUnit = false, ifXUnit = false, ifYUnit = false,
          ifRefValue = false, ifXRefValue = false, ifYRefValue = false;
-    
+
     while(nextToken(tempFormat, token, tokenWasTag)) {
         if(tokenWasTag) {
             tag = "";
 
             if(PMS::strEq(token, TAG_AXIS(), true)){
-            	tag = PMS::axis(axis);
-            	addDataToTag( tag, axis, xData );
+                tag = PMS::axis(axis);
+                addDataToTag( tag, axis, xData );
                 if (polnRatio) addPolnRatioToTag(tag, axis);
             }
             else if(PMS::strEq(token, TAG_XAXIS(), true)){
-            	tag=PMS::axis(xAxis);
-            	addDataToTag( tag, xAxis, xData );
+                tag=PMS::axis(xAxis);
+                addDataToTag( tag, xAxis, xData );
                 if (polnRatio) addPolnRatioToTag(tag, xAxis);
             }
             else if(PMS::strEq(token, TAG_YAXIS(), true)){
-            	for( int i = 0; i < yAxisCount; i++ ){
-            		tag= tag + PMS::axis(yAxes[i]);
-            		addDataToTag( tag, yAxes[i], yData[i]);
-                    if (polnRatio) addPolnRatioToTag(tag, yAxes[i]);
-            		if ( i != yAxisCount - 1 ){
-            			tag = tag + ", ";
-            		}
-            	}
+                for( int i = 0; i < yAxisCount; i++ ){
+                    // label for this y axis
+                    String thisYTag = PMS::axis(yAxes[i]);
+                    addDataToTag( thisYTag, yAxes[i], yData[i]);
+                    if (polnRatio)
+                        addPolnRatioToTag(thisYTag, yAxes[i]);
+                    // add this label to y axis label
+                    if (thisYTag != lastYTag) {
+                        if (tag.empty()) {
+                            tag = thisYTag;
+                        } else {
+                            tag += ", " + thisYTag;
+                        }
+                    }
+                    lastYTag = thisYTag;
+                }
             }
             else if(PMS::strEq(token, TAG_UNIT(), true)){
-            	tag = PMS::axisUnit(unit);
+                tag = PMS::axisUnit(unit);
             }
             else if(PMS::strEq(token, TAG_XUNIT(), true)){
-            	tag = PMS::axisUnit(xUnit);
+                tag = PMS::axisUnit(xUnit);
             }
             else if(PMS::strEq(token, TAG_YUNIT(), true)){
                 tag = PMS::axisUnit(yUnits[0]);
@@ -241,7 +250,7 @@ String PlotMSLabelFormat::getLabel(const String& format, PMS::Axis axis,
             else tag = TAG(token);
         }
         else {
-        	tag = token;
+            tag = token;
         }
         
         if((!ifUnit || unit != PMS::UNONE) && (!ifXUnit || xUnit != PMS::UNONE)
@@ -299,43 +308,43 @@ PlotMSLabelFormat::PlotMSLabelFormat(const PlotMSLabelFormat& copy) {
 PlotMSLabelFormat::~PlotMSLabelFormat() { }
 
 String PlotMSLabelFormat::getLabel( PMS::Axis axis, bool refValueSet,
-		double refValue, PMS::DataColumn dataColumn, bool polnRatio ) const{
-	vector<PMS::Axis> axes(1);
-	axes[0] = axis;
-	vector<bool> refValueSets(1);
-	refValueSets[0] = refValueSet;
-	vector<double> refValues(1);
-	refValues[0] = refValue;
-	vector<PMS::DataColumn> datas(1);
-	datas[0] = dataColumn;
-	return getLabel( axes, refValueSets, refValues, datas, polnRatio );
+        double refValue, PMS::DataColumn dataColumn, bool polnRatio ) const{
+    vector<PMS::Axis> axes(1);
+    axes[0] = axis;
+    vector<bool> refValueSets(1);
+    refValueSets[0] = refValueSet;
+    vector<double> refValues(1);
+    refValues[0] = refValue;
+    vector<PMS::DataColumn> datas(1);
+    datas[0] = dataColumn;
+    return getLabel( axes, refValueSets, refValues, datas, polnRatio );
 }
 
 
 String PlotMSLabelFormat::getLabel(vector<PMS::Axis> axes,
-		vector<bool> refValueSets,
+        vector<bool> refValueSets,
         vector<double> refValues,
         vector<PMS::DataColumn> datas,
         bool polnRatio) const {
-	String axisLabel;
-	int axesCount = axes.size();
-	for ( int i = 0; i < axesCount; i++ ){
-		vector<PMS::Axis> singleAxis(1, axes[i]);
-		vector<bool> singleRefValueSets(1, refValueSets[i]);
-		vector<double> singleRefValues(1, refValues[i]);
-		vector<PMS::DataColumn> singleDatas(1, datas[i]);
-		singleDatas[0] = datas[i];
-		String yLabel = getLabel(format, axes[i], axes[i], singleAxis, 
+    String axisLabel;
+    int axesCount = axes.size();
+    for ( int i = 0; i < axesCount; i++ ){
+        vector<PMS::Axis> singleAxis(1, axes[i]);
+        vector<bool> singleRefValueSets(1, refValueSets[i]);
+        vector<double> singleRefValues(1, refValues[i]);
+        vector<PMS::DataColumn> singleDatas(1, datas[i]);
+        singleDatas[0] = datas[i];
+        String yLabel = getLabel(format, axes[i], axes[i], singleAxis, 
                     refValueSets[i], refValues[i],
                     refValueSets[i], refValues[i],
                     singleRefValueSets, singleRefValues,
                     singleDatas[0], singleDatas, polnRatio);
-		if ( i > 0 ){
-			axisLabel.append( ", ");
-		}
-		axisLabel.append( yLabel );
-	}
-	return axisLabel;
+        if ( i > 0 ){
+            axisLabel.append( ", ");
+        }
+        axisLabel.append( yLabel );
+    }
+    return axisLabel;
 }
 
 String PlotMSLabelFormat::getLabel( PMS::Axis xAxis, vector<PMS::Axis> yAxis,
