@@ -209,17 +209,17 @@ inline void shuffleTransposeMatrix4F2C(ssize_t n,
 //template<class T>
 //inline void suffleMatrixColumn(casacore::Matrix<T> const &src,
 //    std::vector<size_t> order) {
-//	ssize_t n = src.nrow();
-//	if (checkOrder(1, src.ncolumn()-1, order)) throw AipsError("Invalid order");
-//	casacore::Matrix<T> const temp = src;
+//    ssize_t n = src.nrow();
+//    if (checkOrder(1, src.ncolumn()-1, order)) throw AipsError("Invalid order");
+//    casacore::Matrix<T> const temp = src;
 //  casacore::Bool b1, b2;
 //  T const *src_p = src.getStorage(b1);
 //  T const *temp_p = temp.getStorage(b2);
 //  if (src_p==temp_p) {
-//	  throw casacore::AipsError("Failed to generate temp storage");
+//      throw casacore::AipsError("Failed to generate temp storage");
 //  }
 //  for (ssize_t j = 0; j < order.size(); ++j) {
-//	  setValue1(n, temp_p[order[j]*n], src_p[j*n]);
+//      setValue1(n, temp_p[order[j]*n], src_p[j*n]);
 //  }
 //  src.putStorage(src_p, b1);
 //  temp.freeStorage(temp_p, b2);
@@ -931,10 +931,10 @@ public:
         casacore::Float wind_direction = record.wind_direction;
         bool status = false;
         auto iter = indexer_.find(key);
-//		std::cout << "(ant, spw, pol, pol_type, field, feed, intent) = ("
-//				<< key.antenna_id << ", " << key.spw_id << ", " << record.pol<< ", " << key.pol_type << ", " << key.field_id << ", " << key.feed_id
-//				<< ", " << key.intent << ", "
-//				<< std::endl;
+//        std::cout << "(ant, spw, pol, pol_type, field, feed, intent) = ("
+//                << key.antenna_id << ", " << key.spw_id << ", " << record.pol<< ", " << key.pol_type << ", " << key.field_id << ", " << key.feed_id
+//                << ", " << key.intent << ", "
+//                << std::endl;
         if (iter != indexer_.end()) {
             casacore::uInt index = iter->second;
             status = pool_[index]->accumulate(record);
