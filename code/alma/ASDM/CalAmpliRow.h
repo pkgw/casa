@@ -827,7 +827,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalAmpliRow (CalAmpliTable &table, CalAmpliRow &row);
+	 CalAmpliRow (CalAmpliTable &table, CalAmpliRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

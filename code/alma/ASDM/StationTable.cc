@@ -257,7 +257,7 @@ namespace asdm {
 
 
 StationRow* StationTable::newRow(StationRow* row) {
-	return new StationRow(*this, *row);
+	return new StationRow(*this, row);
 }
 
 	//

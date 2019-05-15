@@ -1946,10 +1946,10 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 		
 	}
 	
-	EphemerisRow::EphemerisRow (EphemerisTable &t, EphemerisRow &row) : table(t) {
+	EphemerisRow::EphemerisRow (EphemerisTable &t, EphemerisRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1985,41 +1985,41 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			ephemerisId = row.ephemerisId;
-		
-		
-		
-		
-			observerLocation = row.observerLocation;
-		
-			equinoxEquator = row.equinoxEquator;
-		
-			numPolyDir = row.numPolyDir;
-		
-			dir = row.dir;
-		
-			numPolyDist = row.numPolyDist;
-		
-			distance = row.distance;
-		
-			timeOrigin = row.timeOrigin;
-		
-			origin = row.origin;
+			ephemerisId = row->ephemerisId;
 		
 		
 		
 		
-		if (row.numPolyRadVelExists) {
-			numPolyRadVel = row.numPolyRadVel;		
+			observerLocation = row->observerLocation;
+		
+			equinoxEquator = row->equinoxEquator;
+		
+			numPolyDir = row->numPolyDir;
+		
+			dir = row->dir;
+		
+			numPolyDist = row->numPolyDist;
+		
+			distance = row->distance;
+		
+			timeOrigin = row->timeOrigin;
+		
+			origin = row->origin;
+		
+		
+		
+		
+		if (row->numPolyRadVelExists) {
+			numPolyRadVel = row->numPolyRadVel;		
 			numPolyRadVelExists = true;
 		}
 		else
 			numPolyRadVelExists = false;
 		
-		if (row.radVelExists) {
-			radVel = row.radVel;		
+		if (row->radVelExists) {
+			radVel = row->radVel;		
 			radVelExists = true;
 		}
 		else

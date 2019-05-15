@@ -289,7 +289,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		adjustBIndexName(incrs);
 		// Same buffers, except with modified name of 'bIndex' attribute.
 
-		Int bInd;
+		Int bInd = 0;
 		Bool BIExists = ( itsBLength>0 &&
 		                  rstrs.getValue(itsBIndexName, bInd) &&
 		                  bInd>=0 );

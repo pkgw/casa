@@ -271,7 +271,7 @@ namespace asdm {
 
 
 SwitchCycleRow* SwitchCycleTable::newRow(SwitchCycleRow* row) {
-	return new SwitchCycleRow(*this, *row);
+	return new SwitchCycleRow(*this, row);
 }
 
 	//

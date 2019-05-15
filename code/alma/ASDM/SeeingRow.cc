@@ -1006,10 +1006,10 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 		
 	}
 	
-	SeeingRow::SeeingRow (SeeingTable &t, SeeingRow &row) : table(t) {
+	SeeingRow::SeeingRow (SeeingTable &t, SeeingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1029,20 +1029,20 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-			numBaseLength = row.numBaseLength;
+			numBaseLength = row->numBaseLength;
 		
-			baseLength = row.baseLength;
+			baseLength = row->baseLength;
 		
-			phaseRms = row.phaseRms;
+			phaseRms = row->phaseRms;
 		
-			seeing = row.seeing;
+			seeing = row->seeing;
 		
-			exponent = row.exponent;
+			exponent = row->exponent;
 		
 		
 		

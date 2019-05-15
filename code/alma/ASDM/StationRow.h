@@ -442,7 +442,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 StationRow (StationTable &table, StationRow &row);
+	 StationRow (StationTable &table, StationRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

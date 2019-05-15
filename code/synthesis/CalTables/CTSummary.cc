@@ -335,7 +335,7 @@ void CTSummary::listAntenna (LogIO& os, Bool verbose) const
             casacore::MPosition obsPos;
             casacore::String telname;
             bool doOffset = getObservatoryPosition(obsPos, telname);
-            casacore::Double rObs, longObs, latObs;
+            casacore::Double rObs = 0.0, longObs = 0.0, latObs = 0.0;
             if (!doOffset) {
                 os << "Warning: Telescope name '" << telname << "' is not recognized by CASA.  Cannot compute offsets." << endl << endl;
             } else {

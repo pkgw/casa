@@ -288,4 +288,4 @@ if casa['flags'].trace:
 
     __builtin__.__import__ = _newimp
 
-print "CASA %s -- Common Astronomy Software Applications\n" % casa['build']['version']
+print "%sCASA %s -- Common Astronomy Software Applications\n" % ((casa['variant'] + " ").lstrip(), casa['build']['version'])

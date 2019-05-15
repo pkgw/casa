@@ -2860,10 +2860,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalCurveRow::CalCurveRow (CalCurveTable &t, CalCurveRow &row) : table(t) {
+	CalCurveRow::CalCurveRow (CalCurveTable &t, CalCurveRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2911,53 +2911,53 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			typeCurve = row.typeCurve;
+			typeCurve = row->typeCurve;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			numAntenna = row.numAntenna;
-		
-			numPoly = row.numPoly;
-		
-			numReceptor = row.numReceptor;
-		
-			antennaNames = row.antennaNames;
-		
-			refAntennaName = row.refAntennaName;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			curve = row.curve;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numBaselineExists) {
-			numBaseline = row.numBaseline;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			numAntenna = row->numAntenna;
+		
+			numPoly = row->numPoly;
+		
+			numReceptor = row->numReceptor;
+		
+			antennaNames = row->antennaNames;
+		
+			refAntennaName = row->refAntennaName;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			curve = row->curve;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->numBaselineExists) {
+			numBaseline = row->numBaseline;		
 			numBaselineExists = true;
 		}
 		else
 			numBaselineExists = false;
 		
-		if (row.rmsExists) {
-			rms = row.rms;		
+		if (row->rmsExists) {
+			rms = row->rms;		
 			rmsExists = true;
 		}
 		else

@@ -882,10 +882,10 @@ weightType = CWeightType::from_int(0);
 		
 	}
 	
-	ScaleRow::ScaleRow (ScaleTable &t, ScaleRow &row) : table(t) {
+	ScaleRow::ScaleRow (ScaleTable &t, ScaleRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -903,18 +903,18 @@ weightType = CWeightType::from_int(0);
 		else {
 	
 		
-			scaleId = row.scaleId;
+			scaleId = row->scaleId;
 		
 		
 		
 		
-			timeScale = row.timeScale;
+			timeScale = row->timeScale;
 		
-			crossDataScale = row.crossDataScale;
+			crossDataScale = row->crossDataScale;
 		
-			autoDataScale = row.autoDataScale;
+			autoDataScale = row->autoDataScale;
 		
-			weightType = row.weightType;
+			weightType = row->weightType;
 		
 		
 		

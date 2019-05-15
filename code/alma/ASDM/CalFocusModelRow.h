@@ -966,7 +966,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalFocusModelRow (CalFocusModelTable &table, CalFocusModelRow &row);
+	 CalFocusModelRow (CalFocusModelTable &table, CalFocusModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

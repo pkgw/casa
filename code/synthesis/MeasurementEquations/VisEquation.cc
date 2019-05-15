@@ -643,7 +643,7 @@ void VisEquation::divideByStokesIModel(vi::VisBuffer2& vb) {
       fl(Slice(),Slice(),Slice(irow,1,1))=True;
     }
     else {
-      Bool *flp=&fl(0,0,irow);
+      // Bool *flp=&fl(0,0,irow);
       Float *wtp=&w(0,0,irow);
       Complex *cvp=&c(0,0,irow);
       Complex *mvp=&m(0,0,irow);

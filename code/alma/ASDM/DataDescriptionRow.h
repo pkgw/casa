@@ -267,6 +267,8 @@ public:
 	/**
  	 * pulsarId pointer to the row in the Pulsar table having Pulsar.pulsarId == pulsarId
  	 * @return a PulsarRow*
+         *
+         * throws IllegalAccessException
  	 */
 	 PulsarRow* getPulsarUsingPulsarId();	
 
@@ -420,7 +422,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DataDescriptionRow (DataDescriptionTable &table, DataDescriptionRow &row);
+	 DataDescriptionRow (DataDescriptionTable &table, DataDescriptionRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -509,6 +511,7 @@ private:
 void dataDescriptionIdFromBin( EndianIStream& eis);
 void polOrHoloIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
+void pulsarIdFromBin( EndianIStream& eis);
 
 	
 */

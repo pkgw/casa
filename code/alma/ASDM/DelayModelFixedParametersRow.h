@@ -1127,7 +1127,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DelayModelFixedParametersRow (DelayModelFixedParametersTable &table, DelayModelFixedParametersRow &row);
+	 DelayModelFixedParametersRow (DelayModelFixedParametersTable &table, DelayModelFixedParametersRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

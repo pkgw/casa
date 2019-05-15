@@ -178,12 +178,20 @@ def stats():
         im_rtol['pixel'] = ( 0, 0)   # n/a
 
         im_text['direction'] = "Peak direction (deg)"
-        im_goal['direction'] = me.direction( 'J2000', '-174.271746303deg', '15.8228893587deg' )
+        # update reference due to PIPE-313
+        # up to r42407
+        # im_goal['direction'] = me.direction( 'J2000', '-174.271746303deg', '15.8228893587deg' )
+        # r42408 or later
+        im_goal['direction'] = me.direction( 'J2000', '-174.27166297deg', '15.8229093587deg' )
         im_atol['direction'] = 0.01/3600.0   # separation angle in deg 
         im_rtol['direction'] = 0            # n/a
 
         im_text['flux'] = "Integrated Flux (Jy/beam)"       
-        im_goal['flux'] = 0.359638377757
+        # update reference due to PIPE-313
+        # up to r42407
+        # im_goal['flux'] = 0.359638377757
+        # r42408 or later
+        im_goal['flux'] = 0.359533426907
         im_atol['flux'] = 1E-8
         im_rtol['flux'] = 1E-5
 
@@ -199,12 +207,20 @@ def stats():
         sp_rtol['channel'] = 0    # n/a
 
         sp_text['frequency'] = "Peak frequency (GHz)"
-        sp_goal['frequency'] = 114.687933618  # in GHz
+        # update reference due to PIPE-313
+        # up to r42407
+        # sp_goal['frequency'] = 114.687933618  # in GHz
+        # r42408 or later
+        sp_goal['frequency'] = 114.687933607  # in GHz
         sp_atol['frequency'] = 1E-8
         sp_rtol['frequency'] = 0   # n/a
 
         sp_text['flux'] = "Peak flux (Jy/beam)"
-        sp_goal['flux'] = 6.74114826797
+        # update reference due to PIPE-313
+        # up to r42407
+        # sp_goal['flux'] = 6.74114826797
+        # r42408 or later
+        sp_goal['flux'] = 6.73362001474
         sp_atol['flux'] = 1E-8
         sp_rtol['flux'] = 1E-5
 

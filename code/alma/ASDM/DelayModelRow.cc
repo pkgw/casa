@@ -5407,10 +5407,10 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 		
 	}
 	
-	DelayModelRow::DelayModelRow (DelayModelTable &t, DelayModelRow &row) : table(t) {
+	DelayModelRow::DelayModelRow (DelayModelTable &t, DelayModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -5524,179 +5524,179 @@ void DelayModelRow::crossPolarizationDelayFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
-		
-		
-		
-		
-			numPoly = row.numPoly;
-		
-			phaseDelay = row.phaseDelay;
-		
-			phaseDelayRate = row.phaseDelayRate;
-		
-			groupDelay = row.groupDelay;
-		
-			groupDelayRate = row.groupDelayRate;
-		
-			fieldId = row.fieldId;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-		if (row.timeOriginExists) {
-			timeOrigin = row.timeOrigin;		
+			numPoly = row->numPoly;
+		
+			phaseDelay = row->phaseDelay;
+		
+			phaseDelayRate = row->phaseDelayRate;
+		
+			groupDelay = row->groupDelay;
+		
+			groupDelayRate = row->groupDelayRate;
+		
+			fieldId = row->fieldId;
+		
+		
+		
+		
+		if (row->timeOriginExists) {
+			timeOrigin = row->timeOrigin;		
 			timeOriginExists = true;
 		}
 		else
 			timeOriginExists = false;
 		
-		if (row.atmosphericGroupDelayExists) {
-			atmosphericGroupDelay = row.atmosphericGroupDelay;		
+		if (row->atmosphericGroupDelayExists) {
+			atmosphericGroupDelay = row->atmosphericGroupDelay;		
 			atmosphericGroupDelayExists = true;
 		}
 		else
 			atmosphericGroupDelayExists = false;
 		
-		if (row.atmosphericGroupDelayRateExists) {
-			atmosphericGroupDelayRate = row.atmosphericGroupDelayRate;		
+		if (row->atmosphericGroupDelayRateExists) {
+			atmosphericGroupDelayRate = row->atmosphericGroupDelayRate;		
 			atmosphericGroupDelayRateExists = true;
 		}
 		else
 			atmosphericGroupDelayRateExists = false;
 		
-		if (row.geometricDelayExists) {
-			geometricDelay = row.geometricDelay;		
+		if (row->geometricDelayExists) {
+			geometricDelay = row->geometricDelay;		
 			geometricDelayExists = true;
 		}
 		else
 			geometricDelayExists = false;
 		
-		if (row.geometricDelayRateExists) {
-			geometricDelayRate = row.geometricDelayRate;		
+		if (row->geometricDelayRateExists) {
+			geometricDelayRate = row->geometricDelayRate;		
 			geometricDelayRateExists = true;
 		}
 		else
 			geometricDelayRateExists = false;
 		
-		if (row.numLOExists) {
-			numLO = row.numLO;		
+		if (row->numLOExists) {
+			numLO = row->numLO;		
 			numLOExists = true;
 		}
 		else
 			numLOExists = false;
 		
-		if (row.LOOffsetExists) {
-			LOOffset = row.LOOffset;		
+		if (row->LOOffsetExists) {
+			LOOffset = row->LOOffset;		
 			LOOffsetExists = true;
 		}
 		else
 			LOOffsetExists = false;
 		
-		if (row.LOOffsetRateExists) {
-			LOOffsetRate = row.LOOffsetRate;		
+		if (row->LOOffsetRateExists) {
+			LOOffsetRate = row->LOOffsetRate;		
 			LOOffsetRateExists = true;
 		}
 		else
 			LOOffsetRateExists = false;
 		
-		if (row.dispersiveDelayExists) {
-			dispersiveDelay = row.dispersiveDelay;		
+		if (row->dispersiveDelayExists) {
+			dispersiveDelay = row->dispersiveDelay;		
 			dispersiveDelayExists = true;
 		}
 		else
 			dispersiveDelayExists = false;
 		
-		if (row.dispersiveDelayRateExists) {
-			dispersiveDelayRate = row.dispersiveDelayRate;		
+		if (row->dispersiveDelayRateExists) {
+			dispersiveDelayRate = row->dispersiveDelayRate;		
 			dispersiveDelayRateExists = true;
 		}
 		else
 			dispersiveDelayRateExists = false;
 		
-		if (row.atmosphericDryDelayExists) {
-			atmosphericDryDelay = row.atmosphericDryDelay;		
+		if (row->atmosphericDryDelayExists) {
+			atmosphericDryDelay = row->atmosphericDryDelay;		
 			atmosphericDryDelayExists = true;
 		}
 		else
 			atmosphericDryDelayExists = false;
 		
-		if (row.atmosphericWetDelayExists) {
-			atmosphericWetDelay = row.atmosphericWetDelay;		
+		if (row->atmosphericWetDelayExists) {
+			atmosphericWetDelay = row->atmosphericWetDelay;		
 			atmosphericWetDelayExists = true;
 		}
 		else
 			atmosphericWetDelayExists = false;
 		
-		if (row.padDelayExists) {
-			padDelay = row.padDelay;		
+		if (row->padDelayExists) {
+			padDelay = row->padDelay;		
 			padDelayExists = true;
 		}
 		else
 			padDelayExists = false;
 		
-		if (row.antennaDelayExists) {
-			antennaDelay = row.antennaDelay;		
+		if (row->antennaDelayExists) {
+			antennaDelay = row->antennaDelay;		
 			antennaDelayExists = true;
 		}
 		else
 			antennaDelayExists = false;
 		
-		if (row.numReceptorExists) {
-			numReceptor = row.numReceptor;		
+		if (row->numReceptorExists) {
+			numReceptor = row->numReceptor;		
 			numReceptorExists = true;
 		}
 		else
 			numReceptorExists = false;
 		
-		if (row.polarizationTypeExists) {
-			polarizationType = row.polarizationType;		
+		if (row->polarizationTypeExists) {
+			polarizationType = row->polarizationType;		
 			polarizationTypeExists = true;
 		}
 		else
 			polarizationTypeExists = false;
 		
-		if (row.electronicDelayExists) {
-			electronicDelay = row.electronicDelay;		
+		if (row->electronicDelayExists) {
+			electronicDelay = row->electronicDelay;		
 			electronicDelayExists = true;
 		}
 		else
 			electronicDelayExists = false;
 		
-		if (row.electronicDelayRateExists) {
-			electronicDelayRate = row.electronicDelayRate;		
+		if (row->electronicDelayRateExists) {
+			electronicDelayRate = row->electronicDelayRate;		
 			electronicDelayRateExists = true;
 		}
 		else
 			electronicDelayRateExists = false;
 		
-		if (row.receiverDelayExists) {
-			receiverDelay = row.receiverDelay;		
+		if (row->receiverDelayExists) {
+			receiverDelay = row->receiverDelay;		
 			receiverDelayExists = true;
 		}
 		else
 			receiverDelayExists = false;
 		
-		if (row.IFDelayExists) {
-			IFDelay = row.IFDelay;		
+		if (row->IFDelayExists) {
+			IFDelay = row->IFDelay;		
 			IFDelayExists = true;
 		}
 		else
 			IFDelayExists = false;
 		
-		if (row.LODelayExists) {
-			LODelay = row.LODelay;		
+		if (row->LODelayExists) {
+			LODelay = row->LODelay;		
 			LODelayExists = true;
 		}
 		else
 			LODelayExists = false;
 		
-		if (row.crossPolarizationDelayExists) {
-			crossPolarizationDelay = row.crossPolarizationDelay;		
+		if (row->crossPolarizationDelayExists) {
+			crossPolarizationDelay = row->crossPolarizationDelay;		
 			crossPolarizationDelayExists = true;
 		}
 		else

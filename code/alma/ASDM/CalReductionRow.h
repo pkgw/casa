@@ -653,7 +653,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalReductionRow (CalReductionTable &table, CalReductionRow &row);
+	 CalReductionRow (CalReductionTable &table, CalReductionRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
