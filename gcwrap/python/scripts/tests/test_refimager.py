@@ -241,6 +241,7 @@ class test_onefield(testref_base):
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Erratic in parallel")
      def test_onefield_briggsabs(self):
           """[onefield] test_onefield_briggsabs: """
           self.prepData('refim_point_withline.ms')
