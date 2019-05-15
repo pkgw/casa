@@ -902,7 +902,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 
         if(true)
         {
-            const Double offsetConst = 0.0001;
+            const Double offsetConst = 0.001 / getMaxOfAntenna(); 
             for(uInt n=0;n<DirColCount;n++) {
                 X2[n] += offsetConst * (Double)antennaId; 
                 Y2[n] += offsetConst * (Double)antennaId;
@@ -1991,7 +1991,8 @@ public:
         // Interpolation divition Count in 'Delta Time' //
 
         uInt getInterpolationDivCount() { return deltaTimeDivCount_; }
-   
+        void setInterpolationDivCount(uInt n) {  deltaTimeDivCount_ = n;  }   
+
         // Prepared Antenna and Pointing-Columns in MS //
 
         void setMaxAntenna(uInt n) {
@@ -2149,7 +2150,7 @@ protected:
           uInt usingColumn_  = 0;         // used Column(ID) in this test.
 
         // Number of Devide Count to make dt.  
-          const uInt  deltaTimeDivCount_     = 3;
+          uInt  deltaTimeDivCount_     = 10; // dividing count between P[n] and p[n+1]
         
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
@@ -2394,7 +2395,7 @@ std::vector<ParamList>  paramListS[] =
       {false, 0,2000, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
 
       {true,  0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
-      {true,  0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  6.1E-08 },
+      {true,  0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  8.5E-08 },
 
     },
     // Senario 1 (Test Count Dependency) //
@@ -2469,6 +2470,9 @@ TEST_F(TestDirection, InterpolationListedItems )
               setMaxAntenna( preparedAntenna_ );
               setMaxPointingColumns( preparedColumn_ );
 
+            // Interpolation Divide Count //
+              setInterpolationDivCount(3);   // default = 10 
+
             //+
             // set Examination Condition (revised by CAS-8418) //
             //-
@@ -2510,10 +2514,12 @@ TEST_F(TestDirection, InterpolationSingle )
 
       use_spline = true;
 
-    // define Number of Antenna prepeared in MS //
-    // =TUNABLE
-      setMaxAntenna(5);         // more than zero (usually =1 ) 
-      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
+    // define Number of Antenna prepeared in MS =TUNABLE //
+      setMaxAntenna(3);             // more than zero (usually =1 ) 
+      setMaxPointingColumns(5);     // from 1 to 5 (see  PtColID::nItems;)
+
+    // Dividing Count in delta Time // 
+      setInterpolationDivCount(3);   // default = 10 
 
     // set Examination Condition (revised by CAS-8418) //
 
@@ -3294,7 +3300,7 @@ TEST_F(TestDirection, getDirection1 )
 
 TEST_F(TestDirection, getDirectionExtended )
 {
-
+#if 1
     TestDescription( "getDirection (J2000) with selected data. uvw available" );
 
     // Use DefaultMS as a simple sequence.
@@ -3399,6 +3405,7 @@ TEST_F(TestDirection, getDirectionExtended )
                     u, v, w );
         }
     }
+#endif 
 }
 
 /*------------------------------------------

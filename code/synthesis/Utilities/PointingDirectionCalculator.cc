@@ -475,7 +475,7 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 
             // doGetDirection call //
      
-// # define   OLD_DOGET
+// #  define   OLD_DOGET
 
 #ifdef  OLD_DOGET
             Vector<Double> direction = doGetDirection(j);
@@ -551,7 +551,12 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             // CAS-8418::  Spline Interpolation section.
             //-
 #ifdef  OLD_DOGET
+
+#if 0 // Right action (fortunately) //
             uInt antID = lastAntennaIndex_;  // OLD code with problem: antID must be given from caller. // 
+#else // Wrong action (appearantly) //
+            uInt antID = 0;       // OLD code with problem: antID must be given from caller. // 
+#endif 
 #endif 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
@@ -1010,13 +1015,6 @@ std::pair<casacore::uInt, casacore::uInt> AntennaBoundary::getAntennaBoundary( c
 //  CAS-8418: 
 //  Spline Inerpolation  methods
 //***************************************************
-class PDCalcEx : public PointingDirectionCalculator 
-{
-public:
-        uInt nn;
-private:
-        uInt pp;
-};
 
 // constructor (for each accessor) //
 SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, 
@@ -1151,7 +1149,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     }
     // Coefficient //
 
-#if 1
     auto pCoeff_1 =coeff_[antID][index][0];
     auto pCoeff_2 =coeff_[antID][index][1];
 
@@ -1164,18 +1161,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     Double b1 = pCoeff_2[1];
     Double b2 = pCoeff_2[2];
     Double b3 = pCoeff_2[3];
-
-#else
-    Double a0 = coeff_[antID][index][0][0];
-    Double a1 = coeff_[antID][index][0][1];
-    Double a2 = coeff_[antID][index][0][2];
-    Double a3 = coeff_[antID][index][0][3];
-
-    Double b0 = coeff_[antID][index][1][0];
-    Double b1 = coeff_[antID][index][1][1];
-    Double b2 = coeff_[antID][index][1][2];
-    Double b3 = coeff_[antID][index][1][3];
-#endif 
 
    // Spline Calc //
 
