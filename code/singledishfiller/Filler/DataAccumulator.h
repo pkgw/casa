@@ -347,7 +347,7 @@ public:
 
         casacore::Vector<casacore::Float> tsys;
         if (!record.tsys.empty()) {
-//      std::cout << "tsys is not empty: " << record.tsys << std::endl;
+//      std::cout << "tsys is not empty: " << record.tsys[0] << std::endl;
             tsys.assign(record.tsys);
         }
         casacore::Vector<casacore::Float> tcal;
@@ -477,6 +477,9 @@ private:
             throw casacore::AipsError("got invalid order list");
         size_t apol0 = order[0], apol1 = order[order.size() - 1];
 
+        // clear Tsys
+        record.setTsysSize(0, 0);
+
         if (num_chan_ == 1) {
             record.setTsysSize(2, 1);
             record.tsys(0, 0) = tsys_(0, apol0);
@@ -503,6 +506,9 @@ private:
         if (!setAndCheckOrder(2, tsys_.ncolumn()-1, order))
             throw casacore::AipsError("got invalid order list");
         size_t apol0 = order[0], apol1 = order[order.size() - 1];
+
+        // clear Tcal
+        record.setTcalSize(0, 0);
 
         if (num_chan_ == 1) {
             record.setTcalSize(2, 1);
