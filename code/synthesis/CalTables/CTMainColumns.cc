@@ -350,23 +350,23 @@ ROCTMainColumns::ROCTMainColumns(const NewCalTable& calTable)
 // Input:
 //    calTable         const NewCalTable&                Calibration table
 // Output to private data:
-//    time_p           ROScalarColumn<Double>&        Time
+//    time_p           ScalarColumn<Double>&        Time
 //    timeMeas_p       ROScalarMeasColumn<MEpoch>&    Time as a Measure
-//    timeEP_p         ROScalarColumn<Double>&        Extended precision time
+//    timeEP_p         ScalarColumn<Double>&        Extended precision time
 //    timeEPQuant_p    ROScalarQuantColumn<Double>&   EP time as Quantum
-//    interval_p       ROScalarColumn<Double>&        Time interval
+//    interval_p       ScalarColumn<Double>&        Time interval
 //    intervalQuant_p  ROScalarQuantColumn<Double>&   Time interval as Quantum
-//    antenna1_p       ROScalarColumn<Int>&           Antenna 1
-//    antenna2_p       ROScalarColumn<Int>&           Antenna 2
-//    fieldId_p        ROScalarColumn<Int>&           Field id.
-//    spwId_p          ROScalarColumn<Int>&           Spectral Window id.
-//    scanNo_p         ROScalarColumn<Int>&           Scan no.
-//    obsId_p          ROScalarColumn<Int>&           Obs Id
-//    param_p          ROArrayColumn<Complex>&          Solution params
-//    paramerr_p       ROArrayColumn<Float>&          Solution param error
-//    flag_p           ROArrayColumn<Bool>&           flag
-//    snr_p            ROArrayColumn<Float>&          Solution SNR
-//    weight_p         ROArrayColumn<Float>&          Solution weight
+//    antenna1_p       ScalarColumn<Int>&           Antenna 1
+//    antenna2_p       ScalarColumn<Int>&           Antenna 2
+//    fieldId_p        ScalarColumn<Int>&           Field id.
+//    spwId_p          ScalarColumn<Int>&           Spectral Window id.
+//    scanNo_p         ScalarColumn<Int>&           Scan no.
+//    obsId_p          ScalarColumn<Int>&           Obs Id
+//    param_p          ArrayColumn<Complex>&          Solution params
+//    paramerr_p       ArrayColumn<Float>&          Solution param error
+//    flag_p           ArrayColumn<Bool>&           flag
+//    snr_p            ArrayColumn<Float>&          Solution SNR
+//    weight_p         ArrayColumn<Float>&          Solution weight
 //
   // Attach all the column accessors (including required and
   // optional columns)
@@ -398,14 +398,14 @@ ROCTMainColumns::ROCTMainColumns(const NewCalTable& calTable)
 //----------------------------------------------------------------------------
 
 void ROCTMainColumns::attach (const NewCalTable& calTable, 
-				   ROTableColumn& tabCol, 
+				   TableColumn& tabCol, 
 				   CTEnums::colDef colEnum, 
 				   const Bool& optional)
 {
 // Attach a column accessor to the calibration table
 // Input:
 //    calTable         const NewCalTable&         Calibration table
-//    tabCol           ROTableColumn&             Table column accessor
+//    tabCol           TableColumn&             Table column accessor
 //    colEnum          CTEnums::colDef   Column enum
 //    optional         const Bool&                true if optional column
 // Output to private data:

@@ -73,11 +73,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Vector<Float> longVec, latVec;
 		Vector<String> dirtypeVec;
 		if (dtype == TpFloat) {
-			ROScalarColumn<Float> longCol(*(parent->table()),
+			ScalarColumn<Float> longCol(*(parent->table()),
 			                              parent->itsLongitudeColumn);
 			longCol.getColumn(longVec, true);
 		} else if (dtype == TpDouble) {
-			ROScalarColumn<Double> longCol(*(parent->table()),
+			ScalarColumn<Double> longCol(*(parent->table()),
 			                               parent->itsLongitudeColumn);
 			Vector<Double> dlongVec;
 			longCol.getColumn(dlongVec, true);
@@ -88,11 +88,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		cdesc = tdesc.columnDesc(parent->itsLatitudeColumn);
 		dtype = cdesc.dataType();
 		if (dtype == TpFloat) {
-			ROScalarColumn<Float> latCol(*(parent->table()),
+			ScalarColumn<Float> latCol(*(parent->table()),
 			                             parent->itsLatitudeColumn);
 			latCol.getColumn(latVec, true);
 		} else if (dtype == TpDouble) {
-			ROScalarColumn<Double> latCol(*(parent->table()),
+			ScalarColumn<Double> latCol(*(parent->table()),
 			                              parent->itsLatitudeColumn);
 			Vector<Double> dlatVec;
 			latCol.getColumn(dlatVec, true);
@@ -108,7 +108,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Unit latUnit(parent->columnUnit(parent->itsLatitudeColumn));
 
 		cdesc = tdesc.columnDesc(parent->itsDirectionTypeColumn);
-		ROScalarColumn<String> dirtypeCol(*(parent->table()),
+		ScalarColumn<String> dirtypeCol(*(parent->table()),
 		                                  parent->itsDirectionTypeColumn);
 		dirtypeCol.getColumn(dirtypeVec, true);
 
@@ -177,7 +177,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		wc->setColor(parent->markerColor());
 
 		if (parent->mapColumn() != "<none>") {
-			ROTableColumn mapCol(*(parent->table()),
+			TableColumn mapCol(*(parent->table()),
 			                     parent->mapColumn());
 			Vector<Float> mapVec(parent->table()->nrow());
 			for (uInt i=0; i < mapVec.nelements(); ++i) {
@@ -190,7 +190,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                parent->markerSize());
 		}
 		if (parent->nameColumn() != "<none>") {
-			ROScalarColumn<String> nameCol(*(parent->table()),
+			ScalarColumn<String> nameCol(*(parent->table()),
 			                               parent->nameColumn());
 			Vector<String> nameVec;
 			nameCol.getColumn(nameVec, true);

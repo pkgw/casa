@@ -49,7 +49,7 @@
 namespace casacore{
 
 class MSSelection; // #include <ms/MSSel/MSSelection.h>
-template<class T> class ROArrayColumn;
+template<class T> class ArrayColumn;
 class Table;
 }
 
@@ -572,14 +572,14 @@ class SubMS
   void copySubtable(const casacore::String& tabName, const casacore::Table& inTab,
                     const casacore::Bool noRows=false);
 
-  casacore::Bool getDataColumn(casacore::ROArrayColumn<casacore::Complex>& data,
+  casacore::Bool getDataColumn(casacore::ArrayColumn<casacore::Complex>& data,
                      const casacore::MS::PredefinedColumns colName);
-  casacore::Bool getDataColumn(casacore::ROArrayColumn<casacore::Float>& data,
+  casacore::Bool getDataColumn(casacore::ArrayColumn<casacore::Float>& data,
                      const casacore::MS::PredefinedColumns colName);
-  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ROArrayColumn<casacore::Complex>& data,
+  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ArrayColumn<casacore::Complex>& data,
                      const casacore::MS::PredefinedColumns datacol,
                      const casacore::Bool writeToDataCol=false);
-  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ROArrayColumn<casacore::Float>& data,
+  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ArrayColumn<casacore::Float>& data,
                      const casacore::MS::PredefinedColumns datacol,
                      const casacore::Bool writeToDataCol=false);
 
@@ -615,7 +615,7 @@ class SubMS
 
   // Picks a reference to DATA, MODEL_DATA, CORRECTED_DATA, or LAG_DATA out
   // of ms_p.  FLOAT_DATA is not included because it is not natively complex. 
-  const casacore::ROArrayColumn<casacore::Complex>& right_column(const casacore::ROMSColumns *ms_p,
+  const casacore::ArrayColumn<casacore::Complex>& right_column(const casacore::ROMSColumns *ms_p,
                                              const casacore::MS::PredefinedColumns datacol);
 
   // The writable version of the above.
@@ -665,12 +665,12 @@ class SubMS
   //
   // Throws an exception if incol and outcol do not have the same # of rows, or
   // incol has a value that is not in selvals.
-  void remapColumn(casacore::ScalarColumn<casacore::Int>& outcol, const casacore::ROScalarColumn<casacore::Int>& incol,
+  void remapColumn(casacore::ScalarColumn<casacore::Int>& outcol, const casacore::ScalarColumn<casacore::Int>& incol,
                    const casacore::Vector<casacore::Int>& selvals);
 
   // Equivalent to but slightly more efficient than
   // remapColumn(outcol, incol, incol.getColumn()).
-  void remapColumn(casacore::ScalarColumn<casacore::Int>& outcol, const casacore::ROScalarColumn<casacore::Int>& incol);
+  void remapColumn(casacore::ScalarColumn<casacore::Int>& outcol, const casacore::ScalarColumn<casacore::Int>& incol);
 
   //static void make_map(const casacore::Vector<casacore::Int>& mscol, casacore::Vector<casacore::Int>& mapper);
 

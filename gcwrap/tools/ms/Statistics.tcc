@@ -102,7 +102,7 @@ get_statistics_1d(casacore::Record &result,
 */
 template <class T>
 casacore::Vector<T>
-reform_array(casacore::ROTableColumn &rotc,
+reform_array(casacore::TableColumn &rotc,
              const casacore::Table &t,
              const std::string &column,
              bool &supported)
@@ -111,12 +111,12 @@ reform_array(casacore::ROTableColumn &rotc,
     
     if (rotc.columnDesc().isScalar()) {
         supported = true;
-        casacore::ROScalarColumn<T> ro_col(t, column);
+        casacore::ScalarColumn<T> ro_col(t, column);
         v = ro_col.getColumn().reform(casacore::IPosition(1, ro_col.getColumn().shape().product()));
     }
     else if (rotc.columnDesc().isArray()) {
         supported = true;
-        casacore::ROArrayColumn<T> ro_col(t, column);
+        casacore::ArrayColumn<T> ro_col(t, column);
         v = ro_col.getColumn().reform(casacore::IPosition(1, ro_col.getColumn().shape().product()));
     }
 
@@ -289,7 +289,7 @@ get_stats_array_table(const casacore::Table &t,
 {
     supported = true;
     
-    casacore::ROArrayColumn<T> ro_col(t, column);
+    casacore::ArrayColumn<T> ro_col(t, column);
     
     casacore::Matrix<T> v = ro_col.getColumn();
 
@@ -354,7 +354,7 @@ Statistics<T>::get_stats_array(const casacore::Matrix<T> v,
 */
 template <class T>
 static casacore::Vector<T>
-reform_array(casacore::ROTableColumn &rotc,
+reform_array(casacore::TableColumn &rotc,
              casacore::MeasurementSet *sel_p,
              const std::string &column,
              bool &supported)
@@ -363,12 +363,12 @@ reform_array(casacore::ROTableColumn &rotc,
     
     if (rotc.columnDesc().isScalar()) {
         supported = true;
-        casacore::ROScalarColumn<T> ro_col(*sel_p, column);
+        casacore::ScalarColumn<T> ro_col(*sel_p, column);
         v = ro_col.getColumn().reform(casacore::IPosition(1, ro_col.getColumn().shape().product()));
     }
     else if (rotc.columnDesc().isArray()) {
         supported = true;
-        casacore::ROArrayColumn<T> ro_col(*sel_p, column);
+        casacore::ArrayColumn<T> ro_col(*sel_p, column);
         v = ro_col.getColumn().reform(casacore::IPosition(1, ro_col.getColumn().shape().product()));
     }
 
@@ -383,7 +383,7 @@ Statistics<T>::get_statistics(const casacore::Table &table,
                               const std::string &complex_value,
                               casacore::LogIO *itsLog)
 {
-    casacore::ROTableColumn rotc(table, column);
+    casacore::TableColumn rotc(table, column);
     
     std::string type;
     

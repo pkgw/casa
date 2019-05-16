@@ -216,7 +216,7 @@ std::vector<std::string> calanalysis::field( const bool name ) {
   if ( name ) {
 
     Table oTable( poCA->calName()+String("/FIELD"), Table::Old );
-    ROScalarColumn<String> oROSC( oTable, String("NAME") );
+    ScalarColumn<String> oROSC( oTable, String("NAME") );
 
     Vector<String> oFieldString;
     oROSC.getColumn( oFieldString, true );
@@ -278,7 +278,7 @@ std::vector<std::string> calanalysis::antenna( const bool name ) {
   if ( name ) {
 
     Table oTable( poCA->calName()+String("/ANTENNA"), Table::Old );
-    ROScalarColumn<String> oROSC( oTable, String("NAME") );
+    ScalarColumn<String> oROSC( oTable, String("NAME") );
 
     Vector<String> oAntennaString;
     oROSC.getColumn( oAntennaString, true );
@@ -542,7 +542,7 @@ std::vector<std::string> calanalysis::spw( const bool name ) {
   if ( name ) {
 
     Table oTable( poCA->calName()+String("/SPECTRAL_WINDOW"), Table::Old );
-    ROScalarColumn<String> oROSC( oTable, String("NAME") );
+    ScalarColumn<String> oROSC( oTable, String("NAME") );
 
     Vector<String> oSPWString;
     oROSC.getColumn( oSPWString, true );

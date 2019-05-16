@@ -39,42 +39,42 @@ ROCalMainColumns2<T>::ROCalMainColumns2(const CalTable2& calTable)
 // casacore::Input:
 //    calTable         const CalTable&                Calibration table
 // Output to private data:
-//    time_p           casacore::ROScalarColumn<casacore::Double>&        Time
+//    time_p           casacore::ScalarColumn<casacore::Double>&        Time
 //    timeMeas_p       casacore::ROScalarMeasColumn<casacore::MEpoch>&    casacore::Time as a Measure
-//    timeEP_p         casacore::ROScalarColumn<casacore::Double>&        Extended precision time
+//    timeEP_p         casacore::ScalarColumn<casacore::Double>&        Extended precision time
 //    timeEPQuant_p    casacore::ROScalarQuantColumn<casacore::Double>&   EP time as Quantum
-//    interval_p       casacore::ROScalarColumn<casacore::Double>&        casacore::Time interval
+//    interval_p       casacore::ScalarColumn<casacore::Double>&        casacore::Time interval
 //    intervalQuant_p  casacore::ROScalarQuantColumn<casacore::Double>&   casacore::Time interval as Quantum
-//    antenna1_p       casacore::ROScalarColumn<casacore::Int>&           Antenna 1
-//    feed1_p          casacore::ROScalarColumn<casacore::Int>&           Feed 1
-//    fieldId_p        casacore::ROScalarColumn<casacore::Int>&           Field id.
-//    arrayId_p        casacore::ROScalarColumn<casacore::Int>&           casacore::Array id.
-//    obsId_p          casacore::ROScalarColumn<casacore::Int>&           Observation id.
-//    scanNo_p         casacore::ROScalarColumn<casacore::Int>&           Scan no.
-//    processorId_p    casacore::ROScalarColumn<casacore::Int>&           Processor id.
-//    stateId_p        casacore::ROScalarColumn<casacore::Int>&           State id.
-//    phaseId_p        casacore::ROScalarColumn<casacore::Int>&           Phase id.
-//    pulsarBin_p      casacore::ROScalarColumn<casacore::Int>&           Pulsar bin
-//    pulsarGateId_p   casacore::ROScalarColumn<casacore::Int>&           Pulsar gate id.
-//    freqGrp_p        casacore::ROScalarColumn<casacore::Int>&           Frequency group
-//    freqGrpName_p    casacore::ROScalarColumn<casacore::String>&        Frequency group name
-//    fieldName_p      casacore::ROScalarColumn<casacore::String>&        Field name
-//    fieldCode_p      casacore::ROScalarColumn<casacore::String>&        Field code
-//    sourceName_p     casacore::ROScalarColumn<casacore::String>&        Source name
-//    sourceCode_p     casacore::ROScalarColumn<casacore::String>&        Source code
-//    calGrp_p         casacore::ROScalarColumn<casacore::Int>&           Calibration group
-//    gain_p           casacore::ROArrayColumn<casacore::Complex>&        Gain
-//    refAnt_p         casacore::ROArrayColumn<casacore::Int>&            Reference antenna
-//    refFeed_p        casacore::ROArrayColumn<casacore::Int>&            Reference feed
-//    refReceptor_p    casacore::ROArrayColumn<casacore::Int>&            Reference receptor
-//    refFreq_p        casacore::ROArrayColumn<casacore::Double>&         Reference frequency
+//    antenna1_p       casacore::ScalarColumn<casacore::Int>&           Antenna 1
+//    feed1_p          casacore::ScalarColumn<casacore::Int>&           Feed 1
+//    fieldId_p        casacore::ScalarColumn<casacore::Int>&           Field id.
+//    arrayId_p        casacore::ScalarColumn<casacore::Int>&           casacore::Array id.
+//    obsId_p          casacore::ScalarColumn<casacore::Int>&           Observation id.
+//    scanNo_p         casacore::ScalarColumn<casacore::Int>&           Scan no.
+//    processorId_p    casacore::ScalarColumn<casacore::Int>&           Processor id.
+//    stateId_p        casacore::ScalarColumn<casacore::Int>&           State id.
+//    phaseId_p        casacore::ScalarColumn<casacore::Int>&           Phase id.
+//    pulsarBin_p      casacore::ScalarColumn<casacore::Int>&           Pulsar bin
+//    pulsarGateId_p   casacore::ScalarColumn<casacore::Int>&           Pulsar gate id.
+//    freqGrp_p        casacore::ScalarColumn<casacore::Int>&           Frequency group
+//    freqGrpName_p    casacore::ScalarColumn<casacore::String>&        Frequency group name
+//    fieldName_p      casacore::ScalarColumn<casacore::String>&        Field name
+//    fieldCode_p      casacore::ScalarColumn<casacore::String>&        Field code
+//    sourceName_p     casacore::ScalarColumn<casacore::String>&        Source name
+//    sourceCode_p     casacore::ScalarColumn<casacore::String>&        Source code
+//    calGrp_p         casacore::ScalarColumn<casacore::Int>&           Calibration group
+//    gain_p           casacore::ArrayColumn<casacore::Complex>&        Gain
+//    refAnt_p         casacore::ArrayColumn<casacore::Int>&            Reference antenna
+//    refFeed_p        casacore::ArrayColumn<casacore::Int>&            Reference feed
+//    refReceptor_p    casacore::ArrayColumn<casacore::Int>&            Reference receptor
+//    refFreq_p        casacore::ArrayColumn<casacore::Double>&         Reference frequency
 //    refFreqMeas_p    casacore::ROArrayMeasColumn<casacore::MFrequency>& Ref. freq. as Measure
-//    measFreqRef_p    casacore::ROScalarColumn<casacore::Int>&           Frequency measures ref.
-//    refDir_p         casacore::ROArrayColumn<casacore::Double>&         Reference direction
+//    measFreqRef_p    casacore::ScalarColumn<casacore::Int>&           Frequency measures ref.
+//    refDir_p         casacore::ArrayColumn<casacore::Double>&         Reference direction
 //    refDirMeas_p     casacore::ROArrayMeasColumn<casacore::MDirection>& Ref. dir. as Measure
-//    measDirRef_p     casacore::ROScalarColumn<casacore::Int>&           Direction measures ref.
-//    calDescId_p      casacore::ROScalarColumn<casacore::Int>&           CAL_DESC id.
-//    calHistoryId_p   casacore::ROScalarColumn<casacore::Int>&           CAL_HISTORY id.
+//    measDirRef_p     casacore::ScalarColumn<casacore::Int>&           Direction measures ref.
+//    calDescId_p      casacore::ScalarColumn<casacore::Int>&           CAL_DESC id.
+//    calHistoryId_p   casacore::ScalarColumn<casacore::Int>&           CAL_HISTORY id.
 //
   // Attach all the column accessors (including required and
   // optional columns)
@@ -136,14 +136,14 @@ ROCalMainColumns2<T>::ROCalMainColumns2(const CalTable2& calTable)
 
 template<class T>
 void ROCalMainColumns2<T>::attach (const CalTable2& calTable, 
-				   casacore::ROTableColumn& tabCol, 
+				   casacore::TableColumn& tabCol, 
 				   MSCalEnums::colDef colEnum, 
 				   const casacore::Bool& optional)
 {
 // Attach a column accessor to the calibration table
 // casacore::Input:
 //    calTable         const CalTable&      Calibration table
-//    tabCol           casacore::ROTableColumn&       casacore::Table column accessor
+//    tabCol           casacore::TableColumn&       casacore::Table column accessor
 //    colEnum          MSCalEnums::colDef   Column enum
 //    optional         const casacore::Bool&          true if optional column
 // Output to private data:

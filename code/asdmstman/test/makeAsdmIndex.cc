@@ -58,8 +58,8 @@ void check (const String& msName)
   cout << "Performing consistency check ..." << endl;
 
   Table tab(msName);
-  ROArrayColumn<Complex> data(tab, "DATA");
-  ROArrayColumn<Complex> oldd(tab, "DATASAVE");
+  ArrayColumn<Complex> data(tab, "DATA");
+  ArrayColumn<Complex> oldd(tab, "DATASAVE");
   for(uInt i=0; i<tab.nrow(); i++){
     if (!allNear(oldd(i), data(i), 1E-6)){
       cout << "disagreement in row " << i << " " << oldd(i) << endl;
