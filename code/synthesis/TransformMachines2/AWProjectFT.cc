@@ -1694,14 +1694,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Nant_p     = vb.subtableColumns().antenna().nrow();
 
-    const Matrix<Float> *imagingweight;
-    imagingweight=&(vb.imagingWeight());
+    //const Matrix<Float> *imagingweight;
+    //imagingweight=&(vb.imagingWeight());
+    Matrix<Float> imagingweight;
+    getImagingWeight(imagingweight, vb);
 
     Cube<Complex> data;
     //Fortran gridder need the flag as ints 
     Cube<Int> flags;
     Matrix<Float> elWeight;
-    interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+
+    interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
     // nAnt set but not used
     // Int NAnt;
     // if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
@@ -2098,6 +2101,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     // Save the current AWProjectFT object to an output state record
     Bool retval = true;
+    String error;
+    //save the base class variables
+    if(!FTMachine::toRecord(error, outRec, withImage, ""))
+      return false;
     Double cacheVal=(Double) cachesize;
     outRec.define("cache", cacheVal);
     outRec.define("tile", tilesize);
@@ -2147,6 +2154,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    LogIO log_l(LogOrigin("AWProjectFT2", "fromRecord[R&D]"));
 
     Bool retval = true;
+    String error;
+    if(!FTMachine::fromRecord(error, inRec))
+      return false;
     imageCache=0; lattice=0; arrayLattice=0;
     Double cacheVal;
     inRec.get("cache", cacheVal);

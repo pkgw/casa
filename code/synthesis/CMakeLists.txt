@@ -27,6 +27,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 casa_add_library( synthesis
  TransformMachines2/Utils.cc
   TransformMachines2/BeamSkyJones.cc
+  TransformMachines2/BriggsCubeWeightor.cc
   TransformMachines2/ComponentFTMachine.cc
  TransformMachines2/VLAIlluminationConvFunc.cc
   TransformMachines2/GridFT.cc	
@@ -687,6 +688,7 @@ install (FILES
 	TransformMachines2/AWVisResampler.h
 	TransformMachines2/AzElAperture.h
 	TransformMachines2/BeamSkyJones.h
+	TransformMachines2/BriggsCubeWeightor.h
 	TransformMachines2/CFBuffer.h
 	TransformMachines2/CFCache.h
 	TransformMachines2/CFDefs.h
