@@ -90,6 +90,10 @@ private:
 			((weight_pars.fieldNumber("multifield") != -1)
 			 ? weight_pars.asBool("multifield")
 			 : false);
+		casacore::Bool usecubebriggs =
+			((weight_pars.fieldNumber("usecubebrigss") != -1)
+			 ? weight_pars.asBool("usecubebriggs")
+			 : false);
 		casacore::Quantity noise =
 			((weight_pars.fieldNumber("noise") != -1)
 			 ? asQuantity(weight_pars, "noise")
@@ -122,7 +126,7 @@ private:
 		// if (uv_taper_pars.nelements() > 0 && uv_taper_pars[0].length() > 0)
 		//     filter_type = casacore::String("gaussian");
 		si->weight(type, rmode, noise, robust, field_of_view, npixels,
-		           multifield, filter_type, bmaj, bmin, bpa);
+		           multifield, usecubebriggs, filter_type, bmaj, bmin, bpa);
 		if (image_pars.size() == 1
 		    && image_pars[0].stokes == casacore::String("I")
 		    && weight_pars.asString("type") != casacore::String("natural")) {

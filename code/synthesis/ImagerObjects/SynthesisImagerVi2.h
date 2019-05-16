@@ -57,6 +57,7 @@ public:
 	      const casacore::Quantity& fieldofview=casacore::Quantity(0.0, "arcsec"),
 	      const casacore::Int npixels=0, 
 	      const casacore::Bool multiField=false,
+	      const casacore::Bool useCubeBriggs=false,
 	      const casacore::String& filtertype=casacore::String("Gaussian"),
 	      const casacore::Quantity& filterbmaj=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
