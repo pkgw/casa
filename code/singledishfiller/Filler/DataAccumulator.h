@@ -12,6 +12,7 @@
 #include <cassert>
 #include <memory>
 #include <algorithm>
+#include <numeric>
 
 #include <casacore/casa/BasicSL/String.h>
 #include <casacore/casa/Arrays/Vector.h>
@@ -66,8 +67,8 @@ inline void setValueToMatrixColumn(casacore::Vector<T> const &src,
 
 template<class T, class Executor>
 inline void shuffleTransposeMatrix(ssize_t n, size_t offset_src,
-        casacore::Matrix<T> const &src, casacore::Matrix<T> &dst,
-        casacore::Vector<size_t> src_order = { }) {
+        casacore::Matrix<T> const &src, casacore::Matrix<T> &dst, 
+        std::vector<size_t> src_order = { }) {
     if (offset_src > src.ncolumn() - 1)
         throw casacore::AipsError("offset too large");
     casacore::Bool b1, b2;
@@ -83,13 +84,13 @@ inline void shuffleTransposeMatrix(ssize_t n, size_t offset_src,
 }
 
 inline void getDefaultOrder(size_t const num_order,
-        casacore::Vector<size_t> &order) {
+        std::vector<size_t> &order) {
     order.resize(num_order);
-    casacore::indgen(order);
+    std::iota(order.begin(), order.end(), 0);
 }
 
 inline bool setAndCheckOrder(size_t const required_size, size_t const max_value,
-        casacore::Vector<size_t> &order) {
+        std::vector<size_t> &order) {
     if (order.size() == 0)
         getDefaultOrder(required_size, order);
 
@@ -106,7 +107,7 @@ inline bool setAndCheckOrder(size_t const required_size, size_t const max_value,
 struct ExecuteMatrix1 {
     template<class T>
     static void execute(ssize_t n, T const *src, T *dst,
-            casacore::Vector<size_t> /*in_order*/) {
+            std::vector<size_t> /*in_order*/) {
         setValue1(n, src, dst);
     }
 };
@@ -114,7 +115,7 @@ struct ExecuteMatrix1 {
 struct ExecuteMatrix2 {
     template<class T>
     static void execute(ssize_t n, T const *src, T *dst,
-            casacore::Vector<size_t> src_order) {
+            std::vector<size_t> src_order) {
         // need to set max_value=3 for 4 pol case
         if (!setAndCheckOrder(2, 3, src_order))
             throw casacore::AipsError("got invalid order list");
@@ -130,7 +131,7 @@ struct ExecuteMatrix2 {
 struct ExecuteMatrix4X {
     template<class T>
     static void execute(ssize_t /*n*/, T const */*src*/, T */*dst*/,
-            casacore::Vector<size_t> /*in_order*/) {
+            std::vector<size_t> /*in_order*/) {
         throw std::runtime_error("");
     }
 };
@@ -138,7 +139,7 @@ struct ExecuteMatrix4X {
 // polarization order assumption (auto, cross, cross, auto)
 template<>
 inline void ExecuteMatrix4X::execute(ssize_t n, casacore::Bool const *src,
-        casacore::Bool *dst, casacore::Vector<size_t> src_order) {
+        casacore::Bool *dst, std::vector<size_t> src_order) {
     if (!setAndCheckOrder(4, 3, src_order))
         throw casacore::AipsError("got invalid order list");
     casacore::Bool const *row0_p = src + src_order[0] * n;
@@ -157,7 +158,7 @@ inline void ExecuteMatrix4X::execute(ssize_t n, casacore::Bool const *src,
 struct ExecuteMatrix4 {
     template<class T>
     static void execute(ssize_t n, T const *src, T *dst,
-            casacore::Vector<size_t> src_order) {
+            std::vector<size_t> src_order) {
         if (!setAndCheckOrder(4, 3, src_order))
             throw casacore::AipsError("got invalid order list");
         T const *row0_p = src + src_order[0] * n;
@@ -176,7 +177,7 @@ struct ExecuteMatrix4 {
 inline void shuffleTransposeMatrix4F2C(ssize_t n,
         casacore::Matrix<casacore::Float> const &src,
         casacore::Matrix<casacore::Complex> &dst,
-        casacore::Vector<size_t> src_order = { }) {
+        std::vector<size_t> src_order = { }) {
     if (!setAndCheckOrder(4, 3, src_order))
         throw casacore::AipsError("got invalid order list");
     casacore::Bool b1, b2;
@@ -466,12 +467,12 @@ private:
 
     casacore::String poltype_;
     casacore::Vector<casacore::Int> valid_pcorr_;
-    std::vector<casacore::Stokes::StokesTypes> pcorr_type_;bool (DataChunk::*get_chunk_)(
-            MSDataRecord &record);
+    std::vector<casacore::Stokes::StokesTypes> pcorr_type_;
+    bool (DataChunk::*get_chunk_)(MSDataRecord &record);
     casacore::uInt (DataChunk::*get_num_pol_)() const;
 
     // Tsys and Tcal assignment for 2 & 4 pols. Auto-correlation components of pol should be used.
-    void setTsys2(MSDataRecord &record, casacore::Vector<size_t> order = { }) {
+    void setTsys2(MSDataRecord &record, std::vector<size_t> order = { }) {
         if (!setAndCheckOrder(2, tsys_.ncolumn() - 1, order))
             throw casacore::AipsError("got invalid order list");
         size_t apol0 = order[0], apol1 = order[order.size() - 1];
@@ -498,8 +499,8 @@ private:
         }
     }
 
-    void setTcal2(MSDataRecord &record, casacore::Vector<size_t> order = { }) {
-        if (!setAndCheckOrder(2, tsys_.ncolumn() - 1, order))
+    void setTcal2(MSDataRecord &record, std::vector<size_t> order = { }) {
+        if (!setAndCheckOrder(2, tsys_.ncolumn()-1, order))
             throw casacore::AipsError("got invalid order list");
         size_t apol0 = order[0], apol1 = order[order.size() - 1];
 
@@ -646,8 +647,7 @@ private:
 //      std::cout << "DataChunk is not ready for get" << std::endl;
             return false;
         } else {// means strange combination of polarization types in DataChunk
-            throw AipsError(
-                    "non-conforming combination of polarization accumulated");
+            throw AipsError("non-conforming combination of polarization accumulated");
         }
         for (casacore::Int i = 0; i < record.num_pol; ++i) {
             record.corr_type[i] = col_stokes[pol_idx_order[i]];
@@ -690,8 +690,7 @@ private:
         } else if (pcorr_type_.size() == 0) {
             return false;
         } else {// means strange combination of polarization types in DataChunk
-            throw AipsError(
-                    "non-conforming combination of polarization accumulated");
+            throw AipsError("non-conforming combination of polarization accumulated");
         }
         for (casacore::Int i = 0; i < record.num_pol; ++i) {
             record.corr_type[i] = col_stokes[pol_idx_order[i]];
@@ -730,8 +729,7 @@ private:
         } else if (pcorr_type_.size() == 0) {
             return false;
         } else {// means strange combination of polarization types in DataChunk
-            throw AipsError(
-                    "non-conforming combination of polarization accumulated");
+            throw AipsError("non-conforming combination of polarization accumulated");
         }
         for (casacore::Int i = 0; i < record.num_pol; ++i) {
             record.corr_type[i] = col_stokes[pol_idx_order[i]];
@@ -995,7 +993,7 @@ public:
 //    std::cout << "key (a" << key.antenna_id << ",f" << key.field_id << ",s"
 //        << key.spw_id << ",i" << key.intent << ",p" << key.pol_type << ",d"
 //        << key.feed_id << "(index " << indexer_[key] << "): TIME="
-//        << time_ << " INTERVAL=" << interval << " polno=" << record.polno << std::endl;
+//        << time_ << " INTERVAL=" << interval << " polno=" << record.pol << std::endl;
         POST_END;
         return status;
     }
