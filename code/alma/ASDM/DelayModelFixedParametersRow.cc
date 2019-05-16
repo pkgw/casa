@@ -3424,10 +3424,10 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 		
 	}
 	
-	DelayModelFixedParametersRow::DelayModelFixedParametersRow (DelayModelFixedParametersTable &t, DelayModelFixedParametersRow &row) : table(t) {
+	DelayModelFixedParametersRow::DelayModelFixedParametersRow (DelayModelFixedParametersTable &t, DelayModelFixedParametersRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3509,132 +3509,132 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			delayModelFixedParametersId = row.delayModelFixedParametersId;
+			delayModelFixedParametersId = row->delayModelFixedParametersId;
 		
 		
 		
 		
-			delayModelVersion = row.delayModelVersion;
+			delayModelVersion = row->delayModelVersion;
 		
-			execBlockId = row.execBlockId;
-		
-		
+			execBlockId = row->execBlockId;
 		
 		
-		if (row.gaussConstantExists) {
-			gaussConstant = row.gaussConstant;		
+		
+		
+		if (row->gaussConstantExists) {
+			gaussConstant = row->gaussConstant;		
 			gaussConstantExists = true;
 		}
 		else
 			gaussConstantExists = false;
 		
-		if (row.newtonianConstantExists) {
-			newtonianConstant = row.newtonianConstant;		
+		if (row->newtonianConstantExists) {
+			newtonianConstant = row->newtonianConstant;		
 			newtonianConstantExists = true;
 		}
 		else
 			newtonianConstantExists = false;
 		
-		if (row.gravityExists) {
-			gravity = row.gravity;		
+		if (row->gravityExists) {
+			gravity = row->gravity;		
 			gravityExists = true;
 		}
 		else
 			gravityExists = false;
 		
-		if (row.earthFlatteningExists) {
-			earthFlattening = row.earthFlattening;		
+		if (row->earthFlatteningExists) {
+			earthFlattening = row->earthFlattening;		
 			earthFlatteningExists = true;
 		}
 		else
 			earthFlatteningExists = false;
 		
-		if (row.earthRadiusExists) {
-			earthRadius = row.earthRadius;		
+		if (row->earthRadiusExists) {
+			earthRadius = row->earthRadius;		
 			earthRadiusExists = true;
 		}
 		else
 			earthRadiusExists = false;
 		
-		if (row.moonEarthMassRatioExists) {
-			moonEarthMassRatio = row.moonEarthMassRatio;		
+		if (row->moonEarthMassRatioExists) {
+			moonEarthMassRatio = row->moonEarthMassRatio;		
 			moonEarthMassRatioExists = true;
 		}
 		else
 			moonEarthMassRatioExists = false;
 		
-		if (row.ephemerisEpochExists) {
-			ephemerisEpoch = row.ephemerisEpoch;		
+		if (row->ephemerisEpochExists) {
+			ephemerisEpoch = row->ephemerisEpoch;		
 			ephemerisEpochExists = true;
 		}
 		else
 			ephemerisEpochExists = false;
 		
-		if (row.earthTideLagExists) {
-			earthTideLag = row.earthTideLag;		
+		if (row->earthTideLagExists) {
+			earthTideLag = row->earthTideLag;		
 			earthTideLagExists = true;
 		}
 		else
 			earthTideLagExists = false;
 		
-		if (row.earthGMExists) {
-			earthGM = row.earthGM;		
+		if (row->earthGMExists) {
+			earthGM = row->earthGM;		
 			earthGMExists = true;
 		}
 		else
 			earthGMExists = false;
 		
-		if (row.moonGMExists) {
-			moonGM = row.moonGM;		
+		if (row->moonGMExists) {
+			moonGM = row->moonGM;		
 			moonGMExists = true;
 		}
 		else
 			moonGMExists = false;
 		
-		if (row.sunGMExists) {
-			sunGM = row.sunGM;		
+		if (row->sunGMExists) {
+			sunGM = row->sunGM;		
 			sunGMExists = true;
 		}
 		else
 			sunGMExists = false;
 		
-		if (row.loveNumberHExists) {
-			loveNumberH = row.loveNumberH;		
+		if (row->loveNumberHExists) {
+			loveNumberH = row->loveNumberH;		
 			loveNumberHExists = true;
 		}
 		else
 			loveNumberHExists = false;
 		
-		if (row.loveNumberLExists) {
-			loveNumberL = row.loveNumberL;		
+		if (row->loveNumberLExists) {
+			loveNumberL = row->loveNumberL;		
 			loveNumberLExists = true;
 		}
 		else
 			loveNumberLExists = false;
 		
-		if (row.precessionConstantExists) {
-			precessionConstant = row.precessionConstant;		
+		if (row->precessionConstantExists) {
+			precessionConstant = row->precessionConstant;		
 			precessionConstantExists = true;
 		}
 		else
 			precessionConstantExists = false;
 		
-		if (row.lightTime1AUExists) {
-			lightTime1AU = row.lightTime1AU;		
+		if (row->lightTime1AUExists) {
+			lightTime1AU = row->lightTime1AU;		
 			lightTime1AUExists = true;
 		}
 		else
 			lightTime1AUExists = false;
 		
-		if (row.speedOfLightExists) {
-			speedOfLight = row.speedOfLight;		
+		if (row->speedOfLightExists) {
+			speedOfLight = row->speedOfLight;		
 			speedOfLightExists = true;
 		}
 		else
 			speedOfLightExists = false;
 		
-		if (row.delayModelFlagsExists) {
-			delayModelFlags = row.delayModelFlags;		
+		if (row->delayModelFlagsExists) {
+			delayModelFlags = row->delayModelFlags;		
 			delayModelFlagsExists = true;
 		}
 		else

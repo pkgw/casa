@@ -279,7 +279,7 @@ namespace asdm {
 
 
 AnnotationRow* AnnotationTable::newRow(AnnotationRow* row) {
-	return new AnnotationRow(*this, *row);
+	return new AnnotationRow(*this, row);
 }
 
 	//

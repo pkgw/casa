@@ -174,7 +174,6 @@ namespace asdmbinaries {
     std::string::size_type endPosition_;
 
     unsigned int integrationNum_;
-    unsigned int scanNum_;
 
     static const bool initClass_;
     static bool initClass();

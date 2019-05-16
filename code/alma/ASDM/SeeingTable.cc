@@ -271,7 +271,7 @@ namespace asdm {
 
 
 SeeingRow* SeeingTable::newRow(SeeingRow* row) {
-	return new SeeingRow(*this, *row);
+	return new SeeingRow(*this, row);
 }
 
 	//

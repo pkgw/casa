@@ -1102,7 +1102,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalFluxRow (CalFluxTable &table, CalFluxRow &row);
+	 CalFluxRow (CalFluxTable &table, CalFluxRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

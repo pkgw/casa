@@ -99,25 +99,20 @@ namespace asdm {
   }
     
   void ByteSwap(unsigned char * b, int n) {
-    register int i = 0;
-    register int j = n-1;
+    int i = 0;
+    int j = n-1;
     while (i<j) {
       std::swap(b[i], b[j]);
       i++, j--;
     }
   }
 
-#if defined(__APPLE__)
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __DARWIN_LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __DARWIN_BIG_ENDIAN);
-#else 
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __BIG_ENDIAN);
-#endif
+  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian");
+  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian");
   const ByteOrder* ByteOrder::Machine_Endianity = ByteOrder::machineEndianity();
 
-  ByteOrder::ByteOrder(const string& name, int endianity):
-    name_(name), endianity_(endianity){;}
+  ByteOrder::ByteOrder(const string& name):
+    name_(name) {;}
 
   ByteOrder::~ByteOrder() {;}
 

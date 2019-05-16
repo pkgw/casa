@@ -447,13 +447,15 @@ Vector<Float> sincConvX(nx);
 
 void WProjectFT::finalizeToVis()
 {
+  logIO() << LogOrigin("WProjectFT", "finalizeToVis")  << LogIO::NORMAL;
+  logIO() <<LogIO::NORMAL2<< "Time to degrid " << timedegrid_p << LogIO::POST ;
   timedegrid_p=0.0;
   if(!arrayLattice.null()) arrayLattice=0;
   if(!lattice.null()) lattice=0;
   griddedData.resize();
   if(isTiled) {
     
-    logIO() << LogOrigin("WProjectFT", "finalizeToVis")  << LogIO::NORMAL;
+   
     
     AlwaysAssert(imageCache, AipsError);
     AlwaysAssert(image, AipsError);
@@ -529,6 +531,9 @@ void WProjectFT::initializeToSky(ImageInterface<Complex>& iimage,
 
 void WProjectFT::finalizeToSky()
 {
+  logIO() << LogOrigin("WProjectFT", "finalizeToSky")  << LogIO::NORMAL;
+  logIO() <<LogIO::NORMAL2<< "Time to massage data " << timemass_p << LogIO::POST;
+  logIO() << LogIO::NORMAL2 <<"Time to grid data " << timegrid_p << LogIO::POST;
   timemass_p=0.0;
   timegrid_p=0.0;
   // Now we flush the cache and report statistics
@@ -779,16 +784,17 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   Timer tim;
    tim.mark();
 
-  const Matrix<Float> *imagingweight;
-  imagingweight=&(vb.imagingWeight());
-
+   //const Matrix<Float> *imagingweight;
+   //imagingweight=&(vb.imagingWeight());
+   Matrix<Float> imagingweight;
+   getImagingWeight(imagingweight, vb);
   if(dopsf) type=FTMachine::PSF;
 
   Cube<Complex> data;
   //Fortran gridder need the flag as ints 
   Cube<Int> flags;
   Matrix<Float> elWeight;
-  interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+  interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
   
   
   Bool iswgtCopy;
@@ -919,8 +925,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   ixsub=1;
   iysub=1;
   if (nth >4){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else {
      ixsub=2;
@@ -1199,7 +1205,7 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
   }//end pragma parallel
   Int rbeg=startRow+1;
   Int rend=endRow+1;
-  Int npart=nth*2;
+  Int npart=nth;
   Timer tim;
   tim.mark();
  

@@ -267,7 +267,7 @@ bool ActionExport::exportText( PlotMSApp* plotms ){
 
 				if (verbose) {
 					// collect values from Record...
-					Int chan, ant2;
+					Int chan = -1, ant2 = -1;
 					String ant2name;
 					Double freq;
 					if (hasChan) chan = fieldRecord.asInt("chan");

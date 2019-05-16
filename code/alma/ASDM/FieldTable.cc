@@ -283,7 +283,7 @@ namespace asdm {
 
 
 FieldRow* FieldTable::newRow(FieldRow* row) {
-	return new FieldRow(*this, *row);
+	return new FieldRow(*this, row);
 }
 
 	//

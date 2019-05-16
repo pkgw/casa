@@ -1438,10 +1438,10 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FocusRow::FocusRow (FocusTable &t, FocusRow &row) : table(t) {
+	FocusRow::FocusRow (FocusTable &t, FocusRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1469,33 +1469,33 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			timeInterval = row.timeInterval;
-		
-		
-		
-		
-			focusTracking = row.focusTracking;
-		
-			focusOffset = row.focusOffset;
-		
-			focusRotationOffset = row.focusRotationOffset;
-		
-			focusModelId = row.focusModelId;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-		if (row.measuredFocusPositionExists) {
-			measuredFocusPosition = row.measuredFocusPosition;		
+			focusTracking = row->focusTracking;
+		
+			focusOffset = row->focusOffset;
+		
+			focusRotationOffset = row->focusRotationOffset;
+		
+			focusModelId = row->focusModelId;
+		
+		
+		
+		
+		if (row->measuredFocusPositionExists) {
+			measuredFocusPosition = row->measuredFocusPosition;		
 			measuredFocusPositionExists = true;
 		}
 		else
 			measuredFocusPositionExists = false;
 		
-		if (row.measuredFocusRotationExists) {
-			measuredFocusRotation = row.measuredFocusRotation;		
+		if (row->measuredFocusRotationExists) {
+			measuredFocusRotation = row->measuredFocusRotation;		
 			measuredFocusRotationExists = true;
 		}
 		else

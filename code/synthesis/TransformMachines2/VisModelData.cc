@@ -59,6 +59,7 @@ namespace {
     return new casa::refim::VisModelData ();
   }
 
+  // FIXME compiler warning re: unused variable initializeVisModelDataFactory 
   bool initializeVisModelDataFactory = casa::VisModelDataI::setFactory (createRefImVisModelData, 1);
 
 }

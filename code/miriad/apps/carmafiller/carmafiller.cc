@@ -881,7 +881,7 @@ void CarmaFiller::fillMSMainTable(Bool /*scan*/)
   Int nChan = nchan_p;              // # channels to be written
   Int nCat  = 3;                    // # initial flagging categories (fixed at 3)
   Int iscan = 0;
-  Int ifield_old;
+  Int ifield_old = -1;
 
   Matrix<Complex> vis(nCorr,nChan);
   Vector<Float>   sigma(nCorr);

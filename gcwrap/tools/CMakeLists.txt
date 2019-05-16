@@ -79,6 +79,7 @@ if( MPI_CXX_FOUND )
 endif()
 
 casa_add_library( tools
+ casaswig_types.cc
  atmosphere/atmosphere_cmpt.cc
  atnf/atcafiller_cmpt.cc
  calanalysis/calanalysis_cmpt.cc

@@ -1486,8 +1486,8 @@ Record PlotMSIndexer::getPointMetaData(Int i) {
 	xAndYAt(i, thisx, thisy);
 	// Collect meta data
 	String caltype(plotmscache_->calType());
-	Int ichan, chan, ant2;
-	Double freq;
+	Int ichan, chan = -1, ant2 = -1;
+	Double freq = 0;
 	String ant2name;
 	if (caltype != "GSPLINE") {
 		ichan = getIndex0100(currChunk_, irel_);

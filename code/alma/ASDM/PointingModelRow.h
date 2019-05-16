@@ -655,7 +655,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 PointingModelRow (PointingModelTable &table, PointingModelRow &row);
+	 PointingModelRow (PointingModelTable &table, PointingModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
