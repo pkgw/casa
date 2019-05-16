@@ -91,6 +91,7 @@ from __main__ import default
 from tasks import *
 from taskinit import *
 import unittest
+import operator
 import inspect
 import numpy as np
 from parallel.parallel_task_helper import ParallelTaskHelper
@@ -261,7 +262,25 @@ class test_onefield(testref_base):
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Erratic in parallel")
+     def test_onefield_briggsabs(self):
+          """[onefield] test_onefield_briggsabs: """
+          self.prepData('refim_point_withline.ms')
+          delmod(self.msfile)
+          imnat=self.img+"_nat"
+          imbriggs0=self.img+"_briggsabs_0"
+          imbriggs_2=self.img+"_briggsabs_2"
+          imbriggs_2_2=self.img+"_briggsabs_2_2pix"
+          retnat = tclean(vis=self.msfile,imagename=imnat,imsize=100,cell='8.0arcsec',specmode='mfs',deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='natural', parallel=self.parallel)
+          ret0 = tclean(vis=self.msfile,imagename=imbriggs0,imsize=100,cell='8.0arcsec',specmode='mfs', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggsabs', robust=0, noise='1Jy',parallel=self.parallel)
+          ret_2=tclean(vis=self.msfile,imagename=imbriggs_2,imsize=100,cell='8.0arcsec',specmode='mfs', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggsabs', robust=-2.0, noise='1Jy', parallel=self.parallel)
+###          ret_2_1=tclean(vis=self.msfile,imagename=imbriggs_2_2,imsize=100,cell='8.0arcsec',specmode='mfs', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggsabs', robust=-2.0, npixels=2, noise='1Jy', parallel=self.parallel)
 
+          self.assertTrue(os.path.exists(imnat+'.image') and os.path.exists(imbriggs0+'.image') and os.path.exists(imbriggs_2+'.image') )
+          ###briggsabs 0 should be natural
+          self.assertTrue(self.th.check_beam_compare(imbriggs0+'.image', imnat+'.image', operator.eq))
+          self.assertTrue(self.th.check_beam_compare(imbriggs_2+'.image', imbriggs0+'.image'))
+        ###  self.assertTrue(self.th.check_beam_compare(imbriggs_2_2+'.image', imbriggs_2+'.image', operator.le))
 
      def test_onefield_restart_mfs(self):
           """ [onefield] : test_onefield_restart_mfs : Check calcpsf,calcres and ability to restart and continue"""
@@ -1690,11 +1709,25 @@ class test_cube(testref_base):
           report=self.th.checkall(imexist=[self.img+'.image'],imval=[(self.img+'.image',92.1789,[128,128,0,20])])
           ## line is tighter
           self.checkfinal(report)
-
+     def test_cube_perchanweight_briggs(self):
+          """[cube] test_cube_perchanweight_briggs: """
+          self.prepData('refim_point_withline.ms')
+          delmod(self.msfile)
+          imnat=self.img+"_nat"
+          imbriggs0=self.img+"_briggs0"
+          imbriggs_2=self.img+"_briggs_2"
+          retnat = tclean(vis=self.msfile,imagename=imnat,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='natural', parallel=self.parallel)
+          ret0 = tclean(vis=self.msfile,imagename=imbriggs0,imsize=100,cell='8.0arcsec',specmode='cube', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggs', robust=0, parallel=self.parallel)
+          ret_2=tclean(vis=self.msfile,imagename=imbriggs_2,imsize=100,cell='8.0arcsec',specmode='cube', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggs', robust=-2.0, parallel=self.parallel)
+          self.assertTrue(os.path.exists(imnat+'.image') and os.path.exists(imbriggs0+'.image') and os.path.exists(imbriggs_2+'.image') )
+          self.assertTrue(self.th.check_beam_compare(imbriggs0+'.image', imnat+'.image', operator.lt))
+          self.assertTrue(self.th.check_beam_compare(imbriggs_2+'.image', imbriggs0+'.image', operator.lt))
 #     def test_cube_D3(self):
 #          """ EMPTY : [cube] Test_Cube_D3 : specmode cubesrc - Doppler correct to a SOURCE ephemeris"""
 #          ret = tclean(vis=self.msfile,field='1',spw='0:105~135',specmode='cubesrc',nchan=30,start=105,width=1,veltype='radio',imagename=self.img,imsize=256,cell='0.01arcmin',phasecenter=1,deconvolver='hogbom',niter=10)
 #          self.assertTrue(os.path.exists(self.img+'.psf') and os.path.exists(self.img+'.residual') )
+
+
 
      def test_cube_continuum_subtract_uvsub(self):
           """ [cube] Test_Cube_continuum_subtract :  Using uvsub """
