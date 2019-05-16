@@ -5,9 +5,10 @@ import shutil
 import string
 import time
 import re;
+import numpy as np
 from taskinit import *
 import copy
-
+import operator
 _ia = iatool( )
 _cb = cbtool( )
 
@@ -91,6 +92,23 @@ class TestHelpers():
           else:
                return apos['mask']
 
+     def check_beam_compare(self, im1, im2, op=operator.le):
+         """Compare all plane of cube beam im1 operator op than im2"""
+         _ia.open(im1)
+         nchan=_ia.shape()[3]
+         beam1=np.zeros(nchan)
+         for k in range(nchan):
+             beam1[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close()
+         _ia.open(im2)
+         if(nchan != _ia.shape()[3]):
+             return False
+         beam2=np.zeros(nchan)
+         for k in range(nchan):
+             beam2[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close();
+         return np.alltrue(op(beam1, beam2))
+        
      def exists(self,imname):
           """ Image exists """
           return os.path.exists(imname)
