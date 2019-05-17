@@ -1648,7 +1648,7 @@ ia.done()
 
  
    <method type="function" name="fromascii">
-   <shortdescription>This function converts a pre-existing ascii file into a \casa\ image. </shortdescription>
+   <shortdescription>THIS METHOD IS DEPRECATED AND WILL BE REMOVED IN THE NEAR FUTURE. This function converts a pre-existing ascii file into a \casa\ image. </shortdescription>
    
 <input>
   
@@ -1690,6 +1690,10 @@ ia.done()
 </input>
 <returns type="bool"/>
 <description>
+THIS METHOD IS DEPRECATED AND WILL BE REMOVED IN THE NEAR FUTURE. YOU SHOULD USE
+ANOTHER SET OF METHODS, SUCH AS tofits()/fromfits() TO EXPORT AND IMPORT CASA
+IMAGES. IF YOU SIMPLY WANT TO MODIFY IMAGE PIXEL VALUES, USE
+getchunk()/putchunk() OR getregion()/putregion() to do that.
 
 This function is used to create a \casa\
 image from a pre-existing ASCII file. You might want to use this if you
@@ -10396,7 +10400,7 @@ ia.close()
 
  
    <method type="function" name="toASCII">
-   <shortdescription>Convert the image to an ASCII file</shortdescription>
+   <shortdescription>THIS METHOD IS DEPRECATED AND WILL BE REMOVED IN THE NEAR FUTURE. Convert the image to an ASCII file</shortdescription>
    
 <input>
   
@@ -10442,6 +10446,10 @@ ia.close()
 </input>
 <returns type="bool">T or fail</returns>
 <description>
+THIS METHOD IS DEPRECATED AND WILL BE REMOVED IN THE NEAR FUTURE. YOU SHOULD USE
+ANOTHER SET OF METHODS, SUCH AS tofits()/fromfits() TO EXPORT AND IMPORT CASA
+IMAGES. IF YOU SIMPLY WANT TO MODIFY IMAGE PIXEL VALUES, USE
+getchunk()/putchunk() OR getregion()/putregion() to do that.
 
 This function converts the image into an ascii file. The format is one
 image row per line (see

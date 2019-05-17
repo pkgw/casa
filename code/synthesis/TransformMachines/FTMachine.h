@@ -55,6 +55,7 @@
 
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
+#include <iomanip>
 
 namespace casacore{
 

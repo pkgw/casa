@@ -411,6 +411,7 @@ bool synthesisimager::setweighting(const std::string& type,
 				   const ::casac::variant& fieldofview,
 				   const int npixels,
 				   const bool multifield,
+				   const bool usecubebriggs,
 				   const std::vector<std::string>& uvtaper
 				   /*				   const std::string& filtertype,
 				   const ::casac::variant& filterbmaj,
@@ -439,7 +440,7 @@ bool synthesisimager::setweighting(const std::string& type,
 
       if(uvtaperpars.nelements()>0 && uvtaperpars[0].length()>0) filtertype=String("gaussian");
 
-      itsImager->weight( type, rmode, cnoise, robust, cfov, npixels, multifield, filtertype, bmaj, bmin, bpa  );
+      itsImager->weight( type, rmode, cnoise, robust, cfov, npixels, multifield, usecubebriggs, filtertype, bmaj, bmin, bpa  );
 
     } 
   catch  (AipsError x) 

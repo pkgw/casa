@@ -1,27 +1,30 @@
 //# SynthesisImagerVi2.cc: Implementation of SynthesisImager.h
-//# Copyright (C) 1997-2016
+//# Copyright (C) 1997-2019
 //# Associated Universities, Inc. Washington DC, USA.
+//# This library is free software; you can redistribute it and/or modify it
+//# under the terms of the GNU General Public License as published by
+//# the Free Software Foundation; either version 3 of the License, or (at your
+//# option) any later version.
 //#
-//# This program is free software; you can redistribute it and/or modify it
-//# under the terms of the GNU General Public License as published by the Free
-//# Software Foundation; either version 2 of the License, or (at your option)
-//# any later version.
-//#
-//# This program is distributed in the hope that it will be useful, but WITHOUT
+//# This library is distributed in the hope that it will be useful, but WITHOUT
 //# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-//# more details.
+//# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+//# License for more details.
 //#
-//# You should have received a copy of the GNU General Public License along
-//# with this program; if not, write to the Free Software Foundation, Inc.,
-//# 675 Massachusetts Ave, Cambridge, MA 02139, USA.
+//# https://www.gnu.org/licenses/
 //#
-//# Correspondence concerning AIPS++ should be addressed as follows:
-//#        Internet email: aips2-request@nrao.edu.
-//#        Postal address: AIPS++ Project Office
+//# You should have received a copy of the GNU  General Public License
+//# along with this library; if not, write to the Free Software Foundation,
+//# Inc., 675 Massachusetts Ave, Cambridge, MA 02139, USA.
+//#
+//# Queries concerning CASA should be submitted at
+//#        https://help.nrao.edu
+//#
+//#        Postal address: CASA Project Manager 
 //#                        National Radio Astronomy Observatory
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
+//#
 //#
 //# $Id$
 
@@ -87,6 +90,7 @@
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
+#include <synthesis/TransformMachines2/BriggsCubeWeightor.h>
 #if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
@@ -632,7 +636,6 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
     try
       {
 
-	
 		appendToMapperList(impars.imageName,  csys,  impars.shp(),
 			   ftm, iftm,
 			   gridpars.distance, gridpars.facets, gridpars.chanchunks,impars.overwrite,
@@ -652,7 +655,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
  Bool SynthesisImagerVi2::weight(const String& type, const String& rmode,
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
-			       const Int npixels, const Bool multiField,
+				 const Int npixels, const Bool multiField, const Bool useCubeBriggs,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
@@ -752,12 +755,27 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 		  //		  cerr << "rmode " << rmode << " noise " << noise << " robust " << robust << " npixels " << actualNPixels << " cellsize " << actualCellSize << " multifield " << multiField << endl;
 		  //		  Timer timer;
 		  //timer.mark();
-		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower 
+		  //Construct imwgt_p with old vi for now if old vi is in use as constructing with vi2 is slower
+		  //Determine if any image is cube
+		  if(isSpectralCube() && useCubeBriggs){
+		    String outstr=String("Doing spectral cube Briggs weighting formula --  " + rmode + (rmode=="abs" ? " with estimated noise "+ String::toString(noise.getValue())+noise.getUnit()  : "")); 
+		    os << outstr << LogIO::POST;
+		    //VisImagingWeight nat("natural");
+		    //vi_p->useImagingWeight(nat);
+		    if(rmode=="abs" && robust==0.0 && noise.getValue()==0.0)
+		      throw(AipsError("Absolute Briggs formula does not allow for robust 0 and estimated noise per visibility 0"));
+		    CountedPtr<refim::BriggsCubeWeightor> bwgt=new refim::BriggsCubeWeightor(wtype=="Uniform" ? "none" : rmode, noise, robust, npixels, multiField);
+		    for (Int k=0; k < itsMappers.nMappers(); ++k){
+		      itsMappers.getFTM2(k)->setBriggsCubeWeight(bwgt);
 
-
-		  imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
-                                 actualNPixels_x, actualNPixels_y, actualCellSize_x,
-                                 actualCellSize_y, 0, 0, multiField);
+		    }
+		  }
+		  else
+		  {
+		    imwgt_p=VisImagingWeight(*vi_p, wtype=="Uniform" ? "none" : rmode, noise, robust,
+					     actualNPixels_x, actualNPixels_y, actualCellSize_x,
+					     actualCellSize_y, 0, 0, multiField);
+		  }
 
 		  /*
 		  if(rvi_p !=NULL){
@@ -988,7 +1006,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 
 
     	if(!dopsf)itsMappers.initializeDegrid(*vb);
-    	itsMappers.initializeGrid(*vb,dopsf);
+    	itsMappers.initializeGrid(*vi_p,dopsf);
 	SynthesisUtilMethods::getResource("After initGrid for all mappers");
 
     	for (vi_p->originChunks(); vi_p->moreChunks();vi_p->nextChunk())
@@ -1130,7 +1148,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
 	  itsMappers.initializeDegrid(*vb, gmap);
 		  //itsMappers.getMapper(gmap)->initializeDegrid(*vb);
 	}
-	itsMappers.initializeGrid(*vb,dopsf, gmap);
+	itsMappers.initializeGrid(*vi_p,dopsf, gmap);
 		//itsMappers.getMapper(gmap)->initializeGrid(*vb,dopsf);
 
 	SynthesisUtilMethods::getResource("After initialize for mapper"+String::toString(gmap));
@@ -1278,7 +1296,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
       ProgressMeter pm(1.0, numberCoh, "Predict Model", "","","",true);
       Int cohDone=0;
 
-      itsMappers.initializeGrid(*vb,dopsf);
+      itsMappers.initializeGrid(*vi_p,dopsf);
       for (vi_p->originChunks(); vi_p->moreChunks(); vi_p->nextChunk())
       {
 
@@ -2124,7 +2142,7 @@ void SynthesisImagerVi2::unlockMSs()
 
       ProgressMeter pm(1.0, numberCoh, "dryGridding", "","","",true);
 
-      itsMappers.initializeGrid(*vb);
+      itsMappers.initializeGrid(*vi_p);
     
       // Set the gridder (iFTM) to run in dry-gridding mode
       (itsMappers.getFTM2(whichFTM,true))->setDryRun(true);

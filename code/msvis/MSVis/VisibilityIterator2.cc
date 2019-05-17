@@ -389,6 +389,13 @@ VisibilityIterator2::useImagingWeight (const VisImagingWeight & viw)
     impl_p->useImagingWeight(viw);
 }
 
+const VisImagingWeight & 
+VisibilityIterator2::getImagingWeightGenerator () const
+{
+    CheckImplementationPointer ();
+    return impl_p->getImagingWeightGenerator ();
+}
+
 void
 VisibilityIterator2::writeFlag (const Cube<Bool>& flag)
 {
