@@ -332,12 +332,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string">I</value>
       <allowed kind="enum">
         <value>I</value>
-              <value>Q</value>
-              <value>U</value>
-              <value>V</value>
-              <value>IV</value>
+        <value>Q</value>
+        <value>U</value>
+        <value>V</value>
+        <value>IV</value>
         <value>QU</value>
-              <value>IQ</value>
+        <value>IQ</value>
         <value>UV</value>
         <value>IQUV</value>
         <value>RR</value>
@@ -483,13 +483,13 @@ HPX HEALPix grid.  -->
 
 </description>
      <value type="string">mfs</value>
-      <allowed kind="enum">
-        <value>mfs</value>
-        <value>cont</value>
-        <value>cube</value>
-        <value>cubedata</value>
-        <value>cubesource</value>
-      </allowed>
+     <allowed kind="enum">
+       <value>mfs</value>
+       <value>cont</value>
+       <value>cube</value>
+       <value>cubedata</value>
+       <value>cubesource</value>
+     </allowed>
     </param>
 
     <param type="any" name="reffreq" subparam="true">
@@ -657,9 +657,9 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string">linear</value>
       <allowed kind="enum">
-        <value>nearest</value>
+              <value>nearest</value>
               <value>linear</value>
-        <value>cubic</value>
+              <value>cubic</value>
       </allowed>
     </param>
 <param type="bool" name="perchanweightdensity" subparam="true">
@@ -855,18 +855,18 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string">standard</value>
       <allowed kind="enum">
-        <value>standard</value>
-        <value>ft</value>
-        <value>gridft</value>
+              <value>standard</value>
+              <value>ft</value>
+              <value>gridft</value>
               <value>widefield</value>
               <value>wproject</value>
               <value>wprojectft</value>
-        <value>mosaic</value>
-        <value>ftmosaic</value>
-        <value>mosaicft</value>
-        <value>imagemosaic</value>
-        <value>awproject</value>
-        <value>awprojectft</value>
+              <value>mosaic</value>
+              <value>ftmosaic</value>
+              <value>mosaicft</value>
+              <value>imagemosaic</value>
+              <value>awproject</value>
+              <value>awprojectft</value>
       </allowed>
     </param>
 
@@ -1270,14 +1270,14 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string">hogbom</value>
       <allowed kind="enum">
-        <value>hogbom</value>
+              <value>hogbom</value>
               <value>clark</value>
-        <value>clarkstokes</value>
+              <value>clarkstokes</value>
               <value>clark_exp</value>
-        <value>clarkstokes_exp</value>
-        <value>multiscale</value>
-        <value>mtmfs</value>
-        <value>mem</value>
+              <value>clarkstokes_exp</value>
+              <value>multiscale</value>
+              <value>mtmfs</value>
+              <value>mem</value>
 <!--        <value>aasp</value> -->
       </allowed>
     </param>
@@ -2005,7 +2005,7 @@ HPX HEALPix grid.  -->
       <allowed kind="enum">
               <value>user</value>
               <value>pb</value>
-        <value>auto-multithresh</value>
+              <value>auto-multithresh</value>
       </allowed>
     </param>
 
@@ -2368,9 +2368,9 @@ HPX HEALPix grid.  -->
 </description>
       <value type="string">none</value>
       <allowed kind="enum">
-        <value>none</value>
+              <value>none</value>
               <value>virtual</value>
-        <value>modelcolumn</value>
+              <value>modelcolumn</value>
       </allowed>
     </param>
 
