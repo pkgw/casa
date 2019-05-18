@@ -183,7 +183,6 @@ map<string, MDirection::Types> ASDM2MSFiller::string2MDirection = ASDM2MSFiller:
 // The constructor
 ASDM2MSFiller::ASDM2MSFiller(const string& name_,
 			     double        creation_time_,
-			     bool          withRadioMeters_,
 			     bool          complexData,
 			     bool          withCompression,
 			     //bool          withCorrectedData):
@@ -192,8 +191,6 @@ ASDM2MSFiller::ASDM2MSFiller(const string& name_,
                              int           maxNumChan,
                              bool          withCorrectedData,
 			     bool          useAsdmStMan4DATA):
-  itsWithRadioMeters(withRadioMeters_),
-  itsFirstScan(true),
   itsMSMainRow(0),
   itsDataShapes(0),
   itsNCat(3) {

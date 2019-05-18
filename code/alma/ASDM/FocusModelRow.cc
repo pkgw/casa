@@ -1657,10 +1657,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	FocusModelRow::FocusModelRow (FocusModelTable &t, FocusModelRow &row) : table(t) {
+	FocusModelRow::FocusModelRow (FocusModelTable &t, FocusModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1688,28 +1688,28 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			focusModelId = row.focusModelId;
-		
-		
+			focusModelId = row->focusModelId;
 		
 		
-			polarizationType = row.polarizationType;
 		
-			receiverBand = row.receiverBand;
 		
-			numCoeff = row.numCoeff;
+			polarizationType = row->polarizationType;
 		
-			coeffName = row.coeffName;
+			receiverBand = row->receiverBand;
 		
-			coeffFormula = row.coeffFormula;
+			numCoeff = row->numCoeff;
 		
-			coeffVal = row.coeffVal;
+			coeffName = row->coeffName;
 		
-			assocNature = row.assocNature;
+			coeffFormula = row->coeffFormula;
 		
-			assocFocusModelId = row.assocFocusModelId;
+			coeffVal = row->coeffVal;
+		
+			assocNature = row->assocNature;
+		
+			assocFocusModelId = row->assocFocusModelId;
 		
 		
 		

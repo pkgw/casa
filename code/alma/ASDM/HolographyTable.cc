@@ -261,7 +261,7 @@ namespace asdm {
 
 
 HolographyRow* HolographyTable::newRow(HolographyRow* row) {
-	return new HolographyRow(*this, *row);
+	return new HolographyRow(*this, row);
 }
 
 	//

@@ -761,7 +761,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 WVMCalRow (WVMCalTable &table, WVMCalRow &row);
+	 WVMCalRow (WVMCalTable &table, WVMCalRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

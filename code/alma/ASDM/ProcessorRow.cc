@@ -740,10 +740,10 @@ processorSubType = CProcessorSubType::from_int(0);
 		
 	}
 	
-	ProcessorRow::ProcessorRow (ProcessorTable &t, ProcessorRow &row) : table(t) {
+	ProcessorRow::ProcessorRow (ProcessorTable &t, ProcessorRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -759,16 +759,16 @@ processorSubType = CProcessorSubType::from_int(0);
 		else {
 	
 		
-			processorId = row.processorId;
+			processorId = row->processorId;
 		
 		
 		
 		
-			modeId = row.modeId;
+			modeId = row->modeId;
 		
-			processorType = row.processorType;
+			processorType = row->processorType;
 		
-			processorSubType = row.processorSubType;
+			processorSubType = row->processorSubType;
 		
 		
 		

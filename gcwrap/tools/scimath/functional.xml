@@ -931,7 +931,7 @@ vals = gfn.f([0, 1, 2])
         <value>-1</value>
      </param>
      <param type="any" direction="in" name="pa">
-        <any type="variant" limittypes="string quantity"/>
+        <any type="variant" limittypes="string doubleQuant"/>
         <description>The angle between the positive y axis and the major axis, measured counterclockwise.</description>
         <value>0</value>
      </param>

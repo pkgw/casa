@@ -301,7 +301,7 @@ namespace asdm {
 
 
 EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
-	return new EphemerisRow(*this, *row);
+	return new EphemerisRow(*this, row);
 }
 
 	//

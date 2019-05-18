@@ -229,7 +229,7 @@ namespace asdm {
 
 
 AlmaRadiometerRow* AlmaRadiometerTable::newRow(AlmaRadiometerRow* row) {
-	return new AlmaRadiometerRow(*this, *row);
+	return new AlmaRadiometerRow(*this, row);
 }
 
 	//

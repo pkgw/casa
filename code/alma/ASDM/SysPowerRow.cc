@@ -1557,10 +1557,10 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 		
 	}
 	
-	SysPowerRow::SysPowerRow (SysPowerTable &t, SysPowerRow &row) : table(t) {
+	SysPowerRow::SysPowerRow (SysPowerTable &t, SysPowerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1590,38 +1590,38 @@ void SysPowerRow::requantizerGainFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			feedId = row.feedId;
+			feedId = row->feedId;
 		
-			timeInterval = row.timeInterval;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-		if (row.switchedPowerDifferenceExists) {
-			switchedPowerDifference = row.switchedPowerDifference;		
+			numReceptor = row->numReceptor;
+		
+		
+		
+		
+		if (row->switchedPowerDifferenceExists) {
+			switchedPowerDifference = row->switchedPowerDifference;		
 			switchedPowerDifferenceExists = true;
 		}
 		else
 			switchedPowerDifferenceExists = false;
 		
-		if (row.switchedPowerSumExists) {
-			switchedPowerSum = row.switchedPowerSum;		
+		if (row->switchedPowerSumExists) {
+			switchedPowerSum = row->switchedPowerSum;		
 			switchedPowerSumExists = true;
 		}
 		else
 			switchedPowerSumExists = false;
 		
-		if (row.requantizerGainExists) {
-			requantizerGain = row.requantizerGain;		
+		if (row->requantizerGainExists) {
+			requantizerGain = row->requantizerGain;		
 			requantizerGainExists = true;
 		}
 		else

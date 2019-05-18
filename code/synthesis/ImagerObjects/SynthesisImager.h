@@ -158,6 +158,7 @@ class SynthesisImager
 	      const casacore::Quantity& fieldofview=casacore::Quantity(0.0, "arcsec"),
 	      const casacore::Int npixels=0, 
 	      const casacore::Bool multiField=false,
+	      const casacore::Bool usecubebriggs=false,
 	      const casacore::String& filtertype=casacore::String("Gaussian"),
 	      const casacore::Quantity& filterbmaj=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
@@ -354,7 +355,8 @@ protected:
   bool makePBImage(const casacore::String telescop);
   virtual bool makePrimaryBeam(PBMath& pbMath);
 
-  
+  ///is any of the images defined spectral cube
+  virtual bool isSpectralCube();
 
   /////////////// Member Objects
 

@@ -3698,10 +3698,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 		
 	}
 	
-	SysCalRow::SysCalRow (SysCalTable &t, SysCalRow &row) : table(t) {
+	SysCalRow::SysCalRow (SysCalTable &t, SysCalRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3777,117 +3777,117 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			numChan = row.numChan;
+			feedId = row->feedId;
 		
 		
 		
 		
-		if (row.tcalFlagExists) {
-			tcalFlag = row.tcalFlag;		
+			numReceptor = row->numReceptor;
+		
+			numChan = row->numChan;
+		
+		
+		
+		
+		if (row->tcalFlagExists) {
+			tcalFlag = row->tcalFlag;		
 			tcalFlagExists = true;
 		}
 		else
 			tcalFlagExists = false;
 		
-		if (row.tcalSpectrumExists) {
-			tcalSpectrum = row.tcalSpectrum;		
+		if (row->tcalSpectrumExists) {
+			tcalSpectrum = row->tcalSpectrum;		
 			tcalSpectrumExists = true;
 		}
 		else
 			tcalSpectrumExists = false;
 		
-		if (row.trxFlagExists) {
-			trxFlag = row.trxFlag;		
+		if (row->trxFlagExists) {
+			trxFlag = row->trxFlag;		
 			trxFlagExists = true;
 		}
 		else
 			trxFlagExists = false;
 		
-		if (row.trxSpectrumExists) {
-			trxSpectrum = row.trxSpectrum;		
+		if (row->trxSpectrumExists) {
+			trxSpectrum = row->trxSpectrum;		
 			trxSpectrumExists = true;
 		}
 		else
 			trxSpectrumExists = false;
 		
-		if (row.tskyFlagExists) {
-			tskyFlag = row.tskyFlag;		
+		if (row->tskyFlagExists) {
+			tskyFlag = row->tskyFlag;		
 			tskyFlagExists = true;
 		}
 		else
 			tskyFlagExists = false;
 		
-		if (row.tskySpectrumExists) {
-			tskySpectrum = row.tskySpectrum;		
+		if (row->tskySpectrumExists) {
+			tskySpectrum = row->tskySpectrum;		
 			tskySpectrumExists = true;
 		}
 		else
 			tskySpectrumExists = false;
 		
-		if (row.tsysFlagExists) {
-			tsysFlag = row.tsysFlag;		
+		if (row->tsysFlagExists) {
+			tsysFlag = row->tsysFlag;		
 			tsysFlagExists = true;
 		}
 		else
 			tsysFlagExists = false;
 		
-		if (row.tsysSpectrumExists) {
-			tsysSpectrum = row.tsysSpectrum;		
+		if (row->tsysSpectrumExists) {
+			tsysSpectrum = row->tsysSpectrum;		
 			tsysSpectrumExists = true;
 		}
 		else
 			tsysSpectrumExists = false;
 		
-		if (row.tantFlagExists) {
-			tantFlag = row.tantFlag;		
+		if (row->tantFlagExists) {
+			tantFlag = row->tantFlag;		
 			tantFlagExists = true;
 		}
 		else
 			tantFlagExists = false;
 		
-		if (row.tantSpectrumExists) {
-			tantSpectrum = row.tantSpectrum;		
+		if (row->tantSpectrumExists) {
+			tantSpectrum = row->tantSpectrum;		
 			tantSpectrumExists = true;
 		}
 		else
 			tantSpectrumExists = false;
 		
-		if (row.tantTsysFlagExists) {
-			tantTsysFlag = row.tantTsysFlag;		
+		if (row->tantTsysFlagExists) {
+			tantTsysFlag = row->tantTsysFlag;		
 			tantTsysFlagExists = true;
 		}
 		else
 			tantTsysFlagExists = false;
 		
-		if (row.tantTsysSpectrumExists) {
-			tantTsysSpectrum = row.tantTsysSpectrum;		
+		if (row->tantTsysSpectrumExists) {
+			tantTsysSpectrum = row->tantTsysSpectrum;		
 			tantTsysSpectrumExists = true;
 		}
 		else
 			tantTsysSpectrumExists = false;
 		
-		if (row.phaseDiffFlagExists) {
-			phaseDiffFlag = row.phaseDiffFlag;		
+		if (row->phaseDiffFlagExists) {
+			phaseDiffFlag = row->phaseDiffFlag;		
 			phaseDiffFlagExists = true;
 		}
 		else
 			phaseDiffFlagExists = false;
 		
-		if (row.phaseDiffSpectrumExists) {
-			phaseDiffSpectrum = row.phaseDiffSpectrum;		
+		if (row->phaseDiffSpectrumExists) {
+			phaseDiffSpectrum = row->phaseDiffSpectrum;		
 			phaseDiffSpectrumExists = true;
 		}
 		else

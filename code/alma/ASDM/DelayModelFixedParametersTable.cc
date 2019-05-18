@@ -283,7 +283,7 @@ namespace asdm {
 
 
 DelayModelFixedParametersRow* DelayModelFixedParametersTable::newRow(DelayModelFixedParametersRow* row) {
-	return new DelayModelFixedParametersRow(*this, *row);
+	return new DelayModelFixedParametersRow(*this, row);
 }
 
 	//

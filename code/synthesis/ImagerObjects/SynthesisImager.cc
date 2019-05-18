@@ -1028,6 +1028,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
 			       const Int npixels, const Bool multiField,
+			       const Bool /*useCubeBriggs*/,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
@@ -2848,6 +2849,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     movingSource_p=movingSource;
   }
   
+  bool SynthesisImager::isSpectralCube(){
+    bool retval=False;
+    for (Int k=0; k < itsMappers.nMappers(); ++k){
+      //For some reason imstore sometime returns 0 shape
+      //trying to test with with psf size breaks parallel = true in some cases...go figure
+      //if((((itsMappers.imageStore(k))->psf())->shape()[3]) != ((itsMappers.imageStore(k))->getShape()[3])){
+      //cerr << "shapes " << ((itsMappers.imageStore(k))->psf())->shape() << "   " <<  ((itsMappers.imageStore(k))->getShape()) << endl;
+      //throw(AipsError("images shape seem insistent "));
+      if((itsMappers.imageStore(k))->getShape()(3) ==0)
+	return True;
+      //}
+    if((itsMappers.imageStore(k))->getShape()(3) > 1)
+      retval=True;
+    }
+    return retval;
 
+  }
 } //# NAMESPACE CASA - END
 

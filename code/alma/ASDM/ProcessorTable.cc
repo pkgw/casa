@@ -255,7 +255,7 @@ namespace asdm {
 
 
 ProcessorRow* ProcessorTable::newRow(ProcessorRow* row) {
-	return new ProcessorRow(*this, *row);
+	return new ProcessorRow(*this, row);
 }
 
 	//

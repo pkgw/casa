@@ -471,7 +471,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 StateRow (StateTable &table, StateRow &row);
+	 StateRow (StateTable &table, StateRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

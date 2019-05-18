@@ -648,7 +648,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FocusModelRow (FocusModelTable &table, FocusModelRow &row);
+	 FocusModelRow (FocusModelTable &table, FocusModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
