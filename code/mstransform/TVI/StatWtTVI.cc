@@ -397,6 +397,7 @@ void StatWtTVI::_logUsedChannels() const {
     log << LogIO::NORMAL << "Weights are being computed using ";
     const auto cend = _chanSelFlags.cend();
     const auto nspw = _samples.size();
+    uInt spwCount = 0;
     // for (uInt i=0; i<nspw; ++i) {
     for (const auto& kv: _samples) {
         const auto spw = kv.first;
@@ -431,7 +432,9 @@ void StatWtTVI::_logUsedChannels() const {
             if (curPair) {
                 // The last pair won't get added inside the loop, so add it
                 // here
-                startEnd.push_back(*curPair);
+                if (started) {
+                    startEnd.push_back(*curPair);
+                }
                 auto nPairs = startEnd.size();
                 for (uInt i=0; i<nPairs; ++i) {
                     log  << startEnd[i].first << "~" << startEnd[i].second;
@@ -445,9 +448,10 @@ void StatWtTVI::_logUsedChannels() const {
                 log << "no channels";
             }
         }
-        if (spw < (nspw - 1)) {
+        if (spwCount < (nspw - 1)) {
             log << ";";
         }
+        ++spwCount;
     }
     log << LogIO::POST;
 }
