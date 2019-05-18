@@ -430,9 +430,9 @@ void StatWtTVI::_logUsedChannels() const {
                 }
             }
             if (curPair) {
-                // The last pair won't get added inside the loop, so add it
-                // here
                 if (started) {
+                    // The last pair won't get added inside the previous loop, 
+                    // so add it here
                     startEnd.push_back(*curPair);
                 }
                 auto nPairs = startEnd.size();
