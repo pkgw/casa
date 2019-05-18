@@ -270,7 +270,6 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
         }
     }
     _configureStatAlg(config);
-    //_logUsedChannels();
     return True;
 }
 
@@ -390,7 +389,6 @@ void StatWtTVI::_configureStatAlg(const Record& config) {
 }
 
 void StatWtTVI::_logUsedChannels() const {
-    cout << "*** " << __func__ << " called" << endl;
     // FIXME uses underlying MS
     MSMetaData msmd(&ms(), 100.0);
     const auto nchan = msmd.nChans();
@@ -402,7 +400,6 @@ void StatWtTVI::_logUsedChannels() const {
     // for (uInt i=0; i<nspw; ++i) {
     for (const auto& kv: _samples) {
         const auto spw = kv.first;
-        cout << "spw debug " << spw << endl;
         log << "SPW " << spw << ", channels ";
         const auto flagCube = _chanSelFlags.find(spw);
         if (flagCube == cend) {
