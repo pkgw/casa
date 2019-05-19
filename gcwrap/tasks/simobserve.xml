@@ -459,7 +459,7 @@ it'll do them for the same amount of time -->
 <description>add thermal noise.
                      Options: tsys-atm, tsys-manual, ""
 
-                     This parameter takes two possible values:
+                     This parameter accepts two settings:
                      - tsys-atm: J. Pardo's ATM library will be used
 		     to construct an atmospheric profile for the ALMA
 		     site: altitude 5000m, ground pressure 650mbar,
@@ -471,6 +471,9 @@ it'll do them for the same amount of time -->
 		     specify the zenith  sky brightness and opacity
 		     manually.  Noise is added and then the visibility
 		     flux scale is referenced above the atmosphere.
+
+		     If left unset (empty string) no thermalnoise
+		     corruption is performed.
  
                      In either mode, noise is calculated using an
 		     antenna spillover efficiency of 0.96, taper of
