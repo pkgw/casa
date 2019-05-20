@@ -1150,7 +1150,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SysCalRow (SysCalTable &table, SysCalRow &row);
+	 SysCalRow (SysCalTable &table, SysCalRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

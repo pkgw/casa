@@ -1387,10 +1387,10 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 		
 	}
 	
-	HistoryRow::HistoryRow (HistoryTable &t, HistoryRow &row) : table(t) {
+	HistoryRow::HistoryRow (HistoryTable &t, HistoryRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1416,26 +1416,26 @@ void HistoryRow::appParmsFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
-			time = row.time;
-		
-		
+			time = row->time;
 		
 		
-			message = row.message;
 		
-			priority = row.priority;
 		
-			origin = row.origin;
+			message = row->message;
 		
-			objectId = row.objectId;
+			priority = row->priority;
 		
-			application = row.application;
+			origin = row->origin;
 		
-			cliCommand = row.cliCommand;
+			objectId = row->objectId;
 		
-			appParms = row.appParms;
+			application = row->application;
+		
+			cliCommand = row->cliCommand;
+		
+			appParms = row->appParms;
 		
 		
 		

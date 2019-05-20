@@ -81,7 +81,7 @@ casalog.showconsole((MPIEnvironment.is_mpi_enabled and MPIEnvironment.log_to_con
 casalog.setglobal(True)
 
 try:
-    casalog.post("CASA Version " + casa['build']['version'])
+    casalog.post("CASA Version " + casa['variant'] + " " + casa['build']['version'])
 except:
     print "Error: the logfile is not writable"
     sys.exit(1)

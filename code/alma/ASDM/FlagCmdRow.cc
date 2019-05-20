@@ -1102,10 +1102,10 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FlagCmdRow::FlagCmdRow (FlagCmdTable &t, FlagCmdRow &row) : table(t) {
+	FlagCmdRow::FlagCmdRow (FlagCmdTable &t, FlagCmdRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1127,22 +1127,22 @@ void FlagCmdRow::commandFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-			type = row.type;
+			type = row->type;
 		
-			reason = row.reason;
+			reason = row->reason;
 		
-			level = row.level;
+			level = row->level;
 		
-			severity = row.severity;
+			severity = row->severity;
 		
-			applied = row.applied;
+			applied = row->applied;
 		
-			command = row.command;
+			command = row->command;
 		
 		
 		

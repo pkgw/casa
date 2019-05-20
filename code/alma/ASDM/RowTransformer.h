@@ -32,7 +32,7 @@ class RowTransformer {
 public:
 	// By default the transform method does nothing
 	// The specialization will have the possibility to define a specific transformation.
-	void transform (RowClass * rowPtr) {
+        void transform (RowClass * /* rowPtr */) {
 		;
 	}
 };

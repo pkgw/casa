@@ -327,7 +327,7 @@ namespace asdm {
 
 
 CalFluxRow* CalFluxTable::newRow(CalFluxRow* row) {
-	return new CalFluxRow(*this, *row);
+	return new CalFluxRow(*this, row);
 }
 
 	//

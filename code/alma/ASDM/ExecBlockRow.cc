@@ -4160,10 +4160,10 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	ExecBlockRow::ExecBlockRow (ExecBlockTable &t, ExecBlockRow &row) : table(t) {
+	ExecBlockRow::ExecBlockRow (ExecBlockTable &t, ExecBlockRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4245,105 +4245,105 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
 		
 		
 		
-			startTime = row.startTime;
+			startTime = row->startTime;
 		
-			endTime = row.endTime;
+			endTime = row->endTime;
 		
-			execBlockNum = row.execBlockNum;
+			execBlockNum = row->execBlockNum;
 		
-			execBlockUID = row.execBlockUID;
+			execBlockUID = row->execBlockUID;
 		
-			projectUID = row.projectUID;
+			projectUID = row->projectUID;
 		
-			configName = row.configName;
+			configName = row->configName;
 		
-			telescopeName = row.telescopeName;
+			telescopeName = row->telescopeName;
 		
-			observerName = row.observerName;
+			observerName = row->observerName;
 		
-			numObservingLog = row.numObservingLog;
+			numObservingLog = row->numObservingLog;
 		
-			observingLog = row.observingLog;
+			observingLog = row->observingLog;
 		
-			sessionReference = row.sessionReference;
+			sessionReference = row->sessionReference;
 		
-			baseRangeMin = row.baseRangeMin;
+			baseRangeMin = row->baseRangeMin;
 		
-			baseRangeMax = row.baseRangeMax;
+			baseRangeMax = row->baseRangeMax;
 		
-			baseRmsMinor = row.baseRmsMinor;
+			baseRmsMinor = row->baseRmsMinor;
 		
-			baseRmsMajor = row.baseRmsMajor;
+			baseRmsMajor = row->baseRmsMajor;
 		
-			basePa = row.basePa;
+			basePa = row->basePa;
 		
-			aborted = row.aborted;
+			aborted = row->aborted;
 		
-			numAntenna = row.numAntenna;
+			numAntenna = row->numAntenna;
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			sBSummaryId = row.sBSummaryId;
-		
-		
+			sBSummaryId = row->sBSummaryId;
 		
 		
-		if (row.releaseDateExists) {
-			releaseDate = row.releaseDate;		
+		
+		
+		if (row->releaseDateExists) {
+			releaseDate = row->releaseDate;		
 			releaseDateExists = true;
 		}
 		else
 			releaseDateExists = false;
 		
-		if (row.schedulerModeExists) {
-			schedulerMode = row.schedulerMode;		
+		if (row->schedulerModeExists) {
+			schedulerMode = row->schedulerMode;		
 			schedulerModeExists = true;
 		}
 		else
 			schedulerModeExists = false;
 		
-		if (row.siteAltitudeExists) {
-			siteAltitude = row.siteAltitude;		
+		if (row->siteAltitudeExists) {
+			siteAltitude = row->siteAltitude;		
 			siteAltitudeExists = true;
 		}
 		else
 			siteAltitudeExists = false;
 		
-		if (row.siteLongitudeExists) {
-			siteLongitude = row.siteLongitude;		
+		if (row->siteLongitudeExists) {
+			siteLongitude = row->siteLongitude;		
 			siteLongitudeExists = true;
 		}
 		else
 			siteLongitudeExists = false;
 		
-		if (row.siteLatitudeExists) {
-			siteLatitude = row.siteLatitude;		
+		if (row->siteLatitudeExists) {
+			siteLatitude = row->siteLatitude;		
 			siteLatitudeExists = true;
 		}
 		else
 			siteLatitudeExists = false;
 		
-		if (row.observingScriptExists) {
-			observingScript = row.observingScript;		
+		if (row->observingScriptExists) {
+			observingScript = row->observingScript;		
 			observingScriptExists = true;
 		}
 		else
 			observingScriptExists = false;
 		
-		if (row.observingScriptUIDExists) {
-			observingScriptUID = row.observingScriptUID;		
+		if (row->observingScriptUIDExists) {
+			observingScriptUID = row->observingScriptUID;		
 			observingScriptUIDExists = true;
 		}
 		else
 			observingScriptUIDExists = false;
 		
-		if (row.scaleIdExists) {
-			scaleId = row.scaleId;		
+		if (row->scaleIdExists) {
+			scaleId = row->scaleId;		
 			scaleIdExists = true;
 		}
 		else

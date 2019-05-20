@@ -2110,10 +2110,10 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 		
 	}
 	
-	CalDeviceRow::CalDeviceRow (CalDeviceTable &t, CalDeviceRow &row) : table(t) {
+	CalDeviceRow::CalDeviceRow (CalDeviceTable &t, CalDeviceRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2153,54 +2153,54 @@ void CalDeviceRow::temperatureLoadFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
-		
-		
-			numCalload = row.numCalload;
-		
-			calLoadNames = row.calLoadNames;
+			feedId = row->feedId;
 		
 		
 		
 		
-		if (row.numReceptorExists) {
-			numReceptor = row.numReceptor;		
+			numCalload = row->numCalload;
+		
+			calLoadNames = row->calLoadNames;
+		
+		
+		
+		
+		if (row->numReceptorExists) {
+			numReceptor = row->numReceptor;		
 			numReceptorExists = true;
 		}
 		else
 			numReceptorExists = false;
 		
-		if (row.calEffExists) {
-			calEff = row.calEff;		
+		if (row->calEffExists) {
+			calEff = row->calEff;		
 			calEffExists = true;
 		}
 		else
 			calEffExists = false;
 		
-		if (row.noiseCalExists) {
-			noiseCal = row.noiseCal;		
+		if (row->noiseCalExists) {
+			noiseCal = row->noiseCal;		
 			noiseCalExists = true;
 		}
 		else
 			noiseCalExists = false;
 		
-		if (row.coupledNoiseCalExists) {
-			coupledNoiseCal = row.coupledNoiseCal;		
+		if (row->coupledNoiseCalExists) {
+			coupledNoiseCal = row->coupledNoiseCal;		
 			coupledNoiseCalExists = true;
 		}
 		else
 			coupledNoiseCalExists = false;
 		
-		if (row.temperatureLoadExists) {
-			temperatureLoad = row.temperatureLoad;		
+		if (row->temperatureLoadExists) {
+			temperatureLoad = row->temperatureLoad;		
 			temperatureLoadExists = true;
 		}
 		else

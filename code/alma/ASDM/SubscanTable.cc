@@ -297,7 +297,7 @@ namespace asdm {
 
 
 SubscanRow* SubscanTable::newRow(SubscanRow* row) {
-	return new SubscanRow(*this, *row);
+	return new SubscanRow(*this, row);
 }
 
 	//

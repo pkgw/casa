@@ -100,7 +100,7 @@ static pid_t manager_root_pid = 0;
 static pid_t manager_xvfb_pid = 0;
 static bool sigterm_received = false;
 static void preprocess_args( int argc, const char *argv[], int &numargs, char **&args,
-                             char *&dbus_name, bool &do_dbus, bool &inital_run,
+                             char *&server_string, bool &do_dbus, bool &inital_run,
                              bool &server_startup, bool &daemon,
                              bool &without_gui, bool &persistent, bool &casapy_start,
                              char *&logfile_path );
@@ -250,7 +250,7 @@ int main( int argc, const char *argv[] ) {
 	bool without_gui = false;
 	bool persistent = false;
 	bool casapy_start = false;
-	char *dbus_name = 0;
+	char *server_string = 0;
 	bool with_dbus = false;
 	char *logfile_path = 0;
 	bool initial_run = false;
@@ -275,7 +275,7 @@ int main( int argc, const char *argv[] ) {
 	//
 //     QCoreApplication::setAttribute(Qt::AA_MacDontSwapCtrlAndMeta);
 
-	preprocess_args( argc, argv, numargs, args, dbus_name, with_dbus,
+	preprocess_args( argc, argv, numargs, args, server_string, with_dbus,
 	                 initial_run, server_startup, daemon, without_gui,
                      persistent, casapy_start, logfile_path );
 
@@ -322,16 +322,24 @@ int main( int argc, const char *argv[] ) {
 			QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
 		}
 
-	} else if ( ends_with(exepath, "/AppRun") ) {
+	} else if ( ends_with(exepath, "/AppRun") || ends_with(exepath, "/CASAviewer.app/usr/bin/CASAviewer") ) {
 
 		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 		// linux  --  path is specific to package format
+		//
+		//    .../AppRun implies AppImage bash script startup, e.g. from an unpacked AppImage
+		//    .../CASAviewer.app/usr/bin/CASAviewer implies debugging or running from the
+		//                                          build tree before it has been packaged
+		//
 		// -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   -   - 
 		// initialize CASAviewer app data...
 		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 		// generate path to data...
+		bool packed_app = ends_with(exepath, "/AppRun");
 		std::string datapath(exepath);
-		datapath.erase( datapath.end( ) -  6, datapath.end( ) );
+		//     packed_app -> .../AppRun
+		// not packed_app -> .../CASAviewer.app/usr/bin/CASAviewer
+		datapath.erase( datapath.end( ) -  (packed_app ? 6 : 18), datapath.end( ) );
 		std::string pgplotpath = datapath;			   // save for later...
 		std::string pluginpath = datapath;			   // save for later...
 		datapath += "data";
@@ -368,10 +376,10 @@ int main( int argc, const char *argv[] ) {
 
 	if ( (server_startup || without_gui) && initial_run ) {
         if ( daemon ) {
-            launch_server( argv[0], numargs, args, dbus_name, without_gui,
+            launch_server( argv[0], numargs, args, server_string, without_gui,
                            persistent, casapy_start );
         } else {
-            start_manager_root( argv[0], numargs, args, dbus_name, without_gui, getpid( ) );
+            start_manager_root( argv[0], numargs, args, server_string, without_gui, getpid( ) );
         }
 		exit(0);
 	}
@@ -423,7 +431,7 @@ int main( int argc, const char *argv[] ) {
 		for ( int arg_index=0; args[arg_index]; ++arg_index )
 			stdargs.push_back(args[arg_index]);
 
-		QtViewer* v = new QtViewer( stdargs, server_startup || with_dbus, dbus_name );
+		QtViewer* v = new QtViewer( stdargs, server_startup || with_dbus, server_string );
 		qapp.subscribe(v);
 
 		if ( ! server_startup ) {
@@ -552,14 +560,14 @@ int main( int argc, const char *argv[] ) {
 // processes argv into args stripping out the the viewer setup flags... numargs has the number
 // of args, and the last arg (not included in numargs count) is null (for execvp)
 static void preprocess_args( int argc, const char *argv[], int &numargs, char **&args,
-                             char *&dbus_name, bool &with_dbus, bool &initial_run,
+                             char *&server_string, bool &with_dbus, bool &initial_run,
                              bool &server_startup, bool &daemon, bool &without_gui, bool &persistent,
                              bool &casapy_start, char *&logfile_path ) {
 
 	without_gui = false;
 	persistent = false;
 	casapy_start = false;
-	dbus_name = 0;
+	server_string = 0;
 
 	initial_run = (isdigit(argv[0][0]) ? false : true);
 
@@ -570,8 +578,13 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 				char *name = strdup( &argv[x][8] );
 				if ( strlen(name) <= 0 ) {
 					free( name );
+#if defined(WITHOUT_DBUS)
+					qWarning("no gRPC registry provided with '--server=...'");
+					qFatal("exiting...");
+					exit(1);
+#endif
 				} else {
-					dbus_name = name;
+					server_string = name;
 				}
 			}
 		} else if ( ! strncmp(argv[x],"--server",8) ) {
@@ -580,20 +593,26 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 				char *name = strdup( &argv[x][9] );
 				if ( strlen(name) <= 0 ) {
 					free( name );
+#if defined(WITHOUT_DBUS)
+					qWarning("no gRPC registry provided with '--server=...'");
+					qFatal("exiting...");
+					exit(1);
+#endif
 				} else {
-					dbus_name = name;
+					server_string = name;
 				}
 			}
-		} else if ( ! strncmp(argv[x],"--dbusname",10) ) {
+#if ! defined(WITHOUT_DBUS)
+        } else if ( ! strncmp(argv[x],"--dbusname",10) ) {
 			if ( argv[x][10] == '=' ) {
 				char *name = strdup( &argv[x][11] );
 				if ( strlen(name) <= 0 ) {
 					free( name );
 				} else {
-					dbus_name = name;
+					server_string = name;
 				}
 			} else if ( x + 1 < argc ) {
-				dbus_name = strdup(argv[++x]);
+				server_string = strdup(argv[++x]);
 			}
 		} else if ( ! strcmp(argv[x],"--daemon") ) {
 			daemon = true;
@@ -603,6 +622,7 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 			casapy_start = true;
 		} else if ( ! strcmp(argv[x],"--dbus") ) {
 			with_dbus = true;
+#endif
 		}  else if ( ! strncmp(argv[x],"--rcdir",7) ) {
 			if ( argv[x][7] == '=' ) {
 				viewer::setrcDir(&argv[x][8]);
@@ -647,12 +667,18 @@ static void preprocess_args( int argc, const char *argv[], int &numargs, char **
 	if ( initial_run && (without_gui || server_startup) ) {
 		// --nogui imples --server and for consistency, --server also forks child
 		char *arg;
-		if ( dbus_name ) {
-			arg = (char*) malloc( sizeof(char)*(strlen(dbus_name)+15) );
-			sprintf( arg, "--server=%s", dbus_name );
-		} else
+		if ( server_string ) {
+			arg = (char*) malloc( sizeof(char)*(strlen(server_string)+15) );
+			sprintf( arg, "--server=%s", server_string );
+		} else {
+#if defined(WITHOUT_DBUS)
+			qWarning("no gRPC registry provided with '--server=...'");
+			qFatal("exiting...");
+			exit(1);
+#else
 			arg = strdup( "--server" );
-
+#endif
+        }
 		args[numargs++] = arg;
 	}
 

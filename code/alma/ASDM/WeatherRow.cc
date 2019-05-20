@@ -2818,10 +2818,10 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 		
 	}
 	
-	WeatherRow::WeatherRow (WeatherTable &t, WeatherRow &row) : table(t) {
+	WeatherRow::WeatherRow (WeatherTable &t, WeatherRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2889,109 +2889,109 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			stationId = row.stationId;
+			stationId = row->stationId;
 		
-			timeInterval = row.timeInterval;
-		
-		
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
 		
-		if (row.pressureExists) {
-			pressure = row.pressure;		
+		
+		
+		if (row->pressureExists) {
+			pressure = row->pressure;		
 			pressureExists = true;
 		}
 		else
 			pressureExists = false;
 		
-		if (row.relHumidityExists) {
-			relHumidity = row.relHumidity;		
+		if (row->relHumidityExists) {
+			relHumidity = row->relHumidity;		
 			relHumidityExists = true;
 		}
 		else
 			relHumidityExists = false;
 		
-		if (row.temperatureExists) {
-			temperature = row.temperature;		
+		if (row->temperatureExists) {
+			temperature = row->temperature;		
 			temperatureExists = true;
 		}
 		else
 			temperatureExists = false;
 		
-		if (row.windDirectionExists) {
-			windDirection = row.windDirection;		
+		if (row->windDirectionExists) {
+			windDirection = row->windDirection;		
 			windDirectionExists = true;
 		}
 		else
 			windDirectionExists = false;
 		
-		if (row.windSpeedExists) {
-			windSpeed = row.windSpeed;		
+		if (row->windSpeedExists) {
+			windSpeed = row->windSpeed;		
 			windSpeedExists = true;
 		}
 		else
 			windSpeedExists = false;
 		
-		if (row.windMaxExists) {
-			windMax = row.windMax;		
+		if (row->windMaxExists) {
+			windMax = row->windMax;		
 			windMaxExists = true;
 		}
 		else
 			windMaxExists = false;
 		
-		if (row.dewPointExists) {
-			dewPoint = row.dewPoint;		
+		if (row->dewPointExists) {
+			dewPoint = row->dewPoint;		
 			dewPointExists = true;
 		}
 		else
 			dewPointExists = false;
 		
-		if (row.numLayerExists) {
-			numLayer = row.numLayer;		
+		if (row->numLayerExists) {
+			numLayer = row->numLayer;		
 			numLayerExists = true;
 		}
 		else
 			numLayerExists = false;
 		
-		if (row.layerHeightExists) {
-			layerHeight = row.layerHeight;		
+		if (row->layerHeightExists) {
+			layerHeight = row->layerHeight;		
 			layerHeightExists = true;
 		}
 		else
 			layerHeightExists = false;
 		
-		if (row.temperatureProfileExists) {
-			temperatureProfile = row.temperatureProfile;		
+		if (row->temperatureProfileExists) {
+			temperatureProfile = row->temperatureProfile;		
 			temperatureProfileExists = true;
 		}
 		else
 			temperatureProfileExists = false;
 		
-		if (row.cloudMonitorExists) {
-			cloudMonitor = row.cloudMonitor;		
+		if (row->cloudMonitorExists) {
+			cloudMonitor = row->cloudMonitor;		
 			cloudMonitorExists = true;
 		}
 		else
 			cloudMonitorExists = false;
 		
-		if (row.numWVRExists) {
-			numWVR = row.numWVR;		
+		if (row->numWVRExists) {
+			numWVR = row->numWVR;		
 			numWVRExists = true;
 		}
 		else
 			numWVRExists = false;
 		
-		if (row.wvrTempExists) {
-			wvrTemp = row.wvrTemp;		
+		if (row->wvrTempExists) {
+			wvrTemp = row->wvrTemp;		
 			wvrTempExists = true;
 		}
 		else
 			wvrTempExists = false;
 		
-		if (row.waterExists) {
-			water = row.water;		
+		if (row->waterExists) {
+			water = row->water;		
 			waterExists = true;
 		}
 		else

@@ -1349,7 +1349,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalAppPhaseRow (CalAppPhaseTable &table, CalAppPhaseRow &row);
+	 CalAppPhaseRow (CalAppPhaseTable &table, CalAppPhaseRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

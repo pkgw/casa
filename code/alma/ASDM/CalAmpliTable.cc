@@ -325,7 +325,7 @@ namespace asdm {
 
 
 CalAmpliRow* CalAmpliTable::newRow(CalAmpliRow* row) {
-	return new CalAmpliRow(*this, *row);
+	return new CalAmpliRow(*this, row);
 }
 
 	//

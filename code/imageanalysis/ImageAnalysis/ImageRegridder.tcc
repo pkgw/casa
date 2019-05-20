@@ -317,8 +317,8 @@ template<class T> void ImageRegridder<T>::_checkOutputShape(
 template<class T> SPIIT ImageRegridder<T>::_regridByVelocity() const {
     const auto csysTo = this->_getTemplateCoords();
     const auto specCoordTo = csysTo.spectralCoordinate();
-    const auto specCoordFrom = this->_getImage()->coordinates()
-        .spectralCoordinate();
+    const auto specCoordFrom
+        = this->_getImage()->coordinates().spectralCoordinate();
     ThrowIf(
         specCoordTo.frequencySystem(true)
         != specCoordFrom.frequencySystem(true),
@@ -335,7 +335,6 @@ template<class T> SPIIT ImageRegridder<T>::_regridByVelocity() const {
         "Input image spectral coordinate rest frequency is 0, so cannot regrid "
         "by velocity."
     );
-
     std::unique_ptr<casacore::CoordinateSystem> csys(
         dynamic_cast<casacore::CoordinateSystem *>(csysTo.clone())
     );
@@ -347,10 +346,10 @@ template<class T> SPIIT ImageRegridder<T>::_regridByVelocity() const {
     );
     auto newSpecCoord = coordClone->spectralCoordinate();
     casacore::Double newVelRefVal = 0;
-    casacore::Double newVelInc = 0;
     std::pair<casacore::Double, casacore::Double> toVelLimits;
     auto inSpecAxis = coordClone->spectralAxisNumber(false);
-    for (uInt i=0; i<2; ++i) {
+    casacore::Double newVelInc = 0.0;
+    for (casacore::uInt i=0; i<2; ++i) {
         // i == 0 => csysTo, i == 1 => csysFrom
         auto *cs = i == 0 ? csys.get() : coordClone.get();
         // create and replace the coordinate system's spectral coordinate with
@@ -388,7 +387,7 @@ template<class T> SPIIT ImageRegridder<T>::_regridByVelocity() const {
             ! specCoord.frequencyToVelocity(velRefVal, freqRefVal),
             "Unable to determine reference velocity"
         );
-        casacore::Double vel0;
+        casacore::Double vel0 = 0;
         casacore::Double vel1 = 0;
         ThrowIf(
             ! specCoord.pixelToVelocity(vel0, 0.0)
@@ -414,8 +413,14 @@ template<class T> SPIIT ImageRegridder<T>::_regridByVelocity() const {
                 std::swap(fromVelLimits.first, fromVelLimits.second);
             }
             ThrowIf(
-                fromVelLimits.first > toVelLimits.second
-                || fromVelLimits.second < toVelLimits.first,
+                (
+                    fromVelLimits.first > toVelLimits.second
+                    && ! casacore::near(fromVelLimits.first, toVelLimits.second)
+                )
+                || (
+                    fromVelLimits.second < toVelLimits.first
+                    && ! casacore::near(fromVelLimits.second, toVelLimits.first)
+                ),
                 "Request to regrid by velocity, but input and output velocity "
                 "coordinates do not overlap"
             );
@@ -576,9 +581,17 @@ template<class T> Bool ImageRegridder<T>::_doImagesOverlap(
         auto end10 = world;
         sp1.toWorld(world, nChan1 - 1);
         auto end11 = world;
+        auto minmax0 = minmax(end00, end01);
+        auto minmax1 = minmax(end10, end11);
         if (
-            max(end00, end01) < min(end10, end11)
-            || max(end10, end11) < min(end00, end01)
+            (
+                minmax0.second < minmax1.first
+                && ! casacore::near(minmax0.second, minmax1.first)
+            )
+            || (
+                minmax1.second < minmax0.first
+                && ! casacore::near(minmax1.second, minmax0.first)
+            )
         ) {
             return false;
         }

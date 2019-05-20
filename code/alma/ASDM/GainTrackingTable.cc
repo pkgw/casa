@@ -291,7 +291,7 @@ namespace asdm {
 
 
 GainTrackingRow* GainTrackingTable::newRow(GainTrackingRow* row) {
-	return new GainTrackingRow(*this, *row);
+	return new GainTrackingRow(*this, row);
 }
 
 	//

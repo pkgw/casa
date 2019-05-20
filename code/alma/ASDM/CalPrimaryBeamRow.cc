@@ -2931,10 +2931,10 @@ descriptionType = CPrimaryBeamDescription::from_int(0);
 		
 	}
 	
-	CalPrimaryBeamRow::CalPrimaryBeamRow (CalPrimaryBeamTable &t, CalPrimaryBeamRow &row) : table(t) {
+	CalPrimaryBeamRow::CalPrimaryBeamRow (CalPrimaryBeamTable &t, CalPrimaryBeamRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2982,48 +2982,48 @@ descriptionType = CPrimaryBeamDescription::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			antennaMake = row.antennaMake;
+			startValidTime = row->startValidTime;
 		
-			numSubband = row.numSubband;
+			endValidTime = row->endValidTime;
 		
-			frequencyRange = row.frequencyRange;
+			antennaMake = row->antennaMake;
 		
-			numReceptor = row.numReceptor;
+			numSubband = row->numSubband;
 		
-			polarizationTypes = row.polarizationTypes;
+			frequencyRange = row->frequencyRange;
 		
-			mainBeamEfficiency = row.mainBeamEfficiency;
+			numReceptor = row->numReceptor;
 		
-			beamDescriptionUID = row.beamDescriptionUID;
+			polarizationTypes = row->polarizationTypes;
 		
-			relativeAmplitudeRms = row.relativeAmplitudeRms;
+			mainBeamEfficiency = row->mainBeamEfficiency;
 		
-			direction = row.direction;
+			beamDescriptionUID = row->beamDescriptionUID;
 		
-			minValidDirection = row.minValidDirection;
+			relativeAmplitudeRms = row->relativeAmplitudeRms;
 		
-			maxValidDirection = row.maxValidDirection;
+			direction = row->direction;
 		
-			descriptionType = row.descriptionType;
+			minValidDirection = row->minValidDirection;
 		
-			imageChannelNumber = row.imageChannelNumber;
+			maxValidDirection = row->maxValidDirection;
 		
-			imageNominalFrequency = row.imageNominalFrequency;
+			descriptionType = row->descriptionType;
+		
+			imageChannelNumber = row->imageChannelNumber;
+		
+			imageNominalFrequency = row->imageNominalFrequency;
 		
 		
 		

@@ -2997,10 +2997,10 @@ polarizationType = CPolarizationType::from_int(0);
 		
 	}
 	
-	CalPointingModelRow::CalPointingModelRow (CalPointingModelTable &t, CalPointingModelRow &row) : table(t) {
+	CalPointingModelRow::CalPointingModelRow (CalPointingModelTable &t, CalPointingModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3052,57 +3052,57 @@ polarizationType = CPolarizationType::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			antennaMake = row.antennaMake;
-		
-			pointingModelMode = row.pointingModelMode;
-		
-			polarizationType = row.polarizationType;
-		
-			numCoeff = row.numCoeff;
-		
-			coeffName = row.coeffName;
-		
-			coeffVal = row.coeffVal;
-		
-			coeffError = row.coeffError;
-		
-			coeffFixed = row.coeffFixed;
-		
-			azimuthRMS = row.azimuthRMS;
-		
-			elevationRms = row.elevationRms;
-		
-			skyRMS = row.skyRMS;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numObsExists) {
-			numObs = row.numObs;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			antennaMake = row->antennaMake;
+		
+			pointingModelMode = row->pointingModelMode;
+		
+			polarizationType = row->polarizationType;
+		
+			numCoeff = row->numCoeff;
+		
+			coeffName = row->coeffName;
+		
+			coeffVal = row->coeffVal;
+		
+			coeffError = row->coeffError;
+		
+			coeffFixed = row->coeffFixed;
+		
+			azimuthRMS = row->azimuthRMS;
+		
+			elevationRms = row->elevationRms;
+		
+			skyRMS = row->skyRMS;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->numObsExists) {
+			numObs = row->numObs;		
 			numObsExists = true;
 		}
 		else
 			numObsExists = false;
 		
-		if (row.coeffFormulaExists) {
-			coeffFormula = row.coeffFormula;		
+		if (row->coeffFormulaExists) {
+			coeffFormula = row->coeffFormula;		
 			coeffFormulaExists = true;
 		}
 		else

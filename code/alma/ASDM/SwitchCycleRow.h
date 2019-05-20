@@ -568,7 +568,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SwitchCycleRow (SwitchCycleTable &table, SwitchCycleRow &row);
+	 SwitchCycleRow (SwitchCycleTable &table, SwitchCycleRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

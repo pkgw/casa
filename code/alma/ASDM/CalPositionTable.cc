@@ -359,7 +359,7 @@ namespace asdm {
 
 
 CalPositionRow* CalPositionTable::newRow(CalPositionRow* row) {
-	return new CalPositionRow(*this, *row);
+	return new CalPositionRow(*this, row);
 }
 
 	//

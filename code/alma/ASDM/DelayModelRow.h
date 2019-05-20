@@ -1617,7 +1617,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DelayModelRow (DelayModelTable &table, DelayModelRow &row);
+	 DelayModelRow (DelayModelTable &table, DelayModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

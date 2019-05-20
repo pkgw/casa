@@ -2742,10 +2742,10 @@ wvrMethod = CWVRMethod::from_int(0);
 		
 	}
 	
-	CalWVRRow::CalWVRRow (CalWVRTable &t, CalWVRRow &row) : table(t) {
+	CalWVRRow::CalWVRRow (CalWVRTable &t, CalWVRRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2789,44 +2789,44 @@ wvrMethod = CWVRMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			wvrMethod = row.wvrMethod;
+			startValidTime = row->startValidTime;
 		
-			numInputAntennas = row.numInputAntennas;
+			endValidTime = row->endValidTime;
 		
-			inputAntennaNames = row.inputAntennaNames;
+			wvrMethod = row->wvrMethod;
 		
-			numChan = row.numChan;
+			numInputAntennas = row->numInputAntennas;
 		
-			chanFreq = row.chanFreq;
+			inputAntennaNames = row->inputAntennaNames;
 		
-			chanWidth = row.chanWidth;
+			numChan = row->numChan;
 		
-			refTemp = row.refTemp;
+			chanFreq = row->chanFreq;
 		
-			numPoly = row.numPoly;
+			chanWidth = row->chanWidth;
 		
-			pathCoeff = row.pathCoeff;
+			refTemp = row->refTemp;
 		
-			polyFreqLimits = row.polyFreqLimits;
+			numPoly = row->numPoly;
 		
-			wetPath = row.wetPath;
+			pathCoeff = row->pathCoeff;
 		
-			dryPath = row.dryPath;
+			polyFreqLimits = row->polyFreqLimits;
 		
-			water = row.water;
+			wetPath = row->wetPath;
+		
+			dryPath = row->dryPath;
+		
+			water = row->water;
 		
 		
 		

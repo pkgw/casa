@@ -60,6 +60,7 @@ def tclean(
 #    sysvel,#='',
 #    sysvelframe,#='',
     interpolation,#='',
+    perchanweightdensity, #=''
     ## 
     ####### Gridding parameters
     gridder,#='ft',
@@ -101,6 +102,7 @@ def tclean(
     ##### Weighting
     weighting,#='natural',
     robust,#=0.5,
+    noise,#0.0Jy
     npixels,#=0,
 #    uvtaper,#=False,
     uvtaper,#=[],
@@ -188,7 +190,7 @@ def tclean(
     defparm=dict(zip(ImagerParameters.__init__.__func__.__code__.co_varnames[1:], ImagerParameters.__init__.func_defaults))
     ###assign values to the ones passed to tclean and if not defined yet in tclean...
     ###assign them the default value of the constructor
-    bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in ImagerParameters.__init__.__func__.__code__.co_varnames[1:-1]}
+    bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in defparm.keys()}
     ###default mosweight=True is tripping other gridders as they are not
     ###expecting it to be true
     if(bparm['mosweight']==True and bparm['gridder'].find("mosaic") == -1):
