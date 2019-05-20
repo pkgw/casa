@@ -68,6 +68,8 @@ class SIMapperCollection
 		  const casacore::Bool overwrite );
   */
   void initializeGrid(vi::VisBuffer2& vb, casacore::Bool dopsf=false,const casacore::Int mapperid=-1);
+  ///This version is for initializing BriggsCubeWeightor
+  void initializeGrid(vi::VisibilityIterator2& vi, casacore::Bool dopsf=false, const casacore::Int mapperid=-1);
   void grid(vi::VisBuffer2& vb, casacore::Bool dopsf=false, refim::FTMachine::Type col=refim::FTMachine::CORRECTED,
 	    const casacore::Int mapperid=-1);
   void finalizeGrid(vi::VisBuffer2& vb, casacore::Bool dopsf=false,const casacore::Int mapperid=-1);
@@ -75,7 +77,7 @@ class SIMapperCollection
   void degrid(vi::VisBuffer2& vb, casacore::Bool saveVirtualMod=false,const casacore::Int mapperid=-1);
   void saveVirtualModel(vi::VisBuffer2& vb);
   void finalizeDegrid(vi::VisBuffer2& vb,const casacore::Int mapperid=-1);
-  void addPB(vi::VisBuffer2& vb, PBMath& pbMath);
+  void addPB(vi::VisBuffer2& vb, PBMath& pbMath, const casacore::MDirection& altDir=casacore::MDirection(), const casacore::Bool useAltDir=False);
 
   //////////// OLD VI/VB : Version that use old vi/vb can be removed the vi2/vb2 works
   void initializeGrid(VisBuffer& vb, casacore::Bool dopsf=false,const casacore::Int mapperid=-1);

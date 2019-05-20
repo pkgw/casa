@@ -29,13 +29,14 @@ template<class T> void ImageFFTer<T>::fft() const {
 	_checkExists(_amp);
 	_checkExists(_phase);
 	_checkExists(_complex);
-	SHARED_PTR<const casacore::SubImage<T> > subImage = SubImageFactory<T>::createSubImageRO(
-		*this->_getImage(), *this->_getRegion(), this->_getMask(), this->_getLog().get(),
-		casacore::AxesSpecifier(), this->_getStretch()
+	auto subImage = SubImageFactory<T>::createSubImageRO(
+		*this->_getImage(), *this->_getRegion(), this->_getMask(),
+		this->_getLog().get(), casacore::AxesSpecifier(), this->_getStretch()
 	);
-	ImageFFT fft;
+	ImageFFT<T> fft;
 	if (_axes.size() == 0) {
-		*this->_getLog() << casacore::LogIO::NORMAL << "FFT the direction coordinate" << casacore::LogIO::POST;
+		*this->_getLog() << casacore::LogIO::NORMAL
+		    << "FFT the direction coordinate" << casacore::LogIO::POST;
 		fft.fftsky(*subImage);
 	}
 	else {
@@ -44,76 +45,71 @@ template<class T> void ImageFFTer<T>::fft() const {
 		for(casacore::uInt i: _axes) {
 			which(_axes(i)) = true;
 		}
-		*this->_getLog() << casacore::LogIO::NORMAL << "FFT zero-based axes " << _axes << casacore::LogIO::POST;
+		*this->_getLog() << casacore::LogIO::NORMAL << "FFT zero-based axes "
+		    << _axes << casacore::LogIO::POST;
 		fft.fft(*subImage, which);
 	}
 
-	casacore::String maskName("");
-	if (! _real.empty()) {
-		auto x = _createFloatImage(_real, *subImage);
-		fft.getReal(*x);
-		this->_doHistory(x);
-	}
-	if (! _imag.empty()) {
-		auto x = _createFloatImage(_imag, *subImage);
-		fft.getImaginary(*x);
-		this->_doHistory(x);
-	}
-	if (! _amp.empty()) {
-		auto x = _createFloatImage(_amp, *subImage);
-		fft.getAmplitude(*x);
-		this->_doHistory(x);
-	}
-	if (! _phase.empty()) {
-		auto x = _createFloatImage(_phase, *subImage);
-		fft.getPhase(*x);
-		this->_doHistory(x);
-	}
-	if (! _complex.empty()) {
-		auto x = _createComplexImage(_complex, *subImage);
-		fft.getComplex(*x);
-		this->_doHistory(x);
-	}
+	// casacore::String maskName("");
+    _createOutputImages(*subImage, fft);
 }
 
-template<class T> SPIIF ImageFFTer<T>::_createFloatImage(
-	const casacore::String& name, const casacore::SubImage<T>& subImage
+template <class T>
+void ImageFFTer<T>::_createOutputImages(
+    const casacore::SubImage<T>& subImage, const ImageFFT<T>& fft
+) const {
+    if (
+        ! (_real.empty() && _imag.empty() && _amp.empty() && _phase.empty())
+    ) {
+        using RealType = typename NumericTraits<T>::BaseType;
+        SPIIRT realImage;
+        if (! _real.empty()) {
+            _createImage(realImage, _real, subImage);
+            fft.getReal(*realImage);
+            this->_doHistory(realImage);
+        }
+        if (! _imag.empty()) {
+            _createImage(realImage, _imag, subImage);
+            fft.getImaginary(*realImage);
+            this->_doHistory(realImage);
+        }
+        if (! _amp.empty()) {
+            _createImage(realImage, _amp, subImage);
+            fft.getAmplitude(*realImage);
+            this->_doHistory(realImage);
+        }
+        if (! _phase.empty()) {
+            _createImage(realImage, _phase, subImage);
+            fft.getPhase(*realImage);
+            this->_doHistory(realImage);
+        }
+    }
+    if (! _complex.empty()) {
+        using ComplexType = std::complex<typename NumericTraits<T>::BaseType>;
+        SPIICT complexImage;
+        _createImage(complexImage, _complex, subImage);
+        fft.getComplex(*complexImage);
+        this->_doHistory(complexImage);
+    }
+}
+
+template<class T> template <class U> void ImageFFTer<T>::_createImage(
+    SPIIU& out, const casacore::String& name,
+    const casacore::SubImage<T>& subImage
 ) const {
 	*this->_getLog() << casacore::LogIO::NORMAL << "Creating image '"
 		<< name << "'" << casacore::LogIO::POST;
-	SPIIF image(
-	    new casacore::PagedImage<casacore::Float>(
-	        subImage.shape(), subImage.coordinates(),
-	        name
+	out.reset(
+	    new casacore::PagedImage<U>(
+	        subImage.shape(), subImage.coordinates(), name
 	    )
 	);
 	if (subImage.isMasked()) {
 		casacore::String x;
 		ImageMaskAttacher::makeMask(
-			*image, x, false, true, *this->_getLog(), true
+			*out, x, false, true, *this->_getLog(), true
 		);
 	}
-	return image;
-}
-
-template<class T> SPIIC ImageFFTer<T>::_createComplexImage(
-	const casacore::String& name, const casacore::SubImage<T>& subImage
-) const {
-	*this->_getLog() << casacore::LogIO::NORMAL << "Creating image '"
-		<< name << "'" << casacore::LogIO::POST;
-	SPIIC image(
-	    new casacore::PagedImage<casacore::Complex>(
-	        subImage.shape(), subImage.coordinates(),
-	        name
-	    )
-	);
-	if (subImage.isMasked()) {
-		casacore::String x;
-		ImageMaskAttacher::makeMask(
-			*image, x, false, true, *this->_getLog(), true
-		);
-	}
-	return image;
 }
 
 template<class T> void ImageFFTer<T>::_checkExists(

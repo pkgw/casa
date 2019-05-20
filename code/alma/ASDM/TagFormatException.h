@@ -28,7 +28,6 @@
 #define TagFormatException_CLASS
 
 #include <string>
-using std::string;
 
 namespace asdm {
 	
@@ -50,7 +49,7 @@ namespace asdm {
      * 	Create an TagFormatException .
      * 	@param msg  A message indicating the cause of the exception.
      */	
-    TagFormatException(string msg);
+    TagFormatException(std::string msg);
 
     /**
      * The DTOR.
@@ -61,10 +60,10 @@ namespace asdm {
     /**
      * Return the name of the exception followed by its cause.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
-    string message;
+    std::string message;
   };
 } // end namespace asdm.
 #endif

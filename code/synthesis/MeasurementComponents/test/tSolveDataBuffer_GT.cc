@@ -104,6 +104,8 @@ public:
    // Make the SDBs
    sdbs.add(*vb0);
 
+   delete vb0;
+
   }
 
   Int nAnt, nCorr, nChan, nRow;

@@ -139,12 +139,16 @@ class Test010_FirstLookatImaging(unittest.TestCase):
             if "rm -rf sis14_twhya_calibrated_flagged.ms" in line:
                 continue
 
+            pattern = r'''niter\ *=\ *(5000)'''
+            if re.search(pattern,line):
+                line = re.sub( pattern, 'niter=250', line )
+
             file.write(line)
         file.close()
         os.remove('FirstLookatImaging.py')
         os.rename("newfile.txt",'FirstLookatImaging.py')
 
-        time.sleep(15)
+        time.sleep(5)
     def tearDown(self):
 
         pass
@@ -167,219 +171,238 @@ class Test020_FirstLookatImaging(unittest.TestCase):
         os.unlink(os.getcwd()+'/sis14_twhya_uncalibrated.ms')
         os.unlink(os.getcwd()+'/sis14_twhya_calibrated_flagged.ms')
 
-        rmtables("secondary*")
-        rmtables("primary_robust*")
+        rmtables("amp_cal*")
+        rmtables("phase_cal*")
         rmtables("twhya*")
         os.system("rm -rf *.last")
         os.system("rm -rf *.flagversions")
         os.system("rm -rf my_script.py")
 
-    def test_1_primary_robust_flux(self):
-        '''Test 1: Check primary_robust.flux'''
-        tableName = 'primary_robust.flux'
+    def test_1_amp_cal_bigpix_image(self):
+        tableName = 'amp_cal_bigpix.image'
         self.assertTrue(openTable(tableName))
 
-    def test_2_primary_robust_image(self):
-        '''Test 2: Check primary_robust.image'''
-        tableName = 'primary_robust.image'
+    def test_2_amp_cal_bigpix_mask(self):
+        tableName = 'amp_cal_bigpix.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_3_primary_robust_model(self):
-        '''Test 3: Check primary_robust.model'''
-        tableName = 'primary_robust.model'
+    def test_3_amp_cal_bigpix_model(self):
+        tableName = 'amp_cal_bigpix.model'
         self.assertTrue(openTable(tableName))
 
-    def test_4_primary_robust_psf(self):
-        '''Test 4: Check primary_robust.psf'''
-        tableName = 'primary_robust.psf'
+    def test_4_amp_cal_bigpix_bp(self):
+        tableName = 'amp_cal_bigpix.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_5_primary_robust_residual(self):
-        '''Test 5: Check primary_robust.residual'''
-        tableName = 'primary_robust.residual'
+    def test_5_amp_cal_bigpix_psf(self):
+        tableName = 'amp_cal_bigpix.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_6_secondary_flux(self):
-        '''Test 6: Check secondary.flux'''
-        tableName = 'secondary.flux'
+    def test_6_amp_cal_bigpix_residual(self):
+        tableName = 'amp_cal_bigpix.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_7_secondary_image(self):
-        '''Test 7: Check secondary.image'''
-        tableName = 'secondary.image'
+    def test_7_amp_cal_bigpix_sumwt(self):
+        tableName = 'amp_cal_bigpix.sumwt'
         self.assertTrue(openTable(tableName))
 
-    def test_8_secondary_model(self):
-        '''Test 8: Check secondary.model'''
-        tableName = 'secondary.model'
+    def test_8_amp_cal_robust_image(self):
+        tableName = 'amp_cal_robust.image'
         self.assertTrue(openTable(tableName))
 
-    def test_9_secondary_psf(self):
-        '''Test 9: Check secondary.psf'''
-        tableName = 'secondary.psf'
+    def test_9_amp_cal_robust_mask(self):
+        tableName = 'amp_cal_robust.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_10_secondary_residual(self):
-        '''Test 10: Check secondary.residual'''
-        tableName = 'secondary.residual'
+    def test_10_amp_cal_robust_model(self):
+        tableName = 'amp_cal_robust.model'
         self.assertTrue(openTable(tableName))
 
-    def test_11_secondary_bigpix_flux(self):
-        '''Test 11: Check secondary_bigpix.flux'''
-        tableName = 'secondary_bigpix.flux'
+    def test_11_amp_cal_robust_bp(self):
+        tableName = 'amp_cal_robust.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_12_secondary_bigpix_image(self):
-        '''Test 12: Check secondary_bigpix.image'''
-        tableName = 'secondary_bigpix.image'
+    def test_12_amp_cal_robust_psf(self):
+        tableName = 'amp_cal_robust.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_13_secondary_bigpix_model(self):
-        '''Test 13: Check secondary_bigpix.model'''
-        tableName = 'secondary_bigpix.model'
+    def test_13_amp_cal_robust_residual(self):
+        tableName = 'amp_cal_robust.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_14_secondary_bigpix_psf(self):
-        '''Test 14: Check secondary_bigpix.psf'''
-        tableName = 'secondary_bigpix.psf'
+    def test_14_amp_cal_robust_sumwt(self):
+        tableName = 'amp_cal_robust.sumwt'
         self.assertTrue(openTable(tableName))
 
-    def test_15_secondary_bigpix_residual(self):
-        '''Test 15: Check secondary_bigpix.residual'''
-        tableName = 'secondary_bigpix.residual'
+    def test_15_phase_cal_image(self):
+        tableName = 'phase_cal.image'
         self.assertTrue(openTable(tableName))
 
-    def test_16_secondary_robust_flux(self):
-        '''Test 16: Check secondary_robust.flux'''
-        tableName = 'secondary_robust.flux'
+    def test_16_phase_cal_mask(self):
+        tableName = 'phase_cal.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_17_secondary_robust_image(self):
-        '''Test 17: Check secondary_robust.image'''
-        tableName = 'secondary_robust.image'
+    def test_17_phase_cal_model(self):
+        tableName = 'phase_cal.model'
         self.assertTrue(openTable(tableName))
 
-    def test_18_secondary_robust_model(self):
-        '''Test 18: Check secondary_robust.model'''
-        tableName = 'secondary_robust.model'
+    def test_18_phase_cal_bp(self):
+        tableName = 'phase_cal.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_19_secondary_robust_psf(self):
-        '''Test 19: Check secondary_robust.psf'''
-        tableName = 'secondary_robust.psf'
+    def test_19_phase_cal_psf(self):
+        tableName = 'phase_cal.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_20_secondary_robust_residual(self):
-        '''Test 20: Check secondary_robust.residual'''
-        tableName = 'secondary_robust.residual'
+    def test_20_phase_cal_residual(self):
+        tableName = 'phase_cal.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_21_secondary_uncalibrated_flux(self):
-        '''Test 21: Check secondary_uncalibrated.flux'''
-        tableName = 'secondary_uncalibrated.flux'
+    def test_21_phase_cal_sumwt(self):
+        tableName = 'phase_cal.sumwt'
         self.assertTrue(openTable(tableName))
 
-    def test_22_secondary_uncalibrated_image(self):
-        '''Test 22: Check secondary_uncalibrated.image'''
-        tableName = 'secondary_uncalibrated.image'
+    def test_22_phase_cal_robust_image(self):
+        tableName = 'phase_cal_robust.image'
         self.assertTrue(openTable(tableName))
 
-    def test_23_secondary_uncalibrated_model(self):
-        '''Test 23: Check secondary_uncalibrated.model'''
-        tableName = 'secondary_uncalibrated.model'
+    def test_23_phase_cal_robust_mask(self):
+        tableName = 'phase_cal_robust.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_24_secondary_uncalibrated_psf(self):
-        '''Test 24: Check secondary_uncalibrated.psf'''
-        tableName = 'secondary_uncalibrated.psf'
+    def test_24_phase_cal_robust_model(self):
+        tableName = 'phase_cal_robust.model'
         self.assertTrue(openTable(tableName))
 
-    def test_25_secondary_uncalibrated_residual(self):
-        '''Test 25: Check secondary_uncalibrated.residual'''
-        tableName = 'secondary_uncalibrated.residual'
+    def test_25_phase_cal_robust_bp(self):
+        tableName = 'phase_cal_robust.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_26_secondary_unflagged_flux(self):
-        '''Test 26: Check secondary_unflagged.flux'''
-        tableName = 'secondary_unflagged.flux'
+    def test_26_phase_cal_robust_psf(self):
+        tableName = 'phase_cal_robust.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_27_secondary_unflagged_image(self):
-        '''Test 27: Check secondary_unflagged.image'''
-        tableName = 'secondary_unflagged.image'
+    def test_27_phase_cal_robust_residual(self):
+        tableName = 'phase_cal_robust.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_28_secondary_unflagged_model(self):
-        '''Test 28: Check secondary_unflagged.model'''
-        tableName = 'secondary_unflagged.model'
+    def test_28_phase_cal_robust_sumwt(self):
+        tableName = 'phase_cal_robust.sumwt'
         self.assertTrue(openTable(tableName))
 
-    def test_29_secondary_unflagged_psf(self):
-        '''Test 29: Check secondary_unflagged.psf'''
-        tableName = 'secondary_unflagged.psf'
+    def test_29_phase_cal_uncalibrated_image(self):
+        tableName = 'phase_cal_uncalibrated.image'
         self.assertTrue(openTable(tableName))
 
-    def test_30_secondary_unflagged_residual(self):
-        '''Test 30: Check secondary_unflagged.residual'''
-        tableName = 'secondary_unflagged.residual'
+    def test_30_phase_cal_uncalibrated_mask(self):
+        tableName = 'phase_cal_uncalibrated.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_40_twhya_cont_flux(self):
-        '''Test 40: Check twhya_cont.flux'''
-        tableName = 'twhya_cont.flux'
+    def test_31_phase_cal_uncalibrated_model(self):
+        tableName = 'phase_cal_uncalibrated.model'
         self.assertTrue(openTable(tableName))
 
-    def test_41_twhya_cont_image(self):
-        '''Test 41: Check twhya_cont.image'''
-        tableName = 'twhya_cont.image'
+    def test_32_phase_cal_uncalibrated_bp(self):
+        tableName = 'phase_cal_uncalibrated.pb'
         self.assertTrue(openTable(tableName))
 
-    def test_42_twhya_cont_model(self):
-        '''Test 42: Check twhya_cont.model'''
-        tableName = 'twhya_cont.model'
+    def test_33_phase_cal_uncalibrated_psf(self):
+        tableName = 'phase_cal_uncalibrated.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_43_twhya_cont_pbcor_image(self):
-        '''Test 43: Check twhya_cont.pbcor.image'''
-        tableName = 'twhya_cont.pbcor.image'
+    def test_34_phase_cal_uncalibrated_residual(self):
+        tableName = 'phase_cal_uncalibrated.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_44_twhya_cont_psf(self):
-        '''Test 44: Check twhya_cont.psf'''
-        tableName = 'twhya_cont.psf'
+    def test_35_phase_cal_uncalibrated_sumwt(self):
+        tableName = 'phase_cal_uncalibrated.sumwt'
         self.assertTrue(openTable(tableName))
 
-    def test_45_twhya_cont_residual(self):
-        '''Test 45: Check twhya_cont.residual'''
-        tableName = 'twhya_cont.residual'
+    def test_36_phase_cal_unflagged_image(self):
+        tableName = 'phase_cal_unflagged.image'
         self.assertTrue(openTable(tableName))
 
-    def test_46_twhya_cont_auto_flux(self):
-        '''Test 46: Check twhya_cont_auto.flux'''
-        tableName = 'twhya_cont_auto.flux'
+    def test_37_phase_cal_unflagged_mask(self):
+        tableName = 'phase_cal_unflagged.mask'
         self.assertTrue(openTable(tableName))
 
-    def test_47_twhya_cont_auto_image(self):
-        '''Test 47: Check twhya_cont_auto.image'''
+    def test_38_phase_cal_unflagged_model(self):
+        tableName = 'phase_cal_unflagged.model'
+        self.assertTrue(openTable(tableName))
+
+    def test_39_phase_cal_unflagged_bp(self):
+        tableName = 'phase_cal_unflagged.pb'
+        self.assertTrue(openTable(tableName))
+
+    def test_40_phase_cal_unflagged_psf(self):
+        tableName = 'phase_cal_unflagged.psf'
+        self.assertTrue(openTable(tableName))
+
+    def test_41_phase_cal_unflagged_residual(self):
+        tableName = 'phase_cal_unflagged.residual'
+        self.assertTrue(openTable(tableName))
+
+    def test_42_phase_cal_unflagged_sumwt(self):
+        tableName = 'phase_cal_unflagged.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_43_twhya_cont_auto_image(self):
         tableName = 'twhya_cont_auto.image'
         self.assertTrue(openTable(tableName))
 
-    def test_48_twhya_cont_auto_model(self):
-        '''Test 48: Check twhya_cont_auto.model'''
+    def test_44_twhya_cont_auto_mask(self):
+        tableName = 'twhya_cont_auto.mask'
+        self.assertTrue(openTable(tableName))
+
+    def test_45_twhya_cont_auto_model(self):
         tableName = 'twhya_cont_auto.model'
         self.assertTrue(openTable(tableName))
 
-    def test_49_twhya_cont_auto_psf(self):
-        '''Test 49: Check twhya_cont_auto.psf'''
+    def test_46_twhya_cont_auto_bp(self):
+        tableName = 'twhya_cont_auto.pb'
+        self.assertTrue(openTable(tableName))
+
+    def test_47_twhya_cont_auto_psf(self):
         tableName = 'twhya_cont_auto.psf'
         self.assertTrue(openTable(tableName))
 
-    def test_50_twhya_cont_auto_residual(self):
-        '''Test 50: Check twhya_cont_auto.residual'''
+    def test_48_twhya_cont_auto_residual(self):
         tableName = 'twhya_cont_auto.residual'
         self.assertTrue(openTable(tableName))
 
-    def test_51_twhya_smoothed_ms(self):
+    def test_49_twhya_cont_auto_sumwt(self):
+        tableName = 'twhya_cont_auto.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_50_twhya_cont_image(self):
+        tableName = 'twhya_cont.image'
+        self.assertTrue(openTable(tableName))
+
+    def test_51_twhya_cont_mask(self):
+        tableName = 'twhya_cont.mask'
+        self.assertTrue(openTable(tableName))
+
+    def test_52_twhya_cont_model(self):
+        tableName = 'twhya_cont.model'
+        self.assertTrue(openTable(tableName))
+
+    def test_53_twhya_cont_bp(self):
+        tableName = 'twhya_cont.pb'
+        self.assertTrue(openTable(tableName))
+
+    def test_54_twhya_cont_psf(self):
+        tableName = 'twhya_cont.psf'
+        self.assertTrue(openTable(tableName))
+
+    def test_55_twhya_cont_residual(self):
+        tableName = 'twhya_cont.residual'
+        self.assertTrue(openTable(tableName))
+
+    def test_56_twhya_cont_sumwt(self):
+        tableName = 'twhya_cont.sumwt'
+        self.assertTrue(openTable(tableName))
+
+    def test_57_twhya_smoothed_ms(self):
         '''Test 51: Check twhya_smoothed.ms'''
         tableName = 'twhya_smoothed.ms'
         self.assertTrue(openTable(tableName))

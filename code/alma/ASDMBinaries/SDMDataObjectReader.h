@@ -39,15 +39,14 @@
 #undef REG_STARTEND
 #endif
 
-
+#ifndef WITHOUT_BOOST
 #include <boost/regex.hpp> 
+#else
+#include <regex>
+#endif
 
-#include "SDMDataObjectParser.h"
-#include "SDMDataObject.h"
-
-using namespace std;
-using namespace boost;
-
+#include <alma/ASDMBinaries/SDMDataObjectParser.h>
+#include <alma/ASDMBinaries/SDMDataObject.h>
 
 /*
 typedef long long          ACTUALDURATIONSTYPE;
@@ -76,7 +75,7 @@ namespace asdmbinaries {
      * A constructor with a message associated with the exception.
      * @param m a string containing the message.
      */
-    SDMDataObjectReaderException(string m);
+    SDMDataObjectReaderException(std::string m);
     
     /**
      * The destructor.
@@ -87,17 +86,17 @@ namespace asdmbinaries {
      * Returns the message associated to this exception.
      * @return a string.
      */
-    string getMessage() const;
+    std::string getMessage() const;
     
   protected:
-    string message;
+    std::string message;
     
   };
 
   inline SDMDataObjectReaderException::SDMDataObjectReaderException() : message ("SDMDataObjectReaderException") {}
-  inline SDMDataObjectReaderException::SDMDataObjectReaderException(string m) : message(m) {}
+  inline SDMDataObjectReaderException::SDMDataObjectReaderException(std::string m) : message(m) {}
   inline SDMDataObjectReaderException::~SDMDataObjectReaderException() {}
-  inline string SDMDataObjectReaderException::getMessage() const {
+  inline std::string SDMDataObjectReaderException::getMessage() const {
     return "SDMDataObjectReaderException : " + message;
   }
 
@@ -128,7 +127,7 @@ namespace asdmbinaries {
      * @throw SDMDataObjectReaderException
      */
 
-    const SDMDataObject & read(string filename);
+    const SDMDataObject & read(std::string filename);
 
     /**
      * This method reads a MIME message contained in a memory buffer and returns a reference to an SDMDataObject.
@@ -170,41 +169,47 @@ namespace asdmbinaries {
     int filedes_;
     unsigned int dataSize_;
     char* data_;
-    string::size_type position_;
-    string::size_type lastPosition_;
-    string::size_type endPosition_;
+    std::string::size_type position_;
+    std::string::size_type lastPosition_;
+    std::string::size_type endPosition_;
 
     unsigned int integrationNum_;
-    unsigned int scanNum_;
 
     static const bool initClass_;
     static bool initClass();
     void init() ;
-    string::size_type find(const string& s);
-    bool compare(const string& s);
+    std::string::size_type find(const std::string& s);
+    bool compare(const std::string& s);
     bool EOD();
 
     // Two strings used as MIME boundaries
-    static const string MIMEBOUNDARY_1;
-    static const string MIMEBOUNDARY_2;
+    static const std::string MIMEBOUNDARY_1;
+    static const std::string MIMEBOUNDARY_2;
     
     // Regular expressions used to identify a Content-ID field in a MIME header
-    static const regex CONTENTIDDATASTRUCTUREREGEXP;
-    static const regex CONTENTIDSUBSETREGEXP;
-    static const regex CONTENTIDBINREGEXP;
-    static const regex CONTENTIDBINREGEXP1;
-    static const regex CONTENTIDBINREGEXP2;
-
+#ifndef WITHOUT_BOOST
+    static const boost::regex CONTENTIDDATASTRUCTUREREGEXP;
+    static const boost::regex CONTENTIDSUBSETREGEXP;
+    static const boost::regex CONTENTIDBINREGEXP;
+    static const boost::regex CONTENTIDBINREGEXP1;
+    static const boost::regex CONTENTIDBINREGEXP2;
+#else
+    static const std::regex CONTENTIDDATASTRUCTUREREGEXP;
+    static const std::regex CONTENTIDSUBSETREGEXP;
+    static const std::regex CONTENTIDBINREGEXP;
+    static const std::regex CONTENTIDBINREGEXP1;
+    static const std::regex CONTENTIDBINREGEXP2;
+#endif
     // Set of valid binary attachment names
-    static set<string> BINATTACHNAMES;
+    static std::set<std::string> BINATTACHNAMES;
     enum BINATTACHCODES {ACTUALDURATIONS=0, ACTUALTIMES=1, AUTODATA=2, FLAGS=3, CROSSDATA=4, ZEROLAGS=5};
-    static map<string, BINATTACHCODES> name2code;
+    static std::map<std::string, BINATTACHCODES> name2code;
 
-    string extractXMLHeader(const string& boundary);
-    void tokenize(const string& str, vector<string>& tokens, const string& delimiters);
-    void getFields(const string& header, map<string, string>& fields);
-    string getContentID();
-    string getContentLocation();
+    std::string extractXMLHeader(const std::string& boundary);
+    void tokenize(const std::string& str, std::vector<std::string>& tokens, const std::string& delimiters);
+    void getFields(const std::string& header, std::map<std::string, std::string>& fields);
+    std::string getContentID();
+    std::string getContentLocation();
 
     void processMIME();
     void processMIMESDMDataHeader();
@@ -212,7 +217,7 @@ namespace asdmbinaries {
     void processMIMEIntegrations();
     void processMIMEIntegration();
     void processMIMESubscan();
-    void processBinaryAttachment(const string& boundary, const SDMDataSubset& sdmDataSubset);
+    void processBinaryAttachment(const std::string& boundary, const SDMDataSubset& sdmDataSubset);
 
 
     // SDMDataObject related stuff
@@ -220,7 +225,7 @@ namespace asdmbinaries {
     SDMDataObject sdmDataObject_;
     const SDMDataObject& sdmDataObject();
 
-    bitset<6> attachmentFlags;
+    std::bitset<6> attachmentFlags;
 
     const ACTUALTIMESTYPE * actualTimes_;
     unsigned long int nActualTimes_;

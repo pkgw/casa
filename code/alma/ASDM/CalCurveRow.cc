@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalCurveRow.h>
-#include <CalCurveTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalCurveRow.h>
+#include <alma/ASDM/CalCurveTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalCurveRow::~CalCurveRow() {
@@ -853,7 +850,9 @@ namespace asdm {
 		
 			
 		rms .clear();
-		vector<float> v_aux_rms;
+        
+        vector<float> v_aux_rms;
+        
 		for (unsigned int i = 0; i < x.rms.length(); ++i) {
 			v_aux_rms.clear();
 			for (unsigned int j = 0; j < x.rms[0].length(); ++j) {
@@ -1744,7 +1743,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 		
 		unsigned int rmsDim1 = eis.readInt();
 		unsigned int rmsDim2 = eis.readInt();
+        
 		vector <float> rmsAux1;
+        
 		for (unsigned int i = 0; i < rmsDim1; i++) {
 			rmsAux1.clear();
 			for (unsigned int j = 0; j < rmsDim2 ; j++)			
@@ -1793,7 +1794,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalCurveRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1801,7 +1804,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an CalCurveType 
 	void CalCurveRow::typeCurveFromText(const string & s) {
 		 
-		typeCurve = ASDMValuesParser::parse<CalCurveType>(s);
+          
+		typeCurve = ASDMValuesParser::parse<CalCurveTypeMod::CalCurveType>(s);
+          
 		
 	}
 	
@@ -1809,7 +1814,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalCurveRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1817,7 +1824,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalCurveRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1825,7 +1834,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalCurveRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1833,7 +1844,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalCurveRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1841,7 +1854,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalCurveRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1849,7 +1864,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalCurveRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1857,7 +1874,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalCurveRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1865,7 +1884,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalCurveRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1873,7 +1894,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalCurveRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1881,7 +1904,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalCurveRow::antennaNamesFromText(const string & s) {
 		 
+          
 		antennaNames = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1889,7 +1914,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalCurveRow::refAntennaNameFromText(const string & s) {
 		 
+          
 		refAntennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1897,7 +1924,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalCurveRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1905,7 +1934,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalCurveRow::curveFromText(const string & s) {
 		 
+          
 		curve = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -1913,7 +1944,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalCurveRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1923,7 +1956,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	void CalCurveRow::numBaselineFromText(const string & s) {
 		numBaselineExists = true;
 		 
+          
 		numBaseline = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1932,7 +1967,9 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	void CalCurveRow::rmsFromText(const string & s) {
 		rmsExists = true;
 		 
+          
 		rms = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2126,21 +2163,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalCurveRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalCurveRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalCurveRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2254,21 +2291,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaNames.
- 	 * @return antennaNames as vector<string >
+ 	 * @return antennaNames as std::vector<std::string >
  	 */
- 	vector<string > CalCurveRow::getAntennaNames() const {
+ 	std::vector<std::string > CalCurveRow::getAntennaNames() const {
 	
   		return antennaNames;
  	}
 
  	/**
- 	 * Set antennaNames with the specified vector<string >.
- 	 * @param antennaNames The vector<string > value to which antennaNames is to be set.
+ 	 * Set antennaNames with the specified std::vector<std::string >.
+ 	 * @param antennaNames The std::vector<std::string > value to which antennaNames is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setAntennaNames (vector<string > antennaNames)  {
+ 	void CalCurveRow::setAntennaNames (std::vector<std::string > antennaNames)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2286,21 +2323,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string CalCurveRow::getRefAntennaName() const {
+ 	std::string CalCurveRow::getRefAntennaName() const {
 	
   		return refAntennaName;
  	}
 
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setRefAntennaName (string refAntennaName)  {
+ 	void CalCurveRow::setRefAntennaName (std::string refAntennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2318,21 +2355,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalCurveRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalCurveRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalCurveRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2350,21 +2387,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get curve.
- 	 * @return curve as vector<vector<vector<float > > >
+ 	 * @return curve as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > CalCurveRow::getCurve() const {
+ 	std::vector<std::vector<std::vector<float > > > CalCurveRow::getCurve() const {
 	
   		return curve;
  	}
 
  	/**
- 	 * Set curve with the specified vector<vector<vector<float > > >.
- 	 * @param curve The vector<vector<vector<float > > > value to which curve is to be set.
+ 	 * Set curve with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param curve The std::vector<std::vector<std::vector<float > > > value to which curve is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setCurve (vector<vector<vector<float > > > curve)  {
+ 	void CalCurveRow::setCurve (std::vector<std::vector<std::vector<float > > > curve)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2382,21 +2419,21 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > CalCurveRow::getReducedChiSquared() const {
+ 	std::vector<double > CalCurveRow::getReducedChiSquared() const {
 	
   		return reducedChiSquared;
  	}
 
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  	
  		
  	 */
- 	void CalCurveRow::setReducedChiSquared (vector<double > reducedChiSquared)  {
+ 	void CalCurveRow::setReducedChiSquared (std::vector<double > reducedChiSquared)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2469,10 +2506,10 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get rms, which is optional.
- 	 * @return rms as vector<vector<float > >
+ 	 * @return rms as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > CalCurveRow::getRms() const  {
+ 	std::vector<std::vector<float > > CalCurveRow::getRms() const  {
 		if (!rmsExists) {
 			throw IllegalAccessException("rms", "CalCurve");
 		}
@@ -2481,12 +2518,12 @@ void CalCurveRow::rmsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set rms with the specified vector<vector<float > >.
- 	 * @param rms The vector<vector<float > > value to which rms is to be set.
+ 	 * Set rms with the specified std::vector<std::vector<float > >.
+ 	 * @param rms The std::vector<std::vector<float > > value to which rms is to be set.
  	 
  	
  	 */
- 	void CalCurveRow::setRms (vector<vector<float > > rms) {
+ 	void CalCurveRow::setRms (std::vector<std::vector<float > > rms) {
 	
  		this->rms = rms;
 	
@@ -2823,10 +2860,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalCurveRow::CalCurveRow (CalCurveTable &t, CalCurveRow &row) : table(t) {
+	CalCurveRow::CalCurveRow (CalCurveTable &t, CalCurveRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2874,53 +2911,53 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			typeCurve = row.typeCurve;
+			typeCurve = row->typeCurve;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			numAntenna = row.numAntenna;
-		
-			numPoly = row.numPoly;
-		
-			numReceptor = row.numReceptor;
-		
-			antennaNames = row.antennaNames;
-		
-			refAntennaName = row.refAntennaName;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			curve = row.curve;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numBaselineExists) {
-			numBaseline = row.numBaseline;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			numAntenna = row->numAntenna;
+		
+			numPoly = row->numPoly;
+		
+			numReceptor = row->numReceptor;
+		
+			antennaNames = row->antennaNames;
+		
+			refAntennaName = row->refAntennaName;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			curve = row->curve;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->numBaselineExists) {
+			numBaseline = row->numBaseline;		
 			numBaselineExists = true;
 		}
 		else
 			numBaselineExists = false;
 		
-		if (row.rmsExists) {
-			rms = row.rms;		
+		if (row->rmsExists) {
+			rms = row->rms;		
 			rmsExists = true;
 		}
 		else
@@ -2952,7 +2989,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalCurveRow::compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared) {
+	bool CalCurveRow::compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -3073,7 +3110,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalCurveRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared) {
+	bool CalCurveRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared) {
 		bool result;
 		result = true;
 		

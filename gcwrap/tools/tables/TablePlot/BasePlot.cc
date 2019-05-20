@@ -2158,14 +2158,14 @@ Int BasePlot::createXTENS(Vector<String> &datastr)
    {
       xtens_p[i] = RecordGram::parse(SelTab_p,datastr[i*2]);
       
-      //if( (xtens_p[i].dataType() != TpDouble)  ) 
       if(!((xtens_p[i].dataType() == TpDouble) ||
            (xtens_p[i].dataType() == TpInt) || 
+           (xtens_p[i].dataType() == TpInt64) || 
            (xtens_p[i].dataType() == TpFloat))) 
       {
          ostringstream dtype;
-         dtype << xtens_p[i].dataType();
-         BasePlotError(String("DataType of TaQL expression (") + 
+         dtype << xtens_p[i].dataType() << ", actual value == '" << datastr[i*2] << "', ";
+         BasePlotError(String("DataType of TaQL expression for X (") + 
                dtype + String(") is not plottable"));
       }
       
@@ -2189,14 +2189,14 @@ Int BasePlot::createYTENS(Vector<String> &datastr)
    {
       ytens_p[i] = RecordGram::parse(SelTab_p,datastr[i*2+1]);
 
-      //if( (ytens_p[i].dataType() != TpDouble) ) 
       if(!((ytens_p[i].dataType() == TpDouble) ||
            (ytens_p[i].dataType() == TpInt) ||
+           (ytens_p[i].dataType() == TpInt64) || 
            (ytens_p[i].dataType() == TpFloat))) 
       {
          ostringstream dtype;
-         dtype << ytens_p[i].dataType();
-         BasePlotError(String("DataType of TaQL expression (") + 
+         dtype << ytens_p[i].dataType() << ", actual value == '" << datastr[i*2] << "', ";
+         BasePlotError(String("DataType of TaQL expression for Y (") + 
               dtype + String(") is not plottable"));
       }
       
@@ -2668,12 +2668,12 @@ void BasePlot::ptTraverse(const TableExprNodeRep *tenr)
          }
            
          /* get children */
-         PtrBlock<TableExprNodeRep*> tenrarr = tenm->getChildren();
+         auto tenrarr = tenm->getChildren();
 #if LOG0
          ostringstream os;
-         os << "Num elements : " << tenrarr.nelements();
+         os << "Num elements : " << tenrarr.size();
 #endif
-         for(Int i=0;i<(Int)tenrarr.nelements();i++)
+         for(Int i=0;i<(Int)tenrarr.size();i++)
          {
 #if LOG0
             os << "\nChild " << i << " ---> " ; 
@@ -2791,12 +2791,12 @@ void BasePlot::ptTraverse(const TableExprNodeRep *tenr)
          }
            
          /* get children */
-         PtrBlock<TableExprNodeRep*> tenrarr = tefn->getChildren();
+         auto tenrarr = tefn->getChildren();
          ostringstream os;
 #if LOG0
-         os << "Num elements : " << tenrarr.nelements();
+         os << "Num elements : " << tenrarr.size();
 #endif
-         for(Int i=0;i<(Int)tenrarr.nelements();i++)
+         for(Int i=0;i<(Int)tenrarr.size();i++)
          {
 #if LOG0
             os << " Child " << i << " " ; 

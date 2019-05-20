@@ -5,9 +5,10 @@ import shutil
 import string
 import time
 import re;
+import numpy as np
 from taskinit import *
 import copy
-
+import operator
 _ia = iatool( )
 _cb = cbtool( )
 
@@ -91,6 +92,23 @@ class TestHelpers():
           else:
                return apos['mask']
 
+     def check_beam_compare(self, im1, im2, op=operator.le):
+         """Compare all plane of cube beam im1 operator op than im2"""
+         _ia.open(im1)
+         nchan=_ia.shape()[3]
+         beam1=np.zeros(nchan)
+         for k in range(nchan):
+             beam1[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close()
+         _ia.open(im2)
+         if(nchan != _ia.shape()[3]):
+             return False
+         beam2=np.zeros(nchan)
+         for k in range(nchan):
+             beam2[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close();
+         return np.alltrue(op(beam1, beam2))
+        
      def exists(self,imname):
           """ Image exists """
           return os.path.exists(imname)
@@ -210,6 +228,10 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
+                    print "pstr after checkims=",pstr
+                    pstr += self.check_keywords(imexist)
+                    print "pstr after check_keywords=",pstr
+
 
           if imexistnot != None:
                if type(imexistnot)==list:
@@ -458,6 +480,128 @@ class TestHelpers():
          _ia.close()
          return csys
 
+     def check_keywords(self, imlist):
+         """
+         Keyword related checks (presence/absence of records and entries in these records,
+         in the keywords of the image table).
+
+         :param imlist: names of the images produced by a test execution.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         """
+         # Keeping the general approach. This is fragile!
+         testname = inspect.stack()[2][3]
+
+         # accumulator of error strings
+         pstr = ''
+         for imname in imlist:
+             if os.path.exists(imname):
+                 issues = self.check_im_keywords(imname, check_misc=True,
+                                                 check_extended=True)
+                 if issues:
+                     pstr += '[{0}] {1}: {2}'.format(testname, imname, issues)
+
+         if not pstr:
+             pstr += 'All expected keywords in imageinfo, miscinfo, and coords found.\n'
+
+         return pstr
+
+     def check_im_keywords(self, imname, check_misc=True, check_extended=True):
+         """
+         Checks several lists of expected and forbidden keywords and entries of these
+         keywords.
+         Forbidden keywords lists introduced with CAS-9231 (prevent duplication of
+         TELESCOP and OBJECT).
+
+         Note that if imname is the top level of a refconcat image, there's no table to open
+         to look for its keywords. In these cases nothing is checked. We would not have the
+         'imageinfo' keywords, only the MiscInfo that goes in imageconcat.json and I'm not
+         sure yet how that one is supposed to behave.
+         Tests should check the 'getNParts() from imname' to make sure the components of
+         the refconcat image exist, have the expected keywords, etc.
+
+         :param imname: image name (output image from tclean)
+         :param check_misc: whether to check miscinfo in addition to imageinfo'
+         :param check_extended: can leave enabled for images other than .tt?, .alpha, etc.
+
+         :returns: the usual (test_imager_helper) string with success/error messages.
+         Errors marked with '(Fail' as per self.verdict().
+         """
+
+         tbt = tbtool()
+         try:
+             tbt.open(imname)
+             keys = tbt.getkeywords()
+         except RuntimeError as exc:
+             #if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             if os.path.isfile(os.path.join(os.path.abspath(imname), 'imageconcat.json')):
+                 # Looks like a refconcat image, nothing to check
+                 #return ''
+                 # make a bit more informative
+                 pstr = 'Looks like it is a refconcat image. Skipping the imageinfo keywords check.'
+                 return pstr
+             else:
+                 pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
+                 return pstr
+         finally:
+             tbt.close()
+
+         pstr = ''
+         if len(keys) <= 0:
+             pstr += ('No keywords found ({0})'.
+                      format(self.verdict(False)))
+             return pstr
+
+         # Records that need to be present
+         imageinfo = 'imageinfo'
+         miscinfo = 'miscinfo'
+         coords = 'coords'
+         mandatory_recs = [imageinfo, coords]
+         if check_misc:
+             mandatory_recs.append(miscinfo)
+         for rec in mandatory_recs:
+             if rec not in keys:
+                 pstr += ('{0} record not found ({1})\n'.
+                          format(rec, self.verdict(False)))
+         if len(pstr) > 0:
+            return pstr
+
+         mandatory_imageinfo = ['objectname', 'imagetype']
+         pstr += self.check_expected_entries(mandatory_imageinfo, imageinfo, keys)
+
+         if check_misc:
+             if check_extended:
+                 mandatory_miscinfo = ['INSTRUME', 'distance']
+                 pstr += self.check_expected_entries(mandatory_miscinfo, miscinfo, keys)
+             forbidden_miscinfo = ['OBJECT', 'TELESCOP']
+             pstr += self.check_forbidden_entries(forbidden_miscinfo, miscinfo, keys)
+
+         mandatory_coords = ['telescope']
+         pstr += self.check_expected_entries(mandatory_coords, coords, keys)
+
+         return pstr
+
+     def check_expected_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry not in keys[record]:
+                 pstr += ('entry {0} not found in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+             else:
+                 # TODO: many tests leave 'distance' empty. Assume that's acceptable...
+                 if entry != 'distance' and not keys[record][entry]:
+                     pstr += ('entry {0} is found in record {1} but it is empty ({2})\n'.
+                              format(entry, record, self.verdict(False)))
+
+         return pstr
+
+     def check_forbidden_entries(self, entries, record, keys):
+         pstr = ''
+         for entry in entries:
+             if entry in keys[record]:
+                 pstr += ('entry {0} should not be in record {1} ({2})\n'.
+                          format(entry, record, self.verdict(False)))
+         return pstr
 
      def modeltype(self,msname):
           """has no model, otf model, modelcol"""
@@ -564,13 +708,79 @@ class TestHelpers():
                imlist=[];
                for imext in imexts:
                     for part in range(1,self.nproc+1):
-                         imlist.append( imprefix+'.workdirectory/'+imprefix + '.n'+str(part)+'.'+imext )
+                         imlist.append( imprefix+'.workdirectory/'+
+                                        os.path.basename(imprefix) + '.n'+str(part)+
+                                        '.'+imext )
                #self.checkall(imexist = imlist)
 
           else:
                print 'Not a parallel run of CASA'
 
           return imlist
+
+     def mergeParaCubeResults(self, 
+                          ret=None,  
+                          parlist=[]
+                          #peakres=None, # a float
+                          #modflux=None, # a float
+                          #iterdone=None, # an int
+                          #nmajordone=None, # an int
+                          #imexist=None,  # list of image names
+                          #imexistnot=None, # list of image names
+                          #imval=None,  # list of tuples of (imagename,val,pos)
+                          #imvalexact=None, # list of tuples of (imagename,val,pos)
+                          #immask=None,  #list of tuples to check mask value
+                          #tabcache=True,
+                          #stopcode=None,
+                          #reffreq=None # list of tuples of (imagename, reffreq)
+                          ):
+         if ret!=None and type(ret)==dict:
+             if ret.keys()[0].count('node'):
+                 mergedret={}
+                 nodenames = ret.keys()
+                 print "ret NOW=",ret
+                 # must be parallel cube results
+                 if parlist.count('iterdone'):
+                     retIterdone = 0
+                     for inode in nodenames:
+                         print "ret[",inode,"]=",ret[inode]
+                         print "inode.strip = ", int(inode.strip('node'))
+                         retIterdone+=ret[inode][int(inode.strip('node'))]['iterdone']
+                     mergedret['iterdone']=retIterdone
+                 if parlist.count('nmajordone'):
+                     retNmajordone = 0
+                     for inode in nodenames:
+                         retNmajordone = max(ret[inode][int(inode.strip('node'))]['nmajordone'],retNmajordone) 
+                     mergedret['nmajordone']=retNmajordone
+                 if parlist.count('peakres'):
+                     #retPeakres = 0
+                     #for inode in nodenames:
+                         #tempreslist = ret[inode][int(inode.strip('node'))]['summaryminor'][1,:]
+                         #if len(tempreslist)>0: 
+                         #    tempresval = tempreslist[len(tempreslist)-1]
+                         #else: 
+                         #    tempresval=0.0
+                         #retPeakres = max(tempresval,retPeakres) 
+                     mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                 if parlist.count('modflux'):
+                     #retModflux = 0
+                     #for inode in nodenames:
+                     #    tempmodlist = ret[inode][int(inode.strip('node'))]['summaryminor'][2,:]
+                     #    print "tempmodlist for ",inode,"=",tempmodlist
+                     #    if len(tempmodlist)>0:
+                     #         tempmodval=tempmodlist[len(tempmodlist)-1]
+                     #    else:
+                     #         tempmodval=0.0
+                     #    retModflux += tempmodval
+                     #mergedret['modflux']=retModflux
+                    if not mergedret.has_key('summaryminor'):
+                        mergedret['summryminor']=et['node1'][1]['summaryminor']
+                 if parlist.count('stopcode'):
+                     mergedret['stopcode']=ret['node1'][1]['stopcode']
+             else:
+                 mergedret=ret 
+
+         return mergedret
 
 ##############################################
 

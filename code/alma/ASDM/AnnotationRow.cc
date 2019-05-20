@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <AnnotationRow.h>
-#include <AnnotationTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/AnnotationRow.h>
+#include <alma/ASDM/AnnotationTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::AntennaTable;
 using asdm::AntennaRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	AnnotationRow::~AnnotationRow() {
@@ -310,6 +307,20 @@ namespace asdm {
 			 						
 		
 			
+		
+	
+
+	
+  		
+		
+		x->sValueExists = sValueExists;
+		
+		
+			
+				
+		x->sValue = CORBA::string_dup(sValue.c_str());
+				
+ 			
 		
 	
 
@@ -564,6 +575,20 @@ namespace asdm {
 	
 
 	
+  		
+		
+		x.sValueExists = sValueExists;
+		
+		
+			
+				
+		x.sValue = CORBA::string_dup(sValue.c_str());
+				
+ 			
+		
+	
+
+	
 	
 		
 	
@@ -750,7 +775,9 @@ namespace asdm {
 		
 			
 		vvdValues .clear();
-		vector<double> v_aux_vvdValues;
+        
+        vector<double> v_aux_vvdValues;
+        
 		for (unsigned int i = 0; i < x.vvdValues.length(); ++i) {
 			v_aux_vvdValues.clear();
 			for (unsigned int j = 0; j < x.vvdValues[0].length(); ++j) {
@@ -810,7 +837,9 @@ namespace asdm {
 		
 			
 		vvllValue .clear();
-		vector<int64_t> v_aux_vvllValue;
+        
+        vector<int64_t> v_aux_vvllValue;
+        
 		for (unsigned int i = 0; i < x.vvllValue.length(); ++i) {
 			v_aux_vvllValue.clear();
 			for (unsigned int j = 0; j < x.vvllValue[0].length(); ++j) {
@@ -822,6 +851,21 @@ namespace asdm {
 		}
 			
   		
+		
+		}
+		
+	
+
+	
+		
+		sValueExists = x.sValueExists;
+		if (x.sValueExists) {
+		
+		
+			
+		setSValue(string (x.sValue));
+			
+ 		
 		
 		}
 		
@@ -1018,6 +1062,18 @@ namespace asdm {
 		
 	
 
+  	
+ 		
+		if (sValueExists) {
+		
+		
+		Parser::toXML(sValue, "sValue", buf);
+		
+		
+		}
+		
+	
+
 	
 	
 		
@@ -1194,6 +1250,16 @@ namespace asdm {
 	  		setVvllValue(Parser::get2DLong("vvllValue","Annotation",rowDoc));
 	  			
 	  		
+		}
+ 		
+	
+
+	
+  		
+        if (row.isStr("<sValue>")) {
+			
+	  		setSValue(Parser::getString("sValue","Annotation",rowDoc));
+			
 		}
  		
 	
@@ -1429,6 +1495,20 @@ namespace asdm {
 
 	}
 
+	eoss.writeBoolean(sValueExists);
+	if (sValueExists) {
+	
+	
+	
+		
+						
+			eoss.writeString(sValue);
+				
+		
+	
+
+	}
+
 	eoss.writeBoolean(antennaIdExists);
 	if (antennaIdExists) {
 	
@@ -1618,7 +1698,9 @@ void AnnotationRow::vvdValuesFromBin(EndianIStream& eis) {
 		
 		unsigned int vvdValuesDim1 = eis.readInt();
 		unsigned int vvdValuesDim2 = eis.readInt();
+        
 		vector <double> vvdValuesAux1;
+        
 		for (unsigned int i = 0; i < vvdValuesDim1; i++) {
 			vvdValuesAux1.clear();
 			for (unsigned int j = 0; j < vvdValuesDim2 ; j++)			
@@ -1692,7 +1774,9 @@ void AnnotationRow::vvllValueFromBin(EndianIStream& eis) {
 		
 		unsigned int vvllValueDim1 = eis.readInt();
 		unsigned int vvllValueDim2 = eis.readInt();
+        
 		vector <int64_t> vvllValueAux1;
+        
 		for (unsigned int i = 0; i < vvllValueDim1; i++) {
 			vvllValueAux1.clear();
 			for (unsigned int j = 0; j < vvllValueDim2 ; j++)			
@@ -1704,6 +1788,23 @@ void AnnotationRow::vvllValueFromBin(EndianIStream& eis) {
 	
 	
 
+		
+	
+
+	}
+	
+}
+void AnnotationRow::sValueFromBin(EndianIStream& eis) {
+		
+	sValueExists = eis.readBoolean();
+	if (sValueExists) {
+		
+	
+	
+		
+			
+		sValue =  eis.readString();
+			
 		
 	
 
@@ -1760,7 +1861,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void AnnotationRow::annotationIdFromText(const string & s) {
 		 
+          
 		annotationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1768,7 +1871,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void AnnotationRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1776,7 +1881,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void AnnotationRow::issueFromText(const string & s) {
 		 
+          
 		issue = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1784,7 +1891,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void AnnotationRow::detailsFromText(const string & s) {
 		 
+          
 		details = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1794,7 +1903,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::numAntennaFromText(const string & s) {
 		numAntennaExists = true;
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1803,7 +1914,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::basebandNameFromText(const string & s) {
 		basebandNameExists = true;
 		 
-		basebandName = ASDMValuesParser::parse1D<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse1D<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -1812,7 +1925,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::numBasebandFromText(const string & s) {
 		numBasebandExists = true;
 		 
+          
 		numBaseband = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1821,7 +1936,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::intervalFromText(const string & s) {
 		intervalExists = true;
 		 
+          
 		interval = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1830,7 +1947,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::dValueFromText(const string & s) {
 		dValueExists = true;
 		 
+          
 		dValue = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1839,7 +1958,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::vdValueFromText(const string & s) {
 		vdValueExists = true;
 		 
+          
 		vdValue = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1848,7 +1969,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::vvdValuesFromText(const string & s) {
 		vvdValuesExists = true;
 		 
+          
 		vvdValues = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -1857,7 +1980,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::llValueFromText(const string & s) {
 		llValueExists = true;
 		 
+          
 		llValue = ASDMValuesParser::parse<int64_t>(s);
+          
 		
 	}
 	
@@ -1866,7 +1991,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::vllValueFromText(const string & s) {
 		vllValueExists = true;
 		 
+          
 		vllValue = ASDMValuesParser::parse1D<int64_t>(s);
+          
 		
 	}
 	
@@ -1875,7 +2002,20 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::vvllValueFromText(const string & s) {
 		vvllValueExists = true;
 		 
+          
 		vvllValue = ASDMValuesParser::parse2D<int64_t>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an String 
+	void AnnotationRow::sValueFromText(const string & s) {
+		sValueExists = true;
+		 
+          
+		sValue = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1884,7 +2024,9 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	void AnnotationRow::antennaIdFromText(const string & s) {
 		antennaIdExists = true;
 		 
+          
 		antennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1974,21 +2116,21 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get issue.
- 	 * @return issue as string
+ 	 * @return issue as std::string
  	 */
- 	string AnnotationRow::getIssue() const {
+ 	std::string AnnotationRow::getIssue() const {
 	
   		return issue;
  	}
 
  	/**
- 	 * Set issue with the specified string.
- 	 * @param issue The string value to which issue is to be set.
+ 	 * Set issue with the specified std::string.
+ 	 * @param issue The std::string value to which issue is to be set.
  	 
  	
  		
  	 */
- 	void AnnotationRow::setIssue (string issue)  {
+ 	void AnnotationRow::setIssue (std::string issue)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2006,21 +2148,21 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get details.
- 	 * @return details as string
+ 	 * @return details as std::string
  	 */
- 	string AnnotationRow::getDetails() const {
+ 	std::string AnnotationRow::getDetails() const {
 	
   		return details;
  	}
 
  	/**
- 	 * Set details with the specified string.
- 	 * @param details The string value to which details is to be set.
+ 	 * Set details with the specified std::string.
+ 	 * @param details The std::string value to which details is to be set.
  	 
  	
  		
  	 */
- 	void AnnotationRow::setDetails (string details)  {
+ 	void AnnotationRow::setDetails (std::string details)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2093,10 +2235,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get basebandName, which is optional.
- 	 * @return basebandName as vector<BasebandNameMod::BasebandName >
+ 	 * @return basebandName as std::vector<BasebandNameMod::BasebandName >
  	 * @throw IllegalAccessException If basebandName does not exist.
  	 */
- 	vector<BasebandNameMod::BasebandName > AnnotationRow::getBasebandName() const  {
+ 	std::vector<BasebandNameMod::BasebandName > AnnotationRow::getBasebandName() const  {
 		if (!basebandNameExists) {
 			throw IllegalAccessException("basebandName", "Annotation");
 		}
@@ -2105,12 +2247,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set basebandName with the specified vector<BasebandNameMod::BasebandName >.
- 	 * @param basebandName The vector<BasebandNameMod::BasebandName > value to which basebandName is to be set.
+ 	 * Set basebandName with the specified std::vector<BasebandNameMod::BasebandName >.
+ 	 * @param basebandName The std::vector<BasebandNameMod::BasebandName > value to which basebandName is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setBasebandName (vector<BasebandNameMod::BasebandName > basebandName) {
+ 	void AnnotationRow::setBasebandName (std::vector<BasebandNameMod::BasebandName > basebandName) {
 	
  		this->basebandName = basebandName;
 	
@@ -2281,10 +2423,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get vdValue, which is optional.
- 	 * @return vdValue as vector<double >
+ 	 * @return vdValue as std::vector<double >
  	 * @throw IllegalAccessException If vdValue does not exist.
  	 */
- 	vector<double > AnnotationRow::getVdValue() const  {
+ 	std::vector<double > AnnotationRow::getVdValue() const  {
 		if (!vdValueExists) {
 			throw IllegalAccessException("vdValue", "Annotation");
 		}
@@ -2293,12 +2435,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set vdValue with the specified vector<double >.
- 	 * @param vdValue The vector<double > value to which vdValue is to be set.
+ 	 * Set vdValue with the specified std::vector<double >.
+ 	 * @param vdValue The std::vector<double > value to which vdValue is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setVdValue (vector<double > vdValue) {
+ 	void AnnotationRow::setVdValue (std::vector<double > vdValue) {
 	
  		this->vdValue = vdValue;
 	
@@ -2328,10 +2470,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get vvdValues, which is optional.
- 	 * @return vvdValues as vector<vector<double > >
+ 	 * @return vvdValues as std::vector<std::vector<double > >
  	 * @throw IllegalAccessException If vvdValues does not exist.
  	 */
- 	vector<vector<double > > AnnotationRow::getVvdValues() const  {
+ 	std::vector<std::vector<double > > AnnotationRow::getVvdValues() const  {
 		if (!vvdValuesExists) {
 			throw IllegalAccessException("vvdValues", "Annotation");
 		}
@@ -2340,12 +2482,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set vvdValues with the specified vector<vector<double > >.
- 	 * @param vvdValues The vector<vector<double > > value to which vvdValues is to be set.
+ 	 * Set vvdValues with the specified std::vector<std::vector<double > >.
+ 	 * @param vvdValues The std::vector<std::vector<double > > value to which vvdValues is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setVvdValues (vector<vector<double > > vvdValues) {
+ 	void AnnotationRow::setVvdValues (std::vector<std::vector<double > > vvdValues) {
 	
  		this->vvdValues = vvdValues;
 	
@@ -2422,10 +2564,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get vllValue, which is optional.
- 	 * @return vllValue as vector<int64_t >
+ 	 * @return vllValue as std::vector<int64_t >
  	 * @throw IllegalAccessException If vllValue does not exist.
  	 */
- 	vector<int64_t > AnnotationRow::getVllValue() const  {
+ 	std::vector<int64_t > AnnotationRow::getVllValue() const  {
 		if (!vllValueExists) {
 			throw IllegalAccessException("vllValue", "Annotation");
 		}
@@ -2434,12 +2576,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set vllValue with the specified vector<int64_t >.
- 	 * @param vllValue The vector<int64_t > value to which vllValue is to be set.
+ 	 * Set vllValue with the specified std::vector<int64_t >.
+ 	 * @param vllValue The std::vector<int64_t > value to which vllValue is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setVllValue (vector<int64_t > vllValue) {
+ 	void AnnotationRow::setVllValue (std::vector<int64_t > vllValue) {
 	
  		this->vllValue = vllValue;
 	
@@ -2469,10 +2611,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get vvllValue, which is optional.
- 	 * @return vvllValue as vector<vector<int64_t > >
+ 	 * @return vvllValue as std::vector<std::vector<int64_t > >
  	 * @throw IllegalAccessException If vvllValue does not exist.
  	 */
- 	vector<vector<int64_t > > AnnotationRow::getVvllValue() const  {
+ 	std::vector<std::vector<int64_t > > AnnotationRow::getVvllValue() const  {
 		if (!vvllValueExists) {
 			throw IllegalAccessException("vvllValue", "Annotation");
 		}
@@ -2481,12 +2623,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set vvllValue with the specified vector<vector<int64_t > >.
- 	 * @param vvllValue The vector<vector<int64_t > > value to which vvllValue is to be set.
+ 	 * Set vvllValue with the specified std::vector<std::vector<int64_t > >.
+ 	 * @param vvllValue The std::vector<std::vector<int64_t > > value to which vvllValue is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setVvllValue (vector<vector<int64_t > > vvllValue) {
+ 	void AnnotationRow::setVvllValue (std::vector<std::vector<int64_t > > vvllValue) {
 	
  		this->vvllValue = vvllValue;
 	
@@ -2500,6 +2642,53 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	 */
 	void AnnotationRow::clearVvllValue () {
 		vvllValueExists = false;
+	}
+	
+
+	
+	/**
+	 * The attribute sValue is optional. Return true if this attribute exists.
+	 * @return true if and only if the sValue attribute exists. 
+	 */
+	bool AnnotationRow::isSValueExists() const {
+		return sValueExists;
+	}
+	
+
+	
+ 	/**
+ 	 * Get sValue, which is optional.
+ 	 * @return sValue as std::string
+ 	 * @throw IllegalAccessException If sValue does not exist.
+ 	 */
+ 	std::string AnnotationRow::getSValue() const  {
+		if (!sValueExists) {
+			throw IllegalAccessException("sValue", "Annotation");
+		}
+	
+  		return sValue;
+ 	}
+
+ 	/**
+ 	 * Set sValue with the specified std::string.
+ 	 * @param sValue The std::string value to which sValue is to be set.
+ 	 
+ 	
+ 	 */
+ 	void AnnotationRow::setSValue (std::string sValue) {
+	
+ 		this->sValue = sValue;
+	
+		sValueExists = true;
+	
+ 	}
+	
+	
+	/**
+	 * Mark sValue, which is an optional field, as non-existent.
+	 */
+	void AnnotationRow::clearSValue () {
+		sValueExists = false;
 	}
 	
 
@@ -2521,10 +2710,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaId, which is optional.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 * @throw IllegalAccessException If antennaId does not exist.
  	 */
- 	vector<Tag>  AnnotationRow::getAntennaId() const  {
+ 	std::vector<Tag>  AnnotationRow::getAntennaId() const  {
 		if (!antennaIdExists) {
 			throw IllegalAccessException("antennaId", "Annotation");
 		}
@@ -2533,12 +2722,12 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  	
  	 */
- 	void AnnotationRow::setAntennaId (vector<Tag>  antennaId) {
+ 	void AnnotationRow::setAntennaId (std::vector<Tag>  antennaId) {
 	
  		this->antennaId = antennaId;
 	
@@ -2571,7 +2760,7 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
   	void AnnotationRow::setAntennaId (int i, Tag antennaId) {
   		if ((i < 0) || (i > ((int) this->antennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute antennaId in table AnnotationTable");
-  		vector<Tag> ::iterator iter = this->antennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->antennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2595,7 +2784,7 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void AnnotationRow::addAntennaId(const vector<Tag> & id) {
+ void AnnotationRow::addAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		antennaId.push_back(id.at(i));
  }
@@ -2694,6 +2883,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
 
 	
+		sValueExists = false;
+	
+
+	
 	
 		antennaIdExists = false;
 	
@@ -2701,6 +2894,8 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
 	
 	
+	
+
 	
 
 	
@@ -2747,6 +2942,7 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	 fromBinMethods["llValue"] = &AnnotationRow::llValueFromBin; 
 	 fromBinMethods["vllValue"] = &AnnotationRow::vllValueFromBin; 
 	 fromBinMethods["vvllValue"] = &AnnotationRow::vvllValueFromBin; 
+	 fromBinMethods["sValue"] = &AnnotationRow::sValueFromBin; 
 	 fromBinMethods["antennaId"] = &AnnotationRow::antennaIdFromBin; 
 	
 	
@@ -2811,15 +3007,19 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		 	
 	 
 				
+	fromTextMethods["sValue"] = &AnnotationRow::sValueFromText;
+		 	
+	 
+				
 	fromTextMethods["antennaId"] = &AnnotationRow::antennaIdFromText;
 		 	
 		
 	}
 	
-	AnnotationRow::AnnotationRow (AnnotationTable &t, AnnotationRow &row) : table(t) {
+	AnnotationRow::AnnotationRow (AnnotationTable &t, AnnotationRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2871,6 +3071,10 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
 
 	
+		sValueExists = false;
+	
+
+	
 	
 		antennaIdExists = false;
 	
@@ -2879,92 +3083,99 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			annotationId = row.annotationId;
+			annotationId = row->annotationId;
 		
 		
 		
 		
-			time = row.time;
+			time = row->time;
 		
-			issue = row.issue;
+			issue = row->issue;
 		
-			details = row.details;
-		
-		
+			details = row->details;
 		
 		
-		if (row.numAntennaExists) {
-			numAntenna = row.numAntenna;		
+		
+		
+		if (row->numAntennaExists) {
+			numAntenna = row->numAntenna;		
 			numAntennaExists = true;
 		}
 		else
 			numAntennaExists = false;
 		
-		if (row.basebandNameExists) {
-			basebandName = row.basebandName;		
+		if (row->basebandNameExists) {
+			basebandName = row->basebandName;		
 			basebandNameExists = true;
 		}
 		else
 			basebandNameExists = false;
 		
-		if (row.numBasebandExists) {
-			numBaseband = row.numBaseband;		
+		if (row->numBasebandExists) {
+			numBaseband = row->numBaseband;		
 			numBasebandExists = true;
 		}
 		else
 			numBasebandExists = false;
 		
-		if (row.intervalExists) {
-			interval = row.interval;		
+		if (row->intervalExists) {
+			interval = row->interval;		
 			intervalExists = true;
 		}
 		else
 			intervalExists = false;
 		
-		if (row.dValueExists) {
-			dValue = row.dValue;		
+		if (row->dValueExists) {
+			dValue = row->dValue;		
 			dValueExists = true;
 		}
 		else
 			dValueExists = false;
 		
-		if (row.vdValueExists) {
-			vdValue = row.vdValue;		
+		if (row->vdValueExists) {
+			vdValue = row->vdValue;		
 			vdValueExists = true;
 		}
 		else
 			vdValueExists = false;
 		
-		if (row.vvdValuesExists) {
-			vvdValues = row.vvdValues;		
+		if (row->vvdValuesExists) {
+			vvdValues = row->vvdValues;		
 			vvdValuesExists = true;
 		}
 		else
 			vvdValuesExists = false;
 		
-		if (row.llValueExists) {
-			llValue = row.llValue;		
+		if (row->llValueExists) {
+			llValue = row->llValue;		
 			llValueExists = true;
 		}
 		else
 			llValueExists = false;
 		
-		if (row.vllValueExists) {
-			vllValue = row.vllValue;		
+		if (row->vllValueExists) {
+			vllValue = row->vllValue;		
 			vllValueExists = true;
 		}
 		else
 			vllValueExists = false;
 		
-		if (row.vvllValueExists) {
-			vvllValue = row.vvllValue;		
+		if (row->vvllValueExists) {
+			vvllValue = row->vvllValue;		
 			vvllValueExists = true;
 		}
 		else
 			vvllValueExists = false;
 		
-		if (row.antennaIdExists) {
-			antennaId = row.antennaId;		
+		if (row->sValueExists) {
+			sValue = row->sValue;		
+			sValueExists = true;
+		}
+		else
+			sValueExists = false;
+		
+		if (row->antennaIdExists) {
+			antennaId = row->antennaId;		
 			antennaIdExists = true;
 		}
 		else
@@ -2988,12 +3199,13 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		 fromBinMethods["llValue"] = &AnnotationRow::llValueFromBin; 
 		 fromBinMethods["vllValue"] = &AnnotationRow::vllValueFromBin; 
 		 fromBinMethods["vvllValue"] = &AnnotationRow::vvllValueFromBin; 
+		 fromBinMethods["sValue"] = &AnnotationRow::sValueFromBin; 
 		 fromBinMethods["antennaId"] = &AnnotationRow::antennaIdFromBin; 
 			
 	}
 
 	
-	bool AnnotationRow::compareNoAutoInc(ArrayTime time, string issue, string details) {
+	bool AnnotationRow::compareNoAutoInc(ArrayTime time, std::string issue, std::string details) {
 		bool result;
 		result = true;
 		
@@ -3023,7 +3235,7 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool AnnotationRow::compareRequiredValue(ArrayTime time, string issue, string details) {
+	bool AnnotationRow::compareRequiredValue(ArrayTime time, std::string issue, std::string details) {
 		bool result;
 		result = true;
 		
@@ -3086,6 +3298,7 @@ void AnnotationRow::antennaIdFromBin(EndianIStream& eis) {
 		result["llValue"] = &AnnotationRow::llValueFromBin;
 		result["vllValue"] = &AnnotationRow::vllValueFromBin;
 		result["vvllValue"] = &AnnotationRow::vvllValueFromBin;
+		result["sValue"] = &AnnotationRow::sValueFromBin;
 		result["antennaId"] = &AnnotationRow::antennaIdFromBin;
 			
 		

@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalAmpliRow.h>
-#include <CalAmpliTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAmpliRow.h>
+#include <alma/ASDM/CalAmpliTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalAmpliRow::~CalAmpliRow() {
@@ -1355,7 +1352,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAmpliRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1363,7 +1362,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalAmpliRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1371,7 +1372,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalAmpliRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1379,7 +1382,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalAmpliRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -1387,7 +1392,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAmpliRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1395,7 +1402,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAmpliRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1403,7 +1412,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAmpliRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1411,7 +1422,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalAmpliRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1419,7 +1432,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAmpliRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1427,7 +1442,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAmpliRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1435,7 +1452,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalAmpliRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1443,7 +1462,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAmpliRow::apertureEfficiencyFromText(const string & s) {
 		 
+          
 		apertureEfficiency = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1451,7 +1472,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAmpliRow::apertureEfficiencyErrorFromText(const string & s) {
 		 
+          
 		apertureEfficiencyError = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1461,7 +1484,9 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	void CalAmpliRow::correctionValidityFromText(const string & s) {
 		correctionValidityExists = true;
 		 
+          
 		correctionValidity = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1483,23 +1508,23 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalAmpliRow::getAntennaName() const {
+ 	std::string CalAmpliRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalAmpliRow::setAntennaName (string antennaName)  {
+ 	void CalAmpliRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1659,21 +1684,21 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalAmpliRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalAmpliRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalAmpliRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalAmpliRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1755,21 +1780,21 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalAmpliRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalAmpliRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalAmpliRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalAmpliRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1787,21 +1812,21 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get apertureEfficiency.
- 	 * @return apertureEfficiency as vector<float >
+ 	 * @return apertureEfficiency as std::vector<float >
  	 */
- 	vector<float > CalAmpliRow::getApertureEfficiency() const {
+ 	std::vector<float > CalAmpliRow::getApertureEfficiency() const {
 	
   		return apertureEfficiency;
  	}
 
  	/**
- 	 * Set apertureEfficiency with the specified vector<float >.
- 	 * @param apertureEfficiency The vector<float > value to which apertureEfficiency is to be set.
+ 	 * Set apertureEfficiency with the specified std::vector<float >.
+ 	 * @param apertureEfficiency The std::vector<float > value to which apertureEfficiency is to be set.
  	 
  	
  		
  	 */
- 	void CalAmpliRow::setApertureEfficiency (vector<float > apertureEfficiency)  {
+ 	void CalAmpliRow::setApertureEfficiency (std::vector<float > apertureEfficiency)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1819,21 +1844,21 @@ void CalAmpliRow::correctionValidityFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get apertureEfficiencyError.
- 	 * @return apertureEfficiencyError as vector<float >
+ 	 * @return apertureEfficiencyError as std::vector<float >
  	 */
- 	vector<float > CalAmpliRow::getApertureEfficiencyError() const {
+ 	std::vector<float > CalAmpliRow::getApertureEfficiencyError() const {
 	
   		return apertureEfficiencyError;
  	}
 
  	/**
- 	 * Set apertureEfficiencyError with the specified vector<float >.
- 	 * @param apertureEfficiencyError The vector<float > value to which apertureEfficiencyError is to be set.
+ 	 * Set apertureEfficiencyError with the specified std::vector<float >.
+ 	 * @param apertureEfficiencyError The std::vector<float > value to which apertureEfficiencyError is to be set.
  	 
  	
  		
  	 */
- 	void CalAmpliRow::setApertureEfficiencyError (vector<float > apertureEfficiencyError)  {
+ 	void CalAmpliRow::setApertureEfficiencyError (std::vector<float > apertureEfficiencyError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2175,10 +2200,10 @@ basebandName = CBasebandName::from_int(0);
 		
 	}
 	
-	CalAmpliRow::CalAmpliRow (CalAmpliTable &t, CalAmpliRow &row) : table(t) {
+	CalAmpliRow::CalAmpliRow (CalAmpliTable &t, CalAmpliRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2216,40 +2241,40 @@ basebandName = CBasebandName::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			apertureEfficiency = row.apertureEfficiency;
-		
-			apertureEfficiencyError = row.apertureEfficiencyError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.correctionValidityExists) {
-			correctionValidity = row.correctionValidity;		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			apertureEfficiency = row->apertureEfficiency;
+		
+			apertureEfficiencyError = row->apertureEfficiencyError;
+		
+		
+		
+		
+		if (row->correctionValidityExists) {
+			correctionValidity = row->correctionValidity;		
 			correctionValidityExists = true;
 		}
 		else
@@ -2277,7 +2302,7 @@ basebandName = CBasebandName::from_int(0);
 	}
 
 	
-	bool CalAmpliRow::compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError) {
+	bool CalAmpliRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError) {
 		bool result;
 		result = true;
 		
@@ -2377,7 +2402,7 @@ basebandName = CBasebandName::from_int(0);
 	
 	
 	
-	bool CalAmpliRow::compareRequiredValue(int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, vector<float > apertureEfficiency, vector<float > apertureEfficiencyError) {
+	bool CalAmpliRow::compareRequiredValue(int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, std::vector<float > apertureEfficiency, std::vector<float > apertureEfficiencyError) {
 		bool result;
 		result = true;
 		

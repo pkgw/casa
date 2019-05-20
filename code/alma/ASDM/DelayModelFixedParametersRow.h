@@ -48,19 +48,19 @@
 
 
 	 
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	 
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -106,12 +106,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file DelayModelFixedParameters.h
     \brief Generated from model's revision "-1", branch ""
@@ -128,7 +128,7 @@ class ExecBlockRow;
 
 class DelayModelFixedParametersRow;
 typedef void (DelayModelFixedParametersRow::*DelayModelFixedParametersAttributeFromBin) (EndianIStream& eis);
-typedef void (DelayModelFixedParametersRow::*DelayModelFixedParametersAttributeFromText) (const string& s);
+typedef void (DelayModelFixedParametersRow::*DelayModelFixedParametersAttributeFromText) (const std::string& s);
 
 /**
  * The DelayModelFixedParametersRow class is a row of a DelayModelFixedParametersTable.
@@ -189,21 +189,21 @@ public:
 	
  	/**
  	 * Get delayModelVersion.
- 	 * @return delayModelVersion as string
+ 	 * @return delayModelVersion as std::string
  	 */
- 	string getDelayModelVersion() const;
+ 	std::string getDelayModelVersion() const;
 	
  
  	
  	
  	/**
- 	 * Set delayModelVersion with the specified string.
- 	 * @param delayModelVersion The string value to which delayModelVersion is to be set.
+ 	 * Set delayModelVersion with the specified std::string.
+ 	 * @param delayModelVersion The std::string value to which delayModelVersion is to be set.
  	 
  		
  			
  	 */
- 	void setDelayModelVersion (string delayModelVersion);
+ 	void setDelayModelVersion (std::string delayModelVersion);
   		
 	
 	
@@ -471,21 +471,21 @@ public:
 	
  	/**
  	 * Get ephemerisEpoch, which is optional.
- 	 * @return ephemerisEpoch as string
+ 	 * @return ephemerisEpoch as std::string
  	 * @throws IllegalAccessException If ephemerisEpoch does not exist.
  	 */
- 	string getEphemerisEpoch() const;
+ 	std::string getEphemerisEpoch() const;
 	
  
  	
  	
  	/**
- 	 * Set ephemerisEpoch with the specified string.
- 	 * @param ephemerisEpoch The string value to which ephemerisEpoch is to be set.
+ 	 * Set ephemerisEpoch with the specified std::string.
+ 	 * @param ephemerisEpoch The std::string value to which ephemerisEpoch is to be set.
  	 
  		
  	 */
- 	void setEphemerisEpoch (string ephemerisEpoch);
+ 	void setEphemerisEpoch (std::string ephemerisEpoch);
 		
 	
 	
@@ -881,21 +881,21 @@ public:
 	
  	/**
  	 * Get delayModelFlags, which is optional.
- 	 * @return delayModelFlags as string
+ 	 * @return delayModelFlags as std::string
  	 * @throws IllegalAccessException If delayModelFlags does not exist.
  	 */
- 	string getDelayModelFlags() const;
+ 	std::string getDelayModelFlags() const;
 	
  
  	
  	
  	/**
- 	 * Set delayModelFlags with the specified string.
- 	 * @param delayModelFlags The string value to which delayModelFlags is to be set.
+ 	 * Set delayModelFlags with the specified std::string.
+ 	 * @param delayModelFlags The std::string value to which delayModelFlags is to be set.
  	 
  		
  	 */
- 	void setDelayModelFlags (string delayModelFlags);
+ 	void setDelayModelFlags (std::string delayModelFlags);
 		
 	
 	
@@ -972,7 +972,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareNoAutoInc(string delayModelVersion, Tag execBlockId);
+	bool compareNoAutoInc(std::string delayModelVersion, Tag execBlockId);
 	
 	
 
@@ -986,7 +986,7 @@ public:
 	 * @param execBlockId
 	    
 	 */ 
-	bool compareRequiredValue(string delayModelVersion, Tag execBlockId); 
+	bool compareRequiredValue(std::string delayModelVersion, Tag execBlockId); 
 		 
 	
 	/**
@@ -1127,7 +1127,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DelayModelFixedParametersRow (DelayModelFixedParametersTable &table, DelayModelFixedParametersRow &row);
+	 DelayModelFixedParametersRow (DelayModelFixedParametersTable &table, DelayModelFixedParametersRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1161,7 +1161,7 @@ private:
 	
 	
 
-	string delayModelVersion;
+	std::string delayModelVersion;
 
 	
 	
@@ -1252,7 +1252,7 @@ private:
 	bool ephemerisEpochExists;
 	
 
-	string ephemerisEpoch;
+	std::string ephemerisEpoch;
 
 	
 	
@@ -1382,7 +1382,7 @@ private:
 	bool delayModelFlagsExists;
 	
 
-	string delayModelFlags;
+	std::string delayModelFlags;
 
 	
 	
@@ -1449,65 +1449,65 @@ void delayModelFlagsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, DelayModelFixedParametersAttributeFromText> fromTextMethods;
 	
-void delayModelFixedParametersIdFromText (const string & s);
+void delayModelFixedParametersIdFromText (const std::string & s);
 	
 	
-void delayModelVersionFromText (const string & s);
+void delayModelVersionFromText (const std::string & s);
 	
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 
 	
-void gaussConstantFromText (const string & s);
+void gaussConstantFromText (const std::string & s);
 	
 	
-void newtonianConstantFromText (const string & s);
+void newtonianConstantFromText (const std::string & s);
 	
 	
-void gravityFromText (const string & s);
+void gravityFromText (const std::string & s);
 	
 	
-void earthFlatteningFromText (const string & s);
+void earthFlatteningFromText (const std::string & s);
 	
 	
-void earthRadiusFromText (const string & s);
+void earthRadiusFromText (const std::string & s);
 	
 	
-void moonEarthMassRatioFromText (const string & s);
+void moonEarthMassRatioFromText (const std::string & s);
 	
 	
-void ephemerisEpochFromText (const string & s);
+void ephemerisEpochFromText (const std::string & s);
 	
 	
-void earthTideLagFromText (const string & s);
+void earthTideLagFromText (const std::string & s);
 	
 	
-void earthGMFromText (const string & s);
+void earthGMFromText (const std::string & s);
 	
 	
-void moonGMFromText (const string & s);
+void moonGMFromText (const std::string & s);
 	
 	
-void sunGMFromText (const string & s);
+void sunGMFromText (const std::string & s);
 	
 	
-void loveNumberHFromText (const string & s);
+void loveNumberHFromText (const std::string & s);
 	
 	
-void loveNumberLFromText (const string & s);
+void loveNumberLFromText (const std::string & s);
 	
 	
-void precessionConstantFromText (const string & s);
+void precessionConstantFromText (const std::string & s);
 	
 	
-void lightTime1AUFromText (const string & s);
+void lightTime1AUFromText (const std::string & s);
 	
 	
-void speedOfLightFromText (const string & s);
+void speedOfLightFromText (const std::string & s);
 	
 	
-void delayModelFlagsFromText (const string & s);
+void delayModelFlagsFromText (const std::string & s);
 	
 	
 	

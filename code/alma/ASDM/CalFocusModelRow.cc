@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalFocusModelRow.h>
-#include <CalFocusModelTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalFocusModelRow.h>
+#include <alma/ASDM/CalFocusModelTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalFocusModelRow::~CalFocusModelRow() {
@@ -1675,7 +1672,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFocusModelRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1683,7 +1682,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalFocusModelRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1691,7 +1692,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalFocusModelRow::polarizationTypeFromText(const string & s) {
 		 
-		polarizationType = ASDMValuesParser::parse<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1699,7 +1702,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFocusModelRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1707,7 +1712,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFocusModelRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1715,7 +1722,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFocusModelRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1723,7 +1732,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFocusModelRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1731,7 +1742,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void CalFocusModelRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -1739,7 +1752,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalFocusModelRow::numCoeffFromText(const string & s) {
 		 
+          
 		numCoeff = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1747,7 +1762,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalFocusModelRow::numSourceObsFromText(const string & s) {
 		 
+          
 		numSourceObs = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1755,7 +1772,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFocusModelRow::coeffNameFromText(const string & s) {
 		 
+          
 		coeffName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1763,7 +1782,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFocusModelRow::coeffFormulaFromText(const string & s) {
 		 
+          
 		coeffFormula = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1771,7 +1792,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalFocusModelRow::coeffValueFromText(const string & s) {
 		 
+          
 		coeffValue = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1779,7 +1802,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalFocusModelRow::coeffErrorFromText(const string & s) {
 		 
+          
 		coeffError = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1787,7 +1812,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalFocusModelRow::coeffFixedFromText(const string & s) {
 		 
+          
 		coeffFixed = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -1795,7 +1822,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFocusModelRow::focusModelFromText(const string & s) {
 		 
+          
 		focusModel = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1803,7 +1832,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalFocusModelRow::focusRMSFromText(const string & s) {
 		 
+          
 		focusRMS = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1811,7 +1842,9 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalFocusModelRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1834,23 +1867,23 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalFocusModelRow::getAntennaName() const {
+ 	std::string CalFocusModelRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalFocusModelRow::setAntennaName (string antennaName)  {
+ 	void CalFocusModelRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2102,21 +2135,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > CalFocusModelRow::getCoeffName() const {
+ 	std::vector<std::string > CalFocusModelRow::getCoeffName() const {
 	
   		return coeffName;
  	}
 
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setCoeffName (vector<string > coeffName)  {
+ 	void CalFocusModelRow::setCoeffName (std::vector<std::string > coeffName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2134,21 +2167,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFormula.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 */
- 	vector<string > CalFocusModelRow::getCoeffFormula() const {
+ 	std::vector<std::string > CalFocusModelRow::getCoeffFormula() const {
 	
   		return coeffFormula;
  	}
 
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setCoeffFormula (vector<string > coeffFormula)  {
+ 	void CalFocusModelRow::setCoeffFormula (std::vector<std::string > coeffFormula)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2166,21 +2199,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffValue.
- 	 * @return coeffValue as vector<float >
+ 	 * @return coeffValue as std::vector<float >
  	 */
- 	vector<float > CalFocusModelRow::getCoeffValue() const {
+ 	std::vector<float > CalFocusModelRow::getCoeffValue() const {
 	
   		return coeffValue;
  	}
 
  	/**
- 	 * Set coeffValue with the specified vector<float >.
- 	 * @param coeffValue The vector<float > value to which coeffValue is to be set.
+ 	 * Set coeffValue with the specified std::vector<float >.
+ 	 * @param coeffValue The std::vector<float > value to which coeffValue is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setCoeffValue (vector<float > coeffValue)  {
+ 	void CalFocusModelRow::setCoeffValue (std::vector<float > coeffValue)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2198,21 +2231,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffError.
- 	 * @return coeffError as vector<float >
+ 	 * @return coeffError as std::vector<float >
  	 */
- 	vector<float > CalFocusModelRow::getCoeffError() const {
+ 	std::vector<float > CalFocusModelRow::getCoeffError() const {
 	
   		return coeffError;
  	}
 
  	/**
- 	 * Set coeffError with the specified vector<float >.
- 	 * @param coeffError The vector<float > value to which coeffError is to be set.
+ 	 * Set coeffError with the specified std::vector<float >.
+ 	 * @param coeffError The std::vector<float > value to which coeffError is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setCoeffError (vector<float > coeffError)  {
+ 	void CalFocusModelRow::setCoeffError (std::vector<float > coeffError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2230,21 +2263,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFixed.
- 	 * @return coeffFixed as vector<bool >
+ 	 * @return coeffFixed as std::vector<bool >
  	 */
- 	vector<bool > CalFocusModelRow::getCoeffFixed() const {
+ 	std::vector<bool > CalFocusModelRow::getCoeffFixed() const {
 	
   		return coeffFixed;
  	}
 
  	/**
- 	 * Set coeffFixed with the specified vector<bool >.
- 	 * @param coeffFixed The vector<bool > value to which coeffFixed is to be set.
+ 	 * Set coeffFixed with the specified std::vector<bool >.
+ 	 * @param coeffFixed The std::vector<bool > value to which coeffFixed is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setCoeffFixed (vector<bool > coeffFixed)  {
+ 	void CalFocusModelRow::setCoeffFixed (std::vector<bool > coeffFixed)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2262,21 +2295,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusModel.
- 	 * @return focusModel as string
+ 	 * @return focusModel as std::string
  	 */
- 	string CalFocusModelRow::getFocusModel() const {
+ 	std::string CalFocusModelRow::getFocusModel() const {
 	
   		return focusModel;
  	}
 
  	/**
- 	 * Set focusModel with the specified string.
- 	 * @param focusModel The string value to which focusModel is to be set.
+ 	 * Set focusModel with the specified std::string.
+ 	 * @param focusModel The std::string value to which focusModel is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setFocusModel (string focusModel)  {
+ 	void CalFocusModelRow::setFocusModel (std::string focusModel)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2294,21 +2327,21 @@ void CalFocusModelRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusRMS.
- 	 * @return focusRMS as vector<Length >
+ 	 * @return focusRMS as std::vector<Length >
  	 */
- 	vector<Length > CalFocusModelRow::getFocusRMS() const {
+ 	std::vector<Length > CalFocusModelRow::getFocusRMS() const {
 	
   		return focusRMS;
  	}
 
  	/**
- 	 * Set focusRMS with the specified vector<Length >.
- 	 * @param focusRMS The vector<Length > value to which focusRMS is to be set.
+ 	 * Set focusRMS with the specified std::vector<Length >.
+ 	 * @param focusRMS The std::vector<Length > value to which focusRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusModelRow::setFocusRMS (vector<Length > focusRMS)  {
+ 	void CalFocusModelRow::setFocusRMS (std::vector<Length > focusRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2669,10 +2702,10 @@ antennaMake = CAntennaMake::from_int(0);
 		
 	}
 	
-	CalFocusModelRow::CalFocusModelRow (CalFocusModelTable &t, CalFocusModelRow &row) : table(t) {
+	CalFocusModelRow::CalFocusModelRow (CalFocusModelTable &t, CalFocusModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2716,44 +2749,44 @@ antennaMake = CAntennaMake::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			polarizationType = row.polarizationType;
+			polarizationType = row->polarizationType;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			antennaMake = row.antennaMake;
+			startValidTime = row->startValidTime;
 		
-			numCoeff = row.numCoeff;
+			endValidTime = row->endValidTime;
 		
-			numSourceObs = row.numSourceObs;
+			antennaMake = row->antennaMake;
 		
-			coeffName = row.coeffName;
+			numCoeff = row->numCoeff;
 		
-			coeffFormula = row.coeffFormula;
+			numSourceObs = row->numSourceObs;
 		
-			coeffValue = row.coeffValue;
+			coeffName = row->coeffName;
 		
-			coeffError = row.coeffError;
+			coeffFormula = row->coeffFormula;
 		
-			coeffFixed = row.coeffFixed;
+			coeffValue = row->coeffValue;
 		
-			focusModel = row.focusModel;
+			coeffError = row->coeffError;
 		
-			focusRMS = row.focusRMS;
+			coeffFixed = row->coeffFixed;
 		
-			reducedChiSquared = row.reducedChiSquared;
+			focusModel = row->focusModel;
+		
+			focusRMS = row->focusRMS;
+		
+			reducedChiSquared = row->reducedChiSquared;
 		
 		
 		
@@ -2784,7 +2817,7 @@ antennaMake = CAntennaMake::from_int(0);
 	}
 
 	
-	bool CalFocusModelRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared) {
+	bool CalFocusModelRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -2919,7 +2952,7 @@ antennaMake = CAntennaMake::from_int(0);
 	
 	
 	
-	bool CalFocusModelRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared) {
+	bool CalFocusModelRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared) {
 		bool result;
 		result = true;
 		

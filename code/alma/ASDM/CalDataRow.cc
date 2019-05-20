@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalDataRow.h>
-#include <CalDataTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::CalDataRow;
 using asdm::CalDataTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalDataRow::~CalDataRow() {
@@ -1481,7 +1478,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalDataRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1489,7 +1488,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalDataRow::startTimeObservedFromText(const string & s) {
 		 
+          
 		startTimeObserved = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1497,7 +1498,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalDataRow::endTimeObservedFromText(const string & s) {
 		 
+          
 		endTimeObserved = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1506,7 +1509,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an CalDataOrigin 
 	void CalDataRow::calDataTypeFromText(const string & s) {
 		 
-		calDataType = ASDMValuesParser::parse<CalDataOrigin>(s);
+          
+		calDataType = ASDMValuesParser::parse<CalDataOriginMod::CalDataOrigin>(s);
+          
 		
 	}
 	
@@ -1514,7 +1519,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an CalType 
 	void CalDataRow::calTypeFromText(const string & s) {
 		 
-		calType = ASDMValuesParser::parse<CalType>(s);
+          
+		calType = ASDMValuesParser::parse<CalTypeMod::CalType>(s);
+          
 		
 	}
 	
@@ -1522,7 +1529,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalDataRow::numScanFromText(const string & s) {
 		 
+          
 		numScan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1530,7 +1539,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalDataRow::scanSetFromText(const string & s) {
 		 
+          
 		scanSet = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1540,7 +1551,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::assocCalDataIdFromText(const string & s) {
 		assocCalDataIdExists = true;
 		 
+          
 		assocCalDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1549,7 +1562,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::assocCalNatureFromText(const string & s) {
 		assocCalNatureExists = true;
 		 
-		assocCalNature = ASDMValuesParser::parse<AssociatedCalNature>(s);
+          
+		assocCalNature = ASDMValuesParser::parse<AssociatedCalNatureMod::AssociatedCalNature>(s);
+          
 		
 	}
 	
@@ -1558,7 +1573,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::fieldNameFromText(const string & s) {
 		fieldNameExists = true;
 		 
+          
 		fieldName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1567,7 +1584,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::sourceNameFromText(const string & s) {
 		sourceNameExists = true;
 		 
+          
 		sourceName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1576,7 +1595,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::sourceCodeFromText(const string & s) {
 		sourceCodeExists = true;
 		 
+          
 		sourceCode = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1585,7 +1606,9 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	void CalDataRow::scanIntentFromText(const string & s) {
 		scanIntentExists = true;
 		 
-		scanIntent = ASDMValuesParser::parse1D<ScanIntent>(s);
+          
+		scanIntent = ASDMValuesParser::parse1D<ScanIntentMod::ScanIntent>(s);
+          
 		
 	}
 	
@@ -1835,21 +1858,21 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get scanSet.
- 	 * @return scanSet as vector<int >
+ 	 * @return scanSet as std::vector<int >
  	 */
- 	vector<int > CalDataRow::getScanSet() const {
+ 	std::vector<int > CalDataRow::getScanSet() const {
 	
   		return scanSet;
  	}
 
  	/**
- 	 * Set scanSet with the specified vector<int >.
- 	 * @param scanSet The vector<int > value to which scanSet is to be set.
+ 	 * Set scanSet with the specified std::vector<int >.
+ 	 * @param scanSet The std::vector<int > value to which scanSet is to be set.
  	 
  	
  		
  	 */
- 	void CalDataRow::setScanSet (vector<int > scanSet)  {
+ 	void CalDataRow::setScanSet (std::vector<int > scanSet)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1969,10 +1992,10 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fieldName, which is optional.
- 	 * @return fieldName as vector<string >
+ 	 * @return fieldName as std::vector<std::string >
  	 * @throw IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > CalDataRow::getFieldName() const  {
+ 	std::vector<std::string > CalDataRow::getFieldName() const  {
 		if (!fieldNameExists) {
 			throw IllegalAccessException("fieldName", "CalData");
 		}
@@ -1981,12 +2004,12 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set fieldName with the specified vector<string >.
- 	 * @param fieldName The vector<string > value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::vector<std::string >.
+ 	 * @param fieldName The std::vector<std::string > value to which fieldName is to be set.
  	 
  	
  	 */
- 	void CalDataRow::setFieldName (vector<string > fieldName) {
+ 	void CalDataRow::setFieldName (std::vector<std::string > fieldName) {
 	
  		this->fieldName = fieldName;
 	
@@ -2016,10 +2039,10 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceName, which is optional.
- 	 * @return sourceName as vector<string >
+ 	 * @return sourceName as std::vector<std::string >
  	 * @throw IllegalAccessException If sourceName does not exist.
  	 */
- 	vector<string > CalDataRow::getSourceName() const  {
+ 	std::vector<std::string > CalDataRow::getSourceName() const  {
 		if (!sourceNameExists) {
 			throw IllegalAccessException("sourceName", "CalData");
 		}
@@ -2028,12 +2051,12 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sourceName with the specified vector<string >.
- 	 * @param sourceName The vector<string > value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::vector<std::string >.
+ 	 * @param sourceName The std::vector<std::string > value to which sourceName is to be set.
  	 
  	
  	 */
- 	void CalDataRow::setSourceName (vector<string > sourceName) {
+ 	void CalDataRow::setSourceName (std::vector<std::string > sourceName) {
 	
  		this->sourceName = sourceName;
 	
@@ -2063,10 +2086,10 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceCode, which is optional.
- 	 * @return sourceCode as vector<string >
+ 	 * @return sourceCode as std::vector<std::string >
  	 * @throw IllegalAccessException If sourceCode does not exist.
  	 */
- 	vector<string > CalDataRow::getSourceCode() const  {
+ 	std::vector<std::string > CalDataRow::getSourceCode() const  {
 		if (!sourceCodeExists) {
 			throw IllegalAccessException("sourceCode", "CalData");
 		}
@@ -2075,12 +2098,12 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sourceCode with the specified vector<string >.
- 	 * @param sourceCode The vector<string > value to which sourceCode is to be set.
+ 	 * Set sourceCode with the specified std::vector<std::string >.
+ 	 * @param sourceCode The std::vector<std::string > value to which sourceCode is to be set.
  	 
  	
  	 */
- 	void CalDataRow::setSourceCode (vector<string > sourceCode) {
+ 	void CalDataRow::setSourceCode (std::vector<std::string > sourceCode) {
 	
  		this->sourceCode = sourceCode;
 	
@@ -2110,10 +2133,10 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get scanIntent, which is optional.
- 	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
+ 	 * @return scanIntent as std::vector<ScanIntentMod::ScanIntent >
  	 * @throw IllegalAccessException If scanIntent does not exist.
  	 */
- 	vector<ScanIntentMod::ScanIntent > CalDataRow::getScanIntent() const  {
+ 	std::vector<ScanIntentMod::ScanIntent > CalDataRow::getScanIntent() const  {
 		if (!scanIntentExists) {
 			throw IllegalAccessException("scanIntent", "CalData");
 		}
@@ -2122,12 +2145,12 @@ void CalDataRow::scanIntentFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set scanIntent with the specified vector<ScanIntentMod::ScanIntent >.
- 	 * @param scanIntent The vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
+ 	 * Set scanIntent with the specified std::vector<ScanIntentMod::ScanIntent >.
+ 	 * @param scanIntent The std::vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
  	 
  	
  	 */
- 	void CalDataRow::setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent) {
+ 	void CalDataRow::setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent) {
 	
  		this->scanIntent = scanIntent;
 	
@@ -2328,10 +2351,10 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 		
 	}
 	
-	CalDataRow::CalDataRow (CalDataTable &t, CalDataRow &row) : table(t) {
+	CalDataRow::CalDataRow (CalDataTable &t, CalDataRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2379,65 +2402,65 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 		else {
 	
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
 		
 		
 		
-			startTimeObserved = row.startTimeObserved;
+			startTimeObserved = row->startTimeObserved;
 		
-			endTimeObserved = row.endTimeObserved;
+			endTimeObserved = row->endTimeObserved;
 		
-			execBlockUID = row.execBlockUID;
+			execBlockUID = row->execBlockUID;
 		
-			calDataType = row.calDataType;
+			calDataType = row->calDataType;
 		
-			calType = row.calType;
+			calType = row->calType;
 		
-			numScan = row.numScan;
+			numScan = row->numScan;
 		
-			scanSet = row.scanSet;
-		
-		
+			scanSet = row->scanSet;
 		
 		
-		if (row.assocCalDataIdExists) {
-			assocCalDataId = row.assocCalDataId;		
+		
+		
+		if (row->assocCalDataIdExists) {
+			assocCalDataId = row->assocCalDataId;		
 			assocCalDataIdExists = true;
 		}
 		else
 			assocCalDataIdExists = false;
 		
-		if (row.assocCalNatureExists) {
-			assocCalNature = row.assocCalNature;		
+		if (row->assocCalNatureExists) {
+			assocCalNature = row->assocCalNature;		
 			assocCalNatureExists = true;
 		}
 		else
 			assocCalNatureExists = false;
 		
-		if (row.fieldNameExists) {
-			fieldName = row.fieldName;		
+		if (row->fieldNameExists) {
+			fieldName = row->fieldName;		
 			fieldNameExists = true;
 		}
 		else
 			fieldNameExists = false;
 		
-		if (row.sourceNameExists) {
-			sourceName = row.sourceName;		
+		if (row->sourceNameExists) {
+			sourceName = row->sourceName;		
 			sourceNameExists = true;
 		}
 		else
 			sourceNameExists = false;
 		
-		if (row.sourceCodeExists) {
-			sourceCode = row.sourceCode;		
+		if (row->sourceCodeExists) {
+			sourceCode = row->sourceCode;		
 			sourceCodeExists = true;
 		}
 		else
 			sourceCodeExists = false;
 		
-		if (row.scanIntentExists) {
-			scanIntent = row.scanIntent;		
+		if (row->scanIntentExists) {
+			scanIntent = row->scanIntent;		
 			scanIntentExists = true;
 		}
 		else
@@ -2465,7 +2488,7 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 	}
 
 	
-	bool CalDataRow::compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet) {
+	bool CalDataRow::compareNoAutoInc(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet) {
 		bool result;
 		result = true;
 		
@@ -2523,7 +2546,7 @@ assocCalNature = CAssociatedCalNature::from_int(0);
 	
 	
 	
-	bool CalDataRow::compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, vector<int > scanSet) {
+	bool CalDataRow::compareRequiredValue(ArrayTime startTimeObserved, ArrayTime endTimeObserved, EntityRef execBlockUID, CalDataOriginMod::CalDataOrigin calDataType, CalTypeMod::CalType calType, int numScan, std::vector<int > scanSet) {
 		bool result;
 		result = true;
 		

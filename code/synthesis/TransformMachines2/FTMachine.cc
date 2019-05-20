@@ -42,6 +42,7 @@
 #include <synthesis/TransformMachines2/FTMachine.h>
 #include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/TransformMachines2/VisModelData.h>
+#include <synthesis/TransformMachines2/BriggsCubeWeightor.h>
 #include <scimath/Mathematics/RigidVector.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 #include <synthesis/TransformMachines2/Utils.h>
@@ -88,15 +89,16 @@ using namespace casa::refim;
 using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
-			   tangentSpecified_p(false), fixMovingSource_p(false),
-			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+			   tangentSpecified_p(false), fixMovingSource_p(false), 
+			   movingDirShift_p(0.0), 
+			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
 			   freqFrameValid_p(false), 
 			   freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -107,15 +109,15 @@ using namespace casa::vi;
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false),
-    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), 
+    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
+    distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
     freqInterpMethod_p(InterpolateArray1D<Double,Complex>::nearestNeighbour), 
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(False)
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
@@ -136,7 +138,7 @@ using namespace casa::vi;
       distance_p=other.distance_p;
       lastFieldId_p=other.lastFieldId_p;
       lastMSId_p=other.lastMSId_p;
-      
+      romscol_p=other.romscol_p;
       tangentSpecified_p=other.tangentSpecified_p;
       mTangent_p=other.mTangent_p;
       mImage_p=other.mImage_p;
@@ -184,7 +186,7 @@ using namespace casa::vi;
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
       firstMovingDir_p=other.firstMovingDir_p;
-      
+      movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
       useDoubleGrid_p=other.useDoubleGrid_p;
       cfStokes_p = other.cfStokes_p;
@@ -215,6 +217,9 @@ using namespace casa::vi;
       ysect_p=other.ysect_p;
       nxsect_p=other.nxsect_p;
       nysect_p=other.nysect_p;
+      obsvelconv_p=other.obsvelconv_p;
+      mtype_p=other.mtype_p;
+      briggsWeightor_p=other.briggsWeightor_p;
     };
     return *this;
   };
@@ -224,7 +229,10 @@ using namespace casa::vi;
     String err;
     if(!(this->toRecord(err, rec)))
       throw(AipsError("Error in cloning FTMachine"));
-    return VisModelData::NEW_FT(rec);
+    FTMachine* retval=VisModelData::NEW_FT(rec);
+    if(retval)
+      retval->briggsWeightor_p=briggsWeightor_p;
+    return retval;
   }
 
   //----------------------------------------------------------------------
@@ -264,12 +272,33 @@ using namespace casa::vi;
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
-
+      
       // Set the frame for the UVWMachine
-      if(vb.isAttached())
-	mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
-      else
+      if(vb.isAttached()){
+	//mFrame_p=MeasFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
+	if(vbutil_p.null())
+	  vbutil_p=new VisBufferUtil(vb);	
+	romscol_p=new ROMSColumns(vb.ms());
+	Unit epochUnit=(romscol_p->time()).keywordSet().asArrayString("QuantumUnits")(IPosition(1,0));
+	if(!mFrame_p.epoch()) 
+	  mFrame_p.set(MEpoch(Quantity(vb.time()(0), epochUnit),  (romscol_p->timeMeas())(0).getRef()));
+	else
+	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), epochUnit), (romscol_p->timeMeas())(0).getRef()));
+	if(!mFrame_p.position())
+	  mFrame_p.set(mLocation_p);
+	else
+	  mFrame_p.resetPosition(mLocation_p);
+	if(!mFrame_p.direction())
+	  mFrame_p.set(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+	else
+	  mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+      }
+      else{
 	throw(AipsError("Cannot define some frame as no Visiter/MS is attached"));
+      }
+      //////TESTOOOO
+      ///setMovingSource("COMET", "des_deedee_ephem2.tab");
+      ///////////////////////////////////////////
       // First get the CoordinateSystem for the image and then find
       // the DirectionCoordinate
       casacore::CoordinateSystem coords=image->coordinates();
@@ -277,17 +306,39 @@ using namespace casa::vi;
       AlwaysAssert(directionIndex>=0, AipsError);
       DirectionCoordinate
         directionCoord=coords.directionCoordinate(directionIndex);
-      if(vbutil_p.null())
-	vbutil_p=new VisBufferUtil(vb);
+      Int spectralIndex=coords.findCoordinate(Coordinate::SPECTRAL);
+      AlwaysAssert(spectralIndex>-1, AipsError);
+      spectralCoord_p=coords.spectralCoordinate(spectralIndex);
+      
       // get the first position of moving source
       if(fixMovingSource_p){
-
+	//cerr << "obsinfo time " << coords.obsInfo().obsDate() << "    epoch used in frame " <<  MEpoch((mFrame_p.epoch())) << endl;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-        MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+        MDirection tmphadec;
+	if(upcase(movingDir_p.getRefString()).contains("APP")){
+	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  if(mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	     mFrame_p.set(mcomet);
+	  
+	}
+	else{
+	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
-
+	if(spectralCoord_p.frequencySystem(False)==MFrequency::REST){
+	  ///We want the data frequency to be shifted to the SOURCE frame
+	  ///which is labelled REST as we have never defined the SOURCE frame didn't we
+	  initSourceFreqConv();
+	}
+	///TESTOO 
+	///waiting for CAS-11060
+	//firstMovingDir_p=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), outref)();
+	////////////////////
       }
 
 
@@ -332,7 +383,7 @@ using namespace casa::vi;
       if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
       String observatory;
       if(vb.isAttached())
-	observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	observatory=(vb.subtableColumns().observation()).telescopeName()(0);
       else
 	throw(AipsError("Cannot define frame because of no access to OBSERVATION table")); 
       if(observatory.contains("ATCA") || observatory.contains("DRAO")
@@ -351,10 +402,7 @@ using namespace casa::vi;
       lastMSId_p=vb.msId();
       phaseShifter_p=new UVWMachine(*uvwMachine_p);
       // Set up maps
-      Int spectralIndex=coords.findCoordinate(Coordinate::SPECTRAL);
-      AlwaysAssert(spectralIndex>-1, AipsError);
       
-      spectralCoord_p=coords.spectralCoordinate(spectralIndex);
 
      
       //Store the image/grid channels freq values
@@ -483,13 +531,124 @@ using namespace casa::vi;
 
       //cerr << "initmaps polmap "<< polMap << endl;
 
+
+      
+
     }
+  void FTMachine::initBriggsWeightor(vi::VisibilityIterator2& vi){
+    ///Lastly initialized Briggs cube weighting scheme
+    if(!briggsWeightor_p.null()){
+      String error;
+      Record rec;
+      if(!toRecord(error, rec))
+        throw (AipsError("Could not initialize BriggsWeightor")); 
+      briggsWeightor_p->init(vi, *image, rec);
+
+    }
+  }
 
   FTMachine::~FTMachine() 
   {
     if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
   }
   
+
+  void FTMachine::initSourceFreqConv(){
+    MRadialVelocity::Types refvel=MRadialVelocity::GEO;
+    if(mFrame_p.comet()){
+      //Has a ephem table 
+      if(((mFrame_p.comet())->getTopo().getLength("km").getValue()) > 1.0e-3){
+	refvel=MRadialVelocity::TOPO;
+      }
+     
+      
+    }
+    else{
+      //using a canned DE-200 or 405 source
+      MDirection::Types planetType=MDirection::castType(movingDir_p.getRef().getType());
+    mtype_p=MeasTable::BARYEARTH;
+    if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
+      //Damn these enums are not in the same order
+      switch(planetType){
+      case MDirection::MERCURY :
+	mtype_p=MeasTable::MERCURY;
+	break;
+      case MDirection::VENUS :
+	mtype_p=MeasTable::VENUS;
+	break;	
+      case MDirection::MARS :
+	mtype_p=MeasTable::MARS;
+	break;
+      case MDirection::JUPITER :
+	mtype_p=MeasTable::JUPITER;
+	break;
+      case MDirection::SATURN :
+	mtype_p=MeasTable::SATURN;
+	break;
+      case MDirection::URANUS :
+	mtype_p=MeasTable::URANUS;
+	break;
+      case MDirection::NEPTUNE :
+	mtype_p=MeasTable::NEPTUNE;
+	break;
+      case MDirection::PLUTO :
+	mtype_p=MeasTable::PLUTO;
+	break;
+      case MDirection::MOON :
+	mtype_p=MeasTable::MOON;
+	break;
+      case MDirection::SUN :
+	mtype_p=MeasTable::SUN;
+	break;
+      default:
+	throw(AipsError("Cannot translate to known major solar system object"));
+      }
+
+    }
+      
+    }
+     obsvelconv_p=MRadialVelocity::Convert (MRadialVelocity(MVRadialVelocity(0.0),
+							 MRadialVelocity::Ref(MRadialVelocity::TOPO, mFrame_p)),
+							 MRadialVelocity::Ref(refvel));
+
+  }
+
+  void FTMachine::shiftFreqToSource(Vector<Double>& freqs){
+    MDoppler dopshift;
+    MEpoch ep(mFrame_p.epoch());
+    if(mFrame_p.comet()){
+      ////Will use UT for now for ephem tables as it is not clear that they are being
+      ///filled with TDB as intended in MeasComet.h
+      MEpoch::Convert toUT(ep, MEpoch::UT);
+      MVRadialVelocity cometvel;
+      (*mFrame_p.comet()).getRadVel(cometvel, toUT(ep).get("d").getValue());
+      //cerr << std::setprecision(10) << "UT " << toUT(ep).get("d").getValue() << " cometvel " << cometvel.get("km/s").getValue("km/s") << endl;
+      
+      //cerr  << "pos " << MPosition(mFrame_p.position()) << " obsevatory vel " << obsvelconv_p().get("km/s").getValue("km/s") << endl;
+      dopshift=MDoppler(Quantity(-cometvel.get("km/s").getValue("km/s")+obsvelconv_p().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+      
+    }
+    else{
+       Vector<Double> planetparam;
+       Vector<Double> earthparam;
+       MEpoch::Convert toTDB(ep, MEpoch::TDB);
+       earthparam=MeasTable::Planetary(MeasTable::EARTH, toTDB(ep).get("d").getValue());
+       planetparam=MeasTable::Planetary(mtype_p, toTDB(ep).get("d").getValue());
+       //GEOcentric param
+       planetparam=planetparam-earthparam;
+       Vector<Double> unitdirvec(3);
+       Double dist=sqrt(planetparam(0)*planetparam(0)+planetparam(1)*planetparam(1)+planetparam(2)*planetparam(2));
+       unitdirvec(0)=planetparam(0)/dist;
+       unitdirvec(1)=planetparam(1)/dist;
+       unitdirvec(2)=planetparam(2)/dist;
+       Quantity planetradvel(planetparam(3)*unitdirvec(0)+planetparam(4)*unitdirvec(1)+planetparam(5)*unitdirvec(2), "AU/d");
+	dopshift=MDoppler(Quantity(-planetradvel.getValue("km/s")+obsvelconv_p().get("km/s").getValue("km/s") , "km/s"), MDoppler::RELATIVISTIC);
+       
+    }
+
+    Vector<Double> newfreqs=dopshift.shiftFrequency(freqs);
+    freqs=newfreqs;
+  }
   
   Bool FTMachine::interpolateFrequencyTogrid(const vi::VisBuffer2& vb,
   					     const Matrix<Float>& wt,
@@ -622,8 +781,6 @@ using namespace casa::vi;
         chanMap.resize(interpVisFreq_p.nelements());
         indgen(chanMap);
       }
-
-	  
       if(type != FTMachine::PSF){ // Interpolating the data
    	//Need to get  new interpolate functions that interpolate explicitly on the 2nd axis
   	//2 swap of axes needed
@@ -864,50 +1021,65 @@ using namespace casa::vi;
     //the uvw rotation is done for common tangent reprojection or if the 
     //image center is different from the phasecenter
     // UVrotation is false only if field never changes
-  
-   ROMSColumns mscol(vb.ms());
-   if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
+  if(lastMSId_p != vb.msId())
+    romscol_p=new ROMSColumns(vb.ms());
+   if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
       doUVWRotation_p=true;
-    if(doUVWRotation_p ||  fixMovingSource_p){
+   } 
+   else{
+     //if above failed it still can be changing if   polynome phasecenter or ephem
+     
+     if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (! (vb.subtableColumns().field().ephemerisId().isNull()) && (vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1)))
+       doUVWRotation_p=True;
+   }
+   if(doUVWRotation_p ||  fixMovingSource_p){
       
       mFrame_p.epoch() != 0 ? 
 	mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
-	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), mscol.timeMeas()(0).getRef()));
+	mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
       MDirection::Types outType;
       MDirection::getType(outType, mImage_p.getRefString());
       MDirection phasecenter=MDirection::Convert(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), MDirection::Ref(outType, mFrame_p))();
-      
+      MDirection inFieldPhaseCenter=phasecenter;
 
       if(fixMovingSource_p){
        
       //First convert to HA-DEC or AZEL for parallax correction
 	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	MDirection tmphadec;
+	if(upcase(movingDir_p.getRefString()).contains("APP")){
+	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	}
+	else{
+	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	}
 	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
 	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
 	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-	
+	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
+	 movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
+	 // cerr << "shift " << movingDirShift_p.getAngle() << endl;
+	inFieldPhaseCenter.shift(movingDirShift_p, False);
     }
 
 
       // Set up the UVWMachine only if the field id has changed. If
       // the tangent plane is specified then we need a UVWMachine that
       // will reproject to that plane iso the image plane
-      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
+      if(doUVWRotation_p || fixMovingSource_p) {
 	
-	String observatory=mscol.observation().telescopeName()(0);
+	String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
 	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
 	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
 		//Tangent specified is being wrongly used...it should be for a
 	    	//Use the safest way  for now.
-	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
+	  uvwMachine_p=new UVWMachine(inFieldPhaseCenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p), mFrame_p,
 					true, false);
 	    phaseShifter_p=new UVWMachine(mImage_p, phasecenter, mFrame_p,
 					true, false);
 	}
 	else{
-	  uvwMachine_p=new UVWMachine(phasecenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
+	  uvwMachine_p=new UVWMachine(inFieldPhaseCenter, vbutil_p->getPhaseCenter(vb, phaseCenterTime_p),  mFrame_p,
 				      false, false);
 	  phaseShifter_p=new UVWMachine(mImage_p, phasecenter,  mFrame_p,
 				      false, false);
@@ -967,40 +1139,61 @@ using namespace casa::vi;
     {
 
 
-
+      if(lastMSId_p != vb.msId())
+	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
       //image center is different from the phasecenter
       // UVrotation is false only if field never changes
-      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p))
+
+      if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p)){
         doUVWRotation_p=true;
+	
+      }
+      else{
+	//if above failed it still can be changing if   polynome phasecenter or ephem
+	if( (vb.subtableColumns().field().numPoly()(lastFieldId_p) >0) ||  (! (vb.subtableColumns().field().ephemerisId().isNull()) &&(vb.subtableColumns().field().ephemerisId()(lastFieldId_p) > -1)))
+	  doUVWRotation_p=True;
+	
+      }
       if(doUVWRotation_p || tangentSpecified_p || fixMovingSource_p){
         ok();
 	
         mFrame_p.epoch() != 0 ?
 	  mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s"))):
 	 
-	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()));
+	  mFrame_p.set(mLocation_p, MEpoch(Quantity(vb.time()(0), "s"), (romscol_p->timeMeas())(0).getRef()));
 
         MDirection phasecenter=mImage_p;
         if(fixMovingSource_p){
 
-        //First convert to HA-DEC or AZEL for parallax correction
-  	MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-  	MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-  	MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
-  	MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
+	  //First convert to HA-DEC or AZEL for parallax correction
+	  MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
+	  MDirection tmphadec;
+	  if(upcase(movingDir_p.getRefString()).contains("APP")){
+	    tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	  }
+	  else{
+	    tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	  }
+	  ////TESTOO waiting for CAS-11060
+	  //MDirection tmphadec=MDirection::Convert((vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)), outref1)();
+	  /////////
+	  MDirection::Ref outref(mImage_p.getRef().getType(), mFrame_p);
+	  MDirection sourcenow=MDirection::Convert(tmphadec, outref)();
   	//cerr << "Rotating to fixed moving source " << MVDirection(phasecenter.getAngle()-firstMovingDir_p.getAngle()+sourcenow.getAngle()) << endl;
-  	phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
-
+  	//phasecenter.set(MVDirection(phasecenter.getAngle()+firstMovingDir_p.getAngle()-sourcenow.getAngle()));
+	  movingDirShift_p=MVDirection(sourcenow.getAngle()-firstMovingDir_p.getAngle());
+	  phasecenter.shift(movingDirShift_p, False);
+	  //cerr    << sourcenow.toString() <<"  "<<(vbutil_p->getPhaseCenter(vb, phaseCenterTime_p)).toString() <<  " difference " << firstMovingDir_p.getAngle() - sourcenow.getAngle() << endl;
       }
 
 
         // Set up the UVWMachine only if the field id has changed. If
         // the tangent plane is specified then we need a UVWMachine that
         // will reproject to that plane iso the image plane
-        if((vb.fieldId()(0)!=lastFieldId_p) || (vb.msId()!=lastMSId_p) || fixMovingSource_p) {
+        if(doUVWRotation_p || fixMovingSource_p) {
 
-  	String observatory=ROMSColumns(vb.ms()).observation().telescopeName()(0);
+	  String observatory=(vb.subtableColumns().observation()).telescopeName()(0);
   	if(uvwMachine_p) delete uvwMachine_p; uvwMachine_p=0;
   	if(observatory.contains("ATCA") || observatory.contains("WSRT")){
   		//Tangent specified is being wrongly used...it should be for a
@@ -1222,7 +1415,6 @@ using namespace casa::vi;
     outRecord.define("nchan", nchan);
     outRecord.define("nvischan", nvischan);
     outRecord.define("nvispol", nvispol);
-    saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
     //no need to save uvwMachine_p
     outRecord.define("douvwrotation", doUVWRotation_p);
     outRecord.define("freqinterpmethod", static_cast<Int>(freqInterpMethod_p));
@@ -1239,12 +1431,11 @@ using namespace casa::vi;
     outRecord.define("chanmap", chanMap);
     outRecord.define("polmap", polMap);
     outRecord.define("nvischanmulti", nVisChan_p);
-    spectralCoord_p.save(outRecord, "spectralcoord");
+
+    //save moving source related variables
+    storeMovingSourceState(error, outRecord);
     //outRecord.define("doconversion", doConversion_p);
     outRecord.define("pointingdircol", pointingDirCol_p);
-    saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
-    outRecord.define("fixmovingsource", fixMovingSource_p);
-    saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
     outRecord.define("usedoublegrid", useDoubleGrid_p);
     outRecord.define("cfstokes", cfStokes_p);
     outRecord.define("polinuse", polInUse_p);
@@ -1350,12 +1541,7 @@ using namespace casa::vi;
     }
     
    
-    { const Record rec=inRecord.asRecord("mlocation_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      mLocation_p=mh.asMPosition();
-    }
+   
     inRecord.get("douvwrotation", doUVWRotation_p);
    
     //inRecord.get("spwchanselflag", spwChanSelFlag_p);
@@ -1373,26 +1559,10 @@ using namespace casa::vi;
     inRecord.get("chanmap", chanMap);
     inRecord.get("polmap", polMap);
     inRecord.get("nvischanmulti", nVisChan_p);
-    SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
-    if(tmpSpec){
-      spectralCoord_p=*tmpSpec;
-      delete tmpSpec;
-    }
     //inRecord.get("doconversion", doConversion_p);
     inRecord.get("pointingdircol", pointingDirCol_p);
-    { const Record rec=inRecord.asRecord("movingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      movingDir_p=mh.asMDirection();
-    }
-    inRecord.get("fixmovingsource", fixMovingSource_p);
-    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      firstMovingDir_p=mh.asMDirection();
-    }
+    
+    
     inRecord.get("usedoublegrid", useDoubleGrid_p);
     inRecord.get("cfstokes", cfStokes_p);
     inRecord.get("polinuse", polInUse_p);
@@ -1411,10 +1581,87 @@ using namespace casa::vi;
     inRecord.get("phasecentertime", phaseCenterTime_p);
     ///No need to store this...recalculate thread partion because environment 
     ///may have changed.
-    doneThreadPartition_p=False;
+    doneThreadPartition_p=-1;
+    vbutil_p=nullptr;
+    briggsWeightor_p=nullptr;
+    if(!recoverMovingSourceState(error, inRecord))
+      return False;
     return true;
   };
+  Bool FTMachine::storeMovingSourceState(String& error, RecordInterface& outRecord){
+
+    Bool retval=True;
+    retval=retval && saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
+    spectralCoord_p.save(outRecord, "spectralcoord");
+    retval=retval && saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
+    outRecord.define("fixmovingsource", fixMovingSource_p);
+    retval=retval && saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
+    movingDirShift_p=MVDirection(0.0);
+    if( mFrame_p.comet()){
+      String ephemTab=MeasComet(*(mFrame_p.comet())).getTablePath();
+      outRecord.define("ephemeristable",ephemTab);
+    }
+    return retval;
+  }
+  Bool FTMachine::recoverMovingSourceState(String& error, const RecordInterface& inRecord){
+    Bool retval=True;
+    inRecord.get("fixmovingsource", fixMovingSource_p);
+    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      firstMovingDir_p=mh.asMDirection();
+    }
+    { const Record rec=inRecord.asRecord("movingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      movingDir_p=mh.asMDirection();
+    }
+     { const Record rec=inRecord.asRecord("mlocation_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      mLocation_p=mh.asMPosition();
+    }
+     SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
+    if(tmpSpec){
+      spectralCoord_p=*tmpSpec;
+      delete tmpSpec;
+    }
+    if(inRecord.isDefined("ephemeristable")){
+      String ephemtab;
+      inRecord.get("ephemeristable", ephemtab);
+      MeasComet laComet;
+      if(Table::isReadable(ephemtab, False)){
+	Table laTable(ephemtab);
+	Path leSentier(ephemtab);
+	laComet=MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+        laComet= MeasComet(ephemtab);
+      }
+      if(!mFrame_p.comet())
+	mFrame_p.set(laComet);
+      else
+	mFrame_p.resetComet(laComet);
+    }
+    
+    return retval;
+  }
   
+  
+  void FTMachine::getImagingWeight(Matrix<Float>& imwgt, const vi::VisBuffer2& vb){
+    //cerr << "BRIGGSweightor " << briggsWeightor_p.null()  << " or " << !briggsWeoght_p << endl;
+    if(briggsWeightor_p.null()){
+      imwgt=vb.imagingWeight();
+    }
+    else
+      briggsWeightor_p->weightUniform(imwgt, vb);
+
+
+
+  }
   // Make a plain straightforward honest-to-FSM image. This returns
   // a complex image, without conversion to Stokes. The representation
   // is that required for the visibilities.
@@ -1551,6 +1798,10 @@ using namespace casa::vi;
     }
   */
 
+  Vector<Int> FTMachine::channelMap(const vi::VisBuffer2& vb){
+    matchChannel(vb);
+    return chanMap;
+  }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
 
     //Int spw=vb.spectralWindows()[0];
@@ -1561,11 +1812,26 @@ using namespace casa::vi;
 
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
-     if(freqFrameValid_p)
+    //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
+     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
     	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
      else
     	 lsrFreq=vb.getFrequencies(0);
 
+     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
+       if(lastMSId_p != vb.msId()){
+	 romscol_p=new ROMSColumns(vb.ms());
+       //if ms changed ...reset ephem table
+	 if(upcase(movingDir_p.getRefString()).contains("APP")){
+	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	   mFrame_p.resetComet(mcomet);
+	 }
+       }
+	
+       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+       shiftFreqToSource(lsrFreq);
+     }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);
@@ -1688,13 +1954,53 @@ using namespace casa::vi;
   }
   
   
-  void FTMachine::setMovingSource(const String& sourcename){
-    
+  void FTMachine::setMovingSource(const String& sname, const String& ephtab){
+    String sourcename=sname;
+    String ephemtab=ephtab;
+    //if a table is given as sourcename...assume ephemerides
+    if(Table::isReadable(sourcename, False)){
+      sourcename="COMET";
+      ephemtab=sname;
+    }
+    ///Special case
+    if(upcase(sourcename)=="TRACKFIELD"){
+      //if(name().contains("MosaicFT"))
+      //	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
+      fixMovingSource_p=True;
+      movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
+      movingDir_p.setRefString("APP");
+      ///Setting it to APP with movingDir_p==True  => should use the phasecenter to track
+      ///Discussion in CAS-9004 where users are too lazy to give an ephemtable.
+      return;
+    }
+
+    MDirection::Types refType;
+    Bool  isValid = MDirection::getType(refType, sourcename);
+    if(!isValid)
+      throw(AipsError("Cannot recognize moving source "+sourcename));
+    if(refType < MDirection::N_Types || refType > MDirection:: N_Planets )
+      throw(AipsError(sourcename+" is not type of source we can track"));
+    if(refType==MDirection::COMET){
+      MeasComet laComet;
+      if(Table::isReadable(ephemtab, False)){
+	Table laTable(ephemtab);
+	Path leSentier(ephemtab);
+	laComet=MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+        laComet= MeasComet(ephemtab);
+      }
+      if(!mFrame_p.comet())
+	mFrame_p.set(laComet);
+      else
+	mFrame_p.resetComet(laComet);
+    }
     fixMovingSource_p=true;
     movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
     movingDir_p.setRefString(sourcename);
-    
+    // cerr << "movingdir " << movingDir_p.toString() << endl;
   }
+
 
   void FTMachine::setMovingSource(const MDirection& mdir){
     
@@ -1721,7 +2027,9 @@ using namespace casa::vi;
     }
   
   }
-  
+  void FTMachine::setFreqInterpolation(const InterpolateArray1D<Double,Complex>::InterpolationMethod type){
+    freqInterpMethod_p=type;
+  }
   
   // helper function to swap the y and z axes of a Cube
   void FTMachine::swapyz(Cube<Complex>& out, const Cube<Complex>& in)
@@ -2251,18 +2559,23 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       {
 	Int elrow=icounter/ixsub;
 	Int elcol=(icounter-elrow*ixsub);
-	//cerr << "row "<< elrow << " col " << elcol; 
+	//cerr << "row "<< elrow << " col " << elcol << endl; 
 	//nxsub=Int(floor(((ceil(fabs(float(2*elcol+1-ixsub)/2.0))-1.0)*5 +1)*nxp/36.0 + 0.5));
 	Float factor=0;
-	for (Int k=0; k < ixsub/2; ++k)
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	if(ixsub > 1){
+	  for (Int k=0; k < ixsub/2; ++k)
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
 	  //factor= linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	factor *= 2.0;
-	if(linear)
-	  nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	else
-	  //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
-	  nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	  factor *= 2.0;
+	  if(linear)
+	    nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	  else
+	    //nxsub=Int(floor((ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))*ceil(fabs(float(2*elcol+1-ixsub)/2.0))/factor)*nxp + 0.5));
+	    nxsub=Int(floor((sqrt(ceil(fabs(float(2*elcol+1-ixsub)/2.0)))/factor)*nxp + 0.5));
+	}
+	else{
+	  nxsub=nxp;
+	}
         //cerr << nxp << " col " << elcol << " nxsub " << nxsub << endl;
 	x0=minx;
 	elcol-=1;
@@ -2277,15 +2590,20 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 	  elcol-=1;
 	}
 	factor=0;
-	for (Int k=0; k < iysub/2; ++k)
-	  //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
-	  factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
-	factor *= 2.0;
-	//nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
-	if(linear)
-	  nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
-	else
-	  nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	if(iysub >1){
+	  for (Int k=0; k < iysub/2; ++k)
+	    //factor=linear ? factor+(k+1): factor+(k+1)*(k+1)*(k+1);
+	    factor= linear ? factor+(k+1): factor+sqrt(Float(k+1));
+	  factor *= 2.0;
+	  //nysub=Int(floor(((ceil(fabs(float(2*elrow+1-iysub)/2.0))-1.0)*5 +1)*nyp/36.0+0.5));
+	  if(linear)
+	    nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
+	  else
+	    nysub=Int(floor((sqrt(ceil(fabs(float(2*elrow+1-iysub)/2.0)))/factor)*nyp + 0.5));
+	}
+	else{
+	  nysub=nyp;
+	}
 	  //nysub=Int(floor((ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))*ceil(fabs(float(2*elrow+1-iysub)/2.0))/factor)*nyp + 0.5));
 	y0=miny;
 	elrow-=1;
@@ -2304,13 +2622,15 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
 
       y0+=1;
       x0+=1;
-      
+      //cerr << icounter << " x0, y0 " << x0 << "  " << y0 << "  ixsub, iysub " <<  nxsub << "   " << nysub << endl;
+      if(doneThreadPartition_p < 0)
+	doneThreadPartition_p=1;
    
 }
 
   void FTMachine::tweakGridSector(const Int& nx, const Int& ny, const Int& ixsub, const Int& iysub){
-    if(doneThreadPartition_p)
-      return;
+    //if(doneThreadPartition_p)
+    //  return;
     Vector<Int> x0, y0, nxsub, nysub;
     Vector<Float> xcut(nx/2);
     Vector<Float> ycut(ny/2);
@@ -2392,7 +2712,8 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
     }
     nysub(iysub-1)+=1;
     
-    
+    if(anyEQ(nxsub, 0) || anyEQ(nysub, 0))
+      return;
     //cerr << " x0 " << x0 << "  nxsub " << nxsub << endl;
     //cerr << " y0 " << y0 << "  nysub " << nysub << endl;
     x0+=1;
@@ -2411,7 +2732,7 @@ void FTMachine::findGridSector(const Int& nxp, const Int& nyp, const Int& ixsub,
       }
     }
 
-
+    ++doneThreadPartition_p;
 
   }
  

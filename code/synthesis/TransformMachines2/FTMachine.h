@@ -32,6 +32,7 @@
 #include <measures/Measures/Measure.h>
 #include <measures/Measures/MDirection.h>
 #include <measures/Measures/MPosition.h>
+#include <measures/Measures/MeasTable.h>
 #include <casa/Arrays/Array.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
@@ -56,7 +57,7 @@
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
 #include <synthesis/TransformMachines2/SkyJones.h>
-
+#include <iomanip>
 namespace casacore{
 
   class UVWMachine;
@@ -69,7 +70,7 @@ namespace casa{ //# namespace casa
                   class VisibilityIterator2;
   }
  namespace refim{ //#	 namespace for refactored imaging code with vi2/vb2
-
+  class BriggsCubeWeightor;
   class SkyJones;
 // <summary> defines interface for the Fourier Transform Machine </summary>
 
@@ -176,6 +177,11 @@ public:
 				  casacore::CountedPtr<SIImageStore> imstore);
 
   //-------------------------------------------------------------------------------------
+  //This function has to be called after initMaps to initialize Briggs
+  //Cube weighting scheme
+  virtual void initBriggsWeightor(vi::VisibilityIterator2& vi);
+
+  
   // Finalize transform to Sky plane
   virtual void finalizeToSky() = 0;
 
@@ -308,12 +314,12 @@ public:
   virtual casacore::String name() const =0;// { return "None";};
  
   // set and get the location used for frame 
-  void setLocation(const casacore::MPosition& loc);
-  casacore::MPosition& getLocation();
+  virtual void setLocation(const casacore::MPosition& loc);
+  virtual casacore::MPosition& getLocation();
 
   // set a moving source aka planets or comets =>  adjust phase center
   // on the fly for gridding 
-  virtual void setMovingSource(const casacore::String& sourcename);
+  virtual void setMovingSource(const casacore::String& sourcename, const casacore::String& ephemtable="");
   virtual void setMovingSource(const casacore::MDirection& mdir);
 
   //reset stuff in an FTMachine
@@ -321,7 +327,7 @@ public:
 
   //set frequency interpolation type
   virtual void setFreqInterpolation(const casacore::String& method);
-
+  virtual void setFreqInterpolation(const casacore::InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod type);
   //tell ftmachine which Pointing table column to use for Direction
   //Mosaic or Single dish ft use this for example
   virtual void setPointingDirColumn(const casacore::String& column="DIRECTION");
@@ -352,17 +358,13 @@ public:
   casacore::CountedPtr<CFCache> getCFCache() {return cfCache_p;};
   casacore::String getCacheDir() { return cfCache_p->getCacheDir(); };
 
-  virtual void setDryRun(casacore::Bool val) 
-  {
-    isDryRun=val;
-    //cerr << "FTM: " << isDryRun << endl;
-  };
+  virtual void setDryRun(casacore::Bool val) {isDryRun=val;};
   virtual casacore::Bool dryRun() {return isDryRun;}
-  virtual casacore::Bool isUsingCFCache() 
-  {
-    // cerr << "@#%$@% = " << cfCache_p.nrefs() << endl;
-    return (cfCache_p.nrefs()!=0);
-  }
+  virtual casacore::Bool isUsingCFCache() {return (cfCache_p.nrefs()!=0);}
+
+  virtual const casacore::CountedPtr<refim::FTMachine>& getFTM2(const casacore::Bool ) 
+  {throw(casacore::AipsError("FTMachine::getFTM2() called directly!"));}
+
   casacore::Bool isDryRun;
   void setPseudoIStokes(casacore::Bool pseudoI){isPseudoI_p=pseudoI;};
 
@@ -372,12 +374,18 @@ public:
   //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
   void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
   casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
+  casacore::Vector<casacore::Int> channelMap(const vi::VisBuffer2& vb);
+  casacore::Matrix<casacore::Double> getSumWeights(){return  sumWeight;};
 
+  ///Functions associated with Briggs weighting for cubes
+  void setBriggsCubeWeight(casacore::CountedPtr<refim::BriggsCubeWeightor> bwght){briggsWeightor_p=bwght;};
+  void getImagingWeight(casacore::Matrix<casacore::Float>& imwght, const vi::VisBuffer2& vb);
 protected:
 
   friend class VisModelData;
   friend class MultiTermFT;
   friend class MultiTermFTNew;
+  friend class BriggsCubeWeightor;
   casacore::LogIO logIO_p;
 
   casacore::LogIO& logIO();
@@ -399,7 +407,9 @@ protected:
   casacore::MDirection movingDir_p;
   casacore::Bool fixMovingSource_p;
   casacore::MDirection firstMovingDir_p;
-    
+  // This will hold the angular difference between movingDir and firstMovingDir with 
+  // the frame conversion done properly etc..
+  casacore::MVDirection movingDirShift_p;
 
   casacore::Double distance_p;
 
@@ -407,10 +417,12 @@ protected:
 
   casacore::Int lastFieldId_p;
   casacore::Int lastMSId_p;
+  casacore::CountedPtr<casacore::ROMSColumns> romscol_p;
   //Use douple precision grid in gridding process
   casacore::Bool useDoubleGrid_p;
 
   virtual void initMaps(const vi::VisBuffer2& vb);
+  
   virtual void initPolInfo(const vi::VisBuffer2& vb);
 
   // Sum of weights per polarization and per chan
@@ -471,9 +483,11 @@ protected:
 
 
   void setSpectralFlag(const vi::VisBuffer2& vb, casacore::Cube<casacore::Bool>& modflagcube);
+  //Save/Recover some elements of state of ftmachine in/from record
+  casacore::Bool storeMovingSourceState(casacore::String& error, casacore::RecordInterface& outRecord);
   //helper to save Measures in a record
   casacore::Bool saveMeasure(casacore::RecordInterface& rec, const casacore::String& name, casacore::String& error, const casacore::Measure& ms);
-
+  casacore::Bool recoverMovingSourceState(casacore::String& error, const casacore::RecordInterface& inRecord);
   casacore::Matrix<casacore::Double> negateUV(const vi::VisBuffer2& vb);
 
   // Private variables needed for spectral frame conversion 
@@ -515,12 +529,18 @@ protected:
   casacore::CountedPtr<VisBufferUtil> vbutil_p;
   casacore::Double phaseCenterTime_p;
   ///Some parameters and helpers for multithreaded gridders
-  casacore::Bool doneThreadPartition_p;
+  casacore::Int doneThreadPartition_p;
   casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
+  casacore::CountedPtr<refim::BriggsCubeWeightor> briggsWeightor_p;
   virtual void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
   
   virtual void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, 
 			       const casacore::Int& ixsub, const casacore::Int& iysub);
+  void initSourceFreqConv();
+  void shiftFreqToSource(casacore::Vector<casacore::Double>& freqs);
+  ///moving source spectral frame stuff
+  casacore::MRadialVelocity::Convert obsvelconv_p;
+  casacore::MeasTable::Types mtype_p;
 
 
  private:

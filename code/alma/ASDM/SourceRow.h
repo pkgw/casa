@@ -48,39 +48,39 @@
 
 
 	 
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	 
-#include <AngularRate.h>
+#include <alma/ASDM/AngularRate.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Flux.h>
+#include <alma/ASDM/Flux.h>
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -99,11 +99,7 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
-	
-
-	
-
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -123,23 +119,15 @@
 	
 
 	
-#include "CSourceModel.h"
-	
-
-	
-#include "CFrequencyReferenceCode.h"
-	
 
 	
 
 	
-
+#include <alma/Enumerations/CSourceModel.h>
 	
 
 	
-
-	
-#include "CStokesParameter.h"
+#include <alma/Enumerations/CFrequencyReferenceCode.h>
 	
 
 	
@@ -151,21 +139,45 @@
 	
 
 	
+#include <alma/Enumerations/CStokesParameter.h>
+	
+
+	
 
 	
 
 	
-#include "CRadialVelocityReferenceCode.h"
+
+	
+
+	
+
+	
+
+	
+#include <alma/Enumerations/CRadialVelocityReferenceCode.h>
+	
+
+	
+
+	
+#include <alma/Enumerations/CRadialVelocityReferenceCode.h>
+	
+
+	
+#include <alma/Enumerations/CDopplerReferenceCode.h>
+	
+
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Source.h
     \brief Generated from model's revision "-1", branch ""
@@ -182,7 +194,7 @@ class SpectralWindowRow;
 
 class SourceRow;
 typedef void (SourceRow::*SourceAttributeFromBin) (EndianIStream& eis);
-typedef void (SourceRow::*SourceAttributeFromText) (const string& s);
+typedef void (SourceRow::*SourceAttributeFromText) (const std::string& s);
 
 /**
  * The SourceRow class is a row of a SourceTable.
@@ -275,21 +287,21 @@ public:
 	
  	/**
  	 * Get code.
- 	 * @return code as string
+ 	 * @return code as std::string
  	 */
- 	string getCode() const;
+ 	std::string getCode() const;
 	
  
  	
  	
  	/**
- 	 * Set code with the specified string.
- 	 * @param code The string value to which code is to be set.
+ 	 * Set code with the specified std::string.
+ 	 * @param code The std::string value to which code is to be set.
  	 
  		
  			
  	 */
- 	void setCode (string code);
+ 	void setCode (std::string code);
   		
 	
 	
@@ -305,21 +317,21 @@ public:
 	
  	/**
  	 * Get direction.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 */
- 	vector<Angle > getDirection() const;
+ 	std::vector<Angle > getDirection() const;
 	
  
  	
  	
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  		
  			
  	 */
- 	void setDirection (vector<Angle > direction);
+ 	void setDirection (std::vector<Angle > direction);
   		
 	
 	
@@ -335,21 +347,21 @@ public:
 	
  	/**
  	 * Get properMotion.
- 	 * @return properMotion as vector<AngularRate >
+ 	 * @return properMotion as std::vector<AngularRate >
  	 */
- 	vector<AngularRate > getProperMotion() const;
+ 	std::vector<AngularRate > getProperMotion() const;
 	
  
  	
  	
  	/**
- 	 * Set properMotion with the specified vector<AngularRate >.
- 	 * @param properMotion The vector<AngularRate > value to which properMotion is to be set.
+ 	 * Set properMotion with the specified std::vector<AngularRate >.
+ 	 * @param properMotion The std::vector<AngularRate > value to which properMotion is to be set.
  	 
  		
  			
  	 */
- 	void setProperMotion (vector<AngularRate > properMotion);
+ 	void setProperMotion (std::vector<AngularRate > properMotion);
   		
 	
 	
@@ -365,21 +377,21 @@ public:
 	
  	/**
  	 * Get sourceName.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 */
- 	string getSourceName() const;
+ 	std::string getSourceName() const;
 	
  
  	
  	
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  		
  			
  	 */
- 	void setSourceName (string sourceName);
+ 	void setSourceName (std::string sourceName);
   		
 	
 	
@@ -524,21 +536,21 @@ public:
 	
  	/**
  	 * Get catalog, which is optional.
- 	 * @return catalog as string
+ 	 * @return catalog as std::string
  	 * @throws IllegalAccessException If catalog does not exist.
  	 */
- 	string getCatalog() const;
+ 	std::string getCatalog() const;
 	
  
  	
  	
  	/**
- 	 * Set catalog with the specified string.
- 	 * @param catalog The string value to which catalog is to be set.
+ 	 * Set catalog with the specified std::string.
+ 	 * @param catalog The std::string value to which catalog is to be set.
  	 
  		
  	 */
- 	void setCatalog (string catalog);
+ 	void setCatalog (std::string catalog);
 		
 	
 	
@@ -606,21 +618,21 @@ public:
 	
  	/**
  	 * Get position, which is optional.
- 	 * @return position as vector<Length >
+ 	 * @return position as std::vector<Length >
  	 * @throws IllegalAccessException If position does not exist.
  	 */
- 	vector<Length > getPosition() const;
+ 	std::vector<Length > getPosition() const;
 	
  
  	
  	
  	/**
- 	 * Set position with the specified vector<Length >.
- 	 * @param position The vector<Length > value to which position is to be set.
+ 	 * Set position with the specified std::vector<Length >.
+ 	 * @param position The std::vector<Length > value to which position is to be set.
  	 
  		
  	 */
- 	void setPosition (vector<Length > position);
+ 	void setPosition (std::vector<Length > position);
 		
 	
 	
@@ -688,21 +700,21 @@ public:
 	
  	/**
  	 * Get transition, which is optional.
- 	 * @return transition as vector<string >
+ 	 * @return transition as std::vector<std::string >
  	 * @throws IllegalAccessException If transition does not exist.
  	 */
- 	vector<string > getTransition() const;
+ 	std::vector<std::string > getTransition() const;
 	
  
  	
  	
  	/**
- 	 * Set transition with the specified vector<string >.
- 	 * @param transition The vector<string > value to which transition is to be set.
+ 	 * Set transition with the specified std::vector<std::string >.
+ 	 * @param transition The std::vector<std::string > value to which transition is to be set.
  	 
  		
  	 */
- 	void setTransition (vector<string > transition);
+ 	void setTransition (std::vector<std::string > transition);
 		
 	
 	
@@ -729,21 +741,21 @@ public:
 	
  	/**
  	 * Get restFrequency, which is optional.
- 	 * @return restFrequency as vector<Frequency >
+ 	 * @return restFrequency as std::vector<Frequency >
  	 * @throws IllegalAccessException If restFrequency does not exist.
  	 */
- 	vector<Frequency > getRestFrequency() const;
+ 	std::vector<Frequency > getRestFrequency() const;
 	
  
  	
  	
  	/**
- 	 * Set restFrequency with the specified vector<Frequency >.
- 	 * @param restFrequency The vector<Frequency > value to which restFrequency is to be set.
+ 	 * Set restFrequency with the specified std::vector<Frequency >.
+ 	 * @param restFrequency The std::vector<Frequency > value to which restFrequency is to be set.
  	 
  		
  	 */
- 	void setRestFrequency (vector<Frequency > restFrequency);
+ 	void setRestFrequency (std::vector<Frequency > restFrequency);
 		
 	
 	
@@ -770,21 +782,21 @@ public:
 	
  	/**
  	 * Get sysVel, which is optional.
- 	 * @return sysVel as vector<Speed >
+ 	 * @return sysVel as std::vector<Speed >
  	 * @throws IllegalAccessException If sysVel does not exist.
  	 */
- 	vector<Speed > getSysVel() const;
+ 	std::vector<Speed > getSysVel() const;
 	
  
  	
  	
  	/**
- 	 * Set sysVel with the specified vector<Speed >.
- 	 * @param sysVel The vector<Speed > value to which sysVel is to be set.
+ 	 * Set sysVel with the specified std::vector<Speed >.
+ 	 * @param sysVel The std::vector<Speed > value to which sysVel is to be set.
  	 
  		
  	 */
- 	void setSysVel (vector<Speed > sysVel);
+ 	void setSysVel (std::vector<Speed > sysVel);
 		
 	
 	
@@ -811,21 +823,21 @@ public:
 	
  	/**
  	 * Get rangeVel, which is optional.
- 	 * @return rangeVel as vector<Speed >
+ 	 * @return rangeVel as std::vector<Speed >
  	 * @throws IllegalAccessException If rangeVel does not exist.
  	 */
- 	vector<Speed > getRangeVel() const;
+ 	std::vector<Speed > getRangeVel() const;
 	
  
  	
  	
  	/**
- 	 * Set rangeVel with the specified vector<Speed >.
- 	 * @param rangeVel The vector<Speed > value to which rangeVel is to be set.
+ 	 * Set rangeVel with the specified std::vector<Speed >.
+ 	 * @param rangeVel The std::vector<Speed > value to which rangeVel is to be set.
  	 
  		
  	 */
- 	void setRangeVel (vector<Speed > rangeVel);
+ 	void setRangeVel (std::vector<Speed > rangeVel);
 		
 	
 	
@@ -1016,21 +1028,21 @@ public:
 	
  	/**
  	 * Get frequency, which is optional.
- 	 * @return frequency as vector<Frequency >
+ 	 * @return frequency as std::vector<Frequency >
  	 * @throws IllegalAccessException If frequency does not exist.
  	 */
- 	vector<Frequency > getFrequency() const;
+ 	std::vector<Frequency > getFrequency() const;
 	
  
  	
  	
  	/**
- 	 * Set frequency with the specified vector<Frequency >.
- 	 * @param frequency The vector<Frequency > value to which frequency is to be set.
+ 	 * Set frequency with the specified std::vector<Frequency >.
+ 	 * @param frequency The std::vector<Frequency > value to which frequency is to be set.
  	 
  		
  	 */
- 	void setFrequency (vector<Frequency > frequency);
+ 	void setFrequency (std::vector<Frequency > frequency);
 		
 	
 	
@@ -1057,21 +1069,21 @@ public:
 	
  	/**
  	 * Get frequencyInterval, which is optional.
- 	 * @return frequencyInterval as vector<Frequency >
+ 	 * @return frequencyInterval as std::vector<Frequency >
  	 * @throws IllegalAccessException If frequencyInterval does not exist.
  	 */
- 	vector<Frequency > getFrequencyInterval() const;
+ 	std::vector<Frequency > getFrequencyInterval() const;
 	
  
  	
  	
  	/**
- 	 * Set frequencyInterval with the specified vector<Frequency >.
- 	 * @param frequencyInterval The vector<Frequency > value to which frequencyInterval is to be set.
+ 	 * Set frequencyInterval with the specified std::vector<Frequency >.
+ 	 * @param frequencyInterval The std::vector<Frequency > value to which frequencyInterval is to be set.
  	 
  		
  	 */
- 	void setFrequencyInterval (vector<Frequency > frequencyInterval);
+ 	void setFrequencyInterval (std::vector<Frequency > frequencyInterval);
 		
 	
 	
@@ -1098,21 +1110,21 @@ public:
 	
  	/**
  	 * Get stokesParameter, which is optional.
- 	 * @return stokesParameter as vector<StokesParameterMod::StokesParameter >
+ 	 * @return stokesParameter as std::vector<StokesParameterMod::StokesParameter >
  	 * @throws IllegalAccessException If stokesParameter does not exist.
  	 */
- 	vector<StokesParameterMod::StokesParameter > getStokesParameter() const;
+ 	std::vector<StokesParameterMod::StokesParameter > getStokesParameter() const;
 	
  
  	
  	
  	/**
- 	 * Set stokesParameter with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param stokesParameter The vector<StokesParameterMod::StokesParameter > value to which stokesParameter is to be set.
+ 	 * Set stokesParameter with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param stokesParameter The std::vector<StokesParameterMod::StokesParameter > value to which stokesParameter is to be set.
  	 
  		
  	 */
- 	void setStokesParameter (vector<StokesParameterMod::StokesParameter > stokesParameter);
+ 	void setStokesParameter (std::vector<StokesParameterMod::StokesParameter > stokesParameter);
 		
 	
 	
@@ -1139,21 +1151,21 @@ public:
 	
  	/**
  	 * Get flux, which is optional.
- 	 * @return flux as vector<vector<Flux > >
+ 	 * @return flux as std::vector<std::vector<Flux > >
  	 * @throws IllegalAccessException If flux does not exist.
  	 */
- 	vector<vector<Flux > > getFlux() const;
+ 	std::vector<std::vector<Flux > > getFlux() const;
 	
  
  	
  	
  	/**
- 	 * Set flux with the specified vector<vector<Flux > >.
- 	 * @param flux The vector<vector<Flux > > value to which flux is to be set.
+ 	 * Set flux with the specified std::vector<std::vector<Flux > >.
+ 	 * @param flux The std::vector<std::vector<Flux > > value to which flux is to be set.
  	 
  		
  	 */
- 	void setFlux (vector<vector<Flux > > flux);
+ 	void setFlux (std::vector<std::vector<Flux > > flux);
 		
 	
 	
@@ -1180,21 +1192,21 @@ public:
 	
  	/**
  	 * Get fluxErr, which is optional.
- 	 * @return fluxErr as vector<vector<Flux > >
+ 	 * @return fluxErr as std::vector<std::vector<Flux > >
  	 * @throws IllegalAccessException If fluxErr does not exist.
  	 */
- 	vector<vector<Flux > > getFluxErr() const;
+ 	std::vector<std::vector<Flux > > getFluxErr() const;
 	
  
  	
  	
  	/**
- 	 * Set fluxErr with the specified vector<vector<Flux > >.
- 	 * @param fluxErr The vector<vector<Flux > > value to which fluxErr is to be set.
+ 	 * Set fluxErr with the specified std::vector<std::vector<Flux > >.
+ 	 * @param fluxErr The std::vector<std::vector<Flux > > value to which fluxErr is to be set.
  	 
  		
  	 */
- 	void setFluxErr (vector<vector<Flux > > fluxErr);
+ 	void setFluxErr (std::vector<std::vector<Flux > > fluxErr);
 		
 	
 	
@@ -1221,21 +1233,21 @@ public:
 	
  	/**
  	 * Get positionAngle, which is optional.
- 	 * @return positionAngle as vector<Angle >
+ 	 * @return positionAngle as std::vector<Angle >
  	 * @throws IllegalAccessException If positionAngle does not exist.
  	 */
- 	vector<Angle > getPositionAngle() const;
+ 	std::vector<Angle > getPositionAngle() const;
 	
  
  	
  	
  	/**
- 	 * Set positionAngle with the specified vector<Angle >.
- 	 * @param positionAngle The vector<Angle > value to which positionAngle is to be set.
+ 	 * Set positionAngle with the specified std::vector<Angle >.
+ 	 * @param positionAngle The std::vector<Angle > value to which positionAngle is to be set.
  	 
  		
  	 */
- 	void setPositionAngle (vector<Angle > positionAngle);
+ 	void setPositionAngle (std::vector<Angle > positionAngle);
 		
 	
 	
@@ -1262,21 +1274,21 @@ public:
 	
  	/**
  	 * Get positionAngleErr, which is optional.
- 	 * @return positionAngleErr as vector<Angle >
+ 	 * @return positionAngleErr as std::vector<Angle >
  	 * @throws IllegalAccessException If positionAngleErr does not exist.
  	 */
- 	vector<Angle > getPositionAngleErr() const;
+ 	std::vector<Angle > getPositionAngleErr() const;
 	
  
  	
  	
  	/**
- 	 * Set positionAngleErr with the specified vector<Angle >.
- 	 * @param positionAngleErr The vector<Angle > value to which positionAngleErr is to be set.
+ 	 * Set positionAngleErr with the specified std::vector<Angle >.
+ 	 * @param positionAngleErr The std::vector<Angle > value to which positionAngleErr is to be set.
  	 
  		
  	 */
- 	void setPositionAngleErr (vector<Angle > positionAngleErr);
+ 	void setPositionAngleErr (std::vector<Angle > positionAngleErr);
 		
 	
 	
@@ -1303,21 +1315,21 @@ public:
 	
  	/**
  	 * Get size, which is optional.
- 	 * @return size as vector<vector<Angle > >
+ 	 * @return size as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<Angle > > getSize() const;
+ 	std::vector<std::vector<Angle > > getSize() const;
 	
  
  	
  	
  	/**
- 	 * Set size with the specified vector<vector<Angle > >.
- 	 * @param size The vector<vector<Angle > > value to which size is to be set.
+ 	 * Set size with the specified std::vector<std::vector<Angle > >.
+ 	 * @param size The std::vector<std::vector<Angle > > value to which size is to be set.
  	 
  		
  	 */
- 	void setSize (vector<vector<Angle > > size);
+ 	void setSize (std::vector<std::vector<Angle > > size);
 		
 	
 	
@@ -1344,21 +1356,21 @@ public:
 	
  	/**
  	 * Get sizeErr, which is optional.
- 	 * @return sizeErr as vector<vector<Angle > >
+ 	 * @return sizeErr as std::vector<std::vector<Angle > >
  	 * @throws IllegalAccessException If sizeErr does not exist.
  	 */
- 	vector<vector<Angle > > getSizeErr() const;
+ 	std::vector<std::vector<Angle > > getSizeErr() const;
 	
  
  	
  	
  	/**
- 	 * Set sizeErr with the specified vector<vector<Angle > >.
- 	 * @param sizeErr The vector<vector<Angle > > value to which sizeErr is to be set.
+ 	 * Set sizeErr with the specified std::vector<std::vector<Angle > >.
+ 	 * @param sizeErr The std::vector<std::vector<Angle > > value to which sizeErr is to be set.
  	 
  		
  	 */
- 	void setSizeErr (vector<vector<Angle > > sizeErr);
+ 	void setSizeErr (std::vector<std::vector<Angle > > sizeErr);
 		
 	
 	
@@ -1408,6 +1420,170 @@ public:
 	 * Mark velRefCode, which is an optional field, as non-existent.
 	 */
 	void clearVelRefCode ();
+	
+
+
+	
+	// ===> Attribute dopplerVelocity, which is optional
+	
+	
+	
+	/**
+	 * The attribute dopplerVelocity is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerVelocity attribute exists. 
+	 */
+	bool isDopplerVelocityExists() const;
+	
+
+	
+ 	/**
+ 	 * Get dopplerVelocity, which is optional.
+ 	 * @return dopplerVelocity as std::vector<Speed >
+ 	 * @throws IllegalAccessException If dopplerVelocity does not exist.
+ 	 */
+ 	std::vector<Speed > getDopplerVelocity() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set dopplerVelocity with the specified std::vector<Speed >.
+ 	 * @param dopplerVelocity The std::vector<Speed > value to which dopplerVelocity is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setDopplerVelocity (std::vector<Speed > dopplerVelocity);
+		
+	
+	
+	
+	/**
+	 * Mark dopplerVelocity, which is an optional field, as non-existent.
+	 */
+	void clearDopplerVelocity ();
+	
+
+
+	
+	// ===> Attribute dopplerReferenceSystem, which is optional
+	
+	
+	
+	/**
+	 * The attribute dopplerReferenceSystem is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerReferenceSystem attribute exists. 
+	 */
+	bool isDopplerReferenceSystemExists() const;
+	
+
+	
+ 	/**
+ 	 * Get dopplerReferenceSystem, which is optional.
+ 	 * @return dopplerReferenceSystem as RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode
+ 	 * @throws IllegalAccessException If dopplerReferenceSystem does not exist.
+ 	 */
+ 	RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode getDopplerReferenceSystem() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set dopplerReferenceSystem with the specified RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode.
+ 	 * @param dopplerReferenceSystem The RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode value to which dopplerReferenceSystem is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setDopplerReferenceSystem (RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode dopplerReferenceSystem);
+		
+	
+	
+	
+	/**
+	 * Mark dopplerReferenceSystem, which is an optional field, as non-existent.
+	 */
+	void clearDopplerReferenceSystem ();
+	
+
+
+	
+	// ===> Attribute dopplerCalcType, which is optional
+	
+	
+	
+	/**
+	 * The attribute dopplerCalcType is optional. Return true if this attribute exists.
+	 * @return true if and only if the dopplerCalcType attribute exists. 
+	 */
+	bool isDopplerCalcTypeExists() const;
+	
+
+	
+ 	/**
+ 	 * Get dopplerCalcType, which is optional.
+ 	 * @return dopplerCalcType as DopplerReferenceCodeMod::DopplerReferenceCode
+ 	 * @throws IllegalAccessException If dopplerCalcType does not exist.
+ 	 */
+ 	DopplerReferenceCodeMod::DopplerReferenceCode getDopplerCalcType() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set dopplerCalcType with the specified DopplerReferenceCodeMod::DopplerReferenceCode.
+ 	 * @param dopplerCalcType The DopplerReferenceCodeMod::DopplerReferenceCode value to which dopplerCalcType is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setDopplerCalcType (DopplerReferenceCodeMod::DopplerReferenceCode dopplerCalcType);
+		
+	
+	
+	
+	/**
+	 * Mark dopplerCalcType, which is an optional field, as non-existent.
+	 */
+	void clearDopplerCalcType ();
+	
+
+
+	
+	// ===> Attribute parallax, which is optional
+	
+	
+	
+	/**
+	 * The attribute parallax is optional. Return true if this attribute exists.
+	 * @return true if and only if the parallax attribute exists. 
+	 */
+	bool isParallaxExists() const;
+	
+
+	
+ 	/**
+ 	 * Get parallax, which is optional.
+ 	 * @return parallax as std::vector<Angle >
+ 	 * @throws IllegalAccessException If parallax does not exist.
+ 	 */
+ 	std::vector<Angle > getParallax() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set parallax with the specified std::vector<Angle >.
+ 	 * @param parallax The std::vector<Angle > value to which parallax is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setParallax (std::vector<Angle > parallax);
+		
+	
+	
+	
+	/**
+	 * Mark parallax, which is an optional field, as non-existent.
+	 */
+	void clearParallax ();
 	
 
 
@@ -1486,7 +1662,7 @@ public:
 	 * @param sourceName
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, Tag spectralWindowId, std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName);
 	
 	
 
@@ -1504,7 +1680,7 @@ public:
 	 * @param sourceName
 	    
 	 */ 
-	bool compareRequiredValue(string code, vector<Angle > direction, vector<AngularRate > properMotion, string sourceName); 
+	bool compareRequiredValue(std::string code, std::vector<Angle > direction, std::vector<AngularRate > properMotion, std::string sourceName); 
 		 
 	
 	/**
@@ -1596,6 +1772,10 @@ void positionAngleErrFromBin( EndianIStream& eis);
 void sizeFromBin( EndianIStream& eis);
 void sizeErrFromBin( EndianIStream& eis);
 void velRefCodeFromBin( EndianIStream& eis);
+void dopplerVelocityFromBin( EndianIStream& eis);
+void dopplerReferenceSystemFromBin( EndianIStream& eis);
+void dopplerCalcTypeFromBin( EndianIStream& eis);
+void parallaxFromBin( EndianIStream& eis);
 
 
 	 /**
@@ -1657,7 +1837,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SourceRow (SourceTable &table, SourceRow &row);
+	 SourceRow (SourceTable &table, SourceRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1702,7 +1882,7 @@ private:
 	
 	
 
-	string code;
+	std::string code;
 
 	
 	
@@ -1713,7 +1893,7 @@ private:
 	
 	
 
-	vector<Angle > direction;
+	std::vector<Angle > direction;
 
 	
 	
@@ -1724,7 +1904,7 @@ private:
 	
 	
 
-	vector<AngularRate > properMotion;
+	std::vector<AngularRate > properMotion;
 
 	
 	
@@ -1735,7 +1915,7 @@ private:
 	
 	
 
-	string sourceName;
+	std::string sourceName;
 
 	
 	
@@ -1787,7 +1967,7 @@ private:
 	bool catalogExists;
 	
 
-	string catalog;
+	std::string catalog;
 
 	
 	
@@ -1813,7 +1993,7 @@ private:
 	bool positionExists;
 	
 
-	vector<Length > position;
+	std::vector<Length > position;
 
 	
 	
@@ -1839,7 +2019,7 @@ private:
 	bool transitionExists;
 	
 
-	vector<string > transition;
+	std::vector<std::string > transition;
 
 	
 	
@@ -1852,7 +2032,7 @@ private:
 	bool restFrequencyExists;
 	
 
-	vector<Frequency > restFrequency;
+	std::vector<Frequency > restFrequency;
 
 	
 	
@@ -1865,7 +2045,7 @@ private:
 	bool sysVelExists;
 	
 
-	vector<Speed > sysVel;
+	std::vector<Speed > sysVel;
 
 	
 	
@@ -1878,7 +2058,7 @@ private:
 	bool rangeVelExists;
 	
 
-	vector<Speed > rangeVel;
+	std::vector<Speed > rangeVel;
 
 	
 	
@@ -1943,7 +2123,7 @@ private:
 	bool frequencyExists;
 	
 
-	vector<Frequency > frequency;
+	std::vector<Frequency > frequency;
 
 	
 	
@@ -1956,7 +2136,7 @@ private:
 	bool frequencyIntervalExists;
 	
 
-	vector<Frequency > frequencyInterval;
+	std::vector<Frequency > frequencyInterval;
 
 	
 	
@@ -1969,7 +2149,7 @@ private:
 	bool stokesParameterExists;
 	
 
-	vector<StokesParameterMod::StokesParameter > stokesParameter;
+	std::vector<StokesParameterMod::StokesParameter > stokesParameter;
 
 	
 	
@@ -1982,7 +2162,7 @@ private:
 	bool fluxExists;
 	
 
-	vector<vector<Flux > > flux;
+	std::vector<std::vector<Flux > > flux;
 
 	
 	
@@ -1995,7 +2175,7 @@ private:
 	bool fluxErrExists;
 	
 
-	vector<vector<Flux > > fluxErr;
+	std::vector<std::vector<Flux > > fluxErr;
 
 	
 	
@@ -2008,7 +2188,7 @@ private:
 	bool positionAngleExists;
 	
 
-	vector<Angle > positionAngle;
+	std::vector<Angle > positionAngle;
 
 	
 	
@@ -2021,7 +2201,7 @@ private:
 	bool positionAngleErrExists;
 	
 
-	vector<Angle > positionAngleErr;
+	std::vector<Angle > positionAngleErr;
 
 	
 	
@@ -2034,7 +2214,7 @@ private:
 	bool sizeExists;
 	
 
-	vector<vector<Angle > > size;
+	std::vector<std::vector<Angle > > size;
 
 	
 	
@@ -2047,7 +2227,7 @@ private:
 	bool sizeErrExists;
 	
 
-	vector<vector<Angle > > sizeErr;
+	std::vector<std::vector<Angle > > sizeErr;
 
 	
 	
@@ -2061,6 +2241,58 @@ private:
 	
 
 	RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode velRefCode;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute dopplerVelocity, which is optional
+	
+	
+	bool dopplerVelocityExists;
+	
+
+	std::vector<Speed > dopplerVelocity;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute dopplerReferenceSystem, which is optional
+	
+	
+	bool dopplerReferenceSystemExists;
+	
+
+	RadialVelocityReferenceCodeMod::RadialVelocityReferenceCode dopplerReferenceSystem;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute dopplerCalcType, which is optional
+	
+	
+	bool dopplerCalcTypeExists;
+	
+
+	DopplerReferenceCodeMod::DopplerReferenceCode dopplerCalcType;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute parallax, which is optional
+	
+	
+	bool parallaxExists;
+	
+
+	std::vector<Angle > parallax;
 
 	
 	
@@ -2131,6 +2363,10 @@ void positionAngleErrFromBin( EndianIStream& eis);
 void sizeFromBin( EndianIStream& eis);
 void sizeErrFromBin( EndianIStream& eis);
 void velRefCodeFromBin( EndianIStream& eis);
+void dopplerVelocityFromBin( EndianIStream& eis);
+void dopplerReferenceSystemFromBin( EndianIStream& eis);
+void dopplerCalcTypeFromBin( EndianIStream& eis);
+void parallaxFromBin( EndianIStream& eis);
 
 */
 	
@@ -2139,101 +2375,113 @@ void velRefCodeFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SourceAttributeFromText> fromTextMethods;
 	
-void sourceIdFromText (const string & s);
+void sourceIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void codeFromText (const string & s);
+void codeFromText (const std::string & s);
 	
 	
-void directionFromText (const string & s);
+void directionFromText (const std::string & s);
 	
 	
-void properMotionFromText (const string & s);
+void properMotionFromText (const std::string & s);
 	
 	
-void sourceNameFromText (const string & s);
+void sourceNameFromText (const std::string & s);
 	
 
 	
-void directionCodeFromText (const string & s);
+void directionCodeFromText (const std::string & s);
 	
 	
-void directionEquinoxFromText (const string & s);
+void directionEquinoxFromText (const std::string & s);
 	
 	
-void calibrationGroupFromText (const string & s);
+void calibrationGroupFromText (const std::string & s);
 	
 	
-void catalogFromText (const string & s);
+void catalogFromText (const std::string & s);
 	
 	
-void deltaVelFromText (const string & s);
+void deltaVelFromText (const std::string & s);
 	
 	
-void positionFromText (const string & s);
+void positionFromText (const std::string & s);
 	
 	
-void numLinesFromText (const string & s);
+void numLinesFromText (const std::string & s);
 	
 	
-void transitionFromText (const string & s);
+void transitionFromText (const std::string & s);
 	
 	
-void restFrequencyFromText (const string & s);
+void restFrequencyFromText (const std::string & s);
 	
 	
-void sysVelFromText (const string & s);
+void sysVelFromText (const std::string & s);
 	
 	
-void rangeVelFromText (const string & s);
+void rangeVelFromText (const std::string & s);
 	
 	
-void sourceModelFromText (const string & s);
+void sourceModelFromText (const std::string & s);
 	
 	
-void frequencyRefCodeFromText (const string & s);
+void frequencyRefCodeFromText (const std::string & s);
 	
 	
-void numFreqFromText (const string & s);
+void numFreqFromText (const std::string & s);
 	
 	
-void numStokesFromText (const string & s);
+void numStokesFromText (const std::string & s);
 	
 	
-void frequencyFromText (const string & s);
+void frequencyFromText (const std::string & s);
 	
 	
-void frequencyIntervalFromText (const string & s);
+void frequencyIntervalFromText (const std::string & s);
 	
 	
-void stokesParameterFromText (const string & s);
+void stokesParameterFromText (const std::string & s);
 	
 	
-void fluxFromText (const string & s);
+void fluxFromText (const std::string & s);
 	
 	
-void fluxErrFromText (const string & s);
+void fluxErrFromText (const std::string & s);
 	
 	
-void positionAngleFromText (const string & s);
+void positionAngleFromText (const std::string & s);
 	
 	
-void positionAngleErrFromText (const string & s);
+void positionAngleErrFromText (const std::string & s);
 	
 	
-void sizeFromText (const string & s);
+void sizeFromText (const std::string & s);
 	
 	
-void sizeErrFromText (const string & s);
+void sizeErrFromText (const std::string & s);
 	
 	
-void velRefCodeFromText (const string & s);
+void velRefCodeFromText (const std::string & s);
+	
+	
+void dopplerVelocityFromText (const std::string & s);
+	
+	
+void dopplerReferenceSystemFromText (const std::string & s);
+	
+	
+void dopplerCalcTypeFromText (const std::string & s);
+	
+	
+void parallaxFromText (const std::string & s);
 	
 	
 	

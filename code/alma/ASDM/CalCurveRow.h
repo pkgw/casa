@@ -48,34 +48,30 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CCalCurveType.h"
+#include <alma/Enumerations/CCalCurveType.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -91,7 +87,11 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -104,12 +104,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalCurve.h
     \brief Generated from model's revision "-1", branch ""
@@ -129,7 +129,7 @@ class CalReductionRow;
 
 class CalCurveRow;
 typedef void (CalCurveRow::*CalCurveAttributeFromBin) (EndianIStream& eis);
-typedef void (CalCurveRow::*CalCurveAttributeFromText) (const string& s);
+typedef void (CalCurveRow::*CalCurveAttributeFromText) (const std::string& s);
 
 /**
  * The CalCurveRow class is a row of a CalCurveTable.
@@ -326,21 +326,21 @@ public:
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFrequencyRange() const;
+ 	std::vector<Frequency > getFrequencyRange() const;
 	
  
  	
  	
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  		
  			
  	 */
- 	void setFrequencyRange (vector<Frequency > frequencyRange);
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
   		
 	
 	
@@ -446,21 +446,21 @@ public:
 	
  	/**
  	 * Get antennaNames.
- 	 * @return antennaNames as vector<string >
+ 	 * @return antennaNames as std::vector<std::string >
  	 */
- 	vector<string > getAntennaNames() const;
+ 	std::vector<std::string > getAntennaNames() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaNames with the specified vector<string >.
- 	 * @param antennaNames The vector<string > value to which antennaNames is to be set.
+ 	 * Set antennaNames with the specified std::vector<std::string >.
+ 	 * @param antennaNames The std::vector<std::string > value to which antennaNames is to be set.
  	 
  		
  			
  	 */
- 	void setAntennaNames (vector<string > antennaNames);
+ 	void setAntennaNames (std::vector<std::string > antennaNames);
   		
 	
 	
@@ -476,21 +476,21 @@ public:
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string getRefAntennaName() const;
+ 	std::string getRefAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  		
  			
  	 */
- 	void setRefAntennaName (string refAntennaName);
+ 	void setRefAntennaName (std::string refAntennaName);
   		
 	
 	
@@ -506,21 +506,21 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -536,21 +536,21 @@ public:
 	
  	/**
  	 * Get curve.
- 	 * @return curve as vector<vector<vector<float > > >
+ 	 * @return curve as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getCurve() const;
+ 	std::vector<std::vector<std::vector<float > > > getCurve() const;
 	
  
  	
  	
  	/**
- 	 * Set curve with the specified vector<vector<vector<float > > >.
- 	 * @param curve The vector<vector<vector<float > > > value to which curve is to be set.
+ 	 * Set curve with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param curve The std::vector<std::vector<std::vector<float > > > value to which curve is to be set.
  	 
  		
  			
  	 */
- 	void setCurve (vector<vector<vector<float > > > curve);
+ 	void setCurve (std::vector<std::vector<std::vector<float > > > curve);
   		
 	
 	
@@ -566,21 +566,21 @@ public:
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
  	
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -643,21 +643,21 @@ public:
 	
  	/**
  	 * Get rms, which is optional.
- 	 * @return rms as vector<vector<float > >
+ 	 * @return rms as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > getRms() const;
+ 	std::vector<std::vector<float > > getRms() const;
 	
  
  	
  	
  	/**
- 	 * Set rms with the specified vector<vector<float > >.
- 	 * @param rms The vector<vector<float > > value to which rms is to be set.
+ 	 * Set rms with the specified std::vector<std::vector<float > >.
+ 	 * @param rms The std::vector<std::vector<float > > value to which rms is to be set.
  	 
  		
  	 */
- 	void setRms (vector<vector<float > > rms);
+ 	void setRms (std::vector<std::vector<float > > rms);
 		
 	
 	
@@ -811,7 +811,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	bool compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 	
 
@@ -843,7 +843,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared); 
 		 
 	
 	/**
@@ -982,7 +982,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalCurveRow (CalCurveTable &table, CalCurveRow &row);
+	 CalCurveRow (CalCurveTable &table, CalCurveRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1048,7 +1048,7 @@ private:
 	
 	
 
-	vector<Frequency > frequencyRange;
+	std::vector<Frequency > frequencyRange;
 
 	
 	
@@ -1092,7 +1092,7 @@ private:
 	
 	
 
-	vector<string > antennaNames;
+	std::vector<std::string > antennaNames;
 
 	
 	
@@ -1103,7 +1103,7 @@ private:
 	
 	
 
-	string refAntennaName;
+	std::string refAntennaName;
 
 	
 	
@@ -1114,7 +1114,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1125,7 +1125,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > curve;
+	std::vector<std::vector<std::vector<float > > > curve;
 
 	
 	
@@ -1136,7 +1136,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1162,7 +1162,7 @@ private:
 	bool rmsExists;
 	
 
-	vector<vector<float > > rms;
+	std::vector<std::vector<float > > rms;
 
 	
 	
@@ -1245,59 +1245,59 @@ void rmsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalCurveAttributeFromText> fromTextMethods;
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void typeCurveFromText (const string & s);
+void typeCurveFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void frequencyRangeFromText (const string & s);
+void frequencyRangeFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void antennaNamesFromText (const string & s);
+void antennaNamesFromText (const std::string & s);
 	
 	
-void refAntennaNameFromText (const string & s);
+void refAntennaNameFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void curveFromText (const string & s);
+void curveFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 
 	
-void numBaselineFromText (const string & s);
+void numBaselineFromText (const std::string & s);
 	
 	
-void rmsFromText (const string & s);
+void rmsFromText (const std::string & s);
 	
 	
 	

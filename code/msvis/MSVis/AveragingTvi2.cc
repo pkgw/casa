@@ -618,7 +618,7 @@ protected:
 
     };
 
-    pair<Bool, Vector<Double> > accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged);
+    std::pair<Bool, Vector<Double> > accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged);
     void accumulateElementForCubes (AccumulationParameters & accumulationParameters,
                                     Bool zeroAccumulation);
     template<typename T>
@@ -1048,7 +1048,7 @@ VbAvg::accumulateElementForCube (const T * unweightedValue,
 }
 
 
-pair<Bool, Vector<Double> >
+std::pair<Bool, Vector<Double> >
 VbAvg::accumulateCubeData (MsRow * rowInput, MsRowAvg * rowAveraged)
 {
     // Accumulate the sums needed for averaging of cube data (e.g., visibility).
@@ -2012,12 +2012,15 @@ VbAvg::startChunk (ViImplementation2 * vi)
 {
     empty_p = true;
 
+    rowIdGenerator_p = 0;
+    
     // See if the new MS has corrected and/or model data columns
 
     doing_p.observedData_p = averagingOptions_p.contains (AveragingOptions::AverageObserved);
     doing_p.correctedData_p = vi->existsColumn (VisBufferComponent2::VisibilityCubeCorrected) &&
                               averagingOptions_p.contains (AveragingOptions::AverageCorrected);
-    doing_p.modelData_p = averagingOptions_p.contains (AveragingOptions::AverageModel);
+    doing_p.modelData_p = vi->existsColumn (VisBufferComponent2::VisibilityCubeModel) &&
+                          averagingOptions_p.contains (AveragingOptions::AverageModel);
     doing_p.floatData_p = vi->existsColumn (VisBufferComponent2::VisibilityCubeFloat) &&
                           averagingOptions_p.contains (AveragingOptions::AverageFloat);
 
@@ -2627,7 +2630,7 @@ void AveragingTvi2::writeFlag (const Cube<Bool> & flag)
 				{
 					for (uInt corr_i=0;corr_i<flagCubeMapped.shape()(0);corr_i++)
 					{
-						if (flag(corr_i,chan_i,index)) flagCubeMapped(corr_i,chan_i,row) = true;
+						flagCubeMapped(corr_i,chan_i,row) = flag(corr_i,chan_i,index);
 					}
 				}
 			}
@@ -2697,6 +2700,160 @@ void AveragingTvi2::writeFlagRow (const Vector<Bool> & flagRow)
 	}
 
 	return;
+}
+
+void AveragingTvi2::visibilityObserved(casacore::Cube<casacore::Complex>& vis) const
+{
+  if(!averagingOptions_p.contains(AveragingOptions::AverageObserved))
+      throw AipsError("Requesting visibilityCorrected but column has not been averaged");
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCube();
+    return;
+}
+
+void AveragingTvi2::visibilityCorrected(casacore::Cube<casacore::Complex>& vis) const
+{
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeCorrected) ||
+        !averagingOptions_p.contains(AveragingOptions::AverageCorrected))
+        throw AipsError("Requesting visibilityCorrected but column not "
+            "provided by underlying VI or column has not been averaged");
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCubeCorrected();
+    return;
+}
+
+void AveragingTvi2::visibilityModel(casacore::Cube<casacore::Complex>& vis) const
+{
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeModel) ||
+        !averagingOptions_p.contains(AveragingOptions::AverageModel))
+        throw AipsError("Requesting visibilityModel but column not "
+            "provided by underlying VI or column has not been averaged");
+    VisBuffer2* vb = getVisBuffer();
+    vis = vb->visCubeModel();
+    return;
+}
+
+void AveragingTvi2::floatData(casacore::Cube<casacore::Float>& fcube) const
+{
+    if(!getVii()->getVisBuffer()->existsColumn (VisBufferComponent2::VisibilityCubeFloat) ||
+        !averagingOptions_p.contains(AveragingOptions::AverageFloat))
+        throw AipsError("Requesting floatData but column not "
+            "provided by underlying VI or column has not been averaged");
+    VisBuffer2* vb = getVisBuffer();
+    fcube = vb->visCubeFloat();
+    return;
+}
+
+void AveragingTvi2::flag(casacore::Cube<casacore::Bool>& flags) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    flags = vb->flagCube();
+    return;
+}
+
+void AveragingTvi2::flagRow(casacore::Vector<casacore::Bool>& rowflags) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    rowflags = vb->flagRow();
+    return;
+}
+
+void AveragingTvi2::sigma(casacore::Matrix<casacore::Float> & sigmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    sigmat = vb->sigma();
+    return;
+}
+
+void AveragingTvi2::weight (casacore::Matrix<casacore::Float> & wtmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    wtmat = vb->weight();
+    return;
+}
+
+void AveragingTvi2::weightSpectrum (casacore::Cube<casacore::Float> & wtsp) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    wtsp = vb->weightSpectrum();
+    return;
+}
+
+void AveragingTvi2::sigmaSpectrum (casacore::Cube<casacore::Float> & sigsp) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    sigsp = vb->sigmaSpectrum();
+    return;
+}
+
+void AveragingTvi2::exposure (casacore::Vector<double> & expo) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    expo = vb->exposure();
+    return;
+}
+
+void AveragingTvi2::getRowIds (casacore::Vector<casacore::uInt> & rowids) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    rowids = vb->rowIds();
+    return;
+}
+
+void AveragingTvi2::time (casacore::Vector<double> & t) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    t = vb->time();
+    return;
+}
+
+void AveragingTvi2::timeInterval (casacore::Vector<double> & ti) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ti = vb->timeInterval();
+    return;
+}
+
+void AveragingTvi2::timeCentroid (casacore::Vector<double> & t) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    t = vb->timeCentroid();
+    return;
+}
+
+void AveragingTvi2::uvw (casacore::Matrix<double> & uvwmat) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    uvwmat = vb->uvw();
+    return;
+}
+
+void AveragingTvi2::antenna1 (casacore::Vector<casacore::Int> & ant1) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ant1 = vb->antenna1();
+    return;
+}
+
+void AveragingTvi2::antenna2 (casacore::Vector<casacore::Int> & ant2) const
+{
+    VisBuffer2* vb = getVisBuffer();
+    ant2 = vb->antenna2();
+    return;
+}
+
+casacore::Bool AveragingTvi2::weightSpectrumExists () const
+{
+  //According to VbAvg::startChunk code comments,
+  //there is always an output weightSpectrum. See also CAS-11559.
+  return true;
+}
+
+casacore::Bool AveragingTvi2::sigmaSpectrumExists () const
+{
+  //According to VbAvg::startChunk code comments,
+  //there is always an output sigmaSpectrum. See also CAS-11559.
+  return true;
 }
 
 } // end namespace vi

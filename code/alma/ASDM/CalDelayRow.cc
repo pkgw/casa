@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalDelayRow.h>
-#include <CalDelayTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalDelayRow.h>
+#include <alma/ASDM/CalDelayTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalDelayRow::~CalDelayRow() {
@@ -2087,7 +2084,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalDelayRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2095,7 +2094,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalDelayRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -2103,7 +2104,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalDelayRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -2111,7 +2114,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalDelayRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -2119,7 +2124,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalDelayRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2127,7 +2134,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalDelayRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2135,7 +2144,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalDelayRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2143,7 +2154,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalDelayRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2151,7 +2164,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalDelayRow::refAntennaNameFromText(const string & s) {
 		 
+          
 		refAntennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2159,7 +2174,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalDelayRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2167,7 +2184,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalDelayRow::delayErrorFromText(const string & s) {
 		 
+          
 		delayError = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -2175,7 +2194,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalDelayRow::delayOffsetFromText(const string & s) {
 		 
+          
 		delayOffset = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -2183,7 +2204,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalDelayRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -2191,7 +2214,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalDelayRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -2199,7 +2224,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalDelayRow::appliedDelayFromText(const string & s) {
 		 
+          
 		appliedDelay = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -2209,7 +2236,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::crossDelayOffsetFromText(const string & s) {
 		crossDelayOffsetExists = true;
 		 
+          
 		crossDelayOffset = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2218,7 +2247,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::crossDelayOffsetErrorFromText(const string & s) {
 		crossDelayOffsetErrorExists = true;
 		 
+          
 		crossDelayOffsetError = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2227,7 +2258,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::numSidebandFromText(const string & s) {
 		numSidebandExists = true;
 		 
+          
 		numSideband = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2236,7 +2269,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::refFreqFromText(const string & s) {
 		refFreqExists = true;
 		 
+          
 		refFreq = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -2245,7 +2280,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::refFreqPhaseFromText(const string & s) {
 		refFreqPhaseExists = true;
 		 
+          
 		refFreqPhase = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -2254,7 +2291,9 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	void CalDelayRow::sidebandsFromText(const string & s) {
 		sidebandsExists = true;
 		 
-		sidebands = ASDMValuesParser::parse1D<ReceiverSideband>(s);
+          
+		sidebands = ASDMValuesParser::parse1D<ReceiverSidebandMod::ReceiverSideband>(s);
+          
 		
 	}
 	
@@ -2276,23 +2315,23 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalDelayRow::getAntennaName() const {
+ 	std::string CalDelayRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalDelayRow::setAntennaName (string antennaName)  {
+ 	void CalDelayRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2484,21 +2523,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string CalDelayRow::getRefAntennaName() const {
+ 	std::string CalDelayRow::getRefAntennaName() const {
 	
   		return refAntennaName;
  	}
 
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setRefAntennaName (string refAntennaName)  {
+ 	void CalDelayRow::setRefAntennaName (std::string refAntennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2548,21 +2587,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get delayError.
- 	 * @return delayError as vector<double >
+ 	 * @return delayError as std::vector<double >
  	 */
- 	vector<double > CalDelayRow::getDelayError() const {
+ 	std::vector<double > CalDelayRow::getDelayError() const {
 	
   		return delayError;
  	}
 
  	/**
- 	 * Set delayError with the specified vector<double >.
- 	 * @param delayError The vector<double > value to which delayError is to be set.
+ 	 * Set delayError with the specified std::vector<double >.
+ 	 * @param delayError The std::vector<double > value to which delayError is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setDelayError (vector<double > delayError)  {
+ 	void CalDelayRow::setDelayError (std::vector<double > delayError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2580,21 +2619,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get delayOffset.
- 	 * @return delayOffset as vector<double >
+ 	 * @return delayOffset as std::vector<double >
  	 */
- 	vector<double > CalDelayRow::getDelayOffset() const {
+ 	std::vector<double > CalDelayRow::getDelayOffset() const {
 	
   		return delayOffset;
  	}
 
  	/**
- 	 * Set delayOffset with the specified vector<double >.
- 	 * @param delayOffset The vector<double > value to which delayOffset is to be set.
+ 	 * Set delayOffset with the specified std::vector<double >.
+ 	 * @param delayOffset The std::vector<double > value to which delayOffset is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setDelayOffset (vector<double > delayOffset)  {
+ 	void CalDelayRow::setDelayOffset (std::vector<double > delayOffset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2612,21 +2651,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalDelayRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalDelayRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalDelayRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2644,21 +2683,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > CalDelayRow::getReducedChiSquared() const {
+ 	std::vector<double > CalDelayRow::getReducedChiSquared() const {
 	
   		return reducedChiSquared;
  	}
 
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setReducedChiSquared (vector<double > reducedChiSquared)  {
+ 	void CalDelayRow::setReducedChiSquared (std::vector<double > reducedChiSquared)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2676,21 +2715,21 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get appliedDelay.
- 	 * @return appliedDelay as vector<double >
+ 	 * @return appliedDelay as std::vector<double >
  	 */
- 	vector<double > CalDelayRow::getAppliedDelay() const {
+ 	std::vector<double > CalDelayRow::getAppliedDelay() const {
 	
   		return appliedDelay;
  	}
 
  	/**
- 	 * Set appliedDelay with the specified vector<double >.
- 	 * @param appliedDelay The vector<double > value to which appliedDelay is to be set.
+ 	 * Set appliedDelay with the specified std::vector<double >.
+ 	 * @param appliedDelay The std::vector<double > value to which appliedDelay is to be set.
  	 
  	
  		
  	 */
- 	void CalDelayRow::setAppliedDelay (vector<double > appliedDelay)  {
+ 	void CalDelayRow::setAppliedDelay (std::vector<double > appliedDelay)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2857,10 +2896,10 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refFreq, which is optional.
- 	 * @return refFreq as vector<Frequency >
+ 	 * @return refFreq as std::vector<Frequency >
  	 * @throw IllegalAccessException If refFreq does not exist.
  	 */
- 	vector<Frequency > CalDelayRow::getRefFreq() const  {
+ 	std::vector<Frequency > CalDelayRow::getRefFreq() const  {
 		if (!refFreqExists) {
 			throw IllegalAccessException("refFreq", "CalDelay");
 		}
@@ -2869,12 +2908,12 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set refFreq with the specified vector<Frequency >.
- 	 * @param refFreq The vector<Frequency > value to which refFreq is to be set.
+ 	 * Set refFreq with the specified std::vector<Frequency >.
+ 	 * @param refFreq The std::vector<Frequency > value to which refFreq is to be set.
  	 
  	
  	 */
- 	void CalDelayRow::setRefFreq (vector<Frequency > refFreq) {
+ 	void CalDelayRow::setRefFreq (std::vector<Frequency > refFreq) {
 	
  		this->refFreq = refFreq;
 	
@@ -2904,10 +2943,10 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refFreqPhase, which is optional.
- 	 * @return refFreqPhase as vector<Angle >
+ 	 * @return refFreqPhase as std::vector<Angle >
  	 * @throw IllegalAccessException If refFreqPhase does not exist.
  	 */
- 	vector<Angle > CalDelayRow::getRefFreqPhase() const  {
+ 	std::vector<Angle > CalDelayRow::getRefFreqPhase() const  {
 		if (!refFreqPhaseExists) {
 			throw IllegalAccessException("refFreqPhase", "CalDelay");
 		}
@@ -2916,12 +2955,12 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set refFreqPhase with the specified vector<Angle >.
- 	 * @param refFreqPhase The vector<Angle > value to which refFreqPhase is to be set.
+ 	 * Set refFreqPhase with the specified std::vector<Angle >.
+ 	 * @param refFreqPhase The std::vector<Angle > value to which refFreqPhase is to be set.
  	 
  	
  	 */
- 	void CalDelayRow::setRefFreqPhase (vector<Angle > refFreqPhase) {
+ 	void CalDelayRow::setRefFreqPhase (std::vector<Angle > refFreqPhase) {
 	
  		this->refFreqPhase = refFreqPhase;
 	
@@ -2951,10 +2990,10 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sidebands, which is optional.
- 	 * @return sidebands as vector<ReceiverSidebandMod::ReceiverSideband >
+ 	 * @return sidebands as std::vector<ReceiverSidebandMod::ReceiverSideband >
  	 * @throw IllegalAccessException If sidebands does not exist.
  	 */
- 	vector<ReceiverSidebandMod::ReceiverSideband > CalDelayRow::getSidebands() const  {
+ 	std::vector<ReceiverSidebandMod::ReceiverSideband > CalDelayRow::getSidebands() const  {
 		if (!sidebandsExists) {
 			throw IllegalAccessException("sidebands", "CalDelay");
 		}
@@ -2963,12 +3002,12 @@ void CalDelayRow::sidebandsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sidebands with the specified vector<ReceiverSidebandMod::ReceiverSideband >.
- 	 * @param sidebands The vector<ReceiverSidebandMod::ReceiverSideband > value to which sidebands is to be set.
+ 	 * Set sidebands with the specified std::vector<ReceiverSidebandMod::ReceiverSideband >.
+ 	 * @param sidebands The std::vector<ReceiverSidebandMod::ReceiverSideband > value to which sidebands is to be set.
  	 
  	
  	 */
- 	void CalDelayRow::setSidebands (vector<ReceiverSidebandMod::ReceiverSideband > sidebands) {
+ 	void CalDelayRow::setSidebands (std::vector<ReceiverSidebandMod::ReceiverSideband > sidebands) {
 	
  		this->sidebands = sidebands;
 	
@@ -3340,10 +3379,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalDelayRow::CalDelayRow (CalDelayTable &t, CalDelayRow &row) : table(t) {
+	CalDelayRow::CalDelayRow (CalDelayTable &t, CalDelayRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3405,79 +3444,79 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			refAntennaName = row.refAntennaName;
-		
-			numReceptor = row.numReceptor;
-		
-			delayError = row.delayError;
-		
-			delayOffset = row.delayOffset;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			reducedChiSquared = row.reducedChiSquared;
-		
-			appliedDelay = row.appliedDelay;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.crossDelayOffsetExists) {
-			crossDelayOffset = row.crossDelayOffset;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			refAntennaName = row->refAntennaName;
+		
+			numReceptor = row->numReceptor;
+		
+			delayError = row->delayError;
+		
+			delayOffset = row->delayOffset;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+			appliedDelay = row->appliedDelay;
+		
+		
+		
+		
+		if (row->crossDelayOffsetExists) {
+			crossDelayOffset = row->crossDelayOffset;		
 			crossDelayOffsetExists = true;
 		}
 		else
 			crossDelayOffsetExists = false;
 		
-		if (row.crossDelayOffsetErrorExists) {
-			crossDelayOffsetError = row.crossDelayOffsetError;		
+		if (row->crossDelayOffsetErrorExists) {
+			crossDelayOffsetError = row->crossDelayOffsetError;		
 			crossDelayOffsetErrorExists = true;
 		}
 		else
 			crossDelayOffsetErrorExists = false;
 		
-		if (row.numSidebandExists) {
-			numSideband = row.numSideband;		
+		if (row->numSidebandExists) {
+			numSideband = row->numSideband;		
 			numSidebandExists = true;
 		}
 		else
 			numSidebandExists = false;
 		
-		if (row.refFreqExists) {
-			refFreq = row.refFreq;		
+		if (row->refFreqExists) {
+			refFreq = row->refFreq;		
 			refFreqExists = true;
 		}
 		else
 			refFreqExists = false;
 		
-		if (row.refFreqPhaseExists) {
-			refFreqPhase = row.refFreqPhase;		
+		if (row->refFreqPhaseExists) {
+			refFreqPhase = row->refFreqPhase;		
 			refFreqPhaseExists = true;
 		}
 		else
 			refFreqPhaseExists = false;
 		
-		if (row.sidebandsExists) {
-			sidebands = row.sidebands;		
+		if (row->sidebandsExists) {
+			sidebands = row->sidebands;		
 			sidebandsExists = true;
 		}
 		else
@@ -3512,7 +3551,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalDelayRow::compareNoAutoInc(string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay) {
+	bool CalDelayRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, BasebandNameMod::BasebandName basebandName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay) {
 		bool result;
 		result = true;
 		
@@ -3626,7 +3665,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool CalDelayRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, string refAntennaName, int numReceptor, vector<double > delayError, vector<double > delayOffset, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<double > reducedChiSquared, vector<double > appliedDelay) {
+	bool CalDelayRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::string refAntennaName, int numReceptor, std::vector<double > delayError, std::vector<double > delayOffset, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<double > reducedChiSquared, std::vector<double > appliedDelay) {
 		bool result;
 		result = true;
 		

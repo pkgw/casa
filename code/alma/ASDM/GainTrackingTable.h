@@ -41,29 +41,19 @@
 
 
 	
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <ComplexWrapper.h>
+#include <alma/ASDM/ComplexWrapper.h>
 	
 
 
 
-
-	
-
-	
-
-	
-
-	
-#include "CPolarizationType.h"
-	
 
 	
 
@@ -72,21 +62,31 @@
 	
 
 	
+#include <alma/Enumerations/CPolarizationType.h>
+	
+
+	
+
+	
+
+	
+
+	
 
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -154,7 +154,7 @@ class GainTrackingRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -162,14 +162,14 @@ class GainTrackingRow;
 	
  * <TR>
  * <TD> attenuator </TD> 
- * <TD> vector<float > </TD>
+ * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;the nominal value of the attenuator (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
  * <TD> polarizationType </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;describes the polarizations of the receptors (one value per receptor). </TD>
  * </TR>
@@ -186,7 +186,7 @@ class GainTrackingRow;
  * </TR>
 	
  * <TR>
- * <TD> numAttFreq(\f$N_{AttF}\f$)</TD> 
+ * <TD> numAttFreq(numAttFreq)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the sizes of attSpectrum and attFreq. </TD>
@@ -194,14 +194,14 @@ class GainTrackingRow;
 	
  * <TR>
  * <TD> attFreq</TD> 
- * <TD> vector<double > </TD>
+ * <TD> std::vector<double > </TD>
  * <TD>  numAttFreq  </TD>
  * <TD>&nbsp; the attenuator frequencies. </TD>
  * </TR>
 	
  * <TR>
  * <TD> attSpectrum</TD> 
- * <TD> vector<Complex > </TD>
+ * <TD> std::vector<Complex > </TD>
  * <TD>  numAttFreq  </TD>
  * <TD>&nbsp; the attenuator's measured spectrum. </TD>
  * </TR>
@@ -357,7 +357,7 @@ public:
  	 * @param polarizationType
 	
      */
-	GainTrackingRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType);
+	GainTrackingRow *newRow(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 	
 
 
@@ -480,7 +480,7 @@ public:
  	 * @param polarizationType
  	 		 
  	 */
-	GainTrackingRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType); 
+	GainTrackingRow* lookup(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

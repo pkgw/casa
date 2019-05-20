@@ -412,21 +412,7 @@ csys.summary()
   
      <param type="stringArray" direction="in" name="stokes">
      <description>Make a Stokes coordinate with these Stokes</description>
-     <value type="vector">
-     <value>I</value>
-     <value>Q</value>
-     <value>U</value>
-     <value>V</value>
-     <value>XX</value>
-     <value>YY</value>
-     <value>XY</value>
-     <value>YX</value>
-     <value>RR</value>
-     <value>LL</value>
-     <value>RL</value>
-     <value>LR</value>
-     <value></value>
-     </value>
+     <value type="vector"/>
      </param>
   
      <param type="int" direction="in" name="linear">
@@ -527,21 +513,7 @@ associated with the 2 coordinates.
   
      <param type="stringArray" direction="in" name="stokes">
      <description>Add a Stokes coordinate with these Stokes</description>
-     <value type="vector">
-     <value>I</value>
-     <value>Q</value>
-     <value>U</value>
-     <value>V</value>
-     <value>XX</value>
-     <value>YY</value>
-     <value>XY</value>
-     <value>YX</value>
-     <value>RR</value>
-     <value>LL</value>
-     <value>RL</value>
-     <value>LR</value>
-     <value></value>
-     </value>
+     <value type="vector"/>
      </param>
   
      <param type="int" direction="in" name="linear">

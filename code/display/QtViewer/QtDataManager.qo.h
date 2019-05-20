@@ -48,7 +48,9 @@
 #include <display/QtViewer/QtDataManager.ui.h>
 #include <display/QtViewer/QtDataMgrMsSelect.ui.h>
 #include <display/QtViewer/VOParam.ui.h>
+#if ! defined(WITHOUT_DBUS)
 #include <casaqt/QtDBus/dVO.h>
+#endif
 #include <graphics/X11/X_exit.h>
 #include <display/Utilities/Lowlevel.h>
 #include <QListWidget>
@@ -197,6 +199,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void region_item_state_change(QTreeWidgetItem*,int);
 		void region_selection_change( viewer::Region *rgn, bool selected );
 
+#if ! defined(WITHOUT_DBUS)
 #ifdef WITH_VO
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
         //  VO controls...
@@ -204,6 +207,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         void addVOParam( );
         void removeVOParam( );
         //---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---  ---
+#endif
 #endif
 
     private slots:
@@ -299,7 +303,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				return output_name_line_;
 			}
 
-			SHARED_PTR<QDir> dir( ) {
+			std::shared_ptr<QDir> dir( ) {
 				return dir_;
 			}
 			QLineEdit *dirline( ) {
@@ -312,7 +316,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			std::set<int> filtered_types_;
 			QLineEdit *dir_entry_;
 			QTreeWidget *tree_;
-			SHARED_PTR<QDir> dir_;
+			std::shared_ptr<QDir> dir_;
 			notify_func_t notify_func_;
 			QFrame *info_frame_;
 			infofield_list_t *info_fields_;
@@ -360,6 +364,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         bool slice_available;
         bool regrid_available;
+#if ! defined(WITHOUT_DBUS)
 #ifdef WITH_VO
         void setupVO( );
         // returns true if everything is OK...
@@ -470,6 +475,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		std::vector<int> vo_selected_rows;
 
 		friend void lambda_dsoc_test_pre_( QtDataManager& );
+#endif
 #endif
 	};
 

@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FieldRow.h>
-#include <FieldTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FieldRow.h>
+#include <alma/ASDM/FieldTable.h>
 
-#include <EphemerisTable.h>
-#include <EphemerisRow.h>
+#include <alma/ASDM/EphemerisTable.h>
+#include <alma/ASDM/EphemerisRow.h>
 
-#include <SourceTable.h>
-#include <SourceRow.h>
+#include <alma/ASDM/SourceTable.h>
+#include <alma/ASDM/SourceRow.h>
 
-#include <FieldTable.h>
-#include <FieldRow.h>
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FieldTable;
 using asdm::FieldRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FieldRow::~FieldRow() {
@@ -601,7 +598,9 @@ namespace asdm {
 		
 			
 		delayDir .clear();
-		vector<Angle> v_aux_delayDir;
+        
+        vector<Angle> v_aux_delayDir;
+        
 		for (unsigned int i = 0; i < x.delayDir.length(); ++i) {
 			v_aux_delayDir.clear();
 			for (unsigned int j = 0; j < x.delayDir[0].length(); ++j) {
@@ -621,7 +620,9 @@ namespace asdm {
 		
 			
 		phaseDir .clear();
-		vector<Angle> v_aux_phaseDir;
+        
+        vector<Angle> v_aux_phaseDir;
+        
 		for (unsigned int i = 0; i < x.phaseDir.length(); ++i) {
 			v_aux_phaseDir.clear();
 			for (unsigned int j = 0; j < x.phaseDir[0].length(); ++j) {
@@ -641,7 +642,9 @@ namespace asdm {
 		
 			
 		referenceDir .clear();
-		vector<Angle> v_aux_referenceDir;
+        
+        vector<Angle> v_aux_referenceDir;
+        
 		for (unsigned int i = 0; i < x.referenceDir.length(); ++i) {
 			v_aux_referenceDir.clear();
 			for (unsigned int j = 0; j < x.referenceDir[0].length(); ++j) {
@@ -1528,7 +1531,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FieldRow::fieldIdFromText(const string & s) {
 		 
+          
 		fieldId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1536,7 +1541,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void FieldRow::fieldNameFromText(const string & s) {
 		 
+          
 		fieldName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1544,7 +1551,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FieldRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1552,7 +1561,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void FieldRow::delayDirFromText(const string & s) {
 		 
+          
 		delayDir = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1560,7 +1571,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void FieldRow::phaseDirFromText(const string & s) {
 		 
+          
 		phaseDir = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1568,7 +1581,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void FieldRow::referenceDirFromText(const string & s) {
 		 
+          
 		referenceDir = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -1578,7 +1593,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::timeFromText(const string & s) {
 		timeExists = true;
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1587,7 +1604,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::codeFromText(const string & s) {
 		codeExists = true;
 		 
+          
 		code = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1596,7 +1615,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::directionCodeFromText(const string & s) {
 		directionCodeExists = true;
 		 
-		directionCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		directionCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -1605,7 +1626,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::directionEquinoxFromText(const string & s) {
 		directionEquinoxExists = true;
 		 
+          
 		directionEquinox = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1614,7 +1637,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::assocNatureFromText(const string & s) {
 		assocNatureExists = true;
 		 
+          
 		assocNature = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1623,7 +1648,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::ephemerisIdFromText(const string & s) {
 		ephemerisIdExists = true;
 		 
+          
 		ephemerisId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1632,7 +1659,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::sourceIdFromText(const string & s) {
 		sourceIdExists = true;
 		 
+          
 		sourceId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1641,7 +1670,9 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	void FieldRow::assocFieldIdFromText(const string & s) {
 		assocFieldIdExists = true;
 		 
+          
 		assocFieldId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1699,21 +1730,21 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fieldName.
- 	 * @return fieldName as string
+ 	 * @return fieldName as std::string
  	 */
- 	string FieldRow::getFieldName() const {
+ 	std::string FieldRow::getFieldName() const {
 	
   		return fieldName;
  	}
 
  	/**
- 	 * Set fieldName with the specified string.
- 	 * @param fieldName The string value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::string.
+ 	 * @param fieldName The std::string value to which fieldName is to be set.
  	 
  	
  		
  	 */
- 	void FieldRow::setFieldName (string fieldName)  {
+ 	void FieldRow::setFieldName (std::string fieldName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1763,21 +1794,21 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get delayDir.
- 	 * @return delayDir as vector<vector<Angle > >
+ 	 * @return delayDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > FieldRow::getDelayDir() const {
+ 	std::vector<std::vector<Angle > > FieldRow::getDelayDir() const {
 	
   		return delayDir;
  	}
 
  	/**
- 	 * Set delayDir with the specified vector<vector<Angle > >.
- 	 * @param delayDir The vector<vector<Angle > > value to which delayDir is to be set.
+ 	 * Set delayDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param delayDir The std::vector<std::vector<Angle > > value to which delayDir is to be set.
  	 
  	
  		
  	 */
- 	void FieldRow::setDelayDir (vector<vector<Angle > > delayDir)  {
+ 	void FieldRow::setDelayDir (std::vector<std::vector<Angle > > delayDir)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1795,21 +1826,21 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseDir.
- 	 * @return phaseDir as vector<vector<Angle > >
+ 	 * @return phaseDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > FieldRow::getPhaseDir() const {
+ 	std::vector<std::vector<Angle > > FieldRow::getPhaseDir() const {
 	
   		return phaseDir;
  	}
 
  	/**
- 	 * Set phaseDir with the specified vector<vector<Angle > >.
- 	 * @param phaseDir The vector<vector<Angle > > value to which phaseDir is to be set.
+ 	 * Set phaseDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param phaseDir The std::vector<std::vector<Angle > > value to which phaseDir is to be set.
  	 
  	
  		
  	 */
- 	void FieldRow::setPhaseDir (vector<vector<Angle > > phaseDir)  {
+ 	void FieldRow::setPhaseDir (std::vector<std::vector<Angle > > phaseDir)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1827,21 +1858,21 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get referenceDir.
- 	 * @return referenceDir as vector<vector<Angle > >
+ 	 * @return referenceDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > FieldRow::getReferenceDir() const {
+ 	std::vector<std::vector<Angle > > FieldRow::getReferenceDir() const {
 	
   		return referenceDir;
  	}
 
  	/**
- 	 * Set referenceDir with the specified vector<vector<Angle > >.
- 	 * @param referenceDir The vector<vector<Angle > > value to which referenceDir is to be set.
+ 	 * Set referenceDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param referenceDir The std::vector<std::vector<Angle > > value to which referenceDir is to be set.
  	 
  	
  		
  	 */
- 	void FieldRow::setReferenceDir (vector<vector<Angle > > referenceDir)  {
+ 	void FieldRow::setReferenceDir (std::vector<std::vector<Angle > > referenceDir)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1914,10 +1945,10 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get code, which is optional.
- 	 * @return code as string
+ 	 * @return code as std::string
  	 * @throw IllegalAccessException If code does not exist.
  	 */
- 	string FieldRow::getCode() const  {
+ 	std::string FieldRow::getCode() const  {
 		if (!codeExists) {
 			throw IllegalAccessException("code", "Field");
 		}
@@ -1926,12 +1957,12 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set code with the specified string.
- 	 * @param code The string value to which code is to be set.
+ 	 * Set code with the specified std::string.
+ 	 * @param code The std::string value to which code is to be set.
  	 
  	
  	 */
- 	void FieldRow::setCode (string code) {
+ 	void FieldRow::setCode (std::string code) {
 	
  		this->code = code;
 	
@@ -2055,10 +2086,10 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as string
+ 	 * @return assocNature as std::string
  	 * @throw IllegalAccessException If assocNature does not exist.
  	 */
- 	string FieldRow::getAssocNature() const  {
+ 	std::string FieldRow::getAssocNature() const  {
 		if (!assocNatureExists) {
 			throw IllegalAccessException("assocNature", "Field");
 		}
@@ -2067,12 +2098,12 @@ void FieldRow::assocFieldIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set assocNature with the specified string.
- 	 * @param assocNature The string value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::string.
+ 	 * @param assocNature The std::string value to which assocNature is to be set.
  	 
  	
  	 */
- 	void FieldRow::setAssocNature (string assocNature) {
+ 	void FieldRow::setAssocNature (std::string assocNature) {
 	
  		this->assocNature = assocNature;
 	
@@ -2463,10 +2494,10 @@ directionCode = CDirectionReferenceCode::from_int(0);
 		
 	}
 	
-	FieldRow::FieldRow (FieldTable &t, FieldRow &row) : table(t) {
+	FieldRow::FieldRow (FieldTable &t, FieldRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2518,75 +2549,75 @@ directionCode = CDirectionReferenceCode::from_int(0);
 		else {
 	
 		
-			fieldId = row.fieldId;
+			fieldId = row->fieldId;
 		
 		
 		
 		
-			fieldName = row.fieldName;
+			fieldName = row->fieldName;
 		
-			numPoly = row.numPoly;
+			numPoly = row->numPoly;
 		
-			delayDir = row.delayDir;
+			delayDir = row->delayDir;
 		
-			phaseDir = row.phaseDir;
+			phaseDir = row->phaseDir;
 		
-			referenceDir = row.referenceDir;
-		
-		
+			referenceDir = row->referenceDir;
 		
 		
-		if (row.timeExists) {
-			time = row.time;		
+		
+		
+		if (row->timeExists) {
+			time = row->time;		
 			timeExists = true;
 		}
 		else
 			timeExists = false;
 		
-		if (row.codeExists) {
-			code = row.code;		
+		if (row->codeExists) {
+			code = row->code;		
 			codeExists = true;
 		}
 		else
 			codeExists = false;
 		
-		if (row.directionCodeExists) {
-			directionCode = row.directionCode;		
+		if (row->directionCodeExists) {
+			directionCode = row->directionCode;		
 			directionCodeExists = true;
 		}
 		else
 			directionCodeExists = false;
 		
-		if (row.directionEquinoxExists) {
-			directionEquinox = row.directionEquinox;		
+		if (row->directionEquinoxExists) {
+			directionEquinox = row->directionEquinox;		
 			directionEquinoxExists = true;
 		}
 		else
 			directionEquinoxExists = false;
 		
-		if (row.assocNatureExists) {
-			assocNature = row.assocNature;		
+		if (row->assocNatureExists) {
+			assocNature = row->assocNature;		
 			assocNatureExists = true;
 		}
 		else
 			assocNatureExists = false;
 		
-		if (row.ephemerisIdExists) {
-			ephemerisId = row.ephemerisId;		
+		if (row->ephemerisIdExists) {
+			ephemerisId = row->ephemerisId;		
 			ephemerisIdExists = true;
 		}
 		else
 			ephemerisIdExists = false;
 		
-		if (row.sourceIdExists) {
-			sourceId = row.sourceId;		
+		if (row->sourceIdExists) {
+			sourceId = row->sourceId;		
 			sourceIdExists = true;
 		}
 		else
 			sourceIdExists = false;
 		
-		if (row.assocFieldIdExists) {
-			assocFieldId = row.assocFieldId;		
+		if (row->assocFieldIdExists) {
+			assocFieldId = row->assocFieldId;		
 			assocFieldIdExists = true;
 		}
 		else
@@ -2614,7 +2645,7 @@ directionCode = CDirectionReferenceCode::from_int(0);
 	}
 
 	
-	bool FieldRow::compareNoAutoInc(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir) {
+	bool FieldRow::compareNoAutoInc(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir) {
 		bool result;
 		result = true;
 		
@@ -2658,7 +2689,7 @@ directionCode = CDirectionReferenceCode::from_int(0);
 	
 	
 	
-	bool FieldRow::compareRequiredValue(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir) {
+	bool FieldRow::compareRequiredValue(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir) {
 		bool result;
 		result = true;
 		

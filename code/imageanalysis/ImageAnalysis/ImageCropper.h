@@ -70,7 +70,7 @@ public:
 	// and <src>box</src>="", <src>stokes</src>="", and <src>chanInp</src>="", that implies you want to use all
 	// of the input image.
 	ImageCropper(
-		const SHARED_PTR<const casacore::ImageInterface<T> > image,
+		const std::shared_ptr<const casacore::ImageInterface<T> > image,
 		const casacore::Record *const &regionRec, const casacore::String& box, const casacore::String& chanInp,
 		const casacore::String& stokes, const casacore::String& maskInp,
 		const casacore::String& outname, const casacore::Bool overwrite
@@ -81,7 +81,7 @@ public:
 
 	// Perform the cropping. If <src>wantReturn</src> is true, a shared_ptr which
 	// wraps the cropped image is returned. If false, an empty shared_ptr is returned.
-	SHARED_PTR<casacore::ImageInterface<T> > crop(const casacore::Bool wantReturn) const;
+	std::shared_ptr<casacore::ImageInterface<T> > crop(const casacore::Bool wantReturn) const;
 
 	// Set the axes along which to do the cropping. An empty set means
 	// crop all axes.
@@ -94,8 +94,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(0);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(0);
  	}
 
 private:

@@ -105,6 +105,7 @@ casa_add_library( plotms
   Actions/ActionExport.cc
   Actions/ActionExportDialog.cc
   Actions/ActionFactory.cc
+  Actions/ActionFlagAll.cc
   Actions/ActionHoldReleaseDrawing.cc
   Actions/ActionInformation.cc
   Actions/ActionIterFirst.cc
@@ -131,6 +132,7 @@ casa_add_library( plotms
   Actions/ActionTrackerDisplay.cc
   Actions/ActionTrackerHover.cc
   Actions/ActionZoom.cc
+  Actions/FlagActionUtil.cc
   Actions/PlotMSAction.cc
   Threads/BackgroundThread.cc
   Threads/CacheThread.cc
@@ -289,31 +291,21 @@ INSTALL (FILES
 casa_add_executable( plotms casaplotms apps/casaplotms/casaplotms.cc )
 
 #TESTING
-# These tests cannot be run on build server -- no display 
-# plotms tested in python with test_plotms.py
-casa_add_demo( plotms test/dAveragingChannel.cc )
-casa_add_demo( plotms test/dAveragingTime.cc )
+# The app tests cannot be run on build server -- no display, 
+# so plotms tested in python with test_plotms.py (with xvfb).
+# Kept one demo dExportPlot to demonstrate running app from C++
+# and one test program for just loading cache,
+# useful for debugging GTs.
 casa_add_demo( plotms test/dExportPlot.cc )
-casa_add_demo( plotms test/dDataSelection.cc )
-casa_add_demo( plotms test/dSymbol.cc )
-casa_add_demo( plotms test/dLegend.cc )
-casa_add_demo( plotms test/dOverPlot.cc )
-casa_add_demo( plotms test/dOverPlot2Files.cc )
-casa_add_demo( plotms test/dOverLeftRightPlot.cc )
-casa_add_demo( plotms test/dOverIterationPlot.cc )
-casa_add_demo( plotms test/dExportRange.cc )
-casa_add_demo( plotms test/dExportRangeRightTop.cc )
-casa_add_demo( plotms test/dExportRangeRightBottom.cc )
-casa_add_demo( plotms test/dExportRangeLeftTop.cc )
-casa_add_demo( plotms test/dExportRangeLeftBottom.cc )
-casa_add_demo( plotms test/dExportRangeInternal.cc )
-casa_add_demo( plotms test/dExportRangePipeline.cc )
-casa_add_demo( plotms test/dTimeColorization.cc )
-casa_add_demo( plotms test/dMultiplePlotTypes.cc)
-casa_add_demo( plotms test/dTimeColorizationAveraging.cc )
-casa_add_demo( plotms test/dTimeIteration.cc )
-casa_add_demo( plotms test/dTimeAveragingIteration.cc )
-casa_add_demo( plotms test/dGridPlacement.cc )
-casa_add_demo( plotms test/dGridPlacementMultiplePlots.cc )
-casa_add_demo( plotms test/dGridPlacementMultipleRuns.cc )
+casa_add_demo( plotms test/dCacheData.cc )
 
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheMetadata_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheVis_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheGeom_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheInvalid_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheLtdVis_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheOverlays_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheCallib_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheSelection_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheTransform_GT.cc )
+casa_add_google_test( MODULES plotms SOURCES test/PlotMSCacheAveraging_GT.cc )

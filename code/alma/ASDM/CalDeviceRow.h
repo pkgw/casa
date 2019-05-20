@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -67,7 +67,7 @@
 	
 
 	
-#include "CCalibrationDevice.h"
+#include <alma/Enumerations/CCalibrationDevice.h>
 	
 
 	
@@ -82,12 +82,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalDevice.h
     \brief Generated from model's revision "-1", branch ""
@@ -110,7 +110,7 @@ class FeedRow;
 
 class CalDeviceRow;
 typedef void (CalDeviceRow::*CalDeviceAttributeFromBin) (EndianIStream& eis);
-typedef void (CalDeviceRow::*CalDeviceAttributeFromText) (const string& s);
+typedef void (CalDeviceRow::*CalDeviceAttributeFromText) (const std::string& s);
 
 /**
  * The CalDeviceRow class is a row of a CalDeviceTable.
@@ -213,21 +213,21 @@ public:
 	
  	/**
  	 * Get calLoadNames.
- 	 * @return calLoadNames as vector<CalibrationDeviceMod::CalibrationDevice >
+ 	 * @return calLoadNames as std::vector<CalibrationDeviceMod::CalibrationDevice >
  	 */
- 	vector<CalibrationDeviceMod::CalibrationDevice > getCalLoadNames() const;
+ 	std::vector<CalibrationDeviceMod::CalibrationDevice > getCalLoadNames() const;
 	
  
  	
  	
  	/**
- 	 * Set calLoadNames with the specified vector<CalibrationDeviceMod::CalibrationDevice >.
- 	 * @param calLoadNames The vector<CalibrationDeviceMod::CalibrationDevice > value to which calLoadNames is to be set.
+ 	 * Set calLoadNames with the specified std::vector<CalibrationDeviceMod::CalibrationDevice >.
+ 	 * @param calLoadNames The std::vector<CalibrationDeviceMod::CalibrationDevice > value to which calLoadNames is to be set.
  	 
  		
  			
  	 */
- 	void setCalLoadNames (vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+ 	void setCalLoadNames (std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
   		
 	
 	
@@ -290,21 +290,21 @@ public:
 	
  	/**
  	 * Get calEff, which is optional.
- 	 * @return calEff as vector<vector<float > >
+ 	 * @return calEff as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If calEff does not exist.
  	 */
- 	vector<vector<float > > getCalEff() const;
+ 	std::vector<std::vector<float > > getCalEff() const;
 	
  
  	
  	
  	/**
- 	 * Set calEff with the specified vector<vector<float > >.
- 	 * @param calEff The vector<vector<float > > value to which calEff is to be set.
+ 	 * Set calEff with the specified std::vector<std::vector<float > >.
+ 	 * @param calEff The std::vector<std::vector<float > > value to which calEff is to be set.
  	 
  		
  	 */
- 	void setCalEff (vector<vector<float > > calEff);
+ 	void setCalEff (std::vector<std::vector<float > > calEff);
 		
 	
 	
@@ -331,21 +331,21 @@ public:
 	
  	/**
  	 * Get noiseCal, which is optional.
- 	 * @return noiseCal as vector<double >
+ 	 * @return noiseCal as std::vector<double >
  	 * @throws IllegalAccessException If noiseCal does not exist.
  	 */
- 	vector<double > getNoiseCal() const;
+ 	std::vector<double > getNoiseCal() const;
 	
  
  	
  	
  	/**
- 	 * Set noiseCal with the specified vector<double >.
- 	 * @param noiseCal The vector<double > value to which noiseCal is to be set.
+ 	 * Set noiseCal with the specified std::vector<double >.
+ 	 * @param noiseCal The std::vector<double > value to which noiseCal is to be set.
  	 
  		
  	 */
- 	void setNoiseCal (vector<double > noiseCal);
+ 	void setNoiseCal (std::vector<double > noiseCal);
 		
 	
 	
@@ -372,21 +372,21 @@ public:
 	
  	/**
  	 * Get coupledNoiseCal, which is optional.
- 	 * @return coupledNoiseCal as vector<vector<float > >
+ 	 * @return coupledNoiseCal as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If coupledNoiseCal does not exist.
  	 */
- 	vector<vector<float > > getCoupledNoiseCal() const;
+ 	std::vector<std::vector<float > > getCoupledNoiseCal() const;
 	
  
  	
  	
  	/**
- 	 * Set coupledNoiseCal with the specified vector<vector<float > >.
- 	 * @param coupledNoiseCal The vector<vector<float > > value to which coupledNoiseCal is to be set.
+ 	 * Set coupledNoiseCal with the specified std::vector<std::vector<float > >.
+ 	 * @param coupledNoiseCal The std::vector<std::vector<float > > value to which coupledNoiseCal is to be set.
  	 
  		
  	 */
- 	void setCoupledNoiseCal (vector<vector<float > > coupledNoiseCal);
+ 	void setCoupledNoiseCal (std::vector<std::vector<float > > coupledNoiseCal);
 		
 	
 	
@@ -413,21 +413,21 @@ public:
 	
  	/**
  	 * Get temperatureLoad, which is optional.
- 	 * @return temperatureLoad as vector<Temperature >
+ 	 * @return temperatureLoad as std::vector<Temperature >
  	 * @throws IllegalAccessException If temperatureLoad does not exist.
  	 */
- 	vector<Temperature > getTemperatureLoad() const;
+ 	std::vector<Temperature > getTemperatureLoad() const;
 	
  
  	
  	
  	/**
- 	 * Set temperatureLoad with the specified vector<Temperature >.
- 	 * @param temperatureLoad The vector<Temperature > value to which temperatureLoad is to be set.
+ 	 * Set temperatureLoad with the specified std::vector<Temperature >.
+ 	 * @param temperatureLoad The std::vector<Temperature > value to which temperatureLoad is to be set.
  	 
  		
  	 */
- 	void setTemperatureLoad (vector<Temperature > temperatureLoad);
+ 	void setTemperatureLoad (std::vector<Temperature > temperatureLoad);
 		
 	
 	
@@ -584,7 +584,7 @@ public:
 	 * 
 	 * @return a vector of FeedRow *
 	 */
-	vector <FeedRow *> getFeeds();
+	std::vector <FeedRow *> getFeeds();
 	
 	
 
@@ -610,7 +610,7 @@ public:
 	 * @param calLoadNames
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames);
 	
 	
 
@@ -624,7 +624,7 @@ public:
 	 * @param calLoadNames
 	    
 	 */ 
-	bool compareRequiredValue(int numCalload, vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
+	bool compareRequiredValue(int numCalload, std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames); 
 		 
 	
 	/**
@@ -756,7 +756,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalDeviceRow (CalDeviceTable &table, CalDeviceRow &row);
+	 CalDeviceRow (CalDeviceTable &table, CalDeviceRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -789,7 +789,7 @@ private:
 	
 	
 
-	vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames;
+	std::vector<CalibrationDeviceMod::CalibrationDevice > calLoadNames;
 
 	
 	
@@ -815,7 +815,7 @@ private:
 	bool calEffExists;
 	
 
-	vector<vector<float > > calEff;
+	std::vector<std::vector<float > > calEff;
 
 	
 	
@@ -828,7 +828,7 @@ private:
 	bool noiseCalExists;
 	
 
-	vector<double > noiseCal;
+	std::vector<double > noiseCal;
 
 	
 	
@@ -841,7 +841,7 @@ private:
 	bool coupledNoiseCalExists;
 	
 
-	vector<vector<float > > coupledNoiseCal;
+	std::vector<std::vector<float > > coupledNoiseCal;
 
 	
 	
@@ -854,7 +854,7 @@ private:
 	bool temperatureLoadExists;
 	
 
-	vector<Temperature > temperatureLoad;
+	std::vector<Temperature > temperatureLoad;
 
 	
 	
@@ -947,38 +947,38 @@ void temperatureLoadFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalDeviceAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void numCalloadFromText (const string & s);
+void numCalloadFromText (const std::string & s);
 	
 	
-void calLoadNamesFromText (const string & s);
+void calLoadNamesFromText (const std::string & s);
 	
 
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void calEffFromText (const string & s);
+void calEffFromText (const std::string & s);
 	
 	
-void noiseCalFromText (const string & s);
+void noiseCalFromText (const std::string & s);
 	
 	
-void coupledNoiseCalFromText (const string & s);
+void coupledNoiseCalFromText (const std::string & s);
 	
 	
-void temperatureLoadFromText (const string & s);
+void temperatureLoadFromText (const std::string & s);
 	
 	
 	

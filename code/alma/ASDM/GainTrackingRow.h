@@ -48,29 +48,19 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <ComplexWrapper.h>
+#include <alma/ASDM/ComplexWrapper.h>
 	
 
 
 
-
-	
-
-	
-
-	
-
-	
-#include "CPolarizationType.h"
-	
 
 	
 
@@ -79,15 +69,25 @@
 	
 
 	
+#include <alma/Enumerations/CPolarizationType.h>
+	
+
+	
+
+	
+
+	
+
+	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file GainTracking.h
     \brief Generated from model's revision "-1", branch ""
@@ -110,7 +110,7 @@ class FeedRow;
 
 class GainTrackingRow;
 typedef void (GainTrackingRow::*GainTrackingAttributeFromBin) (EndianIStream& eis);
-typedef void (GainTrackingRow::*GainTrackingAttributeFromText) (const string& s);
+typedef void (GainTrackingRow::*GainTrackingAttributeFromText) (const std::string& s);
 
 /**
  * The GainTrackingRow class is a row of a GainTrackingTable.
@@ -213,21 +213,21 @@ public:
 	
  	/**
  	 * Get attenuator.
- 	 * @return attenuator as vector<float >
+ 	 * @return attenuator as std::vector<float >
  	 */
- 	vector<float > getAttenuator() const;
+ 	std::vector<float > getAttenuator() const;
 	
  
  	
  	
  	/**
- 	 * Set attenuator with the specified vector<float >.
- 	 * @param attenuator The vector<float > value to which attenuator is to be set.
+ 	 * Set attenuator with the specified std::vector<float >.
+ 	 * @param attenuator The std::vector<float > value to which attenuator is to be set.
  	 
  		
  			
  	 */
- 	void setAttenuator (vector<float > attenuator);
+ 	void setAttenuator (std::vector<float > attenuator);
   		
 	
 	
@@ -243,21 +243,21 @@ public:
 	
  	/**
  	 * Get polarizationType.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  		
  			
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
   		
 	
 	
@@ -361,21 +361,21 @@ public:
 	
  	/**
  	 * Get attFreq, which is optional.
- 	 * @return attFreq as vector<double >
+ 	 * @return attFreq as std::vector<double >
  	 * @throws IllegalAccessException If attFreq does not exist.
  	 */
- 	vector<double > getAttFreq() const;
+ 	std::vector<double > getAttFreq() const;
 	
  
  	
  	
  	/**
- 	 * Set attFreq with the specified vector<double >.
- 	 * @param attFreq The vector<double > value to which attFreq is to be set.
+ 	 * Set attFreq with the specified std::vector<double >.
+ 	 * @param attFreq The std::vector<double > value to which attFreq is to be set.
  	 
  		
  	 */
- 	void setAttFreq (vector<double > attFreq);
+ 	void setAttFreq (std::vector<double > attFreq);
 		
 	
 	
@@ -402,21 +402,21 @@ public:
 	
  	/**
  	 * Get attSpectrum, which is optional.
- 	 * @return attSpectrum as vector<Complex >
+ 	 * @return attSpectrum as std::vector<Complex >
  	 * @throws IllegalAccessException If attSpectrum does not exist.
  	 */
- 	vector<Complex > getAttSpectrum() const;
+ 	std::vector<Complex > getAttSpectrum() const;
 	
  
  	
  	
  	/**
- 	 * Set attSpectrum with the specified vector<Complex >.
- 	 * @param attSpectrum The vector<Complex > value to which attSpectrum is to be set.
+ 	 * Set attSpectrum with the specified std::vector<Complex >.
+ 	 * @param attSpectrum The std::vector<Complex > value to which attSpectrum is to be set.
  	 
  		
  	 */
- 	void setAttSpectrum (vector<Complex > attSpectrum);
+ 	void setAttSpectrum (std::vector<Complex > attSpectrum);
 		
 	
 	
@@ -573,7 +573,7 @@ public:
 	 * 
 	 * @return a vector of FeedRow *
 	 */
-	vector <FeedRow *> getFeeds();
+	std::vector <FeedRow *> getFeeds();
 	
 	
 
@@ -601,7 +601,7 @@ public:
 	 * @param polarizationType
 	    
 	 */ 
-	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType);
+	bool compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, int feedId, int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 	
 	
 
@@ -617,7 +617,7 @@ public:
 	 * @param polarizationType
 	    
 	 */ 
-	bool compareRequiredValue(int numReceptor, vector<float > attenuator, vector<PolarizationTypeMod::PolarizationType > polarizationType); 
+	bool compareRequiredValue(int numReceptor, std::vector<float > attenuator, std::vector<PolarizationTypeMod::PolarizationType > polarizationType); 
 		 
 	
 	/**
@@ -749,7 +749,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 GainTrackingRow (GainTrackingTable &table, GainTrackingRow &row);
+	 GainTrackingRow (GainTrackingTable &table, GainTrackingRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -782,7 +782,7 @@ private:
 	
 	
 
-	vector<float > attenuator;
+	std::vector<float > attenuator;
 
 	
 	
@@ -793,7 +793,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
 
 	
 	
@@ -832,7 +832,7 @@ private:
 	bool attFreqExists;
 	
 
-	vector<double > attFreq;
+	std::vector<double > attFreq;
 
 	
 	
@@ -845,7 +845,7 @@ private:
 	bool attSpectrumExists;
 	
 
-	vector<Complex > attSpectrum;
+	std::vector<Complex > attSpectrum;
 
 	
 	
@@ -938,38 +938,38 @@ void attSpectrumFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, GainTrackingAttributeFromText> fromTextMethods;
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void feedIdFromText (const string & s);
+void feedIdFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void attenuatorFromText (const string & s);
+void attenuatorFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 
 	
-void samplingLevelFromText (const string & s);
+void samplingLevelFromText (const std::string & s);
 	
 	
-void numAttFreqFromText (const string & s);
+void numAttFreqFromText (const std::string & s);
 	
 	
-void attFreqFromText (const string & s);
+void attFreqFromText (const std::string & s);
 	
 	
-void attSpectrumFromText (const string & s);
+void attSpectrumFromText (const std::string & s);
 	
 	
 	

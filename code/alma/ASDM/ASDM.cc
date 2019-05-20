@@ -30,139 +30,143 @@
  *
  * File ASDM.cpp
  */
-#include <ASDM.h>
+#include <alma/ASDM/ASDM.h>
 
-#include <MainTable.h>
+#include <alma/ASDM/MainTable.h>
 
-#include <AlmaRadiometerTable.h>
+#include <alma/ASDM/AlmaRadiometerTable.h>
 
-#include <AnnotationTable.h>
+#include <alma/ASDM/AnnotationTable.h>
 
-#include <AntennaTable.h>
+#include <alma/ASDM/AntennaTable.h>
 
-#include <CalAmpliTable.h>
+#include <alma/ASDM/CalAmpliTable.h>
 
-#include <CalAppPhaseTable.h>
+#include <alma/ASDM/CalAntennaSolutionsTable.h>
 
-#include <CalAtmosphereTable.h>
+#include <alma/ASDM/CalAppPhaseTable.h>
 
-#include <CalBandpassTable.h>
+#include <alma/ASDM/CalAtmosphereTable.h>
 
-#include <CalCurveTable.h>
+#include <alma/ASDM/CalBandpassTable.h>
 
-#include <CalDataTable.h>
+#include <alma/ASDM/CalCurveTable.h>
 
-#include <CalDelayTable.h>
+#include <alma/ASDM/CalDataTable.h>
 
-#include <CalDeviceTable.h>
+#include <alma/ASDM/CalDelayTable.h>
 
-#include <CalFluxTable.h>
+#include <alma/ASDM/CalDeviceTable.h>
 
-#include <CalFocusTable.h>
+#include <alma/ASDM/CalFluxTable.h>
 
-#include <CalFocusModelTable.h>
+#include <alma/ASDM/CalFocusTable.h>
 
-#include <CalGainTable.h>
+#include <alma/ASDM/CalFocusModelTable.h>
 
-#include <CalHolographyTable.h>
+#include <alma/ASDM/CalGainTable.h>
 
-#include <CalPhaseTable.h>
+#include <alma/ASDM/CalHolographyTable.h>
 
-#include <CalPointingTable.h>
+#include <alma/ASDM/CalPhaseTable.h>
 
-#include <CalPointingModelTable.h>
+#include <alma/ASDM/CalPointingTable.h>
 
-#include <CalPositionTable.h>
+#include <alma/ASDM/CalPointingModelTable.h>
 
-#include <CalPrimaryBeamTable.h>
+#include <alma/ASDM/CalPositionTable.h>
 
-#include <CalReductionTable.h>
+#include <alma/ASDM/CalPrimaryBeamTable.h>
 
-#include <CalSeeingTable.h>
+#include <alma/ASDM/CalReductionTable.h>
 
-#include <CalWVRTable.h>
+#include <alma/ASDM/CalSeeingTable.h>
 
-#include <ConfigDescriptionTable.h>
+#include <alma/ASDM/CalWVRTable.h>
 
-#include <CorrelatorModeTable.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
 
-#include <DataDescriptionTable.h>
+#include <alma/ASDM/CorrelatorModeTable.h>
 
-#include <DelayModelTable.h>
+#include <alma/ASDM/DataDescriptionTable.h>
 
-#include <DelayModelFixedParametersTable.h>
+#include <alma/ASDM/DelayModelTable.h>
 
-#include <DelayModelVariableParametersTable.h>
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
 
-#include <DopplerTable.h>
+#include <alma/ASDM/DelayModelVariableParametersTable.h>
 
-#include <EphemerisTable.h>
+#include <alma/ASDM/DopplerTable.h>
 
-#include <ExecBlockTable.h>
+#include <alma/ASDM/EphemerisTable.h>
 
-#include <FeedTable.h>
+#include <alma/ASDM/ExecBlockTable.h>
 
-#include <FieldTable.h>
+#include <alma/ASDM/FeedTable.h>
 
-#include <FlagTable.h>
+#include <alma/ASDM/FieldTable.h>
 
-#include <FlagCmdTable.h>
+#include <alma/ASDM/FlagTable.h>
 
-#include <FocusTable.h>
+#include <alma/ASDM/FlagCmdTable.h>
 
-#include <FocusModelTable.h>
+#include <alma/ASDM/FocusTable.h>
 
-#include <FreqOffsetTable.h>
+#include <alma/ASDM/FocusModelTable.h>
 
-#include <GainTrackingTable.h>
+#include <alma/ASDM/FreqOffsetTable.h>
 
-#include <HistoryTable.h>
+#include <alma/ASDM/GainTrackingTable.h>
 
-#include <HolographyTable.h>
+#include <alma/ASDM/HistoryTable.h>
 
-#include <ObservationTable.h>
+#include <alma/ASDM/HolographyTable.h>
 
-#include <PointingTable.h>
+#include <alma/ASDM/ObservationTable.h>
 
-#include <PointingModelTable.h>
+#include <alma/ASDM/PointingTable.h>
 
-#include <PolarizationTable.h>
+#include <alma/ASDM/PointingModelTable.h>
 
-#include <ProcessorTable.h>
+#include <alma/ASDM/PolarizationTable.h>
 
-#include <ReceiverTable.h>
+#include <alma/ASDM/ProcessorTable.h>
 
-#include <SBSummaryTable.h>
+#include <alma/ASDM/PulsarTable.h>
 
-#include <ScaleTable.h>
+#include <alma/ASDM/ReceiverTable.h>
 
-#include <ScanTable.h>
+#include <alma/ASDM/SBSummaryTable.h>
 
-#include <SeeingTable.h>
+#include <alma/ASDM/ScaleTable.h>
 
-#include <SourceTable.h>
+#include <alma/ASDM/ScanTable.h>
 
-#include <SpectralWindowTable.h>
+#include <alma/ASDM/SeeingTable.h>
 
-#include <SquareLawDetectorTable.h>
+#include <alma/ASDM/SourceTable.h>
 
-#include <StateTable.h>
+#include <alma/ASDM/SpectralWindowTable.h>
 
-#include <StationTable.h>
+#include <alma/ASDM/SquareLawDetectorTable.h>
 
-#include <SubscanTable.h>
+#include <alma/ASDM/StateTable.h>
 
-#include <SwitchCycleTable.h>
+#include <alma/ASDM/StationTable.h>
 
-#include <SysCalTable.h>
+#include <alma/ASDM/SubscanTable.h>
 
-#include <SysPowerTable.h>
+#include <alma/ASDM/SwitchCycleTable.h>
 
-#include <TotalPowerTable.h>
+#include <alma/ASDM/SysCalTable.h>
 
-#include <WVMCalTable.h>
+#include <alma/ASDM/SysPowerTable.h>
 
-#include <WeatherTable.h>
+#include <alma/ASDM/TotalPowerTable.h>
+
+#include <alma/ASDM/WVMCalTable.h>
+
+#include <alma/ASDM/WeatherTable.h>
 
 
 using asdm::ASDM;
@@ -176,6 +180,8 @@ using asdm::AnnotationTable;
 using asdm::AntennaTable;
 
 using asdm::CalAmpliTable;
+
+using asdm::CalAntennaSolutionsTable;
 
 using asdm::CalAppPhaseTable;
 
@@ -265,6 +271,8 @@ using asdm::PolarizationTable;
 
 using asdm::ProcessorTable;
 
+using asdm::PulsarTable;
+
 using asdm::ReceiverTable;
 
 using asdm::SBSummaryTable;
@@ -300,14 +308,16 @@ using asdm::WVMCalTable;
 using asdm::WeatherTable;
 
 
-#include <Parser.h>
-#include <ConversionException.h>
+#include <alma/ASDM/Parser.h>
+#include <alma/ASDM/ConversionException.h>
 
 using asdm::ConversionException;
 using asdm::Parser;
 
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <locale>
 #include <time.h>
 
 //#ifdef WITHOUT_ACS
@@ -316,7 +326,7 @@ using asdm::Parser;
 #include <dirent.h>
 //#endif
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 using namespace std;
 
@@ -353,6 +363,10 @@ namespace asdm {
 		calAmpli = new CalAmpliTable (*this);
 		table.push_back(calAmpli);
 		tableEntity["CalAmpli"] = emptyEntity;
+
+		calAntennaSolutions = new CalAntennaSolutionsTable (*this);
+		table.push_back(calAntennaSolutions);
+		tableEntity["CalAntennaSolutions"] = emptyEntity;
 
 		calAppPhase = new CalAppPhaseTable (*this);
 		table.push_back(calAppPhase);
@@ -530,6 +544,10 @@ namespace asdm {
 		table.push_back(processor);
 		tableEntity["Processor"] = emptyEntity;
 
+		pulsar = new PulsarTable (*this);
+		table.push_back(pulsar);
+		tableEntity["Pulsar"] = emptyEntity;
+
 		receiver = new ReceiverTable (*this);
 		table.push_back(receiver);
 		tableEntity["Receiver"] = emptyEntity;
@@ -676,6 +694,14 @@ namespace asdm {
 	 */
 	CalAmpliTable & ASDM::getCalAmpli () const {
 		return *calAmpli;
+	}
+
+	/**
+	 * Get the table CalAntennaSolutions.
+	 * @return The table CalAntennaSolutions as a CalAntennaSolutionsTable.
+	 */
+	CalAntennaSolutionsTable & ASDM::getCalAntennaSolutions () const {
+		return *calAntennaSolutions;
 	}
 
 	/**
@@ -1031,6 +1057,14 @@ namespace asdm {
 	}
 
 	/**
+	 * Get the table Pulsar.
+	 * @return The table Pulsar as a PulsarTable.
+	 */
+	PulsarTable & ASDM::getPulsar () const {
+		return *pulsar;
+	}
+
+	/**
 	 * Get the table Receiver.
 	 * @return The table Receiver as a ReceiverTable.
 	 */
@@ -1168,10 +1202,10 @@ namespace asdm {
 
 
 
-	string ASDM::toXML()   {
+	string ASDM::toXML() const {
 		string out;
 		out.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		out.append("<ASDM xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cntnr=\"http://Alma/XASDM/ASDM\" xsi:schemaLocation=\"http://Alma/XASDM/ASDM http://almaobservatory.org/XML/XASDM/3/ASDM.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\"> ");
+		out.append("<ASDM xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:cntnr=\"http://Alma/XASDM/ASDM\" xsi:schemaLocation=\"http://Alma/XASDM/ASDM http://almaobservatory.org/XML/XASDM/4/ASDM.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\"> ");
 
 		if (entity.isNull())
 			throw ConversionException("Container entity cannot be null.","Container");
@@ -1297,6 +1331,8 @@ namespace asdm {
 		
 		result->calAmpli = *(this->calAmpli->toIDL());
 		
+		result->calAntennaSolutions = *(this->calAntennaSolutions->toIDL());
+		
 		result->calAppPhase = *(this->calAppPhase->toIDL());
 		
 		result->calAtmosphere = *(this->calAtmosphere->toIDL());
@@ -1385,6 +1421,8 @@ namespace asdm {
 		
 		result->processor = *(this->processor->toIDL());
 		
+		result->pulsar = *(this->pulsar->toIDL());
+		
 		result->receiver = *(this->receiver->toIDL());
 		
 		result->sBSummary = *(this->sBSummary->toIDL());
@@ -1433,6 +1471,8 @@ namespace asdm {
 		this->antenna->fromIDL(x->antenna);
 		
 		this->calAmpli->fromIDL(x->calAmpli);
+		
+		this->calAntennaSolutions->fromIDL(x->calAntennaSolutions);
 		
 		this->calAppPhase->fromIDL(x->calAppPhase);
 		
@@ -1522,6 +1562,8 @@ namespace asdm {
 		
 		this->processor->fromIDL(x->processor);
 		
+		this->pulsar->fromIDL(x->pulsar);
+		
 		this->receiver->fromIDL(x->receiver);
 		
 		this->sBSummary->fromIDL(x->sBSummary);
@@ -1568,7 +1610,7 @@ namespace asdm {
 	 * not overwrite any existing file; a ConversionException is also
 	 * thrown in this case.
 	 */
-	void ASDM::toXML(string directory) {
+	void ASDM::toXML(string directory) const {
 	
 		if (!directoryExists(directory.c_str()) &&
 			!createPath(directory.c_str())) {
@@ -1819,6 +1861,43 @@ namespace asdm {
 			
 			// And finally parse the XML document to populate the table.	
 			dataset->getCalAmpli().fromXML(tableDoc);						
+		}
+
+		entity = dataset->tableEntity["CalAntennaSolutions"];
+		if (entity.getEntityId().getId().length()  != 0) {
+			// Which file must we read ?
+			string tablename = xmlDirectory + "/CalAntennaSolutions.xml";
+
+			// Determine the file size
+			ifstream::pos_type size;	
+			ifstream tablein (tablename.c_str() , ios::in|ios::binary|ios::ate);
+  			if (tablein.is_open()) { 
+  				size = tablein.tellg(); 
+  			}
+			else {
+				throw ConversionException("Could not open file " + tablename, "CalAntennaSolutions");
+			}
+			
+			// Read the file in a string
+			string tableDoc;
+
+			tableDoc.reserve(size);
+			tablein.seekg (0);	
+			int nread = BLOCKSIZE;	
+			while (nread == BLOCKSIZE) {
+				tablein.read(c, BLOCKSIZE);
+				if (tablein.rdstate() == istream::failbit || tablein.rdstate() == istream::badbit) {
+					throw ConversionException("Error reading file " + tablename,"ASDM");
+				}
+				nread = tablein.gcount();
+				tableDoc.append(c, nread);
+			}
+			tablein.close();
+			if (tablein.rdstate() == istream::failbit)
+				throw ConversionException("Could not close file " + tablename,"ASDM");
+			
+			// And finally parse the XML document to populate the table.	
+			dataset->getCalAntennaSolutions().fromXML(tableDoc);						
 		}
 
 		entity = dataset->tableEntity["CalAppPhase"];
@@ -3449,6 +3528,43 @@ namespace asdm {
 			dataset->getProcessor().fromXML(tableDoc);						
 		}
 
+		entity = dataset->tableEntity["Pulsar"];
+		if (entity.getEntityId().getId().length()  != 0) {
+			// Which file must we read ?
+			string tablename = xmlDirectory + "/Pulsar.xml";
+
+			// Determine the file size
+			ifstream::pos_type size;	
+			ifstream tablein (tablename.c_str() , ios::in|ios::binary|ios::ate);
+  			if (tablein.is_open()) { 
+  				size = tablein.tellg(); 
+  			}
+			else {
+				throw ConversionException("Could not open file " + tablename, "Pulsar");
+			}
+			
+			// Read the file in a string
+			string tableDoc;
+
+			tableDoc.reserve(size);
+			tablein.seekg (0);	
+			int nread = BLOCKSIZE;	
+			while (nread == BLOCKSIZE) {
+				tablein.read(c, BLOCKSIZE);
+				if (tablein.rdstate() == istream::failbit || tablein.rdstate() == istream::badbit) {
+					throw ConversionException("Error reading file " + tablename,"ASDM");
+				}
+				nread = tablein.gcount();
+				tableDoc.append(c, nread);
+			}
+			tablein.close();
+			if (tablein.rdstate() == istream::failbit)
+				throw ConversionException("Could not close file " + tablename,"ASDM");
+			
+			// And finally parse the XML document to populate the table.	
+			dataset->getPulsar().fromXML(tableDoc);						
+		}
+
 		entity = dataset->tableEntity["Receiver"];
 		if (entity.getEntityId().getId().length()  != 0) {
 			// Which file must we read ?
@@ -4145,6 +4261,10 @@ namespace asdm {
 			getCalAmpli().toFile(directory);
 		}
 	
+		if (getCalAntennaSolutions().size() > 0) {
+			getCalAntennaSolutions().toFile(directory);
+		}
+	
 		if (getCalAppPhase().size() > 0) {
 			getCalAppPhase().toFile(directory);
 		}
@@ -4321,6 +4441,10 @@ namespace asdm {
 			getProcessor().toFile(directory);
 		}
 	
+		if (getPulsar().size() > 0) {
+			getPulsar().toFile(directory);
+		}
+	
 		if (getReceiver().size() > 0) {
 			getReceiver().toFile(directory);
 		}
@@ -4448,15 +4572,31 @@ namespace asdm {
 				throw ConversionException ("Caught an exception whose message is '" + e.getMessage() + "'.", "ASDM");
 			}
 			
-    		if ((version == "UNKNOWN") && (origin == ASDMUtils::UNKNOWN))
-    			throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
+    		        if ((version == "UNKNOWN") && (origin == ASDMUtils::UNKNOWN))
+    			        throw ConversionException("I cannot read this dataset with version='UNKNOWN' and origin='UNKNOWN'", "ASDM");
  		
-    		string xsltPath;
- 			bool proceed = (version.compare("3") && (origin == ASDMUtils::EVLA))  
-    				    || (version.compare("3") && ( origin == ASDMUtils::ALMA)); // If it's an ALMA then we must check its version.
+                        // convert leading part of version to an integer (this will work for things like "4.2.1" if necessary)
+                        std::locale loc;
+                        // require that the first character is a digit
+                        int iVersion = -1;
+
+                        try {
+                            iVersion = std::isdigit(version[0],loc) ? std::stoi(version) : -1;
+                        } catch (const std::invalid_argument &ia) {
+                            throw ConversionException("Invalid argument converting this version into an integer: '" + version + ". Can not continue.", "ASDM");
+                        } catch (const std::out_of_range &oor) {
+                            throw ConversionException("Integer in this version is out of range: '" + version + ". Can not continue.", "ASDM");
+                        }
+
+                        if (iVersion < 2) {
+                                 throw ConversionException("I cannot read this dataset with version='" + version + "'.", "ASDM");
+                        }
+                        // this is the case that we know how to transform, ignore everything else and hope for the best
+                        bool doTransform = (iVersion == 2) && (origin == ASDMUtils::EVLA || origin == ASDMUtils::ALMA);
+    		        string xsltPath;
 			string xmlDoc;
  			try {
- 				if (proceed) {
+ 				if (doTransform) {
     				if (origin == ASDMUtils::EVLA)
 						xsltPath = ASDMUtils::pathToV2V3EVLAxslTransform();
 					else 
@@ -4508,6 +4648,11 @@ namespace asdm {
 			entity = tableEntity["CalAmpli"];
 			if (entity.getEntityId().getId().length()  != 0) {
 				getCalAmpli().setFromFile(directory_);
+			}
+	
+			entity = tableEntity["CalAntennaSolutions"];
+			if (entity.getEntityId().getId().length()  != 0) {
+				getCalAntennaSolutions().setFromFile(directory_);
 			}
 	
 			entity = tableEntity["CalAppPhase"];
@@ -4730,6 +4875,11 @@ namespace asdm {
 				getProcessor().setFromFile(directory_);
 			}
 	
+			entity = tableEntity["Pulsar"];
+			if (entity.getEntityId().getId().length()  != 0) {
+				getPulsar().setFromFile(directory_);
+			}
+	
 			entity = tableEntity["Receiver"];
 			if (entity.getEntityId().getId().length()  != 0) {
 				getReceiver().setFromFile(directory_);
@@ -4828,6 +4978,8 @@ namespace asdm {
 	
 			getCalAmpli().presentInMemory = tableEntity["CalAmpli"].getEntityId().getId().length() == 0;	
 	
+			getCalAntennaSolutions().presentInMemory = tableEntity["CalAntennaSolutions"].getEntityId().getId().length() == 0;	
+	
 			getCalAppPhase().presentInMemory = tableEntity["CalAppPhase"].getEntityId().getId().length() == 0;	
 	
 			getCalAtmosphere().presentInMemory = tableEntity["CalAtmosphere"].getEntityId().getId().length() == 0;	
@@ -4915,6 +5067,8 @@ namespace asdm {
 			getPolarization().presentInMemory = tableEntity["Polarization"].getEntityId().getId().length() == 0;	
 	
 			getProcessor().presentInMemory = tableEntity["Processor"].getEntityId().getId().length() == 0;	
+	
+			getPulsar().presentInMemory = tableEntity["Pulsar"].getEntityId().getId().length() == 0;	
 	
 			getReceiver().presentInMemory = tableEntity["Receiver"].getEntityId().getId().length() == 0;	
 	
@@ -5033,6 +5187,13 @@ namespace asdm {
 			container->getCalAmpli().setEntity(entity);
 			xml = getXMLEntity(entity.getEntityId());
 			container->getCalAmpli().fromXML(xml);
+		}
+			
+		entity = container->tableEntity["CalAntennaSolutions"];
+		if (entity.getEntityId().getId().size() != 0) {
+			container->getCalAntennaSolutions().setEntity(entity);
+			xml = getXMLEntity(entity.getEntityId());
+			container->getCalAntennaSolutions().fromXML(xml);
 		}
 			
 		entity = container->tableEntity["CalAppPhase"];
@@ -5343,6 +5504,13 @@ namespace asdm {
 			container->getProcessor().fromXML(xml);
 		}
 			
+		entity = container->tableEntity["Pulsar"];
+		if (entity.getEntityId().getId().size() != 0) {
+			container->getPulsar().setEntity(entity);
+			xml = getXMLEntity(entity.getEntityId());
+			container->getPulsar().fromXML(xml);
+		}
+			
 		entity = container->tableEntity["Receiver"];
 		if (entity.getEntityId().getId().size() != 0) {
 			container->getReceiver().setEntity(entity);
@@ -5564,21 +5732,21 @@ namespace asdm {
 	
  	/**
  	 * Get xmlnsPrefix.
- 	 * @return xmlnsPrefix as string
+ 	 * @return xmlnsPrefix as std::string
  	 */
- 	string ASDM::getXmlnsPrefix() const {
+ 	std::string ASDM::getXmlnsPrefix() const {
 	
   		return xmlnsPrefix;
  	}
 
  	/**
- 	 * Set xmlnsPrefix with the specified string.
- 	 * @param xmlnsPrefix The string value to which xmlnsPrefix is to be set.
+ 	 * Set xmlnsPrefix with the specified std::string.
+ 	 * @param xmlnsPrefix The std::string value to which xmlnsPrefix is to be set.
  	 
  	
  		
  	 */
- 	void ASDM::setXmlnsPrefix (string xmlnsPrefix)  {
+ 	void ASDM::setXmlnsPrefix (std::string xmlnsPrefix)  {
   	
   	
   		if (hasBeenAdded) {

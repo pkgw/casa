@@ -5,8 +5,6 @@
 #include <map>
 #include <iostream>
 
-using namespace std;
-
 namespace asdm {
 /**
 ** A class to represent the type of Tag , i.e. the ASDM class a Tag refers to.
@@ -17,14 +15,14 @@ class TagType {
 	* The string representation of a TagType.
 	* @return the string representation of of TagType.
 	*/
-  virtual string toString() const;
+  virtual std::string toString() const;
   
   	/**
 	  * Returns a TagType given a string.
 	  * @return the TagType associated to the string given in as a parameter. E.g. getTagType("Holography")
 	  * returns TagType.Holography. Returns 0 is no Tag is associated to the given string.
 	  */
-  static const TagType* getTagType(string name);
+  static const TagType* getTagType(std::string name);
   
  	/**
 	  * The TagType for a no typed Tag.
@@ -53,6 +51,8 @@ class TagType {
 	  * The TagType for a Antenna Tag.
 	  */
 	static const TagType*  Antenna ;
+	
+
 	
 
 	
@@ -237,6 +237,13 @@ class TagType {
 
 	
 	/**
+	  * The TagType for a Pulsar Tag.
+	  */
+	static const TagType*  Pulsar ;
+	
+
+	
+	/**
 	  * The TagType for a Receiver Tag.
 	  */
 	static const TagType*  Receiver ;
@@ -317,10 +324,10 @@ class TagType {
  
 
  private:
-  string name;
-  static map<string,const TagType*> name2TagType;
+  std::string name;
+  static std::map<std::string,const TagType*> name2TagType;
   virtual ~TagType() {};
-  TagType(string name);
+  TagType(std::string name);
   
   class TagTypeMgr {
   public:
@@ -339,6 +346,8 @@ class TagType {
 
 	
 	if (TagType:: Antenna) { delete TagType::Antenna; TagType::Antenna = 0; }
+	
+
 	
 
 	
@@ -465,6 +474,10 @@ class TagType {
 
 	
 	if (TagType:: Processor) { delete TagType::Processor; TagType::Processor = 0; }
+	
+
+	
+	if (TagType:: Pulsar) { delete TagType::Pulsar; TagType::Pulsar = 0; }
 	
 
 	

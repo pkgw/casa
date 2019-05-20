@@ -182,7 +182,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
   }
 
+void SIMapperCollection::initializeGrid(vi::VisibilityIterator2& vi, Bool dopsf, const Int mapperid)
+  {
 
+    vi::VisBuffer2 *vb=vi.getVisBuffer();
+    initializeGrid(*vb, dopsf, mapperid);
+    if(mapperid<0)
+      {
+	for (uInt k=0; k < itsMappers.nelements(); ++k)
+	  {
+	    ((itsMappers[k])->getFTM2())->initBriggsWeightor(vi);
+  	  }
+      }
+    else 
+      {
+	if (mapperid > (Int)itsMappers.nelements())
+	  throw ( AipsError("Internal Error : SIMapperCollection::initializeGrid(): mapperid out of range") );
+	else (itsMappers[mapperid]->getFTM2())->initBriggsWeightor(vi);
+      }
+  }
 
   ////////////////////////////////////////////////////////////////////////////////////
   /////////////////////////////////OLD vi/vb //////////////////////////////////////////////
@@ -413,11 +431,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}// if non zero model
     }
   
-  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath)
+  void SIMapperCollection::addPB(vi::VisBuffer2& vb, PBMath& pbMath, const MDirection& altDir, const Bool useAltDir)
   {
     for (uInt k=0; k < itsMappers.nelements(); ++k)
       {
-	(itsMappers[k])->addPB(vb,pbMath);
+	(itsMappers[k])->addPB(vb,pbMath, altDir, useAltDir);
 	
       }
   }

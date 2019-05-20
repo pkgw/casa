@@ -89,13 +89,14 @@ Calibrater::Calibrater():
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -108,13 +109,14 @@ Calibrater::Calibrater(String msname):
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(false),
   ssvp_p()
@@ -146,13 +148,14 @@ Calibrater::Calibrater(const vi::SimpleSimVi2Parameters& ssvp):
   ms_p(0), 
   mssel_p(0), 
   mss_p(0),
-  frequencySelections_p(0),
+  frequencySelections_p(nullptr),
   msmc_p(0),
   ve_p(0),
   vc_p(),
   svc_p(0),
   histLockCounter_p(), 
   hist_p(0),
+  usingCalLibrary_(false),
   actRec_(),
   simdata_p(true),
   ssvp_p(ssvp)
@@ -622,7 +625,7 @@ Bool Calibrater::validatecallib(Record callib) {
 
 
 // Set up apply-able calibration via a Cal Library
-Bool Calibrater::setcallib2(Record callib) {
+Bool Calibrater::setcallib2(Record callib, const MeasurementSet* ms) {
 
   logSink() << LogOrigin("Calibrater", "setcallib2(callib)");
 
@@ -651,7 +654,27 @@ Bool Calibrater::setcallib2(Record callib) {
   // Tables exist, so deploy them...
 
   // Local MS object for callib parsing (only)
-  MeasurementSet lms(msname_p,Table::Update);
+  //  MeasurementSet lms(msname_p,Table::Update);
+  // TBD: Use selected MS instead (not yet available in OTF plotms context!)
+  //const MeasurementSet lms(*mssel_p);
+  //MeasurementSet lms(msname_p);
+
+  // Local const MS object for callib parsing (only)
+  const MeasurementSet *lmsp(0);
+  if (ms) {
+    // Use supplied MS (from outside), if specified...
+    // TBD: should we verify same base MS as ms_p/mssel_p?
+    //cout << "Using externally-specified MS!!" << endl;
+    lmsp=ms;
+  }
+  else {
+    // ...use internal one instead
+    //cout << "Using internal MS (mssel_p)!!" << endl;
+    lmsp=mssel_p;
+  }
+  // Reference for use below
+  const MeasurementSet &lms(*lmsp);
+
 
   for (uInt itab=0;itab<ntab;++itab) {
 
@@ -682,7 +705,7 @@ Bool Calibrater::setcallib2(Record callib) {
 
       // ingest this table according to its callib
       vc->setCallib(thistabrec,lms);
-
+      
     } catch (AipsError x) {
       logSink() << LogIO::SEVERE << x.getMesg() 
 		<< " Check inputs and try again."
@@ -712,6 +735,10 @@ Bool Calibrater::setcallib2(Record callib) {
       return false;
     } 
   }
+
+  // Signal use of CalLibrary
+  usingCalLibrary_=true;
+
   // All ok, if we get this far!
   return true;
 
@@ -749,6 +776,7 @@ Bool Calibrater::setsolve (const String& type,
                            const String& refant,
                            const String& refantmode,
 			   const Bool solnorm,
+			   const String& normtype,
 			   const Float minsnr,
 			   const String& combine,
 			   const Int fillgaps,
@@ -758,7 +786,14 @@ Bool Calibrater::setsolve (const String& type,
                            const Float fraction,
                            const Int numedge,
                            const String& radius,
-                           const Bool smooth)
+                           const Bool smooth,
+                           const Bool zerorates,
+                           const Bool globalsolve,
+                           const Vector<Double>& delaywindow, 
+                           const Vector<Double>& ratewindow,
+			   const String& solmode,
+			   const Vector<Double>& rmsthresh
+    )
 {
   
   logSink() << LogOrigin("Calibrater","setsolve") << LogIO::NORMAL3;
@@ -774,20 +809,30 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("table", TpString);
   solveparDesc.addField ("append", TpBool);
   solveparDesc.addField ("solnorm", TpBool);
-  solveparDesc.addField ("minsnr", TpFloat);
+  solveparDesc.addField ("normtype", TpString);
   solveparDesc.addField ("type", TpString);
   solveparDesc.addField ("combine", TpString);
   solveparDesc.addField ("maxgap", TpInt);
   solveparDesc.addField ("cfcache", TpString);
   solveparDesc.addField ("painc", TpDouble);
   solveparDesc.addField ("fitorder", TpInt);
+  solveparDesc.addField ("solmode", TpString);
+  solveparDesc.addField ("rmsthresh", TpArrayDouble);
+
+  // fringe-fit specific fields
+  solveparDesc.addField ("zerorates", TpBool);
+  solveparDesc.addField ("minsnr", TpFloat);
+  solveparDesc.addField ("globalsolve", TpBool);
+  solveparDesc.addField ("delaywindow", TpArrayDouble);
+  solveparDesc.addField ("ratewindow", TpArrayDouble);
 
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
   solveparDesc.addField ("numedge", TpInt);
   solveparDesc.addField ("radius", TpString);
   solveparDesc.addField ("smooth", TpBool);
-  
+
+
   // Create a solver record with the requisite field values
   Record solvepar(solveparDesc);
   solvepar.define ("solint", solint);
@@ -801,7 +846,17 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("table", table);
   solvepar.define ("append", append);
   solvepar.define ("solnorm", solnorm);
+  solvepar.define ("normtype", normtype);
+  // Fringe-fit specific
   solvepar.define ("minsnr", minsnr);
+  solvepar.define ("zerorates", zerorates);
+  solvepar.define ("globalsolve", globalsolve);
+  solvepar.define ("delaywindow", delaywindow);
+  solvepar.define ("ratewindow", ratewindow);
+  solvepar.define ("solmode", solmode);
+  solvepar.define ("rmsthresh", rmsthresh);
+  
+  
   String uptype=type;
   uptype.upcase();
   solvepar.define ("type", uptype);
@@ -1094,6 +1149,10 @@ Calibrater::correct2(String mode)
 {
     logSink() << LogOrigin("Calibrater","correct2 (VI2/VB2)") << LogIO::NORMAL;
 
+    //cout << "Artificial STOP!" << endl;
+    //return false;
+
+
     Bool retval = true;
 
     try {
@@ -1166,7 +1225,11 @@ Calibrater::correct2(String mode)
 	  for (vi.origin(); vi.more(); vi.next()) {
 
 	    uInt spw = vb->spectralWindows()(0);
-	    if (ve_p->spwOK(spw)){
+	    //if (ve_p->spwOK(spw)){
+	    //if (    (usingCalLibrary_ && ve_p->VBOKforCalApply(*vb))  // CalLibrary case
+	    //     || (!usingCalLibrary_ && ve_p->spwOK(spw))          // old-fashioned case
+	    //	 ) {
+	    if ( ve_p->VBOKforCalApply(*vb) ) {  // Handles old and new (CL) contexts
 
 	      // Re-initialize weight info from sigma info
 	      //   This is smart wrt spectral weights, etc.
@@ -1222,6 +1285,7 @@ Calibrater::correct2(String mode)
 	      // set the flags, if we are being strict
 	      // (don't touch the data/weights, which are initialized)
 	      if (upmode.contains("STRICT")) {
+
 		// reference (to avoid copy) and set the flags
 		Cube<Bool> fC(vb->flagCube());   // reference
 		fC.set(true);  
@@ -1241,7 +1305,6 @@ Calibrater::correct2(String mode)
 		  // Asynchronous I/O doesn't have a way to skip
 		  // VisBuffers, so only break out when not using
 		  // async i/o.
-		  
 		  break; 
 
 		}
@@ -1342,7 +1405,8 @@ Bool Calibrater::corrupt2()
       for (vi.originChunks(); vi.moreChunks(); vi.nextChunk()) {
 	for (vi.origin(); vi.more(); vi.next()) {
 	  uInt spw = vb->spectralWindows()(0);
-	  if (ve_p->spwOK(spw)){
+	  //if (ve_p->spwOK(spw)){
+	  if (usingCalLibrary_ || ve_p->spwOK(spw)){
 
 	    // Make all vb "not dirty", for safety
 	    vb->dirtyComponentsClear();
@@ -2534,7 +2598,7 @@ void Calibrater::specifycal(const String& type,
     else if (utype=='K' || utype.contains("SBD") || utype.contains("DELAY"))
       cal_ = createSolvableVisCal("K",*msmc_p);
     else if (utype.contains("MBD"))
-      cal_ = createSolvableVisCal("KMBD",*msmc_p);
+      cal_ = createSolvableVisCal("K",*msmc_p);  // As of 5.3, MBD is ordinary K
     else if (utype.contains("ANTPOS"))
       cal_ = createSolvableVisCal("KANTPOS",*msmc_p);
     else if (utype.contains("TSYS"))
@@ -2857,11 +2921,7 @@ void Calibrater::selectChannel(const String& spw) {
   if (mss_p && mssel_p) {
 
     // Refresh the frequencySelections object to feed to VI2, if relevant
-    if (frequencySelections_p) {
-      delete frequencySelections_p;
-      frequencySelections_p=NULL;
-    }
-    frequencySelections_p = new vi::FrequencySelections();
+    frequencySelections_p.reset(new vi::FrequencySelections());
 
     vi::FrequencySelectionUsingChannels usingChannels;
     usingChannels.add(*mss_p,mssel_p);
@@ -2925,7 +2985,7 @@ Bool Calibrater::cleanup() {
   // Delete derived dataset stuff
   if(mssel_p) delete mssel_p; mssel_p=0;
   if(mss_p) delete mss_p; mss_p=0;
-  if (frequencySelections_p)  delete frequencySelections_p;  frequencySelections_p=0;
+  frequencySelections_p.reset();
 
   // Delete the current VisEquation
   if(ve_p) delete ve_p; ve_p=0;
@@ -3068,12 +3128,15 @@ casacore::Bool Calibrater::genericGatherAndSolve()
     // Simulated data (used for testing)
     vi2org.addSimIO(ssvp_p);
   else
-    // Real (selected) data in an MS (channel selection handled later...)
+  {
+    // Real (selected) data in an MS (channel selection handled by addDiskIO method)
     //   The iteration time-interval is the solution interval
     vi2org.addDiskIO(mssel_p,svc_p->solTimeInterval(),
 		     svc_p->combobs(),svc_p->combscan(),
 		     svc_p->combfld(),svc_p->combspw(),
-		     true);   // use MSIter2
+		     true,     // use MSIter2
+                     frequencySelections_p);  // Tell VI2 factory about the freq selection!
+  }
 
   // Add ad hoc SD section layer (e.g., OTF select of raster boundaries, etc.)
   // only double circle gain calibration is implemented
@@ -3131,10 +3194,6 @@ casacore::Bool Calibrater::genericGatherAndSolve()
   // Form the VI2 to drive data iteration below
   vi::VisibilityIterator2& vi(vi2org.makeFullVI());
   //cout << "VI Layers: " << vi.ViiType() << endl;
-
-  // Tell VI2 about the freq selection!
-  if (frequencySelections_p) 
-    vi.setFrequencySelection(*frequencySelections_p);
 
   // Access to the net VB2 for forming SolveDataBuffers in the SDBList below
   //  NB: this assumes that the internal address of the VI2's VB2 will never change!
@@ -3327,7 +3386,7 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       if (svc_p->useGenericSolveOne()) {
 
         // We'll use the generic solver                                                                                     
-        VisCalSolver2 vcs;
+        VisCalSolver2 vcs(svc_p->solmode(),svc_p->rmsthresh());
 
         // Guess from the data                                                                                              
         svc_p->guessPar(sdbs);
@@ -3378,6 +3437,12 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       }
 
     } // sdbs.Ok()
+    else {
+      // Synchronize meta-info in SVC
+      svc_p->syncSolveMeta(sdbs);
+      cout << "Found no unflagged data at:";
+      svc_p->currMetaNote();
+    }
     //cout << endl;
 
 #ifdef _OPENMP
@@ -3412,15 +3477,6 @@ casacore::Bool Calibrater::genericGatherAndSolve()
   Vector<Bool> unsolspw=(spwwts==0.0f); 
   summarize_uncalspws(unsolspw, "solv");                                                                                  
 
-  // Fill activity record
-  //  cout << "  Expected, Attempted, Succeeded (by spw) = " << nexp << ", " << natt << ", " << nsuc << endl;                 
-  //  cout << " Expected, Attempted, Succeeded = " << sum(nexp) << ", " << sum(natt) << ", " << sum(nsuc) << endl;
-  actRec_=Record();
-  actRec_.define("origin","Calibrater::genericGatherAndSolve");
-  actRec_.define("nExpected",nexp);
-  actRec_.define("nAttempt",natt);
-  actRec_.define("nSucceed",nsuc);
-
   //  throw(AipsError("EARLY ESCAPE!!"));
 
   if (nGood>0) {
@@ -3435,6 +3491,21 @@ casacore::Bool Calibrater::genericGatherAndSolve()
   else {
     logSink() << "No output calibration table written."
 	      << LogIO::POST;
+  }
+
+  // Fill activity record
+  //  cout << "  Expected, Attempted, Succeeded (by spw) = " << nexp << ", " << natt << ", " << nsuc << endl;                 
+  //  cout << " Expected, Attempted, Succeeded = " << sum(nexp) << ", " << sum(natt) << ", " << sum(nsuc) << endl;
+  actRec_=Record();
+  actRec_.define("origin","Calibrater::genericGatherAndSolve");
+  actRec_.define("nExpected",nexp);
+  actRec_.define("nAttempt",natt);
+  actRec_.define("nSucceed",nsuc);
+
+  { 
+    Record solveRec=svc_p->solveActionRec();
+    if (solveRec.nfields()>0)
+      actRec_.merge(solveRec);
   }
 
   // Reach here, all is good
@@ -3850,9 +3921,9 @@ Bool OldCalibrater::setcallib(Record callib) {
 
 
 // Set up apply-able calibration via a Cal Library
-Bool OldCalibrater::setcallib2(Record callib) {
+Bool OldCalibrater::setcallib2(Record callib, const casacore::MeasurementSet* ms) {
 
-  logSink() << LogOrigin("Calibrater", "setcallib2(callib)");
+  logSink() << LogOrigin("OldCalibrater", "setcallib2(callib)");
 
   //  cout << "Calibrater::setcallib2(callib) : " << boolalpha << callib << endl;
 
@@ -3879,7 +3950,23 @@ Bool OldCalibrater::setcallib2(Record callib) {
   // Tables exist, so deploy them...
 
   // Local MS object for callib parsing (only)
-  MeasurementSet lms(msname_p,Table::Update);
+  //  MeasurementSet lms(msname_p,Table::Update);
+  //cout << "OLD lms" << endl;
+
+
+  // Local const MS object for callib parsing (only)
+  const MeasurementSet *lmsp(0);
+  if (ms) {
+    // Use supplied MS (from outside), if specified...
+    // TBD: should we verify same base MS as ms_p/mssel_p?
+    lmsp=ms;
+  }
+  else {
+    // ...use internal one instead
+    lmsp=mssel_p;
+  }
+  // Reference for use below
+  const MeasurementSet &lms(*lmsp);
 
   // Get some global shape info:
   Int MSnAnt = lms.antenna().nrow();
@@ -4985,7 +5072,7 @@ void OldCalibrater::specifycal(const String& type,
     else if (utype=='K' || utype.contains("SBD") || utype.contains("DELAY"))
       cal_ = createSolvableVisCal("K",*vs_p);
     else if (utype.contains("MBD"))
-      cal_ = createSolvableVisCal("KMBD",*vs_p);
+      cal_ = createSolvableVisCal("K",*vs_p);  // as of 5.3, KMBD is just K
     else if (utype.contains("ANTPOS"))
       cal_ = createSolvableVisCal("KANTPOS",*vs_p);
     else if (utype.contains("TSYS"))
@@ -5401,11 +5488,7 @@ void OldCalibrater::selectChannel(const String& spw) {
   if (mss_p && mssel_p) {
 
     // Refresh the frequencySelections object to feed to VI2, if relevant
-    if (frequencySelections_p) {
-      delete frequencySelections_p;
-      frequencySelections_p=NULL;
-    }
-    frequencySelections_p = new vi::FrequencySelections();
+    frequencySelections_p.reset(new vi::FrequencySelections());
 
     vi::FrequencySelectionUsingChannels usingChannels;
     usingChannels.add(*mss_p,mssel_p);
@@ -5899,13 +5982,6 @@ Bool OldCalibrater::genericGatherAndSolve() {
 
   summarize_uncalspws(unsolspw, "solv");
   
-  // Fill activity record
-  actRec_=Record();
-  actRec_.define("origin","Calibrater::genericGatherAndSolve");
-  actRec_.define("nExpected",nexp);
-  actRec_.define("nAttempt",natt);
-  actRec_.define("nSucceed",nsuc);
-
   // Store whole of result in a caltable
   if (nGood==0) {
     logSink() << "No output calibration table written."
@@ -5923,6 +5999,21 @@ Bool OldCalibrater::genericGatherAndSolve() {
 
     }
   }
+
+  // Fill activity record
+  actRec_=Record();
+  actRec_.define("origin","Calibrater::genericGatherAndSolve");
+  actRec_.define("nExpected",nexp);
+  actRec_.define("nAttempt",natt);
+  actRec_.define("nSucceed",nsuc);
+
+  { 
+    Record solveRec=svc_p->solveActionRec();
+    if (solveRec.nfields()>0)
+      actRec_.merge(solveRec);
+  }
+
+
 
   return true;
 

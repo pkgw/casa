@@ -30,18 +30,18 @@
  *
  * File EphemerisTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <EphemerisTable.h>
-#include <EphemerisRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/EphemerisTable.h>
+#include <alma/ASDM/EphemerisRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::EphemerisTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -269,7 +272,7 @@ namespace asdm {
  	 * @param origin 
 	
      */
-	EphemerisRow* EphemerisTable::newRow(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin){
+	EphemerisRow* EphemerisTable::newRow(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin){
 		EphemerisRow *row = new EphemerisRow(*this);
 			
 		row->setTimeInterval(timeInterval);
@@ -298,7 +301,7 @@ namespace asdm {
 
 
 EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
-	return new EphemerisRow(*this, *row);
+	return new EphemerisRow(*this, row);
 }
 
 	//
@@ -563,7 +566,7 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<EphemerisTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ephmrs=\"http://Alma/XASDM/EphemerisTable\" xsi:schemaLocation=\"http://Alma/XASDM/EphemerisTable http://almaobservatory.org/XML/XASDM/3/EphemerisTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<EphemerisTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ephmrs=\"http://Alma/XASDM/EphemerisTable\" xsi:schemaLocation=\"http://Alma/XASDM/EphemerisTable http://almaobservatory.org/XML/XASDM/4/EphemerisTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -674,6 +677,9 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -690,7 +696,7 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<EphemerisTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ephmrs=\"http://Alma/XASDM/EphemerisTable\" xsi:schemaLocation=\"http://Alma/XASDM/EphemerisTable http://almaobservatory.org/XML/XASDM/3/EphemerisTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<EphemerisTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:ephmrs=\"http://Alma/XASDM/EphemerisTable\" xsi:schemaLocation=\"http://Alma/XASDM/EphemerisTable http://almaobservatory.org/XML/XASDM/4/EphemerisTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='EphemerisTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -950,6 +956,8 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void EphemerisTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -1003,11 +1011,19 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
 	}
 
 	
-	void EphemerisTable::setFromFile(const string& directory) {		
+	void EphemerisTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Ephemeris.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Ephemeris.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Ephemeris.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Ephemeris.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Ephemeris table", "Ephemeris");
 	}			
@@ -1158,7 +1174,9 @@ EphemerisRow* EphemerisTable::newRow(EphemerisRow* row) {
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

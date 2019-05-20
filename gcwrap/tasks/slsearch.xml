@@ -24,7 +24,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
         <param type="doubleArray" name="freqrange">
             <description>Frequency range in GHz.</description>
-            <value>84,90</value>
+            <value>
+              <value>84</value>
+              <value>90</value>
+            </value>
         </param>
         <param type="stringArray" name="species">
             <description>Species to search for.</description>
@@ -47,7 +50,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value>-1</value>
         </param>
         <param type="doubleArray" name="smu2" subparam="true">
-            <description>S*mu*mu range in Debye**2. -1 -> do not use an S*mu*mu range.</description>
+            <description>Quantum mechanical line strength. -1 -> do not use a smu2 range.</description>
             <value>-1</value>
         </param>
         <param type="doubleArray" name="loga" subparam="true">

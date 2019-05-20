@@ -98,11 +98,13 @@ def immoments(
     casalog.origin('immoments')
     _myia = iatool()
     try:
+        if (len(outfile) == 0):
+            raise Exception, "outfile must be specified" 
         _myia.dohistory(False)
         # First check to see if the output file exists.  If it
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
-        if ( len( outfile ) > 0 and os.path.exists( outfile ) ):
+        if os.path.exists(outfile):
             raise Exception, 'Output file, '+outfile+\
               ' exists. immoment can not proceed, please\n'\
               'remove it or change the output file name.'
@@ -134,31 +136,38 @@ def immoments(
         except Exception, instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, x:
-        _myia.done()
-        print '*** Error ***: ' + str(x)
+    except Exception, instance:
+        casalog.post('*** Error *** ' + str(instance), 'SEVERE') 
         raise
     finally:
         _myia.done()
         if outia:
             outia.done()
 
+
 def _immoments_get_created_images(out1name, outfile):
     dirpath = os.path.dirname(out1name)
     target_time = os.path.getmtime(out1name)
-    # get all entries in the directory w/ stats
-    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath))
-    entries = ((os.stat(path), path) for path in entries)
-    # leave only directories, insert creation date
-    entries = ((stat.st_mtime, path)
-        for stat, path in entries if S_ISDIR(stat[ST_MODE]))
+    entries = (os.path.join(dirpath, fn) for fn in os.listdir(dirpath) \
+        if os.path.basename(fn).startswith(outfile) and os.path.isdir(fn))
+    entries2 = []
+    for path in entries:
+        # we must explicitly check for file existence, because file
+        # read before may have been deleted by another process
+        # CAS-11205
+        if os.path.exists(path):
+            entries2.append((os.stat(path), path))
+    entries3 = []
+    for stat, path in entries2:
+        if os.path.exists(path):
+            entries3.append((stat.st_mtime, path))
     # reverse sort by time
-    zz = sorted(entries)
+    zz = sorted(entries3)
     zz.reverse()
     created_images = []
     for mdate, path in zz:
         if mdate < target_time:
             break
-        if path != out1name and os.path.basename(path).startswith(outfile):
+        if os.path.exists(path) and path != out1name:
             created_images.append(path)
     return created_images

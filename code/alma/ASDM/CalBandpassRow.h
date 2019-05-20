@@ -48,40 +48,38 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CBasebandName.h"
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
-#include "CNetSideband.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 	
-#include "CAtmPhaseCorrection.h"
+#include <alma/Enumerations/CAtmPhaseCorrection.h>
 	
 
 	
-#include "CCalCurveType.h"
+#include <alma/Enumerations/CCalCurveType.h>
 	
 
 	
-#include "CReceiverBand.h"
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -99,7 +97,9 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
@@ -110,14 +110,28 @@
 
 	
 
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalBandpass.h
     \brief Generated from model's revision "-1", branch ""
@@ -137,7 +151,7 @@ class CalDataRow;
 
 class CalBandpassRow;
 typedef void (CalBandpassRow::*CalBandpassAttributeFromBin) (EndianIStream& eis);
-typedef void (CalBandpassRow::*CalBandpassAttributeFromText) (const string& s);
+typedef void (CalBandpassRow::*CalBandpassAttributeFromText) (const std::string& s);
 
 /**
  * The CalBandpassRow class is a row of a CalBandpassTable.
@@ -488,21 +502,21 @@ public:
 	
  	/**
  	 * Get antennaNames.
- 	 * @return antennaNames as vector<string >
+ 	 * @return antennaNames as std::vector<std::string >
  	 */
- 	vector<string > getAntennaNames() const;
+ 	std::vector<std::string > getAntennaNames() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaNames with the specified vector<string >.
- 	 * @param antennaNames The vector<string > value to which antennaNames is to be set.
+ 	 * Set antennaNames with the specified std::vector<std::string >.
+ 	 * @param antennaNames The std::vector<std::string > value to which antennaNames is to be set.
  	 
  		
  			
  	 */
- 	void setAntennaNames (vector<string > antennaNames);
+ 	void setAntennaNames (std::vector<std::string > antennaNames);
   		
 	
 	
@@ -518,21 +532,21 @@ public:
 	
  	/**
  	 * Get refAntennaName.
- 	 * @return refAntennaName as string
+ 	 * @return refAntennaName as std::string
  	 */
- 	string getRefAntennaName() const;
+ 	std::string getRefAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set refAntennaName with the specified string.
- 	 * @param refAntennaName The string value to which refAntennaName is to be set.
+ 	 * Set refAntennaName with the specified std::string.
+ 	 * @param refAntennaName The std::string value to which refAntennaName is to be set.
  	 
  		
  			
  	 */
- 	void setRefAntennaName (string refAntennaName);
+ 	void setRefAntennaName (std::string refAntennaName);
   		
 	
 	
@@ -548,21 +562,21 @@ public:
 	
  	/**
  	 * Get freqLimits.
- 	 * @return freqLimits as vector<Frequency >
+ 	 * @return freqLimits as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFreqLimits() const;
+ 	std::vector<Frequency > getFreqLimits() const;
 	
  
  	
  	
  	/**
- 	 * Set freqLimits with the specified vector<Frequency >.
- 	 * @param freqLimits The vector<Frequency > value to which freqLimits is to be set.
+ 	 * Set freqLimits with the specified std::vector<Frequency >.
+ 	 * @param freqLimits The std::vector<Frequency > value to which freqLimits is to be set.
  	 
  		
  			
  	 */
- 	void setFreqLimits (vector<Frequency > freqLimits);
+ 	void setFreqLimits (std::vector<Frequency > freqLimits);
   		
 	
 	
@@ -578,21 +592,21 @@ public:
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationTypes() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  		
  			
  	 */
- 	void setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
+ 	void setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes);
   		
 	
 	
@@ -608,21 +622,21 @@ public:
 	
  	/**
  	 * Get curve.
- 	 * @return curve as vector<vector<vector<float > > >
+ 	 * @return curve as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > getCurve() const;
+ 	std::vector<std::vector<std::vector<float > > > getCurve() const;
 	
  
  	
  	
  	/**
- 	 * Set curve with the specified vector<vector<vector<float > > >.
- 	 * @param curve The vector<vector<vector<float > > > value to which curve is to be set.
+ 	 * Set curve with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param curve The std::vector<std::vector<std::vector<float > > > value to which curve is to be set.
  	 
  		
  			
  	 */
- 	void setCurve (vector<vector<vector<float > > > curve);
+ 	void setCurve (std::vector<std::vector<std::vector<float > > > curve);
   		
 	
 	
@@ -638,21 +652,21 @@ public:
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<double >
+ 	 * @return reducedChiSquared as std::vector<double >
  	 */
- 	vector<double > getReducedChiSquared() const;
+ 	std::vector<double > getReducedChiSquared() const;
 	
  
  	
  	
  	/**
- 	 * Set reducedChiSquared with the specified vector<double >.
- 	 * @param reducedChiSquared The vector<double > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<double >.
+ 	 * @param reducedChiSquared The std::vector<double > value to which reducedChiSquared is to be set.
  	 
  		
  			
  	 */
- 	void setReducedChiSquared (vector<double > reducedChiSquared);
+ 	void setReducedChiSquared (std::vector<double > reducedChiSquared);
   		
 	
 	
@@ -701,6 +715,47 @@ public:
 
 
 	
+	// ===> Attribute numFreq, which is optional
+	
+	
+	
+	/**
+	 * The attribute numFreq is optional. Return true if this attribute exists.
+	 * @return true if and only if the numFreq attribute exists. 
+	 */
+	bool isNumFreqExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numFreq, which is optional.
+ 	 * @return numFreq as int
+ 	 * @throws IllegalAccessException If numFreq does not exist.
+ 	 */
+ 	int getNumFreq() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numFreq with the specified int.
+ 	 * @param numFreq The int value to which numFreq is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumFreq (int numFreq);
+		
+	
+	
+	
+	/**
+	 * Mark numFreq, which is an optional field, as non-existent.
+	 */
+	void clearNumFreq ();
+	
+
+
+	
 	// ===> Attribute rms, which is optional
 	
 	
@@ -715,21 +770,21 @@ public:
 	
  	/**
  	 * Get rms, which is optional.
- 	 * @return rms as vector<vector<float > >
+ 	 * @return rms as std::vector<std::vector<float > >
  	 * @throws IllegalAccessException If rms does not exist.
  	 */
- 	vector<vector<float > > getRms() const;
+ 	std::vector<std::vector<float > > getRms() const;
 	
  
  	
  	
  	/**
- 	 * Set rms with the specified vector<vector<float > >.
- 	 * @param rms The vector<vector<float > > value to which rms is to be set.
+ 	 * Set rms with the specified std::vector<std::vector<float > >.
+ 	 * @param rms The std::vector<std::vector<float > > value to which rms is to be set.
  	 
  		
  	 */
- 	void setRms (vector<vector<float > > rms);
+ 	void setRms (std::vector<std::vector<float > > rms);
 		
 	
 	
@@ -738,6 +793,252 @@ public:
 	 * Mark rms, which is an optional field, as non-existent.
 	 */
 	void clearRms ();
+	
+
+
+	
+	// ===> Attribute frequencyRange, which is optional
+	
+	
+	
+	/**
+	 * The attribute frequencyRange is optional. Return true if this attribute exists.
+	 * @return true if and only if the frequencyRange attribute exists. 
+	 */
+	bool isFrequencyRangeExists() const;
+	
+
+	
+ 	/**
+ 	 * Get frequencyRange, which is optional.
+ 	 * @return frequencyRange as std::vector<Frequency >
+ 	 * @throws IllegalAccessException If frequencyRange does not exist.
+ 	 */
+ 	std::vector<Frequency > getFrequencyRange() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setFrequencyRange (std::vector<Frequency > frequencyRange);
+		
+	
+	
+	
+	/**
+	 * Mark frequencyRange, which is an optional field, as non-existent.
+	 */
+	void clearFrequencyRange ();
+	
+
+
+	
+	// ===> Attribute numSpectralWindow, which is optional
+	
+	
+	
+	/**
+	 * The attribute numSpectralWindow is optional. Return true if this attribute exists.
+	 * @return true if and only if the numSpectralWindow attribute exists. 
+	 */
+	bool isNumSpectralWindowExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numSpectralWindow, which is optional.
+ 	 * @return numSpectralWindow as int
+ 	 * @throws IllegalAccessException If numSpectralWindow does not exist.
+ 	 */
+ 	int getNumSpectralWindow() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numSpectralWindow with the specified int.
+ 	 * @param numSpectralWindow The int value to which numSpectralWindow is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumSpectralWindow (int numSpectralWindow);
+		
+	
+	
+	
+	/**
+	 * Mark numSpectralWindow, which is an optional field, as non-existent.
+	 */
+	void clearNumSpectralWindow ();
+	
+
+
+	
+	// ===> Attribute chanFreqStart, which is optional
+	
+	
+	
+	/**
+	 * The attribute chanFreqStart is optional. Return true if this attribute exists.
+	 * @return true if and only if the chanFreqStart attribute exists. 
+	 */
+	bool isChanFreqStartExists() const;
+	
+
+	
+ 	/**
+ 	 * Get chanFreqStart, which is optional.
+ 	 * @return chanFreqStart as std::vector<Frequency >
+ 	 * @throws IllegalAccessException If chanFreqStart does not exist.
+ 	 */
+ 	std::vector<Frequency > getChanFreqStart() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set chanFreqStart with the specified std::vector<Frequency >.
+ 	 * @param chanFreqStart The std::vector<Frequency > value to which chanFreqStart is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setChanFreqStart (std::vector<Frequency > chanFreqStart);
+		
+	
+	
+	
+	/**
+	 * Mark chanFreqStart, which is an optional field, as non-existent.
+	 */
+	void clearChanFreqStart ();
+	
+
+
+	
+	// ===> Attribute chanFreqStep, which is optional
+	
+	
+	
+	/**
+	 * The attribute chanFreqStep is optional. Return true if this attribute exists.
+	 * @return true if and only if the chanFreqStep attribute exists. 
+	 */
+	bool isChanFreqStepExists() const;
+	
+
+	
+ 	/**
+ 	 * Get chanFreqStep, which is optional.
+ 	 * @return chanFreqStep as std::vector<Frequency >
+ 	 * @throws IllegalAccessException If chanFreqStep does not exist.
+ 	 */
+ 	std::vector<Frequency > getChanFreqStep() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set chanFreqStep with the specified std::vector<Frequency >.
+ 	 * @param chanFreqStep The std::vector<Frequency > value to which chanFreqStep is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setChanFreqStep (std::vector<Frequency > chanFreqStep);
+		
+	
+	
+	
+	/**
+	 * Mark chanFreqStep, which is an optional field, as non-existent.
+	 */
+	void clearChanFreqStep ();
+	
+
+
+	
+	// ===> Attribute numSpectralWindowChan, which is optional
+	
+	
+	
+	/**
+	 * The attribute numSpectralWindowChan is optional. Return true if this attribute exists.
+	 * @return true if and only if the numSpectralWindowChan attribute exists. 
+	 */
+	bool isNumSpectralWindowChanExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numSpectralWindowChan, which is optional.
+ 	 * @return numSpectralWindowChan as std::vector<int >
+ 	 * @throws IllegalAccessException If numSpectralWindowChan does not exist.
+ 	 */
+ 	std::vector<int > getNumSpectralWindowChan() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numSpectralWindowChan with the specified std::vector<int >.
+ 	 * @param numSpectralWindowChan The std::vector<int > value to which numSpectralWindowChan is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumSpectralWindowChan (std::vector<int > numSpectralWindowChan);
+		
+	
+	
+	
+	/**
+	 * Mark numSpectralWindowChan, which is an optional field, as non-existent.
+	 */
+	void clearNumSpectralWindowChan ();
+	
+
+
+	
+	// ===> Attribute spectrum, which is optional
+	
+	
+	
+	/**
+	 * The attribute spectrum is optional. Return true if this attribute exists.
+	 * @return true if and only if the spectrum attribute exists. 
+	 */
+	bool isSpectrumExists() const;
+	
+
+	
+ 	/**
+ 	 * Get spectrum, which is optional.
+ 	 * @return spectrum as std::vector<std::vector<std::vector<float > > >
+ 	 * @throws IllegalAccessException If spectrum does not exist.
+ 	 */
+ 	std::vector<std::vector<std::vector<float > > > getSpectrum() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set spectrum with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param spectrum The std::vector<std::vector<std::vector<float > > > value to which spectrum is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setSpectrum (std::vector<std::vector<std::vector<float > > > spectrum);
+		
+	
+	
+	
+	/**
+	 * Mark spectrum, which is an optional field, as non-existent.
+	 */
+	void clearSpectrum ();
 	
 
 
@@ -887,7 +1188,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared);
+	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, NetSidebandMod::NetSideband sideband, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, CalCurveTypeMod::CalCurveType typeCurve, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared);
 	
 	
 
@@ -919,7 +1220,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, vector<string > antennaNames, string refAntennaName, vector<Frequency > freqLimits, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<vector<float > > > curve, vector<double > reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numAntenna, int numPoly, int numReceptor, std::vector<std::string > antennaNames, std::string refAntennaName, std::vector<Frequency > freqLimits, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<std::vector<float > > > curve, std::vector<double > reducedChiSquared); 
 		 
 	
 	/**
@@ -998,7 +1299,14 @@ void curveFromBin( EndianIStream& eis);
 void reducedChiSquaredFromBin( EndianIStream& eis);
 
 void numBaselineFromBin( EndianIStream& eis);
+void numFreqFromBin( EndianIStream& eis);
 void rmsFromBin( EndianIStream& eis);
+void frequencyRangeFromBin( EndianIStream& eis);
+void numSpectralWindowFromBin( EndianIStream& eis);
+void chanFreqStartFromBin( EndianIStream& eis);
+void chanFreqStepFromBin( EndianIStream& eis);
+void numSpectralWindowChanFromBin( EndianIStream& eis);
+void spectrumFromBin( EndianIStream& eis);
 
 
 	 /**
@@ -1060,7 +1368,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalBandpassRow (CalBandpassTable &table, CalBandpassRow &row);
+	 CalBandpassRow (CalBandpassTable &table, CalBandpassRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1181,7 +1489,7 @@ private:
 	
 	
 
-	vector<string > antennaNames;
+	std::vector<std::string > antennaNames;
 
 	
 	
@@ -1192,7 +1500,7 @@ private:
 	
 	
 
-	string refAntennaName;
+	std::string refAntennaName;
 
 	
 	
@@ -1203,7 +1511,7 @@ private:
 	
 	
 
-	vector<Frequency > freqLimits;
+	std::vector<Frequency > freqLimits;
 
 	
 	
@@ -1214,7 +1522,7 @@ private:
 	
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes;
 
 	
 	
@@ -1225,7 +1533,7 @@ private:
 	
 	
 
-	vector<vector<vector<float > > > curve;
+	std::vector<std::vector<std::vector<float > > > curve;
 
 	
 	
@@ -1236,7 +1544,7 @@ private:
 	
 	
 
-	vector<double > reducedChiSquared;
+	std::vector<double > reducedChiSquared;
 
 	
 	
@@ -1256,13 +1564,104 @@ private:
  	
 
 	
+	// ===> Attribute numFreq, which is optional
+	
+	
+	bool numFreqExists;
+	
+
+	int numFreq;
+
+	
+	
+ 	
+
+	
 	// ===> Attribute rms, which is optional
 	
 	
 	bool rmsExists;
 	
 
-	vector<vector<float > > rms;
+	std::vector<std::vector<float > > rms;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute frequencyRange, which is optional
+	
+	
+	bool frequencyRangeExists;
+	
+
+	std::vector<Frequency > frequencyRange;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute numSpectralWindow, which is optional
+	
+	
+	bool numSpectralWindowExists;
+	
+
+	int numSpectralWindow;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute chanFreqStart, which is optional
+	
+	
+	bool chanFreqStartExists;
+	
+
+	std::vector<Frequency > chanFreqStart;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute chanFreqStep, which is optional
+	
+	
+	bool chanFreqStepExists;
+	
+
+	std::vector<Frequency > chanFreqStep;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute numSpectralWindowChan, which is optional
+	
+	
+	bool numSpectralWindowChanExists;
+	
+
+	std::vector<int > numSpectralWindowChan;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute spectrum, which is optional
+	
+	
+	bool spectrumExists;
+	
+
+	std::vector<std::vector<std::vector<float > > > spectrum;
 
 	
 	
@@ -1338,7 +1737,14 @@ void curveFromBin( EndianIStream& eis);
 void reducedChiSquaredFromBin( EndianIStream& eis);
 
 void numBaselineFromBin( EndianIStream& eis);
+void numFreqFromBin( EndianIStream& eis);
 void rmsFromBin( EndianIStream& eis);
+void frequencyRangeFromBin( EndianIStream& eis);
+void numSpectralWindowFromBin( EndianIStream& eis);
+void chanFreqStartFromBin( EndianIStream& eis);
+void chanFreqStepFromBin( EndianIStream& eis);
+void numSpectralWindowChanFromBin( EndianIStream& eis);
+void spectrumFromBin( EndianIStream& eis);
 
 */
 	
@@ -1347,65 +1753,86 @@ void rmsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalBandpassAttributeFromText> fromTextMethods;
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void sidebandFromText (const string & s);
+void sidebandFromText (const std::string & s);
 	
 	
-void atmPhaseCorrectionFromText (const string & s);
+void atmPhaseCorrectionFromText (const std::string & s);
 	
 	
-void typeCurveFromText (const string & s);
+void typeCurveFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void numReceptorFromText (const string & s);
+void numReceptorFromText (const std::string & s);
 	
 	
-void antennaNamesFromText (const string & s);
+void antennaNamesFromText (const std::string & s);
 	
 	
-void refAntennaNameFromText (const string & s);
+void refAntennaNameFromText (const std::string & s);
 	
 	
-void freqLimitsFromText (const string & s);
+void freqLimitsFromText (const std::string & s);
 	
 	
-void polarizationTypesFromText (const string & s);
+void polarizationTypesFromText (const std::string & s);
 	
 	
-void curveFromText (const string & s);
+void curveFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 
 	
-void numBaselineFromText (const string & s);
+void numBaselineFromText (const std::string & s);
 	
 	
-void rmsFromText (const string & s);
+void numFreqFromText (const std::string & s);
+	
+	
+void rmsFromText (const std::string & s);
+	
+	
+void frequencyRangeFromText (const std::string & s);
+	
+	
+void numSpectralWindowFromText (const std::string & s);
+	
+	
+void chanFreqStartFromText (const std::string & s);
+	
+	
+void chanFreqStepFromText (const std::string & s);
+	
+	
+void numSpectralWindowChanFromText (const std::string & s);
+	
+	
+void spectrumFromText (const std::string & s);
 	
 	
 	

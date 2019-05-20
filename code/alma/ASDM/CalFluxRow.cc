@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalFluxRow.h>
-#include <CalFluxTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalFluxRow.h>
+#include <alma/ASDM/CalFluxTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalFluxRow::~CalFluxRow() {
@@ -843,7 +840,9 @@ namespace asdm {
 		
 			
 		frequencyRanges .clear();
-		vector<Frequency> v_aux_frequencyRanges;
+        
+        vector<Frequency> v_aux_frequencyRanges;
+        
 		for (unsigned int i = 0; i < x.frequencyRanges.length(); ++i) {
 			v_aux_frequencyRanges.clear();
 			for (unsigned int j = 0; j < x.frequencyRanges[0].length(); ++j) {
@@ -873,7 +872,9 @@ namespace asdm {
 		
 			
 		flux .clear();
-		vector<double> v_aux_flux;
+        
+        vector<double> v_aux_flux;
+        
 		for (unsigned int i = 0; i < x.flux.length(); ++i) {
 			v_aux_flux.clear();
 			for (unsigned int j = 0; j < x.flux[0].length(); ++j) {
@@ -893,7 +894,9 @@ namespace asdm {
 		
 			
 		fluxError .clear();
-		vector<double> v_aux_fluxError;
+        
+        vector<double> v_aux_fluxError;
+        
 		for (unsigned int i = 0; i < x.fluxError.length(); ++i) {
 			v_aux_fluxError.clear();
 			for (unsigned int j = 0; j < x.fluxError[0].length(); ++j) {
@@ -981,7 +984,9 @@ namespace asdm {
 		
 			
 		PA .clear();
-		vector<Angle> v_aux_PA;
+        
+        vector<Angle> v_aux_PA;
+        
 		for (unsigned int i = 0; i < x.PA.length(); ++i) {
 			v_aux_PA.clear();
 			for (unsigned int j = 0; j < x.PA[0].length(); ++j) {
@@ -1006,7 +1011,9 @@ namespace asdm {
 		
 			
 		PAError .clear();
-		vector<Angle> v_aux_PAError;
+        
+        vector<Angle> v_aux_PAError;
+        
 		for (unsigned int i = 0; i < x.PAError.length(); ++i) {
 			v_aux_PAError.clear();
 			for (unsigned int j = 0; j < x.PAError[0].length(); ++j) {
@@ -1927,7 +1934,9 @@ void CalFluxRow::fluxFromBin(EndianIStream& eis) {
 		
 		unsigned int fluxDim1 = eis.readInt();
 		unsigned int fluxDim2 = eis.readInt();
+        
 		vector <double> fluxAux1;
+        
 		for (unsigned int i = 0; i < fluxDim1; i++) {
 			fluxAux1.clear();
 			for (unsigned int j = 0; j < fluxDim2 ; j++)			
@@ -1954,7 +1963,9 @@ void CalFluxRow::fluxErrorFromBin(EndianIStream& eis) {
 		
 		unsigned int fluxErrorDim1 = eis.readInt();
 		unsigned int fluxErrorDim2 = eis.readInt();
+        
 		vector <double> fluxErrorAux1;
+        
 		for (unsigned int i = 0; i < fluxErrorDim1; i++) {
 			fluxErrorAux1.clear();
 			for (unsigned int j = 0; j < fluxErrorDim2 ; j++)			
@@ -2166,7 +2177,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFluxRow::sourceNameFromText(const string & s) {
 		 
+          
 		sourceName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2174,7 +2187,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFluxRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2182,7 +2197,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFluxRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2190,7 +2207,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFluxRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2198,7 +2217,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFluxRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2206,7 +2227,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalFluxRow::numFrequencyRangesFromText(const string & s) {
 		 
+          
 		numFrequencyRanges = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2214,7 +2237,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalFluxRow::numStokesFromText(const string & s) {
 		 
+          
 		numStokes = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2222,7 +2247,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalFluxRow::frequencyRangesFromText(const string & s) {
 		 
+          
 		frequencyRanges = ASDMValuesParser::parse2D<Frequency>(s);
+          
 		
 	}
 	
@@ -2230,7 +2257,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an FluxCalibrationMethod 
 	void CalFluxRow::fluxMethodFromText(const string & s) {
 		 
-		fluxMethod = ASDMValuesParser::parse<FluxCalibrationMethod>(s);
+          
+		fluxMethod = ASDMValuesParser::parse<FluxCalibrationMethodMod::FluxCalibrationMethod>(s);
+          
 		
 	}
 	
@@ -2238,7 +2267,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalFluxRow::fluxFromText(const string & s) {
 		 
+          
 		flux = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -2246,7 +2277,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalFluxRow::fluxErrorFromText(const string & s) {
 		 
+          
 		fluxError = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -2254,7 +2287,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	// Convert a string into an StokesParameter 
 	void CalFluxRow::stokesFromText(const string & s) {
 		 
-		stokes = ASDMValuesParser::parse1D<StokesParameter>(s);
+          
+		stokes = ASDMValuesParser::parse1D<StokesParameterMod::StokesParameter>(s);
+          
 		
 	}
 	
@@ -2264,7 +2299,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::directionFromText(const string & s) {
 		directionExists = true;
 		 
+          
 		direction = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -2273,7 +2310,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::directionCodeFromText(const string & s) {
 		directionCodeExists = true;
 		 
-		directionCode = ASDMValuesParser::parse<DirectionReferenceCode>(s);
+          
+		directionCode = ASDMValuesParser::parse<DirectionReferenceCodeMod::DirectionReferenceCode>(s);
+          
 		
 	}
 	
@@ -2282,7 +2321,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::directionEquinoxFromText(const string & s) {
 		directionEquinoxExists = true;
 		 
+          
 		directionEquinox = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -2291,7 +2332,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::PAFromText(const string & s) {
 		PAExists = true;
 		 
+          
 		PA = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -2300,7 +2343,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::PAErrorFromText(const string & s) {
 		PAErrorExists = true;
 		 
+          
 		PAError = ASDMValuesParser::parse2D<Angle>(s);
+          
 		
 	}
 	
@@ -2309,7 +2354,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::sizeFromText(const string & s) {
 		sizeExists = true;
 		 
+          
 		size = ASDMValuesParser::parse3D<Angle>(s);
+          
 		
 	}
 	
@@ -2318,7 +2365,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::sizeErrorFromText(const string & s) {
 		sizeErrorExists = true;
 		 
+          
 		sizeError = ASDMValuesParser::parse3D<Angle>(s);
+          
 		
 	}
 	
@@ -2327,7 +2376,9 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	void CalFluxRow::sourceModelFromText(const string & s) {
 		sourceModelExists = true;
 		 
-		sourceModel = ASDMValuesParser::parse<SourceModel>(s);
+          
+		sourceModel = ASDMValuesParser::parse<SourceModelMod::SourceModel>(s);
+          
 		
 	}
 	
@@ -2349,23 +2400,23 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceName.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 */
- 	string CalFluxRow::getSourceName() const {
+ 	std::string CalFluxRow::getSourceName() const {
 	
   		return sourceName;
  	}
 
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalFluxRow::setSourceName (string sourceName)  {
+ 	void CalFluxRow::setSourceName (std::string sourceName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2513,21 +2564,21 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRanges.
- 	 * @return frequencyRanges as vector<vector<Frequency > >
+ 	 * @return frequencyRanges as std::vector<std::vector<Frequency > >
  	 */
- 	vector<vector<Frequency > > CalFluxRow::getFrequencyRanges() const {
+ 	std::vector<std::vector<Frequency > > CalFluxRow::getFrequencyRanges() const {
 	
   		return frequencyRanges;
  	}
 
  	/**
- 	 * Set frequencyRanges with the specified vector<vector<Frequency > >.
- 	 * @param frequencyRanges The vector<vector<Frequency > > value to which frequencyRanges is to be set.
+ 	 * Set frequencyRanges with the specified std::vector<std::vector<Frequency > >.
+ 	 * @param frequencyRanges The std::vector<std::vector<Frequency > > value to which frequencyRanges is to be set.
  	 
  	
  		
  	 */
- 	void CalFluxRow::setFrequencyRanges (vector<vector<Frequency > > frequencyRanges)  {
+ 	void CalFluxRow::setFrequencyRanges (std::vector<std::vector<Frequency > > frequencyRanges)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2577,21 +2628,21 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get flux.
- 	 * @return flux as vector<vector<double > >
+ 	 * @return flux as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > CalFluxRow::getFlux() const {
+ 	std::vector<std::vector<double > > CalFluxRow::getFlux() const {
 	
   		return flux;
  	}
 
  	/**
- 	 * Set flux with the specified vector<vector<double > >.
- 	 * @param flux The vector<vector<double > > value to which flux is to be set.
+ 	 * Set flux with the specified std::vector<std::vector<double > >.
+ 	 * @param flux The std::vector<std::vector<double > > value to which flux is to be set.
  	 
  	
  		
  	 */
- 	void CalFluxRow::setFlux (vector<vector<double > > flux)  {
+ 	void CalFluxRow::setFlux (std::vector<std::vector<double > > flux)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2609,21 +2660,21 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fluxError.
- 	 * @return fluxError as vector<vector<double > >
+ 	 * @return fluxError as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > CalFluxRow::getFluxError() const {
+ 	std::vector<std::vector<double > > CalFluxRow::getFluxError() const {
 	
   		return fluxError;
  	}
 
  	/**
- 	 * Set fluxError with the specified vector<vector<double > >.
- 	 * @param fluxError The vector<vector<double > > value to which fluxError is to be set.
+ 	 * Set fluxError with the specified std::vector<std::vector<double > >.
+ 	 * @param fluxError The std::vector<std::vector<double > > value to which fluxError is to be set.
  	 
  	
  		
  	 */
- 	void CalFluxRow::setFluxError (vector<vector<double > > fluxError)  {
+ 	void CalFluxRow::setFluxError (std::vector<std::vector<double > > fluxError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2641,21 +2692,21 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stokes.
- 	 * @return stokes as vector<StokesParameterMod::StokesParameter >
+ 	 * @return stokes as std::vector<StokesParameterMod::StokesParameter >
  	 */
- 	vector<StokesParameterMod::StokesParameter > CalFluxRow::getStokes() const {
+ 	std::vector<StokesParameterMod::StokesParameter > CalFluxRow::getStokes() const {
 	
   		return stokes;
  	}
 
  	/**
- 	 * Set stokes with the specified vector<StokesParameterMod::StokesParameter >.
- 	 * @param stokes The vector<StokesParameterMod::StokesParameter > value to which stokes is to be set.
+ 	 * Set stokes with the specified std::vector<StokesParameterMod::StokesParameter >.
+ 	 * @param stokes The std::vector<StokesParameterMod::StokesParameter > value to which stokes is to be set.
  	 
  	
  		
  	 */
- 	void CalFluxRow::setStokes (vector<StokesParameterMod::StokesParameter > stokes)  {
+ 	void CalFluxRow::setStokes (std::vector<StokesParameterMod::StokesParameter > stokes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2681,10 +2732,10 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get direction, which is optional.
- 	 * @return direction as vector<Angle >
+ 	 * @return direction as std::vector<Angle >
  	 * @throw IllegalAccessException If direction does not exist.
  	 */
- 	vector<Angle > CalFluxRow::getDirection() const  {
+ 	std::vector<Angle > CalFluxRow::getDirection() const  {
 		if (!directionExists) {
 			throw IllegalAccessException("direction", "CalFlux");
 		}
@@ -2693,12 +2744,12 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set direction with the specified vector<Angle >.
- 	 * @param direction The vector<Angle > value to which direction is to be set.
+ 	 * Set direction with the specified std::vector<Angle >.
+ 	 * @param direction The std::vector<Angle > value to which direction is to be set.
  	 
  	
  	 */
- 	void CalFluxRow::setDirection (vector<Angle > direction) {
+ 	void CalFluxRow::setDirection (std::vector<Angle > direction) {
 	
  		this->direction = direction;
 	
@@ -2822,10 +2873,10 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get PA, which is optional.
- 	 * @return PA as vector<vector<Angle > >
+ 	 * @return PA as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If PA does not exist.
  	 */
- 	vector<vector<Angle > > CalFluxRow::getPA() const  {
+ 	std::vector<std::vector<Angle > > CalFluxRow::getPA() const  {
 		if (!PAExists) {
 			throw IllegalAccessException("PA", "CalFlux");
 		}
@@ -2834,12 +2885,12 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set PA with the specified vector<vector<Angle > >.
- 	 * @param PA The vector<vector<Angle > > value to which PA is to be set.
+ 	 * Set PA with the specified std::vector<std::vector<Angle > >.
+ 	 * @param PA The std::vector<std::vector<Angle > > value to which PA is to be set.
  	 
  	
  	 */
- 	void CalFluxRow::setPA (vector<vector<Angle > > PA) {
+ 	void CalFluxRow::setPA (std::vector<std::vector<Angle > > PA) {
 	
  		this->PA = PA;
 	
@@ -2869,10 +2920,10 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get PAError, which is optional.
- 	 * @return PAError as vector<vector<Angle > >
+ 	 * @return PAError as std::vector<std::vector<Angle > >
  	 * @throw IllegalAccessException If PAError does not exist.
  	 */
- 	vector<vector<Angle > > CalFluxRow::getPAError() const  {
+ 	std::vector<std::vector<Angle > > CalFluxRow::getPAError() const  {
 		if (!PAErrorExists) {
 			throw IllegalAccessException("PAError", "CalFlux");
 		}
@@ -2881,12 +2932,12 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set PAError with the specified vector<vector<Angle > >.
- 	 * @param PAError The vector<vector<Angle > > value to which PAError is to be set.
+ 	 * Set PAError with the specified std::vector<std::vector<Angle > >.
+ 	 * @param PAError The std::vector<std::vector<Angle > > value to which PAError is to be set.
  	 
  	
  	 */
- 	void CalFluxRow::setPAError (vector<vector<Angle > > PAError) {
+ 	void CalFluxRow::setPAError (std::vector<std::vector<Angle > > PAError) {
 	
  		this->PAError = PAError;
 	
@@ -2916,10 +2967,10 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get size, which is optional.
- 	 * @return size as vector<vector<vector<Angle > > >
+ 	 * @return size as std::vector<std::vector<std::vector<Angle > > >
  	 * @throw IllegalAccessException If size does not exist.
  	 */
- 	vector<vector<vector<Angle > > > CalFluxRow::getSize() const  {
+ 	std::vector<std::vector<std::vector<Angle > > > CalFluxRow::getSize() const  {
 		if (!sizeExists) {
 			throw IllegalAccessException("size", "CalFlux");
 		}
@@ -2928,12 +2979,12 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set size with the specified vector<vector<vector<Angle > > >.
- 	 * @param size The vector<vector<vector<Angle > > > value to which size is to be set.
+ 	 * Set size with the specified std::vector<std::vector<std::vector<Angle > > >.
+ 	 * @param size The std::vector<std::vector<std::vector<Angle > > > value to which size is to be set.
  	 
  	
  	 */
- 	void CalFluxRow::setSize (vector<vector<vector<Angle > > > size) {
+ 	void CalFluxRow::setSize (std::vector<std::vector<std::vector<Angle > > > size) {
 	
  		this->size = size;
 	
@@ -2963,10 +3014,10 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sizeError, which is optional.
- 	 * @return sizeError as vector<vector<vector<Angle > > >
+ 	 * @return sizeError as std::vector<std::vector<std::vector<Angle > > >
  	 * @throw IllegalAccessException If sizeError does not exist.
  	 */
- 	vector<vector<vector<Angle > > > CalFluxRow::getSizeError() const  {
+ 	std::vector<std::vector<std::vector<Angle > > > CalFluxRow::getSizeError() const  {
 		if (!sizeErrorExists) {
 			throw IllegalAccessException("sizeError", "CalFlux");
 		}
@@ -2975,12 +3026,12 @@ void CalFluxRow::sourceModelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sizeError with the specified vector<vector<vector<Angle > > >.
- 	 * @param sizeError The vector<vector<vector<Angle > > > value to which sizeError is to be set.
+ 	 * Set sizeError with the specified std::vector<std::vector<std::vector<Angle > > >.
+ 	 * @param sizeError The std::vector<std::vector<std::vector<Angle > > > value to which sizeError is to be set.
  	 
  	
  	 */
- 	void CalFluxRow::setSizeError (vector<vector<vector<Angle > > > sizeError) {
+ 	void CalFluxRow::setSizeError (std::vector<std::vector<std::vector<Angle > > > sizeError) {
 	
  		this->sizeError = sizeError;
 	
@@ -3394,10 +3445,10 @@ sourceModel = CSourceModel::from_int(0);
 		
 	}
 	
-	CalFluxRow::CalFluxRow (CalFluxTable &t, CalFluxRow &row) : table(t) {
+	CalFluxRow::CalFluxRow (CalFluxTable &t, CalFluxRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3461,87 +3512,87 @@ sourceModel = CSourceModel::from_int(0);
 		else {
 	
 		
-			sourceName = row.sourceName;
+			sourceName = row->sourceName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numFrequencyRanges = row.numFrequencyRanges;
-		
-			numStokes = row.numStokes;
-		
-			frequencyRanges = row.frequencyRanges;
-		
-			fluxMethod = row.fluxMethod;
-		
-			flux = row.flux;
-		
-			fluxError = row.fluxError;
-		
-			stokes = row.stokes;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.directionExists) {
-			direction = row.direction;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numFrequencyRanges = row->numFrequencyRanges;
+		
+			numStokes = row->numStokes;
+		
+			frequencyRanges = row->frequencyRanges;
+		
+			fluxMethod = row->fluxMethod;
+		
+			flux = row->flux;
+		
+			fluxError = row->fluxError;
+		
+			stokes = row->stokes;
+		
+		
+		
+		
+		if (row->directionExists) {
+			direction = row->direction;		
 			directionExists = true;
 		}
 		else
 			directionExists = false;
 		
-		if (row.directionCodeExists) {
-			directionCode = row.directionCode;		
+		if (row->directionCodeExists) {
+			directionCode = row->directionCode;		
 			directionCodeExists = true;
 		}
 		else
 			directionCodeExists = false;
 		
-		if (row.directionEquinoxExists) {
-			directionEquinox = row.directionEquinox;		
+		if (row->directionEquinoxExists) {
+			directionEquinox = row->directionEquinox;		
 			directionEquinoxExists = true;
 		}
 		else
 			directionEquinoxExists = false;
 		
-		if (row.PAExists) {
-			PA = row.PA;		
+		if (row->PAExists) {
+			PA = row->PA;		
 			PAExists = true;
 		}
 		else
 			PAExists = false;
 		
-		if (row.PAErrorExists) {
-			PAError = row.PAError;		
+		if (row->PAErrorExists) {
+			PAError = row->PAError;		
 			PAErrorExists = true;
 		}
 		else
 			PAErrorExists = false;
 		
-		if (row.sizeExists) {
-			size = row.size;		
+		if (row->sizeExists) {
+			size = row->size;		
 			sizeExists = true;
 		}
 		else
 			sizeExists = false;
 		
-		if (row.sizeErrorExists) {
-			sizeError = row.sizeError;		
+		if (row->sizeErrorExists) {
+			sizeError = row->sizeError;		
 			sizeErrorExists = true;
 		}
 		else
 			sizeErrorExists = false;
 		
-		if (row.sourceModelExists) {
-			sourceModel = row.sourceModel;		
+		if (row->sourceModelExists) {
+			sourceModel = row->sourceModel;		
 			sourceModelExists = true;
 		}
 		else
@@ -3575,7 +3626,7 @@ sourceModel = CSourceModel::from_int(0);
 	}
 
 	
-	bool CalFluxRow::compareNoAutoInc(string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes) {
+	bool CalFluxRow::compareNoAutoInc(std::string sourceName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes) {
 		bool result;
 		result = true;
 		
@@ -3668,7 +3719,7 @@ sourceModel = CSourceModel::from_int(0);
 	
 	
 	
-	bool CalFluxRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, vector<vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, vector<vector<double > > flux, vector<vector<double > > fluxError, vector<StokesParameterMod::StokesParameter > stokes) {
+	bool CalFluxRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFrequencyRanges, int numStokes, std::vector<std::vector<Frequency > > frequencyRanges, FluxCalibrationMethodMod::FluxCalibrationMethod fluxMethod, std::vector<std::vector<double > > flux, std::vector<std::vector<double > > fluxError, std::vector<StokesParameterMod::StokesParameter > stokes) {
 		bool result;
 		result = true;
 		

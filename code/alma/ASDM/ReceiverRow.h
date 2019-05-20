@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -71,27 +71,27 @@
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
 
 	
-#include "CReceiverSideband.h"
+#include <alma/Enumerations/CReceiverSideband.h>
 	
 
 	
-#include "CNetSideband.h"
+#include <alma/Enumerations/CNetSideband.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Receiver.h
     \brief Generated from model's revision "-1", branch ""
@@ -108,7 +108,7 @@ class SpectralWindowRow;
 
 class ReceiverRow;
 typedef void (ReceiverRow::*ReceiverAttributeFromBin) (EndianIStream& eis);
-typedef void (ReceiverRow::*ReceiverAttributeFromText) (const string& s);
+typedef void (ReceiverRow::*ReceiverAttributeFromText) (const std::string& s);
 
 /**
  * The ReceiverRow class is a row of a ReceiverTable.
@@ -201,21 +201,21 @@ public:
 	
  	/**
  	 * Get name.
- 	 * @return name as string
+ 	 * @return name as std::string
  	 */
- 	string getName() const;
+ 	std::string getName() const;
 	
  
  	
  	
  	/**
- 	 * Set name with the specified string.
- 	 * @param name The string value to which name is to be set.
+ 	 * Set name with the specified std::string.
+ 	 * @param name The std::string value to which name is to be set.
  	 
  		
  			
  	 */
- 	void setName (string name);
+ 	void setName (std::string name);
   		
 	
 	
@@ -291,21 +291,21 @@ public:
 	
  	/**
  	 * Get freqLO.
- 	 * @return freqLO as vector<Frequency >
+ 	 * @return freqLO as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFreqLO() const;
+ 	std::vector<Frequency > getFreqLO() const;
 	
  
  	
  	
  	/**
- 	 * Set freqLO with the specified vector<Frequency >.
- 	 * @param freqLO The vector<Frequency > value to which freqLO is to be set.
+ 	 * Set freqLO with the specified std::vector<Frequency >.
+ 	 * @param freqLO The std::vector<Frequency > value to which freqLO is to be set.
  	 
  		
  			
  	 */
- 	void setFreqLO (vector<Frequency > freqLO);
+ 	void setFreqLO (std::vector<Frequency > freqLO);
   		
 	
 	
@@ -351,21 +351,21 @@ public:
 	
  	/**
  	 * Get sidebandLO.
- 	 * @return sidebandLO as vector<NetSidebandMod::NetSideband >
+ 	 * @return sidebandLO as std::vector<NetSidebandMod::NetSideband >
  	 */
- 	vector<NetSidebandMod::NetSideband > getSidebandLO() const;
+ 	std::vector<NetSidebandMod::NetSideband > getSidebandLO() const;
 	
  
  	
  	
  	/**
- 	 * Set sidebandLO with the specified vector<NetSidebandMod::NetSideband >.
- 	 * @param sidebandLO The vector<NetSidebandMod::NetSideband > value to which sidebandLO is to be set.
+ 	 * Set sidebandLO with the specified std::vector<NetSidebandMod::NetSideband >.
+ 	 * @param sidebandLO The std::vector<NetSidebandMod::NetSideband > value to which sidebandLO is to be set.
  	 
  		
  			
  	 */
- 	void setSidebandLO (vector<NetSidebandMod::NetSideband > sidebandLO);
+ 	void setSidebandLO (std::vector<NetSidebandMod::NetSideband > sidebandLO);
   		
 	
 	
@@ -451,7 +451,7 @@ public:
 	 * @param sidebandLO
 	    
 	 */ 
-	bool compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO);
+	bool compareNoAutoInc(Tag spectralWindowId, ArrayTimeInterval timeInterval, std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO);
 	
 	
 
@@ -473,7 +473,7 @@ public:
 	 * @param sidebandLO
 	    
 	 */ 
-	bool compareRequiredValue(string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, vector<NetSidebandMod::NetSideband > sidebandLO); 
+	bool compareRequiredValue(std::string name, int numLO, ReceiverBandMod::ReceiverBand frequencyBand, std::vector<Frequency > freqLO, ReceiverSidebandMod::ReceiverSideband receiverSideband, std::vector<NetSidebandMod::NetSideband > sidebandLO); 
 		 
 	
 	/**
@@ -603,7 +603,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ReceiverRow (ReceiverTable &table, ReceiverRow &row);
+	 ReceiverRow (ReceiverTable &table, ReceiverRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -648,7 +648,7 @@ private:
 	
 	
 
-	string name;
+	std::string name;
 
 	
 	
@@ -681,7 +681,7 @@ private:
 	
 	
 
-	vector<Frequency > freqLO;
+	std::vector<Frequency > freqLO;
 
 	
 	
@@ -703,7 +703,7 @@ private:
 	
 	
 
-	vector<NetSidebandMod::NetSideband > sidebandLO;
+	std::vector<NetSidebandMod::NetSideband > sidebandLO;
 
 	
 	
@@ -759,31 +759,31 @@ void sidebandLOFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ReceiverAttributeFromText> fromTextMethods;
 	
-void receiverIdFromText (const string & s);
+void receiverIdFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void spectralWindowIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void nameFromText (const string & s);
+void nameFromText (const std::string & s);
 	
 	
-void numLOFromText (const string & s);
+void numLOFromText (const std::string & s);
 	
 	
-void frequencyBandFromText (const string & s);
+void frequencyBandFromText (const std::string & s);
 	
 	
-void freqLOFromText (const string & s);
+void freqLOFromText (const std::string & s);
 	
 	
-void receiverSidebandFromText (const string & s);
+void receiverSidebandFromText (const std::string & s);
 	
 	
-void sidebandLOFromText (const string & s);
+void sidebandLOFromText (const std::string & s);
 	
 
 		

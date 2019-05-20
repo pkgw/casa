@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalFocusRow.h>
-#include <CalFocusTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalFocusRow.h>
+#include <alma/ASDM/CalFocusTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalFocusRow::~CalFocusRow() {
@@ -1453,7 +1450,9 @@ namespace asdm {
 		
 			
 		offset .clear();
-		vector<Length> v_aux_offset;
+        
+        vector<Length> v_aux_offset;
+        
 		for (unsigned int i = 0; i < x.offset.length(); ++i) {
 			v_aux_offset.clear();
 			for (unsigned int j = 0; j < x.offset[0].length(); ++j) {
@@ -1473,7 +1472,9 @@ namespace asdm {
 		
 			
 		offsetError .clear();
-		vector<Length> v_aux_offsetError;
+        
+        vector<Length> v_aux_offsetError;
+        
 		for (unsigned int i = 0; i < x.offsetError.length(); ++i) {
 			v_aux_offsetError.clear();
 			for (unsigned int j = 0; j < x.offsetError[0].length(); ++j) {
@@ -1493,7 +1494,9 @@ namespace asdm {
 		
 			
 		offsetWasTied .clear();
-		vector<bool> v_aux_offsetWasTied;
+        
+        vector<bool> v_aux_offsetWasTied;
+        
 		for (unsigned int i = 0; i < x.offsetWasTied.length(); ++i) {
 			v_aux_offsetWasTied.clear();
 			for (unsigned int j = 0; j < x.offsetWasTied[0].length(); ++j) {
@@ -1513,7 +1516,9 @@ namespace asdm {
 		
 			
 		reducedChiSquared .clear();
-		vector<double> v_aux_reducedChiSquared;
+        
+        vector<double> v_aux_reducedChiSquared;
+        
 		for (unsigned int i = 0; i < x.reducedChiSquared.length(); ++i) {
 			v_aux_reducedChiSquared.clear();
 			for (unsigned int j = 0; j < x.reducedChiSquared[0].length(); ++j) {
@@ -1533,7 +1538,9 @@ namespace asdm {
 		
 			
 		position .clear();
-		vector<Length> v_aux_position;
+        
+        vector<Length> v_aux_position;
+        
 		for (unsigned int i = 0; i < x.position.length(); ++i) {
 			v_aux_position.clear();
 			for (unsigned int j = 0; j < x.position[0].length(); ++j) {
@@ -1571,7 +1578,9 @@ namespace asdm {
 		
 			
 		focusCurveWidth .clear();
-		vector<Length> v_aux_focusCurveWidth;
+        
+        vector<Length> v_aux_focusCurveWidth;
+        
 		for (unsigned int i = 0; i < x.focusCurveWidth.length(); ++i) {
 			v_aux_focusCurveWidth.clear();
 			for (unsigned int j = 0; j < x.focusCurveWidth[0].length(); ++j) {
@@ -1596,7 +1605,9 @@ namespace asdm {
 		
 			
 		focusCurveWidthError .clear();
-		vector<Length> v_aux_focusCurveWidthError;
+        
+        vector<Length> v_aux_focusCurveWidthError;
+        
 		for (unsigned int i = 0; i < x.focusCurveWidthError.length(); ++i) {
 			v_aux_focusCurveWidthError.clear();
 			for (unsigned int j = 0; j < x.focusCurveWidthError[0].length(); ++j) {
@@ -1831,7 +1842,9 @@ namespace asdm {
 		
 			
 		illumOffset .clear();
-		vector<Length> v_aux_illumOffset;
+        
+        vector<Length> v_aux_illumOffset;
+        
 		for (unsigned int i = 0; i < x.illumOffset.length(); ++i) {
 			v_aux_illumOffset.clear();
 			for (unsigned int j = 0; j < x.illumOffset[0].length(); ++j) {
@@ -1856,7 +1869,9 @@ namespace asdm {
 		
 			
 		illumOffsetError .clear();
-		vector<Length> v_aux_illumOffsetError;
+        
+        vector<Length> v_aux_illumOffsetError;
+        
 		for (unsigned int i = 0; i < x.illumOffsetError.length(); ++i) {
 			v_aux_illumOffsetError.clear();
 			for (unsigned int j = 0; j < x.illumOffsetError[0].length(); ++j) {
@@ -3333,7 +3348,9 @@ void CalFocusRow::offsetWasTiedFromBin(EndianIStream& eis) {
 		
 		unsigned int offsetWasTiedDim1 = eis.readInt();
 		unsigned int offsetWasTiedDim2 = eis.readInt();
+        
 		vector <bool> offsetWasTiedAux1;
+        
 		for (unsigned int i = 0; i < offsetWasTiedDim1; i++) {
 			offsetWasTiedAux1.clear();
 			for (unsigned int j = 0; j < offsetWasTiedDim2 ; j++)			
@@ -3360,7 +3377,9 @@ void CalFocusRow::reducedChiSquaredFromBin(EndianIStream& eis) {
 		
 		unsigned int reducedChiSquaredDim1 = eis.readInt();
 		unsigned int reducedChiSquaredDim2 = eis.readInt();
+        
 		vector <double> reducedChiSquaredAux1;
+        
 		for (unsigned int i = 0; i < reducedChiSquaredDim1; i++) {
 			reducedChiSquaredAux1.clear();
 			for (unsigned int j = 0; j < reducedChiSquaredDim2 ; j++)			
@@ -3745,7 +3764,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalFocusRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3753,7 +3774,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalFocusRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -3761,7 +3784,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFocusRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3769,7 +3794,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalFocusRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3777,7 +3804,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFocusRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3785,7 +3814,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalFocusRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3793,7 +3824,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalFocusRow::ambientTemperatureFromText(const string & s) {
 		 
+          
 		ambientTemperature = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -3801,7 +3834,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalFocusRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -3809,7 +3844,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an FocusMethod 
 	void CalFocusRow::focusMethodFromText(const string & s) {
 		 
-		focusMethod = ASDMValuesParser::parse<FocusMethod>(s);
+          
+		focusMethod = ASDMValuesParser::parse<FocusMethodMod::FocusMethod>(s);
+          
 		
 	}
 	
@@ -3817,7 +3854,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalFocusRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3825,7 +3864,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalFocusRow::pointingDirectionFromText(const string & s) {
 		 
+          
 		pointingDirection = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -3833,7 +3874,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalFocusRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3841,7 +3884,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalFocusRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -3849,7 +3894,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalFocusRow::wereFixedFromText(const string & s) {
 		 
+          
 		wereFixed = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -3857,7 +3904,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalFocusRow::offsetFromText(const string & s) {
 		 
+          
 		offset = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -3865,7 +3914,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalFocusRow::offsetErrorFromText(const string & s) {
 		 
+          
 		offsetError = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -3873,7 +3924,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalFocusRow::offsetWasTiedFromText(const string & s) {
 		 
+          
 		offsetWasTied = ASDMValuesParser::parse2D<bool>(s);
+          
 		
 	}
 	
@@ -3881,7 +3934,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalFocusRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -3889,7 +3944,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalFocusRow::positionFromText(const string & s) {
 		 
+          
 		position = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -3899,7 +3956,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::polarizationsAveragedFromText(const string & s) {
 		polarizationsAveragedExists = true;
 		 
+          
 		polarizationsAveraged = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3908,7 +3967,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::focusCurveWidthFromText(const string & s) {
 		focusCurveWidthExists = true;
 		 
+          
 		focusCurveWidth = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -3917,7 +3978,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::focusCurveWidthErrorFromText(const string & s) {
 		focusCurveWidthErrorExists = true;
 		 
+          
 		focusCurveWidthError = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -3926,7 +3989,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::focusCurveWasFixedFromText(const string & s) {
 		focusCurveWasFixedExists = true;
 		 
+          
 		focusCurveWasFixed = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -3935,7 +4000,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::offIntensityFromText(const string & s) {
 		offIntensityExists = true;
 		 
+          
 		offIntensity = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3944,7 +4011,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::offIntensityErrorFromText(const string & s) {
 		offIntensityErrorExists = true;
 		 
+          
 		offIntensityError = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3953,7 +4022,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::offIntensityWasFixedFromText(const string & s) {
 		offIntensityWasFixedExists = true;
 		 
+          
 		offIntensityWasFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3962,7 +4033,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::peakIntensityFromText(const string & s) {
 		peakIntensityExists = true;
 		 
+          
 		peakIntensity = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3971,7 +4044,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::peakIntensityErrorFromText(const string & s) {
 		peakIntensityErrorExists = true;
 		 
+          
 		peakIntensityError = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3980,7 +4055,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::peakIntensityWasFixedFromText(const string & s) {
 		peakIntensityWasFixedExists = true;
 		 
+          
 		peakIntensityWasFixed = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -3989,7 +4066,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::astigmPlusFromText(const string & s) {
 		astigmPlusExists = true;
 		 
+          
 		astigmPlus = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -3998,7 +4077,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::astigmPlusErrorFromText(const string & s) {
 		astigmPlusErrorExists = true;
 		 
+          
 		astigmPlusError = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -4007,7 +4088,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::astigmMultFromText(const string & s) {
 		astigmMultExists = true;
 		 
+          
 		astigmMult = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -4016,7 +4099,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::astigmMultErrorFromText(const string & s) {
 		astigmMultErrorExists = true;
 		 
+          
 		astigmMultError = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -4025,7 +4110,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::illumOffsetFromText(const string & s) {
 		illumOffsetExists = true;
 		 
+          
 		illumOffset = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -4034,7 +4121,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::illumOffsetErrorFromText(const string & s) {
 		illumOffsetErrorExists = true;
 		 
+          
 		illumOffsetError = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -4043,7 +4132,9 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	void CalFocusRow::fitRMSFromText(const string & s) {
 		fitRMSExists = true;
 		 
+          
 		fitRMS = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -4129,23 +4220,23 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalFocusRow::getAntennaName() const {
+ 	std::string CalFocusRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalFocusRow::setAntennaName (string antennaName)  {
+ 	void CalFocusRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4297,21 +4388,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalFocusRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalFocusRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalFocusRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4329,21 +4420,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get pointingDirection.
- 	 * @return pointingDirection as vector<Angle >
+ 	 * @return pointingDirection as std::vector<Angle >
  	 */
- 	vector<Angle > CalFocusRow::getPointingDirection() const {
+ 	std::vector<Angle > CalFocusRow::getPointingDirection() const {
 	
   		return pointingDirection;
  	}
 
  	/**
- 	 * Set pointingDirection with the specified vector<Angle >.
- 	 * @param pointingDirection The vector<Angle > value to which pointingDirection is to be set.
+ 	 * Set pointingDirection with the specified std::vector<Angle >.
+ 	 * @param pointingDirection The std::vector<Angle > value to which pointingDirection is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setPointingDirection (vector<Angle > pointingDirection)  {
+ 	void CalFocusRow::setPointingDirection (std::vector<Angle > pointingDirection)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4393,21 +4484,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalFocusRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalFocusRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalFocusRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4425,21 +4516,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get wereFixed.
- 	 * @return wereFixed as vector<bool >
+ 	 * @return wereFixed as std::vector<bool >
  	 */
- 	vector<bool > CalFocusRow::getWereFixed() const {
+ 	std::vector<bool > CalFocusRow::getWereFixed() const {
 	
   		return wereFixed;
  	}
 
  	/**
- 	 * Set wereFixed with the specified vector<bool >.
- 	 * @param wereFixed The vector<bool > value to which wereFixed is to be set.
+ 	 * Set wereFixed with the specified std::vector<bool >.
+ 	 * @param wereFixed The std::vector<bool > value to which wereFixed is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setWereFixed (vector<bool > wereFixed)  {
+ 	void CalFocusRow::setWereFixed (std::vector<bool > wereFixed)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4457,21 +4548,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offset.
- 	 * @return offset as vector<vector<Length > >
+ 	 * @return offset as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > CalFocusRow::getOffset() const {
+ 	std::vector<std::vector<Length > > CalFocusRow::getOffset() const {
 	
   		return offset;
  	}
 
  	/**
- 	 * Set offset with the specified vector<vector<Length > >.
- 	 * @param offset The vector<vector<Length > > value to which offset is to be set.
+ 	 * Set offset with the specified std::vector<std::vector<Length > >.
+ 	 * @param offset The std::vector<std::vector<Length > > value to which offset is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setOffset (vector<vector<Length > > offset)  {
+ 	void CalFocusRow::setOffset (std::vector<std::vector<Length > > offset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4489,21 +4580,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offsetError.
- 	 * @return offsetError as vector<vector<Length > >
+ 	 * @return offsetError as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > CalFocusRow::getOffsetError() const {
+ 	std::vector<std::vector<Length > > CalFocusRow::getOffsetError() const {
 	
   		return offsetError;
  	}
 
  	/**
- 	 * Set offsetError with the specified vector<vector<Length > >.
- 	 * @param offsetError The vector<vector<Length > > value to which offsetError is to be set.
+ 	 * Set offsetError with the specified std::vector<std::vector<Length > >.
+ 	 * @param offsetError The std::vector<std::vector<Length > > value to which offsetError is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setOffsetError (vector<vector<Length > > offsetError)  {
+ 	void CalFocusRow::setOffsetError (std::vector<std::vector<Length > > offsetError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4521,21 +4612,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offsetWasTied.
- 	 * @return offsetWasTied as vector<vector<bool > >
+ 	 * @return offsetWasTied as std::vector<std::vector<bool > >
  	 */
- 	vector<vector<bool > > CalFocusRow::getOffsetWasTied() const {
+ 	std::vector<std::vector<bool > > CalFocusRow::getOffsetWasTied() const {
 	
   		return offsetWasTied;
  	}
 
  	/**
- 	 * Set offsetWasTied with the specified vector<vector<bool > >.
- 	 * @param offsetWasTied The vector<vector<bool > > value to which offsetWasTied is to be set.
+ 	 * Set offsetWasTied with the specified std::vector<std::vector<bool > >.
+ 	 * @param offsetWasTied The std::vector<std::vector<bool > > value to which offsetWasTied is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setOffsetWasTied (vector<vector<bool > > offsetWasTied)  {
+ 	void CalFocusRow::setOffsetWasTied (std::vector<std::vector<bool > > offsetWasTied)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4553,21 +4644,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get reducedChiSquared.
- 	 * @return reducedChiSquared as vector<vector<double > >
+ 	 * @return reducedChiSquared as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > CalFocusRow::getReducedChiSquared() const {
+ 	std::vector<std::vector<double > > CalFocusRow::getReducedChiSquared() const {
 	
   		return reducedChiSquared;
  	}
 
  	/**
- 	 * Set reducedChiSquared with the specified vector<vector<double > >.
- 	 * @param reducedChiSquared The vector<vector<double > > value to which reducedChiSquared is to be set.
+ 	 * Set reducedChiSquared with the specified std::vector<std::vector<double > >.
+ 	 * @param reducedChiSquared The std::vector<std::vector<double > > value to which reducedChiSquared is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setReducedChiSquared (vector<vector<double > > reducedChiSquared)  {
+ 	void CalFocusRow::setReducedChiSquared (std::vector<std::vector<double > > reducedChiSquared)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4585,21 +4676,21 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get position.
- 	 * @return position as vector<vector<Length > >
+ 	 * @return position as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > CalFocusRow::getPosition() const {
+ 	std::vector<std::vector<Length > > CalFocusRow::getPosition() const {
 	
   		return position;
  	}
 
  	/**
- 	 * Set position with the specified vector<vector<Length > >.
- 	 * @param position The vector<vector<Length > > value to which position is to be set.
+ 	 * Set position with the specified std::vector<std::vector<Length > >.
+ 	 * @param position The std::vector<std::vector<Length > > value to which position is to be set.
  	 
  	
  		
  	 */
- 	void CalFocusRow::setPosition (vector<vector<Length > > position)  {
+ 	void CalFocusRow::setPosition (std::vector<std::vector<Length > > position)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4672,10 +4763,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusCurveWidth, which is optional.
- 	 * @return focusCurveWidth as vector<vector<Length > >
+ 	 * @return focusCurveWidth as std::vector<std::vector<Length > >
  	 * @throw IllegalAccessException If focusCurveWidth does not exist.
  	 */
- 	vector<vector<Length > > CalFocusRow::getFocusCurveWidth() const  {
+ 	std::vector<std::vector<Length > > CalFocusRow::getFocusCurveWidth() const  {
 		if (!focusCurveWidthExists) {
 			throw IllegalAccessException("focusCurveWidth", "CalFocus");
 		}
@@ -4684,12 +4775,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set focusCurveWidth with the specified vector<vector<Length > >.
- 	 * @param focusCurveWidth The vector<vector<Length > > value to which focusCurveWidth is to be set.
+ 	 * Set focusCurveWidth with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusCurveWidth The std::vector<std::vector<Length > > value to which focusCurveWidth is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setFocusCurveWidth (vector<vector<Length > > focusCurveWidth) {
+ 	void CalFocusRow::setFocusCurveWidth (std::vector<std::vector<Length > > focusCurveWidth) {
 	
  		this->focusCurveWidth = focusCurveWidth;
 	
@@ -4719,10 +4810,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusCurveWidthError, which is optional.
- 	 * @return focusCurveWidthError as vector<vector<Length > >
+ 	 * @return focusCurveWidthError as std::vector<std::vector<Length > >
  	 * @throw IllegalAccessException If focusCurveWidthError does not exist.
  	 */
- 	vector<vector<Length > > CalFocusRow::getFocusCurveWidthError() const  {
+ 	std::vector<std::vector<Length > > CalFocusRow::getFocusCurveWidthError() const  {
 		if (!focusCurveWidthErrorExists) {
 			throw IllegalAccessException("focusCurveWidthError", "CalFocus");
 		}
@@ -4731,12 +4822,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set focusCurveWidthError with the specified vector<vector<Length > >.
- 	 * @param focusCurveWidthError The vector<vector<Length > > value to which focusCurveWidthError is to be set.
+ 	 * Set focusCurveWidthError with the specified std::vector<std::vector<Length > >.
+ 	 * @param focusCurveWidthError The std::vector<std::vector<Length > > value to which focusCurveWidthError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setFocusCurveWidthError (vector<vector<Length > > focusCurveWidthError) {
+ 	void CalFocusRow::setFocusCurveWidthError (std::vector<std::vector<Length > > focusCurveWidthError) {
 	
  		this->focusCurveWidthError = focusCurveWidthError;
 	
@@ -4766,10 +4857,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusCurveWasFixed, which is optional.
- 	 * @return focusCurveWasFixed as vector<bool >
+ 	 * @return focusCurveWasFixed as std::vector<bool >
  	 * @throw IllegalAccessException If focusCurveWasFixed does not exist.
  	 */
- 	vector<bool > CalFocusRow::getFocusCurveWasFixed() const  {
+ 	std::vector<bool > CalFocusRow::getFocusCurveWasFixed() const  {
 		if (!focusCurveWasFixedExists) {
 			throw IllegalAccessException("focusCurveWasFixed", "CalFocus");
 		}
@@ -4778,12 +4869,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set focusCurveWasFixed with the specified vector<bool >.
- 	 * @param focusCurveWasFixed The vector<bool > value to which focusCurveWasFixed is to be set.
+ 	 * Set focusCurveWasFixed with the specified std::vector<bool >.
+ 	 * @param focusCurveWasFixed The std::vector<bool > value to which focusCurveWasFixed is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setFocusCurveWasFixed (vector<bool > focusCurveWasFixed) {
+ 	void CalFocusRow::setFocusCurveWasFixed (std::vector<bool > focusCurveWasFixed) {
 	
  		this->focusCurveWasFixed = focusCurveWasFixed;
 	
@@ -4813,10 +4904,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offIntensity, which is optional.
- 	 * @return offIntensity as vector<Temperature >
+ 	 * @return offIntensity as std::vector<Temperature >
  	 * @throw IllegalAccessException If offIntensity does not exist.
  	 */
- 	vector<Temperature > CalFocusRow::getOffIntensity() const  {
+ 	std::vector<Temperature > CalFocusRow::getOffIntensity() const  {
 		if (!offIntensityExists) {
 			throw IllegalAccessException("offIntensity", "CalFocus");
 		}
@@ -4825,12 +4916,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set offIntensity with the specified vector<Temperature >.
- 	 * @param offIntensity The vector<Temperature > value to which offIntensity is to be set.
+ 	 * Set offIntensity with the specified std::vector<Temperature >.
+ 	 * @param offIntensity The std::vector<Temperature > value to which offIntensity is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setOffIntensity (vector<Temperature > offIntensity) {
+ 	void CalFocusRow::setOffIntensity (std::vector<Temperature > offIntensity) {
 	
  		this->offIntensity = offIntensity;
 	
@@ -4860,10 +4951,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get offIntensityError, which is optional.
- 	 * @return offIntensityError as vector<Temperature >
+ 	 * @return offIntensityError as std::vector<Temperature >
  	 * @throw IllegalAccessException If offIntensityError does not exist.
  	 */
- 	vector<Temperature > CalFocusRow::getOffIntensityError() const  {
+ 	std::vector<Temperature > CalFocusRow::getOffIntensityError() const  {
 		if (!offIntensityErrorExists) {
 			throw IllegalAccessException("offIntensityError", "CalFocus");
 		}
@@ -4872,12 +4963,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set offIntensityError with the specified vector<Temperature >.
- 	 * @param offIntensityError The vector<Temperature > value to which offIntensityError is to be set.
+ 	 * Set offIntensityError with the specified std::vector<Temperature >.
+ 	 * @param offIntensityError The std::vector<Temperature > value to which offIntensityError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setOffIntensityError (vector<Temperature > offIntensityError) {
+ 	void CalFocusRow::setOffIntensityError (std::vector<Temperature > offIntensityError) {
 	
  		this->offIntensityError = offIntensityError;
 	
@@ -4954,10 +5045,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get peakIntensity, which is optional.
- 	 * @return peakIntensity as vector<Temperature >
+ 	 * @return peakIntensity as std::vector<Temperature >
  	 * @throw IllegalAccessException If peakIntensity does not exist.
  	 */
- 	vector<Temperature > CalFocusRow::getPeakIntensity() const  {
+ 	std::vector<Temperature > CalFocusRow::getPeakIntensity() const  {
 		if (!peakIntensityExists) {
 			throw IllegalAccessException("peakIntensity", "CalFocus");
 		}
@@ -4966,12 +5057,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set peakIntensity with the specified vector<Temperature >.
- 	 * @param peakIntensity The vector<Temperature > value to which peakIntensity is to be set.
+ 	 * Set peakIntensity with the specified std::vector<Temperature >.
+ 	 * @param peakIntensity The std::vector<Temperature > value to which peakIntensity is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setPeakIntensity (vector<Temperature > peakIntensity) {
+ 	void CalFocusRow::setPeakIntensity (std::vector<Temperature > peakIntensity) {
 	
  		this->peakIntensity = peakIntensity;
 	
@@ -5001,10 +5092,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get peakIntensityError, which is optional.
- 	 * @return peakIntensityError as vector<Temperature >
+ 	 * @return peakIntensityError as std::vector<Temperature >
  	 * @throw IllegalAccessException If peakIntensityError does not exist.
  	 */
- 	vector<Temperature > CalFocusRow::getPeakIntensityError() const  {
+ 	std::vector<Temperature > CalFocusRow::getPeakIntensityError() const  {
 		if (!peakIntensityErrorExists) {
 			throw IllegalAccessException("peakIntensityError", "CalFocus");
 		}
@@ -5013,12 +5104,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set peakIntensityError with the specified vector<Temperature >.
- 	 * @param peakIntensityError The vector<Temperature > value to which peakIntensityError is to be set.
+ 	 * Set peakIntensityError with the specified std::vector<Temperature >.
+ 	 * @param peakIntensityError The std::vector<Temperature > value to which peakIntensityError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setPeakIntensityError (vector<Temperature > peakIntensityError) {
+ 	void CalFocusRow::setPeakIntensityError (std::vector<Temperature > peakIntensityError) {
 	
  		this->peakIntensityError = peakIntensityError;
 	
@@ -5095,10 +5186,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get astigmPlus, which is optional.
- 	 * @return astigmPlus as vector<Length >
+ 	 * @return astigmPlus as std::vector<Length >
  	 * @throw IllegalAccessException If astigmPlus does not exist.
  	 */
- 	vector<Length > CalFocusRow::getAstigmPlus() const  {
+ 	std::vector<Length > CalFocusRow::getAstigmPlus() const  {
 		if (!astigmPlusExists) {
 			throw IllegalAccessException("astigmPlus", "CalFocus");
 		}
@@ -5107,12 +5198,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set astigmPlus with the specified vector<Length >.
- 	 * @param astigmPlus The vector<Length > value to which astigmPlus is to be set.
+ 	 * Set astigmPlus with the specified std::vector<Length >.
+ 	 * @param astigmPlus The std::vector<Length > value to which astigmPlus is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setAstigmPlus (vector<Length > astigmPlus) {
+ 	void CalFocusRow::setAstigmPlus (std::vector<Length > astigmPlus) {
 	
  		this->astigmPlus = astigmPlus;
 	
@@ -5142,10 +5233,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get astigmPlusError, which is optional.
- 	 * @return astigmPlusError as vector<Length >
+ 	 * @return astigmPlusError as std::vector<Length >
  	 * @throw IllegalAccessException If astigmPlusError does not exist.
  	 */
- 	vector<Length > CalFocusRow::getAstigmPlusError() const  {
+ 	std::vector<Length > CalFocusRow::getAstigmPlusError() const  {
 		if (!astigmPlusErrorExists) {
 			throw IllegalAccessException("astigmPlusError", "CalFocus");
 		}
@@ -5154,12 +5245,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set astigmPlusError with the specified vector<Length >.
- 	 * @param astigmPlusError The vector<Length > value to which astigmPlusError is to be set.
+ 	 * Set astigmPlusError with the specified std::vector<Length >.
+ 	 * @param astigmPlusError The std::vector<Length > value to which astigmPlusError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setAstigmPlusError (vector<Length > astigmPlusError) {
+ 	void CalFocusRow::setAstigmPlusError (std::vector<Length > astigmPlusError) {
 	
  		this->astigmPlusError = astigmPlusError;
 	
@@ -5189,10 +5280,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get astigmMult, which is optional.
- 	 * @return astigmMult as vector<Length >
+ 	 * @return astigmMult as std::vector<Length >
  	 * @throw IllegalAccessException If astigmMult does not exist.
  	 */
- 	vector<Length > CalFocusRow::getAstigmMult() const  {
+ 	std::vector<Length > CalFocusRow::getAstigmMult() const  {
 		if (!astigmMultExists) {
 			throw IllegalAccessException("astigmMult", "CalFocus");
 		}
@@ -5201,12 +5292,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set astigmMult with the specified vector<Length >.
- 	 * @param astigmMult The vector<Length > value to which astigmMult is to be set.
+ 	 * Set astigmMult with the specified std::vector<Length >.
+ 	 * @param astigmMult The std::vector<Length > value to which astigmMult is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setAstigmMult (vector<Length > astigmMult) {
+ 	void CalFocusRow::setAstigmMult (std::vector<Length > astigmMult) {
 	
  		this->astigmMult = astigmMult;
 	
@@ -5236,10 +5327,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get astigmMultError, which is optional.
- 	 * @return astigmMultError as vector<Length >
+ 	 * @return astigmMultError as std::vector<Length >
  	 * @throw IllegalAccessException If astigmMultError does not exist.
  	 */
- 	vector<Length > CalFocusRow::getAstigmMultError() const  {
+ 	std::vector<Length > CalFocusRow::getAstigmMultError() const  {
 		if (!astigmMultErrorExists) {
 			throw IllegalAccessException("astigmMultError", "CalFocus");
 		}
@@ -5248,12 +5339,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set astigmMultError with the specified vector<Length >.
- 	 * @param astigmMultError The vector<Length > value to which astigmMultError is to be set.
+ 	 * Set astigmMultError with the specified std::vector<Length >.
+ 	 * @param astigmMultError The std::vector<Length > value to which astigmMultError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setAstigmMultError (vector<Length > astigmMultError) {
+ 	void CalFocusRow::setAstigmMultError (std::vector<Length > astigmMultError) {
 	
  		this->astigmMultError = astigmMultError;
 	
@@ -5283,10 +5374,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get illumOffset, which is optional.
- 	 * @return illumOffset as vector<vector<Length > >
+ 	 * @return illumOffset as std::vector<std::vector<Length > >
  	 * @throw IllegalAccessException If illumOffset does not exist.
  	 */
- 	vector<vector<Length > > CalFocusRow::getIllumOffset() const  {
+ 	std::vector<std::vector<Length > > CalFocusRow::getIllumOffset() const  {
 		if (!illumOffsetExists) {
 			throw IllegalAccessException("illumOffset", "CalFocus");
 		}
@@ -5295,12 +5386,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set illumOffset with the specified vector<vector<Length > >.
- 	 * @param illumOffset The vector<vector<Length > > value to which illumOffset is to be set.
+ 	 * Set illumOffset with the specified std::vector<std::vector<Length > >.
+ 	 * @param illumOffset The std::vector<std::vector<Length > > value to which illumOffset is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setIllumOffset (vector<vector<Length > > illumOffset) {
+ 	void CalFocusRow::setIllumOffset (std::vector<std::vector<Length > > illumOffset) {
 	
  		this->illumOffset = illumOffset;
 	
@@ -5330,10 +5421,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get illumOffsetError, which is optional.
- 	 * @return illumOffsetError as vector<vector<Length > >
+ 	 * @return illumOffsetError as std::vector<std::vector<Length > >
  	 * @throw IllegalAccessException If illumOffsetError does not exist.
  	 */
- 	vector<vector<Length > > CalFocusRow::getIllumOffsetError() const  {
+ 	std::vector<std::vector<Length > > CalFocusRow::getIllumOffsetError() const  {
 		if (!illumOffsetErrorExists) {
 			throw IllegalAccessException("illumOffsetError", "CalFocus");
 		}
@@ -5342,12 +5433,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set illumOffsetError with the specified vector<vector<Length > >.
- 	 * @param illumOffsetError The vector<vector<Length > > value to which illumOffsetError is to be set.
+ 	 * Set illumOffsetError with the specified std::vector<std::vector<Length > >.
+ 	 * @param illumOffsetError The std::vector<std::vector<Length > > value to which illumOffsetError is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setIllumOffsetError (vector<vector<Length > > illumOffsetError) {
+ 	void CalFocusRow::setIllumOffsetError (std::vector<std::vector<Length > > illumOffsetError) {
 	
  		this->illumOffsetError = illumOffsetError;
 	
@@ -5377,10 +5468,10 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fitRMS, which is optional.
- 	 * @return fitRMS as vector<Length >
+ 	 * @return fitRMS as std::vector<Length >
  	 * @throw IllegalAccessException If fitRMS does not exist.
  	 */
- 	vector<Length > CalFocusRow::getFitRMS() const  {
+ 	std::vector<Length > CalFocusRow::getFitRMS() const  {
 		if (!fitRMSExists) {
 			throw IllegalAccessException("fitRMS", "CalFocus");
 		}
@@ -5389,12 +5480,12 @@ void CalFocusRow::fitRMSFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set fitRMS with the specified vector<Length >.
- 	 * @param fitRMS The vector<Length > value to which fitRMS is to be set.
+ 	 * Set fitRMS with the specified std::vector<Length >.
+ 	 * @param fitRMS The std::vector<Length > value to which fitRMS is to be set.
  	 
  	
  	 */
- 	void CalFocusRow::setFitRMS (vector<Length > fitRMS) {
+ 	void CalFocusRow::setFitRMS (std::vector<Length > fitRMS) {
 	
  		this->fitRMS = fitRMS;
 	
@@ -5923,10 +6014,10 @@ focusMethod = CFocusMethod::from_int(0);
 		
 	}
 	
-	CalFocusRow::CalFocusRow (CalFocusTable &t, CalFocusRow &row) : table(t) {
+	CalFocusRow::CalFocusRow (CalFocusTable &t, CalFocusRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -6040,164 +6131,164 @@ focusMethod = CFocusMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			ambientTemperature = row.ambientTemperature;
-		
-			atmPhaseCorrection = row.atmPhaseCorrection;
-		
-			focusMethod = row.focusMethod;
-		
-			frequencyRange = row.frequencyRange;
-		
-			pointingDirection = row.pointingDirection;
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			wereFixed = row.wereFixed;
-		
-			offset = row.offset;
-		
-			offsetError = row.offsetError;
-		
-			offsetWasTied = row.offsetWasTied;
-		
-			reducedChiSquared = row.reducedChiSquared;
-		
-			position = row.position;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.polarizationsAveragedExists) {
-			polarizationsAveraged = row.polarizationsAveraged;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			ambientTemperature = row->ambientTemperature;
+		
+			atmPhaseCorrection = row->atmPhaseCorrection;
+		
+			focusMethod = row->focusMethod;
+		
+			frequencyRange = row->frequencyRange;
+		
+			pointingDirection = row->pointingDirection;
+		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			wereFixed = row->wereFixed;
+		
+			offset = row->offset;
+		
+			offsetError = row->offsetError;
+		
+			offsetWasTied = row->offsetWasTied;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+			position = row->position;
+		
+		
+		
+		
+		if (row->polarizationsAveragedExists) {
+			polarizationsAveraged = row->polarizationsAveraged;		
 			polarizationsAveragedExists = true;
 		}
 		else
 			polarizationsAveragedExists = false;
 		
-		if (row.focusCurveWidthExists) {
-			focusCurveWidth = row.focusCurveWidth;		
+		if (row->focusCurveWidthExists) {
+			focusCurveWidth = row->focusCurveWidth;		
 			focusCurveWidthExists = true;
 		}
 		else
 			focusCurveWidthExists = false;
 		
-		if (row.focusCurveWidthErrorExists) {
-			focusCurveWidthError = row.focusCurveWidthError;		
+		if (row->focusCurveWidthErrorExists) {
+			focusCurveWidthError = row->focusCurveWidthError;		
 			focusCurveWidthErrorExists = true;
 		}
 		else
 			focusCurveWidthErrorExists = false;
 		
-		if (row.focusCurveWasFixedExists) {
-			focusCurveWasFixed = row.focusCurveWasFixed;		
+		if (row->focusCurveWasFixedExists) {
+			focusCurveWasFixed = row->focusCurveWasFixed;		
 			focusCurveWasFixedExists = true;
 		}
 		else
 			focusCurveWasFixedExists = false;
 		
-		if (row.offIntensityExists) {
-			offIntensity = row.offIntensity;		
+		if (row->offIntensityExists) {
+			offIntensity = row->offIntensity;		
 			offIntensityExists = true;
 		}
 		else
 			offIntensityExists = false;
 		
-		if (row.offIntensityErrorExists) {
-			offIntensityError = row.offIntensityError;		
+		if (row->offIntensityErrorExists) {
+			offIntensityError = row->offIntensityError;		
 			offIntensityErrorExists = true;
 		}
 		else
 			offIntensityErrorExists = false;
 		
-		if (row.offIntensityWasFixedExists) {
-			offIntensityWasFixed = row.offIntensityWasFixed;		
+		if (row->offIntensityWasFixedExists) {
+			offIntensityWasFixed = row->offIntensityWasFixed;		
 			offIntensityWasFixedExists = true;
 		}
 		else
 			offIntensityWasFixedExists = false;
 		
-		if (row.peakIntensityExists) {
-			peakIntensity = row.peakIntensity;		
+		if (row->peakIntensityExists) {
+			peakIntensity = row->peakIntensity;		
 			peakIntensityExists = true;
 		}
 		else
 			peakIntensityExists = false;
 		
-		if (row.peakIntensityErrorExists) {
-			peakIntensityError = row.peakIntensityError;		
+		if (row->peakIntensityErrorExists) {
+			peakIntensityError = row->peakIntensityError;		
 			peakIntensityErrorExists = true;
 		}
 		else
 			peakIntensityErrorExists = false;
 		
-		if (row.peakIntensityWasFixedExists) {
-			peakIntensityWasFixed = row.peakIntensityWasFixed;		
+		if (row->peakIntensityWasFixedExists) {
+			peakIntensityWasFixed = row->peakIntensityWasFixed;		
 			peakIntensityWasFixedExists = true;
 		}
 		else
 			peakIntensityWasFixedExists = false;
 		
-		if (row.astigmPlusExists) {
-			astigmPlus = row.astigmPlus;		
+		if (row->astigmPlusExists) {
+			astigmPlus = row->astigmPlus;		
 			astigmPlusExists = true;
 		}
 		else
 			astigmPlusExists = false;
 		
-		if (row.astigmPlusErrorExists) {
-			astigmPlusError = row.astigmPlusError;		
+		if (row->astigmPlusErrorExists) {
+			astigmPlusError = row->astigmPlusError;		
 			astigmPlusErrorExists = true;
 		}
 		else
 			astigmPlusErrorExists = false;
 		
-		if (row.astigmMultExists) {
-			astigmMult = row.astigmMult;		
+		if (row->astigmMultExists) {
+			astigmMult = row->astigmMult;		
 			astigmMultExists = true;
 		}
 		else
 			astigmMultExists = false;
 		
-		if (row.astigmMultErrorExists) {
-			astigmMultError = row.astigmMultError;		
+		if (row->astigmMultErrorExists) {
+			astigmMultError = row->astigmMultError;		
 			astigmMultErrorExists = true;
 		}
 		else
 			astigmMultErrorExists = false;
 		
-		if (row.illumOffsetExists) {
-			illumOffset = row.illumOffset;		
+		if (row->illumOffsetExists) {
+			illumOffset = row->illumOffset;		
 			illumOffsetExists = true;
 		}
 		else
 			illumOffsetExists = false;
 		
-		if (row.illumOffsetErrorExists) {
-			illumOffsetError = row.illumOffsetError;		
+		if (row->illumOffsetErrorExists) {
+			illumOffsetError = row->illumOffsetError;		
 			illumOffsetErrorExists = true;
 		}
 		else
 			illumOffsetErrorExists = false;
 		
-		if (row.fitRMSExists) {
-			fitRMS = row.fitRMS;		
+		if (row->fitRMSExists) {
+			fitRMS = row->fitRMS;		
 			fitRMSExists = true;
 		}
 		else
@@ -6247,7 +6338,7 @@ focusMethod = CFocusMethod::from_int(0);
 	}
 
 	
-	bool CalFocusRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position) {
+	bool CalFocusRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position) {
 		bool result;
 		result = true;
 		
@@ -6389,7 +6480,7 @@ focusMethod = CFocusMethod::from_int(0);
 	
 	
 	
-	bool CalFocusRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, vector<Frequency > frequencyRange, vector<Angle > pointingDirection, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<bool > wereFixed, vector<vector<Length > > offset, vector<vector<Length > > offsetError, vector<vector<bool > > offsetWasTied, vector<vector<double > > reducedChiSquared, vector<vector<Length > > position) {
+	bool CalFocusRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, FocusMethodMod::FocusMethod focusMethod, std::vector<Frequency > frequencyRange, std::vector<Angle > pointingDirection, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<bool > wereFixed, std::vector<std::vector<Length > > offset, std::vector<std::vector<Length > > offsetError, std::vector<std::vector<bool > > offsetWasTied, std::vector<std::vector<double > > reducedChiSquared, std::vector<std::vector<Length > > position) {
 		bool result;
 		result = true;
 		

@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalGainRow.h>
-#include <CalGainTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalGainRow.h>
+#include <alma/ASDM/CalGainTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalGainRow::~CalGainRow() {
@@ -1001,7 +998,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalGainRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1009,7 +1008,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalGainRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1017,7 +1018,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalGainRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1025,7 +1028,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalGainRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1033,7 +1038,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalGainRow::gainFromText(const string & s) {
 		 
+          
 		gain = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1041,7 +1048,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalGainRow::gainValidFromText(const string & s) {
 		 
+          
 		gainValid = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1049,7 +1058,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalGainRow::fitFromText(const string & s) {
 		 
+          
 		fit = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1057,7 +1068,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalGainRow::fitWeightFromText(const string & s) {
 		 
+          
 		fitWeight = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1065,7 +1078,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalGainRow::totalGainValidFromText(const string & s) {
 		 
+          
 		totalGainValid = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -1073,7 +1088,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalGainRow::totalFitFromText(const string & s) {
 		 
+          
 		totalFit = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1081,7 +1098,9 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalGainRow::totalFitWeightFromText(const string & s) {
 		 
+          
 		totalFitWeight = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1631,10 +1650,10 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 		
 	}
 	
-	CalGainRow::CalGainRow (CalGainTable &t, CalGainRow &row) : table(t) {
+	CalGainRow::CalGainRow (CalGainTable &t, CalGainRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1664,30 +1683,30 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			gain = row.gain;
+			startValidTime = row->startValidTime;
 		
-			gainValid = row.gainValid;
+			endValidTime = row->endValidTime;
 		
-			fit = row.fit;
+			gain = row->gain;
 		
-			fitWeight = row.fitWeight;
+			gainValid = row->gainValid;
 		
-			totalGainValid = row.totalGainValid;
+			fit = row->fit;
 		
-			totalFit = row.totalFit;
+			fitWeight = row->fitWeight;
 		
-			totalFitWeight = row.totalFitWeight;
+			totalGainValid = row->totalGainValid;
+		
+			totalFit = row->totalFit;
+		
+			totalFitWeight = row->totalFitWeight;
 		
 		
 		

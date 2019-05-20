@@ -730,7 +730,6 @@ public:
 			// The first indices of frequency are the channel numbers.
 
 			int channel = 0;
-			iterator dst = begin();
 			Array<Double>::const_iterator frequency = frequencies.begin();
 			Array<Double>::const_iterator width = widths.begin();
 			int nChannels = frequencies.size();
@@ -1767,58 +1766,59 @@ VisibilityIteratorImpl2::newSpectralWindow() const
 Bool
 VisibilityIteratorImpl2::existsColumn(VisBufferComponent2 id) const
 {
-	Bool result;
-	switch (id) {
+  Bool result;
+  switch (id) {
 
-	case VisBufferComponent2::VisibilityCorrected:
-	case VisBufferComponent2::VisibilityCubeCorrected:
+  case VisBufferComponent2::VisibilityCorrected:
+  case VisBufferComponent2::VisibilityCubeCorrected:
 
-		result =
-			!columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
-		break;
+    result =
+        !columns_p.corrVis_p.isNull() && columns_p.corrVis_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::VisibilityModel:
-	case VisBufferComponent2::VisibilityCubeModel:
+  case VisBufferComponent2::VisibilityModel:
+  case VisBufferComponent2::VisibilityCubeModel:
 
-		result =
-			!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0);
-		break;
+    result = 
+        (!columns_p.modelVis_p.isNull() && columns_p.modelVis_p.isDefined(0)) ||
+        modelDataGenerator_p != nullptr;
+    break;
 
-	case VisBufferComponent2::VisibilityObserved:
-	case VisBufferComponent2::VisibilityCubeObserved:
+  case VisBufferComponent2::VisibilityObserved:
+  case VisBufferComponent2::VisibilityCubeObserved:
 
-		result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
-			(columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
+    result = (!columns_p.vis_p.isNull() && columns_p.vis_p.isDefined(0)) ||
+    (columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isNull());
 
-		break;
+    break;
 
-	case VisBufferComponent2::VisibilityCubeFloat:
+  case VisBufferComponent2::VisibilityCubeFloat:
 
-		result =
-			!columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
+    result =
+        !columns_p.floatVis_p.isNull() && columns_p.floatVis_p.isDefined(0);
 
-		break;
+    break;
 
-	case VisBufferComponent2::WeightSpectrum:
+  case VisBufferComponent2::WeightSpectrum:
 
-		result =
-			!columns_p.weightSpectrum_p.isNull()
-			&& columns_p.weightSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.weightSpectrum_p.isNull()
+        && columns_p.weightSpectrum_p.isDefined(0);
+    break;
 
-	case VisBufferComponent2::SigmaSpectrum:
+  case VisBufferComponent2::SigmaSpectrum:
 
-		result =
-			!columns_p.sigmaSpectrum_p.isNull()
-			&& columns_p.sigmaSpectrum_p.isDefined(0);
-		break;
+    result =
+        !columns_p.sigmaSpectrum_p.isNull()
+        && columns_p.sigmaSpectrum_p.isDefined(0);
+    break;
 
-	default:
-		result = true; // required columns
-		break;
-	}
+  default:
+    result = true; // required columns
+    break;
+  }
 
-	return result;
+  return result;
 }
 
 const SubtableColumns &
@@ -2206,109 +2206,114 @@ VisibilityIteratorImpl2::determineChannelSelection(
 Int
 VisibilityIteratorImpl2::getPolarizationId(Int spectralWindowId, Int msId) const
 {
-	ThrowIf(msId != this->msId(),
-	        String::format("Requested MS number is %d but current is %d", msId,
-	                       this->msId()));
+    ThrowIf(msId != this->msId(),
+        String::format("Requested MS number is %d but current is %d", msId,
+                       this->msId()));
 
-	const ROScalarColumn<Int> & spwIds =
-		subtableColumns_p->dataDescription().spectralWindowId();
+    auto & ddCols = subtableColumns_p->dataDescription();
+    auto nSpw = subtableColumns_p->spectralWindow().nrow();
 
-	// This will break if the same spectral window is referenced by two
-	// different data_descrption IDs.  Ideally, this whole thing should be
-	// reworked to used DDIDs with spectral window ID only used internally.
+    // This will break if the same spectral window is referenced by two
+    // different data_descrption IDs.  Ideally, this whole thing should be
+    // reworked to used DDIDs with spectral window ID only used internally.
+    Int polID = -1;
+    for (uInt idd = 0; idd < ddCols.spectralWindowId().nrow(); idd++) {
+        if(ddCols.spectralWindowId()(idd) == spectralWindowId)
+            polID = ddCols.polarizationId()(idd);
+    }
 
-	for (uInt i = 0; i < spwIds.nrow(); i++) {
-		if (spwIds(i) == spectralWindowId) {
-			return subtableColumns_p->dataDescription().polarizationId()(i);
-		}
-	}
+    // If the SPW is not found in the DD it will return -1, rather than failing.
+    // This can happen for the so-called phantom SPWs. See CAS-11734
+    if(spectralWindowId < (Int)nSpw)
+        return polID;
 
-	ThrowIf(true, String::format(
-		        "Could not find entry for spectral window id"
-		        "%d in data_description in MS #%d", spectralWindowId, msId));
+    // spectralWindowId is not present in subtables 
+    ThrowIf(true, String::format(
+            "Could not find entry for spectral window id"
+            "%d in spectral_window in MS #%d", spectralWindowId, msId));
 
-	return -1; // Can't get here so make the compiler happy
+    return -1; // Can't get here so make the compiler happy
 }
 
 
 vi::ChannelSelector *
 VisibilityIteratorImpl2::makeChannelSelectorC(
-	const FrequencySelection & selectionIn,
-	Double time,
-	Int msId,
-	Int spectralWindowId,
-	Int polarizationId) const
+    const FrequencySelection & selectionIn,
+    Double time,
+    Int msId,
+    Int spectralWindowId,
+    Int polarizationId) const
 {
-	const FrequencySelectionUsingChannels & selection =
-		dynamic_cast<const FrequencySelectionUsingChannels &>(selectionIn);
+    const FrequencySelectionUsingChannels & selection =
+    dynamic_cast<const FrequencySelectionUsingChannels &>(selectionIn);
 
-	if (selection.refinementNeeded()) {
-		auto spwcFetcher =
-			[this, msId]
-			(int spwId, double lowerFrequency, double upperFrequency)
-			{
-				const SpectralWindowChannels & spwChannels =
-				getSpectralWindowChannels(msId, spwId);
-				return spwChannels.getIntersection(
-					lowerFrequency, upperFrequency);
-			};
-		selection.applyRefinement(spwcFetcher);
-	}
+    if (selection.refinementNeeded())
+    {
+        auto spwcFetcher =
+            [this, msId]
+            (int spwId, double lowerFrequency, double upperFrequency)
+            {
+                const SpectralWindowChannels & spwChannels =
+                getSpectralWindowChannels(msId, spwId);
+                return spwChannels.getIntersection(
+                    lowerFrequency, upperFrequency);
+            };
+            selection.applyRefinement(spwcFetcher);
+    }
 
-	vector<Slice> frequencySlices;
+    vector<Slice> frequencySlices;
 
-	// Iterate over all of the frequency selections for the specified spectral
-	// window and collect them into a vector of Slice objects.
+    // Iterate over all of the frequency selections for the specified spectral
+    // window and collect them into a vector of Slice objects.
+    for (FrequencySelectionUsingChannels::const_iterator i = selection.begin();
+         i != selection.end(); i++)
+    {
 
-	for (FrequencySelectionUsingChannels::const_iterator i = selection.begin();
-	     i != selection.end();
-	     i++) {
+        frequencySlices.push_back(i->getSlice());
+    }
 
-		frequencySlices.push_back(i->getSlice());
-	}
+    if (frequencySlices.empty())
+    {
+        // And empty selection implies all channels
+        Int nChannels =
+            subtableColumns_p->spectralWindow().numChan()(spectralWindowId);
+        frequencySlices.push_back(Slice(0, nChannels, 1));
+    }
 
-	if (frequencySlices.empty()) {
+    ChannelSlicer slices(2);
 
-		// And empty selection implies all channels
+    // Install the polarization selections
+    if(polarizationId != -1)
+    {
+        Vector<Slice> correlationSlices =
+            selection.getCorrelationSlices(polarizationId);
 
-		Int nChannels =
-			subtableColumns_p->spectralWindow().numChan()(spectralWindowId);
-		frequencySlices.push_back(Slice(0, nChannels, 1));
-	}
+        if (correlationSlices.empty())
+        {
+            Int nCorrelations =
+                subtableColumns_p->polarization().numCorr().get(polarizationId);
+            correlationSlices = Vector<Slice>(1, Slice(0, nCorrelations));
+        }
 
-	ChannelSlicer slices(2);
+        slices.setSubslicer(0, ChannelSubslicer(correlationSlices));
 
-	// Install the polarization selections
+    }
 
-	Vector<Slice> correlationSlices =
-		selection.getCorrelationSlices(polarizationId);
-	if (correlationSlices.empty()) {
+    // Create and install the frequency selections
+    ChannelSubslicer frequencyAxis(frequencySlices.size());
+    for (Int i = 0; i <(int) frequencySlices.size(); i++)
+    {
+        frequencyAxis.setSlice(i, frequencySlices[i]);
+    }
 
-		Int nCorrelations =
-			subtableColumns_p->polarization().numCorr().get(polarizationId);
+    slices.setSubslicer(1, frequencyAxis);
 
-		correlationSlices = Vector<Slice>(1, Slice(0, nCorrelations));
-	}
+    // Package up the result and return it.
+    ChannelSelector *result =
+    new ChannelSelector(time, msId, spectralWindowId, polarizationId,
+                        slices);
 
-	slices.setSubslicer(0, ChannelSubslicer(correlationSlices));
-
-	// Create and install the frequency selections
-
-	ChannelSubslicer frequencyAxis(frequencySlices.size());
-
-	for (Int i = 0; i <(int) frequencySlices.size(); i++) {
-		frequencyAxis.setSlice(i, frequencySlices[i]);
-	}
-
-	slices.setSubslicer(1, frequencyAxis);
-
-	// Package up the result and return it.
-
-	ChannelSelector *result =
-		new ChannelSelector(time, msId, spectralWindowId, polarizationId,
-		                    slices);
-
-	return result;
+    return result;
 }
 
 ChannelSelector *
@@ -3654,7 +3659,7 @@ VisibilityIteratorImpl2::writeModel(
 {
 
 	ThrowIf(!isWritable(), "This visibility iterator is not writable");
-
+	/* Version 1 stuff
 	Vector<Int> fields = columns_p.field_p.getColumn();
 
 	const Int option = Sort::HeapSort | Sort::NoDuplicates;
@@ -3665,7 +3670,10 @@ VisibilityIteratorImpl2::writeModel(
 	// Make sure  we have the right size
 
 	fields.resize(nFields, true);
+	*/
 
+	Matrix<Int>  combiIndex;
+	MSUtil::getIndexCombination(ROMSColumns(ms()), combiIndex);
 	Vector<Int> selectedWindows;
 	Vector<Int> nChannels;
 	Vector<Int> firstChannels;
@@ -3673,12 +3681,19 @@ VisibilityIteratorImpl2::writeModel(
 
 	std::tie(selectedWindows, nChannels, firstChannels, channelIncrement) =
 		getChannelInformation(false);
-
+	 Matrix<Int> chansel(selectedWindows.nelements(),4);
+	 chansel.column(0)=selectedWindows;
+	 chansel.column(1)=firstChannels;
+	 chansel.column(2)=nChannels;
+	 chansel.column(3)=channelIncrement;
 	CountedPtr<VisModelDataI> visModelData = VisModelDataI::create();
 
-	visModelData->putModelI(
+	/*visModelData->putModelI(
 		ms(), rec, fields, selectedWindows, firstChannels, nChannels,
-		channelIncrement, iscomponentlist, incremental);
+		channelIncrement, iscomponentlist, incremental);*/
+	//Version 2 interface to keep state and scan number in track
+	 visModelData->putModelI (ms(), rec, combiIndex, chansel, iscomponentlist, incremental);
+	
 }
 
 VisibilityIteratorImpl2::ChannelInfo
@@ -3904,6 +3919,8 @@ VisibilityIteratorImpl2::initializeBackWriters()
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeight, & VisBuffer2::weight);
 	backWriters_p[VisBufferComponent2::WeightSpectrum] =
 		makeBackWriter(& VisibilityIteratorImpl2::writeWeightSpectrum, & VisBuffer2::weightSpectrum);
+	backWriters_p[VisBufferComponent2::SigmaSpectrum] =
+		makeBackWriter(& VisibilityIteratorImpl2::writeSigmaSpectrum, & VisBuffer2::sigmaSpectrum);
 
 	// Now do the visibilities.
 
@@ -4029,9 +4046,15 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 	Bool isVirtual = hasModelKey || !(ms().tableDesc().isColumn("MODEL_DATA"));
 
 	if (isVirtual) {
+	  modelDataGenerator_p->init(*vb_p);
 
-		if (modelDataGenerator_p->hasModel(
-			    msId(), vb_p->fieldId()(0), vb_p->spectralWindows()(0)) == -1) {
+
+	  //////////This bit can be removed once version 1 is no longer read
+	  if(!(modelDataGenerator_p->isVersion2())){
+
+	    auto field = vb_p->fieldId()(0);
+	    auto spw = vb_p->spectralWindows()(0);
+		if (modelDataGenerator_p->hasModel(msId(),field , spw) == -1) {
 
 			// If the model generator does not have a model for this(ms,field,
 			// spectralWindow) then try to add it.
@@ -4050,7 +4073,8 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 				}
 			}
 		}
-
+	  }
+	  /////////////////////////
 		// Now use the model data generator to fill in the model data.
 		// Temporarily make the VisBuffer writable, if it wasn't already.
 
@@ -4062,13 +4086,117 @@ VisibilityIteratorImpl2::fillFromVirtualModel(Cube <Complex> & value) const
 		// be the model component of the VIIs VB2 then this will be a no-op.
 
 		value = vb_p->visCubeModel();
-
 		return true; // filled it
 	}
 
 	return false; // Did not fill
 }
 
+//**********************************************************************
+// Methods to access the subtables.
+//**********************************************************************
+
+// Access to antenna subtable
+const casacore::ROMSAntennaColumns& VisibilityIteratorImpl2::antennaSubtablecols() const
+{
+    return msIter_p->msColumns().antenna();
+}
+
+// Access to dataDescription subtable
+const casacore::ROMSDataDescColumns& VisibilityIteratorImpl2::dataDescriptionSubtablecols() const
+{
+    return msIter_p->msColumns().dataDescription();
+}
+
+// Access to feed subtable
+const casacore::ROMSFeedColumns& VisibilityIteratorImpl2::feedSubtablecols() const
+{
+    return msIter_p->msColumns().feed();
+}
+
+// Access to field subtable
+const casacore::ROMSFieldColumns& VisibilityIteratorImpl2::fieldSubtablecols() const
+{
+    return msIter_p->msColumns().field();
+}
+
+// Access to flagCmd subtable
+const casacore::ROMSFlagCmdColumns& VisibilityIteratorImpl2::flagCmdSubtablecols() const
+{
+    return msIter_p->msColumns().flagCmd();
+}
+
+// Access to history subtable
+const casacore::ROMSHistoryColumns& VisibilityIteratorImpl2::historySubtablecols() const
+{
+    return msIter_p->msColumns().history();
+}
+
+// Access to observation subtable
+const casacore::ROMSObservationColumns& VisibilityIteratorImpl2::observationSubtablecols() const
+{
+    return msIter_p->msColumns().observation();
+}
+
+// Access to pointing subtable
+const casacore::ROMSPointingColumns& VisibilityIteratorImpl2::pointingSubtablecols() const
+{
+    return msIter_p->msColumns().pointing();
+}
+
+// Access to polarization subtable
+const casacore::ROMSPolarizationColumns& VisibilityIteratorImpl2::polarizationSubtablecols() const
+{
+    return msIter_p->msColumns().polarization();
+}
+
+// Access to processor subtable
+const casacore::ROMSProcessorColumns& VisibilityIteratorImpl2::processorSubtablecols() const
+{
+    return msIter_p->msColumns().processor();
+}
+
+// Access to spectralWindow subtable
+const casacore::ROMSSpWindowColumns& VisibilityIteratorImpl2::spectralWindowSubtablecols() const
+{
+    return msIter_p->msColumns().spectralWindow();
+}
+
+// Access to state subtable
+const casacore::ROMSStateColumns& VisibilityIteratorImpl2::stateSubtablecols() const
+{
+    return msIter_p->msColumns().state();
+}
+
+// Access to doppler subtable
+const casacore::ROMSDopplerColumns& VisibilityIteratorImpl2::dopplerSubtablecols() const
+{
+    return msIter_p->msColumns().doppler();
+}
+
+// Access to freqOffset subtable
+const casacore::ROMSFreqOffsetColumns& VisibilityIteratorImpl2::freqOffsetSubtablecols() const
+{
+    return msIter_p->msColumns().freqOffset();
+}
+
+// Access to source subtable
+const casacore::ROMSSourceColumns& VisibilityIteratorImpl2::sourceSubtablecols() const
+{
+    return msIter_p->msColumns().source();
+}
+
+// Access to sysCal subtable
+const casacore::ROMSSysCalColumns& VisibilityIteratorImpl2::sysCalSubtablecols() const
+{
+    return msIter_p->msColumns().sysCal();
+}
+
+// Access to weather subtable
+const casacore::ROMSWeatherColumns& VisibilityIteratorImpl2::weatherSubtablecols() const
+{
+    return msIter_p->msColumns().weather();
+}
 
 } // end namespace vi
 

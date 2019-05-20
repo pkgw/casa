@@ -4,16 +4,12 @@ import re
 import shutil
 import string
 import copy
-import math
 import time
 import subprocess
 from taskinit import *
 from parallel.parallel_task_helper import ParallelTaskHelper, JobData
 import partitionhelper as ph
-import inspect
 from numpy.f2py.auxfuncs import throw_error
-from mpi4casa.MPIEnvironment import MPIEnvironment
-from mpi4casa.MPICommandClient import MPICommandClient
 
 # Decorator function to print the arguments of a function
 def dump_args(func):
@@ -422,9 +418,28 @@ class ParallelDataHelper(ParallelTaskHelper):
         return retval
 
     @staticmethod
+    def isMMSAndNotServer(vis):
+        """
+        Is vis a Multi-MS, and I am not an MPI server?
+        The return value is used to know if sub-MS (sub-task) commands should be dispatched
+        to servers in parallel (MPI) mode.
+
+        :param vis: an MS
+        """
+        # This checks the "NotServer" condition. If I'm a server, no need to check more
+        # if MPIEnvironment.is_mpi_enabled and not MPIEnvironment.is_mpi_client:
+        if ParallelTaskHelper.isMPIEnabled() and not ParallelTaskHelper.isMPIClient():
+            return False
+
+        # Note: using the ParalleTaskHelper version which honors the __bypass_parallel trick
+        return ParallelTaskHelper.isParallelMS(vis)
+
+    @staticmethod
     def isParallelMS(vis):
         """ This method will read the value of SubType in table.info
             of the Multi-MS or MS. 
+        NOTE: this method is duplicated in in parallel_task_helper, with the addition of
+        a check on "ParallelTaskHelper.__bypass_parallel_processing".
             
         Keyword arguments:
             vis  -- name of MS or Multi-MS
@@ -746,6 +761,7 @@ class ParallelDataHelper(ParallelTaskHelper):
         """ This method is to generate a list of commands to partition
              the data based on both scan/spw axes.
         """
+        import math
         
         casalog.post('Partition per scan/spw will ignore NULL combinations of these two parameters.')
 
@@ -874,7 +890,7 @@ class ParallelDataHelper(ParallelTaskHelper):
         selection = self.__getSelectionFilter()
         
         # Get partition map
-        partitionMap = ph.getPartitonMap(msfilename, numSubMS, selection, axis=['field','spw','scan'],plotMode=0)
+        partitionMap = ph.getPartitionMap(msfilename, numSubMS, selection, axis=['field','spw','scan'],plotMode=0)
 
         # Iterate over list of subMSs
         for subms in partitionMap:

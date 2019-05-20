@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalAppPhaseRow.h>
-#include <CalAppPhaseTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAppPhaseRow.h>
+#include <alma/ASDM/CalAppPhaseTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalAppPhaseRow::~CalAppPhaseRow() {
@@ -1117,7 +1114,9 @@ namespace asdm {
 		
 			
 		efficiencies .clear();
-		vector<float> v_aux_efficiencies;
+        
+        vector<float> v_aux_efficiencies;
+        
 		for (unsigned int i = 0; i < x.efficiencies.length(); ++i) {
 			v_aux_efficiencies.clear();
 			for (unsigned int j = 0; j < x.efficiencies[0].length(); ++j) {
@@ -2380,7 +2379,9 @@ void CalAppPhaseRow::efficienciesFromBin(EndianIStream& eis) {
 		
 		unsigned int efficienciesDim1 = eis.readInt();
 		unsigned int efficienciesDim2 = eis.readInt();
+        
 		vector <float> efficienciesAux1;
+        
 		for (unsigned int i = 0; i < efficienciesDim1; i++) {
 			efficienciesAux1.clear();
 			for (unsigned int j = 0; j < efficienciesDim2 ; j++)			
@@ -2519,7 +2520,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalAppPhaseRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -2527,7 +2530,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::scanNumberFromText(const string & s) {
 		 
+          
 		scanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2535,7 +2540,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAppPhaseRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2543,7 +2550,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAppPhaseRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2551,7 +2560,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAppPhaseRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2559,7 +2570,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAppPhaseRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2567,7 +2580,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAppPhaseRow::adjustTimeFromText(const string & s) {
 		 
+          
 		adjustTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2575,7 +2590,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::adjustTokenFromText(const string & s) {
 		 
+          
 		adjustToken = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2583,7 +2600,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::phasingModeFromText(const string & s) {
 		 
+          
 		phasingMode = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2591,7 +2610,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numPhasedAntennasFromText(const string & s) {
 		 
+          
 		numPhasedAntennas = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2599,7 +2620,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::phasedAntennasFromText(const string & s) {
 		 
+          
 		phasedAntennas = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2607,7 +2630,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::refAntennaIndexFromText(const string & s) {
 		 
+          
 		refAntennaIndex = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2615,7 +2640,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::candRefAntennaIndexFromText(const string & s) {
 		 
+          
 		candRefAntennaIndex = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2623,7 +2650,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::phasePackingFromText(const string & s) {
 		 
+          
 		phasePacking = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2631,7 +2660,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numReceptorsFromText(const string & s) {
 		 
+          
 		numReceptors = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2639,7 +2670,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numChannelsFromText(const string & s) {
 		 
+          
 		numChannels = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2647,7 +2680,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numPhaseValuesFromText(const string & s) {
 		 
+          
 		numPhaseValues = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2655,7 +2690,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAppPhaseRow::phaseValuesFromText(const string & s) {
 		 
+          
 		phaseValues = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -2663,7 +2700,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numCompareFromText(const string & s) {
 		 
+          
 		numCompare = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2671,7 +2710,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::numEfficienciesFromText(const string & s) {
 		 
+          
 		numEfficiencies = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2679,7 +2720,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::compareArrayFromText(const string & s) {
 		 
+          
 		compareArray = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2687,7 +2730,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAppPhaseRow::efficiencyIndicesFromText(const string & s) {
 		 
+          
 		efficiencyIndices = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -2695,7 +2740,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAppPhaseRow::efficienciesFromText(const string & s) {
 		 
+          
 		efficiencies = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2703,7 +2750,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAppPhaseRow::qualityFromText(const string & s) {
 		 
+          
 		quality = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -2711,7 +2760,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAppPhaseRow::phasedSumAntennaFromText(const string & s) {
 		 
+          
 		phasedSumAntenna = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2721,7 +2772,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	void CalAppPhaseRow::typeSupportsFromText(const string & s) {
 		typeSupportsExists = true;
 		 
+          
 		typeSupports = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2730,7 +2783,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	void CalAppPhaseRow::numSupportsFromText(const string & s) {
 		numSupportsExists = true;
 		 
+          
 		numSupports = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2739,7 +2794,9 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	void CalAppPhaseRow::phaseSupportsFromText(const string & s) {
 		phaseSupportsExists = true;
 		 
+          
 		phaseSupports = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -2929,21 +2986,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get adjustToken.
- 	 * @return adjustToken as string
+ 	 * @return adjustToken as std::string
  	 */
- 	string CalAppPhaseRow::getAdjustToken() const {
+ 	std::string CalAppPhaseRow::getAdjustToken() const {
 	
   		return adjustToken;
  	}
 
  	/**
- 	 * Set adjustToken with the specified string.
- 	 * @param adjustToken The string value to which adjustToken is to be set.
+ 	 * Set adjustToken with the specified std::string.
+ 	 * @param adjustToken The std::string value to which adjustToken is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setAdjustToken (string adjustToken)  {
+ 	void CalAppPhaseRow::setAdjustToken (std::string adjustToken)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2961,21 +3018,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasingMode.
- 	 * @return phasingMode as string
+ 	 * @return phasingMode as std::string
  	 */
- 	string CalAppPhaseRow::getPhasingMode() const {
+ 	std::string CalAppPhaseRow::getPhasingMode() const {
 	
   		return phasingMode;
  	}
 
  	/**
- 	 * Set phasingMode with the specified string.
- 	 * @param phasingMode The string value to which phasingMode is to be set.
+ 	 * Set phasingMode with the specified std::string.
+ 	 * @param phasingMode The std::string value to which phasingMode is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setPhasingMode (string phasingMode)  {
+ 	void CalAppPhaseRow::setPhasingMode (std::string phasingMode)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3025,21 +3082,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasedAntennas.
- 	 * @return phasedAntennas as vector<string >
+ 	 * @return phasedAntennas as std::vector<std::string >
  	 */
- 	vector<string > CalAppPhaseRow::getPhasedAntennas() const {
+ 	std::vector<std::string > CalAppPhaseRow::getPhasedAntennas() const {
 	
   		return phasedAntennas;
  	}
 
  	/**
- 	 * Set phasedAntennas with the specified vector<string >.
- 	 * @param phasedAntennas The vector<string > value to which phasedAntennas is to be set.
+ 	 * Set phasedAntennas with the specified std::vector<std::string >.
+ 	 * @param phasedAntennas The std::vector<std::string > value to which phasedAntennas is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setPhasedAntennas (vector<string > phasedAntennas)  {
+ 	void CalAppPhaseRow::setPhasedAntennas (std::vector<std::string > phasedAntennas)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3121,21 +3178,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasePacking.
- 	 * @return phasePacking as string
+ 	 * @return phasePacking as std::string
  	 */
- 	string CalAppPhaseRow::getPhasePacking() const {
+ 	std::string CalAppPhaseRow::getPhasePacking() const {
 	
   		return phasePacking;
  	}
 
  	/**
- 	 * Set phasePacking with the specified string.
- 	 * @param phasePacking The string value to which phasePacking is to be set.
+ 	 * Set phasePacking with the specified std::string.
+ 	 * @param phasePacking The std::string value to which phasePacking is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setPhasePacking (string phasePacking)  {
+ 	void CalAppPhaseRow::setPhasePacking (std::string phasePacking)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3249,21 +3306,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseValues.
- 	 * @return phaseValues as vector<float >
+ 	 * @return phaseValues as std::vector<float >
  	 */
- 	vector<float > CalAppPhaseRow::getPhaseValues() const {
+ 	std::vector<float > CalAppPhaseRow::getPhaseValues() const {
 	
   		return phaseValues;
  	}
 
  	/**
- 	 * Set phaseValues with the specified vector<float >.
- 	 * @param phaseValues The vector<float > value to which phaseValues is to be set.
+ 	 * Set phaseValues with the specified std::vector<float >.
+ 	 * @param phaseValues The std::vector<float > value to which phaseValues is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setPhaseValues (vector<float > phaseValues)  {
+ 	void CalAppPhaseRow::setPhaseValues (std::vector<float > phaseValues)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3345,21 +3402,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get compareArray.
- 	 * @return compareArray as vector<string >
+ 	 * @return compareArray as std::vector<std::string >
  	 */
- 	vector<string > CalAppPhaseRow::getCompareArray() const {
+ 	std::vector<std::string > CalAppPhaseRow::getCompareArray() const {
 	
   		return compareArray;
  	}
 
  	/**
- 	 * Set compareArray with the specified vector<string >.
- 	 * @param compareArray The vector<string > value to which compareArray is to be set.
+ 	 * Set compareArray with the specified std::vector<std::string >.
+ 	 * @param compareArray The std::vector<std::string > value to which compareArray is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setCompareArray (vector<string > compareArray)  {
+ 	void CalAppPhaseRow::setCompareArray (std::vector<std::string > compareArray)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3377,21 +3434,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get efficiencyIndices.
- 	 * @return efficiencyIndices as vector<int >
+ 	 * @return efficiencyIndices as std::vector<int >
  	 */
- 	vector<int > CalAppPhaseRow::getEfficiencyIndices() const {
+ 	std::vector<int > CalAppPhaseRow::getEfficiencyIndices() const {
 	
   		return efficiencyIndices;
  	}
 
  	/**
- 	 * Set efficiencyIndices with the specified vector<int >.
- 	 * @param efficiencyIndices The vector<int > value to which efficiencyIndices is to be set.
+ 	 * Set efficiencyIndices with the specified std::vector<int >.
+ 	 * @param efficiencyIndices The std::vector<int > value to which efficiencyIndices is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setEfficiencyIndices (vector<int > efficiencyIndices)  {
+ 	void CalAppPhaseRow::setEfficiencyIndices (std::vector<int > efficiencyIndices)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3409,21 +3466,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get efficiencies.
- 	 * @return efficiencies as vector<vector<float > >
+ 	 * @return efficiencies as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalAppPhaseRow::getEfficiencies() const {
+ 	std::vector<std::vector<float > > CalAppPhaseRow::getEfficiencies() const {
 	
   		return efficiencies;
  	}
 
  	/**
- 	 * Set efficiencies with the specified vector<vector<float > >.
- 	 * @param efficiencies The vector<vector<float > > value to which efficiencies is to be set.
+ 	 * Set efficiencies with the specified std::vector<std::vector<float > >.
+ 	 * @param efficiencies The std::vector<std::vector<float > > value to which efficiencies is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setEfficiencies (vector<vector<float > > efficiencies)  {
+ 	void CalAppPhaseRow::setEfficiencies (std::vector<std::vector<float > > efficiencies)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3441,21 +3498,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get quality.
- 	 * @return quality as vector<float >
+ 	 * @return quality as std::vector<float >
  	 */
- 	vector<float > CalAppPhaseRow::getQuality() const {
+ 	std::vector<float > CalAppPhaseRow::getQuality() const {
 	
   		return quality;
  	}
 
  	/**
- 	 * Set quality with the specified vector<float >.
- 	 * @param quality The vector<float > value to which quality is to be set.
+ 	 * Set quality with the specified std::vector<float >.
+ 	 * @param quality The std::vector<float > value to which quality is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setQuality (vector<float > quality)  {
+ 	void CalAppPhaseRow::setQuality (std::vector<float > quality)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3473,21 +3530,21 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasedSumAntenna.
- 	 * @return phasedSumAntenna as string
+ 	 * @return phasedSumAntenna as std::string
  	 */
- 	string CalAppPhaseRow::getPhasedSumAntenna() const {
+ 	std::string CalAppPhaseRow::getPhasedSumAntenna() const {
 	
   		return phasedSumAntenna;
  	}
 
  	/**
- 	 * Set phasedSumAntenna with the specified string.
- 	 * @param phasedSumAntenna The string value to which phasedSumAntenna is to be set.
+ 	 * Set phasedSumAntenna with the specified std::string.
+ 	 * @param phasedSumAntenna The std::string value to which phasedSumAntenna is to be set.
  	 
  	
  		
  	 */
- 	void CalAppPhaseRow::setPhasedSumAntenna (string phasedSumAntenna)  {
+ 	void CalAppPhaseRow::setPhasedSumAntenna (std::string phasedSumAntenna)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3513,10 +3570,10 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get typeSupports, which is optional.
- 	 * @return typeSupports as string
+ 	 * @return typeSupports as std::string
  	 * @throw IllegalAccessException If typeSupports does not exist.
  	 */
- 	string CalAppPhaseRow::getTypeSupports() const  {
+ 	std::string CalAppPhaseRow::getTypeSupports() const  {
 		if (!typeSupportsExists) {
 			throw IllegalAccessException("typeSupports", "CalAppPhase");
 		}
@@ -3525,12 +3582,12 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set typeSupports with the specified string.
- 	 * @param typeSupports The string value to which typeSupports is to be set.
+ 	 * Set typeSupports with the specified std::string.
+ 	 * @param typeSupports The std::string value to which typeSupports is to be set.
  	 
  	
  	 */
- 	void CalAppPhaseRow::setTypeSupports (string typeSupports) {
+ 	void CalAppPhaseRow::setTypeSupports (std::string typeSupports) {
 	
  		this->typeSupports = typeSupports;
 	
@@ -3607,10 +3664,10 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseSupports, which is optional.
- 	 * @return phaseSupports as vector<float >
+ 	 * @return phaseSupports as std::vector<float >
  	 * @throw IllegalAccessException If phaseSupports does not exist.
  	 */
- 	vector<float > CalAppPhaseRow::getPhaseSupports() const  {
+ 	std::vector<float > CalAppPhaseRow::getPhaseSupports() const  {
 		if (!phaseSupportsExists) {
 			throw IllegalAccessException("phaseSupports", "CalAppPhase");
 		}
@@ -3619,12 +3676,12 @@ void CalAppPhaseRow::phaseSupportsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phaseSupports with the specified vector<float >.
- 	 * @param phaseSupports The vector<float > value to which phaseSupports is to be set.
+ 	 * Set phaseSupports with the specified std::vector<float >.
+ 	 * @param phaseSupports The std::vector<float > value to which phaseSupports is to be set.
  	 
  	
  	 */
- 	void CalAppPhaseRow::setPhaseSupports (vector<float > phaseSupports) {
+ 	void CalAppPhaseRow::setPhaseSupports (std::vector<float > phaseSupports) {
 	
  		this->phaseSupports = phaseSupports;
 	
@@ -4047,10 +4104,10 @@ basebandName = CBasebandName::from_int(0);
 		
 	}
 	
-	CalAppPhaseRow::CalAppPhaseRow (CalAppPhaseTable &t, CalAppPhaseRow &row) : table(t) {
+	CalAppPhaseRow::CalAppPhaseRow (CalAppPhaseTable &t, CalAppPhaseRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4120,78 +4177,78 @@ basebandName = CBasebandName::from_int(0);
 		else {
 	
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			scanNumber = row.scanNumber;
+			scanNumber = row->scanNumber;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			adjustTime = row.adjustTime;
-		
-			adjustToken = row.adjustToken;
-		
-			phasingMode = row.phasingMode;
-		
-			numPhasedAntennas = row.numPhasedAntennas;
-		
-			phasedAntennas = row.phasedAntennas;
-		
-			refAntennaIndex = row.refAntennaIndex;
-		
-			candRefAntennaIndex = row.candRefAntennaIndex;
-		
-			phasePacking = row.phasePacking;
-		
-			numReceptors = row.numReceptors;
-		
-			numChannels = row.numChannels;
-		
-			numPhaseValues = row.numPhaseValues;
-		
-			phaseValues = row.phaseValues;
-		
-			numCompare = row.numCompare;
-		
-			numEfficiencies = row.numEfficiencies;
-		
-			compareArray = row.compareArray;
-		
-			efficiencyIndices = row.efficiencyIndices;
-		
-			efficiencies = row.efficiencies;
-		
-			quality = row.quality;
-		
-			phasedSumAntenna = row.phasedSumAntenna;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.typeSupportsExists) {
-			typeSupports = row.typeSupports;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			adjustTime = row->adjustTime;
+		
+			adjustToken = row->adjustToken;
+		
+			phasingMode = row->phasingMode;
+		
+			numPhasedAntennas = row->numPhasedAntennas;
+		
+			phasedAntennas = row->phasedAntennas;
+		
+			refAntennaIndex = row->refAntennaIndex;
+		
+			candRefAntennaIndex = row->candRefAntennaIndex;
+		
+			phasePacking = row->phasePacking;
+		
+			numReceptors = row->numReceptors;
+		
+			numChannels = row->numChannels;
+		
+			numPhaseValues = row->numPhaseValues;
+		
+			phaseValues = row->phaseValues;
+		
+			numCompare = row->numCompare;
+		
+			numEfficiencies = row->numEfficiencies;
+		
+			compareArray = row->compareArray;
+		
+			efficiencyIndices = row->efficiencyIndices;
+		
+			efficiencies = row->efficiencies;
+		
+			quality = row->quality;
+		
+			phasedSumAntenna = row->phasedSumAntenna;
+		
+		
+		
+		
+		if (row->typeSupportsExists) {
+			typeSupports = row->typeSupports;		
 			typeSupportsExists = true;
 		}
 		else
 			typeSupportsExists = false;
 		
-		if (row.numSupportsExists) {
-			numSupports = row.numSupports;		
+		if (row->numSupportsExists) {
+			numSupports = row->numSupports;		
 			numSupportsExists = true;
 		}
 		else
 			numSupportsExists = false;
 		
-		if (row.phaseSupportsExists) {
-			phaseSupports = row.phaseSupports;		
+		if (row->phaseSupportsExists) {
+			phaseSupports = row->phaseSupports;		
 			phaseSupportsExists = true;
 		}
 		else
@@ -4233,7 +4290,7 @@ basebandName = CBasebandName::from_int(0);
 	}
 
 	
-	bool CalAppPhaseRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna) {
+	bool CalAppPhaseRow::compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna) {
 		bool result;
 		result = true;
 		
@@ -4417,7 +4474,7 @@ basebandName = CBasebandName::from_int(0);
 	
 	
 	
-	bool CalAppPhaseRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna) {
+	bool CalAppPhaseRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna) {
 		bool result;
 		result = true;
 		

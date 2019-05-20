@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SeeingRow.h>
-#include <SeeingTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SeeingRow.h>
+#include <alma/ASDM/SeeingTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::SeeingRow;
 using asdm::SeeingTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SeeingRow::~SeeingRow() {
@@ -650,7 +647,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void SeeingRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -658,7 +657,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SeeingRow::numBaseLengthFromText(const string & s) {
 		 
+          
 		numBaseLength = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -666,7 +667,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void SeeingRow::baseLengthFromText(const string & s) {
 		 
+          
 		baseLength = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -674,7 +677,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void SeeingRow::phaseRmsFromText(const string & s) {
 		 
+          
 		phaseRms = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -682,7 +687,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void SeeingRow::seeingFromText(const string & s) {
 		 
+          
 		seeing = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -690,7 +697,9 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void SeeingRow::exponentFromText(const string & s) {
 		 
+          
 		exponent = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -781,21 +790,21 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get baseLength.
- 	 * @return baseLength as vector<Length >
+ 	 * @return baseLength as std::vector<Length >
  	 */
- 	vector<Length > SeeingRow::getBaseLength() const {
+ 	std::vector<Length > SeeingRow::getBaseLength() const {
 	
   		return baseLength;
  	}
 
  	/**
- 	 * Set baseLength with the specified vector<Length >.
- 	 * @param baseLength The vector<Length > value to which baseLength is to be set.
+ 	 * Set baseLength with the specified std::vector<Length >.
+ 	 * @param baseLength The std::vector<Length > value to which baseLength is to be set.
  	 
  	
  		
  	 */
- 	void SeeingRow::setBaseLength (vector<Length > baseLength)  {
+ 	void SeeingRow::setBaseLength (std::vector<Length > baseLength)  {
   	
   	
   		if (hasBeenAdded) {
@@ -813,21 +822,21 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseRms.
- 	 * @return phaseRms as vector<Angle >
+ 	 * @return phaseRms as std::vector<Angle >
  	 */
- 	vector<Angle > SeeingRow::getPhaseRms() const {
+ 	std::vector<Angle > SeeingRow::getPhaseRms() const {
 	
   		return phaseRms;
  	}
 
  	/**
- 	 * Set phaseRms with the specified vector<Angle >.
- 	 * @param phaseRms The vector<Angle > value to which phaseRms is to be set.
+ 	 * Set phaseRms with the specified std::vector<Angle >.
+ 	 * @param phaseRms The std::vector<Angle > value to which phaseRms is to be set.
  	 
  	
  		
  	 */
- 	void SeeingRow::setPhaseRms (vector<Angle > phaseRms)  {
+ 	void SeeingRow::setPhaseRms (std::vector<Angle > phaseRms)  {
   	
   	
   		if (hasBeenAdded) {
@@ -997,10 +1006,10 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 		
 	}
 	
-	SeeingRow::SeeingRow (SeeingTable &t, SeeingRow &row) : table(t) {
+	SeeingRow::SeeingRow (SeeingTable &t, SeeingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1020,20 +1029,20 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-			numBaseLength = row.numBaseLength;
+			numBaseLength = row->numBaseLength;
 		
-			baseLength = row.baseLength;
+			baseLength = row->baseLength;
 		
-			phaseRms = row.phaseRms;
+			phaseRms = row->phaseRms;
 		
-			seeing = row.seeing;
+			seeing = row->seeing;
 		
-			exponent = row.exponent;
+			exponent = row->exponent;
 		
 		
 		
@@ -1052,7 +1061,7 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool SeeingRow::compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent) {
+	bool SeeingRow::compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent) {
 		bool result;
 		result = true;
 		
@@ -1103,7 +1112,7 @@ void SeeingRow::exponentFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool SeeingRow::compareRequiredValue(int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent) {
+	bool SeeingRow::compareRequiredValue(int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent) {
 		bool result;
 		result = true;
 		

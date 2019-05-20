@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FreqOffsetRow.h>
-#include <FreqOffsetTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FreqOffsetRow.h>
+#include <alma/ASDM/FreqOffsetTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::FeedTable;
 using asdm::FeedRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FreqOffsetRow::~FreqOffsetRow() {
@@ -593,7 +590,9 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FreqOffsetRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -601,7 +600,9 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FreqOffsetRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -609,7 +610,9 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void FreqOffsetRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -617,7 +620,9 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FreqOffsetRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -625,7 +630,9 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void FreqOffsetRow::offsetFromText(const string & s) {
 		 
+          
 		offset = ASDMValuesParser::parse<Frequency>(s);
+          
 		
 	}
 	
@@ -954,10 +961,10 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FreqOffsetRow::FreqOffsetRow (FreqOffsetTable &t, FreqOffsetRow &row) : table(t) {
+	FreqOffsetRow::FreqOffsetRow (FreqOffsetTable &t, FreqOffsetRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -975,18 +982,18 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
+			feedId = row->feedId;
 		
 		
-			offset = row.offset;
+		
+		
+			offset = row->offset;
 		
 		
 		

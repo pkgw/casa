@@ -41,12 +41,16 @@ class MSTransformIterator : public vi::TransformingVi2
 public:
 
 	MSTransformIterator(	vi::ViImplementation2 * inputVii,
-							SHARED_PTR<MSTransformManager>);
+							std::shared_ptr<MSTransformManager>);
 	~MSTransformIterator();
 
     const casacore::MeasurementSet & ms () const {return *transformedMS_p;};
 
 	virtual vi::VisBuffer2 * getVisBuffer () const {return buffer_p;}
+
+	virtual casacore::String ViiType() const ;
+
+	ViImplementation2 * getInputViIterator () const { return inputVii_p; }
 
     void originChunks ();
     casacore::Bool moreChunks () const;
@@ -65,7 +69,7 @@ protected:
 
 private:
     casacore::String tmpMSFileName_p;
-    SHARED_PTR<MSTransformManager> manager_p;
+    std::shared_ptr<MSTransformManager> manager_p;
 	MSTransformBufferImpl *buffer_p;
 	casacore::MeasurementSet *transformedMS_p;
 };

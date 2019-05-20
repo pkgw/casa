@@ -1,4 +1,3 @@
-//# tSubImage.cc: Test program for class SubImage
 //# Copyright (C) 1998,1999,2000,2001,2003
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,6 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: tSubImage.cc 20567 2009-04-09 23:12:39Z gervandiepen $
 
 #ifndef IMAGEANALYSIS_PEAKINTENSITYFLUXDENSITYCONVERTER_H
 #define IMAGEANALYSIS_PEAKINTENSITYFLUXDENSITYCONVERTER_H
@@ -37,7 +35,8 @@
 
 namespace casa {
 
-class PeakIntensityFluxDensityConverter : public ImageTask<casacore::Float> {
+template <class T> class PeakIntensityFluxDensityConverter
+    : public ImageTask<T> {
 	// <summary>
 	// Class for converting between peak intensity and flux density of a source
 	// of specified shape.
@@ -65,9 +64,7 @@ public:
     using Angular2DGaussian = casacore::GaussianBeam;
 
     // Specify image to get beam and coordinate info from
-	PeakIntensityFluxDensityConverter(
-		const SPCIIF image
-	);
+	PeakIntensityFluxDensityConverter(const SPCIIT image);
 
 	// destructor
 	~PeakIntensityFluxDensityConverter();
@@ -106,8 +103,8 @@ protected:
 		return CasacRegionManager::USE_ALL_STOKES;
 	}
 
-	inline vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
-		return vector<casacore::Coordinate::Type>(1, casacore::Coordinate::DIRECTION);
+	inline std::vector<casacore::Coordinate::Type> _getNecessaryCoordinates() const {
+		return std::vector<casacore::Coordinate::Type>(1, casacore::Coordinate::DIRECTION);
 	}
 
 private:
@@ -116,9 +113,12 @@ private:
 	ComponentType::Shape _shape;
 	casacore::GaussianBeam _beam;
 
-
-
 };
+
 }
+
+#ifndef AIPS_NO_TEMPLATE_SRC
+#include <imageanalysis/ImageAnalysis/PeakIntensityFluxDensityConverter.tcc>
+#endif
 
 #endif

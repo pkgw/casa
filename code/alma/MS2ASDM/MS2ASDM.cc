@@ -38,6 +38,7 @@
 #include <casa/OS/File.h>
 #include <casa/OS/HostInfo.h>
 #include <casa/Containers/Record.h>
+#include <casa/BasicMath/Math.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Utilities/Assert.h>
 #include <casa/Utilities/GenSort.h>
@@ -592,7 +593,7 @@ namespace casa {
       }
       numAntennas = ant.size();
       
-      CorrelationMode correlationMode;
+      CorrelationModeMod::CorrelationMode correlationMode;
       if(numAutoCorrs==0){
 	correlationMode = CorrelationModeMod::CROSS_ONLY;
       }
@@ -605,7 +606,7 @@ namespace casa {
       // if datacolumn is FLOAT_DATA make correlation mode == AUTO as well!
       
       
-      vector< AtmPhaseCorrection >  apc;
+      vector< AtmPhaseCorrectionMod::AtmPhaseCorrection >  apc;
       if(dataIsAPCorrected()){
 	apc.push_back(AtmPhaseCorrectionMod::AP_CORRECTED); 
       }
@@ -625,9 +626,9 @@ namespace casa {
       asdm::PolarizationRow* PR = (ASDM_p->getPolarization()).getRowByKey(asdmPolarizationId_p(PolId));
       uInt numStokes = PR->getNumCorr();
       Array<Int> corrT = polarization().corrType()(PolId);
-      vector<StokesParameter> crossPolProducts = PR->getCorrType();
+      vector<StokesParameterMod::StokesParameter> crossPolProducts = PR->getCorrType();
 
-      vector<StokesParameter> sdPolProduct;
+      vector<StokesParameterMod::StokesParameter> sdPolProduct;
       float scaleFactor = 1.;
       uInt spwId = dataDescription().spectralWindowId()(theDDId);
       unsigned int numSpectralPoint = spectralWindow().numChan()(spwId);
@@ -645,7 +646,7 @@ namespace casa {
       } 
 
       unsigned int numBin = 1; // number of switch cycles
-      NetSideband sideband = CNetSideband::from_int(spectralWindow().netSideband()(spwId));
+      NetSidebandMod::NetSideband sideband = CNetSideband::from_int(spectralWindow().netSideband()(spwId));
       
       SDMDataObject::SpectralWindow spw(crossPolProducts,
 					sdPolProduct,
@@ -665,7 +666,7 @@ namespace casa {
       // construct binary parts for dataStruct
       unsigned int bpFlagsSize = numSpectralPoint * numStokes * (numBaselines+numAutoCorrs);
 
-      vector<AxisName> bpFlagsAxes;
+      vector<AxisNameMod::AxisName> bpFlagsAxes;
       bpFlagsAxes.push_back(AxisNameMod::TIM); // order: inner part of loop should be last!!!!!!
       bpFlagsAxes.push_back(AxisNameMod::SPP); 
       bpFlagsAxes.push_back(AxisNameMod::POL);
@@ -676,20 +677,20 @@ namespace casa {
       
       unsigned int bpTimesSize = 0; // only needed for data blanking
       //unsigned int bpTimesSize = numTimestampsCorr+numTimestampsAuto; 
-      vector<AxisName> bpTimesAxes;
+      vector<AxisNameMod::AxisName> bpTimesAxes;
 //      bpTimesAxes.push_back(AxisNameMod::TIM);
       SDMDataObject::BinaryPart bpActualTimes(bpTimesSize, bpTimesAxes);
       //      cout << "TimesSize " << bpTimesSize << endl;
       
       unsigned int bpDurSize = 0; // only needed for data blanking
       //	unsigned int bpDurSize = numTimestampsCorr+numTimestampsAuto;
-      vector<AxisName> bpDurAxes;
+      vector<AxisNameMod::AxisName> bpDurAxes;
 //      bpDurAxes.push_back(AxisNameMod::TIM);
       SDMDataObject::BinaryPart bpActualDurations(bpDurSize, bpDurAxes);
       //      cout << "DurSize " << bpDurSize << endl;
       
       unsigned int bpLagsSize = 0; // not filled for the moment (only useful if LAG_DATA column present) -> Francois 
-      vector<AxisName> bpLagsAxes;
+      vector<AxisNameMod::AxisName> bpLagsAxes;
       bpLagsAxes.push_back(AxisNameMod::SPP); // ******
       SDMDataObject::ZeroLagsBinaryPart bpZeroLags(bpLagsSize, bpLagsAxes, CorrelatorTypeMod::FXF); // ALMA default
       if(telName_p != "ALMA" && telName_p != "OSF"){
@@ -703,7 +704,7 @@ namespace casa {
       //      cout << "LagsSize " << bpLagsSize << endl;
       
       unsigned int bpCrossSize = numSpectralPoint * numStokes * numBaselines * 2; // real + imag
-      vector<AxisName> bpCrossAxes;
+      vector<AxisNameMod::AxisName> bpCrossAxes;
       //      bpCrossAxes.push_back(AxisNameMod::TIM);
       bpCrossAxes.push_back(AxisNameMod::BAL);
       bpCrossAxes.push_back(AxisNameMod::SPP); 
@@ -712,7 +713,7 @@ namespace casa {
       //      cout << "CrossSize " << bpCrossSize << endl;
       
       unsigned int bpAutoSize = numSpectralPoint * numStokes * numAutoCorrs;
-      vector<AxisName> bpAutoAxes;
+      vector<AxisNameMod::AxisName> bpAutoAxes;
       //      bpAutoAxes.push_back(AxisNameMod::TIM);
       bpAutoAxes.push_back(AxisNameMod::ANT);
       bpAutoAxes.push_back(AxisNameMod::SPP); 
@@ -4102,13 +4103,13 @@ namespace casa {
       os << LogIO::NORMAL << "Filled PointingModel table " << getCurrentUid() << " with " << tT.size() << " rows ..." << LogIO::POST;
     }
     incrementUid();
-    
+
     return rstat;
   }
 
   Bool MS2ASDM::writePointing(){ // create asdm pointing table
     LogIO os(LogOrigin("MS2ASDM", "writePointing()"));
-    
+
     Bool rstat = true;
     
     asdm::PointingTable& tT = ASDM_p->getPointing();
@@ -4116,7 +4117,7 @@ namespace casa {
     asdm::PointingRow* tR = 0;
 
     uInt nPointingRows = pointing().nrow();
-   
+
     if(nPointingRows==0){
       os << LogIO::WARN << "MS Pointing table doesn't exist or is empty." << LogIO::POST;	
       return true; // not an error
@@ -4278,13 +4279,11 @@ namespace casa {
 	    }
 	  }
 	} 
-	
+
 	int pointingModelId = asdmPointingModelId_p(antennaId);
+        double endTimeMJD = timeInterval.getStartInMJD() + timeInterval.getDurationInDays();
 
 	// check if there are more rows for this antenna with adjacent time intervals
-
-	Double endTime = pointing().time()(firstRow) + pointing().interval()(firstRow)/2.;
-
 	irow++;
 	
 	while(irow<nPointingRows && numTerm==0){ // while we find more adjacent rows and don't use polynomials
@@ -4294,21 +4293,25 @@ namespace casa {
 	    continue;
 	  }
 
-	  if( (endTime != pointing().time()(irow) - pointing().interval()(irow)/2.) // row irow is adjacent in time to previous row
+          // need to do the comparison this way because this is close to how the PointingTable class
+          // decides how to add a new row
+
+          ArrayTimeInterval thisTimeInterval = ASDMTimeInterval(pointing().timeQuant()(irow), pointing().intervalQuant()(irow));
+	  if( !casacore::near(endTimeMJD,thisTimeInterval.getStartInMJD()) // row irow is adjacent in time to previous row
 	      || pointingTracking != pointing().tracking()(irow) 
 	      || (usePolynomials == false && pointing().numPoly()(irow)>0)
 	      ){
 	    break; // there will be no further samples for this ASDM pointing table row
 	  }
 
-	  // found a scond pointing row for the antenna ID, now accumulate directions
+	  // found a second pointing row for the antenna ID, now accumulate directions
 	  // until time ranges not contiguous or end of table
 
-	  numRows++;
-	  endTime = pointing().time()(irow) + pointing().interval()(irow)/2.;
+          numRows++;
+          endTimeMJD = thisTimeInterval.getStartInMJD() + thisTimeInterval.getDurationInDays();
 
-	  // update time interval
-	  timeInterval.setDuration( timeInterval.getDuration() + ASDMInterval(pointing().intervalQuant()(irow).getValue("s")) );
+	  // update timeInterval - this may not be exactly the same as adding the durations
+	  timeInterval.setDuration(endTimeMJD - timeInterval.getStartInMJD());
 
 	  dirV.reference(pointing().directionMeasCol()(irow));
 	  pointingDirection.push_back(ASDMAngleV(dirV[0]));
@@ -4339,6 +4342,7 @@ namespace casa {
 	    dirV.reference(pointing().sourceOffsetMeasCol()(irow));
 	    sourceOffset.push_back(ASDMAngleV(dirV[0]));
 	  }	
+          irow++;
 	
 	} // end while accumulating for started  entry
 
@@ -4347,7 +4351,7 @@ namespace casa {
 	if(!usePolynomials){
 	  numTerm = numSample;
 	}
-	
+
 	tR = tT.newRow(antennaId, timeInterval, numSample, encoder, pointingTracking, usePolynomials, timeOrigin, 
 		       numTerm, pointingDirection, target, offset, pointingModelId);
 	
@@ -4362,7 +4366,7 @@ namespace casa {
 	}
 	catch(asdm::DuplicateKey){
 	  os << LogIO::WARN << "Caught asdm::DuplicateKey error for antenna id " 
-	     << aId << LogIO::POST;	
+	     << aId << LogIO::POST;
 	}	  
 	if(tR2 != tR){// no new row was inserted
 	  os << LogIO::WARN << "Internal error: duplicate row in Pointing table for antenna id " 
@@ -4452,16 +4456,28 @@ namespace casa {
     }      
   } 
 
-  ArrayTimeInterval MS2ASDM::ASDMTimeInterval( const Quantity midpoint, const Quantity interval){
-    Double sTime = midpoint.getValue("s");  
-    Double sInterval = interval.getValue("s");
-    if(sInterval + sTime > timestampEndSecs(ms_p.nrow()-1) || sInterval==0.){ // a very large value or zero was set to express "always valid"
-      sTime = timestampStartSecs(0);
-      sInterval = timestampEndSecs(ms_p.nrow()-1) - sTime;
-    }
-    else{ // still need to make sTime the interval start
-      sTime -= sInterval/2.;
-    } 
+    ArrayTimeInterval MS2ASDM::ASDMTimeInterval( const Quantity midpoint, const Quantity interval){
+        Double sTime = midpoint.getValue("s");  
+        Double sInterval = interval.getValue("s");
+
+        // watch for sInterval==0 which means these correspond to a constant value over the whole MS
+        if (sInterval == 0.) {
+            sTime = timestampStartSecs(0);
+            sInterval = timestampEndSecs(ms_p.nrow()-1) - sTime;
+        } else {
+            // very large values of sInterval also signify a constant value, probably in the original SDM
+            // this is somewhat arbitrary but is intended to be safe, there's probably no harm
+            // in writing out large values to the SDM as they will be recovered when read back in
+            // let "large" here be > about 1 year - could probably be smaller and still be safe
+            // 24*60*60*365
+            if (sInterval > 31536000.0) {
+                sTime = timestampStartSecs(0);
+                sInterval = timestampEndSecs(ms_p.nrow()-1) - sTime;
+            } else {
+                // the usual case, turn sTime into the start time
+                sTime -= sInterval/2.;
+            }
+        } 
     
     ArrayTimeInterval timeInterval( ASDMArrayTime(sTime),
 				    ASDMInterval(sInterval) );

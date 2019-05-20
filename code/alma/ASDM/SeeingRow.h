@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 
@@ -76,12 +76,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Seeing.h
     \brief Generated from model's revision "-1", branch ""
@@ -95,7 +95,7 @@ namespace asdm {
 
 class SeeingRow;
 typedef void (SeeingRow::*SeeingAttributeFromBin) (EndianIStream& eis);
-typedef void (SeeingRow::*SeeingAttributeFromText) (const string& s);
+typedef void (SeeingRow::*SeeingAttributeFromText) (const std::string& s);
 
 /**
  * The SeeingRow class is a row of a SeeingTable.
@@ -198,21 +198,21 @@ public:
 	
  	/**
  	 * Get baseLength.
- 	 * @return baseLength as vector<Length >
+ 	 * @return baseLength as std::vector<Length >
  	 */
- 	vector<Length > getBaseLength() const;
+ 	std::vector<Length > getBaseLength() const;
 	
  
  	
  	
  	/**
- 	 * Set baseLength with the specified vector<Length >.
- 	 * @param baseLength The vector<Length > value to which baseLength is to be set.
+ 	 * Set baseLength with the specified std::vector<Length >.
+ 	 * @param baseLength The std::vector<Length > value to which baseLength is to be set.
  	 
  		
  			
  	 */
- 	void setBaseLength (vector<Length > baseLength);
+ 	void setBaseLength (std::vector<Length > baseLength);
   		
 	
 	
@@ -228,21 +228,21 @@ public:
 	
  	/**
  	 * Get phaseRms.
- 	 * @return phaseRms as vector<Angle >
+ 	 * @return phaseRms as std::vector<Angle >
  	 */
- 	vector<Angle > getPhaseRms() const;
+ 	std::vector<Angle > getPhaseRms() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseRms with the specified vector<Angle >.
- 	 * @param phaseRms The vector<Angle > value to which phaseRms is to be set.
+ 	 * Set phaseRms with the specified std::vector<Angle >.
+ 	 * @param phaseRms The std::vector<Angle > value to which phaseRms is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseRms (vector<Angle > phaseRms);
+ 	void setPhaseRms (std::vector<Angle > phaseRms);
   		
 	
 	
@@ -337,7 +337,7 @@ public:
 	 * @param exponent
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent);
 	
 	
 
@@ -357,7 +357,7 @@ public:
 	 * @param exponent
 	    
 	 */ 
-	bool compareRequiredValue(int numBaseLength, vector<Length > baseLength, vector<Angle > phaseRms, float seeing, float exponent); 
+	bool compareRequiredValue(int numBaseLength, std::vector<Length > baseLength, std::vector<Angle > phaseRms, float seeing, float exponent); 
 		 
 	
 	/**
@@ -484,7 +484,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SeeingRow (SeeingTable &table, SeeingRow &row);
+	 SeeingRow (SeeingTable &table, SeeingRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -517,7 +517,7 @@ private:
 	
 	
 
-	vector<Length > baseLength;
+	std::vector<Length > baseLength;
 
 	
 	
@@ -528,7 +528,7 @@ private:
 	
 	
 
-	vector<Angle > phaseRms;
+	std::vector<Angle > phaseRms;
 
 	
 	
@@ -585,22 +585,22 @@ void exponentFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SeeingAttributeFromText> fromTextMethods;
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void numBaseLengthFromText (const string & s);
+void numBaseLengthFromText (const std::string & s);
 	
 	
-void baseLengthFromText (const string & s);
+void baseLengthFromText (const std::string & s);
 	
 	
-void phaseRmsFromText (const string & s);
+void phaseRmsFromText (const std::string & s);
 	
 	
-void seeingFromText (const string & s);
+void seeingFromText (const std::string & s);
 	
 	
-void exponentFromText (const string & s);
+void exponentFromText (const std::string & s);
 	
 
 		

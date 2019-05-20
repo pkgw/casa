@@ -19,6 +19,7 @@ namespace test {
 
 MsFactory::MsFactory (const String & msName)
  : addWeightSpectrum_p (true),
+   addFloatData_p (false),
    includeAutocorrelations_p (false),
    simulator_p (new NewMSSimulator (msName)),
    timeStart_p (-1)
@@ -36,20 +37,16 @@ MsFactory::addAntennas (Int nAntennas)
     Vector<Double> x (nAntennas), y (nAntennas), z (nAntennas),
                    diameter (nAntennas), offset (nAntennas);
 
-    x [0] = 0;
-    y [0] = 0;
-    z [0] = 0;
-
     Vector<String> mount (nAntennas), name (nAntennas), pad (nAntennas);
 
-    for (Int i = 1; i < nAntennas; i++){
+    for (Int i = 0; i < nAntennas; i++){
 
         Double angle = ((i - 1) % 3) * (2 * 3.14159 / 3.0);
         Double radius = (i - 1) / 3.0 * 100;
 
         x [i] = radius * cos (angle);
         y [i] = radius * sin (angle);
-        z [0] = 0;
+        z [i] = 0;
 
         name [i] = String::format ("a%02d", i);
         pad [i] = String::format ("p%02d", i);
@@ -218,10 +215,19 @@ MsFactory::addWeightSpectrum (Bool addIt)
 }
 
 void
+MsFactory::addFloatData (Bool addIt)
+{
+    addFloatData_p = addIt;
+}
+
+void
 MsFactory::addColumns ()
 {
     if (addWeightSpectrum_p){
         addCubeColumn (MS::WEIGHT_SPECTRUM, "WeightSpectrumTiled");
+    }
+    if (addFloatData_p){
+        addCubeColumn (MS::FLOAT_DATA, "FloatDataTiled");
     }
 }
 
@@ -464,6 +470,7 @@ MsFactory::fillCubes (FillState & fillState)
     fillVisCubeCorrected (fillState);
     fillVisCubeModel (fillState);
     fillVisCubeObserved (fillState);
+    fillVisFloatData (fillState);
 
     fillWeightSpectrumCube (fillState);
     fillWeightSpectrumCorrectedCube (fillState);
@@ -558,6 +565,14 @@ MsFactory::fillVisCubeModel (FillState & fillState)
     if (! columns_p.modelVis_p.isNull ()){
 
         fillCube (columns_p.modelVis_p, fillState, generators_p.get(MSMainEnums::MODEL_DATA));
+    }
+}
+
+void
+MsFactory::fillVisFloatData (FillState & fillState)
+{
+    if (! columns_p.floatVis_p.isNull ()){
+        fillCube (columns_p.floatVis_p, fillState, generators_p.get(MSMainEnums::FLOAT_DATA));
     }
 }
 

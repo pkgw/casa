@@ -48,23 +48,23 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
@@ -124,12 +124,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file ExecBlock.h
     \brief Generated from model's revision "-1", branch ""
@@ -152,7 +152,7 @@ class ScaleRow;
 
 class ExecBlockRow;
 typedef void (ExecBlockRow::*ExecBlockAttributeFromBin) (EndianIStream& eis);
-typedef void (ExecBlockRow::*ExecBlockAttributeFromText) (const string& s);
+typedef void (ExecBlockRow::*ExecBlockAttributeFromText) (const std::string& s);
 
 /**
  * The ExecBlockRow class is a row of a ExecBlockTable.
@@ -363,21 +363,21 @@ public:
 	
  	/**
  	 * Get configName.
- 	 * @return configName as string
+ 	 * @return configName as std::string
  	 */
- 	string getConfigName() const;
+ 	std::string getConfigName() const;
 	
  
  	
  	
  	/**
- 	 * Set configName with the specified string.
- 	 * @param configName The string value to which configName is to be set.
+ 	 * Set configName with the specified std::string.
+ 	 * @param configName The std::string value to which configName is to be set.
  	 
  		
  			
  	 */
- 	void setConfigName (string configName);
+ 	void setConfigName (std::string configName);
   		
 	
 	
@@ -393,21 +393,21 @@ public:
 	
  	/**
  	 * Get telescopeName.
- 	 * @return telescopeName as string
+ 	 * @return telescopeName as std::string
  	 */
- 	string getTelescopeName() const;
+ 	std::string getTelescopeName() const;
 	
  
  	
  	
  	/**
- 	 * Set telescopeName with the specified string.
- 	 * @param telescopeName The string value to which telescopeName is to be set.
+ 	 * Set telescopeName with the specified std::string.
+ 	 * @param telescopeName The std::string value to which telescopeName is to be set.
  	 
  		
  			
  	 */
- 	void setTelescopeName (string telescopeName);
+ 	void setTelescopeName (std::string telescopeName);
   		
 	
 	
@@ -423,21 +423,21 @@ public:
 	
  	/**
  	 * Get observerName.
- 	 * @return observerName as string
+ 	 * @return observerName as std::string
  	 */
- 	string getObserverName() const;
+ 	std::string getObserverName() const;
 	
  
  	
  	
  	/**
- 	 * Set observerName with the specified string.
- 	 * @param observerName The string value to which observerName is to be set.
+ 	 * Set observerName with the specified std::string.
+ 	 * @param observerName The std::string value to which observerName is to be set.
  	 
  		
  			
  	 */
- 	void setObserverName (string observerName);
+ 	void setObserverName (std::string observerName);
   		
 	
 	
@@ -483,21 +483,21 @@ public:
 	
  	/**
  	 * Get observingLog.
- 	 * @return observingLog as vector<string >
+ 	 * @return observingLog as std::vector<std::string >
  	 */
- 	vector<string > getObservingLog() const;
+ 	std::vector<std::string > getObservingLog() const;
 	
  
  	
  	
  	/**
- 	 * Set observingLog with the specified vector<string >.
- 	 * @param observingLog The vector<string > value to which observingLog is to be set.
+ 	 * Set observingLog with the specified std::vector<std::string >.
+ 	 * @param observingLog The std::vector<std::string > value to which observingLog is to be set.
  	 
  		
  			
  	 */
- 	void setObservingLog (vector<string > observingLog);
+ 	void setObservingLog (std::vector<std::string > observingLog);
   		
 	
 	
@@ -800,21 +800,21 @@ public:
 	
  	/**
  	 * Get schedulerMode, which is optional.
- 	 * @return schedulerMode as string
+ 	 * @return schedulerMode as std::string
  	 * @throws IllegalAccessException If schedulerMode does not exist.
  	 */
- 	string getSchedulerMode() const;
+ 	std::string getSchedulerMode() const;
 	
  
  	
  	
  	/**
- 	 * Set schedulerMode with the specified string.
- 	 * @param schedulerMode The string value to which schedulerMode is to be set.
+ 	 * Set schedulerMode with the specified std::string.
+ 	 * @param schedulerMode The std::string value to which schedulerMode is to be set.
  	 
  		
  	 */
- 	void setSchedulerMode (string schedulerMode);
+ 	void setSchedulerMode (std::string schedulerMode);
 		
 	
 	
@@ -964,21 +964,21 @@ public:
 	
  	/**
  	 * Get observingScript, which is optional.
- 	 * @return observingScript as string
+ 	 * @return observingScript as std::string
  	 * @throws IllegalAccessException If observingScript does not exist.
  	 */
- 	string getObservingScript() const;
+ 	std::string getObservingScript() const;
 	
  
  	
  	
  	/**
- 	 * Set observingScript with the specified string.
- 	 * @param observingScript The string value to which observingScript is to be set.
+ 	 * Set observingScript with the specified std::string.
+ 	 * @param observingScript The std::string value to which observingScript is to be set.
  	 
  		
  	 */
- 	void setObservingScript (string observingScript);
+ 	void setObservingScript (std::string observingScript);
 		
 	
 	
@@ -1044,21 +1044,21 @@ public:
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  		
  			
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
   		
 	
 	
@@ -1165,7 +1165,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -1188,7 +1188,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -1273,7 +1273,7 @@ public:
 	 * @param sBSummaryId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId);
+	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId);
 	
 	
 
@@ -1323,7 +1323,7 @@ public:
 	 * @param sBSummaryId
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId); 
 		 
 	
 	/**
@@ -1473,7 +1473,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ExecBlockRow (ExecBlockTable &table, ExecBlockRow &row);
+	 ExecBlockRow (ExecBlockTable &table, ExecBlockRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1562,7 +1562,7 @@ private:
 	
 	
 
-	string configName;
+	std::string configName;
 
 	
 	
@@ -1573,7 +1573,7 @@ private:
 	
 	
 
-	string telescopeName;
+	std::string telescopeName;
 
 	
 	
@@ -1584,7 +1584,7 @@ private:
 	
 	
 
-	string observerName;
+	std::string observerName;
 
 	
 	
@@ -1606,7 +1606,7 @@ private:
 	
 	
 
-	vector<string > observingLog;
+	std::vector<std::string > observingLog;
 
 	
 	
@@ -1720,7 +1720,7 @@ private:
 	bool schedulerModeExists;
 	
 
-	string schedulerMode;
+	std::string schedulerMode;
 
 	
 	
@@ -1772,7 +1772,7 @@ private:
 	bool observingScriptExists;
 	
 
-	string observingScript;
+	std::string observingScript;
 
 	
 	
@@ -1800,7 +1800,7 @@ private:
 	
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	
@@ -1898,84 +1898,84 @@ void scaleIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, ExecBlockAttributeFromText> fromTextMethods;
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 	
-void startTimeFromText (const string & s);
+void startTimeFromText (const std::string & s);
 	
 	
-void endTimeFromText (const string & s);
+void endTimeFromText (const std::string & s);
 	
 	
-void execBlockNumFromText (const string & s);
-	
-	
-	
-	
-void configNameFromText (const string & s);
-	
-	
-void telescopeNameFromText (const string & s);
-	
-	
-void observerNameFromText (const string & s);
-	
-	
-void numObservingLogFromText (const string & s);
-	
-	
-void observingLogFromText (const string & s);
+void execBlockNumFromText (const std::string & s);
 	
 	
 	
-void baseRangeMinFromText (const string & s);
+	
+void configNameFromText (const std::string & s);
 	
 	
-void baseRangeMaxFromText (const string & s);
+void telescopeNameFromText (const std::string & s);
 	
 	
-void baseRmsMinorFromText (const string & s);
+void observerNameFromText (const std::string & s);
 	
 	
-void baseRmsMajorFromText (const string & s);
+void numObservingLogFromText (const std::string & s);
 	
 	
-void basePaFromText (const string & s);
+void observingLogFromText (const std::string & s);
 	
 	
-void abortedFromText (const string & s);
+	
+void baseRangeMinFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void baseRangeMaxFromText (const std::string & s);
 	
 	
-void antennaIdFromText (const string & s);
+void baseRmsMinorFromText (const std::string & s);
 	
 	
-void sBSummaryIdFromText (const string & s);
+void baseRmsMajorFromText (const std::string & s);
+	
+	
+void basePaFromText (const std::string & s);
+	
+	
+void abortedFromText (const std::string & s);
+	
+	
+void numAntennaFromText (const std::string & s);
+	
+	
+void antennaIdFromText (const std::string & s);
+	
+	
+void sBSummaryIdFromText (const std::string & s);
 	
 
 	
-void releaseDateFromText (const string & s);
+void releaseDateFromText (const std::string & s);
 	
 	
-void schedulerModeFromText (const string & s);
+void schedulerModeFromText (const std::string & s);
 	
 	
-void siteAltitudeFromText (const string & s);
+void siteAltitudeFromText (const std::string & s);
 	
 	
-void siteLongitudeFromText (const string & s);
+void siteLongitudeFromText (const std::string & s);
 	
 	
-void siteLatitudeFromText (const string & s);
+void siteLatitudeFromText (const std::string & s);
 	
 	
-void observingScriptFromText (const string & s);
+void observingScriptFromText (const std::string & s);
 	
 	
 	
-void scaleIdFromText (const string & s);
+void scaleIdFromText (const std::string & s);
 	
 	
 	

@@ -73,7 +73,6 @@
 #include <casa/System/ProgressMeter.h>
 
 #include <memory>
-using std::auto_ptr;
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -423,12 +422,8 @@ void SkyEquation::predict(Bool incremental,  MS::PredefinedColumns Type) {
 }
 
 //----------------------------------------------------------------------
-void SkyEquation::gradientsChiSquared(const Matrix<Bool>& required,
-				      SkyJones& sj) {
-  // Keep compiler happy
-  if(&sj) {};
-  if(&required) {};
-
+void SkyEquation::gradientsChiSquared(const Matrix<Bool>&,
+				      SkyJones&) {
   throw(AipsError("SkyEquation:: solution for SkyJones not yet implemented"));
 }
 
@@ -946,12 +941,12 @@ VisBuffer& SkyEquation::get(VisBuffer& result,
   if (internalChanges) // yes, we have to go row by row
       for (Int row=0;row<nRow;++row) {
 	   SkyComponent tempComponent=corruptedComponent.copy();
-	   applySkyJones(tempComponent,* vb,row);
+	   applySkyJones(tempComponent,result,row);
 	   cft_->get(* vb,tempComponent,row);
       }
   else { // we don't have a cache of corruptedComponent, therefore
 	 // firstOneChanges is equivalent to the default case
-      applySkyJones(corruptedComponent, * vb, 0);
+      applySkyJones(corruptedComponent, result, 0);
       cft_->get(* vb, corruptedComponent);
   }
   result.modelVisCube()+=vb->modelVisCube();
@@ -972,7 +967,10 @@ VisBuffer& SkyEquation::get(VisBuffer& result,
   Int nRow=result.nRow();
 
   result.modelVisCube(); // get the visibility so vb will have it
-  VisBufferAutoPtr vb(result);
+  //VisBufferAutoPtr vb(result);
+  VisBuffer vb(result); // method only called using writable VI so no ROVIA
+  //Above state copy  is incomplete like msId is not copied...make sure to use
+  //result when metadata is important.
   result.setModelVisCube(Complex(0.0,0.0));
     
   // CURRENTLY we do not have the applySkyJones code which
@@ -988,7 +986,7 @@ VisBuffer& SkyEquation::get(VisBuffer& result,
   uInt ncomponents=compList.nelements();
   for (uInt icomp=0;icomp<ncomponents;icomp++) {
     SkyComponent component=compList.component(icomp).copy();
-    if(vb->polFrame()==MSIter::Linear) {
+    if(vb.polFrame()==MSIter::Linear) {
       if(component.flux().pol()==ComponentType::STOKES) {
 	component.flux().convertPol(ComponentType::LINEAR);
       }
@@ -1001,15 +999,15 @@ VisBuffer& SkyEquation::get(VisBuffer& result,
     if (internalChanges) // yes, we have to go row by row
         for (Int row=0;row<nRow;++row) {
 	     SkyComponent tempComponent=component.copy();
-	     applySkyJones(tempComponent,* vb,row);
-	     cft_->get(* vb,tempComponent,row);
+	     applySkyJones(tempComponent,result,row);
+	     cft_->get(vb,tempComponent,row);
         }
     else { // we don't have a cache for component, therefore
 	   // firstOneChanges is equivalent to the default case
-         applySkyJones(component, * vb, 0);
-         cft_->get(* vb, component);
+         applySkyJones(component, result, 0);
+         cft_->get(vb, component);
     }
-    result.modelVisCube()+=vb->modelVisCube();
+    result.modelVisCube()+=vb.modelVisCube();
   }
   // Now add into the existing model visibility cube
   return result;
@@ -1022,7 +1020,9 @@ SkyComponent& SkyEquation::applySkyJones(SkyComponent& corruptedComponent,
 					 Int row)
 {
   if(!isPSFWork_p){
-    if(ej_) ej_->apply(corruptedComponent,corruptedComponent,vb,row);
+    //The last of the bolean in the following line forces a full spectral corruption
+    // May be should do it on detection of fractional bandwidth 
+    if(ej_) ej_->apply(corruptedComponent,corruptedComponent,vb,row, True, True);
     if(dj_) dj_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(tj_) tj_->apply(corruptedComponent,corruptedComponent,vb,row);
     if(fj_) fj_->apply(corruptedComponent,corruptedComponent,vb,row);

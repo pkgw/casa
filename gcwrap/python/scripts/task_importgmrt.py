@@ -68,6 +68,7 @@ import numpy
 import os
 from importuvfits import *
 from taskinit import *
+from mstools import write_history
 #from fg import *
 
 def importgmrt( fitsfile, flagfile, vis ):

@@ -1,18 +1,28 @@
-#include "SDMDataObject.h"
-#include "SDMDataObjectParser.h"
+#include <alma/ASDMBinaries/SDMDataObject.h>
+#include <alma/ASDMBinaries/SDMDataObjectParser.h>
 #include <algorithm>
 #include <iostream>
 #include <iterator>
 #include <iostream>
 #include <sstream>
 
-
+#ifndef WITHOUT_BOOST
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string/find.hpp>
+#endif
 
-using namespace boost;
+using namespace AtmPhaseCorrectionMod;
+using namespace AxisNameMod;
+using namespace BasebandNameMod;
+using namespace CorrelationModeMod;
+using namespace CorrelatorTypeMod;
+using namespace NetSidebandMod;
+using namespace PrimitiveDataTypeMod;
+using namespace ProcessorTypeMod;
+using namespace SpectralResolutionTypeMod;
+using namespace StokesParameterMod;
 
-using namespace asdmbinaries;
+using namespace std;
 
 namespace asdmbinaries {
 
@@ -29,7 +39,11 @@ namespace asdmbinaries {
   }
 
   // A regular expression to define the syntax of a spectral window identifier.
-  const regex SDMDataObject::SPWID("[0-9]+");
+#ifndef WITHOUT_BOOST
+  const boost::regex SDMDataObject::SPWID("[0-9]+");
+#else
+  const std::regex SDMDataObject::SPWID("[0-9]+");
+#endif
   
   // SDMDataObject::SpectralWindow:: methods
   //
@@ -107,7 +121,11 @@ namespace asdmbinaries {
   NetSidebandMod::NetSideband SDMDataObject::SpectralWindow::sideband() const { return sideband_; }
 
   void SDMDataObject::SpectralWindow::strImage(const string& s) {
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+#else
+    std::cmatch what;
+#endif
     if ((s.size() == 0) || regex_match(s.c_str(), what, SDMDataObject::SPWID)) {
       strImage_ = s;
     }
@@ -118,7 +136,11 @@ namespace asdmbinaries {
   const string& SDMDataObject::SpectralWindow::strImage() const { return strImage_; }
 
   void SDMDataObject::SpectralWindow::strSw(const string& s) {
-    cmatch what;
+#ifndef WITHOUT_BOOST
+    boost::cmatch what;
+#else
+    std::cmatch what;
+#endif
     if ((s.size() == 0) || regex_match(s.c_str(), what, SDMDataObject::SPWID)) {
       strSw_ = s;
     }
@@ -1039,17 +1061,12 @@ namespace asdmbinaries {
     }
   }
 
-#if defined(__APPLE__)
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __DARWIN_LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __DARWIN_BIG_ENDIAN);
-#else 
-  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian", __LITTLE_ENDIAN);
-  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian", __BIG_ENDIAN);
-#endif
+  const ByteOrder* ByteOrder::Little_Endian = new ByteOrder("Little_Endian");
+  const ByteOrder* ByteOrder::Big_Endian = new ByteOrder("Big_Endian");
   const ByteOrder* ByteOrder::Machine_Endianity = ByteOrder::machineEndianity();
 
-  ByteOrder::ByteOrder(const string& name, int endianity):
-    name_(name), endianity_(endianity){;}
+  ByteOrder::ByteOrder(const string& name):
+    name_(name) {;}
 
   ByteOrder::~ByteOrder() {;}
 

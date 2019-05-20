@@ -144,7 +144,7 @@ private:
    
   casacore::Vector<casacore::Float> scaleSizes_p; // casacore::Vector of scale sizes in pixels.
   casacore::Vector<casacore::Float> scaleBias_p; // casacore::Vector of scale biases !!
-  casacore::Float maxPsf_p;
+  //casacore::Float maxPsf_p;
 
   casacore::IPosition gip,imshape;
   casacore::Bool donePSF_p;

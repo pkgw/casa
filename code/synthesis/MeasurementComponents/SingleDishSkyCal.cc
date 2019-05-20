@@ -52,6 +52,7 @@
 #include <synthesis/Utilities/PointingDirectionProjector.h>
 #include <coordinates/Coordinates/DirectionCoordinate.h>
 #include <libsakura/sakura.h>
+#include <cassert>
 
 // Debug Message Handling
 // if SDCALSKY_DEBUG is defined, the macro debuglog and
@@ -115,7 +116,9 @@ inline std::string toString(casacore::Vector<T> const &v) {
   oss << "]";
   return oss.str();
 }
-  
+
+// unused
+/*
 inline casacore::String configureTaqlString(casacore::String const &msName, casacore::Vector<casacore::uInt> stateIdList) {
   std::ostringstream oss;
   oss << "SELECT FROM " << msName << " WHERE ANTENNA1 == ANTENNA2 && STATE_ID IN "
@@ -123,6 +126,7 @@ inline casacore::String configureTaqlString(casacore::String const &msName, casa
       << " ORDER BY FIELD_ID, ANTENNA1, FEED1, DATA_DESC_ID, TIME";
   return casacore::String(oss);
 }
+*/
 
 inline void fillNChanParList(casacore::MeasurementSet const &ms, casacore::Vector<casacore::Int> &nChanParList) {
   casacore::MSSpectralWindow const &msspw = ms.spectralWindow();

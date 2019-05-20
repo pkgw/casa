@@ -48,15 +48,15 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -65,23 +65,19 @@
 	
 
 	
-#include "CReceiverBand.h"
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
-#include "CPolarizationType.h"
-	
-
-	
-
-	
-
-	
-#include "CAntennaMake.h"
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
 
+	
+
+	
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
@@ -100,14 +96,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalFocusModel.h
     \brief Generated from model's revision "-1", branch ""
@@ -127,7 +127,7 @@ class CalDataRow;
 
 class CalFocusModelRow;
 typedef void (CalFocusModelRow::*CalFocusModelAttributeFromBin) (EndianIStream& eis);
-typedef void (CalFocusModelRow::*CalFocusModelAttributeFromText) (const string& s);
+typedef void (CalFocusModelRow::*CalFocusModelAttributeFromText) (const std::string& s);
 
 /**
  * The CalFocusModelRow class is a row of a CalFocusModelTable.
@@ -168,23 +168,23 @@ public:
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string getAntennaName() const;
+ 	std::string getAntennaName() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  		
  			
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 		
  	 */
- 	void setAntennaName (string antennaName);
+ 	void setAntennaName (std::string antennaName);
   		
 	
 	
@@ -414,21 +414,21 @@ public:
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > getCoeffName() const;
+ 	std::vector<std::string > getCoeffName() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffName (vector<string > coeffName);
+ 	void setCoeffName (std::vector<std::string > coeffName);
   		
 	
 	
@@ -444,21 +444,21 @@ public:
 	
  	/**
  	 * Get coeffFormula.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 */
- 	vector<string > getCoeffFormula() const;
+ 	std::vector<std::string > getCoeffFormula() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffFormula (vector<string > coeffFormula);
+ 	void setCoeffFormula (std::vector<std::string > coeffFormula);
   		
 	
 	
@@ -474,21 +474,21 @@ public:
 	
  	/**
  	 * Get coeffValue.
- 	 * @return coeffValue as vector<float >
+ 	 * @return coeffValue as std::vector<float >
  	 */
- 	vector<float > getCoeffValue() const;
+ 	std::vector<float > getCoeffValue() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffValue with the specified vector<float >.
- 	 * @param coeffValue The vector<float > value to which coeffValue is to be set.
+ 	 * Set coeffValue with the specified std::vector<float >.
+ 	 * @param coeffValue The std::vector<float > value to which coeffValue is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffValue (vector<float > coeffValue);
+ 	void setCoeffValue (std::vector<float > coeffValue);
   		
 	
 	
@@ -504,21 +504,21 @@ public:
 	
  	/**
  	 * Get coeffError.
- 	 * @return coeffError as vector<float >
+ 	 * @return coeffError as std::vector<float >
  	 */
- 	vector<float > getCoeffError() const;
+ 	std::vector<float > getCoeffError() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffError with the specified vector<float >.
- 	 * @param coeffError The vector<float > value to which coeffError is to be set.
+ 	 * Set coeffError with the specified std::vector<float >.
+ 	 * @param coeffError The std::vector<float > value to which coeffError is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffError (vector<float > coeffError);
+ 	void setCoeffError (std::vector<float > coeffError);
   		
 	
 	
@@ -534,21 +534,21 @@ public:
 	
  	/**
  	 * Get coeffFixed.
- 	 * @return coeffFixed as vector<bool >
+ 	 * @return coeffFixed as std::vector<bool >
  	 */
- 	vector<bool > getCoeffFixed() const;
+ 	std::vector<bool > getCoeffFixed() const;
 	
  
  	
  	
  	/**
- 	 * Set coeffFixed with the specified vector<bool >.
- 	 * @param coeffFixed The vector<bool > value to which coeffFixed is to be set.
+ 	 * Set coeffFixed with the specified std::vector<bool >.
+ 	 * @param coeffFixed The std::vector<bool > value to which coeffFixed is to be set.
  	 
  		
  			
  	 */
- 	void setCoeffFixed (vector<bool > coeffFixed);
+ 	void setCoeffFixed (std::vector<bool > coeffFixed);
   		
 	
 	
@@ -564,21 +564,21 @@ public:
 	
  	/**
  	 * Get focusModel.
- 	 * @return focusModel as string
+ 	 * @return focusModel as std::string
  	 */
- 	string getFocusModel() const;
+ 	std::string getFocusModel() const;
 	
  
  	
  	
  	/**
- 	 * Set focusModel with the specified string.
- 	 * @param focusModel The string value to which focusModel is to be set.
+ 	 * Set focusModel with the specified std::string.
+ 	 * @param focusModel The std::string value to which focusModel is to be set.
  	 
  		
  			
  	 */
- 	void setFocusModel (string focusModel);
+ 	void setFocusModel (std::string focusModel);
   		
 	
 	
@@ -594,21 +594,21 @@ public:
 	
  	/**
  	 * Get focusRMS.
- 	 * @return focusRMS as vector<Length >
+ 	 * @return focusRMS as std::vector<Length >
  	 */
- 	vector<Length > getFocusRMS() const;
+ 	std::vector<Length > getFocusRMS() const;
 	
  
  	
  	
  	/**
- 	 * Set focusRMS with the specified vector<Length >.
- 	 * @param focusRMS The vector<Length > value to which focusRMS is to be set.
+ 	 * Set focusRMS with the specified std::vector<Length >.
+ 	 * @param focusRMS The std::vector<Length > value to which focusRMS is to be set.
  	 
  		
  			
  	 */
- 	void setFocusRMS (vector<Length > focusRMS);
+ 	void setFocusRMS (std::vector<Length > focusRMS);
   		
 	
 	
@@ -791,7 +791,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared);
+	bool compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, PolarizationTypeMod::PolarizationType polarizationType, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared);
 	
 	
 
@@ -827,7 +827,7 @@ public:
 	 * @param reducedChiSquared
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, vector<string > coeffName, vector<string > coeffFormula, vector<float > coeffValue, vector<float > coeffError, vector<bool > coeffFixed, string focusModel, vector<Length > focusRMS, double reducedChiSquared); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, int numCoeff, int numSourceObs, std::vector<std::string > coeffName, std::vector<std::string > coeffFormula, std::vector<float > coeffValue, std::vector<float > coeffError, std::vector<bool > coeffFixed, std::string focusModel, std::vector<Length > focusRMS, double reducedChiSquared); 
 		 
 	
 	/**
@@ -966,7 +966,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalFocusModelRow (CalFocusModelTable &table, CalFocusModelRow &row);
+	 CalFocusModelRow (CalFocusModelTable &table, CalFocusModelRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -977,7 +977,7 @@ private:
 	
 	
 
-	string antennaName;
+	std::string antennaName;
 
 	
 	
@@ -1065,7 +1065,7 @@ private:
 	
 	
 
-	vector<string > coeffName;
+	std::vector<std::string > coeffName;
 
 	
 	
@@ -1076,7 +1076,7 @@ private:
 	
 	
 
-	vector<string > coeffFormula;
+	std::vector<std::string > coeffFormula;
 
 	
 	
@@ -1087,7 +1087,7 @@ private:
 	
 	
 
-	vector<float > coeffValue;
+	std::vector<float > coeffValue;
 
 	
 	
@@ -1098,7 +1098,7 @@ private:
 	
 	
 
-	vector<float > coeffError;
+	std::vector<float > coeffError;
 
 	
 	
@@ -1109,7 +1109,7 @@ private:
 	
 	
 
-	vector<bool > coeffFixed;
+	std::vector<bool > coeffFixed;
 
 	
 	
@@ -1120,7 +1120,7 @@ private:
 	
 	
 
-	string focusModel;
+	std::string focusModel;
 
 	
 	
@@ -1131,7 +1131,7 @@ private:
 	
 	
 
-	vector<Length > focusRMS;
+	std::vector<Length > focusRMS;
 
 	
 	
@@ -1225,58 +1225,58 @@ void reducedChiSquaredFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalFocusModelAttributeFromText> fromTextMethods;
 	
-void antennaNameFromText (const string & s);
+void antennaNameFromText (const std::string & s);
 	
 	
-void receiverBandFromText (const string & s);
+void receiverBandFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void antennaMakeFromText (const string & s);
+void antennaMakeFromText (const std::string & s);
 	
 	
-void numCoeffFromText (const string & s);
+void numCoeffFromText (const std::string & s);
 	
 	
-void numSourceObsFromText (const string & s);
+void numSourceObsFromText (const std::string & s);
 	
 	
-void coeffNameFromText (const string & s);
+void coeffNameFromText (const std::string & s);
 	
 	
-void coeffFormulaFromText (const string & s);
+void coeffFormulaFromText (const std::string & s);
 	
 	
-void coeffValueFromText (const string & s);
+void coeffValueFromText (const std::string & s);
 	
 	
-void coeffErrorFromText (const string & s);
+void coeffErrorFromText (const std::string & s);
 	
 	
-void coeffFixedFromText (const string & s);
+void coeffFixedFromText (const std::string & s);
 	
 	
-void focusModelFromText (const string & s);
+void focusModelFromText (const std::string & s);
 	
 	
-void focusRMSFromText (const string & s);
+void focusRMSFromText (const std::string & s);
 	
 	
-void reducedChiSquaredFromText (const string & s);
+void reducedChiSquaredFromText (const std::string & s);
 	
 
 		

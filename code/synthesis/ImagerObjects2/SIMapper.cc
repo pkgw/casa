@@ -74,7 +74,7 @@ using namespace casacore;
 		      CountedPtr<FTMachine>& ftm, 
 		      CountedPtr<FTMachine>& iftm) 
   {
-    LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","Construct a mapper",WHERE) );
     ft_p=ftm;
     ift_p=iftm;
     cft_p=NULL;
@@ -115,7 +115,7 @@ using namespace casacore;
   void SIMapper::initializeGrid(const vi::VisBuffer2& vb, bool dopsf)
     {
       //// EMPTY
-       LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
+      //LogIO os( LogOrigin("SIMapper","initializeGrid",WHERE) );
        //Componentlist FTM has nothing to do
        if(ift_p.null())
        	return;
@@ -125,7 +125,7 @@ using namespace casacore;
   void SIMapper::grid(const vi::VisBuffer2& vb, Bool dopsf, FTMachine::Type col)
   {
       //// EMPTY
-     LogIO os( LogOrigin("SIMapper","grid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","grid",WHERE) );
      //Componentlist FTM has no gridding to do
      if(ift_p.null())
        return;
@@ -136,7 +136,7 @@ using namespace casacore;
   void SIMapper::finalizeGrid(const vi::VisBuffer2& vb, const Bool dopsf)
   {
       //// EMPTY
-      LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","finalizeGrid",WHERE) );
 
       if(ift_p.null())
       	return;
@@ -146,7 +146,7 @@ using namespace casacore;
   void SIMapper::initializeDegrid(const vi::VisBuffer2& vb, const Int row)
   {
       //// EMPTY
-    LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper", "initializeDegrid",WHERE) );
     if(ft_p.null() && cft_p.null())
       return;
 
@@ -155,7 +155,7 @@ using namespace casacore;
   void SIMapper::degrid(vi::VisBuffer2& vb)
   {
       //// EMPTY
-      LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","degrid",WHERE) );
       ///This should not be called even but heck let's ignore
       if(ft_p.null() and cft_p.null())
       	return;
@@ -172,14 +172,14 @@ using namespace casacore;
 
   void SIMapper::finalizeDegrid()
   {
-    LogIO os( LogOrigin("SIMapper","finalizeDegrid",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","finalizeDegrid",WHERE) );
     ft_p->finalizeToVis();
   }
 
 
   Bool SIMapper::getFTMRecord(Record& rec, const String diskimage)
   {
-    LogIO os( LogOrigin("SIMapper","getFTMRecord",WHERE) );
+    //LogIO os( LogOrigin("SIMapper","getFTMRecord",WHERE) );
     if(ft_p.null())
     	return false;
     String err;

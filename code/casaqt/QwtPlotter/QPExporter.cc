@@ -44,32 +44,28 @@ QPExporter::QPExporter() {
 void QPExporter::findGridProperties( QPExportCanvas* grabCanvas,
         QPPlotter* grabPlotter, Int& width, Int& height, 
         Int& gridRows, Int& gridCols) {
-	//Figure out the grid size
 	width = 0;
 	if ( grabPlotter != NULL ){
-        width = grabPlotter->squareHeight();  // width=height in square
-        if (width==0) // not a square
-            width = grabPlotter->width();
+		width = grabPlotter->plotWidth();
 	}
 	else if( grabCanvas != NULL ){
-	    width = grabCanvas->canvasWidth();
+		width = grabCanvas->canvasWidth();
 	}
 
 	height = 0;
 	if ( grabPlotter != NULL ){
-        height = grabPlotter->squareHeight();
-        if (height==0)  // not a square
-	        height = grabPlotter->height();
+		height = grabPlotter->plotHeight();
 	}
-    else if (grabCanvas != NULL ){
-	   height = grabCanvas->canvasHeight();
+	else if (grabCanvas != NULL ){
+		height = grabCanvas->canvasHeight();
 	}
 
+	//Figure out the grid size
 	gridRows = 1;
 	gridCols = 1;
 	if ( grabPlotter != NULL ){
 		gridRows = grabPlotter->getRowCount();
-	    gridCols = grabPlotter->getColCount();
+		gridCols = grabPlotter->getColCount();
 	}
 }
 
@@ -547,7 +543,7 @@ QImage QPExporter::produceScreenImage(const PlotExportFormat& format,
     }
 
     int xpos=0, ypos=0, icanv=0;
-    int canvWidth, canvHeight;
+    int canvWidth, canvHeight = 0;
     QImage canvImage;
     QRect printGeom;
 

@@ -222,7 +222,8 @@ Vector<Double> TwoSidedShape::optParameters() const {
 
 void TwoSidedShape::setOptParameters(const Vector<Double>& newOptParms){
   DebugAssert(ok(), AipsError);
-  if (&newOptParms == 0) {};
+  // squash compiler warning, maybe just get rid of DebugAssert statement
+  if (newOptParms.empty()) {};
 }
 
 Bool TwoSidedShape::fromRecord(String& errorMessage,

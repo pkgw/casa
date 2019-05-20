@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 
@@ -84,12 +84,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Ephemeris.h
     \brief Generated from model's revision "-1", branch ""
@@ -103,7 +103,7 @@ namespace asdm {
 
 class EphemerisRow;
 typedef void (EphemerisRow::*EphemerisAttributeFromBin) (EndianIStream& eis);
-typedef void (EphemerisRow::*EphemerisAttributeFromText) (const string& s);
+typedef void (EphemerisRow::*EphemerisAttributeFromText) (const std::string& s);
 
 /**
  * The EphemerisRow class is a row of a EphemerisTable.
@@ -208,21 +208,21 @@ public:
 	
  	/**
  	 * Get observerLocation.
- 	 * @return observerLocation as vector<double >
+ 	 * @return observerLocation as std::vector<double >
  	 */
- 	vector<double > getObserverLocation() const;
+ 	std::vector<double > getObserverLocation() const;
 	
  
  	
  	
  	/**
- 	 * Set observerLocation with the specified vector<double >.
- 	 * @param observerLocation The vector<double > value to which observerLocation is to be set.
+ 	 * Set observerLocation with the specified std::vector<double >.
+ 	 * @param observerLocation The std::vector<double > value to which observerLocation is to be set.
  	 
  		
  			
  	 */
- 	void setObserverLocation (vector<double > observerLocation);
+ 	void setObserverLocation (std::vector<double > observerLocation);
   		
 	
 	
@@ -298,21 +298,21 @@ public:
 	
  	/**
  	 * Get dir.
- 	 * @return dir as vector<vector<double > >
+ 	 * @return dir as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > getDir() const;
+ 	std::vector<std::vector<double > > getDir() const;
 	
  
  	
  	
  	/**
- 	 * Set dir with the specified vector<vector<double > >.
- 	 * @param dir The vector<vector<double > > value to which dir is to be set.
+ 	 * Set dir with the specified std::vector<std::vector<double > >.
+ 	 * @param dir The std::vector<std::vector<double > > value to which dir is to be set.
  	 
  		
  			
  	 */
- 	void setDir (vector<vector<double > > dir);
+ 	void setDir (std::vector<std::vector<double > > dir);
   		
 	
 	
@@ -358,21 +358,21 @@ public:
 	
  	/**
  	 * Get distance.
- 	 * @return distance as vector<double >
+ 	 * @return distance as std::vector<double >
  	 */
- 	vector<double > getDistance() const;
+ 	std::vector<double > getDistance() const;
 	
  
  	
  	
  	/**
- 	 * Set distance with the specified vector<double >.
- 	 * @param distance The vector<double > value to which distance is to be set.
+ 	 * Set distance with the specified std::vector<double >.
+ 	 * @param distance The std::vector<double > value to which distance is to be set.
  	 
  		
  			
  	 */
- 	void setDistance (vector<double > distance);
+ 	void setDistance (std::vector<double > distance);
   		
 	
 	
@@ -418,21 +418,21 @@ public:
 	
  	/**
  	 * Get origin.
- 	 * @return origin as string
+ 	 * @return origin as std::string
  	 */
- 	string getOrigin() const;
+ 	std::string getOrigin() const;
 	
  
  	
  	
  	/**
- 	 * Set origin with the specified string.
- 	 * @param origin The string value to which origin is to be set.
+ 	 * Set origin with the specified std::string.
+ 	 * @param origin The std::string value to which origin is to be set.
  	 
  		
  			
  	 */
- 	void setOrigin (string origin);
+ 	void setOrigin (std::string origin);
   		
 	
 	
@@ -495,21 +495,21 @@ public:
 	
  	/**
  	 * Get radVel, which is optional.
- 	 * @return radVel as vector<double >
+ 	 * @return radVel as std::vector<double >
  	 * @throws IllegalAccessException If radVel does not exist.
  	 */
- 	vector<double > getRadVel() const;
+ 	std::vector<double > getRadVel() const;
 	
  
  	
  	
  	/**
- 	 * Set radVel with the specified vector<double >.
- 	 * @param radVel The vector<double > value to which radVel is to be set.
+ 	 * Set radVel with the specified std::vector<double >.
+ 	 * @param radVel The std::vector<double > value to which radVel is to be set.
  	 
  		
  	 */
- 	void setRadVel (vector<double > radVel);
+ 	void setRadVel (std::vector<double > radVel);
 		
 	
 	
@@ -557,7 +557,7 @@ public:
 	 * @param origin
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin);
 	
 	
 
@@ -583,7 +583,7 @@ public:
 	 * @param origin
 	    
 	 */ 
-	bool compareRequiredValue(vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin); 
+	bool compareRequiredValue(std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin); 
 		 
 	
 	/**
@@ -716,7 +716,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 EphemerisRow (EphemerisTable &table, EphemerisRow &row);
+	 EphemerisRow (EphemerisTable &table, EphemerisRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -749,7 +749,7 @@ private:
 	
 	
 
-	vector<double > observerLocation;
+	std::vector<double > observerLocation;
 
 	
 	
@@ -782,7 +782,7 @@ private:
 	
 	
 
-	vector<vector<double > > dir;
+	std::vector<std::vector<double > > dir;
 
 	
 	
@@ -804,7 +804,7 @@ private:
 	
 	
 
-	vector<double > distance;
+	std::vector<double > distance;
 
 	
 	
@@ -826,7 +826,7 @@ private:
 	
 	
 
-	string origin;
+	std::string origin;
 
 	
 	
@@ -852,7 +852,7 @@ private:
 	bool radVelExists;
 	
 
-	vector<double > radVel;
+	std::vector<double > radVel;
 
 	
 	
@@ -893,41 +893,41 @@ void radVelFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, EphemerisAttributeFromText> fromTextMethods;
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void ephemerisIdFromText (const string & s);
+void ephemerisIdFromText (const std::string & s);
 	
 	
-void observerLocationFromText (const string & s);
+void observerLocationFromText (const std::string & s);
 	
 	
-void equinoxEquatorFromText (const string & s);
+void equinoxEquatorFromText (const std::string & s);
 	
 	
-void numPolyDirFromText (const string & s);
+void numPolyDirFromText (const std::string & s);
 	
 	
-void dirFromText (const string & s);
+void dirFromText (const std::string & s);
 	
 	
-void numPolyDistFromText (const string & s);
+void numPolyDistFromText (const std::string & s);
 	
 	
-void distanceFromText (const string & s);
+void distanceFromText (const std::string & s);
 	
 	
-void timeOriginFromText (const string & s);
+void timeOriginFromText (const std::string & s);
 	
 	
-void originFromText (const string & s);
+void originFromText (const std::string & s);
 	
 
 	
-void numPolyRadVelFromText (const string & s);
+void numPolyRadVelFromText (const std::string & s);
 	
 	
-void radVelFromText (const string & s);
+void radVelFromText (const std::string & s);
 	
 	
 	

@@ -27,24 +27,24 @@
 #ifndef FLAGGING_FLAGGER_H
 #define FLAGGING_FLAGGER_H
 
-#include <iostream>
-#include <vector>
-
 #include <casa/Logging/LogIO.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Containers/Record.h>
-#include <casa/Quanta/Quantum.h>
-#include <flagging/Flagging/FlagVersion.h>
 
-#include <flagging/Flagging/FlagDataHandler.h>
-#include <flagging/Flagging/FlagMSHandler.h>
-#include <flagging/Flagging/FlagCalTableHandler.h>
+// This is needed for FlagAgentList, which should probably go into a separate header
 #include <flagging/Flagging/FlagAgentBase.h>
-#include <flagging/Flagging/FlagAgentSummary.h>
-#include <flagging/Flagging/FlagAgentDisplay.h>
 
+// To handle variant parameters
+#include <stdcasa/StdCasa/CasacSupport.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
+
+class FlagAgentSummary;
+class FlagDataHandler;
+
+#if ! defined(WITHOUT_DBUS)
+class FlagAgentDisplay;
+#endif
 
 // <summary>
 // AgentFlagger: high-performance automated flagging
@@ -247,7 +247,9 @@ protected:
 	casacore::Bool mixed_p;
 
 	// Display agent parameters
-	FlagAgentDisplay *displayAgent_p;
+#if ! defined(WITHOUT_DBUS)
+        casa::FlagAgentDisplay *displayAgent_p;
+#endif
 
 	// variables for initAgents
 	FlagDataHandler *fdh_p;

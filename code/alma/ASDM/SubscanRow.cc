@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SubscanRow.h>
-#include <SubscanTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SubscanRow.h>
+#include <alma/ASDM/SubscanTable.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SubscanRow::~SubscanRow() {
@@ -1087,7 +1084,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SubscanRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1095,7 +1094,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SubscanRow::scanNumberFromText(const string & s) {
 		 
+          
 		scanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1103,7 +1104,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SubscanRow::subscanNumberFromText(const string & s) {
 		 
+          
 		subscanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1111,7 +1114,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void SubscanRow::startTimeFromText(const string & s) {
 		 
+          
 		startTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1119,7 +1124,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void SubscanRow::endTimeFromText(const string & s) {
 		 
+          
 		endTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1127,7 +1134,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void SubscanRow::fieldNameFromText(const string & s) {
 		 
+          
 		fieldName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1135,7 +1144,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an SubscanIntent 
 	void SubscanRow::subscanIntentFromText(const string & s) {
 		 
-		subscanIntent = ASDMValuesParser::parse<SubscanIntent>(s);
+          
+		subscanIntent = ASDMValuesParser::parse<SubscanIntentMod::SubscanIntent>(s);
+          
 		
 	}
 	
@@ -1143,7 +1154,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SubscanRow::numIntegrationFromText(const string & s) {
 		 
+          
 		numIntegration = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1151,7 +1164,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SubscanRow::numSubintegrationFromText(const string & s) {
 		 
+          
 		numSubintegration = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1161,7 +1176,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	void SubscanRow::subscanModeFromText(const string & s) {
 		subscanModeExists = true;
 		 
-		subscanMode = ASDMValuesParser::parse<SwitchingMode>(s);
+          
+		subscanMode = ASDMValuesParser::parse<SwitchingModeMod::SwitchingMode>(s);
+          
 		
 	}
 	
@@ -1170,7 +1187,9 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	void SubscanRow::correlatorCalibrationFromText(const string & s) {
 		correlatorCalibrationExists = true;
 		 
-		correlatorCalibration = ASDMValuesParser::parse<CorrelatorCalibration>(s);
+          
+		correlatorCalibration = ASDMValuesParser::parse<CorrelatorCalibrationMod::CorrelatorCalibration>(s);
+          
 		
 	}
 	
@@ -1328,21 +1347,21 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fieldName.
- 	 * @return fieldName as string
+ 	 * @return fieldName as std::string
  	 */
- 	string SubscanRow::getFieldName() const {
+ 	std::string SubscanRow::getFieldName() const {
 	
   		return fieldName;
  	}
 
  	/**
- 	 * Set fieldName with the specified string.
- 	 * @param fieldName The string value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::string.
+ 	 * @param fieldName The std::string value to which fieldName is to be set.
  	 
  	
  		
  	 */
- 	void SubscanRow::setFieldName (string fieldName)  {
+ 	void SubscanRow::setFieldName (std::string fieldName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1471,21 +1490,21 @@ void SubscanRow::correlatorCalibrationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get numSubintegration.
- 	 * @return numSubintegration as vector<int >
+ 	 * @return numSubintegration as std::vector<int >
  	 */
- 	vector<int > SubscanRow::getNumSubintegration() const {
+ 	std::vector<int > SubscanRow::getNumSubintegration() const {
 	
   		return numSubintegration;
  	}
 
  	/**
- 	 * Set numSubintegration with the specified vector<int >.
- 	 * @param numSubintegration The vector<int > value to which numSubintegration is to be set.
+ 	 * Set numSubintegration with the specified std::vector<int >.
+ 	 * @param numSubintegration The std::vector<int > value to which numSubintegration is to be set.
  	 
  	
  		
  	 */
- 	void SubscanRow::setNumSubintegration (vector<int > numSubintegration)  {
+ 	void SubscanRow::setNumSubintegration (std::vector<int > numSubintegration)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1749,10 +1768,10 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 		
 	}
 	
-	SubscanRow::SubscanRow (SubscanTable &t, SubscanRow &row) : table(t) {
+	SubscanRow::SubscanRow (SubscanTable &t, SubscanRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1786,39 +1805,39 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
-			scanNumber = row.scanNumber;
+			scanNumber = row->scanNumber;
 		
-			subscanNumber = row.subscanNumber;
-		
-		
-		
-		
-			startTime = row.startTime;
-		
-			endTime = row.endTime;
-		
-			fieldName = row.fieldName;
-		
-			subscanIntent = row.subscanIntent;
-		
-			numIntegration = row.numIntegration;
-		
-			numSubintegration = row.numSubintegration;
+			subscanNumber = row->subscanNumber;
 		
 		
 		
 		
-		if (row.subscanModeExists) {
-			subscanMode = row.subscanMode;		
+			startTime = row->startTime;
+		
+			endTime = row->endTime;
+		
+			fieldName = row->fieldName;
+		
+			subscanIntent = row->subscanIntent;
+		
+			numIntegration = row->numIntegration;
+		
+			numSubintegration = row->numSubintegration;
+		
+		
+		
+		
+		if (row->subscanModeExists) {
+			subscanMode = row->subscanMode;		
 			subscanModeExists = true;
 		}
 		else
 			subscanModeExists = false;
 		
-		if (row.correlatorCalibrationExists) {
-			correlatorCalibration = row.correlatorCalibration;		
+		if (row->correlatorCalibrationExists) {
+			correlatorCalibration = row->correlatorCalibration;		
 			correlatorCalibrationExists = true;
 		}
 		else
@@ -1843,7 +1862,7 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 	}
 
 	
-	bool SubscanRow::compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration) {
+	bool SubscanRow::compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration) {
 		bool result;
 		result = true;
 		
@@ -1915,7 +1934,7 @@ correlatorCalibration = CCorrelatorCalibration::from_int(0);
 	
 	
 	
-	bool SubscanRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration) {
+	bool SubscanRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration) {
 		bool result;
 		result = true;
 		

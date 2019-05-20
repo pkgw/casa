@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <AlmaRadiometerRow.h>
-#include <AlmaRadiometerTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/AlmaRadiometerRow.h>
+#include <alma/ASDM/AlmaRadiometerTable.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::SpectralWindowTable;
 using asdm::SpectralWindowRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	AlmaRadiometerRow::~AlmaRadiometerRow() {
@@ -492,7 +489,9 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void AlmaRadiometerRow::almaRadiometerIdFromText(const string & s) {
 		 
+          
 		almaRadiometerId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -502,7 +501,9 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void AlmaRadiometerRow::numAntennaFromText(const string & s) {
 		numAntennaExists = true;
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -511,7 +512,9 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	void AlmaRadiometerRow::spectralWindowIdFromText(const string & s) {
 		spectralWindowIdExists = true;
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -629,10 +632,10 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get spectralWindowId, which is optional.
- 	 * @return spectralWindowId as vector<Tag> 
+ 	 * @return spectralWindowId as std::vector<Tag> 
  	 * @throw IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  AlmaRadiometerRow::getSpectralWindowId() const  {
+ 	std::vector<Tag>  AlmaRadiometerRow::getSpectralWindowId() const  {
 		if (!spectralWindowIdExists) {
 			throw IllegalAccessException("spectralWindowId", "AlmaRadiometer");
 		}
@@ -641,12 +644,12 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set spectralWindowId with the specified vector<Tag> .
- 	 * @param spectralWindowId The vector<Tag>  value to which spectralWindowId is to be set.
+ 	 * Set spectralWindowId with the specified std::vector<Tag> .
+ 	 * @param spectralWindowId The std::vector<Tag>  value to which spectralWindowId is to be set.
  	 
  	
  	 */
- 	void AlmaRadiometerRow::setSpectralWindowId (vector<Tag>  spectralWindowId) {
+ 	void AlmaRadiometerRow::setSpectralWindowId (std::vector<Tag>  spectralWindowId) {
 	
  		this->spectralWindowId = spectralWindowId;
 	
@@ -679,7 +682,7 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
   	void AlmaRadiometerRow::setSpectralWindowId (int i, Tag spectralWindowId) {
   		if ((i < 0) || (i > ((int) this->spectralWindowId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute spectralWindowId in table AlmaRadiometerTable");
-  		vector<Tag> ::iterator iter = this->spectralWindowId.begin();
+  		std::vector<Tag> ::iterator iter = this->spectralWindowId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -703,7 +706,7 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void AlmaRadiometerRow::addSpectralWindowId(const vector<Tag> & id) {
+ void AlmaRadiometerRow::addSpectralWindowId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		spectralWindowId.push_back(id.at(i));
  }
@@ -798,10 +801,10 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	AlmaRadiometerRow::AlmaRadiometerRow (AlmaRadiometerTable &t, AlmaRadiometerRow &row) : table(t) {
+	AlmaRadiometerRow::AlmaRadiometerRow (AlmaRadiometerTable &t, AlmaRadiometerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -819,7 +822,7 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			almaRadiometerId = row.almaRadiometerId;
+			almaRadiometerId = row->almaRadiometerId;
 		
 		
 		
@@ -827,15 +830,15 @@ void AlmaRadiometerRow::spectralWindowIdFromBin(EndianIStream& eis) {
 		
 		
 		
-		if (row.numAntennaExists) {
-			numAntenna = row.numAntenna;		
+		if (row->numAntennaExists) {
+			numAntenna = row->numAntenna;		
 			numAntennaExists = true;
 		}
 		else
 			numAntennaExists = false;
 		
-		if (row.spectralWindowIdExists) {
-			spectralWindowId = row.spectralWindowId;		
+		if (row->spectralWindowIdExists) {
+			spectralWindowId = row->spectralWindowId;		
 			spectralWindowIdExists = true;
 		}
 		else

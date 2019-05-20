@@ -32,26 +32,23 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <TotalPowerRow.h>
-#include <TotalPowerTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/TotalPowerRow.h>
+#include <alma/ASDM/TotalPowerTable.h>
 
-#include <StateTable.h>
-#include <StateRow.h>
+#include <alma/ASDM/StateTable.h>
+#include <alma/ASDM/StateRow.h>
 
-#include <FieldTable.h>
-#include <FieldRow.h>
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 
-#include <ConfigDescriptionTable.h>
-#include <ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -71,14 +68,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	TotalPowerRow::~TotalPowerRow() {
@@ -691,7 +688,9 @@ namespace asdm {
 		
 			
 		uvw .clear();
-		vector<Length> v_aux_uvw;
+        
+        vector<Length> v_aux_uvw;
+        
 		for (unsigned int i = 0; i < x.uvw.length(); ++i) {
 			v_aux_uvw.clear();
 			for (unsigned int j = 0; j < x.uvw[0].length(); ++j) {
@@ -711,7 +710,9 @@ namespace asdm {
 		
 			
 		exposure .clear();
-		vector<Interval> v_aux_exposure;
+        
+        vector<Interval> v_aux_exposure;
+        
 		for (unsigned int i = 0; i < x.exposure.length(); ++i) {
 			v_aux_exposure.clear();
 			for (unsigned int j = 0; j < x.exposure[0].length(); ++j) {
@@ -731,7 +732,9 @@ namespace asdm {
 		
 			
 		timeCentroid .clear();
-		vector<ArrayTime> v_aux_timeCentroid;
+        
+        vector<ArrayTime> v_aux_timeCentroid;
+        
 		for (unsigned int i = 0; i < x.timeCentroid.length(); ++i) {
 			v_aux_timeCentroid.clear();
 			for (unsigned int j = 0; j < x.timeCentroid[0].length(); ++j) {
@@ -792,7 +795,9 @@ namespace asdm {
 		
 			
 		flagPol .clear();
-		vector<int> v_aux_flagPol;
+        
+        vector<int> v_aux_flagPol;
+        
 		for (unsigned int i = 0; i < x.flagPol.length(); ++i) {
 			v_aux_flagPol.clear();
 			for (unsigned int j = 0; j < x.flagPol[0].length(); ++j) {
@@ -1555,7 +1560,9 @@ void TotalPowerRow::flagPolFromBin(EndianIStream& eis) {
 		
 		unsigned int flagPolDim1 = eis.readInt();
 		unsigned int flagPolDim2 = eis.readInt();
+        
 		vector <int> flagPolAux1;
+        
 		for (unsigned int i = 0; i < flagPolDim1; i++) {
 			flagPolAux1.clear();
 			for (unsigned int j = 0; j < flagPolDim2 ; j++)			
@@ -1654,7 +1661,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void TotalPowerRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1662,7 +1671,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void TotalPowerRow::configDescriptionIdFromText(const string & s) {
 		 
+          
 		configDescriptionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1670,7 +1681,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void TotalPowerRow::fieldIdFromText(const string & s) {
 		 
+          
 		fieldId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1678,7 +1691,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void TotalPowerRow::scanNumberFromText(const string & s) {
 		 
+          
 		scanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1686,7 +1701,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void TotalPowerRow::subscanNumberFromText(const string & s) {
 		 
+          
 		subscanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1694,7 +1711,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void TotalPowerRow::integrationNumberFromText(const string & s) {
 		 
+          
 		integrationNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1702,7 +1721,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void TotalPowerRow::uvwFromText(const string & s) {
 		 
+          
 		uvw = ASDMValuesParser::parse2D<Length>(s);
+          
 		
 	}
 	
@@ -1710,7 +1731,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void TotalPowerRow::exposureFromText(const string & s) {
 		 
+          
 		exposure = ASDMValuesParser::parse2D<Interval>(s);
+          
 		
 	}
 	
@@ -1718,7 +1741,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void TotalPowerRow::timeCentroidFromText(const string & s) {
 		 
+          
 		timeCentroid = ASDMValuesParser::parse2D<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1726,7 +1751,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void TotalPowerRow::floatDataFromText(const string & s) {
 		 
+          
 		floatData = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -1734,7 +1761,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void TotalPowerRow::flagAntFromText(const string & s) {
 		 
+          
 		flagAnt = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1742,7 +1771,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void TotalPowerRow::flagPolFromText(const string & s) {
 		 
+          
 		flagPol = ASDMValuesParser::parse2D<int>(s);
+          
 		
 	}
 	
@@ -1750,7 +1781,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void TotalPowerRow::intervalFromText(const string & s) {
 		 
+          
 		interval = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1758,7 +1791,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void TotalPowerRow::stateIdFromText(const string & s) {
 		 
+          
 		stateId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1766,7 +1801,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void TotalPowerRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1776,7 +1813,9 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	void TotalPowerRow::subintegrationNumberFromText(const string & s) {
 		subintegrationNumberExists = true;
 		 
+          
 		subintegrationNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1930,21 +1969,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get uvw.
- 	 * @return uvw as vector<vector<Length > >
+ 	 * @return uvw as std::vector<std::vector<Length > >
  	 */
- 	vector<vector<Length > > TotalPowerRow::getUvw() const {
+ 	std::vector<std::vector<Length > > TotalPowerRow::getUvw() const {
 	
   		return uvw;
  	}
 
  	/**
- 	 * Set uvw with the specified vector<vector<Length > >.
- 	 * @param uvw The vector<vector<Length > > value to which uvw is to be set.
+ 	 * Set uvw with the specified std::vector<std::vector<Length > >.
+ 	 * @param uvw The std::vector<std::vector<Length > > value to which uvw is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setUvw (vector<vector<Length > > uvw)  {
+ 	void TotalPowerRow::setUvw (std::vector<std::vector<Length > > uvw)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1962,21 +2001,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get exposure.
- 	 * @return exposure as vector<vector<Interval > >
+ 	 * @return exposure as std::vector<std::vector<Interval > >
  	 */
- 	vector<vector<Interval > > TotalPowerRow::getExposure() const {
+ 	std::vector<std::vector<Interval > > TotalPowerRow::getExposure() const {
 	
   		return exposure;
  	}
 
  	/**
- 	 * Set exposure with the specified vector<vector<Interval > >.
- 	 * @param exposure The vector<vector<Interval > > value to which exposure is to be set.
+ 	 * Set exposure with the specified std::vector<std::vector<Interval > >.
+ 	 * @param exposure The std::vector<std::vector<Interval > > value to which exposure is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setExposure (vector<vector<Interval > > exposure)  {
+ 	void TotalPowerRow::setExposure (std::vector<std::vector<Interval > > exposure)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1994,21 +2033,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get timeCentroid.
- 	 * @return timeCentroid as vector<vector<ArrayTime > >
+ 	 * @return timeCentroid as std::vector<std::vector<ArrayTime > >
  	 */
- 	vector<vector<ArrayTime > > TotalPowerRow::getTimeCentroid() const {
+ 	std::vector<std::vector<ArrayTime > > TotalPowerRow::getTimeCentroid() const {
 	
   		return timeCentroid;
  	}
 
  	/**
- 	 * Set timeCentroid with the specified vector<vector<ArrayTime > >.
- 	 * @param timeCentroid The vector<vector<ArrayTime > > value to which timeCentroid is to be set.
+ 	 * Set timeCentroid with the specified std::vector<std::vector<ArrayTime > >.
+ 	 * @param timeCentroid The std::vector<std::vector<ArrayTime > > value to which timeCentroid is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setTimeCentroid (vector<vector<ArrayTime > > timeCentroid)  {
+ 	void TotalPowerRow::setTimeCentroid (std::vector<std::vector<ArrayTime > > timeCentroid)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2026,21 +2065,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get floatData.
- 	 * @return floatData as vector<vector<vector<float > > >
+ 	 * @return floatData as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > TotalPowerRow::getFloatData() const {
+ 	std::vector<std::vector<std::vector<float > > > TotalPowerRow::getFloatData() const {
 	
   		return floatData;
  	}
 
  	/**
- 	 * Set floatData with the specified vector<vector<vector<float > > >.
- 	 * @param floatData The vector<vector<vector<float > > > value to which floatData is to be set.
+ 	 * Set floatData with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param floatData The std::vector<std::vector<std::vector<float > > > value to which floatData is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setFloatData (vector<vector<vector<float > > > floatData)  {
+ 	void TotalPowerRow::setFloatData (std::vector<std::vector<std::vector<float > > > floatData)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2058,21 +2097,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get flagAnt.
- 	 * @return flagAnt as vector<int >
+ 	 * @return flagAnt as std::vector<int >
  	 */
- 	vector<int > TotalPowerRow::getFlagAnt() const {
+ 	std::vector<int > TotalPowerRow::getFlagAnt() const {
 	
   		return flagAnt;
  	}
 
  	/**
- 	 * Set flagAnt with the specified vector<int >.
- 	 * @param flagAnt The vector<int > value to which flagAnt is to be set.
+ 	 * Set flagAnt with the specified std::vector<int >.
+ 	 * @param flagAnt The std::vector<int > value to which flagAnt is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setFlagAnt (vector<int > flagAnt)  {
+ 	void TotalPowerRow::setFlagAnt (std::vector<int > flagAnt)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2090,21 +2129,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get flagPol.
- 	 * @return flagPol as vector<vector<int > >
+ 	 * @return flagPol as std::vector<std::vector<int > >
  	 */
- 	vector<vector<int > > TotalPowerRow::getFlagPol() const {
+ 	std::vector<std::vector<int > > TotalPowerRow::getFlagPol() const {
 	
   		return flagPol;
  	}
 
  	/**
- 	 * Set flagPol with the specified vector<vector<int > >.
- 	 * @param flagPol The vector<vector<int > > value to which flagPol is to be set.
+ 	 * Set flagPol with the specified std::vector<std::vector<int > >.
+ 	 * @param flagPol The std::vector<std::vector<int > > value to which flagPol is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setFlagPol (vector<vector<int > > flagPol)  {
+ 	void TotalPowerRow::setFlagPol (std::vector<std::vector<int > > flagPol)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2310,21 +2349,21 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stateId.
- 	 * @return stateId as vector<Tag> 
+ 	 * @return stateId as std::vector<Tag> 
  	 */
- 	vector<Tag>  TotalPowerRow::getStateId() const {
+ 	std::vector<Tag>  TotalPowerRow::getStateId() const {
 	
   		return stateId;
  	}
 
  	/**
- 	 * Set stateId with the specified vector<Tag> .
- 	 * @param stateId The vector<Tag>  value to which stateId is to be set.
+ 	 * Set stateId with the specified std::vector<Tag> .
+ 	 * @param stateId The std::vector<Tag>  value to which stateId is to be set.
  	 
  	
  		
  	 */
- 	void TotalPowerRow::setStateId (vector<Tag>  stateId)  {
+ 	void TotalPowerRow::setStateId (std::vector<Tag>  stateId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2357,7 +2396,7 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->stateId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute stateId in table TotalPowerTable");
-  		vector<Tag> ::iterator iter = this->stateId.begin();
+  		std::vector<Tag> ::iterator iter = this->stateId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2381,7 +2420,7 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
  * Append an array of Tag to stateId.
  * @param id an array of Tag to be appended to stateId
  */
- void TotalPowerRow::addStateId(const vector<Tag> & id) {
+ void TotalPowerRow::addStateId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		stateId.push_back(id.at(i));
  }
@@ -2642,10 +2681,10 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 		
 	}
 	
-	TotalPowerRow::TotalPowerRow (TotalPowerTable &t, TotalPowerRow &row) : table(t) {
+	TotalPowerRow::TotalPowerRow (TotalPowerTable &t, TotalPowerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2687,44 +2726,44 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			time = row.time;
+			time = row->time;
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
-			fieldId = row.fieldId;
-		
-		
-		
-		
-			scanNumber = row.scanNumber;
-		
-			subscanNumber = row.subscanNumber;
-		
-			integrationNumber = row.integrationNumber;
-		
-			uvw = row.uvw;
-		
-			exposure = row.exposure;
-		
-			timeCentroid = row.timeCentroid;
-		
-			floatData = row.floatData;
-		
-			flagAnt = row.flagAnt;
-		
-			flagPol = row.flagPol;
-		
-			interval = row.interval;
-		
-			stateId = row.stateId;
-		
-			execBlockId = row.execBlockId;
+			fieldId = row->fieldId;
 		
 		
 		
 		
-		if (row.subintegrationNumberExists) {
-			subintegrationNumber = row.subintegrationNumber;		
+			scanNumber = row->scanNumber;
+		
+			subscanNumber = row->subscanNumber;
+		
+			integrationNumber = row->integrationNumber;
+		
+			uvw = row->uvw;
+		
+			exposure = row->exposure;
+		
+			timeCentroid = row->timeCentroid;
+		
+			floatData = row->floatData;
+		
+			flagAnt = row->flagAnt;
+		
+			flagPol = row->flagPol;
+		
+			interval = row->interval;
+		
+			stateId = row->stateId;
+		
+			execBlockId = row->execBlockId;
+		
+		
+		
+		
+		if (row->subintegrationNumberExists) {
+			subintegrationNumber = row->subintegrationNumber;		
 			subintegrationNumberExists = true;
 		}
 		else
@@ -2754,7 +2793,7 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool TotalPowerRow::compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId) {
+	bool TotalPowerRow::compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId) {
 		bool result;
 		result = true;
 		
@@ -2868,7 +2907,7 @@ void TotalPowerRow::subintegrationNumberFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool TotalPowerRow::compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, vector<vector<Length > > uvw, vector<vector<Interval > > exposure, vector<vector<ArrayTime > > timeCentroid, vector<vector<vector<float > > > floatData, vector<int > flagAnt, vector<vector<int > > flagPol, Interval interval, vector<Tag>  stateId, Tag execBlockId) {
+	bool TotalPowerRow::compareRequiredValue(int scanNumber, int subscanNumber, int integrationNumber, std::vector<std::vector<Length > > uvw, std::vector<std::vector<Interval > > exposure, std::vector<std::vector<ArrayTime > > timeCentroid, std::vector<std::vector<std::vector<float > > > floatData, std::vector<int > flagAnt, std::vector<std::vector<int > > flagPol, Interval interval, std::vector<Tag>  stateId, Tag execBlockId) {
 		bool result;
 		result = true;
 		

@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DelayModelFixedParametersRow.h>
-#include <DelayModelFixedParametersTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DelayModelFixedParametersRow.h>
+#include <alma/ASDM/DelayModelFixedParametersTable.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	DelayModelFixedParametersRow::~DelayModelFixedParametersRow() {
@@ -2031,7 +2028,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void DelayModelFixedParametersRow::delayModelFixedParametersIdFromText(const string & s) {
 		 
+          
 		delayModelFixedParametersId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2039,7 +2038,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void DelayModelFixedParametersRow::delayModelVersionFromText(const string & s) {
 		 
+          
 		delayModelVersion = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2047,7 +2048,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void DelayModelFixedParametersRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2057,7 +2060,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::gaussConstantFromText(const string & s) {
 		gaussConstantExists = true;
 		 
+          
 		gaussConstant = ASDMValuesParser::parse<AngularRate>(s);
+          
 		
 	}
 	
@@ -2066,7 +2071,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::newtonianConstantFromText(const string & s) {
 		newtonianConstantExists = true;
 		 
+          
 		newtonianConstant = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2075,7 +2082,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::gravityFromText(const string & s) {
 		gravityExists = true;
 		 
+          
 		gravity = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2084,7 +2093,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::earthFlatteningFromText(const string & s) {
 		earthFlatteningExists = true;
 		 
+          
 		earthFlattening = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2093,7 +2104,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::earthRadiusFromText(const string & s) {
 		earthRadiusExists = true;
 		 
+          
 		earthRadius = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2102,7 +2115,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::moonEarthMassRatioFromText(const string & s) {
 		moonEarthMassRatioExists = true;
 		 
+          
 		moonEarthMassRatio = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2111,7 +2126,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::ephemerisEpochFromText(const string & s) {
 		ephemerisEpochExists = true;
 		 
+          
 		ephemerisEpoch = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2120,7 +2137,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::earthTideLagFromText(const string & s) {
 		earthTideLagExists = true;
 		 
+          
 		earthTideLag = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2129,7 +2148,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::earthGMFromText(const string & s) {
 		earthGMExists = true;
 		 
+          
 		earthGM = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2138,7 +2159,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::moonGMFromText(const string & s) {
 		moonGMExists = true;
 		 
+          
 		moonGM = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2147,7 +2170,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::sunGMFromText(const string & s) {
 		sunGMExists = true;
 		 
+          
 		sunGM = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2156,7 +2181,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::loveNumberHFromText(const string & s) {
 		loveNumberHExists = true;
 		 
+          
 		loveNumberH = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2165,7 +2192,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::loveNumberLFromText(const string & s) {
 		loveNumberLExists = true;
 		 
+          
 		loveNumberL = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2174,7 +2203,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::precessionConstantFromText(const string & s) {
 		precessionConstantExists = true;
 		 
+          
 		precessionConstant = ASDMValuesParser::parse<AngularRate>(s);
+          
 		
 	}
 	
@@ -2183,7 +2214,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::lightTime1AUFromText(const string & s) {
 		lightTime1AUExists = true;
 		 
+          
 		lightTime1AU = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2192,7 +2225,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::speedOfLightFromText(const string & s) {
 		speedOfLightExists = true;
 		 
+          
 		speedOfLight = ASDMValuesParser::parse<Speed>(s);
+          
 		
 	}
 	
@@ -2201,7 +2236,9 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	void DelayModelFixedParametersRow::delayModelFlagsFromText(const string & s) {
 		delayModelFlagsExists = true;
 		 
+          
 		delayModelFlags = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2259,21 +2296,21 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get delayModelVersion.
- 	 * @return delayModelVersion as string
+ 	 * @return delayModelVersion as std::string
  	 */
- 	string DelayModelFixedParametersRow::getDelayModelVersion() const {
+ 	std::string DelayModelFixedParametersRow::getDelayModelVersion() const {
 	
   		return delayModelVersion;
  	}
 
  	/**
- 	 * Set delayModelVersion with the specified string.
- 	 * @param delayModelVersion The string value to which delayModelVersion is to be set.
+ 	 * Set delayModelVersion with the specified std::string.
+ 	 * @param delayModelVersion The std::string value to which delayModelVersion is to be set.
  	 
  	
  		
  	 */
- 	void DelayModelFixedParametersRow::setDelayModelVersion (string delayModelVersion)  {
+ 	void DelayModelFixedParametersRow::setDelayModelVersion (std::string delayModelVersion)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2581,10 +2618,10 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get ephemerisEpoch, which is optional.
- 	 * @return ephemerisEpoch as string
+ 	 * @return ephemerisEpoch as std::string
  	 * @throw IllegalAccessException If ephemerisEpoch does not exist.
  	 */
- 	string DelayModelFixedParametersRow::getEphemerisEpoch() const  {
+ 	std::string DelayModelFixedParametersRow::getEphemerisEpoch() const  {
 		if (!ephemerisEpochExists) {
 			throw IllegalAccessException("ephemerisEpoch", "DelayModelFixedParameters");
 		}
@@ -2593,12 +2630,12 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set ephemerisEpoch with the specified string.
- 	 * @param ephemerisEpoch The string value to which ephemerisEpoch is to be set.
+ 	 * Set ephemerisEpoch with the specified std::string.
+ 	 * @param ephemerisEpoch The std::string value to which ephemerisEpoch is to be set.
  	 
  	
  	 */
- 	void DelayModelFixedParametersRow::setEphemerisEpoch (string ephemerisEpoch) {
+ 	void DelayModelFixedParametersRow::setEphemerisEpoch (std::string ephemerisEpoch) {
 	
  		this->ephemerisEpoch = ephemerisEpoch;
 	
@@ -3051,10 +3088,10 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get delayModelFlags, which is optional.
- 	 * @return delayModelFlags as string
+ 	 * @return delayModelFlags as std::string
  	 * @throw IllegalAccessException If delayModelFlags does not exist.
  	 */
- 	string DelayModelFixedParametersRow::getDelayModelFlags() const  {
+ 	std::string DelayModelFixedParametersRow::getDelayModelFlags() const  {
 		if (!delayModelFlagsExists) {
 			throw IllegalAccessException("delayModelFlags", "DelayModelFixedParameters");
 		}
@@ -3063,12 +3100,12 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set delayModelFlags with the specified string.
- 	 * @param delayModelFlags The string value to which delayModelFlags is to be set.
+ 	 * Set delayModelFlags with the specified std::string.
+ 	 * @param delayModelFlags The std::string value to which delayModelFlags is to be set.
  	 
  	
  	 */
- 	void DelayModelFixedParametersRow::setDelayModelFlags (string delayModelFlags) {
+ 	void DelayModelFixedParametersRow::setDelayModelFlags (std::string delayModelFlags) {
 	
  		this->delayModelFlags = delayModelFlags;
 	
@@ -3387,10 +3424,10 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 		
 	}
 	
-	DelayModelFixedParametersRow::DelayModelFixedParametersRow (DelayModelFixedParametersTable &t, DelayModelFixedParametersRow &row) : table(t) {
+	DelayModelFixedParametersRow::DelayModelFixedParametersRow (DelayModelFixedParametersTable &t, DelayModelFixedParametersRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3472,132 +3509,132 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			delayModelFixedParametersId = row.delayModelFixedParametersId;
+			delayModelFixedParametersId = row->delayModelFixedParametersId;
 		
 		
 		
 		
-			delayModelVersion = row.delayModelVersion;
+			delayModelVersion = row->delayModelVersion;
 		
-			execBlockId = row.execBlockId;
-		
-		
+			execBlockId = row->execBlockId;
 		
 		
-		if (row.gaussConstantExists) {
-			gaussConstant = row.gaussConstant;		
+		
+		
+		if (row->gaussConstantExists) {
+			gaussConstant = row->gaussConstant;		
 			gaussConstantExists = true;
 		}
 		else
 			gaussConstantExists = false;
 		
-		if (row.newtonianConstantExists) {
-			newtonianConstant = row.newtonianConstant;		
+		if (row->newtonianConstantExists) {
+			newtonianConstant = row->newtonianConstant;		
 			newtonianConstantExists = true;
 		}
 		else
 			newtonianConstantExists = false;
 		
-		if (row.gravityExists) {
-			gravity = row.gravity;		
+		if (row->gravityExists) {
+			gravity = row->gravity;		
 			gravityExists = true;
 		}
 		else
 			gravityExists = false;
 		
-		if (row.earthFlatteningExists) {
-			earthFlattening = row.earthFlattening;		
+		if (row->earthFlatteningExists) {
+			earthFlattening = row->earthFlattening;		
 			earthFlatteningExists = true;
 		}
 		else
 			earthFlatteningExists = false;
 		
-		if (row.earthRadiusExists) {
-			earthRadius = row.earthRadius;		
+		if (row->earthRadiusExists) {
+			earthRadius = row->earthRadius;		
 			earthRadiusExists = true;
 		}
 		else
 			earthRadiusExists = false;
 		
-		if (row.moonEarthMassRatioExists) {
-			moonEarthMassRatio = row.moonEarthMassRatio;		
+		if (row->moonEarthMassRatioExists) {
+			moonEarthMassRatio = row->moonEarthMassRatio;		
 			moonEarthMassRatioExists = true;
 		}
 		else
 			moonEarthMassRatioExists = false;
 		
-		if (row.ephemerisEpochExists) {
-			ephemerisEpoch = row.ephemerisEpoch;		
+		if (row->ephemerisEpochExists) {
+			ephemerisEpoch = row->ephemerisEpoch;		
 			ephemerisEpochExists = true;
 		}
 		else
 			ephemerisEpochExists = false;
 		
-		if (row.earthTideLagExists) {
-			earthTideLag = row.earthTideLag;		
+		if (row->earthTideLagExists) {
+			earthTideLag = row->earthTideLag;		
 			earthTideLagExists = true;
 		}
 		else
 			earthTideLagExists = false;
 		
-		if (row.earthGMExists) {
-			earthGM = row.earthGM;		
+		if (row->earthGMExists) {
+			earthGM = row->earthGM;		
 			earthGMExists = true;
 		}
 		else
 			earthGMExists = false;
 		
-		if (row.moonGMExists) {
-			moonGM = row.moonGM;		
+		if (row->moonGMExists) {
+			moonGM = row->moonGM;		
 			moonGMExists = true;
 		}
 		else
 			moonGMExists = false;
 		
-		if (row.sunGMExists) {
-			sunGM = row.sunGM;		
+		if (row->sunGMExists) {
+			sunGM = row->sunGM;		
 			sunGMExists = true;
 		}
 		else
 			sunGMExists = false;
 		
-		if (row.loveNumberHExists) {
-			loveNumberH = row.loveNumberH;		
+		if (row->loveNumberHExists) {
+			loveNumberH = row->loveNumberH;		
 			loveNumberHExists = true;
 		}
 		else
 			loveNumberHExists = false;
 		
-		if (row.loveNumberLExists) {
-			loveNumberL = row.loveNumberL;		
+		if (row->loveNumberLExists) {
+			loveNumberL = row->loveNumberL;		
 			loveNumberLExists = true;
 		}
 		else
 			loveNumberLExists = false;
 		
-		if (row.precessionConstantExists) {
-			precessionConstant = row.precessionConstant;		
+		if (row->precessionConstantExists) {
+			precessionConstant = row->precessionConstant;		
 			precessionConstantExists = true;
 		}
 		else
 			precessionConstantExists = false;
 		
-		if (row.lightTime1AUExists) {
-			lightTime1AU = row.lightTime1AU;		
+		if (row->lightTime1AUExists) {
+			lightTime1AU = row->lightTime1AU;		
 			lightTime1AUExists = true;
 		}
 		else
 			lightTime1AUExists = false;
 		
-		if (row.speedOfLightExists) {
-			speedOfLight = row.speedOfLight;		
+		if (row->speedOfLightExists) {
+			speedOfLight = row->speedOfLight;		
 			speedOfLightExists = true;
 		}
 		else
 			speedOfLightExists = false;
 		
-		if (row.delayModelFlagsExists) {
-			delayModelFlags = row.delayModelFlags;		
+		if (row->delayModelFlagsExists) {
+			delayModelFlags = row->delayModelFlags;		
 			delayModelFlagsExists = true;
 		}
 		else
@@ -3631,7 +3668,7 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool DelayModelFixedParametersRow::compareNoAutoInc(string delayModelVersion, Tag execBlockId) {
+	bool DelayModelFixedParametersRow::compareNoAutoInc(std::string delayModelVersion, Tag execBlockId) {
 		bool result;
 		result = true;
 		
@@ -3654,7 +3691,7 @@ void DelayModelFixedParametersRow::delayModelFlagsFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool DelayModelFixedParametersRow::compareRequiredValue(string delayModelVersion, Tag execBlockId) {
+	bool DelayModelFixedParametersRow::compareRequiredValue(std::string delayModelVersion, Tag execBlockId) {
 		bool result;
 		result = true;
 		

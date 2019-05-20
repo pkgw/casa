@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <WVMCalRow.h>
-#include <WVMCalTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/WVMCalRow.h>
+#include <alma/ASDM/WVMCalTable.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::AntennaTable;
 using asdm::AntennaRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	WVMCalRow::~WVMCalRow() {
@@ -558,7 +555,9 @@ namespace asdm {
 		
 			
 		refTemp .clear();
-		vector<Temperature> v_aux_refTemp;
+        
+        vector<Temperature> v_aux_refTemp;
+        
 		for (unsigned int i = 0; i < x.refTemp.length(); ++i) {
 			v_aux_refTemp.clear();
 			for (unsigned int j = 0; j < x.refTemp[0].length(); ++j) {
@@ -1146,7 +1145,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void WVMCalRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1154,7 +1155,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void WVMCalRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1162,7 +1165,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void WVMCalRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1170,7 +1175,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an WVRMethod 
 	void WVMCalRow::wvrMethodFromText(const string & s) {
 		 
-		wvrMethod = ASDMValuesParser::parse<WVRMethod>(s);
+          
+		wvrMethod = ASDMValuesParser::parse<WVRMethodMod::WVRMethod>(s);
+          
 		
 	}
 	
@@ -1178,7 +1185,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void WVMCalRow::polyFreqLimitsFromText(const string & s) {
 		 
+          
 		polyFreqLimits = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1186,7 +1195,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void WVMCalRow::numInputAntennaFromText(const string & s) {
 		 
+          
 		numInputAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1194,7 +1205,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void WVMCalRow::numChanFromText(const string & s) {
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1202,7 +1215,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void WVMCalRow::numPolyFromText(const string & s) {
 		 
+          
 		numPoly = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1210,7 +1225,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void WVMCalRow::pathCoeffFromText(const string & s) {
 		 
+          
 		pathCoeff = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -1218,7 +1235,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void WVMCalRow::refTempFromText(const string & s) {
 		 
+          
 		refTemp = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -1226,7 +1245,9 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void WVMCalRow::inputAntennaIdFromText(const string & s) {
 		 
+          
 		inputAntennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1317,21 +1338,21 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polyFreqLimits.
- 	 * @return polyFreqLimits as vector<Frequency >
+ 	 * @return polyFreqLimits as std::vector<Frequency >
  	 */
- 	vector<Frequency > WVMCalRow::getPolyFreqLimits() const {
+ 	std::vector<Frequency > WVMCalRow::getPolyFreqLimits() const {
 	
   		return polyFreqLimits;
  	}
 
  	/**
- 	 * Set polyFreqLimits with the specified vector<Frequency >.
- 	 * @param polyFreqLimits The vector<Frequency > value to which polyFreqLimits is to be set.
+ 	 * Set polyFreqLimits with the specified std::vector<Frequency >.
+ 	 * @param polyFreqLimits The std::vector<Frequency > value to which polyFreqLimits is to be set.
  	 
  	
  		
  	 */
- 	void WVMCalRow::setPolyFreqLimits (vector<Frequency > polyFreqLimits)  {
+ 	void WVMCalRow::setPolyFreqLimits (std::vector<Frequency > polyFreqLimits)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1445,21 +1466,21 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get pathCoeff.
- 	 * @return pathCoeff as vector<vector<vector<float > > >
+ 	 * @return pathCoeff as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > WVMCalRow::getPathCoeff() const {
+ 	std::vector<std::vector<std::vector<float > > > WVMCalRow::getPathCoeff() const {
 	
   		return pathCoeff;
  	}
 
  	/**
- 	 * Set pathCoeff with the specified vector<vector<vector<float > > >.
- 	 * @param pathCoeff The vector<vector<vector<float > > > value to which pathCoeff is to be set.
+ 	 * Set pathCoeff with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param pathCoeff The std::vector<std::vector<std::vector<float > > > value to which pathCoeff is to be set.
  	 
  	
  		
  	 */
- 	void WVMCalRow::setPathCoeff (vector<vector<vector<float > > > pathCoeff)  {
+ 	void WVMCalRow::setPathCoeff (std::vector<std::vector<std::vector<float > > > pathCoeff)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1477,21 +1498,21 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get refTemp.
- 	 * @return refTemp as vector<vector<Temperature > >
+ 	 * @return refTemp as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > WVMCalRow::getRefTemp() const {
+ 	std::vector<std::vector<Temperature > > WVMCalRow::getRefTemp() const {
 	
   		return refTemp;
  	}
 
  	/**
- 	 * Set refTemp with the specified vector<vector<Temperature > >.
- 	 * @param refTemp The vector<vector<Temperature > > value to which refTemp is to be set.
+ 	 * Set refTemp with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param refTemp The std::vector<std::vector<Temperature > > value to which refTemp is to be set.
  	 
  	
  		
  	 */
- 	void WVMCalRow::setRefTemp (vector<vector<Temperature > > refTemp)  {
+ 	void WVMCalRow::setRefTemp (std::vector<std::vector<Temperature > > refTemp)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1550,21 +1571,21 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get inputAntennaId.
- 	 * @return inputAntennaId as vector<Tag> 
+ 	 * @return inputAntennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  WVMCalRow::getInputAntennaId() const {
+ 	std::vector<Tag>  WVMCalRow::getInputAntennaId() const {
 	
   		return inputAntennaId;
  	}
 
  	/**
- 	 * Set inputAntennaId with the specified vector<Tag> .
- 	 * @param inputAntennaId The vector<Tag>  value to which inputAntennaId is to be set.
+ 	 * Set inputAntennaId with the specified std::vector<Tag> .
+ 	 * @param inputAntennaId The std::vector<Tag>  value to which inputAntennaId is to be set.
  	 
  	
  		
  	 */
- 	void WVMCalRow::setInputAntennaId (vector<Tag>  inputAntennaId)  {
+ 	void WVMCalRow::setInputAntennaId (std::vector<Tag>  inputAntennaId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1671,7 +1692,7 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->inputAntennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute inputAntennaId in table WVMCalTable");
-  		vector<Tag> ::iterator iter = this->inputAntennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->inputAntennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -1695,7 +1716,7 @@ void WVMCalRow::inputAntennaIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to inputAntennaId.
  * @param id an array of Tag to be appended to inputAntennaId
  */
- void WVMCalRow::addInputAntennaId(const vector<Tag> & id) {
+ void WVMCalRow::addInputAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		inputAntennaId.push_back(id.at(i));
  }
@@ -1857,10 +1878,10 @@ wvrMethod = CWVRMethod::from_int(0);
 		
 	}
 	
-	WVMCalRow::WVMCalRow (WVMCalTable &t, WVMCalRow &row) : table(t) {
+	WVMCalRow::WVMCalRow (WVMCalTable &t, WVMCalRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1890,30 +1911,30 @@ wvrMethod = CWVRMethod::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
-		
-		
+			timeInterval = row->timeInterval;
 		
 		
-			wvrMethod = row.wvrMethod;
 		
-			polyFreqLimits = row.polyFreqLimits;
 		
-			numInputAntenna = row.numInputAntenna;
+			wvrMethod = row->wvrMethod;
 		
-			numChan = row.numChan;
+			polyFreqLimits = row->polyFreqLimits;
 		
-			numPoly = row.numPoly;
+			numInputAntenna = row->numInputAntenna;
 		
-			pathCoeff = row.pathCoeff;
+			numChan = row->numChan;
 		
-			refTemp = row.refTemp;
+			numPoly = row->numPoly;
 		
-			inputAntennaId = row.inputAntennaId;
+			pathCoeff = row->pathCoeff;
+		
+			refTemp = row->refTemp;
+		
+			inputAntennaId = row->inputAntennaId;
 		
 		
 		
@@ -1937,7 +1958,7 @@ wvrMethod = CWVRMethod::from_int(0);
 	}
 
 	
-	bool WVMCalRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId) {
+	bool WVMCalRow::compareNoAutoInc(Tag antennaId, Tag spectralWindowId, ArrayTimeInterval timeInterval, WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId) {
 		bool result;
 		result = true;
 		
@@ -2023,7 +2044,7 @@ wvrMethod = CWVRMethod::from_int(0);
 	
 	
 	
-	bool WVMCalRow::compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, vector<vector<vector<float > > > pathCoeff, vector<vector<Temperature > > refTemp, vector<Tag>  inputAntennaId) {
+	bool WVMCalRow::compareRequiredValue(WVRMethodMod::WVRMethod wvrMethod, std::vector<Frequency > polyFreqLimits, int numInputAntenna, int numChan, int numPoly, std::vector<std::vector<std::vector<float > > > pathCoeff, std::vector<std::vector<Temperature > > refTemp, std::vector<Tag>  inputAntennaId) {
 		bool result;
 		result = true;
 		

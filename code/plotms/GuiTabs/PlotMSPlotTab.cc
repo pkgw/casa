@@ -183,17 +183,12 @@ PlotMSPlot* PlotMSPlotTab::currentPlot() const {
 PlotMSPlotParameters PlotMSPlotTab::currentlySetParameters() const {
     PlotMSPlotParameters params(itsPlotter_->getPlotFactory());
     if(itsCurrentParameters_ != NULL){
-    	  PMS_PP_Display* currParams = itsCurrentParameters_->typedGroup<PMS_PP_Display>();
-    	  PlotSymbolPtr currSymbol = currParams->unflaggedSymbol();
     	  params = *itsCurrentParameters_;
     }
 
     foreach(PlotMSPlotSubtab* tab, itsSubtabs_){
     	tab->getValue(params);
     }
-
-    PMS_PP_Display* currParams = itsCurrentParameters_->typedGroup<PMS_PP_Display>();
-    PlotSymbolPtr currSymbol = currParams->unflaggedSymbol();
     return params;
 }
 
@@ -262,9 +257,7 @@ bool PlotMSPlotTab::plot( bool forceReload ) {
 		//
 		// note as of Aug 2010: .cacheReady() seems to return false even 
 		// if cache was cancelled.
-
-		// check if current params ptr changed or contents of params changed
-        bool paramsChanged = (&params != itsCurrentParameters_);
+        bool paramsChanged = (params != *itsCurrentParameters_);
         bool cancelledCache = !itsCurrentPlot_->cache().cacheReady();
         if (forceReload)    {
 			forceReloadCounter_++;   
@@ -403,7 +396,9 @@ PlotMSAxesTab* PlotMSPlotTab::insertAxesSubtab (int index)
           connect( tab, SIGNAL(yAxisIdentifierRemoved(int)),
         		  this, SLOT(removeAxisIdentifier(int)));
      }
+     //tab->setStyleSheet(QString("background-color: white"));
      insertSubtab (index, tab);
+     //tab->window()->update();
      return tab;
 }
 

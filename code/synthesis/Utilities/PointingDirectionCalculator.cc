@@ -64,7 +64,8 @@ using namespace std;
 //
 //   debuglog << "Any message" << any_value << debugpost;
 //
-//#define DIRECTIONCALC_DEBUG
+  
+//   #define DIRECTIONCALC_DEBUG
 
 namespace {
 struct NullLogger {
@@ -116,6 +117,13 @@ inline void performMovingSourceCorrection(
     // moving source handling
     // If moving source is specified, output direction list is always
     // offset from reference position of moving source
+
+        debuglog << "MovingSourceCorrection <Working>." << debugpost;
+
+    // DEBUG (CAS-11818) //
+    assert( convertToCelestial != nullptr );
+    assert( convertToAzel != nullptr );
+         
     MDirection srcAzel = (*convertToAzel)();
     MDirection srcDirection = (*convertToCelestial)(srcAzel);
     Vector<Double> srcDirectionVal = srcDirection.getAngle("rad").getValue();
@@ -126,6 +134,9 @@ inline void skipMovingSourceCorrection(
         CountedPtr<MDirection::Convert> &/*convertToAzel*/,
         CountedPtr<MDirection::Convert> &/*convertToCelestial*/,
         Vector<Double> &/*direction*/) {
+
+        debuglog << "MovingSourceCorrection <NO ACTION>" << debugpost;
+
     // do nothing
 }
 } // anonymous namespace
@@ -247,9 +258,16 @@ void PointingDirectionCalculator::selectData(String const &antenna,
 }
 
 void PointingDirectionCalculator::configureMovingSourceCorrection() {
+#if 0   // Causes Crash //
     if (!movingSource_.null() || directionColumnName_.contains("OFFSET")) {
+#else   // FIXED //
+    if ( !movingSource_.null() && !directionColumnName_.contains("OFFSET") )
+    {
+#endif
+        debuglog << "configureMovingSourceCorrection::Perfrom." << debugpost;
         movingSourceCorrection_ = performMovingSourceCorrection;
     } else {
+        debuglog << "configureMovingSourceCorrection::Skip." << debugpost;
         movingSourceCorrection_ = skipMovingSourceCorrection;
     }
 }
@@ -573,7 +591,10 @@ void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
                 << debugpost;
         // try ANTENNA_ID == -1
         selected = original(original.col("ANTENNA_ID") == -1);
+ 
+#if 0   // follwing assert() invalidate throw AipsError() //
         assert(selected.nrow() > 0);
+#endif 
         if (selected.nrow() == 0) {
             stringstream ss;
             ss << "Internal Error: POINTING table has no entry for antenna "

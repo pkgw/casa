@@ -1,4 +1,3 @@
-//# ImageMetaData.cc: Meta information for Images
 //# Copyright (C) 2009
 //# Associated Universities, Inc. Washington DC, USA.
 //#
@@ -23,7 +22,6 @@
 //#                        520 Edgemont Road
 //#                        Charlottesville, VA 22903-2475 USA
 //#
-//# $Id: ImageMetaData.cc 20886 2010-04-29 14:06:56Z gervandiepen $
 
 #include <imageanalysis/ImageAnalysis/ImageMetaData.h>
 
@@ -34,17 +32,31 @@
 #include <images/Images/ImageSummary.h>
 
 
+#ifndef IMAGEANALYSIS_IMAGEMETADATA_TCC
+#define IMAGEANALYSIS_IMAGEMETADATA_TCC
+
+using namespace casacore;
+
 namespace casa {
-template<class T> casacore::Record ImageMetaData::_summary(
-    SPCIIT image,
+
+template <class T> ImageMetaData<T>::ImageMetaData(
+    SPCIIT image
+) : ImageMetaDataBase<T>(image), _image(image), _info(image->imageInfo()),
+    _csys(image->coordinates()) {}
+
+template<class T> String ImageMetaData<T>::_getBrightnessUnit() const {
+    return _image->units().getName();
+}
+
+template<class T> casacore::Record ImageMetaData<T>::summary(
     const casacore::String& doppler, const casacore::Bool list,
     const casacore::Bool pixelorder, const casacore::Bool verbose
 ) {
-    auto log = _getLog();
+    auto log = this->_getLog();
     log << casacore::LogOrigin("ImageMetaData", __func__);
     casacore::Vector<casacore::String> messages;
     casacore::Record retval;
-    casacore::ImageSummary<T> s(*image);
+    casacore::ImageSummary<T> s(*_image);
     casacore::MDoppler::Types velType;
     if (!casacore::MDoppler::getType(velType, doppler)) {
         log << casacore::LogIO::WARN << "Illegal velocity type, using RADIO"
@@ -69,7 +81,7 @@ template<class T> casacore::Record ImageMetaData::_summary(
     auto cdelt = s.axisIncrements(pixelorder);
     auto axisunits = s.axisUnits(pixelorder);
 
-    auto shape = _getShape();
+    auto shape = this->_getShape();
     retval.define("ndim", (casacore::Int)shape.size());
     retval.define("shape", shape.asVector());
     retval.define("tileshape", s.tileShape().asVector());
@@ -84,7 +96,7 @@ template<class T> casacore::Record ImageMetaData::_summary(
     retval.define("masks", s.maskNames());
     retval.define("imagetype", _getImType());
 
-    const auto& info = image->imageInfo();
+    const auto& info = _image->imageInfo();
     casacore::Record iRec;
     casacore::String error;
     using casacore::AipsError;
@@ -101,5 +113,178 @@ template<class T> casacore::Record ImageMetaData::_summary(
     return retval;
 }
 
+template <class T> Record ImageMetaData<T>::toRecord(Bool verbose) const {
+    if (_header.empty()) {
+        _header = this->_makeHeader();
+    }
+    if (verbose) {
+        this->_toLog(_header);
+    }
+    return _header;
 }
 
+template <class T> Vector<String> ImageMetaData<T>::_getAxisNames() const {
+    if (_axisNames.empty()) {
+        _axisNames = _getCoords().worldAxisNames();
+    }
+    return _axisNames;
+}
+
+template <class T> Vector<String> ImageMetaData<T>::_getAxisUnits() const {
+    if (_axisUnits.empty()) {
+        _axisUnits = _getCoords().worldAxisUnits();
+    }
+    return _axisUnits;
+}
+
+template <class T> GaussianBeam ImageMetaData<T>::_getBeam() const {
+    const ImageInfo& info = _getInfo();
+    if (info.hasSingleBeam()) {
+        if (_beam == GaussianBeam::NULL_BEAM) {
+            _beam = info.restoringBeam(-1, -1);
+        }
+        return _beam;
+    }
+    else if (info.hasMultipleBeams()) {
+        throw AipsError("This image has multiple beams.");
+    }
+    else {
+        throw AipsError("This image has no beam(s).");
+    }
+}
+
+template <class T> String ImageMetaData<T>::_getEquinox() const {
+    if (_equinox.empty()) {
+        if (_getCoords().hasDirectionCoordinate()) {
+            _equinox = MDirection::showType(
+                _getCoords().directionCoordinate().directionType()
+            );
+        }
+    }
+    return _equinox;
+}
+
+template <class T> String ImageMetaData<T>::_getImType() const {
+    if (_imtype.empty()) {
+        _imtype = ImageInfo::imageType(_getInfo().imageType());
+    }
+    return _imtype;
+}
+
+template <class T> vector<Quantity> ImageMetaData<T>::_getIncrements() const {
+    if (_increment.size() == 0) {
+        Vector<Double> incs = _getCoords().increment();
+        Vector<String> units = _getAxisUnits();
+        for (uInt i=0; i<incs.size(); i++) {
+            _increment.push_back(Quantity(incs[i], units[i]));
+        }
+    }
+    return _increment;
+}
+
+template <class T> String ImageMetaData<T>::_getObject() const {
+    if (_object.empty()) {
+        _object = _getInfo().objectName();
+    }
+    return _object;
+}
+
+template <class T> Vector<String> ImageMetaData<T>::_getMasks() const {
+    if (_masks.empty()) {
+        _masks = _image->regionNames(RegionHandler::Masks);
+    }
+    return _masks;
+}
+
+template <class T> MEpoch ImageMetaData<T>::_getObsDate() const {
+    if (_obsdate.get("s") == 0) {
+        _obsdate = _getCoords().obsInfo().obsDate();
+    }
+    return _obsdate;
+}
+
+template <class T> String ImageMetaData<T>::_getObserver() const {
+    if (_observer.empty()) {
+        _observer = _getCoords().obsInfo().observer();
+    }
+    return _observer;
+}
+
+template <class T> String ImageMetaData<T>::_getProjection() const {
+    if (_projection.empty()) {
+        _projection = ImageMetaDataBase<T>::_getProjection();
+    }
+    return _projection;
+}
+
+template <class T> Vector<Double> ImageMetaData<T>::_getRefPixel() const {
+    if (_refPixel.size() == 0) {
+        _refPixel = _getCoords().referencePixel();
+    }
+    return _refPixel;
+}
+
+template <class T> Vector<String> ImageMetaData<T>::_getStokes() const {
+    const CoordinateSystem csys = _getCoords();
+    ThrowIf(
+        ! csys.hasPolarizationCoordinate(),
+        "Logic Error: coordinate system does not have a polarization coordinate"
+    );
+    if (_stokes.empty()) {
+        _stokes = csys.stokesCoordinate().stokesStrings();
+    }
+    return _stokes;
+}
+
+template <class T> Vector<Quantity> ImageMetaData<T>::_getRefValue() const {
+    if (_refVal.size() == 0) {
+        Vector<Double> vals = _getCoords().referenceValue();
+        Vector<String> units = _getAxisUnits();
+        for (uInt i=0; i<vals.size(); i++) {
+            _refVal.push_back(Quantity(vals[i], units[i]));
+        }
+    }
+    return _refVal;
+}
+
+template <class T> String ImageMetaData<T>::_getRefFreqType() const {
+    if (_reffreqtype.empty() && _getCoords().hasSpectralAxis()) {
+        _reffreqtype = MFrequency::showType(
+            _getCoords().spectralCoordinate().frequencySystem(false)
+        );
+    }
+    return _reffreqtype;
+}
+
+template <class T> Quantity ImageMetaData<T>::_getRestFrequency() const {
+    const CoordinateSystem& csys = _getCoords();
+    ThrowIf(
+        ! csys.hasSpectralAxis(),
+        "Image has no spectral axis so there is no rest frequency"
+    );
+    if (_restFreq.getValue() == 0) {
+        _restFreq = Quantity(
+            csys.spectralCoordinate().restFrequency(),
+            csys.spectralCoordinate().worldAxisUnits()[0]
+        );
+    }
+    return _restFreq;
+}
+
+template <class T> Record ImageMetaData<T>::_getStatistics() const {
+    if (_stats.empty() && isReal(_image->dataType())) {
+        _stats = this->_calcStats();
+    }
+    return _stats;
+}
+
+template <class T> String ImageMetaData<T>::_getTelescope() const {
+    if (_telescope.empty()) {
+        _telescope = _getCoords().obsInfo().telescope();
+    }
+    return _telescope;
+}
+
+}
+
+#endif

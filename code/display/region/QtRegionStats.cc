@@ -82,8 +82,8 @@ namespace casa {
 				connect( sliceToolButton, SIGNAL(clicked()), this, SIGNAL(show1DSliceTool()));
 			}
 
-			bool SliceStats::updateStatisticsInfo( SHARED_PTR<casa::viewer::RegionInfo> info ) {
-				SHARED_PTR<SliceRegionInfo> sliceInfo = DYNAMIC_POINTER_CAST<SliceRegionInfo>(info);
+			bool SliceStats::updateStatisticsInfo( std::shared_ptr<casa::viewer::RegionInfo> info ) {
+				std::shared_ptr<SliceRegionInfo> sliceInfo = std::dynamic_pointer_cast<SliceRegionInfo>(info);
 				if ( sliceInfo ) {
 					Polyline* polylineRegion = sliceInfo->getRegion();
 					polylineRegion->addPlot( this->getPlotHolder(), sliceInfo->label());
@@ -99,8 +99,8 @@ namespace casa {
 				connect( pvwidth, SIGNAL(valueChanged(int)), this, SIGNAL(setPVInfo(int)) );
 			}
 
-			bool pvline_stats_t::updateStatisticsInfo( SHARED_PTR<casa::viewer::RegionInfo> info ) {
-				SHARED_PTR<PVLineRegionInfo> pvinfo = DYNAMIC_POINTER_CAST<PVLineRegionInfo>(info);
+			bool pvline_stats_t::updateStatisticsInfo( std::shared_ptr<casa::viewer::RegionInfo> info ) {
+				std::shared_ptr<PVLineRegionInfo> pvinfo = std::dynamic_pointer_cast<PVLineRegionInfo>(info);
 				if ( pvinfo ) {
 					pixel_pt1->setText(QString::fromStdString(pvinfo->pixelStrings( )[0]));
 					pixel_pt2->setText(QString::fromStdString(pvinfo->pixelStrings( )[1]));
@@ -136,7 +136,7 @@ namespace casa {
 
 		QtRegionStats::~QtRegionStats( ) { }
 
-		void QtRegionStats::updateStatistics( SHARED_PTR<casa::viewer::RegionInfo> stats, Region* region ) {
+		void QtRegionStats::updateStatistics( std::shared_ptr<casa::viewer::RegionInfo> stats, Region* region ) {
 			
 			new_stats_box(stats->type(), region, stats->label() )->setLabels( stats->label( ), stats->description( ) );
 
@@ -230,7 +230,7 @@ namespace casa {
 			}
 		}
 
-		bool QtRegionStats::updateStatisticsInfo( SHARED_PTR<casa::viewer::RegionInfo> info ) {
+		bool QtRegionStats::updateStatisticsInfo( std::shared_ptr<casa::viewer::RegionInfo> info ) {
 			return stats_box_ ? stats_box_->updateStatisticsInfo( info ) : false;
 		}
 

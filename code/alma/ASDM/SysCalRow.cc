@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SysCalRow.h>
-#include <SysCalTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SysCalRow.h>
+#include <alma/ASDM/SysCalTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 
-#include <SpectralWindowTable.h>
-#include <SpectralWindowRow.h>
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::SpectralWindowTable;
 using asdm::SpectralWindowRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SysCalRow::~SysCalRow() {
@@ -861,7 +858,9 @@ namespace asdm {
 		
 			
 		tcalSpectrum .clear();
-		vector<Temperature> v_aux_tcalSpectrum;
+        
+        vector<Temperature> v_aux_tcalSpectrum;
+        
 		for (unsigned int i = 0; i < x.tcalSpectrum.length(); ++i) {
 			v_aux_tcalSpectrum.clear();
 			for (unsigned int j = 0; j < x.tcalSpectrum[0].length(); ++j) {
@@ -901,7 +900,9 @@ namespace asdm {
 		
 			
 		trxSpectrum .clear();
-		vector<Temperature> v_aux_trxSpectrum;
+        
+        vector<Temperature> v_aux_trxSpectrum;
+        
 		for (unsigned int i = 0; i < x.trxSpectrum.length(); ++i) {
 			v_aux_trxSpectrum.clear();
 			for (unsigned int j = 0; j < x.trxSpectrum[0].length(); ++j) {
@@ -941,7 +942,9 @@ namespace asdm {
 		
 			
 		tskySpectrum .clear();
-		vector<Temperature> v_aux_tskySpectrum;
+        
+        vector<Temperature> v_aux_tskySpectrum;
+        
 		for (unsigned int i = 0; i < x.tskySpectrum.length(); ++i) {
 			v_aux_tskySpectrum.clear();
 			for (unsigned int j = 0; j < x.tskySpectrum[0].length(); ++j) {
@@ -981,7 +984,9 @@ namespace asdm {
 		
 			
 		tsysSpectrum .clear();
-		vector<Temperature> v_aux_tsysSpectrum;
+        
+        vector<Temperature> v_aux_tsysSpectrum;
+        
 		for (unsigned int i = 0; i < x.tsysSpectrum.length(); ++i) {
 			v_aux_tsysSpectrum.clear();
 			for (unsigned int j = 0; j < x.tsysSpectrum[0].length(); ++j) {
@@ -1021,7 +1026,9 @@ namespace asdm {
 		
 			
 		tantSpectrum .clear();
-		vector<float> v_aux_tantSpectrum;
+        
+        vector<float> v_aux_tantSpectrum;
+        
 		for (unsigned int i = 0; i < x.tantSpectrum.length(); ++i) {
 			v_aux_tantSpectrum.clear();
 			for (unsigned int j = 0; j < x.tantSpectrum[0].length(); ++j) {
@@ -1061,7 +1068,9 @@ namespace asdm {
 		
 			
 		tantTsysSpectrum .clear();
-		vector<float> v_aux_tantTsysSpectrum;
+        
+        vector<float> v_aux_tantTsysSpectrum;
+        
 		for (unsigned int i = 0; i < x.tantTsysSpectrum.length(); ++i) {
 			v_aux_tantTsysSpectrum.clear();
 			for (unsigned int j = 0; j < x.tantTsysSpectrum[0].length(); ++j) {
@@ -1101,7 +1110,9 @@ namespace asdm {
 		
 			
 		phaseDiffSpectrum .clear();
-		vector<float> v_aux_phaseDiffSpectrum;
+        
+        vector<float> v_aux_phaseDiffSpectrum;
+        
 		for (unsigned int i = 0; i < x.phaseDiffSpectrum.length(); ++i) {
 			v_aux_phaseDiffSpectrum.clear();
 			for (unsigned int j = 0; j < x.phaseDiffSpectrum[0].length(); ++j) {
@@ -2146,7 +2157,9 @@ void SysCalRow::tantSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int tantSpectrumDim1 = eis.readInt();
 		unsigned int tantSpectrumDim2 = eis.readInt();
+        
 		vector <float> tantSpectrumAux1;
+        
 		for (unsigned int i = 0; i < tantSpectrumDim1; i++) {
 			tantSpectrumAux1.clear();
 			for (unsigned int j = 0; j < tantSpectrumDim2 ; j++)			
@@ -2195,7 +2208,9 @@ void SysCalRow::tantTsysSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int tantTsysSpectrumDim1 = eis.readInt();
 		unsigned int tantTsysSpectrumDim2 = eis.readInt();
+        
 		vector <float> tantTsysSpectrumAux1;
+        
 		for (unsigned int i = 0; i < tantTsysSpectrumDim1; i++) {
 			tantTsysSpectrumAux1.clear();
 			for (unsigned int j = 0; j < tantTsysSpectrumDim2 ; j++)			
@@ -2244,7 +2259,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int phaseDiffSpectrumDim1 = eis.readInt();
 		unsigned int phaseDiffSpectrumDim2 = eis.readInt();
+        
 		vector <float> phaseDiffSpectrumAux1;
+        
 		for (unsigned int i = 0; i < phaseDiffSpectrumDim1; i++) {
 			phaseDiffSpectrumAux1.clear();
 			for (unsigned int j = 0; j < phaseDiffSpectrumDim2 ; j++)			
@@ -2293,7 +2310,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SysCalRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2301,7 +2320,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SysCalRow::spectralWindowIdFromText(const string & s) {
 		 
+          
 		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2309,7 +2330,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void SysCalRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -2317,7 +2340,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SysCalRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2325,7 +2350,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SysCalRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2333,7 +2360,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SysCalRow::numChanFromText(const string & s) {
 		 
+          
 		numChan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2343,7 +2372,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tcalFlagFromText(const string & s) {
 		tcalFlagExists = true;
 		 
+          
 		tcalFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2352,7 +2383,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tcalSpectrumFromText(const string & s) {
 		tcalSpectrumExists = true;
 		 
+          
 		tcalSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -2361,7 +2394,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::trxFlagFromText(const string & s) {
 		trxFlagExists = true;
 		 
+          
 		trxFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2370,7 +2405,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::trxSpectrumFromText(const string & s) {
 		trxSpectrumExists = true;
 		 
+          
 		trxSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -2379,7 +2416,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tskyFlagFromText(const string & s) {
 		tskyFlagExists = true;
 		 
+          
 		tskyFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2388,7 +2427,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tskySpectrumFromText(const string & s) {
 		tskySpectrumExists = true;
 		 
+          
 		tskySpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -2397,7 +2438,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tsysFlagFromText(const string & s) {
 		tsysFlagExists = true;
 		 
+          
 		tsysFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2406,7 +2449,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tsysSpectrumFromText(const string & s) {
 		tsysSpectrumExists = true;
 		 
+          
 		tsysSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -2415,7 +2460,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tantFlagFromText(const string & s) {
 		tantFlagExists = true;
 		 
+          
 		tantFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2424,7 +2471,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tantSpectrumFromText(const string & s) {
 		tantSpectrumExists = true;
 		 
+          
 		tantSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2433,7 +2482,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tantTsysFlagFromText(const string & s) {
 		tantTsysFlagExists = true;
 		 
+          
 		tantTsysFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2442,7 +2493,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::tantTsysSpectrumFromText(const string & s) {
 		tantTsysSpectrumExists = true;
 		 
+          
 		tantTsysSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2451,7 +2504,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::phaseDiffFlagFromText(const string & s) {
 		phaseDiffFlagExists = true;
 		 
+          
 		phaseDiffFlag = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2460,7 +2515,9 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	void SysCalRow::phaseDiffSpectrumFromText(const string & s) {
 		phaseDiffSpectrumExists = true;
 		 
+          
 		phaseDiffSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -2637,10 +2694,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tcalSpectrum, which is optional.
- 	 * @return tcalSpectrum as vector<vector<Temperature > >
+ 	 * @return tcalSpectrum as std::vector<std::vector<Temperature > >
  	 * @throw IllegalAccessException If tcalSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > SysCalRow::getTcalSpectrum() const  {
+ 	std::vector<std::vector<Temperature > > SysCalRow::getTcalSpectrum() const  {
 		if (!tcalSpectrumExists) {
 			throw IllegalAccessException("tcalSpectrum", "SysCal");
 		}
@@ -2649,12 +2706,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tcalSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tcalSpectrum The vector<vector<Temperature > > value to which tcalSpectrum is to be set.
+ 	 * Set tcalSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tcalSpectrum The std::vector<std::vector<Temperature > > value to which tcalSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTcalSpectrum (vector<vector<Temperature > > tcalSpectrum) {
+ 	void SysCalRow::setTcalSpectrum (std::vector<std::vector<Temperature > > tcalSpectrum) {
 	
  		this->tcalSpectrum = tcalSpectrum;
 	
@@ -2731,10 +2788,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get trxSpectrum, which is optional.
- 	 * @return trxSpectrum as vector<vector<Temperature > >
+ 	 * @return trxSpectrum as std::vector<std::vector<Temperature > >
  	 * @throw IllegalAccessException If trxSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > SysCalRow::getTrxSpectrum() const  {
+ 	std::vector<std::vector<Temperature > > SysCalRow::getTrxSpectrum() const  {
 		if (!trxSpectrumExists) {
 			throw IllegalAccessException("trxSpectrum", "SysCal");
 		}
@@ -2743,12 +2800,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set trxSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param trxSpectrum The vector<vector<Temperature > > value to which trxSpectrum is to be set.
+ 	 * Set trxSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param trxSpectrum The std::vector<std::vector<Temperature > > value to which trxSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTrxSpectrum (vector<vector<Temperature > > trxSpectrum) {
+ 	void SysCalRow::setTrxSpectrum (std::vector<std::vector<Temperature > > trxSpectrum) {
 	
  		this->trxSpectrum = trxSpectrum;
 	
@@ -2825,10 +2882,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tskySpectrum, which is optional.
- 	 * @return tskySpectrum as vector<vector<Temperature > >
+ 	 * @return tskySpectrum as std::vector<std::vector<Temperature > >
  	 * @throw IllegalAccessException If tskySpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > SysCalRow::getTskySpectrum() const  {
+ 	std::vector<std::vector<Temperature > > SysCalRow::getTskySpectrum() const  {
 		if (!tskySpectrumExists) {
 			throw IllegalAccessException("tskySpectrum", "SysCal");
 		}
@@ -2837,12 +2894,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tskySpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tskySpectrum The vector<vector<Temperature > > value to which tskySpectrum is to be set.
+ 	 * Set tskySpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tskySpectrum The std::vector<std::vector<Temperature > > value to which tskySpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTskySpectrum (vector<vector<Temperature > > tskySpectrum) {
+ 	void SysCalRow::setTskySpectrum (std::vector<std::vector<Temperature > > tskySpectrum) {
 	
  		this->tskySpectrum = tskySpectrum;
 	
@@ -2919,10 +2976,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tsysSpectrum, which is optional.
- 	 * @return tsysSpectrum as vector<vector<Temperature > >
+ 	 * @return tsysSpectrum as std::vector<std::vector<Temperature > >
  	 * @throw IllegalAccessException If tsysSpectrum does not exist.
  	 */
- 	vector<vector<Temperature > > SysCalRow::getTsysSpectrum() const  {
+ 	std::vector<std::vector<Temperature > > SysCalRow::getTsysSpectrum() const  {
 		if (!tsysSpectrumExists) {
 			throw IllegalAccessException("tsysSpectrum", "SysCal");
 		}
@@ -2931,12 +2988,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tsysSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tsysSpectrum The vector<vector<Temperature > > value to which tsysSpectrum is to be set.
+ 	 * Set tsysSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tsysSpectrum The std::vector<std::vector<Temperature > > value to which tsysSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTsysSpectrum (vector<vector<Temperature > > tsysSpectrum) {
+ 	void SysCalRow::setTsysSpectrum (std::vector<std::vector<Temperature > > tsysSpectrum) {
 	
  		this->tsysSpectrum = tsysSpectrum;
 	
@@ -3013,10 +3070,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tantSpectrum, which is optional.
- 	 * @return tantSpectrum as vector<vector<float > >
+ 	 * @return tantSpectrum as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If tantSpectrum does not exist.
  	 */
- 	vector<vector<float > > SysCalRow::getTantSpectrum() const  {
+ 	std::vector<std::vector<float > > SysCalRow::getTantSpectrum() const  {
 		if (!tantSpectrumExists) {
 			throw IllegalAccessException("tantSpectrum", "SysCal");
 		}
@@ -3025,12 +3082,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tantSpectrum with the specified vector<vector<float > >.
- 	 * @param tantSpectrum The vector<vector<float > > value to which tantSpectrum is to be set.
+ 	 * Set tantSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tantSpectrum The std::vector<std::vector<float > > value to which tantSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTantSpectrum (vector<vector<float > > tantSpectrum) {
+ 	void SysCalRow::setTantSpectrum (std::vector<std::vector<float > > tantSpectrum) {
 	
  		this->tantSpectrum = tantSpectrum;
 	
@@ -3107,10 +3164,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tantTsysSpectrum, which is optional.
- 	 * @return tantTsysSpectrum as vector<vector<float > >
+ 	 * @return tantTsysSpectrum as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If tantTsysSpectrum does not exist.
  	 */
- 	vector<vector<float > > SysCalRow::getTantTsysSpectrum() const  {
+ 	std::vector<std::vector<float > > SysCalRow::getTantTsysSpectrum() const  {
 		if (!tantTsysSpectrumExists) {
 			throw IllegalAccessException("tantTsysSpectrum", "SysCal");
 		}
@@ -3119,12 +3176,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set tantTsysSpectrum with the specified vector<vector<float > >.
- 	 * @param tantTsysSpectrum The vector<vector<float > > value to which tantTsysSpectrum is to be set.
+ 	 * Set tantTsysSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tantTsysSpectrum The std::vector<std::vector<float > > value to which tantTsysSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setTantTsysSpectrum (vector<vector<float > > tantTsysSpectrum) {
+ 	void SysCalRow::setTantTsysSpectrum (std::vector<std::vector<float > > tantTsysSpectrum) {
 	
  		this->tantTsysSpectrum = tantTsysSpectrum;
 	
@@ -3201,10 +3258,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseDiffSpectrum, which is optional.
- 	 * @return phaseDiffSpectrum as vector<vector<float > >
+ 	 * @return phaseDiffSpectrum as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If phaseDiffSpectrum does not exist.
  	 */
- 	vector<vector<float > > SysCalRow::getPhaseDiffSpectrum() const  {
+ 	std::vector<std::vector<float > > SysCalRow::getPhaseDiffSpectrum() const  {
 		if (!phaseDiffSpectrumExists) {
 			throw IllegalAccessException("phaseDiffSpectrum", "SysCal");
 		}
@@ -3213,12 +3270,12 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phaseDiffSpectrum with the specified vector<vector<float > >.
- 	 * @param phaseDiffSpectrum The vector<vector<float > > value to which phaseDiffSpectrum is to be set.
+ 	 * Set phaseDiffSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param phaseDiffSpectrum The std::vector<std::vector<float > > value to which phaseDiffSpectrum is to be set.
  	 
  	
  	 */
- 	void SysCalRow::setPhaseDiffSpectrum (vector<vector<float > > phaseDiffSpectrum) {
+ 	void SysCalRow::setPhaseDiffSpectrum (std::vector<std::vector<float > > phaseDiffSpectrum) {
 	
  		this->phaseDiffSpectrum = phaseDiffSpectrum;
 	
@@ -3641,10 +3698,10 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 		
 	}
 	
-	SysCalRow::SysCalRow (SysCalTable &t, SysCalRow &row) : table(t) {
+	SysCalRow::SysCalRow (SysCalTable &t, SysCalRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3720,117 +3777,117 @@ void SysCalRow::phaseDiffSpectrumFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			numChan = row.numChan;
+			feedId = row->feedId;
 		
 		
 		
 		
-		if (row.tcalFlagExists) {
-			tcalFlag = row.tcalFlag;		
+			numReceptor = row->numReceptor;
+		
+			numChan = row->numChan;
+		
+		
+		
+		
+		if (row->tcalFlagExists) {
+			tcalFlag = row->tcalFlag;		
 			tcalFlagExists = true;
 		}
 		else
 			tcalFlagExists = false;
 		
-		if (row.tcalSpectrumExists) {
-			tcalSpectrum = row.tcalSpectrum;		
+		if (row->tcalSpectrumExists) {
+			tcalSpectrum = row->tcalSpectrum;		
 			tcalSpectrumExists = true;
 		}
 		else
 			tcalSpectrumExists = false;
 		
-		if (row.trxFlagExists) {
-			trxFlag = row.trxFlag;		
+		if (row->trxFlagExists) {
+			trxFlag = row->trxFlag;		
 			trxFlagExists = true;
 		}
 		else
 			trxFlagExists = false;
 		
-		if (row.trxSpectrumExists) {
-			trxSpectrum = row.trxSpectrum;		
+		if (row->trxSpectrumExists) {
+			trxSpectrum = row->trxSpectrum;		
 			trxSpectrumExists = true;
 		}
 		else
 			trxSpectrumExists = false;
 		
-		if (row.tskyFlagExists) {
-			tskyFlag = row.tskyFlag;		
+		if (row->tskyFlagExists) {
+			tskyFlag = row->tskyFlag;		
 			tskyFlagExists = true;
 		}
 		else
 			tskyFlagExists = false;
 		
-		if (row.tskySpectrumExists) {
-			tskySpectrum = row.tskySpectrum;		
+		if (row->tskySpectrumExists) {
+			tskySpectrum = row->tskySpectrum;		
 			tskySpectrumExists = true;
 		}
 		else
 			tskySpectrumExists = false;
 		
-		if (row.tsysFlagExists) {
-			tsysFlag = row.tsysFlag;		
+		if (row->tsysFlagExists) {
+			tsysFlag = row->tsysFlag;		
 			tsysFlagExists = true;
 		}
 		else
 			tsysFlagExists = false;
 		
-		if (row.tsysSpectrumExists) {
-			tsysSpectrum = row.tsysSpectrum;		
+		if (row->tsysSpectrumExists) {
+			tsysSpectrum = row->tsysSpectrum;		
 			tsysSpectrumExists = true;
 		}
 		else
 			tsysSpectrumExists = false;
 		
-		if (row.tantFlagExists) {
-			tantFlag = row.tantFlag;		
+		if (row->tantFlagExists) {
+			tantFlag = row->tantFlag;		
 			tantFlagExists = true;
 		}
 		else
 			tantFlagExists = false;
 		
-		if (row.tantSpectrumExists) {
-			tantSpectrum = row.tantSpectrum;		
+		if (row->tantSpectrumExists) {
+			tantSpectrum = row->tantSpectrum;		
 			tantSpectrumExists = true;
 		}
 		else
 			tantSpectrumExists = false;
 		
-		if (row.tantTsysFlagExists) {
-			tantTsysFlag = row.tantTsysFlag;		
+		if (row->tantTsysFlagExists) {
+			tantTsysFlag = row->tantTsysFlag;		
 			tantTsysFlagExists = true;
 		}
 		else
 			tantTsysFlagExists = false;
 		
-		if (row.tantTsysSpectrumExists) {
-			tantTsysSpectrum = row.tantTsysSpectrum;		
+		if (row->tantTsysSpectrumExists) {
+			tantTsysSpectrum = row->tantTsysSpectrum;		
 			tantTsysSpectrumExists = true;
 		}
 		else
 			tantTsysSpectrumExists = false;
 		
-		if (row.phaseDiffFlagExists) {
-			phaseDiffFlag = row.phaseDiffFlag;		
+		if (row->phaseDiffFlagExists) {
+			phaseDiffFlag = row->phaseDiffFlag;		
 			phaseDiffFlagExists = true;
 		}
 		else
 			phaseDiffFlagExists = false;
 		
-		if (row.phaseDiffSpectrumExists) {
-			phaseDiffSpectrum = row.phaseDiffSpectrum;		
+		if (row->phaseDiffSpectrumExists) {
+			phaseDiffSpectrum = row->phaseDiffSpectrum;		
 			phaseDiffSpectrumExists = true;
 		}
 		else

@@ -72,6 +72,7 @@
 #include <casa/Arrays/Slice.h>
 #include <images/Images/ImageExpr.h>
 #include <imageanalysis/ImageAnalysis/ImagePolarimetry.h>
+#include <imageanalysis/Images/ComponentListImage.h>
 #include <images/Images/ImageBeamSet.h>
 #include <synthesis/MeasurementEquations/ClarkCleanProgress.h>
 #include <lattices/LatticeMath/LatticeCleanProgress.h>
@@ -174,10 +175,12 @@
 #include <components/ComponentModels/PointShape.h>
 #include <components/ComponentModels/DiskShape.h>
 
+#if ! defined(WITHOUT_DBUS)
 #include <casadbus/viewer/ViewerProxy.h>
 #include <casadbus/plotserver/PlotServerProxy.h>
 #include <casadbus/utilities/BusAccess.h>
 #include <casadbus/session/DBusSession.h>
+#endif
 
 #include <casa/OS/HostInfo.h>
 
@@ -273,7 +276,8 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
   deltas(0)=-mcellx_p.get("rad").getValue();
   deltas(1)=mcelly_p.get("rad").getValue();
   
-  ROMSColumns msc(*ms_p);
+  //ROMSColumns msc(*ms_p);
+  ROMSColumns msc(*mssel_p); // CAS-11503
   MFrequency::Types obsFreqRef=MFrequency::DEFAULT;
   ROScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
 				  MSSpectralWindow::columnName(MSSpectralWindow::MEAS_FREQ_REF));
@@ -316,6 +320,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
     os << LogIO::DEBUG1 << "Using user defined location: "
        << mLocation_p.getRefString() << " " << mLocation_p.get("m")
        << LogIO::POST;
+    obsPosition = mLocation_p;
     freqFrameValid_p = true;
   } else if(!(MeasTable::Observatory(obsPosition, telescop))){
     os << LogIO::WARN << "Did not get the position of " << telescop 
@@ -1711,7 +1716,7 @@ Bool Imager::pb(const String& inimage,
 	return false;
       }
       inComps_pointer = new ComponentList(incomps);
-      outComps_pointer = new ComponentList( inComps_pointer->copy() );
+      //outComps_pointer = new ComponentList( inComps_pointer->copy() );
     }
     if (inimage !="") {
       if(!Table::isReadable(inimage)) {
@@ -1813,8 +1818,9 @@ Bool Imager::pb(const String& inimage,
 	return false;
       }
       Int ncomponents = inComps_pointer->nelements();
+      outComps_pointer = new ComponentList();
       for (Int icomp=0;icomp<ncomponents;++icomp) {
-	SkyComponent component=outComps_pointer->component(icomp);
+	SkyComponent component=(inComps_pointer->component(icomp)).copy();
 	if (operation=="apply") {
 	  myPBp->applyPB(component, component, pointingCenter, 
 			 qFreq, pa, squintType_p, false);
@@ -1822,6 +1828,11 @@ Bool Imager::pb(const String& inimage,
 	  myPBp->applyPB(component, component, pointingCenter, 
 			 qFreq, pa, squintType_p, true);
 	}
+	outComps_pointer->add(component);
+      }
+      if(outImage_pointer){
+	ComponentListImage clImage(*outComps_pointer, outImage_pointer->coordinates(), outImage_pointer->shape());
+	outImage_pointer->copyData(LatticeExpr<Float>((*outImage_pointer)+clImage));
       }
     }
     if (myPBp) delete myPBp;

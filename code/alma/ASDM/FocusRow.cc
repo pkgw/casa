@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <FocusRow.h>
-#include <FocusTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FocusRow.h>
+#include <alma/ASDM/FocusTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <FocusModelTable.h>
-#include <FocusModelRow.h>
+#include <alma/ASDM/FocusModelTable.h>
+#include <alma/ASDM/FocusModelRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::FocusModelTable;
 using asdm::FocusModelRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	FocusRow::~FocusRow() {
@@ -906,7 +903,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void FocusRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -914,7 +913,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void FocusRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -922,7 +923,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void FocusRow::focusTrackingFromText(const string & s) {
 		 
+          
 		focusTracking = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -930,7 +933,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void FocusRow::focusOffsetFromText(const string & s) {
 		 
+          
 		focusOffset = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -938,7 +943,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void FocusRow::focusRotationOffsetFromText(const string & s) {
 		 
+          
 		focusRotationOffset = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -946,7 +953,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void FocusRow::focusModelIdFromText(const string & s) {
 		 
+          
 		focusModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -956,7 +965,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	void FocusRow::measuredFocusPositionFromText(const string & s) {
 		measuredFocusPositionExists = true;
 		 
+          
 		measuredFocusPosition = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -965,7 +976,9 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	void FocusRow::measuredFocusRotationFromText(const string & s) {
 		measuredFocusRotationExists = true;
 		 
+          
 		measuredFocusRotation = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1055,21 +1068,21 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusOffset.
- 	 * @return focusOffset as vector<Length >
+ 	 * @return focusOffset as std::vector<Length >
  	 */
- 	vector<Length > FocusRow::getFocusOffset() const {
+ 	std::vector<Length > FocusRow::getFocusOffset() const {
 	
   		return focusOffset;
  	}
 
  	/**
- 	 * Set focusOffset with the specified vector<Length >.
- 	 * @param focusOffset The vector<Length > value to which focusOffset is to be set.
+ 	 * Set focusOffset with the specified std::vector<Length >.
+ 	 * @param focusOffset The std::vector<Length > value to which focusOffset is to be set.
  	 
  	
  		
  	 */
- 	void FocusRow::setFocusOffset (vector<Length > focusOffset)  {
+ 	void FocusRow::setFocusOffset (std::vector<Length > focusOffset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1087,21 +1100,21 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get focusRotationOffset.
- 	 * @return focusRotationOffset as vector<Angle >
+ 	 * @return focusRotationOffset as std::vector<Angle >
  	 */
- 	vector<Angle > FocusRow::getFocusRotationOffset() const {
+ 	std::vector<Angle > FocusRow::getFocusRotationOffset() const {
 	
   		return focusRotationOffset;
  	}
 
  	/**
- 	 * Set focusRotationOffset with the specified vector<Angle >.
- 	 * @param focusRotationOffset The vector<Angle > value to which focusRotationOffset is to be set.
+ 	 * Set focusRotationOffset with the specified std::vector<Angle >.
+ 	 * @param focusRotationOffset The std::vector<Angle > value to which focusRotationOffset is to be set.
  	 
  	
  		
  	 */
- 	void FocusRow::setFocusRotationOffset (vector<Angle > focusRotationOffset)  {
+ 	void FocusRow::setFocusRotationOffset (std::vector<Angle > focusRotationOffset)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1127,10 +1140,10 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get measuredFocusPosition, which is optional.
- 	 * @return measuredFocusPosition as vector<Length >
+ 	 * @return measuredFocusPosition as std::vector<Length >
  	 * @throw IllegalAccessException If measuredFocusPosition does not exist.
  	 */
- 	vector<Length > FocusRow::getMeasuredFocusPosition() const  {
+ 	std::vector<Length > FocusRow::getMeasuredFocusPosition() const  {
 		if (!measuredFocusPositionExists) {
 			throw IllegalAccessException("measuredFocusPosition", "Focus");
 		}
@@ -1139,12 +1152,12 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set measuredFocusPosition with the specified vector<Length >.
- 	 * @param measuredFocusPosition The vector<Length > value to which measuredFocusPosition is to be set.
+ 	 * Set measuredFocusPosition with the specified std::vector<Length >.
+ 	 * @param measuredFocusPosition The std::vector<Length > value to which measuredFocusPosition is to be set.
  	 
  	
  	 */
- 	void FocusRow::setMeasuredFocusPosition (vector<Length > measuredFocusPosition) {
+ 	void FocusRow::setMeasuredFocusPosition (std::vector<Length > measuredFocusPosition) {
 	
  		this->measuredFocusPosition = measuredFocusPosition;
 	
@@ -1174,10 +1187,10 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get measuredFocusRotation, which is optional.
- 	 * @return measuredFocusRotation as vector<Angle >
+ 	 * @return measuredFocusRotation as std::vector<Angle >
  	 * @throw IllegalAccessException If measuredFocusRotation does not exist.
  	 */
- 	vector<Angle > FocusRow::getMeasuredFocusRotation() const  {
+ 	std::vector<Angle > FocusRow::getMeasuredFocusRotation() const  {
 		if (!measuredFocusRotationExists) {
 			throw IllegalAccessException("measuredFocusRotation", "Focus");
 		}
@@ -1186,12 +1199,12 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set measuredFocusRotation with the specified vector<Angle >.
- 	 * @param measuredFocusRotation The vector<Angle > value to which measuredFocusRotation is to be set.
+ 	 * Set measuredFocusRotation with the specified std::vector<Angle >.
+ 	 * @param measuredFocusRotation The std::vector<Angle > value to which measuredFocusRotation is to be set.
  	 
  	
  	 */
- 	void FocusRow::setMeasuredFocusRotation (vector<Angle > measuredFocusRotation) {
+ 	void FocusRow::setMeasuredFocusRotation (std::vector<Angle > measuredFocusRotation) {
 	
  		this->measuredFocusRotation = measuredFocusRotation;
 	
@@ -1425,10 +1438,10 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FocusRow::FocusRow (FocusTable &t, FocusRow &row) : table(t) {
+	FocusRow::FocusRow (FocusTable &t, FocusRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1456,33 +1469,33 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			timeInterval = row.timeInterval;
-		
-		
-		
-		
-			focusTracking = row.focusTracking;
-		
-			focusOffset = row.focusOffset;
-		
-			focusRotationOffset = row.focusRotationOffset;
-		
-			focusModelId = row.focusModelId;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-		if (row.measuredFocusPositionExists) {
-			measuredFocusPosition = row.measuredFocusPosition;		
+			focusTracking = row->focusTracking;
+		
+			focusOffset = row->focusOffset;
+		
+			focusRotationOffset = row->focusRotationOffset;
+		
+			focusModelId = row->focusModelId;
+		
+		
+		
+		
+		if (row->measuredFocusPositionExists) {
+			measuredFocusPosition = row->measuredFocusPosition;		
 			measuredFocusPositionExists = true;
 		}
 		else
 			measuredFocusPositionExists = false;
 		
-		if (row.measuredFocusRotationExists) {
-			measuredFocusRotation = row.measuredFocusRotation;		
+		if (row->measuredFocusRotationExists) {
+			measuredFocusRotation = row->measuredFocusRotation;		
 			measuredFocusRotationExists = true;
 		}
 		else
@@ -1504,7 +1517,7 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool FocusRow::compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId) {
+	bool FocusRow::compareNoAutoInc(Tag antennaId, ArrayTimeInterval timeInterval, bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId) {
 		bool result;
 		result = true;
 		
@@ -1555,7 +1568,7 @@ void FocusRow::measuredFocusRotationFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool FocusRow::compareRequiredValue(bool focusTracking, vector<Length > focusOffset, vector<Angle > focusRotationOffset, int focusModelId) {
+	bool FocusRow::compareRequiredValue(bool focusTracking, std::vector<Length > focusOffset, std::vector<Angle > focusRotationOffset, int focusModelId) {
 		bool result;
 		result = true;
 		

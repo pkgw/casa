@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <StateRow.h>
-#include <StateTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/StateRow.h>
+#include <alma/ASDM/StateTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::StateRow;
 using asdm::StateTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	StateRow::~StateRow() {
@@ -652,7 +649,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void StateRow::stateIdFromText(const string & s) {
 		 
+          
 		stateId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -660,7 +659,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	// Convert a string into an CalibrationDevice 
 	void StateRow::calDeviceNameFromText(const string & s) {
 		 
-		calDeviceName = ASDMValuesParser::parse<CalibrationDevice>(s);
+          
+		calDeviceName = ASDMValuesParser::parse<CalibrationDeviceMod::CalibrationDevice>(s);
+          
 		
 	}
 	
@@ -668,7 +669,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void StateRow::sigFromText(const string & s) {
 		 
+          
 		sig = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -676,7 +679,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void StateRow::refFromText(const string & s) {
 		 
+          
 		ref = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -684,7 +689,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void StateRow::onSkyFromText(const string & s) {
 		 
+          
 		onSky = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -694,7 +701,9 @@ void StateRow::weightFromBin(EndianIStream& eis) {
 	void StateRow::weightFromText(const string & s) {
 		weightExists = true;
 		 
+          
 		weight = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1020,10 +1029,10 @@ calDeviceName = CCalibrationDevice::from_int(0);
 		
 	}
 	
-	StateRow::StateRow (StateTable &t, StateRow &row) : table(t) {
+	StateRow::StateRow (StateTable &t, StateRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1045,24 +1054,24 @@ calDeviceName = CCalibrationDevice::from_int(0);
 		else {
 	
 		
-			stateId = row.stateId;
+			stateId = row->stateId;
 		
 		
 		
 		
-			calDeviceName = row.calDeviceName;
+			calDeviceName = row->calDeviceName;
 		
-			sig = row.sig;
+			sig = row->sig;
 		
-			ref = row.ref;
+			ref = row->ref;
 		
-			onSky = row.onSky;
-		
-		
+			onSky = row->onSky;
 		
 		
-		if (row.weightExists) {
-			weight = row.weight;		
+		
+		
+		if (row->weightExists) {
+			weight = row->weight;		
 			weightExists = true;
 		}
 		else

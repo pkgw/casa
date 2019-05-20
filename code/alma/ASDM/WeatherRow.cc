@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <WeatherRow.h>
-#include <WeatherTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/WeatherRow.h>
+#include <alma/ASDM/WeatherTable.h>
 
-#include <StationTable.h>
-#include <StationRow.h>
+#include <alma/ASDM/StationTable.h>
+#include <alma/ASDM/StationRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::StationTable;
 using asdm::StationRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	WeatherRow::~WeatherRow() {
@@ -1679,7 +1676,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void WeatherRow::stationIdFromText(const string & s) {
 		 
+          
 		stationId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1687,7 +1686,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void WeatherRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1697,7 +1698,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::pressureFromText(const string & s) {
 		pressureExists = true;
 		 
+          
 		pressure = ASDMValuesParser::parse<Pressure>(s);
+          
 		
 	}
 	
@@ -1706,7 +1709,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::relHumidityFromText(const string & s) {
 		relHumidityExists = true;
 		 
+          
 		relHumidity = ASDMValuesParser::parse<Humidity>(s);
+          
 		
 	}
 	
@@ -1715,7 +1720,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::temperatureFromText(const string & s) {
 		temperatureExists = true;
 		 
+          
 		temperature = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -1724,7 +1731,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::windDirectionFromText(const string & s) {
 		windDirectionExists = true;
 		 
+          
 		windDirection = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1733,7 +1742,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::windSpeedFromText(const string & s) {
 		windSpeedExists = true;
 		 
+          
 		windSpeed = ASDMValuesParser::parse<Speed>(s);
+          
 		
 	}
 	
@@ -1742,7 +1753,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::windMaxFromText(const string & s) {
 		windMaxExists = true;
 		 
+          
 		windMax = ASDMValuesParser::parse<Speed>(s);
+          
 		
 	}
 	
@@ -1751,7 +1764,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::dewPointFromText(const string & s) {
 		dewPointExists = true;
 		 
+          
 		dewPoint = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -1760,7 +1775,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::numLayerFromText(const string & s) {
 		numLayerExists = true;
 		 
+          
 		numLayer = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1769,7 +1786,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::layerHeightFromText(const string & s) {
 		layerHeightExists = true;
 		 
+          
 		layerHeight = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1778,7 +1797,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::temperatureProfileFromText(const string & s) {
 		temperatureProfileExists = true;
 		 
+          
 		temperatureProfile = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -1787,7 +1808,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::cloudMonitorFromText(const string & s) {
 		cloudMonitorExists = true;
 		 
+          
 		cloudMonitor = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -1796,7 +1819,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::numWVRFromText(const string & s) {
 		numWVRExists = true;
 		 
+          
 		numWVR = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1805,7 +1830,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::wvrTempFromText(const string & s) {
 		wvrTempExists = true;
 		 
+          
 		wvrTemp = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -1814,7 +1841,9 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	void WeatherRow::waterFromText(const string & s) {
 		waterExists = true;
 		 
+          
 		water = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -2256,10 +2285,10 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get layerHeight, which is optional.
- 	 * @return layerHeight as vector<Length >
+ 	 * @return layerHeight as std::vector<Length >
  	 * @throw IllegalAccessException If layerHeight does not exist.
  	 */
- 	vector<Length > WeatherRow::getLayerHeight() const  {
+ 	std::vector<Length > WeatherRow::getLayerHeight() const  {
 		if (!layerHeightExists) {
 			throw IllegalAccessException("layerHeight", "Weather");
 		}
@@ -2268,12 +2297,12 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set layerHeight with the specified vector<Length >.
- 	 * @param layerHeight The vector<Length > value to which layerHeight is to be set.
+ 	 * Set layerHeight with the specified std::vector<Length >.
+ 	 * @param layerHeight The std::vector<Length > value to which layerHeight is to be set.
  	 
  	
  	 */
- 	void WeatherRow::setLayerHeight (vector<Length > layerHeight) {
+ 	void WeatherRow::setLayerHeight (std::vector<Length > layerHeight) {
 	
  		this->layerHeight = layerHeight;
 	
@@ -2303,10 +2332,10 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get temperatureProfile, which is optional.
- 	 * @return temperatureProfile as vector<Temperature >
+ 	 * @return temperatureProfile as std::vector<Temperature >
  	 * @throw IllegalAccessException If temperatureProfile does not exist.
  	 */
- 	vector<Temperature > WeatherRow::getTemperatureProfile() const  {
+ 	std::vector<Temperature > WeatherRow::getTemperatureProfile() const  {
 		if (!temperatureProfileExists) {
 			throw IllegalAccessException("temperatureProfile", "Weather");
 		}
@@ -2315,12 +2344,12 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set temperatureProfile with the specified vector<Temperature >.
- 	 * @param temperatureProfile The vector<Temperature > value to which temperatureProfile is to be set.
+ 	 * Set temperatureProfile with the specified std::vector<Temperature >.
+ 	 * @param temperatureProfile The std::vector<Temperature > value to which temperatureProfile is to be set.
  	 
  	
  	 */
- 	void WeatherRow::setTemperatureProfile (vector<Temperature > temperatureProfile) {
+ 	void WeatherRow::setTemperatureProfile (std::vector<Temperature > temperatureProfile) {
 	
  		this->temperatureProfile = temperatureProfile;
 	
@@ -2444,10 +2473,10 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get wvrTemp, which is optional.
- 	 * @return wvrTemp as vector<Temperature >
+ 	 * @return wvrTemp as std::vector<Temperature >
  	 * @throw IllegalAccessException If wvrTemp does not exist.
  	 */
- 	vector<Temperature > WeatherRow::getWvrTemp() const  {
+ 	std::vector<Temperature > WeatherRow::getWvrTemp() const  {
 		if (!wvrTempExists) {
 			throw IllegalAccessException("wvrTemp", "Weather");
 		}
@@ -2456,12 +2485,12 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set wvrTemp with the specified vector<Temperature >.
- 	 * @param wvrTemp The vector<Temperature > value to which wvrTemp is to be set.
+ 	 * Set wvrTemp with the specified std::vector<Temperature >.
+ 	 * @param wvrTemp The std::vector<Temperature > value to which wvrTemp is to be set.
  	 
  	
  	 */
- 	void WeatherRow::setWvrTemp (vector<Temperature > wvrTemp) {
+ 	void WeatherRow::setWvrTemp (std::vector<Temperature > wvrTemp) {
 	
  		this->wvrTemp = wvrTemp;
 	
@@ -2789,10 +2818,10 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 		
 	}
 	
-	WeatherRow::WeatherRow (WeatherTable &t, WeatherRow &row) : table(t) {
+	WeatherRow::WeatherRow (WeatherTable &t, WeatherRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2860,109 +2889,109 @@ void WeatherRow::waterFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			stationId = row.stationId;
+			stationId = row->stationId;
 		
-			timeInterval = row.timeInterval;
-		
-		
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
 		
-		if (row.pressureExists) {
-			pressure = row.pressure;		
+		
+		
+		if (row->pressureExists) {
+			pressure = row->pressure;		
 			pressureExists = true;
 		}
 		else
 			pressureExists = false;
 		
-		if (row.relHumidityExists) {
-			relHumidity = row.relHumidity;		
+		if (row->relHumidityExists) {
+			relHumidity = row->relHumidity;		
 			relHumidityExists = true;
 		}
 		else
 			relHumidityExists = false;
 		
-		if (row.temperatureExists) {
-			temperature = row.temperature;		
+		if (row->temperatureExists) {
+			temperature = row->temperature;		
 			temperatureExists = true;
 		}
 		else
 			temperatureExists = false;
 		
-		if (row.windDirectionExists) {
-			windDirection = row.windDirection;		
+		if (row->windDirectionExists) {
+			windDirection = row->windDirection;		
 			windDirectionExists = true;
 		}
 		else
 			windDirectionExists = false;
 		
-		if (row.windSpeedExists) {
-			windSpeed = row.windSpeed;		
+		if (row->windSpeedExists) {
+			windSpeed = row->windSpeed;		
 			windSpeedExists = true;
 		}
 		else
 			windSpeedExists = false;
 		
-		if (row.windMaxExists) {
-			windMax = row.windMax;		
+		if (row->windMaxExists) {
+			windMax = row->windMax;		
 			windMaxExists = true;
 		}
 		else
 			windMaxExists = false;
 		
-		if (row.dewPointExists) {
-			dewPoint = row.dewPoint;		
+		if (row->dewPointExists) {
+			dewPoint = row->dewPoint;		
 			dewPointExists = true;
 		}
 		else
 			dewPointExists = false;
 		
-		if (row.numLayerExists) {
-			numLayer = row.numLayer;		
+		if (row->numLayerExists) {
+			numLayer = row->numLayer;		
 			numLayerExists = true;
 		}
 		else
 			numLayerExists = false;
 		
-		if (row.layerHeightExists) {
-			layerHeight = row.layerHeight;		
+		if (row->layerHeightExists) {
+			layerHeight = row->layerHeight;		
 			layerHeightExists = true;
 		}
 		else
 			layerHeightExists = false;
 		
-		if (row.temperatureProfileExists) {
-			temperatureProfile = row.temperatureProfile;		
+		if (row->temperatureProfileExists) {
+			temperatureProfile = row->temperatureProfile;		
 			temperatureProfileExists = true;
 		}
 		else
 			temperatureProfileExists = false;
 		
-		if (row.cloudMonitorExists) {
-			cloudMonitor = row.cloudMonitor;		
+		if (row->cloudMonitorExists) {
+			cloudMonitor = row->cloudMonitor;		
 			cloudMonitorExists = true;
 		}
 		else
 			cloudMonitorExists = false;
 		
-		if (row.numWVRExists) {
-			numWVR = row.numWVR;		
+		if (row->numWVRExists) {
+			numWVR = row->numWVR;		
 			numWVRExists = true;
 		}
 		else
 			numWVRExists = false;
 		
-		if (row.wvrTempExists) {
-			wvrTemp = row.wvrTemp;		
+		if (row->wvrTempExists) {
+			wvrTemp = row->wvrTemp;		
 			wvrTempExists = true;
 		}
 		else
 			wvrTempExists = false;
 		
-		if (row.waterExists) {
-			water = row.water;		
+		if (row->waterExists) {
+			water = row->water;		
 			waterExists = true;
 		}
 		else

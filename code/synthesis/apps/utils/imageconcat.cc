@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 	   return -1;
       //outname=outname+"/concat.aipsio";
     }
-    Block<SHARED_PTR<PagedImage<Float> > > vim(nimages);
+    Block<std::shared_ptr<PagedImage<Float> > > vim(nimages);
     for (Int k=0; k < nimages; ++k){
      
       vim[k].reset(new PagedImage<Float>(images[k]));

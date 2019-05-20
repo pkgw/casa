@@ -97,6 +97,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Int getIterDone();
     casacore::Int getCycleNiter();
     casacore::Float getCycleThreshold();
+    casacore::Bool isThresholdReached();
+
+    casacore::Float getPBMask();
 
     /* This method resets the iteration counter for the cycle */
     void resetCycleIter();
@@ -110,13 +113,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Float getPeakResidual();
     casacore::Float getIntegratedFlux();
     casacore::Float getMaxPsfSidelobe();
+
+    /* user input for n-sigma */
+    casacore::Float getNsigma();
     
     void setPeakResidual(casacore::Float peakResidual);
     void setPeakResidualNoMask(casacore::Float peakResidual);
     void addIntegratedFlux(casacore::Float integratedFlux);
     void setMaxPsfSidelobe(casacore::Float maxPsfSidelobe);
    void setMadRMS(casacore::Float madRMS);
+   void setNsigmaThreshold(casacore::Float nsigmaThreshold);
    void setMaskSum(casacore::Float maskSum);
+   void setNsigma(casacore::Float nsigma);
+
+   void setPBMask(casacore::Float pbMaskLevel);
 
    void resetMinResidual();
 
@@ -124,8 +134,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     /* Control Variables */
     casacore::Int    itsCycleNiter;
     casacore::Float itsCycleThreshold;
+    casacore::Float itsNsigmaThreshold;
     casacore::Float itsLoopGain;
-    
+    casacore::Bool itsIsThresholdReached;    
+ 
     casacore::Bool  itsUpdatedModelFlag;
 
     /* Status Reporting Variables */
@@ -147,8 +159,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    casacore::Float itsMinResidual;
    casacore::Float itsMinResidualNoMask;
    casacore::Float itsPeakResidualNoMask;
+   casacore::Float itsNsigma;
    casacore::Float itsMadRMS;
    casacore::Float itsMaskSum;
+
+   casacore::Float itsPBMaskLevel;
 
     /* Summary Variable */
     casacore::Array<casacore::Double> itsSummaryMinor;

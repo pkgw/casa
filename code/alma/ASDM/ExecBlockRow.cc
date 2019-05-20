@@ -32,23 +32,20 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ExecBlockRow.h>
-#include <ExecBlockTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <SBSummaryTable.h>
-#include <SBSummaryRow.h>
+#include <alma/ASDM/SBSummaryTable.h>
+#include <alma/ASDM/SBSummaryRow.h>
 
-#include <ScaleTable.h>
-#include <ScaleRow.h>
+#include <alma/ASDM/ScaleTable.h>
+#include <alma/ASDM/ScaleRow.h>
 	
 
 using asdm::ASDM;
@@ -65,14 +62,14 @@ using asdm::ScaleTable;
 using asdm::ScaleRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ExecBlockRow::~ExecBlockRow() {
@@ -2419,7 +2416,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ExecBlockRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2427,7 +2426,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void ExecBlockRow::startTimeFromText(const string & s) {
 		 
+          
 		startTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2435,7 +2436,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void ExecBlockRow::endTimeFromText(const string & s) {
 		 
+          
 		endTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2443,7 +2446,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ExecBlockRow::execBlockNumFromText(const string & s) {
 		 
+          
 		execBlockNum = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2453,7 +2458,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void ExecBlockRow::configNameFromText(const string & s) {
 		 
+          
 		configName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2461,7 +2468,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void ExecBlockRow::telescopeNameFromText(const string & s) {
 		 
+          
 		telescopeName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2469,7 +2478,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void ExecBlockRow::observerNameFromText(const string & s) {
 		 
+          
 		observerName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2477,7 +2488,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ExecBlockRow::numObservingLogFromText(const string & s) {
 		 
+          
 		numObservingLog = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2485,7 +2498,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void ExecBlockRow::observingLogFromText(const string & s) {
 		 
+          
 		observingLog = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2494,7 +2509,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void ExecBlockRow::baseRangeMinFromText(const string & s) {
 		 
+          
 		baseRangeMin = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2502,7 +2519,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void ExecBlockRow::baseRangeMaxFromText(const string & s) {
 		 
+          
 		baseRangeMax = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2510,7 +2529,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void ExecBlockRow::baseRmsMinorFromText(const string & s) {
 		 
+          
 		baseRmsMinor = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2518,7 +2539,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void ExecBlockRow::baseRmsMajorFromText(const string & s) {
 		 
+          
 		baseRmsMajor = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2526,7 +2549,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void ExecBlockRow::basePaFromText(const string & s) {
 		 
+          
 		basePa = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -2534,7 +2559,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void ExecBlockRow::abortedFromText(const string & s) {
 		 
+          
 		aborted = ASDMValuesParser::parse<bool>(s);
+          
 		
 	}
 	
@@ -2542,7 +2569,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ExecBlockRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -2550,7 +2579,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ExecBlockRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -2558,7 +2589,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ExecBlockRow::sBSummaryIdFromText(const string & s) {
 		 
+          
 		sBSummaryId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2568,7 +2601,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::releaseDateFromText(const string & s) {
 		releaseDateExists = true;
 		 
+          
 		releaseDate = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -2577,7 +2612,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::schedulerModeFromText(const string & s) {
 		schedulerModeExists = true;
 		 
+          
 		schedulerMode = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2586,7 +2623,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::siteAltitudeFromText(const string & s) {
 		siteAltitudeExists = true;
 		 
+          
 		siteAltitude = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -2595,7 +2634,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::siteLongitudeFromText(const string & s) {
 		siteLongitudeExists = true;
 		 
+          
 		siteLongitude = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -2604,7 +2645,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::siteLatitudeFromText(const string & s) {
 		siteLatitudeExists = true;
 		 
+          
 		siteLatitude = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -2613,7 +2656,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::observingScriptFromText(const string & s) {
 		observingScriptExists = true;
 		 
+          
 		observingScript = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -2623,7 +2668,9 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	void ExecBlockRow::scaleIdFromText(const string & s) {
 		scaleIdExists = true;
 		 
+          
 		scaleId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -2841,21 +2888,21 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get configName.
- 	 * @return configName as string
+ 	 * @return configName as std::string
  	 */
- 	string ExecBlockRow::getConfigName() const {
+ 	std::string ExecBlockRow::getConfigName() const {
 	
   		return configName;
  	}
 
  	/**
- 	 * Set configName with the specified string.
- 	 * @param configName The string value to which configName is to be set.
+ 	 * Set configName with the specified std::string.
+ 	 * @param configName The std::string value to which configName is to be set.
  	 
  	
  		
  	 */
- 	void ExecBlockRow::setConfigName (string configName)  {
+ 	void ExecBlockRow::setConfigName (std::string configName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2873,21 +2920,21 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get telescopeName.
- 	 * @return telescopeName as string
+ 	 * @return telescopeName as std::string
  	 */
- 	string ExecBlockRow::getTelescopeName() const {
+ 	std::string ExecBlockRow::getTelescopeName() const {
 	
   		return telescopeName;
  	}
 
  	/**
- 	 * Set telescopeName with the specified string.
- 	 * @param telescopeName The string value to which telescopeName is to be set.
+ 	 * Set telescopeName with the specified std::string.
+ 	 * @param telescopeName The std::string value to which telescopeName is to be set.
  	 
  	
  		
  	 */
- 	void ExecBlockRow::setTelescopeName (string telescopeName)  {
+ 	void ExecBlockRow::setTelescopeName (std::string telescopeName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2905,21 +2952,21 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get observerName.
- 	 * @return observerName as string
+ 	 * @return observerName as std::string
  	 */
- 	string ExecBlockRow::getObserverName() const {
+ 	std::string ExecBlockRow::getObserverName() const {
 	
   		return observerName;
  	}
 
  	/**
- 	 * Set observerName with the specified string.
- 	 * @param observerName The string value to which observerName is to be set.
+ 	 * Set observerName with the specified std::string.
+ 	 * @param observerName The std::string value to which observerName is to be set.
  	 
  	
  		
  	 */
- 	void ExecBlockRow::setObserverName (string observerName)  {
+ 	void ExecBlockRow::setObserverName (std::string observerName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2969,21 +3016,21 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get observingLog.
- 	 * @return observingLog as vector<string >
+ 	 * @return observingLog as std::vector<std::string >
  	 */
- 	vector<string > ExecBlockRow::getObservingLog() const {
+ 	std::vector<std::string > ExecBlockRow::getObservingLog() const {
 	
   		return observingLog;
  	}
 
  	/**
- 	 * Set observingLog with the specified vector<string >.
- 	 * @param observingLog The vector<string > value to which observingLog is to be set.
+ 	 * Set observingLog with the specified std::vector<std::string >.
+ 	 * @param observingLog The std::vector<std::string > value to which observingLog is to be set.
  	 
  	
  		
  	 */
- 	void ExecBlockRow::setObservingLog (vector<string > observingLog)  {
+ 	void ExecBlockRow::setObservingLog (std::vector<std::string > observingLog)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3312,10 +3359,10 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get schedulerMode, which is optional.
- 	 * @return schedulerMode as string
+ 	 * @return schedulerMode as std::string
  	 * @throw IllegalAccessException If schedulerMode does not exist.
  	 */
- 	string ExecBlockRow::getSchedulerMode() const  {
+ 	std::string ExecBlockRow::getSchedulerMode() const  {
 		if (!schedulerModeExists) {
 			throw IllegalAccessException("schedulerMode", "ExecBlock");
 		}
@@ -3324,12 +3371,12 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set schedulerMode with the specified string.
- 	 * @param schedulerMode The string value to which schedulerMode is to be set.
+ 	 * Set schedulerMode with the specified std::string.
+ 	 * @param schedulerMode The std::string value to which schedulerMode is to be set.
  	 
  	
  	 */
- 	void ExecBlockRow::setSchedulerMode (string schedulerMode) {
+ 	void ExecBlockRow::setSchedulerMode (std::string schedulerMode) {
 	
  		this->schedulerMode = schedulerMode;
 	
@@ -3500,10 +3547,10 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get observingScript, which is optional.
- 	 * @return observingScript as string
+ 	 * @return observingScript as std::string
  	 * @throw IllegalAccessException If observingScript does not exist.
  	 */
- 	string ExecBlockRow::getObservingScript() const  {
+ 	std::string ExecBlockRow::getObservingScript() const  {
 		if (!observingScriptExists) {
 			throw IllegalAccessException("observingScript", "ExecBlock");
 		}
@@ -3512,12 +3559,12 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set observingScript with the specified string.
- 	 * @param observingScript The string value to which observingScript is to be set.
+ 	 * Set observingScript with the specified std::string.
+ 	 * @param observingScript The std::string value to which observingScript is to be set.
  	 
  	
  	 */
- 	void ExecBlockRow::setObservingScript (string observingScript) {
+ 	void ExecBlockRow::setObservingScript (std::string observingScript) {
 	
  		this->observingScript = observingScript;
 	
@@ -3591,21 +3638,21 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  ExecBlockRow::getAntennaId() const {
+ 	std::vector<Tag>  ExecBlockRow::getAntennaId() const {
 	
   		return antennaId;
  	}
 
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  	
  		
  	 */
- 	void ExecBlockRow::setAntennaId (vector<Tag>  antennaId)  {
+ 	void ExecBlockRow::setAntennaId (std::vector<Tag>  antennaId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -3717,7 +3764,7 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->antennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute antennaId in table ExecBlockTable");
-  		vector<Tag> ::iterator iter = this->antennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->antennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -3741,7 +3788,7 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void ExecBlockRow::addAntennaId(const vector<Tag> & id) {
+ void ExecBlockRow::addAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		antennaId.push_back(id.at(i));
  }
@@ -4113,10 +4160,10 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	ExecBlockRow::ExecBlockRow (ExecBlockTable &t, ExecBlockRow &row) : table(t) {
+	ExecBlockRow::ExecBlockRow (ExecBlockTable &t, ExecBlockRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4198,105 +4245,105 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
 		
 		
 		
-			startTime = row.startTime;
+			startTime = row->startTime;
 		
-			endTime = row.endTime;
+			endTime = row->endTime;
 		
-			execBlockNum = row.execBlockNum;
+			execBlockNum = row->execBlockNum;
 		
-			execBlockUID = row.execBlockUID;
+			execBlockUID = row->execBlockUID;
 		
-			projectUID = row.projectUID;
+			projectUID = row->projectUID;
 		
-			configName = row.configName;
+			configName = row->configName;
 		
-			telescopeName = row.telescopeName;
+			telescopeName = row->telescopeName;
 		
-			observerName = row.observerName;
+			observerName = row->observerName;
 		
-			numObservingLog = row.numObservingLog;
+			numObservingLog = row->numObservingLog;
 		
-			observingLog = row.observingLog;
+			observingLog = row->observingLog;
 		
-			sessionReference = row.sessionReference;
+			sessionReference = row->sessionReference;
 		
-			baseRangeMin = row.baseRangeMin;
+			baseRangeMin = row->baseRangeMin;
 		
-			baseRangeMax = row.baseRangeMax;
+			baseRangeMax = row->baseRangeMax;
 		
-			baseRmsMinor = row.baseRmsMinor;
+			baseRmsMinor = row->baseRmsMinor;
 		
-			baseRmsMajor = row.baseRmsMajor;
+			baseRmsMajor = row->baseRmsMajor;
 		
-			basePa = row.basePa;
+			basePa = row->basePa;
 		
-			aborted = row.aborted;
+			aborted = row->aborted;
 		
-			numAntenna = row.numAntenna;
+			numAntenna = row->numAntenna;
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			sBSummaryId = row.sBSummaryId;
-		
-		
+			sBSummaryId = row->sBSummaryId;
 		
 		
-		if (row.releaseDateExists) {
-			releaseDate = row.releaseDate;		
+		
+		
+		if (row->releaseDateExists) {
+			releaseDate = row->releaseDate;		
 			releaseDateExists = true;
 		}
 		else
 			releaseDateExists = false;
 		
-		if (row.schedulerModeExists) {
-			schedulerMode = row.schedulerMode;		
+		if (row->schedulerModeExists) {
+			schedulerMode = row->schedulerMode;		
 			schedulerModeExists = true;
 		}
 		else
 			schedulerModeExists = false;
 		
-		if (row.siteAltitudeExists) {
-			siteAltitude = row.siteAltitude;		
+		if (row->siteAltitudeExists) {
+			siteAltitude = row->siteAltitude;		
 			siteAltitudeExists = true;
 		}
 		else
 			siteAltitudeExists = false;
 		
-		if (row.siteLongitudeExists) {
-			siteLongitude = row.siteLongitude;		
+		if (row->siteLongitudeExists) {
+			siteLongitude = row->siteLongitude;		
 			siteLongitudeExists = true;
 		}
 		else
 			siteLongitudeExists = false;
 		
-		if (row.siteLatitudeExists) {
-			siteLatitude = row.siteLatitude;		
+		if (row->siteLatitudeExists) {
+			siteLatitude = row->siteLatitude;		
 			siteLatitudeExists = true;
 		}
 		else
 			siteLatitudeExists = false;
 		
-		if (row.observingScriptExists) {
-			observingScript = row.observingScript;		
+		if (row->observingScriptExists) {
+			observingScript = row->observingScript;		
 			observingScriptExists = true;
 		}
 		else
 			observingScriptExists = false;
 		
-		if (row.observingScriptUIDExists) {
-			observingScriptUID = row.observingScriptUID;		
+		if (row->observingScriptUIDExists) {
+			observingScriptUID = row->observingScriptUID;		
 			observingScriptUIDExists = true;
 		}
 		else
 			observingScriptUIDExists = false;
 		
-		if (row.scaleIdExists) {
-			scaleId = row.scaleId;		
+		if (row->scaleIdExists) {
+			scaleId = row->scaleId;		
 			scaleIdExists = true;
 		}
 		else
@@ -4339,7 +4386,7 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool ExecBlockRow::compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId) {
+	bool ExecBlockRow::compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId) {
 		bool result;
 		result = true;
 		
@@ -4488,7 +4535,7 @@ void ExecBlockRow::scaleIdFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool ExecBlockRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, string configName, string telescopeName, string observerName, int numObservingLog, vector<string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, vector<Tag>  antennaId, Tag sBSummaryId) {
+	bool ExecBlockRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int execBlockNum, EntityRef execBlockUID, EntityRef projectUID, std::string configName, std::string telescopeName, std::string observerName, int numObservingLog, std::vector<std::string > observingLog, EntityRef sessionReference, Length baseRangeMin, Length baseRangeMax, Length baseRmsMinor, Length baseRmsMajor, Angle basePa, bool aborted, int numAntenna, std::vector<Tag>  antennaId, Tag sBSummaryId) {
 		bool result;
 		result = true;
 		

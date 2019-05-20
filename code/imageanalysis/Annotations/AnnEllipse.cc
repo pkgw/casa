@@ -150,8 +150,11 @@ void AnnEllipse::_init(
 	) {
 		Quantity angle;
 		csys.directionCoordinate().convert(angle, _getDirectionRefFrame());
-		_convertedPositionAngle -= angle;
-	}
+        // add the clockwise angle rather than subtract because the pixel
+        // axes are aligned with the "from" (current) world coordinate system rather
+        // than the "to" world coordinate system
+        _convertedPositionAngle += angle;
+    }
 	if (_convertedSemiMajorAxis < _convertedSemiMinorAxis) {
 		std::swap(_convertedSemiMajorAxis, _convertedSemiMinorAxis);
 		_convertedPositionAngle = Quantity(

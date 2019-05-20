@@ -32,32 +32,29 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ConfigDescriptionRow.h>
-#include <ConfigDescriptionTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
 
-#include <ConfigDescriptionTable.h>
-#include <ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 
-#include <FeedTable.h>
-#include <FeedRow.h>
+#include <alma/ASDM/FeedTable.h>
+#include <alma/ASDM/FeedRow.h>
 
-#include <SwitchCycleTable.h>
-#include <SwitchCycleRow.h>
+#include <alma/ASDM/SwitchCycleTable.h>
+#include <alma/ASDM/SwitchCycleRow.h>
 
-#include <DataDescriptionTable.h>
-#include <DataDescriptionRow.h>
+#include <alma/ASDM/DataDescriptionTable.h>
+#include <alma/ASDM/DataDescriptionRow.h>
 
-#include <ProcessorTable.h>
-#include <ProcessorRow.h>
+#include <alma/ASDM/ProcessorTable.h>
+#include <alma/ASDM/ProcessorRow.h>
 	
 
 using asdm::ASDM;
@@ -83,14 +80,14 @@ using asdm::ProcessorTable;
 using asdm::ProcessorRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ConfigDescriptionRow::~ConfigDescriptionRow() {
@@ -1818,7 +1815,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ConfigDescriptionRow::configDescriptionIdFromText(const string & s) {
 		 
+          
 		configDescriptionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1826,7 +1825,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ConfigDescriptionRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1834,7 +1835,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ConfigDescriptionRow::numDataDescriptionFromText(const string & s) {
 		 
+          
 		numDataDescription = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1842,7 +1845,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ConfigDescriptionRow::numFeedFromText(const string & s) {
 		 
+          
 		numFeed = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1850,7 +1855,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an CorrelationMode 
 	void ConfigDescriptionRow::correlationModeFromText(const string & s) {
 		 
-		correlationMode = ASDMValuesParser::parse<CorrelationMode>(s);
+          
+		correlationMode = ASDMValuesParser::parse<CorrelationModeMod::CorrelationMode>(s);
+          
 		
 	}
 	
@@ -1858,7 +1865,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ConfigDescriptionRow::numAtmPhaseCorrectionFromText(const string & s) {
 		 
+          
 		numAtmPhaseCorrection = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1866,7 +1875,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void ConfigDescriptionRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse1D<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse1D<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1874,7 +1885,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ProcessorType 
 	void ConfigDescriptionRow::processorTypeFromText(const string & s) {
 		 
-		processorType = ASDMValuesParser::parse<ProcessorType>(s);
+          
+		processorType = ASDMValuesParser::parse<ProcessorTypeMod::ProcessorType>(s);
+          
 		
 	}
 	
@@ -1882,7 +1895,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an SpectralResolutionType 
 	void ConfigDescriptionRow::spectralTypeFromText(const string & s) {
 		 
-		spectralType = ASDMValuesParser::parse<SpectralResolutionType>(s);
+          
+		spectralType = ASDMValuesParser::parse<SpectralResolutionTypeMod::SpectralResolutionType>(s);
+          
 		
 	}
 	
@@ -1890,7 +1905,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ConfigDescriptionRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1898,7 +1915,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ConfigDescriptionRow::feedIdFromText(const string & s) {
 		 
+          
 		feedId = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1906,7 +1925,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ConfigDescriptionRow::switchCycleIdFromText(const string & s) {
 		 
+          
 		switchCycleId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1914,7 +1935,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ConfigDescriptionRow::dataDescriptionIdFromText(const string & s) {
 		 
+          
 		dataDescriptionId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1922,7 +1945,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ConfigDescriptionRow::processorIdFromText(const string & s) {
 		 
+          
 		processorId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1932,7 +1957,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	void ConfigDescriptionRow::phasedArrayListFromText(const string & s) {
 		phasedArrayListExists = true;
 		 
+          
 		phasedArrayList = ASDMValuesParser::parse1D<int>(s);
+          
 		
 	}
 	
@@ -1941,7 +1968,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	void ConfigDescriptionRow::numAssocValuesFromText(const string & s) {
 		numAssocValuesExists = true;
 		 
+          
 		numAssocValues = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1950,7 +1979,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	void ConfigDescriptionRow::assocNatureFromText(const string & s) {
 		assocNatureExists = true;
 		 
-		assocNature = ASDMValuesParser::parse1D<SpectralResolutionType>(s);
+          
+		assocNature = ASDMValuesParser::parse1D<SpectralResolutionTypeMod::SpectralResolutionType>(s);
+          
 		
 	}
 	
@@ -1959,7 +1990,9 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	void ConfigDescriptionRow::assocConfigDescriptionIdFromText(const string & s) {
 		assocConfigDescriptionIdExists = true;
 		 
+          
 		assocConfigDescriptionId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -2177,21 +2210,21 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get atmPhaseCorrection.
- 	 * @return atmPhaseCorrection as vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >
+ 	 * @return atmPhaseCorrection as std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >
  	 */
- 	vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > ConfigDescriptionRow::getAtmPhaseCorrection() const {
+ 	std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > ConfigDescriptionRow::getAtmPhaseCorrection() const {
 	
   		return atmPhaseCorrection;
  	}
 
  	/**
- 	 * Set atmPhaseCorrection with the specified vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >.
- 	 * @param atmPhaseCorrection The vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > value to which atmPhaseCorrection is to be set.
+ 	 * Set atmPhaseCorrection with the specified std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection >.
+ 	 * @param atmPhaseCorrection The std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > value to which atmPhaseCorrection is to be set.
  	 
  	
  		
  	 */
- 	void ConfigDescriptionRow::setAtmPhaseCorrection (vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection)  {
+ 	void ConfigDescriptionRow::setAtmPhaseCorrection (std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2249,10 +2282,10 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phasedArrayList, which is optional.
- 	 * @return phasedArrayList as vector<int >
+ 	 * @return phasedArrayList as std::vector<int >
  	 * @throw IllegalAccessException If phasedArrayList does not exist.
  	 */
- 	vector<int > ConfigDescriptionRow::getPhasedArrayList() const  {
+ 	std::vector<int > ConfigDescriptionRow::getPhasedArrayList() const  {
 		if (!phasedArrayListExists) {
 			throw IllegalAccessException("phasedArrayList", "ConfigDescription");
 		}
@@ -2261,12 +2294,12 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set phasedArrayList with the specified vector<int >.
- 	 * @param phasedArrayList The vector<int > value to which phasedArrayList is to be set.
+ 	 * Set phasedArrayList with the specified std::vector<int >.
+ 	 * @param phasedArrayList The std::vector<int > value to which phasedArrayList is to be set.
  	 
  	
  	 */
- 	void ConfigDescriptionRow::setPhasedArrayList (vector<int > phasedArrayList) {
+ 	void ConfigDescriptionRow::setPhasedArrayList (std::vector<int > phasedArrayList) {
 	
  		this->phasedArrayList = phasedArrayList;
 	
@@ -2375,10 +2408,10 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as vector<SpectralResolutionTypeMod::SpectralResolutionType >
+ 	 * @return assocNature as std::vector<SpectralResolutionTypeMod::SpectralResolutionType >
  	 * @throw IllegalAccessException If assocNature does not exist.
  	 */
- 	vector<SpectralResolutionTypeMod::SpectralResolutionType > ConfigDescriptionRow::getAssocNature() const  {
+ 	std::vector<SpectralResolutionTypeMod::SpectralResolutionType > ConfigDescriptionRow::getAssocNature() const  {
 		if (!assocNatureExists) {
 			throw IllegalAccessException("assocNature", "ConfigDescription");
 		}
@@ -2387,12 +2420,12 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set assocNature with the specified vector<SpectralResolutionTypeMod::SpectralResolutionType >.
- 	 * @param assocNature The vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::vector<SpectralResolutionTypeMod::SpectralResolutionType >.
+ 	 * @param assocNature The std::vector<SpectralResolutionTypeMod::SpectralResolutionType > value to which assocNature is to be set.
  	 
  	
  	 */
- 	void ConfigDescriptionRow::setAssocNature (vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature) {
+ 	void ConfigDescriptionRow::setAssocNature (std::vector<SpectralResolutionTypeMod::SpectralResolutionType > assocNature) {
 	
  		this->assocNature = assocNature;
 	
@@ -2419,21 +2452,21 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  ConfigDescriptionRow::getAntennaId() const {
+ 	std::vector<Tag>  ConfigDescriptionRow::getAntennaId() const {
 	
   		return antennaId;
  	}
 
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  	
  		
  	 */
- 	void ConfigDescriptionRow::setAntennaId (vector<Tag>  antennaId)  {
+ 	void ConfigDescriptionRow::setAntennaId (std::vector<Tag>  antennaId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2459,10 +2492,10 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocConfigDescriptionId, which is optional.
- 	 * @return assocConfigDescriptionId as vector<Tag> 
+ 	 * @return assocConfigDescriptionId as std::vector<Tag> 
  	 * @throw IllegalAccessException If assocConfigDescriptionId does not exist.
  	 */
- 	vector<Tag>  ConfigDescriptionRow::getAssocConfigDescriptionId() const  {
+ 	std::vector<Tag>  ConfigDescriptionRow::getAssocConfigDescriptionId() const  {
 		if (!assocConfigDescriptionIdExists) {
 			throw IllegalAccessException("assocConfigDescriptionId", "ConfigDescription");
 		}
@@ -2471,12 +2504,12 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set assocConfigDescriptionId with the specified vector<Tag> .
- 	 * @param assocConfigDescriptionId The vector<Tag>  value to which assocConfigDescriptionId is to be set.
+ 	 * Set assocConfigDescriptionId with the specified std::vector<Tag> .
+ 	 * @param assocConfigDescriptionId The std::vector<Tag>  value to which assocConfigDescriptionId is to be set.
  	 
  	
  	 */
- 	void ConfigDescriptionRow::setAssocConfigDescriptionId (vector<Tag>  assocConfigDescriptionId) {
+ 	void ConfigDescriptionRow::setAssocConfigDescriptionId (std::vector<Tag>  assocConfigDescriptionId) {
 	
  		this->assocConfigDescriptionId = assocConfigDescriptionId;
 	
@@ -2498,21 +2531,21 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get dataDescriptionId.
- 	 * @return dataDescriptionId as vector<Tag> 
+ 	 * @return dataDescriptionId as std::vector<Tag> 
  	 */
- 	vector<Tag>  ConfigDescriptionRow::getDataDescriptionId() const {
+ 	std::vector<Tag>  ConfigDescriptionRow::getDataDescriptionId() const {
 	
   		return dataDescriptionId;
  	}
 
  	/**
- 	 * Set dataDescriptionId with the specified vector<Tag> .
- 	 * @param dataDescriptionId The vector<Tag>  value to which dataDescriptionId is to be set.
+ 	 * Set dataDescriptionId with the specified std::vector<Tag> .
+ 	 * @param dataDescriptionId The std::vector<Tag>  value to which dataDescriptionId is to be set.
  	 
  	
  		
  	 */
- 	void ConfigDescriptionRow::setDataDescriptionId (vector<Tag>  dataDescriptionId)  {
+ 	void ConfigDescriptionRow::setDataDescriptionId (std::vector<Tag>  dataDescriptionId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2530,21 +2563,21 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get feedId.
- 	 * @return feedId as vector<int> 
+ 	 * @return feedId as std::vector<int> 
  	 */
- 	vector<int>  ConfigDescriptionRow::getFeedId() const {
+ 	std::vector<int>  ConfigDescriptionRow::getFeedId() const {
 	
   		return feedId;
  	}
 
  	/**
- 	 * Set feedId with the specified vector<int> .
- 	 * @param feedId The vector<int>  value to which feedId is to be set.
+ 	 * Set feedId with the specified std::vector<int> .
+ 	 * @param feedId The std::vector<int>  value to which feedId is to be set.
  	 
  	
  		
  	 */
- 	void ConfigDescriptionRow::setFeedId (vector<int>  feedId)  {
+ 	void ConfigDescriptionRow::setFeedId (std::vector<int>  feedId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2594,21 +2627,21 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get switchCycleId.
- 	 * @return switchCycleId as vector<Tag> 
+ 	 * @return switchCycleId as std::vector<Tag> 
  	 */
- 	vector<Tag>  ConfigDescriptionRow::getSwitchCycleId() const {
+ 	std::vector<Tag>  ConfigDescriptionRow::getSwitchCycleId() const {
 	
   		return switchCycleId;
  	}
 
  	/**
- 	 * Set switchCycleId with the specified vector<Tag> .
- 	 * @param switchCycleId The vector<Tag>  value to which switchCycleId is to be set.
+ 	 * Set switchCycleId with the specified std::vector<Tag> .
+ 	 * @param switchCycleId The std::vector<Tag>  value to which switchCycleId is to be set.
  	 
  	
  		
  	 */
- 	void ConfigDescriptionRow::setSwitchCycleId (vector<Tag>  switchCycleId)  {
+ 	void ConfigDescriptionRow::setSwitchCycleId (std::vector<Tag>  switchCycleId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2637,7 +2670,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
   	void ConfigDescriptionRow::setAssocConfigDescriptionId (int i, Tag assocConfigDescriptionId) {
   		if ((i < 0) || (i > ((int) this->assocConfigDescriptionId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute assocConfigDescriptionId in table ConfigDescriptionTable");
-  		vector<Tag> ::iterator iter = this->assocConfigDescriptionId.begin();
+  		std::vector<Tag> ::iterator iter = this->assocConfigDescriptionId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2661,7 +2694,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to assocConfigDescriptionId.
  * @param id an array of Tag to be appended to assocConfigDescriptionId
  */
- void ConfigDescriptionRow::addAssocConfigDescriptionId(const vector<Tag> & id) {
+ void ConfigDescriptionRow::addAssocConfigDescriptionId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		assocConfigDescriptionId.push_back(id.at(i));
  }
@@ -2713,7 +2746,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->antennaId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute antennaId in table ConfigDescriptionTable");
-  		vector<Tag> ::iterator iter = this->antennaId.begin();
+  		std::vector<Tag> ::iterator iter = this->antennaId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2737,7 +2770,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void ConfigDescriptionRow::addAntennaId(const vector<Tag> & id) {
+ void ConfigDescriptionRow::addAntennaId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		antennaId.push_back(id.at(i));
  }
@@ -2789,7 +2822,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->feedId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute feedId in table ConfigDescriptionTable");
-  		vector<int> ::iterator iter = this->feedId.begin();
+  		std::vector<int> ::iterator iter = this->feedId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2861,7 +2894,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->switchCycleId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute switchCycleId in table ConfigDescriptionTable");
-  		vector<Tag> ::iterator iter = this->switchCycleId.begin();
+  		std::vector<Tag> ::iterator iter = this->switchCycleId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2885,7 +2918,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to switchCycleId.
  * @param id an array of Tag to be appended to switchCycleId
  */
- void ConfigDescriptionRow::addSwitchCycleId(const vector<Tag> & id) {
+ void ConfigDescriptionRow::addSwitchCycleId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		switchCycleId.push_back(id.at(i));
  }
@@ -2937,7 +2970,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->dataDescriptionId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute dataDescriptionId in table ConfigDescriptionTable");
-  		vector<Tag> ::iterator iter = this->dataDescriptionId.begin();
+  		std::vector<Tag> ::iterator iter = this->dataDescriptionId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -2961,7 +2994,7 @@ void ConfigDescriptionRow::assocConfigDescriptionIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to dataDescriptionId.
  * @param id an array of Tag to be appended to dataDescriptionId
  */
- void ConfigDescriptionRow::addDataDescriptionId(const vector<Tag> & id) {
+ void ConfigDescriptionRow::addDataDescriptionId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		dataDescriptionId.push_back(id.at(i));
  }
@@ -3213,10 +3246,10 @@ spectralType = CSpectralResolutionType::from_int(0);
 		
 	}
 	
-	ConfigDescriptionRow::ConfigDescriptionRow (ConfigDescriptionTable &t, ConfigDescriptionRow &row) : table(t) {
+	ConfigDescriptionRow::ConfigDescriptionRow (ConfigDescriptionTable &t, ConfigDescriptionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3268,63 +3301,63 @@ spectralType = CSpectralResolutionType::from_int(0);
 		else {
 	
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
 		
 		
 		
-			numAntenna = row.numAntenna;
+			numAntenna = row->numAntenna;
 		
-			numDataDescription = row.numDataDescription;
+			numDataDescription = row->numDataDescription;
 		
-			numFeed = row.numFeed;
+			numFeed = row->numFeed;
 		
-			correlationMode = row.correlationMode;
+			correlationMode = row->correlationMode;
 		
-			numAtmPhaseCorrection = row.numAtmPhaseCorrection;
+			numAtmPhaseCorrection = row->numAtmPhaseCorrection;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			processorType = row.processorType;
+			processorType = row->processorType;
 		
-			spectralType = row.spectralType;
+			spectralType = row->spectralType;
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			feedId = row.feedId;
+			feedId = row->feedId;
 		
-			switchCycleId = row.switchCycleId;
+			switchCycleId = row->switchCycleId;
 		
-			dataDescriptionId = row.dataDescriptionId;
+			dataDescriptionId = row->dataDescriptionId;
 		
-			processorId = row.processorId;
-		
-		
+			processorId = row->processorId;
 		
 		
-		if (row.phasedArrayListExists) {
-			phasedArrayList = row.phasedArrayList;		
+		
+		
+		if (row->phasedArrayListExists) {
+			phasedArrayList = row->phasedArrayList;		
 			phasedArrayListExists = true;
 		}
 		else
 			phasedArrayListExists = false;
 		
-		if (row.numAssocValuesExists) {
-			numAssocValues = row.numAssocValues;		
+		if (row->numAssocValuesExists) {
+			numAssocValues = row->numAssocValues;		
 			numAssocValuesExists = true;
 		}
 		else
 			numAssocValuesExists = false;
 		
-		if (row.assocNatureExists) {
-			assocNature = row.assocNature;		
+		if (row->assocNatureExists) {
+			assocNature = row->assocNature;		
 			assocNatureExists = true;
 		}
 		else
 			assocNatureExists = false;
 		
-		if (row.assocConfigDescriptionIdExists) {
-			assocConfigDescriptionId = row.assocConfigDescriptionId;		
+		if (row->assocConfigDescriptionIdExists) {
+			assocConfigDescriptionId = row->assocConfigDescriptionId;		
 			assocConfigDescriptionIdExists = true;
 		}
 		else
@@ -3356,7 +3389,7 @@ spectralType = CSpectralResolutionType::from_int(0);
 	}
 
 	
-	bool ConfigDescriptionRow::compareNoAutoInc(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId) {
+	bool ConfigDescriptionRow::compareNoAutoInc(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId) {
 		bool result;
 		result = true;
 		
@@ -3456,7 +3489,7 @@ spectralType = CSpectralResolutionType::from_int(0);
 	
 	
 	
-	bool ConfigDescriptionRow::compareRequiredValue(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, vector<Tag>  antennaId, vector<int>  feedId, vector<Tag>  switchCycleId, vector<Tag>  dataDescriptionId, Tag processorId) {
+	bool ConfigDescriptionRow::compareRequiredValue(int numAntenna, int numDataDescription, int numFeed, CorrelationModeMod::CorrelationMode correlationMode, int numAtmPhaseCorrection, std::vector<AtmPhaseCorrectionMod::AtmPhaseCorrection > atmPhaseCorrection, ProcessorTypeMod::ProcessorType processorType, SpectralResolutionTypeMod::SpectralResolutionType spectralType, std::vector<Tag>  antennaId, std::vector<int>  feedId, std::vector<Tag>  switchCycleId, std::vector<Tag>  dataDescriptionId, Tag processorId) {
 		bool result;
 		result = true;
 		

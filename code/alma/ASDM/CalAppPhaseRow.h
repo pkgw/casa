@@ -48,22 +48,18 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
 
 
 	
-#include "CBasebandName.h"
-	
-
-	
-
+#include <alma/Enumerations/CBasebandName.h>
 	
 
 	
@@ -112,14 +108,18 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
+
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file CalAppPhase.h
     \brief Generated from model's revision "-1", branch ""
@@ -139,7 +139,7 @@ class CalReductionRow;
 
 class CalAppPhaseRow;
 typedef void (CalAppPhaseRow::*CalAppPhaseAttributeFromBin) (EndianIStream& eis);
-typedef void (CalAppPhaseRow::*CalAppPhaseAttributeFromText) (const string& s);
+typedef void (CalAppPhaseRow::*CalAppPhaseAttributeFromText) (const std::string& s);
 
 /**
  * The CalAppPhaseRow class is a row of a CalAppPhaseTable.
@@ -334,21 +334,21 @@ public:
 	
  	/**
  	 * Get adjustToken.
- 	 * @return adjustToken as string
+ 	 * @return adjustToken as std::string
  	 */
- 	string getAdjustToken() const;
+ 	std::string getAdjustToken() const;
 	
  
  	
  	
  	/**
- 	 * Set adjustToken with the specified string.
- 	 * @param adjustToken The string value to which adjustToken is to be set.
+ 	 * Set adjustToken with the specified std::string.
+ 	 * @param adjustToken The std::string value to which adjustToken is to be set.
  	 
  		
  			
  	 */
- 	void setAdjustToken (string adjustToken);
+ 	void setAdjustToken (std::string adjustToken);
   		
 	
 	
@@ -364,21 +364,21 @@ public:
 	
  	/**
  	 * Get phasingMode.
- 	 * @return phasingMode as string
+ 	 * @return phasingMode as std::string
  	 */
- 	string getPhasingMode() const;
+ 	std::string getPhasingMode() const;
 	
  
  	
  	
  	/**
- 	 * Set phasingMode with the specified string.
- 	 * @param phasingMode The string value to which phasingMode is to be set.
+ 	 * Set phasingMode with the specified std::string.
+ 	 * @param phasingMode The std::string value to which phasingMode is to be set.
  	 
  		
  			
  	 */
- 	void setPhasingMode (string phasingMode);
+ 	void setPhasingMode (std::string phasingMode);
   		
 	
 	
@@ -424,21 +424,21 @@ public:
 	
  	/**
  	 * Get phasedAntennas.
- 	 * @return phasedAntennas as vector<string >
+ 	 * @return phasedAntennas as std::vector<std::string >
  	 */
- 	vector<string > getPhasedAntennas() const;
+ 	std::vector<std::string > getPhasedAntennas() const;
 	
  
  	
  	
  	/**
- 	 * Set phasedAntennas with the specified vector<string >.
- 	 * @param phasedAntennas The vector<string > value to which phasedAntennas is to be set.
+ 	 * Set phasedAntennas with the specified std::vector<std::string >.
+ 	 * @param phasedAntennas The std::vector<std::string > value to which phasedAntennas is to be set.
  	 
  		
  			
  	 */
- 	void setPhasedAntennas (vector<string > phasedAntennas);
+ 	void setPhasedAntennas (std::vector<std::string > phasedAntennas);
   		
 	
 	
@@ -514,21 +514,21 @@ public:
 	
  	/**
  	 * Get phasePacking.
- 	 * @return phasePacking as string
+ 	 * @return phasePacking as std::string
  	 */
- 	string getPhasePacking() const;
+ 	std::string getPhasePacking() const;
 	
  
  	
  	
  	/**
- 	 * Set phasePacking with the specified string.
- 	 * @param phasePacking The string value to which phasePacking is to be set.
+ 	 * Set phasePacking with the specified std::string.
+ 	 * @param phasePacking The std::string value to which phasePacking is to be set.
  	 
  		
  			
  	 */
- 	void setPhasePacking (string phasePacking);
+ 	void setPhasePacking (std::string phasePacking);
   		
 	
 	
@@ -634,21 +634,21 @@ public:
 	
  	/**
  	 * Get phaseValues.
- 	 * @return phaseValues as vector<float >
+ 	 * @return phaseValues as std::vector<float >
  	 */
- 	vector<float > getPhaseValues() const;
+ 	std::vector<float > getPhaseValues() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseValues with the specified vector<float >.
- 	 * @param phaseValues The vector<float > value to which phaseValues is to be set.
+ 	 * Set phaseValues with the specified std::vector<float >.
+ 	 * @param phaseValues The std::vector<float > value to which phaseValues is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseValues (vector<float > phaseValues);
+ 	void setPhaseValues (std::vector<float > phaseValues);
   		
 	
 	
@@ -724,21 +724,21 @@ public:
 	
  	/**
  	 * Get compareArray.
- 	 * @return compareArray as vector<string >
+ 	 * @return compareArray as std::vector<std::string >
  	 */
- 	vector<string > getCompareArray() const;
+ 	std::vector<std::string > getCompareArray() const;
 	
  
  	
  	
  	/**
- 	 * Set compareArray with the specified vector<string >.
- 	 * @param compareArray The vector<string > value to which compareArray is to be set.
+ 	 * Set compareArray with the specified std::vector<std::string >.
+ 	 * @param compareArray The std::vector<std::string > value to which compareArray is to be set.
  	 
  		
  			
  	 */
- 	void setCompareArray (vector<string > compareArray);
+ 	void setCompareArray (std::vector<std::string > compareArray);
   		
 	
 	
@@ -754,21 +754,21 @@ public:
 	
  	/**
  	 * Get efficiencyIndices.
- 	 * @return efficiencyIndices as vector<int >
+ 	 * @return efficiencyIndices as std::vector<int >
  	 */
- 	vector<int > getEfficiencyIndices() const;
+ 	std::vector<int > getEfficiencyIndices() const;
 	
  
  	
  	
  	/**
- 	 * Set efficiencyIndices with the specified vector<int >.
- 	 * @param efficiencyIndices The vector<int > value to which efficiencyIndices is to be set.
+ 	 * Set efficiencyIndices with the specified std::vector<int >.
+ 	 * @param efficiencyIndices The std::vector<int > value to which efficiencyIndices is to be set.
  	 
  		
  			
  	 */
- 	void setEfficiencyIndices (vector<int > efficiencyIndices);
+ 	void setEfficiencyIndices (std::vector<int > efficiencyIndices);
   		
 	
 	
@@ -784,21 +784,21 @@ public:
 	
  	/**
  	 * Get efficiencies.
- 	 * @return efficiencies as vector<vector<float > >
+ 	 * @return efficiencies as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > getEfficiencies() const;
+ 	std::vector<std::vector<float > > getEfficiencies() const;
 	
  
  	
  	
  	/**
- 	 * Set efficiencies with the specified vector<vector<float > >.
- 	 * @param efficiencies The vector<vector<float > > value to which efficiencies is to be set.
+ 	 * Set efficiencies with the specified std::vector<std::vector<float > >.
+ 	 * @param efficiencies The std::vector<std::vector<float > > value to which efficiencies is to be set.
  	 
  		
  			
  	 */
- 	void setEfficiencies (vector<vector<float > > efficiencies);
+ 	void setEfficiencies (std::vector<std::vector<float > > efficiencies);
   		
 	
 	
@@ -814,21 +814,21 @@ public:
 	
  	/**
  	 * Get quality.
- 	 * @return quality as vector<float >
+ 	 * @return quality as std::vector<float >
  	 */
- 	vector<float > getQuality() const;
+ 	std::vector<float > getQuality() const;
 	
  
  	
  	
  	/**
- 	 * Set quality with the specified vector<float >.
- 	 * @param quality The vector<float > value to which quality is to be set.
+ 	 * Set quality with the specified std::vector<float >.
+ 	 * @param quality The std::vector<float > value to which quality is to be set.
  	 
  		
  			
  	 */
- 	void setQuality (vector<float > quality);
+ 	void setQuality (std::vector<float > quality);
   		
 	
 	
@@ -844,21 +844,21 @@ public:
 	
  	/**
  	 * Get phasedSumAntenna.
- 	 * @return phasedSumAntenna as string
+ 	 * @return phasedSumAntenna as std::string
  	 */
- 	string getPhasedSumAntenna() const;
+ 	std::string getPhasedSumAntenna() const;
 	
  
  	
  	
  	/**
- 	 * Set phasedSumAntenna with the specified string.
- 	 * @param phasedSumAntenna The string value to which phasedSumAntenna is to be set.
+ 	 * Set phasedSumAntenna with the specified std::string.
+ 	 * @param phasedSumAntenna The std::string value to which phasedSumAntenna is to be set.
  	 
  		
  			
  	 */
- 	void setPhasedSumAntenna (string phasedSumAntenna);
+ 	void setPhasedSumAntenna (std::string phasedSumAntenna);
   		
 	
 	
@@ -880,21 +880,21 @@ public:
 	
  	/**
  	 * Get typeSupports, which is optional.
- 	 * @return typeSupports as string
+ 	 * @return typeSupports as std::string
  	 * @throws IllegalAccessException If typeSupports does not exist.
  	 */
- 	string getTypeSupports() const;
+ 	std::string getTypeSupports() const;
 	
  
  	
  	
  	/**
- 	 * Set typeSupports with the specified string.
- 	 * @param typeSupports The string value to which typeSupports is to be set.
+ 	 * Set typeSupports with the specified std::string.
+ 	 * @param typeSupports The std::string value to which typeSupports is to be set.
  	 
  		
  	 */
- 	void setTypeSupports (string typeSupports);
+ 	void setTypeSupports (std::string typeSupports);
 		
 	
 	
@@ -962,21 +962,21 @@ public:
 	
  	/**
  	 * Get phaseSupports, which is optional.
- 	 * @return phaseSupports as vector<float >
+ 	 * @return phaseSupports as std::vector<float >
  	 * @throws IllegalAccessException If phaseSupports does not exist.
  	 */
- 	vector<float > getPhaseSupports() const;
+ 	std::vector<float > getPhaseSupports() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseSupports with the specified vector<float >.
- 	 * @param phaseSupports The vector<float > value to which phaseSupports is to be set.
+ 	 * Set phaseSupports with the specified std::vector<float >.
+ 	 * @param phaseSupports The std::vector<float > value to which phaseSupports is to be set.
  	 
  		
  	 */
- 	void setPhaseSupports (vector<float > phaseSupports);
+ 	void setPhaseSupports (std::vector<float > phaseSupports);
 		
 	
 	
@@ -1148,7 +1148,7 @@ public:
 	 * @param phasedSumAntenna
 	    
 	 */ 
-	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna);
+	bool compareNoAutoInc(BasebandNameMod::BasebandName basebandName, int scanNumber, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna);
 	
 	
 
@@ -1200,7 +1200,7 @@ public:
 	 * @param phasedSumAntenna
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, string adjustToken, string phasingMode, int numPhasedAntennas, vector<string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, string phasePacking, int numReceptors, int numChannels, int numPhaseValues, vector<float > phaseValues, int numCompare, int numEfficiencies, vector<string > compareArray, vector<int > efficiencyIndices, vector<vector<float > > efficiencies, vector<float > quality, string phasedSumAntenna); 
+	bool compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, ArrayTime adjustTime, std::string adjustToken, std::string phasingMode, int numPhasedAntennas, std::vector<std::string > phasedAntennas, int refAntennaIndex, int candRefAntennaIndex, std::string phasePacking, int numReceptors, int numChannels, int numPhaseValues, std::vector<float > phaseValues, int numCompare, int numEfficiencies, std::vector<std::string > compareArray, std::vector<int > efficiencyIndices, std::vector<std::vector<float > > efficiencies, std::vector<float > quality, std::string phasedSumAntenna); 
 		 
 	
 	/**
@@ -1349,7 +1349,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalAppPhaseRow (CalAppPhaseTable &table, CalAppPhaseRow &row);
+	 CalAppPhaseRow (CalAppPhaseTable &table, CalAppPhaseRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1415,7 +1415,7 @@ private:
 	
 	
 
-	string adjustToken;
+	std::string adjustToken;
 
 	
 	
@@ -1426,7 +1426,7 @@ private:
 	
 	
 
-	string phasingMode;
+	std::string phasingMode;
 
 	
 	
@@ -1448,7 +1448,7 @@ private:
 	
 	
 
-	vector<string > phasedAntennas;
+	std::vector<std::string > phasedAntennas;
 
 	
 	
@@ -1481,7 +1481,7 @@ private:
 	
 	
 
-	string phasePacking;
+	std::string phasePacking;
 
 	
 	
@@ -1525,7 +1525,7 @@ private:
 	
 	
 
-	vector<float > phaseValues;
+	std::vector<float > phaseValues;
 
 	
 	
@@ -1558,7 +1558,7 @@ private:
 	
 	
 
-	vector<string > compareArray;
+	std::vector<std::string > compareArray;
 
 	
 	
@@ -1569,7 +1569,7 @@ private:
 	
 	
 
-	vector<int > efficiencyIndices;
+	std::vector<int > efficiencyIndices;
 
 	
 	
@@ -1580,7 +1580,7 @@ private:
 	
 	
 
-	vector<vector<float > > efficiencies;
+	std::vector<std::vector<float > > efficiencies;
 
 	
 	
@@ -1591,7 +1591,7 @@ private:
 	
 	
 
-	vector<float > quality;
+	std::vector<float > quality;
 
 	
 	
@@ -1602,7 +1602,7 @@ private:
 	
 	
 
-	string phasedSumAntenna;
+	std::string phasedSumAntenna;
 
 	
 	
@@ -1615,7 +1615,7 @@ private:
 	bool typeSupportsExists;
 	
 
-	string typeSupports;
+	std::string typeSupports;
 
 	
 	
@@ -1641,7 +1641,7 @@ private:
 	bool phaseSupportsExists;
 	
 
-	vector<float > phaseSupports;
+	std::vector<float > phaseSupports;
 
 	
 	
@@ -1734,89 +1734,89 @@ void phaseSupportsFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, CalAppPhaseAttributeFromText> fromTextMethods;
 	
-void basebandNameFromText (const string & s);
+void basebandNameFromText (const std::string & s);
 	
 	
-void scanNumberFromText (const string & s);
+void scanNumberFromText (const std::string & s);
 	
 	
-void calDataIdFromText (const string & s);
+void calDataIdFromText (const std::string & s);
 	
 	
-void calReductionIdFromText (const string & s);
+void calReductionIdFromText (const std::string & s);
 	
 	
-void startValidTimeFromText (const string & s);
+void startValidTimeFromText (const std::string & s);
 	
 	
-void endValidTimeFromText (const string & s);
+void endValidTimeFromText (const std::string & s);
 	
 	
-void adjustTimeFromText (const string & s);
+void adjustTimeFromText (const std::string & s);
 	
 	
-void adjustTokenFromText (const string & s);
+void adjustTokenFromText (const std::string & s);
 	
 	
-void phasingModeFromText (const string & s);
+void phasingModeFromText (const std::string & s);
 	
 	
-void numPhasedAntennasFromText (const string & s);
+void numPhasedAntennasFromText (const std::string & s);
 	
 	
-void phasedAntennasFromText (const string & s);
+void phasedAntennasFromText (const std::string & s);
 	
 	
-void refAntennaIndexFromText (const string & s);
+void refAntennaIndexFromText (const std::string & s);
 	
 	
-void candRefAntennaIndexFromText (const string & s);
+void candRefAntennaIndexFromText (const std::string & s);
 	
 	
-void phasePackingFromText (const string & s);
+void phasePackingFromText (const std::string & s);
 	
 	
-void numReceptorsFromText (const string & s);
+void numReceptorsFromText (const std::string & s);
 	
 	
-void numChannelsFromText (const string & s);
+void numChannelsFromText (const std::string & s);
 	
 	
-void numPhaseValuesFromText (const string & s);
+void numPhaseValuesFromText (const std::string & s);
 	
 	
-void phaseValuesFromText (const string & s);
+void phaseValuesFromText (const std::string & s);
 	
 	
-void numCompareFromText (const string & s);
+void numCompareFromText (const std::string & s);
 	
 	
-void numEfficienciesFromText (const string & s);
+void numEfficienciesFromText (const std::string & s);
 	
 	
-void compareArrayFromText (const string & s);
+void compareArrayFromText (const std::string & s);
 	
 	
-void efficiencyIndicesFromText (const string & s);
+void efficiencyIndicesFromText (const std::string & s);
 	
 	
-void efficienciesFromText (const string & s);
+void efficienciesFromText (const std::string & s);
 	
 	
-void qualityFromText (const string & s);
+void qualityFromText (const std::string & s);
 	
 	
-void phasedSumAntennaFromText (const string & s);
+void phasedSumAntennaFromText (const std::string & s);
 	
 
 	
-void typeSupportsFromText (const string & s);
+void typeSupportsFromText (const std::string & s);
 	
 	
-void numSupportsFromText (const string & s);
+void numSupportsFromText (const std::string & s);
 	
 	
-void phaseSupportsFromText (const string & s);
+void phaseSupportsFromText (const std::string & s);
 	
 	
 	

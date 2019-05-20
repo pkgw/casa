@@ -1,0 +1,172 @@
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package rpc.img;
+
+service view {
+    // create a new panel (which may or may not be immediately 
+    rpc panel (NewPanel) returns (Id);
+    rpc hide (Id) returns (google.protobuf.Empty);
+    rpc show (Id) returns (google.protobuf.Empty);
+    rpc freeze (Id) returns (google.protobuf.Empty);
+    rpc unfreeze (Id) returns (google.protobuf.Empty);
+    rpc close (Id) returns (google.protobuf.Empty);
+    rpc release (Id) returns (google.protobuf.Empty);
+
+    rpc axes(Axes) returns (google.protobuf.Empty);
+
+    rpc popup (PopUp) returns (google.protobuf.Empty);
+
+    rpc load (NewData) returns (Id);
+    rpc reload (Id) returns (google.protobuf.Empty);
+    rpc unload (Id) returns (google.protobuf.Empty);
+    rpc restore (Restore) returns (Id);
+
+    rpc colormap (ColorMap) returns (google.protobuf.Empty);
+    rpc colorwedge (Toggle) returns (google.protobuf.Empty);
+
+    rpc datarange (DataRange) returns (google.protobuf.Empty);
+    rpc contourlevels (ContourLevels)  returns (google.protobuf.Empty);
+    rpc contourthickness (ContourThickness) returns (google.protobuf.Empty);
+    rpc contourcolor (ContourColor) returns (google.protobuf.Empty);
+
+    rpc channel (SetChannel) returns (google.protobuf.Empty);
+    rpc zoomlevel (SetZoomLevel) returns (google.protobuf.Empty);
+    rpc zoombox (SetZoomBox) returns (google.protobuf.Empty);
+
+    rpc output (Output) returns (google.protobuf.Empty);
+
+    rpc fileinfo (Path) returns (FileInfo);
+    rpc keyinfo (Id) returns (KeyInfo);
+    rpc cwd (Path) returns (Path);
+    rpc done (google.protobuf.Empty) returns (google.protobuf.Empty);
+
+/***********************************************************************************************
+************************************************************************************************
+****  interactive clean functions                                                           ****
+************************************************************************************************
+************************************************************************************************
+    //To change certain things so the panel
+	QDBusVariant setoptions( const QDBusVariant &input, int panel);
+************************************************************************************************/
+
+}
+
+message Id {
+    int32 id = 1;
+}
+
+message NewPanel {
+    string type = 1;         // "viewer" or "clean" or "clean2" or viewer restore file
+    bool hidden = 2;         // should new panel be visible
+}
+
+message NewData {
+    Id panel = 1;
+    string path = 2;
+    string type = 3;
+    float scale = 4;
+}
+
+message PopUp {
+    Id panel = 1;
+    string name = 2;         // what popup to display
+}
+
+message Restore {
+    Id panel = 1;
+    string path = 2;         // restore file
+}
+
+message FileInfo {
+    string type = 1;
+}
+
+message KeyInfo {
+    string type = 1;
+}
+
+message Path {
+    string path = 1;
+}
+
+message Coord2D {
+    float x = 1;
+    float y = 2;
+}
+
+message Output {
+    Id panel = 1;
+    string device = 2;            // e.g. path
+    string devicetype = 3;        // e.g. "file"
+    string orientation = 4;       // e.g. "portrait"
+    string media = 5;             // e.g. "letter"
+    string format = 6;            // e.g. "jpg"
+    float scale = 7;              // e.g. 1.0
+    int32 dpi = 8;                 // e.g. 300
+}
+
+message SetChannel {
+    Id panel = 1;
+    int32 number = 2;
+}
+
+message SetZoomLevel {
+    Id panel = 1;
+    int32 level = 2;
+}
+
+message SetZoomBox {
+    Id panel = 1;
+    Coord2D blc = 2;
+    Coord2D trc = 3;
+    string coord_type = 4;
+}
+
+message DataRange {
+    Id data = 1;
+    float min = 2;
+    float max = 3;
+}
+
+message ContourLevels {
+    Id id = 1;
+    repeated float levels = 2;
+    /**********************************************************
+    *** Apparently this is proto2 syntax, explicit default  ***
+    *** values were removed in proto3 for our own good.     ***
+    ***********************************************************
+    optional float baselevel = 3 [default = 2147483648.0];
+    optional float unitlevel = 4 [default = 2147483648.0];
+    **********************************************************/
+    float baselevel = 3;
+    float unitlevel = 4;
+}
+
+message ContourThickness {
+    Id id = 1;
+    float thickness = 2;
+}
+
+message ContourColor {
+    Id id = 1;
+    string color = 2;
+}
+
+message Axes {
+    Id panel = 1;
+    string x = 2;
+    string y = 3;
+    string z = 4;
+}
+
+message ColorMap {
+    Id id = 1;
+    string map = 2;
+}
+message Toggle {
+    Id id = 1;
+    bool state = 2;
+}

@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalReductionRow.h>
-#include <CalReductionTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::CalReductionRow;
 using asdm::CalReductionTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalReductionRow::~CalReductionRow() {
@@ -1065,7 +1062,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalReductionRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1073,7 +1072,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalReductionRow::numAppliedFromText(const string & s) {
 		 
+          
 		numApplied = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1081,7 +1082,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalReductionRow::appliedCalibrationsFromText(const string & s) {
 		 
+          
 		appliedCalibrations = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1089,7 +1092,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalReductionRow::numParamFromText(const string & s) {
 		 
+          
 		numParam = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1097,7 +1102,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalReductionRow::paramSetFromText(const string & s) {
 		 
+          
 		paramSet = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1105,7 +1112,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalReductionRow::numInvalidConditionsFromText(const string & s) {
 		 
+          
 		numInvalidConditions = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1113,7 +1122,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an InvalidatingCondition 
 	void CalReductionRow::invalidConditionsFromText(const string & s) {
 		 
-		invalidConditions = ASDMValuesParser::parse1D<InvalidatingCondition>(s);
+          
+		invalidConditions = ASDMValuesParser::parse1D<InvalidatingConditionMod::InvalidatingCondition>(s);
+          
 		
 	}
 	
@@ -1121,7 +1132,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalReductionRow::timeReducedFromText(const string & s) {
 		 
+          
 		timeReduced = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1129,7 +1142,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalReductionRow::messagesFromText(const string & s) {
 		 
+          
 		messages = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1137,7 +1152,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalReductionRow::softwareFromText(const string & s) {
 		 
+          
 		software = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1145,7 +1162,9 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalReductionRow::softwareVersionFromText(const string & s) {
 		 
+          
 		softwareVersion = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1236,21 +1255,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get appliedCalibrations.
- 	 * @return appliedCalibrations as vector<string >
+ 	 * @return appliedCalibrations as std::vector<std::string >
  	 */
- 	vector<string > CalReductionRow::getAppliedCalibrations() const {
+ 	std::vector<std::string > CalReductionRow::getAppliedCalibrations() const {
 	
   		return appliedCalibrations;
  	}
 
  	/**
- 	 * Set appliedCalibrations with the specified vector<string >.
- 	 * @param appliedCalibrations The vector<string > value to which appliedCalibrations is to be set.
+ 	 * Set appliedCalibrations with the specified std::vector<std::string >.
+ 	 * @param appliedCalibrations The std::vector<std::string > value to which appliedCalibrations is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setAppliedCalibrations (vector<string > appliedCalibrations)  {
+ 	void CalReductionRow::setAppliedCalibrations (std::vector<std::string > appliedCalibrations)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1300,21 +1319,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get paramSet.
- 	 * @return paramSet as vector<string >
+ 	 * @return paramSet as std::vector<std::string >
  	 */
- 	vector<string > CalReductionRow::getParamSet() const {
+ 	std::vector<std::string > CalReductionRow::getParamSet() const {
 	
   		return paramSet;
  	}
 
  	/**
- 	 * Set paramSet with the specified vector<string >.
- 	 * @param paramSet The vector<string > value to which paramSet is to be set.
+ 	 * Set paramSet with the specified std::vector<std::string >.
+ 	 * @param paramSet The std::vector<std::string > value to which paramSet is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setParamSet (vector<string > paramSet)  {
+ 	void CalReductionRow::setParamSet (std::vector<std::string > paramSet)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1364,21 +1383,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get invalidConditions.
- 	 * @return invalidConditions as vector<InvalidatingConditionMod::InvalidatingCondition >
+ 	 * @return invalidConditions as std::vector<InvalidatingConditionMod::InvalidatingCondition >
  	 */
- 	vector<InvalidatingConditionMod::InvalidatingCondition > CalReductionRow::getInvalidConditions() const {
+ 	std::vector<InvalidatingConditionMod::InvalidatingCondition > CalReductionRow::getInvalidConditions() const {
 	
   		return invalidConditions;
  	}
 
  	/**
- 	 * Set invalidConditions with the specified vector<InvalidatingConditionMod::InvalidatingCondition >.
- 	 * @param invalidConditions The vector<InvalidatingConditionMod::InvalidatingCondition > value to which invalidConditions is to be set.
+ 	 * Set invalidConditions with the specified std::vector<InvalidatingConditionMod::InvalidatingCondition >.
+ 	 * @param invalidConditions The std::vector<InvalidatingConditionMod::InvalidatingCondition > value to which invalidConditions is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setInvalidConditions (vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions)  {
+ 	void CalReductionRow::setInvalidConditions (std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1428,21 +1447,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get messages.
- 	 * @return messages as string
+ 	 * @return messages as std::string
  	 */
- 	string CalReductionRow::getMessages() const {
+ 	std::string CalReductionRow::getMessages() const {
 	
   		return messages;
  	}
 
  	/**
- 	 * Set messages with the specified string.
- 	 * @param messages The string value to which messages is to be set.
+ 	 * Set messages with the specified std::string.
+ 	 * @param messages The std::string value to which messages is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setMessages (string messages)  {
+ 	void CalReductionRow::setMessages (std::string messages)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1460,21 +1479,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get software.
- 	 * @return software as string
+ 	 * @return software as std::string
  	 */
- 	string CalReductionRow::getSoftware() const {
+ 	std::string CalReductionRow::getSoftware() const {
 	
   		return software;
  	}
 
  	/**
- 	 * Set software with the specified string.
- 	 * @param software The string value to which software is to be set.
+ 	 * Set software with the specified std::string.
+ 	 * @param software The std::string value to which software is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setSoftware (string software)  {
+ 	void CalReductionRow::setSoftware (std::string software)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1492,21 +1511,21 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get softwareVersion.
- 	 * @return softwareVersion as string
+ 	 * @return softwareVersion as std::string
  	 */
- 	string CalReductionRow::getSoftwareVersion() const {
+ 	std::string CalReductionRow::getSoftwareVersion() const {
 	
   		return softwareVersion;
  	}
 
  	/**
- 	 * Set softwareVersion with the specified string.
- 	 * @param softwareVersion The string value to which softwareVersion is to be set.
+ 	 * Set softwareVersion with the specified std::string.
+ 	 * @param softwareVersion The std::string value to which softwareVersion is to be set.
  	 
  	
  		
  	 */
- 	void CalReductionRow::setSoftwareVersion (string softwareVersion)  {
+ 	void CalReductionRow::setSoftwareVersion (std::string softwareVersion)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1657,10 +1676,10 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 		
 	}
 	
-	CalReductionRow::CalReductionRow (CalReductionTable &t, CalReductionRow &row) : table(t) {
+	CalReductionRow::CalReductionRow (CalReductionTable &t, CalReductionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1690,30 +1709,30 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			calReductionId = row.calReductionId;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-			numApplied = row.numApplied;
+			numApplied = row->numApplied;
 		
-			appliedCalibrations = row.appliedCalibrations;
+			appliedCalibrations = row->appliedCalibrations;
 		
-			numParam = row.numParam;
+			numParam = row->numParam;
 		
-			paramSet = row.paramSet;
+			paramSet = row->paramSet;
 		
-			numInvalidConditions = row.numInvalidConditions;
+			numInvalidConditions = row->numInvalidConditions;
 		
-			invalidConditions = row.invalidConditions;
+			invalidConditions = row->invalidConditions;
 		
-			timeReduced = row.timeReduced;
+			timeReduced = row->timeReduced;
 		
-			messages = row.messages;
+			messages = row->messages;
 		
-			software = row.software;
+			software = row->software;
 		
-			softwareVersion = row.softwareVersion;
+			softwareVersion = row->softwareVersion;
 		
 		
 		
@@ -1737,7 +1756,7 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool CalReductionRow::compareNoAutoInc(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion) {
+	bool CalReductionRow::compareNoAutoInc(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion) {
 		bool result;
 		result = true;
 		
@@ -1816,7 +1835,7 @@ void CalReductionRow::softwareVersionFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool CalReductionRow::compareRequiredValue(int numApplied, vector<string > appliedCalibrations, int numParam, vector<string > paramSet, int numInvalidConditions, vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, string messages, string software, string softwareVersion) {
+	bool CalReductionRow::compareRequiredValue(int numApplied, std::vector<std::string > appliedCalibrations, int numParam, std::vector<std::string > paramSet, int numInvalidConditions, std::vector<InvalidatingConditionMod::InvalidatingCondition > invalidConditions, ArrayTime timeReduced, std::string messages, std::string software, std::string softwareVersion) {
 		bool result;
 		result = true;
 		

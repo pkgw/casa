@@ -11,6 +11,9 @@
 #define STRING2CHAR(s) const_cast<char *>((s).c_str())
 
 #include <casacore/measures/Measures/Stokes.h>
+#include <casacore/tables/Tables/Table.h>
+#include <casacore/tables/Tables/ScaColDesc.h>
+#include <casacore/tables/Tables/SetupNewTab.h>
 
 #include <singledishfiller/Filler/ReaderInterface.h>
 #include <singledishfiller/Filler/NROData.h>
@@ -21,11 +24,13 @@ using namespace std;
 
 namespace casa { //# NAMESPACE CASA - BEGIN
   
-constexpr double kDay2Sec = 86400.0;
-constexpr double kSec2Day = 1.0 / kDay2Sec;
+// forward declaration
+class NROOptionalTables;
 
 class NRO2MSReader: public ReaderInterface {
 public:
+  typedef NROOptionalTables OptionalTables;
+  
   NRO2MSReader(std::string const &scantable_name);
   virtual ~NRO2MSReader();
 
@@ -93,32 +98,32 @@ public:
   // for DataAccumulator
   virtual casacore::Bool getData(size_t irow, sdfiller::DataRecord &record);
 
-  virtual int getNROArraySize() {
+  int getNROArraySize() const {
 //    return obs_header_.ARYNM0; //obs_header_.NBEAM * obs_header_.NPOL * obs_header_.NSPWIN;
     return NRO_ARYMAX;
   }
-  virtual int getNRONumBeam() {
+  int getNRONumBeam() const {
     return obs_header_.NBEAM;
   }
-  virtual int getNRONumPol() {
+  int getNRONumPol() const {
     return obs_header_.NPOL;
   }
-  virtual int getNRONumSpw() {
+  int getNRONumSpw() const {
     return obs_header_.NSPWIN;
   }
 
-  virtual bool isNROArrayUsed(int array_id) {
+  bool isNROArrayUsed(int array_id) const {
     return array_mapper_[array_id].isUsed();
   }
-  virtual int getNROArrayBeamId(int array_id) {
+  int getNROArrayBeamId(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getBeamId();
   }
-  virtual casacore::Stokes::StokesTypes getNROArrayPol(int array_id) {
+  casacore::Stokes::StokesTypes getNROArrayPol(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getPol();
   }
-  virtual int getNROArraySpwId(int array_id) {
+  int getNROArraySpwId(int array_id) const {
 //	  assert(array_id >= 0 && array_id < getNROArraySize());
     return array_mapper_[array_id].getSpwId();
   }
@@ -278,6 +283,49 @@ private:
   casacore::Bool noMoreRowImpl(_Record &) {
     POST_START;POST_END;
     return false;
+  }
+};
+
+// OptionalTables class for NRO data
+class NROOptionalTables {
+public:
+  static void Generate(casacore::Table &table, NRO2MSReader const &reader) {
+    // generate NRO_ARRAY table
+    Generate_NRO_ARRAY(table, reader);
+  }
+
+private:
+  static void Generate_NRO_ARRAY(casacore::Table &table, NRO2MSReader const &reader) {
+    casacore::String const nro_tablename = "NRO_ARRAY";
+
+    casacore::TableDesc td(nro_tablename, casacore::TableDesc::Scratch);
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("ARRAY"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("BEAM"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("POLARIZATION"));
+    td.addColumn(casacore::ScalarColumnDesc<casacore::Int>("SPECTRAL_WINDOW"));
+    casacore::String tabname = table.tableName() + "/" + nro_tablename;
+    casacore::SetupNewTable newtab(tabname, td, casacore::Table::Scratch);
+    table.rwKeywordSet().defineTable(nro_tablename,
+        casacore::Table(newtab, reader.getNROArraySize()));
+
+    casacore::Table nro_table = table.rwKeywordSet().asTable(nro_tablename);
+    casacore::ScalarColumn<int> arr(nro_table, "ARRAY");
+    casacore::ScalarColumn<int> bea(nro_table, "BEAM");
+    casacore::ScalarColumn<int> pol(nro_table, "POLARIZATION");
+    casacore::ScalarColumn<int> spw(nro_table, "SPECTRAL_WINDOW");
+    for (int iarr = 0; iarr < reader.getNROArraySize(); ++iarr) {
+      arr.put(iarr, iarr);
+      if (reader.isNROArrayUsed(iarr)) {
+        bea.put(iarr, reader.getNROArrayBeamId(iarr));
+        pol.put(iarr, reader.getNROArrayPol(iarr));
+        spw.put(iarr, reader.getNROArraySpwId(iarr));
+      } else {
+        // array is not used, fill with -1
+        bea.put(iarr, -1);
+        pol.put(iarr, -1);
+        spw.put(iarr, -1);
+      }
+    }
   }
 };
 

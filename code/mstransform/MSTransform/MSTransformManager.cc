@@ -23,7 +23,9 @@
 #include <mstransform/MSTransform/MSTransformManager.h>
 
 #include <mstransform/TVI/PolAverageTVI.h>
+#include <mstransform/TVI/PointingInterpolationTVI.h>
 
+#include <limits>
 
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -181,6 +183,10 @@ void MSTransformManager::initialize()
 	polAverage_p = false;
 	polAverageConfig_p = Record();
 
+	// Pointings interpolation
+	pointingsInterpolation_p = false;
+	pointingsInterpolationConfig_p = Record();
+
 	// Weight Spectrum parameters
 	usewtspectrum_p = false;
 	spectrumTransformation_p = false;
@@ -312,6 +318,7 @@ void MSTransformManager::configure(Record &configuration)
 	parseUVContSubParams(configuration);
 	setSpwAvg(configuration);
 	parsePolAvgParams(configuration);
+	parsePointingsInterpolationParams(configuration);
 
 
 	return;
@@ -609,77 +616,77 @@ void MSTransformManager::parseDataSelParams(Record &configuration)
 // -----------------------------------------------------------------------
 void MSTransformManager::parseChanAvgParams(Record &configuration)
 {
-	int exists = -1;
+    int exists = -1;
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanaverage");
-	if (exists >= 0)
-	{
-		configuration.get (exists, channelAverage_p);
-		if (channelAverage_p)
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Channel average is activated" << LogIO::POST;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else
-	{
-		return;
-	}
+    exists = -1;
+    exists = configuration.fieldNumber ("chanaverage");
+    if (exists >= 0)
+    {
+        configuration.get (exists, channelAverage_p);
+        if (channelAverage_p)
+        {
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Channel average is activated" << LogIO::POST;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else
+    {
+        return;
+    }
 
-	exists = -1;
-	exists = configuration.fieldNumber ("chanbin");
-	if (exists >= 0)
-	{
-		if ( configuration.type(exists) == casacore::TpInt )
-		{
-			Int freqbin;
-			configuration.get (exists, freqbin);
+    exists = -1;
+    exists = configuration.fieldNumber ("chanbin");
+    if (exists >= 0)
+    {
+        if ( configuration.type(exists) == casacore::TpInt )
+        {
+            Int freqbin;
+            configuration.get (exists, freqbin);
 
-			if (freqbin < 2)
-			{
-				logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-						<< "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
-				channelAverage_p = False;
-			}
-			else
-			{
-				freqbin_p = Vector<Int>(1,freqbin);
+            if (freqbin < 2)
+            {
+                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+						        << "Channel bin is " << freqbin << " disabling channel average" << LogIO::POST;
+                channelAverage_p = False;
+            }
+            else
+            {
+                freqbin_p = Vector<Int>(1,freqbin);
 
-			}
-		}
-		else if ( configuration.type(exists) == casacore::TpArrayInt)
-		{
-		    if(combinespws_p)
-		        logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-		                 << "If SPW combination is active, "
-		                 "chabin cannot be an array" << LogIO::EXCEPTION;
-		        
-			configuration.get (exists, freqbin_p);
-		}
-		else
-		{
-			logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
-		}
+            }
+        }
+        else if ( configuration.type(exists) == casacore::TpArrayInt)
+        {
+            if(combinespws_p)
+                logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+                << "If SPW combination is active, "
+                "chabin cannot be an array" << LogIO::EXCEPTION;
 
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel bin is " << freqbin_p << LogIO::POST;
-	}
-	else
-	{
-		logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
-		channelAverage_p = false;
-		return;
-	}
+            configuration.get (exists, freqbin_p);
+        }
+        else
+        {
+            logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Wrong format for chanbin parameter (only Int and arrayInt are supported) " << LogIO::POST;
+        }
 
-	// jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
-	/*
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel bin is " << freqbin_p << LogIO::POST;
+    }
+    else
+    {
+        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Channel average is activated but no chanbin parameter provided " << LogIO::POST;
+        channelAverage_p = false;
+        return;
+    }
+
+    // jagonzal: This is now determined by usewtspectrum param and the presence of input WeightSpectrum
+    /*
 	exists = configuration.fieldNumber ("useweights");
 	if (exists >= 0)
 	{
@@ -705,9 +712,9 @@ void MSTransformManager::parseChanAvgParams(Record &configuration)
 			useweights_p = String("flags");
 		}
 	}
-	*/
+     */
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -1261,6 +1268,14 @@ void MSTransformManager::parsePolAvgParams(Record &configuration)
   }
 }
 
+void MSTransformManager::parsePointingsInterpolationParams(casacore::Record &configuration){
+	String key("pointingsinterpolation");
+	Bool exists = configuration.isDefined(key);
+	if (exists) {
+		pointingsInterpolation_p = configuration.asBool(key);
+	}
+}
+
 // -----------------------------------------------------------------------
 // Method to open the input MS, select the data and create the
 // structure of the output MS filling the auxiliary tables.
@@ -1289,6 +1304,10 @@ void MSTransformManager::open()
 	checkDataColumnsAvailable();
 	checkDataColumnsToFill();
 	
+
+	// Check whether the MS has correlator pre-averaging and we are smoothing or averaging
+	checkCorrelatorPreaveraging();
+
 	// Set virtual column operation
 	dataHandler_p->setVirtualModelCol(makeVirtualModelColReal_p);
 	dataHandler_p->setVirtualCorrectedCol(makeVirtualCorrectedColReal_p);
@@ -1369,6 +1388,32 @@ void MSTransformManager::open()
 	return;
 }
 
+/**
+ * Whether the WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ * This should be honored when creating the output MS structure (in
+ * createOutputMSStructure().
+ *
+ * The logic to say true is: if the WEIGHT/SIGMA_SPECTRUM are present in the input MS or
+ * the user has requested the creation of these columns in the output MS anyway via the
+ * parameter 'usewtspectrum'
+ * This requires that the input configuration be parsed here in MSTransformManager before
+ * calling this method, and passed as parameter.
+ *
+ * @param usewtspectrum value of the usewtspectrum input parameter of mstransform
+ *
+ * @return whether WEIGHT/SIGMA_SPECTRUM columns should be created in the output MS.
+ */
+Bool MSTransformManager::shouldCreateOutputWtSpectrum(Bool usewtspectrum)
+{
+    if (nullptr == inputMs_p) {
+        throw AipsError("When trying to guess if WEIGHT/SIGMA_SPECTRUM should be created "
+                        "in the output MS: the input MS has not been initialized.");
+    }
+
+    auto wtSpec = ROMSColumns(*inputMs_p).weightSpectrum();
+    auto inputWeightSpectrumAvailable = !wtSpec.isNull() and wtSpec.isDefined(0);
+    return inputWeightSpectrumAvailable or usewtspectrum;
+}
 
 /**
  * Helper method for open() to create the structure of the output MS
@@ -1395,22 +1440,25 @@ void MSTransformManager::createOutputMSStructure()
 	Bool outputMSStructureCreated = false;
 	try
 	{
-		if (not bufferMode_p)
-		{
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p);
-		}
-		else
-		{
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__) << "Create output MS structure" << LogIO::POST;
-			outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,datacolumn_p,tileShape_p,timespan_p,Table::Scratch);
-		}
+            Table::TableOption option = Table::New;
+            if (bufferMode_p) {
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+                         << "Create output MS structure" << LogIO::POST;
+                option = Table::Scratch;
+            }
+            auto createWeightSpectrum = shouldCreateOutputWtSpectrum(usewtspectrum_p);
+            outputMSStructureCreated = dataHandler_p->makeMSBasicStructure(outMsName_p,
+                                                                           datacolumn_p,
+                                                                           createWeightSpectrum,
+                                                                           tileShape_p,
+                                                                           timespan_p,
+                                                                           option);
 	}
 	catch (AipsError ex)
 	{
 		outputMSStructureCreated = false;
-		logger_p 	<< LogIO::SEVERE
+		logger_p 	<< LogIO::DEBUG1
 					<< "Exception creating output MS structure: " << ex.getMesg() << endl
-					<< "Stack Trace: " << ex.getStackTrace()
 					<< LogIO::POST;
 
 		throw AipsError(ex.getMesg());
@@ -1431,8 +1479,7 @@ void MSTransformManager::close()
 {
 	if (outputMs_p)
 	{
-		// Flush and unlock MS
-		outputMs_p->flush();
+		// unlock MS (the MS data handler will flush it when destroying it).
 		outputMs_p->unlock();
 		Table::relinquishAutoLocks(true);
 
@@ -1451,8 +1498,11 @@ void MSTransformManager::setup()
 	// Check what columns have to filled
 	// CAS-5581 (jagonzal): Moving these methods here because we need to know if
 	// WEIGHT_SPECTRUM is available to configure the appropriate averaging kernel.
+	// - note also that the availability of WEIGHT_SPECTRUM in the input MS needs
+	// to be checked even before, as it is needed when doing
+	// dataHandler_p->makeMSBasicStructure() in createOutputMSStructure() - CAS-11269
 	checkFillFlagCategory();
-	checkFillWeightSpectrum();
+        checkFillWeightSpectrum();
 
 	// Check if we really need to combine SPWs
 	if (combinespws_p)
@@ -1619,16 +1669,8 @@ void MSTransformManager::setup()
 	// Set Regridding kernel
 	if (fftShiftEnabled_p)
 	{
-		if (combinespws_p)
-		{
-			regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
-			regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
-		}
-		else
-		{
-			regridCoreComplex_p = &MSTransformManager::fftshift;
-			regridCoreFloat_p = &MSTransformManager::fftshift;
-		}
+		regridCoreComplex_p = &MSTransformManager::interpol1Dfftshift;
+		regridCoreFloat_p = &MSTransformManager::interpol1Dfftshift;
 	}
 	else
 	{
@@ -1988,359 +2030,361 @@ void MSTransformManager::initDataSelectionParams()
 {
     MSSelection mssel;
 
-	if (reindex_p)
-	{
-		if (!observationSelection_p.empty())
-		{
-			mssel.setObservationExpr(observationSelection_p);
-			Vector<Int> observationList = mssel.getObservationList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Observations Ids are " << observationList << LogIO::POST;
+    if (reindex_p)
+    {
+        if (!observationSelection_p.empty())
+        {
+            mssel.setObservationExpr(observationSelection_p);
+            Vector<Int> observationList = mssel.getObservationList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Observations Ids are " << observationList << LogIO::POST;
 
-			for (uInt index=0; index < observationList.size(); index++)
-			{
-				inputOutputObservationIndexMap_p[observationList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < observationList.size(); index++)
+            {
+                inputOutputObservationIndexMap_p[observationList(index)] = index;
+            }
+        }
 
-		if (!arraySelection_p.empty())
-		{
-			mssel.setArrayExpr(arraySelection_p);
-			Vector<Int> arrayList = mssel.getSubArrayList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Arrays Ids are " << arrayList << LogIO::POST;
+        if (!arraySelection_p.empty())
+        {
+            mssel.setArrayExpr(arraySelection_p);
+            Vector<Int> arrayList = mssel.getSubArrayList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Arrays Ids are " << arrayList << LogIO::POST;
 
-			for (uInt index=0; index < arrayList.size(); index++)
-			{
-				inputOutputArrayIndexMap_p[arrayList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < arrayList.size(); index++)
+            {
+                inputOutputArrayIndexMap_p[arrayList(index)] = index;
+            }
+        }
 
-		if (!scanSelection_p.empty())
-		{
-			mssel.setScanExpr(scanSelection_p);
-			Vector<Int> scanList = mssel.getScanList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Scans Ids are " << scanList << LogIO::POST;
+        if (!scanSelection_p.empty())
+        {
+            mssel.setScanExpr(scanSelection_p);
+            Vector<Int> scanList = mssel.getScanList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Scans Ids are " << scanList << LogIO::POST;
 
-			for (uInt index=0; index < scanList.size(); index++)
-			{
-				inputOutputScanIndexMap_p[scanList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < scanList.size(); index++)
+            {
+                inputOutputScanIndexMap_p[scanList(index)] = index;
+            }
+        }
 
-		if (!scanIntentSelection_p.empty())
-		{
-			mssel.setStateExpr(scanIntentSelection_p);
-			Vector<Int> scanIntentList = mssel.getStateObsModeList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Scans Intents Ids are " << scanIntentList << LogIO::POST;
+        if (!scanIntentSelection_p.empty())
+        {
+            mssel.setStateExpr(scanIntentSelection_p);
+            Vector<Int> scanIntentList = mssel.getStateObsModeList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Scans Intents Ids are " << scanIntentList << LogIO::POST;
 
-			for (uInt index=0; index < scanIntentList.size(); index++)
-			{
-				inputOutputScanIntentIndexMap_p[scanIntentList(index)] = index;
-			}
-		}
+            for (uInt index=0; index < scanIntentList.size(); index++)
+            {
+                inputOutputScanIntentIndexMap_p[scanIntentList(index)] = index;
+            }
+        }
 
-		if (!fieldSelection_p.empty())
-		{
-			mssel.setFieldExpr(fieldSelection_p);
-			Vector<Int> fieldList = mssel.getFieldList(inputMs_p);
-			logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-					<< "Selected Fields Ids are " << fieldList << LogIO::POST;
+        if (!fieldSelection_p.empty())
+        {
+            mssel.setFieldExpr(fieldSelection_p);
+            Vector<Int> fieldList = mssel.getFieldList(inputMs_p);
+            logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+					        << "Selected Fields Ids are " << fieldList << LogIO::POST;
 
-			for (uInt index=0; index < fieldList.size(); index++)
-			{
-				inputOutputFieldIndexMap_p[fieldList(index)] = index;
-			}
-		}
-	}
+            for (uInt index=0; index < fieldList.size(); index++)
+            {
+                inputOutputFieldIndexMap_p[fieldList(index)] = index;
+            }
+        }
+    }
 
 
-	if (!spwSelection_p.empty())
-	{
-		mssel.setSpwExpr(spwSelection_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+    if (!spwSelection_p.empty())
+    {
+        mssel.setSpwExpr(spwSelection_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-		// Get the DD IDs of this spw selection
-		Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
+        // Get the DD IDs of this spw selection
+        Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
 
-		// Take into account the polarization selections
-		if (!polarizationSelection_p.empty()){
-			mssel.setPolnExpr(polarizationSelection_p.c_str());
-			Vector<Int> polddi = mssel.getDDIDList(inputMs_p);
-			if (polddi.size() > 0){
-				// make an intersection
-				Vector<Int> commonDDI = set_intersection(spwddi, polddi);
-				uInt nddids = commonDDI.size();
-				if (nddids > 0){
-					spwddi.resize(nddids);
-					for (uInt ii = 0; ii < nddids; ++ii){
-						spwddi[ii] = commonDDI[ii];
-					}
-				}
-			}
-		}
+        // Take into account the polarization selections
+        if (!polarizationSelection_p.empty()){
+            mssel.setPolnExpr(polarizationSelection_p.c_str());
+            Vector<Int> polddi = mssel.getDDIDList(inputMs_p);
+            if (polddi.size() > 0){
+                // make an intersection
+                Vector<Int> commonDDI = set_intersection(spwddi, polddi);
+                uInt nddids = commonDDI.size();
+                if (nddids > 0){
+                    spwddi.resize(nddids);
+                    for (uInt ii = 0; ii < nddids; ++ii){
+                        spwddi[ii] = commonDDI[ii];
+                    }
+                }
+            }
+        }
 
-		uInt nddi = spwddi.size();
-		Int ddid;
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Selected SPWs Ids are " << spwchan << LogIO::POST;
-		// Example of MS with repeated SPW ID in DD table:
-		// DD	POL		SPW
-		//	0	0		0 (RR)
-		//	1	1		0 (LL)
-		//	2	2		1 (RR,LL)
-		//	3	3		2 (RR,LL,RL,LR)
-		// example of selection: spw=0,1 correlation=RR, so selected DDs are
-		//	DD	POL		SPW
-		//	0	0		0
-		//	2	2		1
+        uInt nddi = spwddi.size();
+        Int ddid;
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Selected SPWs Ids are " << spwchan << LogIO::POST;
+        // Example of MS with repeated SPW ID in DD table:
+        // DD	POL		SPW
+        //	0	0		0 (RR)
+        //	1	1		0 (LL)
+        //	2	2		1 (RR,LL)
+        //	3	3		2 (RR,LL,RL,LR)
+        // example of selection: spw=0,1 correlation=RR, so selected DDs are
+        //	DD	POL		SPW
+        //	0	0		0
+        //	2	2		1
 
-		// Do the mapping of DD between input and output
-		if (reindex_p)
-		{
-			for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
-			{
-				// Get dd id and set the input-output dd map
-				// This will only be used to write the DD ids in the main table
-				ddid = spwddi[selection_ii];
-				inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
-			}
-		}
+        // Do the mapping of DD between input and output
+        if (reindex_p)
+        {
+            for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
+            {
+                // Get dd id and set the input-output dd map
+                // This will only be used to write the DD ids in the main table
+                ddid = spwddi[selection_ii];
+                inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
+            }
+        }
 
-	    IPosition shape = spwchan.shape();
-	    uInt nSelections = shape[0];
-		Int spw,channelStart,channelStop,channelStep,channelWidth;
-		if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
+        IPosition shape = spwchan.shape();
+        uInt nSelections = shape[0];
+        Int spw,channelStart,channelStop,channelStep,channelWidth;
+        if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
 
-		// Do the spw mapping between input and output
-		uInt outputSpwIndex = 0;
-		for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-		{
-			// Get spw id and set the input-output spw map
-			spw = spwchan(selection_i,0);
+        // Do the spw mapping between input and output
+        uInt outputSpwIndex = 0;
+        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
+        {
+            // Get spw id and set the input-output spw map
+            spw = spwchan(selection_i,0);
 
-			// Set the channel selection ()
-			channelStart = spwchan(selection_i,1);
-			channelStop = spwchan(selection_i,2);
-			channelStep = spwchan(selection_i,3);
-			channelWidth = channelStop-channelStart+1;
-			channelSelector_p->add (spw, channelStart, channelWidth,channelStep);
+            // Set the channel selection ()
+            channelStart = spwchan(selection_i,1);
+            channelStop = spwchan(selection_i,2);
+            channelStep = spwchan(selection_i,3);
+            channelWidth = channelStop-channelStart+1;
+            channelSelector_p->add (spw, channelStart, channelWidth,channelStep);
 
-			if (numOfSelChanMap_p.find(spw) == numOfSelChanMap_p.end())
-			{
-				if (reindex_p)
-				{
-					inputOutputSPWIndexMap_p[spw] = outputSpwIndex + ddiStart_p;
+            if (numOfSelChanMap_p.find(spw) == numOfSelChanMap_p.end())
+            {
+                if (reindex_p)
+                {
+                    inputOutputSPWIndexMap_p[spw] = outputSpwIndex + ddiStart_p;
 
-					outputInputSPWIndexMap_p[outputSpwIndex] = spw;
-				}
+                    outputInputSPWIndexMap_p[outputSpwIndex] = spw;
+                }
 
-				numOfSelChanMap_p[spw] = channelWidth;
+                numOfSelChanMap_p[spw] = channelWidth;
 
-				outputSpwIndex ++;
+                outputSpwIndex ++;
 
-				inputOutputChanIndexMap_p[spw].clear(); // Accesing the vector creates it
-			}
-			else
-			{
-				numOfSelChanMap_p[spw] += channelWidth;
-			}
+                inputOutputChanIndexMap_p[spw].clear(); // Accesing the vector creates it
+            }
+            else
+            {
+                numOfSelChanMap_p[spw] += channelWidth;
+            }
 
-			for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
-			{
-				inputOutputChanIndexMap_p[spw].push_back(inpChan);
-			}
-		}
-	}
+            for (Int inpChan=channelStart;inpChan<=channelStop;inpChan += channelStep)
+            {
+                inputOutputChanIndexMap_p[spw].push_back(inpChan);
+            }
+        }
+    }
 
-	// jagonzal: must fill numOfSelChanMap_p
-	else
-	{
-		spwSelection_p = "*";
-		mssel.setSpwExpr(spwSelection_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+    // jagonzal: must fill numOfSelChanMap_p
+    else
+    {
+        spwSelection_p = "*";
+        mssel.setSpwExpr(spwSelection_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-	    IPosition shape = spwchan.shape();
-	    uInt nSelections = shape[0];
-		Int spw,channelStart,channelStop,channelWidth;
-		for(uInt selection_i=0;selection_i<nSelections;selection_i++)
-		{
-			// Get spw id and set the input-output spw map
-			spw = spwchan(selection_i,0);
+        IPosition shape = spwchan.shape();
+        uInt nSelections = shape[0];
+        Int spw,channelStart,channelStop,channelWidth;
+        for(uInt selection_i=0;selection_i<nSelections;selection_i++)
+        {
+            // Get spw id and set the input-output spw map
+            spw = spwchan(selection_i,0);
 
-			// Set the channel selection ()
-			channelStart = spwchan(selection_i,1);
-			channelStop = spwchan(selection_i,2);
-			channelWidth = channelStop-channelStart+1;
-			numOfSelChanMap_p[spw] = channelWidth;
-		}
+            // Set the channel selection ()
+            channelStart = spwchan(selection_i,1);
+            channelStop = spwchan(selection_i,2);
+            channelWidth = channelStop-channelStart+1;
+            numOfSelChanMap_p[spw] = channelWidth;
+        }
 
-		// CAS-8631: Even w/o spw selection MSTransformDataHandler sets spws selection to *
-		//           in order to obtain the SPW-DDI list. It turns out that sometimes the
-		//           output DDI sub-table is resorted, for instance in case of non-monotonic
-		//           DDI-SPW relation,  therefore it is necessary to map input-output DDIS
-		if (reindex_p)
-		{
-			Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
+        // CAS-8631: Even w/o spw selection MSTransformDataHandler sets spws selection to *
+        //           in order to obtain the SPW-DDI list. It turns out that sometimes the
+        //           output DDI sub-table is resorted, for instance in case of non-monotonic
+        //           DDI-SPW relation,  therefore it is necessary to map input-output DDIS
+        if (reindex_p)
+        {
+            Vector<Int> spwddi = mssel.getSPWDDIDList(inputMs_p);
 
-			Int ddid;
-			uInt nddi = spwddi.size();
-			for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
-			{
-				// Get dd id and set the input-output dd map
-				// This will only be used to write the DD ids in the main table
-				ddid = spwddi[selection_ii];
-				inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
-			}
-		}
+            Int ddid;
+            uInt nddi = spwddi.size();
+            for(uInt selection_ii=0;selection_ii<nddi;selection_ii++)
+            {
+                // Get dd id and set the input-output dd map
+                // This will only be used to write the DD ids in the main table
+                ddid = spwddi[selection_ii];
+                inputOutputDDIndexMap_p[ddid] = selection_ii + ddiStart_p;
+            }
+        }
 
-		spwSelection_p = "";
-	}
+        spwSelection_p = "";
+    }
 
-	// If we have channel average we have to populate the freqbin map
-	if (channelAverage_p)
-	{
-		if (!spwSelection_p.empty())
-		{
-			mssel.setSpwExpr(spwSelection_p);
-		}
-		else
-		{
-			mssel.setSpwExpr("*");
-		}
+    // If we have channel average we have to populate the freqbin map
+    if (channelAverage_p)
+    {
+        if (!spwSelection_p.empty())
+        {
+            mssel.setSpwExpr(spwSelection_p);
+        }
+        else
+        {
+            mssel.setSpwExpr("*");
+        }
 
-		//Vector<Int> spwList = mssel.getSpwList(inputMs_p);
-		Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
+        //Vector<Int> spwList = mssel.getSpwList(inputMs_p);
+        Matrix<Int> spwchan = mssel.getChanList(inputMs_p);
 
-		// jagonzal (CAS-7149): Have to remove duplicates: With multiple pols per SPW
-		// each SPWId appears various (see times test_chanavg_spw_with_diff_pol_shape)
-		vector<Int> noDupSpwList;
-		for (uInt idx=0;idx < spwchan.nrow(); idx++)
-		{
-			if (find(noDupSpwList.begin(),noDupSpwList.end(),spwchan(idx,0)) == noDupSpwList.end())
-			{
-				noDupSpwList.push_back(spwchan(idx,0));
-			}
-		}
+        // jagonzal (CAS-7149): Have to remove duplicates: With multiple pols per SPW
+        // each SPWId appears various (see times test_chanavg_spw_with_diff_pol_shape)
+        vector<Int> noDupSpwList;
+        for (uInt idx=0;idx < spwchan.nrow(); idx++)
+        {
+            if (find(noDupSpwList.begin(),noDupSpwList.end(),spwchan(idx,0)) == noDupSpwList.end())
+            {
+                noDupSpwList.push_back(spwchan(idx,0));
+            }
+        }
 
-		//spwList.resize(noDupSpwList.size());
-		//for (uInt idx=0;idx < noDupSpwList.size(); idx++) spwList(idx) = noDupSpwList[idx];
-		Vector<Int> spwList = noDupSpwList;
+        //spwList.resize(noDupSpwList.size());
+        //for (uInt idx=0;idx < noDupSpwList.size(); idx++) spwList(idx) = noDupSpwList[idx];
+        Vector<Int> spwList = noDupSpwList;
 
-		if (freqbin_p.size() == 1)
-		{
-		    if(combinespws_p)
-		    {
-		        uInt spwAfterComb = 0;
-		        freqbinMap_p[spwAfterComb] = freqbin_p(spwAfterComb);
-		    }
-		    else
-		    {
-		        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-		        Int freqbin = freqbin_p(0);
-		        freqbin_p.resize(spwList.size(),True);
-		        freqbin_p = freqbin;
+        if (freqbin_p.size() == 1)
+        {
+            if(combinespws_p)
+            {
+                uInt spwAfterComb = 0;
+                freqbinMap_p[spwAfterComb] = freqbin_p(spwAfterComb);
+            }
+            else
+            {
+                // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                Int freqbin = freqbin_p(0);
+                freqbin_p.resize(spwList.size(),True);
+                freqbin_p = freqbin;
 
-		        for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
-		        {
-		            freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
+                {
+                    freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
 
-		            // jagonzal (new WEIGHT/SIGMA convention)
-		            // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
-		            if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
-		            {
-		                logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-							     << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
-							     << " for SPW " << spwList(spw_i)
-							     << " is smaller than specified chanbin " << freqbin_p(0) << endl
-							     << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
-							     << " for SPW " << spwList(spw_i)
-							     << LogIO::POST;
-		                freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-		                newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-		                // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-		                freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
-		            }
-		            else
-		            {
-		                newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
-		            }
-		        }
-		    }
-		}
-		else
-		{
-			if (spwList.size() != freqbin_p.size())
-			{
-				logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
-						<< "Number of frequency bins ( "
-						<< freqbin_p.size() << " ) different from number of selected spws ( "
-						<< spwList.size() << " )" << LogIO::POST;
-			}
-			else
-			{
-				for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
-				{
-					freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
-					// jagonzal (new WEIGHT/SIGMA convention)
-					// jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
-					if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
-					{
-						logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
-								<< "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
-								<< " for SPW " << spwList(spw_i)
-								<< " is smaller than specified chanbin " << freqbin_p(spw_i) << endl
-								<< "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
-								<< " for SPW " << spwList(spw_i)
-								<< LogIO::POST;
-						newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
-						// jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
-						freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
-					}
-					else
-					{
-						newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(spw_i);
-					}
-				}
-			}
-		}
-	}
+                    // jagonzal (new WEIGHT/SIGMA convention)
+                    // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
+                    if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
+                    {
+                        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+							             << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
+							                                                                    << " for SPW " << spwList(spw_i)
+							                                                                    << " is smaller than specified chanbin " << freqbin_p(0) << endl
+							                                                                    << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
+							                                                                                                                  << " for SPW " << spwList(spw_i)
+							                                                                                                                  << LogIO::POST;
+                        freqbinMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                        freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
+                    }
+                    else
+                    {
+                        newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(0);
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (spwList.size() != freqbin_p.size())
+            {
+                logger_p << LogIO::SEVERE << LogOrigin("MSTransformManager", __FUNCTION__)
+						        << "Number of frequency bins ( "
+						        << freqbin_p.size() << " ) different from number of selected spws ( "
+						        << spwList.size() << " )" << LogIO::POST;
+            }
+            else
+            {
+                for (uInt spw_i=0;spw_i<spwList.size();spw_i++)
+                {
+                    freqbinMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                    // jagonzal (new WEIGHT/SIGMA convention)
+                    // jagonzal (CAS-7149): Cut chanbin to not exceed n# selected channels
+                    if (freqbin_p(spw_i) > (Int)numOfSelChanMap_p[spwList(spw_i)])
+                    {
+                        logger_p << LogIO::WARN << LogOrigin("MSTransformManager", __FUNCTION__)
+								        << "Number of selected channels " << numOfSelChanMap_p[spwList(spw_i)]
+								                                                               << " for SPW " << spwList(spw_i)
+								                                                               << " is smaller than specified chanbin " << freqbin_p(spw_i) << endl
+								                                                               << "Setting chanbin to " << numOfSelChanMap_p[spwList(spw_i)]
+								                                                                                                             << " for SPW " << spwList(spw_i)
+								                                                                                                             << LogIO::POST;
+                        newWeightFactorMap_p[spwList(spw_i)] = numOfSelChanMap_p[spwList(spw_i)];
+                        // jagonzal (CAS-8018): Update chanbin, otherwise there is a problem with dropped channels
+                        freqbin_p(spw_i) = numOfSelChanMap_p[spwList(spw_i)];
+                    }
+                    else
+                    {
+                        newWeightFactorMap_p[spwList(spw_i)] = freqbin_p(spw_i);
+                    }
+                }
+            }
+        }
+    }
 
-	if (!polarizationSelection_p.empty())
-	{
-		mssel.setPolnExpr(polarizationSelection_p.c_str());
-		Vector <Vector <Slice> > correlationSlices;
-		mssel.getCorrSlices(correlationSlices,inputMs_p);
-		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
-				<< "Selected correlations are " << correlationSlices << LogIO::POST;
+    if (!polarizationSelection_p.empty())
+    {
+        mssel.setPolnExpr(polarizationSelection_p.c_str());
+        Vector <Vector <Slice> > correlationSlices;
+        mssel.getCorrSlices(correlationSlices,inputMs_p);
+        logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
+				        << "Selected correlations are " << correlationSlices << LogIO::POST;
 
-		if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
+        if (channelSelector_p == NULL) channelSelector_p = new vi::FrequencySelectionUsingChannels();
 
-		channelSelector_p->addCorrelationSlices(correlationSlices);
+        channelSelector_p->addCorrelationSlices(correlationSlices);
 
-		// Get the DDs related to the polarization selection
-		// when there is no spw selection
-		if (spwSelection_p.empty() and reindex_p)
-		{
-			Vector<Int> polddids = mssel.getDDIDList(inputMs_p);
+        // Get the DDs related to the polarization selection
+        // when there is no spw selection
+        if (spwSelection_p.empty() and reindex_p)
+        {
+            std::vector<Int> polddids = mssel.getDDIDList(inputMs_p).tovector();
+            // The output from MSSelection might not be sorted
+            std::sort(polddids.begin(), polddids.end());
 
-			// Make the in/out DD mapping
-			uInt nddids = polddids.size();
-			Int dd;
-			for(uInt ii=0;ii<nddids;ii++)
-			{
-				// Get dd id and set the input-output dd map
-				dd = polddids[ii];
-				inputOutputDDIndexMap_p[dd] = ii + ddiStart_p;
-			}
+            // Make the in/out DD mapping
+            uInt nddids = polddids.size();
+            Int dd;
+            for(uInt ii=0;ii<nddids;ii++)
+            {
+                // Get dd id and set the input-output dd map
+                dd = polddids[ii];
+                inputOutputDDIndexMap_p[dd] = ii + ddiStart_p;
+            }
 
-		}
+        }
 
-	}
+    }
 
-	return;
+    return;
 }
 
 // -----------------------------------------------------------------------
@@ -2388,7 +2432,7 @@ void MSTransformManager::initRefFrameTransParams()
   referenceTime_p = selectedInputMsCols_p->timeMeas()(0);
 
   // Access FIELD cols to get phase center and radial velocity
-  inputMSFieldCols_p = new MSFieldColumns(selectedInputMs_p->field());
+  inputMSFieldCols_p = std::make_shared<MSFieldColumns>(selectedInputMs_p->field());
 
   phaseCenter_p = determinePhaseCenter();
 }
@@ -2458,12 +2502,12 @@ casacore::MDirection MSTransformManager::determinePhaseCenter() {
     // Determine phase center from the first row in the FIELD sub-table of the output
     // (selected) MS
     if (phaseCenter.empty()) {
-      MSFieldColumns *fieldCols;
+      std::shared_ptr<MSFieldColumns> fieldCols;
       if (userBufferMode_p) {
 	fieldCols = inputMSFieldCols_p;
       } else {
 	MSField fieldTable = outputMs_p->field();
-	fieldCols = new MSFieldColumns(fieldTable);
+	fieldCols = std::make_shared<MSFieldColumns>(fieldTable);
       }
 
       // CAS-8870: Mstransform with outframe=’SOURCE’ crashes because of ephemeris type
@@ -2590,9 +2634,6 @@ void MSTransformManager::regridSpwSubTable()
       }
     }
   }
-
-  // Flush changes
-  outputMs_p->flush(true);
 }
 
 // -----------------------------------------------------------------------
@@ -2746,10 +2787,6 @@ void MSTransformManager::regridAndCombineSpwSubtable()
     refFrequencyCol.put(0,outputSpw.REF_FREQUENCY);
     totalBandwidthCol.put(0,outputSpw.TOTAL_BANDWIDTH);
     measFreqRefCol.put(0,outputReferenceFrame_p);
-
-    // Flush changes
-    outputMs_p->flush(true);
-
 
     /// Add input-output SPW pair to map ///////////////////
     inputOutputSpwMap_p[0] = std::make_pair(inputSpw,outputSpw);
@@ -3004,10 +3041,24 @@ void MSTransformManager::separateSpwSubtable()
 						spwCols.dopplerId().put(rowIndex,spwCols.dopplerId()(0));
 					}
 
-					if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
-					{
-						spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
-					}
+                    if (MSTransformDataHandler::columnOk(spwCols.receiverId()))
+                    {
+                        spwCols.receiverId().put(rowIndex,spwCols.receiverId()(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+                    {
+                        ScalarColumn<String> swfCol(spwTable, "SDM_WINDOW_FUNCTION");
+                        swfCol.put(rowIndex, swfCol(0));
+                    }
+
+                    if (spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+                        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+                    {
+                        ScalarColumn<Int> snbCol(spwTable, "SDM_NUM_BIN");
+                        snbCol.put(rowIndex, snbCol(0));
+                    }
 
 				}
 
@@ -3048,9 +3099,6 @@ void MSTransformManager::separateSpwSubtable()
 
 			// Remove first row
 			// spwTable.removeRow(0);
-
-			// Flush changes
-			spwTable.flush(true,true);
 		}
     	else
     	{
@@ -3153,8 +3201,6 @@ void MSTransformManager::separateFeedSubtable()
 		    	rowIndex += nRowsPerSpw;
 		    }
 
-		    // Flush changes
-		    feedtable.flush(true,true);
 		}
     	else
     	{
@@ -3298,8 +3344,6 @@ void MSTransformManager::separateSourceSubtable()
 		    	rowIndex += nRowsPerSpw;
 		    }
 
-		    // Flush changes
-		    sourcetable.flush(true,true);
 		}
     	else
     	{
@@ -3588,8 +3632,6 @@ void MSTransformManager::separateSyscalSubtable()
 				rowIndex += nRowsPerSpw;
 			}
 
-			// Flush changes
-			syscalTable.flush(true,true);
     	}
     	else
     	{
@@ -3661,8 +3703,6 @@ void MSTransformManager::separateFreqOffsetSubtable()
     			rowIndex += nRowsPerSpw;
     		}
 
-    		// Flush changes
-    		freqoffsetTable.flush(true,true);
     	}
     	else
     	{
@@ -3784,8 +3824,6 @@ void MSTransformManager::separateCalDeviceSubtable()
 	        	rowIndex += nRowsPerSpw;
 	        }
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -3888,8 +3926,6 @@ void MSTransformManager::separateSysPowerSubtable()
 	        	rowIndex += nRowsPerSpw;
 	        }
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -4232,8 +4268,6 @@ void MSTransformManager::reindexSourceSubTable()
 
     	sourceSubtable.removeRow(duplicateIdx);
 
-    	// Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4260,7 +4294,7 @@ void MSTransformManager::reindexDDISubTable()
 
     	// Add a new row for each of the separated SPWs
     	uInt rowIndex = 0;
-    	for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
+      for (uInt spw_i=0; spw_i<nspws_p; spw_i++)
     	{
     		if (rowIndex > 0)
     		{
@@ -4285,7 +4319,7 @@ void MSTransformManager::reindexDDISubTable()
     	}
 
         // Delete the old rows
-    	uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
+      uInt nrowsToDelete = ddiCols.nrow()-nspws_p;
     	if (nrowsToDelete > 0)
     	{
         	uInt rownr = ddiCols.nrow()-1;
@@ -4299,9 +4333,6 @@ void MSTransformManager::reindexDDISubTable()
         	ddiTable.removeRow(rowsToDelete);
     	}
 
-
-        // Flush changes
-        outputMs_p->flush(true);
 
     }
     else
@@ -4361,8 +4392,6 @@ void MSTransformManager::reindexFeedSubTable()
 
     	feedSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4422,8 +4451,6 @@ void MSTransformManager::reindexSysCalSubTable()
 
     	syscalSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4484,8 +4511,6 @@ void MSTransformManager::reindexFreqOffsetSubTable()
 
     	freqoffsetSubtable.removeRow(duplicateIdx);
 
-        // Flush changes
-        outputMs_p->flush(true);
     }
     else
     {
@@ -4548,8 +4573,6 @@ void MSTransformManager::reindexGenericTimeDependentSubTable(const String& subta
 
 	    	subtable.removeRow(duplicateIdx);
 
-	    	// Flush changes
-			subtable.flush(true,true);
 		}
 		else
 		{
@@ -4712,9 +4735,6 @@ void MSTransformManager::dropNonUniformWidthChannels()
     	}
 	}
 
-	// Flush changes
-	outputMs_p->flush(true);
-
 	return;
 }
 
@@ -4855,14 +4875,13 @@ void MSTransformManager::checkFillFlagCategory()
 void MSTransformManager::checkFillWeightSpectrum()
 {
 	inputWeightSpectrumAvailable_p = false;
-	if (!selectedInputMsCols_p->weightSpectrum().isNull() && selectedInputMsCols_p->weightSpectrum().isDefined(0))
+	if (!selectedInputMsCols_p->weightSpectrum().isNull() and
+            selectedInputMsCols_p->weightSpectrum().isDefined(0))
 	{
 		inputWeightSpectrumAvailable_p = true;
 		logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager", __FUNCTION__)
 				<< "Optional column WEIGHT_SPECTRUM found in input MS will be written to output MS" << LogIO::POST;
 	}
-
-	return;
 }
 
 /**
@@ -4901,6 +4920,45 @@ void MSTransformManager::checkSPWChannelsKnownLimitation()
 		    "selected has " + std::to_string(firstNum) + " channels, but another "
 		    "selected SPW has " + std::to_string(otherNum) + " channels.");
   }
+}
+
+/**
+ * Early check to issue a warning if the data was preaveraged
+ * by the correlator ans we are performing a further
+ * smoothing and average.
+ */
+void MSTransformManager::checkCorrelatorPreaveraging()
+{
+  std::string spwPreaveraged;
+  if (hanningSmooth_p || channelAverage_p)
+  {
+    auto spwTable = inputMs_p->spectralWindow();
+    ROMSSpWindowColumns spwColumns(spwTable);
+    if (spwTable.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION") &&
+        spwTable.tableDesc().isColumn("SDM_NUM_BIN") &&
+        spwTable.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+    {
+      auto nrows = spwColumns.nrow();
+      auto effBWCol = spwColumns.effectiveBW();
+      auto chanWidthCol = spwColumns.chanWidth();
+      ScalarColumn<String> windowFunctionCol(spwTable, "SDM_WINDOW_FUNCTION");
+      ScalarColumn<Int> numBinCol(spwTable, "SDM_NUM_BIN");
+      for (size_t spwIdx = 0; spwIdx < nrows; spwIdx++)
+      {
+        auto numBin =  numBinCol(spwIdx);
+        auto windowFunction = windowFunctionCol(spwIdx);
+        if(windowFunction != "UNKNOWN" && numBin != 1)
+          spwPreaveraged += std::to_string(spwIdx)+" ";
+      }
+    }
+  }
+
+  if(spwPreaveraged != "")
+    logger_p << LogIO::WARN<<LogOrigin("MSTransformManager", __func__) <<
+        "The data has already been preaveraged by the correlator but "
+        "further smoothing or averaging has been requested. "
+        "Preaveraged SPWs are: "<<spwPreaveraged<<LogIO::POST;
 }
 
 // -----------------------------------------------------------------------
@@ -5492,7 +5550,7 @@ void MSTransformManager::generateIterator()
 	if (interactive_p) isWritable = true;
 
 	// Prepare time average parameters (common for all cases)
-	vi::AveragingParameters *timeavgParams = NULL;
+	std::shared_ptr<vi::AveragingParameters> timeavgParams = nullptr;
 	if (timeAverage_p)
 	{
 		if (maxuvwdistance_p > 0)
@@ -5504,9 +5562,9 @@ void MSTransformManager::generateIterator()
 		{
 			timeAvgOptions_p |= vi::AveragingOptions::phaseShifting;
 		}
-
-		timeavgParams = new vi::AveragingParameters(timeBin_p, 0, vi::SortColumns(sortColumns_p, false),
-													timeAvgOptions_p, maxuvwdistance_p,NULL,isWritable,dx_p,dy_p);
+		timeavgParams = std::make_shared<vi::AveragingParameters>
+                    (timeBin_p, .0, vi::SortColumns(sortColumns_p, false),
+                     timeAvgOptions_p, maxuvwdistance_p, nullptr, isWritable, dx_p, dy_p);
 	}
 
 	// Calibrating VI
@@ -5571,7 +5629,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration file spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callib_p, timeavgParams.get()));
 			}
 	        // By callib Record
 	        else if (callibRec_p.nfields() > 0)
@@ -5580,7 +5638,7 @@ void MSTransformManager::generateIterator()
 	    					<< "OTF calibration activated, using calibration record spec to generate iterator"
 	    					<< LogIO::POST;
 
-				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams));
+				visibilityIterator_p = new vi::VisibilityIterator2(vi::LayeredVi2Factory(selectedInputMs_p, &iterpar,callibRec_p, timeavgParams.get()));
 			}
             else // scalar
             {
@@ -5604,6 +5662,11 @@ void MSTransformManager::generateIterator()
 			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
 			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
 			}
+			// Pointings Interpolator VI
+			else if (pointingsInterpolation_p) {
+			  visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+			      vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+			}
 			// Plain VI
 			else
 			{
@@ -5613,7 +5676,7 @@ void MSTransformManager::generateIterator()
 		}
 		catch (AipsError x)
 		{
-    		logger_p 	<< LogIO::SEVERE << LogOrigin("MSTransformManager",__FUNCTION__)
+    		logger_p 	<< LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
     					<< "Error initializing calibration VI: " << x.getMesg()
     					<< LogIO::POST;
     		throw(x);
@@ -5624,11 +5687,16 @@ void MSTransformManager::generateIterator()
 	{
 		visibilityIterator_p = new vi::VisibilityIterator2(vi::AveragingVi2Factory(*timeavgParams, selectedInputMs_p));
 	}
-  // Polarization Averaging VI
-  else if (polAverage_p) {
-    visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
-        vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
-  }
+	// Polarization Averaging VI
+	else if (polAverage_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PolAverageVi2Factory(polAverageConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
+	// VI interpolating pointing directions
+	else if (pointingsInterpolation_p) {
+		visibilityIterator_p = new vi::VisibilityIterator2(vi::PointingInterpolationVi2Factory(pointingsInterpolationConfig_p, selectedInputMs_p,
+				vi::SortColumns(sortColumns_p, false), timeBin_p, isWritable));
+	}
 	// Plain VI
 	else
 	{
@@ -5809,6 +5877,23 @@ void MSTransformManager::initFrequencyTransGrid(vi::VisBuffer2 *vb)
 		bandwidth += chanWidth;
 
 		fftShift_p = - absoluteShift / bandwidth;
+
+                ostringstream current;
+                current << setprecision(numeric_limits<double>::max_digits10)
+                        << newCentralFrequencyBeforeRegriddingAtCurrentTime;
+                ostringstream reference;
+                reference << setprecision(numeric_limits<double>::max_digits10)
+                          << newCentralFrequencyBeforeRegriddingAtReferenceTime;
+                logger_p << LogIO::NORMAL << LogOrigin("MSTransformManager",__FUNCTION__)
+                         << "Using fftshift interpolation. The absolute shift is the "
+                         << "new central frequency at current (input SPW) time - new "
+                         << "central frequency "
+                         << "at reference (output SPW) time\nAbsolute shift: "
+                         << current
+                         << " - " << reference
+                         << " = " << absoluteShift << ", bandwidth " << bandwidth
+                         << ", relative shift: " << fftShift_p << LogIO::POST;
+
 	}
 	else
 	{
@@ -7092,7 +7177,7 @@ template <class T> void MSTransformManager::copyCubeOfData(	vi::VisBuffer2 *vb,
 }
 
 // -----------------------------------------------------------------------
-//
+// combine - for combinespws=True
 // -----------------------------------------------------------------------
 template <class T> void MSTransformManager::combineCubeOfData(	vi::VisBuffer2 *vb,
 																	RefRows &rowRef,
@@ -7482,6 +7567,11 @@ template <class T> void MSTransformManager::transformAndWriteCubeOfData(	Int inp
 																				ArrayColumn<T> &outputDataCol,
 																				ArrayColumn<Bool> *outputFlagCol)
 {
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
+                 << "Shape of input data cube: " << inputDataCube.shape()
+                 << ", output plane shape: " << outputPlaneShape
+                 << LogIO::POST;
+
 	// Write flag column too?
 	if (outputFlagCol != NULL)
 	{
@@ -7590,8 +7680,6 @@ void MSTransformManager::setWeightsPlaneByReference(	uInt inputRow,
 															Matrix<Float> &inputWeightsPlane)
 {
 	inputWeightsPlane = inputWeightsCube.xyPlane(inputRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7638,8 +7726,6 @@ template <class T> void MSTransformManager::transformAndWritePlaneOfData(	Int in
 
 	// Write output planes
 	writeOutputPlanes(row,outputDataPlane,outputFlagsPlane,outputDataCol,*outputFlagCol);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7652,7 +7738,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesComplex_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7665,7 +7750,6 @@ void MSTransformManager::writeOutputPlanes(	uInt row,
 											ArrayColumn<Bool> &outputFlagCol)
 {
 	(*this.*writeOutputPlanesFloat_p)(row,outputDataPlane,outputFlagsPlane,outputDataCol,outputFlagCol);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7888,8 +7972,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInBlock(	uInt row,
 	outputDataCol.setShape(row,outputPlaneShape);
 	outputDataCol.put(row, outputDataPlane);
 	(*this.*writeOutputFlagsPlane_p)(outputFlagsPlane,outputFlagCol, outputPlaneShape, row);
-
-	return;
 }
 
 
@@ -7903,7 +7985,6 @@ void MSTransformManager::writeOutputFlagsPlane(	Matrix<Bool> &outputPlane,
 {
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7937,8 +8018,6 @@ template <class T> void MSTransformManager::writeOutputPlanesInSlices(	uInt row,
 	writeOutputPlaneReshapedSlices(outputDataPlane,outputDataCol,sliceX,sliceY,outputPlaneShape_tail,outRow);
 	(*this.*writeOutputFlagsPlaneReshapedSlices_p)(	outputFlagsPlane,outputFlagCol,
 													sliceX,sliceY,outputPlaneShape_tail,outRow);
-
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7952,7 +8031,6 @@ void MSTransformManager::writeOutputFlagsPlaneSlices(	Matrix<Bool> &outputPlane,
 															uInt &outputRow)
 {
 	writeOutputPlaneSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7966,7 +8044,6 @@ void MSTransformManager::writeOutputFlagsPlaneReshapedSlices(	Matrix<Bool> &outp
 																	uInt &outputRow)
 {
 	writeOutputPlaneReshapedSlices(outputPlane,outputCol,sliceX,sliceY,outputPlaneShape,outputRow);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7982,7 +8059,6 @@ template <class T> void MSTransformManager::writeOutputPlaneSlices(	Matrix<T> &o
 	Matrix<T> outputPlane_i = outputPlane(sliceX,sliceY);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -7999,7 +8075,6 @@ template <class T> void MSTransformManager::writeOutputPlaneReshapedSlices(	Matr
 	outputPlane_i.resize(outputPlaneShape,true);
 	outputCol.setShape(outputRow,outputPlaneShape);
 	outputCol.put(outputRow, outputPlane_i);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8010,7 +8085,6 @@ void MSTransformManager::setWeightStripeByReference(	uInt corrIndex,
 															Vector<Float> &inputWeightsStripe)
 {
 	inputWeightsStripe.reference(inputWeightsPlane.row(corrIndex));
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8023,9 +8097,21 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
 					       Vector<Complex> &outputDataStripe,
 					       Vector<Bool> &outputFlagsStripe)
 {
-	(*this.*transformStripeOfDataComplex_p)(	inputSpw,inputDataStripe,inputFlagsStripe,
-												inputWeightsStripe,outputDataStripe,outputFlagsStripe);
-	return;
+    auto shapeBefore = outputDataStripe.shape();
+    (*this.*transformStripeOfDataComplex_p)(inputSpw, inputDataStripe, inputFlagsStripe,
+                                            inputWeightsStripe, outputDataStripe,
+                                            outputFlagsStripe);
+    auto shapeAfter = outputDataStripe.shape();
+    if (shapeAfter != shapeBefore) {
+        ostringstream msg;
+        msg << "Shape of output complex data stripe changed after applying "
+            << "transformation. Output shape expected before transformation: "
+            << shapeBefore
+            << ". Output shape produced by transformation: " << shapeAfter;
+        logger_p << LogIO::DEBUG1 << LogOrigin("MSTransformManager",__FUNCTION__)
+                 << LogIO::POST;
+        throw AipsError(msg.str());
+    }
 }
 
 // -----------------------------------------------------------------------
@@ -8040,7 +8126,6 @@ void MSTransformManager::transformStripeOfData(Int inputSpw,
 {
 	(*this.*transformStripeOfDataFloat_p)(	inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,
 											outputDataStripe,outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8679,7 +8764,6 @@ template <class T> void MSTransformManager::regrid(Int inputSpw,
 				outputDataStripe,
 				outputFlagsStripe);
 
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8699,7 +8783,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 									inputWeightsStripe,
 									outputDataStripe,
 									outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8718,7 +8801,6 @@ void MSTransformManager::regridCore(Int inputSpw,
 								inputWeightsStripe,
 								outputDataStripe,
 								outputFlagsStripe);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8739,7 +8821,6 @@ void MSTransformManager::fftshift(Int ,
     					(const Double)fftShift_p,
     					false, // A good data point has its flag set to false
     					false);
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8759,7 +8840,6 @@ void MSTransformManager::fftshift(Int ,
     					(const uInt)0, // In vectors axis 0 is the only dimension
     					(const Double)fftShift_p,
     					false); // A good data point has its flag set to false
-	return;
 }
 
 // -----------------------------------------------------------------------
@@ -8856,9 +8936,9 @@ template <class T> void MSTransformManager::interpolateByChannelMap(Int spw,
   }
 }
 
-// -----------------------------------------------------------------------
-//
-// -----------------------------------------------------------------------
+// ------------------------------------------------------------------------
+// casacore::fftshift does not interpolate, it needs interpolation+fftshift
+// ------------------------------------------------------------------------
 template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       const Vector<T> &inputDataStripe,
 							       const Vector<Bool> &inputFlagsStripe,
@@ -8866,16 +8946,14 @@ template <class T> void MSTransformManager::interpol1Dfftshift(Int inputSpw,
 							       Vector<T> &outputDataStripe,
 							       Vector<Bool> &outputFlagsStripe)
 {
-	Vector<T> regriddedDataStripe(inputDataStripe.shape(),T());
-	Vector<Bool> regriddedFlagsStripe(inputFlagsStripe.shape(),false);
+    Vector<T> regriddedDataStripe(outputDataStripe.shape(),T());
+    Vector<Bool> regriddedFlagsStripe(outputFlagsStripe.shape(),false);
 
-	// This linear interpolation provides an uniform grid (pre-condition to apply fftshift)
-	interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
+    // This linear interpolation provides a uniform grid (pre-condition to apply fftshift)
+    interpol1D(inputSpw,inputDataStripe,inputFlagsStripe,inputWeightsStripe,regriddedDataStripe,regriddedFlagsStripe);
 
-	// fftshift takes care of time
-	fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
-
-	return;
+    // fftshift takes care of time
+    fftshift(inputSpw,regriddedDataStripe,regriddedFlagsStripe,inputWeightsStripe,outputDataStripe,outputFlagsStripe);
 }
 
 // -----------------------------------------------------------------------

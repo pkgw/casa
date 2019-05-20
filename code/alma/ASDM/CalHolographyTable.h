@@ -41,31 +41,31 @@
 
 
 	
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	
-#include <EntityRef.h>
+#include <alma/ASDM/EntityRef.h>
 	
 
 
@@ -74,11 +74,7 @@
 	
 
 	
-#include "CAntennaMake.h"
-	
-
-	
-
+#include <alma/Enumerations/CAntennaMake.h>
 	
 
 	
@@ -92,17 +88,17 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
 	
 
 	
 
 	
-#include "CReceiverBand.h"
-	
-
-	
-
+#include <alma/Enumerations/CReceiverBand.h>
 	
 
 	
@@ -127,20 +123,24 @@
 
 	
 
+	
+
+	
 
 
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <UniquenessViolationException.h>
-#include <NoSuchRow.h>
-#include <DuplicateKey.h>
+
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/UniquenessViolationException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/DuplicateKey.h>
 
 
 #ifndef WITHOUT_ACS
 #include <asdmIDLC.h>
 #endif
 
-#include <Representable.h>
+#include <alma/ASDM/Representable.h>
 
 #include <pthread.h>
 
@@ -171,7 +171,7 @@ class CalHolographyRow;
  		
  * <TD> antennaName </TD>
  		 
- * <TD> string</TD>
+ * <TD> std::string</TD>
  * <TD> &nbsp; </TD>
  * <TD> &nbsp;the name of the antenna. </TD>
  * </TR>
@@ -228,14 +228,14 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> focusPosition </TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  3 </TD> 
  * <TD> &nbsp;the focus position. </TD>
  * </TR>
 	
  * <TR>
  * <TD> frequencyRange </TD> 
- * <TD> vector<Frequency > </TD>
+ * <TD> std::vector<Frequency > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the range of frequencies for which the measurement is valid. </TD>
  * </TR>
@@ -248,7 +248,7 @@ class CalHolographyRow;
  * </TR>
 	
  * <TR>
- * <TD> numReceptor (\f$N_{Rece}\f$)</TD> 
+ * <TD> numReceptor (numReceptor)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number of receptors. </TD>
@@ -256,13 +256,13 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> polarizationTypes </TD> 
- * <TD> vector<PolarizationTypeMod::PolarizationType > </TD>
+ * <TD> std::vector<PolarizationTypeMod::PolarizationType > </TD>
  * <TD>  numReceptor </TD> 
  * <TD> &nbsp;identifies the polarization types (one value per receptor). </TD>
  * </TR>
 	
  * <TR>
- * <TD> numPanelModes (\f$N_{Pane}\f$)</TD> 
+ * <TD> numPanelModes (numPanelModes)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp;  </TD> 
  * <TD> &nbsp;the number panel modes fitted. </TD>
@@ -305,7 +305,7 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> direction </TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2 </TD> 
  * <TD> &nbsp;the direction of the source. </TD>
  * </TR>
@@ -315,7 +315,7 @@ class CalHolographyRow;
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Optional) </TH></TR>
 	
  * <TR>
- * <TD> numScrew(\f$N_{Scre}\f$)</TD> 
+ * <TD> numScrew(numScrew)</TD> 
  * <TD> int </TD>
  * <TD>  &nbsp; </TD>
  * <TD>&nbsp; the number of screws. </TD>
@@ -323,21 +323,21 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> screwName</TD> 
- * <TD> vector<string > </TD>
+ * <TD> std::vector<std::string > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the names of the screws (one value per screw). </TD>
  * </TR>
 	
  * <TR>
  * <TD> screwMotion</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the prescribed screw motions (one value per screw). </TD>
  * </TR>
 	
  * <TR>
  * <TD> screwMotionError</TD> 
- * <TD> vector<Length > </TD>
+ * <TD> std::vector<Length > </TD>
  * <TD>  numScrew  </TD>
  * <TD>&nbsp; the uncertainties on the prescribed screw  motions (one value per screw). </TD>
  * </TR>
@@ -351,7 +351,7 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> gravOptRange</TD> 
- * <TD> vector<Angle > </TD>
+ * <TD> std::vector<Angle > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the range of gravitational optimization. </TD>
  * </TR>
@@ -365,7 +365,7 @@ class CalHolographyRow;
 	
  * <TR>
  * <TD> tempOptRange</TD> 
- * <TD> vector<Temperature > </TD>
+ * <TD> std::vector<Temperature > </TD>
  * <TD>  2  </TD>
  * <TD>&nbsp; the range of temperature optimization. </TD>
  * </TR>
@@ -545,7 +545,7 @@ public:
  	 * @param direction
 	
      */
-	CalHolographyRow *newRow(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction);
+	CalHolographyRow *newRow(std::string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction);
 	
 
 
@@ -622,7 +622,7 @@ public:
 	
  	 *
 	 */
- 	CalHolographyRow* getRowByKey(string antennaName, Tag calDataId, Tag calReductionId);
+ 	CalHolographyRow* getRowByKey(std::string antennaName, Tag calDataId, Tag calReductionId);
 
  	 	
 
@@ -673,7 +673,7 @@ public:
  	 * @param direction
  	 		 
  	 */
-	CalHolographyRow* lookup(string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, vector<Length > focusPosition, vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, vector<Angle > direction); 
+	CalHolographyRow* lookup(std::string antennaName, Tag calDataId, Tag calReductionId, AntennaMakeMod::AntennaMake antennaMake, ArrayTime startValidTime, ArrayTime endValidTime, Temperature ambientTemperature, std::vector<Length > focusPosition, std::vector<Frequency > frequencyRange, double illuminationTaper, int numReceptor, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, int numPanelModes, ReceiverBandMod::ReceiverBand receiverBand, EntityRef beamMapUID, Length rawRMS, Length weightedRMS, EntityRef surfaceMapUID, std::vector<Angle > direction); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);

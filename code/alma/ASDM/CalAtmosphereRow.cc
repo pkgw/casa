@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalAtmosphereRow.h>
-#include <CalAtmosphereTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalAtmosphereRow.h>
+#include <alma/ASDM/CalAtmosphereTable.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalDataTable;
 using asdm::CalDataRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalAtmosphereRow::~CalAtmosphereRow() {
@@ -1369,7 +1366,9 @@ namespace asdm {
 		
 			
 		forwardEffSpectrum .clear();
-		vector<float> v_aux_forwardEffSpectrum;
+        
+        vector<float> v_aux_forwardEffSpectrum;
+        
 		for (unsigned int i = 0; i < x.forwardEffSpectrum.length(); ++i) {
 			v_aux_forwardEffSpectrum.clear();
 			for (unsigned int j = 0; j < x.forwardEffSpectrum[0].length(); ++j) {
@@ -1464,7 +1463,9 @@ namespace asdm {
 		
 			
 		powerSkySpectrum .clear();
-		vector<float> v_aux_powerSkySpectrum;
+        
+        vector<float> v_aux_powerSkySpectrum;
+        
 		for (unsigned int i = 0; i < x.powerSkySpectrum.length(); ++i) {
 			v_aux_powerSkySpectrum.clear();
 			for (unsigned int j = 0; j < x.powerSkySpectrum[0].length(); ++j) {
@@ -1520,7 +1521,9 @@ namespace asdm {
 		
 			
 		tAtmSpectrum .clear();
-		vector<Temperature> v_aux_tAtmSpectrum;
+        
+        vector<Temperature> v_aux_tAtmSpectrum;
+        
 		for (unsigned int i = 0; i < x.tAtmSpectrum.length(); ++i) {
 			v_aux_tAtmSpectrum.clear();
 			for (unsigned int j = 0; j < x.tAtmSpectrum[0].length(); ++j) {
@@ -1540,7 +1543,9 @@ namespace asdm {
 		
 			
 		tRecSpectrum .clear();
-		vector<Temperature> v_aux_tRecSpectrum;
+        
+        vector<Temperature> v_aux_tRecSpectrum;
+        
 		for (unsigned int i = 0; i < x.tRecSpectrum.length(); ++i) {
 			v_aux_tRecSpectrum.clear();
 			for (unsigned int j = 0; j < x.tRecSpectrum[0].length(); ++j) {
@@ -1560,7 +1565,9 @@ namespace asdm {
 		
 			
 		tSysSpectrum .clear();
-		vector<Temperature> v_aux_tSysSpectrum;
+        
+        vector<Temperature> v_aux_tSysSpectrum;
+        
 		for (unsigned int i = 0; i < x.tSysSpectrum.length(); ++i) {
 			v_aux_tSysSpectrum.clear();
 			for (unsigned int j = 0; j < x.tSysSpectrum[0].length(); ++j) {
@@ -1580,7 +1587,9 @@ namespace asdm {
 		
 			
 		tauSpectrum .clear();
-		vector<float> v_aux_tauSpectrum;
+        
+        vector<float> v_aux_tauSpectrum;
+        
 		for (unsigned int i = 0; i < x.tauSpectrum.length(); ++i) {
 			v_aux_tauSpectrum.clear();
 			for (unsigned int j = 0; j < x.tauSpectrum[0].length(); ++j) {
@@ -1693,7 +1702,9 @@ namespace asdm {
 		
 			
 		alphaSpectrum .clear();
-		vector<float> v_aux_alphaSpectrum;
+        
+        vector<float> v_aux_alphaSpectrum;
+        
 		for (unsigned int i = 0; i < x.alphaSpectrum.length(); ++i) {
 			v_aux_alphaSpectrum.clear();
 			for (unsigned int j = 0; j < x.alphaSpectrum[0].length(); ++j) {
@@ -1798,7 +1809,9 @@ namespace asdm {
 		
 			
 		sbGainSpectrum .clear();
-		vector<float> v_aux_sbGainSpectrum;
+        
+        vector<float> v_aux_sbGainSpectrum;
+        
 		for (unsigned int i = 0; i < x.sbGainSpectrum.length(); ++i) {
 			v_aux_sbGainSpectrum.clear();
 			for (unsigned int j = 0; j < x.sbGainSpectrum[0].length(); ++j) {
@@ -3101,7 +3114,9 @@ void CalAtmosphereRow::forwardEffSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int forwardEffSpectrumDim1 = eis.readInt();
 		unsigned int forwardEffSpectrumDim2 = eis.readInt();
+        
 		vector <float> forwardEffSpectrumAux1;
+        
 		for (unsigned int i = 0; i < forwardEffSpectrumDim1; i++) {
 			forwardEffSpectrumAux1.clear();
 			for (unsigned int j = 0; j < forwardEffSpectrumDim2 ; j++)			
@@ -3206,7 +3221,9 @@ void CalAtmosphereRow::powerSkySpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int powerSkySpectrumDim1 = eis.readInt();
 		unsigned int powerSkySpectrumDim2 = eis.readInt();
+        
 		vector <float> powerSkySpectrumAux1;
+        
 		for (unsigned int i = 0; i < powerSkySpectrumDim1; i++) {
 			powerSkySpectrumAux1.clear();
 			for (unsigned int j = 0; j < powerSkySpectrumDim2 ; j++)			
@@ -3320,7 +3337,9 @@ void CalAtmosphereRow::tauSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int tauSpectrumDim1 = eis.readInt();
 		unsigned int tauSpectrumDim2 = eis.readInt();
+        
 		vector <float> tauSpectrumAux1;
+        
 		for (unsigned int i = 0; i < tauSpectrumDim1; i++) {
 			tauSpectrumAux1.clear();
 			for (unsigned int j = 0; j < tauSpectrumDim2 ; j++)			
@@ -3441,7 +3460,9 @@ void CalAtmosphereRow::alphaSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int alphaSpectrumDim1 = eis.readInt();
 		unsigned int alphaSpectrumDim2 = eis.readInt();
+        
 		vector <float> alphaSpectrumAux1;
+        
 		for (unsigned int i = 0; i < alphaSpectrumDim1; i++) {
 			alphaSpectrumAux1.clear();
 			for (unsigned int j = 0; j < alphaSpectrumDim2 ; j++)			
@@ -3573,7 +3594,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 		
 		unsigned int sbGainSpectrumDim1 = eis.readInt();
 		unsigned int sbGainSpectrumDim2 = eis.readInt();
+        
 		vector <float> sbGainSpectrumAux1;
+        
 		for (unsigned int i = 0; i < sbGainSpectrumDim1; i++) {
 			sbGainSpectrumAux1.clear();
 			for (unsigned int j = 0; j < sbGainSpectrumDim2 ; j++)			
@@ -3622,7 +3645,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalAtmosphereRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -3630,7 +3655,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalAtmosphereRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -3638,7 +3665,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an BasebandName 
 	void CalAtmosphereRow::basebandNameFromText(const string & s) {
 		 
-		basebandName = ASDMValuesParser::parse<BasebandName>(s);
+          
+		basebandName = ASDMValuesParser::parse<BasebandNameMod::BasebandName>(s);
+          
 		
 	}
 	
@@ -3646,7 +3675,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAtmosphereRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3654,7 +3685,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalAtmosphereRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -3662,7 +3695,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAtmosphereRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3670,7 +3705,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalAtmosphereRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -3678,7 +3715,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAtmosphereRow::numFreqFromText(const string & s) {
 		 
+          
 		numFreq = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3686,7 +3725,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAtmosphereRow::numLoadFromText(const string & s) {
 		 
+          
 		numLoad = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3694,7 +3735,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalAtmosphereRow::numReceptorFromText(const string & s) {
 		 
+          
 		numReceptor = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -3702,7 +3745,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAtmosphereRow::forwardEffSpectrumFromText(const string & s) {
 		 
+          
 		forwardEffSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3710,7 +3755,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalAtmosphereRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3718,7 +3765,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Pressure 
 	void CalAtmosphereRow::groundPressureFromText(const string & s) {
 		 
+          
 		groundPressure = ASDMValuesParser::parse<Pressure>(s);
+          
 		
 	}
 	
@@ -3726,7 +3775,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Humidity 
 	void CalAtmosphereRow::groundRelHumidityFromText(const string & s) {
 		 
+          
 		groundRelHumidity = ASDMValuesParser::parse<Humidity>(s);
+          
 		
 	}
 	
@@ -3734,7 +3785,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalAtmosphereRow::frequencySpectrumFromText(const string & s) {
 		 
+          
 		frequencySpectrum = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -3742,7 +3795,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::groundTemperatureFromText(const string & s) {
 		 
+          
 		groundTemperature = ASDMValuesParser::parse<Temperature>(s);
+          
 		
 	}
 	
@@ -3750,7 +3805,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalAtmosphereRow::polarizationTypesFromText(const string & s) {
 		 
-		polarizationTypes = ASDMValuesParser::parse1D<PolarizationType>(s);
+          
+		polarizationTypes = ASDMValuesParser::parse1D<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -3758,7 +3815,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAtmosphereRow::powerSkySpectrumFromText(const string & s) {
 		 
+          
 		powerSkySpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3766,7 +3825,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAtmosphereRow::powerLoadSpectrumFromText(const string & s) {
 		 
+          
 		powerLoadSpectrum = ASDMValuesParser::parse3D<float>(s);
+          
 		
 	}
 	
@@ -3774,7 +3835,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an SyscalMethod 
 	void CalAtmosphereRow::syscalTypeFromText(const string & s) {
 		 
-		syscalType = ASDMValuesParser::parse<SyscalMethod>(s);
+          
+		syscalType = ASDMValuesParser::parse<SyscalMethodMod::SyscalMethod>(s);
+          
 		
 	}
 	
@@ -3782,7 +3845,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tAtmSpectrumFromText(const string & s) {
 		 
+          
 		tAtmSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -3790,7 +3855,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tRecSpectrumFromText(const string & s) {
 		 
+          
 		tRecSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -3798,7 +3865,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tSysSpectrumFromText(const string & s) {
 		 
+          
 		tSysSpectrum = ASDMValuesParser::parse2D<Temperature>(s);
+          
 		
 	}
 	
@@ -3806,7 +3875,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAtmosphereRow::tauSpectrumFromText(const string & s) {
 		 
+          
 		tauSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3814,7 +3885,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tAtmFromText(const string & s) {
 		 
+          
 		tAtm = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3822,7 +3895,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tRecFromText(const string & s) {
 		 
+          
 		tRec = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3830,7 +3905,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Temperature 
 	void CalAtmosphereRow::tSysFromText(const string & s) {
 		 
+          
 		tSys = ASDMValuesParser::parse1D<Temperature>(s);
+          
 		
 	}
 	
@@ -3838,7 +3915,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalAtmosphereRow::tauFromText(const string & s) {
 		 
+          
 		tau = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -3846,7 +3925,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalAtmosphereRow::waterFromText(const string & s) {
 		 
+          
 		water = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -3854,7 +3935,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalAtmosphereRow::waterErrorFromText(const string & s) {
 		 
+          
 		waterError = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -3864,7 +3947,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::alphaSpectrumFromText(const string & s) {
 		alphaSpectrumExists = true;
 		 
+          
 		alphaSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3873,7 +3958,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::forwardEfficiencyFromText(const string & s) {
 		forwardEfficiencyExists = true;
 		 
+          
 		forwardEfficiency = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -3882,7 +3969,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::forwardEfficiencyErrorFromText(const string & s) {
 		forwardEfficiencyErrorExists = true;
 		 
+          
 		forwardEfficiencyError = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -3891,7 +3980,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::sbGainFromText(const string & s) {
 		sbGainExists = true;
 		 
+          
 		sbGain = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -3900,7 +3991,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::sbGainErrorFromText(const string & s) {
 		sbGainErrorExists = true;
 		 
+          
 		sbGainError = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -3909,7 +4002,9 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	void CalAtmosphereRow::sbGainSpectrumFromText(const string & s) {
 		sbGainSpectrumExists = true;
 		 
+          
 		sbGainSpectrum = ASDMValuesParser::parse2D<float>(s);
+          
 		
 	}
 	
@@ -3967,23 +4062,23 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalAtmosphereRow::getAntennaName() const {
+ 	std::string CalAtmosphereRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalAtmosphereRow::setAntennaName (string antennaName)  {
+ 	void CalAtmosphereRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4199,21 +4294,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get forwardEffSpectrum.
- 	 * @return forwardEffSpectrum as vector<vector<float > >
+ 	 * @return forwardEffSpectrum as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalAtmosphereRow::getForwardEffSpectrum() const {
+ 	std::vector<std::vector<float > > CalAtmosphereRow::getForwardEffSpectrum() const {
 	
   		return forwardEffSpectrum;
  	}
 
  	/**
- 	 * Set forwardEffSpectrum with the specified vector<vector<float > >.
- 	 * @param forwardEffSpectrum The vector<vector<float > > value to which forwardEffSpectrum is to be set.
+ 	 * Set forwardEffSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param forwardEffSpectrum The std::vector<std::vector<float > > value to which forwardEffSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setForwardEffSpectrum (vector<vector<float > > forwardEffSpectrum)  {
+ 	void CalAtmosphereRow::setForwardEffSpectrum (std::vector<std::vector<float > > forwardEffSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4231,21 +4326,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalAtmosphereRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalAtmosphereRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalAtmosphereRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4327,21 +4422,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencySpectrum.
- 	 * @return frequencySpectrum as vector<Frequency >
+ 	 * @return frequencySpectrum as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalAtmosphereRow::getFrequencySpectrum() const {
+ 	std::vector<Frequency > CalAtmosphereRow::getFrequencySpectrum() const {
 	
   		return frequencySpectrum;
  	}
 
  	/**
- 	 * Set frequencySpectrum with the specified vector<Frequency >.
- 	 * @param frequencySpectrum The vector<Frequency > value to which frequencySpectrum is to be set.
+ 	 * Set frequencySpectrum with the specified std::vector<Frequency >.
+ 	 * @param frequencySpectrum The std::vector<Frequency > value to which frequencySpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setFrequencySpectrum (vector<Frequency > frequencySpectrum)  {
+ 	void CalAtmosphereRow::setFrequencySpectrum (std::vector<Frequency > frequencySpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4391,21 +4486,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get polarizationTypes.
- 	 * @return polarizationTypes as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationTypes as std::vector<PolarizationTypeMod::PolarizationType >
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > CalAtmosphereRow::getPolarizationTypes() const {
+ 	std::vector<PolarizationTypeMod::PolarizationType > CalAtmosphereRow::getPolarizationTypes() const {
 	
   		return polarizationTypes;
  	}
 
  	/**
- 	 * Set polarizationTypes with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationTypes The vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
+ 	 * Set polarizationTypes with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationTypes The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationTypes is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setPolarizationTypes (vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
+ 	void CalAtmosphereRow::setPolarizationTypes (std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4423,21 +4518,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get powerSkySpectrum.
- 	 * @return powerSkySpectrum as vector<vector<float > >
+ 	 * @return powerSkySpectrum as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalAtmosphereRow::getPowerSkySpectrum() const {
+ 	std::vector<std::vector<float > > CalAtmosphereRow::getPowerSkySpectrum() const {
 	
   		return powerSkySpectrum;
  	}
 
  	/**
- 	 * Set powerSkySpectrum with the specified vector<vector<float > >.
- 	 * @param powerSkySpectrum The vector<vector<float > > value to which powerSkySpectrum is to be set.
+ 	 * Set powerSkySpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param powerSkySpectrum The std::vector<std::vector<float > > value to which powerSkySpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setPowerSkySpectrum (vector<vector<float > > powerSkySpectrum)  {
+ 	void CalAtmosphereRow::setPowerSkySpectrum (std::vector<std::vector<float > > powerSkySpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4455,21 +4550,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get powerLoadSpectrum.
- 	 * @return powerLoadSpectrum as vector<vector<vector<float > > >
+ 	 * @return powerLoadSpectrum as std::vector<std::vector<std::vector<float > > >
  	 */
- 	vector<vector<vector<float > > > CalAtmosphereRow::getPowerLoadSpectrum() const {
+ 	std::vector<std::vector<std::vector<float > > > CalAtmosphereRow::getPowerLoadSpectrum() const {
 	
   		return powerLoadSpectrum;
  	}
 
  	/**
- 	 * Set powerLoadSpectrum with the specified vector<vector<vector<float > > >.
- 	 * @param powerLoadSpectrum The vector<vector<vector<float > > > value to which powerLoadSpectrum is to be set.
+ 	 * Set powerLoadSpectrum with the specified std::vector<std::vector<std::vector<float > > >.
+ 	 * @param powerLoadSpectrum The std::vector<std::vector<std::vector<float > > > value to which powerLoadSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setPowerLoadSpectrum (vector<vector<vector<float > > > powerLoadSpectrum)  {
+ 	void CalAtmosphereRow::setPowerLoadSpectrum (std::vector<std::vector<std::vector<float > > > powerLoadSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4519,21 +4614,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tAtmSpectrum.
- 	 * @return tAtmSpectrum as vector<vector<Temperature > >
+ 	 * @return tAtmSpectrum as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > CalAtmosphereRow::getTAtmSpectrum() const {
+ 	std::vector<std::vector<Temperature > > CalAtmosphereRow::getTAtmSpectrum() const {
 	
   		return tAtmSpectrum;
  	}
 
  	/**
- 	 * Set tAtmSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tAtmSpectrum The vector<vector<Temperature > > value to which tAtmSpectrum is to be set.
+ 	 * Set tAtmSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tAtmSpectrum The std::vector<std::vector<Temperature > > value to which tAtmSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTAtmSpectrum (vector<vector<Temperature > > tAtmSpectrum)  {
+ 	void CalAtmosphereRow::setTAtmSpectrum (std::vector<std::vector<Temperature > > tAtmSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4551,21 +4646,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tRecSpectrum.
- 	 * @return tRecSpectrum as vector<vector<Temperature > >
+ 	 * @return tRecSpectrum as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > CalAtmosphereRow::getTRecSpectrum() const {
+ 	std::vector<std::vector<Temperature > > CalAtmosphereRow::getTRecSpectrum() const {
 	
   		return tRecSpectrum;
  	}
 
  	/**
- 	 * Set tRecSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tRecSpectrum The vector<vector<Temperature > > value to which tRecSpectrum is to be set.
+ 	 * Set tRecSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tRecSpectrum The std::vector<std::vector<Temperature > > value to which tRecSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTRecSpectrum (vector<vector<Temperature > > tRecSpectrum)  {
+ 	void CalAtmosphereRow::setTRecSpectrum (std::vector<std::vector<Temperature > > tRecSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4583,21 +4678,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tSysSpectrum.
- 	 * @return tSysSpectrum as vector<vector<Temperature > >
+ 	 * @return tSysSpectrum as std::vector<std::vector<Temperature > >
  	 */
- 	vector<vector<Temperature > > CalAtmosphereRow::getTSysSpectrum() const {
+ 	std::vector<std::vector<Temperature > > CalAtmosphereRow::getTSysSpectrum() const {
 	
   		return tSysSpectrum;
  	}
 
  	/**
- 	 * Set tSysSpectrum with the specified vector<vector<Temperature > >.
- 	 * @param tSysSpectrum The vector<vector<Temperature > > value to which tSysSpectrum is to be set.
+ 	 * Set tSysSpectrum with the specified std::vector<std::vector<Temperature > >.
+ 	 * @param tSysSpectrum The std::vector<std::vector<Temperature > > value to which tSysSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTSysSpectrum (vector<vector<Temperature > > tSysSpectrum)  {
+ 	void CalAtmosphereRow::setTSysSpectrum (std::vector<std::vector<Temperature > > tSysSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4615,21 +4710,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tauSpectrum.
- 	 * @return tauSpectrum as vector<vector<float > >
+ 	 * @return tauSpectrum as std::vector<std::vector<float > >
  	 */
- 	vector<vector<float > > CalAtmosphereRow::getTauSpectrum() const {
+ 	std::vector<std::vector<float > > CalAtmosphereRow::getTauSpectrum() const {
 	
   		return tauSpectrum;
  	}
 
  	/**
- 	 * Set tauSpectrum with the specified vector<vector<float > >.
- 	 * @param tauSpectrum The vector<vector<float > > value to which tauSpectrum is to be set.
+ 	 * Set tauSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param tauSpectrum The std::vector<std::vector<float > > value to which tauSpectrum is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTauSpectrum (vector<vector<float > > tauSpectrum)  {
+ 	void CalAtmosphereRow::setTauSpectrum (std::vector<std::vector<float > > tauSpectrum)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4647,21 +4742,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tAtm.
- 	 * @return tAtm as vector<Temperature >
+ 	 * @return tAtm as std::vector<Temperature >
  	 */
- 	vector<Temperature > CalAtmosphereRow::getTAtm() const {
+ 	std::vector<Temperature > CalAtmosphereRow::getTAtm() const {
 	
   		return tAtm;
  	}
 
  	/**
- 	 * Set tAtm with the specified vector<Temperature >.
- 	 * @param tAtm The vector<Temperature > value to which tAtm is to be set.
+ 	 * Set tAtm with the specified std::vector<Temperature >.
+ 	 * @param tAtm The std::vector<Temperature > value to which tAtm is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTAtm (vector<Temperature > tAtm)  {
+ 	void CalAtmosphereRow::setTAtm (std::vector<Temperature > tAtm)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4679,21 +4774,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tRec.
- 	 * @return tRec as vector<Temperature >
+ 	 * @return tRec as std::vector<Temperature >
  	 */
- 	vector<Temperature > CalAtmosphereRow::getTRec() const {
+ 	std::vector<Temperature > CalAtmosphereRow::getTRec() const {
 	
   		return tRec;
  	}
 
  	/**
- 	 * Set tRec with the specified vector<Temperature >.
- 	 * @param tRec The vector<Temperature > value to which tRec is to be set.
+ 	 * Set tRec with the specified std::vector<Temperature >.
+ 	 * @param tRec The std::vector<Temperature > value to which tRec is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTRec (vector<Temperature > tRec)  {
+ 	void CalAtmosphereRow::setTRec (std::vector<Temperature > tRec)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4711,21 +4806,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tSys.
- 	 * @return tSys as vector<Temperature >
+ 	 * @return tSys as std::vector<Temperature >
  	 */
- 	vector<Temperature > CalAtmosphereRow::getTSys() const {
+ 	std::vector<Temperature > CalAtmosphereRow::getTSys() const {
 	
   		return tSys;
  	}
 
  	/**
- 	 * Set tSys with the specified vector<Temperature >.
- 	 * @param tSys The vector<Temperature > value to which tSys is to be set.
+ 	 * Set tSys with the specified std::vector<Temperature >.
+ 	 * @param tSys The std::vector<Temperature > value to which tSys is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTSys (vector<Temperature > tSys)  {
+ 	void CalAtmosphereRow::setTSys (std::vector<Temperature > tSys)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4743,21 +4838,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get tau.
- 	 * @return tau as vector<float >
+ 	 * @return tau as std::vector<float >
  	 */
- 	vector<float > CalAtmosphereRow::getTau() const {
+ 	std::vector<float > CalAtmosphereRow::getTau() const {
 	
   		return tau;
  	}
 
  	/**
- 	 * Set tau with the specified vector<float >.
- 	 * @param tau The vector<float > value to which tau is to be set.
+ 	 * Set tau with the specified std::vector<float >.
+ 	 * @param tau The std::vector<float > value to which tau is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setTau (vector<float > tau)  {
+ 	void CalAtmosphereRow::setTau (std::vector<float > tau)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4775,21 +4870,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get water.
- 	 * @return water as vector<Length >
+ 	 * @return water as std::vector<Length >
  	 */
- 	vector<Length > CalAtmosphereRow::getWater() const {
+ 	std::vector<Length > CalAtmosphereRow::getWater() const {
 	
   		return water;
  	}
 
  	/**
- 	 * Set water with the specified vector<Length >.
- 	 * @param water The vector<Length > value to which water is to be set.
+ 	 * Set water with the specified std::vector<Length >.
+ 	 * @param water The std::vector<Length > value to which water is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setWater (vector<Length > water)  {
+ 	void CalAtmosphereRow::setWater (std::vector<Length > water)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4807,21 +4902,21 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get waterError.
- 	 * @return waterError as vector<Length >
+ 	 * @return waterError as std::vector<Length >
  	 */
- 	vector<Length > CalAtmosphereRow::getWaterError() const {
+ 	std::vector<Length > CalAtmosphereRow::getWaterError() const {
 	
   		return waterError;
  	}
 
  	/**
- 	 * Set waterError with the specified vector<Length >.
- 	 * @param waterError The vector<Length > value to which waterError is to be set.
+ 	 * Set waterError with the specified std::vector<Length >.
+ 	 * @param waterError The std::vector<Length > value to which waterError is to be set.
  	 
  	
  		
  	 */
- 	void CalAtmosphereRow::setWaterError (vector<Length > waterError)  {
+ 	void CalAtmosphereRow::setWaterError (std::vector<Length > waterError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -4847,10 +4942,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get alphaSpectrum, which is optional.
- 	 * @return alphaSpectrum as vector<vector<float > >
+ 	 * @return alphaSpectrum as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If alphaSpectrum does not exist.
  	 */
- 	vector<vector<float > > CalAtmosphereRow::getAlphaSpectrum() const  {
+ 	std::vector<std::vector<float > > CalAtmosphereRow::getAlphaSpectrum() const  {
 		if (!alphaSpectrumExists) {
 			throw IllegalAccessException("alphaSpectrum", "CalAtmosphere");
 		}
@@ -4859,12 +4954,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set alphaSpectrum with the specified vector<vector<float > >.
- 	 * @param alphaSpectrum The vector<vector<float > > value to which alphaSpectrum is to be set.
+ 	 * Set alphaSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param alphaSpectrum The std::vector<std::vector<float > > value to which alphaSpectrum is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setAlphaSpectrum (vector<vector<float > > alphaSpectrum) {
+ 	void CalAtmosphereRow::setAlphaSpectrum (std::vector<std::vector<float > > alphaSpectrum) {
 	
  		this->alphaSpectrum = alphaSpectrum;
 	
@@ -4894,10 +4989,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get forwardEfficiency, which is optional.
- 	 * @return forwardEfficiency as vector<float >
+ 	 * @return forwardEfficiency as std::vector<float >
  	 * @throw IllegalAccessException If forwardEfficiency does not exist.
  	 */
- 	vector<float > CalAtmosphereRow::getForwardEfficiency() const  {
+ 	std::vector<float > CalAtmosphereRow::getForwardEfficiency() const  {
 		if (!forwardEfficiencyExists) {
 			throw IllegalAccessException("forwardEfficiency", "CalAtmosphere");
 		}
@@ -4906,12 +5001,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set forwardEfficiency with the specified vector<float >.
- 	 * @param forwardEfficiency The vector<float > value to which forwardEfficiency is to be set.
+ 	 * Set forwardEfficiency with the specified std::vector<float >.
+ 	 * @param forwardEfficiency The std::vector<float > value to which forwardEfficiency is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setForwardEfficiency (vector<float > forwardEfficiency) {
+ 	void CalAtmosphereRow::setForwardEfficiency (std::vector<float > forwardEfficiency) {
 	
  		this->forwardEfficiency = forwardEfficiency;
 	
@@ -4941,10 +5036,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get forwardEfficiencyError, which is optional.
- 	 * @return forwardEfficiencyError as vector<double >
+ 	 * @return forwardEfficiencyError as std::vector<double >
  	 * @throw IllegalAccessException If forwardEfficiencyError does not exist.
  	 */
- 	vector<double > CalAtmosphereRow::getForwardEfficiencyError() const  {
+ 	std::vector<double > CalAtmosphereRow::getForwardEfficiencyError() const  {
 		if (!forwardEfficiencyErrorExists) {
 			throw IllegalAccessException("forwardEfficiencyError", "CalAtmosphere");
 		}
@@ -4953,12 +5048,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set forwardEfficiencyError with the specified vector<double >.
- 	 * @param forwardEfficiencyError The vector<double > value to which forwardEfficiencyError is to be set.
+ 	 * Set forwardEfficiencyError with the specified std::vector<double >.
+ 	 * @param forwardEfficiencyError The std::vector<double > value to which forwardEfficiencyError is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setForwardEfficiencyError (vector<double > forwardEfficiencyError) {
+ 	void CalAtmosphereRow::setForwardEfficiencyError (std::vector<double > forwardEfficiencyError) {
 	
  		this->forwardEfficiencyError = forwardEfficiencyError;
 	
@@ -4988,10 +5083,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sbGain, which is optional.
- 	 * @return sbGain as vector<float >
+ 	 * @return sbGain as std::vector<float >
  	 * @throw IllegalAccessException If sbGain does not exist.
  	 */
- 	vector<float > CalAtmosphereRow::getSbGain() const  {
+ 	std::vector<float > CalAtmosphereRow::getSbGain() const  {
 		if (!sbGainExists) {
 			throw IllegalAccessException("sbGain", "CalAtmosphere");
 		}
@@ -5000,12 +5095,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sbGain with the specified vector<float >.
- 	 * @param sbGain The vector<float > value to which sbGain is to be set.
+ 	 * Set sbGain with the specified std::vector<float >.
+ 	 * @param sbGain The std::vector<float > value to which sbGain is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setSbGain (vector<float > sbGain) {
+ 	void CalAtmosphereRow::setSbGain (std::vector<float > sbGain) {
 	
  		this->sbGain = sbGain;
 	
@@ -5035,10 +5130,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sbGainError, which is optional.
- 	 * @return sbGainError as vector<float >
+ 	 * @return sbGainError as std::vector<float >
  	 * @throw IllegalAccessException If sbGainError does not exist.
  	 */
- 	vector<float > CalAtmosphereRow::getSbGainError() const  {
+ 	std::vector<float > CalAtmosphereRow::getSbGainError() const  {
 		if (!sbGainErrorExists) {
 			throw IllegalAccessException("sbGainError", "CalAtmosphere");
 		}
@@ -5047,12 +5142,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sbGainError with the specified vector<float >.
- 	 * @param sbGainError The vector<float > value to which sbGainError is to be set.
+ 	 * Set sbGainError with the specified std::vector<float >.
+ 	 * @param sbGainError The std::vector<float > value to which sbGainError is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setSbGainError (vector<float > sbGainError) {
+ 	void CalAtmosphereRow::setSbGainError (std::vector<float > sbGainError) {
 	
  		this->sbGainError = sbGainError;
 	
@@ -5082,10 +5177,10 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sbGainSpectrum, which is optional.
- 	 * @return sbGainSpectrum as vector<vector<float > >
+ 	 * @return sbGainSpectrum as std::vector<std::vector<float > >
  	 * @throw IllegalAccessException If sbGainSpectrum does not exist.
  	 */
- 	vector<vector<float > > CalAtmosphereRow::getSbGainSpectrum() const  {
+ 	std::vector<std::vector<float > > CalAtmosphereRow::getSbGainSpectrum() const  {
 		if (!sbGainSpectrumExists) {
 			throw IllegalAccessException("sbGainSpectrum", "CalAtmosphere");
 		}
@@ -5094,12 +5189,12 @@ void CalAtmosphereRow::sbGainSpectrumFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sbGainSpectrum with the specified vector<vector<float > >.
- 	 * @param sbGainSpectrum The vector<vector<float > > value to which sbGainSpectrum is to be set.
+ 	 * Set sbGainSpectrum with the specified std::vector<std::vector<float > >.
+ 	 * @param sbGainSpectrum The std::vector<std::vector<float > > value to which sbGainSpectrum is to be set.
  	 
  	
  	 */
- 	void CalAtmosphereRow::setSbGainSpectrum (vector<vector<float > > sbGainSpectrum) {
+ 	void CalAtmosphereRow::setSbGainSpectrum (std::vector<std::vector<float > > sbGainSpectrum) {
 	
  		this->sbGainSpectrum = sbGainSpectrum;
 	
@@ -5606,10 +5701,10 @@ syscalType = CSyscalMethod::from_int(0);
 		
 	}
 	
-	CalAtmosphereRow::CalAtmosphereRow (CalAtmosphereTable &t, CalAtmosphereRow &row) : table(t) {
+	CalAtmosphereRow::CalAtmosphereRow (CalAtmosphereTable &t, CalAtmosphereRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -5701,109 +5796,109 @@ syscalType = CSyscalMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numFreq = row.numFreq;
-		
-			numLoad = row.numLoad;
-		
-			numReceptor = row.numReceptor;
-		
-			forwardEffSpectrum = row.forwardEffSpectrum;
-		
-			frequencyRange = row.frequencyRange;
-		
-			groundPressure = row.groundPressure;
-		
-			groundRelHumidity = row.groundRelHumidity;
-		
-			frequencySpectrum = row.frequencySpectrum;
-		
-			groundTemperature = row.groundTemperature;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			powerSkySpectrum = row.powerSkySpectrum;
-		
-			powerLoadSpectrum = row.powerLoadSpectrum;
-		
-			syscalType = row.syscalType;
-		
-			tAtmSpectrum = row.tAtmSpectrum;
-		
-			tRecSpectrum = row.tRecSpectrum;
-		
-			tSysSpectrum = row.tSysSpectrum;
-		
-			tauSpectrum = row.tauSpectrum;
-		
-			tAtm = row.tAtm;
-		
-			tRec = row.tRec;
-		
-			tSys = row.tSys;
-		
-			tau = row.tau;
-		
-			water = row.water;
-		
-			waterError = row.waterError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.alphaSpectrumExists) {
-			alphaSpectrum = row.alphaSpectrum;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numFreq = row->numFreq;
+		
+			numLoad = row->numLoad;
+		
+			numReceptor = row->numReceptor;
+		
+			forwardEffSpectrum = row->forwardEffSpectrum;
+		
+			frequencyRange = row->frequencyRange;
+		
+			groundPressure = row->groundPressure;
+		
+			groundRelHumidity = row->groundRelHumidity;
+		
+			frequencySpectrum = row->frequencySpectrum;
+		
+			groundTemperature = row->groundTemperature;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			powerSkySpectrum = row->powerSkySpectrum;
+		
+			powerLoadSpectrum = row->powerLoadSpectrum;
+		
+			syscalType = row->syscalType;
+		
+			tAtmSpectrum = row->tAtmSpectrum;
+		
+			tRecSpectrum = row->tRecSpectrum;
+		
+			tSysSpectrum = row->tSysSpectrum;
+		
+			tauSpectrum = row->tauSpectrum;
+		
+			tAtm = row->tAtm;
+		
+			tRec = row->tRec;
+		
+			tSys = row->tSys;
+		
+			tau = row->tau;
+		
+			water = row->water;
+		
+			waterError = row->waterError;
+		
+		
+		
+		
+		if (row->alphaSpectrumExists) {
+			alphaSpectrum = row->alphaSpectrum;		
 			alphaSpectrumExists = true;
 		}
 		else
 			alphaSpectrumExists = false;
 		
-		if (row.forwardEfficiencyExists) {
-			forwardEfficiency = row.forwardEfficiency;		
+		if (row->forwardEfficiencyExists) {
+			forwardEfficiency = row->forwardEfficiency;		
 			forwardEfficiencyExists = true;
 		}
 		else
 			forwardEfficiencyExists = false;
 		
-		if (row.forwardEfficiencyErrorExists) {
-			forwardEfficiencyError = row.forwardEfficiencyError;		
+		if (row->forwardEfficiencyErrorExists) {
+			forwardEfficiencyError = row->forwardEfficiencyError;		
 			forwardEfficiencyErrorExists = true;
 		}
 		else
 			forwardEfficiencyErrorExists = false;
 		
-		if (row.sbGainExists) {
-			sbGain = row.sbGain;		
+		if (row->sbGainExists) {
+			sbGain = row->sbGain;		
 			sbGainExists = true;
 		}
 		else
 			sbGainExists = false;
 		
-		if (row.sbGainErrorExists) {
-			sbGainError = row.sbGainError;		
+		if (row->sbGainErrorExists) {
+			sbGainError = row->sbGainError;		
 			sbGainErrorExists = true;
 		}
 		else
 			sbGainErrorExists = false;
 		
-		if (row.sbGainSpectrumExists) {
-			sbGainSpectrum = row.sbGainSpectrum;		
+		if (row->sbGainSpectrumExists) {
+			sbGainSpectrum = row->sbGainSpectrum;		
 			sbGainSpectrumExists = true;
 		}
 		else
@@ -5853,7 +5948,7 @@ syscalType = CSyscalMethod::from_int(0);
 	}
 
 	
-	bool CalAtmosphereRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError) {
+	bool CalAtmosphereRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError) {
 		bool result;
 		result = true;
 		
@@ -6072,7 +6167,7 @@ syscalType = CSyscalMethod::from_int(0);
 	
 	
 	
-	bool CalAtmosphereRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, vector<vector<float > > forwardEffSpectrum, vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, vector<Frequency > frequencySpectrum, Temperature groundTemperature, vector<PolarizationTypeMod::PolarizationType > polarizationTypes, vector<vector<float > > powerSkySpectrum, vector<vector<vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, vector<vector<Temperature > > tAtmSpectrum, vector<vector<Temperature > > tRecSpectrum, vector<vector<Temperature > > tSysSpectrum, vector<vector<float > > tauSpectrum, vector<Temperature > tAtm, vector<Temperature > tRec, vector<Temperature > tSys, vector<float > tau, vector<Length > water, vector<Length > waterError) {
+	bool CalAtmosphereRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, int numFreq, int numLoad, int numReceptor, std::vector<std::vector<float > > forwardEffSpectrum, std::vector<Frequency > frequencyRange, Pressure groundPressure, Humidity groundRelHumidity, std::vector<Frequency > frequencySpectrum, Temperature groundTemperature, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, std::vector<std::vector<float > > powerSkySpectrum, std::vector<std::vector<std::vector<float > > > powerLoadSpectrum, SyscalMethodMod::SyscalMethod syscalType, std::vector<std::vector<Temperature > > tAtmSpectrum, std::vector<std::vector<Temperature > > tRecSpectrum, std::vector<std::vector<Temperature > > tSysSpectrum, std::vector<std::vector<float > > tauSpectrum, std::vector<Temperature > tAtm, std::vector<Temperature > tRec, std::vector<Temperature > tSys, std::vector<float > tau, std::vector<Length > water, std::vector<Length > waterError) {
 		bool result;
 		result = true;
 		

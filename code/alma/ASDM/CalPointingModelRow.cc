@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalPointingModelRow.h>
-#include <CalPointingModelTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalPointingModelRow.h>
+#include <alma/ASDM/CalPointingModelTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalPointingModelRow::~CalPointingModelRow() {
@@ -1833,7 +1830,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPointingModelRow::antennaNameFromText(const string & s) {
 		 
+          
 		antennaName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1841,7 +1840,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void CalPointingModelRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1849,7 +1850,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPointingModelRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1857,7 +1860,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalPointingModelRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1865,7 +1870,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPointingModelRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1873,7 +1880,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalPointingModelRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1881,7 +1890,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an AntennaMake 
 	void CalPointingModelRow::antennaMakeFromText(const string & s) {
 		 
-		antennaMake = ASDMValuesParser::parse<AntennaMake>(s);
+          
+		antennaMake = ASDMValuesParser::parse<AntennaMakeMod::AntennaMake>(s);
+          
 		
 	}
 	
@@ -1889,7 +1900,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an PointingModelMode 
 	void CalPointingModelRow::pointingModelModeFromText(const string & s) {
 		 
-		pointingModelMode = ASDMValuesParser::parse<PointingModelMode>(s);
+          
+		pointingModelMode = ASDMValuesParser::parse<PointingModelModeMod::PointingModelMode>(s);
+          
 		
 	}
 	
@@ -1897,7 +1910,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void CalPointingModelRow::polarizationTypeFromText(const string & s) {
 		 
-		polarizationType = ASDMValuesParser::parse<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1905,7 +1920,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalPointingModelRow::numCoeffFromText(const string & s) {
 		 
+          
 		numCoeff = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1913,7 +1930,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void CalPointingModelRow::coeffNameFromText(const string & s) {
 		 
+          
 		coeffName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1921,7 +1940,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPointingModelRow::coeffValFromText(const string & s) {
 		 
+          
 		coeffVal = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1929,7 +1950,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void CalPointingModelRow::coeffErrorFromText(const string & s) {
 		 
+          
 		coeffError = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1937,7 +1960,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void CalPointingModelRow::coeffFixedFromText(const string & s) {
 		 
+          
 		coeffFixed = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -1945,7 +1970,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingModelRow::azimuthRMSFromText(const string & s) {
 		 
+          
 		azimuthRMS = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1953,7 +1980,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingModelRow::elevationRmsFromText(const string & s) {
 		 
+          
 		elevationRms = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1961,7 +1990,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalPointingModelRow::skyRMSFromText(const string & s) {
 		 
+          
 		skyRMS = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1969,7 +2000,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void CalPointingModelRow::reducedChiSquaredFromText(const string & s) {
 		 
+          
 		reducedChiSquared = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1979,7 +2012,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	void CalPointingModelRow::numObsFromText(const string & s) {
 		numObsExists = true;
 		 
+          
 		numObs = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1988,7 +2023,9 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	void CalPointingModelRow::coeffFormulaFromText(const string & s) {
 		coeffFormulaExists = true;
 		 
+          
 		coeffFormula = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -2010,23 +2047,23 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get antennaName.
- 	 * @return antennaName as string
+ 	 * @return antennaName as std::string
  	 */
- 	string CalPointingModelRow::getAntennaName() const {
+ 	std::string CalPointingModelRow::getAntennaName() const {
 	
   		return antennaName;
  	}
 
  	/**
- 	 * Set antennaName with the specified string.
- 	 * @param antennaName The string value to which antennaName is to be set.
+ 	 * Set antennaName with the specified std::string.
+ 	 * @param antennaName The std::string value to which antennaName is to be set.
  	 
  	
  		
  	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
  	 	
  	 */
- 	void CalPointingModelRow::setAntennaName (string antennaName)  {
+ 	void CalPointingModelRow::setAntennaName (std::string antennaName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2274,21 +2311,21 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > CalPointingModelRow::getCoeffName() const {
+ 	std::vector<std::string > CalPointingModelRow::getCoeffName() const {
 	
   		return coeffName;
  	}
 
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingModelRow::setCoeffName (vector<string > coeffName)  {
+ 	void CalPointingModelRow::setCoeffName (std::vector<std::string > coeffName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2306,21 +2343,21 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffVal.
- 	 * @return coeffVal as vector<float >
+ 	 * @return coeffVal as std::vector<float >
  	 */
- 	vector<float > CalPointingModelRow::getCoeffVal() const {
+ 	std::vector<float > CalPointingModelRow::getCoeffVal() const {
 	
   		return coeffVal;
  	}
 
  	/**
- 	 * Set coeffVal with the specified vector<float >.
- 	 * @param coeffVal The vector<float > value to which coeffVal is to be set.
+ 	 * Set coeffVal with the specified std::vector<float >.
+ 	 * @param coeffVal The std::vector<float > value to which coeffVal is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingModelRow::setCoeffVal (vector<float > coeffVal)  {
+ 	void CalPointingModelRow::setCoeffVal (std::vector<float > coeffVal)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2338,21 +2375,21 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffError.
- 	 * @return coeffError as vector<float >
+ 	 * @return coeffError as std::vector<float >
  	 */
- 	vector<float > CalPointingModelRow::getCoeffError() const {
+ 	std::vector<float > CalPointingModelRow::getCoeffError() const {
 	
   		return coeffError;
  	}
 
  	/**
- 	 * Set coeffError with the specified vector<float >.
- 	 * @param coeffError The vector<float > value to which coeffError is to be set.
+ 	 * Set coeffError with the specified std::vector<float >.
+ 	 * @param coeffError The std::vector<float > value to which coeffError is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingModelRow::setCoeffError (vector<float > coeffError)  {
+ 	void CalPointingModelRow::setCoeffError (std::vector<float > coeffError)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2370,21 +2407,21 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFixed.
- 	 * @return coeffFixed as vector<bool >
+ 	 * @return coeffFixed as std::vector<bool >
  	 */
- 	vector<bool > CalPointingModelRow::getCoeffFixed() const {
+ 	std::vector<bool > CalPointingModelRow::getCoeffFixed() const {
 	
   		return coeffFixed;
  	}
 
  	/**
- 	 * Set coeffFixed with the specified vector<bool >.
- 	 * @param coeffFixed The vector<bool > value to which coeffFixed is to be set.
+ 	 * Set coeffFixed with the specified std::vector<bool >.
+ 	 * @param coeffFixed The std::vector<bool > value to which coeffFixed is to be set.
  	 
  	
  		
  	 */
- 	void CalPointingModelRow::setCoeffFixed (vector<bool > coeffFixed)  {
+ 	void CalPointingModelRow::setCoeffFixed (std::vector<bool > coeffFixed)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2585,10 +2622,10 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFormula, which is optional.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 * @throw IllegalAccessException If coeffFormula does not exist.
  	 */
- 	vector<string > CalPointingModelRow::getCoeffFormula() const  {
+ 	std::vector<std::string > CalPointingModelRow::getCoeffFormula() const  {
 		if (!coeffFormulaExists) {
 			throw IllegalAccessException("coeffFormula", "CalPointingModel");
 		}
@@ -2597,12 +2634,12 @@ void CalPointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  	
  	 */
- 	void CalPointingModelRow::setCoeffFormula (vector<string > coeffFormula) {
+ 	void CalPointingModelRow::setCoeffFormula (std::vector<std::string > coeffFormula) {
 	
  		this->coeffFormula = coeffFormula;
 	
@@ -2960,10 +2997,10 @@ polarizationType = CPolarizationType::from_int(0);
 		
 	}
 	
-	CalPointingModelRow::CalPointingModelRow (CalPointingModelTable &t, CalPointingModelRow &row) : table(t) {
+	CalPointingModelRow::CalPointingModelRow (CalPointingModelTable &t, CalPointingModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3015,57 +3052,57 @@ polarizationType = CPolarizationType::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			antennaMake = row.antennaMake;
-		
-			pointingModelMode = row.pointingModelMode;
-		
-			polarizationType = row.polarizationType;
-		
-			numCoeff = row.numCoeff;
-		
-			coeffName = row.coeffName;
-		
-			coeffVal = row.coeffVal;
-		
-			coeffError = row.coeffError;
-		
-			coeffFixed = row.coeffFixed;
-		
-			azimuthRMS = row.azimuthRMS;
-		
-			elevationRms = row.elevationRms;
-		
-			skyRMS = row.skyRMS;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.numObsExists) {
-			numObs = row.numObs;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			antennaMake = row->antennaMake;
+		
+			pointingModelMode = row->pointingModelMode;
+		
+			polarizationType = row->polarizationType;
+		
+			numCoeff = row->numCoeff;
+		
+			coeffName = row->coeffName;
+		
+			coeffVal = row->coeffVal;
+		
+			coeffError = row->coeffError;
+		
+			coeffFixed = row->coeffFixed;
+		
+			azimuthRMS = row->azimuthRMS;
+		
+			elevationRms = row->elevationRms;
+		
+			skyRMS = row->skyRMS;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->numObsExists) {
+			numObs = row->numObs;		
 			numObsExists = true;
 		}
 		else
 			numObsExists = false;
 		
-		if (row.coeffFormulaExists) {
-			coeffFormula = row.coeffFormula;		
+		if (row->coeffFormulaExists) {
+			coeffFormula = row->coeffFormula;		
 			coeffFormulaExists = true;
 		}
 		else
@@ -3099,7 +3136,7 @@ polarizationType = CPolarizationType::from_int(0);
 	}
 
 	
-	bool CalPointingModelRow::compareNoAutoInc(string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
+	bool CalPointingModelRow::compareNoAutoInc(std::string antennaName, ReceiverBandMod::ReceiverBand receiverBand, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
 		bool result;
 		result = true;
 		
@@ -3234,7 +3271,7 @@ polarizationType = CPolarizationType::from_int(0);
 	
 	
 	
-	bool CalPointingModelRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, vector<string > coeffName, vector<float > coeffVal, vector<float > coeffError, vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
+	bool CalPointingModelRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, AntennaMakeMod::AntennaMake antennaMake, PointingModelModeMod::PointingModelMode pointingModelMode, PolarizationTypeMod::PolarizationType polarizationType, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, std::vector<float > coeffError, std::vector<bool > coeffFixed, Angle azimuthRMS, Angle elevationRms, Angle skyRMS, double reducedChiSquared) {
 		bool result;
 		result = true;
 		

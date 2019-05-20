@@ -23,7 +23,7 @@
 #ifndef ChannelAverageTVITest_H_
 #define ChannelAverageTVITest_H_
 
-#include <mstransform/TVI/test/TestUtilsTVI.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <mstransform/TVI/ChannelAverageTVI.h>
 #include <mstransform/MSTransform/MSTransformIteratorFactory.h>
 
@@ -35,16 +35,17 @@ using namespace casa::vi;
 /////////////////////////////////////////////////////////////////////////
 // ChannelAverageTVITest class
 /////////////////////////////////////////////////////////////////////////
-class ChannelAverageTVITest: public FreqAxisTVITest {
+class ChannelAverageTVICompareTest: public FreqAxisTVITest {
 
 public:
 
-	ChannelAverageTVITest();
-	ChannelAverageTVITest(casacore::Record configuration);
+    ChannelAverageTVICompareTest();
+    ChannelAverageTVICompareTest(casacore::Record configuration);
 
     void TestBody();
-    void testCompareTransformedData();
-    void testComparePropagatedFlags();
+    void testCompareMSTransformTransformedData();
+    void testCompareMSTransformPropagatedFlags();
+    void testWriteFlags();
 
 protected:
 
@@ -53,6 +54,29 @@ protected:
     void generateReferenceFile();
     void initTestConfiguration(casacore::Record &configuration);
     void initReferenceConfiguration(casacore::Record &configuration);
+};
+
+class ChannelAverageTVISpwChannTest: public MsFactoryTVITester {
+
+public:
+
+    ChannelAverageTVISpwChannTest();
+
+    void createTVIs();
+
+    void useMSSelection(bool use);
+
+    void addPassThroughTVI(bool use);
+
+    void addExtraAvgTVI(bool use);
+
+protected:
+
+    bool useMSSelection_p;
+
+    bool addPassThroughTVI_p;
+
+    bool addExtraAvgTVI_p;
 };
 
 #endif /* ChannelAverageTVITest_H_ */

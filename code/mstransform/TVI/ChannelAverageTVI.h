@@ -86,7 +86,7 @@ protected:
     void initialize();
 
 	casacore::Vector<casacore::Int> chanbin_p;
-	mutable map<casacore::Int,casacore::uInt > spwChanbinMap_p; // Must be accessed from const methods
+	mutable std::map<casacore::Int,casacore::uInt > spwChanbinMap_p; // Must be accessed from const methods
 
 #ifdef _OPENMP
   mutable casacore::Double Tfl_,Tws_,Tcd_,Tmd_,Tss_,Tchave_;
@@ -102,11 +102,11 @@ class ChannelAverageTVIFactory : public ViFactory
 
 public:
 
-	ChannelAverageTVIFactory(casacore::Record &configuration,ViImplementation2 *inputVII);
+	ChannelAverageTVIFactory(casacore::Record &configuration,
+	                         ViImplementation2 *inputVII);
 
 protected:
 
-	vi::ViImplementation2 * createVi (VisibilityIterator2 *) const;
 	vi::ViImplementation2 * createVi () const;
 
 	casacore::Record configuration_p;

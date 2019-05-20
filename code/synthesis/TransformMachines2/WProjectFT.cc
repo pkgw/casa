@@ -447,13 +447,15 @@ Vector<Float> sincConvX(nx);
 
 void WProjectFT::finalizeToVis()
 {
+  logIO() << LogOrigin("WProjectFT", "finalizeToVis")  << LogIO::NORMAL;
+  logIO() <<LogIO::NORMAL2<< "Time to degrid " << timedegrid_p << LogIO::POST ;
   timedegrid_p=0.0;
   if(!arrayLattice.null()) arrayLattice=0;
   if(!lattice.null()) lattice=0;
   griddedData.resize();
   if(isTiled) {
     
-    logIO() << LogOrigin("WProjectFT", "finalizeToVis")  << LogIO::NORMAL;
+   
     
     AlwaysAssert(imageCache, AipsError);
     AlwaysAssert(image, AipsError);
@@ -529,6 +531,9 @@ void WProjectFT::initializeToSky(ImageInterface<Complex>& iimage,
 
 void WProjectFT::finalizeToSky()
 {
+  logIO() << LogOrigin("WProjectFT", "finalizeToSky")  << LogIO::NORMAL;
+  logIO() <<LogIO::NORMAL2<< "Time to massage data " << timemass_p << LogIO::POST;
+  logIO() << LogIO::NORMAL2 <<"Time to grid data " << timegrid_p << LogIO::POST;
   timemass_p=0.0;
   timegrid_p=0.0;
   // Now we flush the cache and report statistics
@@ -779,16 +784,17 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   Timer tim;
    tim.mark();
 
-  const Matrix<Float> *imagingweight;
-  imagingweight=&(vb.imagingWeight());
-
+   //const Matrix<Float> *imagingweight;
+   //imagingweight=&(vb.imagingWeight());
+   Matrix<Float> imagingweight;
+   getImagingWeight(imagingweight, vb);
   if(dopsf) type=FTMachine::PSF;
 
   Cube<Complex> data;
   //Fortran gridder need the flag as ints 
   Cube<Int> flags;
   Matrix<Float> elWeight;
-  interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+  interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
   
   
   Bool iswgtCopy;
@@ -919,8 +925,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
   ixsub=1;
   iysub=1;
   if (nth >4){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else {
      ixsub=2;
@@ -955,7 +961,7 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     sumwgt[icounter].resize(sumWeight.shape());
     sumwgt[icounter].set(0.0);
   }
-  if(!doneThreadPartition_p){
+  if(doneThreadPartition_p < 0){
     xsect_p.resize(ixsub*iysub);
     ysect_p.resize(ixsub*iysub);
     nxsect_p.resize(ixsub*iysub);
@@ -963,7 +969,6 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
       findGridSector(nxp, nyp, ixsub, iysub, minx, miny, icounter, xsect_p(icounter), ysect_p(icounter), nxsect_p(icounter), nysect_p(icounter), true);
     }
-    doneThreadPartition_p=True;
   }
   Vector<Int> xsect, ysect, nxsect, nysect;
   xsect=xsect_p; ysect=ysect_p; nxsect=nxsect_p; nysect=nysect_p;
@@ -1008,7 +1013,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-     //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1055,7 +1061,8 @@ void WProjectFT::put(const VisBuffer2& vb, Int row, Bool dopsf,
 		 phasorstor);
     }
     }//end pragma parallel
-    //tweakGridSector(nx, ny, ixsub, iysub);
+    if(dopsf && (nth > 4))
+      tweakGridSector(nx, ny, ixsub, iysub);
     timegrid_p+=tim.real();
 
     for (icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1092,6 +1099,15 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
   
+  
+//Channel matching for the actual spectral window of buffer
+    matchChannel(vb);
+ 
+  //No point in reading data if its not matching in frequency
+  if(max(chanMap)==-1)
+    return;
+
+
   // Get the uvws in a form that Fortran can use
   Matrix<Double> uvw(negateUV(vb));
   Vector<Double> dphase(vb.nRows());
@@ -1109,19 +1125,7 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
   //  matchAllSpwChans(vb);
   //Here we redo the match or use previous match
   
-  //Channel matching for the actual spectral window of buffer
-  //if(doConversion_p[vb.spectralWindows()[0]]){
-    matchChannel(vb);
-  //}
-  //else{
-  //  chanMap.resize();
-  //  chanMap=multiChanMap_p[vb.spectralWindows()[0]];
-  //}
   
-  //No point in reading data if its not matching in frequency
-  if(max(chanMap)==-1)
-    return;
-
   Cube<Complex> data;
   Cube<Int> flags;
   getInterpolateArrays(vb, data, flags);
@@ -1201,7 +1205,7 @@ void WProjectFT::get(VisBuffer2& vb, Int row)
   }//end pragma parallel
   Int rbeg=startRow+1;
   Int rend=endRow+1;
-  Int npart=nth*2;
+  Int npart=nth;
   Timer tim;
   tim.mark();
  
@@ -1288,6 +1292,7 @@ ImageInterface<Complex>& WProjectFT::getImage(Matrix<Float>& weights,
       LatticeFFT::cfft2d(darrayLattice,false);
       griddedData.resize(griddedData2.shape());
       convertArray(griddedData, griddedData2);
+      SynthesisUtilMethods::getResource("mem peak in getImage");
       griddedData2.resize();
       arrayLattice = new ArrayLattice<Complex>(griddedData);
       lattice=arrayLattice;

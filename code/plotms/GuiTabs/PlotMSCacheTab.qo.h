@@ -58,7 +58,7 @@ public:
     
     
     // See PlotMSPlotTab::selectedLoadOrReleaseAxes().
-    vector<PMS::Axis> selectedLoadOrReleaseAxes(bool load) const;
+    std::vector<PMS::Axis> selectedLoadOrReleaseAxes(bool load) const;
 };
 
 }

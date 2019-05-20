@@ -48,15 +48,15 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -79,7 +79,7 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
@@ -88,12 +88,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Field.h
     \brief Generated from model's revision "-1", branch ""
@@ -116,7 +116,7 @@ class FieldRow;
 
 class FieldRow;
 typedef void (FieldRow::*FieldAttributeFromBin) (EndianIStream& eis);
-typedef void (FieldRow::*FieldAttributeFromText) (const string& s);
+typedef void (FieldRow::*FieldAttributeFromText) (const std::string& s);
 
 /**
  * The FieldRow class is a row of a FieldTable.
@@ -177,21 +177,21 @@ public:
 	
  	/**
  	 * Get fieldName.
- 	 * @return fieldName as string
+ 	 * @return fieldName as std::string
  	 */
- 	string getFieldName() const;
+ 	std::string getFieldName() const;
 	
  
  	
  	
  	/**
- 	 * Set fieldName with the specified string.
- 	 * @param fieldName The string value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::string.
+ 	 * @param fieldName The std::string value to which fieldName is to be set.
  	 
  		
  			
  	 */
- 	void setFieldName (string fieldName);
+ 	void setFieldName (std::string fieldName);
   		
 	
 	
@@ -237,21 +237,21 @@ public:
 	
  	/**
  	 * Get delayDir.
- 	 * @return delayDir as vector<vector<Angle > >
+ 	 * @return delayDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > getDelayDir() const;
+ 	std::vector<std::vector<Angle > > getDelayDir() const;
 	
  
  	
  	
  	/**
- 	 * Set delayDir with the specified vector<vector<Angle > >.
- 	 * @param delayDir The vector<vector<Angle > > value to which delayDir is to be set.
+ 	 * Set delayDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param delayDir The std::vector<std::vector<Angle > > value to which delayDir is to be set.
  	 
  		
  			
  	 */
- 	void setDelayDir (vector<vector<Angle > > delayDir);
+ 	void setDelayDir (std::vector<std::vector<Angle > > delayDir);
   		
 	
 	
@@ -267,21 +267,21 @@ public:
 	
  	/**
  	 * Get phaseDir.
- 	 * @return phaseDir as vector<vector<Angle > >
+ 	 * @return phaseDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > getPhaseDir() const;
+ 	std::vector<std::vector<Angle > > getPhaseDir() const;
 	
  
  	
  	
  	/**
- 	 * Set phaseDir with the specified vector<vector<Angle > >.
- 	 * @param phaseDir The vector<vector<Angle > > value to which phaseDir is to be set.
+ 	 * Set phaseDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param phaseDir The std::vector<std::vector<Angle > > value to which phaseDir is to be set.
  	 
  		
  			
  	 */
- 	void setPhaseDir (vector<vector<Angle > > phaseDir);
+ 	void setPhaseDir (std::vector<std::vector<Angle > > phaseDir);
   		
 	
 	
@@ -297,21 +297,21 @@ public:
 	
  	/**
  	 * Get referenceDir.
- 	 * @return referenceDir as vector<vector<Angle > >
+ 	 * @return referenceDir as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > getReferenceDir() const;
+ 	std::vector<std::vector<Angle > > getReferenceDir() const;
 	
  
  	
  	
  	/**
- 	 * Set referenceDir with the specified vector<vector<Angle > >.
- 	 * @param referenceDir The vector<vector<Angle > > value to which referenceDir is to be set.
+ 	 * Set referenceDir with the specified std::vector<std::vector<Angle > >.
+ 	 * @param referenceDir The std::vector<std::vector<Angle > > value to which referenceDir is to be set.
  	 
  		
  			
  	 */
- 	void setReferenceDir (vector<vector<Angle > > referenceDir);
+ 	void setReferenceDir (std::vector<std::vector<Angle > > referenceDir);
   		
 	
 	
@@ -374,21 +374,21 @@ public:
 	
  	/**
  	 * Get code, which is optional.
- 	 * @return code as string
+ 	 * @return code as std::string
  	 * @throws IllegalAccessException If code does not exist.
  	 */
- 	string getCode() const;
+ 	std::string getCode() const;
 	
  
  	
  	
  	/**
- 	 * Set code with the specified string.
- 	 * @param code The string value to which code is to be set.
+ 	 * Set code with the specified std::string.
+ 	 * @param code The std::string value to which code is to be set.
  	 
  		
  	 */
- 	void setCode (string code);
+ 	void setCode (std::string code);
 		
 	
 	
@@ -497,21 +497,21 @@ public:
 	
  	/**
  	 * Get assocNature, which is optional.
- 	 * @return assocNature as string
+ 	 * @return assocNature as std::string
  	 * @throws IllegalAccessException If assocNature does not exist.
  	 */
- 	string getAssocNature() const;
+ 	std::string getAssocNature() const;
 	
  
  	
  	
  	/**
- 	 * Set assocNature with the specified string.
- 	 * @param assocNature The string value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::string.
+ 	 * @param assocNature The std::string value to which assocNature is to be set.
  	 
  		
  	 */
- 	void setAssocNature (string assocNature);
+ 	void setAssocNature (std::string assocNature);
 		
 	
 	
@@ -665,7 +665,7 @@ public:
 	 * 
 	 * @return a vector of EphemerisRow *
 	 */
-	vector <EphemerisRow *> getEphemeriss();
+	std::vector <EphemerisRow *> getEphemeriss();
 	
 	
 
@@ -682,7 +682,7 @@ public:
 	 * 
 	 * @return a vector of SourceRow *
 	 */
-	vector <SourceRow *> getSources();
+	std::vector <SourceRow *> getSources();
 	
 	
 
@@ -723,7 +723,7 @@ public:
 	 * @param referenceDir
 	    
 	 */ 
-	bool compareNoAutoInc(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir);
+	bool compareNoAutoInc(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir);
 	
 	
 
@@ -743,7 +743,7 @@ public:
 	 * @param referenceDir
 	    
 	 */ 
-	bool compareRequiredValue(string fieldName, int numPoly, vector<vector<Angle > > delayDir, vector<vector<Angle > > phaseDir, vector<vector<Angle > > referenceDir); 
+	bool compareRequiredValue(std::string fieldName, int numPoly, std::vector<std::vector<Angle > > delayDir, std::vector<std::vector<Angle > > phaseDir, std::vector<std::vector<Angle > > referenceDir); 
 		 
 	
 	/**
@@ -878,7 +878,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FieldRow (FieldTable &table, FieldRow &row);
+	 FieldRow (FieldTable &table, FieldRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -912,7 +912,7 @@ private:
 	
 	
 
-	string fieldName;
+	std::string fieldName;
 
 	
 	
@@ -934,7 +934,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > delayDir;
+	std::vector<std::vector<Angle > > delayDir;
 
 	
 	
@@ -945,7 +945,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > phaseDir;
+	std::vector<std::vector<Angle > > phaseDir;
 
 	
 	
@@ -956,7 +956,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > referenceDir;
+	std::vector<std::vector<Angle > > referenceDir;
 
 	
 	
@@ -982,7 +982,7 @@ private:
 	bool codeExists;
 	
 
-	string code;
+	std::string code;
 
 	
 	
@@ -1021,7 +1021,7 @@ private:
 	bool assocNatureExists;
 	
 
-	string assocNature;
+	std::string assocNature;
 
 	
 	
@@ -1122,47 +1122,47 @@ void assocFieldIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FieldAttributeFromText> fromTextMethods;
 	
-void fieldIdFromText (const string & s);
+void fieldIdFromText (const std::string & s);
 	
 	
-void fieldNameFromText (const string & s);
+void fieldNameFromText (const std::string & s);
 	
 	
-void numPolyFromText (const string & s);
+void numPolyFromText (const std::string & s);
 	
 	
-void delayDirFromText (const string & s);
+void delayDirFromText (const std::string & s);
 	
 	
-void phaseDirFromText (const string & s);
+void phaseDirFromText (const std::string & s);
 	
 	
-void referenceDirFromText (const string & s);
+void referenceDirFromText (const std::string & s);
 	
 
 	
-void timeFromText (const string & s);
+void timeFromText (const std::string & s);
 	
 	
-void codeFromText (const string & s);
+void codeFromText (const std::string & s);
 	
 	
-void directionCodeFromText (const string & s);
+void directionCodeFromText (const std::string & s);
 	
 	
-void directionEquinoxFromText (const string & s);
+void directionEquinoxFromText (const std::string & s);
 	
 	
-void assocNatureFromText (const string & s);
+void assocNatureFromText (const std::string & s);
 	
 	
-void ephemerisIdFromText (const string & s);
+void ephemerisIdFromText (const std::string & s);
 	
 	
-void sourceIdFromText (const string & s);
+void sourceIdFromText (const std::string & s);
 	
 	
-void assocFieldIdFromText (const string & s);
+void assocFieldIdFromText (const std::string & s);
 	
 	
 	

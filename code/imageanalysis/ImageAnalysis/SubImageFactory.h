@@ -87,7 +87,7 @@ public:
 	// dropping degenerate axes or if coordinate order and axes order are the same in the input
 	// image's coordinate system, the output axex order will always be preserved.
 
-	static SHARED_PTR<casacore::SubImage<T> > createSubImageRW(
+	static std::shared_ptr<casacore::SubImage<T> > createSubImageRW(
 		casacore::CountedPtr<casacore::ImageRegion>& outRegion, casacore::CountedPtr<casacore::ImageRegion>& outMask,
 		casacore::ImageInterface<T>& inImage, const casacore::Record& region,
 		const casacore::String& mask, casacore::LogIO *const &os,
@@ -97,7 +97,7 @@ public:
 
 	// variant on previous method where caller doesn't have to worry
 	// about creating pointers it does not need returned.
-	static SHARED_PTR<casacore::SubImage<T> > createSubImageRW(
+	static std::shared_ptr<casacore::SubImage<T> > createSubImageRW(
 		casacore::ImageInterface<T>& inImage, const casacore::Record& region,
 		const casacore::String& mask, casacore::LogIO *const &os,
 		const casacore::AxesSpecifier& axesSpecifier=casacore::AxesSpecifier(),
@@ -106,7 +106,7 @@ public:
 
 	// The const casacore::ImageInterface versions where the resulting casacore::SubImage is not
 	// writable.
-	static SHARED_PTR<const casacore::SubImage<T> > createSubImageRO(
+	static std::shared_ptr<const casacore::SubImage<T> > createSubImageRO(
 		casacore::CountedPtr<casacore::ImageRegion>& outRegion, casacore::CountedPtr<casacore::ImageRegion>& outMask,
 		const casacore::ImageInterface<T>& inImage, const casacore::Record& region,
 		const casacore::String& mask, casacore::LogIO *const &os,
@@ -116,7 +116,7 @@ public:
 
 	// variant on previous method where caller doesn't have to worry
 	// about creating pointers it does not need returned.
-	static SHARED_PTR<const casacore::SubImage<T> > createSubImageRO(
+	static std::shared_ptr<const casacore::SubImage<T> > createSubImageRO(
 		const casacore::ImageInterface<T>& inImage, const casacore::Record& region,
 		const casacore::String& mask, casacore::LogIO *const &os,
 		const casacore::AxesSpecifier& axesSpecifier=casacore::AxesSpecifier(),

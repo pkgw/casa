@@ -48,35 +48,35 @@
 
 
 	 
-#include <Speed.h>
+#include <alma/ASDM/Speed.h>
 	
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 	 
-#include <Temperature.h>
+#include <alma/ASDM/Temperature.h>
 	
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <Length.h>
+#include <alma/ASDM/Length.h>
 	
 
 	 
-#include <Humidity.h>
+#include <alma/ASDM/Humidity.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Pressure.h>
+#include <alma/ASDM/Pressure.h>
 	
 
 
@@ -114,12 +114,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Weather.h
     \brief Generated from model's revision "-1", branch ""
@@ -136,7 +136,7 @@ class StationRow;
 
 class WeatherRow;
 typedef void (WeatherRow::*WeatherAttributeFromBin) (EndianIStream& eis);
-typedef void (WeatherRow::*WeatherAttributeFromText) (const string& s);
+typedef void (WeatherRow::*WeatherAttributeFromText) (const std::string& s);
 
 /**
  * The WeatherRow class is a row of a WeatherTable.
@@ -543,21 +543,21 @@ public:
 	
  	/**
  	 * Get layerHeight, which is optional.
- 	 * @return layerHeight as vector<Length >
+ 	 * @return layerHeight as std::vector<Length >
  	 * @throws IllegalAccessException If layerHeight does not exist.
  	 */
- 	vector<Length > getLayerHeight() const;
+ 	std::vector<Length > getLayerHeight() const;
 	
  
  	
  	
  	/**
- 	 * Set layerHeight with the specified vector<Length >.
- 	 * @param layerHeight The vector<Length > value to which layerHeight is to be set.
+ 	 * Set layerHeight with the specified std::vector<Length >.
+ 	 * @param layerHeight The std::vector<Length > value to which layerHeight is to be set.
  	 
  		
  	 */
- 	void setLayerHeight (vector<Length > layerHeight);
+ 	void setLayerHeight (std::vector<Length > layerHeight);
 		
 	
 	
@@ -584,21 +584,21 @@ public:
 	
  	/**
  	 * Get temperatureProfile, which is optional.
- 	 * @return temperatureProfile as vector<Temperature >
+ 	 * @return temperatureProfile as std::vector<Temperature >
  	 * @throws IllegalAccessException If temperatureProfile does not exist.
  	 */
- 	vector<Temperature > getTemperatureProfile() const;
+ 	std::vector<Temperature > getTemperatureProfile() const;
 	
  
  	
  	
  	/**
- 	 * Set temperatureProfile with the specified vector<Temperature >.
- 	 * @param temperatureProfile The vector<Temperature > value to which temperatureProfile is to be set.
+ 	 * Set temperatureProfile with the specified std::vector<Temperature >.
+ 	 * @param temperatureProfile The std::vector<Temperature > value to which temperatureProfile is to be set.
  	 
  		
  	 */
- 	void setTemperatureProfile (vector<Temperature > temperatureProfile);
+ 	void setTemperatureProfile (std::vector<Temperature > temperatureProfile);
 		
 	
 	
@@ -707,21 +707,21 @@ public:
 	
  	/**
  	 * Get wvrTemp, which is optional.
- 	 * @return wvrTemp as vector<Temperature >
+ 	 * @return wvrTemp as std::vector<Temperature >
  	 * @throws IllegalAccessException If wvrTemp does not exist.
  	 */
- 	vector<Temperature > getWvrTemp() const;
+ 	std::vector<Temperature > getWvrTemp() const;
 	
  
  	
  	
  	/**
- 	 * Set wvrTemp with the specified vector<Temperature >.
- 	 * @param wvrTemp The vector<Temperature > value to which wvrTemp is to be set.
+ 	 * Set wvrTemp with the specified std::vector<Temperature >.
+ 	 * @param wvrTemp The std::vector<Temperature > value to which wvrTemp is to be set.
  	 
  		
  	 */
- 	void setWvrTemp (vector<Temperature > wvrTemp);
+ 	void setWvrTemp (std::vector<Temperature > wvrTemp);
 		
 	
 	
@@ -981,7 +981,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 WeatherRow (WeatherTable &table, WeatherRow &row);
+	 WeatherRow (WeatherTable &table, WeatherRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -1109,7 +1109,7 @@ private:
 	bool layerHeightExists;
 	
 
-	vector<Length > layerHeight;
+	std::vector<Length > layerHeight;
 
 	
 	
@@ -1122,7 +1122,7 @@ private:
 	bool temperatureProfileExists;
 	
 
-	vector<Temperature > temperatureProfile;
+	std::vector<Temperature > temperatureProfile;
 
 	
 	
@@ -1161,7 +1161,7 @@ private:
 	bool wvrTempExists;
 	
 
-	vector<Temperature > wvrTemp;
+	std::vector<Temperature > wvrTemp;
 
 	
 	
@@ -1237,53 +1237,53 @@ void waterFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, WeatherAttributeFromText> fromTextMethods;
 	
-void stationIdFromText (const string & s);
+void stationIdFromText (const std::string & s);
 	
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 
 	
-void pressureFromText (const string & s);
+void pressureFromText (const std::string & s);
 	
 	
-void relHumidityFromText (const string & s);
+void relHumidityFromText (const std::string & s);
 	
 	
-void temperatureFromText (const string & s);
+void temperatureFromText (const std::string & s);
 	
 	
-void windDirectionFromText (const string & s);
+void windDirectionFromText (const std::string & s);
 	
 	
-void windSpeedFromText (const string & s);
+void windSpeedFromText (const std::string & s);
 	
 	
-void windMaxFromText (const string & s);
+void windMaxFromText (const std::string & s);
 	
 	
-void dewPointFromText (const string & s);
+void dewPointFromText (const std::string & s);
 	
 	
-void numLayerFromText (const string & s);
+void numLayerFromText (const std::string & s);
 	
 	
-void layerHeightFromText (const string & s);
+void layerHeightFromText (const std::string & s);
 	
 	
-void temperatureProfileFromText (const string & s);
+void temperatureProfileFromText (const std::string & s);
 	
 	
-void cloudMonitorFromText (const string & s);
+void cloudMonitorFromText (const std::string & s);
 	
 	
-void numWVRFromText (const string & s);
+void numWVRFromText (const std::string & s);
 	
 	
-void wvrTempFromText (const string & s);
+void wvrTempFromText (const std::string & s);
 	
 	
-void waterFromText (const string & s);
+void waterFromText (const std::string & s);
 	
 	
 	

@@ -127,7 +127,15 @@ public:
   casacore::Vector<VisCal::Type> listTypes() const;
   
   // Report if spw has solutions available from all applied tables
+  //  To be deprecated in favor of VBOKforCalApply
   casacore::Bool spwOK(const casacore::Int& spw);
+
+  // Report if VB can be calibrated by all supplied
+  //  calibration.   If not, we can't ask it to!
+  // Modern replacement for spwOK(spw) which is sensitive
+  //  to obs, fld, and intent, and which supports
+  //  per-caltable agnosticism (see SVC::VBOKforCalApply)
+  casacore::Bool VBOKforCalApply(vi::VisBuffer2& vb);
 
   // Correct in place the OBSERVED visibilities in a VisBuffer
   //  with the apply-able VisCals
@@ -173,7 +181,12 @@ public:
 
   // SolveDataBuffer version
   void differentiate(SolveDataBuffer& sdb);  // VI2
- 
+
+  // Differentiate w.r.t. MODEL Stokes Params
+  //   I.e., _corrupt_ dM/d(I,Q,U,V)
+  //   NB: results stored in the sdb
+  void diffModelStokes(vi::VisBuffer2& vb, std::map<casacore::String,casacore::Cube<casacore::Complex> > dMdS);
+  
   // Report the VisEq's state
   void state();
 
@@ -193,8 +206,11 @@ protected:
   // Detect freq dependence along the Vis Equation
   void setFreqDep();
 
-  // Divide corr data by model 
+  // Divide corr data by model (per correlation)
   void divideCorrByModel(vi::VisBuffer2& vb);
+
+  // Divide corr data by Stokes I model 
+  void divideByStokesIModel(vi::VisBuffer2& vb);
 
 
 private:
@@ -226,6 +242,10 @@ private:
   // An internal (global) point source model
   casacore::Bool useInternalModel_;
   casacore::Vector<casacore::Float> stokesModel_;
+
+  // Keep count of total visibilities processed
+  //  NB: this is Sum-over-spws(ncorr*nchan*nrow)
+  casacore::Int nVisTotal_;
 
   // Diagnostic print level
   casacore::Int prtlev_;

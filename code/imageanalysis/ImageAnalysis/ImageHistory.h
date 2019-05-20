@@ -61,13 +61,18 @@ public:
         const std::vector<std::pair<casacore::LogOrigin, casacore::String> >& history
     );
 
+    // erase all messages. Cannot be undone!
+    void clear();
+
     std::vector<casacore::String> get(casacore::Bool list) const;
-    vector<string> getAsStdStrings(casacore::Bool list) const;
+    std::vector<string> getAsStdStrings(casacore::Bool list) const;
 
+    // <group>
     //Append the specified image's history to this image's history
-    void append(SPCIIF image);
+    template <class U> void append(SPCIIU image);
 
-    void append(SPCIIC image);
+    template <class U> void append(SPIIU image);
+    // </group>
 
     casacore::String getClass() const { const static casacore::String s = "ImageHistory"; return s; }
 

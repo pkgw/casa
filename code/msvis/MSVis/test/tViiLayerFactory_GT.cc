@@ -25,13 +25,7 @@
 //#
 //# $Id$
 
-#define _POSIX_C_SOURCE 200809L //For mkdtemp(), stpcpy()
-#define _XOPEN_SOURCE 500 //For nftw()
-#define _DARWIN_C_SOURCE //in macOS mkdtemp() is not available if  _POSIX_C_SOURCE=200809L (Apple bugreport #35851865)
 
-#include <ftw.h>
-#include <limits.h>
-#include <unistd.h> //in macOS mkdtemp() is not in stdlib.h as POSIX dictates..(Apple bugreport #35830645) 
 #include <casa/aips.h>
 #include <casa/Exceptions/Error.h>
 #include <casacore/casa/OS/EnvVar.h>
@@ -44,7 +38,7 @@
 #include <msvis/MSVis/TransformingVi2.h>
 #include <msvis/MSVis/SimpleSimVi2.h>
 #include <msvis/MSVis/VisBuffer2.h>
-#include <msvis/MSVis/test/MsFactory.h>
+#include <msvis/MSVis/test/TestUtilsTVI.h>
 #include <casa/iomanip.h>
 #include <gtest/gtest.h>
 
@@ -54,27 +48,12 @@ using namespace casacore;
 using namespace casa::vi;
 using namespace casa::vi::test;
 
-int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
-               struct FTW* ftwbuf);
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
 
-int removeFile(const char *fpath, const struct stat *sb, int typeflag, 
-               struct FTW* ftwbuf)
-{
-  (void)sb;  //Unused vars
-  (void)typeflag;
-  (void)ftwbuf;
-    
-  int rv = remove(fpath);
-  if(rv)
-    perror(fpath);
-  return rv;
-}
- 
 TEST( ViiLayerFactoryTest , ViiLayerFactoryBasicTest ) {
  
   // A very rudimentary test of a single layer
@@ -188,7 +167,6 @@ public:
   {
     VisBuffer2* vb = getVii()->getVisBuffer();
     vis = vb->visCube();
-    return;
   }
   
   //Access to DATA returns underlying DATA CORRECTED column
@@ -196,7 +174,6 @@ public:
   {
     VisBuffer2* vb = getVii()->getVisBuffer();
     vis = vb->visCubeCorrected();
-    return;
   }
   
   void origin()
@@ -206,8 +183,6 @@ public:
 
     // Synchronize own VisBuffer
     configureNewSubchunk();
-
-    return;
   }
 
   void next()
@@ -217,8 +192,6 @@ public:
 
     // Synchronize own VisBuffer
     configureNewSubchunk();
-
-    return;
   }
 
 };
@@ -255,7 +228,7 @@ protected:
  * a disk access layer and a swapping data TVI (DataSwappingTVI). This TVI
  * is optional.
  */
-class DataAccessTest : public ::testing::Test
+class DataAccessTest : public MsFactoryTVITester
 {
 public:
   
@@ -263,19 +236,9 @@ public:
    * Constructor: create the temporary dir and the MsFactory used later on
    * to create the MS.
    */
-  DataAccessTest()
+  DataAccessTest() :
+    MsFactoryTVITester("test_tViiLayerFactory","DataAccessTest")
   {
-    //Use the system temp dir, if not defined or too long resort to /tmp
-    char * sys_tmpdir = getenv("TMPDIR");
-    if(sys_tmpdir != NULL &&
-       strlen(sys_tmpdir) < _POSIX_PATH_MAX - 1 - tmpsubdir_p.size())
-      strncpy(tmpdir_p, sys_tmpdir, strlen(sys_tmpdir)+1);
-    else
-      strncpy(tmpdir_p, "/tmp", 5);
-    stpcpy (tmpdir_p+strlen(tmpdir_p), tmpsubdir_p.c_str());
-    mkdtemp(tmpdir_p);
-
-    msf_p.reset(new MsFactory(String::format("%s/DataAccessTest.ms", tmpdir_p)));
   }
 
   /*
@@ -310,10 +273,8 @@ public:
    */
   void createTVIs()
   {
-    //Create MS using the simulator MsFactory
-    pair<MeasurementSet *, Int> p = msf_p->createMs();
-    ms_p.reset(p.first); //MsFactory has given up ownership
-
+    createMS();
+    
     //Create a disk layer type VI Factory
     IteratingParameters ipar;
     VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
@@ -327,55 +288,21 @@ public:
     size_t nFac = 1;
     if(withSwappingDataTVI_p) 
       nFac++;
-    Vector<ViiLayerFactory*> facts(nFac);
-    facts[0]=&diskItFac;
+    std::vector<ViiLayerFactory*> factories(nFac);
+    factories[0]=&diskItFac;
     if(withSwappingDataTVI_p)
-      facts[1]= swapFac.get();
+      factories[1]= swapFac.get();
 
-    //Finally create the top VI
-    vi_p.reset(new VisibilityIterator2(facts));
-
-    vb_p = vi_p->getVisBuffer();
-  }
-
-  /*
-   * Iterate the whole MS calling a user provided function.
-   * The only useful case is having a lambda as a visitor function.
-   */
-  void visitIterator(std::function<void(void)> visitor)
-  {
-    for (vi_p->originChunks (); vi_p->moreChunks(); vi_p->nextChunk()){
-      for (vi_p->origin(); vi_p->more (); vi_p->next()){
-        visitor();
-      }
-    }
+    instantiateVI(factories);
   }
 
   //Destructor
   ~DataAccessTest()
   {
-    //The MS destructor will update the file system, so deleting it before removing the directory 
-    msf_p.reset();
-    ms_p.reset();
-    vi_p.reset();
-    //This will recursively remove everything in the directory
-    nftw(tmpdir_p, removeFile, 64, FTW_DEPTH | FTW_PHYS);
   }
 
-  //The temporary dir where the synthetic MS is created  
-  char tmpdir_p[_POSIX_PATH_MAX];
-  //The subdirectory to create in the temporary dir
-  std::string tmpsubdir_p{"/test_tViiLayerFactory_XXXXXX"};
   //Wether to use the DataSwappingTVI
   bool withSwappingDataTVI_p = false;
-  //The helper class to create synthetic MS
-  std::unique_ptr<casa::vi::test::MsFactory> msf_p;
-  //The synthetic MS.
-  std::unique_ptr<MeasurementSet> ms_p;
-  //The VisibilityIterator2 used to iterate trough the data
-  std::unique_ptr<VisibilityIterator2> vi_p;
-  //The attached VisBuffer
-  VisBuffer2 * vb_p;
 };
  
 
@@ -510,3 +437,233 @@ TEST_F(DataAccessTest, AccessDataInSwappingDataTVIWhenMissingCorrectedData)
   ASSERT_THROW(visitIterator([&]() -> void {vb_p->visCube().shape();}),
                AipsError);
 }
+
+/*
+ * This class is a simplistic TVI that modifies the subtables
+ * antenna, spw and dd
+ */
+class SubtableChangerTVI : public TransformingVi2
+{
+public:
+
+    //Constructor
+    SubtableChangerTVI(ViImplementation2 * inputVii) :
+        TransformingVi2 (inputVii)
+    {
+        setVisBuffer(createAttachedVisBuffer (VbRekeyable));
+        resetSubtables();
+    }
+
+    void origin()
+    {
+        // Drive underlying ViImplementation2
+        getVii()->origin();
+
+        // Synchronize own VisBuffer
+        configureNewSubchunk();
+    }
+
+    void next()
+    {
+        // Drive underlying ViImplementation2
+        getVii()->next();
+
+        // Synchronize own VisBuffer
+        configureNewSubchunk();
+    }
+
+    void
+    originChunks(Bool forceRewind) override
+    {
+        // Drive underlying ViImplementation2
+        getVii()->originChunks(forceRewind);
+
+        // Potentially the new chunk can be from a different MS
+        resetSubtables();
+    }
+
+    void
+    nextChunk() override
+    {
+        // Drive underlying ViImplementation2
+        getVii()->nextChunk();
+
+        // Potentially the new chunk can be from a different MS
+        resetSubtables();
+    }
+
+    void resetSubtables()
+    {
+        // Note that the creation of a new subtables is done using a
+        // copy of the original subtables. However, to access these we
+        // need to use the method table() of a given column (e. g. name() )
+        // It would be better if the ROMSAntennaColumns object had
+        // an getter to the MSAntenna object.
+        // The same applies to the other subtables
+
+        // Create antenna subtable
+        auto& underlyingAntennaSubtablecols = getVii()->antennaSubtablecols();
+        auto underlyingAntennaSubtable = underlyingAntennaSubtablecols.name().table();
+        newAntennaSubtable_p = underlyingAntennaSubtable.copyToMemoryTable("SubtableChangerAntennaSubtable");
+        newAntennaSubtablecols_p.reset(new MSAntennaColumns(newAntennaSubtable_p));
+        // Add one antenna
+        newAntennaSubtable_p.addRow();
+
+        // Create DD subtable
+        auto& underlyingDDSubtablecols = getVii()->dataDescriptionSubtablecols();
+        auto underlyingDDSubtable = underlyingDDSubtablecols.spectralWindowId().table();
+        newDDSubtable_p = underlyingDDSubtable.copyToMemoryTable("SubtableChangerDDSubtable");
+        newDDSubtablecols_p.reset(new MSDataDescColumns(newDDSubtable_p));
+        // Double the rows
+        auto nrowDD = newDDSubtable_p.nrow();
+        for(size_t irow = 0 ; irow < nrowDD; irow++)
+            newDDSubtable_p.addRow();
+
+        // Create spw subtable
+        auto& underlyingSPWSubtablecols = getVii()->spectralWindowSubtablecols();
+        auto underlyingSPWSubtable = underlyingSPWSubtablecols.name().table();
+        newSPWSubtable_p = underlyingSPWSubtable.copyToMemoryTable("SubtableChangerSPWSubtable");
+        newSPWSubtablecols_p.reset(new MSSpWindowColumns(newSPWSubtable_p));
+        // Double the rows
+        auto nrowSPW = newSPWSubtable_p.nrow();
+        for(size_t irow = 0 ; irow < nrowSPW; irow++)
+            newSPWSubtable_p.addRow();
+    }
+
+
+    const casacore::ROMSAntennaColumns& antennaSubtablecols() const override
+    {
+        return *newAntennaSubtablecols_p;
+    }
+
+    const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const override
+    {
+        return *newDDSubtablecols_p;
+    }
+
+    const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override
+    {
+        return *newSPWSubtablecols_p;
+    }
+
+private:
+
+    casacore::MSAntenna newAntennaSubtable_p;
+    std::unique_ptr<casacore::ROMSAntennaColumns> newAntennaSubtablecols_p;
+
+    casacore::MSSpectralWindow newSPWSubtable_p;
+    std::unique_ptr<casacore::ROMSSpWindowColumns> newSPWSubtablecols_p;
+
+    casacore::MSDataDescription newDDSubtable_p;
+    std::unique_ptr<casacore::ROMSDataDescColumns> newDDSubtablecols_p;
+
+};
+
+/*
+ * Factory that allows the creation of SubtableChangerTVI classes.
+ * This factory doesn't have any parameter to configure
+ */
+class SubtableChangerTVILayerFactory : public ViiLayerFactory
+{
+
+public:
+
+    SubtableChangerTVILayerFactory()
+  {
+  }
+
+  virtual ~SubtableChangerTVILayerFactory() {};
+
+protected:
+
+  virtual ViImplementation2 * createInstance(ViImplementation2* vii0) const
+  {
+    ViImplementation2 *vii = new SubtableChangerTVI(vii0);
+    return vii;
+  }
+};
+
+/*
+ * Gtest fixture used to test the creation of subtables by a TVI.
+ * This class will create a synthetic MS in a temporary directory.
+ * It will also create a stack of TVIs with two TVIs:
+ * a disk access layer and a TVI that modifies subtables (SubtableChangerTVI).
+ * The function checkSubtables can actually check that the subtables
+ * have been changed as expected.
+ */
+class SubtableChangerTest : public MsFactoryTVITester
+{
+public:
+
+    /*
+     * Constructor: create the temporary dir and the MsFactory used later on
+     * to create the MS.
+     */
+    SubtableChangerTest() : 
+        MsFactoryTVITester("tViiLayerFactory","SubtableChangerTest")
+    {
+    }
+
+    /*
+     * Create the synthetic MS and the TVI stack to access it.
+     */
+    void createTVIs()
+    {
+        // Set the number of antennas and SPWs for the MS generated on disk
+        nAntennas = 10;
+        nSPWs = 10;
+
+        msf_p->addAntennas(nAntennas);
+        msf_p->addSpectralWindows(nSPWs);
+
+        // Create synthethic MS using the msf_p factory
+        createMS();
+
+        // Create a disk layer type VI Factory
+        IteratingParameters ipar;
+        VisIterImpl2LayerFactory diskItFac(ms_p.get(),ipar,false);
+
+        // Create a SubtableChangerTVI Factory
+        SubtableChangerTVILayerFactory subtableChangerFac;
+
+        // Create a layered factory with all the layers of factories
+        size_t nFac = 2;
+        std::vector<ViiLayerFactory*> facts(nFac);
+        facts[0]=&diskItFac;
+        facts[1]= &subtableChangerFac;
+
+        // Finally create the top VI
+        instantiateVI(facts);
+    }
+
+    void checkSubtables()
+    {
+        // Check the antenna tables size (the TVI has added one antenna)
+        EXPECT_EQ(nAntennas + 1, vi_p->antennaSubtablecols().nrow());
+
+        // Check the SPW tables size (the TVI has doubled the number)
+        EXPECT_EQ(nSPWs * 2, vi_p->spectralWindowSubtablecols().nrow());
+
+        // Check the DD tables size (the TVI has doubled the number)
+        EXPECT_EQ(nSPWs * 2, vi_p->dataDescriptionSubtablecols().nrow());
+    }
+
+    // The number of antennas originally created
+    size_t nAntennas;
+    // The number of SPWs originally created
+    size_t nSPWs;
+};
+
+
+/*
+ * This test will simply access the corrected data column of a
+ * synthetic created MS
+ */
+TEST_F(SubtableChangerTest, CheckSubtables)
+{
+
+  createTVIs();
+
+  checkSubtables();
+}
+

@@ -985,7 +985,7 @@ variant* msmetadata::fieldsforsource(int sourceID, bool asnames) {
 
 record* msmetadata::fieldsforsources(bool asnames) {
     _FUNC(
-        auto_ptr<record> ret(new record());
+        unique_ptr<record> ret(new record());
         if (asnames) {
             auto mymap = _msmd->getFieldNamesForSourceMap();
             for (const auto& p: mymap) {
@@ -1040,22 +1040,22 @@ vector<string> msmetadata::intents() {
 
 vector<string> msmetadata::intentsforfield(const variant& field) {
 	_FUNC(
-		Int id = -1;
 		switch (field.type()) {
 		case variant::STRING:
-			id = *(_msmd->getFieldIDsForField(field.toString()).begin());
-			break;
-		case variant::INT:
-			id = field.toInt();
-			break;
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(field.toString())
+			);
+		case variant::INT: {
+		    Int id = field.toInt();
+		    ThrowIf(id < 0, "field must be nonnegative if an int.");
+			return _setStringToVectorString(
+			    _msmd->getIntentsForField(id)
+	        );
+		}
 		default:
 			*_log << "Unsupported type for field which must be "
 				<< "a nonnegative int or string." << LogIO::EXCEPTION;
 		}
-		if (id < 0) {
-			throw AipsError("field must be nonnegative if an int.");
-		}
-		return _setStringToVectorString(_msmd->getIntentsForField(id));
 	)
 	return vector<string>();
 }
@@ -1468,7 +1468,7 @@ record* msmetadata::reffreq(int spw) {
 		freq.toRecord(ret);
 		return fromRecord(ret);
 	)
-	return NULL;
+	return nullptr;
 }
 
 variant* msmetadata::restfreqs(int sourceid, int spw) {
@@ -1477,8 +1477,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA SHARED_PTR<vector<MFrequency> > > mymap
-            = _msmd->getRestFrequencies();
+        auto mymap = _msmd->getRestFrequencies();
         SourceKey key;
         key.id = sourceid;
         key.spw = spw;
@@ -1488,7 +1487,7 @@ variant* msmetadata::restfreqs(int sourceid, int spw) {
             + String::toString(sourceid) + " and SPECTRAL_WINDOW_ID="
             + String::toString(spw)
         );
-        SHARED_PTR<vector<MFrequency> > ptr = mymap[key];
+        std::shared_ptr<vector<MFrequency>> ptr = mymap[key];
         if (ptr) {
             Record mr;
             Record r;
@@ -1542,7 +1541,7 @@ record* msmetadata::scansforfields(int obsid, int arrayid) {
         _checkArrayId(arrayid, true);
         _checkObsId(obsid, true);
         auto fieldToScans = _msmd->getFieldToScansMap();
-        std::auto_ptr<record> ret(new record());
+        std::unique_ptr<record> ret(new record());
         uInt n = fieldToScans.size();
         ArrayKey ak;
         ak.obsID = obsid;
@@ -1605,7 +1604,7 @@ record* msmetadata::scansforspws(int obsid, int arrayid) {
 	    _checkArrayId(arrayid, true);
 	    _checkObsId(obsid, true);
         auto spwToScans = _msmd->getSpwToScansMap();
-		auto_ptr<record> ret(new record());
+		unique_ptr<record> ret(new record());
         uInt n = spwToScans.size();
    		ArrayKey ak;
 	    ak.obsID = obsid;
@@ -1906,7 +1905,7 @@ record* msmetadata::spwsforscans(int obsid, int arrayid) {
 	    _checkArrayId(arrayid, true);
 	    _checkObsId(obsid, true);
         auto scanToSpws = _msmd->getScanToSpwsMap();
-		auto_ptr<record> ret(new record());
+		unique_ptr<record> ret(new record());
 		std::set<ScanKey> allScans;
 		for (const auto& p : scanToSpws) {
 		    allScans.insert(p.first);
@@ -2023,7 +2022,7 @@ variant* msmetadata::timesforscan(int scan, int obsid, int arrayid, bool perspw)
 					)
 				);
 			}
-			SHARED_PTR<record> rec(fromRecord(ret));
+			std::shared_ptr<record> rec(fromRecord(ret));
 			return new variant(*rec);
 		}
 		else {
@@ -2038,13 +2037,23 @@ variant* msmetadata::timesforscan(int scan, int obsid, int arrayid, bool perspw)
 	return nullptr;
 }
 
-vector<double> msmetadata::timesforscans(const vector<int>& scans, int obsid, int arrayid) {
+vector<double> msmetadata::timesforscans(const variant& scans, int obsid, int arrayid) {
 	_FUNC(
-		ThrowIf(
-			*std::min_element(scans.begin(), scans.end()) < 0,
-			"All scan numbers must be nonnegative"
-		);
-		auto scanKeys = _getScanKeys(scans, obsid, arrayid);
+	    vector<int> myscans;
+	    if (scans.type() == variant::INT) {
+	        myscans.push_back(scans.toInt());
+	    }
+	    else if (scans.type() == variant::INTVEC) {
+	        myscans = scans.toIntVec();
+	    }
+	    else {
+	        ThrowCc("scans must either be an int or an array of ints");
+	    }
+	    ThrowIf(
+	        *std::min_element(myscans.begin(), myscans.end()) < 0,
+	        "All scan numbers must be nonnegative"
+	    );
+		auto scanKeys = _getScanKeys(myscans, obsid, arrayid);
 		return _setDoubleToVectorDouble(_msmd->getTimesForScans(scanKeys));
 	)
 	return vector<double>();
@@ -2116,8 +2125,7 @@ variant* msmetadata::transitions(int sourceid, int spw) {
         ThrowIf(
             sourceid < 0, "sourceid cannot be negative"
         );
-        map<SourceKey COMMA SHARED_PTR<vector<String> > > mymap
-            = _msmd->getTransitions();
+        auto mymap = _msmd->getTransitions();
         SourceKey key;
         key.id = sourceid;
         key.spw = spw;
@@ -2127,9 +2135,9 @@ variant* msmetadata::transitions(int sourceid, int spw) {
             + String::toString(sourceid) + " and SPECTRAL_WINDOW_ID="
             + String::toString(spw)
         );
-        SHARED_PTR<vector<String> > ptr = mymap[key];
+        std::shared_ptr<vector<String> > ptr = mymap[key];
         if (ptr) {
-        	vector<string> v = _vectorStringToStdVectorString(*ptr);
+        	auto v = _vectorStringToStdVectorString(*ptr);
             return new variant(v);
         }
         else {

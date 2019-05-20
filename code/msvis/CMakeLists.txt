@@ -40,6 +40,7 @@ casa_add_library( msvis
   MSVis/MsAverager.cc
   MSVis/MsRows.cc
   MSVis/Partition.cc
+  MSVis/PassThroughTVI.cc
   MSVis/PhaseShiftTvi.cc
   MSVis/PointingDirectionCache.cc
   MSVis/Reweighter.cc
@@ -132,6 +133,7 @@ install (FILES
 	MSVis/MSUtil.h
 	MSVis/MsAverager.h
 	MSVis/Partition.h
+	MSVis/PassThroughTVI.h
 	MSVis/PhaseShiftTvi.h
 	MSVis/Reweighter.h
 	MSVis/PointingDirectionCache.h
@@ -188,6 +190,11 @@ install (FILES
 	)
 
 install (FILES
+	MSVis/test/TestUtilsTVI.h 
+	DESTINATION include/casacode/msvis/MSVis/test
+	)       
+
+install (FILES
 	MSVis/statistics/Vi2AntennaDataProvider.h
 	MSVis/statistics/Vi2ArrayIdDataProvider.h
 	MSVis/statistics/Vi2CorrectedVisDataProvider.h
@@ -235,19 +242,20 @@ casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tHanningSmooth.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tMSCalEnums.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tUVSub.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/tVisIter.cc )
-casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc )
 casa_add_unit_test ( MODULES msvis SOURCES MSVis/test/VisibilityIterator_Test.cc MsFactory.cc )
 
 # Following line commented out until a problem related to the older cmake used on Jenkins (dev machine using 2.8.12.2)
 # Uncomment this when that problem is resolved
 #
 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/AveragingTvi2_Test.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc)
+
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/PointingDirectionCache_Test.cc) 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/VisibilityIterator_Gtest.cc MSVis/test/MsFactory.cc) 
 casa_add_google_test (NOT_ON_APPLE MODULES msvis SOURCES MSVis/test/MSChecker_Gtest.cc MSVis/test/MSCheckerTest.cc) 
 
 casa_add_google_test (MODULES msvis SOURCES MSVis/test/tSimpleSimVi2_GT.cc) 
-casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc) 
+casa_add_google_test (MODULES msvis SOURCES MSVis/test/tViiLayerFactory_GT.cc MSVis/test/MsFactory.cc MSVis/test/TestUtilsTVI.cc) 
 
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Future_Test.cc)
 casa_add_google_test(MODULES msvis SOURCES MSVis/test/Try_Test.cc)

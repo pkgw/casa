@@ -50,8 +50,6 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   ngc2403.py
   ngc5921redux.py
   ngc5921uvcontsub2.py
-  orionmosaic.py
-#  plotxy_test.py
   pointing_test.py
   polcal_20080224_cband.py
   pylabmem.py
@@ -69,5 +67,8 @@ casa_add_python( tools tools_regressions_tests_python lib/python${PYTHONV}/regre
   sim_testcube.py
   stokesimaging_test.py
   testcube2.py
-  pipelineTest.py
+  pipelineTest_almaif.py
+  pipelineTest_almasd.py
+  pipelineTest_vla.py
+
 )

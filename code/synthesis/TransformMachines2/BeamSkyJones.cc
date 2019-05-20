@@ -94,7 +94,8 @@ void BeamSkyJones::reset()
 {
   lastFieldId_p=-1;
   lastArrayId_p=-1;
-  lastMSId_p=0;  
+  lastMSId_p=0;
+  lastTime_p=-1.0;
   telescope_p="";
 }
 
@@ -175,6 +176,13 @@ Bool BeamSkyJones::changed(const vi::VisBuffer2& vb, Int row)
      vb.fieldId()(0)!=lastFieldId_p)  {
         lastUpdateVisBuffer_p=NULL; // invalidate index cache
         return true;
+  }
+
+  MDirection::Types pointingdirType=MDirection::castType(lastDirections_p[lastUpdateIndex1_p].getRef().getType());
+  //if in a local frame and time change => pointing  most probably changed
+  if((pointingdirType >= MDirection::HADEC) && (pointingdirType <= MDirection::AZELSWGEO)){
+    if(lastTime_p != vb.time()(0))
+      return True;
   }
   
   //if (lastUpdateIndex1_p<0 || lastUpdateIndex2_p<0) return true;
@@ -284,7 +292,7 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   lastFieldId_p=vb.fieldId()(0);
   lastArrayId_p=vb.arrayId()(0);
   lastMSId_p=vb.msId();
-
+  lastTime_p=vb.time()(0);
   if(!vbutil_p){
     vbutil_p=new VisBufferUtil(vb);
   }
@@ -295,7 +303,7 @@ void BeamSkyJones::update(const vi::VisBuffer2& vb, Int row)
   MDirection pointingDirection2 = vbutil_p->getPointingDir(vb, vb.antenna2()(row), row);
   //cerr << "DIR1 " << pointingDirection1.toString() << "   " <<  pointingDirection2.toString() << endl; 
   // Look up correct telescope
-  const ROMSObservationColumns& msoc=ROMSColumns(vb.ms()).observation();
+  const ROMSObservationColumns& msoc=vb.subtableColumns().observation();
   telescope_p = msoc.telescopeName()(vb.arrayId()(0));
 
   updatePBMathIndices(vb,row); // lastUpdateIndex?_p are now valid
@@ -529,20 +537,12 @@ BeamSkyJones::applyGradient(SkyComponent& result, const vi::VisBuffer2&,
   return result;
 };
 
-void BeamSkyJones::addGradients(const vi::VisBuffer2& vb, Int row,
-			      const Float sumwt, 
-			      const Float chisq,
-			      const Matrix<Complex>& c, 
-			      const Matrix<Float>& f) 
-{
-  // Keep compiler quiet
-  if(&vb) {};
-  if(row) {};
-  if(sumwt) {};
-  if(chisq) {};
-  if(&c) {};
-  if(&f) {};
-};
+void BeamSkyJones::addGradients(const vi::VisBuffer2&, Int,
+			      const Float, 
+			      const Float,
+			      const Matrix<Complex>&, 
+			      const Matrix<Float>&) 
+{};
 
 // Solve
 /*Bool BeamSkyJones::solve (SkyEquation& se)
@@ -724,14 +724,14 @@ MDirection BeamSkyJones::convertDir(const vi::VisBuffer2& vb, const MDirection& 
    MPosition pos;
    String tel("");
    ROMSColumns msc(vb.ms());
-   if (msc.observation().nrow() > 0) {
-     tel = msc.observation().telescopeName()(msc.observationId()(0));
+   if (vb.subtableColumns().observation().nrow() > 0) {
+     tel = vb.subtableColumns().observation().telescopeName()(vb.observationId()(0));
    }
    if (tel.length() == 0 || !tel.contains("VLA") ||
        !MeasTable::Observatory(pos,tel)) {
      // unknown observatory, use first antenna
      Int ant1=vb.antenna1()(0);
-     pos=msc.antenna().positionMeas()(ant1);
+     pos=vb.subtableColumns().antenna().positionMeas()(ant1);
    }
    MEpoch::Types timeMType=MEpoch::castType(msc.timeMeas()(0).getRef().getType());
    Unit timeUnit=Unit(msc.timeMeas().measDesc().getUnits()(0).getName());

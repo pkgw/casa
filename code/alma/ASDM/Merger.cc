@@ -30,7 +30,7 @@
  *
  * File Merger.h
  */
-#include <Merger.h>
+#include <alma/ASDM/Merger.h>
 
 using namespace std;
 
@@ -172,6 +172,10 @@ namespace asdm {
 		Merger::mergeDelayModelFixedParametersPtr = &Merger::mergeDelayModelFixedParameters;
 
 		Merger::mergeDelayModelVariableParametersPtr = &Merger::mergeDelayModelVariableParameters;
+
+		Merger::mergeCalAntennaSolutionsPtr = &Merger::mergeCalAntennaSolutions;
+
+		Merger::mergePulsarPtr = &Merger::mergePulsar;
 
 	}
 	
@@ -316,6 +320,10 @@ namespace asdm {
 
 		hasMergedDelayModelVariableParameters = false;
 
+		hasMergedCalAntennaSolutions = false;
+
+		hasMergedPulsar = false;
+
 
 		mergeSBSummary( );
 
@@ -449,6 +457,10 @@ namespace asdm {
 
 		mergeDelayModelVariableParameters( );
 
+		mergeCalAntennaSolutions( );
+
+		mergePulsar( );
+
 
 		postMergeSBSummary( );
 
@@ -581,6 +593,10 @@ namespace asdm {
 		postMergeDelayModelFixedParameters( );
 
 		postMergeDelayModelVariableParameters( );
+
+		postMergeCalAntennaSolutions( );
+
+		postMergePulsar( );
 			
 	}
 	
@@ -872,6 +888,26 @@ namespace asdm {
 	
 	void Merger::postMergeDataDescription() {
 		cout << "Entering Merger::postMergeDataDescription" << endl;
+	
+		vector <DataDescriptionRow *> rows1 = ds1->getDataDescription().get();
+		DataDescriptionRow *row1 = 0;
+		for (unsigned int i = 0; i < rows1.size(); i++) {
+			row1 = rows1.at(i);
+
+		
+			
+			if (row1->isPulsarIdExists()) {
+				
+				
+				
+					
+			row1->setPulsarId(getTag(row1->getPulsarId(), 0));
+					
+				
+			}
+			
+		
+		}
 	
 		cout << "Exiting Merger::postMergeDataDescription" << endl;
 	}			
@@ -3052,6 +3088,60 @@ namespace asdm {
 		cout << "Entering Merger::postMergeDelayModelVariableParameters" << endl;
 	
 		cout << "Exiting Merger::postMergeDelayModelVariableParameters" << endl;
+	}			
+
+	void Merger::mergeCalAntennaSolutions() {
+		cout << "Entering Merger::mergeCalAntennaSolutions" << endl;
+		if (hasMergedCalAntennaSolutions) return;
+	
+		vector <CalAntennaSolutionsRow *> rows2 = ds2->getCalAntennaSolutions().get();
+		for (unsigned int i = 0; i < rows2.size(); i++) {
+			CalAntennaSolutionsRow * row = ds1->getCalAntennaSolutions().newRow(rows2.at(i));
+		
+			
+				
+				
+			Tag calDataIdTag = getTag(row->getCalDataId(), mergeCalDataPtr);
+			row->setCalDataId(calDataIdTag);
+				
+			
+		
+			
+				
+				
+			Tag calReductionIdTag = getTag(row->getCalReductionId(), mergeCalReductionPtr);
+			row->setCalReductionId(calReductionIdTag);
+				
+			
+		
+			CalAntennaSolutionsRow * retRow = ds1->getCalAntennaSolutions().add(row);
+			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
+			if (false) cout << (unsigned long long) retRow;
+		
+		}
+	
+		hasMergedCalAntennaSolutions = true;
+		cout << "Exiting Merger::mergeCalAntennaSolutions" << endl;
+	}
+	
+	void Merger::postMergeCalAntennaSolutions() {
+		cout << "Entering Merger::postMergeCalAntennaSolutions" << endl;
+	
+		cout << "Exiting Merger::postMergeCalAntennaSolutions" << endl;
+	}			
+
+	void Merger::mergePulsar() {
+		cout << "Entering Merger::mergePulsar" << endl;
+		if (hasMergedPulsar) return;
+	
+		hasMergedPulsar = true;
+		cout << "Exiting Merger::mergePulsar" << endl;
+	}
+	
+	void Merger::postMergePulsar() {
+		cout << "Entering Merger::postMergePulsar" << endl;
+	
+		cout << "Exiting Merger::postMergePulsar" << endl;
 	}			
 
 

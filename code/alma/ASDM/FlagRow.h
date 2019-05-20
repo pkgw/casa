@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -75,17 +75,21 @@
 	
 
 	
-#include "CPolarizationType.h"
+
+	
+#include <alma/Enumerations/CPolarizationType.h>
+	
+
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Flag.h
     \brief Generated from model's revision "-1", branch ""
@@ -108,7 +112,7 @@ class SpectralWindowRow;
 
 class FlagRow;
 typedef void (FlagRow::*FlagAttributeFromBin) (EndianIStream& eis);
-typedef void (FlagRow::*FlagAttributeFromText) (const string& s);
+typedef void (FlagRow::*FlagAttributeFromText) (const std::string& s);
 
 /**
  * The FlagRow class is a row of a FlagTable.
@@ -229,21 +233,21 @@ public:
 	
  	/**
  	 * Get reason.
- 	 * @return reason as string
+ 	 * @return reason as std::string
  	 */
- 	string getReason() const;
+ 	std::string getReason() const;
 	
  
  	
  	
  	/**
- 	 * Set reason with the specified string.
- 	 * @param reason The string value to which reason is to be set.
+ 	 * Set reason with the specified std::string.
+ 	 * @param reason The std::string value to which reason is to be set.
  	 
  		
  			
  	 */
- 	void setReason (string reason);
+ 	void setReason (std::string reason);
   		
 	
 	
@@ -404,6 +408,47 @@ public:
 
 
 	
+	// ===> Attribute numChan, which is optional
+	
+	
+	
+	/**
+	 * The attribute numChan is optional. Return true if this attribute exists.
+	 * @return true if and only if the numChan attribute exists. 
+	 */
+	bool isNumChanExists() const;
+	
+
+	
+ 	/**
+ 	 * Get numChan, which is optional.
+ 	 * @return numChan as int
+ 	 * @throws IllegalAccessException If numChan does not exist.
+ 	 */
+ 	int getNumChan() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set numChan with the specified int.
+ 	 * @param numChan The int value to which numChan is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setNumChan (int numChan);
+		
+	
+	
+	
+	/**
+	 * Mark numChan, which is an optional field, as non-existent.
+	 */
+	void clearNumChan ();
+	
+
+
+	
 	// ===> Attribute polarizationType, which is optional
 	
 	
@@ -418,21 +463,21 @@ public:
 	
  	/**
  	 * Get polarizationType, which is optional.
- 	 * @return polarizationType as vector<PolarizationTypeMod::PolarizationType >
+ 	 * @return polarizationType as std::vector<PolarizationTypeMod::PolarizationType >
  	 * @throws IllegalAccessException If polarizationType does not exist.
  	 */
- 	vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
+ 	std::vector<PolarizationTypeMod::PolarizationType > getPolarizationType() const;
 	
  
  	
  	
  	/**
- 	 * Set polarizationType with the specified vector<PolarizationTypeMod::PolarizationType >.
- 	 * @param polarizationType The vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
+ 	 * Set polarizationType with the specified std::vector<PolarizationTypeMod::PolarizationType >.
+ 	 * @param polarizationType The std::vector<PolarizationTypeMod::PolarizationType > value to which polarizationType is to be set.
  	 
  		
  	 */
- 	void setPolarizationType (vector<PolarizationTypeMod::PolarizationType > polarizationType);
+ 	void setPolarizationType (std::vector<PolarizationTypeMod::PolarizationType > polarizationType);
 		
 	
 	
@@ -441,6 +486,47 @@ public:
 	 * Mark polarizationType, which is an optional field, as non-existent.
 	 */
 	void clearPolarizationType ();
+	
+
+
+	
+	// ===> Attribute channel, which is optional
+	
+	
+	
+	/**
+	 * The attribute channel is optional. Return true if this attribute exists.
+	 * @return true if and only if the channel attribute exists. 
+	 */
+	bool isChannelExists() const;
+	
+
+	
+ 	/**
+ 	 * Get channel, which is optional.
+ 	 * @return channel as std::vector<std::vector<int > >
+ 	 * @throws IllegalAccessException If channel does not exist.
+ 	 */
+ 	std::vector<std::vector<int > > getChannel() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set channel with the specified std::vector<std::vector<int > >.
+ 	 * @param channel The std::vector<std::vector<int > > value to which channel is to be set.
+ 	 
+ 		
+ 	 */
+ 	void setChannel (std::vector<std::vector<int > > channel);
+		
+	
+	
+	
+	/**
+	 * Mark channel, which is an optional field, as non-existent.
+	 */
+	void clearChannel ();
 	
 
 
@@ -457,21 +543,21 @@ public:
 	
  	/**
  	 * Get antennaId.
- 	 * @return antennaId as vector<Tag> 
+ 	 * @return antennaId as std::vector<Tag> 
  	 */
- 	vector<Tag>  getAntennaId() const;
+ 	std::vector<Tag>  getAntennaId() const;
 	
  
  	
  	
  	/**
- 	 * Set antennaId with the specified vector<Tag> .
- 	 * @param antennaId The vector<Tag>  value to which antennaId is to be set.
+ 	 * Set antennaId with the specified std::vector<Tag> .
+ 	 * @param antennaId The std::vector<Tag>  value to which antennaId is to be set.
  	 
  		
  			
  	 */
- 	void setAntennaId (vector<Tag>  antennaId);
+ 	void setAntennaId (std::vector<Tag>  antennaId);
   		
 	
 	
@@ -493,21 +579,21 @@ public:
 	
  	/**
  	 * Get pairedAntennaId, which is optional.
- 	 * @return pairedAntennaId as vector<Tag> 
+ 	 * @return pairedAntennaId as std::vector<Tag> 
  	 * @throws IllegalAccessException If pairedAntennaId does not exist.
  	 */
- 	vector<Tag>  getPairedAntennaId() const;
+ 	std::vector<Tag>  getPairedAntennaId() const;
 	
  
  	
  	
  	/**
- 	 * Set pairedAntennaId with the specified vector<Tag> .
- 	 * @param pairedAntennaId The vector<Tag>  value to which pairedAntennaId is to be set.
+ 	 * Set pairedAntennaId with the specified std::vector<Tag> .
+ 	 * @param pairedAntennaId The std::vector<Tag>  value to which pairedAntennaId is to be set.
  	 
  		
  	 */
- 	void setPairedAntennaId (vector<Tag>  pairedAntennaId);
+ 	void setPairedAntennaId (std::vector<Tag>  pairedAntennaId);
 		
 	
 	
@@ -534,21 +620,21 @@ public:
 	
  	/**
  	 * Get spectralWindowId, which is optional.
- 	 * @return spectralWindowId as vector<Tag> 
+ 	 * @return spectralWindowId as std::vector<Tag> 
  	 * @throws IllegalAccessException If spectralWindowId does not exist.
  	 */
- 	vector<Tag>  getSpectralWindowId() const;
+ 	std::vector<Tag>  getSpectralWindowId() const;
 	
  
  	
  	
  	/**
- 	 * Set spectralWindowId with the specified vector<Tag> .
- 	 * @param spectralWindowId The vector<Tag>  value to which spectralWindowId is to be set.
+ 	 * Set spectralWindowId with the specified std::vector<Tag> .
+ 	 * @param spectralWindowId The std::vector<Tag>  value to which spectralWindowId is to be set.
  	 
  		
  	 */
- 	void setSpectralWindowId (vector<Tag>  spectralWindowId);
+ 	void setSpectralWindowId (std::vector<Tag>  spectralWindowId);
 		
 	
 	
@@ -589,7 +675,7 @@ public:
  * Append a vector of Tag to antennaId.
  * @param id an array of Tag to be appended to antennaId
  */
- void addAntennaId(const vector<Tag> & id); 
+ void addAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -612,7 +698,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in antennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingAntennaId(); 
   
 
 	
@@ -641,7 +727,7 @@ public:
  * Append a vector of Tag to pairedAntennaId.
  * @param id an array of Tag to be appended to pairedAntennaId
  */
- void addPairedAntennaId(const vector<Tag> & id); 
+ void addPairedAntennaId(const std::vector<Tag> & id); 
  
 
  /**
@@ -664,7 +750,7 @@ public:
   * Returns the vector of AntennaRow* linked to this row via the Tags stored in pairedAntennaId
   * @return an array of pointers on AntennaRow.
   */
- vector<AntennaRow *> getAntennasUsingPairedAntennaId(); 
+ std::vector<AntennaRow *> getAntennasUsingPairedAntennaId(); 
   
 
 	
@@ -693,7 +779,7 @@ public:
  * Append a vector of Tag to spectralWindowId.
  * @param id an array of Tag to be appended to spectralWindowId
  */
- void addSpectralWindowId(const vector<Tag> & id); 
+ void addSpectralWindowId(const std::vector<Tag> & id); 
  
 
  /**
@@ -716,7 +802,7 @@ public:
   * Returns the vector of SpectralWindowRow* linked to this row via the Tags stored in spectralWindowId
   * @return an array of pointers on SpectralWindowRow.
   */
- vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
+ std::vector<SpectralWindowRow *> getSpectralWindowsUsingSpectralWindowId(); 
   
 
 	
@@ -739,7 +825,7 @@ public:
 	 * @param antennaId
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId);
+	bool compareNoAutoInc(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId);
 	
 	
 
@@ -759,7 +845,7 @@ public:
 	 * @param antennaId
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId); 
 		 
 	
 	/**
@@ -828,7 +914,9 @@ void antennaIdFromBin( EndianIStream& eis);
 void numPolarizationTypeFromBin( EndianIStream& eis);
 void numSpectralWindowFromBin( EndianIStream& eis);
 void numPairedAntennaFromBin( EndianIStream& eis);
+void numChanFromBin( EndianIStream& eis);
 void polarizationTypeFromBin( EndianIStream& eis);
+void channelFromBin( EndianIStream& eis);
 void pairedAntennaIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
 
@@ -892,7 +980,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FlagRow (FlagTable &table, FlagRow &row);
+	 FlagRow (FlagTable &table, FlagRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -948,7 +1036,7 @@ private:
 	
 	
 
-	string reason;
+	std::string reason;
 
 	
 	
@@ -1005,13 +1093,39 @@ private:
  	
 
 	
+	// ===> Attribute numChan, which is optional
+	
+	
+	bool numChanExists;
+	
+
+	int numChan;
+
+	
+	
+ 	
+
+	
 	// ===> Attribute polarizationType, which is optional
 	
 	
 	bool polarizationTypeExists;
 	
 
-	vector<PolarizationTypeMod::PolarizationType > polarizationType;
+	std::vector<PolarizationTypeMod::PolarizationType > polarizationType;
+
+	
+	
+ 	
+
+	
+	// ===> Attribute channel, which is optional
+	
+	
+	bool channelExists;
+	
+
+	std::vector<std::vector<int > > channel;
 
 	
 	
@@ -1026,7 +1140,7 @@ private:
 	
 	
 
-	vector<Tag>  antennaId;
+	std::vector<Tag>  antennaId;
 
 	
 	
@@ -1039,7 +1153,7 @@ private:
 	bool pairedAntennaIdExists;
 	
 
-	vector<Tag>  pairedAntennaId;
+	std::vector<Tag>  pairedAntennaId;
 
 	
 	
@@ -1052,7 +1166,7 @@ private:
 	bool spectralWindowIdExists;
 	
 
-	vector<Tag>  spectralWindowId;
+	std::vector<Tag>  spectralWindowId;
 
 	
 	
@@ -1096,7 +1210,9 @@ void antennaIdFromBin( EndianIStream& eis);
 void numPolarizationTypeFromBin( EndianIStream& eis);
 void numSpectralWindowFromBin( EndianIStream& eis);
 void numPairedAntennaFromBin( EndianIStream& eis);
+void numChanFromBin( EndianIStream& eis);
 void polarizationTypeFromBin( EndianIStream& eis);
+void channelFromBin( EndianIStream& eis);
 void pairedAntennaIdFromBin( EndianIStream& eis);
 void spectralWindowIdFromBin( EndianIStream& eis);
 
@@ -1107,41 +1223,47 @@ void spectralWindowIdFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FlagAttributeFromText> fromTextMethods;
 	
-void flagIdFromText (const string & s);
+void flagIdFromText (const std::string & s);
 	
 	
-void startTimeFromText (const string & s);
+void startTimeFromText (const std::string & s);
 	
 	
-void endTimeFromText (const string & s);
+void endTimeFromText (const std::string & s);
 	
 	
-void reasonFromText (const string & s);
+void reasonFromText (const std::string & s);
 	
 	
-void numAntennaFromText (const string & s);
+void numAntennaFromText (const std::string & s);
 	
 	
-void antennaIdFromText (const string & s);
+void antennaIdFromText (const std::string & s);
 	
 
 	
-void numPolarizationTypeFromText (const string & s);
+void numPolarizationTypeFromText (const std::string & s);
 	
 	
-void numSpectralWindowFromText (const string & s);
+void numSpectralWindowFromText (const std::string & s);
 	
 	
-void numPairedAntennaFromText (const string & s);
+void numPairedAntennaFromText (const std::string & s);
 	
 	
-void polarizationTypeFromText (const string & s);
+void numChanFromText (const std::string & s);
 	
 	
-void pairedAntennaIdFromText (const string & s);
+void polarizationTypeFromText (const std::string & s);
 	
 	
-void spectralWindowIdFromText (const string & s);
+void channelFromText (const std::string & s);
+	
+	
+void pairedAntennaIdFromText (const std::string & s);
+	
+	
+void spectralWindowIdFromText (const std::string & s);
 	
 	
 	

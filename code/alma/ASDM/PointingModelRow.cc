@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <PointingModelRow.h>
-#include <PointingModelTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/PointingModelRow.h>
+#include <alma/ASDM/PointingModelTable.h>
 
-#include <PointingModelTable.h>
-#include <PointingModelRow.h>
+#include <alma/ASDM/PointingModelTable.h>
+#include <alma/ASDM/PointingModelRow.h>
 
-#include <AntennaTable.h>
-#include <AntennaRow.h>
+#include <alma/ASDM/AntennaTable.h>
+#include <alma/ASDM/AntennaRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::AntennaTable;
 using asdm::AntennaRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	PointingModelRow::~PointingModelRow() {
@@ -1078,7 +1075,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void PointingModelRow::antennaIdFromText(const string & s) {
 		 
+          
 		antennaId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1086,7 +1085,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingModelRow::pointingModelIdFromText(const string & s) {
 		 
+          
 		pointingModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1094,7 +1095,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingModelRow::numCoeffFromText(const string & s) {
 		 
+          
 		numCoeff = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1102,7 +1105,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void PointingModelRow::coeffNameFromText(const string & s) {
 		 
+          
 		coeffName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1110,7 +1115,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an float 
 	void PointingModelRow::coeffValFromText(const string & s) {
 		 
+          
 		coeffVal = ASDMValuesParser::parse1D<float>(s);
+          
 		
 	}
 	
@@ -1118,7 +1125,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an PolarizationType 
 	void PointingModelRow::polarizationTypeFromText(const string & s) {
 		 
-		polarizationType = ASDMValuesParser::parse<PolarizationType>(s);
+          
+		polarizationType = ASDMValuesParser::parse<PolarizationTypeMod::PolarizationType>(s);
+          
 		
 	}
 	
@@ -1126,7 +1135,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an ReceiverBand 
 	void PointingModelRow::receiverBandFromText(const string & s) {
 		 
-		receiverBand = ASDMValuesParser::parse<ReceiverBand>(s);
+          
+		receiverBand = ASDMValuesParser::parse<ReceiverBandMod::ReceiverBand>(s);
+          
 		
 	}
 	
@@ -1134,7 +1145,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void PointingModelRow::assocNatureFromText(const string & s) {
 		 
+          
 		assocNature = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1142,7 +1155,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void PointingModelRow::assocPointingModelIdFromText(const string & s) {
 		 
+          
 		assocPointingModelId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1152,7 +1167,9 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	void PointingModelRow::coeffFormulaFromText(const string & s) {
 		coeffFormulaExists = true;
 		 
+          
 		coeffFormula = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1242,21 +1259,21 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffName.
- 	 * @return coeffName as vector<string >
+ 	 * @return coeffName as std::vector<std::string >
  	 */
- 	vector<string > PointingModelRow::getCoeffName() const {
+ 	std::vector<std::string > PointingModelRow::getCoeffName() const {
 	
   		return coeffName;
  	}
 
  	/**
- 	 * Set coeffName with the specified vector<string >.
- 	 * @param coeffName The vector<string > value to which coeffName is to be set.
+ 	 * Set coeffName with the specified std::vector<std::string >.
+ 	 * @param coeffName The std::vector<std::string > value to which coeffName is to be set.
  	 
  	
  		
  	 */
- 	void PointingModelRow::setCoeffName (vector<string > coeffName)  {
+ 	void PointingModelRow::setCoeffName (std::vector<std::string > coeffName)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1274,21 +1291,21 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffVal.
- 	 * @return coeffVal as vector<float >
+ 	 * @return coeffVal as std::vector<float >
  	 */
- 	vector<float > PointingModelRow::getCoeffVal() const {
+ 	std::vector<float > PointingModelRow::getCoeffVal() const {
 	
   		return coeffVal;
  	}
 
  	/**
- 	 * Set coeffVal with the specified vector<float >.
- 	 * @param coeffVal The vector<float > value to which coeffVal is to be set.
+ 	 * Set coeffVal with the specified std::vector<float >.
+ 	 * @param coeffVal The std::vector<float > value to which coeffVal is to be set.
  	 
  	
  		
  	 */
- 	void PointingModelRow::setCoeffVal (vector<float > coeffVal)  {
+ 	void PointingModelRow::setCoeffVal (std::vector<float > coeffVal)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1370,21 +1387,21 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get assocNature.
- 	 * @return assocNature as string
+ 	 * @return assocNature as std::string
  	 */
- 	string PointingModelRow::getAssocNature() const {
+ 	std::string PointingModelRow::getAssocNature() const {
 	
   		return assocNature;
  	}
 
  	/**
- 	 * Set assocNature with the specified string.
- 	 * @param assocNature The string value to which assocNature is to be set.
+ 	 * Set assocNature with the specified std::string.
+ 	 * @param assocNature The std::string value to which assocNature is to be set.
  	 
  	
  		
  	 */
- 	void PointingModelRow::setAssocNature (string assocNature)  {
+ 	void PointingModelRow::setAssocNature (std::string assocNature)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1410,10 +1427,10 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get coeffFormula, which is optional.
- 	 * @return coeffFormula as vector<string >
+ 	 * @return coeffFormula as std::vector<std::string >
  	 * @throw IllegalAccessException If coeffFormula does not exist.
  	 */
- 	vector<string > PointingModelRow::getCoeffFormula() const  {
+ 	std::vector<std::string > PointingModelRow::getCoeffFormula() const  {
 		if (!coeffFormulaExists) {
 			throw IllegalAccessException("coeffFormula", "PointingModel");
 		}
@@ -1422,12 +1439,12 @@ void PointingModelRow::coeffFormulaFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set coeffFormula with the specified vector<string >.
- 	 * @param coeffFormula The vector<string > value to which coeffFormula is to be set.
+ 	 * Set coeffFormula with the specified std::vector<std::string >.
+ 	 * @param coeffFormula The std::vector<std::string > value to which coeffFormula is to be set.
  	 
  	
  	 */
- 	void PointingModelRow::setCoeffFormula (vector<string > coeffFormula) {
+ 	void PointingModelRow::setCoeffFormula (std::vector<std::string > coeffFormula) {
 	
  		this->coeffFormula = coeffFormula;
 	
@@ -1683,10 +1700,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	PointingModelRow::PointingModelRow (PointingModelTable &t, PointingModelRow &row) : table(t) {
+	PointingModelRow::PointingModelRow (PointingModelTable &t, PointingModelRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1716,32 +1733,32 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			pointingModelId = row.pointingModelId;
-		
-		
-		
-		
-			numCoeff = row.numCoeff;
-		
-			coeffName = row.coeffName;
-		
-			coeffVal = row.coeffVal;
-		
-			polarizationType = row.polarizationType;
-		
-			receiverBand = row.receiverBand;
-		
-			assocNature = row.assocNature;
-		
-			assocPointingModelId = row.assocPointingModelId;
+			pointingModelId = row->pointingModelId;
 		
 		
 		
 		
-		if (row.coeffFormulaExists) {
-			coeffFormula = row.coeffFormula;		
+			numCoeff = row->numCoeff;
+		
+			coeffName = row->coeffName;
+		
+			coeffVal = row->coeffVal;
+		
+			polarizationType = row->polarizationType;
+		
+			receiverBand = row->receiverBand;
+		
+			assocNature = row->assocNature;
+		
+			assocPointingModelId = row->assocPointingModelId;
+		
+		
+		
+		
+		if (row->coeffFormulaExists) {
+			coeffFormula = row->coeffFormula;		
 			coeffFormulaExists = true;
 		}
 		else
@@ -1765,7 +1782,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool PointingModelRow::compareNoAutoInc(Tag antennaId, int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId) {
+	bool PointingModelRow::compareNoAutoInc(Tag antennaId, int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, std::string assocNature, int assocPointingModelId) {
 		bool result;
 		result = true;
 		
@@ -1830,7 +1847,7 @@ receiverBand = CReceiverBand::from_int(0);
 	
 	
 	
-	bool PointingModelRow::compareRequiredValue(int numCoeff, vector<string > coeffName, vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, string assocNature, int assocPointingModelId) {
+	bool PointingModelRow::compareRequiredValue(int numCoeff, std::vector<std::string > coeffName, std::vector<float > coeffVal, PolarizationTypeMod::PolarizationType polarizationType, ReceiverBandMod::ReceiverBand receiverBand, std::string assocNature, int assocPointingModelId) {
 		bool result;
 		result = true;
 		

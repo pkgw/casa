@@ -1,7 +1,8 @@
 
 import os
 import shutil
-from taskinit import *
+from taskinit import casalog, mttool, tbtool, mstool
+from mstools import write_history
 from parallel.parallel_data_helper import ParallelDataHelper
 
 
@@ -51,7 +52,7 @@ def cvel2(
         return False
 
     # Input vis is an MMS
-    if pdh.isParallelMS(vis) and keepmms:
+    if pdh.isMMSAndNotServer(vis) and keepmms:
         
         status = True   
         

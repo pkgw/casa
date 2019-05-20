@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <SquareLawDetectorRow.h>
-#include <SquareLawDetectorTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/SquareLawDetectorRow.h>
+#include <alma/ASDM/SquareLawDetectorTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::SquareLawDetectorRow;
 using asdm::SquareLawDetectorTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	SquareLawDetectorRow::~SquareLawDetectorRow() {
@@ -414,7 +411,9 @@ void SquareLawDetectorRow::bandTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void SquareLawDetectorRow::squareLawDetectorIdFromText(const string & s) {
 		 
+          
 		squareLawDetectorId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -422,7 +421,9 @@ void SquareLawDetectorRow::bandTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void SquareLawDetectorRow::numBandFromText(const string & s) {
 		 
+          
 		numBand = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -430,7 +431,9 @@ void SquareLawDetectorRow::bandTypeFromBin(EndianIStream& eis) {
 	// Convert a string into an DetectorBandType 
 	void SquareLawDetectorRow::bandTypeFromText(const string & s) {
 		 
-		bandType = ASDMValuesParser::parse<DetectorBandType>(s);
+          
+		bandType = ASDMValuesParser::parse<DetectorBandTypeMod::DetectorBandType>(s);
+          
 		
 	}
 	
@@ -617,10 +620,10 @@ bandType = CDetectorBandType::from_int(0);
 		
 	}
 	
-	SquareLawDetectorRow::SquareLawDetectorRow (SquareLawDetectorTable &t, SquareLawDetectorRow &row) : table(t) {
+	SquareLawDetectorRow::SquareLawDetectorRow (SquareLawDetectorTable &t, SquareLawDetectorRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -634,14 +637,14 @@ bandType = CDetectorBandType::from_int(0);
 		else {
 	
 		
-			squareLawDetectorId = row.squareLawDetectorId;
+			squareLawDetectorId = row->squareLawDetectorId;
 		
 		
 		
 		
-			numBand = row.numBand;
+			numBand = row->numBand;
 		
-			bandType = row.bandType;
+			bandType = row->bandType;
 		
 		
 		

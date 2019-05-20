@@ -48,23 +48,23 @@
 
 
 	 
-#include <Angle.h>
+#include <alma/ASDM/Angle.h>
 	
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Frequency.h>
+#include <alma/ASDM/Frequency.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 	 
-#include <Interval.h>
+#include <alma/ASDM/Interval.h>
 	
 
 
@@ -83,19 +83,19 @@
 	
 
 	
-#include "CDirectionReferenceCode.h"
+#include <alma/Enumerations/CDirectionReferenceCode.h>
 	
 
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file SwitchCycle.h
     \brief Generated from model's revision "-1", branch ""
@@ -109,7 +109,7 @@ namespace asdm {
 
 class SwitchCycleRow;
 typedef void (SwitchCycleRow::*SwitchCycleAttributeFromBin) (EndianIStream& eis);
-typedef void (SwitchCycleRow::*SwitchCycleAttributeFromText) (const string& s);
+typedef void (SwitchCycleRow::*SwitchCycleAttributeFromText) (const std::string& s);
 
 /**
  * The SwitchCycleRow class is a row of a SwitchCycleTable.
@@ -200,21 +200,21 @@ public:
 	
  	/**
  	 * Get weightArray.
- 	 * @return weightArray as vector<float >
+ 	 * @return weightArray as std::vector<float >
  	 */
- 	vector<float > getWeightArray() const;
+ 	std::vector<float > getWeightArray() const;
 	
  
  	
  	
  	/**
- 	 * Set weightArray with the specified vector<float >.
- 	 * @param weightArray The vector<float > value to which weightArray is to be set.
+ 	 * Set weightArray with the specified std::vector<float >.
+ 	 * @param weightArray The std::vector<float > value to which weightArray is to be set.
  	 
  		
  			
  	 */
- 	void setWeightArray (vector<float > weightArray);
+ 	void setWeightArray (std::vector<float > weightArray);
   		
 	
 	
@@ -230,21 +230,21 @@ public:
 	
  	/**
  	 * Get dirOffsetArray.
- 	 * @return dirOffsetArray as vector<vector<Angle > >
+ 	 * @return dirOffsetArray as std::vector<std::vector<Angle > >
  	 */
- 	vector<vector<Angle > > getDirOffsetArray() const;
+ 	std::vector<std::vector<Angle > > getDirOffsetArray() const;
 	
  
  	
  	
  	/**
- 	 * Set dirOffsetArray with the specified vector<vector<Angle > >.
- 	 * @param dirOffsetArray The vector<vector<Angle > > value to which dirOffsetArray is to be set.
+ 	 * Set dirOffsetArray with the specified std::vector<std::vector<Angle > >.
+ 	 * @param dirOffsetArray The std::vector<std::vector<Angle > > value to which dirOffsetArray is to be set.
  	 
  		
  			
  	 */
- 	void setDirOffsetArray (vector<vector<Angle > > dirOffsetArray);
+ 	void setDirOffsetArray (std::vector<std::vector<Angle > > dirOffsetArray);
   		
 	
 	
@@ -260,21 +260,21 @@ public:
 	
  	/**
  	 * Get freqOffsetArray.
- 	 * @return freqOffsetArray as vector<Frequency >
+ 	 * @return freqOffsetArray as std::vector<Frequency >
  	 */
- 	vector<Frequency > getFreqOffsetArray() const;
+ 	std::vector<Frequency > getFreqOffsetArray() const;
 	
  
  	
  	
  	/**
- 	 * Set freqOffsetArray with the specified vector<Frequency >.
- 	 * @param freqOffsetArray The vector<Frequency > value to which freqOffsetArray is to be set.
+ 	 * Set freqOffsetArray with the specified std::vector<Frequency >.
+ 	 * @param freqOffsetArray The std::vector<Frequency > value to which freqOffsetArray is to be set.
  	 
  		
  			
  	 */
- 	void setFreqOffsetArray (vector<Frequency > freqOffsetArray);
+ 	void setFreqOffsetArray (std::vector<Frequency > freqOffsetArray);
   		
 	
 	
@@ -290,21 +290,21 @@ public:
 	
  	/**
  	 * Get stepDurationArray.
- 	 * @return stepDurationArray as vector<Interval >
+ 	 * @return stepDurationArray as std::vector<Interval >
  	 */
- 	vector<Interval > getStepDurationArray() const;
+ 	std::vector<Interval > getStepDurationArray() const;
 	
  
  	
  	
  	/**
- 	 * Set stepDurationArray with the specified vector<Interval >.
- 	 * @param stepDurationArray The vector<Interval > value to which stepDurationArray is to be set.
+ 	 * Set stepDurationArray with the specified std::vector<Interval >.
+ 	 * @param stepDurationArray The std::vector<Interval > value to which stepDurationArray is to be set.
  	 
  		
  			
  	 */
- 	void setStepDurationArray (vector<Interval > stepDurationArray);
+ 	void setStepDurationArray (std::vector<Interval > stepDurationArray);
   		
 	
 	
@@ -419,7 +419,7 @@ public:
 	 * @param stepDurationArray
 	    
 	 */ 
-	bool compareNoAutoInc(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray);
+	bool compareNoAutoInc(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray);
 	
 	
 
@@ -439,7 +439,7 @@ public:
 	 * @param stepDurationArray
 	    
 	 */ 
-	bool compareRequiredValue(int numStep, vector<float > weightArray, vector<vector<Angle > > dirOffsetArray, vector<Frequency > freqOffsetArray, vector<Interval > stepDurationArray); 
+	bool compareRequiredValue(int numStep, std::vector<float > weightArray, std::vector<std::vector<Angle > > dirOffsetArray, std::vector<Frequency > freqOffsetArray, std::vector<Interval > stepDurationArray); 
 		 
 	
 	/**
@@ -568,7 +568,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SwitchCycleRow (SwitchCycleTable &table, SwitchCycleRow &row);
+	 SwitchCycleRow (SwitchCycleTable &table, SwitchCycleRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -613,7 +613,7 @@ private:
 	
 	
 
-	vector<float > weightArray;
+	std::vector<float > weightArray;
 
 	
 	
@@ -624,7 +624,7 @@ private:
 	
 	
 
-	vector<vector<Angle > > dirOffsetArray;
+	std::vector<std::vector<Angle > > dirOffsetArray;
 
 	
 	
@@ -635,7 +635,7 @@ private:
 	
 	
 
-	vector<Frequency > freqOffsetArray;
+	std::vector<Frequency > freqOffsetArray;
 
 	
 	
@@ -646,7 +646,7 @@ private:
 	
 	
 
-	vector<Interval > stepDurationArray;
+	std::vector<Interval > stepDurationArray;
 
 	
 	
@@ -709,29 +709,29 @@ void directionEquinoxFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SwitchCycleAttributeFromText> fromTextMethods;
 	
-void switchCycleIdFromText (const string & s);
+void switchCycleIdFromText (const std::string & s);
 	
 	
-void numStepFromText (const string & s);
+void numStepFromText (const std::string & s);
 	
 	
-void weightArrayFromText (const string & s);
+void weightArrayFromText (const std::string & s);
 	
 	
-void dirOffsetArrayFromText (const string & s);
+void dirOffsetArrayFromText (const std::string & s);
 	
 	
-void freqOffsetArrayFromText (const string & s);
+void freqOffsetArrayFromText (const std::string & s);
 	
 	
-void stepDurationArrayFromText (const string & s);
+void stepDurationArrayFromText (const std::string & s);
 	
 
 	
-void directionCodeFromText (const string & s);
+void directionCodeFromText (const std::string & s);
 	
 	
-void directionEquinoxFromText (const string & s);
+void directionEquinoxFromText (const std::string & s);
 	
 	
 	

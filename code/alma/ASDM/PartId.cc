@@ -24,11 +24,11 @@
  * File PartId.cpp
  */
 
-#include <PartId.h>
-#include <OutOfBoundsException.h>
-#include <InvalidArgumentException.h>
-using asdm::OutOfBoundsException;
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/PartId.h>
+#include <alma/ASDM/OutOfBoundsException.h>
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 

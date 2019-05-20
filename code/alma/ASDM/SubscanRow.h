@@ -48,11 +48,11 @@
 
 
 	 
-#include <ArrayTime.h>
+#include <alma/ASDM/ArrayTime.h>
 	
 
 	 
-#include <Tag.h>
+#include <alma/ASDM/Tag.h>
 	
 
 
@@ -69,11 +69,11 @@
 	
 
 	
-#include "CSubscanIntent.h"
+#include <alma/Enumerations/CSubscanIntent.h>
 	
 
 	
-#include "CSwitchingMode.h"
+#include <alma/Enumerations/CSwitchingMode.h>
 	
 
 	
@@ -81,17 +81,17 @@
 	
 
 	
-#include "CCorrelatorCalibration.h"
+#include <alma/Enumerations/CCorrelatorCalibration.h>
 	
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file Subscan.h
     \brief Generated from model's revision "-1", branch ""
@@ -108,7 +108,7 @@ class ExecBlockRow;
 
 class SubscanRow;
 typedef void (SubscanRow::*SubscanAttributeFromBin) (EndianIStream& eis);
-typedef void (SubscanRow::*SubscanAttributeFromText) (const string& s);
+typedef void (SubscanRow::*SubscanAttributeFromText) (const std::string& s);
 
 /**
  * The SubscanRow class is a row of a SubscanTable.
@@ -273,21 +273,21 @@ public:
 	
  	/**
  	 * Get fieldName.
- 	 * @return fieldName as string
+ 	 * @return fieldName as std::string
  	 */
- 	string getFieldName() const;
+ 	std::string getFieldName() const;
 	
  
  	
  	
  	/**
- 	 * Set fieldName with the specified string.
- 	 * @param fieldName The string value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::string.
+ 	 * @param fieldName The std::string value to which fieldName is to be set.
  	 
  		
  			
  	 */
- 	void setFieldName (string fieldName);
+ 	void setFieldName (std::string fieldName);
   		
 	
 	
@@ -404,21 +404,21 @@ public:
 	
  	/**
  	 * Get numSubintegration.
- 	 * @return numSubintegration as vector<int >
+ 	 * @return numSubintegration as std::vector<int >
  	 */
- 	vector<int > getNumSubintegration() const;
+ 	std::vector<int > getNumSubintegration() const;
 	
  
  	
  	
  	/**
- 	 * Set numSubintegration with the specified vector<int >.
- 	 * @param numSubintegration The vector<int > value to which numSubintegration is to be set.
+ 	 * Set numSubintegration with the specified std::vector<int >.
+ 	 * @param numSubintegration The std::vector<int > value to which numSubintegration is to be set.
  	 
  		
  			
  	 */
- 	void setNumSubintegration (vector<int > numSubintegration);
+ 	void setNumSubintegration (std::vector<int > numSubintegration);
   		
 	
 	
@@ -547,7 +547,7 @@ public:
 	 * @param numSubintegration
 	    
 	 */ 
-	bool compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration);
+	bool compareNoAutoInc(Tag execBlockId, int scanNumber, int subscanNumber, ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration);
 	
 	
 
@@ -569,7 +569,7 @@ public:
 	 * @param numSubintegration
 	    
 	 */ 
-	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, vector<int > numSubintegration); 
+	bool compareRequiredValue(ArrayTime startTime, ArrayTime endTime, std::string fieldName, SubscanIntentMod::SubscanIntent subscanIntent, int numIntegration, std::vector<int > numSubintegration); 
 		 
 	
 	/**
@@ -701,7 +701,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SubscanRow (SubscanTable &table, SubscanRow &row);
+	 SubscanRow (SubscanTable &table, SubscanRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -756,7 +756,7 @@ private:
 	
 	
 
-	string fieldName;
+	std::string fieldName;
 
 	
 	
@@ -802,7 +802,7 @@ private:
 	
 	
 
-	vector<int > numSubintegration;
+	std::vector<int > numSubintegration;
 
 	
 	
@@ -873,38 +873,38 @@ void correlatorCalibrationFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, SubscanAttributeFromText> fromTextMethods;
 	
-void execBlockIdFromText (const string & s);
+void execBlockIdFromText (const std::string & s);
 	
 	
-void scanNumberFromText (const string & s);
+void scanNumberFromText (const std::string & s);
 	
 	
-void subscanNumberFromText (const string & s);
+void subscanNumberFromText (const std::string & s);
 	
 	
-void startTimeFromText (const string & s);
+void startTimeFromText (const std::string & s);
 	
 	
-void endTimeFromText (const string & s);
+void endTimeFromText (const std::string & s);
 	
 	
-void fieldNameFromText (const string & s);
+void fieldNameFromText (const std::string & s);
 	
 	
-void subscanIntentFromText (const string & s);
+void subscanIntentFromText (const std::string & s);
 	
 	
-void numIntegrationFromText (const string & s);
+void numIntegrationFromText (const std::string & s);
 	
 	
-void numSubintegrationFromText (const string & s);
+void numSubintegrationFromText (const std::string & s);
 	
 
 	
-void subscanModeFromText (const string & s);
+void subscanModeFromText (const std::string & s);
 	
 	
-void correlatorCalibrationFromText (const string & s);
+void correlatorCalibrationFromText (const std::string & s);
 	
 	
 	

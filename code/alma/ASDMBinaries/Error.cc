@@ -1,9 +1,10 @@
-using namespace std;
 #include <string>
 #include <iostream>
 #include <cstdio>
 
-#include "Error.h"
+using namespace std;
+
+#include <alma/ASDMBinaries/Error.h>
 
 Error::Error(){}
 

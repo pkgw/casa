@@ -171,7 +171,7 @@ CalibratingVi2::CalibratingVi2( vi::ViImplementation2 * inputVii,
   if (calpar.byCalLib()) {
     // Arrange calibration
     cb_p->validatecallib(calpar.getCalLibRecord());
-    cb_p->setcallib2(calpar.getCalLibRecord());
+    cb_p->setcallib2(calpar.getCalLibRecord(),&(inputVii->ms())); // Use underlying MS!
     cb_p->applystate();
     // Point to VisEquation
     ve_p = cb_p->ve();
@@ -357,6 +357,7 @@ Bool CalibratingVi2::existsColumn(VisBufferComponent2 id) const
 
     case VisBufferComponent2::VisibilityCorrected:
     case VisBufferComponent2::VisibilityCubeCorrected:
+    case VisBufferComponent2::VisibilityCubeModel:
 
         result = true;
         break;

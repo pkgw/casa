@@ -32,26 +32,23 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <MainRow.h>
-#include <MainTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/MainRow.h>
+#include <alma/ASDM/MainTable.h>
 
-#include <ConfigDescriptionTable.h>
-#include <ConfigDescriptionRow.h>
+#include <alma/ASDM/ConfigDescriptionTable.h>
+#include <alma/ASDM/ConfigDescriptionRow.h>
 
-#include <FieldTable.h>
-#include <FieldRow.h>
+#include <alma/ASDM/FieldTable.h>
+#include <alma/ASDM/FieldRow.h>
 
-#include <StateTable.h>
-#include <StateRow.h>
+#include <alma/ASDM/StateTable.h>
+#include <alma/ASDM/StateRow.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -71,14 +68,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	MainRow::~MainRow() {
@@ -1167,7 +1164,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void MainRow::timeFromText(const string & s) {
 		 
+          
 		time = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1175,7 +1174,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void MainRow::configDescriptionIdFromText(const string & s) {
 		 
+          
 		configDescriptionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1183,7 +1184,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void MainRow::fieldIdFromText(const string & s) {
 		 
+          
 		fieldId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1191,7 +1194,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void MainRow::numAntennaFromText(const string & s) {
 		 
+          
 		numAntenna = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1199,7 +1204,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an TimeSampling 
 	void MainRow::timeSamplingFromText(const string & s) {
 		 
-		timeSampling = ASDMValuesParser::parse<TimeSampling>(s);
+          
+		timeSampling = ASDMValuesParser::parse<TimeSamplingMod::TimeSampling>(s);
+          
 		
 	}
 	
@@ -1207,7 +1214,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void MainRow::intervalFromText(const string & s) {
 		 
+          
 		interval = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1215,7 +1224,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void MainRow::numIntegrationFromText(const string & s) {
 		 
+          
 		numIntegration = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1223,7 +1234,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void MainRow::scanNumberFromText(const string & s) {
 		 
+          
 		scanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1231,7 +1244,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void MainRow::subscanNumberFromText(const string & s) {
 		 
+          
 		subscanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1239,7 +1254,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an long 
 	void MainRow::dataSizeFromText(const string & s) {
 		 
+          
 		dataSize = ASDMValuesParser::parse<int64_t>(s);
+          
 		
 	}
 	
@@ -1248,7 +1265,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void MainRow::stateIdFromText(const string & s) {
 		 
+          
 		stateId = ASDMValuesParser::parse1D<Tag>(s);
+          
 		
 	}
 	
@@ -1256,7 +1275,9 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void MainRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1680,21 +1701,21 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get stateId.
- 	 * @return stateId as vector<Tag> 
+ 	 * @return stateId as std::vector<Tag> 
  	 */
- 	vector<Tag>  MainRow::getStateId() const {
+ 	std::vector<Tag>  MainRow::getStateId() const {
 	
   		return stateId;
  	}
 
  	/**
- 	 * Set stateId with the specified vector<Tag> .
- 	 * @param stateId The vector<Tag>  value to which stateId is to be set.
+ 	 * Set stateId with the specified std::vector<Tag> .
+ 	 * @param stateId The std::vector<Tag>  value to which stateId is to be set.
  	 
  	
  		
  	 */
- 	void MainRow::setStateId (vector<Tag>  stateId)  {
+ 	void MainRow::setStateId (std::vector<Tag>  stateId)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1765,7 +1786,7 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
   		}
   		if ((i < 0) || (i > ((int) this->stateId.size())))
   			throw OutOfBoundsException("Index out of bounds during a set operation on attribute stateId in table MainTable");
-  		vector<Tag> ::iterator iter = this->stateId.begin();
+  		std::vector<Tag> ::iterator iter = this->stateId.begin();
   		int j = 0;
   		while (j < i) {
   			j++; iter++;
@@ -1789,7 +1810,7 @@ void MainRow::execBlockIdFromBin(EndianIStream& eis) {
  * Append an array of Tag to stateId.
  * @param id an array of Tag to be appended to stateId
  */
- void MainRow::addStateId(const vector<Tag> & id) {
+ void MainRow::addStateId(const std::vector<Tag> & id) {
  	for (unsigned int i=0; i < id.size(); i++)
  		stateId.push_back(id.at(i));
  }
@@ -1984,10 +2005,10 @@ timeSampling = CTimeSampling::from_int(0);
 		
 	}
 	
-	MainRow::MainRow (MainTable &t, MainRow &row) : table(t) {
+	MainRow::MainRow (MainTable &t, MainRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2021,34 +2042,34 @@ timeSampling = CTimeSampling::from_int(0);
 		else {
 	
 		
-			time = row.time;
+			time = row->time;
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
-			fieldId = row.fieldId;
-		
-		
+			fieldId = row->fieldId;
 		
 		
-			numAntenna = row.numAntenna;
 		
-			timeSampling = row.timeSampling;
 		
-			interval = row.interval;
+			numAntenna = row->numAntenna;
 		
-			numIntegration = row.numIntegration;
+			timeSampling = row->timeSampling;
 		
-			scanNumber = row.scanNumber;
+			interval = row->interval;
 		
-			subscanNumber = row.subscanNumber;
+			numIntegration = row->numIntegration;
 		
-			dataSize = row.dataSize;
+			scanNumber = row->scanNumber;
 		
-			dataUID = row.dataUID;
+			subscanNumber = row->subscanNumber;
 		
-			stateId = row.stateId;
+			dataSize = row->dataSize;
 		
-			execBlockId = row.execBlockId;
+			dataUID = row->dataUID;
+		
+			stateId = row->stateId;
+		
+			execBlockId = row->execBlockId;
 		
 		
 		
@@ -2074,7 +2095,7 @@ timeSampling = CTimeSampling::from_int(0);
 	}
 
 	
-	bool MainRow::compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId) {
+	bool MainRow::compareNoAutoInc(ArrayTime time, Tag configDescriptionId, Tag fieldId, int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId) {
 		bool result;
 		result = true;
 		
@@ -2174,7 +2195,7 @@ timeSampling = CTimeSampling::from_int(0);
 	
 	
 	
-	bool MainRow::compareRequiredValue(int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, vector<Tag>  stateId, Tag execBlockId) {
+	bool MainRow::compareRequiredValue(int numAntenna, TimeSamplingMod::TimeSampling timeSampling, Interval interval, int numIntegration, int scanNumber, int subscanNumber, int64_t dataSize, EntityRef dataUID, std::vector<Tag>  stateId, Tag execBlockId) {
 		bool result;
 		result = true;
 		

@@ -147,10 +147,10 @@ public:
     // PlotShapeRectangle Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
     // Implements PlotShapeRectangle::setRectCoordinates().
     void setRectCoordinates(const PlotCoordinate& upperLeft,
@@ -217,10 +217,10 @@ public:
     // PlotShapeEllipse Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
     // Implements PlotShapeEllipse::setEllipseCoordinates().
     void setEllipseCoordinates(const PlotCoordinate& center,
@@ -274,7 +274,7 @@ public:
     // Non-Static //
     
     // Constructor which takes list of coordinates.
-    QPPolygon(const vector<PlotCoordinate>& coords);
+    QPPolygon(const std::vector<PlotCoordinate>& coords);
     
     // Copy constructor for generic PlotShapePolygon.
     QPPolygon(const PlotShapePolygon& copy);
@@ -295,10 +295,10 @@ public:
     // PlotShapePolygon Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
 protected:
     // Implements QPPlotItem::className().
@@ -319,7 +319,7 @@ protected:
     QwtSymbol::Style legendStyle() const { return QwtSymbol::Hexagon; }
     
 private:
-    vector<PlotCoordinate> m_coords; // Coordinates
+    std::vector<PlotCoordinate> m_coords; // Coordinates
 };
 
 
@@ -356,10 +356,10 @@ public:
     // PlotShapeLine Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
     // Implements PlotShapeLine::setLineCoordinates().
     void setLineCoordinates(double location, PlotAxis axis);
@@ -439,10 +439,10 @@ public:
     // PlotShapeArrow Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);    
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);    
     
     // Implements PlotShapeArrow::setArrowCoordinates().
     void setArrowCoordinates(const PlotCoordinate& from,
@@ -516,7 +516,7 @@ public:
     // Non-Static //
     
     // Constructor which takes the points.
-    QPPath(const vector<PlotCoordinate>& points);
+    QPPath(const std::vector<PlotCoordinate>& points);
     
     // Copy constructor for generic PlotShapePath.
     QPPath(const PlotShapePath& copy);
@@ -537,10 +537,10 @@ public:
     // PlotShapePath Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::setCoordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
 protected:
     // Implements QPPlotItem::className().
@@ -561,7 +561,7 @@ protected:
     QwtSymbol::Style legendStyle() const { return QwtSymbol::HLine; }
     
 private:
-    vector<PlotCoordinate> m_coords; // Coordinates
+    std::vector<PlotCoordinate> m_coords; // Coordinates
 };
 
 
@@ -604,10 +604,10 @@ public:
     // PlotShapeArc Methods //
     
     // Implements PlotShape::coordinates().
-    vector<PlotCoordinate> coordinates() const;
+    std::vector<PlotCoordinate> coordinates() const;
     
     // Implements PlotShape::coordinates().
-    void setCoordinates(const vector<PlotCoordinate>& coords);
+    void setCoordinates(const std::vector<PlotCoordinate>& coords);
     
     // Implements PlotShapeArc::startCoordinate().
     PlotCoordinate startCoordinate() const;

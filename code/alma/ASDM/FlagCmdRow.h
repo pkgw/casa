@@ -48,7 +48,7 @@
 
 
 	 
-#include <ArrayTimeInterval.h>
+#include <alma/ASDM/ArrayTimeInterval.h>
 	
 
 
@@ -70,12 +70,12 @@
 
 
 
-#include <ConversionException.h>
-#include <NoSuchRow.h>
-#include <IllegalAccessException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/NoSuchRow.h>
+#include <alma/ASDM/IllegalAccessException.h>
 
-#include <RowTransformer.h>
-//#include <TableStreamReader.h>
+#include <alma/ASDM/RowTransformer.h>
+//#include <alma/ASDM/TableStreamReader.h>
 
 /*\file FlagCmd.h
     \brief Generated from model's revision "-1", branch ""
@@ -89,7 +89,7 @@ namespace asdm {
 
 class FlagCmdRow;
 typedef void (FlagCmdRow::*FlagCmdAttributeFromBin) (EndianIStream& eis);
-typedef void (FlagCmdRow::*FlagCmdAttributeFromText) (const string& s);
+typedef void (FlagCmdRow::*FlagCmdAttributeFromText) (const std::string& s);
 
 /**
  * The FlagCmdRow class is a row of a FlagCmdTable.
@@ -162,21 +162,21 @@ public:
 	
  	/**
  	 * Get type.
- 	 * @return type as string
+ 	 * @return type as std::string
  	 */
- 	string getType() const;
+ 	std::string getType() const;
 	
  
  	
  	
  	/**
- 	 * Set type with the specified string.
- 	 * @param type The string value to which type is to be set.
+ 	 * Set type with the specified std::string.
+ 	 * @param type The std::string value to which type is to be set.
  	 
  		
  			
  	 */
- 	void setType (string type);
+ 	void setType (std::string type);
   		
 	
 	
@@ -192,21 +192,21 @@ public:
 	
  	/**
  	 * Get reason.
- 	 * @return reason as string
+ 	 * @return reason as std::string
  	 */
- 	string getReason() const;
+ 	std::string getReason() const;
 	
  
  	
  	
  	/**
- 	 * Set reason with the specified string.
- 	 * @param reason The string value to which reason is to be set.
+ 	 * Set reason with the specified std::string.
+ 	 * @param reason The std::string value to which reason is to be set.
  	 
  		
  			
  	 */
- 	void setReason (string reason);
+ 	void setReason (std::string reason);
   		
 	
 	
@@ -312,21 +312,21 @@ public:
 	
  	/**
  	 * Get command.
- 	 * @return command as string
+ 	 * @return command as std::string
  	 */
- 	string getCommand() const;
+ 	std::string getCommand() const;
 	
  
  	
  	
  	/**
- 	 * Set command with the specified string.
- 	 * @param command The string value to which command is to be set.
+ 	 * Set command with the specified std::string.
+ 	 * @param command The std::string value to which command is to be set.
  	 
  		
  			
  	 */
- 	void setCommand (string command);
+ 	void setCommand (std::string command);
   		
 	
 	
@@ -363,7 +363,7 @@ public:
 	 * @param command
 	    
 	 */ 
-	bool compareNoAutoInc(ArrayTimeInterval timeInterval, string type, string reason, int level, int severity, bool applied, string command);
+	bool compareNoAutoInc(ArrayTimeInterval timeInterval, std::string type, std::string reason, int level, int severity, bool applied, std::string command);
 	
 	
 
@@ -385,7 +385,7 @@ public:
 	 * @param command
 	    
 	 */ 
-	bool compareRequiredValue(string type, string reason, int level, int severity, bool applied, string command); 
+	bool compareRequiredValue(std::string type, std::string reason, int level, int severity, bool applied, std::string command); 
 		 
 	
 	/**
@@ -513,7 +513,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 FlagCmdRow (FlagCmdTable &table, FlagCmdRow &row);
+	 FlagCmdRow (FlagCmdTable &table, FlagCmdRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
@@ -535,7 +535,7 @@ private:
 	
 	
 
-	string type;
+	std::string type;
 
 	
 	
@@ -546,7 +546,7 @@ private:
 	
 	
 
-	string reason;
+	std::string reason;
 
 	
 	
@@ -590,7 +590,7 @@ private:
 	
 	
 
-	string command;
+	std::string command;
 
 	
 	
@@ -626,25 +626,25 @@ void commandFromBin( EndianIStream& eis);
 	///////////////////////////////////
 	std::map<std::string, FlagCmdAttributeFromText> fromTextMethods;
 	
-void timeIntervalFromText (const string & s);
+void timeIntervalFromText (const std::string & s);
 	
 	
-void typeFromText (const string & s);
+void typeFromText (const std::string & s);
 	
 	
-void reasonFromText (const string & s);
+void reasonFromText (const std::string & s);
 	
 	
-void levelFromText (const string & s);
+void levelFromText (const std::string & s);
 	
 	
-void severityFromText (const string & s);
+void severityFromText (const std::string & s);
 	
 	
-void appliedFromText (const string & s);
+void appliedFromText (const std::string & s);
 	
 	
-void commandFromText (const string & s);
+void commandFromText (const std::string & s);
 	
 
 		

@@ -30,18 +30,18 @@
  *
  * File FlagTable.cpp
  */
-#include <ConversionException.h>
-#include <DuplicateKey.h>
-#include <OutOfBoundsException.h>
+#include <alma/ASDM/ConversionException.h>
+#include <alma/ASDM/DuplicateKey.h>
+#include <alma/ASDM/OutOfBoundsException.h>
 
 using asdm::ConversionException;
 using asdm::DuplicateKey;
 using asdm::OutOfBoundsException;
 
-#include <ASDM.h>
-#include <FlagTable.h>
-#include <FlagRow.h>
-#include <Parser.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/FlagTable.h>
+#include <alma/ASDM/FlagRow.h>
+#include <alma/ASDM/Parser.h>
 
 using asdm::ASDM;
 using asdm::FlagTable;
@@ -56,15 +56,18 @@ using asdm::Parser;
 #include <algorithm>
 using namespace std;
 
-#include <Misc.h>
+#include <alma/ASDM/Misc.h>
 using namespace asdm;
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifndef WITHOUT_BOOST
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
-using namespace boost;
+#else
+#include <sys/stat.h>
+#endif
 
 namespace asdm {
 	// The name of the entity we will store in this table.
@@ -95,7 +98,11 @@ namespace asdm {
 		
 			, "numPairedAntenna"
 		
+			, "numChan"
+		
 			, "polarizationType"
+		
+			, "channel"
 		
 			, "pairedAntennaId"
 		
@@ -115,7 +122,7 @@ namespace asdm {
     
     	 "flagId" , "startTime" , "endTime" , "reason" , "numAntenna" , "antennaId" 
     	,
-    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "polarizationType" , "pairedAntennaId" , "spectralWindowId" 
+    	 "numPolarizationType" , "numSpectralWindow" , "numPairedAntenna" , "numChan" , "polarizationType" , "channel" , "pairedAntennaId" , "spectralWindowId" 
     
 	};
 	        			
@@ -257,7 +264,7 @@ namespace asdm {
  	 * @param antennaId 
 	
      */
-	FlagRow* FlagTable::newRow(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId){
+	FlagRow* FlagTable::newRow(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId){
 		FlagRow *row = new FlagRow(*this);
 			
 		row->setStartTime(startTime);
@@ -276,7 +283,7 @@ namespace asdm {
 
 
 FlagRow* FlagTable::newRow(FlagRow* row) {
-	return new FlagRow(*this, *row);
+	return new FlagRow(*this, row);
 }
 
 	//
@@ -461,7 +468,7 @@ FlagRow* FlagTable::newRow(FlagRow* row) {
  * @param antennaId.
  	 		 
  */
-FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason, int numAntenna, vector<Tag>  antennaId) {
+FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, std::string reason, int numAntenna, std::vector<Tag>  antennaId) {
 		FlagRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
@@ -522,7 +529,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		string buf;
 
 		buf.append("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?> ");
-		buf.append("<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n");
+		buf.append("<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/4/FlagTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n");
 	
 		buf.append(entity.toXML());
 		string s = container.getEntity().toXML();
@@ -633,6 +640,9 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		//Does not change the convention defined in the model.	
 		//archiveAsBin = false;
 		//fileAsBin = false;
+
+                // clean up the xmlDoc pointer
+		if ( doc != NULL ) xmlFreeDoc(doc);
 		
 	}
 
@@ -649,7 +659,7 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		ostringstream oss;
 		oss << "<?xml version='1.0'  encoding='ISO-8859-1'?>";
 		oss << "\n";
-		oss << "<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/3/FlagTable.xsd\" schemaVersion=\"3\" schemaRevision=\"-1\">\n";
+		oss << "<FlagTable xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:flag=\"http://Alma/XASDM/FlagTable\" xsi:schemaLocation=\"http://Alma/XASDM/FlagTable http://almaobservatory.org/XML/XASDM/4/FlagTable.xsd\" schemaVersion=\"4\" schemaRevision=\"-1\">\n";
 		oss<< "<Entity entityId='"<<UID<<"' entityIdEncrypted='na' entityTypeName='FlagTable' schemaVersion='1' documentVersion='1'/>\n";
 		oss<< "<ContainerEntity entityId='"<<containerUID<<"' entityIdEncrypted='na' entityTypeName='ASDM' schemaVersion='1' documentVersion='1'/>\n";
 		oss << "<BulkStoreRef file_id='"<<withoutUID<<"' byteOrder='"<<byteOrder->toString()<<"' />\n";
@@ -665,7 +675,9 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 		oss << "<numPolarizationType/>\n"; 
 		oss << "<numSpectralWindow/>\n"; 
 		oss << "<numPairedAntenna/>\n"; 
+		oss << "<numChan/>\n"; 
 		oss << "<polarizationType/>\n"; 
+		oss << "<channel/>\n"; 
 		oss << "<pairedAntennaId/>\n"; 
 		oss << "<spectralWindowId/>\n"; 
 		oss << "</Attributes>\n";		
@@ -802,7 +814,11 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     	 
     attributesSeq.push_back("numPairedAntenna") ; 
     	 
+    attributesSeq.push_back("numChan") ; 
+    	 
     attributesSeq.push_back("polarizationType") ; 
+    	 
+    attributesSeq.push_back("channel") ; 
     	 
     attributesSeq.push_back("pairedAntennaId") ; 
     	 
@@ -909,6 +925,8 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
     //Does not change the convention defined in the model.	
     //archiveAsBin = true;
     //fileAsBin = true;
+    if ( doc != NULL ) xmlFreeDoc(doc);
+
 	}
 	
 	void FlagTable::setUnknownAttributeBinaryReader(const string& attributeName, BinaryAttributeReaderFunctor* barFctr) {
@@ -962,11 +980,19 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 	}
 
 	
-	void FlagTable::setFromFile(const string& directory) {		
+	void FlagTable::setFromFile(const string& directory) {
+#ifndef WITHOUT_BOOST
     if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.xml"))))
       setFromXMLFile(directory);
     else if (boost::filesystem::exists(boost::filesystem::path(uniqSlashes(directory + "/Flag.bin"))))
       setFromMIMEFile(directory);
+#else 
+    // alternative in Misc.h
+    if (file_exists(uniqSlashes(directory + "/Flag.xml")))
+      setFromXMLFile(directory);
+    else if (file_exists(uniqSlashes(directory + "/Flag.bin")))
+      setFromMIMEFile(directory);
+#endif
     else
       throw ConversionException("No file found for the Flag table", "Flag");
 	}			
@@ -1117,7 +1143,9 @@ FlagRow* FlagTable::lookup(ArrayTime startTime, ArrayTime endTime, string reason
 			 << this->declaredSize
 			 << "'). I'll proceed with the value declared in ASDM.xml"
 			 << endl;
-    }    
+    }
+    // clean up xmlDoc pointer
+    if ( doc != NULL ) xmlFreeDoc(doc);    
   } 
  */
 

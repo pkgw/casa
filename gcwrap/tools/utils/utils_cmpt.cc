@@ -16,7 +16,9 @@
 #include <stdcasa/version.h>
 #include <utils_cmpt.h>
 #include <tools/utils/stdBaseInterface.h>
+#if ! defined(WITHOUT_DBUS)
 #include <tools/xerces/stdcasaXMLUtil.h>
+#endif
 #include <casa/Logging/LogIO.h>
 #include <casa/BasicSL/String.h>
 #include <casa/OS/File.h>
@@ -34,6 +36,10 @@
 #include <cstdlib>
 #include <casacore/casa/Quanta/UnitMap.h>
 #include <casatools/Config/State.h>
+#ifdef CASATOOLS
+#include <asdmstman/Register.h>
+#include <toolversion.h>
+#endif
 
 using namespace std;
 using namespace casacore;
@@ -55,6 +61,10 @@ utils::~utils()
   delete itsLog;
 }
 
+#if ! defined(WITHOUT_DBUS)
+// These parameter/XML processing routines are no longer needed with
+// CASA 6 because Cereberus is used for type checking based upon
+// generated JSON parameter descriptions...
 bool
 utils::verify(const ::casac::record& input, const ::casac::variant& xmldescriptor, bool throwexcept)
 {
@@ -204,6 +214,7 @@ utils::toxml(const ::casac::record& input, const bool asfile, const std::string&
    }
    return rstat;
 }
+#endif
 
 std::string
 utils::getrc(const std::string& rcvar)
@@ -404,6 +415,9 @@ bool utils::initialize(const std::vector<std::string> &default_path) {
     casatools::get_state( ).setDataPath(default_data_path);
     // configure quanta/measures customizations...
     UnitMap::putUser( "pix", UnitVal(1.0), "pixel units" );
+#ifdef CASATOOLS
+    register_asdmstman( );
+#endif
     initialized = true;
     return true;
 }
@@ -450,8 +464,8 @@ std::string utils::resolve(const std::string &subdir) {
     for ( std::list<casatools::ServiceId>::const_iterator it=servs.begin( ); it != servs.end( ); ++it ) {
         casac::record *sub = new casac::record;
         sub->insert("id",it->id( ));
-        sub->insert("type",it->type( ));
         sub->insert("uri",it->uri( ));
+        sub->insert("types",std::vector<std::string>(it->types( ).begin( ),it->types( ).end( )));
         sub->insert("priority",it->priority( ));
         regrec->insert(std::to_string(count++),sub);
     }
@@ -481,6 +495,10 @@ std::string
 utils::version_desc( ) { return VersionInfo::desc( ); }
 
 std::string
+utils::version_variant( ) { return VersionInfo::variant( ); }
+
+
+std::string
 utils::version_info( ) { return VersionInfo::info( ); }
 
 std::string
@@ -488,6 +506,26 @@ utils::version_string( ) { return VersionInfo::str( ); }
 
 bool utils::compare_version(const  string& comparitor,  const std::vector<int>& vec) {
     return VersionInfo::compare(comparitor,vec);
+}
+
+std::vector<int>
+utils::toolversion( ) {
+    std::vector<int> result = {
+#ifdef CASATOOLS
+        ToolVersionInfo::major( ),
+        ToolVersionInfo::minor( ),
+#endif
+    };
+    return result;
+}
+
+std::string
+utils::toolversion_string( ) {
+#ifdef CASATOOLS
+    return ToolVersionInfo::version( );
+#else
+    return "";
+#endif
 }
 
 } // casac namespace

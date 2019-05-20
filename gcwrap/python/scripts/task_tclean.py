@@ -13,7 +13,7 @@ import numpy
 from taskinit import *
 import copy
 import time;
-
+import pdb
 #from refimagerhelper import PySynthesisImager
 #from refimagerhelper import PyParallelContSynthesisImager,PyParallelCubeSynthesisImager
 #from refimagerhelper import ImagerParameters
@@ -60,17 +60,20 @@ def tclean(
 #    sysvel,#='',
 #    sysvelframe,#='',
     interpolation,#='',
+    perchanweightdensity, #=''
     ## 
     ####### Gridding parameters
-    gridder,#='ft', 
+    gridder,#='ft',
     facets,#=1,
+    psfphasecenter, #=''
     chanchunks,#=1,
 
     wprojplanes,#=1,
 
     ### PB
     vptable,
-
+    usepointing, #=false
+    mosweight, #=True
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
@@ -99,6 +102,7 @@ def tclean(
     ##### Weighting
     weighting,#='natural',
     robust,#=0.5,
+    noise,#0.0Jy
     npixels,#=0,
 #    uvtaper,#=False,
     uvtaper,#=[],
@@ -108,6 +112,7 @@ def tclean(
     niter,#=0, 
     gain,#=0.1,
     threshold,#=0.0, 
+    nsigma,#=0.0
     cycleniter,#=0, 
     cyclefactor,#=1.0,
     minpsffraction,#=0.1,
@@ -118,9 +123,9 @@ def tclean(
     usemask,#='user',
     mask,#='',
     pbmask,#='',
-    maskthreshold,#='',
-    maskresolution,#='',
-    nmask,#=0,
+    # maskthreshold,#='',
+    # maskresolution,#='',
+    # nmask,#=0,
 
     ##### automask by multithresh
     sidelobethreshold,#=5.0,
@@ -131,6 +136,10 @@ def tclean(
     minbeamfrac,#=0.3, 
     cutthreshold,#=0.01,
     growiterations,#=100
+    dogrowprune,#=True
+    minpercentchange,#=0.0
+    verbose, #=False
+    fastnoise, #=False
 
     ## Misc
 
@@ -150,13 +159,21 @@ def tclean(
     #####################################################
     
     ### Move these checks elsewhere ? 
-
+    inpparams=locals().copy()
+    ###now deal with parameters which are not the same name 
+    inpparams['msname']= inpparams.pop('vis')
+    inpparams['timestr']= inpparams.pop('timerange')
+    inpparams['uvdist']= inpparams.pop('uvrange')
+    inpparams['obs']= inpparams.pop('observation')
+    inpparams['state']= inpparams.pop('intent')
+    inpparams['loopgain']=inpparams.pop('gain')
+    inpparams['scalebias']=inpparams.pop('smallscalebias')
     if specmode=='cont':
         specmode='mfs'
-
-    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
-        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
-        return
+        inpparams['specmode']='mfs'
+#    if specmode=='mfs' and nterms==1 and deconvolver == "mtmfs":
+#        casalog.post( "The MTMFS deconvolution algorithm (deconvolver='mtmfs') needs nterms>1.Please set nterms=2 (or more). ", "WARN", "task_tclean" )
+#        return
 
     if specmode!='mfs' and deconvolver=="mtmfs":
         casalog.post( "The MSMFS algorithm (deconvolver='mtmfs') applies only to specmode='mfs'.", "WARN", "task_tclean" )
@@ -168,110 +185,22 @@ def tclean(
 
     imager = None
     paramList = None
+    # Put all parameters into dictionaries and check them.
+    ##make a dictionary of parameters that ImagerParameters take
+    defparm=dict(zip(ImagerParameters.__init__.__func__.__code__.co_varnames[1:], ImagerParameters.__init__.func_defaults))
+    ###assign values to the ones passed to tclean and if not defined yet in tclean...
+    ###assign them the default value of the constructor
+    bparm={k:  inpparams[k] if inpparams.has_key(k) else defparm[k]  for k in defparm.keys()}
+    ###default mosweight=True is tripping other gridders as they are not
+    ###expecting it to be true
+    if(bparm['mosweight']==True and bparm['gridder'].find("mosaic") == -1):
+        bparm['mosweight']=False
+    paramList=ImagerParameters(**bparm)
 
-    # Put all parameters into dictionaries and check them. 
-    paramList = ImagerParameters(
-        msname =vis,
-        field=field,
-        spw=spw,
-        timestr=timerange,
-        uvdist=uvrange,
-        antenna=antenna,
-        scan=scan,
-        obs=observation,
-        state=intent,
-        datacolumn=datacolumn,
+    # deprecation message
+    if usemask=='auto-thresh' or usemask=='auto-thresh2':
+        casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
 
-        ### Image....
-        imagename=imagename,
-        #### Direction Image Coords
-        imsize=imsize, 
-        cell=cell, 
-        phasecenter=phasecenter,
-        stokes=stokes,
-        projection=projection,
-        startmodel=startmodel,
-
-        ### Spectral Image Coords
-        specmode=specmode,
-        reffreq=reffreq,
-        nchan=nchan,
-        start=start,
-        width=width,
-        outframe=outframe,
-        veltype=veltype,
-        restfreq=restfreq,
-        sysvel='', #sysvel,
-        sysvelframe='', #sysvelframe,
-        interpolation=interpolation,
-
-        gridder=gridder,
-#        ftmachine=ftmachine,
-        facets=facets,
-        chanchunks=chanchunks,
-
-        wprojplanes=wprojplanes,
-
-        vptable=vptable,
-
-        ### Gridding....
-
-        aterm=aterm,
-        psterm=psterm,
-        wbawp = wbawp,
-        cfcache = cfcache,
-        conjbeams = conjbeams,
-        computepastep =computepastep,
-        rotatepastep = rotatepastep,
-
-        pblimit=pblimit,
-        normtype=normtype,
-
-        outlierfile=outlierfile,
-        restart=restart,
-
-        weighting=weighting,
-        robust=robust,
-        npixels=npixels,
-        uvtaper=uvtaper,
-
-        ### Deconvolution
-        niter=niter,
-        cycleniter=cycleniter,
-        loopgain=gain,
-        threshold=threshold,
-        cyclefactor=cyclefactor,
-        minpsffraction=minpsffraction, 
-        maxpsffraction=maxpsffraction,
-        interactive=interactive,
-
-        deconvolver=deconvolver,
-        scales=scales,
-        nterms=nterms,
-        scalebias=smallscalebias,
-        restoringbeam=restoringbeam,
-        
-        ### new mask params
-        usemask=usemask,
-        mask=mask,
-        pbmask=pbmask,
-        maskthreshold=maskthreshold,
-        maskresolution=maskresolution,
-        nmask=nmask,
-
-        ### automask multithresh params
-        sidelobethreshold=sidelobethreshold,
-        noisethreshold=noisethreshold,
-        lownoisethreshold=lownoisethreshold,
-        negativethreshold=negativethreshold,
-        smoothfactor=smoothfactor,
-        minbeamfrac=minbeamfrac,
-        cutthreshold=cutthreshold,
-        growiterations=growiterations,
- 
-        savemodel=savemodel
-        )
-    
     #paramList.printParameters()
 
     pcube=False
@@ -286,13 +215,16 @@ def tclean(
         return False
    
     ## Setup Imager objects, for different parallelization schemes.
+    imagerInst=PySynthesisImager
     if parallel==False and pcube==False:
-   
          imager = PySynthesisImager(params=paramList)
+         imagerInst=PySynthesisImager
     elif parallel==True:
          imager = PyParallelContSynthesisImager(params=paramList)
+         imagerInst=PyParallelContSynthesisImager
     elif pcube==True:
          imager = PyParallelCubeSynthesisImager(params=paramList)
+         imagerInst=PyParallelCubeSynthesisImager
          # virtualconcat type - changed from virtualmove to virtualcopy 2016-07-20
          concattype='virtualcopy'
     else:
@@ -334,9 +266,18 @@ def tclean(
         ## Make PSF
         if calcpsf==True:
             t0=time.time();
-
+             
             imager.makePSF()
-
+            if((psfphasecenter != '') and (gridder=='mosaic')):
+                print "doing with different phasecenter psf"
+                imager.unlockimages(0)
+                psfParameters=paramList.getAllPars()
+                psfParameters['phasecenter']=psfphasecenter
+                psfParamList=ImagerParameters(**psfParameters)
+                psfimager=imagerInst(params=psfParamList)
+                psfimager.initializeImagers()
+                psfimager.setWeighting()
+                psfimager.makeImage('psf', psfParameters['imagename']+'.psf')
             t1=time.time();
             casalog.post("***Time for making PSF: "+"%.2f"%(t1-t0)+" sec", "INFO3", "task_tclean");
 
@@ -352,7 +293,7 @@ def tclean(
                 t0=time.time();
                 imager.runMajorCycle()
                 t1=time.time();
-                casalog.post("***Time for major cycle (calcres=T): "+"%.2f"%(t1-t0)+" sec", "INFO3", "task_tclean");
+                casalog.post("***Time for major cycle (calcres=T): "+"%.2f"%(t1-t0)+" sec", "INFO3", "task_tclean"); 
 
             ## In case of no deconvolution iterations....
             if niter==0 and calcres==False:

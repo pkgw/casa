@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <DopplerRow.h>
-#include <DopplerTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/DopplerRow.h>
+#include <alma/ASDM/DopplerTable.h>
 
-#include <SourceTable.h>
-#include <SourceRow.h>
+#include <alma/ASDM/SourceTable.h>
+#include <alma/ASDM/SourceRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::SourceTable;
 using asdm::SourceRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	DopplerRow::~DopplerRow() {
@@ -521,7 +518,9 @@ void DopplerRow::velDefFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void DopplerRow::dopplerIdFromText(const string & s) {
 		 
+          
 		dopplerId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -529,7 +528,9 @@ void DopplerRow::velDefFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void DopplerRow::sourceIdFromText(const string & s) {
 		 
+          
 		sourceId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -537,7 +538,9 @@ void DopplerRow::velDefFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void DopplerRow::transitionIndexFromText(const string & s) {
 		 
+          
 		transitionIndex = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -545,7 +548,9 @@ void DopplerRow::velDefFromBin(EndianIStream& eis) {
 	// Convert a string into an DopplerReferenceCode 
 	void DopplerRow::velDefFromText(const string & s) {
 		 
-		velDef = ASDMValuesParser::parse<DopplerReferenceCode>(s);
+          
+		velDef = ASDMValuesParser::parse<DopplerReferenceCodeMod::DopplerReferenceCode>(s);
+          
 		
 	}
 	
@@ -794,10 +799,10 @@ velDef = CDopplerReferenceCode::from_int(0);
 		
 	}
 	
-	DopplerRow::DopplerRow (DopplerTable &t, DopplerRow &row) : table(t) {
+	DopplerRow::DopplerRow (DopplerTable &t, DopplerRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -813,16 +818,16 @@ velDef = CDopplerReferenceCode::from_int(0);
 		else {
 	
 		
-			dopplerId = row.dopplerId;
+			dopplerId = row->dopplerId;
 		
-			sourceId = row.sourceId;
-		
-		
+			sourceId = row->sourceId;
 		
 		
-			transitionIndex = row.transitionIndex;
 		
-			velDef = row.velDef;
+		
+			transitionIndex = row->transitionIndex;
+		
+			velDef = row->velDef;
 		
 		
 		

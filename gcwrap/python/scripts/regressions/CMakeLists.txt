@@ -83,7 +83,12 @@ casa_add_python( tools tools_regressions_python lib/python${PYTHONV}/regressions
   ppdisk2_regression.py
   testcube2_regression.py
   testcompsim.py
-  pipelineTest_regression.py
+  pipelineTest_almaif.py
+  pipelineTest_regression_almaif.py
+  pipelineTest_almasd.py
+  pipelineTest_regression_almasd.py
+  pipelineTest_vla.py
+  pipelineTest_regression_vla.py
   time_then_chan_avg.py
   calstat_test_regression.py
   wideband.py

@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <HolographyRow.h>
-#include <HolographyTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/HolographyRow.h>
+#include <alma/ASDM/HolographyTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::HolographyRow;
 using asdm::HolographyTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	HolographyRow::~HolographyRow() {
@@ -569,7 +566,9 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void HolographyRow::holographyIdFromText(const string & s) {
 		 
+          
 		holographyId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -577,7 +576,9 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void HolographyRow::distanceFromText(const string & s) {
 		 
+          
 		distance = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -585,7 +586,9 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void HolographyRow::focusFromText(const string & s) {
 		 
+          
 		focus = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -593,7 +596,9 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void HolographyRow::numCorrFromText(const string & s) {
 		 
+          
 		numCorr = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -601,7 +606,9 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	// Convert a string into an HolographyChannelType 
 	void HolographyRow::typeFromText(const string & s) {
 		 
-		type = ASDMValuesParser::parse1D<HolographyChannelType>(s);
+          
+		type = ASDMValuesParser::parse1D<HolographyChannelTypeMod::HolographyChannelType>(s);
+          
 		
 	}
 	
@@ -756,21 +763,21 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get type.
- 	 * @return type as vector<HolographyChannelTypeMod::HolographyChannelType >
+ 	 * @return type as std::vector<HolographyChannelTypeMod::HolographyChannelType >
  	 */
- 	vector<HolographyChannelTypeMod::HolographyChannelType > HolographyRow::getType() const {
+ 	std::vector<HolographyChannelTypeMod::HolographyChannelType > HolographyRow::getType() const {
 	
   		return type;
  	}
 
  	/**
- 	 * Set type with the specified vector<HolographyChannelTypeMod::HolographyChannelType >.
- 	 * @param type The vector<HolographyChannelTypeMod::HolographyChannelType > value to which type is to be set.
+ 	 * Set type with the specified std::vector<HolographyChannelTypeMod::HolographyChannelType >.
+ 	 * @param type The std::vector<HolographyChannelTypeMod::HolographyChannelType > value to which type is to be set.
  	 
  	
  		
  	 */
- 	void HolographyRow::setType (vector<HolographyChannelTypeMod::HolographyChannelType > type)  {
+ 	void HolographyRow::setType (std::vector<HolographyChannelTypeMod::HolographyChannelType > type)  {
   	
   	
   		if (hasBeenAdded) {
@@ -867,10 +874,10 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 		
 	}
 	
-	HolographyRow::HolographyRow (HolographyTable &t, HolographyRow &row) : table(t) {
+	HolographyRow::HolographyRow (HolographyTable &t, HolographyRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -888,18 +895,18 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			holographyId = row.holographyId;
+			holographyId = row->holographyId;
 		
 		
 		
 		
-			distance = row.distance;
+			distance = row->distance;
 		
-			focus = row.focus;
+			focus = row->focus;
 		
-			numCorr = row.numCorr;
+			numCorr = row->numCorr;
 		
-			type = row.type;
+			type = row->type;
 		
 		
 		
@@ -917,7 +924,7 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool HolographyRow::compareNoAutoInc(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type) {
+	bool HolographyRow::compareNoAutoInc(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type) {
 		bool result;
 		result = true;
 		
@@ -954,7 +961,7 @@ void HolographyRow::typeFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool HolographyRow::compareRequiredValue(Length distance, Length focus, int numCorr, vector<HolographyChannelTypeMod::HolographyChannelType > type) {
+	bool HolographyRow::compareRequiredValue(Length distance, Length focus, int numCorr, std::vector<HolographyChannelTypeMod::HolographyChannelType > type) {
 		bool result;
 		result = true;
 		

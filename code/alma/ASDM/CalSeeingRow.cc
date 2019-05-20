@@ -32,20 +32,17 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <CalSeeingRow.h>
-#include <CalSeeingTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/CalSeeingRow.h>
+#include <alma/ASDM/CalSeeingTable.h>
 
-#include <CalDataTable.h>
-#include <CalDataRow.h>
+#include <alma/ASDM/CalDataTable.h>
+#include <alma/ASDM/CalDataRow.h>
 
-#include <CalReductionTable.h>
-#include <CalReductionRow.h>
+#include <alma/ASDM/CalReductionTable.h>
+#include <alma/ASDM/CalReductionRow.h>
 	
 
 using asdm::ASDM;
@@ -59,14 +56,14 @@ using asdm::CalReductionTable;
 using asdm::CalReductionRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	CalSeeingRow::~CalSeeingRow() {
@@ -1362,7 +1359,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an AtmPhaseCorrection 
 	void CalSeeingRow::atmPhaseCorrectionFromText(const string & s) {
 		 
-		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrection>(s);
+          
+		atmPhaseCorrection = ASDMValuesParser::parse<AtmPhaseCorrectionMod::AtmPhaseCorrection>(s);
+          
 		
 	}
 	
@@ -1370,7 +1369,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalSeeingRow::calDataIdFromText(const string & s) {
 		 
+          
 		calDataId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1378,7 +1379,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void CalSeeingRow::calReductionIdFromText(const string & s) {
 		 
+          
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1386,7 +1389,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalSeeingRow::startValidTimeFromText(const string & s) {
 		 
+          
 		startValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1394,7 +1399,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void CalSeeingRow::endValidTimeFromText(const string & s) {
 		 
+          
 		endValidTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1402,7 +1409,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Frequency 
 	void CalSeeingRow::frequencyRangeFromText(const string & s) {
 		 
+          
 		frequencyRange = ASDMValuesParser::parse1D<Frequency>(s);
+          
 		
 	}
 	
@@ -1410,7 +1419,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Interval 
 	void CalSeeingRow::integrationTimeFromText(const string & s) {
 		 
+          
 		integrationTime = ASDMValuesParser::parse<Interval>(s);
+          
 		
 	}
 	
@@ -1418,7 +1429,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void CalSeeingRow::numBaseLengthsFromText(const string & s) {
 		 
+          
 		numBaseLengths = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1426,7 +1439,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Length 
 	void CalSeeingRow::baselineLengthsFromText(const string & s) {
 		 
+          
 		baselineLengths = ASDMValuesParser::parse1D<Length>(s);
+          
 		
 	}
 	
@@ -1434,7 +1449,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalSeeingRow::phaseRMSFromText(const string & s) {
 		 
+          
 		phaseRMS = ASDMValuesParser::parse1D<Angle>(s);
+          
 		
 	}
 	
@@ -1442,7 +1459,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalSeeingRow::seeingFromText(const string & s) {
 		 
+          
 		seeing = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1450,7 +1469,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	// Convert a string into an Angle 
 	void CalSeeingRow::seeingErrorFromText(const string & s) {
 		 
+          
 		seeingError = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1460,7 +1481,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	void CalSeeingRow::exponentFromText(const string & s) {
 		exponentExists = true;
 		 
+          
 		exponent = ASDMValuesParser::parse<float>(s);
+          
 		
 	}
 	
@@ -1469,7 +1492,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	void CalSeeingRow::outerScaleFromText(const string & s) {
 		outerScaleExists = true;
 		 
+          
 		outerScale = ASDMValuesParser::parse<Length>(s);
+          
 		
 	}
 	
@@ -1478,7 +1503,9 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	void CalSeeingRow::outerScaleRMSFromText(const string & s) {
 		outerScaleRMSExists = true;
 		 
+          
 		outerScaleRMS = ASDMValuesParser::parse<Angle>(s);
+          
 		
 	}
 	
@@ -1600,21 +1627,21 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get frequencyRange.
- 	 * @return frequencyRange as vector<Frequency >
+ 	 * @return frequencyRange as std::vector<Frequency >
  	 */
- 	vector<Frequency > CalSeeingRow::getFrequencyRange() const {
+ 	std::vector<Frequency > CalSeeingRow::getFrequencyRange() const {
 	
   		return frequencyRange;
  	}
 
  	/**
- 	 * Set frequencyRange with the specified vector<Frequency >.
- 	 * @param frequencyRange The vector<Frequency > value to which frequencyRange is to be set.
+ 	 * Set frequencyRange with the specified std::vector<Frequency >.
+ 	 * @param frequencyRange The std::vector<Frequency > value to which frequencyRange is to be set.
  	 
  	
  		
  	 */
- 	void CalSeeingRow::setFrequencyRange (vector<Frequency > frequencyRange)  {
+ 	void CalSeeingRow::setFrequencyRange (std::vector<Frequency > frequencyRange)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1696,21 +1723,21 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get baselineLengths.
- 	 * @return baselineLengths as vector<Length >
+ 	 * @return baselineLengths as std::vector<Length >
  	 */
- 	vector<Length > CalSeeingRow::getBaselineLengths() const {
+ 	std::vector<Length > CalSeeingRow::getBaselineLengths() const {
 	
   		return baselineLengths;
  	}
 
  	/**
- 	 * Set baselineLengths with the specified vector<Length >.
- 	 * @param baselineLengths The vector<Length > value to which baselineLengths is to be set.
+ 	 * Set baselineLengths with the specified std::vector<Length >.
+ 	 * @param baselineLengths The std::vector<Length > value to which baselineLengths is to be set.
  	 
  	
  		
  	 */
- 	void CalSeeingRow::setBaselineLengths (vector<Length > baselineLengths)  {
+ 	void CalSeeingRow::setBaselineLengths (std::vector<Length > baselineLengths)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1728,21 +1755,21 @@ void CalSeeingRow::outerScaleRMSFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get phaseRMS.
- 	 * @return phaseRMS as vector<Angle >
+ 	 * @return phaseRMS as std::vector<Angle >
  	 */
- 	vector<Angle > CalSeeingRow::getPhaseRMS() const {
+ 	std::vector<Angle > CalSeeingRow::getPhaseRMS() const {
 	
   		return phaseRMS;
  	}
 
  	/**
- 	 * Set phaseRMS with the specified vector<Angle >.
- 	 * @param phaseRMS The vector<Angle > value to which phaseRMS is to be set.
+ 	 * Set phaseRMS with the specified std::vector<Angle >.
+ 	 * @param phaseRMS The std::vector<Angle > value to which phaseRMS is to be set.
  	 
  	
  		
  	 */
- 	void CalSeeingRow::setPhaseRMS (vector<Angle > phaseRMS)  {
+ 	void CalSeeingRow::setPhaseRMS (std::vector<Angle > phaseRMS)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2249,10 +2276,10 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		
 	}
 	
-	CalSeeingRow::CalSeeingRow (CalSeeingTable &t, CalSeeingRow &row) : table(t) {
+	CalSeeingRow::CalSeeingRow (CalSeeingTable &t, CalSeeingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2296,52 +2323,52 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		else {
 	
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			frequencyRange = row.frequencyRange;
-		
-			integrationTime = row.integrationTime;
-		
-			numBaseLengths = row.numBaseLengths;
-		
-			baselineLengths = row.baselineLengths;
-		
-			phaseRMS = row.phaseRMS;
-		
-			seeing = row.seeing;
-		
-			seeingError = row.seeingError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.exponentExists) {
-			exponent = row.exponent;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			frequencyRange = row->frequencyRange;
+		
+			integrationTime = row->integrationTime;
+		
+			numBaseLengths = row->numBaseLengths;
+		
+			baselineLengths = row->baselineLengths;
+		
+			phaseRMS = row->phaseRMS;
+		
+			seeing = row->seeing;
+		
+			seeingError = row->seeingError;
+		
+		
+		
+		
+		if (row->exponentExists) {
+			exponent = row->exponent;		
 			exponentExists = true;
 		}
 		else
 			exponentExists = false;
 		
-		if (row.outerScaleExists) {
-			outerScale = row.outerScale;		
+		if (row->outerScaleExists) {
+			outerScale = row->outerScale;		
 			outerScaleExists = true;
 		}
 		else
 			outerScaleExists = false;
 		
-		if (row.outerScaleRMSExists) {
-			outerScaleRMS = row.outerScaleRMS;		
+		if (row->outerScaleRMSExists) {
+			outerScaleRMS = row->outerScaleRMS;		
 			outerScaleRMSExists = true;
 		}
 		else
@@ -2370,7 +2397,7 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 	}
 
 	
-	bool CalSeeingRow::compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError) {
+	bool CalSeeingRow::compareNoAutoInc(AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError) {
 		bool result;
 		result = true;
 		
@@ -2463,7 +2490,7 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 	
 	
 	
-	bool CalSeeingRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, vector<Length > baselineLengths, vector<Angle > phaseRMS, Angle seeing, Angle seeingError) {
+	bool CalSeeingRow::compareRequiredValue(ArrayTime startValidTime, ArrayTime endValidTime, std::vector<Frequency > frequencyRange, Interval integrationTime, int numBaseLengths, std::vector<Length > baselineLengths, std::vector<Angle > phaseRMS, Angle seeing, Angle seeingError) {
 		bool result;
 		result = true;
 		

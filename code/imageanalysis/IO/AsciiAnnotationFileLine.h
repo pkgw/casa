@@ -71,13 +71,13 @@ public:
 
 	AsciiAnnotationFileLine(casacore::CountedPtr<const AnnotationBase> annotationBase);
 
-	AsciiAnnotationFileLine(const map<AnnotationBase::Keyword, casacore::String>& globals);
+	AsciiAnnotationFileLine(const std::map<AnnotationBase::Keyword, casacore::String>& globals);
 
 	AsciiAnnotationFileLine& operator= (const AsciiAnnotationFileLine& other);
 
 	casacore::String getComment() const;
 
-	map<AnnotationBase::Keyword, casacore::String> getGloabalParams() const;
+	std::map<AnnotationBase::Keyword, casacore::String> getGloabalParams() const;
 
 	casacore::CountedPtr<const AnnotationBase> getAnnotationBase() const;
 
@@ -89,7 +89,7 @@ private:
 	Type _type;
 	casacore::String _comment;
 	casacore::CountedPtr<const AnnotationBase> _annotationBase;
-	map<AnnotationBase::Keyword, casacore::String> _globals;
+	std::map<AnnotationBase::Keyword, casacore::String> _globals;
 
 };
 

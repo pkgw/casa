@@ -32,14 +32,11 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <EphemerisRow.h>
-#include <EphemerisTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/EphemerisRow.h>
+#include <alma/ASDM/EphemerisTable.h>
 	
 
 using asdm::ASDM;
@@ -47,14 +44,14 @@ using asdm::EphemerisRow;
 using asdm::EphemerisTable;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	EphemerisRow::~EphemerisRow() {
@@ -518,7 +515,9 @@ namespace asdm {
 		
 			
 		dir .clear();
-		vector<double> v_aux_dir;
+        
+        vector<double> v_aux_dir;
+        
 		for (unsigned int i = 0; i < x.dir.length(); ++i) {
 			v_aux_dir.clear();
 			for (unsigned int j = 0; j < x.dir[0].length(); ++j) {
@@ -1096,7 +1095,9 @@ void EphemerisRow::dirFromBin(EndianIStream& eis) {
 		
 		unsigned int dirDim1 = eis.readInt();
 		unsigned int dirDim2 = eis.readInt();
+        
 		vector <double> dirAux1;
+        
 		for (unsigned int i = 0; i < dirDim1; i++) {
 			dirAux1.clear();
 			for (unsigned int j = 0; j < dirDim2 ; j++)			
@@ -1240,7 +1241,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTimeInterval 
 	void EphemerisRow::timeIntervalFromText(const string & s) {
 		 
+          
 		timeInterval = ASDMValuesParser::parse<ArrayTimeInterval>(s);
+          
 		
 	}
 	
@@ -1248,7 +1251,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void EphemerisRow::ephemerisIdFromText(const string & s) {
 		 
+          
 		ephemerisId = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1256,7 +1261,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void EphemerisRow::observerLocationFromText(const string & s) {
 		 
+          
 		observerLocation = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1264,7 +1271,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void EphemerisRow::equinoxEquatorFromText(const string & s) {
 		 
+          
 		equinoxEquator = ASDMValuesParser::parse<double>(s);
+          
 		
 	}
 	
@@ -1272,7 +1281,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void EphemerisRow::numPolyDirFromText(const string & s) {
 		 
+          
 		numPolyDir = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1280,7 +1291,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void EphemerisRow::dirFromText(const string & s) {
 		 
+          
 		dir = ASDMValuesParser::parse2D<double>(s);
+          
 		
 	}
 	
@@ -1288,7 +1301,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void EphemerisRow::numPolyDistFromText(const string & s) {
 		 
+          
 		numPolyDist = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1296,7 +1311,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an double 
 	void EphemerisRow::distanceFromText(const string & s) {
 		 
+          
 		distance = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1304,7 +1321,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void EphemerisRow::timeOriginFromText(const string & s) {
 		 
+          
 		timeOrigin = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1312,7 +1331,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	// Convert a string into an String 
 	void EphemerisRow::originFromText(const string & s) {
 		 
+          
 		origin = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1322,7 +1343,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	void EphemerisRow::numPolyRadVelFromText(const string & s) {
 		numPolyRadVelExists = true;
 		 
+          
 		numPolyRadVel = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1331,7 +1354,9 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	void EphemerisRow::radVelFromText(const string & s) {
 		radVelExists = true;
 		 
+          
 		radVel = ASDMValuesParser::parse1D<double>(s);
+          
 		
 	}
 	
@@ -1425,21 +1450,21 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get observerLocation.
- 	 * @return observerLocation as vector<double >
+ 	 * @return observerLocation as std::vector<double >
  	 */
- 	vector<double > EphemerisRow::getObserverLocation() const {
+ 	std::vector<double > EphemerisRow::getObserverLocation() const {
 	
   		return observerLocation;
  	}
 
  	/**
- 	 * Set observerLocation with the specified vector<double >.
- 	 * @param observerLocation The vector<double > value to which observerLocation is to be set.
+ 	 * Set observerLocation with the specified std::vector<double >.
+ 	 * @param observerLocation The std::vector<double > value to which observerLocation is to be set.
  	 
  	
  		
  	 */
- 	void EphemerisRow::setObserverLocation (vector<double > observerLocation)  {
+ 	void EphemerisRow::setObserverLocation (std::vector<double > observerLocation)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1521,21 +1546,21 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get dir.
- 	 * @return dir as vector<vector<double > >
+ 	 * @return dir as std::vector<std::vector<double > >
  	 */
- 	vector<vector<double > > EphemerisRow::getDir() const {
+ 	std::vector<std::vector<double > > EphemerisRow::getDir() const {
 	
   		return dir;
  	}
 
  	/**
- 	 * Set dir with the specified vector<vector<double > >.
- 	 * @param dir The vector<vector<double > > value to which dir is to be set.
+ 	 * Set dir with the specified std::vector<std::vector<double > >.
+ 	 * @param dir The std::vector<std::vector<double > > value to which dir is to be set.
  	 
  	
  		
  	 */
- 	void EphemerisRow::setDir (vector<vector<double > > dir)  {
+ 	void EphemerisRow::setDir (std::vector<std::vector<double > > dir)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1585,21 +1610,21 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get distance.
- 	 * @return distance as vector<double >
+ 	 * @return distance as std::vector<double >
  	 */
- 	vector<double > EphemerisRow::getDistance() const {
+ 	std::vector<double > EphemerisRow::getDistance() const {
 	
   		return distance;
  	}
 
  	/**
- 	 * Set distance with the specified vector<double >.
- 	 * @param distance The vector<double > value to which distance is to be set.
+ 	 * Set distance with the specified std::vector<double >.
+ 	 * @param distance The std::vector<double > value to which distance is to be set.
  	 
  	
  		
  	 */
- 	void EphemerisRow::setDistance (vector<double > distance)  {
+ 	void EphemerisRow::setDistance (std::vector<double > distance)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1649,21 +1674,21 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get origin.
- 	 * @return origin as string
+ 	 * @return origin as std::string
  	 */
- 	string EphemerisRow::getOrigin() const {
+ 	std::string EphemerisRow::getOrigin() const {
 	
   		return origin;
  	}
 
  	/**
- 	 * Set origin with the specified string.
- 	 * @param origin The string value to which origin is to be set.
+ 	 * Set origin with the specified std::string.
+ 	 * @param origin The std::string value to which origin is to be set.
  	 
  	
  		
  	 */
- 	void EphemerisRow::setOrigin (string origin)  {
+ 	void EphemerisRow::setOrigin (std::string origin)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1736,10 +1761,10 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get radVel, which is optional.
- 	 * @return radVel as vector<double >
+ 	 * @return radVel as std::vector<double >
  	 * @throw IllegalAccessException If radVel does not exist.
  	 */
- 	vector<double > EphemerisRow::getRadVel() const  {
+ 	std::vector<double > EphemerisRow::getRadVel() const  {
 		if (!radVelExists) {
 			throw IllegalAccessException("radVel", "Ephemeris");
 		}
@@ -1748,12 +1773,12 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set radVel with the specified vector<double >.
- 	 * @param radVel The vector<double > value to which radVel is to be set.
+ 	 * Set radVel with the specified std::vector<double >.
+ 	 * @param radVel The std::vector<double > value to which radVel is to be set.
  	 
  	
  	 */
- 	void EphemerisRow::setRadVel (vector<double > radVel) {
+ 	void EphemerisRow::setRadVel (std::vector<double > radVel) {
 	
  		this->radVel = radVel;
 	
@@ -1921,10 +1946,10 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 		
 	}
 	
-	EphemerisRow::EphemerisRow (EphemerisTable &t, EphemerisRow &row) : table(t) {
+	EphemerisRow::EphemerisRow (EphemerisTable &t, EphemerisRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1960,41 +1985,41 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			ephemerisId = row.ephemerisId;
-		
-		
-		
-		
-			observerLocation = row.observerLocation;
-		
-			equinoxEquator = row.equinoxEquator;
-		
-			numPolyDir = row.numPolyDir;
-		
-			dir = row.dir;
-		
-			numPolyDist = row.numPolyDist;
-		
-			distance = row.distance;
-		
-			timeOrigin = row.timeOrigin;
-		
-			origin = row.origin;
+			ephemerisId = row->ephemerisId;
 		
 		
 		
 		
-		if (row.numPolyRadVelExists) {
-			numPolyRadVel = row.numPolyRadVel;		
+			observerLocation = row->observerLocation;
+		
+			equinoxEquator = row->equinoxEquator;
+		
+			numPolyDir = row->numPolyDir;
+		
+			dir = row->dir;
+		
+			numPolyDist = row->numPolyDist;
+		
+			distance = row->distance;
+		
+			timeOrigin = row->timeOrigin;
+		
+			origin = row->origin;
+		
+		
+		
+		
+		if (row->numPolyRadVelExists) {
+			numPolyRadVel = row->numPolyRadVel;		
 			numPolyRadVelExists = true;
 		}
 		else
 			numPolyRadVelExists = false;
 		
-		if (row.radVelExists) {
-			radVel = row.radVel;		
+		if (row->radVelExists) {
+			radVel = row->radVel;		
 			radVelExists = true;
 		}
 		else
@@ -2020,7 +2045,7 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool EphemerisRow::compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin) {
+	bool EphemerisRow::compareNoAutoInc(ArrayTimeInterval timeInterval, int ephemerisId, std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin) {
 		bool result;
 		result = true;
 		
@@ -2099,7 +2124,7 @@ void EphemerisRow::radVelFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool EphemerisRow::compareRequiredValue(vector<double > observerLocation, double equinoxEquator, int numPolyDir, vector<vector<double > > dir, int numPolyDist, vector<double > distance, ArrayTime timeOrigin, string origin) {
+	bool EphemerisRow::compareRequiredValue(std::vector<double > observerLocation, double equinoxEquator, int numPolyDir, std::vector<std::vector<double > > dir, int numPolyDist, std::vector<double > distance, ArrayTime timeOrigin, std::string origin) {
 		bool result;
 		result = true;
 		

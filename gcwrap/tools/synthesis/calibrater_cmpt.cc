@@ -31,6 +31,7 @@
 #include <ms/MeasurementSets/MSField.h>
 #include <ms/MeasurementSets/MSSpectralWindow.h>
 #include <synthesis/TransformMachines/VisModelData.h>
+#include <synthesis/CalLibrary/CalLibraryTools.h>
 
 #include <measures/Measures/MeasTable.h>
 #include <iostream>
@@ -352,6 +353,7 @@ calibrater::setsolve(const std::string& type,
 		     const std::string& refantmode,
 		     const int minblperant,
 		     const bool solnorm,
+		     const std::string& normtype,
 		     const float minsnr,
 		     const std::string& combine,
 		     const int fillgaps,
@@ -361,7 +363,14 @@ calibrater::setsolve(const std::string& type,
                      const float fraction,
                      const int numedge,
                      const std::string& radius,
-                     const bool smooth)
+                     const bool smooth,
+                     const bool zerorates,
+                     const bool globalsolve,
+                     const vector<double>& delaywindow,
+                     const vector<double>& ratewindow,
+		     const std::string& solmode,
+		     const vector<double>& rmsthresh
+    )
 {
   if (! itsMS) {
     *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
@@ -387,9 +396,9 @@ calibrater::setsolve(const std::string& type,
     itsCalibrater->setsolve(type,toCasaString(t),table,append,preavg,mode,
 			    minblperant,
 			    toCasaString(refant),refantmode,
-			    solnorm,minsnr,combine,fillgaps,
-			    cfcache, painc, fitorder, fraction, numedge, radius, smooth);
-    
+			    solnorm,normtype, minsnr,combine,fillgaps,
+			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
+                            zerorates, globalsolve, delaywindow, ratewindow, solmode, rmsthresh);
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
@@ -929,6 +938,7 @@ casac::record* calibrater::fluxscale(
 	oSubRecord.define( "fitFluxd", oFluxD.fitfd(t));
 	oSubRecord.define( "fitFluxdErr", oFluxD.fitfderr(t));
 	oSubRecord.define( "fitRefFreq", oFluxD.fitreffreq(t));
+	oSubRecord.define( "covarMat", oFluxD.covarmat[t]);
 	
 	oRecord.defineRecord( String::toString<Int>(t), oSubRecord );
       }
@@ -1348,6 +1358,46 @@ calibrater::done()
 
 
 //----------------------------------------------------------------------------
+// parsecallibfile - convert callib file to a record
+casac::record* calibrater::parsecallibfile(const std::string& filein )
+{
+
+  casac::record* oRec;
+
+  try {
+
+    /*
+    if (! itsMS) {
+      *itsLog << LogIO::SEVERE << "Must first open a MeasurementSet."
+  	    << endl << LogIO::POST;
+      throw( AipsError( "Must first open a MeasurementSet." ) );
+    }
+    */
+
+    // Log
+    logSink_p.clearLocally();
+    LogIO os(LogOrigin("calibrater", "parsecallibfile"), logSink_p);
+    os << "Beginning parsecallibfile-)-------" << LogIO::POST;
+
+    // Check existence of specified file
+    File diskfile(filein);
+    if (!diskfile.exists())
+      throw( AipsError( "Specified cal library file ('"+filein+ "') does not exist!") );
+
+    // Call parser
+    Record callibRec = callibSetParams(filein);
+
+    oRec = fromRecord( callibRec );
+  } catch (AipsError x) {
+    *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+    RETHROW(x);
+  }
+
+  return( oRec );
+ 
+}
+
+//----------------------------------------------------------------------------
 
 bool calibrater::setvi(const bool old, const bool quiet)
 {
@@ -1490,7 +1540,7 @@ void calibrater::uvtaql(std::string& uvsel, bool& noselect,
     ScalarColumn<Double> reffreq(spwtab, "REF_FREQUENCY");
     uvsel = "( ";
     uInt nfreq=reffreq.nrow();
-    Double c = (QC::c).getValue();
+    Double c = (QC::c( )).getValue();
     double ffact;
     vector<int> dd;
 

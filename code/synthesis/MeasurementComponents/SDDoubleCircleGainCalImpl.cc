@@ -162,6 +162,8 @@ inline void smooth(Int const smooth_size, Vector<Double> const &data,
 }
 
 // interpolation
+// unused
+/*
 inline void interpolateLinear(Vector<Double> const &x0,
     Vector<Double> const &y0, Vector<Double> const &x1, Vector<Double> &y1) {
   // TODO replace with sakura function (need to add double precision version of interpolation function)
@@ -173,7 +175,7 @@ inline void interpolateLinear(Vector<Double> const &x0,
     y1[i] = interpolator(x1[i]);
   }
 }
-
+*/
 // utility
 inline size_t toUnsigned(ssize_t const v) {
   assert(v >= 0);

@@ -330,15 +330,15 @@ private:
   // agree ... may need special access code to get those into CASA
   // types on 64 bit machines??
 
-  double preamble[5], first_time;
-  int    ifield, nfield, npoint, nsource;     // both dra/ddec should become Vector's
+  double preamble[5] /*, first_time*/;
+  int    ifield, nfield, npoint /*, nsource*/ ;     // both dra/ddec should become Vector's
   float  dra[MAXFIELD], ddec[MAXFIELD];       // offset in radians
   double ra[MAXFIELD], dec[MAXFIELD];
   int    field[MAXFIELD];                     // source index
   int    fcount[MAXFIELD], sid_p[MAXFIELD];
   float  dra_p, ddec_p;
   int    pol_p;
-  char   message[MAXMSG];
+  //char   message[MAXMSG];
 
 
   // The following items more or less follow the uv variables in a dataset
@@ -881,7 +881,7 @@ void CarmaFiller::fillMSMainTable(Bool /*scan*/)
   Int nChan = nchan_p;              // # channels to be written
   Int nCat  = 3;                    // # initial flagging categories (fixed at 3)
   Int iscan = 0;
-  Int ifield_old;
+  Int ifield_old = -1;
 
   Matrix<Complex> vis(nCorr,nChan);
   Vector<Float>   sigma(nCorr);

@@ -131,7 +131,7 @@ public:
     // Implements Plotter::close().
     void close();
     
-    vector<QPExportCanvas*> getGridComponents();
+    std::vector<QPExportCanvas*> getGridComponents();
     
     // Implements Plotter::canvasLayout().
     PlotCanvasLayoutPtr canvasLayout();
@@ -165,7 +165,7 @@ public:
     int addPanel(PlotPanelPtr panel);
     
     // Implements Plotter::allPanels().
-    vector<PlotPanelPtr> allPanels();
+    std::vector<PlotPanelPtr> allPanels();
     
     // Implements Plotter::numPanels().
     unsigned int numPanels();
@@ -207,7 +207,7 @@ public:
     void registerResizeHandler(PlotResizeEventHandlerPtr handler);
     
     // Implements Plotter::allResizeHandlers().
-    vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
+    std::vector<PlotResizeEventHandlerPtr> allResizeHandlers() const;
     
     // Implements Plotter::unregisterResizeHandlers().
     void unregisterResizeHandler(PlotResizeEventHandlerPtr handler);
@@ -232,13 +232,12 @@ public:
 
     // Implements Plotter::makeSquarePlot to set width=height
     virtual void makeSquarePlot(bool square, bool waveplot=false);
-    bool isSquarePlot() { return (m_sizeRatio != 1.0); }
-    // For iteration plot exports
-    int squareHeight() { return m_squareHeight; }
+    inline int plotWidth() { return m_plotWidth; }
+    inline int plotHeight() { return m_plotHeight; }
     
     virtual bool exportPlot(const PlotExportFormat& format );
 
-	//Return the number of rows and columns in the current grid.
+    //Return the number of rows and columns in the current grid.
     int getRowCount();
     int getColCount();
 
@@ -268,13 +267,13 @@ private:
     PlotCanvasLayoutPtr m_layout;
     
     // Standard tools for canvases.
-    vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
+    std::vector<PlotStandardMouseToolGroupPtr> m_canvasTools;
     
     // Registered handlers.
-    vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
+    std::vector<PlotResizeEventHandlerPtr> m_resizeHandlers;
     
     // Panels.
-    vector<PlotPanelPtr> m_panels;
+    std::vector<PlotPanelPtr> m_panels;
     
     // Flag for whether a resize event should be emitted.
     bool m_emitResize;
@@ -288,13 +287,6 @@ private:
     
     QList<QPAxis*> externalAxes;
 
-    // Save height for square iteration plots
-    int m_squareHeight;
-
-    // For restoring rectangular plot after square one;
-    // ratio of width/height
-    double m_sizeRatio;
-    
     // Sets up the canvas QFrame for the current layout.
     void setupCanvasFrame();
     
@@ -303,6 +295,10 @@ private:
     
     void clearExternalAxes();
     void emptyLayout();
+
+    // for exports
+    int m_plotWidth;
+    int m_plotHeight;
 
     // Static //
     

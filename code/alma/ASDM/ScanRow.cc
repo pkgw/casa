@@ -32,17 +32,14 @@
  */
  
 #include <vector>
-using std::vector;
-
 #include <set>
-using std::set;
 
-#include <ASDM.h>
-#include <ScanRow.h>
-#include <ScanTable.h>
+#include <alma/ASDM/ASDM.h>
+#include <alma/ASDM/ScanRow.h>
+#include <alma/ASDM/ScanTable.h>
 
-#include <ExecBlockTable.h>
-#include <ExecBlockRow.h>
+#include <alma/ASDM/ExecBlockTable.h>
+#include <alma/ASDM/ExecBlockRow.h>
 	
 
 using asdm::ASDM;
@@ -53,14 +50,14 @@ using asdm::ExecBlockTable;
 using asdm::ExecBlockRow;
 
 
-#include <Parser.h>
-using asdm::Parser;
+#include <alma/ASDM/Parser.h>
 
-#include <EnumerationParser.h>
-#include <ASDMValuesParser.h>
+#include <alma/ASDM/EnumerationParser.h>
+#include <alma/ASDM/ASDMValuesParser.h>
  
-#include <InvalidArgumentException.h>
-using asdm::InvalidArgumentException;
+#include <alma/ASDM/InvalidArgumentException.h>
+
+using namespace std;
 
 namespace asdm {
 	ScanRow::~ScanRow() {
@@ -1656,7 +1653,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an Tag 
 	void ScanRow::execBlockIdFromText(const string & s) {
 		 
+          
 		execBlockId = ASDMValuesParser::parse<Tag>(s);
+          
 		
 	}
 	
@@ -1664,7 +1663,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ScanRow::scanNumberFromText(const string & s) {
 		 
+          
 		scanNumber = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1672,7 +1673,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void ScanRow::startTimeFromText(const string & s) {
 		 
+          
 		startTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1680,7 +1683,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an ArrayTime 
 	void ScanRow::endTimeFromText(const string & s) {
 		 
+          
 		endTime = ASDMValuesParser::parse<ArrayTime>(s);
+          
 		
 	}
 	
@@ -1688,7 +1693,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ScanRow::numIntentFromText(const string & s) {
 		 
+          
 		numIntent = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1696,7 +1703,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an int 
 	void ScanRow::numSubscanFromText(const string & s) {
 		 
+          
 		numSubscan = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1704,7 +1713,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an ScanIntent 
 	void ScanRow::scanIntentFromText(const string & s) {
 		 
-		scanIntent = ASDMValuesParser::parse1D<ScanIntent>(s);
+          
+		scanIntent = ASDMValuesParser::parse1D<ScanIntentMod::ScanIntent>(s);
+          
 		
 	}
 	
@@ -1712,7 +1723,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an CalDataOrigin 
 	void ScanRow::calDataTypeFromText(const string & s) {
 		 
-		calDataType = ASDMValuesParser::parse1D<CalDataOrigin>(s);
+          
+		calDataType = ASDMValuesParser::parse1D<CalDataOriginMod::CalDataOrigin>(s);
+          
 		
 	}
 	
@@ -1720,7 +1733,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	// Convert a string into an boolean 
 	void ScanRow::calibrationOnLineFromText(const string & s) {
 		 
+          
 		calibrationOnLine = ASDMValuesParser::parse1D<bool>(s);
+          
 		
 	}
 	
@@ -1730,7 +1745,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::calibrationFunctionFromText(const string & s) {
 		calibrationFunctionExists = true;
 		 
-		calibrationFunction = ASDMValuesParser::parse1D<CalibrationFunction>(s);
+          
+		calibrationFunction = ASDMValuesParser::parse1D<CalibrationFunctionMod::CalibrationFunction>(s);
+          
 		
 	}
 	
@@ -1739,7 +1756,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::calibrationSetFromText(const string & s) {
 		calibrationSetExists = true;
 		 
-		calibrationSet = ASDMValuesParser::parse1D<CalibrationSet>(s);
+          
+		calibrationSet = ASDMValuesParser::parse1D<CalibrationSetMod::CalibrationSet>(s);
+          
 		
 	}
 	
@@ -1748,7 +1767,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::calPatternFromText(const string & s) {
 		calPatternExists = true;
 		 
-		calPattern = ASDMValuesParser::parse1D<AntennaMotionPattern>(s);
+          
+		calPattern = ASDMValuesParser::parse1D<AntennaMotionPatternMod::AntennaMotionPattern>(s);
+          
 		
 	}
 	
@@ -1757,7 +1778,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::numFieldFromText(const string & s) {
 		numFieldExists = true;
 		 
+          
 		numField = ASDMValuesParser::parse<int>(s);
+          
 		
 	}
 	
@@ -1766,7 +1789,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::fieldNameFromText(const string & s) {
 		fieldNameExists = true;
 		 
+          
 		fieldName = ASDMValuesParser::parse1D<string>(s);
+          
 		
 	}
 	
@@ -1775,7 +1800,9 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	void ScanRow::sourceNameFromText(const string & s) {
 		sourceNameExists = true;
 		 
+          
 		sourceName = ASDMValuesParser::parse<string>(s);
+          
 		
 	}
 	
@@ -1961,21 +1988,21 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get scanIntent.
- 	 * @return scanIntent as vector<ScanIntentMod::ScanIntent >
+ 	 * @return scanIntent as std::vector<ScanIntentMod::ScanIntent >
  	 */
- 	vector<ScanIntentMod::ScanIntent > ScanRow::getScanIntent() const {
+ 	std::vector<ScanIntentMod::ScanIntent > ScanRow::getScanIntent() const {
 	
   		return scanIntent;
  	}
 
  	/**
- 	 * Set scanIntent with the specified vector<ScanIntentMod::ScanIntent >.
- 	 * @param scanIntent The vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
+ 	 * Set scanIntent with the specified std::vector<ScanIntentMod::ScanIntent >.
+ 	 * @param scanIntent The std::vector<ScanIntentMod::ScanIntent > value to which scanIntent is to be set.
  	 
  	
  		
  	 */
- 	void ScanRow::setScanIntent (vector<ScanIntentMod::ScanIntent > scanIntent)  {
+ 	void ScanRow::setScanIntent (std::vector<ScanIntentMod::ScanIntent > scanIntent)  {
   	
   	
   		if (hasBeenAdded) {
@@ -1993,21 +2020,21 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calDataType.
- 	 * @return calDataType as vector<CalDataOriginMod::CalDataOrigin >
+ 	 * @return calDataType as std::vector<CalDataOriginMod::CalDataOrigin >
  	 */
- 	vector<CalDataOriginMod::CalDataOrigin > ScanRow::getCalDataType() const {
+ 	std::vector<CalDataOriginMod::CalDataOrigin > ScanRow::getCalDataType() const {
 	
   		return calDataType;
  	}
 
  	/**
- 	 * Set calDataType with the specified vector<CalDataOriginMod::CalDataOrigin >.
- 	 * @param calDataType The vector<CalDataOriginMod::CalDataOrigin > value to which calDataType is to be set.
+ 	 * Set calDataType with the specified std::vector<CalDataOriginMod::CalDataOrigin >.
+ 	 * @param calDataType The std::vector<CalDataOriginMod::CalDataOrigin > value to which calDataType is to be set.
  	 
  	
  		
  	 */
- 	void ScanRow::setCalDataType (vector<CalDataOriginMod::CalDataOrigin > calDataType)  {
+ 	void ScanRow::setCalDataType (std::vector<CalDataOriginMod::CalDataOrigin > calDataType)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2025,21 +2052,21 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calibrationOnLine.
- 	 * @return calibrationOnLine as vector<bool >
+ 	 * @return calibrationOnLine as std::vector<bool >
  	 */
- 	vector<bool > ScanRow::getCalibrationOnLine() const {
+ 	std::vector<bool > ScanRow::getCalibrationOnLine() const {
 	
   		return calibrationOnLine;
  	}
 
  	/**
- 	 * Set calibrationOnLine with the specified vector<bool >.
- 	 * @param calibrationOnLine The vector<bool > value to which calibrationOnLine is to be set.
+ 	 * Set calibrationOnLine with the specified std::vector<bool >.
+ 	 * @param calibrationOnLine The std::vector<bool > value to which calibrationOnLine is to be set.
  	 
  	
  		
  	 */
- 	void ScanRow::setCalibrationOnLine (vector<bool > calibrationOnLine)  {
+ 	void ScanRow::setCalibrationOnLine (std::vector<bool > calibrationOnLine)  {
   	
   	
   		if (hasBeenAdded) {
@@ -2065,10 +2092,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calibrationFunction, which is optional.
- 	 * @return calibrationFunction as vector<CalibrationFunctionMod::CalibrationFunction >
+ 	 * @return calibrationFunction as std::vector<CalibrationFunctionMod::CalibrationFunction >
  	 * @throw IllegalAccessException If calibrationFunction does not exist.
  	 */
- 	vector<CalibrationFunctionMod::CalibrationFunction > ScanRow::getCalibrationFunction() const  {
+ 	std::vector<CalibrationFunctionMod::CalibrationFunction > ScanRow::getCalibrationFunction() const  {
 		if (!calibrationFunctionExists) {
 			throw IllegalAccessException("calibrationFunction", "Scan");
 		}
@@ -2077,12 +2104,12 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set calibrationFunction with the specified vector<CalibrationFunctionMod::CalibrationFunction >.
- 	 * @param calibrationFunction The vector<CalibrationFunctionMod::CalibrationFunction > value to which calibrationFunction is to be set.
+ 	 * Set calibrationFunction with the specified std::vector<CalibrationFunctionMod::CalibrationFunction >.
+ 	 * @param calibrationFunction The std::vector<CalibrationFunctionMod::CalibrationFunction > value to which calibrationFunction is to be set.
  	 
  	
  	 */
- 	void ScanRow::setCalibrationFunction (vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction) {
+ 	void ScanRow::setCalibrationFunction (std::vector<CalibrationFunctionMod::CalibrationFunction > calibrationFunction) {
 	
  		this->calibrationFunction = calibrationFunction;
 	
@@ -2112,10 +2139,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calibrationSet, which is optional.
- 	 * @return calibrationSet as vector<CalibrationSetMod::CalibrationSet >
+ 	 * @return calibrationSet as std::vector<CalibrationSetMod::CalibrationSet >
  	 * @throw IllegalAccessException If calibrationSet does not exist.
  	 */
- 	vector<CalibrationSetMod::CalibrationSet > ScanRow::getCalibrationSet() const  {
+ 	std::vector<CalibrationSetMod::CalibrationSet > ScanRow::getCalibrationSet() const  {
 		if (!calibrationSetExists) {
 			throw IllegalAccessException("calibrationSet", "Scan");
 		}
@@ -2124,12 +2151,12 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set calibrationSet with the specified vector<CalibrationSetMod::CalibrationSet >.
- 	 * @param calibrationSet The vector<CalibrationSetMod::CalibrationSet > value to which calibrationSet is to be set.
+ 	 * Set calibrationSet with the specified std::vector<CalibrationSetMod::CalibrationSet >.
+ 	 * @param calibrationSet The std::vector<CalibrationSetMod::CalibrationSet > value to which calibrationSet is to be set.
  	 
  	
  	 */
- 	void ScanRow::setCalibrationSet (vector<CalibrationSetMod::CalibrationSet > calibrationSet) {
+ 	void ScanRow::setCalibrationSet (std::vector<CalibrationSetMod::CalibrationSet > calibrationSet) {
 	
  		this->calibrationSet = calibrationSet;
 	
@@ -2159,10 +2186,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get calPattern, which is optional.
- 	 * @return calPattern as vector<AntennaMotionPatternMod::AntennaMotionPattern >
+ 	 * @return calPattern as std::vector<AntennaMotionPatternMod::AntennaMotionPattern >
  	 * @throw IllegalAccessException If calPattern does not exist.
  	 */
- 	vector<AntennaMotionPatternMod::AntennaMotionPattern > ScanRow::getCalPattern() const  {
+ 	std::vector<AntennaMotionPatternMod::AntennaMotionPattern > ScanRow::getCalPattern() const  {
 		if (!calPatternExists) {
 			throw IllegalAccessException("calPattern", "Scan");
 		}
@@ -2171,12 +2198,12 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set calPattern with the specified vector<AntennaMotionPatternMod::AntennaMotionPattern >.
- 	 * @param calPattern The vector<AntennaMotionPatternMod::AntennaMotionPattern > value to which calPattern is to be set.
+ 	 * Set calPattern with the specified std::vector<AntennaMotionPatternMod::AntennaMotionPattern >.
+ 	 * @param calPattern The std::vector<AntennaMotionPatternMod::AntennaMotionPattern > value to which calPattern is to be set.
  	 
  	
  	 */
- 	void ScanRow::setCalPattern (vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern) {
+ 	void ScanRow::setCalPattern (std::vector<AntennaMotionPatternMod::AntennaMotionPattern > calPattern) {
 	
  		this->calPattern = calPattern;
 	
@@ -2253,10 +2280,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get fieldName, which is optional.
- 	 * @return fieldName as vector<string >
+ 	 * @return fieldName as std::vector<std::string >
  	 * @throw IllegalAccessException If fieldName does not exist.
  	 */
- 	vector<string > ScanRow::getFieldName() const  {
+ 	std::vector<std::string > ScanRow::getFieldName() const  {
 		if (!fieldNameExists) {
 			throw IllegalAccessException("fieldName", "Scan");
 		}
@@ -2265,12 +2292,12 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set fieldName with the specified vector<string >.
- 	 * @param fieldName The vector<string > value to which fieldName is to be set.
+ 	 * Set fieldName with the specified std::vector<std::string >.
+ 	 * @param fieldName The std::vector<std::string > value to which fieldName is to be set.
  	 
  	
  	 */
- 	void ScanRow::setFieldName (vector<string > fieldName) {
+ 	void ScanRow::setFieldName (std::vector<std::string > fieldName) {
 	
  		this->fieldName = fieldName;
 	
@@ -2300,10 +2327,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get sourceName, which is optional.
- 	 * @return sourceName as string
+ 	 * @return sourceName as std::string
  	 * @throw IllegalAccessException If sourceName does not exist.
  	 */
- 	string ScanRow::getSourceName() const  {
+ 	std::string ScanRow::getSourceName() const  {
 		if (!sourceNameExists) {
 			throw IllegalAccessException("sourceName", "Scan");
 		}
@@ -2312,12 +2339,12 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set sourceName with the specified string.
- 	 * @param sourceName The string value to which sourceName is to be set.
+ 	 * Set sourceName with the specified std::string.
+ 	 * @param sourceName The std::string value to which sourceName is to be set.
  	 
  	
  	 */
- 	void ScanRow::setSourceName (string sourceName) {
+ 	void ScanRow::setSourceName (std::string sourceName) {
 	
  		this->sourceName = sourceName;
 	
@@ -2573,10 +2600,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 		
 	}
 	
-	ScanRow::ScanRow (ScanTable &t, ScanRow &row) : table(t) {
+	ScanRow::ScanRow (ScanTable &t, ScanRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2626,67 +2653,67 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
-			scanNumber = row.scanNumber;
-		
-		
-		
-		
-			startTime = row.startTime;
-		
-			endTime = row.endTime;
-		
-			numIntent = row.numIntent;
-		
-			numSubscan = row.numSubscan;
-		
-			scanIntent = row.scanIntent;
-		
-			calDataType = row.calDataType;
-		
-			calibrationOnLine = row.calibrationOnLine;
+			scanNumber = row->scanNumber;
 		
 		
 		
 		
-		if (row.calibrationFunctionExists) {
-			calibrationFunction = row.calibrationFunction;		
+			startTime = row->startTime;
+		
+			endTime = row->endTime;
+		
+			numIntent = row->numIntent;
+		
+			numSubscan = row->numSubscan;
+		
+			scanIntent = row->scanIntent;
+		
+			calDataType = row->calDataType;
+		
+			calibrationOnLine = row->calibrationOnLine;
+		
+		
+		
+		
+		if (row->calibrationFunctionExists) {
+			calibrationFunction = row->calibrationFunction;		
 			calibrationFunctionExists = true;
 		}
 		else
 			calibrationFunctionExists = false;
 		
-		if (row.calibrationSetExists) {
-			calibrationSet = row.calibrationSet;		
+		if (row->calibrationSetExists) {
+			calibrationSet = row->calibrationSet;		
 			calibrationSetExists = true;
 		}
 		else
 			calibrationSetExists = false;
 		
-		if (row.calPatternExists) {
-			calPattern = row.calPattern;		
+		if (row->calPatternExists) {
+			calPattern = row->calPattern;		
 			calPatternExists = true;
 		}
 		else
 			calPatternExists = false;
 		
-		if (row.numFieldExists) {
-			numField = row.numField;		
+		if (row->numFieldExists) {
+			numField = row->numField;		
 			numFieldExists = true;
 		}
 		else
 			numFieldExists = false;
 		
-		if (row.fieldNameExists) {
-			fieldName = row.fieldName;		
+		if (row->fieldNameExists) {
+			fieldName = row->fieldName;		
 			fieldNameExists = true;
 		}
 		else
 			fieldNameExists = false;
 		
-		if (row.sourceNameExists) {
-			sourceName = row.sourceName;		
+		if (row->sourceNameExists) {
+			sourceName = row->sourceName;		
 			sourceNameExists = true;
 		}
 		else
@@ -2715,7 +2742,7 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	}
 
 	
-	bool ScanRow::compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine) {
+	bool ScanRow::compareNoAutoInc(Tag execBlockId, int scanNumber, ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine) {
 		bool result;
 		result = true;
 		
@@ -2787,7 +2814,7 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 	
 	
 	
-	bool ScanRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, vector<ScanIntentMod::ScanIntent > scanIntent, vector<CalDataOriginMod::CalDataOrigin > calDataType, vector<bool > calibrationOnLine) {
+	bool ScanRow::compareRequiredValue(ArrayTime startTime, ArrayTime endTime, int numIntent, int numSubscan, std::vector<ScanIntentMod::ScanIntent > scanIntent, std::vector<CalDataOriginMod::CalDataOrigin > calDataType, std::vector<bool > calibrationOnLine) {
 		bool result;
 		result = true;
 		
