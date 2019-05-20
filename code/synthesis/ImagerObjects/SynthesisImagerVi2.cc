@@ -1262,7 +1262,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
   void SynthesisImagerVi2::makeSdImage(Bool dopsf)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
-
+//std::cout << "makeSdImage()<0>" << std::flush << std::endl;
 //    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
@@ -1649,6 +1649,7 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setFreqInterpolation( interpolation );
     theIFT->setFreqInterpolation( interpolation );
 
+//std::cout << "createFTMachine() <0> ftname=[" << ftname << "], mType=[" << mType << "]" << std::flush << std::endl;
     ///Set tracking of moving source if any
     if(movingSource_p != ""){
       theFT->setMovingSource(movingSource_p);
@@ -2509,16 +2510,14 @@ void SynthesisImagerVi2::unlockMSs()
   }// end makePB
 
   Bool SynthesisImagerVi2::getMovingDirection(const vi::VisBuffer2& vb,  MDirection& outDir){
-    std::cout << "getMovingDirection() <0>" << std::flush << std::endl;
+//std::cout << "getMovingDirection() <0>" << std::flush << std::endl;
     MDirection movingDir;
     Bool trackBeam=False;
     MeasFrame mFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);
     if(movingSource_p != ""){
-    std::cout << "getMovingDirection() <1>" << std::flush << std::endl;
       MDirection::Types refType;
       trackBeam=True;
       if(Table::isReadable(movingSource_p, False)){
-    std::cout << "getMovingDirection() <2>" << std::flush << std::endl;
 	//seems to be a table so assuming ephemerides table
 	Table laTable(movingSource_p);
 	Path leSentier(movingSource_p);
@@ -2528,27 +2527,23 @@ void SynthesisImagerVi2::unlockMSs()
       }
       ///if not a table 
       else  if(casacore::MDirection::getType(refType, movingSource_p)){
-    std::cout << "getMovingDirection() <3>" << std::flush << std::endl;
 	if(refType > casacore::MDirection::N_Types && refType < casacore::MDirection:: N_Planets ){
 	  ///A known planet
 	  movingDir.setRefString(movingSource_p);
 	}
       }
       else if(upcase(movingSource_p)=="TRACKFIELD"){
-    std::cout << "getMovingDirection() <4>" << std::flush << std::endl;
 	movingDir=VisBufferUtil::getEphemDir(vb, -1.0);
       }
       else{
 	throw(AipsError("Erroneous tracking direction set to make pb"));
       }
-    std::cout << "getMovingDirection() <5>" << std::flush << std::endl;
       MDirection::Ref outref1(MDirection::AZEL, mFrame);
       MDirection tmphazel=MDirection::Convert(movingDir, outref1)();
       MDirection::Ref outref(vb.phaseCenter().getRef().getType(), mFrame);
       outDir=MDirection::Convert(tmphazel, outref)();
     }
     else{
-    std::cout << "getMovingDirection() <6>" << std::flush << std::endl;
       outDir=vb.phaseCenter();
       trackBeam=False;
     }

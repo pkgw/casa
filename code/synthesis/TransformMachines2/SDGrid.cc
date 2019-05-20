@@ -229,6 +229,7 @@ extern "C" {
 void SDGrid::init() {
 
   logIO() << LogOrigin("SDGrid", "init")  << LogIO::NORMAL;
+//std::cout << "SDGrid::init() <0>" << std::flush << std::endl;
 
   //pfile = fopen("ptdata.txt","w");
 
@@ -437,73 +438,69 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
   // Set the reference value to the first pointing in the coordinate
   // system used in the POINTING table.
   {
-    uInt row=0;
+    uInt row = 0;
     const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
-    Bool nullPointingTable=(act_mspc.nrow() < 1);
-    // uInt pointIndex=getIndex(*mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
-    Int pointIndex=-1;
-    if(!nullPointingTable){
+    Bool nullPointingTable = (act_mspc.nrow() < 1);
+    Int pointIndex = -1;
+    if (!nullPointingTable){
       //if(vb.newMS()) This thing is buggy...using msId change
-      if(vb.msId() != msId_p){
+      if (vb.msId() != msId_p) {
 	lastIndex_p=0;
-  if(lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
-    lastIndexPerAnt_p.resize(vb.nAntennas());
-  }
-	lastIndexPerAnt_p=0;
-	msId_p=vb.msId();
+	if (lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
+	  lastIndexPerAnt_p.resize(vb.nAntennas());
+	}
+	lastIndexPerAnt_p = 0;
+	msId_p = vb.msId();
       }
-      pointIndex=getIndex(act_mspc, vb.time()(row), -1.0, vb.antenna1()(row));
-      if(pointIndex < 0)
-	pointIndex=getIndex(act_mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
-      
+      pointIndex = getIndex(act_mspc, vb.time()(row), -1.0, vb.antenna1()(row));
+      if (pointIndex < 0)
+	pointIndex = getIndex(act_mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
     }
-    if(!nullPointingTable && ((pointIndex<0)||(pointIndex>=Int(act_mspc.time().nrow())))) {
+    if (!nullPointingTable && ((pointIndex < 0) || (pointIndex >= Int(act_mspc.time().nrow())))) {
       ostringstream o;
       o << "Failed to find pointing information for time " <<
 	MVTime(vb.time()(row)/86400.0);
       logIO_p << String(o) << LogIO::EXCEPTION;
     }
+
     MEpoch epoch(Quantity(vb.time()(row), "s"));
-    if(!pointingToImage) {
-      lastAntID_p=vb.antenna1()(row);
-      MPosition pos;
-      pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
-      mFrame_p=MeasFrame(epoch, pos);
-      if(!nullPointingTable){
-	worldPosMeas=directionMeas(act_mspc, pointIndex);
+    if (!pointingToImage) {
+      lastAntID_p = vb.antenna1()(row);
+      MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+      mFrame_p = MeasFrame(epoch, pos);
+      if (!nullPointingTable) {
+	worldPosMeas = directionMeas(act_mspc, pointIndex);
+      } else {
+	worldPosMeas = vb.direction1()(row);
       }
-      else{
-	worldPosMeas=vb.direction1()(row);
-      }
+
       // Make a machine to convert from the worldPosMeas to the output
       // Direction Measure type for the relevant frame
       MDirection::Ref outRef(dc.directionType(), mFrame_p);
       pointingToImage = new MDirection::Convert(worldPosMeas, outRef);
-      
-      if(!pointingToImage) {
+      if (!pointingToImage) {
 	logIO_p << "Cannot make direction conversion machine" << LogIO::EXCEPTION;
       }
-    }
-    else {
+
+    } else {
       mFrame_p.resetEpoch(epoch);
-      if(lastAntID_p != vb.antenna1()(row)){
-	MPosition pos;
-	lastAntID_p=vb.antenna1()(row);
-	pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+      if (lastAntID_p != vb.antenna1()(row)) {
+	lastAntID_p = vb.antenna1()(row);
+	MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
 	mFrame_p.resetPosition(pos);
       }
     }
-    if(!nullPointingTable){
-      worldPosMeas=(*pointingToImage)(directionMeas(act_mspc,pointIndex));
-    }
-    else{
-      worldPosMeas=(*pointingToImage)(vb.direction1()(row));
+
+    if (!nullPointingTable) {
+      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex));
+    } else {
+      worldPosMeas = (*pointingToImage)(vb.direction1()(row));
     }
     delete pointingToImage;
-    pointingToImage=0;
+    pointingToImage = 0;
   }
   
-  directionCoord=coords.directionCoordinate(directionIndex);
+  directionCoord = coords.directionCoordinate(directionIndex);
   //make sure we use the same units
   worldPosMeas.set(dc.worldAxisUnits()(0));
 
@@ -631,10 +628,8 @@ void SDGrid::initializeToVis(ImageInterface<Complex>& iimage,
 
     lattice=arrayLattice;
   }
-
   AlwaysAssert(lattice, AipsError);
   AlwaysAssert(wLattice, AipsError);
-
 }
 
 void SDGrid::finalizeToVis()
@@ -659,6 +654,7 @@ void SDGrid::finalizeToVis()
 void SDGrid::initializeToSky(ImageInterface<Complex>& iimage,
 			     Matrix<Float>& weight, const vi::VisBuffer2& vb)
 {
+//std::cout << "SDGrid::initializeToSky() <0>" << std::flush << std::endl;
   // image always points to the image
   image=&iimage;
 
@@ -669,7 +665,6 @@ void SDGrid::initializeToSky(ImageInterface<Complex>& iimage,
   if(convType=="pb") {
     findPBAsConvFunction(*image, vb);
   }
-
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
@@ -863,6 +858,7 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 {
   LogIO os(LogOrigin("SDGrid", "put"));
   
+  //std::cout << "SDGrid::put() <0>" << std::flush << std::endl;
   gridOk(convSupport);
 
   // There is no channel mapping cache in VI/VB2 version of FTMachine
@@ -972,6 +968,9 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
     xyPositions=-1e9; // make sure failed getXYPos does not fall on grid
     for (Int rownr=startRow; rownr<=endRow; rownr++) {
       if(getXYPos(vb, rownr)) {
+	if (rownr == startRow) {
+//std::cout << "x = [" << xyPos(0) << "], y = [" << xyPos(1) << "]" << std::flush << std::endl;
+	}
 	xyPositions(0, rownr)=xyPos(0);
 	xyPositions(1, rownr)=xyPos(1);
       }
@@ -1073,6 +1072,7 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
 {
   LogIO os(LogOrigin("SDGrid", "get"));
 
+std::cout << "SDGrid::get() <0>" << std::flush << std::endl;
   gridOk(convSupport);
 
   // If row is -1 then we pass through all rows
@@ -1095,10 +1095,12 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
 
+std::cout << "SDGrid::get() <1>" << std::flush << std::endl;
   // There is no channel mapping cache in VI/VB2 version of FTMachine
   // Perform matchChannel everytime
   matchChannel(vb);
 
+std::cout << "SDGrid::get() <2>" << std::flush << std::endl;
   //No point in reading data if its not matching in frequency
   if(max(chanMap)==-1)
     return;
@@ -1166,6 +1168,7 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
     }
   }
   else*/ 
+std::cout << "SDGrid::get() <3>" << std::flush << std::endl;
   {
     Matrix<Double> xyPositions(2, endRow-startRow+1);
     xyPositions=-1e9;
@@ -1201,7 +1204,9 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
 
     data.putStorage(datStorage, isCopy);
   }
+std::cout << "SDGrid::get() <4>" << std::flush << std::endl;
   interpolateFrequencyFromgrid(vb, data, FTMachine::MODEL);
+std::cout << "SDGrid::get() <5>" << std::flush << std::endl;
 }
 
 
@@ -1277,7 +1282,9 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
       }
       vi.originChunks();
       vi.origin();
+std::cout << "SDGrid::makeImage() <0>" << std::flush << std::endl;
       initializeToSky(*imCopy,wgtcopy,*vb);
+std::cout << "SDGrid::makeImage() <1>" << std::flush << std::endl;
    
 
       // for minmax clipping
@@ -1294,25 +1301,31 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
 	
 	  switch(type) {
 	  case FTMachine::RESIDUAL:
+	    std::cout << "SDGrid::makeImage() <2a>" << std::flush << std::endl;
 	    vb->setVisCube(vb->visCubeCorrected() - vb->visCubeModel());
 	    put(*vb, -1, false);
 	    break;
 	  case FTMachine::MODEL:
+	    std::cout << "SDGrid::makeImage() <2b>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::MODEL);
 	    break;
 	  case FTMachine::CORRECTED:
+	    std::cout << "SDGrid::makeImage() <2c>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::CORRECTED);
 	    break;
 	  case FTMachine::PSF:
+	    std::cout << "SDGrid::makeImage() <2d>" << std::flush << std::endl;
 	    vb->setVisCube(Complex(1.0,0.0));
 	    put(*vb, -1, true, FTMachine::PSF);
 	    break;
 	  case FTMachine::COVERAGE:
+	    std::cout << "SDGrid::makeImage() <2e>" << std::flush << std::endl;
 	    vb->setVisCube(Complex(1.0));
 	    put(*vb, -1, true, FTMachine::COVERAGE);
 	    break;
 	  case FTMachine::OBSERVED:
 	  default:
+	    std::cout << "SDGrid::makeImage() <2f>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::OBSERVED);
 	    break;
 	  }
@@ -1522,9 +1535,8 @@ Int SDGrid::getIndex(const ROMSPointingColumns& mspc, const Double& time,
 Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
 
   Bool dointerp;
-  Bool nullPointingTable = false;
   const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
-  nullPointingTable = (act_mspc.nrow() < 1);
+  Bool nullPointingTable = (act_mspc.nrow() < 1);
   Int pointIndex = -1;
   if (!nullPointingTable) {
     ///if(vb.newMS())  vb.newMS does not work well using msid 
@@ -1569,9 +1581,8 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
   MEpoch epoch(Quantity(vb.time()(row), "s"));
   if (!pointingToImage) {
     // Set the frame
-    MPosition pos;
     lastAntID_p = vb.antenna1()(row);
-    pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+    MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
     mFrame_p = MeasFrame(epoch, pos);
     if (!nullPointingTable) {
       if (dointerp) {
@@ -1583,7 +1594,6 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
       worldPosMeas = vb.direction1()(row);
     }
 
-    //worldPosMeas=directionMeas(act_mspc, pointIndex);
     // Make a machine to convert from the worldPosMeas to the output
     // Direction Measure type for the relevant frame
     MDirection::Ref outRef(directionCoord.directionType(), mFrame_p);
@@ -1636,14 +1646,19 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
     }
     //via HADEC or AZEL for parallax of near sources
     MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-    MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-    MDirection actSourceDir=(*pointingToImage)(tmphadec);
+    MDirection tmphadec;
+    if(upcase(movingDir_p.getRefString()).contains("APP")){
+      tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+    } else {
+      tmphadec = MDirection::Convert(movingDir_p, outref1)();
+    }
+    MDirection actSourceDir = (*pointingToImage)(tmphadec);
     Vector<Double> actPix;
     directionCoord.toPixel(actPix, actSourceDir);
 
     //cout << row << " scan " << vb.scan()(row) << "xyPos " << xyPos << " xyposmovorig " << xyPosMovingOrig_p << " actPix " << actPix << endl; 
 
-    xyPos=xyPos+xyPosMovingOrig_p-actPix;
+    xyPos = xyPos + xyPosMovingOrig_p - actPix;
   }
 
   return result;

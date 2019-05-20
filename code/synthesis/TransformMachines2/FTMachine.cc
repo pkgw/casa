@@ -263,6 +263,7 @@ using namespace casa::vi;
    }
   //----------------------------------------------------------------------
     void FTMachine::initMaps(const vi::VisBuffer2& vb) {
+//std::cout << "initMaps() <0>" << std::flush << std::endl;
 
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
@@ -1728,7 +1729,7 @@ using namespace casa::vi;
   */
 
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
-
+//std::cout << "matchChannel() <0>" << std::flush << std::endl;
     //Int spw=vb.spectralWindows()[0];
     nvischan  = vb.nChannels();
     chanMap.resize(nvischan);
@@ -1738,25 +1739,27 @@ using namespace casa::vi;
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
     //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
-     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
-    	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
-     else
-    	 lsrFreq=vb.getFrequencies(0);
-
-     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
-       if(lastMSId_p != vb.msId()){
-	 romscol_p=new ROMSColumns(vb.ms());
-       //if ms changed ...reset ephem table
-	 if(upcase(movingDir_p.getRefString()).contains("APP")){
-	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	   mFrame_p.resetComet(mcomet);
-	 }
-       }
+    if (freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST ) {
+      lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
+    }
+    else {
+      lsrFreq=vb.getFrequencies(0);
+    }
+//std::cout << "                    -- movingDir_p = [" << movingDir_p.getRefString() << "]" << std::flush << std::endl;
+    if (spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p) {
+      if(lastMSId_p != vb.msId()){
+	romscol_p=new ROMSColumns(vb.ms());
+	//if ms changed ...reset ephem table
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  mFrame_p.resetComet(mcomet);
+	}
+      }
 	
-       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
-       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
-       shiftFreqToSource(lsrFreq);
-     }
+      mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+      mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+      shiftFreqToSource(lsrFreq);
+    }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);
@@ -1880,18 +1883,18 @@ using namespace casa::vi;
   
   
   void FTMachine::setMovingSource(const String& sname, const String& ephtab){
-    std::cout << "setMovingSource() <0>" << std::flush << std::endl;
+//std::cout << "setMovingSource() <0> sourcename=[" << sname << "], ephemtab=[" << ephtab << "]" << std::flush << std::endl;
     String sourcename=sname;
     String ephemtab=ephtab;
     //if a table is given as sourcename...assume ephemerides
     if(Table::isReadable(sourcename, False)){
-    std::cout << "setMovingSource() <1>" << std::flush << std::endl;
+//std::cout << "setMovingSource() <1>" << std::flush << std::endl;
       sourcename="COMET";
       ephemtab=sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
-    std::cout << "setMovingSource() <2>" << std::flush << std::endl;
+//std::cout << "setMovingSource() <2> ephemtab=[" << ephemtab << "]" << std::flush << std::endl;
       //if(name().contains("MosaicFT"))
       //	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
       fixMovingSource_p=True;
@@ -1902,7 +1905,7 @@ using namespace casa::vi;
       return;
     }
 
-    std::cout << "setMovingSource() <3>" << std::flush << std::endl;
+//std::cout << "setMovingSource() <3>" << std::flush << std::endl;
     MDirection::Types refType;
     Bool  isValid = MDirection::getType(refType, sourcename);
     if(!isValid)
@@ -1910,13 +1913,16 @@ using namespace casa::vi;
     if(refType < MDirection::N_Types || refType > MDirection:: N_Planets )
       throw(AipsError(sourcename+" is not type of source we can track"));
     if(refType==MDirection::COMET){
+//std::cout << "setMovingSource() <4>" << std::flush << std::endl;
       MeasComet laComet;
       if(Table::isReadable(ephemtab, False)){
+//std::cout << "setMovingSource() <5>" << std::flush << std::endl;
 	Table laTable(ephemtab);
 	Path leSentier(ephemtab);
 	laComet=MeasComet(laTable, leSentier.absoluteName());
       }
       else{
+//std::cout << "setMovingSource() <6>" << std::flush << std::endl;
         laComet= MeasComet(ephemtab);
       }
       if(!mFrame_p.comet())
@@ -1924,6 +1930,7 @@ using namespace casa::vi;
       else
 	mFrame_p.resetComet(laComet);
     }
+//std::cout << "setMovingSource() <7>" << std::flush << std::endl;
     fixMovingSource_p=true;
     movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
     movingDir_p.setRefString(sourcename);

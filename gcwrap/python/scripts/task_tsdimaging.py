@@ -737,11 +737,15 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ggwidth = _handle_grid_defaults(gwidth)
         gjwidth = _handle_grid_defaults(jwidth)
         
+        _ephemsrcname = ephemsrcname
+        if isinstance(phasecenter, str) and phasecenter.strip().upper() in ['MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'TRACKFIELD']:
+            _ephemsrcname = phasecenter
+
         # handle image parameters
         if isinstance(infiles, str) or len(infiles) == 1:
             _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, infiles, 
                                                                 field, _spw, antenna, scan, intent,
-                                                                _restfreq, pointingcolumn, ephemsrcname)
+                                                                _restfreq, pointingcolumn, _ephemsrcname)
         else:
             # sort input data using cleanhelper function to get consistent result with older sdimaging
             o = OldImagerBasedTools()
@@ -750,9 +754,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             _imsize, _cell, _phasecenter = _handle_image_params(imsize, cell, phasecenter, sorted_vis, 
                                                                 sorted_field, sorted_spw, sorted_antenna, 
                                                                 sorted_scan, sorted_intent,
-                                                                _restfreq, pointingcolumn, ephemsrcname)
-           
-            
+                                                                _restfreq, pointingcolumn, _ephemsrcname)
+
         # calculate pblimit from minweight
         pblimit = _calc_pblimit(minweight)
         
@@ -786,8 +789,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             stokes=stokes,
             # fix specmode to 'cubedata'
             # output spectral coordinate will be determined based on mode, start, and width 
-            #specmode='cube',
-            specmode='cubesource',
+            specmode='cube',
+            #specmode='cubesource',
             gridder='singledish',
             # single dish specific parameters
             gridfunction=gridfunction,
@@ -820,6 +823,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## (3) Construct the PySynthesisImager object, with all input parameters
         
         casalog.post('*** Creating imager object ***', origin=origin)
+        """
         print '-----------------------------------------------------------'
         print 'paramList = '
         print 'SelPars: '
@@ -844,6 +848,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         print str(paramList.iterpars)
         print '----------------------------'
         print '-----------------------------------------------------------'
+        """
         imager = PySynthesisImager(params=paramList)
             
         ## (4) Initialize various modules. 
@@ -853,8 +858,10 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## Initialize modules major cycle modules
         
         casalog.post('*** Initializing imagers ***', origin=origin)
+        #print '*** initializeImagers() ***'
         imager.initializeImagers()
         casalog.post('*** Initializing normalizers ***', origin=origin)
+        #print '*** initializeNormalizers() ***'
         imager.initializeNormalizers()
         #imager.setWeighting()
         
@@ -864,8 +871,13 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         casalog.post('*** Executing runMajorCycle ***', origin=origin)
         casalog.post('NF = {0}'.format(imager.NF), origin=origin)
         #imager.runMajorCycle()  # Make initial dirty / residual image
+        casalog.post('*** makeSdPSF... ***', origin=origin)
+        #print '*** makeSdPSF() ***'
         imager.makeSdPSF()
+        casalog.post('*** makeSdImage... ***', origin=origin)
+        #print '*** makeSdImage() ***'
         imager.makeSdImage()
+        #print '*** end makeSdImage() ***'
         
     except Exception as e:
         #print 'Exception : ' + str(e)
@@ -913,7 +925,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         antenna_diameter = tb.getcell('DISH_DIAMETER', antenna_index)
     set_beam_size(rep_ms, imagename,
                   rep_field, rep_spw, baseline, rep_scan, rep_intent,
-                  ephemsrcname, pointingcolumn, antenna_name, antenna_diameter,
+                  _ephemsrcname, pointingcolumn, antenna_name, antenna_diameter,
                   _restfreq, gridfunction, convsupport, truncate, gwidth, jwidth)
     
     # set brightness unit (CAS-11503)

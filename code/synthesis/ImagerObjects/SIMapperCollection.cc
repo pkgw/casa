@@ -224,7 +224,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  } 
 	  else if (col==refim::FTMachine::OBSERVED) {
 	    vb.setVisCube(vb.visCube()-vb.visCubeModel());
-	    
 	  }
 	}// if non zero model
 
@@ -237,11 +236,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (mapperid < 0)
       {
 	//cout << "Using column : " << col << endl;
-
 	for (uInt k=0; k < itsMappers.nelements(); ++k)
 	  {
 	    (itsMappers[k])->grid(vb, dopsf, col);
-	    
 	  }
       }
     else 
