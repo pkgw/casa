@@ -509,14 +509,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// array to contain data from column in columns data type
 			Vector<double> typedata;
 			// read the scalar column into an array
-			ROScalarColumn<double> dataCol(*table(),columnName);
+			ScalarColumn<double> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// minima and maxima of data are world coordinate min and max
 			minMax(extrema(0),extrema(1),typedata);
 		}
 		if (type == TpFloat) {
 			Vector<float> typedata;
-			ROScalarColumn<float> dataCol(*table(),columnName);
+			ScalarColumn<float> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -526,7 +526,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpShort) {
 			Vector<short> typedata;
-			ROScalarColumn<short> dataCol(*table(),columnName);
+			ScalarColumn<short> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -536,7 +536,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpUShort) {
 			Vector<uShort> typedata;
-			ROScalarColumn<uShort> dataCol(*table(),columnName);
+			ScalarColumn<uShort> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -546,7 +546,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpInt) {
 			Vector<int> typedata;
-			ROScalarColumn<int> dataCol(*table(),columnName);
+			ScalarColumn<int> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -556,7 +556,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpUInt) {
 			Vector<uInt> typedata;
-			ROScalarColumn<uInt> dataCol(*table(),columnName);
+			ScalarColumn<uInt> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());

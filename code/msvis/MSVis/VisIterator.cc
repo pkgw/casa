@@ -168,7 +168,7 @@ protected:
   // The ROVisibilityIterator version of this function sets the tile cache to 1
   // because of a feature in sliced data access that grows memory dramatically in
   // some cases.  However, ROVisibilityIterator, because it uses
-  // ROArrayColumn::getColumn(Vector<Vector<Slice> >&), is (1/28/2011) incredibly
+  // ArrayColumn::getColumn(Vector<Vector<Slice> >&), is (1/28/2011) incredibly
   // slow if the tile cache does not span all the selected channels, and it will
   // read orders of magnitude more data than it needs to.  This sets the tile
   // cache to the minimum number of tiles required to span the selected channels.
@@ -180,18 +180,18 @@ protected:
 			     Cube<Complex>& data) const;
 
   // Column access functions
-  void getCol(const ROScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize = false) const;
-  void getCol(const ROScalarColumn<Int> &column, Vector<Int> &array, Bool resize = false) const;
-  void getCol(const ROScalarColumn<Double> &column, Vector<Double> &array, Bool resize = false) const;
+  void getCol(const ScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize = false) const;
+  void getCol(const ScalarColumn<Int> &column, Vector<Int> &array, Bool resize = false) const;
+  void getCol(const ScalarColumn<Double> &column, Vector<Double> &array, Bool resize = false) const;
 
-  void getCol(const ROArrayColumn<Bool> &column, Array<Bool> &array, Bool resize = false) const;
-  void getCol(const ROArrayColumn<Float> &column, Array<Float> &array, Bool resize = false) const;
-  void getCol(const ROArrayColumn<Double> &column, Array<Double> &array, Bool resize = false) const;
-  void getCol(const ROArrayColumn<Complex> &column, Array<Complex> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Bool> &column, Array<Bool> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Float> &column, Array<Float> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Double> &column, Array<Double> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Complex> &column, Array<Complex> &array, Bool resize = false) const;
 
-  void getCol(const ROArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize = false) const;
-  void getCol(const ROArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize = false) const;
-  void getCol(const ROArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize = false) const;
+  void getCol(const ArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize = false) const;
 
 
   // New slicer supports multiple Slices in channel and correlation
@@ -331,7 +331,7 @@ protected:
   // The ROVisibilityIterator version of this function sets the tile cache to 1
   // because of a feature in sliced data access that grows memory dramatically in
   // some cases.  However, ROVisibilityIterator, because it uses
-  // ROArrayColumn::getColumn(Vector<Vector<Slice> >&), is (1/28/2011) incredibly
+  // ArrayColumn::getColumn(Vector<Vector<Slice> >&), is (1/28/2011) incredibly
   // slow if the tile cache does not span all the selected channels, and it will
   // read orders of magnitude more data than it needs to.  This sets the tile
   // cache to the minimum number of tiles required to span the selected channels.
@@ -342,18 +342,18 @@ protected:
 			     Cube<Complex>& data) const;
 
   // Column access functions
-//  void getCol(const ROScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize = false) const;
-//  void getCol(const ROScalarColumn<Int> &column, Vector<Int> &array, Bool resize = false) const;
-//  void getCol(const ROScalarColumn<Double> &column, Vector<Double> &array, Bool resize = false) const;
+//  void getCol(const ScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize = false) const;
+//  void getCol(const ScalarColumn<Int> &column, Vector<Int> &array, Bool resize = false) const;
+//  void getCol(const ScalarColumn<Double> &column, Vector<Double> &array, Bool resize = false) const;
 //
-//  void getCol(const ROArrayColumn<Bool> &column, Array<Bool> &array, Bool resize = false) const;
-//  void getCol(const ROArrayColumn<Float> &column, Array<Float> &array, Bool resize = false) const;
-//  void getCol(const ROArrayColumn<Double> &column, Array<Double> &array, Bool resize = false) const;
-//  void getCol(const ROArrayColumn<Complex> &column, Array<Complex> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Bool> &column, Array<Bool> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Float> &column, Array<Float> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Double> &column, Array<Double> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Complex> &column, Array<Complex> &array, Bool resize = false) const;
 //
-//  void getCol(const ROArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize = false) const;
-//  void getCol(const ROArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize = false) const;
-//  void getCol(const ROArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize = false) const;
+//  void getCol(const ArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize = false) const;
 
   void putDataColumn(DataColumn whichOne,
                      const Cube<Complex>& data);
@@ -1271,52 +1271,52 @@ Int ROVisIteratorImpl::numberCorr(Int pol) const {
 
 }
 
-void ROVisIteratorImpl::getCol(const ROScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROScalarColumn<Int> &column, Vector<Int> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ScalarColumn<Int> &column, Vector<Int> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROScalarColumn<Double> &column, Vector<Double> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ScalarColumn<Double> &column, Vector<Double> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Bool> &column, Array<Bool> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Bool> &column, Array<Bool> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Float> &column, Array<Float> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Float> &column, Array<Float> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Double> &column, Array<Double> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Double> &column, Array<Double> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Complex> &column, Array<Complex> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Complex> &column, Array<Complex> &array, Bool resize) const
 {
     column.getColumn(array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize) const
 {
     column.getColumn(slicer, array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize) const
 {
     column.getColumn(slicer, array, resize);
 }
 
-void ROVisIteratorImpl::getCol(const ROArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize) const
+void ROVisIteratorImpl::getCol(const ArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize) const
 {
     column.getColumn(slicer, array, resize);
 }

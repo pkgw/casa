@@ -172,9 +172,9 @@ void FluxCalcVQS::readQSCoeffsTable(const Path& fileName)
   const ColumnDescSet& cds=Table_p.tableDesc().columnDescSet();
   if (!cds.isDefined(srcCoeffColName)) 
     throw(AipsError(srcName+" does not appears to be in "+fullName));
-  const ROScalarColumn<Double> epochCol(Table_p, "Epoch");
-  const ROArrayColumn<Float> CoeffCol(Table_p, srcCoeffColName);
-  const ROArrayColumn<Float> CoeffErrorCol(Table_p, srcCoeffErrorColName);
+  const ScalarColumn<Double> epochCol(Table_p, "Epoch");
+  const ArrayColumn<Float> CoeffCol(Table_p, srcCoeffColName);
+  const ArrayColumn<Float> CoeffErrorCol(Table_p, srcCoeffErrorColName);
   // check if col contains a valid freq range info in a keyword
   if (CoeffCol.keywordSet().isDefined("ValidFreqRange")) {
     Vector<Double> validfreqRange;

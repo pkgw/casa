@@ -167,9 +167,9 @@ void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
     // make a map between SOURCE_ID and source NAME
     MeasurementSet const &ms = vii->ms();
     auto const &sourceTable = ms.source();
-    ROScalarColumn<Int> idCol(sourceTable,
+    ScalarColumn<Int> idCol(sourceTable,
         sourceTable.columnName(MSSource::MSSourceEnums::SOURCE_ID));
-    ROScalarColumn<String> nameCol(sourceTable,
+    ScalarColumn<String> nameCol(sourceTable,
         sourceTable.columnName(MSSource::MSSourceEnums::NAME));
     std::map<Int, String> sourceMap;
     for (uInt irow = 0; irow < sourceTable.nrow(); ++irow) {
@@ -222,7 +222,7 @@ void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
             << nChanParList[ispw] << ")" << LogIO::POST;
         continue;
       }
-      ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
+      ScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
       Int antenna_id = antennaCol(0);
       os << "Process antenna " << antenna_id
           << " spw " << ispw << "(nchan " << nChanParList[ispw] << ")"
@@ -230,7 +230,7 @@ void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
 
       Int field_id = msIter.fieldId();
 
-      ROScalarColumn<Int> feedCol(currentMS, "FEED1");
+      ScalarColumn<Int> feedCol(currentMS, "FEED1");
       Int feed_id = feedCol(0);
       os << LogIO::DEBUGGING << "FIELD_ID " << field_id << " ANTENNA1 "
           << antenna_id
@@ -284,7 +284,7 @@ void SDDoubleCircleFilter::syncWith(ViImplementation2 const *vii) {
       //      os << LogIO::DEBUGGING<< "offset_direction[" << i << "]=" << direction_p[i] << LogIO::POST;
       //    }
 
-      ROScalarColumn<Double> timeCol(currentMS, "TIME");
+      ScalarColumn<Double> timeCol(currentMS, "TIME");
       Vector<Double> time = timeCol.getColumn();
       timeCol.attach(currentMS, "INTERVAL");
       Vector<Double> interval = timeCol.getColumn();

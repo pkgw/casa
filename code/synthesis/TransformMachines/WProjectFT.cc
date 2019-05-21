@@ -444,7 +444,7 @@ void WProjectFT::prepGridForDegrid(){
 
 void WProjectFT::finalizeToVis()
 {
-
+  
   //cerr <<"Time to degrid " << timedegrid_p << endl;
   timedegrid_p=0.0;
   if(!arrayLattice.null()) arrayLattice=0;
@@ -935,8 +935,8 @@ void WProjectFT::put(const VisBuffer& vb, Int row, Bool dopsf,
   ixsub=1;
   iysub=1;
   if(nth > 4){
-    ixsub=16;
-    iysub=16;
+    ixsub=8;
+    iysub=8;
   }
   else{
     ixsub=2;

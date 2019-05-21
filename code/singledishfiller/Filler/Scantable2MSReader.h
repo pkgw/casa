@@ -40,7 +40,7 @@ public:
       is_float = false;
     } else {
       casacore::String pol_type = main_table_->keywordSet().asString("POLTYPE");
-      casacore::ROScalarColumn<casacore::uInt> polno_column(*main_table_, "POLNO");
+      casacore::ScalarColumn<casacore::uInt> polno_column(*main_table_, "POLNO");
       casacore::uInt max_pol = max(polno_column.getColumn());
 //      std::cout << "pol_type=" << pol_type << " max_pol=" << max_pol << std::endl;
       if ((max_pol == 3) && (pol_type == "linear" || pol_type == "circular")) {
@@ -127,19 +127,19 @@ private:
   casacore::Table tcal_table_;
   casacore::Table weather_table_;
 
-  casacore::ROScalarColumn<casacore::uInt> scan_column_;casacore::ROScalarColumn<casacore::uInt> cycle_column_;casacore::ROScalarColumn<
-      casacore::uInt> ifno_column_;casacore::ROScalarColumn<casacore::uInt> polno_column_;casacore::ROScalarColumn<casacore::uInt> beam_column_;casacore::ROScalarColumn<
-      casacore::uInt> flagrow_column_;casacore::ROScalarColumn<casacore::Double> time_column_;casacore::ROScalarColumn<
-      casacore::Double> interval_column_;casacore::ROScalarColumn<casacore::Int> srctype_column_;
+  casacore::ScalarColumn<casacore::uInt> scan_column_;casacore::ScalarColumn<casacore::uInt> cycle_column_;casacore::ScalarColumn<
+      casacore::uInt> ifno_column_;casacore::ScalarColumn<casacore::uInt> polno_column_;casacore::ScalarColumn<casacore::uInt> beam_column_;casacore::ScalarColumn<
+      casacore::uInt> flagrow_column_;casacore::ScalarColumn<casacore::Double> time_column_;casacore::ScalarColumn<
+      casacore::Double> interval_column_;casacore::ScalarColumn<casacore::Int> srctype_column_;
   casacore::ArrayColumn<casacore::Float> data_column_;
   casacore::ArrayColumn<casacore::uChar> flag_column_;
   casacore::ArrayColumn<casacore::Double> direction_column_;
-  casacore::ArrayColumn<casacore::Double> scanrate_column_;casacore::ROScalarColumn<casacore::String> fieldname_column_;
-  casacore::ArrayColumn<casacore::Float> tsys_column_;casacore::ROScalarColumn<casacore::uInt> tcal_id_column_;casacore::ROScalarColumn<
+  casacore::ArrayColumn<casacore::Double> scanrate_column_;casacore::ScalarColumn<casacore::String> fieldname_column_;
+  casacore::ArrayColumn<casacore::Float> tsys_column_;casacore::ScalarColumn<casacore::uInt> tcal_id_column_;casacore::ScalarColumn<
       casacore::uInt> weather_id_column_;
-  casacore::ArrayColumn<casacore::Float> tcal_column_;casacore::ROScalarColumn<casacore::Float> temperature_column_;casacore::ROScalarColumn<
-      casacore::Float> pressure_column_;casacore::ROScalarColumn<casacore::Float> humidity_column_;casacore::ROScalarColumn<
-      casacore::Float> wind_speed_column_;casacore::ROScalarColumn<casacore::Float> wind_direction_column_;
+  casacore::ArrayColumn<casacore::Float> tcal_column_;casacore::ScalarColumn<casacore::Float> temperature_column_;casacore::ScalarColumn<
+      casacore::Float> pressure_column_;casacore::ScalarColumn<casacore::Float> humidity_column_;casacore::ScalarColumn<
+      casacore::Float> wind_speed_column_;casacore::ScalarColumn<casacore::Float> wind_direction_column_;
   casacore::Vector<casacore::uInt> sorted_rows_;
   ScantableFieldIterator::Product field_map_;
   ScantableFrequenciesIterator::Product num_chan_map_;

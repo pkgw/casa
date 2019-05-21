@@ -109,7 +109,7 @@ CalAnalysis::SPW_INFO::SPW_INFO( const String& oTableName ) {
   String oSPWName( oTableName + "/SPECTRAL_WINDOW" );
 
   CTSpectralWindow oCalSPW( oSPWName, Table::Old );
-  ROArrayColumn<Double> oFreqACD( ROMSSpWindowColumns(oCalSPW).chanFreq() );
+  ArrayColumn<Double> oFreqACD( ROMSSpWindowColumns(oCalSPW).chanFreq() );
 
 
   // Initialize this instance

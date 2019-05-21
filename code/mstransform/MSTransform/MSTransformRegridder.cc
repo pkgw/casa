@@ -143,14 +143,14 @@ Bool MSTransformRegridder::combineSpwsCore(	LogIO& os,
 
 	// Prepare access to the SPW table
 	ROMSSpWindowColumns SPWColrs(spwtable);
-	ROScalarColumn<Int> numChanColr = SPWColrs.numChan();
-	ROArrayColumn<Double> chanFreqColr = SPWColrs.chanFreq();
-	ROArrayColumn<Double> chanWidthColr = SPWColrs.chanWidth();
-	ROScalarColumn<Int> measFreqRefColr = SPWColrs.measFreqRef();
-	ROArrayColumn<Double> effectiveBWColr = SPWColrs.effectiveBW();
-	ROScalarColumn<Double> refFrequencyColr = SPWColrs.refFrequency();
-	ROArrayColumn<Double> resolutionColr = SPWColrs.resolution();
-	ROScalarColumn<Double> totalBandwidthColr = SPWColrs.totalBandwidth();
+	ScalarColumn<Int> numChanColr = SPWColrs.numChan();
+	ArrayColumn<Double> chanFreqColr = SPWColrs.chanFreq();
+	ArrayColumn<Double> chanWidthColr = SPWColrs.chanWidth();
+	ScalarColumn<Int> measFreqRefColr = SPWColrs.measFreqRef();
+	ArrayColumn<Double> effectiveBWColr = SPWColrs.effectiveBW();
+	ScalarColumn<Double> refFrequencyColr = SPWColrs.refFrequency();
+	ArrayColumn<Double> resolutionColr = SPWColrs.resolution();
+	ScalarColumn<Double> totalBandwidthColr = SPWColrs.totalBandwidth();
 
 	// Create a list of the SPW Ids sorted by first (lowest) channel frequency
 	vector<Int> spwsSorted(nSpwsToCombine);

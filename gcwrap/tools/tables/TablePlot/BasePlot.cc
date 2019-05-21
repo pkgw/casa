@@ -310,7 +310,7 @@ Int BasePlot::createTENS(Vector<String> &datastr)
       log->out(String("column ")+colnames_p(i),
             fnname, clname, LogMessage::DEBUGGING);
 #endif
-      ROTableColumn rot(SelTab_p,colnames_p(i));
+      TableColumn rot(SelTab_p,colnames_p(i));
                 if(!rot.isNull())
       {
           ColumnDesc cdesc = rot.columnDesc();

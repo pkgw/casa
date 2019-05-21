@@ -2290,6 +2290,12 @@ bool image::fromascii(
 ) {
     try {
         _log << _ORIGIN;
+        _log << LogIO::WARN << __func__ << "() IS DEPRECATED AND WILL BE "
+            << "REMOVED IN A NEAR-FUTURE VERSION OF CASA. YOU SHOULD USE "
+            << "ANOTHER SET OF IMAGE EXPORT AND IMPORT METHODS SUCH AS "
+            << "tofits()/fromfits() TO EXPORT AND IMPORT CASA IMAGES. IF YOU "
+            << "SIMPLY WISH TO MODIFY PIXEL VALUES, USE getchunk()/putchunk() "
+            << "OR getregion()/putregion() FOR THAT" << LogIO::POST;
         ThrowIf(infile.empty(), "infile must be specified");
         ThrowIf(
             shape.size() == 1 && shape[0] == -1,
@@ -6158,6 +6164,11 @@ bool image::toASCII(
 ) {
     // sep is hard-wired as ' ' which is what imagefromascii expects
     _log << _ORIGIN;
+    _log << LogIO::WARN << __func__ << "() IS DEPRECATED AND WILL BE REMOVED "
+        << "IN A NEAR-FUTURE VERSION OF CASA. YOU SHOULD USE ANOTHER IMAGE "
+        << "EXPORT METHOD SUCH AS tofits() TO EXPORT CASA IMAGES. IF YOU "
+        << "SIMPLY WISH TO MODIFY PIXEL VALUES, USE getchunk()/putchunk() OR "
+        << "getregion()/putregion() FOR THAT" << LogIO::POST;
     if (_detached()) {
         return false;
     }

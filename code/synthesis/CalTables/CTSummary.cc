@@ -649,10 +649,10 @@ void CTSummary::listHistory (LogIO& os) const
     else {
         uInt nmessages = ctHist.time().nrow();
         os << "History table entries: " << nmessages << endl << LogIO::POST;
-        const ROScalarColumn<Double> &theTimes((ctHist.time()));
-        const ROScalarColumn<String> &messOrigin((ctHist.origin()));
-        const ROScalarColumn<String> &messString((ctHist.message()));
-        const ROScalarColumn<String> &messPriority((ctHist.priority()));
+        const ScalarColumn<Double> &theTimes((ctHist.time()));
+        const ScalarColumn<String> &messOrigin((ctHist.origin()));
+        const ScalarColumn<String> &messString((ctHist.message()));
+        const ScalarColumn<String> &messPriority((ctHist.priority()));
         for (uInt i=0 ; i < nmessages; i++) {
             Quantity tmpq(theTimes(i), "s");
             MVTime mvtime(tmpq);
