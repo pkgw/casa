@@ -645,7 +645,7 @@ class simobserve_comp(simobserve_unittest_base):
                          compwidth = compwidth,setpointings=True,
                          integration=integration,direction=direction,
                          mapsize=mapsize,maptype=maptype,obsmode=obsmode,
-                         totaltime=totaltime,antennalist="",sdantlist=sdantlist
+                         totaltime=totaltime,antennalist="",sdantlist=sdantlist,
                          thermalnoise="",graphics=self.graphics)
         self.assertTrue(res)
         # compare outputs
