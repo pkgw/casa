@@ -2878,7 +2878,7 @@ coordsys::topixelmany(const ::casac::variant& value)
 ::casac::record*
 coordsys::torecord()
 {
-  ::casac::record *rstat = new ::casac::record();
+  ::casac::record *rstat = nullptr;
 
   try {
 	  _setup(__func__);
