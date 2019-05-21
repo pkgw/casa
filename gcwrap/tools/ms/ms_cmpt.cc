@@ -2954,8 +2954,8 @@ ms::cvel(const std::string& mode,
 
         {
             Table spwtable(originalName+"/SPECTRAL_WINDOW");
-            ROArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
-            ROArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
+            ArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
+            ArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
 
             if(spwtable.nrow()>1){
                 needToClearModel = true;
@@ -3117,8 +3117,8 @@ ms::cvel(const std::string& mode,
         if(rstat){
             // print parameters of final SPW
             Table spwtable(originalName+"/SPECTRAL_WINDOW");
-            ROArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
-            ROArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
+            ArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
+            ArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
 
             Vector<Double> cw(chanwidths(0));
             Vector<Double> cf(chanfreqs(0));
@@ -3229,12 +3229,12 @@ ms::cvelfreqs(const std::vector<int>& spwids,
 
 
             ROMSMainColumns mainCols(*itsMS);
-            ROScalarColumn<Double> timeCol(mainCols.time());
-            ROScalarColumn<Int> ddCol(mainCols.dataDescId());
-            ROScalarColumn<Int> fieldCol(mainCols.fieldId());
+            ScalarColumn<Double> timeCol(mainCols.time());
+            ScalarColumn<Int> ddCol(mainCols.dataDescId());
+            ScalarColumn<Int> fieldCol(mainCols.fieldId());
 
             ROMSDataDescColumns DDCols(itsMS->dataDescription());
-            ROScalarColumn<Int> spwidCol(DDCols.spectralWindowId());
+            ScalarColumn<Int> spwidCol(DDCols.spectralWindowId());
 
             ROMSSpWindowColumns SPWCols(itsMS->spectralWindow());
             ROMSFieldColumns FIELDCols(itsMS->field());

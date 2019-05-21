@@ -118,8 +118,8 @@ inline void updateSubtable(_Columns &columns, casacore::uInt irow,
 inline void makeSourceMap(casacore::MSSource const &table, casacore::Record &source_map) {
   POST_START;
 
-  casacore::ROScalarColumn<casacore::String> name_column(table, "NAME");
-  casacore::ROScalarColumn<casacore::Int> id_column(table, "SOURCE_ID");
+  casacore::ScalarColumn<casacore::String> name_column(table, "NAME");
+  casacore::ScalarColumn<casacore::Int> id_column(table, "SOURCE_ID");
   casacore::Vector<casacore::Int> id = id_column.getColumn();
 
   casacore::Sort sorter;

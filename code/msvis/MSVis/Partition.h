@@ -41,7 +41,7 @@
 #ifndef MSVIS_PARTITION_H
 namespace casacore{
 
-template<class T> class ROArrayColumn;
+template<class T> class ArrayColumn;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -176,14 +176,14 @@ private:
   casacore::Bool fillAccessoryMainCols();
 
   // *** Private member functions ***
-  casacore::Bool getDataColumn(casacore::ROArrayColumn<casacore::Complex>& data,
+  casacore::Bool getDataColumn(casacore::ArrayColumn<casacore::Complex>& data,
                      const casacore::MS::PredefinedColumns colName);
-  casacore::Bool getDataColumn(casacore::ROArrayColumn<casacore::Float>& data,
+  casacore::Bool getDataColumn(casacore::ArrayColumn<casacore::Float>& data,
                      const casacore::MS::PredefinedColumns colName);
-  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ROArrayColumn<casacore::Complex>& data,
+  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ArrayColumn<casacore::Complex>& data,
                      const casacore::MS::PredefinedColumns datacol,
                      const casacore::Bool writeToDataCol=false);
-  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ROArrayColumn<casacore::Float>& data,
+  casacore::Bool putDataColumn(casacore::MSColumns& msc, casacore::ArrayColumn<casacore::Float>& data,
                      const casacore::MS::PredefinedColumns datacol,
                      const casacore::Bool writeToDataCol=false);
 

@@ -697,7 +697,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     //
     Cube<Double> fminmax;
     Double fMax=0, fMin=MAX_FREQ;
-    ROArrayColumn<Double> spwCol=vb.subtableColumns().spectralWindow().chanFreq();
+    ArrayColumn<Double> spwCol=vb.subtableColumns().spectralWindow().chanFreq();
     fminmax.resize(spwChanSelFlag_p.shape()(0),spwChanSelFlag_p.shape()(1),2);
     fminmax=0;
     for (uInt ims=0; ims<spwChanSelFlag_p.shape()(0); ims++)
@@ -769,7 +769,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
       }
     
     bandNames.resize(nSpw);
-    ROScalarColumn<String> spwNames=vb.subtableColumns().spectralWindow().name();
+    ScalarColumn<String> spwNames=vb.subtableColumns().spectralWindow().name();
     for(Int i=0;i<nSpw;i++) 
       {
 	int s=spwFreqSelection_p(i,0);

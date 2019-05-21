@@ -205,7 +205,7 @@ Double sigToWeight(Double sig)
 
 std::set<Int> SubMS::findBadSpws(MeasurementSet& ms, Vector<Int> spwv)
 {
-  ROScalarColumn<Int> spws_in_dd(ms.dataDescription(), 
+  ScalarColumn<Int> spws_in_dd(ms.dataDescription(), 
 				 MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
   std::set<Int> uniqSpwsInDD;
   uInt nspwsInDD = spws_in_dd.nrow();
@@ -500,7 +500,7 @@ Bool SubMS::getCorrMaps(MSSelection& mssel, const MeasurementSet& ms,
     }
   }
   else{	// Make outToIn an identity map.
-    ROScalarColumn<Int> numCorr(ms.polarization(), 
+    ScalarColumn<Int> numCorr(ms.polarization(), 
 				MSPolarization::columnName(MSPolarization::NUM_CORR));
     
     for(uInt polid = 0; polid < npol; ++polid){
@@ -1121,13 +1121,13 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 
     {      
       const MSDataDescription ddtable = elms->dataDescription();
-      ROScalarColumn<Int> polId(ddtable, 
+      ScalarColumn<Int> polId(ddtable, 
                                 MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
       const MSPolarization poltable = elms->polarization();
-      ROArrayColumn<Int> pols(poltable, 
+      ArrayColumn<Int> pols(poltable, 
                               MSPolarization::columnName(MSPolarization::CORR_TYPE));
       
-      ROScalarColumn<Int> spwId(ddtable, 
+      ScalarColumn<Int> spwId(ddtable, 
                                 MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
 
       uInt nddids = polId.nrow();
@@ -1206,8 +1206,8 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
       // numbers for negated antennas!
       //Vector<Int> selAnt1s(thisSelection.getAntenna1List());
       //Vector<Int> selAnt2s(thisSelection.getAntenna2List());
-      ROScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
-      ROScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
+      ScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
+      ScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
       Vector<Int> selAnts(ant1c.getColumn());
       uInt nAnts = selAnts.nelements();
 
@@ -1539,7 +1539,7 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
     
     //DD table
     const MSDataDescription ddtable = mssel_p.dataDescription();
-    ROScalarColumn<Int> polId(ddtable, 
+    ScalarColumn<Int> polId(ddtable, 
 			      MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
     
     //Fill in matching spw to datadesc in old ms 
@@ -1550,12 +1550,12 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 
     //POLARIZATION table    
     const MSPolarization poltable= mssel_p.polarization();
-    ROScalarColumn<Int> numCorr (poltable, 
+    ScalarColumn<Int> numCorr (poltable, 
 				 MSPolarization::columnName(MSPolarization::NUM_CORR));
-    ROArrayColumn<Int> corrType(poltable, 
+    ArrayColumn<Int> corrType(poltable, 
 				MSPolarization::columnName(MSPolarization::CORR_TYPE));
-    ROArrayColumn<Int> corrProd(poltable, MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
-    ROScalarColumn<Bool> polFlagRow(poltable, MSPolarization::columnName(MSPolarization::FLAG_ROW));
+    ArrayColumn<Int> corrProd(poltable, MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
+    ScalarColumn<Bool> polFlagRow(poltable, MSPolarization::columnName(MSPolarization::FLAG_ROW));
     
     spwRelabel_p.resize(mscIn_p->spectralWindow().nrow());
     spwRelabel_p.set(-1);
@@ -1852,15 +1852,15 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
     MSFieldColumns msField(msOut_p.field());
 
     const ROMSFieldColumns& fieldIn = mscIn_p->field(); 
-    ROScalarColumn<String> code(fieldIn.code());
-    ROArrayColumn<Double>  delayDir(fieldIn.delayDir());
-    ROScalarColumn<Bool>   flagRow(fieldIn.flagRow());
-    ROScalarColumn<String> name(fieldIn.name());
-    ROScalarColumn<Int>    numPoly(fieldIn.numPoly());
-    ROArrayColumn<Double>  phaseDir(fieldIn.phaseDir());
-    ROArrayColumn<Double>  refDir(fieldIn.referenceDir());
-    ROScalarColumn<Int>    sourceId(fieldIn.sourceId());
-    ROScalarColumn<Double> time(fieldIn.time());
+    ScalarColumn<String> code(fieldIn.code());
+    ArrayColumn<Double>  delayDir(fieldIn.delayDir());
+    ScalarColumn<Bool>   flagRow(fieldIn.flagRow());
+    ScalarColumn<String> name(fieldIn.name());
+    ScalarColumn<Int>    numPoly(fieldIn.numPoly());
+    ArrayColumn<Double>  phaseDir(fieldIn.phaseDir());
+    ArrayColumn<Double>  refDir(fieldIn.referenceDir());
+    ScalarColumn<Int>    sourceId(fieldIn.sourceId());
+    ScalarColumn<Double> time(fieldIn.time());
     
     String refstr;
     String nameVarRefColDelayDir, nameVarRefColPhaseDir, nameVarRefColRefDir;
@@ -1964,7 +1964,7 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 
       if(nAddedCols > 0){
 
-        ROScalarColumn<Int> eID(fieldIn.ephemerisId());
+        ScalarColumn<Int> eID(fieldIn.ephemerisId());
 	if(eID.hasContent()){
 	  String destPathName = Path(msOut_p.field().tableName()).absoluteName();
 	  for(uInt k = 0; k < fieldid_p.nelements(); ++k){
@@ -1985,21 +1985,21 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 	}
 
 	if(!nameVarRefColDelayDir.empty()){ // need to copy the reference column
-	  ROScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColDelayDir);
+	  ScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColDelayDir);
 	  ScalarColumn<Int> cdMDirRef(msOut_p.field(), nameVarRefColDelayDir);
 	  for(uInt k = 0; k < fieldid_p.nelements(); ++k){
 	    cdMDirRef.put(k, dM(fieldid_p[k]));
 	  }
 	}
 	if(!nameVarRefColPhaseDir.empty()){ // need to copy the reference column
-	  ROScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColPhaseDir);
+	  ScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColPhaseDir);
 	  ScalarColumn<Int> cdMDirRef(msOut_p.field(), nameVarRefColPhaseDir);
 	  for(uInt k = 0; k < fieldid_p.nelements(); ++k){
 	    cdMDirRef.put(k, dM(fieldid_p[k]));
 	  }
 	}
 	if(!nameVarRefColRefDir.empty()){ // need to copy the reference column
-	  ROScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColRefDir);
+	  ScalarColumn<Int>  dM(mssel_p.field(), nameVarRefColRefDir);
 	  ScalarColumn<Int> cdMDirRef(msOut_p.field(), nameVarRefColRefDir);
 	  for(uInt k = 0; k < fieldid_p.nelements(); ++k){
 	    cdMDirRef.put(k, dM(fieldid_p[k]));
@@ -4687,7 +4687,7 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
     MSAntenna anttable = ms_p.antenna();
     ROMSAntennaColumns ANTCols(anttable);
     ROScalarMeasColumn<MPosition> ANTPositionMeasCol = ANTCols.positionMeas(); 
-    ROScalarColumn<Bool> ANTflagRowCol = ANTCols.flagRow();
+    ScalarColumn<Bool> ANTflagRowCol = ANTCols.flagRow();
     Int nAnt = 0;
     Vector<Double> pos(3); pos=0;
     for (uInt i=0; i<anttable.nrow(); i++) {
@@ -5507,16 +5507,16 @@ Bool SubMS::fillAllTables(const Vector<MS::PredefinedColumns>& datacols)
 
       // prepare access to the SPW table
       ROMSSpWindowColumns SPWColrs(spwtable);
-      ROScalarColumn<Int> numChanColr = SPWColrs.numChan(); 
-      ROArrayColumn<Double> chanFreqColr = SPWColrs.chanFreq(); 
-      ROArrayColumn<Double> chanWidthColr = SPWColrs.chanWidth(); 
+      ScalarColumn<Int> numChanColr = SPWColrs.numChan(); 
+      ArrayColumn<Double> chanFreqColr = SPWColrs.chanFreq(); 
+      ArrayColumn<Double> chanWidthColr = SPWColrs.chanWidth(); 
       //    ArrayMeasColumn<MFrequency> chanFreqMeasColr = SPWColrs.chanFreqMeas();
-      ROScalarColumn<Int> measFreqRefColr = SPWColrs.measFreqRef();
-      ROArrayColumn<Double> effectiveBWColr = SPWColrs.effectiveBW();   
-      ROScalarColumn<Double> refFrequencyColr = SPWColrs.refFrequency(); 
+      ScalarColumn<Int> measFreqRefColr = SPWColrs.measFreqRef();
+      ArrayColumn<Double> effectiveBWColr = SPWColrs.effectiveBW();   
+      ScalarColumn<Double> refFrequencyColr = SPWColrs.refFrequency(); 
       //    ScalarMeasColumn<MFrequency> refFrequencyMeasColr = SPWColrs.refFrequencyMeas(); 
-      ROArrayColumn<Double> resolutionColr = SPWColrs.resolution(); 
-      ROScalarColumn<Double> totalBandwidthColr = SPWColrs.totalBandwidth();
+      ArrayColumn<Double> resolutionColr = SPWColrs.resolution(); 
+      ScalarColumn<Double> totalBandwidthColr = SPWColrs.totalBandwidth();
 
       // create a list of the spw ids sorted by first (lowest) channel frequency
       vector<Int> spwsSorted(nSpwsToCombine);
@@ -7218,7 +7218,7 @@ Bool SubMS::existsFlagCategory() const
   return hasFC;
 }
 
-  Bool SubMS::getDataColumn(ROArrayColumn<Complex>& data,
+  Bool SubMS::getDataColumn(ArrayColumn<Complex>& data,
                             const MS::PredefinedColumns colName)
   {
     if(colName == MS::DATA)
@@ -7232,7 +7232,7 @@ Bool SubMS::existsFlagCategory() const
     return true;
   }
 
-  Bool SubMS::getDataColumn(ROArrayColumn<Float>& data,
+  Bool SubMS::getDataColumn(ArrayColumn<Float>& data,
                             const MS::PredefinedColumns colName)
   {
     LogIO os(LogOrigin("SubMS", "getDataColumn()"));
@@ -7247,7 +7247,7 @@ Bool SubMS::existsFlagCategory() const
     return true;
   }
 
-  Bool SubMS::putDataColumn(MSColumns& msc, ROArrayColumn<Complex>& data, 
+  Bool SubMS::putDataColumn(MSColumns& msc, ArrayColumn<Complex>& data, 
                             const MS::PredefinedColumns colName,
                             const Bool writeToDataCol)
   {
@@ -7616,7 +7616,7 @@ Bool SubMS::copyDataFlagsWtSp(const Vector<MS::PredefinedColumns>& colNames,
     return true;
   }
 
-  Bool SubMS::putDataColumn(MSColumns& msc, ROArrayColumn<Float>& data, 
+  Bool SubMS::putDataColumn(MSColumns& msc, ArrayColumn<Float>& data, 
                             const MS::PredefinedColumns colName,
                             const Bool writeToDataCol)
   {
@@ -7646,7 +7646,7 @@ Bool SubMS::copyDataFlagsWtSp(const Vector<MS::PredefinedColumns>& colNames,
   // Can only be used when incol and outcol have the same # of rows!
   //
 void SubMS::remapColumn(ScalarColumn<Int>& outcol,
-                        const ROScalarColumn<Int>& incol)
+                        const ScalarColumn<Int>& incol)
 {
   uInt nrows = incol.nrow();
     
@@ -7679,7 +7679,7 @@ void SubMS::remapColumn(ScalarColumn<Int>& outcol,
 }
 
 void SubMS::remapColumn(ScalarColumn<Int>& outcol,
-                        const ROScalarColumn<Int>& incol,
+                        const ScalarColumn<Int>& incol,
                         const Vector<Int>& selvals)
 {
   uInt nrows = incol.nrow();
@@ -7718,8 +7718,8 @@ void SubMS::remapColumn(ScalarColumn<Int>& outcol,
 // etc.)
 void SubMS::relabelIDs()
 {
-  const ROScalarColumn<Int> inDDID(mscIn_p->dataDescId());
-  const ROScalarColumn<Int> fieldId(mscIn_p->fieldId());
+  const ScalarColumn<Int> inDDID(mscIn_p->dataDescId());
+  const ScalarColumn<Int> fieldId(mscIn_p->fieldId());
   
   for(Int k = inDDID.nrow(); k--;){
     msc_p->dataDescId().put(k, spwRelabel_p[oldDDSpwMatch_p[inDDID(k)]]);
@@ -7828,7 +7828,7 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
     // I can't see a way to explicitly* avoid constructing these in each
     // iteration.  (attach() would implicitly construct them.)
     // * without relying on compiler optimization.
-    ROTableColumn incol(in, inColNames[k]);
+    TableColumn incol(in, inColNames[k]);
     TableColumn outcol(out, inColNames[k]);
 
     outcol.putColumn(incol);
@@ -7958,7 +7958,7 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
           TableCopy::copyRows(newFlag_Cmd, oldFlag_Cmd);
         // }
         // else{
-        //   const ROScalarColumn<Double>& time = oldFCs.time();
+        //   const ScalarColumn<Double>& time = oldFCs.time();
 
 	//   uInt nTRanges = selTimeRanges_p.ncolumn();
 
@@ -8035,14 +8035,14 @@ Bool SubMS::copyCols(Table& out, const Table& in, const Bool flush)
       outcols.setFrequencyRef(MFrequency::castType(incols.restFrequencyMeas().getMeasRef().getType()));
       outcols.setRadialVelocityRef(MRadialVelocity::castType(incols.sysvelMeas().getMeasRef().getType()));
 
-      const ROScalarColumn<Int>& inSId   = incols.sourceId();
+      const ScalarColumn<Int>& inSId   = incols.sourceId();
       ScalarColumn<Int>& 	 outSId  = outcols.sourceId();
-      const ROScalarColumn<Int>& inSPW   = incols.spectralWindowId();
+      const ScalarColumn<Int>& inSPW   = incols.spectralWindowId();
       ScalarColumn<Int>& 	 outSPW  = outcols.spectralWindowId();
 
       // 2009-06-09: It is hard to say whether to remap pulsarID when the
       // PULSAR table is not described in the MS v2.0 def'n.
-//       const ROScalarColumn<Int>& inPId   = incols.pulsarId();
+//       const ScalarColumn<Int>& inPId   = incols.pulsarId();
 //       ScalarColumn<Int>& 	 outPId  = outcols.pulsarId();
 
       uInt outrn = 0; 		   	   		// row number in output.
@@ -8118,7 +8118,7 @@ Bool SubMS::copyGenericSubtables(){
 
       if(inDesc.isColumn(name)){
 	TableColumn outCol(msOut_p, name);
-	ROTableColumn inCol(mssel_p, name);
+	TableColumn inCol(mssel_p, name);
 	
 	TableCopy::copySubTables(outCol.rwKeywordSet(), inCol.keywordSet(),
 				 msOut_p.tableName(), msOut_p.tableType(),
@@ -8297,7 +8297,7 @@ void SubMS::createSubtables(MeasurementSet& ms, Table::TableOption option)
           //DW  	msOut_p.pointing() = mssel_p.pointing();	
           //DW  	//TableCopy::copyInfo(newPoint, oldPoint);
           //W  	TableColumn newTC(newPoint, "DIRECTION");
-          //W  	const ROScalarColumn<MDirection> oldTC(oldPoint, "DIRECTION");
+          //W  	const ScalarColumn<MDirection> oldTC(oldPoint, "DIRECTION");
           //W  	const TableColumn oldTC(oldPoint, "DIRECTION");
           //W  	newTC.rwKeywordSet() = oldTC.keywordSet();
 
@@ -8307,8 +8307,8 @@ void SubMS::createSubtables(MeasurementSet& ms, Table::TableOption option)
           newPCs.setDirectionRef(MDirection::castType(oldPCs.directionMeasCol().getMeasRef().getType()));
           newPCs.setEncoderDirectionRef(MDirection::castType(oldPCs.encoderMeas().getMeasRef().getType()));
 
-          const ROScalarColumn<Int>& antIds  = oldPCs.antennaId();
-          const ROScalarColumn<Double>& time = oldPCs.time();
+          const ScalarColumn<Int>& antIds  = oldPCs.antennaId();
+          const ScalarColumn<Double>& time = oldPCs.time();
           ScalarColumn<Int>& 	     outants = newPCs.antennaId();
 
 	  uInt nTRanges = selTimeRanges_p.ncolumn();
@@ -8530,8 +8530,8 @@ Bool SubMS::filterOptSubtable(const String& subtabname)
         // At this point msOut_p has subtab with 0 rows.
         Table outtab(msOut_p.tableName() + '/' + subtabname, Table::Update);
 
-        ROScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");         // + FEED_ID if it
-        ROScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID"); // ever changed.
+        ScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");         // + FEED_ID if it
+        ScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID"); // ever changed.
         const Vector<Int>& antIds = inAntIdCol.getColumn();
         const Vector<Int>& spwIds = inSpwIdCol.getColumn();
 
@@ -8950,7 +8950,7 @@ uInt SubMS::fillAntIndexer(std::map<Int, Int>& antIndexer, const ROMSColumns *ms
   return nant;
 }
 
-const ROArrayColumn<Complex>& SubMS::right_column(const ROMSColumns *msclala,
+const ArrayColumn<Complex>& SubMS::right_column(const ROMSColumns *msclala,
                                                 const MS::PredefinedColumns col)
 {
   if(col == MS::DATA)

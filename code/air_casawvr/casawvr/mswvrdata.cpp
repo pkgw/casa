@@ -41,7 +41,7 @@ namespace LibAIR2 {
     // Not using these in present algorithm
     //const casacore::MSProcessor  & proc(ms.processor());
 
-    casacore::ROScalarColumn<casacore::Int> nc(specTable,
+    casacore::ScalarColumn<casacore::Int> nc(specTable,
 				       casacore::MSSpectralWindow::columnName(casacore::MSSpectralWindow::NUM_CHAN));
     
     SPWSet res;
@@ -109,10 +109,10 @@ namespace LibAIR2 {
   {
     const casacore::MSFeed &feedtable=ms.feed();
 
-    casacore::ROScalarColumn<casacore::Int> ant(feedtable,
+    casacore::ScalarColumn<casacore::Int> ant(feedtable,
 					casacore::MSFeed::columnName(casacore::MSFeed::ANTENNA_ID));
 
-    casacore::ROScalarColumn<casacore::Int> fspw(feedtable,
+    casacore::ScalarColumn<casacore::Int> fspw(feedtable,
 					 casacore::MSFeed::columnName(casacore::MSFeed::SPECTRAL_WINDOW_ID));
 
     const size_t nfeeds=feedtable.nrow();
@@ -135,9 +135,9 @@ namespace LibAIR2 {
   {
     std::set<size_t> dsc_ids=WVRDataDescIDs(ms, wvrspws);
 
-    casacore::ROScalarColumn<casacore::Int> c_desc_id(ms,
+    casacore::ScalarColumn<casacore::Int> c_desc_id(ms,
 					  casacore::MS::columnName(casacore::MS::DATA_DESC_ID));
-    casacore::ROScalarColumn<casacore::Int> a1(ms,
+    casacore::ScalarColumn<casacore::Int> a1(ms,
 				       casacore::MS::columnName(casacore::MS::ANTENNA1));
 
     AntSet res;
@@ -156,7 +156,7 @@ namespace LibAIR2 {
 			 LibAIR2::AntSet &flaggedAnts)
   {
         // add the antennas flagged in the ANTENNA table to the set
-    casacore::ROScalarColumn<casacore::Bool> antflagrow(ms.antenna(),
+    casacore::ScalarColumn<casacore::Bool> antflagrow(ms.antenna(),
 						casacore::MSAntenna::columnName(casacore::MSAntenna::FLAG_ROW));
     const size_t nants=ms.antenna().nrow();
     for(size_t i=0; i<nants; i++)
@@ -180,19 +180,19 @@ namespace LibAIR2 {
     std::set<size_t> dsc_ids=WVRDataDescIDs(ms, wvrspws);
     size_t dsc_id = *dsc_ids.begin();
 
-    casacore::ROScalarColumn<casacore::Double> c_times(ms,
+    casacore::ScalarColumn<casacore::Double> c_times(ms,
 					       casacore::MS::columnName(casacore::MS::TIME));
-    casacore::ROScalarColumn<casacore::Int> c_states(ms,
+    casacore::ScalarColumn<casacore::Int> c_states(ms,
 					     casacore::MS::columnName(casacore::MS::STATE_ID));
-    casacore::ROScalarColumn<casacore::Int> c_field(ms,
+    casacore::ScalarColumn<casacore::Int> c_field(ms,
 					    casacore::MS::columnName(casacore::MS::FIELD_ID));
 
-    casacore::ROScalarColumn<casacore::Int> c_desc_id(ms,
+    casacore::ScalarColumn<casacore::Int> c_desc_id(ms,
 					      casacore::MS::columnName(casacore::MS::DATA_DESC_ID));
-    casacore::ROScalarColumn<casacore::Int> a1(ms,
+    casacore::ScalarColumn<casacore::Int> a1(ms,
 				       casacore::MS::columnName(casacore::MS::ANTENNA1));
 
-    casacore::ROArrayColumn<casacore::Bool> c_flags(ms,
+    casacore::ArrayColumn<casacore::Bool> c_flags(ms,
 					    casacore::MS::columnName(casacore::MS::FLAG));
 
     std::map<size_t, size_t> srcmap=getFieldSrcMap(ms);
@@ -249,8 +249,8 @@ namespace LibAIR2 {
   {
     const casacore::MSPointing &ptable=ms.pointing();
     const casacore::ROMSPointingColumns ptablecols(ptable);
-    const casacore::ROArrayColumn<casacore::Double> &dir=ptablecols.direction();
-    const casacore::ROScalarColumn<casacore::Double> &ptime=ptablecols.time();
+    const casacore::ArrayColumn<casacore::Double> &dir=ptablecols.direction();
+    const casacore::ScalarColumn<casacore::Double> &ptime=ptablecols.time();
 
     const size_t n=ptime.nrow();
     if(n==0){
@@ -401,7 +401,7 @@ namespace LibAIR2 {
       requiredUnflaggedFraction=1.;
     }
 
-    casacore::ROScalarColumn<casacore::Double> maintime(ms,
+    casacore::ScalarColumn<casacore::Double> maintime(ms,
 						casacore::MS::columnName(casacore::MS::TIME));
 
     const size_t nrows=maintime.nrow();
@@ -459,14 +459,14 @@ namespace LibAIR2 {
     std::vector<size_t> nunflagged(nAnts, 0);
     std::vector<size_t> ntotal(nAnts, 0);
 
-    casacore::ROArrayColumn<casacore::Complex> indata(ms, casacore::MS::columnName(casacore::MS::DATA));
-    casacore::ROScalarColumn<casacore::Int> indsc_id(ms, casacore::MS::columnName(casacore::MS::DATA_DESC_ID));
-    casacore::ROScalarColumn<casacore::Int> a1(ms, casacore::MS::columnName(casacore::MS::ANTENNA1));
-    casacore::ROScalarColumn<casacore::Int> a2(ms, casacore::MS::columnName(casacore::MS::ANTENNA2));
+    casacore::ArrayColumn<casacore::Complex> indata(ms, casacore::MS::columnName(casacore::MS::DATA));
+    casacore::ScalarColumn<casacore::Int> indsc_id(ms, casacore::MS::columnName(casacore::MS::DATA_DESC_ID));
+    casacore::ScalarColumn<casacore::Int> a1(ms, casacore::MS::columnName(casacore::MS::ANTENNA1));
+    casacore::ScalarColumn<casacore::Int> a2(ms, casacore::MS::columnName(casacore::MS::ANTENNA2));
 
-    casacore::ROArrayColumn<casacore::Bool> inflags(ms, casacore::MS::columnName(casacore::MS::FLAG));
+    casacore::ArrayColumn<casacore::Bool> inflags(ms, casacore::MS::columnName(casacore::MS::FLAG));
 
-    casacore::ROScalarColumn<casacore::Double> c_times(ms, casacore::MS::columnName(casacore::MS::TIME));
+    casacore::ScalarColumn<casacore::Double> c_times(ms, casacore::MS::columnName(casacore::MS::TIME));
 
     std::vector<size_t> offsetSortedI;
     size_t nOffRows=0;
