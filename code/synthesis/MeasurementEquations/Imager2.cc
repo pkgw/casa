@@ -279,7 +279,7 @@ Bool Imager::imagecoordinates2(CoordinateSystem& coordInfo, const Bool verbose)
   //ROMSColumns msc(*ms_p);
   ROMSColumns msc(*mssel_p); // CAS-11503
   MFrequency::Types obsFreqRef=MFrequency::DEFAULT;
-  ROScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
+  ScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
 				  MSSpectralWindow::columnName(MSSpectralWindow::MEAS_FREQ_REF));
   //using the first frame of reference; TO DO should do the right thing 
   //for different frames selected. 
@@ -857,7 +857,7 @@ Bool Imager::imagecoordinates(CoordinateSystem& coordInfo, const Bool verbose)
   
   ROMSColumns msc(*ms_p);
   MFrequency::Types obsFreqRef=MFrequency::DEFAULT;
-  ROScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
+  ScalarColumn<Int> measFreqRef(ms_p->spectralWindow(),
 				  MSSpectralWindow::columnName(MSSpectralWindow::MEAS_FREQ_REF));
   //using the first frame of reference; TO DO should do the right thing 
   //for different frames selected. 
@@ -1782,7 +1782,7 @@ Bool Imager::pb(const String& inimage,
     } else {
       // get the PB from the vpTable
       Table vpTable( vpTableStr_p );
-      ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+      ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
       myPBp = new PBMath(recCol(0));
     }
     AlwaysAssert((myPBp != 0), AipsError);
@@ -1919,7 +1919,7 @@ Bool Imager::pbguts(ImageInterface<Float>& inImage,
     } else {
       // get the PB from the vpTable
       Table vpTable( vpTableStr_p );
-      ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+      ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
       myPBp = new PBMath(recCol(0));
     }
     AlwaysAssert((myPBp != 0), AipsError);
@@ -4091,7 +4091,7 @@ Bool Imager::makePBImage(const CoordinateSystem& imageCoord,
 
 Bool Imager::makePBImage(const CoordinateSystem& imageCoord, 
 			 const Table& vpTable, const String& diskPBName){
-  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
   PBMath myPB(recCol(0));
   return makePBImage(imageCoord, myPB, diskPBName);
 
@@ -4099,7 +4099,7 @@ Bool Imager::makePBImage(const CoordinateSystem& imageCoord,
 
 
 Bool Imager::makePBImage(const Table& vpTable, ImageInterface<Float>& pbImage){
-  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
   PBMath myPB(recCol(0));
   return makePBImage(myPB, pbImage);
 
@@ -4173,11 +4173,11 @@ Bool Imager::makePBImage(PBMath& pbMath, ImageInterface<Float>& pbImage){
 void Imager::transferHistory(LoggerHolder& imagelog, ROMSHistoryColumns& msHis){
   LogIO os(LogOrigin("imager", "transferHistory"));
   LogSink& sink = imagelog.sink();
-  const ROScalarColumn<Double> &time_col = msHis.time();
-  const ROScalarColumn<String> &origin_col = msHis.origin();
-  const ROArrayColumn<String> &cli_col = msHis.cliCommand();
-  const ROScalarColumn<String> &message_col = msHis.message();
-  const ROScalarColumn<String> &priority_col = msHis.priority();
+  const ScalarColumn<Double> &time_col = msHis.time();
+  const ScalarColumn<String> &origin_col = msHis.origin();
+  const ArrayColumn<String> &cli_col = msHis.cliCommand();
+  const ScalarColumn<String> &message_col = msHis.message();
+  const ScalarColumn<String> &priority_col = msHis.priority();
   std::map<String, LogMessage::Priority> prio={{"DEBUGGING", LogMessage::DEBUGGING},
 					       {"DEBUG2", LogMessage::DEBUG2},{"DEBUG1", LogMessage::DEBUG1},  {"NORMAL5", LogMessage::NORMAL5}, {"NORMAL4",  LogMessage::NORMAL4}, {"NORMAL3", LogMessage::NORMAL3}, {"NORMAL2",   LogMessage::NORMAL2}, {"NORMAL1",  LogMessage::NORMAL1}, {"NORMAL",   LogMessage::NORMAL}, {"WARN",  LogMessage::WARN}, {"SEVERE", LogMessage::SEVERE}};
   if (msHis.nrow()>0) {

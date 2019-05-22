@@ -51,7 +51,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     start.resize();
     nchan.resize();
     Vector<Double> t;
-    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
+    ScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
     //Vector<Int> ddId;
     //Vector<Int> fldId;
     
@@ -63,10 +63,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     uInt nTimes=GenSortIndirect<Double>::sort (uniqIndx, t, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
 
     t.resize(0);
-    //ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
-    //ROScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
-    ROScalarColumn<Int> ddId(ms,MS::columnName(MS::DATA_DESC_ID));
-    ROScalarColumn<Int> fldId(ms,MS::columnName(MS::FIELD_ID));
+    //ScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+    //ScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
+    ScalarColumn<Int> ddId(ms,MS::columnName(MS::DATA_DESC_ID));
+    ScalarColumn<Int> fldId(ms,MS::columnName(MS::FIELD_ID));
     //now need to do the conversion to data frame from requested frame
     //Get the epoch mesasures of the first row
     MEpoch ep;
@@ -136,7 +136,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   			  const Double freqStep,
   			  const MFrequency::Types freqframe){
 	  Vector<Int> fldId;
-	  ROScalarColumn<Int> (ms, MS::columnName (MS::FIELD_ID)).getColumn (fldId);
+	  ScalarColumn<Int> (ms, MS::columnName (MS::FIELD_ID)).getColumn (fldId);
 	  const Int option = Sort::HeapSort | Sort::NoDuplicates;
 	  const Sort::Order order = Sort::Ascending;
 
@@ -199,9 +199,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	if(dataDescSel.nelements()==0)
 		return;
 	Vector<Double> t;
-    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
+    ScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
 	Vector<Int> ddId;
-    ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+    ScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
     ROMSSpWindowColumns spwCol(ms.spectralWindow());
     Vector<Double> ddIdD(ddId.shape());
     convertArray(ddIdD, ddId);
@@ -221,8 +221,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     t.resize(0);
     
-    //ROScalarColumn<Int> ddId(ms,MS::columnName(MS::DATA_DESC_ID));
-    ROScalarColumn<Int> fldId(ms,MS::columnName(MS::FIELD_ID));
+    //ScalarColumn<Int> ddId(ms,MS::columnName(MS::DATA_DESC_ID));
+    ScalarColumn<Int> fldId(ms,MS::columnName(MS::FIELD_ID));
     //now need to do the conversion to data frame from requested frame
     //Get the epoch mesasures of the first row
     MEpoch ep;
@@ -329,11 +329,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     freqStart=C::dbl_max;
     freqEnd=0.0;
     Vector<Double> t;
-    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
+    ScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
     Vector<Int> ddId;
     Vector<Int> fldId;
-    ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
-    ROScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
+    ScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+    ScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
     ROMSFieldColumns fieldCol(ms.field());
     ROMSDataDescColumns ddCol(ms.dataDescription());
     ROMSSpWindowColumns spwCol(ms.spectralWindow());
@@ -500,11 +500,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     freqStart=C::dbl_max;
     freqEnd=0.0;
     Vector<Double> t;
-    ROScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
+    ScalarColumn<Double> (ms,MS::columnName(MS::TIME)).getColumn(t);
     Vector<Int> ddId;
     Vector<Int> fldId;
-    ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
-    ROScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
+    ScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+    ScalarColumn<Int> (ms,MS::columnName(MS::FIELD_ID)).getColumn(fldId);
     ROMSFieldColumns fieldCol(ms.field());
     ROMSDataDescColumns ddCol(ms.dataDescription());
     ROMSSpWindowColumns spwCol(ms.spectralWindow());
@@ -674,7 +674,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   	  }
 	  else{
 		  Vector<Int> ddId;
-		  ROScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
+		  ScalarColumn<Int> (ms,MS::columnName(MS::DATA_DESC_ID)).getColumn(ddId);
 		  Vector<uInt>  uniqIndx;
 		  uInt nTimes=GenSort<Int>::sort (ddId, Sort::Ascending, Sort::QuickSort|Sort::NoDuplicates);
 		  ddId.resize(nTimes, true);

@@ -308,7 +308,7 @@ Int BasePlot::createTENS(casacore::Vector<casacore::String> &datastr)
       log->out(casacore::String("column ")+colnames_p(i),
             fnname, clname, casacore::LogMessage::DEBUGGING);
 #endif
-      casacore::ROTableColumn rot(SelTab_p,colnames_p(i));
+      casacore::TableColumn rot(SelTab_p,colnames_p(i));
                 if(!rot.isNull())
       {
           casacore::ColumnDesc cdesc = rot.columnDesc();

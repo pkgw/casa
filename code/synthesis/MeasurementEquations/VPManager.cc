@@ -206,7 +206,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     LogIO os(LogOrigin("vpmanager", "loadfromtable"));
 
     Table tb(tablename);
-    ROScalarColumn<TableRecord> pbcol(tb, "pbdescription");
+    ScalarColumn<TableRecord> pbcol(tb, "pbdescription");
 
     Table tb2;
 
@@ -219,8 +219,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       return false;
     }
 
-    ROScalarColumn<String> telcol2(tb2, "tel_and_anttype");
-    ROScalarColumn<Int> listnumcol(tb2, "vplistnum");
+    ScalarColumn<String> telcol2(tb2, "tel_and_anttype");
+    ScalarColumn<Int> listnumcol(tb2, "vplistnum");
 
     Record tempvplist;
     SimpleOrderedMap<String, Int> tempvplistdefaults(-1);

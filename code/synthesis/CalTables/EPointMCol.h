@@ -45,7 +45,7 @@ class ROEPointMCol : public ROSolvableVisJonesMCol
 
   // Read-only column accessors
 
-  const casacore::ROArrayColumn<casacore::Float>& pointingOffset() const {return pointingOffset_p;}
+  const casacore::ArrayColumn<casacore::Float>& pointingOffset() const {return pointingOffset_p;}
 
  protected:
   // Prohibit public use of the null constructor, which
@@ -58,7 +58,7 @@ class ROEPointMCol : public ROSolvableVisJonesMCol
   ROEPointMCol& operator= (const ROEPointMCol&);
 
   // Private column accessors
-  casacore::ROArrayColumn<casacore::Float> pointingOffset_p;
+  casacore::ArrayColumn<casacore::Float> pointingOffset_p;
 };
 
 // <summary> 

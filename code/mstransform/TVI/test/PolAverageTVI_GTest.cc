@@ -753,7 +753,7 @@ void initWeights(MeasurementSet *ms) {
     ArrayColumn<Float> weightSpColumn(*ms, "WEIGHT_SPECTRUM");
     ArrayColumn<Float> sigmaSpColumn(*ms, "SIGMA_SPECTRUM");
     ArrayColumn<Bool> const flagColumn(*ms, "FLAG");
-    ROScalarColumn<Double> exposureColumn(*ms, "EXPOSURE");
+    ScalarColumn<Double> exposureColumn(*ms, "EXPOSURE");
     for (size_t i = 0; i < ms->nrow(); ++i) {
       IPosition const cellShape = flagColumn.shape(i);
       Double const exposure = exposureColumn(i);

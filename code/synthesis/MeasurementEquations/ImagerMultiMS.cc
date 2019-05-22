@@ -345,7 +345,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       dataspectralwindowids_p.resize();
       const ROMSSpWindowColumns spwc(thisms.spectralWindow());
       uInt nspw = spwc.nrow();
-      const ROScalarColumn<Int> spwNchans(spwc.numChan());
+      const ScalarColumn<Int> spwNchans(spwc.numChan());
       Vector<Int> nchanvec = spwNchans.getColumn();
       //cerr<<"SetDataOnThisMS::numMS_p="<<numMS_p<<" nchanvec="<<nchanvec<<endl;
       Int maxnchan = 0;
