@@ -681,7 +681,7 @@ Bool VisModelData::isModelDefined(const Int fieldId, const MeasurementSet& thems
         Int row=theMs.source().keywordSet().asInt(theKey);
 	//ROMSSourceColumns srcCol(theMs.source());
      
-	ROScalarColumn<TableRecord> scol(theMs.source(), "SOURCE_MODEL");
+	ScalarColumn<TableRecord> scol(theMs.source(), "SOURCE_MODEL");
 	scol.get(row, theRec);
       }
       return true;
@@ -1483,7 +1483,7 @@ Int VisModelData::firstSourceRowRecord(const Int field, const MeasurementSet& th
       if(!rowIsUsed)
 	return -1;
       if(row >-1 && mss.isColumn(MSSource::SOURCE_MODEL)){
-	ROScalarColumn<TableRecord> scol(theMS.source(), "SOURCE_MODEL");
+	ScalarColumn<TableRecord> scol(theMS.source(), "SOURCE_MODEL");
 	scol.get(row, rec);
       }
     }

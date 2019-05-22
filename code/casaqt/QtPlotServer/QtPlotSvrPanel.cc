@@ -688,11 +688,11 @@ namespace casa {
 
         unsigned int n = colormap_table.nrow();
 
-        casacore::ROArrayColumn<casacore::String> synonym_col(colormap_table, "SYNONYMS");
-        casacore::ROScalarColumn<casacore::String> name_col (colormap_table, "CMAP_NAME");
-        casacore::ROArrayColumn<casacore::Float> red_col (colormap_table, "RED");
-        casacore::ROArrayColumn<casacore::Float> green_col (colormap_table, "GREEN");
-        casacore::ROArrayColumn<casacore::Float> blue_col (colormap_table, "BLUE");
+        casacore::ArrayColumn<casacore::String> synonym_col(colormap_table, "SYNONYMS");
+        casacore::ScalarColumn<casacore::String> name_col (colormap_table, "CMAP_NAME");
+        casacore::ArrayColumn<casacore::Float> red_col (colormap_table, "RED");
+        casacore::ArrayColumn<casacore::Float> green_col (colormap_table, "GREEN");
+        casacore::ArrayColumn<casacore::Float> blue_col (colormap_table, "BLUE");
 
         for ( unsigned int i=0; i < n; ++i ) {
             casacore::String name = name_col(i);

@@ -1445,7 +1445,7 @@ Vector<uInt>& CalAnalysis::fieldGet( const String& oTableName ) {
   // Get the field numbers from the new format calibration table
 
   Table oTable( oTableName, Table::Old );
-  ROScalarColumn<Int> oROSC( oTable, String("FIELD_ID") );
+  ScalarColumn<Int> oROSC( oTable, String("FIELD_ID") );
 
   Vector<Int> oFieldInt;
   oROSC.getColumn( oFieldInt, true );
@@ -1691,7 +1691,7 @@ Vector<uInt>& CalAnalysis::antenna1Get( const String& oTableName ) {
   // Get the antenna 1 numbers from the new format calibration table
 
   Table oTable( oTableName, Table::Old );
-  ROScalarColumn<Int> oROSC( oTable, String("ANTENNA1") );
+  ScalarColumn<Int> oROSC( oTable, String("ANTENNA1") );
 
   Vector<Int> oAntenna1Int;
   oROSC.getColumn( oAntenna1Int, true );
@@ -1855,7 +1855,7 @@ Vector<Int>& CalAnalysis::antenna2Get( const String& oTableName ) {
   // Get the antenna 2 numbers from the new format calibration table
 
   Table oTable( oTableName, Table::Old );
-  ROScalarColumn<Int> oROSC( oTable, String("ANTENNA2") );
+  ScalarColumn<Int> oROSC( oTable, String("ANTENNA2") );
 
   Vector<Int> oAntenna2Int;
   oROSC.getColumn( oAntenna2Int, true );
@@ -2013,7 +2013,7 @@ Vector<Double>& CalAnalysis::timeGet( const String& oTableName ) {
   // Create a temporary new format calibration table instance
 
   Table oTable( oTableName, Table::Old );
-  ROScalarColumn<Double> oROSC( oTable, String("TIME") );
+  ScalarColumn<Double> oROSC( oTable, String("TIME") );
 
 
   // Get the sorted and unique time stamps
@@ -2206,7 +2206,7 @@ Vector<String>& CalAnalysis::feedGet( const String& oTableName ) {
 
   try {
 
-    ROArrayColumn<Float> oROAC( oTable, String("PARAMERR") );
+    ArrayColumn<Float> oROAC( oTable, String("PARAMERR") );
 
     oParamErrCell0.resize( oROAC(0).shape() );
     oParamErrCell0 = oROAC( 0 );
@@ -2845,11 +2845,11 @@ Bool& CalAnalysis::rowSelect( const NewCalTable& oNCT,
 
   // Create the column accessors
 
-  ROScalarColumn<Int> oFieldCol( oNCT, String("FIELD_ID") );
-  ROScalarColumn<Int> oAntenna1Col( oNCT, String("ANTENNA1") );
-  ROScalarColumn<Int> oAntenna2Col( oNCT, String("ANTENNA2") );
-  ROScalarColumn<Int> oSPWCol( oNCT, String("SPECTRAL_WINDOW_ID") );
-  ROScalarColumn<Double> oTimeCol( oNCT, String("TIME") );
+  ScalarColumn<Int> oFieldCol( oNCT, String("FIELD_ID") );
+  ScalarColumn<Int> oAntenna1Col( oNCT, String("ANTENNA1") );
+  ScalarColumn<Int> oAntenna2Col( oNCT, String("ANTENNA2") );
+  ScalarColumn<Int> oSPWCol( oNCT, String("SPECTRAL_WINDOW_ID") );
+  ScalarColumn<Double> oTimeCol( oNCT, String("TIME") );
 
 
   // Initialize the number of rows in the new format calibration table, the
@@ -2977,11 +2977,11 @@ Bool& CalAnalysis::rowGroup( const NewCalTable& oNCT,
 
   // Create the column accessors
 
-  ROScalarColumn<Int> oFieldCol( oNCT, String("FIELD_ID") );
-  ROScalarColumn<Int> oAntenna1Col( oNCT, String("ANTENNA1") );
-  ROScalarColumn<Int> oAntenna2Col( oNCT, String("ANTENNA2") );
-  ROScalarColumn<Int> oSPWCol( oNCT, String("SPECTRAL_WINDOW_ID") );
-  ROScalarColumn<Double> oTimeCol( oNCT, String("TIME") );
+  ScalarColumn<Int> oFieldCol( oNCT, String("FIELD_ID") );
+  ScalarColumn<Int> oAntenna1Col( oNCT, String("ANTENNA1") );
+  ScalarColumn<Int> oAntenna2Col( oNCT, String("ANTENNA2") );
+  ScalarColumn<Int> oSPWCol( oNCT, String("SPECTRAL_WINDOW_ID") );
+  ScalarColumn<Double> oTimeCol( oNCT, String("TIME") );
 
 
   // Initialize the number of groups according to unique values of
@@ -3228,7 +3228,7 @@ Bool& CalAnalysis::freqGroup( const INPUT& oInput,
 
   Table oTableSPW( oCalName+String("/SPECTRAL_WINDOW"), Table::Old );
 
-  ROArrayColumn<Double> oChanFreqCol( oTableSPW, String("CHAN_FREQ") );
+  ArrayColumn<Double> oChanFreqCol( oTableSPW, String("CHAN_FREQ") );
 
 
   // Initialize the number of groups and the output instance
@@ -3353,18 +3353,18 @@ Bool& CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
 
   // Create accessors for the CPARAM/FPARAM, PARAMERR, and FLAG columns
 
-  ROArrayColumn<Complex>* poCParamCol = NULL;
-  ROArrayColumn<Float>* poFParamCol = NULL;
+  ArrayColumn<Complex>* poCParamCol = NULL;
+  ArrayColumn<Float>* poFParamCol = NULL;
 
   if ( oParType == String("Complex") ) {
-    poCParamCol = new ROArrayColumn<Complex>( oNCT, String("CPARAM") );
+    poCParamCol = new ArrayColumn<Complex>( oNCT, String("CPARAM") );
   } else {
-    poFParamCol = new ROArrayColumn<Float>( oNCT, String("FPARAM") );
+    poFParamCol = new ArrayColumn<Float>( oNCT, String("FPARAM") );
   }
 
-  ROArrayColumn<Float> oParamErrCol( oNCT, String("PARAMERR") );
+  ArrayColumn<Float> oParamErrCol( oNCT, String("PARAMERR") );
 
-  ROArrayColumn<Bool> oFlagCol( oNCT, String("FLAG") );
+  ArrayColumn<Bool> oFlagCol( oNCT, String("FLAG") );
 
 
   // Initialize the number of groups and the output instances

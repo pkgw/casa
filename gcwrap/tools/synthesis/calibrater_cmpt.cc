@@ -866,11 +866,11 @@ casac::record* calibrater::fluxscale(
     String oName( "NAME" );
 
     Table oFieldTable( itsMS->fieldTableName() );
-    ROScalarColumn<String> oFieldColumn( oFieldTable, oName );
+    ScalarColumn<String> oFieldColumn( oFieldTable, oName );
     Vector<String> oFieldName( oFieldColumn.getColumn() );
 
     Table oSPWTable( itsMS->spectralWindowTableName() );
-    ROScalarColumn<String> oSPWColumn( oSPWTable, oName );
+    ScalarColumn<String> oSPWColumn( oSPWTable, oName );
     Vector<String> oSPWName( oSPWColumn.getColumn() );
 
 

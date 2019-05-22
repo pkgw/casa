@@ -148,6 +148,7 @@ test_splattotable               dmehring@nrao.edu
 test_split                      scastro@eso.org
 test_spxfit                     dmehring@nrao.edu
 test_statwt                     ttsutsum@nrao.edu
+test_tclean                     ttsutsum@nrao.edu
 test_uvcontsub                  ttsutsum@nrao.edu
 test_uvcontsub3                 ttsutsum@nrao.edu
 test_testconcat                 dpetry@eso.org

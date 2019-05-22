@@ -324,7 +324,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //find max no. channels from the current ms 
       const ROMSSpWindowColumns spwc(thisms.spectralWindow());
       uInt nspw = spwc.nrow();
-      const ROScalarColumn<Int> spwNchans(spwc.numChan());
+      const ScalarColumn<Int> spwNchans(spwc.numChan());
       Vector<Int> nchanvec = spwNchans.getColumn();
       Int maxnchan = 0;
       for (uInt i=0;i<nchanvec.nelements();i++) {
@@ -2790,7 +2790,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   Bool SynthesisImager::makePBImage(const String telescop){
 
   /*
-  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
   PBMath myPB(recCol(0));
   */
   LogIO os( LogOrigin("SynthesisImager","makePBImage",WHERE) );
