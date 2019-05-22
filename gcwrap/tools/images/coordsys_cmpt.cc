@@ -4456,7 +4456,7 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
 	for (int i=0; i < n; i++) sarr[i]=sa[i];
 	RecordDesc rd;
 	rd.addField("string", TpArrayString, IPosition(1,n));
-	rec = new Record(rd);
+	rec->restructure(rd);
 	rec->define("string", sarr);
       }
        delete [] sa;
@@ -4472,7 +4472,7 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
     int n = sarr.size();
     RecordDesc rd;
     rd.addField("string", TpArrayString, IPosition(1,n));
-    rec = new Record(rd);
+    rec->restructure(rd);
     rec->define("string", sarr);
     return rec;
   }
@@ -4492,6 +4492,7 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
     // Catch r := cs.toworld (value, 'nqms') style where r is a record
     // with fields including 'measure'
     Bool none = true;
+    delete rec;
     rec = toRecord(tmpv.asRecord());
     if (rec->isDefined("numeric")) {
       if (first) return rec;
@@ -4542,7 +4543,7 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
       }
       RecordDesc rd;
       rd.addField("measure", TpRecord);
-      rec = new Record(rd);
+      rec->restructure(rd);
       rec->defineRecord("measure", *toRecord(tmpv.asRecord()));
     }
     return rec;
