@@ -731,7 +731,7 @@ coordsys::fromrecord(const ::casac::record& csys_record)
     //	rec_it != csys_record.end(); rec_it++){
     //      std::cerr << (*rec_it).first <<  " " << std::endl;
     //    }
-    PtrHolder<Record> csysRecord(toRecord(csys_record));
+    std::unique_ptr<Record> csysRecord(toRecord(csys_record));
     CoordinateSystem* pCS = CoordinateSystem::restore(*csysRecord, "");
     ThrowIf(
     	! pCS,
@@ -1099,7 +1099,7 @@ coordsys::replace(const ::casac::record& csys, const int in,
   bool rstat(false);
   _setup(__func__);
 
-  Record *tmp = toRecord(csys);
+  std::unique_ptr<Record> tmp(toRecord(csys));
 
   //
   CoordinateSystem* pCS = CoordinateSystem::restore(*tmp, "");
@@ -1131,7 +1131,6 @@ coordsys::replace(const ::casac::record& csys, const int in,
     ok = true;
   }
   rstat = ok;
-  delete tmp;
   delete pCS;
   pCS = 0;
 
@@ -1417,7 +1416,7 @@ coordsys::setepoch(const ::casac::record& value)
   _setup(__func__);
   String error;
   MeasureHolder in;
-  Record *inrec = toRecord(value);
+  std::unique_ptr<Record> inrec(toRecord(value));
   if (!in.fromRecord(error, *inrec)) {
     error += String("Non-measure type value in measure conversion\n");
     *_log << LogIO::SEVERE << error << LogIO::POST;
@@ -2025,14 +2024,13 @@ coordsys::setrestfrequency(const ::casac::variant& vfvalue, const int which,
   } else if (vfvalue.type() == ::casac::variant::RECORD) {
     //NOW the record has to be compatible with QuantumHolder::toRecord
     ::casac::variant localvar(vfvalue); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     String error;
     if(!qh.fromRecord(error, *ptrRec)){
       *_log << LogIO::WARN << "Error " << error
 	      << " in converting quantity "<< LogIO::POST;
       return false;
     }
-    delete ptrRec;
     if (qh.isScalar() && qh.isQuantity()) {
       casacore::Quantity q=qh.asQuantity();
       Vector<Double> tmp(1);
@@ -2109,11 +2107,10 @@ qvdFromVar(String &error, Quantum<Vector<Double> > &rtn,
     rtn=tmpqv;
   } else if (vfvalue.type() == ::casac::variant::RECORD) {
     ::casac::variant localvar(vfvalue);
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(!qh.fromRecord(error, *ptrRec)){
       return false;
     }
-    delete ptrRec;
     if (qh.isScalar() && qh.isQuantity()) {
       casacore::Quantity q=qh.asQuantity();
       Vector<Double> tmp(1);
@@ -2653,7 +2650,7 @@ coordsys::toabsmany(const ::casac::variant& value, const int isworld)
     }
   } else if (value.type() == ::casac::variant::RECORD) {
     ::casac::variant localvar(value);
-    Record *tmp = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> tmp(toRecord(localvar.asRecord()));
     if (tmp->isDefined("numeric")) {
       valueIn = tmp->asArrayDouble("numeric");
     } else {
@@ -2661,7 +2658,6 @@ coordsys::toabsmany(const ::casac::variant& value, const int isworld)
 	      << LogIO::EXCEPTION;
       return rstat;
     }
-    delete tmp;
   } else {
     *_log << LogIO::SEVERE << "unsupported data type for value"
 	    << LogIO::EXCEPTION;
@@ -3066,7 +3062,7 @@ coordsys::toworld(const ::casac::variant& value, const std::string& format)
     for (int i=0 ; i < n; i++) pixel[i]=ipixel[i];
   } else if (value.type() == ::casac::variant::RECORD) {
     ::casac::variant localvar(value);
-    Record *tmp = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> tmp(toRecord(localvar.asRecord()));
     if (tmp->isDefined("numeric")) {
       pixel = tmp->asArrayDouble("numeric");
     } else {
@@ -3074,7 +3070,6 @@ coordsys::toworld(const ::casac::variant& value, const std::string& format)
 	      << LogIO::EXCEPTION;
       return rstat;
     }
-    delete tmp;
   } else {
     *_log << LogIO::SEVERE << "unsupported data type for pixel"
 	    << LogIO::EXCEPTION;
@@ -4265,9 +4260,9 @@ coordsys::isValueWorld(casac::variant& value, int shouldBeWorld,
       }
     }
 
-    Record *rec = 0;
+    std::unique_ptr<Record> rec;
     if(value.type() == ::casac::variant::RECORD) {
-      rec = toRecord(value.asRecord());
+      rec.reset(toRecord(value.asRecord()));
     }
 
     //
@@ -4341,7 +4336,7 @@ coordsys::checkAbsRel(casac::variant& value, casacore::Bool shouldBeAbs)
 
   if (value.type() == ::casac::variant::RECORD) {
     //    ::casac::record crec = value.asRecord();
-    Record *rec = toRecord(value.asRecord());
+    std::unique_ptr<Record> rec(toRecord(value.asRecord()));
     if(rec->isDefined("ar_type")) {
       String s;
       Int fn = rec->fieldNumber("ar_type");
@@ -4544,7 +4539,8 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
       RecordDesc rd;
       rd.addField("measure", TpRecord);
       rec->restructure(rd);
-      rec->defineRecord("measure", *toRecord(tmpv.asRecord()));
+      std::unique_ptr<Record> tmpRec(toRecord(tmpv.asRecord()));
+      rec->defineRecord("measure", *tmpRec);
     }
     return rec;
 
