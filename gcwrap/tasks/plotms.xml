@@ -11,32 +11,32 @@
 
 <description>
 
-		Task for plotting and interacting with visibility data and
-		calibration tables.
+                Task for plotting and interacting with visibility data and
+                calibration tables.
 
-		Plotms provides a variety of axis choices (including data column)
-		along with selection, averaging, and transformation options for
-		MeasurementSets.  Flag extension parameters are also available for
-		interactive flagging operations in the plotter.
+                Plotms provides a variety of axis choices (including data column)
+                along with selection, averaging, and transformation options for
+                MeasurementSets.  Flag extension parameters are also available for
+                interactive flagging operations in the plotter.
         
-		All of the provided parameters can also be set using the GUI once
-		the application has been launched or through the plotms tool (pm).
+                All of the provided parameters can also be set using the GUI once
+                the application has been launched or through the plotms tool (pm).
 
-		Most of the basic plotms functions will work for calibration tables.
-		The correlation selection string may be used to select polarization
-		in a cal table, including ratio plots ("/").  The antenna selection
-		string is used to select antenna1 only, rather than baselines as in
-		an MS. When plotting parameterized CalTables, such as delays, antpos,
-		gaincurve, or opacity, plotms will currently just plot the simple
-		parameters contained in the table, not the effective amplitudes or
-		phases sampled at observing times, frequencies etc.  BPOLY and
-		GSPLINE tables are supported but interactive flagging is not allowed.
-		Features currently unsupported for CalTables include averaging,
-		transformations (velocity conversions, etc.), and some axis and
-		selection options which do not exist in these tables. In the plotms
-		GUI, many options irrelevant for CalTables are not hidden when
-		interacting with a CalTable, and such settings will be ignored (when
-		benign) or cause an error message.
+                Most of the basic plotms functions will work for calibration tables.
+                The correlation selection string may be used to select polarization
+                in a cal table, including ratio plots ("/").  The antenna selection
+                string is used to select antenna1 only, rather than baselines as in
+                an MS. When plotting parameterized CalTables, such as delays, antpos,
+                gaincurve, or opacity, plotms will currently just plot the simple
+                parameters contained in the table, not the effective amplitudes or
+                phases sampled at observing times, frequencies etc.  BPOLY and
+                GSPLINE tables are supported but interactive flagging is not allowed.
+                Features currently unsupported for CalTables include averaging,
+                transformations (velocity conversions, etc.), and some axis and
+                selection options which do not exist in these tables. In the plotms
+                GUI, many options irrelevant for CalTables are not hidden when
+                interacting with a CalTable, and such settings will be ignored (when
+                benign) or cause an error message.
         
 </description>
 
@@ -950,8 +950,8 @@ Display Parameters
     <param type="string" name="xconnector">
         <description>Set connector for data points (blank="none"; "line","step")</description>
         <value />
-		<allowed kind="enum">
-			<value />
+    <allowed kind="enum">
+      <value />
             <value>none</value>
             <value>line</value>
             <value>step</value>

@@ -16,8 +16,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="string" name="imagename" mustexist="true" >
-    	<description>Name of the input image</description>
-    	<value></value>
+        <description>Name of the input image</description>
+        <value></value>
         <example>imagename='ngc5921.im'</example>
     </param>
     <param type="string" name="box">
@@ -27,7 +27,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="any" name="region">
         <description>Region selection. Default is to use the full image.</description>
-	    <any type='variant' limittype='string stringArray record'/>
+        <any type='variant' limittype='string stringArray record'/>
         <value type='string'/>
         <example>region='myregion'</example>
     </param>
