@@ -4260,7 +4260,7 @@ coordsys::isValueWorld(casac::variant& value, int shouldBeWorld,
       }
     }
 
-    std::unique_ptr<Record> rec;
+    std::unique_ptr<Record> rec(nullptr);
     if(value.type() == ::casac::variant::RECORD) {
       rec.reset(toRecord(value.asRecord()));
     }
@@ -4451,7 +4451,8 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
 	for (int i=0; i < n; i++) sarr[i]=sa[i];
 	RecordDesc rd;
 	rd.addField("string", TpArrayString, IPosition(1,n));
-	rec->restructure(rd);
+	delete rec;
+	rec = new Record(rd);
 	rec->define("string", sarr);
       }
        delete [] sa;
@@ -4467,7 +4468,8 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
     int n = sarr.size();
     RecordDesc rd;
     rd.addField("string", TpArrayString, IPosition(1,n));
-    rec->restructure(rd);
+    delete rec;
+    rec = new Record(rd);
     rec->define("string", sarr);
     return rec;
   }
@@ -4538,7 +4540,8 @@ coordsys::coordinateValueToRecord(const ::casac::variant& value, Bool isWorld,
       }
       RecordDesc rd;
       rd.addField("measure", TpRecord);
-      rec->restructure(rd);
+      delete rec;
+      rec = new Record(rd);
       std::unique_ptr<Record> tmpRec(toRecord(tmpv.asRecord()));
       rec->defineRecord("measure", *tmpRec);
     }
