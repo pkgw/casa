@@ -1853,7 +1853,7 @@ class test_cube(testref_base):
               ret = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=10,deconvolver='hogbom',
                        restoringbeam='common',parallel=self.parallel)
           self.assertTrue(os.path.exists(self.img+'1.psf') and os.path.exists(self.img+'1.image') )
-          report2=self.th.checkall(imexist=[self.img+'1.image'],imval=[(self.img+'1.image',0.8906,[54,50,0,0]), (self.img+'1.image',0.35945,[54,50,0,19]) , (self.img+'1.residual',0.033942,[54,50,0,19]) ])
+          report2=self.th.checkall(imexist=[self.img+'1.image'],imval=[(self.img+'1.image',0.8906,[54,50,0,0]), (self.img+'1.image',0.51977,[54,50,0,19]) , (self.img+'1.residual',0.033942,[54,50,0,19]) ])
           # OLD - first channel has been restored by a 'common' beam picked from channel 2
           self.checkfinal(report1+report2)
 
@@ -1884,7 +1884,7 @@ class test_cube(testref_base):
 
           report2 = self.th.checkall(imexist=[self.img+'.image'], 
                                      imval=[(self.img+'.image',0.770445,[54,50,0,1]),
-                                            (self.img+'.image',0.408929,[54,50,0,15])  ])
+                                            (self.img+'.image',0.567246,[54,50,0,15])  ])
           
           ## Pass or Fail (and why) ?
           self.checkfinal(estr+report2)
