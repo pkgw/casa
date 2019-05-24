@@ -72,12 +72,11 @@ quanta::quantumHolderFromVar(const ::casac::variant& theVar){
     }
     if(theVar.type()== ::casac::variant::RECORD){
       ::casac::variant localvar(theVar);
-      Record * ptrRec = toRecord(localvar.asRecord());
+      std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
       if(!qh.fromRecord(error, *ptrRec)){
 	*itsLog << LogIO::SEVERE << "Error " << error
 		<< " in converting quantity "<< LogIO::POST;
       }
-      delete ptrRec;
     }
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
@@ -830,11 +829,10 @@ quanta::isquantity(const ::casac::variant& v)
     }
     if(v.type()== ::casac::variant::RECORD){
       ::casac::variant localvar(v);
-      Record * ptrRec = toRecord(localvar.asRecord());
+      std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
       if(qh.fromRecord(error, *ptrRec)){
 	retval=(qh.isQuantity() || qh.isQuantumArrayDouble());
       }
-      delete ptrRec;
     }
   } catch (AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg()
