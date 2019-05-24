@@ -2330,7 +2330,7 @@ ms::selectinit(const int datadescid, const bool resetsel)
 				String ddidTaql = "DATA_DESC_ID IN [" + selDDID + "]";
 				Record taqlSelRec(Record::Variable);
 				taqlSelRec.define("taql", ddidTaql);
-				::casac::record* casacRec = fromRecord(taqlSelRec);
+				std::unique_ptr<::casac::record> casacRec(fromRecord(taqlSelRec));
 				try {
 					// test it first, can't revert MSSelection selection
 					retval = doMSSelection(*casacRec, true);  // onlyparse=true
@@ -2369,9 +2369,8 @@ ms::selectold(const ::casac::record& items)
     Bool retval = false;
     try {
         if(!detached()){
-            Record *myTmp = toRecord(items);
+            std::unique_ptr<casacore::Record> myTmp(toRecord(items));
             retval = itsSel->select(*myTmp, false);
-            delete myTmp;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -2392,7 +2391,7 @@ ms::select(const ::casac::record& items)
 		if(!detached()){
             if (checkinit()) {
               *itsLog << LogOrigin("ms", "select");
-              Record* selRecord = toRecord(items);
+              std::unique_ptr<Record> selRecord(toRecord(items));
               for (uInt field=0; field < selRecord->nfields(); ++field) {
                 String fieldStr = selRecord->name(field);
                 fieldStr.upcase();
@@ -2466,7 +2465,7 @@ ms::select(const ::casac::record& items)
                         Record uvdistSelRec(Record::Variable);
                         String uvdistExpr = String::toString(uvdist[0]) + "~" + String::toString(uvdist[1]);
                         uvdistSelRec.define("uvdist", uvdistExpr);
-                        ::casac::record* casacRec = fromRecord(uvdistSelRec);
+                        std::unique_ptr<::casac::record> casacRec(fromRecord(uvdistSelRec));
                         retval = retval & doMSSelection(*casacRec);
                     } else {
                         *itsLog << LogIO::WARN << "Illegal value for uvdist range selection: two element numeric vector required" << LogIO::POST;
@@ -2486,7 +2485,6 @@ ms::select(const ::casac::record& items)
                   *itsLog << LogIO::WARN << "Unrecognized field in input ignored: "+fieldStr << LogIO::POST;
                      
               }
-			  delete selRecord;
 		  }
         }
 	} catch (AipsError x) {
@@ -2531,7 +2529,7 @@ ms::selecttaql(const std::string& taqlstr)
             Record taqlSelRec(Record::Variable);
             String taqlExpr = String::toString(taqlstr);
             taqlSelRec.define("taql", taqlExpr);
-            ::casac::record* casacRec = fromRecord(taqlSelRec);
+            std::unique_ptr<::casac::record> casacRec(fromRecord(taqlSelRec));
             retval = doMSSelection(*casacRec);
         }
 	} catch (AipsError x) {
@@ -2699,7 +2697,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
                 Record polnSelRec(Record::Variable);
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
-                ::casac::record* casacRec = fromRecord(polnSelRec);
+                std::unique_ptr<::casac::record> casacRec(fromRecord(polnSelRec));
                 retval = doMSSelection(*casacRec);
                 if (retval) {
                     polnExpr_p = polnExpr;
@@ -5264,9 +5262,8 @@ ms::putdataold(const ::casac::record& items)
     Bool rstat(False);
     try {
         if(!detached()){
-            Record *myTmp = toRecord(items);
+            std::unique_ptr<Record> myTmp(toRecord(items));
             rstat = itsSel->putData(*myTmp);
-            delete myTmp;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -5308,7 +5305,7 @@ ms::putdata(const ::casac::record& items)
                 return false;
             }
 
-            Record* putRecord = toRecord(items);
+            std::unique_ptr<Record> putRecord(toRecord(items));
             // check for valid fields for putdata, issue warning once
             Vector<Bool> allowed(putRecord->nfields());
             for (uInt i=0; i<putRecord->nfields(); ++i) {
@@ -5361,7 +5358,6 @@ ms::putdata(const ::casac::record& items)
                 } // else
                 rstat = true;
             }
-            delete putRecord;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -6901,7 +6897,7 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 	Bool retVal=false;
 	try
 	{
-		Record *casaRec = toRecord(exprs);
+		std::unique_ptr<Record> casaRec(toRecord(exprs));
 		String spwExpr, timeExpr, fieldExpr, baselineExpr, scanExpr, scanIntentExpr,
 			polnExpr, uvDistExpr, obsExpr, arrayExpr, taQLExpr;
 		Int nFields = casaRec->nfields();
