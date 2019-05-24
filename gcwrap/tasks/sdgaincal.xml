@@ -28,7 +28,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>gain calibration mode</description>
       <value>doublecircle</value>
       <allowed kind="enum">
-	    <value>doublecircle</value>
+      <value>doublecircle</value>
       </allowed>
     </param>
 
@@ -74,16 +74,16 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value type="string"></value>
     </param>
 
-	<param type="any" name="interp" subparam="true">
-		<description>Interp type in time[,freq], per gaintable. default==linear,linear</description>
-	    <any type="variant" limittype="string stringArray"/>
-		<value type="string"></value>
-	</param>
+  <param type="any" name="interp" subparam="true">
+    <description>Interp type in time[,freq], per gaintable. default==linear,linear</description>
+      <any type="variant" limittype="string stringArray"/>
+    <value type="string"></value>
+  </param>
 
-	<param type="intArray" name="spwmap" subparam="true">
-		<description>Spectral windows combinations to form for gaintables(s)</description>
-		<value></value>
-	</param>
+  <param type="intArray" name="spwmap" subparam="true">
+    <description>Spectral windows combinations to form for gaintables(s)</description>
+    <value></value>
+  </param>
 
     <param type="string" name="outfile">
       <description>name of output caltable</description>

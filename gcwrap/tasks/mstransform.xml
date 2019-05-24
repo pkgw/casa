@@ -60,7 +60,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
      
     If CASA is started without mpicasa, it is still possible to create an MMS, but
     the processing will be done in sequential.
-	
+
     The resulting WEIGHT_SPECTRUM produced by mstransform is in the statistical
     sense correct for the simple cases of channel average and time average, but not for
     the general re-gridding case, in which the error propagation formulas applicable for 
@@ -267,7 +267,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </param>
 
         <param type="any" name="width" subparam="true">
-	    <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
+        <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
             <any type="variant"/>
             <value type="int">1</value>
         </param>
@@ -326,10 +326,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </allowed>
         </param>
 
-	<param type="bool" name="preaverage">
+    <param type="bool" name="preaverage">
           <description>Pre-average channels before regridding, when the ratio between the output and and input widths is greater than 2.</description>
           <value>False</value>
-	</param>
+    </param>
 
     <!-- TIME AVERAGING parameters -->
     <param type="bool" name="timeaverage">
@@ -355,52 +355,52 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         
         <!-- OTF CALIBRATION parameters -->
         
-	    <param type="bool" name="docallib" >
-	        <description>Enable on-the-fly (OTF) calibration as in task applycal</description>
-	        <value>False</value>
-	    </param>
+        <param type="bool" name="docallib" >
+            <description>Enable on-the-fly (OTF) calibration as in task applycal</description>
+            <value>False</value>
+        </param>
 
-	    <param type="string" name="callib" subparam="true" >
-	        <description>Path to calibration library file</description>
-	        <value type="string"></value>
-	    </param>       
-	    
+        <param type="string" name="callib" subparam="true" >
+            <description>Path to calibration library file</description>
+            <value type="string"></value>
+        </param>       
+        
         <!-- UVContSub parameters -->
         
-	    <param type="bool" name="douvcontsub" >
-	        <description>Enable continuum subtraction as in task uvcontsub</description>
-	        <value>False</value>
-	    </param>
+        <param type="bool" name="douvcontsub" >
+            <description>Enable continuum subtraction as in task uvcontsub</description>
+            <value>False</value>
+        </param>
 
-	    <param type="string" name="fitspw" subparam="true" >
-	        <description>Spectral window:channel selection for fitting the continuum</description>
-	        <value type="string"></value>
-	    </param>       	    
-	    
-		<param type="int" name="fitorder" subparam="true">
-			<description>Polynomial order for the fits</description>
-			<value type="int">0</value>
-		</param>
-		
-		<param type="bool" name="want_cont" subparam="true">
-			<description>Produce continuum estimate instead of continuum subtracted data</description>
-			<value>False</value>
-		</param>
-		
-		<param type="bool" name="denoising_lib" subparam="true">
-			<description>Use new denoising library (based on GSL) instead of casacore fitting routines</description>
-			<value>True</value>
-		</param>	
-		
-		<param type="int" name="nthreads" subparam="true">
-			<description>Number of OMP threads to use (currently maximum limited by number of polarizations)</description>
-			<value>1</value>
-		</param>			
-		
-		<param type="int" name="niter" subparam="true">
-			<description>Number of iterations for re-weighted linear fit</description>
-			<value>1</value>
-		</param>			
+        <param type="string" name="fitspw" subparam="true" >
+            <description>Spectral window:channel selection for fitting the continuum</description>
+            <value type="string"></value>
+        </param>
+        
+        <param type="int" name="fitorder" subparam="true">
+            <description>Polynomial order for the fits</description>
+            <value type="int">0</value>
+        </param>
+        
+        <param type="bool" name="want_cont" subparam="true">
+            <description>Produce continuum estimate instead of continuum subtracted data</description>
+            <value>False</value>
+        </param>
+        
+        <param type="bool" name="denoising_lib" subparam="true">
+            <description>Use new denoising library (based on GSL) instead of casacore fitting routines</description>
+            <value>True</value>
+        </param>
+        
+        <param type="int" name="nthreads" subparam="true">
+            <description>Number of OMP threads to use (currently maximum limited by number of polarizations)</description>
+            <value>1</value>
+        </param>
+        
+        <param type="int" name="niter" subparam="true">
+            <description>Number of iterations for re-weighted linear fit</description>
+            <value>1</value>
+        </param>
 
         <!-- HIDDEN PARAMETERS, UNRELATED to TIME AVERAGING -->
         <param type="bool" name="disableparallel" subparam="true" visibility="hidden">
@@ -449,13 +449,13 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
           <when param="datacolumn">
             <equals type="string" value="corrected"></equals>
             <equals type="string" value="model">
-             	  <default param="realmodelcol"><value type="bool">False</value></default>           
+                  <default param="realmodelcol"><value type="bool">False</value></default>           
             </equals>         
             <equals type="string" value="all">
-             	  <default param="realmodelcol"><value type="bool">False</value></default>           
+                  <default param="realmodelcol"><value type="bool">False</value></default>           
             </equals>         
             <equals type="string" value="data,model,corrected">
-             	  <default param="realmodelcol"><value type="bool">False</value></default>           
+                  <default param="realmodelcol"><value type="bool">False</value></default>           
             </equals>         
           </when>
 
@@ -511,44 +511,44 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             </equals>
         </when>      
 
-	<when param="mode">
-	  <equals value="channel">
-	    <default param="nchan"><value type="int">-1</value></default>
-	    <default param="start"><value type="int">0</value>
-	    <description>First input channel to use</description>
-	    </default>
-	    <default param="width"><value type="int">1</value></default>
-	    <default param="interpolation"><value type="string">linear</value></default>
-	  </equals>
-	  <equals value="channel_b">
-	    <default param="nchan"><value type="int">-1</value></default>
-	    <default param="start"><value type="int">0</value>
-	    <description>First input channel to use</description>
-	    </default>
-	    <default param="width"><value type="int">1</value></default>
-	    <default param="interpolation"><value type="string">linear</value></default>
-	  </equals>
-	  <equals value="velocity">
-	    <default param="nchan"><value type="int">-1</value></default>
-	    <default param="start"><value type="string"></value>
-	    <description>Velocity of first channel: e.g \'0.0km/s\'</description>
-	    </default>
-	    <default param="width"><value type="string"></value>
-	    <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
-	    </default>
-	    <default param="interpolation"><value type="string">linear</value></default>
-	  </equals>
-	  <equals value="frequency">
-	    <default param="nchan"><value type="int">-1</value></default>
-	    <default param="start"><value type="string"></value>
-	    <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
-	    </default>
-	    <default param="width"><value type="string"></value>
-	    <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
-	    </default>
-	    <default param="interpolation"><value type="string">linear</value></default>
-	  </equals>
-	</when>
+    <when param="mode">
+      <equals value="channel">
+        <default param="nchan"><value type="int">-1</value></default>
+        <default param="start"><value type="int">0</value>
+        <description>First input channel to use</description>
+        </default>
+        <default param="width"><value type="int">1</value></default>
+        <default param="interpolation"><value type="string">linear</value></default>
+      </equals>
+      <equals value="channel_b">
+        <default param="nchan"><value type="int">-1</value></default>
+        <default param="start"><value type="int">0</value>
+        <description>First input channel to use</description>
+        </default>
+        <default param="width"><value type="int">1</value></default>
+        <default param="interpolation"><value type="string">linear</value></default>
+      </equals>
+      <equals value="velocity">
+        <default param="nchan"><value type="int">-1</value></default>
+        <default param="start"><value type="string"></value>
+        <description>Velocity of first channel: e.g \'0.0km/s\'</description>
+        </default>
+        <default param="width"><value type="string"></value>
+        <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
+        </default>
+        <default param="interpolation"><value type="string">linear</value></default>
+      </equals>
+      <equals value="frequency">
+        <default param="nchan"><value type="int">-1</value></default>
+        <default param="start"><value type="string"></value>
+        <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
+        </default>
+        <default param="width"><value type="string"></value>
+        <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
+        </default>
+        <default param="interpolation"><value type="string">linear</value></default>
+      </equals>
+    </when>
 
     </constraints>
 
@@ -708,7 +708,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         column.
             default: False
 
-	
+
     keepflags -- Keep completely flagged rows in the output or drop them. This has no
                  effect on partially flagged rows. All of the channels and correlations
                  of a row must be flagged for it to be droppable, and a row must be
@@ -723,8 +723,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                        there is some unflagged data with the flag set to False.
        
         default: True (keep completely flagged rows in the output)
-		
-	
+
+
     usewtspectrum -- Force creation of the columns WEIGHT_SPECTRUM and SIGMA_SPECTRUM in the
                      output MS. This flag can be used to force the creation of
                      WEIGHT_SPECTRUM and SIGMA_SPECTRUM when they are not present in the
@@ -737,7 +737,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
         default: False
 
-	
+
 --- SPW combination parameters ---
     combinespws -- Combine the input spws into a new output spw.
         default: False
@@ -760,7 +760,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                            ------------------------------------------------------------------
                                  SUM(contributionFraction_i*inputWeightSpectrum_i)
 
-	
+
 --- Channel averaging parameters ---
     chanaverage -- Average data across channels. Partially flagged data is not be included in the average
                    unless all data contributing to a given output channel is flagged. In this case, 
@@ -776,7 +776,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             default: 1 =&gt; no channel averaging.
             options: (int) or [int]
             example: chanbin=[2,3] =&gt; average 2 channels of 1st selected
-		             spectral window and 3 in the second one.
+                     spectral window and 3 in the second one.
     
             NOTE: WEIGHT_SPECTRUM/SIGMA_SPECTRUM will be used (if present) in
                   addition to the flags to compute a weighted average. The calculations
@@ -905,8 +905,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         maxuvwdistance -- Provide a maximum separation of start-to-end baselines 
                           that can be included in an average. (int)
             default: 0.0 (given in meters)
-            
-            
+
 --- On-the-fly calibration parameters ---            
     docallib -- Enable on-the-fly (OTF) calibration as in task applycal
         default: False
@@ -978,7 +977,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 
     
 ------ EXAMPLES ------
-	
+
 More documentation on mstransform can be found here:
 http://www.eso.org/~scastro/ALMA/casa/MST/MSTransformDocs/MSTransformDocs.html
 
@@ -1013,7 +1012,7 @@ http://www.eso.org/~scastro/ALMA/casa/MST/MSTransformDocs/MSTransformDocs.html
                 
 8) Apply OTF calibration to ng5921 using a calibration library
     mstransform(vis='ngc5921.ms', outputvis='ngc5921_calibrated.ms',docallib=True,
-    			callib='unittest/mstransform/ngc5921_regression/ngc5921_callib.txt')                
+                callib='unittest/mstransform/ngc5921_regression/ngc5921_callib.txt')                
 
 
 </example> 

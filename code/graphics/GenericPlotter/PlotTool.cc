@@ -911,6 +911,114 @@ const String PlotTrackerTool::DEFAULT_FORMAT = "("+FORMAT_DIVIDER+FORMAT_X+
         FORMAT_DIVIDER + ", " + FORMAT_DIVIDER+FORMAT_Y+FORMAT_DIVIDER + ")";
 
 
+/////////////////////////////////
+// PLOTFLAGALLTOOL DEFINITIONS //
+/////////////////////////////////
+
+PlotFlagAllTool::PlotFlagAllTool(PlotCoordinate::System sys) :
+        PlotMouseTool(sys),
+        m_draw(true),
+        m_bgcolor_changed(false),
+        m_marked(PlotFlagAllTool::PPFLAG_NONE),
+        m_defaultBackground(NULL)
+{ }
+
+PlotFlagAllTool::PlotFlagAllTool(PlotAxis xAxis, PlotAxis yAxis,
+        PlotCoordinate::System sys) : PlotMouseTool(xAxis, yAxis, sys),
+            m_draw(true),
+            m_bgcolor_changed(false),
+            m_marked(PlotFlagAllTool::PPFLAG_NONE),
+            m_defaultBackground(NULL)
+{ }
+
+PlotFlagAllTool::~PlotFlagAllTool() { }
+
+void PlotFlagAllTool::setUpdateBackground(bool on) {
+  m_draw = on;
+}
+
+bool PlotFlagAllTool::isUpdateBackgroundActive() {
+  return m_draw;
+}
+
+void PlotFlagAllTool::clearMark() {
+  m_marked = PlotFlagAllTool::PPFLAG_NONE;
+  m_bgcolor_changed = false;
+}
+
+bool PlotFlagAllTool::isMarkedForFlag() const {
+  return m_marked == PlotFlagAllTool::PPFLAG_FLAG;
+}
+
+bool PlotFlagAllTool::isMarkedForUnflag() const {
+  return m_marked == PlotFlagAllTool::PPFLAG_UNFLAG;
+}
+
+bool PlotFlagAllTool::isBackgroundColorChanged() const {
+  return m_bgcolor_changed;
+}
+
+void PlotFlagAllTool::setAllFlagged() {
+  m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+  m_bgcolor_changed = true;
+}
+
+void PlotFlagAllTool::markAsFlag() {
+  if (m_draw) {
+    m_canvas->setBackground("yellow", PlotAreaFill::MESH1);
+    m_bgcolor_changed = true;
+  }
+  m_marked = PlotFlagAllTool::PPFLAG_FLAG;
+}
+
+void PlotFlagAllTool::markAsUnflag() {
+  if (m_draw) {
+    m_canvas->setBackground(m_defaultBackground);
+    m_bgcolor_changed = false;
+  }
+  m_marked = PlotFlagAllTool::PPFLAG_UNFLAG;
+}
+
+void PlotFlagAllTool::handleMouseEvent(const PlotEvent& event) {
+    m_lastEventHandled = false;
+    if(m_canvas == NULL) return;
+
+    const PlotClickEvent *c = dynamic_cast<const PlotClickEvent*>(&event);
+    if(c != NULL) {
+      // get default background setting
+      auto const canvas = c->canvas();
+
+      // do nothing if canvas is empty
+      if (canvas->title().empty()) {
+        return;
+      }
+
+      if (m_defaultBackground.null()) {
+        m_defaultBackground = canvas->defaultBackground();
+      }
+
+      // mark canvas and change background
+      switch (m_marked) {
+      case PlotFlagAllTool::PPFLAG_FLAG:
+        markAsUnflag();
+        break;
+      case PlotFlagAllTool::PPFLAG_UNFLAG:
+        markAsFlag();
+        break;
+      default:
+        if (m_bgcolor_changed) {
+          markAsUnflag();
+        } else {
+          markAsFlag();
+        }
+        break;
+      }
+      m_canvas->refresh();
+
+      m_lastEventHandled = true;
+    }
+}
+
 ////////////////////////////////////
 // PLOTMOUSETOOLGROUP DEFINITIONS //
 ////////////////////////////////////
@@ -1154,6 +1262,7 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(ToolCode activeTool,
     addTool(new PlotSelectTool(system));
     addTool(new PlotZoomTool(system));
     addTool(new PlotPanTool(system));
+    addTool(new PlotFlagAllTool(system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(system);
     m_tracker->setBlocking(false);
@@ -1170,6 +1279,7 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(PlotAxis xAxis,
     addTool(new PlotSelectTool(xAxis, yAxis, system));
     addTool(new PlotZoomTool(xAxis, yAxis, system));
     addTool(new PlotPanTool(xAxis, yAxis, system));
+    addTool(new PlotFlagAllTool(xAxis, yAxis, system));
     setActiveTool(activeTool);
     m_tracker = new PlotTrackerTool(xAxis, yAxis, system);
     m_tracker->setBlocking(false);
@@ -1184,12 +1294,14 @@ PlotStandardMouseToolGroup::PlotStandardMouseToolGroup(
         PlotSelectToolPtr selectTool, 
         PlotZoomToolPtr zoomTool,
         PlotPanToolPtr panTool, 
+        PlotFlagAllToolPtr flagAllTool,
         PlotTrackerToolPtr trackerTool,
         ToolCode activeTool)    {
             
     addTool(!selectTool.null() ? selectTool : new PlotSelectTool());
     addTool(!zoomTool.null()   ? zoomTool   : new PlotZoomTool());
     addTool(!panTool.null()    ? panTool    : new PlotPanTool());
+    addTool(!flagAllTool.null() ? flagAllTool : new PlotFlagAllTool());
     setActiveTool(activeTool);
     m_tracker = !trackerTool.null() ? trackerTool : new PlotTrackerTool();
     m_tracker->setBlocking(false);
@@ -1212,7 +1324,8 @@ void PlotStandardMouseToolGroup::setActiveTool(ToolCode toolcode) {
         if (((dynamic_cast<PlotSelectTool*>(&*m_tools[i]) != NULL && toolcode==SELECT_TOOL)) 
          || ((dynamic_cast<PlotSelectTool*>(&*m_tools[i]) != NULL && toolcode==SUBTRACT_TOOL))
          || ((dynamic_cast<PlotZoomTool*>(&*m_tools[i]) != NULL && toolcode==ZOOM_TOOL))
-         || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL))    
+         || ((dynamic_cast<PlotPanTool*>(&*m_tools[i]) != NULL) && toolcode==PAN_TOOL)
+         || ((dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL) && toolcode == FLAGALL_TOOL))
         {
             PlotMouseToolGroup::setActiveTool(i, toolcode);
             return;
@@ -1268,6 +1381,30 @@ vector<PlotRegion> PlotStandardMouseToolGroup::getSelectedRects(){
 	return regions;
 }
 
+void PlotStandardMouseToolGroup::clearMark() {
+  auto ptr = flagAllTool();
+  ptr->clearMark();
+}
+
+bool PlotStandardMouseToolGroup::isMarkedForFlag() {
+  auto ptr = flagAllTool();
+  return ptr->isMarkedForFlag();
+}
+
+bool PlotStandardMouseToolGroup::isMarkedForUnflag() {
+  auto ptr = flagAllTool();
+  return ptr->isMarkedForUnflag();
+}
+
+bool PlotStandardMouseToolGroup::isBackgroundColorChanged() {
+  auto ptr = flagAllTool();
+  return ptr->isBackgroundColorChanged();
+}
+
+void PlotStandardMouseToolGroup::setAllFlagged() {
+  auto ptr = flagAllTool();
+  ptr->setAllFlagged();
+}
 
 PlotSelectToolPtr PlotStandardMouseToolGroup::selectTool()   {
     for(unsigned int i = 0; i < m_tools.size(); i++)
@@ -1300,6 +1437,17 @@ PlotPanToolPtr PlotStandardMouseToolGroup::panTool() {
 
     // shouldn't happen!
     PlotPanToolPtr t = new PlotPanTool();
+    m_tools.push_back(t);
+    return t;
+}
+
+PlotFlagAllToolPtr PlotStandardMouseToolGroup::flagAllTool() {
+    for(unsigned int i = 0; i < m_tools.size(); i++)
+        if(dynamic_cast<PlotFlagAllTool*>(&*m_tools[i]) != NULL)
+            return PlotFlagAllToolPtr(m_tools[i]);
+
+    // shouldn't happen!
+    PlotFlagAllToolPtr t = new PlotFlagAllTool();
     m_tools.push_back(t);
     return t;
 }

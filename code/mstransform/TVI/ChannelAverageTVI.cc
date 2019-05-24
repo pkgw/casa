@@ -42,19 +42,20 @@ namespace vi { //# NAMESPACE VI - BEGIN
 // -----------------------------------------------------------------------
 ChannelAverageTVI::ChannelAverageTVI(	ViImplementation2 * inputVii,
 										const Record &configuration):
-										FreqAxisTVI (inputVii,configuration)
+										FreqAxisTVI (inputVii)
 {
-	// Parse and check configuration parameters
-	// Note: if a constructor finishes by throwing an exception, the memory
-	// associated with the object itself is cleaned up — there is no memory leak.
-	if (not parseConfiguration(configuration))
-	{
-		throw AipsError("Error parsing ChannelAverageTVI configuration");
-	}
+    // Parse and check configuration parameters
+    // Note: if a constructor finishes by throwing an exception, the memory
+    // associated with the object itself is cleaned up — there is no memory leak.
+    if (not parseConfiguration(configuration))
+        throw AipsError("Error parsing ChannelAverageTVI configuration");
 
-	initialize();
+    if (inputVii == nullptr)
+        throw AipsError("Input Vi is empty");
 
-	return;
+    initialize();
+
+    return;
 }
 
 // -----------------------------------------------------------------------

@@ -15,10 +15,14 @@ service Registrar {
 
 message ServiceId {
     string id = 1;
-    string type = 2;
-    string uri = 3;
+    string uri = 2;
+    repeated string types = 3;
 }
 
 message ServiceIds {
     repeated ServiceId service = 1;
+}
+
+message ServiceTypes {
+    repeated string types = 1;
 }

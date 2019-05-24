@@ -57,27 +57,27 @@ class ROCTMainColumns
   virtual ~ROCTMainColumns() {};
   
   // Read-only column accessors
-  const casacore::ROScalarColumn<casacore::Double>& time() const {return time_p;};
+  const casacore::ScalarColumn<casacore::Double>& time() const {return time_p;};
   const casacore::ROScalarQuantColumn<casacore::Double>& timeQuant() const {return timeQuant_p;};
   const casacore::ROScalarMeasColumn<casacore::MEpoch>& timeMeas() const {return timeMeas_p;};
-  const casacore::ROScalarColumn<casacore::Double>& timeEP() const {return timeEP_p;};
+  const casacore::ScalarColumn<casacore::Double>& timeEP() const {return timeEP_p;};
   const casacore::ROScalarQuantColumn<casacore::Double>& timeEPQuant() const
   {return timeEPQuant_p;};
-  const casacore::ROScalarColumn<casacore::Double>& interval() const {return interval_p;};
+  const casacore::ScalarColumn<casacore::Double>& interval() const {return interval_p;};
   const casacore::ROScalarQuantColumn<casacore::Double>& intervalQuant() const
   {return intervalQuant_p;};
-  const casacore::ROScalarColumn<casacore::Int>& antenna1() const {return antenna1_p;};
-  const casacore::ROScalarColumn<casacore::Int>& antenna2() const {return antenna2_p;};
-  const casacore::ROScalarColumn<casacore::Int>& fieldId() const {return fieldId_p;};
-  const casacore::ROScalarColumn<casacore::Int>& spwId() const {return spwId_p;};
-  const casacore::ROScalarColumn<casacore::Int>& scanNo() const {return scanNo_p;};
-  const casacore::ROScalarColumn<casacore::Int>& obsId() const {return obsId_p;};
-  const casacore::ROArrayColumn<casacore::Complex>& cparam() const {return cparam_p;};
-  const casacore::ROArrayColumn<casacore::Float>& fparam() const {return fparam_p;};
-  const casacore::ROArrayColumn<casacore::Float>& paramerr() const {return paramerr_p;};
-  const casacore::ROArrayColumn<casacore::Bool>& flag() const {return flag_p;};
-  const casacore::ROArrayColumn<casacore::Float>& snr() const {return snr_p;};
-  const casacore::ROArrayColumn<casacore::Float>& weight() const {return weight_p;};
+  const casacore::ScalarColumn<casacore::Int>& antenna1() const {return antenna1_p;};
+  const casacore::ScalarColumn<casacore::Int>& antenna2() const {return antenna2_p;};
+  const casacore::ScalarColumn<casacore::Int>& fieldId() const {return fieldId_p;};
+  const casacore::ScalarColumn<casacore::Int>& spwId() const {return spwId_p;};
+  const casacore::ScalarColumn<casacore::Int>& scanNo() const {return scanNo_p;};
+  const casacore::ScalarColumn<casacore::Int>& obsId() const {return obsId_p;};
+  const casacore::ArrayColumn<casacore::Complex>& cparam() const {return cparam_p;};
+  const casacore::ArrayColumn<casacore::Float>& fparam() const {return fparam_p;};
+  const casacore::ArrayColumn<casacore::Float>& paramerr() const {return paramerr_p;};
+  const casacore::ArrayColumn<casacore::Bool>& flag() const {return flag_p;};
+  const casacore::ArrayColumn<casacore::Float>& snr() const {return snr_p;};
+  const casacore::ArrayColumn<casacore::Float>& weight() const {return weight_p;};
 
   // Some additional methods to extract cparam into casacore::Array<casacore::Float>
   //   what can be: "","AP"
@@ -101,7 +101,7 @@ class ROCTMainColumns
   //{return calTable.calMainAsTable();}
   
   // Attach a table column accessor
-  void attach (const NewCalTable& calTable, casacore::ROTableColumn& tabCol, 
+  void attach (const NewCalTable& calTable, casacore::TableColumn& tabCol, 
 	       CTEnums::colDef colEnum, const casacore::Bool& optional = false);
   void attach (const NewCalTable& calTable, 
 	       casacore::ROArrayMeasColumn<casacore::MEpoch>& tabCol,
@@ -123,25 +123,25 @@ class ROCTMainColumns
   ROCTMainColumns& operator= (const ROCTMainColumns&);
   
   // Private column accessors
-  casacore::ROScalarColumn<casacore::Double> time_p;
+  casacore::ScalarColumn<casacore::Double> time_p;
   casacore::ROScalarQuantColumn<casacore::Double> timeQuant_p;
   casacore::ROScalarMeasColumn<casacore::MEpoch> timeMeas_p;
-  casacore::ROScalarColumn<casacore::Double> timeEP_p;
+  casacore::ScalarColumn<casacore::Double> timeEP_p;
   casacore::ROScalarQuantColumn<casacore::Double> timeEPQuant_p;
-  casacore::ROScalarColumn<casacore::Double> interval_p;
+  casacore::ScalarColumn<casacore::Double> interval_p;
   casacore::ROScalarQuantColumn<casacore::Double> intervalQuant_p;
-  casacore::ROScalarColumn<casacore::Int> antenna1_p;
-  casacore::ROScalarColumn<casacore::Int> antenna2_p;
-  casacore::ROScalarColumn<casacore::Int> fieldId_p;
-  casacore::ROScalarColumn<casacore::Int> spwId_p;
-  casacore::ROScalarColumn<casacore::Int> scanNo_p;
-  casacore::ROScalarColumn<casacore::Int> obsId_p;
-  casacore::ROArrayColumn<casacore::Complex> cparam_p;
-  casacore::ROArrayColumn<casacore::Float> fparam_p;
-  casacore::ROArrayColumn<casacore::Float> paramerr_p;
-  casacore::ROArrayColumn<casacore::Bool> flag_p;
-  casacore::ROArrayColumn<casacore::Float> snr_p;
-  casacore::ROArrayColumn<casacore::Float> weight_p;
+  casacore::ScalarColumn<casacore::Int> antenna1_p;
+  casacore::ScalarColumn<casacore::Int> antenna2_p;
+  casacore::ScalarColumn<casacore::Int> fieldId_p;
+  casacore::ScalarColumn<casacore::Int> spwId_p;
+  casacore::ScalarColumn<casacore::Int> scanNo_p;
+  casacore::ScalarColumn<casacore::Int> obsId_p;
+  casacore::ArrayColumn<casacore::Complex> cparam_p;
+  casacore::ArrayColumn<casacore::Float> fparam_p;
+  casacore::ArrayColumn<casacore::Float> paramerr_p;
+  casacore::ArrayColumn<casacore::Bool> flag_p;
+  casacore::ArrayColumn<casacore::Float> snr_p;
+  casacore::ArrayColumn<casacore::Float> weight_p;
 };
 
 class CTMainColumns

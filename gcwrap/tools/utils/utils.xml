@@ -453,6 +453,16 @@ Returns a four element vector representing the version (major, minor, patch and 
 </description>
 </method>
 
+<method type="function" name="version_variant">
+<shortdescription>returns the target instrument f.e. ALMA or VLA</shortdescription>
+<returns type="string"/>
+<description>
+
+Returns the target instrument. This helps distinguish versions that otherwise may have the same version number
+
+</description>
+</method>
+
 <method type="function" name="version_desc">
 <shortdescription>returns the descriptive version string, e.g. DEV or REL</shortdescription>
 
@@ -504,6 +514,30 @@ Returns a description string that includes the version information and the descr
 <description>
 
 Returns a description string that includes the version information and the descriptive string..
+
+</description>
+</method>
+
+<method type="function" name="toolversion">
+<shortdescription>returns two element vector containing CASA 6 tool version number</shortdescription>
+
+<returns type="intArray"/>
+<description>
+
+Returns a two element vector representing the CASAtools version (year, build). This is only
+returned with CASA 6. With CASA 5, an zero element vector is returned.
+
+</description>
+</method>
+
+<method type="function" name="toolversion_string">
+<shortdescription>Returns the complete CASA 6 CASAtools version description as a string</shortdescription>
+
+<returns type="string"/>
+<description>
+
+Returns a description string that shows the CASA 6 CASAtools version information as a descriptive string.
+With CASA 5, a zero length string is returned.
 
 </description>
 </method>

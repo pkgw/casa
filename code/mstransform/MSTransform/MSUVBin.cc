@@ -155,10 +155,10 @@ void MSUVBin::createOutputMS(const Int nrrow){
 	Vector<Int> tileShape(3);
 	tileShape[0]=4; tileShape[1]=200; tileShape[2]=500;
         auto wtSpec = ROMSColumns(*mss_p[0]).weightSpectrum();
-        auto createdWeightSpectrumCols = !wtSpec.isNull() && wtSpec.isDefined(0);
+        //auto createdWeightSpectrumCols = !wtSpec.isNull() && wtSpec.isDefined(0);
         outMsPtr_p = MSTransformDataHandler::setupMS(outMSName_p, nchan_p, npol_p,
                                                      Vector<MS::PredefinedColumns>(1, MS::DATA),
-                                                     createdWeightSpectrumCols, tileShape);
+                                                     True, tileShape);
 	outMsPtr_p->addRow(nrrow, true);
 	//cerr << "mss Info " << mss_p[0]->tableName() << "  " << mss_p[0]->nrow() <<endl;
 	MSTransformDataHandler::addOptionalColumns(mss_p[0]->spectralWindow(),

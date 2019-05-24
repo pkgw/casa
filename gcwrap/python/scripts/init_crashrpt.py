@@ -27,6 +27,8 @@ if ( casa['flags'].crash_report or (
         posterApp = casa['helpers']['crashPoster']
         if posterApp is None: posterApp = "" # handle case where it wasn't found
         postingUrl = "https://casa.nrao.edu/cgi-bin/crash-report.pl"
+        if os.environ.has_key('CASA_CRASHREPORT_URL') :
+                postingUrl = os.environ['CASA_CRASHREPORT_URL']
         theLogFile = casa['files']['logfile']
         message = casac.utils()._crash_reporter_initialize(temporaryDirectory, posterApp, postingUrl, theLogFile)
         if len (message) > 0:

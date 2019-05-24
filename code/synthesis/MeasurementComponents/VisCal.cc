@@ -755,6 +755,7 @@ void VisCal::syncMeta2(const vi::VisBuffer2& vb) {
 	   vb.getFrequencies(0),
 	   vb.nChannels());
 
+  currScan()=vb.scan()(0);
   currObs()=vb.observationId()(0);
   currIntent()=vb.stateId()(0);
 

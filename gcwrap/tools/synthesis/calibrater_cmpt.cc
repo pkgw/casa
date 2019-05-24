@@ -367,7 +367,9 @@ calibrater::setsolve(const std::string& type,
                      const bool zerorates,
                      const bool globalsolve,
                      const vector<double>& delaywindow,
-                     const vector<double>& ratewindow
+                     const vector<double>& ratewindow,
+		     const std::string& solmode,
+		     const vector<double>& rmsthresh
     )
 {
   if (! itsMS) {
@@ -396,7 +398,7 @@ calibrater::setsolve(const std::string& type,
 			    toCasaString(refant),refantmode,
 			    solnorm,normtype, minsnr,combine,fillgaps,
 			    cfcache, painc, fitorder, fraction, numedge, radius, smooth,
-                            zerorates, globalsolve, delaywindow, ratewindow);
+                            zerorates, globalsolve, delaywindow, ratewindow, solmode, rmsthresh);
   } catch(AipsError x) {
     *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
     RETHROW(x);
@@ -864,11 +866,11 @@ casac::record* calibrater::fluxscale(
     String oName( "NAME" );
 
     Table oFieldTable( itsMS->fieldTableName() );
-    ROScalarColumn<String> oFieldColumn( oFieldTable, oName );
+    ScalarColumn<String> oFieldColumn( oFieldTable, oName );
     Vector<String> oFieldName( oFieldColumn.getColumn() );
 
     Table oSPWTable( itsMS->spectralWindowTableName() );
-    ROScalarColumn<String> oSPWColumn( oSPWTable, oName );
+    ScalarColumn<String> oSPWColumn( oSPWTable, oName );
     Vector<String> oSPWName( oSPWColumn.getColumn() );
 
 

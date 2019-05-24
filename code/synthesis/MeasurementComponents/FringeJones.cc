@@ -1420,6 +1420,54 @@ expb_hess(gsl_vector *param, AuxParamBundle *bundle, gsl_matrix *hess, Double xi
     return 1;
 }
 
+
+Int
+findRefAntWithData(SDBList& sdbs, Vector<Int>& refAntList, Int prtlev) {
+    std::set<Int> activeAntennas;
+    for (Int ibuf=0; ibuf != sdbs.nSDB(); ibuf++) {
+        SolveDataBuffer& s(sdbs(ibuf));
+        if (!s.Ok())
+            continue;
+        Cube<Bool> fl = s.flagCube();
+        for (Int irow=0; irow!=s.nRows(); irow++) {
+            if (s.flagRow()(irow))
+                continue;
+            Int a1(s.antenna1()(irow));
+            Int a2(s.antenna2()(irow));
+            // Not using irow
+            Matrix<Bool> flr = fl.xyPlane(irow);
+            if (!allTrue(flr)) {
+                activeAntennas.insert(a1);
+                activeAntennas.insert(a2);
+            }
+        }
+    }
+    if (prtlev > 2) {
+        cout << "[FringeJones.cc::findRefAntWithData] refantlist " << refAntList << endl;
+        cout << "[FringeJones.cc::findRefAntWithData] activeAntennas: ";
+        std::copy(
+            activeAntennas.begin(),
+            activeAntennas.end(),
+            std::ostream_iterator<Int>(std::cout, " ")
+            );
+        cout << endl;
+    }
+    Int refAnt = -1;
+    for (Vector<Int>::ConstIteratorSTL a = refAntList.begin(); a != refAntList.end(); a++) {
+        if (activeAntennas.find(*a) != activeAntennas.end()) {
+            if (prtlev > 2)
+                cout << "[FringeJones.cc::findRefAntWithData] We are choosing refant " << *a << endl;
+            refAnt = *a;
+            break;
+        } else {
+            if (prtlev > 2)
+                cout << "[FringeJones.cc::findRefAntWithData] No data for refant " << *a << endl;
+        }
+    }
+    return refAnt;
+}
+
+
 // Stolen from SolveDataBuffer
 void
 aggregateTimeCentroid(SDBList& sdbs, Int refAnt, std::map<Int, Double>& aggregateTime) {
@@ -2005,14 +2053,15 @@ void FringeJones::setSolve(const Record& solve) {
 
     // Call parent to do conventional things
     GJones::setSolve(solve);
-
-    // if (!ct_)
-    //    throw(AipsError("No calibration table specified"));
-    // cerr << "setSolve here, ct_: "<< ct_ << endl;
-
-   // Trap unspecified refant:
-    if (refant()<0)
-        throw(AipsError("Please specify a good reference antenna (refant) explicitly."));
+    // refant isn't properly set until selfSolveOne.  We set it to a
+    // known value here so that it can be checked in debugging code.
+    refant() = -1;
+    if (prtlev() > 2) {
+        cout << "Before GJones::setSolve" << endl
+             << "FringeJones::setSolve()" <<endl
+             << "FringeJones::refant() = "<< refant() <<endl
+             << "FringeJones::refantlist() = "<< refantlist() <<endl;
+    }
     if (solve.isDefined("zerorates")) {
         zeroRates() = solve.asBool("zerorates");
     }
@@ -2155,6 +2204,13 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
               << MVTime(refTime()/C::day).string(MVTime::YMD,7)  << LogIO::POST;
 
     std::map<Int, Double> aggregateTime;
+    // Set the refant to the first choice that has data!
+    refant() = findRefAntWithData(sdbs, refantlist(), prtlev());
+    if (refant()<0)
+        throw(AipsError("No valid reference antenna supplied."));
+    else
+        logSink() << "Using reference antenna " << refant() << LogIO::POST;
+
     aggregateTimeCentroid(sdbs, refant(), aggregateTime);
 
     if (DEVDEBUG) {

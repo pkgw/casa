@@ -763,6 +763,14 @@ table::calc(const std::string& expr, const std::string& prefix, const bool showt
 	 rstat=new ::casac::variant(s_int, shape);
        }
 	 break;
+       case TpInt64:{
+	 Array<Int64> oInt;
+	 oInt=result.node().getColumnInt64(rownrs);
+	 oInt.shape().asVector().tovector(shape);
+	 std::vector<int> s_int(oInt.begin(), oInt.end());
+	 rstat=new ::casac::variant(s_int, shape);
+       }
+	 break;
        case TpUInt:{
 	 Array<uInt> ouInt;
 	 ouInt=result.node().getColumnuInt(rownrs);
@@ -828,6 +836,9 @@ table::calc(const std::string& expr, const std::string& prefix, const bool showt
 	  case TpInt:
 	    outrec.define(String::toString(i), result.node().getArrayInt(i));
 	    break;
+	  case TpInt64:
+	    outrec.define(String::toString(i), result.node().getArrayInt(i));
+	    break;
 	  case TpDouble:
 	    outrec.define(String::toString(i), result.node().getArrayDouble(i));
 	    break;
@@ -838,8 +849,8 @@ table::calc(const std::string& expr, const std::string& prefix, const bool showt
 	    outrec.define(String::toString(i), result.node().getArrayString(i));
 	    break;
 	  default:
-	     *itsLog << LogIO::SEVERE << "Don't know how to interprete result" << LogIO::POST;
-	     break;
+	    *itsLog << LogIO::SEVERE << "Don't know how to interprete result row " << i << LogIO::POST;
+	    break;
 	  }
 	}
 	::casac::record *rec=fromRecord(outrec);
@@ -1296,7 +1307,7 @@ table::iscelldefined(const std::string& columnname, const int rownr)
  Bool rstat(false);
  try {
 	 if(itsTable){
-		 ROTableColumn tabColumn(itsTable->table(), columnname);
+		 TableColumn tabColumn(itsTable->table(), columnname);
 		 rstat = tabColumn.isDefined(rownr);
 	 } else {
 		 *itsLog << LogIO::WARN << "No table specified, please open first" << LogIO::POST;

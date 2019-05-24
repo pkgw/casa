@@ -130,11 +130,16 @@ test_rg_frombcs                 dmehring@nrao.edu
 test_rg_fromtextfile            dmehring@nrao.edu
 test_rg_selectedchannels        dmehring@nrao.edu
 test_slsearch                   dmehring@nrao.edu
+test_sdbaseline                 wataru.kawasaki@nao.ac.jp
+test_sdcal                      takeshi.nakazato@nao.ac.jp
+test_sdfit                      wataru.kawasaki@nao.ac.jp
 test_sdfixscan                  takeshi.nakazato@nao.ac.jp
 test_sdgaincal                  takeshi.nakazato@nao.ac.jp
 test_sdimaging                  takeshi.nakazato@nao.ac.jp
 test_tsdimaging                 takeshi.nakazato@nao.ac.jp
+test_sdpolaverage               wataru.kawasaki@nao.ac.jp
 test_sdsidebandsplit            kana.sugi@nao.ac.jp
+test_sdsmooth                   takeshi.nakazato@nao.ac.jp
 test_setjy                      ttsutsum@nrao.edu
 test_simobserve                 kana.sugi@ezweb.ne.jp
 test_smoothcal                  gmoellen@aoc.nrao.edu
@@ -143,10 +148,7 @@ test_splattotable               dmehring@nrao.edu
 test_split                      scastro@eso.org
 test_spxfit                     dmehring@nrao.edu
 test_statwt                     ttsutsum@nrao.edu
-test_tsdbaseline                wataru.kawasaki@nao.ac.jp
-test_tsdcal                     takeshi.nakazato@nao.ac.jp
-test_tsdfit                     wataru.kawasaki@nao.ac.jp
-test_tsdsmooth                  takeshi.nakazato@nao.ac.jp
+test_tclean                     ttsutsum@nrao.edu
 test_uvcontsub                  ttsutsum@nrao.edu
 test_uvcontsub3                 ttsutsum@nrao.edu
 test_testconcat                 dpetry@eso.org
@@ -161,6 +163,9 @@ test_req_task_listhistory    nschweig@nrao.edu
 test_req_task_importuvfits   nschweig@nrao.edu
 test_req_task_calstat        nschweig@nrao.edu
 test_req_task_rmtables       nschweig@nrao.edu
+test_req_task_clearcal       nschweig@nrao.edu
+test_req_task_imhead         nschweig@nrao.edu
+test_req_task_visstat        nschweig@nrao.edu
 
 # Casaguide List
 #test_FirstLook_Imaging               awells@nrao.edu

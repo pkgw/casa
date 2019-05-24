@@ -385,7 +385,7 @@ class ExtendFlagger
    private:
       
       Flagger flagger;
-      casacore::Bool useoriginalms;
+      // casacore::Bool useoriginalms;
 
       casacore::String field;
       casacore::String spw;

@@ -30,6 +30,7 @@
 #include <alma/Options/AlmaArg.h>
 using namespace alma;
 
+#include <alma/Enumerations/CWindowFunction.h>
 #include <alma/ASDM/ASDMAll.h>
 #include <alma/ASDM/Misc.h>
 
@@ -181,18 +182,36 @@ ostringstream errstream;
 ostringstream infostream;
 
 template<typename T> string TO_STRING(const T &v) {
-  const T shift = 100000000;
-  const T rnd = .000000005;
+  char buffer[128];
+  sprintf(buffer,"%d",v);
+  return string(buffer);
+}
+
+string TO_STRING(const long unsigned int &v) {
+    char buffer[128];
+    sprintf(buffer,"%ld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const long int &v) {
+    char buffer[128];
+    sprintf(buffer,"%ld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const long long &v) {
+    char buffer[128];
+    sprintf(buffer,"%lld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const float &v) {
+  const float shift = 100000000;
+  const float rnd = .000000005;
   char buffer[128];
   int whole = int(v);
   int fraction = int((v-whole+rnd)*shift);
   sprintf(buffer,"%d.%08d",whole,fraction);
-  return string(buffer);
-}
-
-string TO_STRING(const int &v) {
-  char buffer[128];
-  sprintf(buffer,"%d",v);
   return string(buffer);
 }
 
@@ -1851,12 +1870,77 @@ void fillField(ASDM* ds_p, bool considerEphemeris) {
   LOGEXIT("fillField");
 }
 
+/**
+ * Utility function to sort out the numBin value given appropriate for a given row in the SpectralWindow table
+ */
+int getNumBin(SpectralWindowRow *spwRow, const string &telescopeName) {
+  // assumes that spRow is already a non-null pointer
+  if (spwRow->isNumBinExists()) {
+    // use any numBin value that already exists
+    return spwRow->getNumBin();
+  } else {
+    // 1 will be returned if numBin <=0 at the end
+    int numBin = 0;
+
+    // infer it based on the telescope name
+    // both methods require that these 2 scalar values exist
+    if (spwRow->isChanWidthExists() && spwRow->isResolutionExists()) {
+      if (telescopeName == string("EVLA")) {
+	numBin = std::nearbyint(spwRow->getChanWidth().get()/spwRow->getResolution().get());
+      } else if (telescopeName == string("ALMA")) {
+	// only relevant for HANNING
+	if (spwRow->getWindowFunction()==WindowFunctionMod::HANNING) {
+	  // also requires that effectiveBw exists
+	  if (spwRow->isEffectiveBwExists()) {
+	    double chanWidth = spwRow->getChanWidth().get();
+	    if (spwRow->getResolution().get() != chanWidth) {
+	      // effectiveBw and resolution have been set according to the Hills memo, get implied numBin
+	      // the expected values of the ratio of effectiveBw/chanWidth are from the Hills memo
+	      // second table on p. 6
+	      double ratio = spwRow->getEffectiveBw().get()/std::abs(chanWidth);
+	      // no other way to do this than one value at a time, starting from numBin=1
+	      // the Hills memo values are before decimation, ratio above is after decimation
+
+	      // tolerance here is 5.0e-4, i.e. precision of values in Hills memo
+	      double tolerance=5.0e-4;
+	      if (std::abs(2.667-ratio)<=tolerance) {
+		numBin = 1;
+	      } else if (std::abs(3.200-ratio*2.0)<=tolerance) {
+		numBin = 2;
+	      } else if (std::abs(4.923-ratio*4.0)<=tolerance) {
+		numBin = 4;
+	      } else if (std::abs(8.828-ratio*8.0)<=tolerance) {
+		numBin = 8;
+	      } else if (std::abs(16.787-ratio*16.0)<tolerance) {
+		numBin=16;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    if (numBin <= 0) {
+      // was not set to a valid value
+      // none of these cases generate an error or warning
+      //   scalar columns don't exist - that's expected and so not an error
+      //   unrecognzed telescope - that's also probably not an error, no rule for inferring numBin
+      //   bad value for the VLA from that ratio, that might be an reportable error
+      //   other windowFunction for ALMA - that's expected and so no an error, but might report if that's not UNIFORM
+      //   no match within tolerance for ALMA - that might be a reportable error
+      numBin = 1;
+    }
+    return numBin;
+  }
+  // there's no way to get to here
+  throw ASDM2MSException("Impossible code line reached in getNumBin");
+}
+
 /** 
  * This function fills the MS Spectral Window table.
  * given :
  * @parameter ds_p a pointer to the ASDM dataset.
  */
-void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpwId_m) {
+void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpwId_m, const string &telescopeName) {
   LOGENTER("fillSpectralWindow");
 
   effectiveBwPerSpwId_m.clear();
@@ -2092,6 +2176,13 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
       int ifConvChain       = 0;
       int freqGroup         = r->isFreqGroupExists()?r->getFreqGroup():0;
       string freqGroupName  = r->isFreqGroupNameExists()?r->getFreqGroupName().c_str():"";
+      // windowFunction is a required field
+      std::string windowFunction = CWindowFunction::name(r->getWindowFunction());
+      int numBin = getNumBin(r, telescopeName);
+      if (telescopeName == "EVLA" && (numBin>1) && (!r->isNumBinExists())) {
+	// numBin has been inferred for EVLA data, adjust resolution 
+	resolution1D = chanWidth1D;
+      }
 
       for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, ASDM2MSFiller*>::iterator iter = msFillers.begin();
 	   iter != msFillers.end(); ++iter) {
@@ -2111,7 +2202,9 @@ void fillSpectralWindow(ASDM* ds_p, map<unsigned int, double>& effectiveBwPerSpw
 					freqGroupName,
 					numAssocValues,
 					assocSpectralWindowId_,
-					assocNature_);      
+					assocNature_,
+					windowFunction,
+					numBin);
       }      
     }
     if (nSpectralWindow) {
@@ -4856,7 +4949,7 @@ int main(int argc, char *argv[]) {
       if (lazy)  casa::AsdmStMan::registerClass();
       for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
 	info("About to create a filler for the measurement set '" + msNames[iter->first] + "'");
-	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first], 0.0, false, complexData,
+	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first], 0.0, complexData,
 						   withCompression, telName, maxNumCorr, maxNumChan,
 						   false, lazy);
       }
@@ -5046,7 +5139,7 @@ int main(int argc, char *argv[]) {
   // Process the SpectralWindow table.
   //
   map<unsigned int, double> effectiveBwPerSpwId_m;
-  fillSpectralWindow(ds, effectiveBwPerSpwId_m);
+  fillSpectralWindow(ds, effectiveBwPerSpwId_m, telName);
 
   //
   // Process the Polarization table

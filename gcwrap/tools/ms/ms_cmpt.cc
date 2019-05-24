@@ -2954,8 +2954,8 @@ ms::cvel(const std::string& mode,
 
         {
             Table spwtable(originalName+"/SPECTRAL_WINDOW");
-            ROArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
-            ROArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
+            ArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
+            ArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
 
             if(spwtable.nrow()>1){
                 needToClearModel = true;
@@ -3117,8 +3117,8 @@ ms::cvel(const std::string& mode,
         if(rstat){
             // print parameters of final SPW
             Table spwtable(originalName+"/SPECTRAL_WINDOW");
-            ROArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
-            ROArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
+            ArrayColumn<Double> chanwidths(spwtable, "CHAN_WIDTH");
+            ArrayColumn<Double> chanfreqs(spwtable, "CHAN_FREQ");
 
             Vector<Double> cw(chanwidths(0));
             Vector<Double> cf(chanfreqs(0));
@@ -3229,12 +3229,12 @@ ms::cvelfreqs(const std::vector<int>& spwids,
 
 
             ROMSMainColumns mainCols(*itsMS);
-            ROScalarColumn<Double> timeCol(mainCols.time());
-            ROScalarColumn<Int> ddCol(mainCols.dataDescId());
-            ROScalarColumn<Int> fieldCol(mainCols.fieldId());
+            ScalarColumn<Double> timeCol(mainCols.time());
+            ScalarColumn<Int> ddCol(mainCols.dataDescId());
+            ScalarColumn<Int> fieldCol(mainCols.fieldId());
 
             ROMSDataDescColumns DDCols(itsMS->dataDescription());
-            ROScalarColumn<Int> spwidCol(DDCols.spectralWindowId());
+            ScalarColumn<Int> spwidCol(DDCols.spectralWindowId());
 
             ROMSSpWindowColumns SPWCols(itsMS->spectralWindow());
             ROMSFieldColumns FIELDCols(itsMS->field());
@@ -6270,6 +6270,33 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
             // Make VI2 basic layer
             bool writable = true;  // for putdata
             vi::VisIterImpl2LayerFactory viilayer(itsSelectedMS, iterpar, writable);
+            
+            // Define in-row selections with FrequencySelection class
+            // The selection has to be applied to the layer directly attached to the MS
+            if (polnSelection || (chanSelection)) {
+                auto freqSels = std::make_shared<vi::FrequencySelections>();
+                vi::FrequencySelectionUsingChannels freqSelChan;
+                if (polnSelection) {
+                    Vector<Vector<Slice>> corrslices, chanslices;
+                    mssSetData(*itsSelectedMS, *itsSelectedMS, 
+                        chanslices, corrslices, "", "", "", "", "", "", 
+                        "", polnExpr_p, "", "", "", "", 1, itsMSS);
+                    freqSelChan.addCorrelationSlices(corrslices);
+                }
+
+                if (chanSelection) {
+                    Int nchan(chansel_p[0]), start(chansel_p[1]), width(chansel_p[2]), inc(chansel_p[3]);
+                    Vector<Int> spws = getspectralwindows();
+                    for (Int chanbin=0; chanbin<nchan; ++chanbin) {
+                        for (uInt spwIdx=0; spwIdx<spws.size(); ++spwIdx) 
+                            freqSelChan.add(spws(spwIdx), start, width, 1);
+                        start += inc;
+                    }
+                }
+                freqSels->add(freqSelChan);
+                viilayer.setFrequencySelections(freqSels);
+            }
+
             Vector<vi::ViiLayerFactory*> layers(1);
             layers[0] = &viilayer;
 
@@ -6277,10 +6304,6 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
             if (chanAverage) {
                 Record config;
                 config.define("chanbin", chansel_p[2]);
-                if (chanSelection) {
-                    String spwExpr = getSpwExpr() + chanselExpr_p;
-                    config.define("spw", spwExpr);
-                }
                 vi::ChannelAverageTVILayerFactory* chanavglayer =
                     new vi::ChannelAverageTVILayerFactory(config);
                 layers.resize(layers.size()+1, True);
@@ -6296,29 +6319,6 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
                     itsVI2->setRowBlocking(maxrows-1);
                 }
 
-                // Apply in-row selections with FrequencySelection class
-                // If chanavg, chan selection handled in chanavg layer;
-                if (polnSelection || (chanSelection)) {
-                    vi::FrequencySelectionUsingChannels freqSel = vi::FrequencySelectionUsingChannels();
-                    if (polnSelection) {
-                        Vector<Vector<Slice>> corrslices, chanslices;
-                        mssSetData(*itsSelectedMS, *itsSelectedMS, 
-                            chanslices, corrslices, "", "", "", "", "", "", 
-                            "", polnExpr_p, "", "", "", "", 1, itsMSS);
-                        freqSel.addCorrelationSlices(corrslices);
-                    }
-
-                    if (chanSelection) {
-                        Int nchan(chansel_p[0]), start(chansel_p[1]), width(chansel_p[2]), inc(chansel_p[3]);
-                        Vector<Int> spws = getspectralwindows();
-                        for (Int chanbin=0; chanbin<nchan; ++chanbin) {
-                            for (uInt spwIdx=0; spwIdx<spws.size(); ++spwIdx) 
-                                freqSel.add(spws(spwIdx), start, width, 1);
-                            start += inc;
-                        }
-                    }
-                    itsVI2->setFrequencySelection(freqSel);
-                }
                 rstat = true;
             }
         }
@@ -6336,7 +6336,7 @@ record* ms::statwt(
     bool slidetimebin, const casac::variant& chanbin,
     int minsamp, const string& statalg, double fence,
     const string& center, bool lside, double zscore,
-    int maxiter, const string& fitspw,
+    int maxiter, const string& fitspw, bool excludechans,
     const std::vector<double>& wtrange, bool preview,
     const string& datacolumn
 ) {
@@ -6401,6 +6401,7 @@ record* ms::statwt(
         tviConfig["zscore"] = zscore;
         tviConfig["maxiter"] = maxiter;
         tviConfig["fitspw"] = fitspw;
+        tviConfig["excludechans"] = excludechans;
         tviConfig["wtrange"] = wtrange;
         tviConfig["datacolumn"] = datacolumn;
         unique_ptr<Record> rec(toRecord(tviConfig));

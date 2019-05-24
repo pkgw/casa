@@ -6,8 +6,8 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="listobs" category="information">
-	<shortdescription>List the summary of a data set in the logger or in a file</shortdescription>
-	<description>
+    <shortdescription>List the summary of a data set in the logger or in a file</shortdescription>
+    <description>
        List the summary information of a data set in the logger or in a file, based on
        a data selection. Only rows can be selected and printed. No in-row selection is
        possible (channel or correlation).
@@ -15,12 +15,12 @@
        Lists the following properties of a measurement set:
        scan list, field list, spectral window list with
        correlators, antenna locations, ms table information.
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value/>
-		</param>
+    </description>
+    <input>
+        <param type="string" name="vis" mustexist="true">
+            <description>Name of input visibility file (MS)</description>
+            <value/>
+        </param>
 
             <param type="bool" name="selectdata">
                 <description>Data selection parameters</description>
@@ -89,15 +89,15 @@
                 <value type="string" />
             </param>
 
-		<param type="bool" name="verbose">
-			<description>Controls level of information detail reported. True reports more than False.</description>
-			<value>True</value>
-		</param>
-		
-		<param type="string" name="listfile">
-			<description>Name of disk file to write output. Default is none (output is written to logger only).</description>
-			<value></value>
-		</param>
+        <param type="bool" name="verbose">
+            <description>Controls level of information detail reported. True reports more than False.</description>
+            <value>True</value>
+        </param>
+        
+        <param type="string" name="listfile">
+            <description>Name of disk file to write output. Default is none (output is written to logger only).</description>
+            <value></value>
+        </param>
         <param type="bool" direction="in" name="listunfl">
             <description>List unflagged row counts? If true, it can have significant negative performance impact.</description>
             <value>False</value>
@@ -136,7 +136,7 @@
                 </when>                 
             </constraints>
             
-	</input>
+    </input>
 <returns type="void"/>
 
 <example>

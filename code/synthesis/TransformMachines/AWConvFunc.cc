@@ -640,7 +640,7 @@ namespace casa{
     //
     Cube<Double> fminmax;
     Double fMax=0, fMin=MAX_FREQ;
-    ROArrayColumn<Double> spwCol=vb.msColumns().spectralWindow().chanFreq();
+    ArrayColumn<Double> spwCol=vb.msColumns().spectralWindow().chanFreq();
     fminmax.resize(spwChanSelFlag_p.shape()(0),spwChanSelFlag_p.shape()(1),2);
     fminmax=0;
     for (uInt ims=0; ims<spwChanSelFlag_p.shape()(0); ims++)
@@ -721,7 +721,7 @@ namespace casa{
 	fValues.resize(nSpw);
 	bandNames.resize(nSpw);
 	//	dNU = (spwFreqSelection_p(0,1) - spwFreqSelection_p(0,2));
-	ROScalarColumn<String> spwNames=vb.msColumns().spectralWindow().name();
+	ScalarColumn<String> spwNames=vb.msColumns().spectralWindow().name();
 	for(Int i=0;i<nSpw;i++) 
 	  {
 	    int s=spwFreqSelection_p(i,0);

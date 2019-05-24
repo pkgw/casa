@@ -245,6 +245,8 @@ String MSCacheVolMeter::evalVolume(map<PMS::Axis,Bool> axes, Vector<Bool> axesma
 				break;
 			case PMS::AZIMUTH:
 			case PMS::ELEVATION:
+			case PMS::RA:
+			case PMS::DEC:
 				axisVol = sizeof(Double) * nAnt_ * sum(nPerDDID_);
 				break;
 			case PMS::PARANG:
@@ -433,6 +435,8 @@ String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 				break;
 			case PMS::AZIMUTH:
 			case PMS::ELEVATION:
+			case PMS::RA:
+			case PMS::DEC:
 				axisVol = sizeof(Double)*nAnt_ * nChunks;
 				break;
 			case PMS::PARANG:

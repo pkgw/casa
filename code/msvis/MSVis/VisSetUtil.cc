@@ -198,7 +198,7 @@ void VisSetUtil::Sensitivity(ROVisIter &vi, Matrix<Double>& /*mssFreqSel*/,
                 {
                     //		  Double variance=square(vb.sigma()(row));
                     Double variance=1.0/(vb.weight()(row));
-                    if (abs(vb.time()(row) - t0(spwIndex) > timeInterval(row)))
+                    if (abs(vb.time()(row) - t0(spwIndex)) > timeInterval(row))
                     {
                         t0(spwIndex)=vb.time()(row);
                         spwIntegTime(spwIndex) += timeInterval(row);
@@ -459,12 +459,12 @@ void VisSetUtil::addScrCols(MeasurementSet& ms, Bool addModel, Bool addCorr,
 
     {
         // Define a column accessor to the observed data
-        ROTableColumn* data;
+        TableColumn* data;
         const bool data_is_float = ms.tableDesc().isColumn(MS::columnName(MS::FLOAT_DATA));
         if (data_is_float) {
-            data = new ROArrayColumn<Float> (ms, MS::columnName(MS::FLOAT_DATA));
+            data = new ArrayColumn<Float> (ms, MS::columnName(MS::FLOAT_DATA));
         } else {
-            data = new ROArrayColumn<Complex> (ms, MS::columnName(MS::DATA));
+            data = new ArrayColumn<Complex> (ms, MS::columnName(MS::DATA));
         };
 
         // Check if the data column is tiled and, if so, the

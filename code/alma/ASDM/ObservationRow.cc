@@ -370,10 +370,10 @@ void ObservationRow::observationIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	ObservationRow::ObservationRow (ObservationTable &t, ObservationRow &row) : table(t) {
+	ObservationRow::ObservationRow (ObservationTable &t, ObservationRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -383,7 +383,7 @@ void ObservationRow::observationIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			observationId = row.observationId;
+			observationId = row->observationId;
 		
 		
 		

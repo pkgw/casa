@@ -67,7 +67,9 @@ public:
 		   std::shared_ptr<SIImageStore> &imagestore,
 		   casacore::Int deconvolverid, 
                    casacore::Bool isautomasking=false, 
-                   casacore::Bool fastnoise=true);
+                   //casacore::Bool fastnoise=true);
+                   casacore::Bool fastnoise=true,
+                   casacore::Record robuststats=casacore::Record());
 
   void setRestoringBeam( casacore::GaussianBeam restbeam, casacore::String usebeam );
   //  void setMaskOptions( casacore::String maskstring );

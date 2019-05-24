@@ -373,7 +373,7 @@ namespace asdm {
 
 
 ExecBlockRow* ExecBlockTable::newRow(ExecBlockRow* row) {
-	return new ExecBlockRow(*this, *row);
+	return new ExecBlockRow(*this, row);
 }
 
 	//

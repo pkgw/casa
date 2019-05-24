@@ -308,7 +308,7 @@ Int BasePlot::createTENS(casacore::Vector<casacore::String> &datastr)
       log->out(casacore::String("column ")+colnames_p(i),
             fnname, clname, casacore::LogMessage::DEBUGGING);
 #endif
-      casacore::ROTableColumn rot(SelTab_p,colnames_p(i));
+      casacore::TableColumn rot(SelTab_p,colnames_p(i));
                 if(!rot.isNull())
       {
           casacore::ColumnDesc cdesc = rot.columnDesc();
@@ -2153,8 +2153,8 @@ Int BasePlot::createXTENS(casacore::Vector<casacore::String> &datastr)
       if( (xtens_p[i].dataType() != TpDouble)  ) 
       {
          ostringstream dtype;
-         dtype << xtens_p[i].dataType();
-         BasePlotError(casacore::String("DataType of TaQL expression (") + 
+         dtype << xtens_p[i].dataType() << ", actual value == '" << datastr[i*2] << "', ";
+         BasePlotError(casacore::String("DataType of TaQL expression for X (") + 
                dtype + casacore::String(") is not plottable"));
       }
       
@@ -2181,8 +2181,8 @@ Int BasePlot::createYTENS(casacore::Vector<casacore::String> &datastr)
       if( (ytens_p[i].dataType() != TpDouble) ) 
       {
          ostringstream dtype;
-         dtype << ytens_p[i].dataType();
-         BasePlotError(casacore::String("DataType of TaQL expression (") + 
+         dtype << ytens_p[i].dataType() << ", actual value == '" << datastr[i*2+1] << "', ";
+         BasePlotError(casacore::String("DataType of TaQL expression for Y (") + 
               dtype + casacore::String(") is not plottable"));
       }
       

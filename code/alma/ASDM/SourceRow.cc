@@ -634,16 +634,11 @@ namespace asdm {
 		
 			
 		x->parallax.length(parallax.size());
-		for (unsigned int i = 0; i < parallax.size(); i++) {
-			x->parallax[i].length(parallax.at(i).size());			 		
-		}
-		
-		for (unsigned int i = 0; i < parallax.size() ; i++)
-			for (unsigned int j = 0; j < parallax.at(i).size(); j++)
-					
-				x->parallax[i][j]= parallax.at(i).at(j).toIDLAngle();
-									
-		
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x->parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
 			
 		
 	
@@ -1216,16 +1211,11 @@ namespace asdm {
 		
 			
 		x.parallax.length(parallax.size());
-		for (unsigned int i = 0; i < parallax.size(); i++) {
-			x.parallax[i].length(parallax.at(i).size());			 		
-		}
-		
-		for (unsigned int i = 0; i < parallax.size() ; i++)
-			for (unsigned int j = 0; j < parallax.at(i).size(); j++)
-					
-				x.parallax[i][j]= parallax.at(i).at(j).toIDLAngle();
-									
-		
+		for (unsigned int i = 0; i < parallax.size(); ++i) {
+			
+			x.parallax[i] = parallax.at(i).toIDLAngle();
+			
+	 	}
 			
 		
 	
@@ -1864,17 +1854,10 @@ namespace asdm {
 		
 			
 		parallax .clear();
-        
-        vector<Angle> v_aux_parallax;
-        
-		for (unsigned int i = 0; i < x.parallax.length(); ++i) {
-			v_aux_parallax.clear();
-			for (unsigned int j = 0; j < x.parallax[0].length(); ++j) {
-				
-				v_aux_parallax.push_back(Angle (x.parallax[i][j]));
-				
-  			}
-  			parallax.push_back(v_aux_parallax);			
+		for (unsigned int i = 0; i <x.parallax.length(); ++i) {
+			
+			parallax.push_back(Angle (x.parallax[i]));
+			
 		}
 			
   		
@@ -2743,7 +2726,7 @@ namespace asdm {
         if (row.isStr("<parallax>")) {
 			
 								
-	  		setParallax(Parser::get2DAngle("parallax","Source",rowDoc));
+	  		setParallax(Parser::get1DAngle("parallax","Source",rowDoc));
 	  			
 	  		
 		}
@@ -3835,7 +3818,7 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 		
 			
 	
-	parallax = Angle::from2DBin(eis);		
+	parallax = Angle::from1DBin(eis);	
 	
 
 		
@@ -4256,7 +4239,7 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 		parallaxExists = true;
 		 
           
-		parallax = ASDMValuesParser::parse2D<Angle>(s);
+		parallax = ASDMValuesParser::parse1D<Angle>(s);
           
 		
 	}
@@ -5803,10 +5786,10 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
 	
  	/**
  	 * Get parallax, which is optional.
- 	 * @return parallax as std::vector<std::vector<Angle > >
+ 	 * @return parallax as std::vector<Angle >
  	 * @throw IllegalAccessException If parallax does not exist.
  	 */
- 	std::vector<std::vector<Angle > > SourceRow::getParallax() const  {
+ 	std::vector<Angle > SourceRow::getParallax() const  {
 		if (!parallaxExists) {
 			throw IllegalAccessException("parallax", "Source");
 		}
@@ -5815,12 +5798,12 @@ void SourceRow::parallaxFromBin(EndianIStream& eis) {
  	}
 
  	/**
- 	 * Set parallax with the specified std::vector<std::vector<Angle > >.
- 	 * @param parallax The std::vector<std::vector<Angle > > value to which parallax is to be set.
+ 	 * Set parallax with the specified std::vector<Angle >.
+ 	 * @param parallax The std::vector<Angle > value to which parallax is to be set.
  	 
  	
  	 */
- 	void SourceRow::setParallax (std::vector<std::vector<Angle > > parallax) {
+ 	void SourceRow::setParallax (std::vector<Angle > parallax) {
 	
  		this->parallax = parallax;
 	
@@ -6329,10 +6312,10 @@ dopplerCalcType = CDopplerReferenceCode::from_int(0);
 		
 	}
 	
-	SourceRow::SourceRow (SourceTable &t, SourceRow &row) : table(t) {
+	SourceRow::SourceRow (SourceTable &t, SourceRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -6470,224 +6453,224 @@ dopplerCalcType = CDopplerReferenceCode::from_int(0);
 		else {
 	
 		
-			sourceId = row.sourceId;
+			sourceId = row->sourceId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			spectralWindowId = row.spectralWindowId;
-		
-		
-		
-		
-			code = row.code;
-		
-			direction = row.direction;
-		
-			properMotion = row.properMotion;
-		
-			sourceName = row.sourceName;
+			spectralWindowId = row->spectralWindowId;
 		
 		
 		
 		
-		if (row.directionCodeExists) {
-			directionCode = row.directionCode;		
+			code = row->code;
+		
+			direction = row->direction;
+		
+			properMotion = row->properMotion;
+		
+			sourceName = row->sourceName;
+		
+		
+		
+		
+		if (row->directionCodeExists) {
+			directionCode = row->directionCode;		
 			directionCodeExists = true;
 		}
 		else
 			directionCodeExists = false;
 		
-		if (row.directionEquinoxExists) {
-			directionEquinox = row.directionEquinox;		
+		if (row->directionEquinoxExists) {
+			directionEquinox = row->directionEquinox;		
 			directionEquinoxExists = true;
 		}
 		else
 			directionEquinoxExists = false;
 		
-		if (row.calibrationGroupExists) {
-			calibrationGroup = row.calibrationGroup;		
+		if (row->calibrationGroupExists) {
+			calibrationGroup = row->calibrationGroup;		
 			calibrationGroupExists = true;
 		}
 		else
 			calibrationGroupExists = false;
 		
-		if (row.catalogExists) {
-			catalog = row.catalog;		
+		if (row->catalogExists) {
+			catalog = row->catalog;		
 			catalogExists = true;
 		}
 		else
 			catalogExists = false;
 		
-		if (row.deltaVelExists) {
-			deltaVel = row.deltaVel;		
+		if (row->deltaVelExists) {
+			deltaVel = row->deltaVel;		
 			deltaVelExists = true;
 		}
 		else
 			deltaVelExists = false;
 		
-		if (row.positionExists) {
-			position = row.position;		
+		if (row->positionExists) {
+			position = row->position;		
 			positionExists = true;
 		}
 		else
 			positionExists = false;
 		
-		if (row.numLinesExists) {
-			numLines = row.numLines;		
+		if (row->numLinesExists) {
+			numLines = row->numLines;		
 			numLinesExists = true;
 		}
 		else
 			numLinesExists = false;
 		
-		if (row.transitionExists) {
-			transition = row.transition;		
+		if (row->transitionExists) {
+			transition = row->transition;		
 			transitionExists = true;
 		}
 		else
 			transitionExists = false;
 		
-		if (row.restFrequencyExists) {
-			restFrequency = row.restFrequency;		
+		if (row->restFrequencyExists) {
+			restFrequency = row->restFrequency;		
 			restFrequencyExists = true;
 		}
 		else
 			restFrequencyExists = false;
 		
-		if (row.sysVelExists) {
-			sysVel = row.sysVel;		
+		if (row->sysVelExists) {
+			sysVel = row->sysVel;		
 			sysVelExists = true;
 		}
 		else
 			sysVelExists = false;
 		
-		if (row.rangeVelExists) {
-			rangeVel = row.rangeVel;		
+		if (row->rangeVelExists) {
+			rangeVel = row->rangeVel;		
 			rangeVelExists = true;
 		}
 		else
 			rangeVelExists = false;
 		
-		if (row.sourceModelExists) {
-			sourceModel = row.sourceModel;		
+		if (row->sourceModelExists) {
+			sourceModel = row->sourceModel;		
 			sourceModelExists = true;
 		}
 		else
 			sourceModelExists = false;
 		
-		if (row.frequencyRefCodeExists) {
-			frequencyRefCode = row.frequencyRefCode;		
+		if (row->frequencyRefCodeExists) {
+			frequencyRefCode = row->frequencyRefCode;		
 			frequencyRefCodeExists = true;
 		}
 		else
 			frequencyRefCodeExists = false;
 		
-		if (row.numFreqExists) {
-			numFreq = row.numFreq;		
+		if (row->numFreqExists) {
+			numFreq = row->numFreq;		
 			numFreqExists = true;
 		}
 		else
 			numFreqExists = false;
 		
-		if (row.numStokesExists) {
-			numStokes = row.numStokes;		
+		if (row->numStokesExists) {
+			numStokes = row->numStokes;		
 			numStokesExists = true;
 		}
 		else
 			numStokesExists = false;
 		
-		if (row.frequencyExists) {
-			frequency = row.frequency;		
+		if (row->frequencyExists) {
+			frequency = row->frequency;		
 			frequencyExists = true;
 		}
 		else
 			frequencyExists = false;
 		
-		if (row.frequencyIntervalExists) {
-			frequencyInterval = row.frequencyInterval;		
+		if (row->frequencyIntervalExists) {
+			frequencyInterval = row->frequencyInterval;		
 			frequencyIntervalExists = true;
 		}
 		else
 			frequencyIntervalExists = false;
 		
-		if (row.stokesParameterExists) {
-			stokesParameter = row.stokesParameter;		
+		if (row->stokesParameterExists) {
+			stokesParameter = row->stokesParameter;		
 			stokesParameterExists = true;
 		}
 		else
 			stokesParameterExists = false;
 		
-		if (row.fluxExists) {
-			flux = row.flux;		
+		if (row->fluxExists) {
+			flux = row->flux;		
 			fluxExists = true;
 		}
 		else
 			fluxExists = false;
 		
-		if (row.fluxErrExists) {
-			fluxErr = row.fluxErr;		
+		if (row->fluxErrExists) {
+			fluxErr = row->fluxErr;		
 			fluxErrExists = true;
 		}
 		else
 			fluxErrExists = false;
 		
-		if (row.positionAngleExists) {
-			positionAngle = row.positionAngle;		
+		if (row->positionAngleExists) {
+			positionAngle = row->positionAngle;		
 			positionAngleExists = true;
 		}
 		else
 			positionAngleExists = false;
 		
-		if (row.positionAngleErrExists) {
-			positionAngleErr = row.positionAngleErr;		
+		if (row->positionAngleErrExists) {
+			positionAngleErr = row->positionAngleErr;		
 			positionAngleErrExists = true;
 		}
 		else
 			positionAngleErrExists = false;
 		
-		if (row.sizeExists) {
-			size = row.size;		
+		if (row->sizeExists) {
+			size = row->size;		
 			sizeExists = true;
 		}
 		else
 			sizeExists = false;
 		
-		if (row.sizeErrExists) {
-			sizeErr = row.sizeErr;		
+		if (row->sizeErrExists) {
+			sizeErr = row->sizeErr;		
 			sizeErrExists = true;
 		}
 		else
 			sizeErrExists = false;
 		
-		if (row.velRefCodeExists) {
-			velRefCode = row.velRefCode;		
+		if (row->velRefCodeExists) {
+			velRefCode = row->velRefCode;		
 			velRefCodeExists = true;
 		}
 		else
 			velRefCodeExists = false;
 		
-		if (row.dopplerVelocityExists) {
-			dopplerVelocity = row.dopplerVelocity;		
+		if (row->dopplerVelocityExists) {
+			dopplerVelocity = row->dopplerVelocity;		
 			dopplerVelocityExists = true;
 		}
 		else
 			dopplerVelocityExists = false;
 		
-		if (row.dopplerReferenceSystemExists) {
-			dopplerReferenceSystem = row.dopplerReferenceSystem;		
+		if (row->dopplerReferenceSystemExists) {
+			dopplerReferenceSystem = row->dopplerReferenceSystem;		
 			dopplerReferenceSystemExists = true;
 		}
 		else
 			dopplerReferenceSystemExists = false;
 		
-		if (row.dopplerCalcTypeExists) {
-			dopplerCalcType = row.dopplerCalcType;		
+		if (row->dopplerCalcTypeExists) {
+			dopplerCalcType = row->dopplerCalcType;		
 			dopplerCalcTypeExists = true;
 		}
 		else
 			dopplerCalcTypeExists = false;
 		
-		if (row.parallaxExists) {
-			parallax = row.parallax;		
+		if (row->parallaxExists) {
+			parallax = row->parallax;		
 			parallaxExists = true;
 		}
 		else

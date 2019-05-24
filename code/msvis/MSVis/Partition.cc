@@ -640,13 +640,13 @@ Bool Partition::makeSelection()
 	// not be optimal.  However, the # of chans and corrs for DDID 0 may be very
 	// misrepresentative of the MS in general.
 	{
-		ROScalarColumn<Int> polId(elms->dataDescription(),
+		ScalarColumn<Int> polId(elms->dataDescription(),
 				MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
-		ROScalarColumn<Int> spwId(elms->dataDescription(),
+		ScalarColumn<Int> spwId(elms->dataDescription(),
 				MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
-		ROScalarColumn<Int> ncorr(elms->polarization(),
+		ScalarColumn<Int> ncorr(elms->polarization(),
 				MSPolarization::columnName(MSPolarization::NUM_CORR));
-		ROScalarColumn<Int> nchan(elms->spectralWindow(),
+		ScalarColumn<Int> nchan(elms->spectralWindow(),
 				MSSpectralWindow::columnName(MSSpectralWindow::NUM_CHAN));
 
 		uInt nddids = polId.nrow();
@@ -1024,7 +1024,7 @@ Bool Partition::fillMainTable(const Vector<MS::PredefinedColumns>& colNames)
 	fillAccessoryMainCols();
 
 	//Deal with data
-	ROArrayColumn<Complex> data;
+	ArrayColumn<Complex> data;
 	Vector<MS::PredefinedColumns> complexCols;
 	const Bool doFloat = SubMS::sepFloat(colNames, complexCols);
 	const uInt nDataCols = complexCols.nelements();
@@ -1078,7 +1078,7 @@ Bool Partition::fillMainTable(const Vector<MS::PredefinedColumns>& colNames)
 	return success;
 }
 
-Bool Partition::getDataColumn(ROArrayColumn<Complex>& data,
+Bool Partition::getDataColumn(ArrayColumn<Complex>& data,
 		const MS::PredefinedColumns colName)
 {
 	if(colName == MS::DATA)
@@ -1092,7 +1092,7 @@ Bool Partition::getDataColumn(ROArrayColumn<Complex>& data,
 	return true;
 }
 
-Bool Partition::getDataColumn(ROArrayColumn<Float>& data,
+Bool Partition::getDataColumn(ArrayColumn<Float>& data,
 		const MS::PredefinedColumns colName)
 {
 	LogIO os(LogOrigin("Partition", "getDataColumn()"));
@@ -1107,7 +1107,7 @@ Bool Partition::getDataColumn(ROArrayColumn<Float>& data,
 	return true;
 }
 
-Bool Partition::putDataColumn(MSColumns& msc, ROArrayColumn<Complex>& data, 
+Bool Partition::putDataColumn(MSColumns& msc, ArrayColumn<Complex>& data, 
 		const MS::PredefinedColumns colName,
 		const Bool writeToDataCol)
 {
@@ -1253,7 +1253,7 @@ Bool Partition::copyDataFlagsWtSp(const Vector<MS::PredefinedColumns>& colNames,
 	return true;
 }
 
-Bool Partition::putDataColumn(MSColumns& msc, ROArrayColumn<Float>& data, 
+Bool Partition::putDataColumn(MSColumns& msc, ArrayColumn<Float>& data, 
 		const MS::PredefinedColumns colName,
 		const Bool writeToDataCol)
 {

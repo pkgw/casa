@@ -337,7 +337,7 @@ namespace asdm {
 
 
 DelayModelRow* DelayModelTable::newRow(DelayModelRow* row) {
-	return new DelayModelRow(*this, *row);
+	return new DelayModelRow(*this, row);
 }
 
 	//

@@ -2964,10 +2964,10 @@ sourceOffsetReferenceCode = CDirectionReferenceCode::from_int(0);
 		
 	}
 	
-	PointingRow::PointingRow (PointingTable &t, PointingRow &row) : table(t) {
+	PointingRow::PointingRow (PointingTable &t, PointingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3023,73 +3023,73 @@ sourceOffsetReferenceCode = CDirectionReferenceCode::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			timeInterval = row.timeInterval;
-		
-		
-		
-		
-			numSample = row.numSample;
-		
-			encoder = row.encoder;
-		
-			pointingTracking = row.pointingTracking;
-		
-			usePolynomials = row.usePolynomials;
-		
-			timeOrigin = row.timeOrigin;
-		
-			numTerm = row.numTerm;
-		
-			pointingDirection = row.pointingDirection;
-		
-			target = row.target;
-		
-			offset = row.offset;
-		
-			pointingModelId = row.pointingModelId;
+			timeInterval = row->timeInterval;
 		
 		
 		
 		
-		if (row.overTheTopExists) {
-			overTheTop = row.overTheTop;		
+			numSample = row->numSample;
+		
+			encoder = row->encoder;
+		
+			pointingTracking = row->pointingTracking;
+		
+			usePolynomials = row->usePolynomials;
+		
+			timeOrigin = row->timeOrigin;
+		
+			numTerm = row->numTerm;
+		
+			pointingDirection = row->pointingDirection;
+		
+			target = row->target;
+		
+			offset = row->offset;
+		
+			pointingModelId = row->pointingModelId;
+		
+		
+		
+		
+		if (row->overTheTopExists) {
+			overTheTop = row->overTheTop;		
 			overTheTopExists = true;
 		}
 		else
 			overTheTopExists = false;
 		
-		if (row.sourceOffsetExists) {
-			sourceOffset = row.sourceOffset;		
+		if (row->sourceOffsetExists) {
+			sourceOffset = row->sourceOffset;		
 			sourceOffsetExists = true;
 		}
 		else
 			sourceOffsetExists = false;
 		
-		if (row.sourceOffsetReferenceCodeExists) {
-			sourceOffsetReferenceCode = row.sourceOffsetReferenceCode;		
+		if (row->sourceOffsetReferenceCodeExists) {
+			sourceOffsetReferenceCode = row->sourceOffsetReferenceCode;		
 			sourceOffsetReferenceCodeExists = true;
 		}
 		else
 			sourceOffsetReferenceCodeExists = false;
 		
-		if (row.sourceOffsetEquinoxExists) {
-			sourceOffsetEquinox = row.sourceOffsetEquinox;		
+		if (row->sourceOffsetEquinoxExists) {
+			sourceOffsetEquinox = row->sourceOffsetEquinox;		
 			sourceOffsetEquinoxExists = true;
 		}
 		else
 			sourceOffsetEquinoxExists = false;
 		
-		if (row.sampledTimeIntervalExists) {
-			sampledTimeInterval = row.sampledTimeInterval;		
+		if (row->sampledTimeIntervalExists) {
+			sampledTimeInterval = row->sampledTimeInterval;		
 			sampledTimeIntervalExists = true;
 		}
 		else
 			sampledTimeIntervalExists = false;
 		
-		if (row.atmosphericCorrectionExists) {
-			atmosphericCorrection = row.atmosphericCorrection;		
+		if (row->atmosphericCorrectionExists) {
+			atmosphericCorrection = row->atmosphericCorrection;		
 			atmosphericCorrectionExists = true;
 		}
 		else

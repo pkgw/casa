@@ -39,20 +39,20 @@ ROCalDescColumns::ROCalDescColumns (const CalTable& calTable)
 // Input:
 //    calTable         const CalTable&                Calibration table
 // Output to private data:
-//    numSpw_p         ROScalarColumn<Int>            No. spw 
-//    numChan_p        ROArrayColumn<Int>             No. chan
-//    numReceptors_p   ROScalarColumn<Int>            No. receptors
-//    nJones_p         ROScalarColumn<Int>            Jones matrix size
-//    spwId_p          ROArrayColumn<Int>             Spw. id.'s
-//    chanFreq_p       ROArrayColumn<Double>          Chan. freq.
+//    numSpw_p         ScalarColumn<Int>            No. spw 
+//    numChan_p        ArrayColumn<Int>             No. chan
+//    numReceptors_p   ScalarColumn<Int>            No. receptors
+//    nJones_p         ScalarColumn<Int>            Jones matrix size
+//    spwId_p          ArrayColumn<Int>             Spw. id.'s
+//    chanFreq_p       ArrayColumn<Double>          Chan. freq.
 //    chanFreqMeas_p   ROArrayMeasColumn<MFrequency>  Chan. freq. as Measure
-//    measFreqRef_p    ROScalarColumn<Int>            Freq. measures ref.
-//    chanWidth_p      ROArrayColumn<Double>          Chan. width
+//    measFreqRef_p    ScalarColumn<Int>            Freq. measures ref.
+//    chanWidth_p      ArrayColumn<Double>          Chan. width
 //    chanWidthQuant_p ROArrayQuantColumn<Double>     Chan. width as Quanta
-//    chanRange_p      ROArrayColumn<Int>             Chan. range
-//    polznType_p      ROArrayColumn<String>          Polzn. type
-//    jonesType_p      ROScalarColumn<String>         Jones matrix type
-//    msName_p         ROScalarColumn<String>         MeasurementSet name
+//    chanRange_p      ArrayColumn<Int>             Chan. range
+//    polznType_p      ArrayColumn<String>          Polzn. type
+//    jonesType_p      ScalarColumn<String>         Jones matrix type
+//    msName_p         ScalarColumn<String>         MeasurementSet name
 //
   // Attach all the column accessors (including required and
   // optional columns)
@@ -75,14 +75,14 @@ ROCalDescColumns::ROCalDescColumns (const CalTable& calTable)
 //----------------------------------------------------------------------------
 
 void ROCalDescColumns::attach (const CalTable& calTable, 
-			       ROTableColumn& tabCol, 
+			       TableColumn& tabCol, 
 			       MSCalEnums::colDef colEnum, 
 			       const Bool& optional)
 {
 // Attach a column accessor to the calibration table
 // Input:
 //    calTable         const CalTable&      Calibration table
-//    tabCol           ROTableColumn&       Table column accessor
+//    tabCol           TableColumn&       Table column accessor
 //    colEnum          MSCalEnums::colDef   Column enum
 //    optional         const Bool&          true if optional column
 // Output to private data:
@@ -201,14 +201,14 @@ CalDescColumns::CalDescColumns (CalTable& calTable)
 //----------------------------------------------------------------------------
 
 void CalDescColumns::attach (CalTable& calTable, 
-			     ROTableColumn& tabCol, 
+			     TableColumn& tabCol, 
 			     MSCalEnums::colDef colEnum, 
 			     const Bool& optional)
 {
 // Attach a column accessor to the calibration table
 // Input:
 //    calTable         CalTable&            Calibration table
-//    tabCol           ROTableColumn&       Table column accessor
+//    tabCol           TableColumn&       Table column accessor
 //    colEnum          MSCalEnums::colDef   Column enum
 //    optional         const Bool&          true if optional column
 // Output to private data:

@@ -5,9 +5,10 @@ import shutil
 import string
 import time
 import re;
+import numpy as np
 from taskinit import *
 import copy
-
+import operator
 _ia = iatool( )
 _cb = cbtool( )
 
@@ -91,6 +92,23 @@ class TestHelpers():
           else:
                return apos['mask']
 
+     def check_beam_compare(self, im1, im2, op=operator.le):
+         """Compare all plane of cube beam im1 operator op than im2"""
+         _ia.open(im1)
+         nchan=_ia.shape()[3]
+         beam1=np.zeros(nchan)
+         for k in range(nchan):
+             beam1[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close()
+         _ia.open(im2)
+         if(nchan != _ia.shape()[3]):
+             return False
+         beam2=np.zeros(nchan)
+         for k in range(nchan):
+             beam2[k]=_ia.beamarea(k,0)['arcsec2']
+         _ia.close();
+         return np.alltrue(op(beam1, beam2))
+        
      def exists(self,imname):
           """ Image exists """
           return os.path.exists(imname)
@@ -210,7 +228,10 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
+                    print "pstr after checkims=",pstr
                     pstr += self.check_keywords(imexist)
+                    print "pstr after check_keywords=",pstr
+
 
           if imexistnot != None:
                if type(imexistnot)==list:
@@ -512,9 +533,13 @@ class TestHelpers():
              tbt.open(imname)
              keys = tbt.getkeywords()
          except RuntimeError as exc:
-             if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             #if os.path.isfile(os.path.join(os.path.dirname(imname), 'imageconcat.json')):
+             if os.path.isfile(os.path.join(os.path.abspath(imname), 'imageconcat.json')):
                  # Looks like a refconcat image, nothing to check
-                 return ''
+                 #return ''
+                 # make a bit more informative
+                 pstr = 'Looks like it is a refconcat image. Skipping the imageinfo keywords check.'
+                 return pstr
              else:
                  pstr = 'Cannot open image table to check keywords: {0}'.format(imname)
                  return pstr
@@ -692,6 +717,70 @@ class TestHelpers():
                print 'Not a parallel run of CASA'
 
           return imlist
+
+     def mergeParaCubeResults(self, 
+                          ret=None,  
+                          parlist=[]
+                          #peakres=None, # a float
+                          #modflux=None, # a float
+                          #iterdone=None, # an int
+                          #nmajordone=None, # an int
+                          #imexist=None,  # list of image names
+                          #imexistnot=None, # list of image names
+                          #imval=None,  # list of tuples of (imagename,val,pos)
+                          #imvalexact=None, # list of tuples of (imagename,val,pos)
+                          #immask=None,  #list of tuples to check mask value
+                          #tabcache=True,
+                          #stopcode=None,
+                          #reffreq=None # list of tuples of (imagename, reffreq)
+                          ):
+         if ret!=None and type(ret)==dict:
+             if ret.keys()[0].count('node'):
+                 mergedret={}
+                 nodenames = ret.keys()
+                 print "ret NOW=",ret
+                 # must be parallel cube results
+                 if parlist.count('iterdone'):
+                     retIterdone = 0
+                     for inode in nodenames:
+                         print "ret[",inode,"]=",ret[inode]
+                         print "inode.strip = ", int(inode.strip('node'))
+                         retIterdone+=ret[inode][int(inode.strip('node'))]['iterdone']
+                     mergedret['iterdone']=retIterdone
+                 if parlist.count('nmajordone'):
+                     retNmajordone = 0
+                     for inode in nodenames:
+                         retNmajordone = max(ret[inode][int(inode.strip('node'))]['nmajordone'],retNmajordone) 
+                     mergedret['nmajordone']=retNmajordone
+                 if parlist.count('peakres'):
+                     #retPeakres = 0
+                     #for inode in nodenames:
+                         #tempreslist = ret[inode][int(inode.strip('node'))]['summaryminor'][1,:]
+                         #if len(tempreslist)>0: 
+                         #    tempresval = tempreslist[len(tempreslist)-1]
+                         #else: 
+                         #    tempresval=0.0
+                         #retPeakres = max(tempresval,retPeakres) 
+                     mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                 if parlist.count('modflux'):
+                     #retModflux = 0
+                     #for inode in nodenames:
+                     #    tempmodlist = ret[inode][int(inode.strip('node'))]['summaryminor'][2,:]
+                     #    print "tempmodlist for ",inode,"=",tempmodlist
+                     #    if len(tempmodlist)>0:
+                     #         tempmodval=tempmodlist[len(tempmodlist)-1]
+                     #    else:
+                     #         tempmodval=0.0
+                     #    retModflux += tempmodval
+                     #mergedret['modflux']=retModflux
+                    if not mergedret.has_key('summaryminor'):
+                        mergedret['summryminor']=et['node1'][1]['summaryminor']
+                 if parlist.count('stopcode'):
+                     mergedret['stopcode']=ret['node1'][1]['stopcode']
+             else:
+                 mergedret=ret 
+
+         return mergedret
 
 ##############################################
 

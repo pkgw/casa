@@ -739,6 +739,17 @@ Default is True. </description>
      <value></value>
      </param>
 
+     <param type="string" direction="in" name="solmode">
+     <description>Solving mode: '', 'L1'; add 'R' for iterative outlier excision.</description>
+     <value></value>
+     </param>
+
+     <param type="doubleArray" direction="in" name="rmsthresh">
+     <description>RMS threshold sequence.</description>
+     <value></value>
+     </param>
+
+
      
 </input>
 <returns type="bool"/>

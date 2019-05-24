@@ -32,7 +32,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 RFFloatLatticeIterator::RFFloatLatticeIterator ()
-  : n_chan(0), n_ifr(0), n_time(0), n_bit(0), n_corr(0)
+  : n_chan(0), n_ifr(0), /* n_time(0),*/ n_bit(0), n_corr(0)
 {
   iter_pos = 0;
   curs = Matrix<Float>();
@@ -41,9 +41,9 @@ RFFloatLatticeIterator::RFFloatLatticeIterator ()
 
  RFFloatLatticeIterator::RFFloatLatticeIterator(std::vector<std::vector<bool> > *lat,
 								   unsigned nchan, unsigned nifr, 
-								   unsigned ntime, unsigned nbit,
+								   unsigned /* ntime */, unsigned nbit,
 								   unsigned ncorr)
-   : n_chan(nchan), n_ifr(nifr), n_time(ntime), n_bit(nbit), n_corr(ncorr)
+   : n_chan(nchan), n_ifr(nifr), /* n_time(ntime),*/ n_bit(nbit), n_corr(ncorr)
 
 {
   iter_pos = 0;

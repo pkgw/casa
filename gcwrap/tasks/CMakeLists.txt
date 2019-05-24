@@ -1,6 +1,7 @@
 casa_add_tasks( tools  casa_tasks 
 accor.xml
 accum.xml
+apparentsens.xml
 applycal.xml
 asdmsummary.xml
 bandpass.xml
@@ -82,6 +83,7 @@ plotweather.xml
 plotprofilemap.xml
 partition.xml
 polcal.xml
+polfromgain.xml
 predictcomp.xml
 impv.xml
 rerefant.xml
@@ -94,6 +96,7 @@ sdfixscan.xml
 sdgaincal.xml
 sdimaging.xml
 tsdimaging.xml
+sdpolaverage.xml
 sdsidebandsplit.xml
 sdsmooth.xml
 setjy.xml

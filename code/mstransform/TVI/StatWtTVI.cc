@@ -157,6 +157,15 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
             _wtrange.reset(new std::pair<Double, Double>(*iter, *(++iter)));
         }
     }
+    auto excludeChans = False;
+    field = "excludechans";
+    if (config.isDefined(field)) {
+        ThrowIf(
+            config.type(config.fieldNumber(field)) != TpBool,
+            "Unsupported type for field '" + field + "'"
+        );
+        excludeChans = config.asBool(field);
+    }
     field = "fitspw";
     if (config.isDefined(field)) {
         ThrowIf(
@@ -178,13 +187,14 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                 auto row = chans.row(i);
                 const auto& spw = row[0];
                 if (_chanSelFlags.find(spw) == _chanSelFlags.end()) {
-                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, True);
+                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
                 }
                 start[1] = row[1];
+                ThrowIf(start[1] < 0, "Invalid channel selection in spw " + String::toString(spw));
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
-                _chanSelFlags[spw](slice) = False;
+                _chanSelFlags[spw](slice) = excludeChans;
             }
         }
     }
@@ -912,8 +922,7 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
     Cube<Complex> chunkData;
     Cube<Bool> chunkFlags;
     uInt subchunkStartIndex = 0;
-    auto doChanSelFlags = ! _chanSelFlags.empty();
-    auto initChanSelTemplate = doChanSelFlags;
+    auto initChanSelTemplate = True;
     Cube<Bool> chanSelFlagTemplate, chanSelFlags;
     // we cannot know the spw until inside the subchunk loop
     Int spw = -1;
@@ -979,9 +988,8 @@ void StatWtTVI::_gatherAndComputeWeightsSlidingTimeWindow() const {
         }
         const auto dataCube = _dataCube(vb);
         auto resultantFlags = _getResultantFlags(
-            chanSelFlagTemplate, chanSelFlags,
-            initChanSelTemplate, doChanSelFlags, spw,
-            vb->flagCube()
+            chanSelFlagTemplate, chanSelFlags, initChanSelTemplate,
+            spw, vb->flagCube()
         );
         // build up chunkData and chunkFlags one subchunk at a time
         if (chunkData.empty()) {
@@ -1132,8 +1140,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
     std::map<BaselineChanBin, Cube<Bool>> flags;
     IPosition blc(3, 0);
     auto trc = blc;
-    auto doChanSelFlags = ! _chanSelFlags.empty();
-    auto initChanSelTemplate = doChanSelFlags;
+    auto initChanSelTemplate = True;
     Cube<Bool> chanSelFlagTemplate, chanSelFlags;
     auto firstTime = True;
     // we cannot know the spw until we are in the subchunks loop
@@ -1158,7 +1165,7 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
         const auto npol = dataCube.nrow();
         auto resultantFlags = _getResultantFlags(
             chanSelFlagTemplate, chanSelFlags, initChanSelTemplate,
-            doChanSelFlags, spw, flagCube
+            spw, flagCube
         );
         auto bins = _chanBins.find(spw)->second;
         BaselineChanBin blcb;
@@ -1206,10 +1213,9 @@ void StatWtTVI::_gatherAndComputeWeightsTimeBlockProcessing() const {
 
 Cube<Bool> StatWtTVI::_getResultantFlags(
     Cube<Bool>& chanSelFlagTemplate, Cube<Bool>& chanSelFlags,
-    Bool& initTemplate, Bool& doChanSelFlags, Int spw,
-    const Cube<Bool>& flagCube
+    Bool& initTemplate, Int spw, const Cube<Bool>& flagCube
 ) const {
-    if (! doChanSelFlags) {
+    if (_chanSelFlags.find(spw) == _chanSelFlags.cend()) {
         // no selection of channels to ignore
         return flagCube;
     }
@@ -1218,11 +1224,7 @@ Cube<Bool> StatWtTVI::_getResultantFlags(
         // in the chunk are guaranteed to have the same spw
         // because each subchunk is guaranteed to have a single
         // data description ID.
-        auto chanSelFlagIter = _chanSelFlags.find(spw);
-        doChanSelFlags = chanSelFlagIter != _chanSelFlags.end();
-        if (doChanSelFlags) {
-            chanSelFlagTemplate = chanSelFlagIter->second;
-        }
+        chanSelFlagTemplate = _chanSelFlags.find(spw)->second;
         initTemplate = False;
     }
     auto dataShape = flagCube.shape();
@@ -1411,6 +1413,18 @@ void StatWtTVI::summarizeFlagging() const {
     log << LogIO::NORMAL << "TOTAL FLAGGED DATA AFTER RUNNING STATWT: "
         << total << "%" << LogIO::POST;
     log << LogIO::NORMAL << std::endl << LogIO::POST;
+    if (_nOrigFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT ALL THE DATA IN THE INPUT "
+            << "MS/SELECTION WERE FLAGGED PRIOR TO RUNNING STATWT"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
+    else if (_nOrigFlaggedPts + _nNewFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE DATA "
+            "IN THE REQUESTED SELECTION THAT WASN'T ORIGINALLY FLAGGED"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
     String col0 = "SPECTRAL_WINDOW";
     String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";
     String col2 = "SAMPLES_WHERE_REAL_PART_VARIANCE_DIFFERS_BY_>50%_FROM_"
@@ -1429,16 +1443,28 @@ void StatWtTVI::summarizeFlagging() const {
 }
 
 void StatWtTVI::summarizeStats(Double& mean, Double& variance) const {
-    mean = _wtStats->getStatistic(StatisticsData::MEAN);
-    variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
     LogIO log(LogOrigin("StatWtTVI", __func__));
-    log << LogIO::NORMAL << "The mean of the computed weights is "
-        << mean << LogIO::POST;
-    log << LogIO::NORMAL << "The variance of the computed weights is "
-        << variance << LogIO::POST;
-    log << LogIO::NORMAL << "Weights which had corresponding flags of True "
-        << "prior to running this application were not used to compute these "
-        << "stats." << LogIO::POST;
+    try {
+        mean = _wtStats->getStatistic(StatisticsData::MEAN);
+        variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
+        log << LogIO::NORMAL << "The mean of the computed weights is "
+            << mean << LogIO::POST;
+        log << LogIO::NORMAL << "The variance of the computed weights is "
+            << variance << LogIO::POST;
+        log << LogIO::NORMAL << "Weights which had corresponding flags of True "
+            << "prior to running this application were not used to compute these "
+            << "stats." << LogIO::POST;
+    }
+    catch (const AipsError& x) {
+        log << LogIO::WARN << "There was a problem calculating the mean and "
+            << "variance of the weights computed by this application. Perhaps there "
+            << "was something amiss with the input MS and/or the selection criteria. "
+            << "Examples of such issues are that all the data were originally flagged "
+            << "or that the sample size was consistently too small for computations "
+            << "of variances" << LogIO::POST;
+        setNaN(mean);
+        setNaN(variance);
+    }
 }
 
 void StatWtTVI::origin() {

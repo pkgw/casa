@@ -6,20 +6,6 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
 file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
-
-<!-- This is the task interface to ia.imagecalc(), but ...    -->
-<!-- we use the standard region selection rather then use     -->
-<!-- the selection methods allowed in the lattice expression  -->
-<!-- language.  Although we don't stop the users from trying. -->
-<!--                                                          -->
-<!-- TODO                                                     -->
-<!--   - Crystal wanted different masks for different inputs  -->
-<!--     but unlikely that its really needed.                 -->
-<!--   - Add an "overwrite" output file parameter             -->
-<!--   - Add polygon and circle region selection              -->
-<!--   - In general bring data selection to the full level    -->
-<!--     proposed.                                            -->
-
 <task type="function" name="immath" category="analysis">
 
 <shortdescription>Perform math operations on images</shortdescription>
@@ -33,27 +19,29 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <any type="variant" limttypes="string stringArray"/>
         <value type="string"></value>
     </param>
-	<param type="string" name="mode">
-		<description>mode for math operation (evalexpr, spix, pola, poli)</description>
-		<value>evalexpr</value>
+    <param type="string" name="mode">
+        <description>mode for math operation (evalexpr, spix, pola, poli, lpoli, tpoli)</description>
+        <value>evalexpr</value>
             <allowed kind="enum">
             <value>evalexpr</value>
             <value>spix</value>
             <value>pola</value>
             <value>poli</value>
+            <value>lpoli</value>
+            <value>tpoli</value>
         </allowed>
-		<example>'evalexpr', 'spix', 'pola', or 'poli' </example>
-	</param>
-	<param type="string" name="outfile">
-		<description>File where the output is saved</description>
-		<value>immath_results.im</value>
-		<example>outfile=&quot;newimage&quot;</example>
-	</param>
-	<param type="string" name="expr" subparam="true">
-		<description>Mathematical expression using images</description>
-		<value>IM0</value>
-		<example>expr='&quot;sin(image1.im)+(image2.im*2)+real(image3.im)&quot;'</example>
-	</param>
+        <example>'evalexpr', 'spix', 'pola', or 'poli' </example>
+    </param>
+    <param type="string" name="outfile">
+        <description>File where the output is saved</description>
+        <value>immath_results.im</value>
+        <example>outfile=&quot;newimage&quot;</example>
+    </param>
+    <param type="string" name="expr" subparam="true">
+        <description>Mathematical expression using images</description>
+        <value>IM0</value>
+        <example>expr='&quot;sin(image1.im)+(image2.im*2)+real(image3.im)&quot;'</example>
+    </param>
     <param type="any" name="varnames" subparam="true">
         <description>a list of variable names to use with the image files</description>
         <any type="variant" limttypes="string stringArray"/>
@@ -85,9 +73,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param >
     <param type="string" name="stokes">
         <description>Stokes planes to use. Default is to use all Stokes planes.</description>
-	    <value/>
-	    <example>stokes='IQ'</example>
-	    <example>stokes='RR,LL'</example>
+        <value/>
+        <example>stokes='IQ'</example>
+        <example>stokes='RR,LL'</example>
     </param>
     <param type="bool" direction="in" name="stretch" subparam="true">
         <description>Stretch the mask if necessary and possible? See help stretch.par </description>
@@ -101,7 +89,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <description>Precision for the output image pixels if mode="evalexpr" or "spix". "float" or "double" (minimum match supported)</description>
         <value>float</value>
     </param>
-	<constraints>
+    <constraints>
         <when param="mode">
             <equals value="evalexpr">
                 <default param="expr"><value>""</value></default>
@@ -110,19 +98,25 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <equals value="poli">
                 <default param="sigma"><value>"0.0mJy/beam"</value></default>
             </equals>
-		    <equals value="pola">
+            <equals value="lpoli">
+                <default param="sigma"><value>"0.0mJy/beam"</value></default>
+            </equals>
+            <equals value="tpoli">
+                <default param="sigma"><value>"0.0mJy/beam"</value></default>
+            </equals>
+            <equals value="pola">
                 <default param="polithresh">
                     <value>""</value>
                 </default>
             </equals>
-		    <equals value="spix"/>
+            <equals value="spix"/>
         </when>
         <when param="mask">
             <notequals type="string" value="">
                 <default param="stretch"><value type="bool">False</value></default>
             </notequals>
         </when>
-	</constraints>
+    </constraints>
 </input>
 
 <returns type="bool"/>
@@ -182,13 +176,13 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                           (below). Default ('') means use the value given in mask, or no masking if that
                           value is empty as well.
               expr        (for mode='evalexpr') A LEL expression with images.
-	                      Image file names are specified in the imagenames paramter, and
+                          Image file names are specified in the imagenames paramter, and
                           the variables IM0, IM1, ... (or optionally via the varnames parameter, see below)
                           are used to represent these files
                           in the expression. Explicit notations of file names in the 
                           expression are also supported, in which cases the file names must
                           be enclosed in double quotes (") and imagename is ignored.
-	                      Examples:
+                          Examples:
                           Make an image that is image1.im - image2.im
                           expr=' (IM0 - IM1 )'
                           or with an explicit notation, 
@@ -205,7 +199,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                varnames   For mode="evalexpr". Instead of the default variable names IM0, IM1, ..., use
                           the names in this array to represent the input images.
     outfile    The output image. Overwriting an existing outfile is not permitted.
-	           Default: immath_results.im;  Example: outfile='results.im'
+               Default: immath_results.im;  Example: outfile='results.im'
     mask       Mask to use. Default is none. Also see polithresh.
     stretch    Stretch the input mask if necessary and possible. See below.
     region     Region selection. Default is to use the full image.

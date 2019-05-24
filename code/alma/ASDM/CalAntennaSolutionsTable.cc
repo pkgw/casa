@@ -359,7 +359,7 @@ namespace asdm {
 
 
 CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow* row) {
-	return new CalAntennaSolutionsRow(*this, *row);
+	return new CalAntennaSolutionsRow(*this, row);
 }
 
 	//

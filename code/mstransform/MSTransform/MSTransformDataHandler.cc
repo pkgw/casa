@@ -619,7 +619,7 @@ Bool MSTransformDataHandler::selectSpw(const String& spwstr,const Vector<Int>& s
 // -----------------------------------------------------------------------
 std::set<Int> MSTransformDataHandler::findBadSpws(MeasurementSet& ms,Vector<Int> spwv)
 {
-	ROScalarColumn<Int> spws_in_dd(	ms.dataDescription(),
+	ScalarColumn<Int> spws_in_dd(	ms.dataDescription(),
 									MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
 	std::set<Int> uniqSpwsInDD;
 	uInt nspwsInDD = spws_in_dd.nrow();
@@ -747,7 +747,7 @@ Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
 	}
 	else
 	{ 	// Make outToIn an identity map.
-		ROScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
+		ScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
 
 		for (uInt polid = 0; polid < npol; ++polid)
 		{
@@ -838,7 +838,7 @@ Bool MSTransformDataHandler::makeMSBasicStructure(String& msname,
 	// handle column keywords copy for CORRECTED_DATA -> DATA
 	if (colNamesTok.nelements() == 1 && colNamesTok[0] == MS::CORRECTED_DATA && mssel_p.isColumn(MS::CORRECTED_DATA)) {
 	    TableColumn outCol(msOut_p, "DATA");
-	    ROTableColumn inCol(mssel_p, "CORRECTED_DATA");
+	    TableColumn inCol(mssel_p, "CORRECTED_DATA");
 	    // Copy the keywords CORRECTED_DATA -> DATA
 	    copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
 	}
@@ -1007,9 +1007,9 @@ Bool MSTransformDataHandler::makeSelection()
 	spw2ddid_p = thisSelection.getSPWDDIDList(elms);
 
 	const MSDataDescription ddtable = elms->dataDescription();
-	ROScalarColumn<Int> polId(ddtable,MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
+	ScalarColumn<Int> polId(ddtable,MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
 	const MSPolarization poltable = elms->polarization();
-	ROArrayColumn<Int> pols(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
+	ArrayColumn<Int> pols(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
 
 	// Get the list of DDI for the selected polarizations
 	Vector<Int> polDDIList = thisSelection.getDDIDList(elms);
@@ -1084,8 +1084,8 @@ Bool MSTransformDataHandler::makeSelection()
 	{
 		/*
 		// Watch out! getAntenna*List() and getBaselineList() return negative numbers for negated antennas!
-		ROScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
-		ROScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
+		ScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
+		ScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
 		Vector<Int> selAnts(ant1c.getColumn());
 		uInt nAnts = selAnts.nelements();
 
@@ -1570,15 +1570,15 @@ Bool MSTransformDataHandler::fillFieldTable()
 	MSFieldColumns msField(msOut_p.field());
 
 	const ROMSFieldColumns& fieldIn = mscIn_p->field();
-	ROScalarColumn<String> code(fieldIn.code());
-	ROArrayColumn<Double> delayDir(fieldIn.delayDir());
-	ROScalarColumn<Bool> flagRow(fieldIn.flagRow());
-	ROScalarColumn<String> name(fieldIn.name());
-	ROScalarColumn<Int> numPoly(fieldIn.numPoly());
-	ROArrayColumn<Double> phaseDir(fieldIn.phaseDir());
-	ROArrayColumn<Double> refDir(fieldIn.referenceDir());
-	ROScalarColumn<Int> sourceId(fieldIn.sourceId());
-	ROScalarColumn<Double> time(fieldIn.time());
+	ScalarColumn<String> code(fieldIn.code());
+	ArrayColumn<Double> delayDir(fieldIn.delayDir());
+	ScalarColumn<Bool> flagRow(fieldIn.flagRow());
+	ScalarColumn<String> name(fieldIn.name());
+	ScalarColumn<Int> numPoly(fieldIn.numPoly());
+	ArrayColumn<Double> phaseDir(fieldIn.phaseDir());
+	ArrayColumn<Double> refDir(fieldIn.referenceDir());
+	ScalarColumn<Int> sourceId(fieldIn.sourceId());
+	ScalarColumn<Double> time(fieldIn.time());
 
 	String refstr;
 	String nameVarRefColDelayDir, nameVarRefColPhaseDir, nameVarRefColRefDir;
@@ -1730,7 +1730,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColDelayDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColDelayDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColDelayDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColDelayDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1741,7 +1741,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColPhaseDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColPhaseDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColPhaseDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColPhaseDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1752,7 +1752,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColRefDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColRefDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColRefDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColRefDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1778,7 +1778,7 @@ Bool MSTransformDataHandler::copyEphemerisTable(MSFieldColumns & msField)
 {
 	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
 	const ROMSFieldColumns& fieldIn = mscIn_p->field();
-	ROScalarColumn<Int> eID(fieldIn.ephemerisId());
+	ScalarColumn<Int> eID(fieldIn.ephemerisId());
 
 	if (eID.hasContent())
 	{
@@ -1793,7 +1793,7 @@ Bool MSTransformDataHandler::copyEphemerisTable(MSFieldColumns & msField)
 		}
 
 		String destPathName = Path(msOut_p.field().tableName()).absoluteName();
-		ROScalarColumn<String> name(fieldIn.name());
+		ScalarColumn<String> name(fieldIn.name());
 
 		for (uInt k = 0; k < nField; ++k)
 		{
@@ -1858,10 +1858,10 @@ Bool MSTransformDataHandler::fillPolTable()
 
 	// Input polarization table
 	const MSPolarization &poltable = mssel_p.polarization();
-	ROScalarColumn<Int> numCorr(poltable,MSPolarization::columnName(MSPolarization::NUM_CORR));
-	ROArrayColumn<Int> corrType(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
-	ROArrayColumn<Int> corrProd(poltable,MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
-	ROScalarColumn<Bool> flagRow(poltable,MSPolarization::columnName(MSPolarization::FLAG_ROW));
+	ScalarColumn<Int> numCorr(poltable,MSPolarization::columnName(MSPolarization::NUM_CORR));
+	ArrayColumn<Int> corrType(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
+	ArrayColumn<Int> corrProd(poltable,MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
+	ScalarColumn<Bool> flagRow(poltable,MSPolarization::columnName(MSPolarization::FLAG_ROW));
 
 	// Output polarization table
 	MSPolarizationColumns& msPol(msc_p->polarization());
@@ -1947,8 +1947,8 @@ Bool MSTransformDataHandler::fillDDITable()
 	// Input ddi table
 	const MSDataDescription &inputDDI = mssel_p.dataDescription();
 
-	ROScalarColumn<Int> polIdCol(inputDDI, MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
-	ROScalarColumn<Int> spwIdCol(inputDDI,MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
+	ScalarColumn<Int> polIdCol(inputDDI, MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
+	ScalarColumn<Int> spwIdCol(inputDDI,MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
 
 	// Get selected SPWs
 	Vector<Int> selectedSpwIds(nddid);
@@ -2030,19 +2030,23 @@ Bool MSTransformDataHandler::fillSPWTable()
 	Bool haveSpwASI = columnOk(inSpWCols.assocSpwId());
 	Bool haveSpwBN = columnOk(inSpWCols.bbcNo());
 	Bool haveSpwBS = columnOk(inSpWCols.bbcSideband());
-	Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
+	    Bool haveSpwDI = columnOk(inSpWCols.dopplerId());
+	    Bool haveSpwSWF = mssel_p.spectralWindow().tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                              mssel_p.spectralWindow().tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION");
+	    Bool haveSpwSNB = mssel_p.spectralWindow().tableDesc().isColumn("SDM_NUM_BIN") &&
+                              mssel_p.spectralWindow().tableDesc().columnDescSet().isDefined("SDM_NUM_BIN");
 
-	uInt nuniqSpws = spw_uniq_p.size();
+		uInt nuniqSpws = spw_uniq_p.size();
 
-	// This sets the number of input channels for each spw. But
-	// it considers that a SPW ID contains only one set of channels.
-	// I hope this is true!!
-	// Write to SPECTRAL_WINDOW table
-	inNumChan_p.resize(spw_p.nelements());
-	for (uInt k = 0; k < spw_p.nelements(); ++k)
-	{
-		inNumChan_p[k] = inSpWCols.numChan()(spw_p[k]);
-	}
+		// This sets the number of input channels for each spw. But
+		// it considers that a SPW ID contains only one set of channels.
+		// I hope this is true!!
+		// Write to SPECTRAL_WINDOW table
+		inNumChan_p.resize(spw_p.nelements());
+		for (uInt k = 0; k < spw_p.nelements(); ++k)
+		{
+			inNumChan_p[k] = inSpWCols.numChan()(spw_p[k]);
+		}
 
 	if (reindex_p)
 	{
@@ -2227,8 +2231,19 @@ Bool MSTransformDataHandler::fillSPWTable()
 
 		if (haveSpwBN) msSpW.bbcNo().put(outSPWId, inSpWCols.bbcNo()(spw_p[k]));
 		if (haveSpwBS) msSpW.bbcSideband().put(outSPWId, inSpWCols.bbcSideband()(spw_p[k]));
-		if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
-
+        if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
+        if (haveSpwSWF) 
+        {
+            ScalarColumn<String> inSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            ScalarColumn<String> outSwfCol(msOut_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            outSwfCol.put(outSPWId, inSwfCol(spw_p[k]));
+        }
+        if (haveSpwSNB) 
+        {
+            ScalarColumn<Int> inSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
+            ScalarColumn<Int> outSnbCol(msOut_p.spectralWindow(), "SDM_NUM_BIN");
+            outSnbCol.put(outSPWId, inSnbCol(spw_p[k]));
+        }
 
 		if (haveSpwASI)
 		{
@@ -2451,8 +2466,8 @@ Bool MSTransformDataHandler::copyPointing()
 				newPCs.setDirectionRef(MDirection::castType(oldPCs.directionMeasCol().getMeasRef().getType()));
 				newPCs.setEncoderDirectionRef(MDirection::castType(oldPCs.encoderMeas().getMeasRef().getType()));
 
-				const ROScalarColumn<Int>& antIds = oldPCs.antennaId();
-				const ROScalarColumn<Double>& time = oldPCs.time();
+				const ScalarColumn<Int>& antIds = oldPCs.antennaId();
+				const ScalarColumn<Double>& time = oldPCs.time();
 				ScalarColumn<Int>& outants = newPCs.antennaId();
 
 				uInt nTRanges = selTimeRanges_p.ncolumn();
@@ -2566,9 +2581,9 @@ Bool MSTransformDataHandler::copySource()
 			return true;
 		}
 
-		const ROScalarColumn<Int>& inSId = incols.sourceId();
+		const ScalarColumn<Int>& inSId = incols.sourceId();
 		ScalarColumn<Int>& outSId = outcols.sourceId();
-		const ROScalarColumn<Int>& inSPW = incols.spectralWindowId();
+		const ScalarColumn<Int>& inSPW = incols.spectralWindowId();
 		ScalarColumn<Int>& outSPW = outcols.spectralWindowId();
 
 		// row number in output.
@@ -3089,8 +3104,8 @@ Bool MSTransformDataHandler::filterOptSubtable(const String& subtabname)
 
 				// At this point msOut_p has subtab with 0 rows.
 				Table outtab(msOut_p.tableName() + '/' + subtabname,Table::Update);
-				ROScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");
-				ROScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID");
+				ScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");
+				ScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID");
 				const Vector<Int>& antIds = inAntIdCol.getColumn();
 				const Vector<Int>& spwIds = inSpwIdCol.getColumn();
 
@@ -3222,7 +3237,7 @@ Bool MSTransformDataHandler::copyGenericSubtables()
 			if (inDesc.isColumn(name))
 			{
 			    TableColumn outCol(msOut_p, name);
-			    ROTableColumn inCol(mssel_p, name);
+			    TableColumn inCol(mssel_p, name);
 
 			    TableCopy::copySubTables(outCol.rwKeywordSet(),
 						     inCol.keywordSet(),
@@ -3327,6 +3342,22 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
 
 						if (columnOk(spwCols_i.receiverId()))
 							spwCols_0.receiverId().put(rowIndex,spwCols_i.receiverId()(subms_row_index));
+
+                        if (spwTable_i.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
+                            spwTable_i.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
+                        {
+                            ScalarColumn<String> swfCol_i(spwTable_i, "SDM_WINDOW_FUNCTION");
+                            ScalarColumn<String> swfCol_0(spwTable_0, "SDM_WINDOW_FUNCTION");
+                            swfCol_0.put(rowIndex, swfCol_i(subms_row_index));
+                        }
+
+                        if (spwTable_i.tableDesc().isColumn("SDM_NUM_BIN") &&
+                            spwTable_i.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
+                        {
+                            ScalarColumn<Int> snbCol_i(spwTable_i, "SDM_NUM_BIN");
+                            ScalarColumn<Int> snbCol_0(spwTable_0, "SDM_NUM_BIN");
+                            snbCol_0.put(rowIndex, snbCol_i(subms_row_index));
+                        }
 
 						rowIndex += 1;
 					}

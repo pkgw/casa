@@ -212,8 +212,7 @@ void Histogram::defineLine( int index, QVector<double>& xVals,
 		QVector<double>& yVals, bool useLogY ) const{
 	assert( xVals.size() == 2 );
 	assert( yVals.size() == 2 );
-	int dataCount = xValues.size();
-	assert( index >= 0 && index < dataCount);
+	assert( index >= 0 && index < xVals.size());
 	xVals[0] = xValues[index];
 	xVals[1] = xValues[index];
 	yVals[0] = computeYValue( 0, useLogY );
@@ -246,8 +245,7 @@ void Histogram::defineStepVertical( int index, QVector<double>& xVals,
 		QVector<double>& yVals, bool useLogY ) const {
 	assert( xVals.size() == 2 );
 	assert( yVals.size() == 2 );
-	int count = xValues.size();
-	assert( index >= 0 && index < count );
+	assert( index >= 0 && index < (int)xValues.size());
 	if ( index > 0 ){
 		xVals[0] = (xValues[index] + xValues[index-1])/2;
 	}

@@ -84,16 +84,18 @@ class statwt_test(unittest.TestCase):
         dst = "ngc5921.split.ms"
         rtol = 1e-7
         for combine in ["", "corr"]:
-            for fitspw in ["0:0~9;21~63", ""]:
+            c = 0
+            for fitspw in ["0:0~9;21~63", "", "0:10~20"]:
                 for i in [0,1]:
                     shutil.copytree(src, dst) 
                     myms = mstool()
+                    excludechans = c == 2
                     if i == 0:
                         myms.open(dst, nomodify=False)
-                        myms.statwt(combine=combine, fitspw=fitspw)
+                        myms.statwt(combine=combine, fitspw=fitspw, excludechans=excludechans)
                         myms.done()
                     else:
-                        statwt(dst, combine=combine, fitspw=fitspw)
+                        statwt(dst, combine=combine, fitspw=fitspw, excludechans=excludechans)
                     [wt, wtsp, flag, frow, data] = _get_dst_cols(dst)
                     actflag = flag.copy()
                     if fitspw != "":
@@ -161,7 +163,8 @@ class statwt_test(unittest.TestCase):
                             else:
                                 self.assertFalse(frow[row], "FLAG_ROW is not false")
                     shutil.rmtree(dst) 
-               
+                c += 1               
+
     def test_timebin(self):
         """ Test time binning"""
         dst = "ngc5921.split.timebin.ms"
@@ -322,6 +325,43 @@ class statwt_test(unittest.TestCase):
             )
         shutil.rmtree(dst)
         
+    def test_scansel(self):
+        """CAS-11858 Test scan selection"""
+        dst = "ngc5921.split.scansel.ms"
+        combine = "corr"
+        [origwt, origwtsp, origflag, origfrow, origdata] = _get_dst_cols(src)
+        rtol = 1e-7
+        scan = "5"
+        shutil.copytree(src, dst)
+        statwt(dst, scan=scan, combine=combine)
+        [wt, wtsp, flag, frow, data, scan_id] = _get_dst_cols(dst, "SCAN_NUMBER")
+        nrow = len(frow)
+        dr = numpy.real(data)
+        di = numpy.imag(data)
+        for row in range(nrow):
+            if str(scan_id[row]) == scan:
+                expec = _variance(dr, di, flag, row)
+                self.assertTrue(
+                    numpy.all(numpy.isclose(wt[:, row], expec, rtol=rtol)),
+                    "WEIGHT fail at row" + str(row) + ". got: "
+                    + str(wt[:, row]) + " expec " + str(expec)
+                )
+                self.assertTrue(
+                    numpy.all(numpy.isclose(wtsp[:,:,row], expec, rtol)),
+                    "Incorrect weight spectrum"   
+                )
+            else:
+                self.assertTrue(
+                    numpy.all(numpy.isclose(wt[:, row], origwt[:, row], rtol=rtol)),
+                    "WEIGHT fail at row" + str(row) + ". got: " + str(wt[:, row])
+                    + " expec " + str(origwt[:, row])
+                )
+                self.assertTrue(
+                    numpy.all(numpy.isclose(wtsp[:,:,row], origwtsp[:,:,row], rtol)),
+                    "Incorrect weight spectrum"   
+                )
+        shutil.rmtree(dst)
+
     def test_default_boundaries(self):
         """Test default scan, field, etc boundaries"""
         dst = "ngc5921.split.normalbounds.ms"

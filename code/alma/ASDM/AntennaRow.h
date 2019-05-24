@@ -677,7 +677,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 AntennaRow (AntennaTable &table, AntennaRow &row);
+	 AntennaRow (AntennaTable &table, AntennaRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
