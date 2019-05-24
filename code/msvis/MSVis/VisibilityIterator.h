@@ -716,7 +716,7 @@ public:
   casacore::Int numberSpw();
   casacore::Int numberPol();
   casacore::Int numberDDId();
-//  casacore::ROArrayColumn <casacore::Double> & getChannelFrequency () const;
+//  casacore::ArrayColumn <casacore::Double> & getChannelFrequency () const;
 //  casacore::Block<casacore::Int> getChannelGroupNumber () const;
 //  casacore::Block<casacore::Int> getChannelIncrement () const;
 //  casacore::Block<casacore::Int> getChannelStart () const;
@@ -742,8 +742,8 @@ public:
                             const casacore::Block<casacore::Int> & chanWidth,
                             const casacore::Block<casacore::Int> & chanInc,
                             const casacore::Block<casacore::Int> & numChanGroup,
-                            const casacore::ROArrayColumn <casacore::Double> & chanFreqs,
-                            const casacore::ROScalarColumn<casacore::Int> & obsMFreqTypes,
+                            const casacore::ArrayColumn <casacore::Double> & chanFreqs,
+                            const casacore::ScalarColumn<casacore::Int> & obsMFreqTypes,
                             const casacore::MEpoch & ep,
                             const casacore::MPosition & obsPos,
                             const casacore::MDirection & dir);
@@ -832,20 +832,20 @@ protected:
   void update_rowIds() const;
   void setAsyncEnabled (casacore::Bool enable);
   template<class T>
-    void getColScalar(const casacore::ROScalarColumn<T> &column, casacore::Vector<T> &array, casacore::Bool resize) const;
+    void getColScalar(const casacore::ScalarColumn<T> &column, casacore::Vector<T> &array, casacore::Bool resize) const;
   template<class T>
-    void getColArray(const casacore::ROArrayColumn<T> &column, casacore::Array<T> &array, casacore::Bool resize) const;
+    void getColArray(const casacore::ArrayColumn<T> &column, casacore::Array<T> &array, casacore::Bool resize) const;
   // column access functions, can be overridden in derived classes
-  virtual void getCol(const casacore::ROScalarColumn<casacore::Bool> &column, casacore::Vector<casacore::Bool> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROScalarColumn<casacore::Int> &column, casacore::Vector<casacore::Int> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROScalarColumn<casacore::Double> &column, casacore::Vector<casacore::Double> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Bool> &column, casacore::Array<casacore::Bool> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Float> &column, casacore::Array<casacore::Float> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Double> &column, casacore::Array<casacore::Double> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Complex> &column, casacore::Array<casacore::Complex> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Bool> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Bool> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Float> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Float> &array, casacore::Bool resize = false) const;
-  virtual void getCol(const casacore::ROArrayColumn<casacore::Complex> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Complex> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ScalarColumn<casacore::Bool> &column, casacore::Vector<casacore::Bool> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ScalarColumn<casacore::Int> &column, casacore::Vector<casacore::Int> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ScalarColumn<casacore::Double> &column, casacore::Vector<casacore::Double> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Bool> &column, casacore::Array<casacore::Bool> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Float> &column, casacore::Array<casacore::Float> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Double> &column, casacore::Array<casacore::Double> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Complex> &column, casacore::Array<casacore::Complex> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Bool> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Bool> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Float> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Float> &array, casacore::Bool resize = false) const;
+  virtual void getCol(const casacore::ArrayColumn<casacore::Complex> &column, const casacore::Slicer &slicer, casacore::Array<casacore::Complex> &array, casacore::Bool resize = false) const;
   //  void getCol(const casacore::String &colName, casacore::Array<casacore::Double> &array,
   //                      casacore::Array<casacore::Double> &all, casacore::Bool resize = false) const;
   //  void getCol(const casacore::String &colName, casacore::Vector<casacore::Bool> &array,

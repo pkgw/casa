@@ -13,10 +13,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="any" name="imagename" mustexist="true">
-    	<description>Name(s) of the input image(s). Must be specified.</description>
+        <description>Name(s) of the input image(s). Must be specified.</description>
         <any type='variant' limittype='string stringArray'/>
         <value type='string'/>
-    	<value/>
+        <value/>
         <example>imagename='ngc5921.im'</example>
     </param>
     <param type="string" direction="in" name="rm">

@@ -100,7 +100,7 @@ struct SysCalTableRecord {
     antenna_id = record.antenna_id;
     feed_id = record.feed_id;
     spw_id = record.spw_id;
-    casacore::ROScalarColumn<casacore::Int> num_chan_column(ms_->spectralWindow(), "NUM_CHAN");
+    casacore::ScalarColumn<casacore::Int> num_chan_column(ms_->spectralWindow(), "NUM_CHAN");
     num_chan = num_chan_column(spw_id);
     if (record.tsys_spectrum.empty()) {
       num_corr = record.tsys.size();

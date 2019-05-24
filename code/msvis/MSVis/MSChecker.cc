@@ -69,7 +69,7 @@ void MSChecker::checkReferentialIntegrity() const {
             break;
         }
         Vector<Int> data;
-        ROScalarColumn<Int>(_ms, colname).getColumn(data);
+        ScalarColumn<Int>(_ms, colname).getColumn(data);
         ThrowIf(
             anyGE(data, nrows),
             "Illegal " + colname + " value " + String::toString(max(data))

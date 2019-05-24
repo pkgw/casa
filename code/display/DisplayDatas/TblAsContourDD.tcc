@@ -679,7 +679,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// array to contain data from column in columns data type
 			casacore::Array<double> typedata;
 			// read the column into an array
-			casacore::ROArrayColumn<double> dataCol(*table(),columnName);
+			casacore::ArrayColumn<double> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// let the maximum value be the number of elements in the array
 			// typedata is ndim+row so we need to look at its shape the get
@@ -692,7 +692,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpArrayFloat) {
 			casacore::Array<float> typedata;
-			casacore::ROArrayColumn<float> dataCol(*table(),columnName);
+			casacore::ArrayColumn<float> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// let the maximum value be the number of elements - assume 1-D array
 			casacore::IPosition length = typedata.shape();
@@ -707,28 +707,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpArrayShort) {
 			casacore::Array<short> typedata;
-			casacore::ROArrayColumn<short> dataCol(*table(),columnName);
+			casacore::ArrayColumn<short> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == casacore::TpArrayUShort) {
 			casacore::Array<casacore::uShort> typedata;
-			casacore::ROArrayColumn<casacore::uShort> dataCol(*table(),columnName);
+			casacore::ArrayColumn<casacore::uShort> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == casacore::TpArrayInt) {
 			casacore::Array<int> typedata;
-			casacore::ROArrayColumn<int> dataCol(*table(),columnName);
+			casacore::ArrayColumn<int> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == casacore::TpArrayUInt) {
 			casacore::Array<casacore::uInt> typedata;
-			casacore::ROArrayColumn<casacore::uInt> dataCol(*table(),columnName);
+			casacore::ArrayColumn<casacore::uInt> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
@@ -740,14 +740,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// array to contain data from column in columns data type
 			casacore::Vector<double> typedata;
 			// read the scalar column into an array
-			casacore::ROScalarColumn<double> dataCol(*table(),columnName);
+			casacore::ScalarColumn<double> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// minima and maxima of data are world coordinate min and max
 			minMax(extrema(0),extrema(1),typedata);
 		}
 		if (type == casacore::TpFloat) {
 			casacore::Vector<float> typedata;
-			casacore::ROScalarColumn<float> dataCol(*table(),columnName);
+			casacore::ScalarColumn<float> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::Array<double> data;
 			data.resize(typedata.shape());
@@ -757,7 +757,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpShort) {
 			casacore::Vector<short> typedata;
-			casacore::ROScalarColumn<short> dataCol(*table(),columnName);
+			casacore::ScalarColumn<short> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::Array<double> data;
 			data.resize(typedata.shape());
@@ -767,7 +767,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpUShort) {
 			casacore::Vector<casacore::uShort> typedata;
-			casacore::ROScalarColumn<casacore::uShort> dataCol(*table(),columnName);
+			casacore::ScalarColumn<casacore::uShort> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::Array<double> data;
 			data.resize(typedata.shape());
@@ -777,7 +777,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpInt) {
 			casacore::Vector<int> typedata;
-			casacore::ROScalarColumn<int> dataCol(*table(),columnName);
+			casacore::ScalarColumn<int> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::Array<double> data;
 			data.resize(typedata.shape());
@@ -787,7 +787,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == casacore::TpUInt) {
 			casacore::Vector<casacore::uInt> typedata;
-			casacore::ROScalarColumn<casacore::uInt> dataCol(*table(),columnName);
+			casacore::ScalarColumn<casacore::uInt> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			casacore::Array<double> data;
 			data.resize(typedata.shape());

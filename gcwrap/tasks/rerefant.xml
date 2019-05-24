@@ -6,41 +6,41 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="rerefant" category="calibration">
-	<shortdescription>Re-apply refant to a caltable</shortdescription>
-	<description>
-	  TBD
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value></value>
-		</param>
+        <shortdescription>Re-apply refant to a caltable</shortdescription>
+        <description>
+          TBD
+        </description>
+        <input>
+                <param type="string" name="vis" mustexist="true">
+                        <description>Name of input visibility file (MS)</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="tablein" mustexist="true">
-			<description>Input calibration table</description>
-			<value></value>
-		</param>
+                <param type="string" name="tablein" mustexist="true">
+                        <description>Input calibration table</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="caltable">
-			<description>Output calibration table (overwrite tablein if unspecified)</description>
-			<value></value>
-		</param>
+                <param type="string" name="caltable">
+                        <description>Output calibration table (overwrite tablein if unspecified)</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="refantmode">
-			<description>Refant algorithm to use</description>
-			<value>flex</value>
-			<allowed kind="enum">
-			  <value>flex</value>
-			  <value>strict</value>
-			</allowed>
-		</param>
+                <param type="string" name="refantmode">
+                        <description>Refant algorithm to use</description>
+                        <value>flex</value>
+                        <allowed kind="enum">
+                          <value>flex</value>
+                          <value>strict</value>
+                        </allowed>
+                </param>
 
                 <param type="string" name="refant">
                         <description>Reference antenna name(s)</description>
                         <value></value>
                 </param>
 
-	</input>
+        </input>
 <returns type="void"/>
 
 <example>

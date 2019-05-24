@@ -49,21 +49,21 @@ will create an output Multi-MS too.
 
                         Example: vis='ngc5921.ms'
 </description>
-		<value></value>
-	</param>
+                <value></value>
+        </param>
 
-	<param type="string" name="outputvis">
+        <param type="string" name="outputvis">
 <shortdescription>Name of output visibility file</shortdescription>
 <description>Name of output visibility file or Multi-MS
                      Default: none
 
                         Example: vis='ngc5921_out.ms'
 </description>
-		<value></value>
-	</param>
+                <value></value>
+        </param>
 
 
-	<!-- MMS-CASE parameters -->
+        <!-- MMS-CASE parameters -->
     <param type="bool" name="keepmms">
 <shortdescription>Create a Multi-MS as the output if the input is a Multi-MS</shortdescription>
 <description>If the input is a Multi-MS the output will also be a
@@ -71,50 +71,50 @@ Multi-MS.
                      Default: True
 
                      By default it will create a Multi-MS when the
-		     input is a Multi-MS. The output Multi-MS will
-		     have the same partition axis of the input
-		     MMS. See 'help partition' for more information on
-		     the MMS format.
+                     input is a Multi-MS. The output Multi-MS will
+                     have the same partition axis of the input
+                     MMS. See 'help partition' for more information on
+                     the MMS format.
 
                      NOTE: It is not possible to combine the spws if
-		     the input MMS was partitioned with
-		     separationaxis='spw'. In this case, the task will
-		     abort with an error.
+                     the input MMS was partitioned with
+                     separationaxis='spw'. In this case, the task will
+                     abort with an error.
 </description>
     <value>True</value>
     </param>        
-	
-	<param type="bool" name="passall" subparam="true" visibility="hidden">
+        
+        <param type="bool" name="passall" subparam="true" visibility="hidden">
 <shortdescription>Hidden parameter</shortdescription>
-	     <description>HIDDEN parameter. Pass through (write to output MS) non-selected data with no change</description>
-	     <value>False</value>
-	</param>
+             <description>HIDDEN parameter. Pass through (write to output MS) non-selected data with no change</description>
+             <value>False</value>
+        </param>
 
-	<!-- SELECTION parameters -->    
+        <!-- SELECTION parameters -->    
     <param type="any" name="field">
 <shortdescription>Select field using field id(s) or field name(s)</shortdescription>
 <description>Select field using field id(s) or field name(s)
                      Default: '' (all fields)
                      
                      Use 'go listobs' to obtain the list id's or
-		     names. If field string is a non-negative integer,
-		     it is assumed a field index,  otherwise, it is
-		     assumed a field name.
+                     names. If field string is a non-negative integer,
+                     it is assumed a field index,  otherwise, it is
+                     assumed a field name.
 
                         Examples:
                         field='0~2'; field ids 0,1,2
                         field='0,4,5~7'; field ids 0,4,5,6,7
                         field='3C286,3C295'; field named 3C286 and
-			3C295
+                        3C295
                         field = '3,4C*'; field id 3, all names
-			starting with 4C
+                        starting with 4C
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
 
     <param type="any" name="spw">
-<shortdescription>Select spectral window/channels</shortdescription>		
+<shortdescription>Select spectral window/channels</shortdescription>
 <description>Select spectral window/channels
                      Default: ''=all spectral windows and channels
            
@@ -123,18 +123,18 @@ Multi-MS.
                         spw='&lt;2';  spectral windows less than 2 (i.e. 0,1)
                         spw='0:5~61'; spw 0, channels 5 to 61
                         spw='0,10,3:3~45'; spw 0,10 all channels, spw
-			3 - chans 3 to 45.
+                        3 - chans 3 to 45.
                         spw='0~2:2~6'; spw 0,1,2 with channels 2
-			through 6 in each.
+                        through 6 in each.
                         spw = '*:3~64'  channels 3 through 64 for all sp id's
                         spw = ' :3~64' will NOT work.
 
                      NOTE: mstransform does not support multiple
-		     channel ranges per spectral window.
+                     channel ranges per spectral window.
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
     
     <param type="any" name="scan" >
 <shortdescription>Scan number range</shortdescription>
@@ -144,7 +144,7 @@ Multi-MS.
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
 
     <param type="any" name="antenna">
 <shortdescription>Select data based on antenna/baseline</shortdescription>
@@ -153,29 +153,29 @@ Multi-MS.
                      default: '' (all)
 
                      If antenna string is a non-negative integer, it
-		     is assumed an antenna index, otherwise, it is
-		     assumed as an antenna name
+                     is assumed an antenna index, otherwise, it is
+                     assumed as an antenna name
   
                          Examples: 
                          antenna='5&amp;6'; baseline between antenna
-			 index 5 and index 6.
+                         index 5 and index 6.
                          antenna='VA05&amp;VA06'; baseline between VLA
-			 antenna 5 and 6.
+                         antenna 5 and 6.
                          antenna='5&amp;6;7&amp;8'; baselines with
-			 indices 5-6 and 7-8
+                         indices 5-6 and 7-8
                          antenna='5'; all baselines with antenna index
-			 5
+                         5
                          antenna='05'; all baselines with antenna
-			 number 05 (VLA old name)
+                         number 05 (VLA old name)
                          antenna='5,6,10'; all baselines with antennas
-			 5,6,10 index numbers
+                         5,6,10 index numbers
                          antenna='!ea03,ea12,ea17': all baselines
-			 except those that include EVLA antennas ea03,
-			 ea12, or ea17.
+                         except those that include EVLA antennas ea03,
+                         ea12, or ea17.
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
 
     
     <param type="any" name="correlation">
@@ -197,32 +197,32 @@ Multi-MS.
 
                         Examples:
                         timerange =
-			'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
-			(Note: if YYYY/MM/DD is missing date defaults
-			to first day in data set.)
+                        'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
+                        (Note: if YYYY/MM/DD is missing date defaults
+                        to first day in data set.)
                         timerange='09:14:0~09:54:0' picks 40 min on
-			first day 
+                        first day 
                         timerange= '25:00:00~27:30:00' picks 1 hr to 3
-			hr 30min on NEXT day
+                        hr 30min on NEXT day
                         timerange='09:44:00' pick data within one
-			integration of time
+                        integration of time
                         timerange='&gt;10:24:00' data after this time
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
     
     <param type="any" name="intent" >
-<shortdescription>Select observing intent</shortdescription>		
+<shortdescription>Select observing intent</shortdescription>
 <description>Select observing intent
                      Default: '' (no selection by intent)
 
                         Example: intent='*BANDPASS*'  (selects data
-			labelled with BANDPASS intent)
+                        labelled with BANDPASS intent)
 </description>
         <any type="variant" limittypes="string stringArray int intArray"/>
         <value type="string"></value>
-	</param>
+        </param>
     
     <param type="any" name="array">
 <shortdescription>Select (sub)array(s) by array ID number.</shortdescription>
@@ -234,14 +234,14 @@ Multi-MS.
     </param>
     
     <param type="any" name="uvrange" >
-<shortdescription>Select data by baseline length.</shortdescription>		
+<shortdescription>Select data by baseline length.</shortdescription>
 <description>Select data by baseline length.</description>
                      Default = '' (all)
 
                         Examples:
                         uvrange='0~1000klambda'; uvrange from 0-1000 kilo-lambda
                         uvrange='&gt;4klambda';uvranges greater than 4
-			kilo-lambda
+                        kilo-lambda
                         uvrange='0~1000km'; uvrange in kilometers
 
         <any type="variant" limittypes="string stringArray int intArray"/>
@@ -272,14 +272,14 @@ Multi-MS.
 <description>Which data column(s) to process.</description>
                      Default: '' = all
                      Options: 'data', 'model', 'corrected',
-		     'all','float_data', 'lag_data',
-		     'float_data,data', 'lag_data,data'.
+                     'all','float_data', 'lag_data',
+                     'float_data,data', 'lag_data,data'.
 
                         Example: datacolumn='data'
 
                      NOTE: 'all' = whichever of the above that are
-		     present. If the requested column does not exist,
-		     the task will exit with an error.
+                     present. If the requested column does not exist,
+                     the task will exit with an error.
     <value>all</value>
     <allowed kind="enum" ignorecase="True">
         <value>all</value>
@@ -293,59 +293,59 @@ Multi-MS.
         <value>lag_data,data</value>
     </allowed>
     </param>
-        	
+                
         <param type="string" name="mode">
 <shortdescription>Regridding mode (channel/velocity/frequency/channel_b).</shortdescription>
 <description>Regridding mode (channel/velocity/frequency/channel_b).
                      Default: 'channel'
                      Options: 'channel', 'velocity', 'frequency',
-		     'channel_b'
+                     'channel_b'
 
                    * mode = 'channel'; Use with nchan, start, width to
-		     specify output spw. Produces equidistant grid
-		     based on first selected channel.
+                     specify output spw. Produces equidistant grid
+                     based on first selected channel.
                    * mode = 'velocity', means channels are specified
-		     in velocity.
+                     in velocity.
                    * mode = 'frequency', means channels are specified
-		     in frequency.
+                     in frequency.
                    * mode = 'channel_b', alternative 'channel'
-		     mode. Does not force an equidistant grid. Faster.
+                     mode. Does not force an equidistant grid. Faster.
 
                         Examples: 
                         spw = '0,1'; mode = 'channel' will produce a
-			single spw containing all channels in spw 0
-			and 1
+                        single spw containing all channels in spw 0
+                        and 1
                         spw='0:5~28^2'; mode = 'channel' will produce
-			a single spw made with channels
-			(5,7,9,...,25,27)
+                        a single spw made with channels
+                        (5,7,9,...,25,27)
                         spw = '0'; mode = 'channel': nchan=3; start=5;
-			width=4 will produce an spw with 3 output
-			channels
+                        width=4 will produce an spw with 3 output
+                        channels
                         - new channel 1 contains data from channels
-			(5+6+7+8)
+                        (5+6+7+8)
                         - new channel 2 contains data from channels
-			(9+10+11+12)
+                        (9+10+11+12)
                         - new channel 3 contains data from channels
-			(13+14+15+16)
+                        (13+14+15+16)
                         spw = '0:0~63^3'; mode='channel'; nchan=21;
-			start = 0; width = 1 will produce an spw with
-			21 channels
+                        start = 0; width = 1 will produce an spw with
+                        21 channels
                         - new channel 1 contains data from channel 0
                         - new channel 2 contains data from channel 2
                         - new channel 21 contains data from channel 61
                         spw = '0:0~40^2'; mode = 'channel'; nchan = 3;
-			start = 5; width = 4 will produce an spw with
-			three output channels
+                        start = 5; width = 4 will produce an spw with
+                        three output channels
                         - new channel 1 contains channels (5,7)
                         - new channel 2 contains channels (13,15)
                         - new channel 3 contains channels (21,23)
 </description>
-	    <value>channel</value>
-	    <allowed kind="enum">
-	    <value>channel</value>
-	    <value>velocity</value>
-	    <value>frequency</value>
-	    <value>channel_b</value>
+            <value>channel</value>
+            <allowed kind="enum">
+            <value>channel</value>
+            <value>velocity</value>
+            <value>frequency</value>
+            <value>channel_b</value>
         </allowed>
         </param>
 
@@ -353,77 +353,77 @@ Multi-MS.
 <shortdescription>Number of channels in the output spw</shortdescription>
 <description>Number of channels in the output spw (-1=all). 
                      Subparameter of
-		     mode='channel|velocity|frequency|channel_b'                
+                     mode='channel|velocity|frequency|channel_b'                
                      Default: -1 = all channels
 
                      Used for regridding, together with 'start' and
-		     'width'.
+                     'width'.
 
                         Example: nchan=3
 </description>
-	    <value>-1</value>
+            <value>-1</value>
         </param>
 
         <param type="any" name="start" subparam="true">
 <shortdescription>First input channel to use</shortdescription>
 <description>Start or end input channel (zero-based), depending on the sign of the width parameter 
                      Subparameter of
-		     mode='channel|velocity|frequency|channel_b'                
+                     mode='channel|velocity|frequency|channel_b'                
 
                      Used for regridding, together with 'width' and
-		     'nchan'. It can be in different units, depending
-		     on the regridding mode: 
+                     'nchan'. It can be in different units, depending
+                     on the regridding mode: 
                      - first input channel (mode='channel'), 
                      - first velocity (mode='velocity'), or 
                      - first frequency (mode='frequency'). 
 
                         Example values: '5', '0.0km/s', '1.4GHz', for
-			channel, velocity, and frequency modes,
-			respectively.
+                        channel, velocity, and frequency modes,
+                        respectively.
 </description>
-	    <any type="variant"/>
-	    <value type="int">0</value>
+            <any type="variant"/>
+            <value type="int">0</value>
         </param>
 
         <param type="any" name="width" subparam="true">
 <shortdescription>Channel width of the output visibilities.</shortdescription>
 <description>Channel width of the output visibilities. 
                      Subparameter of
-		     mode='channel|velocity|frequency|channel_b'                
+                     mode='channel|velocity|frequency|channel_b'                
 
                      Used for regridding, together with 'start', and
-		     'nchan'. It can be in different units, depending
-		     on the regridding mode: number of input channels
-		     (mode='channel'), velocity (mode='velocity'), or
-		     frequency (mode='frequency'. 
+                     'nchan'. It can be in different units, depending
+                     on the regridding mode: number of input channels
+                     (mode='channel'), velocity (mode='velocity'), or
+                     frequency (mode='frequency'. 
 
                         Example values: '2', '1.0km/s', '1.0kHz', for
-			channel, velocity, and frequency modes,
-			respectively.
+                        channel, velocity, and frequency modes,
+                        respectively.
 
                      Note: the sign indicates whether the start
-		     parameter is lower(+) or upper(-) end of the
-		     range.
+                     parameter is lower(+) or upper(-) end of the
+                     range.
 </description>
-	    <any type="variant"/>
-	    <value type="int">1</value>
+            <any type="variant"/>
+            <value type="int">1</value>
         </param>
 
         <param type="string" name="interpolation" subparam="true" ignorecase="True">
 <shortdescription>Spectral interpolation method</shortdescription>
 <description>Spectral interpolation method
                      Subparameter of
-		     mode='channel|velocity|frequency|channel_b'
+                     mode='channel|velocity|frequency|channel_b'
                      Default = 'linear'
                      Options: linear, nearest, cubic, spline, fftshift
 </description>
-	    <value>linear</value>
-	    <allowed kind="enum">
-	       <value>nearest</value>
-	       <value>linear</value>
-	       <value>cubic</value>
-	       <value>spline</value>
-	       <value>fftshift</value>
+            <value>linear</value>
+            <allowed kind="enum">
+               <value>nearest</value>
+               <value>linear</value>
+               <value>cubic</value>
+               <value>spline</value>
+               <value>fftshift</value>
             </allowed>
         </param>
 
@@ -435,15 +435,15 @@ coordinate transformation.
                      Options: FIELD_ID (int) or center coordinate measure (str).
 
                      Phase direction measure  or fieldid. To be used
-		     in mosaics to indicate the center direction to be
-		     used in the spectral coordinate transformation.
+                     in mosaics to indicate the center direction to be
+                     used in the spectral coordinate transformation.
 
                         Examples: 
                         phasecenter=6
                         phasecenter='J2000 19h30m00 -40d00m00'
 </description>
-	    <any type="variant"/>
-	    <value type="string"></value>
+            <any type="variant"/>
+            <value type="string"></value>
         </param>
 
         <param type="string" name="restfreq">
@@ -452,103 +452,103 @@ coordinate transformation.
                      Default='' 
 
                      Occasionally it is necessary to set this (for
-		     example some VLA spectral line data).  For
-		     example for NH_3 (1,1) put
-		     restfreq='23.694496GHz'
+                     example some VLA spectral line data).  For
+                     example for NH_3 (1,1) put
+                     restfreq='23.694496GHz'
 </description>
-	    <value></value>
+            <value></value>
         </param>
-	
-	<param type="string" name="outframe" ignorecase="True">
+        
+        <param type="string" name="outframe" ignorecase="True">
 <shortdescription>Output reference frame.</shortdescription>
 <description>Output reference frame (not case-sensitive).
                      Default: '' (keep original reference frame)
                      Options: LSRK, LSRD, BARY, GALACTO, LGROUP, CMB,
-		     GEO, TOPO, or SOURCE 
+                     GEO, TOPO, or SOURCE 
 
                      SOURCE is meant for solar system work and
-		     corresponds to GEO + radial velocity correction
-		     for ephemeris objects.
+                     corresponds to GEO + radial velocity correction
+                     for ephemeris objects.
 
                         Example: outframe='BARY'     
 </description>
-		<value></value>
-		<allowed kind="enum">
-			<value>topo</value>
-			<value>geo</value>
-			<value>lsrk</value>
-			<value>lsrd</value>
-			<value>bary</value>
+                <value></value>
+                <allowed kind="enum">
+                        <value>topo</value>
+                        <value>geo</value>
+                        <value>lsrk</value>
+                        <value>lsrd</value>
+                        <value>bary</value>
             <value>galacto</value>
             <value>lgroup</value>
             <value>cmb</value>
             <value>source</value>
-			<value></value>
-		</allowed>
-	</param>
+                        <value></value>
+                </allowed>
+        </param>
 
         <param type="string" name="veltype" ignorecase="True">
 <shortdescription>Velocity definition.</shortdescription>
 <description>Definition of velocity (in mode)
                      Default = 'radio'
 </description>
-	    <value>radio</value>
-	    <allowed kind="enum">
-	       <value>optical</value>
-	       <value>radio</value>
+            <value>radio</value>
+            <allowed kind="enum">
+               <value>optical</value>
+               <value>radio</value>
             </allowed>
         </param>
 
 
-	<param type="bool" name="hanning">
+        <param type="bool" name="hanning">
 <shortdescription>Hanning smooth data to remove Gibbs ringing.</shortdescription>
 <description>Hanning smooth data to remove Gibbs ringing.
                      Default: False
                      Options: False|True
 </description>
-	    <value>False</value>
+            <value>False</value>
         </param>
 
     <constraints>
-	    <when param="mode">
-		<equals value="channel">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="int">0</value>
-			    <description>First input channel to use</description>
-			</default>
-			<default param="width"><value type="int">1</value></default>
-			<default param="interpolation"><value type="string">linear</value></default>
-		</equals>
-		<equals value="channel_b">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="int">0</value>
-			    <description>First input channel to use</description>
-			</default>
-			<default param="width"><value type="int">1</value></default>
-			<default param="interpolation"><value type="string">linear</value></default>
-		</equals>
-	        <equals value="velocity">
-		        <default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="string"></value>
-			    <description>Velocity of first channel: e.g \'0.0km/s\'</description>
-		        </default>
-		        <default param="width"><value type="string"></value>
-			    <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
-		        </default>
-		        <default param="interpolation"><value type="string">linear</value></default>
-	        </equals>
-	        <equals value="frequency">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="string"></value>
-			    <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
-		    </default>
-		    <default param="width"><value type="string"></value>
-			    <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
-		    </default>
-		    <default param="interpolation"><value type="string">linear</value></default>
-	        </equals>
-	    </when>
-	    
+            <when param="mode">
+                <equals value="channel">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="int">0</value>
+                            <description>First input channel to use</description>
+                        </default>
+                        <default param="width"><value type="int">1</value></default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="channel_b">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="int">0</value>
+                            <description>First input channel to use</description>
+                        </default>
+                        <default param="width"><value type="int">1</value></default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="velocity">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="string"></value>
+                            <description>Velocity of first channel: e.g \'0.0km/s\'</description>
+                        </default>
+                        <default param="width"><value type="string"></value>
+                            <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
+                        </default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="frequency">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="string"></value>
+                            <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
+                    </default>
+                    <default param="width"><value type="string"></value>
+                            <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
+                    </default>
+                    <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+            </when>
+            
     </constraints>
 
 

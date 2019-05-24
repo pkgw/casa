@@ -914,7 +914,7 @@ Subchunk::toString() const
 
 template <typename T>
 void
-VisibilityIteratorImpl2::getColumnRows(const ROArrayColumn<T> & column,
+VisibilityIteratorImpl2::getColumnRows(const ArrayColumn<T> & column,
                                        Array<T> & array) const
 {
 	ColumnSlicer columnSlicer =
@@ -930,7 +930,7 @@ VisibilityIteratorImpl2::getColumnRows(const ROArrayColumn<T> & column,
 
 template <typename T>
 void
-VisibilityIteratorImpl2::getColumnRowsMatrix(const ROArrayColumn<T> & column,
+VisibilityIteratorImpl2::getColumnRowsMatrix(const ArrayColumn<T> & column,
                                              Matrix<T> & array,
                                              Bool correlationSlicing) const
 {
@@ -980,7 +980,7 @@ VisibilityIteratorImpl2::getColumnRowsMatrix(const ROArrayColumn<T> & column,
 
 template <typename T>
 void
-VisibilityIteratorImpl2::getColumnRows(const ROScalarColumn<T> & column,
+VisibilityIteratorImpl2::getColumnRows(const ScalarColumn<T> & column,
                                        Vector<T> & array) const
 {
 	column.getColumnCells(rowBounds_p.subchunkRows_p, array, true);
@@ -2508,11 +2508,11 @@ VisibilityIteratorImpl2::getSpectralWindowChannels(
 	const ROMSSpWindowColumns& spectralWindow =
 		subtableColumns_p->spectralWindow();
 
-	const ROArrayColumn<Double>& frequenciesColumn = spectralWindow.chanFreq();
+	const ArrayColumn<Double>& frequenciesColumn = spectralWindow.chanFreq();
 	Vector<Double> frequencies;
 	frequenciesColumn.get(spectralWindowId, frequencies, true);
 
-	const ROArrayColumn<Double>& widthsColumn = spectralWindow.chanWidth();
+	const ArrayColumn<Double>& widthsColumn = spectralWindow.chanWidth();
 	Vector<Double> widths;
 	widthsColumn.get(spectralWindowId, widths, true);
 

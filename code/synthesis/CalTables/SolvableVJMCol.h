@@ -79,14 +79,14 @@ class ROSolvableVisJonesMCol : public ROTimeVarVisJonesMCol
   virtual ~ROSolvableVisJonesMCol() {};
 
   // Read-only column accessors
-  const casacore::ROScalarColumn<casacore::Bool>& totalSolnOk() const {return totalSolnOk_p;};
-  const casacore::ROScalarColumn<casacore::Float>& totalFit() const {return totalFit_p;};
-  const casacore::ROScalarColumn<casacore::Float>& totalFitWgt() const {return totalFitWgt_p;};
-  const casacore::ROArrayColumn<casacore::Bool>& solnOk() const {return solnOk_p;};
-  const casacore::ROArrayColumn<casacore::Float>& fit() const {return fit_p;};
-  const casacore::ROArrayColumn<casacore::Float>& fitWgt() const {return fitWgt_p;};
-  const casacore::ROArrayColumn<casacore::Bool>& flag() const {return flag_p;};
-  const casacore::ROArrayColumn<casacore::Float>& snr() const {return snr_p;};
+  const casacore::ScalarColumn<casacore::Bool>& totalSolnOk() const {return totalSolnOk_p;};
+  const casacore::ScalarColumn<casacore::Float>& totalFit() const {return totalFit_p;};
+  const casacore::ScalarColumn<casacore::Float>& totalFitWgt() const {return totalFitWgt_p;};
+  const casacore::ArrayColumn<casacore::Bool>& solnOk() const {return solnOk_p;};
+  const casacore::ArrayColumn<casacore::Float>& fit() const {return fit_p;};
+  const casacore::ArrayColumn<casacore::Float>& fitWgt() const {return fitWgt_p;};
+  const casacore::ArrayColumn<casacore::Bool>& flag() const {return flag_p;};
+  const casacore::ArrayColumn<casacore::Float>& snr() const {return snr_p;};
 
  protected:
   // Prohibit public use of the null constructor, which
@@ -99,14 +99,14 @@ class ROSolvableVisJonesMCol : public ROTimeVarVisJonesMCol
   ROSolvableVisJonesMCol& operator= (const ROSolvableVisJonesMCol&);
 
   // Private column accessors
-  casacore::ROScalarColumn<casacore::Bool> totalSolnOk_p;
-  casacore::ROScalarColumn<casacore::Float> totalFit_p;
-  casacore::ROScalarColumn<casacore::Float> totalFitWgt_p;
-  casacore::ROArrayColumn<casacore::Bool> solnOk_p;
-  casacore::ROArrayColumn<casacore::Float> fit_p;
-  casacore::ROArrayColumn<casacore::Float> fitWgt_p;
-  casacore::ROArrayColumn<casacore::Bool> flag_p;
-  casacore::ROArrayColumn<casacore::Float> snr_p;
+  casacore::ScalarColumn<casacore::Bool> totalSolnOk_p;
+  casacore::ScalarColumn<casacore::Float> totalFit_p;
+  casacore::ScalarColumn<casacore::Float> totalFitWgt_p;
+  casacore::ArrayColumn<casacore::Bool> solnOk_p;
+  casacore::ArrayColumn<casacore::Float> fit_p;
+  casacore::ArrayColumn<casacore::Float> fitWgt_p;
+  casacore::ArrayColumn<casacore::Bool> flag_p;
+  casacore::ArrayColumn<casacore::Float> snr_p;
 };
 
 // <summary> 

@@ -97,7 +97,7 @@ public:
     casacore::TableRecord const &header = main_table_.keywordSet();
     sub_table_ = header.asTable("FREQUENCIES");
     //size_t nrow = sub_table_.nrow();
-    casacore::ROScalarColumn < casacore::uInt > ifno_column(main_table_, "IFNO");
+    casacore::ScalarColumn < casacore::uInt > ifno_column(main_table_, "IFNO");
     casacore::Vector < casacore::uInt > ifno_list = ifno_column.getColumn();
     casacore::Sort sorter;
     sorter.sortKey(ifno_list.data(), TpUInt);
@@ -111,7 +111,7 @@ public:
       ifno_list_[i] = ifno_list[index_vector[i]];
     }
 
-    casacore::ROScalarColumn < casacore::uInt > freq_id_column(main_table_, "FREQ_ID");
+    casacore::ScalarColumn < casacore::uInt > freq_id_column(main_table_, "FREQ_ID");
 
     // attach columns
     id_column_.attach(sub_table_, "ID");
@@ -128,7 +128,7 @@ public:
 //    std::cout << "getEntry for row " << irow << std::endl;
     casacore::Int spw_id = ifno_list_[irow];
     casacore::Table subtable = main_table_(main_table_.col("IFNO") == (casacore::uInt) spw_id, 1);
-    casacore::ROScalarColumn < casacore::uInt > freq_id_column(subtable, "FREQ_ID");
+    casacore::ScalarColumn < casacore::uInt > freq_id_column(subtable, "FREQ_ID");
     casacore::uInt freq_id = freq_id_column(0);
     casacore::Int jrow = -1;
     for (casacore::uInt i = 0; i < id_list_.size(); ++i) {
@@ -137,7 +137,7 @@ public:
         break;
       }
     }
-    casacore::ROArrayColumn<casacore::uChar> flag_column(subtable, "FLAGTRA");
+    casacore::ArrayColumn<casacore::uChar> flag_column(subtable, "FLAGTRA");
     casacore::Int num_chan = flag_column.shape(0)[0];
     casacore::String freq_frame = sub_table_.keywordSet().asString("BASEFRAME");
     casacore::MFrequency::Types frame_type;
@@ -266,9 +266,9 @@ public:
 private:
   casacore::Vector<casacore::uInt> row_list_;
   casacore::Vector<casacore::Bool> is_reserved_;
-  casacore::ROScalarColumn<casacore::String> field_column_;
-  casacore::ROScalarColumn<casacore::String> source_column_;
-  casacore::ROScalarColumn<casacore::Double> time_column_;
+  casacore::ScalarColumn<casacore::String> field_column_;
+  casacore::ScalarColumn<casacore::String> source_column_;
+  casacore::ScalarColumn<casacore::Double> time_column_;
   casacore::ArrayColumn<casacore::Double> direction_column_;
   casacore::ArrayColumn<casacore::Double> scanrate_column_;
   casacore::Matrix<casacore::Double> direction_storage_;
@@ -310,7 +310,7 @@ public:
     initialize(num_unique);
 
     // generate molecule_id_map_
-    casacore::ROScalarColumn < casacore::uInt > id_column(molecules_table_, "ID");
+    casacore::ScalarColumn < casacore::uInt > id_column(molecules_table_, "ID");
     casacore::Vector < casacore::uInt > molecule_id_list = id_column.getColumn();
     for (casacore::uInt i = 0; i < id_column.nrow(); ++i) {
       molecule_id_map_[molecule_id_list[i]] = i;
@@ -318,10 +318,10 @@ public:
 
     // generate sorted_index_
     casacore::uInt nrow_main = main_table_.nrow();
-    casacore::ROScalarColumn < casacore::String > srcname_column(main_table_, "SRCNAME");
-    casacore::ROScalarColumn < casacore::uInt > ifno_column(main_table_, "IFNO");
-    casacore::ROScalarColumn < casacore::Double > time_column(main_table_, "TIME");
-    casacore::ROScalarColumn < casacore::Double > &interval_column = time_column;
+    casacore::ScalarColumn < casacore::String > srcname_column(main_table_, "SRCNAME");
+    casacore::ScalarColumn < casacore::uInt > ifno_column(main_table_, "IFNO");
+    casacore::ScalarColumn < casacore::Double > time_column(main_table_, "TIME");
+    casacore::ScalarColumn < casacore::Double > &interval_column = time_column;
     casacore::Sort sorter3;
     casacore::Vector < casacore::String > srcname_list = srcname_column.getColumn();
     casacore::Vector < casacore::Double > time_list = time_column.getColumn();
@@ -447,14 +447,14 @@ public:
   }
 
 private:
-  casacore::ROScalarColumn<casacore::String> name_column_;
+  casacore::ScalarColumn<casacore::String> name_column_;
   casacore::ArrayColumn<casacore::Double> direction_column_;
   casacore::ArrayColumn<casacore::Double> proper_motion_column_;
-  casacore::ROScalarColumn<casacore::Double> sysvel_column_;
-  casacore::ROScalarColumn<casacore::uInt> molecule_id_column_;
-  casacore::ROScalarColumn<casacore::uInt> ifno_column_;
-  casacore::ROScalarColumn<casacore::Double> time_column_;
-  casacore::ROScalarColumn<casacore::Double> interval_column_;
+  casacore::ScalarColumn<casacore::Double> sysvel_column_;
+  casacore::ScalarColumn<casacore::uInt> molecule_id_column_;
+  casacore::ScalarColumn<casacore::uInt> ifno_column_;
+  casacore::ScalarColumn<casacore::Double> time_column_;
+  casacore::ScalarColumn<casacore::Double> interval_column_;
   casacore::ArrayColumn<casacore::Double> restfrequency_column_;
   casacore::ArrayColumn<casacore::String> molecule_name_column_;
   casacore::Table molecules_table_;

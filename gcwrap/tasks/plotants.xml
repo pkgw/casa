@@ -6,45 +6,45 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
       <task type="function" name="plotants" category="visualization, calibration">
-	<shortdescription>Plot the antenna distribution in the local reference frame:</shortdescription>
-	<description>
+     <shortdescription>Plot the antenna distribution in the local reference frame:</shortdescription>
+     <description>
        The location of the antennas in the MS will be plotted with
        X-toward local east; Y-toward local north.
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value></value>
-		</param>
-		<param type="string" name="figfile">
-			<description>Save the plotted figure to this file</description>
-			<value></value>
-		</param>
-		<param type="bool" name="antindex">
-			<description>Label antennas with name and antenna ID</description>
-			<value>False</value>
-		</param>
-		<param type="bool" name="logpos">
-			<description>Whether to plot logarithmic positions</description>
-			<value>False</value>
-		</param>
-		<param type="string" name="exclude">
-			<description>Antenna name/id selection to exclude from plot</description>
-			<value></value>
-		</param>
-		<param type="bool" name="checkbaselines">
-			<description>Whether to check baselines in the main table.</description>
-			<value>False</value>
-		</param>
-		<param type="string" name="title">
-			<description>Title for the plot</description>
-			<value></value>
-		</param>
-		<param type="bool" name="showgui">
-			<description>Show plot on gui.</description>
-			<value>True</value>
-		</param>
-	</input>
+     </description>
+     <input>
+          <param type="string" name="vis" mustexist="true">
+               <description>Name of input visibility file (MS)</description>
+               <value></value>
+          </param>
+          <param type="string" name="figfile">
+               <description>Save the plotted figure to this file</description>
+               <value></value>
+          </param>
+          <param type="bool" name="antindex">
+               <description>Label antennas with name and antenna ID</description>
+               <value>False</value>
+          </param>
+          <param type="bool" name="logpos">
+               <description>Whether to plot logarithmic positions</description>
+               <value>False</value>
+          </param>
+          <param type="string" name="exclude">
+               <description>Antenna name/id selection to exclude from plot</description>
+               <value></value>
+          </param>
+          <param type="bool" name="checkbaselines">
+               <description>Whether to check baselines in the main table.</description>
+               <value>False</value>
+          </param>
+          <param type="string" name="title">
+               <description>Title for the plot</description>
+               <value></value>
+          </param>
+          <param type="bool" name="showgui">
+               <description>Show plot on gui.</description>
+               <value>True</value>
+          </param>
+     </input>
 <returns type="void"/>
 
 <example>
