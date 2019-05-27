@@ -110,8 +110,8 @@ ms::ms()
         itsSel = new MSSelector();
         itsLog = new LogIO();
         itsMSS = new MSSelection();
-        itsVI = NULL;
-        itsVI2 = NULL;
+        itsVI = nullptr;
+        itsVI2 = nullptr;
         doingIterations_p=false;
         doingAveraging_p=false;
         polnExpr_p = "";
@@ -132,14 +132,14 @@ ms::ms()
 ms::~ms()
 {
     try {
-        if(itsMS)           {delete itsMS;itsMS=NULL;}
-        if(itsOriginalMS)   {delete itsOriginalMS;itsOriginalMS=NULL;}
-        if(itsSelectedMS)   {delete itsSelectedMS;itsSelectedMS=NULL;}
-        if(itsSel)          {delete itsSel; itsSel=NULL;}
-        if(itsLog)          {delete itsLog; itsLog=NULL;}
-        if(itsMSS)          {delete itsMSS; itsMSS=NULL;}
-        if (itsVI)          {delete itsVI; itsVI=NULL;}
-        if (itsVI2)         {delete itsVI2; itsVI2=NULL;}
+        if(itsMS)           {delete itsMS;itsMS=nullptr;}
+        if(itsOriginalMS)   {delete itsOriginalMS;itsOriginalMS=nullptr;}
+        if(itsSelectedMS)   {delete itsSelectedMS;itsSelectedMS=nullptr;}
+        if(itsSel)          {delete itsSel; itsSel=nullptr;}
+        if(itsLog)          {delete itsLog; itsLog=nullptr;}
+        if(itsMSS)          {delete itsMSS; itsMSS=nullptr;}
+        if (itsVI)          {delete itsVI; itsVI=nullptr;}
+        if (itsVI2)         {delete itsVI2; itsVI2=nullptr;}
         doingIterations_p=false;
         doingAveraging_p=false;
         polnExpr_p = "";
@@ -507,8 +507,8 @@ ms::close()
             delete itsSelectedMS;  itsSelectedMS = new MeasurementSet();
             itsSel->setMS(*itsMS);
             if (itsMSS) {delete itsMSS;  itsMSS = new MSSelection();};
-            if (itsVI) {delete itsVI; itsVI=NULL;}
-            if (itsVI2) {delete itsVI2; itsVI2=NULL;}
+            if (itsVI) {delete itsVI; itsVI=nullptr;}
+            if (itsVI2) {delete itsVI2; itsVI2=nullptr;}
             doingIterations_p=false;
             doingAveraging_p=false;
             polnExpr_p = "";
@@ -6035,7 +6035,7 @@ ms::split(const std::string&      outputms,  const ::casac::variant& field,
           const std::string&      obs)
 {
     Bool rstat(false);
-    SubMS *splitter = NULL;
+    SubMS *splitter = nullptr;
     try {
         *itsLog << LogOrigin("ms", "split");
         splitter = new SubMS(*itsMS);
@@ -6088,7 +6088,7 @@ ms::split(const std::string&      outputms,  const ::casac::variant& field,
 
         *itsLog << LogIO::NORMAL2 << "SubMS made" << LogIO::POST;
         delete splitter;
-        splitter = NULL;
+        splitter = nullptr;
 
         {// Update HISTORY table of newly created MS
             String message= toCasaString(outputms) + " split from " + itsMS->tableName();
@@ -6239,7 +6239,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     try {
         if (!detached()) {
             // make sure we start fresh
-            if (itsVI2)         {delete itsVI2; itsVI2=NULL;}
+            if (itsVI2)         {delete itsVI2; itsVI2=nullptr;}
 
             Bool polnSelection = !polnExpr_p.empty();
             Bool chanSelection = !chanselExpr_p.empty();
@@ -6308,7 +6308,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
 
             // Create VI2
             itsVI2 = new vi::VisibilityIterator2(layers);
-            if (itsVI2 != NULL) {
+            if (itsVI2 != nullptr) {
                 // Apply max rows
                 if (maxrows>0) {
                     maxrows_p = True;
@@ -6538,7 +6538,7 @@ ms::iterend()
         if(!detached())
             if (itsVI2) {
                 delete itsVI2;
-                itsVI2 = NULL;
+                itsVI2 = nullptr;
             }
             rstat = true;
     } catch (AipsError x) {
@@ -7155,7 +7155,7 @@ ms::niterinit(const std::vector<std::string>& /*columns*/, const double interval
     sort[0]=MS::TIME;
     try
     {
-        if (itsVI == NULL)
+        if (itsVI == nullptr)
             itsVI = new VisibilityIterator(*itsMS, sort, adddefaultsortcolumns, interval);
         else
             *itsVI = VisibilityIterator(*itsMS, sort, adddefaultsortcolumns, interval);
@@ -7258,7 +7258,7 @@ ms::ngetdata(const std::vector<std::string>& items, const bool /*ifraxis*/, cons
 
     try
     {
-        if (itsVI == NULL)
+        if (itsVI == nullptr)
             niterinit(items,0.0,0,false);
         // if (doingIterations_p == false)
         //  niterorigin();
