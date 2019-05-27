@@ -26,12 +26,12 @@ XERCES_CPP_NAMESPACE_USE;
 using namespace casa::xerces;
 
 stdcasaXMLUtil::stdcasaXMLUtil() :
-    rangeRec(0),
-    whenRec(0),
-    equalsRec(0),
-    constraintsRec(0),
-    defaultsRec(0),
-    paramSet(0),
+    rangeRec(nullptr),
+    whenRec(nullptr),
+    equalsRec(nullptr),
+    constraintsRec(nullptr),
+    defaultsRec(nullptr),
+    paramSet(nullptr),
     ttName(""),
     parmName(""),
     lastParm("")
