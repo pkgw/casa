@@ -10,8 +10,6 @@
  * @version 
  ***/
 
-#include <iostream>
-
 #include <casa/Arrays/Matrix.h>
 #include <casa/Containers/Record.h>
 #include <casa/Exceptions/Error.h>
