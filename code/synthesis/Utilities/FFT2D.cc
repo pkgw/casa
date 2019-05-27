@@ -327,7 +327,7 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
       fftw_execute(planC2CD_p);
-      
+      fftw_destroy_plan(planC2CD_p);
     }
     else{
       throw(AipsError("Double precision FFT with FFTPack is not implemented"));
@@ -348,6 +348,7 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
       fftwf_execute(planC2C_p);
+      fftwf_destroy_plan(planC2C_p);
       
     }
     else{
@@ -379,6 +380,7 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
       //fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
      
       fftwf_execute(planR2C_p);
+      fftwf_destroy_plan(planC2C_p);
       
     }
     else{
