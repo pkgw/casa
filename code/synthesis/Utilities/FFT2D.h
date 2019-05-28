@@ -36,6 +36,10 @@ namespace casa{
    ///This is a not a full generic   fft class...use casacore::FFTServer or casacore::LatticeFFT for that
    //This is optimized with minimal memcopies for 2D FFTs 
    //Assumes 2D x, y array to be even numbers (e.g (100, 200)...will not work for (101, 200))
+   //IMPORTANT: do not use the same FFT2D object for different sizes of x,y. Create
+   //another one if necessary as the plan or butterfly in fftpack, for x,y shape is kept
+   //and reused so may give wrong result if the FFT2D is used for x',y' shape !!
+   //
    typedef unsigned long long ooLong;
  public:
    FFT2D(casacore::Bool useFFTW=true);
