@@ -67,9 +67,11 @@ namespace casa{
    static void complexConvert(casacore::DComplex*& srcD, casacore::Complex*& scr,  const ooLong len, const casacore::Bool down=false);
  private:
    //casacore::FFTW stuff
-   fftwf_plan planC2C_p;
+   fftwf_plan planC2C_forw_p;
+   fftwf_plan planC2C_back_p;
    fftwf_plan planR2C_p;
-   fftw_plan planC2CD_p;
+   fftw_plan planC2CD_forw_p;
+   fftw_plan planC2CD_back_p;
    casacore::Bool useFFTW_p;
    //casacore::FFTPack stuff
    std::vector<casacore::Float> wsave_p;

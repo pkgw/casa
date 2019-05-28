@@ -38,7 +38,7 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-  FFT2D::FFT2D(Bool useFFTW): useFFTW_p(useFFTW), wsave_p(0), lsav_p(0), planC2CD_p(nullptr),planR2C_p(nullptr), planC2C_p(nullptr) {
+  FFT2D::FFT2D(Bool useFFTW):planC2C_forw_p(nullptr),planC2C_back_p(nullptr), planR2C_p(nullptr), planC2CD_forw_p(nullptr), planC2CD_back_p(nullptr),  useFFTW_p(useFFTW), wsave_p(0), lsav_p(0) {
     if(useFFTW_p){
       Int numThreads=HostInfo::numCPUs(true);
 #ifdef _OPENMP
@@ -54,19 +54,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
   FFT2D::~FFT2D(){
     if(useFFTW_p){
-      if(planC2CD_p)
-        fftw_destroy_plan(planC2CD_p);
+      if(planC2CD_forw_p)
+        fftw_destroy_plan(planC2CD_forw_p);
       if(planR2C_p)
          fftwf_destroy_plan(planR2C_p);
-      if(planC2C_p)
-        fftwf_destroy_plan(planC2C_p);
+      if(planC2CD_back_p)
+        fftw_destroy_plan(planC2CD_back_p);
+      if(planC2C_back_p)
+        fftwf_destroy_plan(planC2C_back_p);
+      fftw_cleanup();
     }
   }
 
   FFT2D& FFT2D::operator=(const FFT2D& other){
     if(this != &other){
-      planC2C_p=other.planC2C_p;
+      planC2C_forw_p=other.planC2C_forw_p;
       planR2C_p=other.planR2C_p;
+      planC2CD_forw_p=other.planC2CD_forw_p;
+      planC2C_back_p=other.planC2C_back_p;
+      planC2CD_back_p=other.planC2CD_back_p;
       useFFTW_p=other.useFFTW_p;
       wsave_p.resize(other.wsave_p.size());
       wsave_p=other.wsave_p;
@@ -322,16 +328,25 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
       //Will need to seperate the plan from the execute if we want to run this in multiple threads
       Int dim[2]={Int(y), Int(x)};
       if(toFreq){
-	
-	planC2CD_p=fftw_plan_dft(2, dim,  reinterpret_cast<fftw_complex *>(out),  reinterpret_cast<fftw_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
-      
+	if(!planC2CD_forw_p){
+          planC2CD_forw_p=fftw_plan_dft(2, dim,  reinterpret_cast<fftw_complex *>(out),  reinterpret_cast<fftw_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
+          fftw_execute(planC2CD_forw_p);
+        }
+        else{
+          fftw_execute_dft(planC2CD_forw_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
+        }
 	//fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
       }
       else{
-	planC2CD_p=fftw_plan_dft(2, dim,  reinterpret_cast<fftw_complex *>(out),  reinterpret_cast<fftw_complex *>(out), FFTW_BACKWARD, FFTW_ESTIMATE);
+        if(!planC2CD_back_p){
+          planC2CD_back_p=fftw_plan_dft(2, dim,  reinterpret_cast<fftw_complex *>(out),  reinterpret_cast<fftw_complex *>(out), FFTW_BACKWARD, FFTW_ESTIMATE);
+          fftw_execute(planC2CD_back_p);
+        }
+        else{
+           fftw_execute_dft(planC2CD_back_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
+        }
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
-      fftw_execute(planC2CD_p);
     }
     else{
       throw(AipsError("Double precision FFT with FFTPack is not implemented"));
@@ -342,16 +357,26 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
       //Will need to seperate the plan from the execute if we want to run this in multiple threads
       Int dim[2]={Int(y), Int(x)};
       if(toFreq){
-	
-	planC2C_p=fftwf_plan_dft(2, dim,  reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
-      
+	if(!planC2C_forw_p){
+          planC2C_forw_p=fftwf_plan_dft(2, dim,  reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
+          fftwf_execute(planC2C_forw_p);
+        }
+        else{
+          fftwf_execute_dft(planC2C_forw_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
+        }
 	//fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
       }
       else{
-	planC2C_p=fftwf_plan_dft(2, dim,  reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out), FFTW_BACKWARD, FFTW_ESTIMATE);
+        if(!planC2C_back_p){
+	planC2C_back_p=fftwf_plan_dft(2, dim,  reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out), FFTW_BACKWARD, FFTW_ESTIMATE);
+        fftwf_execute(planC2C_back_p);
+        }
+        else{
+           fftwf_execute_dft(planC2C_back_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
+        }
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
-      fftwf_execute(planC2C_p);
+      
       
     }
     else{
@@ -377,13 +402,16 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
   void FFT2D::doFFT(Complex*& out, Float*& in, Long x, Long y){
     if(useFFTW_p){
       Int dim[2]={Int(y), Int(x)};
-	
-      planR2C_p=fftwf_plan_dft_r2c(2, dim,  in, reinterpret_cast<fftwf_complex *>(out), FFTW_ESTIMATE);
+      if(!planR2C_p){
+        planR2C_p=fftwf_plan_dft_r2c(2, dim,  in, reinterpret_cast<fftwf_complex *>(out), FFTW_ESTIMATE);
       
       //fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
      
-      fftwf_execute(planR2C_p);
-      
+        fftwf_execute(planR2C_p);
+      }
+      else{
+        fftwf_execute_dft_r2c(planR2C_p,  in, reinterpret_cast<fftwf_complex *>(out));
+      }
     }
     else{
       /*
