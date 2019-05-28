@@ -38,7 +38,7 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-  FFT2D::FFT2D(Bool useFFTW): useFFTW_p(useFFTW), wsave_p(0), lsav_p(0){
+  FFT2D::FFT2D(Bool useFFTW): useFFTW_p(useFFTW), wsave_p(0), lsav_p(0), planC2CD_p(nullptr),planR2C_p(nullptr), planC2C_p(nullptr) {
     if(useFFTW_p){
       Int numThreads=HostInfo::numCPUs(true);
 #ifdef _OPENMP
@@ -53,9 +53,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
   }
   FFT2D::~FFT2D(){
-    if(useFFTW_p)
-       fftw_cleanup_threads();
-
+    if(useFFTW_p){
+      if(planC2CD_p)
+        fftw_destroy_plan(planC2CD_p);
+      if(planR2C_p)
+         fftwf_destroy_plan(planR2C_p);
+      if(planC2C_p)
+        fftwf_destroy_plan(planC2C_p);
+    }
   }
 
   FFT2D& FFT2D::operator=(const FFT2D& other){
@@ -327,7 +332,6 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
       fftw_execute(planC2CD_p);
-      fftw_destroy_plan(planC2CD_p);
     }
     else{
       throw(AipsError("Double precision FFT with FFTPack is not implemented"));
@@ -348,7 +352,6 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
       }
       fftwf_execute(planC2C_p);
-      fftwf_destroy_plan(planC2C_p);
       
     }
     else{
@@ -380,7 +383,6 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
       //fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
      
       fftwf_execute(planR2C_p);
-      fftwf_destroy_plan(planC2C_p);
       
     }
     else{
