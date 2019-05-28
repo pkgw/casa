@@ -32,11 +32,10 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
-agentflagger::agentflagger()
+agentflagger::agentflagger(): logger_p(new LogIO(LogOrigin("agentflagger","",WHERE)))
 {
 	try
 	{
-		logger_p = new LogIO(LogOrigin("agentflagger","",WHERE));
 		agentflagger_p = new AgentFlagger();
 
 	} catch (AipsError x) {
