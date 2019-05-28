@@ -150,11 +150,17 @@ class TestHelpers():
 #          return out, iters
 
      def getpeakres(self,summ):
+          # for cube this gets peakres of the last channel that has been
+          # CLEANed.
+          print " summ=",summ
+          print " summ.keys()=", summ.keys()
           if summ.has_key('summaryminor'):
                reslist = summ['summaryminor'][1,:]
+               print "reslist=",reslist
                peakres = reslist[ len(reslist)-1 ]
           else:
                peakres = None
+          print "PEAKRE===", peakres
           return peakres
 
      def getmodflux(self,summ):
@@ -228,9 +234,9 @@ class TestHelpers():
           if imexist != None:
                if type(imexist)==list:
                     pstr += self.checkims(imexist, True)
-                    print "pstr after checkims=",pstr
+                    #print "pstr after checkims=",pstr
                     pstr += self.check_keywords(imexist)
-                    print "pstr after check_keywords=",pstr
+                    #print "pstr after check_keywords=",pstr
 
 
           if imexistnot != None:
@@ -742,8 +748,8 @@ class TestHelpers():
                  if parlist.count('iterdone'):
                      retIterdone = 0
                      for inode in nodenames:
-                         print "ret[",inode,"]=",ret[inode]
-                         print "inode.strip = ", int(inode.strip('node'))
+                         #print "ret[",inode,"]=",ret[inode]
+                         #print "inode.strip = ", int(inode.strip('node'))
                          retIterdone+=ret[inode][int(inode.strip('node'))]['iterdone']
                      mergedret['iterdone']=retIterdone
                  if parlist.count('nmajordone'):
@@ -760,7 +766,15 @@ class TestHelpers():
                          #else: 
                          #    tempresval=0.0
                          #retPeakres = max(tempresval,retPeakres) 
-                     mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                     #mergedret['summaryminor']=ret['node1'][1]['summaryminor']
+                     if not mergedret.has_key('summaryminor'):
+                         for inode in nodenames:
+                             nodeid = int(inode.strip('node'))
+                             if ret[inode][nodeid]['summaryminor'].size!=0:
+                                 lastnode = inode
+                                 lastid = nodeid
+                            
+                         mergedret['summaryminor']=ret[lastnode][lastid]['summaryminor']
                  if parlist.count('modflux'):
                      #retModflux = 0
                      #for inode in nodenames:
@@ -772,8 +786,14 @@ class TestHelpers():
                      #         tempmodval=0.0
                      #    retModflux += tempmodval
                      #mergedret['modflux']=retModflux
-                    if not mergedret.has_key('summaryminor'):
-                        mergedret['summryminor']=et['node1'][1]['summaryminor']
+                     if not mergedret.has_key('summaryminor'):
+                         for inode in nodenames:
+                             nodeid = int(inode.strip('node'))
+                             if ret[inode][nodeid]['summaryminor'].size!=0:
+                                 lastnode = inode
+                                 lastid = nodeid
+                            
+                         mergedret['summaryminor']=ret[lastnode][lastid]['summaryminor']
                  if parlist.count('stopcode'):
                      mergedret['stopcode']=ret['node1'][1]['stopcode']
              else:

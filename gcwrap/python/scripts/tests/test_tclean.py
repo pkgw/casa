@@ -51,11 +51,8 @@
 #     test_cube_D1
 # 
 # Added to skip at least for 5.5
-#     test_iterbot_cube_2 (was failing in master)
-#     test_multifield_both_cube (was failing in master)
 #     test_cube_chanchunks
 #     test_cube_chanchunks_savemodel (possible race conditions)
-#     test_mask_5 (was failing in master)
 #     test_modelvis_2 (possible race conditions)
 #     test_modelvis_3 (possible race conditions)
 #     test_modelvis_5 (possible race conditions)
@@ -67,6 +64,11 @@
 #     test_modelvis_11 (possible race conditions)
 #     test_startmodel_with_mask_mfs(possible race conditions)
 #     test_startmodel_with_mask_mtmfs(possible race conditions)
+
+#Ressurected from skipping after some fixes
+#     test_mask_5
+#     test_iterbot_cube_2
+#     test_multifield_both_cube
 ##########################################################################
 #
 #  Datasets
@@ -550,7 +552,8 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     #@unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     # test_imager_helper issue - now fixed and working
      def test_iterbot_cube_2(self):
           """ [iterbot] Test_Iterbot_cube_2 : High threshold, iterate only on line channels. """
           self.prepData('refim_point_withline.ms')
@@ -558,6 +561,7 @@ class test_iterbot(testref_base):
 
           ret={}
           if self.parallel:
+            # peakres and modflux is determined from node1 
             ret=self.th.mergeParaCubeResults(retpar, ['iterdone', 'nmajordone', 'peakres', 'modflux'])
           else:
             ret=retpar 
@@ -680,7 +684,8 @@ class test_multifield(testref_base):
           self.checkfinal(report)
 
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     #@unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     # fixed 
      def test_multifield_both_cube(self):
           """ [multifield] Test_Multifield_both_cube : Two fields, both cube"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -1935,7 +1940,8 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'1.mask', self.img+'2.mask'], imval=[(self.img+'1.mask',0.0,[50,50,0,1]),(self.img+'1.mask',1.0,[50,50,0,2]),(self.img+'1.mask',1.0,[50,50,0,10]),(self.img+'1.mask',0.0,[50,50,0,11]),(self.img+'2.mask',1.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,50,0,4]),(self.img+'2.mask',0.0,[50,50,0,10])])
           self.checkfinal(report)
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     #@unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     # parallel mode issue was fixed in imageanalysis 2019.05.23
      def test_mask_5(self):
           """ [mask] test_mask_5 : Input cube mask that has different chan
           ranges (use mask from the 1st tclean with a different channel range in the 2nd tclean run)"""
