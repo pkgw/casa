@@ -317,7 +317,7 @@ protected:
 
 	// Common used members that must be accessible to derived classes
 	FlagDataHandler *flagDataHandler_p;
-	casacore::LogIO *logger_p;
+	std::unique_ptr<casacore::LogIO> logger_p;
 	casacore::String agentName_p;
 	casacore::String summaryName_p;
 	casacore::String mode_p;

@@ -50,7 +50,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // NOTE: We have to initialize the polarizationList_p here, which is a OrderedMap<Int, Vector<Int> >
 // because otherwise the compiler complains because we are calling a theoretical default constructor
 // OrderedMap() that does not exist.
-FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iterationApproach, Bool writePrivateFlagCube, Bool flag): polarizationList_p(Vector<Int>(0))
+FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iterationApproach, Bool writePrivateFlagCube, Bool flag):
+    logger_p(new LogIO(LogOrigin("FlagAgentBase",__FUNCTION__,WHERE))),
+    polarizationList_p(Vector<Int>(0))
 {
 	// Initialize logger
 	if (config.fieldNumber ("loglevel") >= 0)
@@ -61,7 +63,6 @@ FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iteratio
 	{
 		logLevel_p = LogIO::NORMAL;
 	}
-	logger_p = new LogIO(LogOrigin("FlagAgentBase",__FUNCTION__,WHERE));
 
 	// Initialize members
 	initialize();
