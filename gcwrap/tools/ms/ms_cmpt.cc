@@ -110,8 +110,8 @@ ms::ms()
         itsSel = new MSSelector();
         itsLog = new LogIO();
         itsMSS = new MSSelection();
-        itsVI = NULL;
-        itsVI2 = NULL;
+        itsVI = nullptr;
+        itsVI2 = nullptr;
         doingIterations_p=false;
         doingAveraging_p=false;
         polnExpr_p = "";
@@ -132,14 +132,14 @@ ms::ms()
 ms::~ms()
 {
     try {
-        if(itsMS)           {delete itsMS;itsMS=NULL;}
-        if(itsOriginalMS)   {delete itsOriginalMS;itsOriginalMS=NULL;}
-        if(itsSelectedMS)   {delete itsSelectedMS;itsSelectedMS=NULL;}
-        if(itsSel)          {delete itsSel; itsSel=NULL;}
-        if(itsLog)          {delete itsLog; itsLog=NULL;}
-        if(itsMSS)          {delete itsMSS; itsMSS=NULL;}
-        if (itsVI)          {delete itsVI; itsVI=NULL;}
-        if (itsVI2)         {delete itsVI2; itsVI2=NULL;}
+        if(itsMS)           {delete itsMS;itsMS=nullptr;}
+        if(itsOriginalMS)   {delete itsOriginalMS;itsOriginalMS=nullptr;}
+        if(itsSelectedMS)   {delete itsSelectedMS;itsSelectedMS=nullptr;}
+        if(itsSel)          {delete itsSel; itsSel=nullptr;}
+        if(itsLog)          {delete itsLog; itsLog=nullptr;}
+        if(itsMSS)          {delete itsMSS; itsMSS=nullptr;}
+        if (itsVI)          {delete itsVI; itsVI=nullptr;}
+        if (itsVI2)         {delete itsVI2; itsVI2=nullptr;}
         doingIterations_p=false;
         doingAveraging_p=false;
         polnExpr_p = "";
@@ -507,8 +507,8 @@ ms::close()
             delete itsSelectedMS;  itsSelectedMS = new MeasurementSet();
             itsSel->setMS(*itsMS);
             if (itsMSS) {delete itsMSS;  itsMSS = new MSSelection();};
-            if (itsVI) {delete itsVI; itsVI=NULL;}
-            if (itsVI2) {delete itsVI2; itsVI2=NULL;}
+            if (itsVI) {delete itsVI; itsVI=nullptr;}
+            if (itsVI2) {delete itsVI2; itsVI2=nullptr;}
             doingIterations_p=false;
             doingAveraging_p=false;
             polnExpr_p = "";
@@ -2330,7 +2330,7 @@ ms::selectinit(const int datadescid, const bool resetsel)
 				String ddidTaql = "DATA_DESC_ID IN [" + selDDID + "]";
 				Record taqlSelRec(Record::Variable);
 				taqlSelRec.define("taql", ddidTaql);
-				::casac::record* casacRec = fromRecord(taqlSelRec);
+				std::unique_ptr<::casac::record> casacRec(fromRecord(taqlSelRec));
 				try {
 					// test it first, can't revert MSSelection selection
 					retval = doMSSelection(*casacRec, true);  // onlyparse=true
@@ -2369,9 +2369,8 @@ ms::selectold(const ::casac::record& items)
     Bool retval = false;
     try {
         if(!detached()){
-            Record *myTmp = toRecord(items);
+            std::unique_ptr<casacore::Record> myTmp(toRecord(items));
             retval = itsSel->select(*myTmp, false);
-            delete myTmp;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -2392,7 +2391,7 @@ ms::select(const ::casac::record& items)
 		if(!detached()){
             if (checkinit()) {
               *itsLog << LogOrigin("ms", "select");
-              Record* selRecord = toRecord(items);
+              std::unique_ptr<Record> selRecord(toRecord(items));
               for (uInt field=0; field < selRecord->nfields(); ++field) {
                 String fieldStr = selRecord->name(field);
                 fieldStr.upcase();
@@ -2466,7 +2465,7 @@ ms::select(const ::casac::record& items)
                         Record uvdistSelRec(Record::Variable);
                         String uvdistExpr = String::toString(uvdist[0]) + "~" + String::toString(uvdist[1]);
                         uvdistSelRec.define("uvdist", uvdistExpr);
-                        ::casac::record* casacRec = fromRecord(uvdistSelRec);
+                        std::unique_ptr<::casac::record> casacRec(fromRecord(uvdistSelRec));
                         retval = retval & doMSSelection(*casacRec);
                     } else {
                         *itsLog << LogIO::WARN << "Illegal value for uvdist range selection: two element numeric vector required" << LogIO::POST;
@@ -2486,7 +2485,6 @@ ms::select(const ::casac::record& items)
                   *itsLog << LogIO::WARN << "Unrecognized field in input ignored: "+fieldStr << LogIO::POST;
                      
               }
-			  delete selRecord;
 		  }
         }
 	} catch (AipsError x) {
@@ -2531,7 +2529,7 @@ ms::selecttaql(const std::string& taqlstr)
             Record taqlSelRec(Record::Variable);
             String taqlExpr = String::toString(taqlstr);
             taqlSelRec.define("taql", taqlExpr);
-            ::casac::record* casacRec = fromRecord(taqlSelRec);
+            std::unique_ptr<::casac::record> casacRec(fromRecord(taqlSelRec));
             retval = doMSSelection(*casacRec);
         }
 	} catch (AipsError x) {
@@ -2699,7 +2697,7 @@ ms::selectpolarization(const std::vector<std::string>& wantedpol)
                 Record polnSelRec(Record::Variable);
                 String polnExpr = MSSelection::nameExprStr(wantedpol);
                 polnSelRec.define("polarization", polnExpr);
-                ::casac::record* casacRec = fromRecord(polnSelRec);
+                std::unique_ptr<::casac::record> casacRec(fromRecord(polnSelRec));
                 retval = doMSSelection(*casacRec);
                 if (retval) {
                     polnExpr_p = polnExpr;
@@ -5264,9 +5262,8 @@ ms::putdataold(const ::casac::record& items)
     Bool rstat(False);
     try {
         if(!detached()){
-            Record *myTmp = toRecord(items);
+            std::unique_ptr<Record> myTmp(toRecord(items));
             rstat = itsSel->putData(*myTmp);
-            delete myTmp;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -5308,7 +5305,7 @@ ms::putdata(const ::casac::record& items)
                 return false;
             }
 
-            Record* putRecord = toRecord(items);
+            std::unique_ptr<Record> putRecord(toRecord(items));
             // check for valid fields for putdata, issue warning once
             Vector<Bool> allowed(putRecord->nfields());
             for (uInt i=0; i<putRecord->nfields(); ++i) {
@@ -5361,7 +5358,6 @@ ms::putdata(const ::casac::record& items)
                 } // else
                 rstat = true;
             }
-            delete putRecord;
         }
     } catch (AipsError x) {
         *itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -6039,7 +6035,7 @@ ms::split(const std::string&      outputms,  const ::casac::variant& field,
           const std::string&      obs)
 {
     Bool rstat(false);
-    SubMS *splitter = NULL;
+    SubMS *splitter = nullptr;
     try {
         *itsLog << LogOrigin("ms", "split");
         splitter = new SubMS(*itsMS);
@@ -6092,7 +6088,7 @@ ms::split(const std::string&      outputms,  const ::casac::variant& field,
 
         *itsLog << LogIO::NORMAL2 << "SubMS made" << LogIO::POST;
         delete splitter;
-        splitter = NULL;
+        splitter = nullptr;
 
         {// Update HISTORY table of newly created MS
             String message= toCasaString(outputms) + " split from " + itsMS->tableName();
@@ -6243,7 +6239,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
     try {
         if (!detached()) {
             // make sure we start fresh
-            if (itsVI2)         {delete itsVI2; itsVI2=NULL;}
+            if (itsVI2)         {delete itsVI2; itsVI2=nullptr;}
 
             Bool polnSelection = !polnExpr_p.empty();
             Bool chanSelection = !chanselExpr_p.empty();
@@ -6312,7 +6308,7 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
 
             // Create VI2
             itsVI2 = new vi::VisibilityIterator2(layers);
-            if (itsVI2 != NULL) {
+            if (itsVI2 != nullptr) {
                 // Apply max rows
                 if (maxrows>0) {
                     maxrows_p = True;
@@ -6542,7 +6538,7 @@ ms::iterend()
         if(!detached())
             if (itsVI2) {
                 delete itsVI2;
-                itsVI2 = NULL;
+                itsVI2 = nullptr;
             }
             rstat = true;
     } catch (AipsError x) {
@@ -6901,7 +6897,7 @@ Bool ms::doMSSelection(const ::casac::record& exprs, const bool onlyparse)
 	Bool retVal=false;
 	try
 	{
-		Record *casaRec = toRecord(exprs);
+		std::unique_ptr<Record> casaRec(toRecord(exprs));
 		String spwExpr, timeExpr, fieldExpr, baselineExpr, scanExpr, scanIntentExpr,
 			polnExpr, uvDistExpr, obsExpr, arrayExpr, taQLExpr;
 		Int nFields = casaRec->nfields();
@@ -7159,7 +7155,7 @@ ms::niterinit(const std::vector<std::string>& /*columns*/, const double interval
     sort[0]=MS::TIME;
     try
     {
-        if (itsVI == NULL)
+        if (itsVI == nullptr)
             itsVI = new VisibilityIterator(*itsMS, sort, adddefaultsortcolumns, interval);
         else
             *itsVI = VisibilityIterator(*itsMS, sort, adddefaultsortcolumns, interval);
@@ -7262,7 +7258,7 @@ ms::ngetdata(const std::vector<std::string>& items, const bool /*ifraxis*/, cons
 
     try
     {
-        if (itsVI == NULL)
+        if (itsVI == nullptr)
             niterinit(items,0.0,0,false);
         // if (doingIterations_p == false)
         //  niterorigin();
