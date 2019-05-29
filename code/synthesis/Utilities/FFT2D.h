@@ -81,6 +81,7 @@ namespace casa{
    std::vector<casacore::Float> wsave_p;
    casacore::Int lsav_p;
    //casacore::FFTW fft1_p;
+   casacore::Long nx_p, ny_p;
  };
 };// end of namespace casa
 #endif
