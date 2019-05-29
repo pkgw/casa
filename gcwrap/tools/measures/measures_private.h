@@ -21,9 +21,9 @@ doptofreq(const casacore::String &rf, const casacore::MeasureHolder &v,
 		    const casacore::Quantity &rfq);
 
 //# Data
-casacore::MeasFrame *frame_p;    // The globally used casacore::MeasFrame for this DO
-casacore::MeasComet *pcomet_p;   // The current comet class
-casacore::LogIO *itsLog;
+std::unique_ptr<casacore::MeasFrame> frame_p;    // The globally used casacore::MeasFrame for this DO
+std::unique_ptr<casacore::MeasComet> pcomet_p;   // The current comet class
+std::unique_ptr<casacore::LogIO> itsLog;
 
 casacore::Quantity casaQuantityFromVar(const ::casac::variant& theVar);
 

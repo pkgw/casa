@@ -39,15 +39,13 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
-quanta::quanta()
+quanta::quanta(): itsLog(new LogIO())
 {
-  itsLog = new LogIO();
   UnitMap::putUser("pix",UnitVal(1.0), "pixel units");
 }
 
 quanta::~quanta()
 {
-
 }
 
 casacore::QuantumHolder
