@@ -11,113 +11,113 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of measurement set</description>
-		<value></value>
-	</param>
+        <param type="string" name="vis" mustexist="true">
+                <description>Name of measurement set</description>
+                <value></value>
+        </param>
 
-	<param type="bool" name="dorms">
-	  <description>Use rms instead of stddev?</description>
-	  <value>False</value>
-	</param>
+        <param type="bool" name="dorms">
+          <description>Use rms instead of stddev?</description>
+          <value>False</value>
+        </param>
 
-	<param type="bool" name="byantenna">
-	  <description>Estimate the noise per antenna -not implemented (vs. per baseline)</description>
-	  <value>False</value>
-	</param>
+        <param type="bool" name="byantenna">
+          <description>Estimate the noise per antenna -not implemented (vs. per baseline)</description>
+          <value>False</value>
+        </param>
 
-	<param type="bool" name="sepacs" subparam="true">
-	  <description>If solving by antenna, treat autocorrs separately (not implemented)</description>
-	  <value>True</value>
-	</param>
+        <param type="bool" name="sepacs" subparam="true">
+          <description>If solving by antenna, treat autocorrs separately (not implemented)</description>
+          <value>True</value>
+        </param>
 
-	<param type="any" name="fitspw">
-		<description>The signal-free spectral window:channels to estimate the scatter from</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="any" name="fitcorr">
-		<description>The signal-free correlation(s) to estimate the scatter from (not implemented)</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="any" name="combine">
-		<description>Let estimates span changes in spw, corr, scan and/or state</description>
-		<any type="variant" limittypes="string stringArray"/>
-		<value type="string"></value>
-	</param>
-
-	<param type="string" name="timebin">
-		<description>Bin length for estimates (not implemented)</description>
-		<value type="string">0s</value>
-	</param>
-
-	<param type="int" name="minsamp">
-	  <description>Minimum number of unflagged visibilities for estimating the scatter</description>
-	  <value>2</value>
-	</param>
-
-        <param type="any" name="field">
-                <description>Select field using ID(s) or name(s)</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
+        <param type="any" name="fitspw">
+                <description>The signal-free spectral window:channels to estimate the scatter from</description>
+                <any type="variant" limittypes="string stringArray int intArray"/>
                 <value type="string"></value>
         </param>
 
-	<param type="any" name="spw">
-		<description>Select spectral window/channels</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
+        <param type="any" name="fitcorr">
+                <description>The signal-free correlation(s) to estimate the scatter from (not implemented)</description>
+                <any type="variant" limittypes="string stringArray int intArray"/>
+                <value type="string"></value>
+        </param>
 
-	<param type="any" name="antenna">
-		<description>Select data based on antenna/baseline</description>
-		<any type="variant" limittypes="string stringArray int intArray"/>
-		<value type="string"></value>
-	</param>
+        <param type="any" name="combine">
+                <description>Let estimates span changes in spw, corr, scan and/or state</description>
+                <any type="variant" limittypes="string stringArray"/>
+                <value type="string"></value>
+        </param>
 
-	<param type="string" name="timerange" >
-		<description>Select data by time range</description>
-		<value></value>
-	</param>
-	<param type="string" name="scan" >
-		<description>Select data by scan numbers</description>
-		<value></value>
-	</param>
-	<param type="string" name="intent" >
-		<description>Select data by scan intents</description>
-		<value></value>
-	</param>
+        <param type="string" name="timebin">
+                <description>Bin length for estimates (not implemented)</description>
+                <value type="string">0s</value>
+        </param>
+
+        <param type="int" name="minsamp">
+          <description>Minimum number of unflagged visibilities for estimating the scatter</description>
+          <value>2</value>
+        </param>
+
+        <param type="any" name="field">
+                <description>Select field using ID(s) or name(s)</description>
+                <any type="variant" limittypes="string stringArray int intArray"/>
+                <value type="string"></value>
+        </param>
+
+        <param type="any" name="spw">
+                <description>Select spectral window/channels</description>
+                <any type="variant" limittypes="string stringArray int intArray"/>
+                <value type="string"></value>
+        </param>
+
+        <param type="any" name="antenna">
+                <description>Select data based on antenna/baseline</description>
+                <any type="variant" limittypes="string stringArray int intArray"/>
+                <value type="string"></value>
+        </param>
+
+        <param type="string" name="timerange" >
+                <description>Select data by time range</description>
+                <value></value>
+        </param>
+        <param type="string" name="scan" >
+                <description>Select data by scan numbers</description>
+                <value></value>
+        </param>
+        <param type="string" name="intent" >
+                <description>Select data by scan intents</description>
+                <value></value>
+        </param>
         <param type="string" name="array">
                 <description>Select (sub)array(s) by array ID number</description>
                 <value></value>
         </param>
-	<param type="any" name="correlation">
-		<description>Select correlations to reweight (DEPRECATED in CASA v4.5)</description>
-		<any type="variant" limittypes="string stringArray"/>
-		<value type="string"></value>
-	</param>
+        <param type="any" name="correlation">
+                <description>Select correlations to reweight (DEPRECATED in CASA v4.5)</description>
+                <any type="variant" limittypes="string stringArray"/>
+                <value type="string"></value>
+        </param>
         <param type="any" name="observation">
                 <description>Select by observation ID(s)</description>
-		<any type="variant" limittypes="string int"/>
-		<value type="string"></value>
+                <any type="variant" limittypes="string int"/>
+                <value type="string"></value>
         </param>
 
-	<param type="string" name="datacolumn" ignorecase="True">
-		<description>Which data column to calculate the scatter from</description>
-		<value>corrected</value>
-		<allowed kind="enum" ignorecase="True">
-			<value>data</value>
-			<value>corrected</value>
-			<value>float_data</value>
-			<value>model</value>
-			<!-- <value>lag_data</value> -->
-		</allowed>
-	</param>
+        <param type="string" name="datacolumn" ignorecase="True">
+                <description>Which data column to calculate the scatter from</description>
+                <value>corrected</value>
+                <allowed kind="enum" ignorecase="True">
+                        <value>data</value>
+                        <value>corrected</value>
+                        <value>float_data</value>
+                        <value>model</value>
+                        <!-- <value>lag_data</value> -->
+                </allowed>
+        </param>
 
         <constraints>
-	  <when param="byantenna">
+          <when param="byantenna">
             <equals type="bool" value="False">
             </equals>
             <equals type="bool" value="True">
@@ -264,7 +264,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                on next day
                timerange='09:44:00' data within one integration of time
                timerange='&gt;10:24:00' data after this time
-	scan -- Scan number range
+        scan -- Scan number range
             default: ''=all
         intent -- Select by scan intent (state).  Case sensitive.
             default: '' = all

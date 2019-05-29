@@ -6014,10 +6014,10 @@ focusMethod = CFocusMethod::from_int(0);
 		
 	}
 	
-	CalFocusRow::CalFocusRow (CalFocusTable &t, CalFocusRow &row) : table(t) {
+	CalFocusRow::CalFocusRow (CalFocusTable &t, CalFocusRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -6131,164 +6131,164 @@ focusMethod = CFocusMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			ambientTemperature = row.ambientTemperature;
-		
-			atmPhaseCorrection = row.atmPhaseCorrection;
-		
-			focusMethod = row.focusMethod;
-		
-			frequencyRange = row.frequencyRange;
-		
-			pointingDirection = row.pointingDirection;
-		
-			numReceptor = row.numReceptor;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			wereFixed = row.wereFixed;
-		
-			offset = row.offset;
-		
-			offsetError = row.offsetError;
-		
-			offsetWasTied = row.offsetWasTied;
-		
-			reducedChiSquared = row.reducedChiSquared;
-		
-			position = row.position;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.polarizationsAveragedExists) {
-			polarizationsAveraged = row.polarizationsAveraged;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			ambientTemperature = row->ambientTemperature;
+		
+			atmPhaseCorrection = row->atmPhaseCorrection;
+		
+			focusMethod = row->focusMethod;
+		
+			frequencyRange = row->frequencyRange;
+		
+			pointingDirection = row->pointingDirection;
+		
+			numReceptor = row->numReceptor;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			wereFixed = row->wereFixed;
+		
+			offset = row->offset;
+		
+			offsetError = row->offsetError;
+		
+			offsetWasTied = row->offsetWasTied;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+			position = row->position;
+		
+		
+		
+		
+		if (row->polarizationsAveragedExists) {
+			polarizationsAveraged = row->polarizationsAveraged;		
 			polarizationsAveragedExists = true;
 		}
 		else
 			polarizationsAveragedExists = false;
 		
-		if (row.focusCurveWidthExists) {
-			focusCurveWidth = row.focusCurveWidth;		
+		if (row->focusCurveWidthExists) {
+			focusCurveWidth = row->focusCurveWidth;		
 			focusCurveWidthExists = true;
 		}
 		else
 			focusCurveWidthExists = false;
 		
-		if (row.focusCurveWidthErrorExists) {
-			focusCurveWidthError = row.focusCurveWidthError;		
+		if (row->focusCurveWidthErrorExists) {
+			focusCurveWidthError = row->focusCurveWidthError;		
 			focusCurveWidthErrorExists = true;
 		}
 		else
 			focusCurveWidthErrorExists = false;
 		
-		if (row.focusCurveWasFixedExists) {
-			focusCurveWasFixed = row.focusCurveWasFixed;		
+		if (row->focusCurveWasFixedExists) {
+			focusCurveWasFixed = row->focusCurveWasFixed;		
 			focusCurveWasFixedExists = true;
 		}
 		else
 			focusCurveWasFixedExists = false;
 		
-		if (row.offIntensityExists) {
-			offIntensity = row.offIntensity;		
+		if (row->offIntensityExists) {
+			offIntensity = row->offIntensity;		
 			offIntensityExists = true;
 		}
 		else
 			offIntensityExists = false;
 		
-		if (row.offIntensityErrorExists) {
-			offIntensityError = row.offIntensityError;		
+		if (row->offIntensityErrorExists) {
+			offIntensityError = row->offIntensityError;		
 			offIntensityErrorExists = true;
 		}
 		else
 			offIntensityErrorExists = false;
 		
-		if (row.offIntensityWasFixedExists) {
-			offIntensityWasFixed = row.offIntensityWasFixed;		
+		if (row->offIntensityWasFixedExists) {
+			offIntensityWasFixed = row->offIntensityWasFixed;		
 			offIntensityWasFixedExists = true;
 		}
 		else
 			offIntensityWasFixedExists = false;
 		
-		if (row.peakIntensityExists) {
-			peakIntensity = row.peakIntensity;		
+		if (row->peakIntensityExists) {
+			peakIntensity = row->peakIntensity;		
 			peakIntensityExists = true;
 		}
 		else
 			peakIntensityExists = false;
 		
-		if (row.peakIntensityErrorExists) {
-			peakIntensityError = row.peakIntensityError;		
+		if (row->peakIntensityErrorExists) {
+			peakIntensityError = row->peakIntensityError;		
 			peakIntensityErrorExists = true;
 		}
 		else
 			peakIntensityErrorExists = false;
 		
-		if (row.peakIntensityWasFixedExists) {
-			peakIntensityWasFixed = row.peakIntensityWasFixed;		
+		if (row->peakIntensityWasFixedExists) {
+			peakIntensityWasFixed = row->peakIntensityWasFixed;		
 			peakIntensityWasFixedExists = true;
 		}
 		else
 			peakIntensityWasFixedExists = false;
 		
-		if (row.astigmPlusExists) {
-			astigmPlus = row.astigmPlus;		
+		if (row->astigmPlusExists) {
+			astigmPlus = row->astigmPlus;		
 			astigmPlusExists = true;
 		}
 		else
 			astigmPlusExists = false;
 		
-		if (row.astigmPlusErrorExists) {
-			astigmPlusError = row.astigmPlusError;		
+		if (row->astigmPlusErrorExists) {
+			astigmPlusError = row->astigmPlusError;		
 			astigmPlusErrorExists = true;
 		}
 		else
 			astigmPlusErrorExists = false;
 		
-		if (row.astigmMultExists) {
-			astigmMult = row.astigmMult;		
+		if (row->astigmMultExists) {
+			astigmMult = row->astigmMult;		
 			astigmMultExists = true;
 		}
 		else
 			astigmMultExists = false;
 		
-		if (row.astigmMultErrorExists) {
-			astigmMultError = row.astigmMultError;		
+		if (row->astigmMultErrorExists) {
+			astigmMultError = row->astigmMultError;		
 			astigmMultErrorExists = true;
 		}
 		else
 			astigmMultErrorExists = false;
 		
-		if (row.illumOffsetExists) {
-			illumOffset = row.illumOffset;		
+		if (row->illumOffsetExists) {
+			illumOffset = row->illumOffset;		
 			illumOffsetExists = true;
 		}
 		else
 			illumOffsetExists = false;
 		
-		if (row.illumOffsetErrorExists) {
-			illumOffsetError = row.illumOffsetError;		
+		if (row->illumOffsetErrorExists) {
+			illumOffsetError = row->illumOffsetError;		
 			illumOffsetErrorExists = true;
 		}
 		else
 			illumOffsetErrorExists = false;
 		
-		if (row.fitRMSExists) {
-			fitRMS = row.fitRMS;		
+		if (row->fitRMSExists) {
+			fitRMS = row->fitRMS;		
 			fitRMSExists = true;
 		}
 		else

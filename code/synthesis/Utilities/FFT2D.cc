@@ -315,7 +315,7 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
   void FFT2D::doFFT(DComplex*& out, Long x, Long y, Bool toFreq){
     if(useFFTW_p){
       //Will need to seperate the plan from the execute if we want to run this in multiple threads
-      Int dim[2]={Int(x), Int(y)};
+      Int dim[2]={Int(y), Int(x)};
       if(toFreq){
 	
 	planC2CD_p=fftw_plan_dft(2, dim,  reinterpret_cast<fftw_complex *>(out),  reinterpret_cast<fftw_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
@@ -336,7 +336,7 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
    void FFT2D::doFFT(Complex*& out, Long x, Long y, Bool toFreq){
     if(useFFTW_p){
       //Will need to seperate the plan from the execute if we want to run this in multiple threads
-      Int dim[2]={Int(x), Int(y)};
+      Int dim[2]={Int(y), Int(x)};
       if(toFreq){
 	
 	planC2C_p=fftwf_plan_dft(2, dim,  reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out), FFTW_FORWARD, FFTW_ESTIMATE);
@@ -365,14 +365,14 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
       Float* workptr=work.data();
       Float* wsaveptr=wsave_p.data();
       if(toFreq)
-	FFTPack::cfft2f(x1, y1, x1, out, wsaveptr, lsav_p, workptr, lenwrk, ier);
+	FFTPack::cfft2f(x1, x1, y1, out, wsaveptr, lsav_p, workptr, lenwrk, ier);
       else
-	FFTPack::cfft2b(x1, y1, x1, out, wsaveptr, lsav_p, workptr, lenwrk, ier);
+	FFTPack::cfft2b(x1, x1, y1, out, wsaveptr, lsav_p, workptr, lenwrk, ier);
     }
   }
   void FFT2D::doFFT(Complex*& out, Float*& in, Long x, Long y){
     if(useFFTW_p){
-      Int dim[2]={Int(x), Int(y)};
+      Int dim[2]={Int(y), Int(x)};
 	
       planR2C_p=fftwf_plan_dft_r2c(2, dim,  in, reinterpret_cast<fftwf_complex *>(out), FFTW_ESTIMATE);
       

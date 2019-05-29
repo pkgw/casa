@@ -2600,10 +2600,10 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 		
 	}
 	
-	ScanRow::ScanRow (ScanTable &t, ScanRow &row) : table(t) {
+	ScanRow::ScanRow (ScanTable &t, ScanRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2653,67 +2653,67 @@ void ScanRow::sourceNameFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			execBlockId = row.execBlockId;
+			execBlockId = row->execBlockId;
 		
-			scanNumber = row.scanNumber;
-		
-		
-		
-		
-			startTime = row.startTime;
-		
-			endTime = row.endTime;
-		
-			numIntent = row.numIntent;
-		
-			numSubscan = row.numSubscan;
-		
-			scanIntent = row.scanIntent;
-		
-			calDataType = row.calDataType;
-		
-			calibrationOnLine = row.calibrationOnLine;
+			scanNumber = row->scanNumber;
 		
 		
 		
 		
-		if (row.calibrationFunctionExists) {
-			calibrationFunction = row.calibrationFunction;		
+			startTime = row->startTime;
+		
+			endTime = row->endTime;
+		
+			numIntent = row->numIntent;
+		
+			numSubscan = row->numSubscan;
+		
+			scanIntent = row->scanIntent;
+		
+			calDataType = row->calDataType;
+		
+			calibrationOnLine = row->calibrationOnLine;
+		
+		
+		
+		
+		if (row->calibrationFunctionExists) {
+			calibrationFunction = row->calibrationFunction;		
 			calibrationFunctionExists = true;
 		}
 		else
 			calibrationFunctionExists = false;
 		
-		if (row.calibrationSetExists) {
-			calibrationSet = row.calibrationSet;		
+		if (row->calibrationSetExists) {
+			calibrationSet = row->calibrationSet;		
 			calibrationSetExists = true;
 		}
 		else
 			calibrationSetExists = false;
 		
-		if (row.calPatternExists) {
-			calPattern = row.calPattern;		
+		if (row->calPatternExists) {
+			calPattern = row->calPattern;		
 			calPatternExists = true;
 		}
 		else
 			calPatternExists = false;
 		
-		if (row.numFieldExists) {
-			numField = row.numField;		
+		if (row->numFieldExists) {
+			numField = row->numField;		
 			numFieldExists = true;
 		}
 		else
 			numFieldExists = false;
 		
-		if (row.fieldNameExists) {
-			fieldName = row.fieldName;		
+		if (row->fieldNameExists) {
+			fieldName = row->fieldName;		
 			fieldNameExists = true;
 		}
 		else
 			fieldNameExists = false;
 		
-		if (row.sourceNameExists) {
-			sourceName = row.sourceName;		
+		if (row->sourceNameExists) {
+			sourceName = row->sourceName;		
 			sourceNameExists = true;
 		}
 		else

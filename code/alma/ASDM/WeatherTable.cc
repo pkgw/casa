@@ -277,7 +277,7 @@ namespace asdm {
 
 
 WeatherRow* WeatherTable::newRow(WeatherRow* row) {
-	return new WeatherRow(*this, *row);
+	return new WeatherRow(*this, row);
 }
 
 	//

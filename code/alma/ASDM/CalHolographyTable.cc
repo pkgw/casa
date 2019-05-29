@@ -369,7 +369,7 @@ namespace asdm {
 
 
 CalHolographyRow* CalHolographyTable::newRow(CalHolographyRow* row) {
-	return new CalHolographyRow(*this, *row);
+	return new CalHolographyRow(*this, row);
 }
 
 	//

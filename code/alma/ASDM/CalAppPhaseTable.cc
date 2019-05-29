@@ -397,7 +397,7 @@ namespace asdm {
 
 
 CalAppPhaseRow* CalAppPhaseTable::newRow(CalAppPhaseRow* row) {
-	return new CalAppPhaseRow(*this, *row);
+	return new CalAppPhaseRow(*this, row);
 }
 
 	//

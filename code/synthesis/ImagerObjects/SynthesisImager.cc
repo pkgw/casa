@@ -324,7 +324,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //find max no. channels from the current ms 
       const ROMSSpWindowColumns spwc(thisms.spectralWindow());
       uInt nspw = spwc.nrow();
-      const ROScalarColumn<Int> spwNchans(spwc.numChan());
+      const ScalarColumn<Int> spwNchans(spwc.numChan());
       Vector<Int> nchanvec = spwNchans.getColumn();
       Int maxnchan = 0;
       for (uInt i=0;i<nchanvec.nelements();i++) {
@@ -1009,6 +1009,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
     }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Record SynthesisImager::apparentSensitivity() 
+  {
+
+    throw( AipsError("apparentSensitivity calculation not supported in SynthesisImager (VI1)") );
+    return Record();
+
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1017,6 +1028,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
 			       const Int npixels, const Bool multiField,
+			       const Bool /*useCubeBriggs*/,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
@@ -1171,21 +1183,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   //// Get/Set Weight Grid.... write to disk and read
 
   /// todo : do for full mapper list, and taylor terms.
-  Bool SynthesisImager::getWeightDensity( )
+  String SynthesisImager::getWeightDensity( )
   {
+    String outname("");
     LogIO os(LogOrigin("SynthesisImager", "getWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices;
-	imwgt_p.getWeightDensity( densitymatrices );
-	if ( densitymatrices.nelements()>0 )
+	
+	IPosition newshape;
+	Vector<Int> shpOfGrid=imwgt_p.shapeOfdensityGrid();
+	if(shpOfGrid(2) > 1){
+	  newshape=IPosition(5,shpOfGrid[0], shpOfGrid[1],1,1,shpOfGrid[2]);
+	}
+	IPosition where=	IPosition(Vector<Int>((itsMappers.imageStore(0)->gridwt(newshape))->shape().nelements(),0));
+	if ( shpOfGrid[2] > 0 )
 	  {
-	    for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	      {
-		//cout << "********** Density shape (get) for f " << fid << ": " << densitymatrices[fid].shape() << endl;
-		itsMappers.imageStore(fid)->gridwt(0)->put(densitymatrices[fid]);
-	      }
-	  }
+	    imwgt_p.toImageInterface(*(itsMappers.imageStore(0)->gridwt(newshape)));	    	  }
+	outname=itsMappers.imageStore(0)->gridwt()->name();
 	itsMappers.releaseImageLocks();
 
       }
@@ -1193,27 +1207,29 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
 	throw(AipsError("In getWeightDensity : "+x.getMesg()));
       }
-    return true;
+    return outname;
   }
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /// todo : do for full mapper list, and taylor terms.
   
-  Bool SynthesisImager::setWeightDensity( )
+  Bool SynthesisImager::setWeightDensity(const String& weightimagename)
   {
     LogIO os(LogOrigin("SynthesisImager", "setWeightDensity()", WHERE));
     try
       {
-	Block<Matrix<Float> > densitymatrices(itsMappers.nMappers());
-	for (uInt fid=0;fid<densitymatrices.nelements();fid++)
-	  {
-	    Array<Float> arr;
-	    itsMappers.imageStore(fid)->gridwt(0)->get(arr,true);
-	    densitymatrices[fid].reference( arr );
-	    //cout << "********** Density shape (set) for f " << fid << " : " << arr.shape() << " : " << densitymatrices[fid].shape() << endl;
-	  }
 
+	//Array<Float> arr;
+	///Use image 0 for weight density shape
+	//itsMappers.imageStore(0)->gridwt()->get(arr,true);
+	if(weightimagename.size() !=0){
+	  Table::isReadable(weightimagename, True);
+	  PagedImage<Float> im(weightimagename);
+	  imwgt_p=VisImagingWeight(im);
+	}
+	else{
+	  imwgt_p=VisImagingWeight(*(itsMappers.imageStore(0)->gridwt()));
 
-	imwgt_p.setWeightDensity( densitymatrices );
+	}
 	rvi_p->useImagingWeight(imwgt_p);
 	itsMappers.releaseImageLocks();
 
@@ -2774,7 +2790,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   Bool SynthesisImager::makePBImage(const String telescop){
 
   /*
-  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
   PBMath myPB(recCol(0));
   */
   LogIO os( LogOrigin("SynthesisImager","makePBImage",WHERE) );
@@ -2833,6 +2849,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     movingSource_p=movingSource;
   }
   
+  bool SynthesisImager::isSpectralCube(){
+    bool retval=False;
+    for (Int k=0; k < itsMappers.nMappers(); ++k){
+      //For some reason imstore sometime returns 0 shape
+      //trying to test with with psf size breaks parallel = true in some cases...go figure
+      //if((((itsMappers.imageStore(k))->psf())->shape()[3]) != ((itsMappers.imageStore(k))->getShape()[3])){
+      //cerr << "shapes " << ((itsMappers.imageStore(k))->psf())->shape() << "   " <<  ((itsMappers.imageStore(k))->getShape()) << endl;
+      //throw(AipsError("images shape seem insistent "));
+      if((itsMappers.imageStore(k))->getShape()(3) ==0)
+	return True;
+      //}
+    if((itsMappers.imageStore(k))->getShape()(3) > 1)
+      retval=True;
+    }
+    return retval;
 
+  }
 } //# NAMESPACE CASA - END
 

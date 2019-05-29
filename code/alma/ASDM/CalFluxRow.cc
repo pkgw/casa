@@ -3445,10 +3445,10 @@ sourceModel = CSourceModel::from_int(0);
 		
 	}
 	
-	CalFluxRow::CalFluxRow (CalFluxTable &t, CalFluxRow &row) : table(t) {
+	CalFluxRow::CalFluxRow (CalFluxTable &t, CalFluxRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3512,87 +3512,87 @@ sourceModel = CSourceModel::from_int(0);
 		else {
 	
 		
-			sourceName = row.sourceName;
+			sourceName = row->sourceName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numFrequencyRanges = row.numFrequencyRanges;
-		
-			numStokes = row.numStokes;
-		
-			frequencyRanges = row.frequencyRanges;
-		
-			fluxMethod = row.fluxMethod;
-		
-			flux = row.flux;
-		
-			fluxError = row.fluxError;
-		
-			stokes = row.stokes;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.directionExists) {
-			direction = row.direction;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numFrequencyRanges = row->numFrequencyRanges;
+		
+			numStokes = row->numStokes;
+		
+			frequencyRanges = row->frequencyRanges;
+		
+			fluxMethod = row->fluxMethod;
+		
+			flux = row->flux;
+		
+			fluxError = row->fluxError;
+		
+			stokes = row->stokes;
+		
+		
+		
+		
+		if (row->directionExists) {
+			direction = row->direction;		
 			directionExists = true;
 		}
 		else
 			directionExists = false;
 		
-		if (row.directionCodeExists) {
-			directionCode = row.directionCode;		
+		if (row->directionCodeExists) {
+			directionCode = row->directionCode;		
 			directionCodeExists = true;
 		}
 		else
 			directionCodeExists = false;
 		
-		if (row.directionEquinoxExists) {
-			directionEquinox = row.directionEquinox;		
+		if (row->directionEquinoxExists) {
+			directionEquinox = row->directionEquinox;		
 			directionEquinoxExists = true;
 		}
 		else
 			directionEquinoxExists = false;
 		
-		if (row.PAExists) {
-			PA = row.PA;		
+		if (row->PAExists) {
+			PA = row->PA;		
 			PAExists = true;
 		}
 		else
 			PAExists = false;
 		
-		if (row.PAErrorExists) {
-			PAError = row.PAError;		
+		if (row->PAErrorExists) {
+			PAError = row->PAError;		
 			PAErrorExists = true;
 		}
 		else
 			PAErrorExists = false;
 		
-		if (row.sizeExists) {
-			size = row.size;		
+		if (row->sizeExists) {
+			size = row->size;		
 			sizeExists = true;
 		}
 		else
 			sizeExists = false;
 		
-		if (row.sizeErrorExists) {
-			sizeError = row.sizeError;		
+		if (row->sizeErrorExists) {
+			sizeError = row->sizeError;		
 			sizeErrorExists = true;
 		}
 		else
 			sizeErrorExists = false;
 		
-		if (row.sourceModelExists) {
-			sourceModel = row.sourceModel;		
+		if (row->sourceModelExists) {
+			sourceModel = row->sourceModel;		
 			sourceModelExists = true;
 		}
 		else

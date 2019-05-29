@@ -35,8 +35,8 @@ casa::SPIIC _imageC = casa::SPIIC();
 casa::SPIID _imageD = casa::SPIID();
 casa::SPIIDC _imageDC = casa::SPIIDC();
 
-std::auto_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
-std::auto_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
+std::unique_ptr<casa::ImageStatsCalculator<casacore::Float>> _statsF;
+std::unique_ptr<casa::ImageStatsCalculator<casacore::Double>> _statsD;
 
 static const casacore::String _class;
 
@@ -283,7 +283,7 @@ template<class T> void _setrestoringbeam(
 );
 
 template <class T> record* _statistics(
-    std::auto_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
+    std::unique_ptr<casa::ImageStatsCalculator<T>>& stats, SPIIT myImage,
     const vector<int>& axes, const variant& region,
     const variant& mask, const vector<double>& includepix,
     const vector<double>& excludepix, bool list, bool force, bool disk,

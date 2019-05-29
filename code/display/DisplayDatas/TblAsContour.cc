@@ -680,7 +680,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// array to contain data from column in columns data type
 			Array<double> typedata;
 			// read the column into an array
-			ROArrayColumn<double> dataCol(*table(),columnName);
+			ArrayColumn<double> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// let the maximum value be the number of elements in the array
 			// typedata is ndim+row so we need to look at its shape the get
@@ -693,7 +693,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayFloat) {
 			Array<float> typedata;
-			ROArrayColumn<float> dataCol(*table(),columnName);
+			ArrayColumn<float> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// let the maximum value be the number of elements - assume 1-D array
 			IPosition length = typedata.shape();
@@ -708,28 +708,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayShort) {
 			Array<short> typedata;
-			ROArrayColumn<short> dataCol(*table(),columnName);
+			ArrayColumn<short> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == TpArrayUShort) {
 			Array<uShort> typedata;
-			ROArrayColumn<uShort> dataCol(*table(),columnName);
+			ArrayColumn<uShort> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == TpArrayInt) {
 			Array<int> typedata;
-			ROArrayColumn<int> dataCol(*table(),columnName);
+			ArrayColumn<int> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
 		}
 		if (type == TpArrayUInt) {
 			Array<uInt> typedata;
-			ROArrayColumn<uInt> dataCol(*table(),columnName);
+			ArrayColumn<uInt> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			IPosition length = typedata.shape();
 			extrema(1) = length(0); // get the length of the first axis which is nx
@@ -741,14 +741,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// array to contain data from column in columns data type
 			Vector<double> typedata;
 			// read the scalar column into an array
-			ROScalarColumn<double> dataCol(*table(),columnName);
+			ScalarColumn<double> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			// minima and maxima of data are world coordinate min and max
 			minMax(extrema(0),extrema(1),typedata);
 		}
 		if (type == TpFloat) {
 			Vector<float> typedata;
-			ROScalarColumn<float> dataCol(*table(),columnName);
+			ScalarColumn<float> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -758,7 +758,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpShort) {
 			Vector<short> typedata;
-			ROScalarColumn<short> dataCol(*table(),columnName);
+			ScalarColumn<short> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -768,7 +768,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpUShort) {
 			Vector<uShort> typedata;
-			ROScalarColumn<uShort> dataCol(*table(),columnName);
+			ScalarColumn<uShort> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -778,7 +778,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpInt) {
 			Vector<int> typedata;
-			ROScalarColumn<int> dataCol(*table(),columnName);
+			ScalarColumn<int> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());
@@ -788,7 +788,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpUInt) {
 			Vector<uInt> typedata;
-			ROScalarColumn<uInt> dataCol(*table(),columnName);
+			ScalarColumn<uInt> dataCol(*table(),columnName);
 			dataCol.getColumn(typedata,true);
 			Array<double> data;
 			data.resize(typedata.shape());

@@ -1448,10 +1448,10 @@ receiverSideband = CReceiverSideband::from_int(0);
 		
 	}
 	
-	ReceiverRow::ReceiverRow (ReceiverTable &t, ReceiverRow &row) : table(t) {
+	ReceiverRow::ReceiverRow (ReceiverTable &t, ReceiverRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1477,26 +1477,26 @@ receiverSideband = CReceiverSideband::from_int(0);
 		else {
 	
 		
-			receiverId = row.receiverId;
+			receiverId = row->receiverId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
-		
-		
+			timeInterval = row->timeInterval;
 		
 		
-			name = row.name;
 		
-			numLO = row.numLO;
 		
-			frequencyBand = row.frequencyBand;
+			name = row->name;
 		
-			freqLO = row.freqLO;
+			numLO = row->numLO;
 		
-			receiverSideband = row.receiverSideband;
+			frequencyBand = row->frequencyBand;
 		
-			sidebandLO = row.sidebandLO;
+			freqLO = row->freqLO;
+		
+			receiverSideband = row->receiverSideband;
+		
+			sidebandLO = row->sidebandLO;
 		
 		
 		

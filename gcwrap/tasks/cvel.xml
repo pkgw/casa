@@ -35,194 +35,194 @@ Hanning smoothing may not be necessary.
 
 <input>
         <param type="string" name="vis" mustexist="true">
-	     <description>Name of input measurement set</description>
-	     <value></value>
-        </param>	
+             <description>Name of input measurement set</description>
+             <value></value>
+        </param>
 
-	<param type="string" name="outputvis">
-	     <description>Name of output measurement set</description>
-	     <value></value>
-	</param>
+        <param type="string" name="outputvis">
+             <description>Name of output measurement set</description>
+             <value></value>
+        </param>
 
-	<param type="bool" name="passall">
-	     <description>Pass through (write to output MS) non-selected data with no change</description>
-	     <value>False</value>
-	</param>
+        <param type="bool" name="passall">
+             <description>Pass through (write to output MS) non-selected data with no change</description>
+             <value>False</value>
+        </param>
 
         <param type="any" name="field">
              <description>Select field using field id(s) or field name(s)</description>
-	     <any type="variant" limittypes="string stringArray int intArray"/>
+             <any type="variant" limittypes="string stringArray int intArray"/>
              <value type="string"></value>
         </param>
 
-	<param type="any" name="spw">
-	     <description>Select spectral window/channels</description>
-	     <any type="variant" limittypes="string stringArray int intArray"/>
-	     <value type="string"></value>
-	</param>
+        <param type="any" name="spw">
+             <description>Select spectral window/channels</description>
+             <any type="variant" limittypes="string stringArray int intArray"/>
+             <value type="string"></value>
+        </param>
 
-	<param type="bool" name="selectdata">
-	    <description>Other data selection parameters</description>
-	    <value>True</value>
+        <param type="bool" name="selectdata">
+            <description>Other data selection parameters</description>
+            <value>True</value>
         </param>
 
         <param type="string" name="antenna" subparam="true">
-	     <description>Select data based on antenna/baseline</description>
-	     <value></value>
+             <description>Select data based on antenna/baseline</description>
+             <value></value>
         </param>
 
         <param type="string" name="timerange" subparam="true">
-	    <description>Range of time to select from data</description>
-	    <value></value>
+            <description>Range of time to select from data</description>
+            <value></value>
         </param>
 
         <param type="string" name="scan" subparam="true">
-	    <description>scan number range</description>
-	    <value></value>
+            <description>scan number range</description>
+            <value></value>
         </param>
 
         <param type="string" name="array" subparam="true">
-	    <description>(sub)array indices</description>
-	    <value></value>
+            <description>(sub)array indices</description>
+            <value></value>
         </param>
 
         <param type="string" name="mode">
-	    <description> Regridding mode </description>
-	    <value>channel</value>
-	    <allowed kind="enum">
-	    <value>channel</value>
-	    <value>velocity</value>
-	    <value>frequency</value>
-	    <value>channel_b</value>
+            <description> Regridding mode </description>
+            <value>channel</value>
+            <allowed kind="enum">
+            <value>channel</value>
+            <value>velocity</value>
+            <value>frequency</value>
+            <value>channel_b</value>
         </allowed>
         </param>
 
         <param type="int" name="nchan" subparam="true">
-	    <description>Number of channels in output spw (-1=all). Used for regridding, together with \'start\' and \'width\'.</description>
-	    <value>-1</value>
+            <description>Number of channels in output spw (-1=all). Used for regridding, together with \'start\' and \'width\'.</description>
+            <value>-1</value>
         </param>
 
         <param type="any" name="start" subparam="true">
-	    <description>Start of the output visibilities. Used for regridding, together with \'width\' and \'nchan\'. It can be in different units, depending on the regridding mode: first input channel (mode=\'channel\'), first velocity (mode=\'velocity\'), or first frequency (mode=\'frequency\'). Example values: \'5\', \'0.0km/s\', \'1.4GHz\', for channel, velocity, and frequency modes, respectively.</description>
-	    <any type="variant"/>
-	    <value type="int">0</value>
+            <description>Start of the output visibilities. Used for regridding, together with \'width\' and \'nchan\'. It can be in different units, depending on the regridding mode: first input channel (mode=\'channel\'), first velocity (mode=\'velocity\'), or first frequency (mode=\'frequency\'). Example values: \'5\', \'0.0km/s\', \'1.4GHz\', for channel, velocity, and frequency modes, respectively.</description>
+            <any type="variant"/>
+            <value type="int">0</value>
         </param>
 
         <param type="any" name="width" subparam="true">
-	    <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
-	    <any type="variant"/>
-	    <value type="int">1</value>
+            <description>Channel width of the output visibilities. Used for regridding, together with \'start\', and \'nchan\'. It can be in different units, depending on the regridding mode: number of input channels (mode=\'channel\'), velocity (mode=\'velocity\'), or frequency (mode=\'frequency\'. Example values: \'2\', \'1.0km/s\', \'1.0kHz\', for channel, velocity, and frequency modes, respectively.</description>
+            <any type="variant"/>
+            <value type="int">1</value>
         </param>
 
         <param type="string" name="interpolation" subparam="true" ignorecase="True">
-	    <description>Spectral interpolation method</description>
-	    <value>linear</value>
-	    <allowed kind="enum">
-	       <value>nearest</value>
-	       <value>linear</value>
-	       <value>cubic</value>
-	       <value>spline</value>
-	       <value>fftshift</value>
+            <description>Spectral interpolation method</description>
+            <value>linear</value>
+            <allowed kind="enum">
+               <value>nearest</value>
+               <value>linear</value>
+               <value>cubic</value>
+               <value>spline</value>
+               <value>fftshift</value>
             </allowed>
         </param>
 
         <param type="any" name="phasecenter">
-	    <description>Phase center direction to be used for the spectral coordinate transformation: direction measure or field index</description>
-	    <any type="variant"/>
-	    <value type="string"></value>
+            <description>Phase center direction to be used for the spectral coordinate transformation: direction measure or field index</description>
+            <any type="variant"/>
+            <value type="string"></value>
         </param>
 
         <param type="string" name="restfreq">
-	    <description>rest frequency (see help)</description>
-	    <value></value>
+            <description>rest frequency (see help)</description>
+            <value></value>
         </param>
-	
-	<param type="string" name="outframe" ignorecase="True">
-		<description>Output frame (not case-sensitive, \'\'=keep input frame)</description>
-		<value></value>
-		<allowed kind="enum">
-			<value>topo</value>
-			<value>geo</value>
-			<value>lsrk</value>
-			<value>lsrd</value>
-			<value>bary</value>
+        
+        <param type="string" name="outframe" ignorecase="True">
+                <description>Output frame (not case-sensitive, \'\'=keep input frame)</description>
+                <value></value>
+                <allowed kind="enum">
+                        <value>topo</value>
+                        <value>geo</value>
+                        <value>lsrk</value>
+                        <value>lsrd</value>
+                        <value>bary</value>
                         <value>galacto</value>
                         <value>lgroup</value>
                         <value>cmb</value>
                         <value>source</value>
-			<value></value>
-		</allowed>
-	</param>
+                        <value></value>
+                </allowed>
+        </param>
 
         <param type="string" name="veltype" ignorecase="True">
-	    <description>velocity definition</description>
-	    <value>radio</value>
-	    <allowed kind="enum">
-	       <value>optical</value>
-	       <value>radio</value>
+            <description>velocity definition</description>
+            <value>radio</value>
+            <allowed kind="enum">
+               <value>optical</value>
+               <value>radio</value>
             </allowed>
         </param>
 
 
-	<param type="bool" name="hanning">
-	    <description> If true, Hanning smooth data before regridding to remove Gibbs ringing.</description>
-	    <value>False</value>
+        <param type="bool" name="hanning">
+            <description> If true, Hanning smooth data before regridding to remove Gibbs ringing.</description>
+            <value>False</value>
         </param>
 
     <constraints>
             <when param="selectdata">
-		<equals type="bool" value="True">
-		    <default param="timerange"><value type="string"></value>
-		    </default>
-		    <default param="array"><value type="string"></value>
-		    </default>
-		    <default param="antenna"><value type="string"></value>
-		    </default>
-		    <default param="scan"><value type="string"></value>
-		    </default>
-	        </equals>
-		<equals type="bool" value="False"/>
+                <equals type="bool" value="True">
+                    <default param="timerange"><value type="string"></value>
+                    </default>
+                    <default param="array"><value type="string"></value>
+                    </default>
+                    <default param="antenna"><value type="string"></value>
+                    </default>
+                    <default param="scan"><value type="string"></value>
+                    </default>
+                </equals>
+                <equals type="bool" value="False"/>
             </when>
-	    <when param="mode">
-		<equals value="channel">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="int">0</value>
-			    <description>First input channel to use</description>
-			</default>
-			<default param="width"><value type="int">1</value>
-			</default>
-			<default param="interpolation"><value type="string">linear</value></default>
-		</equals>
-		<equals value="channel_b">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="int">0</value>
-			    <description>First input channel to use</description>
-			</default>
-			<default param="width"><value type="int">1</value></default>
-			<default param="interpolation"><value type="string">linear</value></default>
-		</equals>
-	        <equals value="velocity">
-		        <default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="string"></value>
-			    <description>Velocity of first channel: e.g \'0.0km/s\'</description>
-		        </default>
-		        <default param="width"><value type="string"></value>
-			    <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
-		        </default>
-		        <default param="interpolation"><value type="string">linear</value></default>
-	        </equals>
-	        <equals value="frequency">
-			<default param="nchan"><value type="int">-1</value></default>
-			<default param="start"><value type="string"></value>
-			    <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
-		    </default>
-		    <default param="width"><value type="string"></value>
-			    <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
-		    </default>
-		    <default param="interpolation"><value type="string">linear</value></default>
-	        </equals>
-	    </when>
-	    
+            <when param="mode">
+                <equals value="channel">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="int">0</value>
+                            <description>First input channel to use</description>
+                        </default>
+                        <default param="width"><value type="int">1</value>
+                        </default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="channel_b">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="int">0</value>
+                            <description>First input channel to use</description>
+                        </default>
+                        <default param="width"><value type="int">1</value></default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="velocity">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="string"></value>
+                            <description>Velocity of first channel: e.g \'0.0km/s\'</description>
+                        </default>
+                        <default param="width"><value type="string"></value>
+                            <description>Channel width of the output visibilities, in velocity units, e.g \'-1.0km/s\'</description>
+                        </default>
+                        <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+                <equals value="frequency">
+                        <default param="nchan"><value type="int">-1</value></default>
+                        <default param="start"><value type="string"></value>
+                            <description>Frequency of first channel: e.q. \'1.4GHz\'</description>
+                    </default>
+                    <default param="width"><value type="string"></value>
+                            <description>Channel width of the output visibilities, in frequency units, e.g \'1.0kHz\'</description>
+                    </default>
+                    <default param="interpolation"><value type="string">linear</value></default>
+                </equals>
+            </when>
+            
     </constraints>
 
 
@@ -241,7 +241,7 @@ Hanning smoothing may not be necessary.
        passall --  if False, data not meeting the selection is omitted/deleted 
                or flagged (if in-row); if True, data not meeting the selection 
                on field and spw is passed through without modification
-	       default: False; example: 
+               default: False; example: 
                field='NGC5921'
                passall=False : only data from NGC5921 is included in output MS, 
                          no data from other fields (e.g. 1331+305) is included
@@ -253,7 +253,7 @@ Hanning smoothing may not be necessary.
               default: ''= all fields
               If field string is a non-negative integer, it is assumed to
                   be a field index otherwise, it is assumed to be a 
-		  field name
+                  field name
               field='0~2'; field ids 0,1,2
               field='0,4,5~7'; field ids 0,4,5,6,7
               field='3C286,3C295'; field named 3C286 and 3C295
@@ -266,10 +266,10 @@ Hanning smoothing may not be necessary.
                 spw='0:5~61'; spw 0, channels 5 to 61
                 spw='&lt;2';   spectral windows less than 2 (i.e. 0,1)
                 spw='0,10,3:3~45'; spw 0,10 all channels, spw 3, 
-				   channels 3 to 45.
+                                   channels 3 to 45.
                 spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
                 spw='0:0~10;15~60'; spectral window 0 with channels 
-				    0-10,15-60
+                                    0-10,15-60
                 spw='0:0~10,1:20~30,2:1;2;3'; spw 0, channels 0-10,
                       spw 1, channels 20-30, and spw 2, channels, 1,2 and 3
 
@@ -281,36 +281,36 @@ Hanning smoothing may not be necessary.
               antenna -- Select data based on antenna/baseline
                   default: '' (all)
                   If antenna string is a non-negative integer, it is 
- 		    assumed to be an antenna index, otherwise, it is
- 		    considered an antenna name.
+                    assumed to be an antenna index, otherwise, it is
+                    considered an antenna name.
                   antenna='5&amp;6'; baseline between antenna index 5 and 
- 				 index 6.
+                                 index 6.
                   antenna='VA05&amp;VA06'; baseline between VLA antenna 5 
- 				       and 6.
+                                       and 6.
                   antenna='5&amp;6;7&amp;8'; baselines 5-6 and 7-8
                   antenna='5'; all baselines with antenna index 5
                   antenna='05'; all baselines with antenna number 05 
- 				(VLA old name)
+                                (VLA old name)
                   antenna='5,6,9'; all baselines with antennas 5,6,9 
- 				   index numbers
+                                   index numbers
 
               timerange  -- Select data based on time range:
                  default = '' (all); examples,
                   timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
                   Note: if YYYY/MM/DD is missing date defaults to first 
-			day in data set
+                        day in data set
                   timerange='09:14:0~09:54:0' picks 40 min on first day
                   timerange= '25:00:00~27:30:00' picks 1 hr to 3 hr 
-			     30min on NEXT day
+                             30min on NEXT day
                   timerange='09:44:00' pick data within one integration 
-		             of time
+                             of time
                   timerange='&gt;10:24:00' data after this time
 
               scan -- Scan number range.
                   default: '' (all)
                   example: scan='1~5'
                   Check 'go listobs' to insure the scan numbers are in 
- 			order.
+                        order.
 
               array -- Select data by (sub)array indices
                   default: '' (all); example:
@@ -323,44 +323,44 @@ Hanning smoothing may not be necessary.
                          output spw. Produces equidistant grid based on first
                          selected channel. See examples below.
                  mode = 'velocity', means channels are specified in 
- 		      velocity.
+                      velocity.
                  mode = 'frequency', means channels are specified in 
- 		      frequency.
+                      frequency.
                  mode = 'channel_b', alternative 'channel' mode.
-		         Does not force an equidistant grid. Faster.
+                         Does not force an equidistant grid. Faster.
 
   &gt;&gt;&gt; mode expandable parameters 
                Start, width are given in units of channels, frequency 
- 		  or velocity as indicated by mode 
+                  or velocity as indicated by mode 
                nchan -- Number of channels in output spw
                  default: -1 = all channels; example: nchan=3
                start -- Start or end input channel (zero-based) depending on the sign of the width parameter
                  default=0; example: start=5
                width -- Output channel width in units of the input
- 		     channel width (sign indicates whether the start parameter is lower(+) or upper(-) end of the range)
+                     channel width (sign indicates whether the start parameter is lower(+) or upper(-) end of the range)
                  default=1; example: width=4
                interpolation -- Interpolation method (linear, nearest, cubic, spline, fftshift)
                  default = 'linear'
            examples:
                spw = '0,1'; mode = 'channel'
                   will produce a single spw containing all channels in spw 
- 		       0 and 1
+                       0 and 1
                spw='0:5~28^2'; mode = 'channel'
                   will produce a single spw made with channels 
- 		       (5,7,9,...,25,27)
+                       (5,7,9,...,25,27)
                spw = '0'; mode = 'channel': nchan=3; start=5; width=4
                   will produce an spw with 3 output channels
                   new channel 1 contains data from channels (5+6+7+8)
                   new channel 2 contains data from channels (9+10+11+12)
                   new channel 3 contains data from channels (13+14+15+16)
                spw = '0:0~63^3'; mode='channel'; nchan=21; start = 0; 
- 		   width = 1
+                   width = 1
                   will produce an spw with 21 channels
                   new channel 1 contains data from channel 0
                   new channel 2 contains data from channel 2
                   new channel 21 contains data from channel 61
                spw = '0:0~40^2'; mode = 'channel'; nchan = 3; start = 
- 		   5; width = 4
+                   5; width = 4
                   will produce an spw with three output channels
                   new channel 1 contains channels (5,7)
                   new channel 2 contains channels (13,15)

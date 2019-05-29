@@ -443,7 +443,7 @@ MsPlot::getMeterToKlambdaConvertValue( uInt spwId )
     //# Get the spectral window column since it has the REF_FREQ value
     //# in it.
     //#ROMSSpWindowColumns spwc(itsSelectedMS.spectralWindow());
-    //#ROScalarColumn<Double> refFrequencies = spwc.refFrequency();
+    //#ScalarColumn<Double> refFrequencies = spwc.refFrequency();
   
 
     //#if ( spwId < 0 || spwId >= refFrequencies.nrow() )
@@ -762,7 +762,7 @@ MsPlot::getAllAntennaNames()
      //# Get the antenna column from the MS
      //#ROMSColumns antColumn( *itsMS );
      const ROMSAntennaColumns & antColumn  = itsMS->antenna();
-     //#const ROScalarColumn<String> antNames = antColumn.name();
+     //#const ScalarColumn<String> antNames = antColumn.name();
      uInt numAnts= antColumn.position().nrow();
      
      itsAntennaNames.resize(numAnts);
@@ -841,7 +841,7 @@ MsPlot::getAllSpwsAndFreqs()
     //# so that we can look up the values by SPW ID.  Nots, that
     //# the largest spwId will reside at the end of the spwIds
     //# Vector since it is sorted.
-    ROScalarColumn<Double> refFrequencies = spwColumn.refFrequency();
+    ScalarColumn<Double> refFrequencies = spwColumn.refFrequency();
     
     // TODO check that the largest spwId is less then the size of
     // the reference frequencies.
@@ -1096,7 +1096,7 @@ MsPlot::getAllSpwChanNums()
 
      
     //# Get a list of number-of-channels for all spws.
-    ROScalarColumn<Int> numchan( itsSelectedMS.spectralWindow(), "NUM_CHAN" );
+    ScalarColumn<Int> numchan( itsSelectedMS.spectralWindow(), "NUM_CHAN" );
     Vector<Int> cnums = numchan.getColumn();
 
     //# Fill in the shapes for the selected SPWids.
@@ -1133,7 +1133,7 @@ MsPlot::getAllScanNumbers()
     }
         
     ROMSColumns * msColumns = new ROMSColumns( itsSelectedMS );
-    ROScalarColumn<Int> scanColumn = msColumns->scanNumber();
+    ScalarColumn<Int> scanColumn = msColumns->scanNumber();
     uInt numRows = scanColumn.nrow();
     itsScanNumbers.resize( numRows );
 
@@ -2212,7 +2212,7 @@ MsPlot::setData( const String& baselineExpr,
    //Timer tmr;
    // TODO Move this to init.
    ROMSColumns msColumn(*itsMS);
-   const ROScalarColumn<Double>& timeInterval = msColumn.interval();
+   const ScalarColumn<Double>& timeInterval = msColumn.interval();
    Int nrow = timeInterval.nrow();
    itsMinTimeInterval = 86400.;
    for (Int i=0; i < nrow; i++) {
@@ -2474,7 +2474,7 @@ Bool MsPlot::average(
  
 
    ROMSColumns msColumn(*itsMS);
-   const ROScalarColumn<Double>& timeInterval = msColumn.interval();
+   const ScalarColumn<Double>& timeInterval = msColumn.interval();
    Int nrow = timeInterval.nrow();
    itsMinTimeInterval = 86400.;
    for (Int i=0; i < nrow; i++) {
@@ -6911,7 +6911,7 @@ MsPlot::updatePlotOptions( const String& title,
       //# Flag columns empty strings.
       itsTablePlot->useFlagColumns( "", "" );
 
-      ROScalarColumn<String> rot( itsSelectedMS.antenna(), "NAME" );
+      ScalarColumn<String> rot( itsSelectedMS.antenna(), "NAME" );
       Vector<String> antnames = rot.getColumn();
       if (antnames.nelements() != itsSelectedMS.antenna().nrow()) {
          //# Warn, but go ahead with the plot.

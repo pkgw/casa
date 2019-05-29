@@ -1650,10 +1650,10 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 		
 	}
 	
-	CalGainRow::CalGainRow (CalGainTable &t, CalGainRow &row) : table(t) {
+	CalGainRow::CalGainRow (CalGainTable &t, CalGainRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1683,30 +1683,30 @@ void CalGainRow::totalFitWeightFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
+			calReductionId = row->calReductionId;
 		
 		
-			startValidTime = row.startValidTime;
 		
-			endValidTime = row.endValidTime;
 		
-			gain = row.gain;
+			startValidTime = row->startValidTime;
 		
-			gainValid = row.gainValid;
+			endValidTime = row->endValidTime;
 		
-			fit = row.fit;
+			gain = row->gain;
 		
-			fitWeight = row.fitWeight;
+			gainValid = row->gainValid;
 		
-			totalGainValid = row.totalGainValid;
+			fit = row->fit;
 		
-			totalFit = row.totalFit;
+			fitWeight = row->fitWeight;
 		
-			totalFitWeight = row.totalFitWeight;
+			totalGainValid = row->totalGainValid;
+		
+			totalFit = row->totalFit;
+		
+			totalFitWeight = row->totalFitWeight;
 		
 		
 		

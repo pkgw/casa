@@ -104,8 +104,9 @@ public:
     bits.set(to_bit(setting[n]), value);
     return *this;
   }
-  EnumSetVal &set(std::vector<std::string> names, bool value = true)
+  EnumSetVal &set(std::vector<std::string> names, bool /* value = true */)
   {
+    // value is not used here, commented out above to silence a compiler warning
     bits.reset();
     typename std::map<enum_type,EnumPar<val_type> >::iterator 
       it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());
@@ -431,8 +432,9 @@ public:
     return *this;
   }
 
-  EnumSet &set(std::vector<std::string> names, bool value = true)
+  EnumSet &set(std::vector<std::string> names, bool /* value = true */)
   {
+    // value is not used here, commented out above to silence a compiler warning
     bits.reset();
     typename std::map<enum_type,EnumPar<val_type> >::iterator 
       it, itb(map_traits::m_.begin()), ite(map_traits::m_.end());

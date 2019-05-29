@@ -373,7 +373,7 @@ namespace asdm {
 
 
 CalBandpassRow* CalBandpassTable::newRow(CalBandpassRow* row) {
-	return new CalBandpassRow(*this, *row);
+	return new CalBandpassRow(*this, row);
 }
 
 	//

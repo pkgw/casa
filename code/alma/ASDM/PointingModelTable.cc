@@ -289,7 +289,7 @@ namespace asdm {
 
 
 PointingModelRow* PointingModelTable::newRow(PointingModelRow* row) {
-	return new PointingModelRow(*this, *row);
+	return new PointingModelRow(*this, row);
 }
 
 	//

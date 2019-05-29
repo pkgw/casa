@@ -229,14 +229,14 @@ void readTable (uInt ntime, uInt nant,
   AlwaysAssertExit (!tab.canRemoveRow());
   AlwaysAssertExit (tab.canRemoveColumn(Vector<String>(1, "DATA")));
   // Create objects for the columns.
-  ROArrayColumn<Complex> dataCol(tab, "DATA");
-  ROArrayColumn<Bool> flagCol(tab, "FLAG");
-  ROArrayColumn<Float> weightCol(tab, "WEIGHT");
-  ROArrayColumn<Float> sigmaCol(tab, "SIGMA");
-  ROScalarColumn<Double> timeCol(tab, "TIME");
-  ROScalarColumn<Int> ddidCol(tab, "DATA_DESC_ID");
-  ROScalarColumn<Int> ant1Col(tab, "ANTENNA1");
-  ROScalarColumn<Int> ant2Col(tab, "ANTENNA2");
+  ArrayColumn<Complex> dataCol(tab, "DATA");
+  ArrayColumn<Bool> flagCol(tab, "FLAG");
+  ArrayColumn<Float> weightCol(tab, "WEIGHT");
+  ArrayColumn<Float> sigmaCol(tab, "SIGMA");
+  ScalarColumn<Double> timeCol(tab, "TIME");
+  ScalarColumn<Int> ddidCol(tab, "DATA_DESC_ID");
+  ScalarColumn<Int> ant1Col(tab, "ANTENNA1");
+  ScalarColumn<Int> ant2Col(tab, "ANTENNA2");
   // Loop through all rows in the table and check the data.
   Matrix<Complex> expCross(crossnpol, crossnchan);
   Matrix<Complex> expAuto(autonpol, autonchan);

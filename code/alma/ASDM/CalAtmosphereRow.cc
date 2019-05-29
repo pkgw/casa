@@ -5701,10 +5701,10 @@ syscalType = CSyscalMethod::from_int(0);
 		
 	}
 	
-	CalAtmosphereRow::CalAtmosphereRow (CalAtmosphereTable &t, CalAtmosphereRow &row) : table(t) {
+	CalAtmosphereRow::CalAtmosphereRow (CalAtmosphereTable &t, CalAtmosphereRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -5796,109 +5796,109 @@ syscalType = CSyscalMethod::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numFreq = row.numFreq;
-		
-			numLoad = row.numLoad;
-		
-			numReceptor = row.numReceptor;
-		
-			forwardEffSpectrum = row.forwardEffSpectrum;
-		
-			frequencyRange = row.frequencyRange;
-		
-			groundPressure = row.groundPressure;
-		
-			groundRelHumidity = row.groundRelHumidity;
-		
-			frequencySpectrum = row.frequencySpectrum;
-		
-			groundTemperature = row.groundTemperature;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			powerSkySpectrum = row.powerSkySpectrum;
-		
-			powerLoadSpectrum = row.powerLoadSpectrum;
-		
-			syscalType = row.syscalType;
-		
-			tAtmSpectrum = row.tAtmSpectrum;
-		
-			tRecSpectrum = row.tRecSpectrum;
-		
-			tSysSpectrum = row.tSysSpectrum;
-		
-			tauSpectrum = row.tauSpectrum;
-		
-			tAtm = row.tAtm;
-		
-			tRec = row.tRec;
-		
-			tSys = row.tSys;
-		
-			tau = row.tau;
-		
-			water = row.water;
-		
-			waterError = row.waterError;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.alphaSpectrumExists) {
-			alphaSpectrum = row.alphaSpectrum;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numFreq = row->numFreq;
+		
+			numLoad = row->numLoad;
+		
+			numReceptor = row->numReceptor;
+		
+			forwardEffSpectrum = row->forwardEffSpectrum;
+		
+			frequencyRange = row->frequencyRange;
+		
+			groundPressure = row->groundPressure;
+		
+			groundRelHumidity = row->groundRelHumidity;
+		
+			frequencySpectrum = row->frequencySpectrum;
+		
+			groundTemperature = row->groundTemperature;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			powerSkySpectrum = row->powerSkySpectrum;
+		
+			powerLoadSpectrum = row->powerLoadSpectrum;
+		
+			syscalType = row->syscalType;
+		
+			tAtmSpectrum = row->tAtmSpectrum;
+		
+			tRecSpectrum = row->tRecSpectrum;
+		
+			tSysSpectrum = row->tSysSpectrum;
+		
+			tauSpectrum = row->tauSpectrum;
+		
+			tAtm = row->tAtm;
+		
+			tRec = row->tRec;
+		
+			tSys = row->tSys;
+		
+			tau = row->tau;
+		
+			water = row->water;
+		
+			waterError = row->waterError;
+		
+		
+		
+		
+		if (row->alphaSpectrumExists) {
+			alphaSpectrum = row->alphaSpectrum;		
 			alphaSpectrumExists = true;
 		}
 		else
 			alphaSpectrumExists = false;
 		
-		if (row.forwardEfficiencyExists) {
-			forwardEfficiency = row.forwardEfficiency;		
+		if (row->forwardEfficiencyExists) {
+			forwardEfficiency = row->forwardEfficiency;		
 			forwardEfficiencyExists = true;
 		}
 		else
 			forwardEfficiencyExists = false;
 		
-		if (row.forwardEfficiencyErrorExists) {
-			forwardEfficiencyError = row.forwardEfficiencyError;		
+		if (row->forwardEfficiencyErrorExists) {
+			forwardEfficiencyError = row->forwardEfficiencyError;		
 			forwardEfficiencyErrorExists = true;
 		}
 		else
 			forwardEfficiencyErrorExists = false;
 		
-		if (row.sbGainExists) {
-			sbGain = row.sbGain;		
+		if (row->sbGainExists) {
+			sbGain = row->sbGain;		
 			sbGainExists = true;
 		}
 		else
 			sbGainExists = false;
 		
-		if (row.sbGainErrorExists) {
-			sbGainError = row.sbGainError;		
+		if (row->sbGainErrorExists) {
+			sbGainError = row->sbGainError;		
 			sbGainErrorExists = true;
 		}
 		else
 			sbGainErrorExists = false;
 		
-		if (row.sbGainSpectrumExists) {
-			sbGainSpectrum = row.sbGainSpectrum;		
+		if (row->sbGainSpectrumExists) {
+			sbGainSpectrum = row->sbGainSpectrum;		
 			sbGainSpectrumExists = true;
 		}
 		else

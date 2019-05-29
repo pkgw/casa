@@ -249,7 +249,7 @@ bool Flagger::attach( MeasurementSet &mset, Bool setAgentDefaults )
 
 	// obtain central frequencies of spws.
 	const MSSpectralWindow spwin( ms.spectralWindow() );
-	ROScalarColumn<Double> sfreqs(spwin, "REF_FREQUENCY");
+	ScalarColumn<Double> sfreqs(spwin, "REF_FREQUENCY");
 	spwfreqs.resize();
 	spwfreqs = sfreqs.getColumn();
 	spwfreqs *= 1e+6;
@@ -258,7 +258,7 @@ bool Flagger::attach( MeasurementSet &mset, Bool setAgentDefaults )
 	const MSAntenna msant( ms.antenna() );
 	nant = msant.nrow();
 	nifr = nant*(nant+1)/2; // cheap & dirty
-	ROScalarColumn<String> names(msant,"NAME");
+	ScalarColumn<String> names(msant,"NAME");
 	antnames.resize();
 	antnames = names.getColumn();
 	antnames.apply(stringUpper);
@@ -487,7 +487,7 @@ Bool Flagger::setdata(
 			mssel_p = new MeasurementSet(mssel_p2);
 		}
 		if (dbg)cout << "assigned new MS to mssel_p" << endl;
-		ROScalarColumn<String> fname( mssel_p->field(),"NAME" );
+		ScalarColumn<String> fname( mssel_p->field(),"NAME" );
 		if (dbg)cout << "fields : " << fname.getColumn() << endl;
 
 		//mssel_p->rename("selectedms",Table::New);
@@ -1669,9 +1669,9 @@ Record Flagger::run (Bool trial, Bool reset)
 
 					sprintf(subtitle,"pass %d (data)",npass+1);
 
-					std::auto_ptr<ProgressMeter> progmeter(NULL);
+					std::unique_ptr<ProgressMeter> progmeter;
 					if (chunk.num(TIME) > progmeter_limit) {
-						progmeter = std::auto_ptr<ProgressMeter>(new ProgressMeter(1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+subtitle,"","","",true,pm_update_freq));
+						progmeter = std::unique_ptr<ProgressMeter>(new ProgressMeter(1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+subtitle,"","","",true,pm_update_freq));
 					}
 
 					// start pass for all active agents
@@ -1772,9 +1772,9 @@ Record Flagger::run (Bool trial, Bool reset)
 					sprintf(subtitle,"pass %d (dry)",npass+1);
 					//cout << "-----------subtitle=" << subtitle << endl;
 
-					std::auto_ptr<ProgressMeter> progmeter(NULL);
+					std::unique_ptr<ProgressMeter> progmeter;
 					if (chunk.num(TIME) > progmeter_limit) {
-						progmeter = std::auto_ptr<ProgressMeter>(new ProgressMeter (1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+subtitle,"","","",true,pm_update_freq));
+						progmeter = std::unique_ptr<ProgressMeter>(new ProgressMeter (1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+subtitle,"","","",true,pm_update_freq));
 					}
 					// start pass for all active agents
 					for( uInt ival = 0; ival<acc.size(); ival++ )
@@ -1816,9 +1816,9 @@ Record Flagger::run (Bool trial, Bool reset)
 				sprintf(subtitle,"pass (flag)");
 				//cout << "-----------subtitle=" << subtitle << endl;
 
-				std::auto_ptr<ProgressMeter> progmeter(NULL);
+				std::unique_ptr<ProgressMeter> progmeter;
 				if (chunk.num(TIME) > progmeter_limit) {
-					progmeter = std::auto_ptr<ProgressMeter>(new ProgressMeter(1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+"storing flags","","","",true,pm_update_freq));
+					progmeter = std::unique_ptr<ProgressMeter>(new ProgressMeter(1.0,static_cast<Double>(chunk.num(TIME)+0.001),title+"storing flags","","","",true,pm_update_freq));
 				}
 				for (uInt i = 0; i<acc.size(); i++)
 					if (active_init(i))

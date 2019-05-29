@@ -234,13 +234,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  itsMiscInfo=imptr->miscInfo();
 	}
 	else
-	  { 
+	  {
 	  //imptr.reset( new PagedImage<Float> (itsImageName+String(".gridwt")) );
 	    buildImage( imptr, (itsImageName+String(".gridwt")) );
 	  }
-	  
-	itsImageShape = imptr->shape();
+
+	itsImageShape=imptr->shape();
 	itsCoordSys = imptr->coordinates();
+	
       }
     else
       {
@@ -252,7 +253,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       {
 
 	
-    if( doesImageExist(itsImageName+String(".sumwt"))  )
+    if( doesImageExist(itsImageName+String(".sumwt")) )
       {
 	std::shared_ptr<ImageInterface<Float> > imptr;
 	//imptr.reset( new PagedImage<Float> (itsImageName+String(".sumwt")) );
@@ -271,7 +272,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     else
       {
-	throw( AipsError( "SumWt information does not exist. Please create either a PSF or Residual" ) );
+	  throw( AipsError( "SumWt information does not exist. Please create either a PSF or Residual" ) );
       }
 
       }// if psf or residual exist...
@@ -1064,9 +1065,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     accessImage( itsMask, itsParentMask, imageExts(MASK) );
     return itsMask;
   }
-  std::shared_ptr<ImageInterface<Float> > SIImageStore::gridwt(uInt /*nterm*/)
+  std::shared_ptr<ImageInterface<Float> > SIImageStore::gridwt(IPosition newshape)
+
   {
-    accessImage( itsGridWt, itsParentGridWt, imageExts(GRIDWT) );
+    if(newshape.empty()){
+      accessImage( itsGridWt, itsParentGridWt, imageExts(GRIDWT) );
+    }
+    else{
+      if(!itsGridWt  || (itsGridWt && (itsGridWt->shape() != newshape))){
+	itsGridWt.reset();  // deassign previous one hopefully it'll close it
+	CoordinateSystem newcoordsys=itsCoordSys;
+	if(newshape.nelements() > 4){
+	  Matrix<Double> pc(1,1);      pc = 1.0;
+	  LinearCoordinate zc(Vector<String>(1, "FIELD_ORDER"), Vector<String>(1, ""), Vector<Double>(1, 0.0), Vector<Double>(1,1.0), pc, Vector<Double>(1,0.0));
+	  newcoordsys.addCoordinate(zc);
+	  itsGridWt.reset(new PagedImage<Float>(newshape, newcoordsys, itsImageName+ imageExts(GRIDWT)));
+	}
+
+      }
+    }
     /// change the coordinate system here, to uv.
     return itsGridWt;
   }
@@ -1204,8 +1221,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
   {
     LogIO os( LogOrigin("SIImageStore","setWeightDensity",WHERE) );
-
-    gridwt()->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
+    //gridwt()->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
+    //looks like you have to call them before hand or it crashes in parallel sometimes
+    IPosition shape=(imagetoset->gridwt())->shape();
+    os << LogIO::DEBUG2 << "SHAPES " << imagetoset->gridwt()->shape() << "   " << gridwt()->shape() << endl;
+    (gridwt(shape))->copyData( LatticeExpr<Float> ( *(imagetoset->gridwt()) ) );
 
   }
 
@@ -1449,7 +1469,9 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	  
 	  if(toBeUsed.getMinor(image.coordinates().worldAxisUnits()[0]) > pixwidth)
 	    {
+	      //cerr << "old beam area " << oldbeam.getArea("rad2") << " new beam " << newbeam.getArea("rad2") << endl;
 	      StokesImageUtil::Convolve(image, toBeUsed, True);
+	      image.copyData(LatticeExpr<Float>(image*newbeam.getArea("rad2")/ oldbeam.getArea("rad2")));
 	    }
 	}
     }
@@ -1924,10 +1946,16 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 
     //// Replace null beams by a tiny tiny beam, just to get past the ImageInfo restriction that
     //// all planes must have non-null beams.
-    Quantity majax(1e-06,"arcsec"),minax(1e-06,"arcsec"),pa(0.0,"deg");
-    GaussianBeam defaultbeam;
-    defaultbeam.setMajorMinor(majax,minax);
-    defaultbeam.setPA(pa);
+    
+    GaussianBeam defaultbeam=itsPSFBeams.getMaxAreaBeam();
+    ///many of the unittests in tsdimaging seem to depend on having 0 area beams
+    ///which throws and exception when it is stored in the image
+    ///(so setting them to some small number)!
+    if(defaultbeam.getArea("rad2")==0.0){
+      Quantity majax(1e-06,"arcsec"),minax(1e-06,"arcsec"),pa(0.0,"deg");
+      defaultbeam.setMajorMinor(majax,minax);
+      defaultbeam.setPA(pa);
+    }
     for( Int chanid=0; chanid<nchan;chanid++) {
       for( Int polid=0; polid<npol; polid++ ) {
 	if( (itsPSFBeams.getBeam(chanid, polid)).isNull() ) 
@@ -2821,12 +2849,19 @@ Array<Double> SIImageStore::calcRobustRMS(Array<Double>& mdns, const Float pbmas
   if (hasPB()) {
     // set bool mask: False = masked
     pbmask = LatticeExpr<Bool> (iif(*pb() > pbmasklevel, True, False));
+    os << LogIO::DEBUG1 << "pbmask to be attached===> nfalse(pbmask.getMask())="<<nfalse(pbmask.getMask())<<endl; 
   }
   
    
   Record thestats;
   if (fastcalc) { // older calculation 
-    thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    // need to apply pbmask if present to be consistent between fastcalc = true and false.
+    //TempImage<Float>* tempRes = new TempImage<Float>(residual()->shape(), residual()->coordinates(), SDMaskHandler::memoryToUse());
+    auto tempRes = std::shared_ptr<TempImage<Float>>(new TempImage<Float>(residual()->shape(), residual()->coordinates(), SDMaskHandler::memoryToUse()));
+    tempRes->copyData(*residual());
+    tempRes->attachMask(pbmask);
+    //thestats = SDMaskHandler::calcImageStatistics(*residual(), LELmask, regionPtr, True);
+    thestats = SDMaskHandler::calcImageStatistics(*tempRes, LELmask, regionPtr, True);
   }
   else { // older way to calculate 
     // use the new statistic calculation algorithm

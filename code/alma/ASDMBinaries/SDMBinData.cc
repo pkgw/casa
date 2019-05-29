@@ -327,7 +327,6 @@ namespace sdmbin {
       m_cdId_baselinesSet_.insert(make_pair(cdId,baselinesSetPtr));
       s_cdId_.insert(cdId);
     }else{
-      map<Tag,BaselinesSet*>::iterator itcdIdblsf=m_cdId_baselinesSet_.find(cdId);
       if(verbose_)cout<<"reuse cdId="<<cdId.toString()<<endl;
     }
 
@@ -407,7 +406,6 @@ namespace sdmbin {
       m_cdId_baselinesSet_.insert(make_pair(cdId,baselinesSetPtr));
       s_cdId_.insert(cdId);
     }else{
-      map<Tag,BaselinesSet*>::iterator itcdIdblsf=m_cdId_baselinesSet_.find(cdId);
       if(verbose_)cout<<"reuse cdId="<<cdId.toString()<<endl;
     }
 

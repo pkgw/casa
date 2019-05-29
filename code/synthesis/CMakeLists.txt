@@ -27,6 +27,7 @@ include_directories (${CMAKE_CURRENT_BINARY_DIR})
 casa_add_library( synthesis
  TransformMachines2/Utils.cc
   TransformMachines2/BeamSkyJones.cc
+  TransformMachines2/BriggsCubeWeightor.cc
   TransformMachines2/ComponentFTMachine.cc
  TransformMachines2/VLAIlluminationConvFunc.cc
   TransformMachines2/GridFT.cc	
@@ -239,6 +240,7 @@ casa_add_library( synthesis
  MeasurementComponents/ConvFuncDiskCache.cc
  MeasurementComponents/CSCleanImageSkyModel.cc
  MeasurementComponents/DJones.cc
+ MeasurementComponents/XJones.cc
  MeasurementComponents/EJones.cc
  MeasurementComponents/EPJones.cc
  MeasurementComponents/EVLASwPow.cc
@@ -686,6 +688,7 @@ install (FILES
 	TransformMachines2/AWVisResampler.h
 	TransformMachines2/AzElAperture.h
 	TransformMachines2/BeamSkyJones.h
+	TransformMachines2/BriggsCubeWeightor.h
 	TransformMachines2/CFBuffer.h
 	TransformMachines2/CFCache.h
 	TransformMachines2/CFDefs.h
@@ -865,6 +868,7 @@ casa_add_assay( synthesis CalTables/test/tCTGenericFill.cc )
 
 
 casa_add_test( synthesis CalLibrary/test/tCalLibraryParse.cc )
+casa_add_unit_test( MODULES synthesis SOURCES MeasurementEquations/test/tPredictComp.cc TransformMachines2/test/MakeMS.cc ) 
 casa_add_unit_test( MODULES synthesis SOURCES TransformMachines2/test/tAWPFTM.cc TransformMachines2/test/MakeMS.cc ) 
 casa_add_unit_test( MODULES synthesis SOURCES TransformMachines2/test/tFTMachine.cc TransformMachines2/test/MakeMS.cc ) 
 casa_add_unit_test( MODULES synthesis SOURCES TransformMachines/test/tGridFT.cc TransformMachines2/test/MakeMS.cc )
@@ -895,6 +899,7 @@ casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tCalS
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tRecursiveVi2LayersWithCal_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tAccorJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tDJones_GT.cc )
+casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tXJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tEJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tFringeJones_GT.cc )
 casa_add_google_test( MODULES synthesis SOURCES MeasurementComponents/test/tGlinXphJones_GT.cc )

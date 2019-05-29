@@ -818,7 +818,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DelayModelVariableParametersRow (DelayModelVariableParametersTable &table, DelayModelVariableParametersRow &row);
+	 DelayModelVariableParametersRow (DelayModelVariableParametersTable &table, DelayModelVariableParametersRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

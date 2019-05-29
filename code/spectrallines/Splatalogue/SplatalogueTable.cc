@@ -95,17 +95,17 @@ String SplatalogueTable::getFrequencyUnit() const {
 }
 
 String SplatalogueTable::list() const {
-	ROScalarColumn<String> species(*this, SPECIES);
-	ROScalarColumn<Bool> recommended(*this, RECOMMENDED);
-	ROScalarColumn<String> chemName(*this, CHEMICAL_NAME);
-	ROScalarColumn<Double> freq(*this, FREQUENCY);
-	ROScalarColumn<String> qns(*this, QUANTUM_NUMBERS);
-	ROScalarColumn<Float> intensity(*this, INTENSITY);
-	ROScalarColumn<Float> smu2(*this, SMU2);
-	ROScalarColumn<Float> logA(*this, LOGA);
-	ROScalarColumn<Float> el(*this, EL);
-	ROScalarColumn<Float> eu(*this, EU);
-	ROScalarColumn<String> linelist(*this, LINELIST);
+	ScalarColumn<String> species(*this, SPECIES);
+	ScalarColumn<Bool> recommended(*this, RECOMMENDED);
+	ScalarColumn<String> chemName(*this, CHEMICAL_NAME);
+	ScalarColumn<Double> freq(*this, FREQUENCY);
+	ScalarColumn<String> qns(*this, QUANTUM_NUMBERS);
+	ScalarColumn<Float> intensity(*this, INTENSITY);
+	ScalarColumn<Float> smu2(*this, SMU2);
+	ScalarColumn<Float> logA(*this, LOGA);
+	ScalarColumn<Float> el(*this, EL);
+	ScalarColumn<Float> eu(*this, EU);
+	ScalarColumn<String> linelist(*this, LINELIST);
 
 	char cspecies[15], crec[11], cchemName[21], cfreq[12], cqns[21],
 		cintensity[10], csmu2[10], clogA[10], cel[10], ceu[10],
@@ -283,19 +283,19 @@ void SplatalogueTable::_construct(const Bool setup) {
 		_addKeywords();
 	}
 	else {
-		ROScalarColumn<Double> freq(*this, FREQUENCY);
+		ScalarColumn<Double> freq(*this, FREQUENCY);
 		_freqUnit = freq.keywordSet().asString("Unit");
-		ROScalarColumn<Float> smu2(*this, SMU2);
+		ScalarColumn<Float> smu2(*this, SMU2);
 		_smu2Unit = smu2.keywordSet().asString("Unit");
 		if (_smu2Unit.empty()) {
 			_smu2Unit = "Debye2";
 		}
-		ROScalarColumn<Float> el(*this, EL);
+		ScalarColumn<Float> el(*this, EL);
 		_elUnit = el.keywordSet().asString("Unit");
 		if (_elUnit.empty()) {
 			_elUnit = "K";
 		}
-		ROScalarColumn<Float> eu(*this, EU);
+		ScalarColumn<Float> eu(*this, EU);
 		_euUnit = eu.keywordSet().asString("Unit");
 		if (_euUnit.empty()) {
 			_euUnit = "K";

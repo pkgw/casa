@@ -48,13 +48,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 SolveDataBuffer::SolveDataBuffer() : 
   vb_(0),
+  nAnt_(0),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
@@ -62,13 +66,17 @@ SolveDataBuffer::SolveDataBuffer() :
 
 SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   vb_(0),
+  nAnt_(0),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
@@ -82,24 +90,31 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
 
 SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   vb_(),
+  nAnt_(0),
   freqs_(0),
+  corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
   infocusFlagCube_p(),
   infocusWtSpec_p(),
   infocusVisCube_p(),
   infocusModelVisCube_p(),
+  workingFlagCube_p(),
+  workingWtSpec_p(),
   residuals_p(),
   residFlagCube_p(),
   diffResiduals_p()
 {
   // Copy from the other's VB2
+  // NB: that VB2 won't be attached!!
   initFromVB(*(sdb.vb_));
 
-  // copy over freqs_, feedPa
+  // copy over freqs_, corrs_,feedPa, nAnt_
+  //  (things that normally require being attached)
   freqs_.assign(sdb.freqs_);
+  corrs_.assign(sdb.corrs_);
   feedPa_.assign(sdb.feedPa_);
-
+  nAnt_=sdb.nAnt_;
 }
 
 SolveDataBuffer::~SolveDataBuffer()
@@ -300,6 +315,63 @@ void SolveDataBuffer::finalizeResiduals()
 
 }
 
+// Manage working weights
+void SolveDataBuffer::updateWorkingFlags()
+{
+
+  workingFlagCube_p|=residFlagCube_p;
+
+}
+
+
+// Manage working weights
+void SolveDataBuffer::updateWorkingWeights(Bool doL1, Float L1clamp)
+{
+
+  workingWtSpec_p.resize(0,0,0);  // nominally forces implicit use of infocusWtSpec
+  if (doL1) {
+
+    //cout << "****Using L1 weights!!! (" << L1clamp << ") ******" << endl;
+
+    workingWtSpec_p.assign(infocusWtSpec_p);  // init from nominal weights
+    const Cube<Bool>& wFC(this->const_workingFlagCube());   // adaptive access to 
+
+    Cube<Float> Ramp(amplitude(this->residuals()));
+
+    IPosition shRamp(Ramp.shape());
+    Int nCorr=shRamp(0);
+    Int nChan=shRamp(1);
+    Int nRow=shRamp(2);
+
+    // TBD: assert common shapes!
+
+    for (Int irow=0;irow<nRow;++irow) {
+      if (!flagRow()(irow)) {
+	for (Int ich=0;ich<nChan;++ich) {
+	  for (Int icorr=0;icorr<nCorr;++icorr) {
+	    Float& nomWt=workingWtSpec_p(icorr,ich,irow);
+	    Float& Ra=Ramp(icorr,ich,irow);
+	    if (!wFC(icorr,ich,irow) &&  
+		nomWt>0.0 &&
+		Ra>0.0 ) {
+	      nomWt/=sqrt(Ra*Ra+L1clamp);
+	    }
+	    else {
+	      nomWt=0.0;
+	    }
+	  }
+	}
+      }
+    }
+
+  }
+  //  else {
+  //    cout << "****Using nominal weights!!!******" << endl;
+    //infocusWorkingWtSpec_p.reference(infocusWtSpec_p);
+  //}
+
+}
+
 void SolveDataBuffer::reportData()
 {
 
@@ -392,18 +464,31 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
 
   // Store the frequeny info
   //  TBD: also need bandwidth info....
-  if (vb.isAttached())
+  if (vb.isAttached()) {
     freqs_.assign(vb.getFrequencies(0));
+    corrs_.assign(vb.correlationTypes());
+    nAnt_=vb.nAntennas();
+  }
   else {
-    // Probably only needed in testing....  (gmoellen, 2016Aug04)
+    // Probably only needed in testing....  (gmoellen, 2016Aug04, 2019Jan07)
     cout << "The supplied VisBuffer2 is not attached to a ViImplementation2," << endl
 	 << " which is necessary to generate accurate frequency info." << endl
 	 << " This is probably just a test with a naked VisBuffer2." << endl
-	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl;
+	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl
+	 << " Spoofing corr axis with [5,6,7,8] (circulars)" << endl;
     freqs_.resize(vb.nChannels());
     indgen(freqs_);
     freqs_*=1e6;
     freqs_+=100.0005e9; // _edge_ of first channel at 100 GHz.
+
+    Int nC=vb.nCorrelations();
+    corrs_.resize(nC);
+    corrs_[0]=5;
+    if (nC>1) corrs_[nC-1]=8;
+    if (nC==4) {
+      corrs_[1]=6;
+      corrs_[2]=7;
+    }
   }
 
   // Store the feedPa info
@@ -424,6 +509,26 @@ void SolveDataBuffer::cleanUp()
   residuals_p.resize();
   residFlagCube_p.resize();
   diffResiduals_p.resize();
+
+}
+
+String SolveDataBuffer::polBasis() const
+{
+
+  // UNKNOWN, nominally
+  String polBas("UNKNOWN");
+
+  Int nC(corrs_.nelements());
+  if (nC<1)
+    // Can't tell, so return UNKNOWN
+    return polBas;
+
+  if (corrs_(0)==5)
+    polBas=String("CIRC");
+  if (corrs_(0)==9)
+    polBas=String("LIN");
+
+  return polBas;
 
 }
 
@@ -621,6 +726,32 @@ casacore::Double SDBList::centroidFreq() const {
   return fsum/Double(nf);
 }
 
+String SDBList::polBasis() const
+{
+  String polBas(SDB_[0]->polBasis());
+
+  // Trap non-uniformity, for now
+  for (Int isdb=1;isdb<nSDB_;++isdb)
+    AlwaysAssert((SDB_[isdb]->polBasis()==polBas),AipsError);
+ 
+  return polBas;
+}
+
+
+// How many antennas?
+//   Currently, this insists on uniformity over all SDBs
+Int SDBList::nAntennas() const {
+
+  Int nAnt=SDB_[0]->nAntennas();
+
+  // Trap non-uniformity, for now
+  for (Int isdb=1;isdb<nSDB_;++isdb)
+    AlwaysAssert((SDB_[isdb]->nAntennas()==nAnt),AipsError);
+
+  // Reach here, then ok
+  return nAnt;
+
+}
 
 // How many correlations?
 //   Currently, this insists on uniformity over all SDBs
@@ -686,6 +817,21 @@ void SDBList::finalizeResiduals()
     SDB_[i]->finalizeResiduals();
 }
 
+// Manage working flags
+void SDBList::updateWorkingFlags()
+{
+  for (Int i=0;i<nSDB_;++i)
+    SDB_[i]->updateWorkingFlags();
+}
+
+// Manage working weights
+void SDBList::updateWorkingWeights(casacore::Bool doL1,casacore::Float clamp)
+{
+  for (Int i=0;i<nSDB_;++i)
+    SDB_[i]->updateWorkingWeights(doL1,clamp);
+}
+
+
 void SDBList::reportData()
 {
   cout << "nSDB=" << nSDB_ << endl;
@@ -696,7 +842,73 @@ void SDBList::reportData()
 }
 
 
+void SDBList::extendBaselineFlags() 
+{
 
+  // This enforces uniform nAnt in all SDBs
+  Int nAnt(this->nAntennas());
+
+  // channelized flags per baseline, cross-corr pair
+  Cube<Bool> aggFlag(nChannels(),nAnt,nAnt,true);
+
+  // Initialize aggregate flags to those in first SDB
+  //  If an antenna pair is not avail here, it won't be used (default flagged)
+  //  Subsequent SDBs might flag more baselines
+  {
+    Cube<Bool>& flc(SDB_[0]->flagCube());
+    const Vector<Int>& a1(SDB_[0]->antenna1());
+    const Vector<Int>& a2(SDB_[0]->antenna2());
+
+    Int nRows(SDB_[0]->nRows());
+    Int nChan(SDB_[0]->nChannels());
+      
+    for (Int irow=0;irow<nRows;++irow) {
+      for (Int ichan=0;ichan<nChan;++ichan) {
+	aggFlag(ichan,a1(irow),a2(irow))=(flc(1,ichan,irow)||flc(2,ichan,irow));  // Either cross-hand flagged
+      }      
+    }
+  }
+
+  // Accumulate from other SDBs
+  for (Int isdb=1;isdb<nSDB_;++isdb) {
+    Cube<Bool>& flc(SDB_[isdb]->flagCube());
+    const Vector<Int>& a1(SDB_[isdb]->antenna1());
+    const Vector<Int>& a2(SDB_[isdb]->antenna2());
+
+    Int nRows(SDB_[isdb]->nRows());
+    Int nChan(SDB_[isdb]->nChannels());
+      
+    for (Int irow=0;irow<nRows;++irow) {
+      for (Int ichan=0;ichan<nChan;++ichan) {
+	aggFlag(ichan,a1(irow),a2(irow))|=(flc(1,ichan,irow)||flc(2,ichan,irow));  // Either cross-hand flagged
+      }      
+    }
+  }
+
+  //  cout << "aggFlag: " << ntrue(aggFlag) << "/" << nfalse(aggFlag) << " sh=" << aggFlag.shape() << endl;
+
+
+  // Apply aggregate flags to each SDB
+  //cout << "Flag sum = ";
+  for (Int isdb=0;isdb<nSDB_;++isdb) {
+    Cube<Bool>& flc(SDB_[isdb]->flagCube());
+    const Vector<Int>& a1(SDB_[isdb]->antenna1());
+    const Vector<Int>& a2(SDB_[isdb]->antenna2());
+
+    Int nRows(SDB_[isdb]->nRows());
+    Int nChan(SDB_[isdb]->nChannels());
+      
+    for (Int irow=0;irow<nRows;++irow) {
+      for (Int ichan=0;ichan<nChan;++ichan) {
+	if (aggFlag(ichan,a1(irow),a2(irow))) {
+	  flc(Slice(1,2,1),Slice(ichan),Slice(irow))=true;
+	}
+      }      
+    }
+    //cout << ntrue(flc) << " ";
+  }
+  //cout << endl;
+}
 
 } //# NAMESPACE CASA - END
 

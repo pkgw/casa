@@ -404,7 +404,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 DopplerRow (DopplerTable &table, DopplerRow &row);
+	 DopplerRow (DopplerTable &table, DopplerRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //
