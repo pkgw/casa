@@ -301,8 +301,8 @@ private:
      // Test MS copy and delete flag Enable/Dislable 
      //*
 
-     bool fgCopyMS    = true;	// always must be TRUE for TestDirection 
-     bool fgDeleteMS  = true;   // if FALSE, MS is not deleted. (for debug) 
+     const bool fgCopyMS    = true;	// always must be TRUE for TestDirection 
+     const bool fgDeleteMS  = true;   // if FALSE, MS is not deleted. (for debug) 
 };
 
 //+
@@ -449,7 +449,6 @@ static void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
 static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
 {
     // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
-
     X =  (r_time * 2.0 - 1.0 ) * M_PI ;
     Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
     return;
@@ -457,7 +456,6 @@ static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
 
 static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
 {
- 
     X = 1.0 * cos( 2.0*M_PI  * r_time );
     Y = 1.0 * sin( 2.0*M_PI  * r_time );
     return;
@@ -465,7 +463,6 @@ static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
 
 static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
 {   
-    
     X = 2.0 * cos( 8.0*  2.0*M_PI  * r_time );
     Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
     return;
@@ -498,7 +495,6 @@ static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
 
 static void Function_gauss( Double r_time, Double& X, Double& Y)
 {
-
     Double t   = r_time - 0.5;
     Double A = 50;
 
@@ -524,7 +520,6 @@ static void Function_const(Double r_time, Double& X, Double& Y)
 static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
 {
     // Border //
-
     double c1 = 0.1;
     double c2 = 0.3;
     double c3 = 1.0 - c2;
@@ -546,6 +541,7 @@ static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
 
     X = Y = 0.0;
 
+    //  sections //
     if( r_time <= c1 )
     {
         double f = a1 * (r_time - c1);     
@@ -596,9 +592,6 @@ static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
         Function_const,                // 8
         Function_SplineSpecial         // 9
     };   
-
- 
-
 }; // end class
 
 //************************************************************
@@ -692,7 +685,7 @@ private:
     //+
     // create pseudo Pointing Info by Trajectory-function 
     // return value contains various info 
-    //  => see PseudoPointing
+    //  => see PseudoPointingData type.
     //-
 
       PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime, const uInt antennaId);
@@ -726,13 +719,12 @@ private:
       Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
       Double  extraNrowInPointing_ ;   // calculated when start
-      Double extraNrowInMain_ ;       // calculated when start
+      Double  extraNrowInMain_ ;       // calculated when start
 
     // Error Limit (threshold) in GoogleTest Macro //
 
       Double errorLimit_ ;
       Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
-
 
     // Interval Second.
 
@@ -742,11 +734,10 @@ private:
     // Number of Antenna , Number of avilable Pointing Columns
     //   to prepeare for the Test  
 
-      uInt prepareMaxAntenna_         = 1;    // Tunable //
-      uInt prepareMaxPointingColumns_ = 1;    // Tunable //
+      uInt prepareMaxAntenna_         = 1;    // Tunable by set function. //
+      uInt prepareMaxPointingColumns_ = 1;    // Tunable by set function. //
 
       bool fgCoeffLocationTest  = false; 
-
 };
 
 //+
@@ -773,15 +764,15 @@ void TuneMSConfig::init()
         //   - the reuired minimum numbers are up to Interval ration.
         //-
        
-            Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec_ ;
-            availableNrowInPointing_ = requiredNrowInPointing_  
+          Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec_ ;
+          availableNrowInPointing_ = requiredNrowInPointing_  
                                      = TotalTime / pointingIntervalSec_;
 
-           // if POINTING table already have sufficient length 
-            if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_)
-            {
-                requiredNrowInPointing_  = requiredMainTestingRow_ *  mainIntervalSec_ / pointingIntervalSec_ ;
-            }
+        // if POINTING table already have sufficient length 
+        if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_)
+        {
+            requiredNrowInPointing_  = requiredMainTestingRow_ *  mainIntervalSec_ / pointingIntervalSec_ ;
+        }
 
         //+
         // Optimize Row Count
@@ -900,8 +891,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         //  in order to detect wrong anteena ID access by Bug.
         //-
 
-        if(true)
-        {
+        if(true) {
             const Double offsetConst = 0.001 / getMaxOfAntenna(); 
             for(uInt n=0;n<DirColCount;n++) {
                 X2[n] += offsetConst * (Double)antennaId; 
@@ -951,7 +941,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double d
     // Number of data in Pointing and Main Table
     //  to be compared.
     //
-    // 1) Determine number of row of Pointing and Main table.
+    // -  Determine number of row of Pointing and Main table.
     //    this depends on which total time is longer.
     //
     // intervalRatioAdj_ controls end of loop
@@ -1150,7 +1140,7 @@ public:
           void putInterval(uInt row, Double dd)  {  pointingInterval.  put(row, dd ); }
           void putAntennaId(uInt row, Double dd) {  pointingAntennaId.  put(row, dd ); }
 
-     /// Debug Utility ///
+      /// Debug Utility ///
 
           void dump(String fname)
           {
@@ -1183,7 +1173,7 @@ public:
           }
 private:
 
-      // MS assign /
+      // MS assign //
       void init()
       {      
            hPointing = ms.pointing();
@@ -1193,7 +1183,7 @@ private:
            columnPointing = std::move(colPt);
       }
 
-      // Column Handle 
+      // Column Handle //
       void prepareColumns() 
       {
           pointingAntennaId      = columnPointing ->antennaId();
@@ -1262,7 +1252,6 @@ public:
       // Constructor //
       AntennaTableAccess(String const &MsName, bool WriteAccess =false )
       {
-//          printf("MS File [%s] \n", MsName.c_str());
           auto option = casacore::Table::TableOption::Old;
           if(WriteAccess) option = casacore::Table::TableOption::Update;
 
@@ -1457,7 +1446,6 @@ private:
         mainInterval_col  .attach( ms , "INTERVAL");
     }
 
-
     // handle (in MS, directly connects to Columns)
      casacore::MeasurementSet     ms;
      casacore::uInt               nrow;
@@ -1468,6 +1456,7 @@ private:
      ROScalarColumn<Double> mainInterval_col ;
 
 };
+
 //*******************************************************
 // MeasurementSet Edit Class (MsEdit)
 //  - Modifying test-MS
@@ -1508,13 +1497,6 @@ public:
     // Default File Name
     //-
         String MsName_ ;
-
-    //+
-    // Buff between table and local buff to write.
-    //-
-
-        ANTENNADataBuff  AntennaData;   // for Read 
-        ANTENNADataBuff  AntennaData1;  // for Write
 
 private:
     void init() {
@@ -1653,79 +1635,72 @@ void  MsEdit::writePseudoOnPointing()
     uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
     for (uInt ant=0; ant < tuneMS.getMaxOfAntenna() ; ant++ )
     {
-            for (uInt row=0; row < LoopCnt; row++)
-            {
-                uInt  rowA = row + (ant * LoopCnt);
+        for (uInt row=0; row < LoopCnt; row++)
+        {
+            uInt  rowA = row + (ant * LoopCnt);
 
-                //+
-                //   CAS-8418::   1-Feb-2019
-                //   updated to make indivisual value on Pointing Columns
-                //-
+            // Time //
+              Double timeOnPoint = (Double)row  ;    // timeOnPoint represent the time in every pointing record.
 
-                // Time //
-    
-                  Double timeOnPoint = (Double)row  ;    // timeOnPoint represent the time in every pointing record.
+            // Arry form //
+              IPosition Ipo = pT.getIpo();
+              Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
 
-                // Arry form //
-                  IPosition Ipo = pT.getIpo();
-                  Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+              Vector< Array<Double>  > Dir5;
+              Dir5.resize(DirColCount);
 
-                  Vector< Array<Double>  > Dir5;
-                  Dir5.resize(DirColCount);
+            // Calculate Pseudo-Direction based on timeOnPoint //
 
-                // Calculate Pseudo-Direction based on timeOnPoint //
-
-                TuneMSConfig::PseudoPointingData  psd_data  
-                        = tuneMS.pseudoPointingInfoPointing(timeOnPoint, ant); // generated pseudo data. (Pointing) //
+              TuneMSConfig::PseudoPointingData  psd_data  
+                    = tuneMS.pseudoPointingInfoPointing(timeOnPoint, ant); // generated pseudo data. (Pointing) //
  
-                if( tuneMS.ifCoeffLocTest() )
-                {
-                    //+
-                    // Test Pattern Data 
-                    //-
-                    for(uInt cno=0; cno<DirColCount; cno++)
-                    {   
-                        // const value ..// 
-                          direction[0][0] = 0.1 + 0.1 * (Double)cno  ;
-                          direction[0][1] = 0.1 + 0.1 * (Double)ant;
-                          Dir5[cno] = direction;
-                    }
-                }
-                else  // Ordinary cases... // 
-                {
-                    for(uInt cno=0; cno<DirColCount; cno++)
-                    {
-                       // Add offset 
-                          direction[0][0] = psd_data.position[cno].first  ;
-                          direction[0][1] = psd_data.position[cno].second ;
-                          Dir5[cno] = direction;
-                    } 
-
-                }
-
+        
+            // Coeff for combiniation of Antenna and Column  //
+            if( tuneMS.ifCoeffLocTest() )
+            {
                 //+
-                // write to Column 
+                // Test-Pattern Data 
                 //-
-                pT.putDirection      (rowA, Dir5[PointingDirectionCalculator::PtColID::DIRECTION] );
-                pT.putTarget         (rowA, Dir5[PointingDirectionCalculator::PtColID::TARGET] );
-                pT.putPointingOffset (rowA, Dir5[PointingDirectionCalculator::PtColID::POINTING_OFFSET] );
-                pT.putSourceOffset   (rowA, Dir5[PointingDirectionCalculator::PtColID::SOURCE_OFFSET] );
-                pT.putEncoder        (rowA, Dir5[PointingDirectionCalculator::PtColID::ENCODER] );
+                for(uInt cno=0; cno<DirColCount; cno++)
+                {   
+                    // const value ..// 
+                      direction[0][0] = 0.1 + 0.1 * (Double)cno  ;
+                      direction[0][1] = 0.1 + 0.1 * (Double)ant;
+                      Dir5[cno] = direction;
+                }
+            }
+            else  // Ordinary cases... // 
+            {
+                for(uInt cno=0; cno<DirColCount; cno++)
+                {
+                   // Add offset 
+                      direction[0][0] = psd_data.position[cno].first  ;
+                      direction[0][1] = psd_data.position[cno].second ;
+                      Dir5[cno] = direction;
+                } 
+            }
+            //+
+            // write to Column 
+            //-
+              pT.putDirection      (rowA, Dir5[PointingDirectionCalculator::PtColID::DIRECTION] );
+              pT.putTarget         (rowA, Dir5[PointingDirectionCalculator::PtColID::TARGET] );
+              pT.putPointingOffset (rowA, Dir5[PointingDirectionCalculator::PtColID::POINTING_OFFSET] );
+              pT.putSourceOffset   (rowA, Dir5[PointingDirectionCalculator::PtColID::SOURCE_OFFSET] );
+              pT.putEncoder        (rowA, Dir5[PointingDirectionCalculator::PtColID::ENCODER] );
 
-                //+ 
-                // New Time (shifted)  (this  activates interporation)
-                //  basically FIXED values.
-                //-
+            //+ 
+            // New Time (shifted)  (this  activates interporation)
+            //  basically FIXED values.
+            //-
 
-                pT.putTime      (rowA, psd_data.time );     // Time
-                pT.putInterval  (rowA, psd_data.interval ); // Interval
+              pT.putTime      (rowA, psd_data.time );     // Time
+              pT.putInterval  (rowA, psd_data.interval ); // Interval
 
-                pT.putAntennaId (rowA, ant ) ;     // AntennaID 
+              pT.putAntennaId (rowA, ant ) ;     // AntennaID 
 
+        }//end row
 
-            }//end row
     }// end antid
-
 
     pT.flush();
 }
@@ -1753,11 +1728,6 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 
 void  MsEdit::writePseudoOnMainTable(Double div)
 {
-
-//******************
-// CAS-8418 CODE 
-//******************
-
     MainTableAccess   mta(MsName_,true);
 
     uInt nrow_ms = mta.getNrow();
@@ -1977,7 +1947,6 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 class TestDirection : public BaseClass
 {
 public:
-
         // Name database //
           DefaultNames   names;
 
@@ -2132,17 +2101,17 @@ protected:
         //*
 
             // Listing option
-            bool       fgResultListing_ = false;
+            const bool       fgResultListing_ = false;
             // Convertion option (by setFrame)
-            bool       fgConversion_    = false;
+            const bool       fgConversion_    = false;
             // Google Test On/OFF
-            bool       fgGoogleTest_    = true;   // must be true, except debug
+            const bool       fgGoogleTest_    = true;   // must be true, except debug
 
         //*
         // Fixture::InterpolationListedItems option
         //*
-          uInt start_sn =0; 	         // starting senario no. in loop.
-          uInt end_sn   =3;              // end senario no. in loop
+          const uInt start_sn =0; 	         // starting senario no. in loop.
+          const uInt end_sn   =3;              // end senario no. in loop
 
           uInt preparedColumn_  = 3;      // Number of prepeared Pointing-Column (1 to 5)
           uInt preparedAntenna_ = 3;      // Number of Antenna (more than 0 )
@@ -2155,14 +2124,14 @@ protected:
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
         //*
-          bool showCofficient = true;
+          const bool showCofficient = true;
 
         //*
         // Fixture::CompareInterpolation option 
         //*
-          bool dumpPointingTbl =  false;
-          bool dumpMainTbl     =  false;
-          bool showResult      =  true;
+          const bool dumpPointingTbl =  false;
+          const bool dumpMainTbl     =  false;
+          const bool showResult      =  true;
  
 private:
 
@@ -2391,8 +2360,8 @@ std::vector<ParamList>  paramListS[] =
 {
     // Senario 0 (Big Ratio) //
     {
-      {true,  0,2000, 1.0,  1.0	  ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
-      {false, 0,2000, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
+      {true,  0,1800, 1.0,  1.0	  ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
+      {false, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
 
       {true,  0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
       {true,  0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  8.5E-08 },
@@ -2405,13 +2374,15 @@ std::vector<ParamList>  paramListS[] =
 
       {true, 0,1510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1530, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1530, 0.05,  0.01, TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1540, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1550, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+
       {true, 0,1560, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+ 
     },
 
     // Senario 2 (all AntenaID) //
@@ -2425,11 +2396,9 @@ std::vector<ParamList>  paramListS[] =
     {
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
       {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Spline_Special,     5.0E-05 },
 
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,     2.0E-02 },
     }
 };
 
@@ -2526,10 +2495,18 @@ TEST_F(TestDirection, InterpolationSingle )
       uInt numRow = 1000;
       selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
       setCondition( numRow,       // number of row
-                    1.0,          // Pointing Interval
-                    1.0,         // Main Interval
-                    8E-06  );  // Error limit 
-
+                    0.1,          // Pointing Interval
+                    0.1,          // Main Interval
+                    8E-07  );     // Error limit 
+        //*
+        // Note:
+        // Error order becomes worse, (div=10, ant=3) 
+        // Interval= 1.0     Error oder = about 2E-07
+        // Interval= 0.1     Error oder = about 8E-07
+        // Interval= 0.01,   Error oder = about 6E-06
+        // Interval= 0.001,  Error oder = about 5E-05
+        // Interval= 0.0001, Error oder = about 6E-04
+        //*
 
     // Prepate Antenna (for Multple-set) //
       prepareAntenna();
@@ -2582,9 +2559,9 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     // set Examination Condition  //
 
       selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
-      setCondition( 50400,       // number of row
-                    0.048,        // Pointing Interval
-                    0.001,        // Main Interval
+      setCondition( 5040,       // number of row
+                    0.048,      // Pointing Interval
+                    0.001,      // Main Interval
                     5.0E-03 );  // Error limit 
 
     // Prepate Antenna (for Multple-set) //
@@ -2840,15 +2817,6 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 // Revised Edition (CAS-8418)
 //  (replaced from old to new)
 //------------------------------
-#if 0
-void showTime()
-{
-    struct timespec ts;
-    clock_getres(CLOCK_REALTIME, &ts);
-    clock_gettime(CLOCK_REALTIME, &ts);
-    printf("time:    %10ld.%09ld CLOCK_REALTIME\n", ts.tv_sec, ts.tv_nsec);
-}
-#endif  
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
@@ -2880,9 +2848,8 @@ TEST_F(TestDirection, setDirectionColumn  )
       start(DefaultLocalMsName);
       expectedNrow = pdc->getNrowForSelectedMS();
       EXPECT_NE((uInt)0, expectedNrow );
-
-///    shoiwTime();
-
+    
+    // Test loop //
     uInt Count =1 ;		// Debug option to check memory leak etc. //
     for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
     {
@@ -2896,8 +2863,6 @@ TEST_F(TestDirection, setDirectionColumn  )
             inspectAccessor(*pdc);
         }
     }    
-
-///    showTime();
 }
 /*----------------------------------------------------------
   getDirection() and MovingSourceCorrection
@@ -4274,12 +4239,14 @@ TEST_F(TestSetFrame, setFrame )
  Unit Test Main (google test)
     - Based on instructed Template for GTest.
     - Such minimum statements are recommended.
-(History) 
+(Major History) 
 -  7-DEC-18: Merged master (to get new CMakeList)
 -  7-DEC-18: Added initialize (CAS-12114,old 11427-2)
 -  4-APR-19: Internal Feature freazed. 
              Ommiteed some test conditions to finish within 3 min.
 - 15-APR-19  Changed InterpolationListed. 
+- 14-MAY-19  Changed pseudo data generation. Generating based on 
+             Poining-Column and also with AntennaID.
  **********************************************************************/
 
 int main (int nArgs, char * args [])

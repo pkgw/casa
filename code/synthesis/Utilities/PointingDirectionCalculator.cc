@@ -1099,9 +1099,9 @@ void SplineInterpolation::init(MeasurementSet const &ms,
 
     for(uInt ant=0; ant <numAnt; ant++)
     {
-        uInt st =tmp_time[ant].size();
-        uInt s1 =tmp_dir [ant].size();
-        if ((st < 4)||(s1 < 4))
+        uInt s_time =tmp_time[ant].size();
+        uInt s_dir  =tmp_dir [ant].size();
+        if ((s_time < 4)||(s_dir < 4))
         {
           // Warning .. //
             LogIO os(LogOrigin("SplineInterpolation", "init()", WHERE));
