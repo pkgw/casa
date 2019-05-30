@@ -1455,7 +1455,6 @@ private:
      ROScalarColumn<Double> mainTime_col ;
      ROScalarColumn<Double> mainInterval_col ;
 
-<<<<<<< HEAD
 };
 
 //*******************************************************
@@ -1466,9 +1465,8 @@ private:
 class MsEdit         
 {
 public:
-=======
     // Special Column //
-        
+#if 0        
         ScalarColumn<String> antennaName      = columnAntenna->name(); 
         ScalarColumn<String> antennaStation   = columnAntenna->station();
         ScalarColumn<String> antennaType      = columnAntenna->type();
@@ -1477,7 +1475,7 @@ public:
         ArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
 
         ScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
->>>>>>> master
+#endif 
 
     DefaultNames   names;
 
@@ -1538,11 +1536,11 @@ uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 //  Write Data to Antenna Table 
 //-
 
-<<<<<<< HEAD
+#if 1 // <<<<<<< HEAD
 void setData(ANTENNADataBuff &data, uInt id)
 {
     data.name            =  "ZZ0"+std::to_string(id);
-=======
+#else
         Description("MsEdit:Adding Data on new columns in POINTING table. ",PointingTableName.c_str());
 
     // Prepeare Handle //
@@ -1580,7 +1578,7 @@ void setData(ANTENNADataBuff &data, uInt id)
         ArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
         ArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
         ArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
->>>>>>> master
+#endif // >>>>>>> master
 
     printf( "writeDataToAntennaTable():setData  name =[%s]\n",data.name.c_str() );
 
@@ -1670,57 +1668,8 @@ void MsEdit::duplicateNewColumnsFromDirection()
 
 void  MsEdit::writePseudoOnPointing()
 {
-<<<<<<< HEAD
+
     PointingTableAccess pT( MsName_, true);
-=======
-    Description( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table", 
-                  MsName.c_str()  );
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        // create the Smart Pointer in use. //
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Time Info
-    //-
-
-        ScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
- 
-    //+
-    // Listing Columns(Direction related) on Pointing 
-    //-
-
-        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        IPosition Ipo = pointingDirection.shape(0);
-        printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
-
->>>>>>> master
 
     //+
     //  Loop for each Row,
@@ -1833,18 +1782,8 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 {
     MainTableAccess   mta(MsName_,true);
 
-<<<<<<< HEAD
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow()  ;
-=======
-        ScalarColumn<Double> mainTime           ;
-        ScalarColumn<Double> mainInterval       ;
- 
-    // Attach ..//
-
-        mainTime      .attach( ms0 , "TIME");
-        mainInterval  .attach( ms0 , "INTERVAL");
->>>>>>> master
 
     printf("writePseudoOnMainTable:: writing to MAIN, nrow=%d, number of data on each antenna=%d \n", 
             nrow_ms,LoopCnt );
@@ -2657,7 +2596,6 @@ TEST_F(TestDirection, InterpolationSingle )
 //    with Pointing Column and AntennaId 
 //*****************************************
 
-
 TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 {
      TestDescription( "Coefficient Table Test (by Antenna and Pointing-Columns)" );
@@ -3259,17 +3197,10 @@ TEST_F(TestDirection, Matrixshape )
     //      getDirection by IPPosition(p,q,r)
     //-
 
-<<<<<<< HEAD
         Matrix<Double> DirList1;
         Matrix<Double> DirList2;
         uInt N_Col;  
         uInt N_Row ;  
-=======
-        ScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
->>>>>>> master
 
         // COLUMN //
     
@@ -3385,7 +3316,7 @@ TEST_F(TestDirection, getDirection1 )
 
 TEST_F(TestDirection, getDirectionExtended )
 {
-#if 1
+#if 0
     TestDescription( "getDirection (J2000) with selected data. uvw available" );
 
     // Use DefaultMS as a simple sequence.
@@ -3457,12 +3388,8 @@ TEST_F(TestDirection, getDirectionExtended )
     // uv value 
     //  (first attach to Column e )
     //-
-<<<<<<< HEAD
-        casacore::ROArrayColumn<casacore::Double> uvwColumn;	
-=======
 
         casacore::ArrayColumn<casacore::Double> uvwColumn;	
->>>>>>> master
         uvwColumn .attach( ms0 , "UVW");
 
     //+
