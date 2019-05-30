@@ -166,7 +166,7 @@ public:
 	bool operator== (const Group & other) const;
 
 
-	bool isSet() const {
+	bool filenameIsSet() const {
 		return !itsFilename_.empty();
 	}
 
@@ -181,12 +181,21 @@ public:
 	}
 
     // based on PlotMSCacheBase::Type enum {MS, CAL}
-    const casacore::Int & type() const {
-        return itsType_;
+    const casacore::Int & cacheType() const {
+        return itsCacheType_;
     }
-	void setType (const casacore::Int & value) {
-		if (itsType_ != value) {
-			itsType_ = value;
+	void setCacheType (const casacore::Int & value) {
+		if (itsCacheType_ != value) {
+			itsCacheType_ = value;
+			updated();
+		}
+	}
+    const casacore::String & calType() const {
+        return itsCalType_;
+    }
+	void setCalType (const casacore::String & value) {
+		if (itsCalType_ != value) {
+			itsCalType_ = value;
 			updated();
 		}
 	}
@@ -238,7 +247,8 @@ private:
 
 	/* Parameters' values */
 	casacore::String itsFilename_;
-	casacore::Int itsType_;
+	casacore::Int itsCacheType_;
+	casacore::String itsCalType_;
 	PlotMSSelection itsSelection_;
 	PlotMSAveraging itsAveraging_;
 	PlotMSTransformations itsTransformations_;
@@ -246,7 +256,8 @@ private:
 
 	/* Key strings for casacore::Record */
 	static const casacore::String REC_FILENAME;
-	static const casacore::String REC_TYPE;
+	static const casacore::String REC_CACHETYPE;
+	static const casacore::String REC_CALTYPE;
 	static const casacore::String REC_SELECTION;
 	static const casacore::String REC_AVERAGING;
 	static const casacore::String REC_TRANSFORMATIONS;
@@ -919,7 +930,7 @@ public:
 	void setLabelFormats (const PlotMSLabelFormat & xFormat,
 			const PlotMSLabelFormat & yFormat,
 			unsigned int index = 0);
-	void showAxes (const bool & xShow, const bool & yShow,
+	void showAxesLabels (const bool & xLabelShow, const bool & yLabelShow,
 			unsigned int index = 0);
 	void showLegend (const bool & show,
 			const PlotCanvas::LegendPosition & pos,
@@ -1061,57 +1072,10 @@ public:
 	}
 
 
-	const vector < bool > &xAxesShown() const {
-		return itsXAxesShown_;
-	}
-	void showXAxes (const vector < bool > &value) {
-		if (itsXAxesShown_ != value) {
-			itsXAxesShown_ = value;
-			updated();
-		}
-	}
-	bool xAxisShown (unsigned int index = 0) const {
-		if (index >= itsXAxesShown_.size())
-			const_cast < vector < bool > &>(itsXAxesShown_).resize (index + 1);
-		return itsXAxesShown_[index];
-	}
-	void showXAxis (const bool & value, unsigned int index = 0) {
-		if (index >= itsXAxesShown_.size())
-			itsXAxesShown_.resize (index + 1);
-		if (itsXAxesShown_[index] != value) {
-			itsXAxesShown_[index] = value;
-			updated();
-		}
-	}
-
-
-	const vector < bool > &yAxesShown() const {
-		return itsYAxesShown_;
-	}
-	void showYAxes (const vector < bool > &value) {
-		if (itsYAxesShown_ != value) {
-			itsYAxesShown_ = value;
-			updated();
-		}
-	}
-	bool yAxisShown (unsigned int index = 0) const {
-		if (index >= itsYAxesShown_.size())
-			const_cast < vector < bool > &>(itsYAxesShown_).resize (index + 1);
-		return itsYAxesShown_[index];
-	}
-	void showYAxis (const bool & value, unsigned int index = 0) {
-		if (index >= itsYAxesShown_.size())
-			itsYAxesShown_.resize (index + 1);
-		if (itsYAxesShown_[index] != value) {
-			itsYAxesShown_[index] = value;
-			updated();
-		}
-	}
-
 	const vector < bool > &xLabelsShown() const {
 		return itsXLabelsShown_;
 	}
-	void showXLabel (const vector < bool > &value) {
+	void showXLabels (const vector < bool > &value) {
 		if (itsXLabelsShown_ != value) {
 			itsXLabelsShown_ = value;
 			updated();
@@ -1131,10 +1095,11 @@ public:
 		}
 	}
 
+
 	const vector < bool > &yLabelsShown() const {
 		return itsYLabelsShown_;
 	}
-	void showYLabel (const vector < bool > &value) {
+	void showYLabels (const vector < bool > &value) {
 		if (itsYLabelsShown_ != value) {
 			itsYLabelsShown_ = value;
 			updated();
@@ -1371,8 +1336,6 @@ private:
 	std::vector<PlotMSLabelFormat> itsYLabels_;
 	std::vector<bool> itsYFontsSet_;
 	std::vector<casacore::Int> itsYAxisFonts_;
-	std::vector<bool> itsXAxesShown_;
-	std::vector<bool> itsYAxesShown_;
 	std::vector<bool> itsXLabelsShown_;
 	std::vector<bool> itsYLabelsShown_;
 	std::vector<bool> itsLegendsShown_;
@@ -1392,8 +1355,6 @@ private:
 	static const casacore::String REC_YLABELS;
 	static const casacore::String REC_YFONTSSET;
 	static const casacore::String REC_YAXISFONTS;
-	static const casacore::String REC_SHOWXAXES;
-	static const casacore::String REC_SHOWYAXES;
 	static const casacore::String REC_SHOWXLABELS;
 	static const casacore::String REC_SHOWYLABELS;
 	static const casacore::String REC_SHOWLEGENDS;

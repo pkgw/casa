@@ -374,7 +374,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
 	}
 
 	// Highlight XWidget changes
-	if (data->isSet()){
+	if (data->filenameIsSet()){
 		auto xAxisChanged = cNew->xAxis(0) != c->xAxis(0);
 		auto xDataAxisParamsChanged = cNew->xDataColumn(0) != c->xDataColumn(0);
 		auto xDirectionAxisParamsChanged = cNew->xDirectionParams(0) !=
@@ -400,7 +400,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
 	highlightWidgetText(overlayLabel, overlayChanged);
 
 	// Highlight YWidgets changes
-	if (data->isSet()){
+	if (data->filenameIsSet()){
 		for ( int i = 0; i < yAxisCount; i++ ){
 			QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
 			auto yAxisChanged = c->yAxis(i) != cNew->yAxis(i);

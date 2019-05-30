@@ -53,7 +53,18 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
     case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
-	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
+    case GAMP: case GPHASE: case GREAL: case GIMAG:
+    case DELAY: case SWP: case TSYS: case OPAC:
+    case TEC: case ANTPOS: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsCalData(Axis axis) {
+    switch(axis) {
+    case GAMP: case GPHASE: case GREAL: case GIMAG:
+    case DELAY: case SWP: case TSYS: case OPAC:
+    case TEC: case ANTPOS: return true;
     default: return false;
     }
 }
@@ -63,7 +74,7 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
     case AMP: case PHASE: case REAL: case IMAG: 
     case GAMP: case GPHASE: case GREAL: case GIMAG:
     case DELAY: case SWP: case TSYS: case OPAC: case SNR: case TEC:
-	case ANTPOS: case FLAG:
+    case ANTPOS: case FLAG:
         return true;
     default: return false;
     }
@@ -79,6 +90,13 @@ bool PMS::axisIsWeight(Axis axis) {
 bool PMS::axisIsUV(Axis axis) {
     switch(axis) {
     case U: case V: case UWAVE: case VWAVE: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsUVWave(Axis axis) {
+    switch(axis) {
+    case UWAVE: case VWAVE: return true;
     default: return false;
     }
 }
@@ -122,25 +140,25 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     switch(axis) {
     
     case TIME:
-       	return UDATETIME;
+        return UDATETIME;
     case TIME_INTERVAL:
         return SECONDS;
     case FREQUENCY:
-       	return GHERTZ;
+        return GHERTZ;
     case VELOCITY:
-       	return KILOMETERS_PER_SECOND;
+        return KILOMETERS_PER_SECOND;
     case UVDIST:
     case U:
     case V:
     case W:
     case ANTPOS:
-       	return METERS;
+        return METERS;
     case UVDIST_L:
     case UWAVE:
     case VWAVE:
     case WWAVE:
-    	//Should be lambda
-    	return WAVELENGTHS;
+        //Should be lambda
+        return WAVELENGTHS;
     case PHASE:
     case GPHASE:
     case ELEVATION:
@@ -151,23 +169,25 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case AZ0:
     case EL0:
     case PA0:
-    	return DEGREES;
+        return DEGREES;
     case HA0:
-    	return HOURS;
-   case RADIAL_VELOCITY:
-       	return KILOMETERS_PER_SECOND;
-   case DELAY:
-	   	return NANOSECONDS;
-   case TSYS:
-   case TSKY:
-	   	return KELVIN;
-   case OPAC:
-	   return NEPERS;
-   case RHO:
-       	return KILOMETERS;
-   case ATM:
+        return HOURS;
+    case RADIAL_VELOCITY:
+        return KILOMETERS_PER_SECOND;
+    case DELAY:
+        return NANOSECONDS;
+    case TSYS:
+    case TSKY:
+        return KELVIN;
+    case OPAC:
+        return NEPERS;
+    case RHO:
+        return KILOMETERS;
+    case ATM:
         return PERCENT;
-   default: return UNONE;
+    default:
+        return UNONE;
+
     //The following axis have units which are proportion to Jansky, but are
     //time varying so Jansky is not accurate.  For now, we are not including
     //units with them.
@@ -276,19 +296,19 @@ const vector<String>& PMS::COLORS_LIST() {
     static vector<String> colors;
     if(colors.size() == 0) {
         colors.resize(10);
-		colors[0] = "#202020";
-		colors[1] = "#E00066";
-		colors[2] = "#E07600";
-		colors[3] = "#66D000";
-		colors[4] = "#AC6600";
-		colors[5] = "#0091A0";
-		colors[6] = "#10E050";
-		colors[7] = "#6600E0";
-		colors[8] = "#0066F0";
-		colors[9] = "#A868D8";
-	}
+        colors[0] = "#202020";
+        colors[1] = "#E00066";
+        colors[2] = "#E07600";
+        colors[3] = "#66D000";
+        colors[4] = "#AC6600";
+        colors[5] = "#0091A0";
+        colors[6] = "#10E050";
+        colors[7] = "#6600E0";
+        colors[8] = "#0066F0";
+        colors[9] = "#A868D8";
+    }
     
-	return colors;
+    return colors;
 }
 
 
@@ -303,6 +323,7 @@ const int PMS::DEFAULT_GRID_COLS = 1;
 
 const PMS::Axis PMS::DEFAULT_XAXIS = TIME;
 const PMS::Axis PMS::DEFAULT_YAXIS = AMP;
+const PMS::Axis PMS::DEFAULT_CAL_YAXIS = GAMP;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN = DATA;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN_WT = CORRECTED;
 const PMS::CoordSystem PMS::DEFAULT_COORDSYSTEM = ICRS;
@@ -321,8 +342,7 @@ const String PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT =
     PlotMSLabelFormat::TAG(PlotMSLabelFormat::TAG_ENDIF_UNIT());
 const bool PMS::DEFAULT_FONTSET = false;
 const int PMS::DEFAULT_FONT = 0;
-const bool PMS::DEFAULT_SHOWAXIS = true;
-const bool PMS::DEFAULT_SHOWLABEL = true;
+const bool PMS::DEFAULT_SHOWAXISLABEL = true;
 const bool PMS::DEFAULT_SHOWLEGEND = false;
 const PlotCanvas::LegendPosition PMS::DEFAULT_LEGENDPOSITION =
     PlotCanvas::INT_URIGHT;

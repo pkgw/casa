@@ -90,8 +90,9 @@ PlotMSIndexer::PlotMSIndexer():
 	dataIndex_ = 0;
 	}
 
-PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
-		PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
+		PMS::Axis xAxis, PMS::DataColumn xData,
+		PMS::Axis yAxis, PMS::DataColumn yData,
 		String xconnect, bool timeconnect, int index ):
 		  plotmscache_(parent),
 		  currChunk_(0),
