@@ -135,7 +135,7 @@ FlagMSHandler::open()
 
 	// Read polarizations
 	ROMSPolarizationColumns polarizationSubTable(originalMeasurementSet_p->polarization());
-	ROArrayColumn<Int> corrTypeColum = polarizationSubTable.corrType();
+	ArrayColumn<Int> corrTypeColum = polarizationSubTable.corrType();
 	corrProducts_p = new std::vector<String>();
 	for (uInt polRow_idx=0;polRow_idx<corrTypeColum.nrow();polRow_idx++)
 	{
@@ -228,7 +228,7 @@ FlagMSHandler::open()
 
 	// Read reference frequencies per SPW
 	ROMSSpWindowColumns spwSubTable(originalMeasurementSet_p->spectralWindow());
-	ROScalarColumn<Double> refFrequencies = spwSubTable.refFrequency();
+	ScalarColumn<Double> refFrequencies = spwSubTable.refFrequency();
 	lambdaMap_p = new lambdaMap();
 	for (uInt spwidx=0;spwidx<refFrequencies.nrow();spwidx++)
 	{

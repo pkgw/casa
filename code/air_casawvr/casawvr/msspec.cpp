@@ -28,12 +28,12 @@ namespace LibAIR2 {
     const size_t nspw=specTable.nrow();
 
     // Number of channels 
-    casacore::ROScalarColumn<casacore::Int> nc
+    casacore::ScalarColumn<casacore::Int> nc
       (specTable,
        casacore::MSSpectralWindow::columnName(casacore::MSSpectralWindow::NUM_CHAN));
 
     // Frequencies of the channels
-    casacore::ROArrayColumn<casacore::Double>
+    casacore::ArrayColumn<casacore::Double>
       chfreq(specTable,
 	     casacore::MSSpectralWindow::columnName(casacore::MSSpectralWindow::CHAN_FREQ));
 
@@ -95,7 +95,7 @@ namespace LibAIR2 {
     const casacore::MSDataDescription dd(ms.dataDescription());
     const size_t n=dd.nrow();
 
-    casacore::ROScalarColumn<casacore::Int>
+    casacore::ScalarColumn<casacore::Int>
       spwid(dd,
 	    casacore::MSDataDescription::columnName(casacore::MSDataDescriptionEnums::SPECTRAL_WINDOW_ID));
 
@@ -116,7 +116,7 @@ namespace LibAIR2 {
     const casacore::MSDataDescription dd(ms.dataDescription());
     const size_t n=dd.nrow();
 
-    casacore::ROScalarColumn<casacore::Int>
+    casacore::ScalarColumn<casacore::Int>
       spwid(dd,
 	    casacore::MSDataDescription::columnName(casacore::MSDataDescriptionEnums::SPECTRAL_WINDOW_ID));
 
@@ -136,7 +136,7 @@ namespace LibAIR2 {
   {
     std::map<size_t, size_t> map=DataDescSPWMap(ms);
     const casacore::ROMSMainColumns cols(ms);
-    const casacore::ROScalarColumn<casacore::Int> &dd=cols.dataDescId();
+    const casacore::ScalarColumn<casacore::Int> &dd=cols.dataDescId();
     const size_t nrows=dd.nrow();          
     spw.resize(nrows);
     for(size_t ii=0; ii<nrows; ++ii)

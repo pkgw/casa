@@ -57,7 +57,7 @@
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
 #include <synthesis/TransformMachines2/SkyJones.h>
-
+#include <iomanip>
 namespace casacore{
 
   class UVWMachine;
@@ -70,7 +70,7 @@ namespace casa{ //# namespace casa
                   class VisibilityIterator2;
   }
  namespace refim{ //#	 namespace for refactored imaging code with vi2/vb2
-
+  class BriggsCubeWeightor;
   class SkyJones;
 // <summary> defines interface for the Fourier Transform Machine </summary>
 
@@ -177,6 +177,11 @@ public:
 				  casacore::CountedPtr<SIImageStore> imstore);
 
   //-------------------------------------------------------------------------------------
+  //This function has to be called after initMaps to initialize Briggs
+  //Cube weighting scheme
+  virtual void initBriggsWeightor(vi::VisibilityIterator2& vi);
+
+  
   // Finalize transform to Sky plane
   virtual void finalizeToSky() = 0;
 
@@ -322,7 +327,7 @@ public:
 
   //set frequency interpolation type
   virtual void setFreqInterpolation(const casacore::String& method);
-
+  virtual void setFreqInterpolation(const casacore::InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod type);
   //tell ftmachine which Pointing table column to use for Direction
   //Mosaic or Single dish ft use this for example
   virtual void setPointingDirColumn(const casacore::String& column="DIRECTION");
@@ -369,12 +374,18 @@ public:
   //Using double in the units and epoch-frame of the ms(s) ..caller is responsible for conversion
   void setPhaseCenterTime(const casacore::Double time){phaseCenterTime_p=time;};
   casacore::Double getPhaseCenterTime(){return phaseCenterTime_p;};
+  casacore::Vector<casacore::Int> channelMap(const vi::VisBuffer2& vb);
+  casacore::Matrix<casacore::Double> getSumWeights(){return  sumWeight;};
 
+  ///Functions associated with Briggs weighting for cubes
+  void setBriggsCubeWeight(casacore::CountedPtr<refim::BriggsCubeWeightor> bwght){briggsWeightor_p=bwght;};
+  void getImagingWeight(casacore::Matrix<casacore::Float>& imwght, const vi::VisBuffer2& vb);
 protected:
 
   friend class VisModelData;
   friend class MultiTermFT;
   friend class MultiTermFTNew;
+  friend class BriggsCubeWeightor;
   casacore::LogIO logIO_p;
 
   casacore::LogIO& logIO();
@@ -411,6 +422,7 @@ protected:
   casacore::Bool useDoubleGrid_p;
 
   virtual void initMaps(const vi::VisBuffer2& vb);
+  
   virtual void initPolInfo(const vi::VisBuffer2& vb);
 
   // Sum of weights per polarization and per chan
@@ -471,9 +483,11 @@ protected:
 
 
   void setSpectralFlag(const vi::VisBuffer2& vb, casacore::Cube<casacore::Bool>& modflagcube);
+  //Save/Recover some elements of state of ftmachine in/from record
+  casacore::Bool storeMovingSourceState(casacore::String& error, casacore::RecordInterface& outRecord);
   //helper to save Measures in a record
   casacore::Bool saveMeasure(casacore::RecordInterface& rec, const casacore::String& name, casacore::String& error, const casacore::Measure& ms);
-
+  casacore::Bool recoverMovingSourceState(casacore::String& error, const casacore::RecordInterface& inRecord);
   casacore::Matrix<casacore::Double> negateUV(const vi::VisBuffer2& vb);
 
   // Private variables needed for spectral frame conversion 
@@ -517,6 +531,7 @@ protected:
   ///Some parameters and helpers for multithreaded gridders
   casacore::Int doneThreadPartition_p;
   casacore::Vector<casacore::Int> xsect_p, ysect_p, nxsect_p, nysect_p;
+  casacore::CountedPtr<refim::BriggsCubeWeightor> briggsWeightor_p;
   virtual void   findGridSector(const casacore::Int& nxp, const casacore::Int& nyp, const casacore::Int& ixsub, const casacore::Int& iysub, const casacore::Int& minx, const casacore::Int& miny, const casacore::Int& icounter, casacore::Int& x0, casacore::Int& y0, casacore::Int& nxsub, casacore::Int& nysub, const casacore::Bool linear); 
   
   virtual void tweakGridSector(const casacore::Int& nx, const casacore::Int& ny, 

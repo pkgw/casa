@@ -58,7 +58,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void init(const casacore::Table& ctAsTable)
     {casacore::MSSelectableMainColumn::init(ctAsTable);ct_p = NewCalTable(ctAsTable); ctCols_p=new ROCTMainColumns(ct_p);}
 
-    virtual const casacore::ROArrayColumn<casacore::Bool>& flag() {return ctCols_p->flag();}
+    virtual const casacore::ArrayColumn<casacore::Bool>& flag() {return ctCols_p->flag();}
 
     virtual casacore::Bool flagRow(const casacore::Int& i) {return allTrue(ctCols_p->flag()(i));}
     

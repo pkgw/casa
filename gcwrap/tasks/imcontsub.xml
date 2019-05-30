@@ -33,7 +33,7 @@ linefile.
 
                         Example: imagename='ngc5921_task.im'
 </description>
-    	<value></value>
+        <value></value>
         <example>inputfile=ngc5921_task.image</example>
     </param>
 
@@ -44,7 +44,7 @@ linefile.
 
                         Example: outline='ngc5921_line.im'
 </description>
-    	<value></value>
+        <value></value>
         <example>outline=ngc5921_line.image</example>
     </param>
 
@@ -55,7 +55,7 @@ linefile.
 
                         Example: contfile='ngc5921_cont.im'
 </description>
-    	<value></value>
+        <value></value>
         <example>outcont=ngc5921_cont.image</example>
     </param>
 
@@ -66,8 +66,8 @@ linefile.
 
                         Example: fitorder=2
 </description>
-    	<value>0</value>
-	<allowed kind="range"><value range="min">0</value></allowed> 
+        <value>0</value>
+    <allowed kind="range"><value range="min">0</value></allowed> 
         <example>fitorder=2</example>
     </param>
 
@@ -91,14 +91,14 @@ linefile.
 <description>Channels to use. 
                      Default: '' (use all channels)
 </description>
-    	<value/>
+        <value/>
     </param>
     <param type="string" name="stokes">
 <shortdescription>Stokes planes to use.</shortdescription>
 <description>Stokes planes to use.
                      Default: '' (use all Stokes planes)
 </description>
-	    <value/>
+        <value/>
     </param>
 
     <constraints>

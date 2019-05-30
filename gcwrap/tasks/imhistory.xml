@@ -32,7 +32,7 @@ successful.
 
                         Example: imagename='ngc5921.im'
 </description>
-    	<value/>
+        <value/>
         <example>imagename='ngc5921.im'</example>
     </param>
 
@@ -41,7 +41,7 @@ successful.
 <description>Operating mode.
                      Default: 'list' (retrieve history)
                      Options: 'list|append' ('append' to append a
-		     record to history)
+                     record to history)
 </description>
         <value>list</value>
     </param>
@@ -63,8 +63,8 @@ successful.
                      Default: 'imhistory'
 
                      The user can specify any string. This string will
-		     appear as a tag at the start of the appended line
-		     in the image history. Only used for mode="append".
+                     appear as a tag at the start of the appended line
+                     in the image history. Only used for mode="append".
 </description>
         <value>imhistory</value>
     </param>

@@ -624,7 +624,7 @@ ROVisibilityIterator::getBeamOffsets () const
     return readImpl_p->getBeamOffsets ();
 }
 
-//ROArrayColumn
+//ArrayColumn
 //<Double> &
 //ROVisibilityIterator::getChannelFrequency () const
 //{
@@ -672,70 +672,70 @@ ROVisibilityIterator::getChannelSelection (Block< Vector<Int> >& blockNGroup,
 //}
 
 void
-ROVisibilityIterator::getCol (const ROScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ScalarColumn<Bool> &column, Vector<Bool> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROScalarColumn<Int> &column, Vector<Int> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ScalarColumn<Int> &column, Vector<Int> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROScalarColumn<Double> &column, Vector<Double> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ScalarColumn<Double> &column, Vector<Double> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Bool> &column, Array<Bool> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Bool> &column, Array<Bool> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Float> &column, Array<Float> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Float> &column, Array<Float> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Double> &column, Array<Double> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Double> &column, Array<Double> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Complex> &column, Array<Complex> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Complex> &column, Array<Complex> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Bool> &column, const Slicer &slicer, Array<Bool> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, slicer, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Float> &column, const Slicer &slicer, Array<Float> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, slicer, array, resize);
 }
 
 void
-ROVisibilityIterator::getCol (const ROArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize ) const
+ROVisibilityIterator::getCol (const ArrayColumn<Complex> &column, const Slicer &slicer, Array<Complex> &array, Bool resize ) const
 {
     CheckImplementationPointerR ();
     readImpl_p->getCol (column, slicer, array, resize);
@@ -1009,8 +1009,8 @@ ROVisibilityIterator::lsrFrequency (const Int& spw,
                             const Block<Int> & chanWidth,
                             const Block<Int> & chanInc,
                             const Block<Int> & numChanGroup,
-                            const ROArrayColumn <Double> & chanFreqs,
-                            const ROScalarColumn<Int> & obsMFreqTypes,
+                            const ArrayColumn <Double> & chanFreqs,
+                            const ScalarColumn<Int> & obsMFreqTypes,
                             const MEpoch & ep,
                             const MPosition & obsPos,
                             const MDirection & dir)
