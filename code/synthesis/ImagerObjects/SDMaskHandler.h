@@ -337,7 +337,8 @@ public:
   casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskiamge);
 
   // for warning messages for empy initial mask in automask
-  void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
+  //void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
+  void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Matrix<casacore::String>& thresholdType);
 
   // determining skip channels for the mask changed less than the specfied percentage
   void skipChannels(const casacore::Float& fracChnage, 
