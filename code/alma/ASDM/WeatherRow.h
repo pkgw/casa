@@ -981,7 +981,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 WeatherRow (WeatherTable &table, WeatherRow &row);
+	 WeatherRow (WeatherTable &table, WeatherRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

@@ -1878,10 +1878,10 @@ wvrMethod = CWVRMethod::from_int(0);
 		
 	}
 	
-	WVMCalRow::WVMCalRow (WVMCalTable &t, WVMCalRow &row) : table(t) {
+	WVMCalRow::WVMCalRow (WVMCalTable &t, WVMCalRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1911,30 +1911,30 @@ wvrMethod = CWVRMethod::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
-		
-		
+			timeInterval = row->timeInterval;
 		
 		
-			wvrMethod = row.wvrMethod;
 		
-			polyFreqLimits = row.polyFreqLimits;
 		
-			numInputAntenna = row.numInputAntenna;
+			wvrMethod = row->wvrMethod;
 		
-			numChan = row.numChan;
+			polyFreqLimits = row->polyFreqLimits;
 		
-			numPoly = row.numPoly;
+			numInputAntenna = row->numInputAntenna;
 		
-			pathCoeff = row.pathCoeff;
+			numChan = row->numChan;
 		
-			refTemp = row.refTemp;
+			numPoly = row->numPoly;
 		
-			inputAntennaId = row.inputAntennaId;
+			pathCoeff = row->pathCoeff;
+		
+			refTemp = row->refTemp;
+		
+			inputAntennaId = row->inputAntennaId;
 		
 		
 		

@@ -130,7 +130,7 @@ inline casacore::String configureTaqlString(casacore::String const &msName, casa
 
 inline void fillNChanParList(casacore::MeasurementSet const &ms, casacore::Vector<casacore::Int> &nChanParList) {
   casacore::MSSpectralWindow const &msspw = ms.spectralWindow();
-  casacore::ROScalarColumn<casacore::Int> nchanCol(msspw, "NUM_CHAN");
+  casacore::ScalarColumn<casacore::Int> nchanCol(msspw, "NUM_CHAN");
   debuglog << "nchanCol=" << toString(nchanCol.getColumn()) << debugpost;
   nChanParList = nchanCol.getColumn()(casacore::Slice(0,nChanParList.nelements()));
   debuglog << "nChanParList=" << nChanParList << debugpost;
@@ -138,7 +138,7 @@ inline void fillNChanParList(casacore::MeasurementSet const &ms, casacore::Vecto
 
 inline void updateWeight(casa::NewCalTable &ct) {
   casa::CTMainColumns ctmc(ct);
-  casacore::ROArrayColumn<casacore::Double> chanWidthCol(ct.spectralWindow(), "CHAN_WIDTH");
+  casacore::ArrayColumn<casacore::Double> chanWidthCol(ct.spectralWindow(), "CHAN_WIDTH");
   casacore::Vector<casacore::Int> chanWidth(chanWidthCol.nrow());
   for (size_t irow = 0; irow < chanWidthCol.nrow(); ++irow) {
     casacore::Double chanWidthVal = chanWidthCol(irow)(casacore::IPosition(1,0));
@@ -165,7 +165,7 @@ public:
   }
 private:
   DataColumnAccessor() {}
-  casacore::ROArrayColumn<casacore::Complex> dataCol_;
+  casacore::ArrayColumn<casacore::Complex> dataCol_;
 };    
 
 class FloatDataColumnAccessor {
@@ -178,13 +178,13 @@ public:
   }
 private:
   FloatDataColumnAccessor() {}
-  casacore::ROArrayColumn<casacore::Float> dataCol_;
+  casacore::ArrayColumn<casacore::Float> dataCol_;
 };
 
 inline  casacore::Int nominalDataDesc(casacore::MeasurementSet const &ms, casacore::Int const ant)
 {
   casacore::Int goodDataDesc = -1;
-  casacore::ROScalarColumn<casacore::Int> col(ms.spectralWindow(), "NUM_CHAN");
+  casacore::ScalarColumn<casacore::Int> col(ms.spectralWindow(), "NUM_CHAN");
   casacore::Vector<casacore::Int> nchanList = col.getColumn();
   size_t numSpw = col.nrow();
   casacore::Vector<casacore::Int> spwMap(numSpw);
@@ -192,7 +192,7 @@ inline  casacore::Int nominalDataDesc(casacore::MeasurementSet const &ms, casaco
   for (size_t i = 0; i < col.nrow(); ++i) {
     spwMap[col(i)] = i;
   }
-  casacore::ROScalarColumn<casacore::String> obsModeCol(ms.state(), "OBS_MODE");
+  casacore::ScalarColumn<casacore::String> obsModeCol(ms.state(), "OBS_MODE");
   casacore::Regex regex("^OBSERVE_TARGET#ON_SOURCE");
   for (size_t ispw = 0; ispw < numSpw; ++ispw) {
     if (nchanList[ispw] == 4) {
@@ -333,8 +333,8 @@ inline casacore::Vector<casacore::String> detectRaster(casacore::MeasurementSet 
       << " ORDER BY TIME";
   debuglog << "detectRaster: taql=" << oss.str() << debugpost;
   casacore::MeasurementSet msSel(casacore::tableCommand(oss.str(), ms));
-  casacore::ROScalarColumn<casacore::Double> timeCol(msSel, "TIME");
-  casacore::ROScalarColumn<casacore::Double> intervalCol(msSel, "INTERVAL");
+  casacore::ScalarColumn<casacore::Double> timeCol(msSel, "TIME");
+  casacore::ScalarColumn<casacore::Double> intervalCol(msSel, "INTERVAL");
   casacore::Vector<casacore::Double> timeList = timeCol.getColumn();
   casacore::Double interval = casacore::min(intervalCol.getColumn());
   casacore::Vector<size_t> gapList = detectGap(timeList);
@@ -460,9 +460,9 @@ inline bool isEphemeris(casacore::String const &name) {
 // Set number of correlations per spw
 inline void setNumberOfCorrelationsPerSpw(casacore::MeasurementSet const &ms,
     casacore::Vector<casacore::Int> &nCorr) {
-  casacore::ROScalarColumn<casacore::Int> spwIdCol(ms.dataDescription(), "SPECTRAL_WINDOW_ID");
-  casacore::ROScalarColumn<casacore::Int> polIdCol(ms.dataDescription(), "POLARIZATION_ID");
-  casacore::ROScalarColumn<casacore::Int> numCorrCol(ms.polarization(), "NUM_CORR");
+  casacore::ScalarColumn<casacore::Int> spwIdCol(ms.dataDescription(), "SPECTRAL_WINDOW_ID");
+  casacore::ScalarColumn<casacore::Int> polIdCol(ms.dataDescription(), "POLARIZATION_ID");
+  casacore::ScalarColumn<casacore::Int> numCorrCol(ms.polarization(), "NUM_CORR");
   auto numSpw = ms.spectralWindow().nrow();
   auto const spwIdList = spwIdCol.getColumn();
   auto const polIdList = polIdCol.getColumn();
@@ -642,20 +642,20 @@ void SingleDishSkyCal::traverseMS(MeasurementSet const &ms) {
 	     << debugpost;
     
     Int ifield = msIter.fieldId();
-    ROScalarColumn<Int> antennaCol(current, "ANTENNA1");
+    ScalarColumn<Int> antennaCol(current, "ANTENNA1");
     currAnt_ = antennaCol(0);
-    ROScalarColumn<Int> feedCol(current, "FEED1");
+    ScalarColumn<Int> feedCol(current, "FEED1");
     debuglog << "FIELD_ID " << msIter.fieldId()
 	     << " ANTENNA1 " << currAnt_
 	     << " FEED1 " << feedCol(0)
 	     << " DATA_DESC_ID " << msIter.dataDescriptionId()
 	     << debugpost;
-    ROScalarColumn<Double> timeCol(current, "TIME");
-    ROScalarColumn<Double> exposureCol(current, "EXPOSURE");
-    ROScalarColumn<Double> intervalCol(current, "INTERVAL");
+    ScalarColumn<Double> timeCol(current, "TIME");
+    ScalarColumn<Double> exposureCol(current, "EXPOSURE");
+    ScalarColumn<Double> intervalCol(current, "INTERVAL");
     Accessor dataCol(current);
-    ROArrayColumn<Bool> flagCol(current, "FLAG");
-    ROScalarColumn<Bool> flagRowCol(current, "FLAG_ROW");
+    ArrayColumn<Bool> flagCol(current, "FLAG");
+    ScalarColumn<Bool> flagRowCol(current, "FLAG_ROW");
     Vector<Double> timeList = timeCol.getColumn();
     Vector<Double> exposure = exposureCol.getColumn();
     Vector<Double> interval = intervalCol.getColumn();
@@ -897,7 +897,7 @@ void SingleDishSkyCal::calcWtScale()
           std::forward_as_tuple(2, temp.nrow()));
       Matrix<Double> &arr = wtMap.at(iAnt);
       debuglog << "ant " << iAnt << " arr.shape = " << arr.shape() << debugpost;
-      ROScalarColumn<Double> col(temp, "TIME");
+      ScalarColumn<Double> col(temp, "TIME");
       auto timeCol = arr.row(0);
       col.getColumn(timeCol, False);
       col.attach(temp, "INTERVAL");
@@ -1379,7 +1379,7 @@ MeasurementSet SingleDishOtfCal::selectMS(MeasurementSet const &ms)
   //   . FIELD table is directly indexed using the FIELD_ID value in MAIN
   const MSField& tbl_field = ms.field();
   const String &field_col_name_str = tbl_field.columnName(MSField::MSFieldEnums::SOURCE_ID);
-  ROScalarColumn<Int> source_id_col(tbl_field, field_col_name_str);
+  ScalarColumn<Int> source_id_col(tbl_field, field_col_name_str);
   const MSAntenna& tbl_antenna = ms.antenna();
   const String &col_name_str = tbl_antenna.columnName(MSAntenna::MSAntennaEnums::NAME);
   ScalarColumn<String> antenna_name(tbl_antenna,col_name_str);
@@ -1387,8 +1387,8 @@ MeasurementSet SingleDishOtfCal::selectMS(MeasurementSet const &ms)
 
   // make a map between SOURCE_ID and source NAME
   const MSSource &tbl_source = ms.source();
-  ROScalarColumn<Int> id_col(tbl_source, tbl_source.columnName(MSSource::MSSourceEnums::SOURCE_ID));
-  ROScalarColumn<String> name_col(tbl_source, tbl_source.columnName(MSSource::MSSourceEnums::NAME));
+  ScalarColumn<Int> id_col(tbl_source, tbl_source.columnName(MSSource::MSSourceEnums::SOURCE_ID));
+  ScalarColumn<String> name_col(tbl_source, tbl_source.columnName(MSSource::MSSourceEnums::NAME));
   std::map<Int, String> source_map;
   for (uInt irow = 0; irow < tbl_source.nrow(); ++irow) {
     auto source_id = id_col(irow);

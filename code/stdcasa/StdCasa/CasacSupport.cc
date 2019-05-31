@@ -79,10 +79,9 @@ Quantity casaQuantity(const casac::variant &theVar){
    else if(theType == ::casac::variant::RECORD){
      //NOW the record has to be compatible with QuantumHolder::toRecord
      ::casac::variant localvar(theVar); 	// Because theVar is const.
-     Record * ptrRec = toRecord(localvar.asRecord());
+     std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
 
      triedAndFailed = !qh.fromRecord(error, *ptrRec);
-     delete ptrRec;
    }
    else if(::casac::variant::compatible_type(theType, ::casac::variant::DOUBLE)
 	   == ::casac::variant::DOUBLE){
@@ -129,15 +128,13 @@ Quantum<Vector<Double> > casaQuantumVector(const casac::variant& thevar){
     return retval;
   }
   ::casac::variant localvar(thevar); //cause its const
-  Record * ptrRec = toRecord(localvar.asRecord());
+  std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
   QuantumHolder qh;
   String error;
   if(qh.fromRecord(error, *ptrRec)){
     try {
       if(qh.isQuantumVectorDouble()){
 	Quantum<Vector<Double> >retval1=qh.asQuantumVectorDouble();
-	delete ptrRec;
-	ptrRec=0;
 	return retval1;
       }
     }
@@ -145,8 +142,7 @@ Quantum<Vector<Double> > casaQuantumVector(const casac::variant& thevar){
       return retval;
     }
   }
-  if(ptrRec)
-    delete ptrRec;
+
   return retval;
 }
 
@@ -436,9 +432,8 @@ Record *toRecord(const ::casac::record &theRec){
         switch((*rec_it).second.type()){
             case ::casac::variant::RECORD :
                {
-               Record *tmpRecord = toRecord((*rec_it).second.getRecord());
+               std::unique_ptr<Record> tmpRecord(toRecord((*rec_it).second.getRecord()));
                transcribedRec->defineRecord(RecordFieldId((*rec_it).first), *tmpRecord);
-               delete tmpRecord;  // Make sure it's a deep copy
                }
                break;
             case ::casac::variant::BOOL :
@@ -764,10 +759,11 @@ casac::variant *fromValueHolder(const ValueHolder &theVH){
 //
 ValueHolder *toValueHolder(const casac::variant &theV){
 	ValueHolder *theVH(0);
+	std::unique_ptr<Record> tmpRec;
 	switch(theV.type()){
 		case casac::variant::RECORD :
-			// Unclear whether this may leak
-			theVH = new ValueHolder(*toRecord(theV.getRecord()));
+			tmpRec.reset(toRecord(theV.getRecord()));
+			theVH = new ValueHolder(*tmpRec);
 			break;
 		case casac::variant::BOOL :
 			theVH = new ValueHolder(theV.getBool());
@@ -871,9 +867,8 @@ Bool casaMDirection(const ::casac::variant& theVar,
   String error;
   if(theVar.type()== ::casac::variant::RECORD){
     ::casac::variant localvar(theVar); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(mh.fromRecord(error, *ptrRec)){
-      delete ptrRec;
       theMeas=mh.asMDirection();
       return true;
     }
@@ -1058,7 +1053,7 @@ Bool casaMFrequency(const ::casac::variant& theVar,
   String error;
   if(theVar.type()== ::casac::variant::RECORD){
     ::casac::variant localvar(theVar); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(mh.fromRecord(error, *ptrRec)){
       theMeas=mh.asMFrequency();
       return true;
@@ -1066,7 +1061,6 @@ Bool casaMFrequency(const ::casac::variant& theVar,
     else{//could be a quantity
       if(qh.fromRecord(error, *ptrRec)){
 	theMeas=MFrequency(qh.asQuantity());
-	delete ptrRec;
 	return true;
       }
       else{
@@ -1125,16 +1119,14 @@ Bool casaMPosition(const ::casac::variant& theVar,
   String error;
   if(theVar.type()== ::casac::variant::RECORD){
     ::casac::variant localvar(theVar); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(mh.fromRecord(error, *ptrRec)){
       theMeas=mh.asMPosition();
-      delete ptrRec;
       return true;
     }
     else{
       ostringstream oss;
       oss << "Error " << error << "In converting Position parameter";
-      delete ptrRec;
       throw( AipsError(oss.str()));
       return false;
     }	
@@ -1202,16 +1194,14 @@ Bool casaMRadialVelocity(const ::casac::variant& theVar,
   String error;
   if(theVar.type()== ::casac::variant::RECORD){
     ::casac::variant localvar(theVar); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(mh.fromRecord(error, *ptrRec)){
       theMeas=mh.asMRadialVelocity();
-      delete ptrRec;
       return true;
     }
     else{//could be a quantity
       if(qh.fromRecord(error, *ptrRec)){
 	theMeas=MRadialVelocity(qh.asQuantity());
-	delete ptrRec;
 	return true;
       }
       else{
@@ -1219,7 +1209,6 @@ Bool casaMRadialVelocity(const ::casac::variant& theVar,
 	oss << "Error " << error 
 	      << "In converting Radial velocity parameter";
 	throw( AipsError(oss.str()));
-	delete ptrRec;
 	return false;
       }
     }	
@@ -1267,16 +1256,14 @@ Bool casaMEpoch(const ::casac::variant& theVar,
   String error;
   if(theVar.type()== ::casac::variant::RECORD){
     ::casac::variant localvar(theVar); //cause its const
-    Record * ptrRec = toRecord(localvar.asRecord());
+    std::unique_ptr<Record> ptrRec(toRecord(localvar.asRecord()));
     if(mh.fromRecord(error, *ptrRec)){
       theMeas=mh.asMEpoch();
-      delete ptrRec;
       return true;
     }
     else{//could be a quantity
       if(qh.fromRecord(error, *ptrRec)){
 	theMeas=MEpoch(qh.asQuantity());
-	delete ptrRec;
 	return true;
       }
       else{
@@ -1284,7 +1271,6 @@ Bool casaMEpoch(const ::casac::variant& theVar,
 	oss << "Error " << error 
 	      << "In converting Epoch parameter";
 	throw( AipsError(oss.str()));
-	delete ptrRec;
 	return false;
       }
     }	

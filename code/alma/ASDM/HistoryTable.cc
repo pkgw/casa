@@ -291,7 +291,7 @@ namespace asdm {
 
 
 HistoryRow* HistoryTable::newRow(HistoryRow* row) {
-	return new HistoryRow(*this, *row);
+	return new HistoryRow(*this, row);
 }
 
 	//

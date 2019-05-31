@@ -1174,11 +1174,11 @@ VisibilityIteratorImplAsync2::getSpectralWindowChannels (Int msId, Int spectralW
 
     const ROMSSpWindowColumns& spectralWindow = subtableColumns_p->spectralWindow();
 
-    const ROArrayColumn<Double>& frequenciesColumn = spectralWindow.chanFreq();
+    const ArrayColumn<Double>& frequenciesColumn = spectralWindow.chanFreq();
     Vector<Double> frequencies;
     frequenciesColumn.get (spectralWindowId, frequencies, true);
 
-    const ROArrayColumn<Double>& widthsColumn = spectralWindow.chanWidth();
+    const ArrayColumn<Double>& widthsColumn = spectralWindow.chanWidth();
     Vector<Double> widths;
     widthsColumn.get (spectralWindowId, widths, true);
 
@@ -1596,7 +1596,7 @@ VisibilityIteratorImplAsync2::visibilityObserved (Matrix<CStokesVector> & vis) c
 
 void
 VisibilityIteratorImplAsync2::getVisibilityAsStokes (Matrix<CStokesVector> & visibilityStokes,
-                                                    const ROArrayColumn<Complex> & column) const
+                                                    const ArrayColumn<Complex> & column) const
 {
     // Read in the raw visibility data
 

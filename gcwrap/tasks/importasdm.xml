@@ -31,7 +31,7 @@ file (MS)
                      Default: none
 
                      Note that a prefix (.ms) is NOT appended to this
-		     name.
+                     name.
 </description>
           <value></value>
     </param>
@@ -44,8 +44,8 @@ separation axis.
                      Options: False|True
 
                      For more detailed documentation on partition,
-		     Multi-MS and the MPI use in CASA, please see CASA
-		     Docs (https://casa.nrao.edu/casadocs/).
+                     Multi-MS and the MPI use in CASA, please see CASA
+                     Docs (https://casa.nrao.edu/casadocs/).
 </description>
             <value>False</value>
         </param>
@@ -57,25 +57,25 @@ separation axis.
                      Options: 'scan', 'spw', 'baseline', 'auto'
 
                      * auto: will partition per scan/spw to obtain
-		       optimal load balancing with the following
-		       criteria:    
+                       optimal load balancing with the following
+                       criteria:    
                        1 - Maximize the scan/spw/field distribution
-		       across sub-MSs
+                       across sub-MSs
                        2 - Generate sub-MSs with similar size
                      * 'scan' or 'spw': will partition the MS into
-		       scan or spw. The individual sub-MSs may not be
-		       balanced with respect to the number of rows.
+                       scan or spw. The individual sub-MSs may not be
+                       balanced with respect to the number of rows.
                      * 'baseline': mostly useful for Single-Dish
-		       data. This axis will partition the MS based on
-		       the available baselines. If the user wants only
-		       auto-correlations, use the
-		       ocorr_mode='ao'. Note that if numsubms='auto',
-		       partition will try to create as many subMSs as
-		       the number of available servers in the
-		       cluster. If the user wants to have one subMS
-		       for each baseline, set the numsubms parameter
-		       to a number higher than the number of baselines
-		       to achieve this. 
+                       data. This axis will partition the MS based on
+                       the available baselines. If the user wants only
+                       auto-correlations, use the
+                       ocorr_mode='ao'. Note that if numsubms='auto',
+                       partition will try to create as many subMSs as
+                       the number of available servers in the
+                       cluster. If the user wants to have one subMS
+                       for each baseline, set the numsubms parameter
+                       to a number higher than the number of baselines
+                       to achieve this. 
 </description>
             <value>auto</value>
             <allowed kind="enum" ignorecase="true">
@@ -92,15 +92,15 @@ separation axis.
                      Options: any integer number (example: numsubms=4)
 
                      The default 'auto' is to partition using the
-		     number of available servers given when launching
-		     CASA. If the task is unable to determine the
-		     number of running servers, or the user did not
-		     start CASA using mpicasa, numsubms will use 8 as
-		     the default.
+                     number of available servers given when launching
+                     CASA. If the task is unable to determine the
+                     number of running servers, or the user did not
+                     start CASA using mpicasa, numsubms will use 8 as
+                     the default.
 
                         Example: Launch CASA with 5 engines, where 4
-			of them will be used to create the MMS (the
-			first engine is used as the MPIClient):
+                        of them will be used to create the MMS (the
+                        first engine is used as the MPIClient):
                         mpicasa -n 5 casa --nogui --log2term
                         CASA> importasdm('uid__A1', createmms=True)
 </description>
@@ -114,7 +114,7 @@ separation axis.
                      Default: 'all'
                      Options: ao, co, ac, or all
 </description>
-	    <value>all</value>
+        <value>all</value>
     </param>
 
     <param type="string" name="srt" >
@@ -123,7 +123,7 @@ separation axis.
                      Default: 'all'
                      Options: fr, ca, bw, or all
 </description>
-	    <value>all</value>
+        <value>all</value>
     </param>
 
     <param type="string" name="time_sampling" >
@@ -134,9 +134,9 @@ SUBINTEGRATION) to be considered on input.
                      Options: i, si, or all
 
                      A quoted string containing a sequence of i, si,
-		     or all separated by whitespaces is expected
+                     or all separated by whitespaces is expected
 </description>
-	    <value>all</value>
+        <value>all</value>
     </param>
 
     <param type="string" name="ocorr_mode" >
@@ -146,12 +146,12 @@ CROSS_ONLY (co) or CROSS_AND_AUTO (ca)
                      Default: 'ca'
                      Options: ao, co, ca
 </description>
-	    <value>ca</value>
-	    <allowed kind="enum">
-	       <value>co</value>
-	       <value>ao</value>
-	       <value>ca</value>
-	    </allowed>
+        <value>ca</value>
+        <allowed kind="enum">
+           <value>co</value>
+           <value>ao</value>
+           <value>ca</value>
+        </allowed>
     </param>
 
     <param type="bool" name="compression">
@@ -161,7 +161,7 @@ set.
                      Default: False
                      Options: False|True
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <param type="bool" name="lazy">
@@ -172,22 +172,22 @@ directly (faster import, smaller MS).
                      Options: False|True
 
                      Instead of writing a copy of the visibilities
-		     into a standard DATA column, lazy=True will make
-		     importasdm only write a lookup-table such that
-		     later access to the DATA column will read the
-		     ASDM binary visibility data directly. This
-		     requires that the ASDM not be removed from its
-		     location as long the the DATA column is
-		     needed. Use method ms.asdmref() to query and
-		     manipulate the reference to the ASDM.
+                     into a standard DATA column, lazy=True will make
+                     importasdm only write a lookup-table such that
+                     later access to the DATA column will read the
+                     ASDM binary visibility data directly. This
+                     requires that the ASDM not be removed from its
+                     location as long the the DATA column is
+                     needed. Use method ms.asdmref() to query and
+                     manipulate the reference to the ASDM.
 
                      lazy=True will save ca. 50% disk space and
-		     accelerate the DATA column access by
-		     ca. 10%. lazy=True will only work when there is
-		     visibility data in the ASDM, not with pure
-		     radiometer data.
+                     accelerate the DATA column access by
+                     ca. 10%. lazy=True will only work when there is
+                     visibility data in the ASDM, not with pure
+                     radiometer data.
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <param type="string" name="asis">
@@ -197,11 +197,11 @@ measurement set.
                      Default: none
 
                      The value given to this option must be a list of
-		     table names separated by space characters; the
-		     wildcard character '*' is  allowed in table
-		     names.
+                     table names separated by space characters; the
+                     wildcard character '*' is  allowed in table
+                     names.
 </description>
-	    <value></value>
+        <value></value>
     </param>
 
     <param type="string" name="wvr_corrected_data">
@@ -214,17 +214,17 @@ data to fill the DATA column in the MAIN table of the MS.
                      * no: uncorrected data
                      * yes: corrected data
                      * both: for corrected and uncorrected data. Note
-		       if both is selected, two measurement sets are
-		       created, one with uncorrected data and the
-		       other with corrected data (which name is
-		       suffixed by '-wvr-corrected')
+                       if both is selected, two measurement sets are
+                       created, one with uncorrected data and the
+                       other with corrected data (which name is
+                       suffixed by '-wvr-corrected')
 </description>
-	    <value>no</value>
-	    <allowed kind="enum">
-	    <value>no</value>
-	    <value>yes</value>
-	    <value>both</value>
-	    </allowed>
+        <value>no</value>
+        <allowed kind="enum">
+        <value>no</value>
+        <value>yes</value>
+        <value>both</value>
+        </allowed>
     </param>
     <param type="string" name="scans">
 <shortdescription>Processes only the specified scans.  A scan specification consists in an exec bock index followed by the : character, followed by a comma separated list of scan indexes or scan index ranges. (e.g. 0:1;1:2~6,8;2:,3:24~30)</shortdescription>
@@ -232,13 +232,13 @@ data to fill the DATA column in the MAIN table of the MS.
                      Default: none (all scans)
 
                      This value is a semicolon separated list of scan
-		     specifications. A scan specification consists in
-		     an exec bock index  followed by the character ':'
-		     followed by a comma separated list of scan
-		     indexes or scan index ranges. A scan index is
-		     relative to the exec block it belongs to. Scan
-		     indexes are  1-based while exec blocks's are
-		     0-based. 
+                     specifications. A scan specification consists in
+                     an exec bock index  followed by the character ':'
+                     followed by a comma separated list of scan
+                     indexes or scan index ranges. A scan index is
+                     relative to the exec block it belongs to. Scan
+                     indexes are  1-based while exec blocks's are
+                     0-based. 
 
                         Examples: 
                         '0:1' 
@@ -246,12 +246,12 @@ data to fill the DATA column in the MAIN table of the MS.
                         '0:1;1:2~6,8;2:,3:24~30'
                         '1,2' 
                         '3:' alone will be interpreted as 'all the
-			scans of the exec block#3'. An scan index or a
-			scan index range not preceded by an exec block
-			index will be interpreted as 'all the scans
-			with such indexes in all the exec blocks'.  
+                        scans of the exec block#3'. An scan index or a
+                        scan index range not preceded by an exec block
+                        index will be interpreted as 'all the scans
+                        with such indexes in all the exec blocks'.  
 </description>
-	    <value></value>
+        <value></value>
     </param>
 
     <param type="bool" name="ignore_time">
@@ -293,7 +293,7 @@ parameter is set to true.
                      Options: True|False
 
                      If set to False, the POINTING table is empty in
-		     the resulting MS
+                     the resulting MS
 </description>
       <value>True</value>
     </param>
@@ -307,9 +307,9 @@ of the MS.
                      Options: True|False
 
                      The flags will NOT be applied unless  the
-		     parameter applyflags is set to True. Optionally,
-		     the flags can also be saved to an external ASCII
-		     file if savecmds is set to True.
+                     parameter applyflags is set to True. Optionally,
+                     the flags can also be saved to an external ASCII
+                     file if savecmds is set to True.
 </description>
       <value>True</value>
     </param>
@@ -321,11 +321,11 @@ of the MS.
                      Default: 0.0
 
                      NOTE: this time is in seconds. You should
-		     currently set the value of tbuff to be 1.5x the
-		     correlator integration time if greater than 1
-		     second. For example, if the SDM has integrations
-		     of 3 seconds, set tbuff=4.5.  Likewise, set
-		     tbuff=15.0 for 10-sec integrations.
+                     currently set the value of tbuff to be 1.5x the
+                     correlator integration time if greater than 1
+                     second. For example, if the SDM has integrations
+                     of 3 seconds, set tbuff=4.5.  Likewise, set
+                     tbuff=15.0 for 10-sec integrations.
 </description>
             <value>0.0</value>
     </param> 
@@ -357,8 +357,8 @@ parameter outfile.
 flag commands.
                      Subparameter of process_flags=True
                      Default: '' (it will save on a filename composed
-		     from the MS name(s).) E.g., for vis='uid_A02.ms',
-		     the outfile will be 'uid_A02_cmd.txt'.
+                     from the MS name(s).) E.g., for vis='uid_A02.ms',
+                     the outfile will be 'uid_A02_cmd.txt'.
 </description>
         <any type="variant" limittypes="string stringArray"/>
         <value type="string"></value>
@@ -379,7 +379,7 @@ flag commands.
                      Default: False
                      Options: False|True
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <param type="bool" name="overwrite">
@@ -390,13 +390,13 @@ wvr_corrected_data='both'
                      Options: False|True
 
                      NOTE: the overwrite parameter affects all the
-		     output of the task. If any of the following
-		     exist, it will not overwrite them. MS(s),
-		     .flagversions, online flag files. When set to
-		     True, it will overwrite the MS, .flagversions and
-		     online flag file.    
+                     output of the task. If any of the following
+                     exist, it will not overwrite them. MS(s),
+                     .flagversions, online flag files. When set to
+                     True, it will overwrite the MS, .flagversions and
+                     online flag file.    
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <param type="bool" name="showversion">
@@ -405,7 +405,7 @@ wvr_corrected_data='both'
                      Default: False
                      Options: False|True
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <constraints>
@@ -434,11 +434,11 @@ wvr_corrected_data='both'
 <description>Version of asdm2MS to be used
                      Default: 'v3' (should work for all data)
 </description>
-	    <value>v3</value>
-	    <allowed kind="enum">
-	      <value>v3</value>
-	      <value></value>
-	    </allowed>
+        <value>v3</value>
+        <allowed kind="enum">
+          <value>v3</value>
+          <value></value>
+        </allowed>
     </param>
 
     <param type="bool" name="bdfflags">
@@ -448,7 +448,7 @@ flags
                      Default: False
                      Options: False|True
 </description>
-	    <value>False</value>
+        <value>False</value>
     </param>
 
     <param type="bool" name="with_pointing_correction">
@@ -480,14 +480,14 @@ reference frame (time-spacing not changed)
                      Options: True|False
 
                      ALMA uses ephemerides with observer location
-		     equal to the ALMA site. For later processing of
-		     the radial velocity information in, e.g. cvel,  a
-		     geocentric ephemeris is needed. Setting this
-		     option to True will perform the conversion of
-		     positions and velocities on all attached
-		     ephemerides in the imported MS. This will neither
-		     change the time-spacing nor the duration of the
-		     ephemeris. No interpolation in time is done.
+                     equal to the ALMA site. For later processing of
+                     the radial velocity information in, e.g. cvel,  a
+                     geocentric ephemeris is needed. Setting this
+                     option to True will perform the conversion of
+                     positions and velocities on all attached
+                     ephemerides in the imported MS. This will neither
+                     change the time-spacing nor the duration of the
+                     ephemeris. No interpolation in time is done.
 </description>
       <value>True</value>
     </param>
@@ -499,7 +499,7 @@ ephemerides. A value less than or equal to 0 disables tabulation.
                      Default: 0
 
                      Presently, VLA data can contain polynomial
-		     ephemerides. ALMA data uses tabulated values.
+                     ephemerides. ALMA data uses tabulated values.
 </description>
     <value>0.</value>
     </param>
@@ -508,7 +508,7 @@ ephemerides. A value less than or equal to 0 disables tabulation.
 
   <returns type="void"/>
 
-  <example>		          
+  <example>        
 FOR MORE INFORMATION, SEE THE TASK PAGES OF IMPORTASDM IN CASA DOCS:
 https://casa.nrao.edu/casadocs/
   </example>

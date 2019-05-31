@@ -2494,10 +2494,10 @@ directionCode = CDirectionReferenceCode::from_int(0);
 		
 	}
 	
-	FieldRow::FieldRow (FieldTable &t, FieldRow &row) : table(t) {
+	FieldRow::FieldRow (FieldTable &t, FieldRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2549,75 +2549,75 @@ directionCode = CDirectionReferenceCode::from_int(0);
 		else {
 	
 		
-			fieldId = row.fieldId;
+			fieldId = row->fieldId;
 		
 		
 		
 		
-			fieldName = row.fieldName;
+			fieldName = row->fieldName;
 		
-			numPoly = row.numPoly;
+			numPoly = row->numPoly;
 		
-			delayDir = row.delayDir;
+			delayDir = row->delayDir;
 		
-			phaseDir = row.phaseDir;
+			phaseDir = row->phaseDir;
 		
-			referenceDir = row.referenceDir;
-		
-		
+			referenceDir = row->referenceDir;
 		
 		
-		if (row.timeExists) {
-			time = row.time;		
+		
+		
+		if (row->timeExists) {
+			time = row->time;		
 			timeExists = true;
 		}
 		else
 			timeExists = false;
 		
-		if (row.codeExists) {
-			code = row.code;		
+		if (row->codeExists) {
+			code = row->code;		
 			codeExists = true;
 		}
 		else
 			codeExists = false;
 		
-		if (row.directionCodeExists) {
-			directionCode = row.directionCode;		
+		if (row->directionCodeExists) {
+			directionCode = row->directionCode;		
 			directionCodeExists = true;
 		}
 		else
 			directionCodeExists = false;
 		
-		if (row.directionEquinoxExists) {
-			directionEquinox = row.directionEquinox;		
+		if (row->directionEquinoxExists) {
+			directionEquinox = row->directionEquinox;		
 			directionEquinoxExists = true;
 		}
 		else
 			directionEquinoxExists = false;
 		
-		if (row.assocNatureExists) {
-			assocNature = row.assocNature;		
+		if (row->assocNatureExists) {
+			assocNature = row->assocNature;		
 			assocNatureExists = true;
 		}
 		else
 			assocNatureExists = false;
 		
-		if (row.ephemerisIdExists) {
-			ephemerisId = row.ephemerisId;		
+		if (row->ephemerisIdExists) {
+			ephemerisId = row->ephemerisId;		
 			ephemerisIdExists = true;
 		}
 		else
 			ephemerisIdExists = false;
 		
-		if (row.sourceIdExists) {
-			sourceId = row.sourceId;		
+		if (row->sourceIdExists) {
+			sourceId = row->sourceId;		
 			sourceIdExists = true;
 		}
 		else
 			sourceIdExists = false;
 		
-		if (row.assocFieldIdExists) {
-			assocFieldId = row.assocFieldId;		
+		if (row->assocFieldIdExists) {
+			assocFieldId = row->assocFieldId;		
 			assocFieldIdExists = true;
 		}
 		else

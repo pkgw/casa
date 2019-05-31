@@ -34,7 +34,7 @@ the scanning effect.
 
     <param type="string" name="mode">
         <shortdescription>image processing mode ["fft_mask", "model"]</shortdescription>
-	<description>image processing mode</description>
+    <description>image processing mode</description>
         <value>fft_mask</value>
         <allowed kind="enum">
             <value>fft_mask</value>
@@ -82,13 +82,13 @@ the scanning effect.
     </param>
 
     <param type="string" name="outfile">
-	<description>name of output file</description>
-	<value></value>
+    <description>name of output file</description>
+    <value></value>
     </param>
 
     <param type="bool" name="overwrite">
         <shortdescription>overwrite the output file if already exists [True, False]</shortdescription>
-	<description>overwrite the output file if already exists</description>
+    <description>overwrite the output file if already exists</description>
         <value>False</value>
     </param>
 

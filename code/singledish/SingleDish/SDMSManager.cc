@@ -498,7 +498,7 @@ Vector<Int> SDMSManager::inspectNumChan()
       throw AipsError("Input MS is not opened yet.");
   }
 
-  ROScalarColumn<Int> col(*selectedInputMs_p, "DATA_DESC_ID");
+  ScalarColumn<Int> col(*selectedInputMs_p, "DATA_DESC_ID");
   Vector<Int> ddIdList = col.getColumn();
   uInt numDDId = GenSort<Int>::sort(ddIdList, Sort::Ascending,
           Sort::QuickSort | Sort::NoDuplicates);

@@ -61,15 +61,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 </description>
 
 <input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of input measurement set</description>
-		<value></value>
-	</param>
+    <param type="string" name="vis" mustexist="true">
+        <description>Name of input measurement set</description>
+        <value></value>
+    </param>
 
-	<param type="string" name="outputvis">
-		<description>Name of output measurement set</description>
-		<value></value>
-	</param>
+    <param type="string" name="outputvis">
+        <description>Name of output measurement set</description>
+        <value></value>
+    </param>
         <param type="bool" name="createmms">
             <description>Should this create a multi-MS output</description>
             <value>True</value>
@@ -269,7 +269,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       
                 mpicasa -n 5 casa --nogui --log2term
                 CASA> partition('uid__A1', outputvis='test.mms')
-				
+
         flagbackup -- Make a backup of the FLAG column of the output MMS. When the
                       MMS is created, the .flagversions of the input MS are not transferred,
                       therefore it is necessary to re-create it for the new MMS. Note

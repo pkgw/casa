@@ -815,6 +815,13 @@ void GridFT::put(const VisBuffer& vb, Int row, Bool dopsf,
 
   }//end pragma parallel
   // Take care of translation of Bools to Integer
+  //////TESTOO
+  //ofstream myfile;
+  //myfile.open ("putLoc.txt", ios::out | ios::app | ios::ate );
+  //myfile << vb.rowIds()(0) << " uv " << uvw.column(0) << " loc " << loc(0,0,0) << ", " << loc(1,0,0) << "\n" << endl;
+  //myfile.close();
+  ///////////////
+  
   Int idopsf=0;
   if(dopsf) idopsf=1;
 

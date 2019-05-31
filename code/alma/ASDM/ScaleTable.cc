@@ -261,7 +261,7 @@ namespace asdm {
 
 
 ScaleRow* ScaleTable::newRow(ScaleRow* row) {
-	return new ScaleRow(*this, *row);
+	return new ScaleRow(*this, row);
 }
 
 	//

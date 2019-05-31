@@ -86,7 +86,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (type == TpArrayDouble) {
 			Array<double> typedata;
 			// read the column into an array
-			ROArrayColumn<double>
+			ArrayColumn<double>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			// now convert array to type double
@@ -94,13 +94,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			convertArray(data,typedata);
 		}
 		if (type == TpArrayFloat) {
-			ROArrayColumn<float>
+			ArrayColumn<float>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(data,true);
 		}
 		if (type == TpArrayUShort) {
 			Array<ushort> typedata;
-			ROArrayColumn<ushort>
+			ArrayColumn<ushort>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			data.resize(typedata.shape());
@@ -108,7 +108,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayInt) {
 			Array<int> typedata;
-			ROArrayColumn<int>
+			ArrayColumn<int>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			data.resize(typedata.shape());
@@ -116,7 +116,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayUInt) {
 			Array<uInt> typedata;
-			ROArrayColumn<uInt>
+			ArrayColumn<uInt>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			data.resize(typedata.shape());

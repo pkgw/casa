@@ -3040,7 +3040,7 @@ Bool TablePlot::checkShapes(Table &intab)
    
    if( tdesc.isColumn(dataFlagColName_p) )
    {
-      ROArrayColumn<Complex> col;
+      ArrayColumn<Complex> col;
       col.attach(intab,dataFlagColName_p);
 
       // Iterate over all rows and check the shape.

@@ -45,7 +45,7 @@
 namespace casacore{
 
 class MSSelection; // #include <ms/MSSel/MSSelection.h>
-template<class T> class ROArrayColumn;
+template<class T> class ArrayColumn;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -155,7 +155,7 @@ public:
 
   // Picks a reference to DATA, MODEL_DATA, CORRECTED_DATA, or LAG_DATA out
   // of ms_p.  FLOAT_DATA is not included because it is not natively complex. 
-  const casacore::ROArrayColumn<casacore::Complex>& right_column(const casacore::ROMSColumns *ms_p,
+  const casacore::ArrayColumn<casacore::Complex>& right_column(const casacore::ROMSColumns *ms_p,
                                              const casacore::MS::PredefinedColumns datacol);
 
   // Sets sort to a casacore::Block of columns that a VisibilityIterator should sort by,

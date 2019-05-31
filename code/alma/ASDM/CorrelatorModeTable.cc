@@ -291,7 +291,7 @@ namespace asdm {
 
 
 CorrelatorModeRow* CorrelatorModeTable::newRow(CorrelatorModeRow* row) {
-	return new CorrelatorModeRow(*this, *row);
+	return new CorrelatorModeRow(*this, row);
 }
 
 	//

@@ -902,7 +902,7 @@ void VisImagingWeight::weightNatural(Matrix<Float>& imagingWeight, const Matrix<
   }
 
 
-  void VisImagingWeight::unPolChanWeight(Matrix<Float>& chanRowWt, const Cube<Float>& corrChanRowWt) const {
+  void VisImagingWeight::unPolChanWeight(Matrix<Float>& chanRowWt, const Cube<Float>& corrChanRowWt)  {
 
     //cout << "VIW::uPCW" << endl;
 

@@ -270,8 +270,8 @@ private:
     casacore::CountedPtr<casacore::MSPointing> 			pointingTable_;
     casacore::CountedPtr<casacore::ROMSPointingColumns> 	pointingColumns_;
     casacore::ROScalarMeasColumn<casacore::MEpoch> 		timeColumn_;
-    casacore::ROScalarColumn<casacore::Double> 			intervalColumn_;
-    casacore::ROScalarColumn<casacore::Int> 			antennaColumn_;
+    casacore::ScalarColumn<casacore::Double> 			intervalColumn_;
+    casacore::ScalarColumn<casacore::Int> 			antennaColumn_;
     casacore::String 						directionColumnName_;
 
     casacore::MDirection (*accessor_)(	casacore::ROMSPointingColumns &pointingColumns,

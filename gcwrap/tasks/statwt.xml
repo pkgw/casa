@@ -9,14 +9,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <shortdescription>Compute and set weights based on variance of data.</shortdescription>
 
     <input>
-	    <param type="string" name="vis" mustexist="true">
-		    <description>Name of measurement set</description>
-		    <value/>
-	    </param>
-	    <param type="bool" name="selectdata">
-	       <description>Enable data selection parameters</description>
-	       <value type="bool">True</value>
-	    </param>
+        <param type="string" name="vis" mustexist="true">
+            <description>Name of measurement set</description>
+            <value/>
+        </param>
+        <param type="bool" name="selectdata">
+           <description>Enable data selection parameters</description>
+           <value type="bool">True</value>
+        </param>
         <param type="string" name="field" subparam="true">
             <description>Selection based on field names or field index numbers. Default is all.</description>
             <value/>
@@ -52,7 +52,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <value/>
             <example>"scan,field"</example>
         </param>
-	    <param type="any" name="timebin">
+        <param type="any" name="timebin">
             <description>Length for binning in time to determine statistics. Can either be integer to be multiplied by the representative integration time, a quantity (string) in time units</description>
             <any type="variant" limittypes="string int" />
             <value type="string">0.001s</value>

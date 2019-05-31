@@ -68,12 +68,12 @@ int main()
     cout << "Position Measure reference: " << meas_ref.showMe() << endl;
     cout << "Position Measure reference: " << meas_ref.getType() << endl;
 
-    ROScalarColumn<Double> times(ROMSMainColumns(ms).time());
-    ROScalarColumn<Int> fields(ROMSMainColumns(ms).fieldId());
+    ScalarColumn<Double> times(ROMSMainColumns(ms).time());
+    ScalarColumn<Int> fields(ROMSMainColumns(ms).fieldId());
     ROScalarMeasColumn<Muvw> uvw(ROMSMainColumns(ms).uvwMeas());
-    //    ROArrayColumn<Double> uvw(ROMSMainColumns(ms).uvw());
-    ROScalarColumn<Int> antenna1(ROMSMainColumns(ms).antenna1());
-    ROScalarColumn<Int> antenna2(ROMSMainColumns(ms).antenna2());
+    //    ArrayColumn<Double> uvw(ROMSMainColumns(ms).uvw());
+    ScalarColumn<Int> antenna1(ROMSMainColumns(ms).antenna1());
+    ScalarColumn<Int> antenna2(ROMSMainColumns(ms).antenna2());
 
     for (unsigned i = 31; i < 32; i++) {
         cout << "row = " << i << endl;

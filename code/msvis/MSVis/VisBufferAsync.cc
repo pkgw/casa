@@ -729,8 +729,8 @@ VisBufferAsync::lsrFrequency (const Int& spw, Vector<Double>& freq, Bool& conver
         return;
     }
 
-    const ROArrayColumn <Double> & chanFreqs = msColumns().spectralWindow().chanFreq();
-    const ROScalarColumn<Int> & obsMFreqTypes= msColumns().spectralWindow().measFreqRef();
+    const ArrayColumn <Double> & chanFreqs = msColumns().spectralWindow().chanFreq();
+    const ScalarColumn<Int> & obsMFreqTypes= msColumns().spectralWindow().measFreqRef();
 
     MPosition obsPos = observatoryPosition_p;
     MDirection dir = phaseCenter_p;

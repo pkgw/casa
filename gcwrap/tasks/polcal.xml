@@ -14,67 +14,67 @@ are determined from the data for the specified calibrator sources. Previous
 calibrations can be applied on the fly.
 </description>
 <input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of input visibility file</description>
-		<value></value>
-	</param>
+        <param type="string" name="vis" mustexist="true">
+                <description>Name of input visibility file</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="caltable">
-		<description>Name of output gain calibration table</description>
-		<value></value>
-	</param>
+        <param type="string" name="caltable">
+                <description>Name of output gain calibration table</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="field">
-		<description>Select field using field id(s) or field name(s)</description>
-		<value></value>
-	</param>
+        <param type="string" name="field">
+                <description>Select field using field id(s) or field name(s)</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="spw">
-		<description>Select spectral window/channels</description>
-		<value></value>
-	</param>
+        <param type="string" name="spw">
+                <description>Select spectral window/channels</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="intent">
-		<description>Select observing intent</description>
-		<value></value>
-	</param>
+        <param type="string" name="intent">
+                <description>Select observing intent</description>
+                <value></value>
+        </param>
 
-	<param type="bool" name="selectdata">
-		<description>Other data selection parameters</description>
-		<value>True</value>
-	</param>
+        <param type="bool" name="selectdata">
+                <description>Other data selection parameters</description>
+                <value>True</value>
+        </param>
 
-	<param type="string" name="timerange" subparam="true">
-		<description>Select data based on time range</description>
-		<value></value>
-	</param>
+        <param type="string" name="timerange" subparam="true">
+                <description>Select data based on time range</description>
+                <value></value>
+        </param>
 
-	<param type="any" name="uvrange" subparam="true">
-		<description>Select data within uvrange (default units meters)</description>
-		<any type="variant"/>
-		<value type="string"></value>
-	</param>
+        <param type="any" name="uvrange" subparam="true">
+                <description>Select data within uvrange (default units meters)</description>
+                <any type="variant"/>
+                <value type="string"></value>
+        </param>
 
-	<param type="string" name="antenna" subparam="true">
-		<description>Select data based on antenna/baseline</description>
-		<value></value>
-	</param>
+        <param type="string" name="antenna" subparam="true">
+                <description>Select data based on antenna/baseline</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="scan" subparam="true">
-		<description>Scan number range</description>
-		<value></value>
-	</param>
+        <param type="string" name="scan" subparam="true">
+                <description>Scan number range</description>
+                <value></value>
+        </param>
 
         <param type="any" name="observation" subparam="true">
                 <description>Select by observation ID(s)</description>
-		<any type="variant" limittypes="string int"/>
-		<value type="string"></value>
+                <any type="variant" limittypes="string int"/>
+                <value type="string"></value>
         </param>
 
-	<param type="string" name="msselect" subparam="true">
-		<description>Optional complex data selection (ignore for now)</description>
-		<value></value>
-	</param>
+        <param type="string" name="msselect" subparam="true">
+                <description>Optional complex data selection (ignore for now)</description>
+                <value></value>
+        </param>
 
         <param type="any" name="solint">
                 <description>Solution interval</description>
@@ -87,36 +87,36 @@ calibrations can be applied on the fly.
                 <value>obs,scan</value>
         </param>
 
-	<param type="double" name="preavg">
-		<description>Pre-averaging interval (sec)</description>
-		<value>300.0</value>
-	</param>
+        <param type="double" name="preavg">
+                <description>Pre-averaging interval (sec)</description>
+                <value>300.0</value>
+        </param>
 
-	<param type="string" name="refant">
-		<description>Reference antenna name(s)</description>
-		<value></value>
-	</param>
+        <param type="string" name="refant">
+                <description>Reference antenna name(s)</description>
+                <value></value>
+        </param>
 
-	<param type="int" name="minblperant">
-		<description>Minimum baselines _per antenna_ required for solve</description>
-		<value>4</value>
-	</param>
+        <param type="int" name="minblperant">
+                <description>Minimum baselines _per antenna_ required for solve</description>
+                <value>4</value>
+        </param>
 
-	<param type="double" name="minsnr">
-		<description>Reject solutions below this SNR</description>
-		<value>3.0</value>
-	</param>
+        <param type="double" name="minsnr">
+                <description>Reject solutions below this SNR</description>
+                <value>3.0</value>
+        </param>
 
-	<param type="string" name="poltype">
-		<description>Type of instrumental polarization solution (see help)</description>
-		<value>D+QU</value>
-		<allowed kind="enum">
-			<value>D</value>
-			<value>Df</value>
-			<value>D+X</value>
-			<value>Df+X</value>
-			<value>D+QU</value>
-			<value>Df+QU</value>
+        <param type="string" name="poltype">
+                <description>Type of instrumental polarization solution (see help)</description>
+                <value>D+QU</value>
+                <allowed kind="enum">
+                        <value>D</value>
+                        <value>Df</value>
+                        <value>D+X</value>
+                        <value>Df+X</value>
+                        <value>D+QU</value>
+                        <value>Df+QU</value>
                         <value>Dgen</value>
                         <value>Dfgen</value>
                         <value>Dgen+X</value>
@@ -125,77 +125,77 @@ calibrations can be applied on the fly.
                         <value>Dfgen+QU</value>
                         <value>Dlls</value>
                         <value>Dflls</value>
-			<value>X</value>
-			<value>Xf</value>
-			<value>Xparang+QU</value>
-			<value>Xfparang+QU</value>
-			<value>PosAng</value>
-			<value>Xj</value>
-		</allowed>
-	</param>
+                        <value>X</value>
+                        <value>Xf</value>
+                        <value>Xparang+QU</value>
+                        <value>Xfparang+QU</value>
+                        <value>PosAng</value>
+                        <value>Xj</value>
+                </allowed>
+        </param>
 
         <param type="doubleArray" name="smodel">
                <description>Point source Stokes parameters for source model.</description>
                <value></value>
         </param>
 
-	<param type="bool" name="append">
-		<description>Append solutions to the (existing) table</description>
-		<value>False</value>
-	</param>
+        <param type="bool" name="append">
+                <description>Append solutions to the (existing) table</description>
+                <value>False</value>
+        </param>
 
-	<param type="bool" name="docallib" >
-	        <description>Use callib or traditional cal apply parameters</description>
-	        <value>False</value>
-	</param>
+        <param type="bool" name="docallib" >
+                <description>Use callib or traditional cal apply parameters</description>
+                <value>False</value>
+        </param>
 
-	<param type="string" name="callib" subparam="true" >
-	        <description>Cal Library filename</description>
+        <param type="string" name="callib" subparam="true" >
+                <description>Cal Library filename</description>
                 <value type="string"></value>
-	</param>
+        </param>
 
-	<param type="stringArray" name="gaintable" subparam="true">
-		<description>Gain calibration table(s) to apply</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="gaintable" subparam="true">
+                <description>Gain calibration table(s) to apply</description>
+                <value></value>
+        </param>
 
-	<param type="stringArray" name="gainfield" subparam="true">
-		<description>Select a subset of calibrators from gaintable(s)</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="gainfield" subparam="true">
+                <description>Select a subset of calibrators from gaintable(s)</description>
+                <value></value>
+        </param>
 
-	<param type="stringArray" name="interp" subparam="true">
-		<description>Interpolation mode (in time) to use for each gaintable</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="interp" subparam="true">
+                <description>Interpolation mode (in time) to use for each gaintable</description>
+                <value></value>
+        </param>
 
-	<param type="intArray" name="spwmap" subparam="true">
-		<description>Spectral windows combinations to form for gaintables(s)</description>
-		<value></value>
-	</param>
+        <param type="intArray" name="spwmap" subparam="true">
+                <description>Spectral windows combinations to form for gaintables(s)</description>
+                <value></value>
+        </param>
 
    <constraints>
-	<when param="selectdata">
-		<equals type="bool" value="True">
-			<default param="timerange"><value type="string"/></default>
-			<default param="uvrange"><value type="string"/></default>
-			<default param="antenna"><value type="string"/></default>
-			<default param="scan"><value type="string"/></default>
-			<default param="observation"><value type="string"/></default>
-			<default param="msselect"><value type="string"/></default>
-		</equals>
-		<equals type="bool" value="False"/>
-	</when>
+        <when param="selectdata">
+                <equals type="bool" value="True">
+                        <default param="timerange"><value type="string"/></default>
+                        <default param="uvrange"><value type="string"/></default>
+                        <default param="antenna"><value type="string"/></default>
+                        <default param="scan"><value type="string"/></default>
+                        <default param="observation"><value type="string"/></default>
+                        <default param="msselect"><value type="string"/></default>
+                </equals>
+                <equals type="bool" value="False"/>
+        </when>
         <when param="docallib">
                 <equals type="bool" value="False">
                         <default param="gaintable"><value type="stringArray"/></default>
                         <default param="gainfield"><value type="stringArray"/></default>
                         <default param="interp"><value type="stringArray"/></default>
                         <default param="spwmap"><value type="intArray"/></default>
-		</equals>
+                </equals>
                 <equals type="bool" value="True">
                         <default param="callib"><value type="string"/></default>
-		</equals>
+                </equals>
         </when>
    </constraints>
 </input>

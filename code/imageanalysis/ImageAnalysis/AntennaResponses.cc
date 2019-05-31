@@ -133,22 +133,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if(numRows>0){
       // read columns and append to vectors;
 
-      ROScalarColumn<Int> beamIdCol(tab, "BEAM_ID");
-      ROScalarColumn<String> nameCol(tab, "NAME");
-      ROScalarColumn<Int> beamNumberCol(tab, "BEAM_NUMBER");
+      ScalarColumn<Int> beamIdCol(tab, "BEAM_ID");
+      ScalarColumn<String> nameCol(tab, "NAME");
+      ScalarColumn<Int> beamNumberCol(tab, "BEAM_NUMBER");
       ROScalarMeasColumn<MEpoch> startTimeCol(tab, "START_TIME");
-      ROScalarColumn<String> antennaTypeCol(tab, "ANTENNA_TYPE");
-      ROScalarColumn<String> receiverTypeCol(tab, "RECEIVER_TYPE");
-      ROScalarColumn<Int> numSubbandsCol(tab, "NUM_SUBBANDS");
-      ROArrayColumn<String> bandNameCol(tab, "BAND_NAME");
+      ScalarColumn<String> antennaTypeCol(tab, "ANTENNA_TYPE");
+      ScalarColumn<String> receiverTypeCol(tab, "RECEIVER_TYPE");
+      ScalarColumn<Int> numSubbandsCol(tab, "NUM_SUBBANDS");
+      ArrayColumn<String> bandNameCol(tab, "BAND_NAME");
       ROArrayQuantColumn<Double> subbandMinFreqCol(tab, "SUBBAND_MIN_FREQ");
       ROArrayQuantColumn<Double> subbandMaxFreqCol(tab, "SUBBAND_MAX_FREQ");
       ROScalarMeasColumn<MDirection> centerCol(tab, "CENTER");
       ROScalarMeasColumn<MDirection> validCenterMinCol(tab, "VALID_CENTER_MIN");
       ROScalarMeasColumn<MDirection> validCenterMaxCol(tab, "VALID_CENTER_MAX");
-      ROArrayColumn<Int> functionTypeCol(tab, "FUNCTION_TYPE");   
-      ROArrayColumn<String> functionNameCol(tab, "FUNCTION_NAME");
-      ROArrayColumn<uInt> functionChannelCol(tab, "FUNCTION_CHANNEL");
+      ArrayColumn<Int> functionTypeCol(tab, "FUNCTION_TYPE");   
+      ArrayColumn<String> functionNameCol(tab, "FUNCTION_NAME");
+      ArrayColumn<uInt> functionChannelCol(tab, "FUNCTION_CHANNEL");
       ROArrayQuantColumn<Double> nomFreqCol(tab, "NOMINAL_FREQ");
       ROArrayQuantColumn<Double> rotAngOffsetCol(tab, "RESPONSE_ROTATION_OFFSET");
 

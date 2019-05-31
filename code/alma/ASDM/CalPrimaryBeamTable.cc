@@ -361,7 +361,7 @@ namespace asdm {
 
 
 CalPrimaryBeamRow* CalPrimaryBeamTable::newRow(CalPrimaryBeamRow* row) {
-	return new CalPrimaryBeamRow(*this, *row);
+	return new CalPrimaryBeamRow(*this, row);
 }
 
 	//

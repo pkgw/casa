@@ -327,7 +327,7 @@ namespace asdm {
 
 
 SBSummaryRow* SBSummaryTable::newRow(SBSummaryRow* row) {
-	return new SBSummaryRow(*this, *row);
+	return new SBSummaryRow(*this, row);
 }
 
 	//

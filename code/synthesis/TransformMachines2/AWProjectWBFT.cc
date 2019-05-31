@@ -356,8 +356,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //cerr << "From ftWeightImage" << endl;
 
-    Bool doSumWtNorm=true;
-    if (sumWt.shape().nelements()==0) doSumWtNorm=false;
+    // Bool doSumWtNorm=true;
+    // if (sumWt.shape().nelements()==0) doSumWtNorm=false;
     if ((sumWt.shape().nelements() < 2) || 
 	(sumWt.shape()(0) != wtImage.shape()(2)) || 
 	(sumWt.shape()(1) != wtImage.shape()(3)))
