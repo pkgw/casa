@@ -64,8 +64,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         fftw_destroy_plan(planC2CD_back_p);
       if(planC2C_back_p)
         fftwf_destroy_plan(planC2C_back_p);
-      ////Have to leak the cleanup part as it is thread unsafe to perform this
-      //fftw_cleanup();
+      ////Have to leak the cleanup part as it is thread unsafe to perform this, see CAS-12486
+      // fftw_cleanup_threads();
+      // fftw_cleanup();
+      // fftwf_cleanup_threads();
+      // fftwf_cleanup();
+
       planC2CD_forw_p=nullptr;
       planC2C_forw_p=nullptr;
       planC2CD_back_p=nullptr;
