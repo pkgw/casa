@@ -3246,10 +3246,10 @@ spectralType = CSpectralResolutionType::from_int(0);
 		
 	}
 	
-	ConfigDescriptionRow::ConfigDescriptionRow (ConfigDescriptionTable &t, ConfigDescriptionRow &row) : table(t) {
+	ConfigDescriptionRow::ConfigDescriptionRow (ConfigDescriptionTable &t, ConfigDescriptionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3301,63 +3301,63 @@ spectralType = CSpectralResolutionType::from_int(0);
 		else {
 	
 		
-			configDescriptionId = row.configDescriptionId;
+			configDescriptionId = row->configDescriptionId;
 		
 		
 		
 		
-			numAntenna = row.numAntenna;
+			numAntenna = row->numAntenna;
 		
-			numDataDescription = row.numDataDescription;
+			numDataDescription = row->numDataDescription;
 		
-			numFeed = row.numFeed;
+			numFeed = row->numFeed;
 		
-			correlationMode = row.correlationMode;
+			correlationMode = row->correlationMode;
 		
-			numAtmPhaseCorrection = row.numAtmPhaseCorrection;
+			numAtmPhaseCorrection = row->numAtmPhaseCorrection;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			processorType = row.processorType;
+			processorType = row->processorType;
 		
-			spectralType = row.spectralType;
+			spectralType = row->spectralType;
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			feedId = row.feedId;
+			feedId = row->feedId;
 		
-			switchCycleId = row.switchCycleId;
+			switchCycleId = row->switchCycleId;
 		
-			dataDescriptionId = row.dataDescriptionId;
+			dataDescriptionId = row->dataDescriptionId;
 		
-			processorId = row.processorId;
-		
-		
+			processorId = row->processorId;
 		
 		
-		if (row.phasedArrayListExists) {
-			phasedArrayList = row.phasedArrayList;		
+		
+		
+		if (row->phasedArrayListExists) {
+			phasedArrayList = row->phasedArrayList;		
 			phasedArrayListExists = true;
 		}
 		else
 			phasedArrayListExists = false;
 		
-		if (row.numAssocValuesExists) {
-			numAssocValues = row.numAssocValues;		
+		if (row->numAssocValuesExists) {
+			numAssocValues = row->numAssocValues;		
 			numAssocValuesExists = true;
 		}
 		else
 			numAssocValuesExists = false;
 		
-		if (row.assocNatureExists) {
-			assocNature = row.assocNature;		
+		if (row->assocNatureExists) {
+			assocNature = row->assocNature;		
 			assocNatureExists = true;
 		}
 		else
 			assocNatureExists = false;
 		
-		if (row.assocConfigDescriptionIdExists) {
-			assocConfigDescriptionId = row.assocConfigDescriptionId;		
+		if (row->assocConfigDescriptionIdExists) {
+			assocConfigDescriptionId = row->assocConfigDescriptionId;		
 			assocConfigDescriptionIdExists = true;
 		}
 		else

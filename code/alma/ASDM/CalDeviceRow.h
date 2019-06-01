@@ -756,7 +756,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalDeviceRow (CalDeviceTable &table, CalDeviceRow &row);
+	 CalDeviceRow (CalDeviceTable &table, CalDeviceRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

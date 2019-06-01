@@ -161,56 +161,56 @@ String TBXMLDriver::dowork(const char *buff) {
           
           if(type==TBConstants::TYPE_ARRAY_BOOL){
     
-        ROArrayColumn< Bool > column(result, columnName);
+        ArrayColumn< Bool > column(result, columnName);
         Array<Bool > array = column(row);
         hits<<array;
         
           } else if(type==TBConstants::TYPE_ARRAY_FLOAT){
     
-        ROArrayColumn< Float > column(result, columnName);
+        ArrayColumn< Float > column(result, columnName);
         Array<Float > array = column(row);
         hits<<array;
     
           } else if(type==TBConstants::TYPE_ARRAY_DOUBLE){
     
-        ROArrayColumn< Double > column(result, columnName);
+        ArrayColumn< Double > column(result, columnName);
         Array<Double > array = column(row);
         hits<<array;
         
           } else if(type==TBConstants::TYPE_ARRAY_UCHAR){
     
-        ROArrayColumn< uChar > column(result, columnName);
+        ArrayColumn< uChar > column(result, columnName);
         Array<uChar > array = column(row);
         hits<<array;
           } else if(type==TBConstants::TYPE_ARRAY_SHORT){
     
-        ROArrayColumn< Short > column(result, columnName);
+        ArrayColumn< Short > column(result, columnName);
         Array<Short > array = column(row);
         hits<<array;
           } else if(type==TBConstants::TYPE_ARRAY_INT){
     
-        ROArrayColumn< Int > column(result, columnName);
+        ArrayColumn< Int > column(result, columnName);
         Array<Int > array = column(row);
         hits<<array;
         
           } else if(type==TBConstants::TYPE_ARRAY_UINT){
     
-        ROArrayColumn< uInt > column(result, columnName);
+        ArrayColumn< uInt > column(result, columnName);
         Array<uInt > array = column(row);
         hits<<array;
           } else if(type==TBConstants::TYPE_ARRAY_COMPLEX){
     
-        ROArrayColumn< Complex > column(result, columnName);
+        ArrayColumn< Complex > column(result, columnName);
         Array<Complex > array = column(row);
         hits<<array;
           } else if(type==TBConstants::TYPE_ARRAY_DCOMPLEX){
-        ROArrayColumn< DComplex > column(result, columnName);
+        ArrayColumn< DComplex > column(result, columnName);
         Array<DComplex > array = column(row);
         hits<<array;
         
           } else if(type==TBConstants::TYPE_ARRAY_STRING){
     
-        ROArrayColumn< String > column(result, columnName);
+        ArrayColumn< String > column(result, columnName);
         Array<String > array = column(row);
         hits<<array;
           }

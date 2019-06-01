@@ -317,7 +317,7 @@ namespace asdm {
 
 
 MainRow* MainTable::newRow(MainRow* row) {
-	return new MainRow(*this, *row);
+	return new MainRow(*this, row);
 }
 
 	//

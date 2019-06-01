@@ -828,10 +828,10 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 		
 	}
 	
-	PolarizationRow::PolarizationRow (PolarizationTable &t, PolarizationRow &row) : table(t) {
+	PolarizationRow::PolarizationRow (PolarizationTable &t, PolarizationRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -847,16 +847,16 @@ void PolarizationRow::corrProductFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			polarizationId = row.polarizationId;
+			polarizationId = row->polarizationId;
 		
 		
 		
 		
-			numCorr = row.numCorr;
+			numCorr = row->numCorr;
 		
-			corrType = row.corrType;
+			corrType = row->corrType;
 		
-			corrProduct = row.corrProduct;
+			corrProduct = row->corrProduct;
 		
 		
 		

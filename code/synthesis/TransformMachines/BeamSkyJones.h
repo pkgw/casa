@@ -37,7 +37,7 @@
 #include <measures/Measures/Stokes.h>
 #include <synthesis/TransformMachines/SkyJones.h>
 #include <synthesis/TransformMachines/PBMath.h>
-
+#include <msvis/MSVis/VisBufferUtil.h>
 
 namespace casacore{
 
@@ -127,15 +127,19 @@ public:
 				     const VisBuffer& vb, casacore::Int row);
   // </group>
 
-  // Apply Jones matrix to a sky component (and adjoint)  
+  // Apply Jones matrix to a sky component (and adjoint)
+  //if fullspectral==True then the output skycomponent will have a TabularSpectrum
+  //Spectral Model which will be at all the channel frequencies available in the vb;
+  //when False the out SkyComponent is modified using the first channel frequency only.
+  //Thus dealing with the frequency dependence of the SkyJones.
   // <group>
   SkyComponent& apply(SkyComponent& in,
 		      SkyComponent& out,
 		      const VisBuffer& vb, casacore::Int row,
-		      casacore::Bool forward = true);
+		      casacore::Bool forward = true, casacore::Bool fullspectral=false);
   SkyComponent& applySquare(SkyComponent& in,
 			    SkyComponent& out,
-			    const VisBuffer& vb, casacore::Int row);
+			    const VisBuffer& vb, casacore::Int row, casacore::Bool fullspectral=false);
   // </group>
 
   // Understand if things have changed since last PB application
@@ -278,6 +282,7 @@ private:
 
   casacore::Int lastMSId_p;
 
+  casacore::Double lastTime_p;
   BeamSquint::SquintType doSquint_p;
 
   casacore::Double  parallacticAngleIncrement_p; // a parallactic angle threshold
@@ -348,7 +353,7 @@ protected:
 		     const casacore::Int &compareFeed=-1) const;
   casacore::MDirection convertDir(const VisBuffer& vb, const casacore::MDirection& inDir, const casacore::MDirection::Types outType);
   casacore::String telescope_p;
-  
+  casacore::CountedPtr<VisBufferUtil> vbutil_p;
 
 };
  

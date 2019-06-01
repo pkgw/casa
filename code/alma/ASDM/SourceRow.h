@@ -1837,7 +1837,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 SourceRow (SourceTable &table, SourceRow &row);
+	 SourceRow (SourceTable &table, SourceRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

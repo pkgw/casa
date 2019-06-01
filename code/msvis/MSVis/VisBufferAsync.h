@@ -173,7 +173,7 @@ private:
     casacore::Bool                           newSpectralWindow_p;
     casacore::Int                            nRowChunk_p;
     casacore::Int                            nSpw_p;
-    //const casacore::ROScalarColumn<casacore::Int> *    obsMFreqTypes_p; // [use]
+    //const casacore::ScalarColumn<casacore::Int> *    obsMFreqTypes_p; // [use]
     casacore::MPosition                      observatoryPosition_p;
     mutable casacore::Vector<casacore::Float>          parangCached_p;      // mutable because it is a cached value
     mutable casacore::Double                 parangCachedTime_p;  // mutable because it is a cached value

@@ -768,7 +768,8 @@ void HetArrayConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
         Int newRealConvSize=newConvSize* Int(Double(convSamp)/Double(convSampling));
         Int lattSize=convFuncTemp.shape()(0);
         (*convSupportBlock_p[actualConvIndex_p])=convSupport_p;
-		//cerr << "convsupport " << convSupport_p << endl;
+        LogIO os(LogOrigin("HetArrConvFunc", "findConvFunction", WHERE));
+        os << "convolution function support: " << convSupport_p  << LogIO::POST;
 
         if(newConvSize < lattSize) {
             IPosition blc(5, (lattSize/2)-(newConvSize/2),

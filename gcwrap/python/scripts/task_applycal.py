@@ -209,22 +209,35 @@ def reportflags(rec):
             VE = rec['VisEquation']
             nterm = len(VE)
             if nterm > 0:
-                casalog.post('  Total selected visibilities (among calibrateable spws) = '
-                              + str(VE['*1']['ndata']))
+                nVisTotal=VE['nVisTotal']
+
+                casalog.post('  Total visibilities selected for correction (ncorr x nchan x nrow summed over spws) = '
+                              + str(nVisTotal))
                 casalog.post('  Flags:')
-                for iterm in range(nterm):
+                partlog=False
+                for iterm in range(nterm-1):    # one of the keys is nVisTotal; the rest are caltable indices
                     VEi = VE['*' + str(iterm + 1)]
+
+                    nVisThis=VEi['ndata']
+                    partial='  '
+                    if nVisThis<nVisTotal:
+                        partlog=True
+                        partial='**'
                     flstr = '   ' + VEi['type']
                     flstr += ': '
                     flstr += 'In: ' + str(VEi['nflagIn'])
-                    flstr += ' (' + str(100. * VEi['nflagIn']
-                            / VEi['ndata']) + '%) --> '
+                    flstr += ' / '+str(nVisThis)+partial
+                    flstr += ' (' + str(100. * VEi['nflagIn']/nVisThis) + '%) --> '
                     flstr += 'Out: ' + str(VEi['nflagOut'])
-                    flstr += ' (' + str(100. * VEi['nflagOut']
-                            / VEi['ndata']) + '%)'
+                    flstr += ' / '+str(nVisThis)+partial
+                    flstr += ' (' + str(100. * VEi['nflagOut']/nVisThis) + '%)'
+                                        
                     if VEi.has_key('table'):
                         flstr += ' (' + VEi['table'] + ')'
                     casalog.post(flstr)
+                if partlog:
+                    casalog.post('     ** = Denotes caltable that only corrected a subset of total selected visibilities')
+
     except Exception, instance:
         # complain mildly, but don't alarm
         casalog.post('Error formatting some or all of the applycal flagging log info: '

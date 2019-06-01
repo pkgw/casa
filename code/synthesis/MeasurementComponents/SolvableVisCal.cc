@@ -3663,12 +3663,12 @@ void SolvableVisCal::calcParByCLPP() {
 
     if (freqDepPar()) {
       // Call w/ freq-dep
-      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),currFreq());
+      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),currFreq());
     }
     else {
       // Call w/ fiducial freq for phase-delay correction
       Double freq=1.0e9*currFreq()(currFreq().nelements()/2);
-      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),freq);
+      newcal=cpp_->interpolate(currCPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),freq);
     }
     break;
   }
@@ -3676,10 +3676,10 @@ void SolvableVisCal::calcParByCLPP() {
     // Interpolate solution   
     if (freqDepPar()) {
       // Call w/ freq-dep
-      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),currFreq());
+      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),currFreq());
     }
     else {
-      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),-1,currSpw(),currTime(),-1.0);
+      newcal=cpp_->interpolate(currRPar(),resFlag,currObs(),currField(),currIntent(),currSpw(),currTime(),-1.0);
     }
     break;
   }
@@ -3689,7 +3689,7 @@ void SolvableVisCal::calcParByCLPP() {
   }
 
   // TBD: signal failure to find calibration??  (e.g., for a spw?)
-  
+
   // Parameters now (or still) valid (independent of newcal!!)
   validateP();
 
@@ -7279,7 +7279,9 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
       String oFitMsg;
       logSink()<<LogIO::DEBUG1<<"nValidFLux="<<nValidFlux<<LogIO::POST;
-      if (nValidFlux>1) { 
+
+      //if (nValidFlux>1) { 
+      if (nValidFlux>0) { 
 
 	// Make fd and freq lists
 	Vector<Double> fds;
@@ -7296,8 +7298,15 @@ void SolvableVisJones::fluxscale(const String& outfile,
         //
         // calculate spectral index
         // fit the per-spw fluxes to get spectral index
+        if (nValidFlux==1) {
+          fitFluxD(tranidx) = fds(0);  
+          fitRefFreq(tranidx) = freqs(0);  
+        }
+        else {
+          // single spw so no fitting is performed, just fill flux and frequency 
+          // to fit result record
         LinearFit<Double> fitter;
-        uInt myfitorder; 
+        uInt myfitorder = 0; 
         if (fitorder < 0) {
           logSink() << LogIO::WARN
                     << "fitorder=" << fitorder 
@@ -7306,6 +7315,8 @@ void SolvableVisJones::fluxscale(const String& outfile,
           myfitorder = 1;
          }
          else if (nValidFlux==2 && fitorder>1) {
+             // note that myfitorder does not get set in this conditional branch, is that 
+             // the correct thing not to do? (myfitorder was prevously unitialized at this point).
           logSink() << LogIO::WARN
                    << "Not enough number of valid flux density data for the requested fitorder:"<<fitorder
                    << ". Use fitorder=1." <<LogIO::POST;
@@ -7393,6 +7404,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
 	  oStream.close();
         }
         logSink() << oFitMsg << LogIO::POST;
+      }
       }// nValidFlux
       /**
       Int sh1, sh2;

@@ -93,6 +93,7 @@ scripts/TablePlotQt4Agg.py
 scripts/TablePlotTkAgg.py
 scripts/task_accor.py
 scripts/task_accum.py
+scripts/task_apparentsens.py
 scripts/task_applycal.py
 scripts/task_asdmsummary.py
 scripts/task_bandpass.py

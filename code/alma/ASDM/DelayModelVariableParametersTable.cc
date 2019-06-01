@@ -299,7 +299,7 @@ namespace asdm {
 
 
 DelayModelVariableParametersRow* DelayModelVariableParametersTable::newRow(DelayModelVariableParametersRow* row) {
-	return new DelayModelVariableParametersRow(*this, *row);
+	return new DelayModelVariableParametersRow(*this, row);
 }
 
 	//

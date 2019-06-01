@@ -4365,10 +4365,10 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		
 	}
 	
-	CalPhaseRow::CalPhaseRow (CalPhaseTable &t, CalPhaseRow &row) : table(t) {
+	CalPhaseRow::CalPhaseRow (CalPhaseTable &t, CalPhaseRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -4440,89 +4440,89 @@ atmPhaseCorrection = CAtmPhaseCorrection::from_int(0);
 		else {
 	
 		
-			basebandName = row.basebandName;
+			basebandName = row->basebandName;
 		
-			receiverBand = row.receiverBand;
+			receiverBand = row->receiverBand;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			numBaseline = row.numBaseline;
-		
-			numReceptor = row.numReceptor;
-		
-			ampli = row.ampli;
-		
-			antennaNames = row.antennaNames;
-		
-			baselineLengths = row.baselineLengths;
-		
-			decorrelationFactor = row.decorrelationFactor;
-		
-			direction = row.direction;
-		
-			frequencyRange = row.frequencyRange;
-		
-			integrationTime = row.integrationTime;
-		
-			phase = row.phase;
-		
-			polarizationTypes = row.polarizationTypes;
-		
-			phaseRMS = row.phaseRMS;
-		
-			statPhaseRMS = row.statPhaseRMS;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.correctionValidityExists) {
-			correctionValidity = row.correctionValidity;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			numBaseline = row->numBaseline;
+		
+			numReceptor = row->numReceptor;
+		
+			ampli = row->ampli;
+		
+			antennaNames = row->antennaNames;
+		
+			baselineLengths = row->baselineLengths;
+		
+			decorrelationFactor = row->decorrelationFactor;
+		
+			direction = row->direction;
+		
+			frequencyRange = row->frequencyRange;
+		
+			integrationTime = row->integrationTime;
+		
+			phase = row->phase;
+		
+			polarizationTypes = row->polarizationTypes;
+		
+			phaseRMS = row->phaseRMS;
+		
+			statPhaseRMS = row->statPhaseRMS;
+		
+		
+		
+		
+		if (row->correctionValidityExists) {
+			correctionValidity = row->correctionValidity;		
 			correctionValidityExists = true;
 		}
 		else
 			correctionValidityExists = false;
 		
-		if (row.numAntennaExists) {
-			numAntenna = row.numAntenna;		
+		if (row->numAntennaExists) {
+			numAntenna = row->numAntenna;		
 			numAntennaExists = true;
 		}
 		else
 			numAntennaExists = false;
 		
-		if (row.singleAntennaNameExists) {
-			singleAntennaName = row.singleAntennaName;		
+		if (row->singleAntennaNameExists) {
+			singleAntennaName = row->singleAntennaName;		
 			singleAntennaNameExists = true;
 		}
 		else
 			singleAntennaNameExists = false;
 		
-		if (row.refAntennaNameExists) {
-			refAntennaName = row.refAntennaName;		
+		if (row->refAntennaNameExists) {
+			refAntennaName = row->refAntennaName;		
 			refAntennaNameExists = true;
 		}
 		else
 			refAntennaNameExists = false;
 		
-		if (row.phaseAntExists) {
-			phaseAnt = row.phaseAnt;		
+		if (row->phaseAntExists) {
+			phaseAnt = row->phaseAnt;		
 			phaseAntExists = true;
 		}
 		else
 			phaseAntExists = false;
 		
-		if (row.phaseAntRMSExists) {
-			phaseAntRMS = row.phaseAntRMS;		
+		if (row->phaseAntRMSExists) {
+			phaseAntRMS = row->phaseAntRMS;		
 			phaseAntRMSExists = true;
 		}
 		else

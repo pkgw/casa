@@ -62,7 +62,7 @@ using namespace sdfiller;
 namespace {
 template<class T>
 Vector<T> getScalarColumn(Table const &table, String const &name) {
-  ROScalarColumn<T> col(table, name);
+  ScalarColumn<T> col(table, name);
   return col.getColumn();
 }
 template<class T>
@@ -247,7 +247,7 @@ protected:
             antenna_name.find("@"));
       }
       CASA_EXPECT_STREQ(expected_telescope_name, mycolumns.telescopeName()(0));
-      ROScalarColumn<Double> column(myscantable, "TIME");
+      ScalarColumn<Double> column(myscantable, "TIME");
       Vector<Double> time_list = column.getColumn();
       Vector<Double> time_range = mycolumns.timeRange()(0);
       ASSERT_EQ(2u, time_range.nelements());
@@ -307,7 +307,7 @@ protected:
       auto const mytable = myms.weather();
       auto const weather_table = scantable_header.asTable("WEATHER");
       //uInt expected_nrow = weather_table.nrow();
-      ROScalarColumn<uInt> weather_id_column(myscantable, "WEATHER_ID");
+      ScalarColumn<uInt> weather_id_column(myscantable, "WEATHER_ID");
       Vector<uInt> weather_id_list = weather_id_column.getColumn();
       Sort sorter;
       sorter.sortKey(weather_id_list.data(), TpUInt, 0, Sort::Ascending);
@@ -334,7 +334,7 @@ protected:
         auto subtable = myscantable(
             myscantable.col("WEATHER_ID") == weather_id);
         if (subtable.nrow() > 0) {
-          ROScalarColumn<uInt> id_column(subtable, "IFNO");
+          ScalarColumn<uInt> id_column(subtable, "IFNO");
           Vector<uInt> spw_list = id_column.getColumn();
           Sort ss;
           ss.sortKey(spw_list.data(), TpUInt, 0, Sort::Ascending);
@@ -344,8 +344,8 @@ protected:
           for (uInt ispw = 0; ispw < num_spw; ++ispw) {
             uInt spw_id = spw_list[sidx[ispw]];
             auto subsubtable = subtable(subtable.col("IFNO") == spw_id);
-            ROScalarColumn<Double> tcol(subsubtable, "TIME");
-            ROScalarColumn<Double> icol(subsubtable, "INTERVAL");
+            ScalarColumn<Double> tcol(subsubtable, "TIME");
+            ScalarColumn<Double> icol(subsubtable, "INTERVAL");
             Vector<Double> time_list = tcol.getColumn();
             Vector<Double> interval_list = icol.getColumn();
             Sort ts;
@@ -395,11 +395,11 @@ protected:
       std::cout << "verify SOURCE table" << std::endl;
       auto const mytable = myms.source();
       auto const molecules_table = scantable_header.asTable("MOLECULES");
-      ROScalarColumn<String> srcname_column(myscantable, "SRCNAME");
-      ROScalarColumn<uInt> ifno_column(myscantable, "IFNO");
-      ROScalarColumn<uInt> molecule_id_column(myscantable, "MOLECULE_ID");
+      ScalarColumn<String> srcname_column(myscantable, "SRCNAME");
+      ScalarColumn<uInt> ifno_column(myscantable, "IFNO");
+      ScalarColumn<uInt> molecule_id_column(myscantable, "MOLECULE_ID");
       ArrayColumn<Double> proper_motion_column(myscantable, "SRCPROPERMOTION");
-      ROScalarColumn<Double> sysvel_column(myscantable, "SRCVELOCITY");
+      ScalarColumn<Double> sysvel_column(myscantable, "SRCVELOCITY");
       Vector<String> srcname_list = srcname_column.getColumn();
       Vector<uInt> ifno_list = ifno_column.getColumn();
       Sort sorter;
@@ -458,8 +458,8 @@ protected:
         t = myscantable(
             myscantable.col("SRCNAME") == expected_name
                 && myscantable.col("IFNO") == expected_spw_id);
-        ROScalarColumn<Double> time_column(t, "TIME");
-        ROScalarColumn<Double> interval_column(t, "INTERVAL");
+        ScalarColumn<Double> time_column(t, "TIME");
+        ScalarColumn<Double> interval_column(t, "INTERVAL");
         Vector<Double> time_list = time_column.getColumn();
         Sort s;
         s.sortKey(time_list.data(), TpDouble);
@@ -480,9 +480,9 @@ protected:
     {
       std::cout << "verify FIELD table" << std::endl;
       auto const mytable = myms.field();
-      ROScalarColumn<String> fieldname_column(myscantable, "FIELDNAME");
-      ROScalarColumn<String> srcname_column(myscantable, "SRCNAME");
-      ROScalarColumn<Double> time_column(myscantable, "TIME");
+      ScalarColumn<String> fieldname_column(myscantable, "FIELDNAME");
+      ScalarColumn<String> srcname_column(myscantable, "SRCNAME");
+      ScalarColumn<Double> time_column(myscantable, "TIME");
       ArrayColumn<Double> srcdir_column(myscantable, "SRCDIRECTION");
       ArrayColumn<Double> scanrate_column(myscantable, "SCANRATE");
       Vector<String> fieldname_list = fieldname_column.getColumn();
@@ -641,13 +641,13 @@ protected:
         if (anyEQ(valid_spw_vector, irow)) {
           Table t = myscantable(myscantable.col("IFNO") == (uInt) irow, 1);
           ASSERT_EQ(1u, t.nrow());
-          ROScalarColumn<uInt> freq_id_column(t, "FREQ_ID");
+          ScalarColumn<uInt> freq_id_column(t, "FREQ_ID");
           ArrayColumn<uChar> flag_column(t, "FLAGTRA");
           Int expected_num_chan = flag_column.shape(0)[0];
           uInt freq_id = freq_id_column(0);
           t = frequencies_table(frequencies_table.col("ID") == freq_id, 1);
           ASSERT_EQ(1u, t.nrow());
-          ROScalarColumn<Double> column(t, "REFPIX");
+          ScalarColumn<Double> column(t, "REFPIX");
           Double refpix = column(0);
           column.attach(t, "REFVAL");
           Double refval = column(0);
@@ -753,8 +753,8 @@ protected:
       ROMSPointingColumns const mycolumns(mytable);
       uInt nrow = mytable.nrow();
       Table t = myscantable;
-      ROScalarColumn<Double> time_column(t, "TIME");
-      ROScalarColumn<Double> interval_column(t, "INTERVAL");
+      ScalarColumn<Double> time_column(t, "TIME");
+      ScalarColumn<Double> interval_column(t, "INTERVAL");
       ArrayColumn<Double> direction_column(t, "DIRECTION");
       ArrayColumn<Double> scanrate_column(t, "SCANRATE");
       Vector<Double> time_list = time_column.getColumn();
@@ -771,7 +771,7 @@ protected:
         Double expected_time = time_list[index] * kDay2Sec;
         Table tsel = t(t.col("TIME") == time_list[index]);
         Table tsort = tsel.sort("IFNO");
-        ROScalarColumn<Double> col(tsort, "INTERVAL");
+        ScalarColumn<Double> col(tsort, "INTERVAL");
         Double expected_interval = col(0);
         Vector<Double> expected_direction = direction_column(index);
         Vector<Double> expected_scanrate = scanrate_column(index);

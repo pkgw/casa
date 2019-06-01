@@ -976,7 +976,7 @@ to use.
     
     * treatment of primary beam depends critically on parameters set in 
       sm.setvp() and sm.setoptions(ftmachine) - see help sm.setvp for 
-      details
+      details. For componentlists, if sm.setvp() is run prior to predict, then the spectral variation of each component in the componentlist will include the multiplicative term of the beam value for each channel frequency. So a flat spectrum component will show the frequency variation of the beam in the predicted visibilities.
     
   </description>
   <input>

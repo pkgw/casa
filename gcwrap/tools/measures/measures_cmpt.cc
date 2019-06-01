@@ -41,19 +41,16 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
-measures::measures() : pcomet_p(0)
+measures::measures(): pcomet_p(nullptr), itsLog(new LogIO())
 {
-  itsLog = new LogIO();
   casacore::MEpoch tim;
   casacore::MPosition pos;
   casacore::MDirection dir;
-  frame_p = new MeasFrame(tim,pos,dir);
+  frame_p.reset(new MeasFrame(tim,pos,dir));
 }
 
 measures::~measures()
 {
-  delete frame_p;
-  if (pcomet_p) delete pcomet_p;
   MeasIERS::closeTables();
 }
 
@@ -1933,21 +1930,21 @@ bool
 measures::doframe(const String &in) {
   String error;
   try {
-    delete pcomet_p; pcomet_p = 0;
+    pcomet_p.reset(nullptr);
     if (in.empty()) {
-      pcomet_p = new MeasComet;
+      pcomet_p.reset(new MeasComet);
     } else {
       if(Table::isReadable(in, False)){
 	Table laTable(in);
 	Path leSentier(in);
-	pcomet_p=new MeasComet(laTable, leSentier.absoluteName());
+	pcomet_p.reset(new MeasComet(laTable, leSentier.absoluteName()));
       }
       else{
-	pcomet_p = new MeasComet(in);
+        pcomet_p.reset(new MeasComet(in));
       }
     };
     if (!pcomet_p->ok()) {
-      delete pcomet_p; pcomet_p = 0;
+      pcomet_p.reset(nullptr);
       return false;
     };
     frame_p->set(*pcomet_p);
@@ -2829,10 +2826,7 @@ bool
 measures::done()
 {
   try {
-    if (pcomet_p) delete pcomet_p;
-    pcomet_p=0;
-    delete frame_p;
-    frame_p=new MeasFrame();
+    frame_p.reset(new MeasFrame());
     MeasIERS::closeTables();
     return true;
   } catch (AipsError(x)) {

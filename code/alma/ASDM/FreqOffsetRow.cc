@@ -961,10 +961,10 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 		
 	}
 	
-	FreqOffsetRow::FreqOffsetRow (FreqOffsetTable &t, FreqOffsetRow &row) : table(t) {
+	FreqOffsetRow::FreqOffsetRow (FreqOffsetTable &t, FreqOffsetRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -982,18 +982,18 @@ void FreqOffsetRow::offsetFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
+			feedId = row->feedId;
 		
 		
-			offset = row.offset;
+		
+		
+			offset = row->offset;
 		
 		
 		

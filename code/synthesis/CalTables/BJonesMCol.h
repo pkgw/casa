@@ -191,17 +191,17 @@ class ROBJonesPolyMCol : public ROBJonesMCol
   virtual ~ROBJonesPolyMCol() {};
 
   // Read-only column accessors
-  const casacore::ROScalarColumn<casacore::String>& polyType() const {return polyType_p;};
-  const casacore::ROScalarColumn<casacore::String>& polyMode() const {return polyMode_p;};
-  const casacore::ROScalarColumn<casacore::Complex>& scaleFactor() const {return scaleFactor_p;};
-  const casacore::ROArrayColumn<casacore::Double>& validDomain() const {return validDomain_p;};
-  const casacore::ROScalarColumn<casacore::Int>& nPolyAmp() const {return nPolyAmp_p;};
-  const casacore::ROScalarColumn<casacore::Int>& nPolyPhase() const {return nPolyPhase_p;};
-  const casacore::ROArrayColumn<casacore::Double>& polyCoeffAmp() const {return polyCoeffAmp_p;};
-  const casacore::ROArrayColumn<casacore::Double>& polyCoeffPhase() const 
+  const casacore::ScalarColumn<casacore::String>& polyType() const {return polyType_p;};
+  const casacore::ScalarColumn<casacore::String>& polyMode() const {return polyMode_p;};
+  const casacore::ScalarColumn<casacore::Complex>& scaleFactor() const {return scaleFactor_p;};
+  const casacore::ArrayColumn<casacore::Double>& validDomain() const {return validDomain_p;};
+  const casacore::ScalarColumn<casacore::Int>& nPolyAmp() const {return nPolyAmp_p;};
+  const casacore::ScalarColumn<casacore::Int>& nPolyPhase() const {return nPolyPhase_p;};
+  const casacore::ArrayColumn<casacore::Double>& polyCoeffAmp() const {return polyCoeffAmp_p;};
+  const casacore::ArrayColumn<casacore::Double>& polyCoeffPhase() const 
     {return polyCoeffPhase_p;};
-  const casacore::ROScalarColumn<casacore::String>& phaseUnits() const {return phaseUnits_p;};
-  const casacore::ROScalarColumn<casacore::Complex>& sideBandRef() const {return sideBandRef_p;};
+  const casacore::ScalarColumn<casacore::String>& phaseUnits() const {return phaseUnits_p;};
+  const casacore::ScalarColumn<casacore::Complex>& sideBandRef() const {return sideBandRef_p;};
 
  protected:
   // Prohibit public use of the null constructor, which
@@ -214,16 +214,16 @@ class ROBJonesPolyMCol : public ROBJonesMCol
   ROBJonesPolyMCol& operator= (const ROBJonesPolyMCol&);
 
   // Private column accessors
-  casacore::ROScalarColumn<casacore::String> polyType_p;
-  casacore::ROScalarColumn<casacore::String> polyMode_p;
-  casacore::ROScalarColumn<casacore::Complex> scaleFactor_p;
-  casacore::ROArrayColumn<casacore::Double> validDomain_p;
-  casacore::ROScalarColumn<casacore::Int> nPolyAmp_p;
-  casacore::ROScalarColumn<casacore::Int> nPolyPhase_p;
-  casacore::ROArrayColumn<casacore::Double> polyCoeffAmp_p;
-  casacore::ROArrayColumn<casacore::Double> polyCoeffPhase_p;
-  casacore::ROScalarColumn<casacore::String> phaseUnits_p;
-  casacore::ROScalarColumn<casacore::Complex> sideBandRef_p;
+  casacore::ScalarColumn<casacore::String> polyType_p;
+  casacore::ScalarColumn<casacore::String> polyMode_p;
+  casacore::ScalarColumn<casacore::Complex> scaleFactor_p;
+  casacore::ArrayColumn<casacore::Double> validDomain_p;
+  casacore::ScalarColumn<casacore::Int> nPolyAmp_p;
+  casacore::ScalarColumn<casacore::Int> nPolyPhase_p;
+  casacore::ArrayColumn<casacore::Double> polyCoeffAmp_p;
+  casacore::ArrayColumn<casacore::Double> polyCoeffPhase_p;
+  casacore::ScalarColumn<casacore::String> phaseUnits_p;
+  casacore::ScalarColumn<casacore::Complex> sideBandRef_p;
 };
 
 // <summary> 

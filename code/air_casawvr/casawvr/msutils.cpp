@@ -30,12 +30,12 @@ namespace LibAIR2 {
     casacore::MSSpectralWindow specTable(ms.spectralWindow());
 
     // Number of channels 
-    casacore::ROScalarColumn<casacore::Int> nc
+    casacore::ScalarColumn<casacore::Int> nc
       (specTable,
        casacore::MSSpectralWindow::columnName(casacore::MSSpectralWindow::NUM_CHAN));
 
     // Frequencies of the channels
-    casacore::ROArrayColumn<casacore::Double>
+    casacore::ArrayColumn<casacore::Double>
       chfreq(specTable,
 	     casacore::MSSpectralWindow::columnName(casacore::MSSpectralWindow::CHAN_FREQ));
 
@@ -56,8 +56,8 @@ namespace LibAIR2 {
 		const std::vector<size_t> &sortedI)
   {
     const casacore::ROMSMainColumns cols(ms);
-    const casacore::ROScalarColumn<casacore::Int> &f= cols.fieldId();
-    const casacore::ROScalarColumn<casacore::Double> &t= cols.time();
+    const casacore::ScalarColumn<casacore::Int> &f= cols.fieldId();
+    const casacore::ScalarColumn<casacore::Double> &t= cols.time();
 
     std::map<size_t, size_t> srcmap=getFieldSrcMap(ms);
 
@@ -112,7 +112,7 @@ namespace LibAIR2 {
   {
     mi.clear();
     casacore::MSState state(ms.state());
-    const casacore::ROScalarColumn<casacore::String> modes(state,
+    const casacore::ScalarColumn<casacore::String> modes(state,
 						   casacore::MSState::columnName(casacore::MSState::OBS_MODE));
     for(size_t i=0; i<state.nrow(); ++i)
     {
@@ -149,7 +149,7 @@ namespace LibAIR2 {
     const size_t nfields=fieldT.nrow();
 
     casacore::ROMSFieldColumns fcols(fieldT);
-    const casacore::ROScalarColumn<casacore::String> &names (fcols.name());
+    const casacore::ScalarColumn<casacore::String> &names (fcols.name());
     for(size_t i=0; i<nfields; ++i)
     {
       res.insert(field_t::value_type(i, std::string(names(i))));
@@ -164,8 +164,8 @@ namespace LibAIR2 {
     const size_t nsource=srcTab.nrow();
 
     casacore::ROMSSourceColumns scols(srcTab);
-    const casacore::ROScalarColumn<casacore::String> &names (scols.name());
-    const casacore::ROScalarColumn<casacore::Int> & ids (scols.sourceId());
+    const casacore::ScalarColumn<casacore::String> &names (scols.name());
+    const casacore::ScalarColumn<casacore::Int> & ids (scols.sourceId());
     for(size_t i=0; i<nsource; ++i)
     {
       res.insert(field_t::value_type(ids(i), std::string(names(i))));
@@ -184,7 +184,7 @@ namespace LibAIR2 {
     field_t sources=getSourceNames(ms);
 
     casacore::ROMSFieldColumns fcols(fieldT);
-    const casacore::ROScalarColumn<casacore::Int> &fieldsrc (fcols.sourceId());
+    const casacore::ScalarColumn<casacore::Int> &fieldsrc (fcols.sourceId());
     for(size_t i=0; i<nfields; ++i)
     {
       try {
@@ -208,7 +208,7 @@ namespace LibAIR2 {
     const casacore::MSField & fieldT(ms.field());
     const size_t nfields=fieldT.nrow();
     casacore::ROMSFieldColumns fcols(fieldT);
-    const casacore::ROScalarColumn<casacore::Int> &fieldsrc (fcols.sourceId());
+    const casacore::ScalarColumn<casacore::Int> &fieldsrc (fcols.sourceId());
     for(size_t i=0; i<nfields; ++i)
     {
       res.insert(std::pair<size_t, size_t>(i, fieldsrc(i)));

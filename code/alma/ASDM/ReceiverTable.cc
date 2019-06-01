@@ -289,7 +289,7 @@ namespace asdm {
 
 
 ReceiverRow* ReceiverTable::newRow(ReceiverRow* row) {
-	return new ReceiverRow(*this, *row);
+	return new ReceiverRow(*this, row);
 }
 
 	//

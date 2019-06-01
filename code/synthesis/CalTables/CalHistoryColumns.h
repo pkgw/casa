@@ -82,10 +82,10 @@ class ROCalHistoryColumns
   virtual ~ROCalHistoryColumns() {};
 
   // Read-only column accessors
-  const casacore::ROScalarColumn<casacore::String>& calParms() const {return calParms_p;};
-  const casacore::ROScalarColumn<casacore::String>& calTables() const {return calTables_p;};
-  const casacore::ROScalarColumn<casacore::String>& calSelect() const {return calSelect_p;};
-  const casacore::ROScalarColumn<casacore::String>& calNotes() const {return calNotes_p;};
+  const casacore::ScalarColumn<casacore::String>& calParms() const {return calParms_p;};
+  const casacore::ScalarColumn<casacore::String>& calTables() const {return calTables_p;};
+  const casacore::ScalarColumn<casacore::String>& calSelect() const {return calSelect_p;};
+  const casacore::ScalarColumn<casacore::String>& calNotes() const {return calNotes_p;};
 
  protected:
   // Prohibit public use of the null constructor, which
@@ -98,7 +98,7 @@ class ROCalHistoryColumns
     {return calTable.calHistoryAsTable();}
 
   // Attach a table column accessor
-  void attach (const CalTable& calTable, casacore::ROTableColumn& tabCol, 
+  void attach (const CalTable& calTable, casacore::TableColumn& tabCol, 
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);
 
  private:
@@ -107,10 +107,10 @@ class ROCalHistoryColumns
   ROCalHistoryColumns& operator= (const ROCalHistoryColumns&);
 
   // Private column accessors
-  casacore::ROScalarColumn<casacore::String> calParms_p;
-  casacore::ROScalarColumn<casacore::String> calTables_p;
-  casacore::ROScalarColumn<casacore::String> calSelect_p;
-  casacore::ROScalarColumn<casacore::String> calNotes_p;
+  casacore::ScalarColumn<casacore::String> calParms_p;
+  casacore::ScalarColumn<casacore::String> calTables_p;
+  casacore::ScalarColumn<casacore::String> calSelect_p;
+  casacore::ScalarColumn<casacore::String> calNotes_p;
 };
 
 // <summary> 
@@ -173,7 +173,7 @@ class CalHistoryColumns
     {return calTable.calHistoryAsTable();}
 
   // Attach a table column accessor
-  void attach (CalTable& calTable, casacore::ROTableColumn& tabCol, 
+  void attach (CalTable& calTable, casacore::TableColumn& tabCol, 
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);
 
  private:

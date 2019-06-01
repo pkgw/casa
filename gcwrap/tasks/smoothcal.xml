@@ -6,57 +6,57 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="smoothcal" category="calibration">
-	<shortdescription>Smooth calibration solution(s) derived from one or more sources:</shortdescription>
-	<description>
+        <shortdescription>Smooth calibration solution(s) derived from one or more sources:</shortdescription>
+        <description>
         A G- or T-type gain calibration can be smoothed.  Amplitude and
-	phase are currently smoothed with the same time.  Calibration values
-	will be smoothed over all fields.
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value></value>
-		</param>
+        phase are currently smoothed with the same time.  Calibration values
+        will be smoothed over all fields.
+        </description>
+        <input>
+                <param type="string" name="vis" mustexist="true">
+                        <description>Name of input visibility file (MS)</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="tablein" mustexist="true">
-			<description>Input calibration table</description>
-			<value></value>
-		</param>
+                <param type="string" name="tablein" mustexist="true">
+                        <description>Input calibration table</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="caltable">
-			<description>Output calibration table (overwrite tablein if unspecified)</description>
-			<value></value>
-		</param>
+                <param type="string" name="caltable">
+                        <description>Output calibration table (overwrite tablein if unspecified)</description>
+                        <value></value>
+                </param>
 
-		<param type="stringArray" name="field">
-			<description>Field name list</description>
-			<value></value>
-		</param>
+                <param type="stringArray" name="field">
+                        <description>Field name list</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="smoothtype">
-			<description>Smoothing filter to use</description>
-			<value>median</value>
-			<allowed kind="enum">
-			<value>median</value>
-			<value>mean</value>
-			</allowed>
-		</param>
+                <param type="string" name="smoothtype">
+                        <description>Smoothing filter to use</description>
+                        <value>median</value>
+                        <allowed kind="enum">
+                        <value>median</value>
+                        <value>mean</value>
+                        </allowed>
+                </param>
 
-		<param type="any" name="smoothtime">
-			<description>Smoothing time (sec)</description>
-			<any type="variant" limittypes="double int"/>
-			<value type="double">60.0</value>
-		</param>
+                <param type="any" name="smoothtime">
+                        <description>Smoothing time (sec)</description>
+                        <any type="variant" limittypes="double int"/>
+                        <value type="double">60.0</value>
+                </param>
 
-	</input>
+        </input>
 <returns type="void"/>
 
 <example>
 
 
         A G- or T-type gain calibration can be smoothed.  The amplitude and
-	phase smoothing times are currently the same.  Calibration values
-	will be smoothed for only the specified fields.  Smoothing is
+        phase smoothing times are currently the same.  Calibration values
+        will be smoothed for only the specified fields.  Smoothing is
         performed independently per field, per spw, and per antenna.
 
         Keyword arguments:

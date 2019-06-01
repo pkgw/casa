@@ -46,8 +46,8 @@ synthesisnormalizer::~synthesisnormalizer()
 
   try 
     {
-      casacore::Record rec = *toRecord( normpars );
-      itsNormalizer->setupNormalizer( rec );
+      std::unique_ptr<casacore::Record> rec(toRecord( normpars ));
+      itsNormalizer->setupNormalizer( *rec );
     } 
   catch  (AipsError x) 
     {

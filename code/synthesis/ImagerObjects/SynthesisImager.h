@@ -158,6 +158,7 @@ class SynthesisImager
 	      const casacore::Quantity& fieldofview=casacore::Quantity(0.0, "arcsec"),
 	      const casacore::Int npixels=0, 
 	      const casacore::Bool multiField=false,
+	      const casacore::Bool usecubebriggs=false,
 	      const casacore::String& filtertype=casacore::String("Gaussian"),
 	      const casacore::Quantity& filterbmaj=casacore::Quantity(0.0,"deg"),
 	      const casacore::Quantity& filterbmin=casacore::Quantity(0.0,"deg"),
@@ -182,6 +183,10 @@ class SynthesisImager
   // make the psf images  i.e grid weight rather than data
   void makePSF();
 
+  // Calculate apparent sensitivity (for _Visibility_ spectrum)
+  //  _Image_ spectral grid TBD
+  // Throws an exception because not supported in old VI (see SynthesisImagerVi2)
+  virtual casacore::Record apparentSensitivity();
 
   virtual bool makePB();
   
@@ -350,7 +355,8 @@ protected:
   bool makePBImage(const casacore::String telescop);
   virtual bool makePrimaryBeam(PBMath& pbMath);
 
-  
+  ///is any of the images defined spectral cube
+  virtual bool isSpectralCube();
 
   /////////////// Member Objects
 

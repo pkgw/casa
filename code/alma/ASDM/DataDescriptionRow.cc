@@ -28,6 +28,8 @@
  * | If you do, all changes will be lost when the file is re-generated. |
  *  --------------------------------------------------------------------
  *
+ * Note, DataDescriptionRow.cpp is no longer being generated.
+ *
  * File DataDescriptionRow.cpp
  */
  
@@ -41,11 +43,31 @@
 #include <alma/ASDM/PolarizationTable.h>
 #include <alma/ASDM/PolarizationRow.h>
 
+#include <alma/ASDM/HolographyTable.h>
+#include <alma/ASDM/HolographyRow.h>
+
 #include <alma/ASDM/SpectralWindowTable.h>
 #include <alma/ASDM/SpectralWindowRow.h>
 
 #include <alma/ASDM/PulsarTable.h>
 #include <alma/ASDM/PulsarRow.h>
+
+using asdm::ASDM;
+using asdm::DataDescriptionRow;
+using asdm::DataDescriptionTable;
+
+using asdm::PolarizationTable;
+using asdm::PolarizationRow;
+
+using asdm::HolographyTable;
+using asdm::HolographyRow;
+
+using asdm::SpectralWindowTable;
+using asdm::SpectralWindowRow;
+
+using asdm::PulsarTable;
+using asdm::PulsarRow;
+
 #include <alma/ASDM/Parser.h>
 #include <alma/ASDM/EnumerationParser.h>
 #include <alma/ASDM/ASDMValuesParser.h>
@@ -84,7 +106,7 @@ namespace asdm {
 	DataDescriptionRowIDL *DataDescriptionRow::toIDL() const {
 		DataDescriptionRowIDL *x = new DataDescriptionRowIDL ();
 		
-		// Fill the IDL structure.
+		// Set the x's fields.
 	
 		
 	
@@ -630,7 +652,7 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 		
 
 	/**
-	 * Returns the pointer to the row in the Polarization table having Polarization.polOrHoloId == polOrHoloId
+	 * Returns the pointer to the row in the Polarization table having Polarization.polarizationId == polOrHoloId
 	 * @return a PolarizationRow*
 	 * 
 	 
@@ -639,7 +661,22 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 	 
 	 	return table.getContainer().getPolarization().getRowByKey(polOrHoloId);
 	 }
+
+
+
 	 
+	/**
+	 * Returns the pointer to the row in the Holography table having Holography.holographyId == polOrHoloId
+	 * @return a HolographyRow*
+	 * 
+	 
+	 */
+	 HolographyRow* DataDescriptionRow::getHolographyUsingPolOrHoloId() {
+	 
+	 	return table.getContainer().getHolography().getRowByKey(polOrHoloId);
+	 }
+	 
+
 
 	
 
@@ -662,8 +699,8 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 
 	
         /**
-         * Returns the pointer to the row in the DataDescription table having DataDescription.pulsarId == pulsarId
-         * @return a DataDescriptionRow*
+         * Returns the pointer to the row in the Pulsar table having Pulsar.pulsarId == pulsarId
+         * @return a PulsarRow*
          * 
          
          * throws IllegalAccessException
@@ -729,10 +766,10 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 		
 	}
 	
-	DataDescriptionRow::DataDescriptionRow (DataDescriptionTable &t, DataDescriptionRow &row) : table(t) {
+	DataDescriptionRow::DataDescriptionRow (DataDescriptionTable &t, DataDescriptionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -746,17 +783,17 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			dataDescriptionId = row.dataDescriptionId;
+			dataDescriptionId = row->dataDescriptionId;
 		
 		
 		
 		
-			polOrHoloId = row.polOrHoloId;
+			polOrHoloId = row->polOrHoloId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			if (row.pulsarIdExists) {
-				pulsarId = row.pulsarId;
+			if (row->pulsarIdExists) {
+				pulsarId = row->pulsarId;
 				pulsarIdExists = true;
 			}
 			else
@@ -839,6 +876,7 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 		result["dataDescriptionId"] = &DataDescriptionRow::dataDescriptionIdFromBin;
 		result["polOrHoloId"] = &DataDescriptionRow::polOrHoloIdFromBin;
 		result["spectralWindowId"] = &DataDescriptionRow::spectralWindowIdFromBin;
+                result["pulsarId"] = &DataDescriptionRow::pulsarIdFromBin;
 		
 		
 			

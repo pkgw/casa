@@ -2627,10 +2627,10 @@ centerDirectionCode = CDirectionReferenceCode::from_int(0);
 		
 	}
 	
-	SBSummaryRow::SBSummaryRow (SBSummaryTable &t, SBSummaryRow &row) : table(t) {
+	SBSummaryRow::SBSummaryRow (SBSummaryTable &t, SBSummaryRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2680,58 +2680,58 @@ centerDirectionCode = CDirectionReferenceCode::from_int(0);
 		else {
 	
 		
-			sBSummaryId = row.sBSummaryId;
+			sBSummaryId = row->sBSummaryId;
 		
 		
 		
 		
-			sbSummaryUID = row.sbSummaryUID;
+			sbSummaryUID = row->sbSummaryUID;
 		
-			projectUID = row.projectUID;
+			projectUID = row->projectUID;
 		
-			obsUnitSetUID = row.obsUnitSetUID;
+			obsUnitSetUID = row->obsUnitSetUID;
 		
-			frequency = row.frequency;
+			frequency = row->frequency;
 		
-			frequencyBand = row.frequencyBand;
+			frequencyBand = row->frequencyBand;
 		
-			sbType = row.sbType;
+			sbType = row->sbType;
 		
-			sbDuration = row.sbDuration;
+			sbDuration = row->sbDuration;
 		
-			numObservingMode = row.numObservingMode;
+			numObservingMode = row->numObservingMode;
 		
-			observingMode = row.observingMode;
+			observingMode = row->observingMode;
 		
-			numberRepeats = row.numberRepeats;
+			numberRepeats = row->numberRepeats;
 		
-			numScienceGoal = row.numScienceGoal;
+			numScienceGoal = row->numScienceGoal;
 		
-			scienceGoal = row.scienceGoal;
+			scienceGoal = row->scienceGoal;
 		
-			numWeatherConstraint = row.numWeatherConstraint;
+			numWeatherConstraint = row->numWeatherConstraint;
 		
-			weatherConstraint = row.weatherConstraint;
-		
-		
+			weatherConstraint = row->weatherConstraint;
 		
 		
-		if (row.centerDirectionExists) {
-			centerDirection = row.centerDirection;		
+		
+		
+		if (row->centerDirectionExists) {
+			centerDirection = row->centerDirection;		
 			centerDirectionExists = true;
 		}
 		else
 			centerDirectionExists = false;
 		
-		if (row.centerDirectionCodeExists) {
-			centerDirectionCode = row.centerDirectionCode;		
+		if (row->centerDirectionCodeExists) {
+			centerDirectionCode = row->centerDirectionCode;		
 			centerDirectionCodeExists = true;
 		}
 		else
 			centerDirectionCodeExists = false;
 		
-		if (row.centerDirectionEquinoxExists) {
-			centerDirectionEquinox = row.centerDirectionEquinox;		
+		if (row->centerDirectionEquinoxExists) {
+			centerDirectionEquinox = row->centerDirectionEquinox;		
 			centerDirectionEquinoxExists = true;
 		}
 		else

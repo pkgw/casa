@@ -186,7 +186,7 @@ Vector<String> SearchEngine::uniqueSpecies() const {
 	Table resTable = _runQuery(query);
 
 	String logString;
-	ROScalarColumn<String> species(resTable, SplatalogueTable::SPECIES);
+	ScalarColumn<String> species(resTable, SplatalogueTable::SPECIES);
 	Vector<String> vSpecies(species.nrow());
 	for (uInt i=0; i<species.nrow(); i++) {
 		vSpecies[i] = species(i);
@@ -202,7 +202,7 @@ Vector<String> SearchEngine::uniqueChemicalNames() const {
 	// Table resTable = tableCommand(query).table();
 	Table resTable = _runQuery(query);
 
-	ROScalarColumn<String> chemNames(resTable, SplatalogueTable::CHEMICAL_NAME);
+	ScalarColumn<String> chemNames(resTable, SplatalogueTable::CHEMICAL_NAME);
 	Vector<String> vChemNames(chemNames.nrow());
 	String logString;
 	for (uInt i=0; i<chemNames.nrow(); i++) {

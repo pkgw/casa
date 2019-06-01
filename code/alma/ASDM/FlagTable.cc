@@ -283,7 +283,7 @@ namespace asdm {
 
 
 FlagRow* FlagTable::newRow(FlagRow* row) {
-	return new FlagRow(*this, *row);
+	return new FlagRow(*this, row);
 }
 
 	//

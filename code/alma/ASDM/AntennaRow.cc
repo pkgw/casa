@@ -1626,10 +1626,10 @@ antennaType = CAntennaType::from_int(0);
 		
 	}
 	
-	AntennaRow::AntennaRow (AntennaTable &t, AntennaRow &row) : table(t) {
+	AntennaRow::AntennaRow (AntennaTable &t, AntennaRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -1659,32 +1659,32 @@ antennaType = CAntennaType::from_int(0);
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
 		
 		
 		
-			name = row.name;
+			name = row->name;
 		
-			antennaMake = row.antennaMake;
+			antennaMake = row->antennaMake;
 		
-			antennaType = row.antennaType;
+			antennaType = row->antennaType;
 		
-			dishDiameter = row.dishDiameter;
+			dishDiameter = row->dishDiameter;
 		
-			position = row.position;
+			position = row->position;
 		
-			offset = row.offset;
+			offset = row->offset;
 		
-			time = row.time;
+			time = row->time;
 		
-			stationId = row.stationId;
-		
-		
+			stationId = row->stationId;
 		
 		
-		if (row.assocAntennaIdExists) {
-			assocAntennaId = row.assocAntennaId;		
+		
+		
+		if (row->assocAntennaIdExists) {
+			assocAntennaId = row->assocAntennaId;		
 			assocAntennaIdExists = true;
 		}
 		else

@@ -174,11 +174,13 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
         );
         auto val = config.asString(field);
         if (! val.empty()) {
-            MSSelection sel(ms());
+            // FIXME references underlying MS
+            const auto& myms = ms();
+            MSSelection sel(myms);
             sel.setSpwExpr(val);
             auto chans = sel.getChanList();
             auto nrows = chans.nrow();
-            MSMetaData md(&ms(), 50);
+            MSMetaData md(&myms, 50);
             auto nchans = md.nChans();
             IPosition start(3, 0);
             IPosition stop(3, 0);
@@ -187,9 +189,14 @@ Bool StatWtTVI::_parseConfiguration(const Record& config) {
                 auto row = chans.row(i);
                 const auto& spw = row[0];
                 if (_chanSelFlags.find(spw) == _chanSelFlags.end()) {
-                    _chanSelFlags[spw] = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
+                    _chanSelFlags[spw]
+                        = Cube<Bool>(1, nchans[spw], 1, ! excludeChans);
                 }
                 start[1] = row[1];
+                ThrowIf(
+                    start[1] < 0, "Invalid channel selection in spw "
+                    + String::toString(spw))
+                ;
                 stop[1] = row[2];
                 step[1] = row[3];
                 Slicer slice(start, stop, step, Slicer::endIsLast);
@@ -379,6 +386,74 @@ void StatWtTVI::_configureStatAlg(const Record& config) {
     stats.insert(StatisticsData::MEAN);
     _wtStats->setStatsToCalculate(stats);
     _wtStats->setCalculateAsAdded(True);
+}
+
+void StatWtTVI::_logUsedChannels() const {
+    // FIXME uses underlying MS
+    MSMetaData msmd(&ms(), 100.0);
+    const auto nchan = msmd.nChans();
+    // uInt nspw = nchan.size();
+    LogIO log(LogOrigin("StatWtTVI", __func__));
+    log << LogIO::NORMAL << "Weights are being computed using ";
+    const auto cend = _chanSelFlags.cend();
+    const auto nspw = _samples.size();
+    uInt spwCount = 0;
+    // for (uInt i=0; i<nspw; ++i) {
+    for (const auto& kv: _samples) {
+        const auto spw = kv.first;
+        log << "SPW " << spw << ", channels ";
+        const auto flagCube = _chanSelFlags.find(spw);
+        if (flagCube == cend) {
+            log << "0~" << (nchan[spw] - 1);
+        }
+        else {
+            vector<pair<uInt, uInt>> startEnd;
+            const auto flags = flagCube->second.tovector();
+            bool started = false;
+            std::unique_ptr<pair<uInt, uInt>> curPair;
+            for (uInt j=0; j<nchan[spw]; ++j) {
+                if (started) {
+                    if (flags[j]) {
+                        // found a bad channel, end current range
+                        startEnd.push_back(*curPair);
+                        started = false;
+                    }
+                    else {
+                        // found a "good" channel, update end of current range
+                        curPair->second = j;
+                    }
+                }
+                else if (! flags[j]) {
+                    // found a good channel, start new range
+                    started = true;
+                    curPair.reset(new pair<uInt, uInt>(j, j));
+                }
+            }
+            if (curPair) {
+                if (started) {
+                    // The last pair won't get added inside the previous loop, 
+                    // so add it here
+                    startEnd.push_back(*curPair);
+                }
+                auto nPairs = startEnd.size();
+                for (uInt i=0; i<nPairs; ++i) {
+                    log  << startEnd[i].first << "~" << startEnd[i].second;
+                    if (i < nPairs - 1) {
+                        log << ", ";
+                    }
+                }
+            }
+            else {
+                // if the pointer never got set, all the channels are bad
+                log << "no channels";
+            }
+        }
+        if (spwCount < (nspw - 1)) {
+            log << ";";
+        }
+        ++spwCount;
+    }
+    log << LogIO::POST;
 }
 
 void StatWtTVI::_setChanBinMap(const casacore::Quantity& binWidth) {
@@ -1412,6 +1487,18 @@ void StatWtTVI::summarizeFlagging() const {
     log << LogIO::NORMAL << "TOTAL FLAGGED DATA AFTER RUNNING STATWT: "
         << total << "%" << LogIO::POST;
     log << LogIO::NORMAL << std::endl << LogIO::POST;
+    if (_nOrigFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT ALL THE DATA IN THE INPUT "
+            << "MS/SELECTION WERE FLAGGED PRIOR TO RUNNING STATWT"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
+    else if (_nOrigFlaggedPts + _nNewFlaggedPts == _nTotalPts) {
+        log << LogIO::WARN << "IT APPEARS THAT STATWT FLAGGED ALL THE DATA "
+            "IN THE REQUESTED SELECTION THAT WASN'T ORIGINALLY FLAGGED"
+            << LogIO::POST;
+        log << LogIO::NORMAL << std::endl << LogIO::POST;
+    }
     String col0 = "SPECTRAL_WINDOW";
     String col1 = "SAMPLES_WITH_NON-ZERO_VARIANCE";
     String col2 = "SAMPLES_WHERE_REAL_PART_VARIANCE_DIFFERS_BY_>50%_FROM_"
@@ -1430,16 +1517,29 @@ void StatWtTVI::summarizeFlagging() const {
 }
 
 void StatWtTVI::summarizeStats(Double& mean, Double& variance) const {
-    mean = _wtStats->getStatistic(StatisticsData::MEAN);
-    variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
     LogIO log(LogOrigin("StatWtTVI", __func__));
-    log << LogIO::NORMAL << "The mean of the computed weights is "
-        << mean << LogIO::POST;
-    log << LogIO::NORMAL << "The variance of the computed weights is "
-        << variance << LogIO::POST;
-    log << LogIO::NORMAL << "Weights which had corresponding flags of True "
-        << "prior to running this application were not used to compute these "
-        << "stats." << LogIO::POST;
+    _logUsedChannels();
+    try {
+        mean = _wtStats->getStatistic(StatisticsData::MEAN);
+        variance = _wtStats->getStatistic(StatisticsData::VARIANCE);
+        log << LogIO::NORMAL << "The mean of the computed weights is "
+            << mean << LogIO::POST;
+        log << LogIO::NORMAL << "The variance of the computed weights is "
+            << variance << LogIO::POST;
+        log << LogIO::NORMAL << "Weights which had corresponding flags of True "
+            << "prior to running this application were not used to compute these "
+            << "stats." << LogIO::POST;
+    }
+    catch (const AipsError& x) {
+        log << LogIO::WARN << "There was a problem calculating the mean and "
+            << "variance of the weights computed by this application. Perhaps there "
+            << "was something amiss with the input MS and/or the selection criteria. "
+            << "Examples of such issues are that all the data were originally flagged "
+            << "or that the sample size was consistently too small for computations "
+            << "of variances" << LogIO::POST;
+        setNaN(mean);
+        setNaN(variance);
+    }
 }
 
 void StatWtTVI::origin() {

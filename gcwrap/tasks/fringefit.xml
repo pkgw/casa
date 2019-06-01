@@ -16,165 +16,165 @@ Previous calibrations should be applied on the fly.
 
 </description>
 <input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of input visibility file</description>
-		<value></value>
-	</param>
+        <param type="string" name="vis" mustexist="true">
+                <description>Name of input visibility file</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="caltable">
-		<description>Name of output gain calibration table</description>
-		<value></value>
-	</param>
+        <param type="string" name="caltable">
+                <description>Name of output gain calibration table</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="field">
-		<description>Select field using field id(s) or field name(s)</description>
-		<value></value>
-	</param>
+        <param type="string" name="field">
+                <description>Select field using field id(s) or field name(s)</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="spw">
-		<description>Select spectral window/channels</description>
-		<value></value>
-	</param>
+        <param type="string" name="spw">
+                <description>Select spectral window/channels</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="intent">
-		<description>Select observing intent</description>
-		<value></value>
-	</param>
+        <param type="string" name="intent">
+                <description>Select observing intent</description>
+                <value></value>
+        </param>
 
-	<param type="bool" name="selectdata">
-		<description>Other data selection parameters</description>
-		<value>True</value>
-	</param>
+        <param type="bool" name="selectdata">
+                <description>Other data selection parameters</description>
+                <value>True</value>
+        </param>
 
-	<param type="string" name="timerange" subparam="true">
-		<description>Select data based on time range</description>
-		<value></value>
-	</param>
+        <param type="string" name="timerange" subparam="true">
+                <description>Select data based on time range</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="antenna" subparam="true">
-		<description>Select data based on antenna/baseline</description>
-		<value></value>
-	</param>
+        <param type="string" name="antenna" subparam="true">
+                <description>Select data based on antenna/baseline</description>
+                <value></value>
+        </param>
 
-	<param type="string" name="scan" subparam="true">
-		<description>Scan number range</description>
-		<value></value>
-	</param>
+        <param type="string" name="scan" subparam="true">
+                <description>Scan number range</description>
+                <value></value>
+        </param>
 
         <param type="any" name="observation" subparam="true">
                <description>Select by observation ID(s)</description>
                <any type="variant" limittypes="string int"/>
                <value type="string"></value>
-	</param>
+        </param>
 
-	<param type="string" name="msselect" subparam="true">
-		<description>Optional complex data selection (ignore for now)</description>
-		<value></value>
-	</param>
+        <param type="string" name="msselect" subparam="true">
+                <description>Optional complex data selection (ignore for now)</description>
+                <value></value>
+        </param>
 
-	<param type="any" name="solint">
-		<description>Solution interval: egs. \'inf\', \'60s\' (see help)</description>
-		<any type="variant"/>
-		<value type="string">inf</value>
-	</param>
+        <param type="any" name="solint">
+                <description>Solution interval: egs. \'inf\', \'60s\' (see help)</description>
+                <any type="variant"/>
+                <value type="string">inf</value>
+        </param>
 
-	<param type="string" name="combine">
+        <param type="string" name="combine">
                <description>Data axes which to combine for solve (obs, scan, spw, and/or field)</description>
                <value></value>
-	</param>
+        </param>
    
-	<param type="string" name="refant">
-		<description>Reference antenna name(s)</description>
-		<value></value>
-	</param>
+        <param type="string" name="refant">
+                <description>Reference antenna name(s)</description>
+                <value></value>
+        </param>
 
-	<param type="double" name="minsnr">
-		<description>Reject solutions below this signal-to-noise ratio (at the FFT stage)</description>
-		<value>3.0</value>
-	</param>
+        <param type="double" name="minsnr">
+                <description>Reject solutions below this signal-to-noise ratio (at the FFT stage)</description>
+                <value>3.0</value>
+        </param>
 
         <param type="bool" name="zerorates">
-		<description>Zero delay-rates in solution table</description>
-		<value>False</value>
-	</param>
+                <description>Zero delay-rates in solution table</description>
+                <value>False</value>
+        </param>
 
    <param type="bool" name="globalsolve">
-		<description>Refine estimates of delay and rate with global least-squares solver</description>
-		<value>True</value>
-	</param>
+                <description>Refine estimates of delay and rate with global least-squares solver</description>
+                <value>True</value>
+        </param>
 
    <param type="doubleArray" name="delaywindow">
-		<description>Constrain FFT delay search to a window; a two-element list, units of nanoseconds</description>
-		<value></value>
-	</param>
+                <description>Constrain FFT delay search to a window; a two-element list, units of nanoseconds</description>
+                <value></value>
+        </param>
 
    <param type="doubleArray" name="ratewindow">
-		<description>Constrain FFT rate search to a window; a two-element list, units of seconds per second</description>
-		<value></value>
-	</param>
+                <description>Constrain FFT rate search to a window; a two-element list, units of seconds per second</description>
+                <value></value>
+        </param>
    
-	<param type="bool" name="append">
-		<description>Append solutions to the (existing) table</description>
-		<value>False</value>
-	</param>
+        <param type="bool" name="append">
+                <description>Append solutions to the (existing) table</description>
+                <value>False</value>
+        </param>
    
-	<param type="bool" name="docallib" >
-	        <description>Use callib or traditional cal apply parameters</description>
-	        <value>False</value>
-	</param>
+        <param type="bool" name="docallib" >
+                <description>Use callib or traditional cal apply parameters</description>
+                <value>False</value>
+        </param>
 
-	<param type="string" name="callib" subparam="true" >
-	        <description>Cal Library filename</description>
+        <param type="string" name="callib" subparam="true" >
+                <description>Cal Library filename</description>
                 <value type="string"></value>
-	</param>
+        </param>
 
-	<param type="stringArray" name="gaintable" subparam="true">
-		<description>Gain calibration table(s) to apply on the fly</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="gaintable" subparam="true">
+                <description>Gain calibration table(s) to apply on the fly</description>
+                <value></value>
+        </param>
 
-	<param type="stringArray" name="gainfield" subparam="true">
-		<description>Select a subset of calibrators from gaintable(s)</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="gainfield" subparam="true">
+                <description>Select a subset of calibrators from gaintable(s)</description>
+                <value></value>
+        </param>
 
-	<param type="stringArray" name="interp" subparam="true">
-		<description>Temporal interpolation for each gaintable (''=linear)</description>
-		<value></value>
-	</param>
+        <param type="stringArray" name="interp" subparam="true">
+                <description>Temporal interpolation for each gaintable (''=linear)</description>
+                <value></value>
+        </param>
 
-	<param type="intArray" name="spwmap" subparam="true">
-		<description>Spectral windows combinations to form for gaintables(s)</description>
-		<value></value>
-	</param>
+        <param type="intArray" name="spwmap" subparam="true">
+                <description>Spectral windows combinations to form for gaintables(s)</description>
+                <value></value>
+        </param>
 
-	<param type="bool" name="parang">
-		<description>Apply parallactic angle correction on the fly</description>
-		<value>False</value>
-	</param>
+        <param type="bool" name="parang">
+                <description>Apply parallactic angle correction on the fly</description>
+                <value>False</value>
+        </param>
    
    <constraints>
-	<when param="selectdata">
-		<equals type="bool" value="True">
-			<default param="timerange"><value type="string"/></default>
-			<default param="uvrange"><value type="string"/></default>
-			<default param="antenna"><value type="string"/></default>
-			<default param="scan"><value type="string"/></default>
-			<default param="observation"><value type="string"/></default>
-			<default param="msselect"><value type="string"/></default>
-		</equals>
-		<equals type="bool" value="False"/>
-	</when>
+        <when param="selectdata">
+                <equals type="bool" value="True">
+                        <default param="timerange"><value type="string"/></default>
+                        <default param="uvrange"><value type="string"/></default>
+                        <default param="antenna"><value type="string"/></default>
+                        <default param="scan"><value type="string"/></default>
+                        <default param="observation"><value type="string"/></default>
+                        <default param="msselect"><value type="string"/></default>
+                </equals>
+                <equals type="bool" value="False"/>
+        </when>
         <when param="docallib">
                 <equals type="bool" value="False">
                         <default param="gaintable"><value type="stringArray"/></default>
                         <default param="gainfield"><value type="stringArray"/></default>
                         <default param="interp"><value type="stringArray"/></default>
                         <default param="spwmap"><value type="intArray"/></default>
-		</equals>
+                </equals>
                 <equals type="bool" value="True">
                         <default param="callib"><value type="string"/></default>
-		</equals>
+                </equals>
         </when>
    </constraints>
 </input>
@@ -300,7 +300,7 @@ Previous calibrations should be applied on the fly.
                 default: False
 
 
-		delaywindow -- Constrain FFT delay search to a window
+                delaywindow -- Constrain FFT delay search to a window
       ratewindow -- Constrain FFT rate search to a window
       least-squares routine. 0 => off, 1 => weight ^ -1, 2 => weight ^ -2
       

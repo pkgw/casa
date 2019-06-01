@@ -89,7 +89,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (type == TpDouble) {
 			Vector<double> typedata;
 			// read the column into an array
-			ROScalarColumn<double>
+			ScalarColumn<double>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			// now convert array to type double
@@ -98,7 +98,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayFloat) {
 			Vector<float> typedata;
-			ROScalarColumn<float>
+			ScalarColumn<float>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			xData.resize(typedata.shape());
@@ -106,7 +106,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayUShort) {
 			Vector<ushort> typedata;
-			ROScalarColumn<ushort>
+			ScalarColumn<ushort>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			xData.resize(typedata.shape());
@@ -114,7 +114,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayInt) {
 			Vector<int> typedata;
-			ROScalarColumn<int>
+			ScalarColumn<int>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			xData.resize(typedata.shape());
@@ -122,7 +122,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		if (type == TpArrayUInt) {
 			Vector<uInt> typedata;
-			ROScalarColumn<uInt>
+			ScalarColumn<uInt>
 			dataCol(*theTable,parent->itsXColumnName->value());
 			dataCol.getColumn(typedata,true);
 			xData.resize(typedata.shape());
@@ -140,7 +140,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			if (type == TpDouble) {
 				Vector<double> typedata;
 				// read the column into an array
-				ROScalarColumn<double>
+				ScalarColumn<double>
 				dataCol(*theTable,parent->itsYColumnName->value());
 				dataCol.getColumn(typedata,true);
 				// now convert array to type double
@@ -149,7 +149,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			if (type == TpArrayFloat) {
 				Vector<float> typedata;
-				ROScalarColumn<float>
+				ScalarColumn<float>
 				dataCol(*theTable,parent->itsYColumnName->value());
 				dataCol.getColumn(typedata,true);
 				yData.resize(typedata.shape());
@@ -157,7 +157,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			if (type == TpArrayUShort) {
 				Vector<ushort> typedata;
-				ROScalarColumn<ushort>
+				ScalarColumn<ushort>
 				dataCol(*theTable,parent->itsYColumnName->value());
 				dataCol.getColumn(typedata,true);
 				yData.resize(typedata.shape());
@@ -165,7 +165,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			if (type == TpArrayInt) {
 				Vector<int> typedata;
-				ROScalarColumn<int>
+				ScalarColumn<int>
 				dataCol(*theTable,parent->itsYColumnName->value());
 				dataCol.getColumn(typedata,true);
 				yData.resize(typedata.shape());
@@ -173,7 +173,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			if (type == TpArrayUInt) {
 				Vector<uInt> typedata;
-				ROScalarColumn<uInt>
+				ScalarColumn<uInt>
 				dataCol(*theTable,parent->itsYColumnName->value());
 				dataCol.getColumn(typedata,true);
 				yData.resize(typedata.shape());

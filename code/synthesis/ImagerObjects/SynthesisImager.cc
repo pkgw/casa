@@ -324,7 +324,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //find max no. channels from the current ms 
       const ROMSSpWindowColumns spwc(thisms.spectralWindow());
       uInt nspw = spwc.nrow();
-      const ROScalarColumn<Int> spwNchans(spwc.numChan());
+      const ScalarColumn<Int> spwNchans(spwc.numChan());
       Vector<Int> nchanvec = spwNchans.getColumn();
       Int maxnchan = 0;
       for (uInt i=0;i<nchanvec.nelements();i++) {
@@ -1009,6 +1009,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
     }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Record SynthesisImager::apparentSensitivity() 
+  {
+
+    throw( AipsError("apparentSensitivity calculation not supported in SynthesisImager (VI1)") );
+    return Record();
+
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1017,6 +1028,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			       const Quantity& noise, const Double robust,
 			       const Quantity& fieldofview,
 			       const Int npixels, const Bool multiField,
+			       const Bool /*useCubeBriggs*/,
 			       const String& filtertype, const Quantity& filterbmaj,
 			       const Quantity& filterbmin, const Quantity& filterbpa   )
   {
@@ -2778,7 +2790,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   Bool SynthesisImager::makePBImage(const String telescop){
 
   /*
-  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
   PBMath myPB(recCol(0));
   */
   LogIO os( LogOrigin("SynthesisImager","makePBImage",WHERE) );
@@ -2837,6 +2849,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     movingSource_p=movingSource;
   }
   
+  bool SynthesisImager::isSpectralCube(){
+    bool retval=False;
+    for (Int k=0; k < itsMappers.nMappers(); ++k){
+      //For some reason imstore sometime returns 0 shape
+      //trying to test with with psf size breaks parallel = true in some cases...go figure
+      //if((((itsMappers.imageStore(k))->psf())->shape()[3]) != ((itsMappers.imageStore(k))->getShape()[3])){
+      //cerr << "shapes " << ((itsMappers.imageStore(k))->psf())->shape() << "   " <<  ((itsMappers.imageStore(k))->getShape()) << endl;
+      //throw(AipsError("images shape seem insistent "));
+      if((itsMappers.imageStore(k))->getShape()(3) ==0)
+	return True;
+      //}
+    if((itsMappers.imageStore(k))->getShape()(3) > 1)
+      retval=True;
+    }
+    return retval;
 
+  }
 } //# NAMESPACE CASA - END
 

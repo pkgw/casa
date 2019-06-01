@@ -8,6 +8,7 @@
 #include <stdcasa/xerces.h>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <stdcasa/record.h>
 #include <stdcasa/variant.h>
 #include <string.h>
@@ -25,12 +26,12 @@ XERCES_CPP_NAMESPACE_USE;
 using namespace casa::xerces;
 
 stdcasaXMLUtil::stdcasaXMLUtil() :
-    rangeRec(0),
-    whenRec(0),
-    equalsRec(0),
-    constraintsRec(0),
-    defaultsRec(0),
-    paramSet(0),
+    rangeRec(nullptr),
+    whenRec(nullptr),
+    equalsRec(nullptr),
+    constraintsRec(nullptr),
+    defaultsRec(nullptr),
+    paramSet(nullptr),
     ttName(""),
     parmName(""),
     lastParm("")
@@ -230,6 +231,7 @@ bool stdcasaXMLUtil::readXMLFile(record &outRec, const string &fileName)
 
 bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlSource)
 {
+
     bool rstat(false);
     //const char* xmlFile = fileName.c_str();
     XMLCh tempStr[100];
@@ -252,18 +254,20 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
             DOMElement *theMethod = doc->getDocumentElement();
             XMLCh *theTask = XMLString::transcode("task");
             DOMNodeList *allNodes = theMethod->getElementsByTagName(theTask);
+            XMLString::release(&theTask);
             if(!allNodes->getLength()){
                 //cerr << "Not task" << endl;
                 XMLCh *theTool = XMLString::transcode("tool");
                 allNodes = theMethod->getElementsByTagName(theTool);
+                XMLString::release(&theTool);
                 if(!allNodes->getLength()){
                     //cerr << "Not tools" << endl;
                     XMLCh *theParms = XMLString::transcode("casaparams");
                     allNodes = theMethod->getElementsByTagName(theParms);
+                    XMLString::release(&theParms);
                 }
-                //XMLString::release(&theTool);
             }
-            //XMLString::release(&theTask);
+
             //
             // Loop through all the tasks and tools
             //
@@ -279,18 +283,19 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                         char *aName = XMLString::transcode(myName);
                         DOMNode *typeNode = theAttributes->getNamedItem(type);
                         ttName = aName;
-                        itsRecord.insert(ttName, *new record());
-                        itsRecord[ttName].asRecord().insert("parameters", *new record());
+                        XMLString::release(&aName);
+                        itsRecord.insert(ttName, record());
+                        itsRecord[ttName].asRecord().insert("parameters", record());
                         if(typeNode){
                             //const XMLCh *myType = typeNode->getNodeValue();
                             //char *aType = XMLString::transcode(myType);
                         }
                     }
-                    //XMLString::release(&aName);
                 }
                 if(theNode->getNodeType() == DOMNode::ELEMENT_NODE){
                     XMLCh *input = XMLString::transcode("input");
                     DOMNodeList *inputNodes = dynamic_cast<DOMElement *>(theNode)->getElementsByTagName(input);
+                    XMLString::release(&input);
                     //cerr << "Number of nodes is: " << inputNodes->getLength() << endl;
                     if(!inputNodes->getLength()){
                         //input = XMLString::transcode("casaparams");
@@ -311,13 +316,15 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                 const XMLCh *myName = nameNode->getNodeValue();
                                 char *aName = XMLString::transcode(myName);
                                 parmName = aName;
-                                itsRecord[ttName].asRecord()["parameters"].asRecord().insert(parmName, *new record());
+                                XMLString::release(&aName);
+                                itsRecord[ttName].asRecord()["parameters"].asRecord().insert(parmName, record());
                                 paramOrder.push_back(parmName);
                                 DOMNode *ignoreNode = theAttributes->getNamedItem(ignorecase);
                                 if(ignoreNode){
                                     const XMLCh *myType = ignoreNode->getNodeValue();
                                     char *aType = XMLString::transcode(myType);
                                     itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("ignorecase", aType);
+                                    XMLString::release(&aType);
 				}
                                 DOMNode *typeNode = theAttributes->getNamedItem(type);
                                 if(typeNode){
@@ -326,6 +333,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("type", aType);
                                     paramType = setType(aType);
                                     typeIsAny = string(aType) == string("any");
+                                    XMLString::release(&aType);
                                     // XMLString::release(&myType);
                                     //XMLString::release(&aType);
                                 }
@@ -335,6 +343,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     const XMLCh *myUnits = unitsNode->getNodeValue();
                                     char *aUnit = XMLString::transcode(myUnits);
                                     itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("units", aUnit);
+                                    XMLString::release(&aUnit);
                                 }
                                 DOMNode *extantNode = theAttributes->getNamedItem(mustexist);
                                 if(extantNode){
@@ -345,7 +354,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     } else {
                                         itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("mustexist", false);
                                     }
-                                    //XMLString::release(&aVal);
+                                    XMLString::release(&aVal);
                                 }
                                 DOMNode *blankNode = theAttributes->getNamedItem(allowblank);
                                 if(blankNode){
@@ -356,7 +365,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     } else {
                                         itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("allowblank", false);
                                     }
-                                    //XMLString::release(&aVal);
+                                    XMLString::release(&aVal);
                                 }
 
                                 // check for kind
@@ -365,6 +374,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     const XMLCh *myKind = kindNode->getNodeValue();
                                     char *aKind = XMLString::transcode(myKind);
                                     itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("kind", aKind);
+                                    XMLString::release(&aKind);
                                 }
                             }
                             //
@@ -381,7 +391,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     char *aDesc = XMLString::transcode(myDesc);
                                     //cerr << "description value is: " << aDesc << endl;
                                     itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("description", string(aDesc));
-                                    //XMLString::release(&aDesc);
+                                    XMLString::release(&aDesc);
                                 }
                                 // element allowed, attributes: enum, range (values chan have attributes min, max)
                                 // element any, attributes: record, variant
@@ -391,10 +401,14 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     if(kindNode){
                                         const XMLCh *kindType = kindNode->getNodeValue();
                                         if(XMLString::equals(kindType, ienum)){
-                                            itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("allowed", *itsvalue(childNode, paramType));
+                                            std::unique_ptr<variant> itsval(itsvalue(childNode, paramType));
+                                            itsRecord[ttName].asRecord()["parameters"].asRecord()
+                                                [parmName].asRecord().insert("allowed", *itsval);
                                         } else if(XMLString::equals(kindType, range)){
                                             // std::cerr << "Adding ranges" << std::endl;
-                                            itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("range", *itsvalue(childNode, paramType));
+                                            std::unique_ptr<variant> itsval(itsvalue(childNode, paramType));
+                                            itsRecord[ttName].asRecord()["parameters"].asRecord()
+                                                [parmName].asRecord().insert("range", *itsval);
                                         } else {
                                             std::cerr << "Unknown allowed attribute" << std::endl;
                                         }
@@ -407,10 +421,13 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                         DOMNode *typeNode = theAttributes->getNamedItem(type);
                                         if(typeNode) {
                                             const XMLCh *aType = typeNode->getNodeValue();
-                                            paramType = setType(XMLString::transcode(aType));
+                                            char *type = XMLString::transcode(aType);
+                                            paramType = setType(type);
+                                            XMLString::release(&type);
                                         }
                                     }
-                                    itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("value", *itsvalue(childNode, paramType));
+                                    std::unique_ptr<variant> itsval(itsvalue(childNode, paramType));
+                                    itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert("value", *itsval);
                                 }
                                 // examples
                                 if(XMLString::equals(example, childNode->getNodeName())) {
@@ -419,10 +436,11 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     
                                     record& r = itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord();
                                     if(r.find("example") == r.end()) {
-                                        r.insert("example", *new variant(vector<string>(1, aExample)));
+                                        r.insert("example", variant(vector<string>(1, aExample)));
                                     } else {
                                         r["example"].push(string(aExample));
                                     }
+                                    XMLString::release(&aExample);
                                 }
 
                                 // get limit types and put them in a string array
@@ -437,7 +455,9 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                         else myTypes = ltNode2->getNodeValue();
 
                                         vector<string> v;
-                                        stringstream ss(XMLString::transcode(myTypes));
+                                        char *types = XMLString::transcode(myTypes);
+                                        stringstream ss(types);
+                                        XMLString::release(&types);
                                         string str;
 					/*
 					while(ss >> str){
@@ -454,28 +474,31 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
 					}
 
                                         itsRecord[ttName].asRecord()["parameters"].asRecord()[parmName].asRecord().insert(
-                                                "limittypes", *(new variant(v)));
+                                                "limittypes", variant(v));
                                     }
                                 }
                             }
                         }
                         // insert the paramater order
-                        itsRecord[ttName].asRecord().insert("parameterorder", *new variant(paramOrder));
+                        variant tmpVarPO(paramOrder);
+                        itsRecord[ttName].asRecord().insert("parameterorder", tmpVarPO);
                     }
                     // 
                     // Following section deals with the constraints block
                     //
-                    record *constraintsRec(0);
+                    std::unique_ptr<record> constraintsRec(nullptr);
                     XMLCh *constraints = XMLString::transcode("constraints");
                     DOMNodeList *constraintsNodes = dynamic_cast<DOMElement *>(theNode)->getElementsByTagName(constraints);
+                    XMLString::release(&constraints);
                     for(XMLSize_t j=0; j<constraintsNodes->getLength(); j++){
                         if(!constraintsRec)
-                            constraintsRec = new record;
+                            constraintsRec.reset(new record);
                         XMLCh *when = XMLString::transcode("when");
                         DOMNodeList *whenNodes = dynamic_cast<DOMElement *>(constraintsNodes->item(j))->getElementsByTagName(when);
+                        XMLString::release(&when);
                         for(XMLSize_t k=0; k<whenNodes->getLength(); k++){
                             record whenRec;
-                            char *whenName(0);
+                            std::string whenName;
                             // cerr << endl << "when param ";
                             DOMNode *theNode = whenNodes->item(k);
                             DOMNamedNodeMap *theAttributes = theNode->getAttributes();
@@ -485,14 +508,16 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                 char *aName = XMLString::transcode(myName);
                                 // cerr << aName;
                                 whenName = aName;
+                                XMLString::release(&aName);
                             } else {
                                 // cerr << endl;
                             }
                             XMLCh *equals = XMLString::transcode("equals");
                             DOMNodeList *equalsNodes = dynamic_cast<DOMElement *>(whenNodes->item(k))->getElementsByTagName(equals);
+                            XMLString::release(&equals);
                             for(XMLSize_t l=0; l<equalsNodes->getLength(); l++){
                                 record equalsRec;
-                                char *equalsName(0);
+                                std::string equalsName;
                                 DOMNode *theNode = equalsNodes->item(l);
                                 DOMNamedNodeMap *theAttributes = theNode->getAttributes();
                                 if(theAttributes){
@@ -501,18 +526,20 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                     char *aName = XMLString::transcode(myName);
                                     // cerr << endl  << "\t is " << aName;
                                     equalsName = aName;
+                                    XMLString::release(&aName);
                                 } else {
                                     // cerr << endl;
                                 }
                                 XMLCh *idefault = XMLString::transcode("default");
                                 DOMNodeList *defaultNodes = dynamic_cast<DOMElement *>(equalsNodes->item(l))->getElementsByTagName(idefault);
+                                XMLString::release(&idefault);
                                 if(defaultNodes->getLength() > 0){
                                     record defRecord;
                                     equalsRec.insert("defaults", defRecord);
                                 }
                                 for(XMLSize_t m=0; m<defaultNodes->getLength(); m++){
                                     record defRec;
-                                    char *defName(0);
+                                    std::string defName;
                                     DOMNode *theNode = defaultNodes->item(m);
                                     DOMNamedNodeMap *theAttributes = theNode->getAttributes();
                                     if(theAttributes){
@@ -520,12 +547,13 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                         const XMLCh *myName = nameNode->getNodeValue();
                                         char *aName = XMLString::transcode(myName);
                                         defName = aName;
+                                        XMLString::release(&aName);
                                         // cerr << endl << "\t\tset " << aName;
                                     } else {
                                         // cerr << endl;
                                     }
                                     // Here fetch the type from the tool/task record for the name
-                                    if(defName){                                        
+                                    if(!defName.empty()){
                                         variant::TYPE eh(variant::STRING);
                                         // std::cerr << " default: " << defName << std::endl;
                                         DOMNodeList *descNode = dynamic_cast<DOMElement *>(theNode)->getElementsByTagName(description);
@@ -538,6 +566,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                             } else {
                                                 defRec.insert("description", "");
                                             }
+                                            XMLString::release(&theDescription);
                                         }
                                         // check that defName is defined..
                                         record& tempRec = itsRecord[ttName].asRecord()["parameters"].asRecord();
@@ -552,11 +581,14 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                                     char *aType = XMLString::transcode(myType);
                                                     if(string(aType) != "vector" || tempRec[defName].asRecord()["type"].asString() == "any")
                                                         eh = setType(aType);
-                                                    else eh = setType(tempRec[defName].asRecord()["type"].asString());
+                                                    else
+                                                        eh = setType(tempRec[defName].asRecord()["type"].asString());
+                                                    XMLString::release(&aType);
                                                 } else
                                                     eh = setType(tempRec[defName].asRecord()["type"].asString());
-                                                
-                                                defRec.insert("value", *itsvalue(valNodes->item(0), eh));
+
+                                                std::unique_ptr<variant> itsval(itsvalue(valNodes->item(0), eh));
+                                                defRec.insert("value", *itsval);
                                                 equalsRec["defaults"].asRecord().insert(defName, defRec);
                                             }
                                             
@@ -581,15 +613,15 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                                         }
                                     }
                                 }
-                                if(equalsName)
+                                if(!equalsName.empty())
                                     whenRec.insert(equalsName, equalsRec);
                             }
-                            if(whenName)
+                            if(!whenName.empty())
                                 constraintsRec->insert(whenName, whenRec);
                         }
                     }
                     if(constraintsRec)
-                        itsRecord[ttName].asRecord().insert("constraints", constraintsRec);
+                        itsRecord[ttName].asRecord().insert("constraints", *constraintsRec);
                     
                     // shortdescription, description, and example
                     DOMNodeList *descNodes = dynamic_cast<DOMElement*>(theNode)->getElementsByTagName(description);
@@ -597,18 +629,21 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
                         const XMLCh *desc = descNodes->item(0)->getTextContent();
                         char *aDesc = XMLString::transcode(desc);
                         itsRecord[ttName].asRecord().insert("description", aDesc);
+                        XMLString::release(&aDesc);
                     }
                     descNodes = dynamic_cast<DOMElement*>(theNode)->getElementsByTagName(shortdesc);
                     if(descNodes->getLength() > 0) {
                         const XMLCh *sdesc = descNodes->item(0)->getTextContent();
                         char *aSdesc = XMLString::transcode(sdesc);
                         itsRecord[ttName].asRecord().insert("shortdescription", aSdesc);
+                        XMLString::release(&aSdesc);
                     }
                     descNodes = dynamic_cast<DOMElement*>(theNode)->getElementsByTagName(example);
                     if(descNodes->getLength() > 0) {
                         const XMLCh *ex = descNodes->item(0)->getTextContent();
                         char *aEx = XMLString::transcode(ex);
                         itsRecord[ttName].asRecord().insert("example", aEx);
+                        XMLString::release(&aEx);
                     }
                 }
             }
@@ -617,7 +652,7 @@ bool stdcasaXMLUtil::readXML(record &itsRecord,  const Wrapper4InputSource &xmlS
         }
     }
     catch (const XMLException& toCatch) {
-        char* message = XMLString::transcode(toCatch.getMessage());
+        char *message = XMLString::transcode(toCatch.getMessage());
         cout << "Exception message is: \n"
         << message << "\n";
         XMLString::release(&message);
@@ -649,7 +684,7 @@ bool stdcasaXMLUtil::writeXMLFile(const string &fileName, const record &inRec)
 
 variant *stdcasaXMLUtil::tovariant(variant::TYPE theType, string &theInput, bool isVector)
 {
-    variant *rstat(0);
+    variant *rstat(nullptr);
     // Lump the VECs with the scalars as we only expect one 
     // value element, which has on
     switch(theType){
@@ -723,7 +758,7 @@ variant *stdcasaXMLUtil::tovariant(variant::TYPE theType, string &theInput, bool
         break;
     case variant::RECORD :
         // for now, don't bother parsing
-        rstat = new variant(*new record());
+        rstat = new variant(record());
         break;
     default :
         rstat = new variant;
@@ -735,8 +770,8 @@ variant *stdcasaXMLUtil::tovariant(variant::TYPE theType, string &theInput, bool
 }
 // If there are no valueNodes then we must assign the current value!
 variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
-    variant *rstatus(0);
-    record *rangeRec(0);
+    variant *rstatus(nullptr);
+    std::unique_ptr<record> rangeRec(nullptr);
     bool isVector(false);
     DOMNodeList *valueNodes = dynamic_cast<DOMElement *>(theNode)->getElementsByTagName(value);
     if(valueNodes->getLength() > 1){
@@ -747,9 +782,9 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
                    itsType == variant::DOUBLEVEC || itsType == variant::COMPLEXVEC ||
                    itsType == variant::INTVEC;
         const XMLCh *myValue = theNode->getTextContent();
-        char *aValue = XMLString::transcode(myValue);        
+        char *aValue = XMLString::transcode(myValue);
         string sValue(aValue);
-        
+
         bool empty = true;
         for(unsigned int i = 0; i < sValue.size(); i++) {
             if(sValue[i] != ' ' && sValue[i] != '\t' && sValue[i] != '\n' &&
@@ -768,6 +803,7 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
         } else if(aValue) {
             rstatus = tovariant(itsType, sValue, isVector);
         }
+        XMLString::release(&aValue);
     }
     for(XMLSize_t n=0; n<valueNodes->getLength(); n++){
         DOMNode *theNode = valueNodes->item(n);
@@ -794,10 +830,14 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
                             char *aValue = XMLString::transcode(myValue);
                             if(aValue) {
                                 string tmp(aValue);
-                                if(!o)
+                                XMLString::release(&aValue);
+                                if(!o) {
+                                    if (rstatus)
+                                        delete rstatus;
                                     rstatus = tovariant(itsType, tmp, isVector);
-                                else
+                                } else {
                                     addtovariant(rstatus, itsType, tmp);
+                                }
                             }
                         }
                         break; // Now we've gotten all the vector
@@ -806,16 +846,22 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
                     char *aValue = XMLString::transcode(myValue);
                     if(aValue){
                         string tmp = aValue;
-                        if(!n)
+                        XMLString::release(&aValue);
+                        if(!n) {
+                            if (rstatus)
+                                delete rstatus;
                             rstatus = tovariant(itsType, tmp, isVector);
-                        else
+                        } else {
                             addtovariant(rstatus, itsType, tmp);
+                        }
                     }
                 }
+                XMLString::release(&aType);
+
             } else if(rangeNode){
                 char *rangeType = XMLString::transcode(rangeNode->getNodeValue());
                 if(!rangeRec){
-                    rangeRec = new record;
+                    rangeRec.reset(new record);
                 }
                 if(!rangeRec->count(rangeType)){
                     record rangeOps;
@@ -825,7 +871,7 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
                     rangeOps.insert("inclusive", svec);
                     rangeRec->insert(rangeType, rangeOps);
                 }
-                const XMLCh *inclusive = XMLString::transcode("inclusive");
+                XMLCh *inclusive = XMLString::transcode("inclusive");
                 DOMNode *rangeNode = theAttributes->getNamedItem(inclusive);
                 char *rangeInclude(0);
                 if(rangeNode)
@@ -834,25 +880,35 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
                     (*rangeRec)[rangeType].asRecord()["inclusive"].push(string(rangeInclude));
                 else
                     (*rangeRec)[rangeType].asRecord()["inclusive"].push(string());
+                XMLString::release(&inclusive);
+
                 const XMLCh *myValue = theNode->getTextContent();
                 char *aValue = XMLString::transcode(myValue);
                 if(aValue) {
                     istringstream iss(aValue);
+                    XMLString::release(&aValue);
+
                     double myval;
                     iss >> myval;
                     (*rangeRec)[rangeType].asRecord()["value"].asDoubleVec().push_back(myval);
                     (*rangeRec)[rangeType].asRecord()["value"].shape() = vector<int>(1,
                             (*rangeRec)[rangeType].asRecord()["value"].asDoubleVec().size());
                 }
+                XMLString::release(&rangeType);
+
             } else {
                 const XMLCh *myValue = theNode->getTextContent();
                 char *aValue = XMLString::transcode(myValue);
                 if(aValue) {
                     string tmp(aValue);
-                    if(!n)
+                    XMLString::release(&aValue);
+                    if(!n) {
+                        if (rstatus)
+                            delete rstatus;
                         rstatus = tovariant(itsType, tmp, isVector);
-                    else
+                    } else {
                         addtovariant(rstatus, itsType, tmp);
+                    }
                 }
             }
         } else {
@@ -860,16 +916,24 @@ variant *stdcasaXMLUtil::itsvalue(DOMNode *theNode, variant::TYPE itsType){
             char *aValue = XMLString::transcode(myValue);
             if(aValue){
                 string tmp(aValue);
-                if(!n)
+                XMLString::release(&aValue);
+                if(!n) {
+                    if (rstatus)
+                        delete rstatus;
                     rstatus = tovariant(itsType, tmp, isVector);
-                else 
+                } else {
                     addtovariant(rstatus, itsType, tmp);
+                }
             }
             // }
         }
     }
-    if(rangeRec)
-        rstatus = new variant(rangeRec);
+    if(rangeRec) {
+        if (rstatus) {
+            delete rstatus;
+        }
+        rstatus = new variant(*rangeRec);
+    }
     if(!rstatus)
         rstatus = new variant();
     return rstatus;

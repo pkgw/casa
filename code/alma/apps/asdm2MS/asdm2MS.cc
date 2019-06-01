@@ -182,18 +182,36 @@ ostringstream errstream;
 ostringstream infostream;
 
 template<typename T> string TO_STRING(const T &v) {
-  const T shift = 100000000;
-  const T rnd = .000000005;
+  char buffer[128];
+  sprintf(buffer,"%d",v);
+  return string(buffer);
+}
+
+string TO_STRING(const long unsigned int &v) {
+    char buffer[128];
+    sprintf(buffer,"%ld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const long int &v) {
+    char buffer[128];
+    sprintf(buffer,"%ld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const long long &v) {
+    char buffer[128];
+    sprintf(buffer,"%lld", v);
+    return string(buffer);
+}
+
+string TO_STRING(const float &v) {
+  const float shift = 100000000;
+  const float rnd = .000000005;
   char buffer[128];
   int whole = int(v);
   int fraction = int((v-whole+rnd)*shift);
   sprintf(buffer,"%d.%08d",whole,fraction);
-  return string(buffer);
-}
-
-string TO_STRING(const int &v) {
-  char buffer[128];
-  sprintf(buffer,"%d",v);
   return string(buffer);
 }
 
@@ -4931,7 +4949,7 @@ int main(int argc, char *argv[]) {
       if (lazy)  casa::AsdmStMan::registerClass();
       for (map<AtmPhaseCorrectionMod::AtmPhaseCorrection, string>::iterator iter = msNames.begin(); iter != msNames.end(); ++iter) {
 	info("About to create a filler for the measurement set '" + msNames[iter->first] + "'");
-	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first], 0.0, false, complexData,
+	msFillers[iter->first] = new ASDM2MSFiller(msNames[iter->first], 0.0, complexData,
 						   withCompression, telName, maxNumCorr, maxNumChan,
 						   false, lazy);
       }

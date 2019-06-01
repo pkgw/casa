@@ -1,5 +1,5 @@
 //# FTMachine.tcc //For templated functions of FTMachine class 
-//# Copyright (C) 2015
+//# Copyright (C) 2015-2019
 //# Associated Universities, Inc. Washington DC, USA.
 //#
 //# This library is free software; you can redistribute it and/or modify
@@ -24,26 +24,52 @@
 //#                        Charlottesville, VA 22903-2475 USA
 //#
 
-
  template <class T> void FTMachine::getGrid(casacore::Array<T>& thegrid){
+
     thegrid.resize();
     void * ptr;
     casacore::Array<casacore::Float> tmpFloat;
     casacore::Array<casacore::Double> tmpDouble;
     casacore::IPosition shp;
     bool del;
-    if(whatType(&thegrid)==casacore::TpArrayComplex){
-      ptr=griddedData.getStorage(del);
-      shp=griddedData.shape();
+    if((whatType(&thegrid)==casacore::TpArrayComplex)){
+	if(useDoubleGrid_p){
+	  griddedData.resize(griddedData2.shape());
+	  convertArray(griddedData, griddedData2);
+	  griddedData2.resize();
+	  useDoubleGrid_p=false;
+	}
+	 ptr=griddedData.getStorage(del);
+	 shp=griddedData.shape();
     }
-    else if((whatType(&thegrid)==casacore::TpArrayDComplex)){
+    else if(whatType(&thegrid)==casacore::TpArrayDComplex){
+      if(!useDoubleGrid_p){
+	griddedData2.resize(griddedData.shape());
+	convertArray(griddedData2, griddedData);
+	griddedData.resize();
+	useDoubleGrid_p=true;
+      }
       ptr=griddedData2.getStorage(del);
       shp=griddedData2.shape();
+	
+
     }
     else if(((whatType(&thegrid)==casacore::TpArrayFloat))){
-      tmpFloat.resize(griddedData.shape());
-      tmpFloat=real(griddedData);
+      if(!useDoubleGrid_p){
+	tmpFloat.resize(griddedData.shape());
+	
+      }
+      else{
+	tmpFloat.resize(griddedData2.shape());
+	griddedData.resize(griddedData2.shape());
+	convertArray(griddedData, griddedData2);
+	griddedData2.resize();
+	useDoubleGrid_p=false;
+	//convertArray(tmpFloat, real(griddedData2));
+      }
+      tmpFloat.set(0.0);
       shp=tmpFloat.shape();
+      //cerr << "getgrid "  << sum(griddedData) << endl;
       casacore::IPosition in(4, 0, 0, 0, 0);
       casacore::IPosition out(4, 0,0,0,0);
       for (casacore::Int cc=0; cc< shp[3]; ++cc){
@@ -55,20 +81,33 @@
 	  for (casacore::Int yy=0; yy< shp[1]/2; ++yy){
 	    in[1]=yy+shp[1]/2;
 	    out[1]=-yy+shp[1]/2;
-	    for(casacore::Int xx=-shp[0]/2; xx< shp[0]/2; ++xx){
+	    for(casacore::Int xx=-shp[0]/2+1; xx< shp[0]/2; ++xx){
 	      in[0]=xx+shp[0]/2;
 	      out[0]=-xx+shp[0]/2;
-	      tmpFloat(in)+=real(griddedData(out));
-	      tmpFloat(out)+=real(griddedData(in)); 
+	      tmpFloat(in)+=real(griddedData(out))+real(griddedData(in));
+	      tmpFloat(out)+=tmpFloat(in); 
 	    }
 	  }
 	}
       }
+      //cerr << "tmpFloat " << sum(tmpFloat) << endl;
       ptr=tmpFloat.getStorage(del);
     }
     else if(((whatType(&thegrid)==casacore::TpArrayDouble))){
-      tmpDouble.resize(griddedData2.shape());
-      tmpDouble=real(griddedData2);
+       if(useDoubleGrid_p){
+	 tmpDouble.resize(griddedData2.shape());	
+       }
+       else{
+	 tmpDouble.resize(griddedData.shape());
+	 griddedData2.resize(griddedData.shape());
+	 convertArray(griddedData2, griddedData);
+	 griddedData.resize();
+	 useDoubleGrid_p=true;
+	 //convertArray(tmpFloat, real(griddedData2));
+       }
+      
+       //tmpDouble=real(griddedData2);
+       tmpDouble.set(0.0);
       shp=tmpDouble.shape();
       casacore::IPosition in(4, 0, 0, 0, 0);
       casacore::IPosition out(4, 0,0,0,0);
@@ -81,11 +120,13 @@
 	  for (casacore::Int yy=0; yy< shp[1]/2; ++yy){
 	    in[1]=yy+shp[1]/2;
 	    out[1]=-yy+shp[1]/2;
-	    for(casacore::Int xx=-shp[0]/2; xx< shp[0]/2; ++xx){
+	    for(casacore::Int xx=-shp[0]/2+1; xx< shp[0]/2; ++xx){
 	      in[0]=xx+shp[0]/2;
 	      out[0]=-xx+shp[0]/2;
-	      tmpDouble(in)+=real(griddedData(out));
-	      tmpDouble(out)+=real(griddedData(in)); 
+//	      tmpDouble(in)+=real(griddedData2(out));
+//	      tmpDouble(out)+=real(griddedData2(in));
+	      tmpDouble(in)+=real(griddedData2(out))+real(griddedData2(in));
+	      tmpDouble(out)+=tmpDouble(in);
 	    }
 	  }
 	}
@@ -93,4 +134,6 @@
       ptr=tmpDouble.getStorage(del);
     }  
     thegrid=casacore::Array<T>(shp, (T*)(ptr));
+    griddedData.resize();
+    griddedData2.resize();
   };
