@@ -45,7 +45,7 @@ imager::imager()
  itsMS = 0;
  hasValidMS_p=false;
  itsImager = new ImagerMultiMS() ;
- itsLog = new LogIO();
+ itsLog.reset(new LogIO());
  // OK this is probably not the way to set the plotter but it's OK for now I think.
  //PGPlotterInterface *worker(0);
  //try {

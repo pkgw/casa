@@ -158,14 +158,19 @@ test_visstat                    jkern@nrao.edu
 test_vpmanager                  dpetry@eso.org
 test_wvrgcal                    dpetry@eso.org
 test_req_task_listobs           nschweig@nrao.edu
-test_req_task_listobs        nschweig@nrao.edu
-test_req_task_listhistory    nschweig@nrao.edu
-test_req_task_importuvfits   nschweig@nrao.edu
-test_req_task_calstat        nschweig@nrao.edu
-test_req_task_rmtables       nschweig@nrao.edu
-test_req_task_clearcal       nschweig@nrao.edu
-test_req_task_imhead         nschweig@nrao.edu
-test_req_task_visstat        nschweig@nrao.edu
+test_req_task_listobs           nschweig@nrao.edu
+test_req_task_listhistory       nschweig@nrao.edu
+test_req_task_importuvfits      nschweig@nrao.edu
+test_req_task_calstat           nschweig@nrao.edu
+test_req_task_rmtables          nschweig@nrao.edu
+test_req_task_clearcal          nschweig@nrao.edu
+test_req_task_imhead            nschweig@nrao.edu
+test_req_task_visstat           nschweig@nrao.edu
+test_req_task_delmod            nschweig@nrao.edu
+test_req_task_feather           nschweig@nrao.edu
+test_req_task_imrebin           nschweig@nrao.edu
+test_req_task_uvmodelfit        nschweig@nrao.edu
+test_req_task_imreframe         nschweig@nrao.edu
 
 # Casaguide List
 #test_FirstLook_Imaging               awells@nrao.edu
