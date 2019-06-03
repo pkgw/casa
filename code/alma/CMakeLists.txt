@@ -357,7 +357,7 @@ Enumtcl/TimeScale.cc
 Enumtcl/WindowFunction.cc
 Enumtcl/WeightType.cc
 Enumtcl/WVRMethod.cc
-  MS2ASDM/MS2ASDM.cc
+MS2ASDM/MS2ASDM.cc
   )
 
 install (FILES
@@ -710,6 +710,12 @@ install (FILES
 	Options/AlmaArg.h
 	DESTINATION include/casacode/alma/Options
 	)
+
+install (FILES
+         MS2ASDM/MS2ASDM.h
+         MS2ASDM/MapWithDefault.h
+         DESTINATION include/casacode/alma/MS2ASDM
+         )
 
 casa_add_executable( alma asdm2MS 
   apps/asdm2MS/asdm2MS.cc

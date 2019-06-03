@@ -63,12 +63,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (isAlreadyRegistered(holder)) {
 			return;
 		}
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toEnd();
-		localWCHLI.addRight(&holder);
+
+        itsWCHList.push_back(&holder);
+
 		for (Int i = 0; i < itsHoldCount; i++) {
 			holder.worldCanvas()->hold();
 		}
+
 		installRestrictions(holder);
 		addAllDisplayDatas(holder);
 	}
@@ -77,26 +78,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		}
 		removeAllDisplayDatas(holder,true);
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			if (&holder == localWCHLI.getRight()) {
-				localWCHLI.removeRight();
-				return;
-			} else {
-				localWCHLI++;
-			}
-		}
+		std::list<WorldCanvasHolder*> orig = itsWCHList;
+		itsWCHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter( itsWCHList ),
+					  [&](WorldCanvasHolder *h) { return h != &holder; } );
 	}
 	void MultiWCHolder::removeWCHolders() {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.removeRight();
-			if (!localWCHLI.atEnd()) {
-				localWCHLI++;
-			}
-		}
+		itsWCHList.clear( );
 	}
 
 // Add/remove DisplayData/s.
@@ -105,24 +93,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		}
 		hold();
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		if ( position < 0 || position >= static_cast<int>(itsDDList.len()) ) {
-			localDDLI.toEnd();
+
+		if ( position < 0 || position >= static_cast<int>(itsDDList.size( )) ) {
+			itsDDList.push_back(&displaydata);
+		} else {
+			auto dd = itsDDList.begin( );
+			std::advance( dd, position );
+			itsDDList.insert( dd, &displaydata );
 		}
-		else {
-			int i = 0;
-			localDDLI.toStart();
-			while ( i < position ) {
-				localDDLI++;
-				i++;
-			}
-		}
-		localDDLI.addRight(&displaydata);
+
 		addToAllWorldCanvasHolders(displaydata, position);
 
 		// Add a 'bIndex' restriction to newly-added DD.  It can be used to
 		// alternate display of the various DDs by placing a similar restriction
-		// on the WCHs.  The index should reflect its order in the list.  However,
+		// on the WCHs.	 The index should reflect its order in the list.  However,
 		// contours, vectors, etc are not displayed separately so the index needs
 		//to take that into account.
 		if ( isBlinkDD(&displaydata) ){
@@ -131,11 +115,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			itsBlinkDDs.resize( itsBLength, true );
 		}
 
-		ListIter<DisplayData *> iter(itsDDList);
-		iter.toStart();
 		int index = 0;
-		while (!iter.atEnd()) {
-			DisplayData* dd = iter.getRight();
+		for ( auto dd : itsDDList ) {
+
 			if ( dd ){
 				if ( isBlinkDD( dd) ) {
 					itsBlinkDDs[index] = dd;
@@ -147,7 +129,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					index++;
 				}
 			}
-			iter++;
+
 		}
 
 		refresh();
@@ -161,74 +143,61 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		hold();
 		removeFromAllWorldCanvasHolders(displaydata);
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		localDDLI.toStart();
-		DisplayData* dd = &displaydata;
-		while (!localDDLI.atEnd()) {
-			if (dd == localDDLI.getRight()) {
+		std::list<DisplayData*> orig = itsDDList;
+		std::list<DisplayData*> removed;
+		itsDDList.clear( );
 
-				// DD found in main list--remove it..
+		std::partition_copy( orig.begin( ), orig.end( ),
+							 std::back_inserter( removed ),
+							 std::back_inserter( itsDDList ),
+							 [&](DisplayData *dd) { return dd == &displaydata; } );
 
-				localDDLI.removeRight();
+		// No point in leaving blink restriction hanging on the dd.
+		if ( removed.size( ) > 0 && isBlinkDD(&displaydata) ) {
 
-				if(isBlinkDD(dd)) {
+			bool found=false;
 
-					// Remove from blink DD 'list' (Block) too.  Adjust
-					// blink index restrictions as necessary.
+			for( Int ddBIndex=0; ddBIndex<itsBLength; ddBIndex++ ) {
+				DisplayData* searchDD = static_cast<DisplayData*>(itsBlinkDDs[ddBIndex]);
 
-					dd->removeRestriction(itsBIndexName);
-					// No point in leaving blink restriction hanging on the dd.
+				if( searchDD == &displaydata ) {
+					// dd found in blinkDD list--it will be removed.
+					found=true;
 
-					bool found=false;
+					if ( itsBIndex > ddBIndex ){
 
-					for(Int ddBIndex=0; ddBIndex<itsBLength; ddBIndex++) {
-						DisplayData* searchDD =
-						    static_cast<DisplayData*>(itsBlinkDDs[ddBIndex]);
-
-
-						if(dd==searchDD) {
-							// dd found in blinkDD list--it will be removed.
-							found=true;
-
-							if(itsBIndex>ddBIndex){
-
-								itsBIndex--;
-							}
-						}
-						else if(found) {
-
-							// DDs past the one being removed move back in the blinkDD list.
-							// Their bIndex restriction must also be decremented.
-
-
-							Int newddBIndex=ddBIndex-1;
-
-							itsBlinkDDs[newddBIndex]=searchDD;
-							Attribute bIndexAtt(itsBIndexName, newddBIndex);
-							searchDD->setRestriction(bIndexAtt);
-
-						}
-
+						itsBIndex--;
 					}
-					// itsBIndex is communicated to the animator, and becomes the
-					// WCH blink restriction setting.  It should be decremented
-					// if it was selecting a DD past the one deleted, in order
-					// to continue selecting the same DD.
+				} else if( found ) {
 
-					if(found) {		// (should be true).
-						itsBLength--;
-						if ( itsBLength >= 0 ){
-							itsBlinkDDs[itsBLength] = NULL;
-						}
-						itsBIndex = max(0, min(itsBLength-1, itsBIndex));
-						// Assure itsBIndex is in proper range
-						break;
-					}
+					// DDs past the one being removed move back in the blinkDD list.
+					// Their bIndex restriction must also be decremented.
+
+
+					Int newddBIndex=ddBIndex-1;
+
+					itsBlinkDDs[newddBIndex]=searchDD;
+					Attribute bIndexAtt(itsBIndexName, newddBIndex);
+					searchDD->setRestriction(bIndexAtt);
 
 				}
+
+			}
+			// itsBIndex is communicated to the animator, and becomes the
+			// WCH blink restriction setting.  It should be decremented
+			// if it was selecting a DD past the one deleted, in order
+			// to continue selecting the same DD.
+
+			if ( found ) {		// (should be true).
+				itsBLength--;
+				if ( itsBLength >= 0 ){
+					itsBlinkDDs[itsBLength] = NULL;
+				}
+				itsBIndex = max(0, min(itsBLength-1, itsBIndex));
+				// Assure itsBIndex is in proper range
+
 			}
 
-			else localDDLI++;
 		}
 
 		refresh();
@@ -238,14 +207,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void MultiWCHolder::removeDisplayDatas() {
 		hold();
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		localDDLI.toStart();
-		while (!localDDLI.atEnd()) {
-			DisplayData* dd = localDDLI.getRight();
+
+		for ( auto dd : itsDDList ) {
 			removeFromAllWorldCanvasHolders(*dd);
-			localDDLI.removeRight();
 			if(isBlinkDD(dd)) dd->removeRestriction(itsBIndexName);
 		}
+		itsDDList.clear( );
 
 		itsBLength = itsBIndex = 0;
 		refresh();
@@ -265,8 +232,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	void MultiWCHolder::removeRestriction(const String &name) {
 		String nm = (name=="bIndex")?  itsBIndexName : name;
 		itsAttributes.remove(nm);
-		ListIter<WorldCanvasHolder*> wchs(itsWCHList);
-		for(; !wchs.atEnd(); wchs++) wchs.getRight()->removeRestriction(nm);
+        for ( auto holder : itsWCHList ) holder->removeRestriction(nm);
 	}
 
 	void MultiWCHolder::removeRestrictions() {
@@ -279,9 +245,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Distribute restrictions linearly.
 	void MultiWCHolder::setLinearRestrictions(AttributeBuffer &restrictions,
-	        const AttributeBuffer &increments) {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
+			const AttributeBuffer &increments) {
 
 		AttributeBuffer rstrs=restrictions;
 		adjustBIndexName(rstrs);
@@ -291,8 +255,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		Int bInd = 0;
 		Bool BIExists = ( itsBLength>0 &&
-		                  rstrs.getValue(itsBIndexName, bInd) &&
-		                  bInd>=0 );
+						  rstrs.getValue(itsBIndexName, bInd) &&
+						  bInd>=0 );
 		// There are blink DDs to control, and a bIndex
 		// restriction (with a reasonable value) exists.
 
@@ -301,41 +265,34 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// When DDs are removed, its appropriate value may change,
 		// and is communicated back to the animator.
 
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.getRight()->setRestrictions(rstrs);
-			if (!localWCHLI.atEnd()) {
-				restrictions += increments;
-				// to retain (dubious) semantics of 'restrictions' return value...
-				rstrs += incrs;
+		for ( auto holder : itsWCHList ) {
+			holder->setRestrictions(rstrs);
 
-				if(BIExists) {
+			restrictions += increments;
+			// to retain (dubious) semantics of 'restrictions' return value...
+			rstrs += incrs;
 
-					// Do a modulo-length adjustment to blink index, so that there
-					// are no empty panels.  (In my opinion, this should be done for
-					// zIndex as well.  (dk)).
+			if(BIExists) {
 
-					rstrs.getValue(itsBIndexName, bInd);
-					if(bInd<0 || bInd>=itsBLength) {
-						bInd = max(0,bInd) % itsBLength;
-						restrictions.set("bIndex", bInd);
-						rstrs.set(itsBIndexName, bInd);
-					}
+				// Do a modulo-length adjustment to blink index, so that there
+				// are no empty panels.	 (In my opinion, this should be done for
+				// zIndex as well.	(dk)).
+
+				rstrs.getValue(itsBIndexName, bInd);
+				if(bInd<0 || bInd>=itsBLength) {
+					bInd = max(0,bInd) % itsBLength;
+					restrictions.set("bIndex", bInd);
+					rstrs.set(itsBIndexName, bInd);
 				}
-
 			}
-			localWCHLI++;
 		}
 		refresh();
 	}
 
 	void MultiWCHolder::hold() {
 		itsHoldCount++;
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.getRight()->worldCanvas()->hold();
-			localWCHLI++;
-		}
+		for ( auto holder : itsWCHList )
+			holder->worldCanvas()->hold();
 	}
 
 	void MultiWCHolder::release() {
@@ -347,12 +304,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 			itsRefreshHeld = false;
 		}
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.getRight()->worldCanvas()->release();
-			localWCHLI++;
-		}
+		for ( auto holder : itsWCHList )
+			holder->worldCanvas()->release();
 	}
 
 	void MultiWCHolder::refresh(const Display::RefreshReason &reason) {
@@ -363,95 +316,54 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 		} else {
 			clear();
-			ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-			localWCHLI.toStart();
-			while (!localWCHLI.atEnd()) {
-				localWCHLI.getRight()->refresh(reason);
-				localWCHLI++;
-			}
+			for ( auto holder : itsWCHList )
+				holder->refresh(reason);
 		}
 	}
 
 // Do we already have this WorldCanvasHolder/DisplayData registered?
-	Bool MultiWCHolder::isAlreadyRegistered(const WorldCanvasHolder
-	        &holder) {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			if (&holder == localWCHLI.getRight()) {
-				return true;
-			}
-			localWCHLI++;
-		}
-		return false;
+	Bool MultiWCHolder::isAlreadyRegistered(const WorldCanvasHolder &holder) {
+		return std::any_of( itsWCHList.begin( ), itsWCHList.end( ),
+							[&](WorldCanvasHolder *h) { return h == &holder; } );
 	}
 	Bool MultiWCHolder::isAlreadyRegistered(const DisplayData &displaydata) {
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		localDDLI.toStart();
-		while (!localDDLI.atEnd()) {
-			if (&displaydata == localDDLI.getRight()) {
-				return true;
-			}
-			localDDLI++;
-		}
-		return false;
+		return std::any_of( itsDDList.begin( ), itsDDList.end( ),
+							[&](DisplayData *dd) { return dd == &displaydata; } );
 	}
 
 // Add/remove all the DisplayDatas to/from a WorldCanvasHolder.
 	void MultiWCHolder::addAllDisplayDatas(WorldCanvasHolder &holder) {
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		localDDLI.toStart();
-		while (!localDDLI.atEnd()) {
-			holder.addDisplayData(localDDLI.getRight(), -1);
-			localDDLI++;
+		for ( auto dd : itsDDList ) {
+			holder.addDisplayData( dd, -1 );
 		}
 	}
-	void MultiWCHolder::removeAllDisplayDatas(WorldCanvasHolder &holder,
-	        const Bool& /*permanent*/) {
-		ListIter<DisplayData *> localDDLI(itsDDList);
-		localDDLI.toStart();
-		while (!localDDLI.atEnd()) {
-			holder.removeDisplayData(*(localDDLI.getRight()), true);
-			localDDLI++;
+	void MultiWCHolder::removeAllDisplayDatas(WorldCanvasHolder &holder, const Bool& /*permanent*/) {
+		for ( auto dd : itsDDList ) {
+			holder.removeDisplayData( *dd, true );
 		}
 	}
 
 // Add/remove a DisplayData to/from all WorldCanvasHolders.
 	void MultiWCHolder::addToAllWorldCanvasHolders(DisplayData &displaydata, int position) {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.getRight()->addDisplayData(&displaydata, position);
-			localWCHLI++;
+		for ( auto holder : itsWCHList ) {
+			holder->addDisplayData(&displaydata, position);
 		}
 	}
 	void MultiWCHolder::removeFromAllWorldCanvasHolders(DisplayData &displaydata) {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			localWCHLI.getRight()->removeDisplayData(displaydata);
-			localWCHLI++;
+		for ( auto holder : itsWCHList ) {
+			holder->removeDisplayData(displaydata);
 		}
 	}
 // Distribute blinkMode to all WorldCanvasHolders.
 	void MultiWCHolder::setBlinkMode( bool mode ) {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			WorldCanvasHolder *holder = localWCHLI.getRight();
+		for ( auto holder : itsWCHList ) {
 			holder->setBlinkMode(mode);
-			localWCHLI++;
 		}
 	}
 // Distribute restrictions to all WorldCanvasHolders.
 	void MultiWCHolder::distributeRestrictions() {
-		ListIter<WorldCanvasHolder *> localWCHLI(itsWCHList);
-		localWCHLI.toStart();
-		while (!localWCHLI.atEnd()) {
-			WorldCanvasHolder *holder = localWCHLI.getRight();
-			//holder->removeRestrictions();
+		for ( auto holder : itsWCHList ) {
 			holder->setRestrictions(itsAttributes);
-			localWCHLI++;
 		}
 	}
 // Install restrictions on a specific WorldCanvasHolder.
@@ -466,9 +378,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // can be viewed along with selected channel of spectral image, e.g.).
 	uInt MultiWCHolder::zLength() {
 		uInt length = 0;
-		if (itsWCHList.len() > 0) {
-			ListIter<WorldCanvasHolder*> wchs(itsWCHList);
-			length = wchs.getRight()->nelements();
+		if (itsWCHList.size( ) > 0) {
+			length = itsWCHList.front( )->nelements();
 		}
 		// Returns the value of the first wch (should be the same for
 		// all of them).
@@ -522,16 +433,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// first one (WCH 0) which always exists).  The three aspects of
 		// conformance can be selectively tested.
 
-		WorldCanvasHolder* wch=0;
-		ListIter<WorldCanvasHolder*> wchs(itsWCHList);
+        if ( (size_t) wchIndex >= itsWCHList.size( ) || dd==0 ) return false;
+        auto wchs = itsWCHList.begin( );
+        std::advance( wchs, wchIndex );
 
-		for(Int i=0;  ;   i++, wchs++)  {
-			if(wchs.atEnd()) return false;
-			if(i==wchIndex) break;
-		}
-
-		wch=wchs.getRight();
-		if(wch==0 || dd==0) return false;
+		auto wch = *wchs;
+		if ( wch==0 ) return false;
 
 		return (!testZ     || dd->conformsToZIndex(*wch->worldCanvas()))  &&
 		       (!testCS    || dd->conformsToCS(*wch->worldCanvas()))      &&

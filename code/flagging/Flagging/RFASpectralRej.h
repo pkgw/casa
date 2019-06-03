@@ -33,7 +33,6 @@
 #include <flagging/Flagging/RFRowClipper.h> 
 #include <scimath/Functionals/Polynomial.h>
 #include <scimath/Fitting/LinearFit.h>
-#include <casa/Containers/Queue.h>
 #include <casa/Arrays/LogiVector.h>
     
 namespace casa { //# NAMESPACE CASA - BEGIN

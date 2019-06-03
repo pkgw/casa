@@ -519,44 +519,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	Bool QtDisplayPanel::worldToLin(Vector<Double> &lin, const Vector<Double> &world) {
+        bool done = false;
 		Bool filled = false;
 		lin.resize(world.nelements( ));
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			if ( filled == false ) {
-				wcs.getRight()->worldToLin(lin,world);
-				filled = true;
-			} else {
-				Vector<Double> tmp((uInt)world.nelements());
-				wcs.getRight()->worldToLin(tmp,world);
-				if ( tmp.nelements() != lin.nelements() )
-					return false;
-				for ( int i=0; i < static_cast<int>(tmp.nelements()); ++i )
-					if ( tmp[i] != lin[i] )
-						return false;
-			}
-		}
+        pd_->wcsApply( [&](WorldCanvas *wc) {
+		                if ( ! done ) {
+                            if ( filled == false ) {
+                                wc->worldToLin(lin,world);
+                                filled = true;
+                            } else {
+                                Vector<Double> tmp((uInt)world.nelements());
+                                wc->worldToLin(tmp,world);
+                                if ( tmp.nelements() != lin.nelements() )
+                                    done = true;
+                                for ( int i=0; i < static_cast<int>(tmp.nelements()); ++i )
+                                    if ( tmp[i] != lin[i] )
+                                        done = true;
+                            }
+                        }
+            } );
+
 		return filled;
 	}
 
-
 	void QtDisplayPanel::installEventHandlers_() {
 		pc_->addPositionEventHandler(*this);
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			wcs.getRight()->addMotionEventHandler(*this);
-		}
+		pd_->wcsApply( [&](WorldCanvas *wc) {
+							wc->addMotionEventHandler(*this);
+			} );
 	}
 
 	void QtDisplayPanel::removeEventHandlers_() {
 		pc_->removePositionEventHandler(*this);
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			wcs.getRight()->removeMotionEventHandler(*this);
-		}
+		pd_->wcsApply( [&](WorldCanvas *wc) {
+							wc->removeMotionEventHandler(*this);
+			} );
 	}
-
-
 
 	void QtDisplayPanel::activate( bool state ) {
 		if ( state == false && cursorBoundaryState == INSIDE_PLOT ) {
@@ -730,25 +728,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		emit trackingInfo(trackingRec);
 	}
 
-
 	Bool QtDisplayPanel::myWC_(const WorldCanvas* wc) {
 		// Utility function for above: is the given wc one belonging
 		// to the main pd_?
 
-		ConstListIter<WorldCanvas*>& wcs = *(pd_->myWCLI);
-		// I don't like using shared iterators (It's not safe), but
-		// it's the only mechanism provided to access the list (no
-		// time to create new PanelDisplay interface at the moment...).
+        bool result = false;
+        pd_->wcsApply( [&](WorldCanvas *w) { if (w == wc) result = true; } );
 
-		for(wcs.toStart(); !wcs.atEnd(); wcs++) {
-			if (wc==wcs.getRight()) return true;
-		}
-
-		return false;
+		return result;
 	}
-
-
-
 
 	void QtDisplayPanel::resizeEvent(QResizeEvent* ev) {
 
@@ -949,21 +937,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 
-	void QtDisplayPanel::registerAll( List<QtDisplayData*> registerDatas ) {
+	void QtDisplayPanel::registerAll( std::list<QtDisplayData*> registerDatas ) {
 		// Called externally (by gui, e.g.) to register all DDs created
 		// by user through QtViewer.
 
 		//List<QtDisplayData*> unregdDDs(unregisteredDDs());
 		//if(unregdDDs.len()==0) return;
-		if ( registerDatas.len() == 0 ) {
+		if ( registerDatas.size() == 0 ) {
 			return;
 		}
 
 		hold();
-		for(ListIter<QtDisplayData*> udds(registerDatas); !udds.atEnd(); udds++) {
-			QtDisplayData* dd = udds.getRight();
-			registerDD_(dd);
-		}
+		for ( auto dd : registerDatas ) registerDD_(dd);
 
 		emit allDDsRegistered();
 		//# do animator resetting, ala GTkPD
@@ -1012,38 +997,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	void QtDisplayPanel::registerRegionShape(RegionShape* rs) {
-		ListIter<RegionShape*> rshapes(rshapes_);
-		rshapes.toEnd();
-		rshapes.addRight(rs);
+
+		rshapes_.push_back(rs);
+
 		hold();
-
 		pd_->addDisplayData(*rs);
-
 		release();
-
 
 	}
 
-	void QtDisplayPanel::unregisterRegionShape(RegionShape* rs) {
-		for(ListIter<RegionShape*> rrss(rshapes_); !rrss.atEnd(); rrss++) {
-			if(rs == rrss.getRight()) {
-				rrss.removeRight();
-				hold();
-				pd_->removeDisplayData(*rs);
-				release();
-				break;
-			}
-		}
+	void QtDisplayPanel::unregisterRegionShape(RegionShape *rs) {
+		hold();
+		rshapes_.remove_if([&](RegionShape *r){return r == rs;});
+		pd_->removeDisplayData(*rs);
+		release();
 	}
 
 	Bool QtDisplayPanel::isRegistered(RegionShape* rs) {
-		for(ListIter<RegionShape*> qrss(rshapes_); !qrss.atEnd(); qrss++) {
-			if(rs == qrss.getRight()) return true;
-		}
-		return false;
+		return std::any_of( rshapes_.begin( ), rshapes_.end( ), [&](RegionShape *r){return r == rs;} );
 	}
-
-
 
 
 // REGION MANAGEMENT METHODS
@@ -1245,9 +1217,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		pd_->hold();
 
-		for(ListIter<PanelDisplay*> cbps(colorBarPanels_); !cbps.atEnd(); cbps++) {
-			cbps.getRight()->hold();
-		}
+		for ( auto cbp : colorBarPanels_ ) cbp->hold( );
 
 		if(blankCBPanel_!=0) blankCBPanel_->hold();
 	}
@@ -1258,9 +1228,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		if(blankCBPanel_!=0) blankCBPanel_->release();
 
-		for(ListIter<PanelDisplay*> cbps(colorBarPanels_); !cbps.atEnd(); cbps++) {
-			cbps.getRight()->release();
-		}
+		for ( auto cbp : colorBarPanels_ ) cbp->release();
 
 		pd_->release();
 	}
@@ -1303,7 +1271,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			removeEventHandlers_();
 			// These are torn down and then rebuilt because the setOptions
 			// call below may change the set of underlying canvases.
-
 
 			Bool needsRefresh = pd_->setOptions(opts, chgdOpts);
 			pd_->setBlinkMode( !modeZ_ );
@@ -1366,84 +1333,55 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Create new allColorBarDDs_ List (paring down from all registered DDs).
 		//allColorBarDDs_ = registeredDDs();
-		List<QtDisplayData*> otherList;
-		ListIter<QtDisplayData*> otherIter(otherList);
-		DisplayDataHolder::DisplayDataIterator iter = displayDataHolder->beginDD();
-		while ( iter != displayDataHolder->endDD()) {
-			otherIter.addRight( *iter );
-			iter++;
-		}
-		allColorBarDDs_= otherList;
-		for(ListIter<QtDisplayData*> acbdds(allColorBarDDs_); !acbdds.atEnd(); ) {
-			QtDisplayData* cbdd = acbdds.getRight();
-
-			if ( cbdd != NULL ) {
-				bool wouldDisplay = cbdd->wouldDisplayColorBar();
-				bool conforms = pd_->conforms(cbdd->dd(), false, true, false);
-				if( wouldDisplay && conforms ) {
-					acbdds++;	 // (keep).
-				} else {
-					acbdds.removeRight();  // (remove).
-				}
-				// (Note: behavior is still somewhat anomalous if some raster DDs
-				// have different axes set from CSMaster DD (uncommon, no big deal.))
-			} else {
-				acbdds.removeRight();
-			}
-		}
+        allColorBarDDs_.clear( );
+        std::copy_if( displayDataHolder->beginDD( ), displayDataHolder->endDD( ),
+                      std::back_inserter(allColorBarDDs_),
+                      [&](QtDisplayData *cbdd) {
+                          if ( cbdd == NULL ) return false;
+                          bool wouldDisplay = cbdd->wouldDisplayColorBar();
+                          bool conforms = pd_->conforms(cbdd->dd(), false, true, false);
+                          return wouldDisplay && conforms;
+                          // (Note: behavior is still somewhat anomalous if some raster DDs
+                          // have different axes set from CSMaster DD (uncommon, no big deal.))
+                      } );
 
 		// Pare allColorBarDDs_ down further, into colorBarDDsToDisplay_ (the
 		// latter will be in sub-panel order).
 
-		// 'Candidate List' of cbDDs to display; they will be removed
-		// from this temporary List if/when added to colorBarDDsToDisplay_.
-		List<QtDisplayData*>     ccbDDs = allColorBarDDs_;
-		ListIter<QtDisplayData*> ccbdds(ccbDDs);
-
 		// Start from scratch by clearing away old list
-		colorBarDDsToDisplay_ = List<QtDisplayData*>();
-		ListIter<QtDisplayData*> cbdds(colorBarDDsToDisplay_);
+		colorBarDDsToDisplay_.clear( );
 
 		// We iterate first over subpanels so that in multipanel 'blink' displays
 		// colorbars are shown in the same order as the images themselves.
 		for(Int panel_i=0; panel_i<nPanels() ; panel_i++) {
 
-			// Will any of the remaining candidate DDs display on this subpanel?
-			for(ccbdds.toStart(); !ccbdds.atEnd(); ) {
-
-				QtDisplayData* ccbdd = ccbdds.getRight();
-
-				// 'true, false, false' == 'does DD conform to this sub-panel's
-				// blink restriction (if any)?'  (dd's Coordinate compatibility
-				// has already been tested farther above).
-				if(pd_->conforms(ccbdd->dd(), true, false, false, panel_i)) {
-
-					// dd will display.  Move it off the candidate list, onto the
-					// end of the list of DDs whose colorbars should also display.
-					ccbdds.removeRight();
-					cbdds.addRight(ccbdd);
-
-					// In the horizontal case, colorbars are added to the start
-					// of colorBarDDsToDisplay_ rather than to the end, reversing
-					// this list from 'proper display order'.  Colorbar panels
-					// are created left-to-right or bottom-to-top, whereas
-					// colorbars are to display 'in proper order' either
-					// left-to-right or _top-to-bottom_.
-					if(panel_->colorBarsVertical()) {
-						cbdds.toEnd();
-					} else {
-						cbdds.toStart();
-					}
-				} else {
-					// (ccbdd won't display on this subpanel; pass on it for now)
-					ccbdds++;
-				}
+			// In the horizontal case, colorbars are added to the start
+			// of colorBarDDsToDisplay_ rather than to the end, reversing
+			// this list from 'proper display order'.	 Colorbar panels
+			// are created left-to-right or bottom-to-top, whereas
+			// colorbars are to display 'in proper order' either
+			// left-to-right or _top-to-bottom_.
+			if ( panel_->colorBarsVertical( ) ) {
+				std::copy_if( allColorBarDDs_.begin( ), allColorBarDDs_.end( ),
+							  std::back_inserter(colorBarDDsToDisplay_),
+							  [&](QtDisplayData *ccbdd) {
+								  // 'true, false, false' == 'does DD conform to this sub-panel's
+								  // blink restriction (if any)?'  (dd's Coordinate compatibility
+								  // has already been tested farther above).
+								  return pd_->conforms(ccbdd->dd(), true, false, false, panel_i);
+							  } );
+			} else	{
+				std::copy_if( allColorBarDDs_.begin( ), allColorBarDDs_.end( ),
+							  std::front_inserter(colorBarDDsToDisplay_),
+							  [&](QtDisplayData *ccbdd) {
+								  // 'true, false, false' == 'does DD conform to this sub-panel's
+								  // blink restriction (if any)?'  (dd's Coordinate compatibility
+								  // has already been tested farther above).
+								  return pd_->conforms(ccbdd->dd(), true, false, false, panel_i);
+							  } );
 			}
 		}
 	}
-
-
-
 
 	Int QtDisplayPanel::marginb_(QtDisplayData* dd, Float shrink) {
 		// Return the margin to give to dd's colorbar panel on the side where
@@ -1513,7 +1451,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// arrangeColorBars_ lets the PC take care of refresh.
 
 		// Store copy of the old List, for comparison.
-		List<QtDisplayData*>  oldCBDDs = colorBarDDsToDisplay_;
+        std::list<QtDisplayData*>  oldCBDDs = colorBarDDsToDisplay_;
 
 		//If the number of plots displayed decreases, we can lose the color bar,
 		//if it is supposed to be displayed.  PlotCountChangedAdjustment corrects
@@ -1525,15 +1463,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Alternate name for the newly-updated (definitive)
 		// member List (just for style).
-		List<QtDisplayData*>& newCBDDs = colorBarDDsToDisplay_;
+		std::list<QtDisplayData*> &newCBDDs = colorBarDDsToDisplay_;
 
-		Int totcbdds  = allColorBarDDs_.len();
-		Int nOld      = oldCBDDs.len();  // (Also == (old) colorBarPanels_.len().)
-		Int nNew      = newCBDDs.len();  // (Will become new colorBarPanels_.len().)
+		Int totcbdds  = allColorBarDDs_.size( );
+		Int nOld      = oldCBDDs.size( );  // (Also == (old) colorBarPanels_.len().)
+		Int nNew      = newCBDDs.size( );  // (Will become new colorBarPanels_.len().)
 
-		ListIter<QtDisplayData*> oldcbdds(oldCBDDs);
-		ListIter<QtDisplayData*> newcbdds(newCBDDs);
-		ListIter<QtDisplayData*> allcbdds(allColorBarDDs_);
+        std::list<QtDisplayData*>::iterator oldcbdds = oldCBDDs.begin( );
+        std::list<QtDisplayData*>::iterator newcbdds = newCBDDs.begin( );
+        std::list<QtDisplayData*>::iterator allcbdds = allColorBarDDs_.begin( );
 
 		// Prepare field names and values for geometry/margin setting on the
 		// color bar panels (according to whether colorbars are being placed
@@ -1604,8 +1542,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// main image subpanel can display.
 		else {
 			Int nb=0;
-			for(allcbdds.toStart();  !allcbdds.atEnd();  allcbdds++) {
-				if( pd_->isBlinkDD(allcbdds.getRight()->dd()) ) nb++;
+			for( auto cbdd : allColorBarDDs_ ) {
+				if( pd_->isBlinkDD(cbdd->dd( )) ) nb++;
 			}
 			Int nnb = totcbdds - nb;	// nnb, nb: number of non-blinking and
 			// blinking CBDDs.
@@ -1618,11 +1556,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// cbpszs: panel sizes in descending order.
 		Vector<Float> cbpszs(totcbdds, 0.);
 		Int i=0;
-		for(allcbdds.toStart();  !allcbdds.atEnd();  allcbdds++, i++) {
-			Float cbpsz = cbPanelSpace_(allcbdds.getRight());
+		for( auto cbdd : allColorBarDDs_ ) {
+			Float cbpsz = cbPanelSpace_(cbdd);
 			Int j=i;
 			for(; j>0 && cbpszs[j-1]<cbpsz ; j--) cbpszs[j] = cbpszs[j-1];
 			cbpszs[j] = cbpsz;
+            ++i;
 		}
 
 		// totcbpsz: desired total PC proportion for cb panels.
@@ -1659,11 +1598,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Total proportion of pc_ requested for colorbar panels
 		// displaying now (to check for for crowding of main pd_).
 		Float requestedsz = 0.;
-		newcbdds.toStart();
-		for(Int i=0;   i<nNew;   newcbdds++, i++) {
-			QtDisplayData* dd = newcbdds.getRight();
-			newcbpszs[i] = cbPanelSpace_(dd);
-			requestedsz += newcbpszs[i];
+		int j = 0;
+		for ( auto dd : newCBDDs ) {
+			newcbpszs[j] = cbPanelSpace_(dd);
+			requestedsz += newcbpszs[j];
+			++j;
 		}
 
 		// Colorbars must be reduced in size so that they fit within
@@ -1701,18 +1640,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Create or delete panels (PanelDisplays) for the colorbars, if
 		// the required number of them has changed (nNewPanels!=nOldPanels).
-		ListIter<PanelDisplay*> cbps(colorBarPanels_);
-		cbps.toEnd();
 		for(Int i=nNew;  i<nOld;  i++) {
-			cbps--;
-			delete cbps.getRight();	// Delete excess colorbar PanelDisplays...
-			cbps.removeRight();
+            PanelDisplay *pd = colorBarPanels_.back( );
+            colorBarPanels_.pop_back( );
+            delete pd;
 		}	// (old colorbar automatically unregistered)
 
-		for(Int i=nOld;  i<nNew;  i++, cbps++) {    // ...or add needed new ones.
+		for(Int i=nOld;  i<nNew;  i++) {    // ...or add needed new ones.
 			PanelDisplay* cbp = new PanelDisplay(pc_, 1,1);
 			cbp->hold();   // (consistent with hold() above -- uses same release()).
-			cbps.addRight(cbp);
+			colorBarPanels_.push_back(cbp);
 		}
 
 
@@ -1736,47 +1673,49 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		// For each color bar [panel] in the new list.
-		cbps.toStart();
-		newcbdds.toStart();
-		oldcbdds.toStart();
-		for(Int i=0;    i<nNew;     i++, cbps++, newcbdds++) {
+        {
+            auto cbps = colorBarPanels_.begin( );
+			auto newcbdds = newCBDDs.begin( );
+			auto oldcbdds = oldCBDDs.begin( );
+            for(Int i=0;    i<nNew;     i++, cbps++, newcbdds++) {
 
-			// Assure that correct color bar DD is registered on each panel.
-			PanelDisplay*  cbp     = cbps.getRight();
-			QtDisplayData* newdd   = newcbdds.getRight();
-			WedgeDD*       newcb   = newdd->colorBar();
-			if(i<nOld) {
-				QtDisplayData* olddd = oldcbdds.getRight();
-				WedgeDD*       oldcb = olddd->colorBar();
-				// Replace panel's color bar.
-				if(olddd != newdd) {
-					cbp->removeDisplayData(*oldcb);
-					cbp->addDisplayData(*newcb);
-				}
-				oldcbdds++;
-			} else {
-				cbp->addDisplayData(*newcb);		// Add new panel's color bar.
-			}
+                // Assure that correct color bar DD is registered on each panel.
+                PanelDisplay*  cbp     = *cbps;
+                QtDisplayData* newdd   = *newcbdds;
+                WedgeDD*       newcb   = newdd->colorBar();
+                if(i<nOld) {
+                    QtDisplayData* olddd = *oldcbdds;
+                    WedgeDD*       oldcb = olddd->colorBar();
+                    // Replace panel's color bar.
+                    if(olddd != newdd) {
+                        cbp->removeDisplayData(*oldcb);
+                        cbp->addDisplayData(*newcb);
+                    }
+                    oldcbdds++;
+                } else {
+                    cbp->addDisplayData(*newcb);		// Add new panel's color bar.
+                }
 
-			// Place/size the colorbar panels
-			// (NB: QtViewerBase sets orientation onto the colorbars themselves).
-			if(placementChange) {
-				orgn += siz;			 // Move origin past previous panel
-				siz = min(newcbpszs[i], 1.-orgn);	 // and retrieve new panel's size.
-				setPanelGeometry( cbp, orgn, siz );
-			}
+                // Place/size the colorbar panels
+                // (NB: QtViewerBase sets orientation onto the colorbars themselves).
+                if(placementChange) {
+                    orgn += siz;			 // Move origin past previous panel
+                    siz = min(newcbpszs[i], 1.-orgn);	 // and retrieve new panel's size.
+                    setPanelGeometry( cbp, orgn, siz );
+                }
 
-			// Set margins of color bar panels.
-			// 'Margin b' is where most color bar labelling occurs (to the right of
-			// vertical colorbars, or above horizontal ones).  marginb_() tries to
-			// allocate enough margin so that the labels fit, taking label character
-			// size, color bar orientation and possible manual user adjustment into
-			// account.
-			mrgnb_ = marginb_(newdd, shrinkfctr);
-			// Set the long color bar margins to try to match the graph as closely
-			// as possible
-			setColorBarMargins( vertical, newmainpanelsz, cbp, resizing );
-		}
+                // Set margins of color bar panels.
+                // 'Margin b' is where most color bar labelling occurs (to the right of
+                // vertical colorbars, or above horizontal ones).  marginb_() tries to
+                // allocate enough margin so that the labels fit, taking label character
+                // size, color bar orientation and possible manual user adjustment into
+                // account.
+                mrgnb_ = marginb_(newdd, shrinkfctr);
+                // Set the long color bar margins to try to match the graph as closely
+                // as possible
+                setColorBarMargins( vertical, newmainpanelsz, cbp, resizing );
+            }
+        }
 
 		// Set or remove blank colorbar panel, as needed.  (Its sole purpose
 		// is to assure that unused colorbar space (if any) is cleared).
@@ -1865,16 +1804,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		int divisions = max(rowCount, columnCount);
 		float adjustedAxisLabelSize = defaultAxisLabelSize /divisions;
 		//optns.define( QtDisplayData::WEDGE_LABEL_CHAR_SIZE, adjustedAxisLabelSize );
-		List<DisplayData*>* rdds = pd_->displayDatas();
-		if ( rdds -> len() > 0 ) {
-			for (ListIter<DisplayData*> qdds(rdds); !qdds.atEnd(); qdds++) {
-				DisplayData* dd = qdds.getRight();
-				if ( dd != NULL ) {
-					Record optns;
-					optns.define( WCAxisLabeller::LABEL_CHAR_SIZE,  adjustedAxisLabelSize );
-					Record chgdOptions;
-					dd->setOptions( optns, chgdOptions );
-				}
+		for ( auto dd : pd_->displayDatas( ) ) {
+			if ( dd != NULL ) {
+				Record optns;
+				optns.define( WCAxisLabeller::LABEL_CHAR_SIZE,	adjustedAxisLabelSize );
+				Record chgdOptions;
+				dd->setOptions( optns, chgdOptions );
 			}
 		}
 	}
@@ -2069,9 +2004,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Refresh (only) the colorbar panels (if any).  (An attempt to reduce
 		// flashing during blink animation).
 
-		for(ListIter<PanelDisplay*> cbps(colorBarPanels_); !cbps.atEnd(); cbps++) {
-			cbps.getRight()->refresh();
-		}
+		for( auto cbp : colorBarPanels_ ) cbp->refresh();
 
 		if(blankCBPanel_!=0) blankCBPanel_->refresh();
 	}
@@ -2520,13 +2453,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// knows what obsolete rubbishy state that may be in).  (Zoomer will
 		// be used to _restore_ zoom state though...).
 
-		ListIter<WorldCanvas* > wcs = pd_->wcs();
-		// (Who exposed this?  Convenient
-		// here, certainly, (but wtf?...)).
-		wcs.toStart();
-		if(!wcs.atEnd()) {	// (Shouldn't be at end...).
-
-			WorldCanvas* wc = wcs.getRight();
+		WorldCanvas* wc = 0;
+		pd_->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+		if( wc != 0 ) {
 
 			// Save Zoom
 
@@ -2599,15 +2528,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 			unregisterAll();
 
-			// exDDs is a List of existing DDs which may be suitable for registering
-			// and reusing in this restore.  Only those not currently registered on
-			// _any_ panel (not just this one) are eligible.
-			// (That is the distinction between ViewerBase::unregisteredDDs() vs.
-			// DisplayPanel::unregisteredDDs(), btw).
-			List<QtDisplayData*> exDDs = panel_->unregisteredDDs();
-			ListIter<QtDisplayData*> exdds(exDDs);
-
-
 			// For each dd in the restore doc...
 			for (QDomElement  ddelem = ddopts.firstChildElement(); !ddelem.isNull();
 			        ddelem = ddelem.nextSiblingElement()) {
@@ -2626,9 +2546,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 				QtDisplayData *dd=0;
 
+				// exDDs is a List of existing DDs which may be suitable for registering
+				// and reusing in this restore.  Only those not currently registered on
+				// _any_ panel (not just this one) are eligible.
+				// (That is the distinction between ViewerBase::unregisteredDDs() vs.
+				// DisplayPanel::unregisteredDDs(), btw).
+
 				// First, see if the existing DD candidates are appropriate,
-				for(exdds.toStart(); !exdds.atEnd(); exdds++) {
-					QtDisplayData *exdd = exdds.getRight();
+				for ( auto exdd : panel_->unregisteredDDs( ) ) {
+
 					if(exdd->dataType()   != dataType ||
 					        exdd->displayType()!= displayType) continue;
 					// (type mismatch -- try next existing dd).
@@ -2636,7 +2562,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					if(ddFileMatch_(path, dataType, displayType,  exdd,
 					                origrestorefile, restoredir)) {
 						dd = exdd;		// match found - reuse existing dd.
-						exdds.removeRight();	// (do not use exdd for further searches).
 						break;
 					}
 				}
@@ -2846,10 +2771,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// knows what obsolete rubbishy state that may be in).  (Zoomer will
 		// be used to _restore_ zoom state though...).
 		Vector<Double> blc(2), trc(2);
-		ConstListIter<WorldCanvas* > wcs = pd_->wcs();
-		wcs.toStart();
-		if ( ! wcs.atEnd() ) {
-			WorldCanvas* wc = wcs.getRight();
+		WorldCanvas* wc = 0;
+		pd_->wcsApply( [&](WorldCanvas *w) { if ( wc == 0 ) wc = w; } );
+		if( wc != 0 ) {
 			blc[0] = wc->linXMin();
 			blc[1] = wc->linYMin();
 			trc[0] = wc->linXMax();
@@ -2885,14 +2809,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				panel_->status( e.getMesg( ), "error" );
 			} catch(...) { }
 		} else if ( type == "ds9 region" ) {
-			ConstListIter<WorldCanvas*> wcl = panelDisplay()->myWCLI;
-			wcl.toStart( );
+            WorldCanvas *wc_ = 0;
+            pd_->wcsApply( [&](WorldCanvas *w ) { if ( wc_ == 0 ) wc_ = w; } );
 			// really need to change this to find the world canvas for the display data that is currently visible...
 			// instead of just taking the first one in the list...  <<<see also QtRegionSource.cc>>>
-			WorldCanvas *wc_ = 0;
-			if(wcl.len() > 0) {
-				wc_ = wcl.getRight( );
-			}
 			if ( wc_ ) {
 				casa::viewer::ds9context context( wc_, toolmgr );
 				casa::viewer::ds9parser parser;
@@ -3111,9 +3031,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void QtDisplayPanel::setLineWidthPS(Float &w) {
 
-		for (ListIter<QtDisplayData*> qdds(&colorBarDDsToDisplay_);
-		        !qdds.atEnd(); qdds++) {
-			QtDisplayData* pdd = qdds.getRight();
+		for ( auto pdd : colorBarDDsToDisplay_ ) {
 			if (pdd != 0) {
 				Record wl, chgdOpts;
 				wl.define("wedgelabellinewidth", w);

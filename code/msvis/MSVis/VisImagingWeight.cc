@@ -41,11 +41,13 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-  VisImagingWeight::VisImagingWeight() : multiFieldMap_p(-1), wgtType_p("none"), doFilter_p(false), robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")), activeFieldIndex_p(-1) {
+
+  VisImagingWeight::VisImagingWeight() : wgtType_p("none"), doFilter_p(false), robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")) , activeFieldIndex_p(-1){
 
     }
 
-  VisImagingWeight::VisImagingWeight(const String& type) : multiFieldMap_p(-1),doFilter_p(false),  robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")), activeFieldIndex_p(-1) {
+  VisImagingWeight::VisImagingWeight(const String& type) : doFilter_p(false),  robust_p(0.0), rmode_p("norm"), noise_p(Quantity(0.0, "Jy")) , activeFieldIndex_p(-1){
+  
 
         wgtType_p=type;
         wgtType_p.downcase();
@@ -60,7 +62,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   VisImagingWeight::VisImagingWeight(ROVisibilityIterator& vi, const String& rmode, const Quantity& noise,
                                      const Double robust, const Int nx, const Int ny,
                                      const Quantity& cellx, const Quantity& celly,
-                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
+                                     const Int uBox, const Int vBox, const Bool multiField) : doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
 
       LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -86,7 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Bool doWtSp=(vb->weightSpectrum().nelements()>0);
 
       String mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
-      multiFieldMap_p.define(mapid, 0);
+      multiFieldMap_p.insert(std::pair<casacore::String, casacore::Int>(mapid, 0));
       gwt_p[0]=new TempLattice<Float>(IPosition(2, nx,ny), 0);
       gwt_p[0]->set(0.0);
       a_gwt_p.resize(nx_p, ny_p);
@@ -99,16 +101,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               if(vb->newFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
                   if(multiField){
-                      if(!multiFieldMap_p.isDefined(mapid)){
+                      if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) ){
                           fields+=1;
                           gwt_p.resize(fields+1);
                           gwt_p[fields]=new TempLattice<Float>(IPosition(2, nx_p,ny_p),0);
                           gwt_p[fields]->set(0.0);
                       }
                   }
-                  if(!multiFieldMap_p.isDefined(mapid))
-                      multiFieldMap_p.define(mapid, fields);
-		  
+
+                  if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) )
+                      multiFieldMap_p.insert(std::pair<casacore::String, casacore::Int>(mapid, fields));
               }
           }
       }
@@ -122,16 +124,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           for (vi.origin();vi.more();vi++) {
 	    if(vb->newFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
+
+              
 		  if(multiField){
 		    if(activeFieldIndex_p >=0)
 		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
 		  }
-		  activeFieldIndex_p=multiFieldMap_p(mapid);
+		  activeFieldIndex_p=multiFieldMap_p.find(mapid) !=multiFieldMap_p.end( ) ? multiFieldMap_p[mapid] : -1;
 		  if(multiField && activeFieldIndex_p >=0)
 		    gwt_p[activeFieldIndex_p]->get(a_gwt_p);
 		  
 	    }
-              fid=multiFieldMap_p(mapid);
+            auto mapvp = multiFieldMap_p.find(mapid);
+            fid= mapvp != multiFieldMap_p.end( ) ? mapvp->second : -1;
               Int nRow=vb->nRow();
               Int nChan=vb->nChannel();
 
@@ -224,7 +229,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   VisImagingWeight::VisImagingWeight(ROVisibilityIterator& vi, Block<CountedPtr<TempLattice<Float> > >& grids, const String& rmode, const Quantity& noise,
                                      const Double robust, const Quantity& cellx, const Quantity& celly,
-                                     const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise) {
+                                     const Bool multiField) : doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise) {
 
    LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -248,13 +253,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  if(vb->newFieldId()){
 	    mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId());
 	    if(multiField){
-	      if(!multiFieldMap_p.isDefined(mapid)){
+	      if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) ){
 		fields+=1;
                    
 	      }
 	    }
-	    if(!multiFieldMap_p.isDefined(mapid))
-	      multiFieldMap_p.define(mapid, fields);
+	    if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) )
+	      multiFieldMap_p.insert(std::pair<casacore::String, casacore::Int>(mapid, fields));
 	  }
 	}
       }
@@ -294,7 +299,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				     const String& rmode, const Quantity& noise,
                                      const Double robust, const Int nx, const Int ny,
                                      const Quantity& cellx, const Quantity& celly,
-                                     const Int uBox, const Int vBox, const Bool multiField) : multiFieldMap_p(-1), doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
+                                     const Int uBox, const Int vBox, const Bool multiField) : doFilter_p(false), robust_p(robust), rmode_p(rmode), noise_p(noise), activeFieldIndex_p(-1) {
 
       LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -318,11 +323,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       visIter.originChunks();
       visIter.origin();
       String mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId()[0]);
-      multiFieldMap_p.define(mapid, 0);
+
+      multiFieldMap_p.insert( std::pair<casacore::String, casacore::Int>(mapid, 0) );
       gwt_p[0]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
       gwt_p[0]->set(0.0);
       a_gwt_p.resize(nx_p, ny_p);
       a_gwt_p.set(0.0);
+
 
       // Discover if weightSpectrum non-trivially available
       Bool doWtSp=visIter.weightSpectrumExists();
@@ -333,15 +340,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
               if(vb->isNewFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId()[0]);
                   if(multiField){
-                      if(!multiFieldMap_p.isDefined(mapid)){
+                      if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) ){
                           fields+=1;
                           gwt_p.resize(fields+1);
                           gwt_p[fields]=new TempLattice<Float>(IPosition(2,nx_p, ny_p), 0);
                           gwt_p[fields]->set(0.0);
                       }
                   }
-                  if(!multiFieldMap_p.isDefined(mapid))
-                      multiFieldMap_p.define(mapid, fields);
+                  if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) )
+                      multiFieldMap_p.insert(std::pair<casacore::String, casacore::Int>(mapid, fields));
               }
           }
       }
@@ -355,15 +362,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           for (visIter.origin();visIter.more();visIter.next()) {
 	    if(vb->isNewFieldId()){
                   mapid=String::toString(vb->msId())+String("_")+String::toString(vb->fieldId()[0]);
+
 		  if(multiField){
 		    if(activeFieldIndex_p >=0)
 		      gwt_p[activeFieldIndex_p]->put(a_gwt_p);
 		  }
-		  activeFieldIndex_p=multiFieldMap_p(mapid);
+		  activeFieldIndex_p= multiFieldMap_p.find(mapid) != multiFieldMap_p.end( ) ? multiFieldMap_p[mapid] :  -1;
 		  if(multiField && activeFieldIndex_p >=0)
 		    gwt_p[activeFieldIndex_p]->get(a_gwt_p);		  
 	    }
-              fid=multiFieldMap_p(mapid);
+           
+              auto mapvp = multiFieldMap_p.find(mapid);
+              fid= mapvp != multiFieldMap_p.end( ) ? mapvp->second : -1;
               Int nRow=vb->nRows();
               Int nChan=vb->nChannels();
 
@@ -460,7 +470,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   }
 
 
-  VisImagingWeight::VisImagingWeight(ImageInterface<Float>& im) : multiFieldMap_p(-1), doFilter_p(false), robust_p(0.0), rmode_p(""), noise_p(Quantity(0.0, "Jy")) {
+  VisImagingWeight::VisImagingWeight(ImageInterface<Float>& im) : doFilter_p(false), robust_p(0.0), rmode_p(""), noise_p(Quantity(0.0, "Jy")) {
 
       LogIO os(LogOrigin("VisSetUtil", "VisImagingWeight()", WHERE));
 
@@ -513,7 +523,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  Int val;
 	  rec.get("key"+String::toString(k), key);
 	  rec.get("val"+String::toString(k), val);
-	  multiFieldMap_p.define(key, val);
+	  multiFieldMap_p.insert(std::pair<casacore::String, casacore::Int>(key, val));
 	}
 	
 
@@ -560,10 +570,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       Record rec;
       rec.define("d2", d2_p);
       rec.define("f2", f2_p);
-      rec.define("numfield", Int(multiFieldMap_p.ndefined()));
-      for(uInt k=0; k < multiFieldMap_p.ndefined(); ++k){
-	rec.define("key"+String::toString(k), multiFieldMap_p.getKey(k));
-	rec.define("val"+String::toString(k), multiFieldMap_p.getVal(k));
+      rec.define("numfield", Int(multiFieldMap_p.size()));
+      uInt keycount=0;
+      for (auto iter = multiFieldMap_p.begin( ); iter != multiFieldMap_p.end( ); ++iter, ++keycount){
+	rec.define("key"+String::toString(keycount), iter->first);
+	rec.define("val"+String::toString(keycount), iter->second);
       }
       im.setMiscInfo(rec);
 
@@ -663,10 +674,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //cout << "f2 " << f2_p[0] << " d2 " << d2_p[0] << " uscale " << uscale_p << " vscal " << vscale_p << " origs " << uorigin_p << "  " << vorigin_p << endl; 
       String mapid=String::toString(msId)+String("_")+String::toString(fieldId);
       //cout << "min max gwt " << min(gwt_p[0]) << "    " << max(gwt_p[0]) << " mapid " << mapid <<endl; 
-      if(!multiFieldMap_p.isDefined(mapid))
+      if( multiFieldMap_p.find(mapid) == multiFieldMap_p.end( ) )
 	throw(AipsError("Imaging weight calculation is requested for a data that was not selected"));
       
-      Int fid=multiFieldMap_p(mapid);
+      auto mapvp = multiFieldMap_p.find(mapid);
+      Int fid = mapvp != multiFieldMap_p.end( ) ? mapvp->second : -1;
       //Int ndrop=0;
       if(activeFieldIndex_p != fid){
 	a_gwt_p=gwt_p[fid]->get();

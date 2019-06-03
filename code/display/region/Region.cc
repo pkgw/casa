@@ -69,13 +69,13 @@ namespace casa {
 			strip_white_space(size_t s) : size(s+1), off(0), buf(new char[size]) { }
 			strip_white_space( const strip_white_space &other ) : size(other.size), off(other.off),
 				buf(new char[size]) {
-				strcpy(buf,other.buf);
+				strncpy(buf,other.buf,off);
 			}
 			~strip_white_space( ) {
 				delete [] buf;
 			}
 			void operator( )( char c ) {
-				if ( ! isspace(c) ) buf[off++] = c;
+				if ( c && ! isspace(c) ) buf[off++] = c;
 			};
 			operator std::string( ) {
 				buf[off] = '\0';
