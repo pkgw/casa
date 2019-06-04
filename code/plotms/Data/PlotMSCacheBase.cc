@@ -921,6 +921,8 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
 				break;
 			case PMS::TSKY: PMSC_DELETE(tsky_)
 				break;
+			case PMS::SIDEBAND: PMSC_DELETE(sideband_)
+				break;
 			case PMS::NONE:
 				break;
 			}
@@ -1741,6 +1743,9 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::TSKY:
                 addVectors(tsky_, increaseCache);
                 break;
+            case PMS::SIDEBAND:
+                addVectors(sideband_, increaseCache);
+                break;
             case PMS::NONE:
                 break;
         }
@@ -1896,6 +1901,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::FEED2:
 	case PMS::ATM:
 	case PMS::TSKY:
+	case PMS::SIDEBAND:
 	case PMS::NONE:
 		break;
 	}

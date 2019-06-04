@@ -325,6 +325,7 @@ public:
   // Curve overlays
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
   inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
+  inline casacore::Double getSideband(casacore::Int chnk,casacore::Int irel) { return *(sideband_[chnk]->data()+irel); };
 
   /* -----------------------------------------------------------------------*/
   /*** Axis-specific generic gets, per chunk (for unit tests) ***/
@@ -444,6 +445,7 @@ public:
   // curve overlay axes
   inline casacore::Vector<casacore::Double>& atm(casacore::Int chnk)  { return *(atm_[chnk]); };
   inline casacore::Vector<casacore::Double>& tsky(casacore::Int chnk)  { return *(tsky_[chnk]); };
+  inline casacore::Vector<casacore::Double>& sideband(casacore::Int chnk)  { return *(sideband_[chnk]); };
 
   /* -----------------------------------------------------------------------*/
 
@@ -663,7 +665,7 @@ protected:
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
 
-  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_, tsky_;
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_, tsky_, sideband_;
 
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;

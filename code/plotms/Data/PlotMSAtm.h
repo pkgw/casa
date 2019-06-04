@@ -87,6 +87,11 @@ public:
         const casacore::Vector<casacore::Double>& chanFreqs,
         bool atm);
 
+	// curve vector for image sideband curve
+    casacore::Vector<casacore::Double> calcSidebandCurve(
+        casacore::Int spw, casacore::Int scan, 
+        const casacore::Vector<casacore::Double>& chanFreqs);
+
     inline casacore::Double getPwv() { return pwv_; }
     inline casacore::Double getAirmass() { return airmass_; }
 

@@ -587,4 +587,17 @@ casacore::Vector<T> PlotMSAtm::getValuesNearTimes(
     return outputCol;
 }
 
+casacore::Vector<casacore::Double> PlotMSAtm::calcSidebandCurve(
+        casacore::Int /*spw*/, casacore::Int /*scan*/,
+        const casacore::Vector<casacore::Double>& chanFreqs) {
+    unsigned int numChan(chanFreqs.nelements());
+    casacore::Vector<casacore::Double> curve(numChan, 0.0);
+    if (numChan == 1) {
+        return curve;
+	}
+
+	curve.set(100.0); // TODO: for testing
+	return curve;
+}
+
 }

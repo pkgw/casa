@@ -628,20 +628,34 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
           break;
         }
         case PMS::ATM:
-        case PMS::TSKY: { 
+        case PMS::TSKY: 
+        case PMS::SIDEBAND: { 
           casacore::Int spw = cti.thisSpw();
           casacore::Int scan = cti.thisScan();
           casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
           casacore::Vector<casacore::Double> curve(1, 0.0);
-          bool isAtm = (axis==PMS::ATM);
           if (plotmsAtm_) {
-              curve.resize();    
-              curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz, isAtm);
+              curve.resize();
+              if ((axis==PMS::ATM) || (axis==PMS::TSKY)) { 
+                  bool isAtm = (axis==PMS::ATM); // false = TSKY
+                  curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz, isAtm);
+              } else {
+                  curve = plotmsAtm_->calcSidebandCurve(spw, scan, freqsGHz);
+              }
           }
-          if (isAtm)
-              *atm_[chunk] = curve;
-          else
-              *tsky_[chunk] = curve;
+          switch (axis) {
+              case PMS::ATM:
+                  *atm_[chunk] = curve;
+                  break;
+              case PMS::TSKY:
+                  *tsky_[chunk] = curve;
+                  break;
+              case PMS::SIDEBAND:
+                  *sideband_[chunk] = curve;
+                  break;
+              default:
+                  break;
+          }
           break;
         }
         default:

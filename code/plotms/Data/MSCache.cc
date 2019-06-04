@@ -1130,7 +1130,8 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::PARANG:
 	case PMS::ROW:
 	case PMS::ATM:
-	case PMS::TSKY: {
+	case PMS::TSKY:
+	case PMS::SIDEBAND: {
 		useAvg = false;
 		break;
 	}
@@ -1967,22 +1968,34 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 	case PMS::ATM:
-	case PMS::TSKY: {
+	case PMS::TSKY:
+	case PMS::SIDEBAND: {
 		casacore::Int spw = vb->spectralWindows()(0);
 		casacore::Int scan = vb->scan()(0);
-		casacore::Array<casacore::Double> chanFreqGHz =
-			vb->getFrequencies(0, freqFrame_)/1e9;
+		casacore::Array<casacore::Double> chanFreqGHz = vb->getFrequencies(0, freqFrame_)/1e9;
 		casacore::Vector<casacore::Double> curve(1, 0.0);
-		bool isAtm = (axis==PMS::ATM);
 		if (plotmsAtm_) {
-			curve.resize();	
-			curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
-					isAtm);
+			curve.resize();
+			if ((axis==PMS::ATM) || (axis==PMS::TSKY)) {
+				bool isAtm = (axis==PMS::ATM);
+				curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz, isAtm);
+			} else {
+				curve = plotmsAtm_->calcSidebandCurve(spw, scan, chanFreqGHz);
+			}
 		}
-		if (isAtm) 
-			*atm_[vbnum] = curve;
-		else
-			*tsky_[vbnum] = curve;
+		switch (axis) {
+			case PMS::ATM:
+				*atm_[vbnum] = curve;
+				break;
+			case PMS::TSKY:
+				*tsky_[vbnum] = curve;
+				break;
+			case PMS::SIDEBAND:
+				*sideband_[vbnum] = curve;
+				break;
+			default:
+				break;
+		}
 		break;
 	}
 	default: {
