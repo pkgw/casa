@@ -48,7 +48,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 ////////////////////////////////////
 
 FlagAgentBase::FlagAgentBase(FlagDataHandler *dh, Record config, uShort iterationApproach, Bool writePrivateFlagCube, Bool flag):
-    logger_p(new LogIO(LogOrigin("FlagAgentBase",__FUNCTION__,WHERE))),
+    logger_p(new LogIO(LogOrigin("FlagAgentBase",__FUNCTION__,WHERE)))
 {
 	// Initialize logger
 	if (config.fieldNumber ("loglevel") >= 0)
