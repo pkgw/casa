@@ -289,7 +289,7 @@ bool logsink::poststat(const std::string& message,
                 strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
                 std::string telemetryOrigin =" ";
                 if(itsorigin) {
-                    std:string origOrigin = itsorigin->toString();
+                    std::string origOrigin = itsorigin->toString();
                     std::remove_copy(origOrigin.begin(), origOrigin.end(), std::back_inserter(telemetryOrigin), ':');
                 }
                 tlog << formattedtime << " :: " << telemetryLoggerPid<< " ::"<< telemetryOrigin << " :: " << message << "\n";
