@@ -2471,8 +2471,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Matrix<Bool> allPruned(poldim, chandim, False);
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
-      os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<"***"<<LogIO::POST;
+      if (npol==1) {
+        os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<"***"<<LogIO::POST;
+      }
       for (uInt ipol=0; ipol < npol; ipol++ ) {  
+        if (npol!=1) {
+          os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<", Polarization "<<ipol<<"***"<<LogIO::POST;
+        }
+      
       // Below corresponds to createThresholdMask in Amanda's Python code.
         IPosition start(planeshp.nelements(),0);
         if (specAxis != -1) {
@@ -2545,16 +2551,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
           Vector<uInt> nreg1elem, npruned1elem;
           Vector<Bool> allPruned1elem(1);
 	  std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag1elem, allPruned1elem, nreg1elem, npruned1elem, pruneSize, false);
-          os<< "Filling nreg etc after YAPrune"<<LogIO::POST;
-          os<<" nreg.size="<<nreg.size()<<LogIO::POST;
           nreg(ipol,ich) = nreg1elem(0);
-          os<< "Filling pass 1 after YAPrune"<<LogIO::POST;
           npruned(ipol, ich) = npruned1elem(0);
-          os<< "Filling pass 2 after YAPrune"<<LogIO::POST;
-          os<< "allPruned.size="<<allPruned.size()<<LogIO::POST;
-          os<< "allPruned1elem="<<allPruned1elem<<LogIO::POST;
           allPruned(ipol, ich) = allPruned1elem(0);
-          os<< "DONE Filling nreg etc after YAPrune"<<LogIO::POST;
 	  //tempmask.copyData(*(tempIm_ptr.get()));
 	  planeTempMask.copyData(*(tempIm_ptr.get()));
 	  //TODO MOVE THIS SECTION outside the for-loop? 
@@ -2977,11 +2976,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     // test the curent final mask with the previous mask 
     Vector<Bool> zeroChanMask;
+    os <<LogIO::DEBUG1 <<"Before skipChan.."<<LogIO::POST;
     skipChannels(fracChange,unmodifiedprevmask, mask, ThresholdType, isthresholdreached, chanFlag, zeroChanMask);
+    os <<LogIO::DEBUG1 <<" after skipChan.."<<LogIO::POST;
 
     if (verbose) 
       printAutomaskSummary(resRmss, maxs, mins, mdns,  maskThreshold, ThresholdType, chanFlag, zeroChanMask, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
-    
+    os <<LogIO::DEBUG1 <<"At the end of automask."<<LogIO::POST;
   }//end of autoMaskByMultiThreshold
 
   Bool SDMaskHandler::isEmptyMask(ImageInterface<Float>& mask) 
@@ -3056,20 +3057,26 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   void SDMaskHandler::skipChannels(const Float& fracChange, 
                                   ImageInterface<Float>& prevmask, 
                                   ImageInterface<Float>& curmask, 
-                                  const Vector<String>& thresholdtype,
+                                  //const Vector<String>& thresholdtype,
+                                  const Matrix<String>& thresholdtype,
                                   const Bool isthresholdreached,
                                   Vector<Bool>& chanFlag,
                                   Vector<Bool>& zeroChanMask)
   {
     LogIO os( LogOrigin("SDMaskHandler","skipChannels",WHERE) );
+    // debug
+    os<<LogIO::DEBUG1<<"Inside skipChannels...."<<LogIO::POST;
     IPosition shp = curmask.shape();
     Int naxis = shp.size();
     CoordinateSystem csys = curmask.coordinates();
     Int specaxis = CoordinateUtil::findSpectralAxis(csys); 
     Int nchan = shp(specaxis);
+    // Assumption here is skipChannels applied to stokes I only to keep track which channels 
+    // to skip for new automasking
     IPosition blc(naxis,0);
     IPosition trc=shp-1;
     zeroChanMask.resize(nchan);
+    os<<LogIO::DEBUG1<<"Inside skipChannels....after zeroChanMask init"<<LogIO::POST;
     for (Int ichan=0; ichan<nchan; ichan++) {
       blc(specaxis)=ichan;
       trc(specaxis)=ichan;
@@ -3086,7 +3093,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
 
       //if (thresholdtype(ichan).contains("noise") && isthresholdreached && !chanFlag(ichan)) {
-      if (thresholdtype(ichan).contains("noise") && !chanFlag(ichan)) {
+      if (thresholdtype(0, ichan).contains("noise") && !chanFlag(ichan)) {
         Array<Float> prevmaskdata;
         prevmask.doGetSlice(prevmaskdata,sl);
         Float prevmaskpix = sum(prevmaskdata);
@@ -3815,26 +3822,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    os <<LogIO::NORMAL<<chanlabel<<" No regions are found in this plane."<< LogIO::POST;
 	  }
 	}
-        os<<LogIO::WARN<<"ich="<<ich<<LogIO::POST;
-        os<<LogIO::WARN<<"nreg.nelement="<<nreg.nelements()<<LogIO::POST;
-        os<<LogIO::WARN<<"npruned.nelement="<<npruned.nelements()<<LogIO::POST;
         nreg[ich] = nBlob;
         npruned[ich] = removeBySize;
-        os<<LogIO::WARN<<"Pass nreg aNd npruned filling"<<LogIO::POST;
 	// Debug
 	if (debug) {
 	  PagedImage<Float> tempBlobMap(blobMap->shape(), blobMap->coordinates(), "tmp-Blob.map");
 	  tempBlobMap.copyData(*blobMap);
 	}
-        os<<LogIO::WARN<<"Pass 2"<<LogIO::POST;
 	Array<Float> subimData;
 	tempIm->getSlice(subimData,IPosition(2,0), tempIm->shape(), IPosition(2,1,1));
 	fullIm->putSlice(subimData,start,IPosition(4,1,1,1,1));
-        os<<LogIO::WARN<<"Pass 3"<<LogIO::POST;
 	delete tempIm; tempIm=0;
 	delete subIm; subIm=0;
 	delete blobMap; blobMap=0;
-        os<<LogIO::WARN<<"Pass 4"<<LogIO::POST;
       } // if-skipmask
       else {
         nreg[ich] = 0;
@@ -3848,7 +3848,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
            
       }
     } 
-        os<<LogIO::WARN<<"Pass laSt"<<LogIO::POST;
     return std::shared_ptr<ImageInterface<Float> >(fullIm);
   }
 
@@ -4327,15 +4326,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                             const Array<Double>& maxs, 
                                             const Array<Double>& mins, 
                                             const Array<Double>& mdns, 
-                                            const Vector<Float>& maskthreshold, 
-                                            const Vector<String>& thresholdtype, 
-                                            const Vector<Bool>& chanflag, 
-                                            const Vector<Bool>& /* zeroChanMask */,
-                                            const Vector<uInt>& nreg, 
-                                            const Vector<uInt>& npruned,
-                                            const Vector<uInt>& ngrowreg,
-                                            const Vector<uInt>& ngrowpruned,
-                                            const Vector<Float>& negmaskpixs, 
+                                            //const Vector<Float>& maskthreshold, 
+                                            const Matrix<Float>& maskthreshold, 
+                                            //const Vector<String>& thresholdtype, 
+                                            const Matrix<String>& thresholdtype, 
+                                            //const Vector<Bool>& chanflag, 
+                                            const Matrix<Bool>& chanflag, 
+                                            //const Vector<Bool>& /* zeroChanMask */,
+                                            const Matrix<Bool>& /* zeroChanMask */,
+                                            //const Vector<uInt>& nreg, 
+                                            const Matrix<uInt>& nreg, 
+                                            //const Vector<uInt>& npruned,
+                                            const Matrix<uInt>& npruned,
+                                            //const Vector<uInt>& ngrowreg,
+                                            const Matrix<uInt>& ngrowreg,
+                                            //const Vector<uInt>& ngrowpruned,
+                                            const Matrix<uInt>& ngrowpruned,
+                                            //const Vector<Float>& negmaskpixs, 
+                                            const Matrix<Float>& negmaskpixs, 
                                             const Record& miscSummaryInfo) 
 
   {
@@ -4354,68 +4362,166 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                         <<"peak   thresh_type   thresh_value   "
                         <<"N_reg N_pruned N_grow N_grow_pruned N_neg_pix"<<LogIO::POST;
 
+    //use maskthreshold shape to find npol and nchan. Maskthreshold(npol, nchan)
+    Int npol = maskthreshold.nrow();
+    Int nchan = maskthreshold.ncolumn(); 
+    os << LogIO::DEBUG1 << "npol="<<npol<< " nchan="<<nchan<<LogIO::POST;
+    
     IPosition statshp = rmss.shape();
+    // Note: stats record collapse the axis with 1
+    os<<LogIO::DEBUG1 <<"rmss shape="<< String::toString(statshp) <<LogIO::POST;
+    // For the historical reason it is called chanidx but it is an index for a single plane stats
     IPosition chanidx = statshp;
     uInt ndim = rmss.ndim();
 
-    Int nchan = maskthreshold.nelements(); 
+    //Int nchan = maskthreshold.nelements(); 
     for (uInt ich = 0; ich < (uInt) nchan; ich++) {
-      if (ndim==1) {
-       chanidx(0) = ich;
-      }
-      else {
-       chanidx(1) = ich;
-      }
-      Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
-      String domasking = chanflag[ich]==0? "T":"F";
-      //String domasking = zeroChanMask[ich]==1? "F":"T";
-      String mdnsStr, rmssStr, maskthresholdStr;
-      String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
-      String NAstr("--");
+        if (npol == 1 ) {
+          chanidx(0) = ich;
+        }
+        else if(npol > 1 and nchan > 1) {
+          // to include stats in all stokes in a single line
+          chanidx(1) = ich;
+        }
+        Vector<Double> peaks(npol);
+        for (uInt ipol = 0; ipol < (uInt) npol; ipol++) {
+        //Double peak = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
+          if (npol!=1) {
+            chanidx(0) = ipol;
+          }
+          peaks(ipol) = abs(maxs(chanidx))> abs( mins(chanidx))? maxs(chanidx): mins(chanidx);
+          //os << LogIO::DEBUG1 << "chanidx="<<chanidx<< " peaks("<<ipol<<")="<<peaks(ipol)<<LogIO::POST;
+          
+        }
+        String peakStr = npol==1? String::toString(peaks(0)):String::toString(peaks);
+        // only tested for single pol (normally stokes I)
+        String domasking = chanflag(0,ich)==0? "T":"F";
+        //String domasking = zeroChanMask[ich]==1? "F":"T";
+        String mdnsStr, rmssStr, maskthresholdStr;
+        String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
+        String NAstr("--");
       
-      //if masking is skipped median, rms, thresholdvalue are
-      //set to ---
-      if (domasking=="F") {
-        mdnsStr=NAstr;
-        rmssStr=NAstr;
-        maskthresholdStr=NAstr;
-      }
-      else {
-        mdnsStr=String::toString(mdns(chanidx));
-        rmssStr=String::toString(rmss(chanidx));
-        maskthresholdStr=String::toString(maskthreshold[ich]);
-      }
+        //if masking is skipped median, rms, thresholdvalue are
+        //set to ---
+        if (domasking=="F") {
+          mdnsStr=NAstr;
+          rmssStr=NAstr;
+          maskthresholdStr=NAstr;
+        }
+        else {
+          //mdnsStr=String::toString(mdns(chanidx));
+          //rmssStr=String::toString(rmss(chanidx));
+          //maskthresholdStr=String::toString(maskthreshold[ich]);
+          //reset pol axis of chanidx
+          IPosition trc = chanidx;
+          if (npol > 1) {
+            chanidx(0)=0;
+            trc(0)=npol-1;
+          }
+
+          os<<LogIO::DEBUG1<<" mdns.shape="<<mdns.shape()<<"chanidx="<<chanidx<<" trc="<<trc<<LogIO::POST;
+          if (chanidx.nelements()==1) {
+            if (nchan==1) {
+              mdnsStr=String::toString(mdns);
+              rmssStr=String::toString(rmss);
+            }
+            else {
+              mdnsStr=String::toString(mdns(chanidx));
+              rmssStr=String::toString(rmss(chanidx));
+            } 
+          }
+          else {
+            Matrix<Double> mdnsChan=mdns(chanidx, trc);
+            Matrix<Double> rmssChan=rmss(chanidx, trc);
+            //mdnsStr=String::toString(mdns(chanidx,trc));
+            //rmssStr=String::toString(rmss(chanidx,trc));
+            mdnsStr=String::toString(mdnsChan.column(0));
+            rmssStr=String::toString(rmssChan.column(0));
+          }
+          Vector<Float> maskthreshvec = maskthreshold.column(ich); 
+          if (maskthreshvec.nelements()==1) {
+            maskthresholdStr=String::toString(maskthreshvec(0));
+          }
+          else {
+            maskthresholdStr=String::toString(maskthreshvec);
+          }
+        }
 
       if (!nreg.nelements()) {
         Nreg = NAstr;
       }
       else {
-        Nreg = String::toString(nreg[ich]);  
+        //Nreg = String::toString(nreg[ich]);  
+        Vector<uInt> nregvec = nreg.column(ich);  
+        if (nregvec.nelements()==1) {
+          Nreg = String::toString(nregvec(0));  
+        }
+        else {
+          Nreg = String::toString(nregvec);  
+        }
       }
       if (!npruned.nelements()) {
         Npruned = NAstr;
       }
       else {
-        Npruned = String::toString(npruned[ich]);
+        //Npruned = String::toString(npruned[ich]);
+        Vector<uInt> nprunedvec = npruned.column(ich);  
+        if (nprunedvec.nelements()==1) {
+          Npruned = String::toString(nprunedvec(0));
+        }
+        else {
+          Npruned = String::toString(nprunedvec);
+        }
       }
       if (!ngrowreg.nelements()) {
         Ngrowreg = NAstr;
       }
       else {
-        Ngrowreg = String::toString(ngrowreg[ich]);
+        //Ngrowreg = String::toString(ngrowreg[ich]);
+        Vector<uInt> ngrowregvec = ngrowreg.column(ich);
+        if (ngrowregvec.nelements()==1) {
+          Ngrowreg = String::toString(ngrowregvec(0));
+        }
+        else {
+          Ngrowreg = String::toString(ngrowreg.column(ich));
+        }
       }
       if (!ngrowpruned.nelements()) {
         NgrowPruned = NAstr;
       }
       else {
-        NgrowPruned = String::toString(ngrowpruned[ich]);
+        //NgrowPruned = String::toString(ngrowpruned[ich]);
+        Vector<uInt> ngrowprunedvec=ngrowpruned.column(ich);
+        if (ngrowprunedvec.nelements()==1) {
+          NgrowPruned = String::toString(ngrowprunedvec(0));
+        }
+        else {
+          NgrowPruned = String::toString(ngrowprunedvec);
+        }
       }
       if (!negmaskpixs.nelements()) {
         Nnegpix = NAstr;
       }
       else {
-        Nnegpix = String::toString(negmaskpixs[ich]);
+        //Nnegpix = String::toString(negmaskpixs[ich]);
+        Vector<Float> negmaskpixsvec=negmaskpixs.column(ich);
+        if (negmaskpixsvec.nelements()==1) {
+          Nnegpix = String::toString(negmaskpixsvec(0));
+        }
+        else {
+          Nnegpix = String::toString(negmaskpixsvec);
+        }
       }
+      Vector<String> threshtypevec=thresholdtype.column(ich);
+      String threshtypeStr;
+      if (threshtypevec.nelements()==1) {
+        threshtypeStr=threshtypevec(0); 
+      }
+      else {
+        threshtypeStr=String::toString(threshtypevec); 
+      }
+ 
+      os << LogIO::DEBUG1<<" now printing..."<<LogIO::POST;
       
       os << LogIO::NORMAL << "[C" << ich << "] " 
                           << domasking << "        " 
@@ -4423,8 +4529,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                           //<< rmss(chanidx) << "  " 
                           << mdnsStr << "  "
                           << rmssStr << "  " 
-                          << peak << "  " 
-                          << thresholdtype[ich] << "  " 
+                          << peakStr << "  " 
+                          << threshtypeStr << "  " 
                           //<< maskthreshold[ich] << "        "
                           << maskthresholdStr << "        "
                           << Nreg << "  " 
