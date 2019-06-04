@@ -3267,6 +3267,7 @@ TEST_F(TestDirection, getDirection1 )
     //+
     //  setMovingSourceDirection() 
     //-
+
         String src = "MOON";
         Description("calling setMovingSource()", src);
 
@@ -3306,6 +3307,48 @@ TEST_F(TestDirection, getDirection1 )
                     row, Val_1, Val_2, strMovDir.c_str() );
          }
     }
+
+    //+
+    //  getMovingSourceDirection() without setMovingSource()
+    //  Inspect the Exeption
+    //-
+    if(true)
+    {
+        Description("calling unsetMovingSource()", "");
+        EXPECT_NO_THROW( calc.unsetMovingSource() );
+
+        Description("calling getMovingSource()", "- with No setMovingSource() ");
+        casacore::MDirection  MovDir;
+        EXPECT_ANY_THROW( MovDir = calc.getMovingSourceDirection() );
+
+    }
+
+    //+
+    //  getMovingSourceDirection() with Unsupported  setMovingSource()
+    //  Inspect the Exeption
+    //-
+    if(true)
+    {
+        Description("calling unsetMovingSource()", "");
+        EXPECT_NO_THROW( calc.unsetMovingSource() );
+
+        // UnSupported src : J2000 is used. No Error must happen // 
+        String src_hoge = "hoge";
+        Description("calling setMovingSource( HOGE )", "");
+        EXPECT_NO_THROW( calc.setMovingSource( src_hoge) );
+        
+        Description("calling getMovingSource()", "- with No regular setMovingSource() ");
+        casacore::MDirection  MovDir;
+        EXPECT_NO_THROW( MovDir = calc.getMovingSourceDirection() );
+       
+        String strMovDir = MovDir.toString();
+
+        // Mov Src must be J2000 (PENDED) 
+        // - must check "J2000" is included in the string 
+
+        printf ("converted string :: %s \n" ,strMovDir.c_str()  );
+    }
+
 }
 
 
@@ -4299,6 +4342,7 @@ TEST_F(TestSetFrame, setFrame )
 - 15-APR-19  Changed InterpolationListed. 
 - 14-MAY-19  Changed pseudo data generation. Generating based on 
              Poining-Column and also with AntennaID.
+- 31-MAY-19  Git Push. "Ready to Validate". Further blush up continue
  **********************************************************************/
 
 int main (int nArgs, char * args [])
