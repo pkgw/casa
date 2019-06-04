@@ -28,9 +28,8 @@
 #define TRIALDISPLAY_SLICEPANELDISPLAY_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <casa/Containers/RecordInterface.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/DisplayEvents/DTVisible.h>
 #include <display/Display/DisplayEnums.h>
 #include <display/DisplayEvents/WCPositionEH.h>
@@ -140,8 +139,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void precompute();
 
 	private:
-		casacore::SimpleOrderedMap<casacore::String, PanelDisplay* > itsPanelDisplays;
-		casacore::SimpleOrderedMap<casacore::String, SliceEH* > itsSliceEHs;
+		std::map<casacore::String, PanelDisplay* > itsPanelDisplays;
+		std::map<casacore::String, SliceEH* > itsSliceEHs;
 		PanelDisplay* itsActivePD;
 		void installEHs();
 		void removeEHs();

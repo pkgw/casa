@@ -37,7 +37,7 @@
 #include <display/DisplayEvents/WCMotionEvent.h>
 #include <display/DisplayEvents/WCMotionEH.h>
 #include <display/DisplayDatas/DisplayData.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 namespace casacore{
 
@@ -206,8 +206,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		casacore::Record miscInfoDummy;
 
-		casacore::List<void *> itsGalaxyList;
-		casacore::ListIter<void *> *itsGalaxyListIter;
+		std::list<void *> itsGalaxyList;
 
 	};
 

@@ -59,13 +59,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsNumSteps = 10;
 		itsXSize = 400;
 		itsYSize = 400;
-		itsGalaxyListIter = new ListIter<void *> (&itsGalaxyList);
 		setupStars();
 	}
 
 	NBody::~NBody() {
 		cleanupStars();
-		delete itsGalaxyListIter;
 	}
 
 	Vector<String> NBody::worldAxisNames() const {
@@ -152,24 +150,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 		}
 		case Display::K_p : {
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy *) vp;
 				galaxy->setPlotMode(Galaxy::POSITION);
-				(*itsGalaxyListIter)++;
 			}
 			drawImage(*wCanvas);
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
 			break;
 		}
 		case Display::K_v : {
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->setPlotMode(Galaxy::VELOCITY);
-				(*itsGalaxyListIter)++;
 			}
 			drawImage(*wCanvas);
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
@@ -179,12 +171,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			Matrix<Double> rotMatrix(3,3);
 			rotMatrix = Rot3D(1, C::pi/10.0);
 
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->rotate(rotMatrix);
-				(*itsGalaxyListIter)++;
 			}
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
 			break;
@@ -193,12 +182,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			Matrix<Double> rotMatrix(3,3);
 			rotMatrix = Rot3D(1, -C::pi/10.0);
 
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->rotate(rotMatrix);
-				(*itsGalaxyListIter)++;
 			}
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
 			break;
@@ -207,12 +193,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			Matrix<Double> rotMatrix(3,3);
 			rotMatrix = Rot3D(0, C::pi/10.0);
 
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->rotate(rotMatrix);
-				(*itsGalaxyListIter)++;
 			}
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
 			break;
@@ -221,12 +204,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			Matrix<Double> rotMatrix(3,3);
 			rotMatrix = Rot3D(0, -C::pi/10.0);
 
-			Galaxy *galaxy;
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->rotate(rotMatrix);
-				(*itsGalaxyListIter)++;
 			}
 			drawMovie(*wCanvas, 1, 0.0, 1.0);
 			break;
@@ -402,30 +382,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		pCanvas->setDrawFunction(Display::DFXor);
 		pCanvas->setColor("yellow");
 
-		Galaxy *galaxy;
 		for (Int i = 0; i < numSteps; i++) {
 			// compute new position and velocity for all Galaxies
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->computeStep(itsGalaxyList, timeStep, dampingFactor);
-				(*itsGalaxyListIter)++;
 			}
 			// apply new positions and velocity
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->update();
-				(*itsGalaxyListIter)++;
 			}
 			// compute new positions and velocities for stars
-			itsGalaxyListIter->toStart();
-			while ( !itsGalaxyListIter->atEnd() ) {
-				galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+			for ( void *vp : itsGalaxyList ) {
+				Galaxy *galaxy = (Galaxy*) vp;
 				galaxy->applyForceToStars(itsGalaxyList, timeStep, dampingFactor);
 				galaxy->draw(pCanvas);
-
-				(*itsGalaxyListIter)++;
 			}
 		}
 		pCanvas->setDrawFunction(Display::DFCopy);
@@ -441,25 +413,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		galVel(0) = 0.5;
 		galVel(1) = -1.0;
 
-		Galaxy *galaxy;
-		galaxy = new Galaxy(galPos, galVel, 1.0, 8.0, 5, 5, C::pi/3.0, C::pi/2.0,
-		                    itsXSize, itsYSize);
-		itsGalaxyListIter->addRight((void *) galaxy);
+		itsGalaxyList.push_front( new Galaxy(galPos, galVel, 1.0, 8.0, 5, 5, C::pi/3.0, C::pi/2.0, itsXSize, itsYSize) );
 
 		galPos = Double(-1.0)*(Array<Double>)galPos;
 		galVel = Double(-1.0)*(Array<Double>)galVel;
-		galaxy = new Galaxy(galPos, galVel, 1.0, 8.0, 5, 5, C::pi/3.0,
-		                    C::pi/2.0, itsXSize, itsYSize);
-		itsGalaxyListIter->addRight((void *) galaxy);
+		itsGalaxyList.push_front( new Galaxy(galPos, galVel, 1.0, 8.0, 5, 5, C::pi/3.0, C::pi/2.0, itsXSize, itsYSize) );
 	}
 
 	void NBody::cleanupStars() {
-		Galaxy *galaxy;
-
-		itsGalaxyListIter->toStart();
-		while ( !itsGalaxyListIter->atEnd() ) {
-			galaxy = (Galaxy *) itsGalaxyListIter->getRight();
-			itsGalaxyListIter->removeRight();
+		while ( itsGalaxyList.size( ) > 0 ) {
+			Galaxy *galaxy = (Galaxy*) itsGalaxyList.front( );
+			itsGalaxyList.pop_front( );
 			delete galaxy;
 		}
 	}
@@ -482,15 +446,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void NBody::setScale() {
-		Galaxy *galaxy;
-
-		itsGalaxyListIter->toStart();
-		while ( !itsGalaxyListIter->atEnd() ) {
-			galaxy = (Galaxy *) itsGalaxyListIter->getRight();
+		for ( void *vp : itsGalaxyList ) {
+			Galaxy *galaxy = (Galaxy*) vp;
 			galaxy->setScale(itsXSize, itsYSize);
-			(*itsGalaxyListIter)++;
 		}
 	}
 
 } //# NAMESPACE CASA - END
-

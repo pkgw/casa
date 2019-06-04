@@ -49,4 +49,4 @@ casacore::Array<casacore::QuantumHolder>
 quant(const casacore::Array<casacore::QuantumHolder> a);
 
 // Data
-casacore::LogIO *itsLog;
+std::unique_ptr<casacore::LogIO> itsLog;

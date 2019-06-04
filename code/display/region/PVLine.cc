@@ -61,6 +61,8 @@ namespace casa {
 			                                            new QtPVLineState(QString("p/v line")) ),
 			pt1_x(x1), pt1_y(y1), pt2_x(x2), pt2_y(y2), display_width(0),
 			sub_dpg(0), draw_cursor_point(false) {
+			handle_delta_x = 0;
+			handle_delta_y = 0;
 			// center_x = linear_average(pt1_x,pt2_x);
 			// center_y = linear_average(pt1_y,pt2_y);
 			initHistogram();
@@ -74,6 +76,8 @@ namespace casa {
 			                                         new QtPVLineState(QString("p/v line")) ),
 			pt1_x(x1), pt1_y(y1),
 			pt2_x(x2), pt2_y(y2), display_width(0), sub_dpg(0), draw_cursor_point(false) {
+			handle_delta_x = 0;
+			handle_delta_y = 0;
 			mystate->setRegion(this);
 			// center_x = linear_average(pt1_x,pt2_x);
 			// center_y = linear_average(pt1_y,pt2_y);
@@ -88,6 +92,8 @@ namespace casa {
 		                QtMouseToolNames::PointRegionSymbols sym ) :
 			Region( name, wc, d, hold_signals, new QtPVLineState(QString("p/v line"), sym ) ), pt1_x(x1),
 			pt1_y(y1), pt2_x(x2), pt2_y(y2), display_width(0), sub_dpg(0), draw_cursor_point(false) {
+			handle_delta_x = 0;
+			handle_delta_y = 0;
 			complete = true;
 			refresh_state_gui( );	/*** update position info ***/
 		}
@@ -113,13 +119,13 @@ namespace casa {
 			strip_white_space(size_t s) : size(s+1), off(0), buf(new char[size]) { }
 			strip_white_space( const strip_white_space &other ) : size(other.size), off(other.off),
 				buf(new char[size]) {
-				strcpy(buf,other.buf);
+				strncpy(buf,other.buf,off);
 			}
 			~strip_white_space( ) {
 				delete [] buf;
 			}
 			void operator( )( char c ) {
-				if ( ! isspace(c) ) buf[off++] = c;
+				if ( c && ! isspace(c) ) buf[off++] = c;
 			};
 			operator std::string( ) {
 				buf[off] = '\0';

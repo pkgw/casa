@@ -29,7 +29,7 @@
 #define TRIALDISPLAY_CACHINGDISPLAYDATA_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/DisplayDatas/DisplayData.h>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -204,10 +204,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// casacore::List containing the CachingDisplayMethods for this
 		// CachingDisplayData.
-		casacore::List<void *> itsElementList;
-
-		// Iterator for itsElementList.
-		casacore::ListIter<void *> *itsElementListIter;
+		std::list<void *> itsElementList;
 
 		// Clear out cache entries beyond end of list.
 		void trimCache();
