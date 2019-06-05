@@ -1941,7 +1941,7 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
          String ant_sel = selectList[sw];
 
-         Description("Testing RowId functions." , "case="+std::to_string(sw) );
+         Description("Testing RowId functions." , "AntennaChoise="+std::to_string(sw) );
 
         // getRowIdForOriginalMS //
 
@@ -1970,15 +1970,18 @@ TEST_F(TestMeasurementSet, RowId_inMS )
           printf( "Num Row (Sel) = %d \n" , nrow );
           printf( "    key=[%s]\n", ant_sel.c_str() ); 
 
+          printf( " checking:\n");
           for (uInt k=0; k < nrow; k++)
           {
               uInt RowId = calc.getRowId(k);
-              printf( "RowID ,%d, checked \n", RowId ); 
-              
+
+              printf( "%d,", RowId ); 
+              if ( ( k % 30 )==29 )   printf( "\n" );
+
               // Check List //
              rowIdCheckList[RowId] ++;
           }
-
+           printf( "\n" );
     } // end for 
     
     //*
@@ -2420,20 +2423,21 @@ std::vector<ParamList>  paramListS[] =
 
     },
     // Senario 1 (Test Count Dependency) //
+#define ErrS1 7.0E-06
     {
-      {true,  0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {false, 0,1500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true,  0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {false, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
 
-      {true, 0,1510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1530, 0.05,  0.01, TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1540, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1550, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
 
-      {true, 0,1560, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, 0,1060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, 0,1090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
  
     },
 
@@ -2610,10 +2614,10 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     // set Examination Condition  //
 
       selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
-      setCondition( 5040,       // number of row
-                    0.048,      // Pointing Interval
+      setCondition( 1008,       // number of row
+                    0.05,      // Pointing Interval
                     0.001,      // Main Interval
-                    5.0E-03 );  // Error limit 
+                    5.0E-09 );  // Error limit 
 
     // Prepate Antenna (for Multple-set) //
       prepareAntenna();
