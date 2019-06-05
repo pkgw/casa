@@ -160,7 +160,8 @@ class ROVisibilityIterator;
      
     private:
      void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
-     casacore::SimpleOrderedMap <casacore::String, casacore::Int> multiFieldMap_p;
+
+     std::map<casacore::String, casacore::Int> multiFieldMap_p;
      casacore::Block<casacore::CountedPtr<casacore::TempLattice<casacore::Float> > > gwt_p;
      mutable casacore::Matrix<casacore::Float>  a_gwt_p;
      casacore::String wgtType_p;

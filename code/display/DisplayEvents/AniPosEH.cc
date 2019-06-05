@@ -139,11 +139,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<void *> it(&holderList);
-
-		// add to List
-		it.addRight((void *) wcHolder);
+		holderList.push_front(wcHolder);
 
 		animator.addWorldCanvasHolder(wcHolder);
 		//wcHolder->registerAniPosEH(this);
@@ -156,80 +152,46 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // remove a WorldCanvasHolder from the buffer
 	void AniPosEH::removeWorldCanvasHolder(WorldCanvasHolder& wcHolder) {
-		// create iterator
-		ListIter<void *> it(&holderList);
+        std::list<void*> orig = holderList;
+        std::list<void*> removed;
+        holderList.clear( );
+        std::partition_copy( orig.begin( ), orig.end( ),
+                             std::back_inserter(removed),
+                             std::back_inserter(holderList),
+                             [&](void *vp){return vp == &wcHolder;} );
 
-		// while something in the list
-		while(!it.atEnd()) {
-			// check if this is the one
-			if (it.getRight() == (void *) &wcHolder) {
-				// if so, delete
-				it.removeRight();
-				wcHolder.worldCanvas()->removePositionEventHandler(*this);
-				//wcHolder.unregisterAniPosEH(*this);
-				animator.removeWorldCanvasHolder(wcHolder);
-				// addWorldCanvasHolder does not prevent to store the same WorldCanvas
-				// twice, so we should continue iterating, so we cannot do here: break;
-			} else {
-				it++;
-			}
-		}
+        if ( removed.size( ) > 0 ) {
+            wcHolder.worldCanvas( )->removePositionEventHandler(*this);
+            //wcHolder.unregisterAniPosEH(*this);
+            animator.removeWorldCanvasHolder(wcHolder);
+            // addWorldCanvasHolder does not prevent to store the same WorldCanvas
+            // twice, so we should continue iterating, so we cannot do here: break;
+        }
 
 		animator.reset();
-
 	}
 
 	void AniPosEH::setRestriction(Attribute& att) {
-		// create iterator
-		ListIter<void *> it(&holderList);
-
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wcHolder;
-
-		// while something in the list
-		while(!it.atEnd()) {
-			// get pointer
-			wcHolder = (WorldCanvasHolder *) it.getRight();
+		for ( void *vp : holderList ) {
+			WorldCanvasHolder *wcHolder = (WorldCanvasHolder *) vp;
 			// set restriction
 			wcHolder->setRestriction(att);
-			// go to next WorldCanvasHolder
-			it++;
 		}
 	}
 
 	void AniPosEH::cleanup() {
-		// create iterator
-		ListIter<void *> it(&holderList);
-
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wcHolder;
-
-		// while something in the list
-		while(!it.atEnd()) {
-			// get pointer
-			wcHolder = (WorldCanvasHolder *) it.getRight();
+        for ( void *vp : holderList ) {
+            WorldCanvasHolder *wcHolder = (WorldCanvasHolder*) vp;
 			// cleanup
 			wcHolder->cleanup();
-			// go to next WorldCanvasHolder
-			it++;
 		}
 	}
 
 	void AniPosEH::refresh() {
-		// create iterator
-		ListIter<void *> it(&holderList);
-
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wcHolder;
-
-		// while something in the list
-		while(!it.atEnd()) {
-			// get pointer
-			wcHolder = (WorldCanvasHolder *) it.getRight();
+        for ( void *vp : holderList ) {
+            WorldCanvasHolder *wcHolder = (WorldCanvasHolder*) vp;
 			// cleanup
 			wcHolder->refresh();
-			// go to next WorldCanvasHolder
-			it++;
 		}
 	}
 

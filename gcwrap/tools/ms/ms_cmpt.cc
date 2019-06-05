@@ -4349,13 +4349,11 @@ Vector<Int> ms::getCorrTypes(ROMSColumns& msc) {
         corrTypes = allCorrTypes;
     } else { // user selected existing poln, get corr_types 
         // The keys are DDIDs, vals are indices in POLN table corrTypes
-        OrderedMap<Int, Vector<Int> > polmap(itsMSS->getPolMap());
-        // set up map iterator and get value  for ddid
-        ConstMapIter<Int, Vector<Int> > mapiter(polmap);
+        std::map<Int, Vector<Int> > polmap(itsMSS->getPolMap());
         Vector<Int> corrTypeIdx;
-        for (mapiter.toStart(); !mapiter.atEnd(); mapiter++) {
-            if (mapiter.getKey() == polId) {
-                corrTypeIdx = mapiter.getVal();
+        for ( auto mapiter = polmap.begin( ); mapiter != polmap.end( ); ++mapiter ) {
+            if (mapiter->first == polId) {
+                corrTypeIdx = mapiter->second;
                 break;
             }
         }

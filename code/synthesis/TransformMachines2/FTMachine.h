@@ -52,7 +52,7 @@
 #include <images/Images/ImageInterface.h>
 #include <images/Images/SubImage.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
-
+#include <synthesis/Utilities/FFT2D.h>
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
@@ -541,7 +541,7 @@ protected:
   ///moving source spectral frame stuff
   casacore::MRadialVelocity::Convert obsvelconv_p;
   casacore::MeasTable::Types mtype_p;
-
+  FFT2D ft_p;
 
  private:
   //Some temporary wasteful function for swapping axes because we don't 
