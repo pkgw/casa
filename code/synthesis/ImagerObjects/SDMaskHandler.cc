@@ -2419,9 +2419,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       //}
       
         // include location (=median)  for both fastnoise=true and false
-        os<<"CHINDX="<<chindx<<LogIO::POST;
         Double absmax = max(abs(maxs(chindx)), abs(mins(chindx)));
-        os<<"absmax="<<absmax<<LogIO::POST;
         // start with no offset 
         sidelobeThreshold = sidelobeLevel * sidelobeThresholdFactor * (Float)absmax; 
         noiseThreshold = noiseThresholdFactor * (Float)resRmss(chindx);
@@ -2468,8 +2466,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Matrix<uInt> ngrowreg(poldim, chandim, 0);
     Matrix<uInt> ngrowpruned(poldim, chandim, 0);
     Matrix<Float> negmaskpixs(poldim, chandim ,0);
-
     Matrix<Bool> allPruned(poldim, chandim, False);
+    // for timing info storage
+    Vector<Double> timeInitThresh(3,0.0);
+    Vector<Double> timePrune(3,0.0);
+    Vector<Double> timeSmooth(3,0.0);
+    Vector<Double> timeGrow(3,0.0);
+    Vector<Double> timePruneGrow(3,0.0);
+    Vector<Double> timeSmoothGrow(3,0.0);
+    Vector<Double> timeNegThresh(3,0.0);
+
+    Bool perplanetiming(True);
+
     for (uInt ich=0; ich < (uInt)nchan; ich++) {
       if (npol==1) {
         os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<"***"<<LogIO::POST;
@@ -2478,430 +2486,472 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         if (npol!=1) {
           os << LogIO::NORMAL<< "*** Start auto-multithresh processing for Channel "<<ich<<", Polarization "<<ipol<<"***"<<LogIO::POST;
         }
-      
-      // Below corresponds to createThresholdMask in Amanda's Python code.
-        IPosition start(planeshp.nelements(),0);
-        if (specAxis != -1) {
-	  start(specAxis)=ich;
-        }
-        if (polAxis != -1) {
-          start(polAxis)=ipol; 
-        } 
-
-        IPosition length(planeshp.nelements(), planeshp(0), planeshp(1), 1, 1);
-        Slicer sl(start, length);
-        AxesSpecifier aspec(True); // keep degenerate axes
-        SubImage<Float> planeResImage(res, sl, aspec, true);    
-        TempImage<Float> planeTempMask(planeResImage.shape(), planeResImage.coordinates(), memoryToUse());
-        SubImage<Float> subprevmask(prevmask, sl, true, aspec, true);
-        SubImage<Float> subposmask(posmask, sl, true, aspec, true);
-        //Vector<Bool> allPruned(nchan);
-        // sigle element vectors for input
-        Vector<Bool> chanFlag1elem(1);
-        chanFlag1elem(0) = chanFlag(ich);
-        Vector<Float> maskThreshold1elem(1);
-        maskThreshold1elem(0) = maskThreshold(ipol,ich);
-        Vector<Float> lowMaskThreshold1elem(1);
-        lowMaskThreshold1elem(0) = lowMaskThreshold(ipol,ich);
-        Vector<Float> negativeMaskThreshold1elem(1);
-        negativeMaskThreshold1elem(0) = negativeMaskThreshold(ipol,ich);
-
-
-        // *** Pruning *** 
-        if (minBeamFrac > 0.0 ) {
-	  // do pruning...
-	  //os<<LogIO::NORMAL<<"Pruning the current mask"<<LogIO::POST;
-	  os << LogIO::NORMAL << "Start thresholding: create an initial mask by threshold" << LogIO::POST;
-	  timer.mark();
-	  // make temp mask image consist of the original pix value and below the threshold is set to 0 
-	  //TempImage<Float> maskedRes(res.shape(), res.coordinates(), memoryToUse());
-	  // single plane
-	  TempImage<Float> maskedRes(planeshp, planeResImage.coordinates(), memoryToUse());
-	  maskedRes.set(0);
-	  //makeMaskByPerChanThreshold(res, chanFlag, maskedRes, maskThreshold, dummysizes); 
-	  makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, maskedRes, maskThreshold1elem, dummysizes); 
-	  os << LogIO::NORMAL << "End thresholding: time to create the initial threshold mask:  real "<< timer.real() 
-	       << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
-
-          //if (res.hasPixelMask()) {
-          if (planeResImage.hasPixelMask()) {
-            //os << LogIO::DEBUG1 <<" HAS MASK....ich="<<ich<<LogIO::POST;
-            ArrayLattice<Bool> pixmasklat(planeResImage.getMask()); 
-            maskedRes.copyData( (LatticeExpr<Float>)( iif(pixmasklat, maskedRes, 0.0 ) ) );
-            //for debug
-            //Array<Float> testdata;
-            //maskedRes.get(testdata);
-            //os<<" current total of pix values="<<sum(testdata)<<LogIO::POST;
-          }
-	  //TODO MOVE THIS SECTION outside the for-loop -DONE 
-	  //this section need to be move to the end of automask outside of the main chan loop
-	  //Vector<Bool> allPruned(nchan);
-	  //if (!iterdone) noMaskCheck(maskedRes, ThresholdType(ipol,ich));
-	  //if (debug2) {
-	  //  os<<LogIO::DEBUG2<<"Saving intermediate masks for this cycle: with name tmp****-"<<iterdone<<".im"<<LogIO::POST;
-	  //  String tmpfname1="tmpBeforePrune-"+String::toString(iterdone)+".im";
-	  //  PagedImage<Float> savedPreMask(res.shape(),res.coordinates(),tmpfname1);
-	  //  savedPreMask.copyData(maskedRes);
-	  //}
-
-	  os << LogIO::NORMAL << "Start pruning: the initial threshold mask" << LogIO::POST;
-	  timer.mark();
-	  //std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
-          //temporary storage for single plane results
-          Vector<uInt> nreg1elem, npruned1elem;
-          Vector<Bool> allPruned1elem(1);
-	  std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag1elem, allPruned1elem, nreg1elem, npruned1elem, pruneSize, false);
-          nreg(ipol,ich) = nreg1elem(0);
-          npruned(ipol, ich) = npruned1elem(0);
-          allPruned(ipol, ich) = allPruned1elem(0);
-	  //tempmask.copyData(*(tempIm_ptr.get()));
-	  planeTempMask.copyData(*(tempIm_ptr.get()));
-	  //TODO MOVE THIS SECTION outside the for-loop? 
-	  //Int nAllPruned=ntrue(allPruned);
-	  //if(!iterdone && isEmptyMask(tempmask) && nAllPruned) {
-	  //    os<<LogIO::WARN<<nAllPruned<<" of "<<nchan<<" channels had all regions removed by pruning."
-	  //    <<" Try decreasing minbeamfrac to remove fewer regions"<<LogIO::POST;
-	  //}
-          // now this timing for single plane... need to accumlate and report it later????
-	  os << LogIO::NORMAL << "End pruning: time to prune the initial threshold mask: real " 
-	       << timer.real()<< "s (user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
-	
-	
-	  //if (debug2) {
-	  //  String tmpfname2="tmpAfterPrune-"+String::toString(iterdone)+".im";
-	  //  PagedImage<Float> savedPrunedPreThreshMask(res.shape(),res.coordinates(),tmpfname2);
-	  //  savedPrunedPreThreshMask.copyData(*(tempIm_ptr.get()));
-	  //}
-	  //themask = LatticeExpr<Float> ( iif( *(tempIm_ptr.get()) > maskThreshold, 1.0, 0.0 ));
-	  // Need this?
-	  //makeMaskByPerChanThreshold(*(tempIm_ptr.get()), tempmask, maskThreshold, dummysizes); 
-	  //if (debug) {
-	  //  PagedImage<Float> savedPostPrunedMask(res.shape(),res.coordinates(),"tmp-postPruningPostThreshMask.im");
-	  //  savedPostPrunedMask.copyData(tempmask);
-	  //}
-        }
-        else { // ***** No pruning case ******
-	  os << LogIO::NORMAL << "Start thresholding: create an initial threshold mask" << LogIO::POST;
-	  timer.mark();
-	  //tempmask.set(0);
-	  planeTempMask.set(0);
-	  //makeMaskByPerChanThreshold(res, chanFlag, tempmask, maskThreshold, dummysizes); 
-	  makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, planeTempMask, maskThreshold1elem, dummysizes);
-	  //if (debug) {
-	  //   PagedImage<Float> savedThreshmask(res.shape(), res.coordinates(), "tmpNoPruneInitTresh.im");
-	  //   savedThreshmask.copyData(tempmask);
-	  //}
-
-	  //if (!iterdone) noMaskCheck(tempmask, ThresholdType);
-	  os << LogIO::NORMAL << "End trehsholding: time to create the initial threshold mask: real "
-	       << timer.real()<<"s (user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
-          //tempmask.copyData(themask);
-        } // DONE PRUNING STAGE 
-
-        // ***** SMOOTHING *******
-        os << LogIO::NORMAL << "Start smoothing: the initial threshold mask" << LogIO::POST;
-        timer.mark();
-        SPIIF outmask = convolveMask(planeTempMask, modbeam );
-        //if (debug) {
-        //    String tmpfname3="tmp-postSmoothMask-"+String::toString(iterdone)+".im";
-        //    PagedImage<Float> savedSmoothedMask(res.shape(),res.coordinates(),tmpfname3);
-        //    savedSmoothedMask.copyData(*(outmask.get()));
-        //}
-
-
-        //clean up (appy cutThreshold to convolved mask image)
-        String lelmask("");
-        //use standard stats
-        Record  smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
-        Array<Double> smmaskmaxs;
-        smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
-        Vector<Float> cutThresholdValue(1);
-
-        if (npol<=1) {
-          chindx(0) = 0;
+        // channel skip check
+        if (chanFlag(ich)) {
+          os << LogIO::NORMAL<<" Skip this channel "<<LogIO::POST;
         }
         else {
-          chindx(1) = 0;
-        }
-        //  cutThresholdValue(ich) = cutThreshold * smmaskmaxs(chindx);
-        cutThresholdValue(0) = cutThreshold * smmaskmaxs(chindx);
-        //os<<LogIO::DEBUG1<<" cutThreshVal("<<ich<<")="<<cutThresholdValue(ich)<<LogIO::POST;
-      
-        //TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
-        //thenewmask.set(0);
-        TempImage<Float> thenewmask(planeshp,planeResImage.coordinates(), memoryToUse());
-        thenewmask.set(0);
-        //makeMaskByPerChanThreshold(*outmask, chanFlag, thenewmask, cutThresholdValue, dummysizes); 
-        makeMaskByPerChanThreshold(*outmask, chanFlag1elem, thenewmask, cutThresholdValue, dummysizes); 
-        // Per-plane timing
-        os << LogIO::NORMAL << "End smoothing: time to create the smoothed initial threshold mask: real "<< timer.real()
-           <<"s (user " << timer.user() <<"s, system "<< timer.system() << "s)" <<  LogIO::POST;
-     
+          // Below corresponds to createThresholdMask in Amanda's Python code.
+            IPosition start(planeshp.nelements(),0);
+            if (specAxis != -1) {
+              start(specAxis)=ich;
+            }
+            if (polAxis != -1) {
+              start(polAxis)=ipol; 
+            } 
 
-      /***
-      if (!iterdone) {
-	if (!isEmptyMask(*(outmask.get())) && isEmptyMask(thenewmask)) os<<LogIO::WARN<<"Removed all regions based by cutthreshold applied to the smoothed mask."<<LogIO::POST;
-      }
-      ***/
-      //if (debug) {
-      //    String tmpnewmask="tmp-thenewmask-"+String::toString(iterdone)+".im";
-      //    PagedImage<Float> savedthenewmask(res.shape(), res.coordinates(), tmpnewmask);
-      //    savedthenewmask.copyData(thenewmask);
-      //}
+            IPosition length(planeshp.nelements(), planeshp(0), planeshp(1), 1, 1);
+            Slicer sl(start, length);
+            AxesSpecifier aspec(True); // keep degenerate axes
+            SubImage<Float> planeResImage(res, sl, aspec, true);    
+            TempImage<Float> planeTempMask(planeResImage.shape(), planeResImage.coordinates(), memoryToUse());
+            SubImage<Float> subprevmask(prevmask, sl, true, aspec, true);
+            SubImage<Float> subposmask(posmask, sl, true, aspec, true);
+            //Vector<Bool> allPruned(nchan);
+            // sigle element vectors for input
+            Vector<Bool> chanFlag1elem(1);
+            chanFlag1elem(0) = chanFlag(ich);
+            Vector<Float> maskThreshold1elem(1);
+            maskThreshold1elem(0) = maskThreshold(ipol,ich);
+            Vector<Float> lowMaskThreshold1elem(1);
+            lowMaskThreshold1elem(0) = lowMaskThreshold(ipol,ich);
+            Vector<Float> negativeMaskThreshold1elem(1);
+            negativeMaskThreshold1elem(0) = negativeMaskThreshold(ipol,ich);
 
-        // ***** GROW STAGE *****
-        //
-        // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
-        //
-        //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
-        //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
-        SubImage<Float>  subMask(mask,sl, true, aspec, true);
-        //Record  maskstats = calcImageStatistics(mask, lelmask, 0, false);
-        // per-plane stats now
-        Record  maskstats = calcImageStatistics(subMask, lelmask, 0, false);
-        Array<Double> maskmaxs;
-        maskstats.get(RecordFieldId("max"),maskmaxs);
-        IPosition arrshape = maskmaxs.shape();
-        uInt naxis=arrshape.size();
-        IPosition indx(naxis,0);
-        //os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
-        //os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
-        // ignoring corr for now and assume first axis is channel
-        Array<Bool> dogrow(arrshape);
-        dogrow.set(false);
-        for (uInt i=0; i < arrshape(0); i++) {
-          indx(0) = i;
-          if (maskmaxs(indx) == 1.0 && !chanFlag1elem(0)) {
-	    dogrow(indx) = true;
+            // *** Pruning *** 
+            if (minBeamFrac > 0.0 ) {
+              // do pruning...
+              //os<<LogIO::NORMAL<<"Pruning the current mask"<<LogIO::POST;
+              os << LogIO::NORMAL << "Start thresholding: create an initial mask by threshold" << LogIO::POST;
+              timer.mark();
+              // make temp mask image consist of the original pix value and below the threshold is set to 0 
+              //TempImage<Float> maskedRes(res.shape(), res.coordinates(), memoryToUse());
+              // single plane
+              TempImage<Float> maskedRes(planeshp, planeResImage.coordinates(), memoryToUse());
+              maskedRes.set(0);
+              //makeMaskByPerChanThreshold(res, chanFlag, maskedRes, maskThreshold, dummysizes); 
+              makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, maskedRes, maskThreshold1elem, dummysizes); 
+              timeInitThresh(0)+=timer.real(); timeInitThresh(1)+=timer.user(); timeInitThresh(2)+=timer.system();
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End thresholding: time to create the initial threshold mask:  real "<< timer.real() 
+                   << "s ( user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
+              }
+              //if (res.hasPixelMask()) {
+              if (planeResImage.hasPixelMask()) {
+                //os << LogIO::DEBUG1 <<" HAS MASK....ich="<<ich<<LogIO::POST;
+                ArrayLattice<Bool> pixmasklat(planeResImage.getMask()); 
+                maskedRes.copyData( (LatticeExpr<Float>)( iif(pixmasklat, maskedRes, 0.0 ) ) );
+                //for debug
+                //Array<Float> testdata;
+                //maskedRes.get(testdata);
+                //os<<" current total of pix values="<<sum(testdata)<<LogIO::POST;
+              }
+              //TODO MOVE THIS SECTION outside the for-loop -DONE 
+              //this section need to be move to the end of automask outside of the main chan loop
+              //Vector<Bool> allPruned(nchan);
+              //if (!iterdone) noMaskCheck(maskedRes, ThresholdType(ipol,ich));
+              //if (debug2) {
+              //  os<<LogIO::DEBUG2<<"Saving intermediate masks for this cycle: with name tmp****-"<<iterdone<<".im"<<LogIO::POST;
+              //  String tmpfname1="tmpBeforePrune-"+String::toString(iterdone)+".im";
+              //  PagedImage<Float> savedPreMask(res.shape(),res.coordinates(),tmpfname1);
+              //  savedPreMask.copyData(maskedRes);
+              //}
+
+              os << LogIO::NORMAL << "Start pruning: the initial threshold mask" << LogIO::POST;
+              timer.mark();
+              //std::shared_ptr<ImageInterface<Float> > tempIm_ptr = pruneRegions2(maskedRes, tempthresh,  -1, pruneSize);
+              //temporary storage for single plane results
+              Vector<uInt> nreg1elem, npruned1elem;
+              Vector<Bool> allPruned1elem(1);
+              std::shared_ptr<ImageInterface<Float> > tempIm_ptr = YAPruneRegions(maskedRes, chanFlag1elem, allPruned1elem, nreg1elem, npruned1elem, pruneSize, false);
+              nreg(ipol,ich) = nreg1elem(0);
+              npruned(ipol, ich) = npruned1elem(0);
+              allPruned(ipol, ich) = allPruned1elem(0);
+              //tempmask.copyData(*(tempIm_ptr.get()));
+              planeTempMask.copyData(*(tempIm_ptr.get()));
+              //TODO MOVE THIS SECTION outside the for-loop? 
+              //Int nAllPruned=ntrue(allPruned);
+              //if(!iterdone && isEmptyMask(tempmask) && nAllPruned) {
+              //    os<<LogIO::WARN<<nAllPruned<<" of "<<nchan<<" channels had all regions removed by pruning."
+              //    <<" Try decreasing minbeamfrac to remove fewer regions"<<LogIO::POST;
+              //}
+              // now this timing for single plane... need to accumlate and report it later????
+              timePrune(0)+=timer.real(); timePrune(1)+=timer.user(); timePrune(2)+=timer.system();
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End pruning: time to prune the initial threshold mask: real " 
+                   << timer.real()<< "s (user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
+              }
+            
+              //if (debug2) {
+              //  String tmpfname2="tmpAfterPrune-"+String::toString(iterdone)+".im";
+              //  PagedImage<Float> savedPrunedPreThreshMask(res.shape(),res.coordinates(),tmpfname2);
+              //  savedPrunedPreThreshMask.copyData(*(tempIm_ptr.get()));
+              //}
+              //themask = LatticeExpr<Float> ( iif( *(tempIm_ptr.get()) > maskThreshold, 1.0, 0.0 ));
+              // Need this?
+              //makeMaskByPerChanThreshold(*(tempIm_ptr.get()), tempmask, maskThreshold, dummysizes); 
+              //if (debug) {
+              //  PagedImage<Float> savedPostPrunedMask(res.shape(),res.coordinates(),"tmp-postPruningPostThreshMask.im");
+              //  savedPostPrunedMask.copyData(tempmask);
+              //}
+            }
+            else { // ***** No pruning case ******
+              os << LogIO::NORMAL << "Start thresholding: create an initial threshold mask" << LogIO::POST;
+              timer.mark();
+              //tempmask.set(0);
+              planeTempMask.set(0);
+              //makeMaskByPerChanThreshold(res, chanFlag, tempmask, maskThreshold, dummysizes); 
+              makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, planeTempMask, maskThreshold1elem, dummysizes);
+              //if (debug) {
+              //   PagedImage<Float> savedThreshmask(res.shape(), res.coordinates(), "tmpNoPruneInitTresh.im");
+              //   savedThreshmask.copyData(tempmask);
+              //}
+
+              //if (!iterdone) noMaskCheck(tempmask, ThresholdType);
+              timePrune(0)+=timer.real(); timePrune(1)+=timer.user(); timePrune(2)+=timer.system();
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End trehsholding: time to create the initial threshold mask: real "
+                   << timer.real()<<"s (user " << timer.user() <<"s, system "<< timer.system() << "s)" << LogIO::POST;
+              }
+              //tempmask.copyData(themask);
+            } // DONE PRUNING STAGE 
+
+            // ***** SMOOTHING *******
+            os << LogIO::NORMAL << "Start smoothing: the initial threshold mask" << LogIO::POST;
+            timer.mark();
+            SPIIF outmask = convolveMask(planeTempMask, modbeam );
+            //if (debug) {
+            //    String tmpfname3="tmp-postSmoothMask-"+String::toString(iterdone)+".im";
+            //    PagedImage<Float> savedSmoothedMask(res.shape(),res.coordinates(),tmpfname3);
+            //    savedSmoothedMask.copyData(*(outmask.get()));
+            //}
+
+
+            //clean up (appy cutThreshold to convolved mask image)
+            String lelmask("");
+            //use standard stats
+            Record  smmaskstats = calcImageStatistics(*outmask, lelmask, 0, false);
+            Array<Double> smmaskmaxs;
+            smmaskstats.get(RecordFieldId("max"),smmaskmaxs);
+            Vector<Float> cutThresholdValue(1);
+
+            if (npol<=1) {
+              chindx(0) = 0;
+            }
+            else {
+              chindx(1) = 0;
+            }
+            //  cutThresholdValue(ich) = cutThreshold * smmaskmaxs(chindx);
+            cutThresholdValue(0) = cutThreshold * smmaskmaxs(chindx);
+            //os<<LogIO::DEBUG1<<" cutThreshVal("<<ich<<")="<<cutThresholdValue(ich)<<LogIO::POST;
+          
+            //TempImage<Float> thenewmask(res.shape(),res.coordinates(), memoryToUse());
+            //thenewmask.set(0);
+            TempImage<Float> thenewmask(planeshp,planeResImage.coordinates(), memoryToUse());
+            thenewmask.set(0);
+            //makeMaskByPerChanThreshold(*outmask, chanFlag, thenewmask, cutThresholdValue, dummysizes); 
+            makeMaskByPerChanThreshold(*outmask, chanFlag1elem, thenewmask, cutThresholdValue, dummysizes); 
+            // Per-plane timing
+            timeSmooth(0) += timer.real(); timeSmooth(1) += timer.user(); timeSmooth(2) += timer.system(); 
+            if (perplanetiming) {
+            os << LogIO::NORMAL << "End smoothing: time to create the smoothed initial threshold mask: real "<< timer.real()
+               <<"s (user " << timer.user() <<"s, system "<< timer.system() << "s)" <<  LogIO::POST;
+            }
+
+          /***
+          if (!iterdone) {
+            if (!isEmptyMask(*(outmask.get())) && isEmptyMask(thenewmask)) os<<LogIO::WARN<<"Removed all regions based by cutthreshold applied to the smoothed mask."<<LogIO::POST;
           }
-	  //For debug
-	  //if (chanFlag(i)) {
-	  //  os<<LogIO::NORMAL<<"For dogrow: skipping channel: "<<i<<" chanFlag(i)="<<chanFlag(i)<<" dogrow("<< indx << ")=" <<dogrow(indx)<<LogIO::POST;
-	  //}
-	  // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
-	  //  dogrow(indx) = true;
-        }   
+          ***/
+          //if (debug) {
+          //    String tmpnewmask="tmp-thenewmask-"+String::toString(iterdone)+".im";
+          //    PagedImage<Float> savedthenewmask(res.shape(), res.coordinates(), tmpnewmask);
+          //    savedthenewmask.copyData(thenewmask);
+          //}
 
-        if (iterdone && growIterations>0) { // enter to acutal grow process
-          //per-plane timing
-	  os << LogIO::NORMAL << "Start grow mask: growing the previous mask " << LogIO::POST;
-	  timer.mark();
-	  //call growMask
-	  // corresponds to calcThresholdMask with lowNoiseThreshold...
-	  //TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
-          // per-plane constraint mask image
-	  TempImage<Float> constraintMaskImage(planeshp, planeResImage.coordinates(), memoryToUse()); 
-	  constraintMaskImage.set(0);
-	  // constrainMask is 1/0 mask
-	  //makeMaskByPerChanThreshold(res, chanFlag, constraintMaskImage, lowMaskThreshold, dummysizes);
-	  makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, constraintMaskImage, lowMaskThreshold1elem, dummysizes);
-	  //if(debug2) {
-	  //  os<< LogIO::NORMAL<<"saving constraint mask " << LogIO::POST;
-	  //  PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpConstraint-"+String::toString(iterdone)+".im");
-	  //  beforepruneconstIm.copyData(constraintMaskImage);
-	  //}
+            // ***** GROW STAGE *****
+            //
+            // take stats on the current mask for setting flags for grow mask : if max < 1 for any spectral plane it will grow the previous mask
+            //
+            //  Mod: 2017.07.26: modified get stats for prev mask, if channel contains no mask in prev mask it will set flag to skip the channel 
+            //Record maskstats = calcImageStatistics(thenewmask, thenewmask, lelmask, 0, false);
+            SubImage<Float>  subMask(mask,sl, true, aspec, true);
+            //Record  maskstats = calcImageStatistics(mask, lelmask, 0, false);
+            // per-plane stats now
+            Record  maskstats = calcImageStatistics(subMask, lelmask, 0, false);
+            Array<Double> maskmaxs;
+            maskstats.get(RecordFieldId("max"),maskmaxs);
+            IPosition arrshape = maskmaxs.shape();
+            uInt naxis=arrshape.size();
+            IPosition indx(naxis,0);
+            //os<<LogIO::NORMAL<<"arrshape="<<arrshape<<" indx="<<indx<<LogIO::POST;
+            //os<<LogIO::NORMAL<<"statshp="<<statshp<<LogIO::POST;
+            // ignoring corr for now and assume first axis is channel
+            Array<Bool> dogrow(arrshape);
+            dogrow.set(false);
+            for (uInt i=0; i < arrshape(0); i++) {
+              indx(0) = i;
+              if (maskmaxs(indx) == 1.0 && !chanFlag1elem(0)) {
+                dogrow(indx) = true;
+              }
+              //For debug
+              //if (chanFlag(i)) {
+              //  os<<LogIO::NORMAL<<"For dogrow: skipping channel: "<<i<<" chanFlag(i)="<<chanFlag(i)<<" dogrow("<< indx << ")=" <<dogrow(indx)<<LogIO::POST;
+              //}
+              // set dogrow true for all chans (contraintMask should be able to handle skipping channels )
+              //  dogrow(indx) = true;
+            }   
 
-	  // 2017.05.05: should done after multiply by binary dilation 
-	  //
-	  // prune the constraintImage
-	  //if (minBeamFrac > 0.0 ) {
-	  //  //Double thethresh=0.1;
-	  // os<<LogIO::NORMAL << "Pruning the constraint mask "<<LogIO::POST;
-	  // //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
-	  //  Vector<Bool> dummy(0);
-	  //  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
-	  //  constraintMaskImage.copyData( *(tempPrunedMask_ptr.get()) );
-	  //}
-	  //if(debug2) {
-	  //  PagedImage<Float> afterpruneconstIm(res.shape(), res.coordinates(),"tmpAfterPruneConstraint-"+String::toString(iterdone)+".im");
-	  //  afterpruneconstIm.copyData(constraintMaskImage);
-	  //}
+            if (iterdone && growIterations>0) { // enter to acutal grow process
+              //per-plane timing
+              os << LogIO::NORMAL << "Start grow mask: growing the previous mask " << LogIO::POST;
+              timer.mark();
+              //call growMask
+              // corresponds to calcThresholdMask with lowNoiseThreshold...
+              //TempImage<Float> constraintMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+              // per-plane constraint mask image
+              TempImage<Float> constraintMaskImage(planeshp, planeResImage.coordinates(), memoryToUse()); 
+              constraintMaskImage.set(0);
+              // constrainMask is 1/0 mask
+              //makeMaskByPerChanThreshold(res, chanFlag, constraintMaskImage, lowMaskThreshold, dummysizes);
+              makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, constraintMaskImage, lowMaskThreshold1elem, dummysizes);
+              //if(debug2) {
+              //  os<< LogIO::NORMAL<<"saving constraint mask " << LogIO::POST;
+              //  PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpConstraint-"+String::toString(iterdone)+".im");
+              //  beforepruneconstIm.copyData(constraintMaskImage);
+              //}
 
-	  // for mask in binaryDilation, translate it to T/F (if T it will grow the mask region (NOTE currently binary dilation 
-	  // does opposite T/F interpretation NEED to CHANGE)
-	  //TempImage<Bool> constraintMask(res.shape(),res.coordinates(), memoryToUse());
-	  //constraintMask.copyData( LatticeExpr<Bool> (iif(constraintMaskImage > 0, true, false)) );
-	  TempImage<Bool> constraintMask(planeshp, planeResImage.coordinates(), memoryToUse());
-	  constraintMask.copyData( LatticeExpr<Bool> (iif(constraintMaskImage > 0, true, false)) );
-	  // simple structure element for binary dilation
-	  IPosition axislen(2, 3, 3);
-	  Array<Float> se(axislen);
-	  se.set(0);
-	  se(IPosition(2,1,0))=1.0;
-	  se(IPosition(2,0,1))=1.0;
-	  se(IPosition(2,1,1))=1.0;
-	  se(IPosition(2,2,1))=1.0;
-	  se(IPosition(2,1,2))=1.0;
-	  //if(debug2) {
-	  //  PagedImage<Float> beforeBinaryDilationIm(res.shape(), res.coordinates(),"tmpBeforeBinaryDilation-"+String::toString(iterdone)+".im");
-	  //  beforeBinaryDilationIm.copyData(constraintMaskImage);
-	  //  beforeBinaryDilationIm.copyData(mask);
-	  //}
-          // CHECK THIS works for a single plane but 4 dim image 
-	  binaryDilation(subMask, se, growIterations, constraintMask, dogrow, subprevmask); 
-	  //if(debug2) {
-	  //  PagedImage<Float> afterBinaryDilationIm(res.shape(), res.coordinates(),"tmpAfterBinaryDilation-"+String::toString(iterdone)+".im");
-	  //  afterBinaryDilationIm.copyData(prevmask);
-	  //}
-	  // multiply binary dilated mask by constraintmask
-	  //prevmask.copyData( LatticeExpr<Float> (constraintMaskImage*prevmask));
-	  subprevmask.copyData( LatticeExpr<Float> (constraintMaskImage*subprevmask));
-	  //if(debug2) {
-	  //  PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneGrowMask-"+String::toString(iterdone)+".im");
-	  //  beforepruneconstIm.copyData(prevmask);
-	  //}
-	  os << LogIO::NORMAL << "End grow mask: time to grow the previous mask: real " 
-	     << timer.real() <<"s (user "<< timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
+              // 2017.05.05: should done after multiply by binary dilation 
+              //
+              // prune the constraintImage
+              //if (minBeamFrac > 0.0 ) {
+              //  //Double thethresh=0.1;
+              // os<<LogIO::NORMAL << "Pruning the constraint mask "<<LogIO::POST;
+              // //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = pruneRegions2(constraintMaskImage, thethresh,  -1, pruneSize);
+              //  Vector<Bool> dummy(0);
+              //  std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(constraintMaskImage, dummy, pruneSize);
+              //  constraintMaskImage.copyData( *(tempPrunedMask_ptr.get()) );
+              //}
+              //if(debug2) {
+              //  PagedImage<Float> afterpruneconstIm(res.shape(), res.coordinates(),"tmpAfterPruneConstraint-"+String::toString(iterdone)+".im");
+              //  afterpruneconstIm.copyData(constraintMaskImage);
+              //}
 
-          // **** pruning on grow mask ****
-	  if (minBeamFrac > 0.0 && doGrowPrune) {
-	    //os<<LogIO::NORMAL << "Pruning the growed previous mask "<<LogIO::POST;
-	    os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
-	    timer.mark();
-	    Vector<Bool> dummy(0);
-            Vector<uInt> ngrowreg1elem, ngrowpruned1elem;
-	    //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
-         
-	    std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(subprevmask, chanFlag1elem, dummy, ngrowreg1elem, ngrowpruned1elem, pruneSize, false);
-            ngrowreg(ipol,ich) = ngrowreg1elem(0);
-            ngrowpruned(ipol,ich) = ngrowpruned1elem(0);
-	    //prevmask.copyData( *(tempPrunedMask_ptr.get()) );
-	    subprevmask.copyData( *(tempPrunedMask_ptr.get()) );
-	    os << LogIO::NORMAL << "End pruning: time to prune the grow mask: real " 
-		<< timer.real() <<"s (user "<< timer.user() << "s, system "<< timer.system() << "s)" << LogIO::POST;
-	  }
-	  //if(debug2) {
-	  //  PagedImage<Float> afterpruneconstIm(res.shape(), res.coordinates(),"tmpAfterPruneGrowMask-"+String::toString(iterdone)+".im");
-	  //  afterpruneconstIm.copyData(prevmask);
-	  //}
+              // for mask in binaryDilation, translate it to T/F (if T it will grow the mask region (NOTE currently binary dilation 
+              // does opposite T/F interpretation NEED to CHANGE)
+              //TempImage<Bool> constraintMask(res.shape(),res.coordinates(), memoryToUse());
+              //constraintMask.copyData( LatticeExpr<Bool> (iif(constraintMaskImage > 0, true, false)) );
+              TempImage<Bool> constraintMask(planeshp, planeResImage.coordinates(), memoryToUse());
+              constraintMask.copyData( LatticeExpr<Bool> (iif(constraintMaskImage > 0, true, false)) );
+              // simple structure element for binary dilation
+              IPosition axislen(2, 3, 3);
+              Array<Float> se(axislen);
+              se.set(0);
+              se(IPosition(2,1,0))=1.0;
+              se(IPosition(2,0,1))=1.0;
+              se(IPosition(2,1,1))=1.0;
+              se(IPosition(2,2,1))=1.0;
+              se(IPosition(2,1,2))=1.0;
+              //if(debug2) {
+              //  PagedImage<Float> beforeBinaryDilationIm(res.shape(), res.coordinates(),"tmpBeforeBinaryDilation-"+String::toString(iterdone)+".im");
+              //  beforeBinaryDilationIm.copyData(constraintMaskImage);
+              //  beforeBinaryDilationIm.copyData(mask);
+              //}
+              // CHECK THIS works for a single plane but 4 dim image 
+              binaryDilation(subMask, se, growIterations, constraintMask, dogrow, subprevmask); 
+              //if(debug2) {
+              //  PagedImage<Float> afterBinaryDilationIm(res.shape(), res.coordinates(),"tmpAfterBinaryDilation-"+String::toString(iterdone)+".im");
+              //  afterBinaryDilationIm.copyData(prevmask);
+              //}
+              // multiply binary dilated mask by constraintmask
+              //prevmask.copyData( LatticeExpr<Float> (constraintMaskImage*prevmask));
+              subprevmask.copyData( LatticeExpr<Float> (constraintMaskImage*subprevmask));
+              //if(debug2) {
+              //  PagedImage<Float> beforepruneconstIm(res.shape(), res.coordinates(),"tmpBeforePruneGrowMask-"+String::toString(iterdone)+".im");
+              //  beforepruneconstIm.copyData(prevmask);
+              //}
+              timeGrow(0) += timer.real(); timeGrow(1) += timer.user(); timeGrow(2) += timer.system(); 
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End grow mask: time to grow the previous mask: real " 
+                 << timer.real() <<"s (user "<< timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
+              }
 
-          // ***** smoothing on grow mask *****
-	  os << LogIO::NORMAL << "Start smoothing: the grow mask " << LogIO::POST;
-	  timer.mark();
-	  ///SPIIF outprevmask = convolveMask( prevmask, modbeam);
-	  SPIIF outprevmask = convolveMask( subprevmask, modbeam);
-	  //if (debug) {
-	  //  PagedImage<Float> postSmoothGrowedMask(res.shape(), res.coordinates(),"tmpPostSmoothGrowMask-"+String::toString(iterdone)+".im");
-	  //  postSmoothGrowedMask.copyData(*outprevmask);
-	  //}
-	  //prevmask.copyData( LatticeExpr<Float> (iif( *(outprevmask.get()) > cutThreshold, 1.0, 0.0 )) );
-          // single plane
-	  Record constmaskstats = calcImageStatistics(*outprevmask, lelmask, 0, false);
-	  Array<Double> constmaskmaxs;
-	  constmaskstats.get(RecordFieldId("max"),constmaskmaxs);
-	  //Vector<Float> constCutThresholdValue(nchan);
-	  Vector<Float> constCutThresholdValue(1);
-	  if (npol <=1) {
-	    //chindx(0) = ich;
-	    chindx(0) = 0;
-          }
-	  else {
-	    //chindx(1) = ich;
-	    chindx(1) = 0;
-	  }
-	  //constCutThresholdValue(ich) = cutThreshold * constmaskmaxs(chindx);
-	  constCutThresholdValue(0) = cutThreshold * constmaskmaxs(chindx);
-	  //prevmask.set(0);
-	  subprevmask.set(0);
-	  //makeMaskByPerChanThreshold(*outprevmask, chanFlag, prevmask, constCutThresholdValue, dummysizes); 
-	  makeMaskByPerChanThreshold(*outprevmask, chanFlag1elem, subprevmask, constCutThresholdValue, dummysizes); 
-	  //if (debug) {
-	  //  PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
-	  //  smoothedGrowedMask.copyData(prevmask);
-	  //}
-	  os << LogIO::NORMAL << "End smoothing: time to create the smoothed grow mask: real " 
-	      << timer.real() <<"s (user "<< timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
-        } //end - GROW (iterdone && dogrowiteration)
-      
-        // ****** save positive (emission) mask only ******
+              // **** pruning on grow mask ****
+              if (minBeamFrac > 0.0 && doGrowPrune) {
+                //os<<LogIO::NORMAL << "Pruning the growed previous mask "<<LogIO::POST;
+                os << LogIO::NORMAL << "Start pruning: on the grow mask "<< LogIO::POST;
+                timer.mark();
+                Vector<Bool> dummy(0);
+                Vector<uInt> ngrowreg1elem, ngrowpruned1elem;
+                //std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(prevmask, chanFlag, dummy, ngrowreg, ngrowpruned, pruneSize);
+             
+                std::shared_ptr<ImageInterface<Float> > tempPrunedMask_ptr = YAPruneRegions(subprevmask, chanFlag1elem, dummy, ngrowreg1elem, ngrowpruned1elem, pruneSize, false);
+                ngrowreg(ipol,ich) = ngrowreg1elem(0);
+                ngrowpruned(ipol,ich) = ngrowpruned1elem(0);
+                //prevmask.copyData( *(tempPrunedMask_ptr.get()) );
+                subprevmask.copyData( *(tempPrunedMask_ptr.get()) );
+                timePruneGrow(0) += timer.real(); timePruneGrow(1) += timer.user(); timePruneGrow(2) += timer.system();
+                if (perplanetiming) {
+                  os << LogIO::NORMAL << "End pruning: time to prune the grow mask: real " 
+                    << timer.real() <<"s (user "<< timer.user() << "s, system "<< timer.system() << "s)" << LogIO::POST;
+                }
+              }
+              //if(debug2) {
+              //  PagedImage<Float> afterpruneconstIm(res.shape(), res.coordinates(),"tmpAfterPruneGrowMask-"+String::toString(iterdone)+".im");
+              //  afterpruneconstIm.copyData(prevmask);
+              //}
 
-        // temporary save negative mask from the previous one
-        //TempImage<Float> prevnegmask(res.shape(), res.coordinates(), memoryToUse());
-        //prevnegmask.copyData( (LatticeExpr<Float>)( iif( (mask - posmask ) > 0.0, 1.0, 0.0 ) ) );
+              // ***** smoothing on grow mask *****
+              os << LogIO::NORMAL << "Start smoothing: the grow mask " << LogIO::POST;
+              timer.mark();
+              ///SPIIF outprevmask = convolveMask( prevmask, modbeam);
+              SPIIF outprevmask = convolveMask( subprevmask, modbeam);
+              //if (debug) {
+              //  PagedImage<Float> postSmoothGrowedMask(res.shape(), res.coordinates(),"tmpPostSmoothGrowMask-"+String::toString(iterdone)+".im");
+              //  postSmoothGrowedMask.copyData(*outprevmask);
+              //}
+              //prevmask.copyData( LatticeExpr<Float> (iif( *(outprevmask.get()) > cutThreshold, 1.0, 0.0 )) );
+              // single plane
+              Record constmaskstats = calcImageStatistics(*outprevmask, lelmask, 0, false);
+              Array<Double> constmaskmaxs;
+              constmaskstats.get(RecordFieldId("max"),constmaskmaxs);
+              //Vector<Float> constCutThresholdValue(nchan);
+              Vector<Float> constCutThresholdValue(1);
+              if (npol <=1) {
+                //chindx(0) = ich;
+                chindx(0) = 0;
+              }
+              else {
+                //chindx(1) = ich;
+                chindx(1) = 0;
+              }
+              //constCutThresholdValue(ich) = cutThreshold * constmaskmaxs(chindx);
+              constCutThresholdValue(0) = cutThreshold * constmaskmaxs(chindx);
+              //prevmask.set(0);
+              subprevmask.set(0);
+              //makeMaskByPerChanThreshold(*outprevmask, chanFlag, prevmask, constCutThresholdValue, dummysizes); 
+              makeMaskByPerChanThreshold(*outprevmask, chanFlag1elem, subprevmask, constCutThresholdValue, dummysizes); 
+              //if (debug) {
+              //  PagedImage<Float> smoothedGrowedMask(res.shape(), res.coordinates(),"tmpSmoothedGrowMask-"+String::toString(iterdone)+".im");
+              //  smoothedGrowedMask.copyData(prevmask);
+              //}
+              timeSmoothGrow(0) +=  timer.real(); timeSmoothGrow(1) += timer.user(); timeSmoothGrow(2) += timer.system(); 
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End smoothing: time to create the smoothed grow mask: real " 
+                  << timer.real() <<"s (user "<< timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
+              }
+            } //end - GROW (iterdone && dogrowiteration)
+          
+            // ****** save positive (emission) mask only ******
 
-        //if (res.hasPixelMask()) {
-        if (planeResImage.hasPixelMask()) {
-	  //LatticeExpr<Bool>  pixmask(res.pixelMask()); 
-	  LatticeExpr<Bool>  pixmask(planeResImage.pixelMask()); 
-	  // add all positive masks (previous one, grow mask, current thresh mask)
-	  // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
-	  //posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
-          subposmask.copyData( (LatticeExpr<Float>)( iif((subposmask + subprevmask + thenewmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
-	  os <<LogIO::DEBUG1 <<"Add positive previous mask, pbmask and the new mask for this plane"<<LogIO::POST;
-        }
-        else {
-	  //posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0, 1.0, 0.0  ) ) );
-	  subposmask.copyData( (LatticeExpr<Float>)( iif((subposmask + subprevmask + thenewmask ) > 0.0, 1.0, 0.0  ) ) );
-	  os <<LogIO::DEBUG1 <<"Add positive previous mask and the new mask.."<<LogIO::POST;
-        }
+            // temporary save negative mask from the previous one
+            //TempImage<Float> prevnegmask(res.shape(), res.coordinates(), memoryToUse());
+            //prevnegmask.copyData( (LatticeExpr<Float>)( iif( (mask - posmask ) > 0.0, 1.0, 0.0 ) ) );
 
-        // **** NEGATIVE MASK creation *****
-        //TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
-        TempImage<Float> subnegmask(planeshp, planeResImage.coordinates(), memoryToUse());
-        subnegmask.set(0);
-        //Vector<Float> negmaskpixs;
-        Vector<Float> negmaskpixs1elem;
-        if (negativeThresholdFactor > 0) { 
-          os << LogIO::NORMAL << "Start thresholding: create a negative mask" << LogIO::POST;
-          timer.mark();
-	  //os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
-	  //TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
-	  TempImage<Float> negativeSubMaskImage(planeshp, planeResImage.coordinates(), memoryToUse()); 
-	  negativeSubMaskImage.set(0);
-	  //makeMaskByPerChanThreshold(res, chanFlag, negativeMaskImage , negativeMaskThreshold, dummysizes);
-	  makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, negativeSubMaskImage, negativeMaskThreshold1elem, dummysizes);
-	  // SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
-	  SPIIF negmask = convolveMask( negativeSubMaskImage, modbeam);
-	  // determine the cutthreshold value for negative mask
-	  Record negmaskstats = calcImageStatistics(*negmask, lelmask, 0, false);
-	  Array<Double> negmaskmaxs;
-	  negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
-	  //Vector<Float> negCutThresholdValue(nchan);
-	  Vector<Float> negCutThresholdValue(1);
-	  //for (uInt ich=0; ich < (uInt)nchan; ich++) {
-	  if (npol <= 1) {
-	    chindx(0) = 0;
-	  }
-	  else {
-	    chindx(1) = 0;
-	  }
-	  //negCutThresholdValue(ich) = cutThreshold * negmaskmaxs(chindx);
-	  negCutThresholdValue(0) = cutThreshold * negmaskmaxs(chindx);
-	  //makeMaskByPerChanThreshold(*negmask, chanFlag, thenegmask, negCutThresholdValue, negmaskpixs); 
-	  makeMaskByPerChanThreshold(*negmask, chanFlag1elem, subnegmask, negCutThresholdValue, negmaskpixs1elem); 
-          negmaskpixs(ipol,ich) = negmaskpixs1elem(0);
-	  if (isEmptyMask(subnegmask) ){
-	    os<<"No negative region was found by auotmask."<<LogIO::POST;
-	  }
-	  //if (debug) {
-	  //  PagedImage<Float> temppresmoothnegmask(TiledShape(negativeMaskImage.shape()), negativeMaskImage.coordinates(),"tmpPreSmoNegMask.im");
-	  // temppresmoothnegmask.copyData(negativeMaskImage); 
-	  //PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.im");
-	  // tempnegmask.copyData(thenegmask);
-	  // PagedImage<Float> tempsmonegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpSmoNegMask.im");
-	  // tempsmonegmask.copyData(*negmask);
-	  //}
-	  os << LogIO::NORMAL << "End thresholding: time to create the negative mask: real " 
-	     << timer.real() <<"s (user " << timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
-        }
-         
-        // store per plane masks to full cube mask images
-        // subMask to mask, posmask, thenegmask
-        Array<Float> maskdata, posmaskdata, negmaskdata;
-        // all images are single planes
-        IPosition stride(4,1,1,1,1);
-        IPosition plstart(4,0,0,0,0); 
-        Slicer plsl(plstart, length); 
-        subMask.doGetSlice(maskdata, plsl); 
-        subposmask.doGetSlice(posmaskdata, plsl); 
-        subnegmask.getSlice(negmaskdata, plsl); 
+            //if (res.hasPixelMask()) {
+            if (planeResImage.hasPixelMask()) {
+              //LatticeExpr<Bool>  pixmask(res.pixelMask()); 
+              LatticeExpr<Bool>  pixmask(planeResImage.pixelMask()); 
+              // add all positive masks (previous one, grow mask, current thresh mask)
+              // mask = untouched prev mask, prevmask=modified prev mask by the grow func, thenewmask=mask by thresh on current residual 
+              //posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+              subposmask.copyData( (LatticeExpr<Float>)( iif((subposmask + subprevmask + thenewmask ) > 0.0 && pixmask, 1.0, 0.0  ) ) );
+              os <<LogIO::DEBUG1 <<"Add positive previous mask, pbmask and the new mask for this plane"<<LogIO::POST;
+            }
+            else {
+              //posmask.copyData( (LatticeExpr<Float>)( iif((posmask + prevmask + thenewmask ) > 0.0, 1.0, 0.0  ) ) );
+              subposmask.copyData( (LatticeExpr<Float>)( iif((subposmask + subprevmask + thenewmask ) > 0.0, 1.0, 0.0  ) ) );
+              os <<LogIO::DEBUG1 <<"Add positive previous mask and the new mask.."<<LogIO::POST;
+            }
 
-        mask.putSlice(maskdata,plstart,stride);
-        posmask.putSlice(posmaskdata,plstart,stride);
-        thenegmask.putSlice(negmaskdata,plstart,stride);
+            // **** NEGATIVE MASK creation *****
+            //TempImage<Float> thenegmask(res.shape(),res.coordinates(), memoryToUse());
+            TempImage<Float> subnegmask(planeshp, planeResImage.coordinates(), memoryToUse());
+            subnegmask.set(0);
+            //Vector<Float> negmaskpixs;
+            Vector<Float> negmaskpixs1elem;
+            if (negativeThresholdFactor > 0) { 
+              os << LogIO::NORMAL << "Start thresholding: create a negative mask" << LogIO::POST;
+              timer.mark();
+              //os<<LogIO::NORMAL<<"Creating a mask for negative features. "<<LogIO::POST;
+              //TempImage<Float> negativeMaskImage(res.shape(), res.coordinates(), memoryToUse()); 
+              TempImage<Float> negativeSubMaskImage(planeshp, planeResImage.coordinates(), memoryToUse()); 
+              negativeSubMaskImage.set(0);
+              //makeMaskByPerChanThreshold(res, chanFlag, negativeMaskImage , negativeMaskThreshold, dummysizes);
+              makeMaskByPerChanThreshold(planeResImage, chanFlag1elem, negativeSubMaskImage, negativeMaskThreshold1elem, dummysizes);
+              // SPIIF negmask = convolveMask( negativeMaskImage, modbeam);
+              SPIIF negmask = convolveMask( negativeSubMaskImage, modbeam);
+              // determine the cutthreshold value for negative mask
+              Record negmaskstats = calcImageStatistics(*negmask, lelmask, 0, false);
+              Array<Double> negmaskmaxs;
+              negmaskstats.get(RecordFieldId("max"),negmaskmaxs);
+              //Vector<Float> negCutThresholdValue(nchan);
+              Vector<Float> negCutThresholdValue(1);
+              //for (uInt ich=0; ich < (uInt)nchan; ich++) {
+              if (npol <= 1) {
+                chindx(0) = 0;
+              }
+              else {
+                chindx(1) = 0;
+              }
+              //negCutThresholdValue(ich) = cutThreshold * negmaskmaxs(chindx);
+              negCutThresholdValue(0) = cutThreshold * negmaskmaxs(chindx);
+              //makeMaskByPerChanThreshold(*negmask, chanFlag, thenegmask, negCutThresholdValue, negmaskpixs); 
+              makeMaskByPerChanThreshold(*negmask, chanFlag1elem, subnegmask, negCutThresholdValue, negmaskpixs1elem); 
+              negmaskpixs(ipol,ich) = negmaskpixs1elem(0);
+              if (isEmptyMask(subnegmask) ){
+                os<<"No negative region was found by auotmask."<<LogIO::POST;
+              }
+              //if (debug) {
+              //  PagedImage<Float> temppresmoothnegmask(TiledShape(negativeMaskImage.shape()), negativeMaskImage.coordinates(),"tmpPreSmoNegMask.im");
+              // temppresmoothnegmask.copyData(negativeMaskImage); 
+              //PagedImage<Float> tempnegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpNegMask.im");
+              // tempnegmask.copyData(thenegmask);
+              // PagedImage<Float> tempsmonegmask(TiledShape(thenegmask.shape()), thenegmask.coordinates(),"tmpSmoNegMask.im");
+              // tempsmonegmask.copyData(*negmask);
+              //}
+              timeNegThresh(0) += timer.real(); timeNegThresh(1) += timer.user(); timeNegThresh(2) += timer.system(); 
+              if (perplanetiming) {
+                os << LogIO::NORMAL << "End thresholding: time to create the negative mask: real " 
+                 << timer.real() <<"s (user " << timer.user() << "s, system " << timer.system() << "s)" << LogIO::POST;
+              }
+            }
+             
+            // store per plane masks to full cube mask images
+            // subMask to mask, posmask, thenegmask
+            Array<Float> maskdata, posmaskdata, negmaskdata;
+            // all images are single planes
+            IPosition stride(4,1,1,1,1);
+            IPosition plstart(4,0,0,0,0); 
+            Slicer plsl(plstart, length); 
+            subMask.doGetSlice(maskdata, plsl); 
+            subposmask.doGetSlice(posmaskdata, plsl); 
+            subnegmask.getSlice(negmaskdata, plsl); 
+
+            mask.putSlice(maskdata,plstart,stride);
+            posmask.putSlice(posmaskdata,plstart,stride);
+            thenegmask.putSlice(negmaskdata,plstart,stride);
+        } // if not chanFlag=True
       } // ipol iter
     } // the main per plane for-loop end  for-ich
 
+    //print tot. timing for each step
+    if (npol*nchan > 1) {
+      os << LogIO::NORMAL << "*** Timing summary for whole planes ***" << LogIO::POST;
+      os << LogIO::NORMAL << "Total time to create the initial threshold mask:  real "<< timeInitThresh(0) 
+         << "s ( user " << timeInitThresh(1) <<"s, system "<< timeInitThresh(2) << "s)" << LogIO::POST;
+      os << LogIO::NORMAL << "Total time to prune the initial threshold mask: real " 
+	 << timePrune(0)<< "s (user " << timePrune(1) <<"s, system "<< timePrune(2) << "s)" << LogIO::POST;
+      os << LogIO::NORMAL << "Total time to create the smoothed initial threshold mask: real "<< timeSmooth(0)
+         <<"s (user " << timeSmooth(1)<<"s, system "<< timeSmooth(2) << "s)" <<  LogIO::POST;
+      os << LogIO::NORMAL << "Total time to grow the previous mask: real " 
+	 << timeGrow(0) <<"s (user "<< timeGrow(1) << "s, system " << timeGrow(2) << "s)" << LogIO::POST;
+      os << LogIO::NORMAL << "Total time to prune the grow mask: real " 
+	 << timePruneGrow(0) <<"s (user "<< timePruneGrow(1) << "s, system "<< timePruneGrow(2) << "s)" << LogIO::POST;
+      os << LogIO::NORMAL << "Total time to create the smoothed grow mask: real " 
+	 << timeSmoothGrow(0) <<"s (user "<< timeSmoothGrow(1) << "s, system " << timeSmoothGrow(2) << "s)" << LogIO::POST;
+    }
+    
     if (!iterdone) noMaskCheck(posmask, ThresholdType);
     // "Allpruned check here"
     Int nAllPruned=ntrue(allPruned);
@@ -2976,13 +3026,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     }
     // test the curent final mask with the previous mask 
     Vector<Bool> zeroChanMask;
-    os <<LogIO::DEBUG1 <<"Before skipChan.."<<LogIO::POST;
     skipChannels(fracChange,unmodifiedprevmask, mask, ThresholdType, isthresholdreached, chanFlag, zeroChanMask);
-    os <<LogIO::DEBUG1 <<" after skipChan.."<<LogIO::POST;
 
     if (verbose) 
       printAutomaskSummary(resRmss, maxs, mins, mdns,  maskThreshold, ThresholdType, chanFlag, zeroChanMask, nreg, npruned, ngrowreg, ngrowpruned, negmaskpixs, summaryRec);
-    os <<LogIO::DEBUG1 <<"At the end of automask."<<LogIO::POST;
   }//end of autoMaskByMultiThreshold
 
   Bool SDMaskHandler::isEmptyMask(ImageInterface<Float>& mask) 
@@ -4331,7 +4378,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                                             //const Vector<String>& thresholdtype, 
                                             const Matrix<String>& thresholdtype, 
                                             //const Vector<Bool>& chanflag, 
-                                            const Matrix<Bool>& chanflag, 
+                                            const Vector<Bool>& chanflag, 
                                             //const Vector<Bool>& /* zeroChanMask */,
                                             const Matrix<Bool>& /* zeroChanMask */,
                                             //const Vector<uInt>& nreg, 
@@ -4395,7 +4442,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         }
         String peakStr = npol==1? String::toString(peaks(0)):String::toString(peaks);
         // only tested for single pol (normally stokes I)
-        String domasking = chanflag(0,ich)==0? "T":"F";
+        String domasking = chanflag(ich)==0? "T":"F";
         //String domasking = zeroChanMask[ich]==1? "F":"T";
         String mdnsStr, rmssStr, maskthresholdStr;
         String Nreg, Npruned, Ngrowreg, NgrowPruned, Nnegpix;
