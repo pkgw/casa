@@ -359,9 +359,11 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
      if (getCurrentSplineObj()->isCoefficientReady() == false )
      {
+#if 0 //SN05JUN2019: Duplicated message //
          LogIO os(LogOrigin("PointingDirectionCalculator", "doGetDirection(i)", WHERE));
          os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA,  \n"
                            << "forced to use Linear Interpolation " << LogIO::POST;
+#endif 
          useSplineInterpolation_ = false;
      }
 
@@ -1105,7 +1107,7 @@ void SplineInterpolation::init(MeasurementSet const &ms,
         {
           // Warning .. //
             LogIO os(LogOrigin("SplineInterpolation", "init()", WHERE));
-            os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA, must be ge. 4 \n" 
+            os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA, must be ge. 4 " 
                << "Alternatively, Linear Interpolation will be used. " << LogIO::POST;
 
            stsCofficientReady = false; // initially in-usable ..

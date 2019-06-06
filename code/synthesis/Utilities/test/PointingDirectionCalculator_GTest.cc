@@ -1857,8 +1857,9 @@ void TestMeasurementSet::test_constructor(String const name)
         PointingDirectionCalculator calc(ms0);
 
     // Initial brief Inspection //
-        printf("# Constuctor Initial Check.  [%s] row =%d\n", name.c_str(),calc.getNrowForSelectedMS()  );
-        EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
+        uInt nrow =  calc.getNrowForSelectedMS();
+        printf("# Constuctor Initial Check.  [%s] row =%d\n", name.c_str(), nrow );
+        EXPECT_NE((uInt)0, nrow );
 }
 
 /*--------------------------------------------
@@ -2224,7 +2225,6 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
         const String AntSel = "ZZ0" + std::to_string(antId)+ "&&ZZ00"; 
 
         calc.selectData( AntSel,  "","","","","","","","","" );
-        /* uInt match_row = calc.getNrowForSelectedMS();    */
      
     //  InterPolation mode (Foece Unuse)
         calc.setSplineInterpolation(use_spline);
@@ -2901,8 +2901,6 @@ TEST_F(TestDirection, setDirectionColumn  )
     // Easy Access //
 
       start(DefaultLocalMsName);
-      expectedNrow = pdc->getNrowForSelectedMS();
-      EXPECT_NE((uInt)0, expectedNrow );
     
     // Test loop //
     uInt Count =1 ;		// Debug option to check memory leak etc. //
@@ -2938,14 +2936,9 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     
         MeasurementSet ms( MsName.c_str() );
         PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-    // setDirectionListMatrixShape           //
+        expectedNrow = calc.getNrowForSelectedMS();
+ 
+    // setDirectionListMatrixShap e          //
 
         Description("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
@@ -3038,14 +3031,8 @@ TEST_F(TestDirection, VerifyCAS11818 )
     
         MeasurementSet ms( name.c_str() );
         PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
         expectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, expectedNrow );
-
-
+    
     // setFrame, setDirectionListMatrixshape    //
     // setMovingSource Convert                  //
 
@@ -3105,13 +3092,8 @@ TEST_F(TestDirection, setMovingSource  )
     
         MeasurementSet ms( MsName ); 
         PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
         expectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, expectedNrow );
-
+    
     // setDirectionListMatrixShape()    //
 
         Description("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
@@ -3246,12 +3228,7 @@ TEST_F(TestDirection, getDirection1 )
     
         MeasurementSet ms( MsName.c_str() );
         PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
+        expectedNrow = calc.getNrowForSelectedMS();    
 
     //+
     // setDirectionColumn() 
@@ -4312,12 +4289,6 @@ TEST_F(TestSetFrame, setFrame )
         MeasurementSet ms( name.c_str() );
         PointingDirectionCalculator calc(ms);
     
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-        expectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, expectedNrow );
-
     // Various Frame Type (String) //
 
         for(uInt k = 0; k < DefinedFrametypes.size() ; k++  )
@@ -4347,6 +4318,7 @@ TEST_F(TestSetFrame, setFrame )
 - 14-MAY-19  Changed pseudo data generation. Generating based on 
              Poining-Column and also with AntennaID.
 - 31-MAY-19  Git Push. "Ready to Validate". Further blush up continue
+- 05-JUN-19  Working in Blush up test code. remove reduntdant.
  **********************************************************************/
 
 int main (int nArgs, char * args [])
