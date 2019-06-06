@@ -69,7 +69,7 @@
 
 // DEVDEBUG gates the development debugging information to standard
 // error; it should be set to 0 for production.
-#define DEVDEBUG true
+#define DEVDEBUG false
 
 using namespace casa::vi;
 using namespace casacore;
