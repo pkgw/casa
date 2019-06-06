@@ -65,7 +65,7 @@ PlotMSAxesTab::PlotMSAxesTab(PlotMSPlotTab* plotTab, PlotMSPlotter* parent) :
     connect(noneRadio, SIGNAL(toggled(bool)), SLOT(overlayChanged()));
     connect(atmRadio, SIGNAL(toggled(bool)), SLOT(overlayChanged()));
     connect(tskyRadio, SIGNAL(toggled(bool)), SLOT(overlayChanged()));    
-    connect(sidebandCheckBox, SIGNAL(toggled(bool)), SLOT(overlayChanged()));    
+    connect(imageSbCheckBox, SIGNAL(toggled(bool)), SLOT(overlayChanged()));    
     connect(addYButton, SIGNAL(clicked()), this, SLOT(addYWidget()));
     connect(removeYButton, SIGNAL(clicked()), this, SLOT(removeYWidget()));
     connect(yAxisCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(yAxisSelected(int)));
@@ -106,7 +106,7 @@ void PlotMSAxesTab::yAxisSelected( int index ){
 }
 
 void PlotMSAxesTab::overlayChanged() {
-    sidebandCheckBox->setEnabled(atmRadio->isChecked() || tskyRadio->isChecked());
+    imageSbCheckBox->setEnabled(atmRadio->isChecked() || tskyRadio->isChecked());
     emit changed();
 }
 
@@ -195,15 +195,15 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     PMS_PP_Axes* a = params.typedGroup<PMS_PP_Axes>();
     PMS_PP_MSData* d = params.typedGroup<PMS_PP_MSData>();
 
-    if(c == NULL) {
+    if (c == NULL) {
         params.setGroup<PMS_PP_Cache>();
         c = params.typedGroup<PMS_PP_Cache>();
     }
-    if(a == NULL) {
+    if (a == NULL) {
         params.setGroup<PMS_PP_Axes>();
         a = params.typedGroup<PMS_PP_Axes>();
     }
-    if(d == NULL) {
+    if (d == NULL) {
         params.setGroup<PMS_PP_MSData>();
         d = params.typedGroup<PMS_PP_MSData>();
     }
@@ -233,12 +233,12 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
     bool showatm(atmRadio->isChecked());
     bool showtsky(tskyRadio->isChecked());
     bool overlay(showatm || showtsky);
-    bool showimage(sidebandCheckBox->isChecked() && overlay);
+    bool showimage(imageSbCheckBox->isChecked() && overlay);
     c->setShowAtm(showatm);
     c->setShowTsky(showtsky);
     c->setShowImage(showimage);
     if (overlay) {
-        // add ATM/TSKY/SIDEBAND yaxis "under the hood" for GUI client
+        // add ATM/TSKY/IMAGESB yaxis "under the hood" for GUI client
         if (xAxis==PMS::CHANNEL || 
             xAxis==PMS::FREQUENCY) { 
             PMS::Axis overlayAxis = (showatm ? PMS::ATM : PMS::TSKY);
@@ -247,7 +247,7 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
             for (uInt i=0; i<yAxes.size(); ++i) {
                 if (yAxes[i] == overlayAxis) {
                     foundOverlayAxis = True;
-                } else if (yAxes[i] == PMS::SIDEBAND) {
+                } else if (yAxes[i] == PMS::IMAGESB) {
                     foundImageAxis = True;
                 }
             }
@@ -272,7 +272,7 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
             if (showimage && !foundImageAxis) {
                 // add axis to Cache axes
                 int index = c->numXAxes();
-                c->setAxes(xAxis, PMS::SIDEBAND, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+                c->setAxes(xAxis, PMS::IMAGESB, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
                 // set Axes positions
                 a->resize(index+1, true);  // copy values for index 0
                 a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
@@ -280,10 +280,10 @@ void PlotMSAxesTab::getValue(PlotMSPlotParameters& params) const {
                 a->setXRange(itsXWidget_->rangeCustom(), itsXWidget_->range(), index);
                 // set Display symbol color
                 PMS_PP_Display* disp = params.typedGroup<PMS_PP_Display>();
-                PlotSymbolPtr sidebandSymbol = disp->unflaggedSymbol(index);
-                sidebandSymbol->setSymbol("circle");
-                sidebandSymbol->setColor("#000000"); // black
-                disp->setUnflaggedSymbol(sidebandSymbol, index);
+                PlotSymbolPtr imageSymbol = disp->unflaggedSymbol(index);
+                imageSymbol->setSymbol("circle");
+                imageSymbol->setColor("#000000"); // black
+                disp->setUnflaggedSymbol(imageSymbol, index);
                 PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
                 disp->setFlaggedSymbol(flaggedSymbol, index);
             }
@@ -313,8 +313,8 @@ void PlotMSAxesTab::setValue(const PlotMSPlotParameters& params) {
     atmRadio->setChecked(atm);
     tskyRadio->setChecked(tsky);
     noneRadio->setChecked(!overlay);
-    sidebandCheckBox->setEnabled(overlay);
-    sidebandCheckBox->setChecked(c->showImage());
+    imageSbCheckBox->setEnabled(overlay);
+    imageSbCheckBox->setChecked(c->showImage());
 
     // Y Widgets
     int yAxisCount = a->numYAxes();
@@ -409,7 +409,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     // Highlight overlay changes
     bool atmRequested(atmRadio->isChecked()), tskyRequested(tskyRadio->isChecked());
     bool overlayChanged = (c->showAtm() != atmRequested) || (c->showTsky() != tskyRequested);
-    bool sidebandChanged = ((atmRequested || tskyRequested) && (c->showImage() != sidebandCheckBox->isChecked()));
+    bool sidebandChanged = ((atmRequested || tskyRequested) && (c->showImage() != imageSbCheckBox->isChecked()));
     highlightWidgetText(overlayLabel, overlayChanged || sidebandChanged);
 
     // Highlight YWidgets changes

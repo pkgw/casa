@@ -82,8 +82,7 @@ public:
   // Destructor
   virtual ~PlotMSCacheBase();
 
-  // Identify myself
-  // (MS or CAL)
+  // Identify myself (MS or CAL)
   virtual PlotMSCacheBase::Type cacheType() const = 0;
 
   // Access to pol names
@@ -100,6 +99,8 @@ public:
 
   // loaded ATM or TSKY
   bool hasOverlay();
+  // must have receiver table not be split ms
+  bool canShowImageCurve();
 
   // Reference an indexer; returns -1 if there is no indexer
   // for the given dataIndex.
@@ -325,7 +326,7 @@ public:
   // Curve overlays
   inline casacore::Double getAtm(casacore::Int chnk,casacore::Int irel) { return *(atm_[chnk]->data()+irel); };
   inline casacore::Double getTsky(casacore::Int chnk,casacore::Int irel) { return *(tsky_[chnk]->data()+irel); };
-  inline casacore::Double getSideband(casacore::Int chnk,casacore::Int irel) { return *(sideband_[chnk]->data()+irel); };
+  inline casacore::Double getImageSideband(casacore::Int chnk,casacore::Int irel) { return *(imageSideband_[chnk]->data()+irel); };
 
   /* -----------------------------------------------------------------------*/
   /*** Axis-specific generic gets, per chunk (for unit tests) ***/
@@ -445,7 +446,7 @@ public:
   // curve overlay axes
   inline casacore::Vector<casacore::Double>& atm(casacore::Int chnk)  { return *(atm_[chnk]); };
   inline casacore::Vector<casacore::Double>& tsky(casacore::Int chnk)  { return *(tsky_[chnk]); };
-  inline casacore::Vector<casacore::Double>& sideband(casacore::Int chnk)  { return *(sideband_[chnk]); };
+  inline casacore::Vector<casacore::Double>& imageSideband(casacore::Int chnk)  { return *(imageSideband_[chnk]); };
 
   /* -----------------------------------------------------------------------*/
 
@@ -665,7 +666,7 @@ protected:
   casacore::Vector<casacore::Double> radialVelocity_, rho_;
   casacore::Vector<casacore::Double> az0_,el0_,ha0_,pa0_;
 
-  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_, tsky_, sideband_;
+  casacore::PtrBlock<casacore::Vector<casacore::Double>*> atm_, tsky_, imageSideband_;
 
   // for cal tables
   casacore::PtrBlock<casacore::Array<casacore::Float>*> par_, snr_;
@@ -732,6 +733,7 @@ protected:
 
   // For atm/tsky overlays
   PlotMSAtm* plotmsAtm_;
+  bool canShowImage_;
 
 
 private:

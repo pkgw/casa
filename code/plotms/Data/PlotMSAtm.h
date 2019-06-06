@@ -87,13 +87,18 @@ public:
         const casacore::Vector<casacore::Double>& chanFreqs,
         bool atm);
 
-	// curve vector for image sideband curve
-    casacore::Vector<casacore::Double> calcSidebandCurve(
+    // curve vector for image sideband curve
+    casacore::Vector<casacore::Double> calcImageSidebandCurve(
         casacore::Int spw, casacore::Int scan, 
         const casacore::Vector<casacore::Double>& chanFreqs);
 
     inline casacore::Double getPwv() { return pwv_; }
     inline casacore::Double getAirmass() { return airmass_; }
+
+    // image sideband curve helpers
+    inline bool canShowImageCurve() { return (hasReceiverTable() && canGetLOsForSpw()); }
+    bool hasReceiverTable();
+    bool canGetLOsForSpw();
 
 private:
 
@@ -119,7 +124,7 @@ private:
 
     // calculated values
     void getMeanWeather();  // stored in weather_ Record
-	casacore::Table selectWeatherTable(casacore::Table& intable,
+    casacore::Table selectWeatherTable(casacore::Table& intable,
         casacore::String tempUnits, casacore::String pressureUnits);
     void getMedianPwv();    // stored in pwv_
     casacore::Double computeMeanAirmass();
@@ -148,7 +153,7 @@ private:
     casacore::Vector<casacore::Double> times_;
     casacore::Vector<casacore::Int> fields_;
     casacore::Record weather_;
-	const unsigned int MAX_ATM_CALC_CHAN_;
+    const unsigned int MAX_ATM_CALC_CHAN_;
 };
 
 }

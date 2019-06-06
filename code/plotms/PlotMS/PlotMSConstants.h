@@ -128,7 +128,7 @@ public:
           // Ephemeris
           RADIAL_VELOCITY, RHO,
           // Overlays
-          ATM, TSKY, SIDEBAND, NONE)
+          ATM, TSKY, IMAGESB, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
           // Metadata

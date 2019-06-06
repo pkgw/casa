@@ -629,7 +629,7 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
         }
         case PMS::ATM:
         case PMS::TSKY: 
-        case PMS::SIDEBAND: { 
+        case PMS::IMAGESB: {
           casacore::Int spw = cti.thisSpw();
           casacore::Int scan = cti.thisScan();
           casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
@@ -640,7 +640,7 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
                   bool isAtm = (axis==PMS::ATM); // false = TSKY
                   curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz, isAtm);
               } else {
-                  curve = plotmsAtm_->calcSidebandCurve(spw, scan, freqsGHz);
+                  curve = plotmsAtm_->calcImageSidebandCurve(spw, scan, freqsGHz);
               }
           }
           switch (axis) {
@@ -650,8 +650,8 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
               case PMS::TSKY:
                   *tsky_[chunk] = curve;
                   break;
-              case PMS::SIDEBAND:
-                  *sideband_[chunk] = curve;
+              case PMS::IMAGESB:
+                  *imageSideband_[chunk] = curve;
                   break;
               default:
                   break;

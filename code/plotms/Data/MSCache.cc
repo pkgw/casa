@@ -1131,7 +1131,7 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::ROW:
 	case PMS::ATM:
 	case PMS::TSKY:
-	case PMS::SIDEBAND: {
+	case PMS::IMAGESB: {
 		useAvg = false;
 		break;
 	}
@@ -1969,7 +1969,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 	}
 	case PMS::ATM:
 	case PMS::TSKY:
-	case PMS::SIDEBAND: {
+	case PMS::IMAGESB: {
 		casacore::Int spw = vb->spectralWindows()(0);
 		casacore::Int scan = vb->scan()(0);
 		casacore::Array<casacore::Double> chanFreqGHz = vb->getFrequencies(0, freqFrame_)/1e9;
@@ -1980,7 +1980,7 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 				bool isAtm = (axis==PMS::ATM);
 				curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz, isAtm);
 			} else {
-				curve = plotmsAtm_->calcSidebandCurve(spw, scan, chanFreqGHz);
+				curve = plotmsAtm_->calcImageSidebandCurve(spw, scan, chanFreqGHz);
 			}
 		}
 		switch (axis) {
@@ -1990,8 +1990,8 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 			case PMS::TSKY:
 				*tsky_[vbnum] = curve;
 				break;
-			case PMS::SIDEBAND:
-				*sideband_[vbnum] = curve;
+			case PMS::IMAGESB:
+				*imageSideband_[vbnum] = curve;
 				break;
 			default:
 				break;

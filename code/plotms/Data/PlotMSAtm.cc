@@ -47,8 +47,8 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
         bool isMS, PlotMSCacheBase* parent):
     isMS_(isMS),
     parent_(parent),
-    ms_(NULL),
-    caltable_(NULL),
+    ms_(nullptr),
+    caltable_(nullptr),
     tableName_(""),
     telescopeName_(""),
     pwv_(0.0),
@@ -56,10 +56,11 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
     MAX_ATM_CALC_CHAN_(512) {
 
     // set up table and needed data (times, fields)
-    if (isMS) 
+    if (isMS) {
         setUpMS(filename, userSel);
-    else
+    } else {
         setUpCalTable(filename, userSel);
+    }
 
     getMeanWeather();
     getMedianPwv();
@@ -70,19 +71,19 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
 PlotMSAtm::~PlotMSAtm() {
     if (caltable_) {
         delete caltable_;
-        caltable_ = NULL;
+        caltable_ = nullptr;
     }
     if (ms_) {
         delete ms_;
-        ms_ = NULL;
+        ms_ = nullptr;
     }
     if (selms_) {
         delete selms_;
-        selms_ = NULL;
+        selms_ = nullptr;
     }
     if (selct_) {
         delete selct_;
-        selct_ = NULL;
+        selct_ = nullptr;
     }
 }
 
@@ -91,6 +92,7 @@ void PlotMSAtm::setUpMS(casacore::String filename, PlotMSSelection& userSel) {
         ms_ = new MeasurementSet(filename);
     } catch (AipsError& err) {
         throw(AipsError("MeasurementSet setup failed.\n" + err.getMesg()));
+        return;
     }
     tableName_ = ms_->tableName();
     if (!userSel.isEmpty()) 
@@ -103,9 +105,10 @@ void PlotMSAtm::setUpMS(casacore::String filename, PlotMSSelection& userSel) {
 void PlotMSAtm::setUpCalTable(casacore::String filename,
         PlotMSSelection& userSel) {
     caltable_ = new NewCalTable(filename); // original table
-    getCalMS();
-    if (!userSel.isEmpty())
+    getCalMS(); // MeasurementSet* ms_ associated with cal table
+    if (!userSel.isEmpty()) {
         applyCalSelection(userSel, *caltable_); // now user-selected table
+    }
     ROCTColumns ctCol(*caltable_);
     telescopeName_ = ctCol.observation().telescopeName().get(0);
     getCalTimes();
@@ -215,16 +218,18 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     // (atm or tsky) per spw + scan
     unsigned int numChan(chanFreqs.nelements());
     casacore::Vector<casacore::Double> curve(numChan, 0.0);
-    if (numChan==1)
+    if (numChan == 1)
         return curve;
 
     PlotMSSelection pmsSel;
     pmsSel.setSpw(String::toString(spw));
     pmsSel.setScan(String::toString(scan));
     if (isMS_) {
+        // apply selection to create selected ms
         applyMSSelection(pmsSel, *selms_);
         getMSFields();  // update fields for airmass calc
     } else {
+        // apply selection to create selected ct
         applyCalSelection(pmsSel, *selct_);
         getCalFields();  // update fields for airmass calc
     }
@@ -396,36 +401,43 @@ void PlotMSAtm::getMeanWeather() {
             // pressure
             if (!pressureCol.empty()) {
                 selpressure = getValuesNearTimes(pressureCol, timeCol);
-                if (!selpressure.empty()) 
+                if (!selpressure.empty()) {
                     meanP = mean(selpressure);
-                if (meanP==0.0) {
+                }
+                if (meanP == 0.0) {
                     parent_->logmesg("load_cache", "WEATHER pressure is zero, using default value instead.");
                 } else {
-                    if (pressUnits=="Pa" && meanP>1013.25)
+                    if ((pressUnits == "Pa") && (meanP > 1013.25)) {
                         meanP /= (float)100.0;  // Pa to hPa
+                    }
                     pressure = meanP;
                 }
             }
             // humidity
             if (!humidityCol.empty()) {
                 selhumidity = getValuesNearTimes(humidityCol, timeCol);
-                if (!selhumidity.empty())
+                if (!selhumidity.empty()) {
                     meanH = mean(selhumidity);
-                if (meanH==0.0)
+                }
+                if (meanH == 0.0) {
                     parent_->logmesg("load_cache", "WEATHER humidity is zero, using default value instead.");
-                else 
+                } else {
                     humidity = meanH;
+                }
             }
 
             // temperature
             if (!temperatureCol.empty()) {
                 seltemperature = getValuesNearTimes(temperatureCol, timeCol);
-                if (!seltemperature.empty())
+                if (!seltemperature.empty()) {
                     meanT = mean(seltemperature);
-                if (meanT==0.0) {
+                }
+                if (meanT == 0.0) {
                     parent_->logmesg("load_cache", "WEATHER temperature is zero, using default value instead.");
                 } else {
-                    if (tempUnits=="C") meanT += (float)273.15;  // convert C to K
+                    if (tempUnits=="C") {
+                        meanT += (float)273.15;  // convert C to K
+                    }
                     temperature = meanT;
                 }
             }
@@ -587,17 +599,59 @@ casacore::Vector<T> PlotMSAtm::getValuesNearTimes(
     return outputCol;
 }
 
-casacore::Vector<casacore::Double> PlotMSAtm::calcSidebandCurve(
+bool PlotMSAtm::hasReceiverTable() {
+    // axis can be calculated only if ms has ASDM_RECEIVER table
+    if (tableName_.empty()) {
+        return false;
+    }
+    // check if ms has receiver subtable
+    casacore::Table mstab(tableName_);
+    return mstab.keywordSet().fieldNumber("ASDM_RECEIVER") > -1;
+}
+
+bool PlotMSAtm::canGetLOsForSpw() {
+    // spw IDs must be consistent between ASDM_RECEIVER table and SPECTRAL_WINDOW table
+	// (if ms was split, spws were reindexed)
+    if (tableName_.empty()) {
+        return false;
+    }
+    // spws from ASDM_RECEIVER table
+    casacore::Table receiverTable = Table::openTable(tableName_ + "::ASDM_RECEIVER");
+    casacore::Vector<casacore::String> receiverSpws =
+        ScalarColumn<casacore::String>(receiverTable, "spectralWindowId").getColumn();
+    int maxReceiverSpw(0);
+    for (auto spwId : receiverSpws) {
+		casacore::String spwIdNumber = spwId.after(spwId.rfind("_")); // e.g. "SpectralWindow_11" -> "11"
+		try {
+		    int spw = std::stoi(spwIdNumber);
+            maxReceiverSpw = std::max(maxReceiverSpw, spw);
+		} catch (std::invalid_argument& error) {
+			// ignore: cannot convert spwIdNumber to int 
+        }
+    }
+    // spws from SPECTRAL_WINDOW table
+    casacore::Table spwTable = Table::openTable(tableName_ + "::SPECTRAL_WINDOW");
+    int nSpwSpws = ScalarColumn<casacore::String>(spwTable, "NAME").getColumn().size();
+
+    return (maxReceiverSpw == nSpwSpws-1);
+}
+
+casacore::Vector<casacore::Double> PlotMSAtm::calcImageSidebandCurve(
         casacore::Int /*spw*/, casacore::Int /*scan*/,
         const casacore::Vector<casacore::Double>& chanFreqs) {
+    // must have >1 chan and MeasurementSet to calculate sideband curve
     unsigned int numChan(chanFreqs.nelements());
     casacore::Vector<casacore::Double> curve(numChan, 0.0);
     if (numChan == 1) {
         return curve;
-	}
+    }
+    if (!canShowImageCurve()) {
+        curve.set(doubleNaN()); // will not be plotted
+        return curve;
+    }
 
-	curve.set(100.0); // TODO: for testing
-	return curve;
+    curve.set(80.0); // TODO: for testing
+    return curve;
 }
 
 }

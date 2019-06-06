@@ -313,11 +313,11 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
 	// get default axes if not given by user
-	for(uInt i=0; i<c->numXAxes(); i++){
+	for (uInt i=0; i < c->numXAxes(); i++){
 		if (c->xAxis(i) == PMS::NONE) 
 			c->setXAxis(getDefaultXAxis(), i);
 	}
-	for(uInt i=0; i<c->numYAxes(); i++){
+	for (uInt i=0; i < c->numYAxes(); i++){
 		if (c->yAxis(i) == PMS::NONE) {
 			if (itsCache_->calType().startsWith("Xf")) {
                 c->setYAxis(PMS::GPHASE, i);
@@ -341,14 +341,14 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 			itsParent_->showWarning("Overlays are valid only when xaxis is Channel or Frequency");
 		} else {
 			// add here for script client
-			bool foundOverlayAxis(false), foundSidebandAxis(false);
+			bool foundOverlayAxis(false), foundImageAxis(false);
 			const vector<PMS::Axis> yAxes = c->yAxes();
 			PMS::Axis overlayAxis = (c->showAtm() ? PMS::ATM : PMS::TSKY);
 			for (uInt i=0; i<yAxes.size(); ++i) {
 				if (yAxes[i] == overlayAxis) {
 					foundOverlayAxis = True;
-				} else if (yAxes[i] == PMS::SIDEBAND) {
-					foundSidebandAxis = True;
+				} else if (yAxes[i] == PMS::IMAGESB) {
+					foundImageAxis = True;
 				}
 			}
 			if (!foundOverlayAxis) {
@@ -371,10 +371,10 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 				PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
 				disp->setFlaggedSymbol(flaggedSymbol, index);
 			}
-			if (c->showImage() && !foundSidebandAxis) {
-				// add ATM/TSKY to Cache axes
+			if (c->showImage() && !foundImageAxis) {
+				// add IMAGESB (image sideband) to Cache axes
 				int index = c->numXAxes();
-				c->setAxes(xaxis, PMS::SIDEBAND, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+				c->setAxes(xaxis, PMS::IMAGESB, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
 				// set Axes positions
 				PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
 				a->resize(index+1, true);  // copy values
@@ -383,11 +383,11 @@ vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
 				a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
 				// set Display symbol color
 				PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
-				PlotSymbolPtr sidebandSymbol = disp->unflaggedSymbol(index);
-				sidebandSymbol->setSymbol("circle");
-				sidebandSymbol->setSize(2,2);
-				sidebandSymbol->setColor("#000000"); // black
-				disp->setUnflaggedSymbol(sidebandSymbol, index);
+				PlotSymbolPtr imageSymbol = disp->unflaggedSymbol(index);
+				imageSymbol->setSymbol("circle");
+				imageSymbol->setSize(2,2);
+				imageSymbol->setColor("#000000"); // black
+				disp->setUnflaggedSymbol(imageSymbol, index);
 				PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
 				disp->setFlaggedSymbol(flaggedSymbol, index);
 			}
@@ -1937,6 +1937,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				int plotYAxisCount = plotAxisParams->numYAxes();
 				for ( int j=0; j<plotYAxisCount; j++ ){
 					PMS::Axis y = plotCacheParams->yAxis( j );
+					// skip if image sideband axis could not be loaded
+					if ((y == PMS::IMAGESB) && !itsCache_->canShowImageCurve())
+						continue;
 					if (isCalTable && PMS::axisIsData(y))
 						y = getCalAxis(calTypes(i), y);
 					yAxes.push_back(y);  // save for title

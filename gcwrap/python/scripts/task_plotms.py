@@ -561,8 +561,8 @@ def plotms(vis=None,
                 casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
                 return False
         if showimage and (not showatm and not showtsky):
-            casalog.post('Defaulting to showatm=True because showimage=True.', "WARN")
-            showatm = True
+            casalog.post('Defaulting to showimage=False because showatm and showtsky are False.', "WARN")
+            showimage = False
         pm.setShowCurve(showatm, showtsky, showimage, False, plotindex)
 
         # Set selection

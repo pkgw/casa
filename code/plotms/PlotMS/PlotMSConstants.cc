@@ -85,7 +85,7 @@ bool PMS::axisIsUV(Axis axis) {
 
 bool PMS::axisIsOverlay(Axis axis) {
     switch(axis) {
-    case ATM: case TSKY: case SIDEBAND: return true;
+    case ATM: case TSKY: case IMAGESB: return true;
     default: return false;
     }
 }
