@@ -6,23 +6,23 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="rmtables" category="utility">
-	<shortdescription>Remove tables cleanly, use this instead of rm -rf</shortdescription>
-	<description>
-		This task removes tables if they are not being currently accessed via
-		the casapy process. Note: if you have multiple sessions running bad things
-		could happen if you remove a table being accessed by another process.
-	</description>
-	<input>
-		<param type="stringArray" name="tablenames">
-			<description>Name of the tables</description>
-			<value></value>
-		</param>
-	</input>
+    <shortdescription>Remove tables cleanly, use this instead of rm -rf</shortdescription>
+    <description>
+                This task removes tables if they are not being currently accessed via
+                the casapy process. Note: if you have multiple sessions running bad things
+                could happen if you remove a table being accessed by another process.
+    </description>
+    <input>
+        <param type="stringArray" name="tablenames">
+            <description>Name of the tables</description>
+            <value></value>
+        </param>
+    </input>
 
 <example>
-	Removes tables cleanly.
-	Arguments may contain * or ?. Ranges [] are support but
-	not ~ expansion.
+        Removes tables cleanly.
+        Arguments may contain * or ?. Ranges [] are support but
+        not ~ expansion.
  </example>
  </task>
  </casaxml>

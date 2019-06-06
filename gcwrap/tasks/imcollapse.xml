@@ -39,7 +39,7 @@ image as the input for imcollapse.
 
                         Example: imagename='ngc5921.im' 
 </description>
-    	<value/>
+        <value/>
         <example>imagename='ngc5921.im'</example>
     </param>
 
@@ -49,24 +49,24 @@ image as the input for imcollapse.
 along the collapsed axis.
                      Default: none
                      Options: flux, madm, max, mean, median, min,
-		     npts, rms, stddev, sum, variance, xmadm
+                     npts, rms, stddev, sum, variance, xmadm
 
                      Minimum match is supported for the function
-		     parameter (eg, function="r" will compute the rms
-		     of the pixel values).
+                     parameter (eg, function="r" will compute the rms
+                     of the pixel values).
 
                      If one specifies function='flux', the following
-		     constraints must be true:
+                     constraints must be true:
                      1. The image must have a direction coordinate,
                      2. The image must have at least one beam,
                      3. The specified axes must be exactly the
-		     direction coordinate axes,
+                     direction coordinate axes,
                      4. Only one of the non-directional axes may be
-		     non-degenerate,
+                     non-degenerate,
                      5. The iamge brightness unit must be conformant
-		     with x*yJy/beam, where x is an optional unit
-		     (such as km/s for moments images) and y is an
-		     optional SI prefix.
+                     with x*yJy/beam, where x is an optional unit
+                     (such as km/s for moments images) and y is an
+                     optional SI prefix.
 </description>
         <value/>
         <example>function="max"</example>
@@ -80,14 +80,14 @@ along the collapsed axis.
 collapse.
                      Default: [0]
                      Axes can be specified as a single integer or
-		     array of integers indicating the zero-based axes
-		     along which to collapse the image. Axes may also
-		     be specified as a single or array of strings
-		     which minimally and uniquely match (ignoring
-		     case) world axes names in the image (eg "dec" or
-		     ["ri, "d"] for collapsing along the declination
-		     axis or along the right ascension and declination
-		     axes, respectively).
+                     array of integers indicating the zero-based axes
+                     along which to collapse the image. Axes may also
+                     be specified as a single or array of strings
+                     which minimally and uniquely match (ignoring
+                     case) world axes names in the image (eg "dec" or
+                     ["ri, "d"] for collapsing along the declination
+                     axis or along the right ascension and declination
+                     axes, respectively).
 </description>
         <value>[0]</value>
         <example>axis=2</example>
@@ -165,7 +165,7 @@ collapse.
                      Options: False|True
 
                      Stretch the input mask if necessary and
-		     possible. Only used if a mask is specified.
+                     possible. Only used if a mask is specified.
 </description>
         <value>False</value>
     </param>

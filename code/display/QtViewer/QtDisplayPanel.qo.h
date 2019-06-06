@@ -30,7 +30,7 @@
 
 #include <casa/aips.h>
 #include <display/Display/Colormap.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/QtViewer/QtPixelCanvas.qo.h>
 #include <display/QtViewer/QtMouseTools.qo.h>
 #include <display/QtViewer/QtOldMouseTools.qo.h>
@@ -453,7 +453,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void registerDD(QtDisplayData*, int postion = -1);
 		virtual void unregisterDD(QtDisplayData*);
 		virtual void unregisterAll();
-		virtual void registerAll(casacore::List<QtDisplayData*> registerDatas);
+		virtual void registerAll(std::list<QtDisplayData*> registerDatas);
 		//</group>
 
 		// Set display panel options such as margins or number of panels.  The
@@ -951,19 +951,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Registered QDDs which have color bar display activated (in registration
 		// order).  See arrangeColorBars_() and updateColorBarDDLists_().
-		casacore::List<QtDisplayData*> allColorBarDDs_;
+		std::list<QtDisplayData*> allColorBarDDs_;
 
 		// Subset of the list above: those which should actually display now
 		// (which would exclude, e.g., a DD which is 'off blink').  These DDs
 		// are ordered so that in multipanel blink displays the order of images
 		// in panels is the same as the display order of their corresponding
 		// colorbars.
-		casacore::List<QtDisplayData*> colorBarDDsToDisplay_;
+		std::list<QtDisplayData*> colorBarDDsToDisplay_;
 
 		// Corresponding casacore::List of PanelDisplays in which color bars are placed
 		// -- one for each QDD in colorBarDDsToDisplay_.  Assignment of QDDs
 		// to panels is maintained in the order of list above.
-		casacore::List<PanelDisplay*> colorBarPanels_;
+		std::list<PanelDisplay*> colorBarPanels_;
 
 		// A panel that takes unused PC space in the colorbar area, if any.
 		// just to see that it's cleared when appropriate.
@@ -1020,7 +1020,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//# above; more like annotations.)
 
 		// RegionShapes registered on this display panel, in registration order.
-		casacore::List<RegionShape*> rshapes_;
+		std::list<RegionShape*> rshapes_;
 
 		// Pointer to shape manager.
 		// (within this class, please do not assume qsm_ has been set.)

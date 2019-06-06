@@ -218,11 +218,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Bool ColormapDefinition::queryColormapTable(const Table& table,
 	        const String& name) {
 
-		ROScalarColumn<String> nameCol (table, "CMAP_NAME");
-		ROArrayColumn<Float> rCol (table, "RED");
-		ROArrayColumn<Float> gCol (table, "GREEN");
-		ROArrayColumn<Float> bCol (table, "BLUE");
-		ROArrayColumn<String> synCol (table, "SYNONYMS");
+		ScalarColumn<String> nameCol (table, "CMAP_NAME");
+		ArrayColumn<Float> rCol (table, "RED");
+		ArrayColumn<Float> gCol (table, "GREEN");
+		ArrayColumn<Float> bCol (table, "BLUE");
+		ArrayColumn<String> synCol (table, "SYNONYMS");
 
 		Int rowNumber = -1;
 		Vector<String> synonyms;
@@ -359,14 +359,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		uInt userLength = 0;
 
 		colormapnamemap vec;
-		ROScalarColumn<String>* name1Col(0);
-		ROScalarColumn<String>* name2Col(0);
+		ScalarColumn<String>* name1Col(0);
+		ScalarColumn<String>* name2Col(0);
 		if (!ourDefaultColormapTable.isNull()) {
-			name1Col = new ROScalarColumn<String>(ourDefaultColormapTable, "CMAP_NAME");
+			name1Col = new ScalarColumn<String>(ourDefaultColormapTable, "CMAP_NAME");
 			defaultLength = ourDefaultColormapTable.nrow();
 		}
 		if (!ourUserColormapTable.isNull()) {
-			name2Col = new ROScalarColumn<String>(ourUserColormapTable, "CMAP_NAME");
+			name2Col = new ScalarColumn<String>(ourUserColormapTable, "CMAP_NAME");
 			userLength = ourUserColormapTable.nrow();
 		}
 

@@ -288,8 +288,8 @@ calls to the other CASA tasks.
     <param type="stringArray" name="mapsize" subparam="true">
       <description>angular size of map or "" to cover model</description>
       <value type="vector">
-	<value type="string"></value>
-	<value type="string"></value>
+  <value type="string"></value>
+  <value type="string"></value>
       </value>
     </param>
 
@@ -298,12 +298,12 @@ calls to the other CASA tasks.
       <description>hexagonal, square, etc</description>
       <value type="string">hexagonal</value>
       <allowed kind="enum">
-	<value type="string">hexagonal</value>
-	<value type="string">square</value>
-	<value type="string">hex</value>
-	<value type="string">ALMA</value>
-	<value type="string">alma</value>
-	<value type="string">ALMA-OT</value>
+  <value type="string">hexagonal</value>
+  <value type="string">square</value>
+  <value type="string">hex</value>
+  <value type="string">ALMA</value>
+  <value type="string">alma</value>
+  <value type="string">ALMA-OT</value>
       </allowed>
     </param>
 -->
@@ -319,8 +319,8 @@ calls to the other CASA tasks.
     <param type="stringArray" name="antennalist">
       <description>antenna position files of ALMA 12m and 7m arrays</description>
       <value type="vector">
-	<value type="string">alma.cycle1.1.cfg</value>
-	<value type="string">aca.cycle1.cfg</value>
+        <value type="string">alma.cycle1.1.cfg</value>
+        <value type="string">aca.cycle1.cfg</value>
       </value>
     </param>
 
@@ -332,8 +332,8 @@ calls to the other CASA tasks.
     <param type="stringArray" name="totaltime">
       <description>total time of observation; vector corresponding to antennalist</description>
       <value type="vector">
-	<value>20min</value>
-	<value>1h</value>
+        <value>20min</value>
+        <value>1h</value>
       </value>
     </param>
 
@@ -341,8 +341,8 @@ calls to the other CASA tasks.
       <description>Number of total power antennas to use (0-4)</description>
       <value type="int">0</value>
       <allowed kind="range">
-	<value range="min">0</value>
-	<value range="max">4</value>
+  <value range="min">0</value>
+  <value range="max">4</value>
       </allowed>
     </param>
 
@@ -367,11 +367,11 @@ calls to the other CASA tasks.
       <description>add thermal noise: [tsys-atm|tsys-manual|""]</description>
       <value type="string"></value>
       <allowed kind="enum">
-	<value type="string"></value>
-	<value type="string">tsys-atm</value>
-	<value type="string">tsys-manual</value>
-	<value type="string">False</value>
-	<value type="string">F</value>
+  <value type="string"></value>
+  <value type="string">tsys-atm</value>
+  <value type="string">tsys-manual</value>
+  <value type="string">False</value>
+  <value type="string">F</value>
       </allowed>
     </param>
     <param type="double" name="user_pwv" subparam="true">
@@ -455,9 +455,9 @@ calls to the other CASA tasks.
       <description>weighting to apply to visibilities</description>
       <value>natural</value>
       <allowed kind="enum">
-	<value>natural</value>
-	<value>uniform</value>
-	<value>briggs</value>
+  <value>natural</value>
+  <value>uniform</value>
+  <value>briggs</value>
       </allowed>
     </param>
 
@@ -470,7 +470,7 @@ calls to the other CASA tasks.
     <param type="stringArray" name="outertaper" subparam="true">
       <description>uv-taper on outer baselines in uv-plane</description>
       <value type="vector">
-	<value></value>
+  <value></value>
       </value>
     </param>
 
@@ -479,16 +479,16 @@ calls to the other CASA tasks.
       <description>Stokes params to image</description>
       <value>I</value>
       <allowed kind="enum">
-	<value>I</value>
-	<value>IV</value>
-	<value>QU</value>
-	<value>IQUV</value>
-	<value>RR</value>
-	<value>LL</value>
-	<value>RRLL</value>
-	<value>XX</value>
-	    <value>YY</value>
-	    <value>XXYY</value>
+  <value>I</value>
+  <value>IV</value>
+  <value>QU</value>
+  <value>IQUV</value>
+  <value>RR</value>
+  <value>LL</value>
+  <value>RRLL</value>
+  <value>XX</value>
+      <value>YY</value>
+      <value>XXYY</value>
       </allowed>
     </param>
 -->
@@ -503,11 +503,11 @@ calls to the other CASA tasks.
       <description>display graphics at each stage to [screen|file|both|none]</description>
       <value type="string">both</value>
       <allowed kind="enum">
-	<value>screen</value>
-	<value>file</value>
-	<value>both</value>
-	<value>none</value>
-	<value></value>
+  <value>screen</value>
+  <value>file</value>
+  <value>both</value>
+  <value>none</value>
+  <value></value>
       </allowed>
     </param>
 
@@ -529,88 +529,88 @@ calls to the other CASA tasks.
 
     <constraints>
       <when param="skymodel">
-	<notequals value="">
-	  <default param="inbright"><value type="string"></value></default>
-	  <default param="indirection">
-	    <value type="string"></value>
-	  </default>
-	  <default param="incell"><value type="string"></value></default>
-	  <default param="incenter">
-	    <description>set central frequency (required even for 2D image)</description>
-	    <value type="string"></value>
-	  </default>
-	  <default param="inwidth">
-	    <description>set channel width or bandwidth of 2D / continuum image</description>
-	    <value type="string"></value>
-	  </default>
-	</notequals>
+  <notequals value="">
+    <default param="inbright"><value type="string"></value></default>
+    <default param="indirection">
+      <value type="string"></value>
+    </default>
+    <default param="incell"><value type="string"></value></default>
+    <default param="incenter">
+      <description>set central frequency (required even for 2D image)</description>
+      <value type="string"></value>
+    </default>
+    <default param="inwidth">
+      <description>set channel width or bandwidth of 2D / continuum image</description>
+      <value type="string"></value>
+    </default>
+  </notequals>
       </when>
       <!-- **********************************************************  -->
       <when param="complist">
-	<notequals value="">
-	  <default param="compwidth"><value type="string">8GHz</value></default>
-	</notequals>
+  <notequals value="">
+    <default param="compwidth"><value type="string">8GHz</value></default>
+  </notequals>
       </when>
       <!-- **********************************************************  -->
       <when param="setpointings">
-	<equals type="bool" value="True">
-	  <default param="integration"><value type="string">10s</value></default>
-	  <default param="direction">
-	    <description>center of map or "" to center on the model</description>
-	    <value type="string"></value>
-	  </default>
-	  <default param="mapsize" type="stringArray">
-	    <value type="vector">
-	      <value type="string">''</value>
-	      <value type="string">''</value>
-	    </value>
-	  </default>
+  <equals type="bool" value="True">
+    <default param="integration"><value type="string">10s</value></default>
+    <default param="direction">
+      <description>center of map or "" to center on the model</description>
+      <value type="string"></value>
+    </default>
+    <default param="mapsize" type="stringArray">
+      <value type="vector">
+        <value type="string">''</value>
+        <value type="string">''</value>
+      </value>
+    </default>
 <!--
-	  <default param="maptype" type="string">
-	    <value type="string">ALMA</value>
-	  </default>
-	  <default param="pointingspacing"><value type="string"></value></default>
+    <default param="maptype" type="string">
+      <value type="string">ALMA</value>
+    </default>
+    <default param="pointingspacing"><value type="string"></value></default>
 -->
-	</equals>
-	<equals type="bool" value="False">
-	  <default param="ptgfile"><value type="string">$project.ptg.txt</value></default>
-	  <default param="integration"><value type="string">10s</value>
-	  <description>integration time (see below)</description></default>
-	</equals>
+  </equals>
+  <equals type="bool" value="False">
+    <default param="ptgfile"><value type="string">$project.ptg.txt</value></default>
+    <default param="integration"><value type="string">10s</value>
+    <description>integration time (see below)</description></default>
+  </equals>
       </when>
       <!-- **********************************************************  -->
       <when param="tpnant">
-	<notequals type="int" value="0">
-	  <default param="tptime"><value type="string">0s</value></default>
-	</notequals>
+  <notequals type="int" value="0">
+    <default param="tptime"><value type="string">0s</value></default>
+  </notequals>
 <!--
-	<equals type="int" value="0"/>
+  <equals type="int" value="0"/>
 -->
       </when>
       <!-- **********************************************************  -->
       <when param="image">
-	<equals type="bool" value="True">
+  <equals type="bool" value="True">
 <!--
-	  <default param="vis"><value type="string">default</value></default>
-	  <default param="modelimage"><value type="string"></value></default>
+    <default param="vis"><value type="string">default</value></default>
+    <default param="modelimage"><value type="string"></value></default>
 -->
-	  <default param="imsize">
-	    <value>0</value>
-	  </default>
-	  <default param="imdirection">
-	    <value type="string"></value>
-	  </default>
-	  <default param="cell"><value type="string"></value></default>
-	  <default param="niter"><value>0</value></default>
-	  <default param="threshold"><value type="string">0.1mJy</value></default>
+    <default param="imsize">
+      <value>0</value>
+    </default>
+    <default param="imdirection">
+      <value type="string"></value>
+    </default>
+    <default param="cell"><value type="string"></value></default>
+    <default param="niter"><value>0</value></default>
+    <default param="threshold"><value type="string">0.1mJy</value></default>
 <!--
-	  <default param="weighting"><value type="string">natural</value></default>
-	  <default param="mask">      <value type="vector"><value></value></value></default>
-	  <default param="outertaper"><value type="vector"><value></value></value></default>
-	  <default param="stokes"><value type="string">I</value></default>
+    <default param="weighting"><value type="string">natural</value></default>
+    <default param="mask">      <value type="vector"><value></value></value></default>
+    <default param="outertaper"><value type="vector"><value></value></value></default>
+    <default param="stokes"><value type="string">I</value></default>
 -->
-	</equals>
-	<equals type="bool" value="False"/>
+  </equals>
+  <equals type="bool" value="False"/>
       </when>
       <!-- **********************************************************  -->
     </constraints>

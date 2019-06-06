@@ -90,7 +90,7 @@ void doTest1 ()
   CTAntenna calantab1 = caltab.antenna(); 
   cerr<<"calling MSAntennaColumns"<<endl;
   ROCTAntennaColumns antcols1(calantab1);
-  ROScalarColumn<String> antnames1=antcols1.name();
+  ScalarColumn<String> antnames1=antcols1.name();
   cerr<<"Anatenna name ========>"<<antnames1(0)<<endl;
 
   if (NewCalTable::conformant(caltab3.tableDesc())) {
@@ -171,14 +171,14 @@ void doTest4 ()
   caltab.setMetaInfo(datapath+"/data/regression/unittest/clean/point_spw1.ms");
   CTAntenna calantab = caltab.antenna(); 
   ROCTAntennaColumns antcols(calantab);
-  ROScalarColumn<String> antnames=antcols.name();
+  ScalarColumn<String> antnames=antcols.name();
   cout<<"antnames="<<antnames(0)<<endl;
    
   cout<<"Try in another copied caltable obj..."<<endl;
   NewCalTable caltab2(caltab);
   CTAntenna calantab2 (caltab.antenna());
   ROCTAntennaColumns antcols2(calantab2);
-  ROScalarColumn<String> antnames2=antcols2.name();
+  ScalarColumn<String> antnames2=antcols2.name();
   cout<<"antnames(from copied caltable)="<<antnames2(0)<<endl;
   
   // from table obj

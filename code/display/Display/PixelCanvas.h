@@ -29,7 +29,7 @@
 #define DISPLAY_PIXELCANVAS_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/DisplayEnums.h>
 #include <display/Display/PixelCanvasColorTable.h>
 #include <display/Display/PCVGBuffer.h>
@@ -916,11 +916,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::uInt nRegisteredColormaps_;
 
 		// This is the list of registered refresh EventHandlers
-		casacore::List<void *> refreshEHList_;
+		std::list<void *> refreshEHList_;
 		// This is the list of registered motion EventHandlers
-		casacore::List<void *> motionEHList_;
+		std::list<void *> motionEHList_;
 		// This is the list of registered position EventHandlers
-		casacore::List<void *> positionEHList_;
+		std::list<void *> positionEHList_;
 
 		// The PCVGBuffer is used to accumulate lines and points until
 		// flushed (or the buffer is full)

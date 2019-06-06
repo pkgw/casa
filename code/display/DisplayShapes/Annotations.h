@@ -37,7 +37,7 @@
 #include <casa/OS/Timer.h>
 
 #include <display/Display/WorldCanvas.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 #include <casa/Containers/Record.h>
 #include <casa/Arrays/Matrix.h>
@@ -227,8 +227,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// My copy of the list of Worldcanvases. I can check this against
 		// itsPanelDisplay to see if anything has changed.
-		casacore::ListIter<WorldCanvas* >* itsWCLI;
-		casacore::List<WorldCanvas* > itsWCs;
+		std::list<WorldCanvas* > itsWCs;
 
 		// casacore::List of shapes
 		casacore::PtrBlock<DisplayShape*> itsShapes;

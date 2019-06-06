@@ -7279,7 +7279,9 @@ void SolvableVisJones::fluxscale(const String& outfile,
 
       String oFitMsg;
       logSink()<<LogIO::DEBUG1<<"nValidFLux="<<nValidFlux<<LogIO::POST;
-      if (nValidFlux>1) { 
+
+      //if (nValidFlux>1) { 
+      if (nValidFlux>0) { 
 
 	// Make fd and freq lists
 	Vector<Double> fds;
@@ -7296,6 +7298,13 @@ void SolvableVisJones::fluxscale(const String& outfile,
         //
         // calculate spectral index
         // fit the per-spw fluxes to get spectral index
+        if (nValidFlux==1) {
+          fitFluxD(tranidx) = fds(0);  
+          fitRefFreq(tranidx) = freqs(0);  
+        }
+        else {
+          // single spw so no fitting is performed, just fill flux and frequency 
+          // to fit result record
         LinearFit<Double> fitter;
         uInt myfitorder = 0; 
         if (fitorder < 0) {
@@ -7395,6 +7404,7 @@ void SolvableVisJones::fluxscale(const String& outfile,
 	  oStream.close();
         }
         logSink() << oFitMsg << LogIO::POST;
+      }
       }// nValidFlux
       /**
       Int sh1, sh2;

@@ -481,8 +481,8 @@ class ParallelTaskHelper:
         return ParallelTaskHelper.__bypass_parallel_processing        
     
     @staticmethod
-    def setAsyncMode(async=False):     
-        ParallelTaskHelper.__async_mode = async
+    def setAsyncMode(async_mode=False):     
+        ParallelTaskHelper.__async_mode = async_mode
         
     @staticmethod
     def getAsyncMode():

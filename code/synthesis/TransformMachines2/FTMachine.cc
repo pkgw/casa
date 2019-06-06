@@ -106,6 +106,7 @@ using namespace casa::vi;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
@@ -127,6 +128,7 @@ using namespace casa::vi;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   LogIO& FTMachine::logIO() {return logIO_p;};
@@ -224,6 +226,7 @@ using namespace casa::vi;
       obsvelconv_p=other.obsvelconv_p;
       mtype_p=other.mtype_p;
       briggsWeightor_p=other.briggsWeightor_p;
+      ft_p=other.ft_p;
     };
     return *this;
   };
@@ -1591,6 +1594,7 @@ using namespace casa::vi;
     doneThreadPartition_p=-1;
     vbutil_p=nullptr;
     briggsWeightor_p=nullptr;
+    ft_p=FFT2D(true);
     if(!recoverMovingSourceState(error, inRecord))
       return False;
     return true;

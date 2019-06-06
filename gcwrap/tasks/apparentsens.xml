@@ -35,12 +35,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="any" name="field" subparam="true">
      <shortdescription>field(s) to select</shortdescription>
-<description> Select fields to image or mosaic.  Use field id(s) or name(s).
+<description>Select fields to image or mosaic.  Use field id(s) or name(s).
                   ['go listobs' to obtain the list id's or names]
                default: ''= all fields
                  If field string is a non-negative integer, it is assumed to
                  be a field index otherwise, it is assumed to be a
-		 field name
+                 field name
                  field='0~2'; field ids 0,1,2
                  field='0,4,5~7'; field ids 0,4,5,6,7
                  field='3C286,3C295'; field named 3C286 and 3C295
@@ -57,7 +57,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="any" name="spw" subparam="true">
      <shortdescription>spw(s)/channels to select</shortdescription>
-<description> Select spectral window/channels
+<description>Select spectral window/channels
                NOTE: channels de-selected here will contain all zeros if
                          selected by the parameter mode subparameters.
                default: ''=all spectral windows and channels
@@ -65,7 +65,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                  spw='0:5~61'; spw 0, channels 5 to 61
                  spw='&lt;2';   spectral windows less than 2 (i.e. 0,1)
                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3,
-				    channels 3 to 45.
+                                    channels 3 to 45.
                  spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
                  For multiple MS input, a list of spw strings can be used:
                  spw=['0','0~3']; spw ids 0 for the first MS and 0-3 for the second
@@ -109,12 +109,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    default: '' (all); examples,
                    timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
                    Note: if YYYY/MM/DD is missing date defaults to first
-			 day in data set
+                         day in data set
                    timerange='09:14:0~09:54:0' picks 40 min on first day
                    timerange='25:00:00~27:30:00' picks 1 hr to 3 hr
-			     30min on NEXT day
+                             30min on NEXT day
                    timerange='09:44:00' pick data within one integration
-		             of time
+                             of time
                    timerange='&gt; 10:24:00' data after this time
                    For multiple MS input, a list of timerange strings can be
                    used:
@@ -149,18 +149,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
                    default: '' (all)
                    If antenna string is a non-negative integer, it is
- 		   assumed to be an antenna index, otherwise, it is
- 		   considered an antenna name.
+                   assumed to be an antenna index, otherwise, it is
+                   considered an antenna name.
                    antenna='5\&amp;6'; baseline between antenna index 5 and
- 				 index 6.
+                                 index 6.
                    antenna='VA05\&amp;VA06'; baseline between VLA antenna 5
- 				       and 6.
+                                       and 6.
                    antenna='5\&amp;6;7\&amp;8'; baselines 5-6 and 7-8
                    antenna='5'; all baselines with antenna index 5
                    antenna='05'; all baselines with antenna number 05
- 				(VLA old name)
+                                (VLA old name)
                    antenna='5,6,9'; all baselines with antennas 5,6,9
- 				   index number
+                                   index number
                    For multiple MS input, a list of antenna strings can be
                    used:
                    antenna=['5','5\&amp;6'];
@@ -246,24 +246,24 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 </description>
       <value type="string">I</value>
-	    <allowed kind="enum">
-	      <value>I</value>
+            <allowed kind="enum">
+              <value>I</value>
               <value>Q</value>
               <value>U</value>
               <value>V</value>
               <value>IV</value>
-	      <value>QU</value>
+              <value>QU</value>
               <value>IQ</value>
-	      <value>UV</value>
-	      <value>IQUV</value>
-	      <value>RR</value>
-	      <value>LL</value>
-	      <value>XX</value>
-	      <value>YY</value>
-	      <value>RRLL</value>
-	      <value>XXYY</value>
-	      <value>pseudoI</value>
-	    </allowed>
+              <value>UV</value>
+              <value>IQUV</value>
+              <value>RR</value>
+              <value>LL</value>
+              <value>XX</value>
+              <value>YY</value>
+              <value>RRLL</value>
+              <value>XXYY</value>
+              <value>pseudoI</value>
+            </allowed>
     </param>
 
 
@@ -319,12 +319,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 </description>
      <value type="string">mfs</value>
-	    <allowed kind="enum">
-	      <value>mfs</value>
-	      <value>cont</value>
-	      <value>cube</value>
-	      <value>cubedata</value>
-	    </allowed>
+            <allowed kind="enum">
+              <value>mfs</value>
+              <value>cont</value>
+              <value>cube</value>
+              <value>cubedata</value>
+            </allowed>
     </param>
 
 
@@ -395,14 +395,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                of Dan Briggs' thesis (http://www.aoc.nrao.edu/dissertations/dbriggs)
 
 </description>
-	    <value type="string">natural</value>
-	    <allowed kind="enum">
-	      <value>natural</value>
-	      <value>uniform</value>
-	      <value>briggs</value>
-	      <value>radial</value>
-	      <value>superuniform</value>
-	    </allowed>
+            <value type="string">natural</value>
+            <allowed kind="enum">
+              <value>natural</value>
+              <value>uniform</value>
+              <value>briggs</value>
+              <value>radial</value>
+              <value>superuniform</value>
+            </allowed>
 
     </param>
 
@@ -415,11 +415,11 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                             (robust=0.5 is equivalent to robust=0.0 in AIPS IMAGR.)
 
 </description>
-	    <value type="double">0.5</value>
-	    <allowed kind="range">
-	      <value range="min">-2.0</value>
-	      <value range="max">2.0</value>
-	    </allowed>
+            <value type="double">0.5</value>
+            <allowed kind="range">
+              <value range="min">-2.0</value>
+              <value range="max">2.0</value>
+            </allowed>
     </param>
 
     <param type="int" name="npixels" subparam="true">
@@ -439,19 +439,19 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                                      7 pixels on a side.
 
 </description>
-	    <value type="int">0</value>
+            <value type="int">0</value>
     </param>
 
 <!--
     <param type="bool" name="uvtaper">
            <shortdescription>xxx</shortdescription>
 <description>Apply additional uv tapering of visibilities</description>
-	    <value type="bool">False</value>
+            <value type="bool">False</value>
     </param>
 -->
 
     <param type="stringArray" name="uvtaper" subparam="true">
-	   <shortdescription>uv-taper on outer baselines in uv-plane</shortdescription>
+           <shortdescription>uv-taper on outer baselines in uv-plane</shortdescription>
 <description>uv-taper on outer baselines in uv-plane
 
                    Apply a Gaussian taper in addition to the weighting scheme specified
@@ -466,17 +466,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
                    NOTE: the on-sky FWHM in arcsec is roughly  the uv taper/200 (klambda).
                    default: uvtaper=[]; no Gaussian taper applied
- 		   example: uvtaper=['5klambda']  circular taper
- 				FWHM=5 kilo-lambda
+                   example: uvtaper=['5klambda']  circular taper
+                                FWHM=5 kilo-lambda
                             uvtaper=['5klambda','3klambda','45.0deg']
                             uvtaper=['10arcsec'] on-sky FWHM 10 arcseconds
                             uvtaper=['300.0'] default units are lambda
- 			        in aperture plane
+                                in aperture plane
 
 </description>
-	    <value type="vector">
-	      <value></value>
-	    </value>
+            <value type="vector">
+              <value></value>
+            </value>
     </param>
 
 <!--=============================================== -->
@@ -487,28 +487,28 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
      <when param="selectdata">
       <equals type="bool" value="True">
-	 <default param="field"><value>""</value></default>
-	 <default param="spw"><value>""</value></default>
-	 <default param="timerange"><value>""</value></default>
-	 <default param="uvrange"><value>""</value></default>
-	 <default param="antenna"><value>""</value></default>
-	 <default param="scan"><value>""</value></default>
-	 <default param="observation"><value>""</value></default>
-	 <default param="intent"><value>""</value></default>
+         <default param="field"><value>""</value></default>
+         <default param="spw"><value>""</value></default>
+         <default param="timerange"><value>""</value></default>
+         <default param="uvrange"><value>""</value></default>
+         <default param="antenna"><value>""</value></default>
+         <default param="scan"><value>""</value></default>
+         <default param="observation"><value>""</value></default>
+         <default param="intent"><value>""</value></default>
        </equals>
       </when>
 
 
      <when param="weighting">
        <equals type="string" value="natural">
-	 <default param="uvtaper"><value>[]</value></default>
+         <default param="uvtaper"><value>[]</value></default>
        </equals>
        <equals type="string" value="uniform">
        </equals>
        <equals type="string" value="briggs">
-	 <default param="robust"><value>0.5</value></default>
-	 <default param="npixels"><value>0</value></default>
-	 <default param="uvtaper"><value>[]</value></default>
+         <default param="robust"><value>0.5</value></default>
+         <default param="npixels"><value>0</value></default>
+         <default param="uvtaper"><value>[]</value></default>
        </equals>
      </when>
 

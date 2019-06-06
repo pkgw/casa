@@ -31,7 +31,7 @@
 
 #include <casa/Logging/LogIO.h>
 #include <casa/Containers/Block.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 #include <miriad/Filling/FillMetadata.h>
 #include <mirlib/miriad.h>

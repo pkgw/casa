@@ -404,6 +404,7 @@ namespace casa {
 	}
 
 	void Fit2DTool::clearFitMarkers() {
+		emit remove2DFitOverlay(fitMarkers);
 		while ( !fitMarkers.isEmpty() ) {
 			RegionShape* marker = fitMarkers.takeLast();
 			delete marker;

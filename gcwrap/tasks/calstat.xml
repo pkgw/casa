@@ -26,7 +26,7 @@ square.
 
                         Example: vis='ggtau.1mm.amp.gcal'
 </description>
-	    <value></value>
+            <value></value>
     </param>
 
     <param type="string" name="axis">
@@ -34,12 +34,12 @@ square.
 <description>Which data to analyze.
                      Default: 'amplitude'
                      Options: 'amp', 'amplitude', 'phase', 'real',
-		     'imag', 'imaginary'. Also, the name of any real
-		     valued MS column can be given, e.g. TIME,
-		     POLY_COEFF_AMP, REF_ANT, ANTENNA1, FLAG, ...
+                     'imag', 'imaginary'. Also, the name of any real
+                     valued MS column can be given, e.g. TIME,
+                     POLY_COEFF_AMP, REF_ANT, ANTENNA1, FLAG, ...
 
                      Note: the phase of a complex number is in
-		     radians in the range [-pi; pi].
+                     radians in the range [-pi; pi].
 </description>
         <value type="string">amplitude</value>
     </param>
@@ -59,9 +59,9 @@ parameter  has no effect!)
                      Default: False
                     
                      If useflags=False, flagged values are included in
-		     the statistics. 
+                     the statistics. 
                      If useflags=True, any flagged values are not used
-		     in the statistics.
+                     in the statistics.
 </description>
         <value>True</value>
         <example>useflags=True</example>
@@ -94,9 +94,9 @@ parameter  has no effect!)
 
     <output>
     <param type="any" name="xstat">
-    	<description>Statistical information for the calibration table</description>
-	<any type="variant"/>
-	<value>{}</value>
+            <description>Statistical information for the calibration table</description>
+        <any type="variant"/>
+        <value>{}</value>
     </param>
     </output>
 

@@ -1874,6 +1874,14 @@ ia.done()
         general, any method run on a component list image that creates a new image will create a
         non-component list image (eg, a traditional CASA Paged image or Temporary image) in which the
         pixel values are explicitly stored.
+
+        DISK MODELS
+
+        Pixels with centers inside the disk will have the same values, even if a pixel straddles the
+        edge of the disk. Pixels with straddle the edge of the disk which have centers outside the
+        disk are given values of zero. Thus, one should not expect the flux density of the disk to
+        be exactly the provided value to the component list; for a given size disk, the computed flux
+        density will be closer to the expected value for images with smaller pixels.
         
     </description>
     <example>
@@ -6703,10 +6711,18 @@ subtract the model which is contained in a
 <link anchor="componentmodels:componentlist">Componentlist</link> tool.
 
 The pixel values are only changed where the total mask
-(combination of the default \pixelmask\ [if any] and the OTF mask)
-is good (True).   If the computation fails for a particular
+(combination of the default pixel mask [if any] and the OTF mask)
+is good (True). If the computation fails for a particular
 pixel (e.g. coordinate undefined) that pixel will be
 masked bad.
+
+DISK MODELS
+
+Pixels with centers inside the disk will have the same values, even if a pixel straddles the
+edge of the disk. Pixels with straddle the edge of the disk which have centers outside the
+disk are given values of zero. Thus, one should not expect the flux density of the disk to
+be exactly the provided value to the component list; for a given size disk, the computed flux
+density will be closer to the expected value for images with smaller pixels.
 
 </description>
 

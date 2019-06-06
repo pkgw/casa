@@ -57,46 +57,25 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (isAlreadyRegistered(mholder)) {
 			return;
 		}
-		ListIter<MultiWCHolder *> localMWCHLI(itsMWCHList);
-		localMWCHLI.toEnd();
-		localMWCHLI.addRight(&mholder);
+		itsMWCHList.push_back(&mholder);
 	}
+
 	void MWCAnimator::removeMWCHolder(MultiWCHolder &mholder) {
 		if (!isAlreadyRegistered(mholder)) {
 			return;
 		}
-		ListIter<MultiWCHolder *> localMWCHLI(itsMWCHList);
-		localMWCHLI.toStart();
-		while (!localMWCHLI.atEnd()) {
-			if (&mholder == localMWCHLI.getRight()) {
-				localMWCHLI.removeRight();
-				return;
-			} else {
-				localMWCHLI++;
-			}
-		}
+		std::list<MultiWCHolder*> orig = itsMWCHList;
+		itsMWCHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsMWCHList),
+					  [&](MultiWCHolder *h){return h != &mholder;} );
 	}
-	void MWCAnimator::removeMWCHolders() {
-		ListIter<MultiWCHolder *> localMWCHLI(itsMWCHList);
-		localMWCHLI.toStart();
-		while (!localMWCHLI.atEnd()) {
-			localMWCHLI.removeRight();
-			// don't increment iterator - removeRight() has that effect!
-		}
-	}
+
+	void MWCAnimator::removeMWCHolders() { itsMWCHList.clear( ); }
 
 // Set linear restrictions
 	void MWCAnimator::setLinearRestrictions(AttributeBuffer &restrictions,
 	                                        const AttributeBuffer &increments) {
-		ListIter<MultiWCHolder *> localMWCHLI(itsMWCHList);
-		localMWCHLI.toStart();
-		while (!localMWCHLI.atEnd()) {
-			localMWCHLI.getRight()->setLinearRestrictions(restrictions, increments);
-			// MultiWCHolder leaves restrictions equal to those set on the
-			// final WorldCanvasHolder.  So just knock it up by one here.
-			restrictions += increments;
-			localMWCHLI++;
-		}
+        for ( auto h : itsMWCHList ) h->setLinearRestrictions(restrictions, increments);
 	}
 
 // Set linear restriction
@@ -160,22 +139,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Remove a restriction (including a 'linear' (ramped) one).
 	void MWCAnimator::removeRestriction(const String& name) {
-		for(ListIter<MultiWCHolder*> mwcs(itsMWCHList); !mwcs.atEnd(); mwcs++)
-			mwcs.getRight()->removeRestriction(name);
+        for ( auto h : itsMWCHList ) h->removeRestriction(name);
 	}
 
 
 // Do we already have this WorldCanvasHolder registered?
 	Bool MWCAnimator::isAlreadyRegistered(const MultiWCHolder &mholder) {
-		ListIter<MultiWCHolder *> localMWCHLI(itsMWCHList);
-		localMWCHLI.toStart();
-		while (!localMWCHLI.atEnd()) {
-			if (&mholder == localMWCHLI.getRight()) {
-				return true;
-			}
-			localMWCHLI++;
-		}
-		return false;
+        return std::any_of( itsMWCHList.begin( ), itsMWCHList.end( ),
+                            [&](MultiWCHolder *h){return h == &mholder;} );
 	}
 
 } //# NAMESPACE CASA - END
