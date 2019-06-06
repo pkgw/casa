@@ -403,7 +403,7 @@ def _handle_image_params(imsize, cell, phasecenter,
         # if empty, it should be determined here...
         if _phasecenter == "":
             _phasecenter = map_param['center']
-        
+    
     return _imsize, _cell, _phasecenter
 
 def _calc_pblimit(minweight):
@@ -685,7 +685,7 @@ def get_brightness_unit_from_ms(msname):
 
 
 def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, mode, nchan, start, width, veltype, outframe,
-               gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, ephemsrcname,
+               gridfunction, convsupport, truncate, gwidth, jwidth, imsize, cell, phasecenter, projection, 
                pointingcolumn, restfreq, stokes, minweight, brightnessunit, clipminmax):
     
     origin = 'tsdimaging'
@@ -737,7 +737,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ggwidth = _handle_grid_defaults(gwidth)
         gjwidth = _handle_grid_defaults(jwidth)
         
-        _ephemsrcname = ephemsrcname
+        _ephemsrcname = ''
         if isinstance(phasecenter, str) and phasecenter.strip().upper() in ['MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON', 'TRACKFIELD']:
             _ephemsrcname = phasecenter
 
@@ -806,7 +806,6 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             pblimit=pblimit
         )
         
-        # TODO: hadnle ephemsrcname
         # handle brightnessunit (CAS-11503)
         image_unit = ''
         if len(brightnessunit) > 0:
@@ -823,32 +822,6 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## (3) Construct the PySynthesisImager object, with all input parameters
         
         casalog.post('*** Creating imager object ***', origin=origin)
-        """
-        print '-----------------------------------------------------------'
-        print 'paramList = '
-        print 'SelPars: '
-        print str(paramList.allselpars)
-        print '----------------------------'
-        print 'ImagePars: '
-        print str(paramList.allimpars)
-        print '----------------------------'
-        print 'GridPars: '
-        print str(paramList.allgridpars)
-        print '----------------------------'
-        print 'NormPars: '
-        print str(paramList.allnormpars)
-        print '----------------------------'
-        print 'WeightPars: '
-        print str(paramList.weightpars)
-        print '----------------------------'
-        print 'DecPars: '
-        print str(paramList.alldecpars)
-        print '----------------------------'
-        print 'IterPars: '
-        print str(paramList.iterpars)
-        print '----------------------------'
-        print '-----------------------------------------------------------'
-        """
         imager = PySynthesisImager(params=paramList)
             
         ## (4) Initialize various modules. 
@@ -858,10 +831,8 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         ## Initialize modules major cycle modules
         
         casalog.post('*** Initializing imagers ***', origin=origin)
-        #print '*** initializeImagers() ***'
         imager.initializeImagers()
         casalog.post('*** Initializing normalizers ***', origin=origin)
-        #print '*** initializeNormalizers() ***'
         imager.initializeNormalizers()
         #imager.setWeighting()
         
@@ -872,15 +843,11 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
         casalog.post('NF = {0}'.format(imager.NF), origin=origin)
         #imager.runMajorCycle()  # Make initial dirty / residual image
         casalog.post('*** makeSdPSF... ***', origin=origin)
-        #print '*** makeSdPSF() ***'
         imager.makeSdPSF()
         casalog.post('*** makeSdImage... ***', origin=origin)
-        #print '*** makeSdImage() ***'
         imager.makeSdImage()
-        #print '*** end makeSdImage() ***'
         
     except Exception as e:
-        #print 'Exception : ' + str(e)
         casalog.post('Exception from task_tsdimaging : ' + str(e), "SEVERE", origin=origin)
 #         if imager != None:
 #             imager.deleteTools() 

@@ -229,7 +229,6 @@ extern "C" {
 void SDGrid::init() {
 
   logIO() << LogOrigin("SDGrid", "init")  << LogIO::NORMAL;
-//std::cout << "SDGrid::init() <0>" << std::flush << std::endl;
 
   //pfile = fopen("ptdata.txt","w");
 
@@ -654,7 +653,6 @@ void SDGrid::finalizeToVis()
 void SDGrid::initializeToSky(ImageInterface<Complex>& iimage,
 			     Matrix<Float>& weight, const vi::VisBuffer2& vb)
 {
-//std::cout << "SDGrid::initializeToSky() <0>" << std::flush << std::endl;
   // image always points to the image
   image=&iimage;
 
@@ -858,7 +856,6 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 {
   LogIO os(LogOrigin("SDGrid", "put"));
   
-  //std::cout << "SDGrid::put() <0>" << std::flush << std::endl;
   gridOk(convSupport);
 
   // There is no channel mapping cache in VI/VB2 version of FTMachine
@@ -968,9 +965,6 @@ void SDGrid::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
     xyPositions=-1e9; // make sure failed getXYPos does not fall on grid
     for (Int rownr=startRow; rownr<=endRow; rownr++) {
       if(getXYPos(vb, rownr)) {
-	if (rownr == startRow) {
-//std::cout << "x = [" << xyPos(0) << "], y = [" << xyPos(1) << "]" << std::flush << std::endl;
-	}
 	xyPositions(0, rownr)=xyPos(0);
 	xyPositions(1, rownr)=xyPos(1);
       }
@@ -1072,7 +1066,6 @@ void SDGrid::get(vi::VisBuffer2& vb, Int row)
 {
   LogIO os(LogOrigin("SDGrid", "get"));
 
-std::cout << "SDGrid::get() <0>" << std::flush << std::endl;
   gridOk(convSupport);
 
   // If row is -1 then we pass through all rows
@@ -1095,12 +1088,10 @@ std::cout << "SDGrid::get() <0>" << std::flush << std::endl;
     //vb.modelVisCube().xyPlane(row)=Complex(0.0,0.0);
   }
 
-std::cout << "SDGrid::get() <1>" << std::flush << std::endl;
   // There is no channel mapping cache in VI/VB2 version of FTMachine
   // Perform matchChannel everytime
   matchChannel(vb);
 
-std::cout << "SDGrid::get() <2>" << std::flush << std::endl;
   //No point in reading data if its not matching in frequency
   if(max(chanMap)==-1)
     return;
@@ -1168,7 +1159,6 @@ std::cout << "SDGrid::get() <2>" << std::flush << std::endl;
     }
   }
   else*/ 
-std::cout << "SDGrid::get() <3>" << std::flush << std::endl;
   {
     Matrix<Double> xyPositions(2, endRow-startRow+1);
     xyPositions=-1e9;
@@ -1204,9 +1194,7 @@ std::cout << "SDGrid::get() <3>" << std::flush << std::endl;
 
     data.putStorage(datStorage, isCopy);
   }
-std::cout << "SDGrid::get() <4>" << std::flush << std::endl;
   interpolateFrequencyFromgrid(vb, data, FTMachine::MODEL);
-std::cout << "SDGrid::get() <5>" << std::flush << std::endl;
 }
 
 
@@ -1282,9 +1270,7 @@ std::cout << "SDGrid::get() <5>" << std::flush << std::endl;
       }
       vi.originChunks();
       vi.origin();
-std::cout << "SDGrid::makeImage() <0>" << std::flush << std::endl;
       initializeToSky(*imCopy,wgtcopy,*vb);
-std::cout << "SDGrid::makeImage() <1>" << std::flush << std::endl;
    
 
       // for minmax clipping
@@ -1301,31 +1287,25 @@ std::cout << "SDGrid::makeImage() <1>" << std::flush << std::endl;
 	
 	  switch(type) {
 	  case FTMachine::RESIDUAL:
-	    std::cout << "SDGrid::makeImage() <2a>" << std::flush << std::endl;
 	    vb->setVisCube(vb->visCubeCorrected() - vb->visCubeModel());
 	    put(*vb, -1, false);
 	    break;
 	  case FTMachine::MODEL:
-	    std::cout << "SDGrid::makeImage() <2b>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::MODEL);
 	    break;
 	  case FTMachine::CORRECTED:
-	    std::cout << "SDGrid::makeImage() <2c>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::CORRECTED);
 	    break;
 	  case FTMachine::PSF:
-	    std::cout << "SDGrid::makeImage() <2d>" << std::flush << std::endl;
 	    vb->setVisCube(Complex(1.0,0.0));
 	    put(*vb, -1, true, FTMachine::PSF);
 	    break;
 	  case FTMachine::COVERAGE:
-	    std::cout << "SDGrid::makeImage() <2e>" << std::flush << std::endl;
 	    vb->setVisCube(Complex(1.0));
 	    put(*vb, -1, true, FTMachine::COVERAGE);
 	    break;
 	  case FTMachine::OBSERVED:
 	  default:
-	    std::cout << "SDGrid::makeImage() <2f>" << std::flush << std::endl;
 	    put(*vb, -1, false, FTMachine::OBSERVED);
 	    break;
 	  }
@@ -1521,7 +1501,7 @@ Int SDGrid::getIndex(const ROMSPointingColumns& mspc, const Double& time,
     else {
       // Is the midpoint of this pointing table entry within the specified
       // tolerance of the main table entry?
-      if(abs(midpoint-time) <= (mspc_interval/2.0+tol)) {
+      if (abs(midpoint-time) <= (mspc_interval/2.0+tol)) {
 	//lastIndex_p=i;
   lastIndexPerAnt_p[antid]=i;
 	return i;
@@ -1647,8 +1627,12 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
     //via HADEC or AZEL for parallax of near sources
     MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
     MDirection tmphadec;
-    if(upcase(movingDir_p.getRefString()).contains("APP")){
+    if (upcase(movingDir_p.getRefString()).contains("APP")) {
       tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+    } else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+      MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+      mFrame_p.set(mcomet);
+      tmphadec = MDirection::Convert(movingDir_p, outref1)();
     } else {
       tmphadec = MDirection::Convert(movingDir_p, outref1)();
     }

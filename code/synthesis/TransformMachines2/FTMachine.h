@@ -406,6 +406,7 @@ protected:
   // moving source stuff
   casacore::MDirection movingDir_p;
   casacore::Bool fixMovingSource_p;
+  casacore::String ephemTableName_p;
   casacore::MDirection firstMovingDir_p;
   // This will hold the angular difference between movingDir and firstMovingDir with 
   // the frame conversion done properly etc..

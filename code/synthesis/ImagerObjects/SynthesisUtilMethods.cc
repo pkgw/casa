@@ -2043,11 +2043,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    throw(AipsError("spw selection failed")); 
 	  //cerr << "datafstart " << datafstart << " end " << datafend << endl;
 	  
-//std::cout << "buildCoordinateSystem() <0>" << std::flush << std::endl;
-//std::cout << "   mode         = " << mode << std::flush << std::endl;
-//std::cout << "   movingSource = " << movingSource << std::flush << std::endl;
 	  if (mode=="cubedata") {
-	    
 	    freqmin = datafstart;
 	    freqmax = datafend;
 	  }
@@ -2057,10 +2053,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    }
 	    String ephemtab(movingSource);
 	    if(movingSource=="TRACKFIELD"){
-//std::cout << "buildCoordinateSystem() <1>" << std::flush << std::endl;
 	      Int fieldID=ROMSColumns(*mss[j]).fieldId()(0);
 	      ephemtab=Path(ROMSColumns(*mss[j]).field().ephemPath(fieldID)).absoluteName();
-//std::cout << "buildCoordinateSystem() <ephemtab = '" << ephemtab << "'>" << std::flush << std::endl;
 	    }
 	    MEpoch refep=ROMSColumns(*mss[j]).timeMeas()(0);
 	    Quantity refsysvel;
@@ -2075,8 +2069,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    */
 	  }
 	  else {
-//std::cout << "buildCoordinateSystem() <2>" << std::flush << std::endl;
-	    
 	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
 	    //cerr << "before " << freqmin << "   " << freqmax << endl;
 	    MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
@@ -2764,36 +2756,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 */
 
   MDirection SynthesisParamsImage::getMovingSourceDir(const MeasurementSet& ms, const MEpoch& refEp, const MPosition& obsposition, const MDirection::Types outframe){
-//std::cout << "getMovingSourceDir() <0> movingSource=[" << movingSource << "]" << std::flush << std::endl;
     MDirection outdir;
     String ephemtab(movingSource);
     if(movingSource=="TRACKFIELD"){
       Int fieldID=ROMSColumns(ms).fieldId()(0);
       ephemtab=Path(ROMSColumns(ms).field().ephemPath(fieldID)).absoluteName();
-//std::cout << "getMovingSourceDir() <1> ephemtab=[" << ephemtab << "]" << std::flush << std::endl;
     }
-//std::cout << "getMovingSourceDir() <2>" << std::flush << std::endl;
     casacore::MDirection::Types planetType=MDirection::castType(trackDir.getRef().getType());
     if( (! Table::isReadable(ephemtab)) &&   ( (planetType <= MDirection::N_Types) || (planetType >= MDirection::COMET)))
       throw(AipsError("Does not have a valid ephemeris table or major solar system object defined"));
-//std::cout << "getMovingSourceDir() <3>" << std::flush << std::endl;
     MeasFrame mframe(refEp, obsposition);
     MDirection::Ref outref1(MDirection::AZEL, mframe);
     MDirection::Ref outref(outframe, mframe);
     MDirection tmpazel;
     if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
-//std::cout << "getMovingSourceDir() <4>" << std::flush << std::endl;
       tmpazel=MDirection::Convert(trackDir, outref1)();
-      
     }
     else{
-//std::cout << "getMovingSourceDir() <5>" << std::flush << std::endl;
       MeasComet mcomet(Path(ephemtab).absoluteName());
       mframe.set(mcomet);
       tmpazel=MDirection::Convert(MDirection(MDirection::COMET), outref1)();
     }
     outdir=MDirection::Convert(tmpazel, outref)();
-//std::cout << "getMovingSourceDir() <6> outdir=[" << outdir << "]" << std::flush << std::endl;
 
     return outdir;
   }

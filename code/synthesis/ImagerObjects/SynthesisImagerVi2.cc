@@ -1280,7 +1280,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
   void SynthesisImagerVi2::makeSdImage(Bool dopsf)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
-//std::cout << "makeSdImage()<0>" << std::flush << std::endl;
 //    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 
@@ -1667,7 +1666,6 @@ void SynthesisImagerVi2::unlockMSs()
     theFT->setFreqInterpolation( interpolation );
     theIFT->setFreqInterpolation( interpolation );
 
-//std::cout << "createFTMachine() <0> ftname=[" << ftname << "], mType=[" << mType << "]" << std::flush << std::endl;
     ///Set tracking of moving source if any
     if(movingSource_p != ""){
       theFT->setMovingSource(movingSource_p);
@@ -2528,7 +2526,6 @@ void SynthesisImagerVi2::unlockMSs()
   }// end makePB
 
   Bool SynthesisImagerVi2::getMovingDirection(const vi::VisBuffer2& vb,  MDirection& outDir){
-//std::cout << "getMovingDirection() <0>" << std::flush << std::endl;
     MDirection movingDir;
     Bool trackBeam=False;
     MeasFrame mFrame(MEpoch(Quantity(vb.time()(0), "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef()), mLocation_p);

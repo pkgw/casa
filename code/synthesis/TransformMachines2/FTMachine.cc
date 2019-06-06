@@ -90,6 +90,7 @@ using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
+                           ephemTableName_p(""), 
 			   movingDirShift_p(0.0), 
 			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
@@ -109,7 +110,9 @@ using namespace casa::vi;
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
+    tangentSpecified_p(false), fixMovingSource_p(false), 
+    ephemTableName_p(""), 
+    movingDirShift_p(0.0),
     distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
@@ -185,6 +188,7 @@ using namespace casa::vi;
       //moving source stuff
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
+      ephemTableName_p = other.ephemTableName_p;
       firstMovingDir_p=other.firstMovingDir_p;
       movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
@@ -268,8 +272,6 @@ using namespace casa::vi;
    }
   //----------------------------------------------------------------------
     void FTMachine::initMaps(const vi::VisBuffer2& vb) {
-//std::cout << "initMaps() <0>" << std::flush << std::endl;
-
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
@@ -317,17 +319,22 @@ using namespace casa::vi;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
-	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	  if(mFrame_p.comet())
+	  if (mFrame_p.comet())
 	    mFrame_p.resetComet(mcomet);
 	  else
-	     mFrame_p.set(mcomet);
-	  
-	}
-	else{
-	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	    mFrame_p.set(mcomet);
+	} else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+	  MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+	  if (mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	    mFrame_p.set(mcomet);
+	  tmphadec = MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+	} else {
+	  tmphadec = MDirection::Convert(movingDir_p, outref1)();
 	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
@@ -1139,7 +1146,6 @@ using namespace casa::vi;
   			    const vi::VisBuffer2& vb)
     {
 
-
       if(lastMSId_p != vb.msId())
 	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
@@ -1804,7 +1810,6 @@ using namespace casa::vi;
     return chanMap;
   }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
-//std::cout << "matchChannel() <0>" << std::flush << std::endl;
     //Int spw=vb.spectralWindows()[0];
     nvischan  = vb.nChannels();
     chanMap.resize(nvischan);
@@ -1820,7 +1825,6 @@ using namespace casa::vi;
     else {
       lsrFreq=vb.getFrequencies(0);
     }
-//std::cout << "                    -- movingDir_p = [" << movingDir_p.getRefString() << "]" << std::flush << std::endl;
     if (spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p) {
       if(lastMSId_p != vb.msId()){
 	romscol_p=new ROMSColumns(vb.ms());
@@ -1958,18 +1962,16 @@ using namespace casa::vi;
   
   
   void FTMachine::setMovingSource(const String& sname, const String& ephtab){
-//std::cout << "setMovingSource() <0> sourcename=[" << sname << "], ephemtab=[" << ephtab << "]" << std::flush << std::endl;
     String sourcename=sname;
     String ephemtab=ephtab;
     //if a table is given as sourcename...assume ephemerides
     if(Table::isReadable(sourcename, False)){
-//std::cout << "setMovingSource() <1>" << std::flush << std::endl;
       sourcename="COMET";
       ephemtab=sname;
+      ephemTableName_p = sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
-//std::cout << "setMovingSource() <2> ephemtab=[" << ephemtab << "]" << std::flush << std::endl;
       //if(name().contains("MosaicFT"))
       //	throw(AipsError("Cannot use field phasecenter to track moving source in a Mosaic"));
       fixMovingSource_p=True;
@@ -1980,7 +1982,6 @@ using namespace casa::vi;
       return;
     }
 
-//std::cout << "setMovingSource() <3>" << std::flush << std::endl;
     MDirection::Types refType;
     Bool  isValid = MDirection::getType(refType, sourcename);
     if(!isValid)
@@ -1988,16 +1989,13 @@ using namespace casa::vi;
     if(refType < MDirection::N_Types || refType > MDirection:: N_Planets )
       throw(AipsError(sourcename+" is not type of source we can track"));
     if(refType==MDirection::COMET){
-//std::cout << "setMovingSource() <4>" << std::flush << std::endl;
       MeasComet laComet;
       if(Table::isReadable(ephemtab, False)){
-//std::cout << "setMovingSource() <5>" << std::flush << std::endl;
 	Table laTable(ephemtab);
 	Path leSentier(ephemtab);
 	laComet=MeasComet(laTable, leSentier.absoluteName());
       }
       else{
-//std::cout << "setMovingSource() <6>" << std::flush << std::endl;
         laComet= MeasComet(ephemtab);
       }
       if(!mFrame_p.comet())
@@ -2005,7 +2003,6 @@ using namespace casa::vi;
       else
 	mFrame_p.resetComet(laComet);
     }
-//std::cout << "setMovingSource() <7>" << std::flush << std::endl;
     fixMovingSource_p=true;
     movingDir_p=MDirection(Quantity(0.0,"deg"), Quantity(90.0, "deg"));
     movingDir_p.setRefString(sourcename);
