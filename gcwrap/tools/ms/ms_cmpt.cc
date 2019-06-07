@@ -1185,8 +1185,8 @@ ms::statisticsold(const std::string& column,
 
             Vector<Bool> flagrows;
             Cube<Bool> flags;
-            unsigned flagrows_length;
-            unsigned flags_length;
+            unsigned flagrows_length = 0;
+            unsigned flags_length = 0;
 
             for (vi.originChunks();
                  vi.moreChunks();
