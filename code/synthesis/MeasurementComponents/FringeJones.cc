@@ -1628,6 +1628,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             logSink << "No baselines for correlation " << icor << "; not running least-squares solver." << LogIO::POST;
             continue;
         }
+        // Three parameters for every antenna.
         size_t p = 3 * (bundle.get_num_antennas() - 1);
         // We need to store complex visibilities in a real matrix so we
         // just store real and imaginary components separately.
@@ -1680,7 +1681,6 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             gsl_vector_set(gp, ind+0, casa_param(4*icor + 0, iant));
             gsl_vector_set(gp, ind+1, casa_param(4*icor + 1, iant));
             gsl_vector_set(gp, ind+2, casa_param(4*icor + 2, iant));
-            // FIXME: We could use an initial guess for dispersion
         }
         gsl_vector *gp_orig = gsl_vector_alloc(p);
         // Keep a copy of original parameters
@@ -2215,7 +2215,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     Matrix<Float> sRP(solveRPar().nonDegenerate(1));
     Matrix<Bool> sPok(solveParOK().nonDegenerate(1));
     Matrix<Float> sSNR(solveParSNR().nonDegenerate(1));
-    logSink() << "sPok " << sPok.shape() << LogIO::POST;
+
     
     // Map from MS antenna number to index
     // transcribe fft results to sRP
@@ -2284,8 +2284,11 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     if (DEVDEBUG) {
         cerr << "Ref time " << MVTime(refTime()/C::day).string(MVTime::YMD,7) << endl;
+        //cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " centroidFreq*dt0 " << centroidFreq*dt0 << endl;
+        //cerr << "ref_freq " << ref_freq << endl;
         cerr << "centroidFreq " << centroidFreq << endl;
+        //cerr << "df0 " << df0 << " dt0 " << dt0 << " ref_freq*dt0 " << ref_freq*dt0 << endl;
         cerr << "df0 " << df0 << " dt0 " << dt0 << " centroidFreq*dt0 " << centroidFreq*dt0 << endl;
     }
 
@@ -2294,11 +2297,16 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             Double phi0 = sRP(4*icor + 0, iant);
             Double delay = sRP(4*icor + 1, iant);
             Double rate = sRP(4*icor + 2, iant);
+            // Double delta1 = df0*delay;
+            // Double delta1 = 0.5*df_bootleg*delay/1e9;
+            // auto it =
             aggregateTime.find(iant);
             // We assume the reference frequency for fringe fitting
             // (which is NOT the one stored in the SPECTRAL_WINDOW
             // table) is the left-hand edge of the frequency grid.
+            //Double delta1 = 0.0; 
             Double delta1 = df0*delay/1e9;
+            //Double delta2 = ref_freq*dt0*rate;
             Double delta2 = centroidFreq*dt0*rate;
             Double delta3 = C::_2pi*(delta1+delta2);
             Double dt;
@@ -2328,7 +2336,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
             }
         }
     }
-    std::cerr << "sPok " << sPok << endl; 
 }
 
 void
