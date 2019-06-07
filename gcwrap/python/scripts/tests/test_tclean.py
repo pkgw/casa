@@ -2089,6 +2089,7 @@ class test_mask(testref_base):
 #          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',0.0,[50,85,0,0])])
 #          self.checkfinal(report)
 
+     # AUTOMASK TESTS
      def test_mask_autobox_multithresh(self):
           """ [mask] test_mask__autobox_multithresh :  multi-threshold Autobox (default)"""
           self.prepData('refim_twochan.ms')
@@ -2144,6 +2145,19 @@ class test_mask(testref_base):
                        usemask='auto-multithresh', negativethreshold=5.0,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[60,40,0,0]),(self.img+'.mask',0.0,[65,50,0,0])])
           self.checkfinal(report)
+
+     def test_mask_autobox_multithresh_mfs_IQUV(self):
+          """ [mask] test_mask__autobox_multithresh_mtmfs_IQUV :  multi-threshold Autobox (minbeamfrac=0.3) with cube full polarizaiton (IQUV) imaging """
+          self.prepData('refim_point_linRL.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='mfs',interpolation='nearest',usemask="auto-multithresh", verbose=True, parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[40,60,0,0]),(self.img+'.mask',0.0,[65,50,0,0]), (self.img+'.mask', 1.0,[40,60,3,0])])
+          self.checkfinal(report)
+      
+     def test_mask_autobox_multithresh_cube_IQUV(self):
+          """ [mask] test_mask__autobox_multithresh_cube_IQUV :  multi-threshold Autobox (minbeamfrac=0.3) with cube full polarizaiton (IQUV) imaging """
+          self.prepData('refim_point_linXY.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10, stokes='IQUV',interactive=0,specmode='cube',interpolation='nearest',usemask="auto-multithresh", minbeamfrac=0.05,  verbose=True, parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.mask'], imval=[(self.img+'.mask',1.0,[50,50,0,0]),(self.img+'.mask',1.0,[35,75,0,0]),(self.img+'.mask',0.0,[32,80,1,1]), (self.img+'.mask',1.0,[35,60,1,1]), (self.img+'.mask',1.0,[60,30,3,0])])
 
 #     def test_mask_outregion(self):
 #          """ [mask] test_mask_outregion : Input mask has region that goes outside the image """
