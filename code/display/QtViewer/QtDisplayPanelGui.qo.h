@@ -281,6 +281,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void updateCursorInfo( WorldCanvas *wc, casacore::Quantity x, casacore::Quantity y );
 		typedef std::pair<QString, std::shared_ptr<casacore::ImageInterface<float> > > OverplotInterface;
 
+#if defined(WITHOUT_DBUS)
+		// Hold and release of refresh.  In order to draw, every call to hold()
+		// must be accompanied by a subsequent call to release() (so don't
+		// neglect: beware of exceptions, e.g.).  Calls can nest (they are
+		// counted).  Panel may be deleted in a held state.  Also, excess calls
+		// to release() will have no effect.  The calls are propagated to the main
+		// PanelDisplay as well as to those used for color bars (and thence to
+		// their WorldCanvases).
+		//<group>
+		void hold( ) { displayPanel( )->hold( ); }
+		void release( ) { displayPanel( )->release( ); }
+        //</group>
+#endif
+
 	public slots:
 
 		// At least for now, colorbars can only be placed horizontally or vertically,
