@@ -1769,6 +1769,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
                 casa_flags(4*icor + 0, iant) = false;
                 casa_flags(4*icor + 1, iant) = false;
                 casa_flags(4*icor + 2, iant) = false;
+                casa_flags(4*icor + 3, iant) = false;
             }
         }
 
@@ -2221,8 +2222,6 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     Int ncol = drf.param().ncolumn();
     Int nrow = drf.param().nrow();
     
-    std::cerr << "nrow " << nrow << ", ncol " << ncol << endl; 
-    std::cerr << "drf.flag() " << drf.flag() << endl; 
     for (Int i=0; i!=ncol; i++) {
         for (Int j=0; j!=nrow; j++) {
             Int oj = (j>=3) ? j+1 : j;
