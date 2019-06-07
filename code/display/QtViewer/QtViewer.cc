@@ -115,17 +115,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 			// all gui operations must happen in the "gui thread" because Qt is not
 			// thread-safe... so we need create & result signals and slots
-			connect( viewer_svc, SIGNAL(panel(const QString&,bool,int)), 
-					 this, SLOT(grpc_panel(const QString&,bool,int)) );
-			connect( this, SIGNAL(grpc_panel_result(QtDisplayPanelGui*,int)),
-					 viewer_svc, SLOT(panel_result(QtDisplayPanelGui*,int)) );
+			connect( viewer_svc, SIGNAL(new_op( )),
+					 this, SLOT(grpc_handle_op( )) );
+			connect( viewer_svc, SIGNAL(exit_now( )),
+					 this, SLOT(quit( )) );
 			builder.RegisterService(viewer_svc);
 			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 			// shutdown service is used by casatools etc. to notify gui services
 			// when the system is shutting down...
 			auto shutdown_svc = state->shutdown_service.get( );
 			builder.RegisterService(shutdown_svc);
-			connect( shutdown_svc, SIGNAL(exitnow( )),
+			connect( shutdown_svc, SIGNAL(exit_now( )),
 					 this, SLOT(quit( )) );
 
 
@@ -311,46 +311,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 #if defined(WITHOUT_DBUS)
-	void QtViewer::grpc_panel( const QString &type, bool hidden, int panel_id ){
 
-		QtDisplayPanelGui *result = 0;
-
-		if ( type == "clean" ) {
-
-			// <drs> need to ensure that this is not leaked...
-			result = createInteractiveCleanGui( );
-
-			if ( hidden ) result->hide( );
-
-//*grpc*		connect(result, SIGNAL(interact(QVariant)), this, SLOT(handle_interact(QVariant)));
-
-		} else if ( type == "clean2" ) {
-
-			// <drs> need to ensure that this is not leaked...
-			result = createInteractiveCleanGui2( );
-
-			if ( hidden ) result->hide( );
-
-//*grpc*		connect(cpg_, SIGNAL(interact(QVariant)), this, SLOT(handle_interact(QVariant)));
-
-		} 
-		else {
-
-			result = createDPG();
-//*grpc*		connect( result, SIGNAL(destroyed(QObject*)), SLOT(handle_destroyed_panel(QObject*)) );
-
-			if ( type.endsWith(".rstr") ) {
-				struct stat buf;
-				if ( stat( type.toLatin1( ).constData( ), &buf ) == 0 ) {
-					result->restorePanelState(to_string(type));
-				}
-			}
-
-			if ( hidden ) result->hide( );
+	void QtViewer::grpc_handle_op( ) {
+		std::lock_guard<std::mutex> exc(grpc_queue_mutex);
+		if ( ! grpc_queue.empty( ) ) {
+			std::function<void()> f = grpc_queue.front( );
+			grpc_queue.pop( );
+			f( );
 		}
-
-		emit grpc_panel_result( result, panel_id );
 	}
+
 #endif
 
 
