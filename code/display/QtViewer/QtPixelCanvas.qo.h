@@ -490,7 +490,7 @@ namespace casa {
 		// under construction, in Compile mode.
 		casacore::uInt drawListNo_;		// Number of drawlist currently being compiled.
 
-		casacore::SimpleOrderedMap<casacore::uInt, void*> drawlists_;
+		std::map<casacore::uInt, void*> drawlists_;
 		// cache of all current draw lists.
 
 

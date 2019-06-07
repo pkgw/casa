@@ -42,7 +42,7 @@
 #include <ms/MeasurementSets/MSColumns.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 
-#include <casa/Containers/List.h>
+#include <list>
 
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisibilityIterator.h>
@@ -182,7 +182,7 @@ private:
    
    //averaged, store as VBs 
    VisBuffer* pAveBuff;
-   casacore::List<VisBuffer*> aveList;
+   std::list<VisBuffer*> aveList;
 
    //averaging inputs, ideally, calculate only needed column
    casacore::String column;

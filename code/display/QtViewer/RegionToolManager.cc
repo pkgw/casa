@@ -52,14 +52,11 @@ namespace casa {
 			pd(pd_), moving_handle(false), moving_handle_info(0,0,region::PointOutside),
 			moving_handle_region(0), factory(rsf), panel(dpg_) {
 			// register for world canvas events...
-			pd->myWCLI->toStart( );
-			while ( ! pd->myWCLI->atEnd( ) ) {
-				WorldCanvas* wc = pd->myWCLI->getRight( );
-				wc->addPositionEventHandler(*this);
-				wc->addMotionEventHandler(*this);
-				wc->addRefreshEventHandler(*this);
-				(*(pd->myWCLI))++;
-			}
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							wc->addPositionEventHandler(*this);
+							wc->addMotionEventHandler(*this);
+							wc->addRefreshEventHandler(*this);
+				} );
 
 			std::shared_ptr<RegionTool> point(new QtCrossTool(rsf,pd));
 			tools.insert(tool_map::value_type(PointTool,point));
@@ -497,13 +494,13 @@ namespace casa {
         template <typename V> const V &pairindex( const std::pair<V,V> &p, unsigned int i )
             { return (i==0) ? p.first : p.second; }
 
-        void RegionToolManager::loadRegions( const std::string &path, const std::string &/*type*/ ) {
+		void RegionToolManager::loadRegions( const std::string &path, const std::string &/*type*/ ) {
 
-            bool first_trip = true;
-            ListIter<WorldCanvas* > wcs = pd->wcs();
-            for ( wcs.toStart(); ! wcs.atEnd(); wcs.step( ) ) {
-                WorldCanvas *wc = wcs.getRight();
-                if ( wc == 0 ) continue;
+			bool first_trip = true;
+			std::list<WorldCanvas*> wcs;
+			pd->wcsApply( [&](WorldCanvas *wc) { wcs.push_back(wc); } );
+			for ( auto wc : wcs ) {
+				if ( wc == 0 ) continue;
                 DisplayData *dd = wc->csMaster( );
                 QtDisplayData *qdd = panel->displayPanel( )->getDD(dd);
                 if ( qdd == 0 ) continue;

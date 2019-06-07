@@ -30,7 +30,7 @@
 #include <display/DisplayShapes/DSScreenArrow.h>
 
 #include <casa/Quanta/UnitMap.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/WorldCanvas.h>
 #include <casa/Arrays/ArrayMath.h>
 
@@ -385,62 +385,42 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	WorldCanvas* DSWorldArrow::chooseWC(const Float& startXPos,
-	                                    const Float& startYPos,
-	                                    const Float& endXPos,
-	                                    const Float& endYPos,
-	                                    PanelDisplay* pd) {
+										const Float& startYPos,
+										const Float& endXPos,
+										const Float& endYPos,
+										PanelDisplay* pd) {
 
-		Bool success = false;
 		WorldCanvas* toReturn(0);
 
 		// Look for ones where the point is in WC and in draw area
-		ListIter<WorldCanvas* > wcs = pd->wcs();
+		pd->wcsApply( [&](WorldCanvas *wc) {
+						if ( toReturn == 0 ) {
+							if ( wc->inWC( Int(startXPos+0.5), Int(startYPos+0.5) ) &&
+								 wc->inWC( Int(endXPos+0.5), Int(endYPos+0.5) ) &&
+								 wc->inDrawArea( Int(startXPos+0.5), Int(startYPos+0.5) ) &&
+								 wc->inDrawArea( Int(endXPos+0.5), Int(endYPos+0.5)) ) {
 
-		wcs.toStart();
+								const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
 
-		while( !wcs.atEnd() && !success) {
-			if (wcs.getRight()->inWC(Int(startXPos+0.5), Int(startYPos+0.5)) &&
-			        wcs.getRight()->inWC(Int(endXPos+0.5), Int(endYPos+0.5)) &&
-			        wcs.getRight()->inDrawArea(Int(startXPos+0.5), Int(startYPos+0.5)) &&
-			        wcs.getRight()->inDrawArea(Int(endXPos+0.5), Int(endYPos+0.5))) {
-
-
-				const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-
-
-				if (test) {
-					toReturn = wcs.getRight();
-					success = true;
-				} else {
-					wcs.step();
-				}
-
-			} else {
-				wcs.step();
-			}
-		}
-
+								if ( test ) toReturn = wc;
+							}
+						}
+			} );
+							
 		// if that returns nothing, look for one just in WC..
-		if (!success) {
-			wcs.toStart();
+		if ( toReturn == 0 ) {
 
-			while(!wcs.atEnd() && !success) {
-				if (wcs.getRight()->inWC(Int(startXPos+0.5), Int(startYPos+0.5)) &&
-				        wcs.getRight()->inWC(Int(endXPos+0.5), Int(endYPos+0.5))) {
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							if ( toReturn == 0 ) {
+								if ( wc->inWC( Int(startXPos+0.5), Int(startYPos+0.5) ) &&
+									 wc->inWC( Int(endXPos+0.5), Int(endYPos+0.5)) ) {
 
-					const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-					if (test) {
-						toReturn = wcs.getRight();
-						success = true;
-					} else {
-						wcs.step();
-					}
-
-				} else {
-					wcs++;
-				}
-			}
-		}
+									const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+									if ( test ) toReturn = wc;
+								}
+							}
+				} );
+		}								 
 
 		return toReturn;
 	}

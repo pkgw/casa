@@ -1943,7 +1943,7 @@ def evaluateFlagParameters(pardict, pars):
      
     # Define the parameters that don't go in an input list in flagdata
     removepars = ['vis','inpfile','flagbackup','tbuff','cmdreason','savepars','outfile',
-                  'display','action','async']
+                  'display','action']
      
     # Remove the parameters we don't need to evaluate
     for par in removepars:

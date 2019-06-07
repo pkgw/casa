@@ -6,29 +6,29 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
       <task type="function" name="importuvfits" category="import/export">
-	<shortdescription>Convert a UVFITS file to a CASA visibility data set</shortdescription>
-	<description>Convert a UVITS file to a CASA visiblity data set.
-		Don\'t forget to flag autocorrelations using taskname flagdata, autocorr = true
-	</description>
-	<input>
-		<param type="string" mustexist="true" name="fitsfile">
-			<description>Name of input UV FITS file</description>
-			<value></value>
-		</param>
+    <shortdescription>Convert a UVFITS file to a CASA visibility data set</shortdescription>
+    <description>Convert a UVITS file to a CASA visiblity data set.
+                Don\'t forget to flag autocorrelations using taskname flagdata, autocorr = true
+    </description>
+    <input>
+        <param type="string" mustexist="true" name="fitsfile">
+            <description>Name of input UV FITS file</description>
+            <value></value>
+        </param>
 
-		<param type="string" name="vis">
-			<description>Name of output visibility file (MS)</description>
-			<value></value>
-		</param>
-		<param type="string" name="antnamescheme">
+        <param type="string" name="vis">
+            <description>Name of output visibility file (MS)</description>
+            <value></value>
+        </param>
+        <param type="string" name="antnamescheme">
                   <description>VLA/EVLA/CARMA only; \'new\' or \'old\'; \'VA04\' or \'04\' for VLA ant 4</description>
-		  <value>old</value>
-		  <allowed kind="enum">
-		  <value>old</value>
-		  <value>new</value>
-		  </allowed>
-		</param>
-	</input>
+          <value>old</value>
+          <allowed kind="enum">
+          <value>old</value>
+          <value>new</value>
+          </allowed>
+        </param>
+    </input>
 
 <example>
         Convert a UVFITS file to a CASA visibility data set:
@@ -38,7 +38,7 @@
                 default = none; example='3C273XC1.fits'
         vis -- Name of output visibility file (MS)
                 default = none; example: vis='3C273XC1.ms'
-	antnamescheme -- Naming scheme for VLA/JVLA/CARMA antennas
+        antnamescheme -- Naming scheme for VLA/JVLA/CARMA antennas
                 default = old;
                   old: Antenna name is a number, '04'
                        This option exists for backwards compatibility
@@ -50,8 +50,8 @@
         async --  Run asynchronously
                default = false; do not run asychronously
 
-	Note: Don't forget to flag autocorrections using
-	   taskname flagdata, autocorr = true
+        Note: Don't forget to flag autocorrections using
+           taskname flagdata, autocorr = true
 
  </example>
  </task>

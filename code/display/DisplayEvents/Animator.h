@@ -30,7 +30,7 @@
 
 //# aips includes
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 //# display library includes
 #include <display/DisplayEvents/WCRefreshEH.h>
@@ -385,7 +385,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Set the list of additional Attributes that the Animator  places on the
 		// WorldCanvasHolders before each update.
-		virtual void setBlinkRestrictions(casacore::List<void *> *attBuffers);
+		virtual void setBlinkRestrictions(std::list<void *> *attBuffers);
 
 		// Remove the casacore::List with AttributeBuffers
 		virtual void clearBlinkRestrictions();
@@ -424,10 +424,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	private:
 
 		// casacore::List of WorldCanvasHolders
-		casacore::List<void *> holderList;
+		std::list<void *> holderList;
 
 		// casacore::List of the AttributeBuffers
-		casacore::List<void *> *attBufList;
+		std::list<void *> *attBufList;
 
 		// parameters of movies
 		casacore::Double minCoord;

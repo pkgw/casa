@@ -15,117 +15,117 @@ The spectral reference frame can be changed prior to export using the
 task imreframe.
 </description>
 <input>
-	<param type="string" name="imagename" mustexist="true">
+    <param type="string" name="imagename" mustexist="true">
 <shortdescription>Name of input CASA image</shortdescription>
 <description>Name of input CASA image
                      Default: none
 
                         Example: fitsimage='3C273XC1.image'
 </description>
-		<value></value>
-	</param>
+        <value></value>
+    </param>
 
-	<param type="string" name="fitsimage">
+    <param type="string" name="fitsimage">
 <shortdescription>Name of output image FITS file</shortdescription>
 <description>Name of output image FITS file
                      Default: none
 
                         Example: fitsimage='3C273XC1.fits'
 </description>
-		<value></value>
-	</param>
+        <value></value>
+    </param>
 
-	<param type="bool" name="velocity">
+    <param type="bool" name="velocity">
 <shortdescription>Use velocity (rather than frequency) as spectral axis</shortdescription>
 <description>Use velocity (rather than frequency) as spectral axis
                      Default: False
                      Options: False|True
 </description>
-		<value>False</value>
-	</param>
+        <value>False</value>
+    </param>
 
-	<param type="bool" name="optical">
+    <param type="bool" name="optical">
 <shortdescription>Use the optical (rather than radio) velocity convention</shortdescription>
 <description>Use the optical (rather than radio) velocity convention
                      Default: False
                      Options: False|True
 </description>
-		<value>False</value>
-	</param>
+        <value>False</value>
+    </param>
 
-	<param type="int" name="bitpix">
+    <param type="int" name="bitpix">
 <shortdescription>Bits per pixel</shortdescription>
 <description>Bits per pixel
                      Default: -32
 
                         Example: bitpix=16
 </description>
-		<value>-32</value>
-		<allowed kind="enum">
-			<value>-32</value>
-			<value>16</value>
-		</allowed>
-	</param>
+        <value>-32</value>
+        <allowed kind="enum">
+            <value>-32</value>
+            <value>16</value>
+        </allowed>
+    </param>
 
-	<param type="any" name="minpix">
+    <param type="any" name="minpix">
 <shortdescription>Minimum pixel value (if minpix &gt; maxpix, value is automatically determined)</shortdescription>
 <description>Minimum pixel value (if minpix > maxpix, value is automatically determined)</description>
-		<any type="variant" limittypes="int double"/>
-		<value type="int">0</value>
-	</param>
+        <any type="variant" limittypes="int double"/>
+        <value type="int">0</value>
+    </param>
 
-	<param type="any" name="maxpix">
-		<any type="variant" limittypes="int double"/>
+    <param type="any" name="maxpix">
+        <any type="variant" limittypes="int double"/>
 <shortdescription>Maximum pixel value (if minpix &gt; maxpix, value is automatically determined)</shortdescription>
 <description>Maximum pixel value (if minpix > maxpix, value is
 automatically determined)
                      Default: -1
 </description>
-		<value type="int">-1</value>
-	</param>
+        <value type="int">-1</value>
+    </param>
 
-	<param type="bool" name="overwrite" >
+    <param type="bool" name="overwrite" >
 <shortdescription>Overwrite output file if it exists?</shortdescription>
  <description>Overwrite output file if it exists?
                      Default: False
                      Options: False|True
 </description>
-		<value>False</value>
-	</param>
+        <value>False</value>
+    </param>
 
-	<param type="bool" name="dropstokes" >
+    <param type="bool" name="dropstokes" >
 <shortdescription>Drop the Stokes axis?</shortdescription>
 <description>Drop the Stokes axis?</description>
                      Default: False
                      Options: False|True
-		<value>False</value>
-	</param>
+        <value>False</value>
+    </param>
 
-	<param type="bool" name="stokeslast" >
+    <param type="bool" name="stokeslast" >
 <shortdescription>Put Stokes axis last in header?</shortdescription>
 <description>Put Stokes axis last in header?
                      Default: True
                      Options: True|False
 </description>
-		<value>True</value>
-	</param>
-	<param type="bool" name="history" >
+        <value>True</value>
+    </param>
+    <param type="bool" name="history" >
 <shortdescription>Write history to the FITS image?</shortdescription>
 <description>Write history to the FITS image?
                      Default: True
                      Options: True|False
 </description>
-		<value>True</value>
-	</param>
+        <value>True</value>
+    </param>
 
-	<param type="bool" name="dropdeg" >
+    <param type="bool" name="dropdeg" >
 <shortdescription>Drop all degenerate axes (e.g. Stokes and/or Frequency)?</shortdescription>
 <description>Drop all degenerate axes (e.g. Stokes and/or Frequency)?
                      Default: False
                      Options: False|True
 </description>
-		<value>False</value>
-	</param>
+        <value>False</value>
+    </param>
 
 </input>
 <example>

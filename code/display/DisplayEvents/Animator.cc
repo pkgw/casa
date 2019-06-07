@@ -221,11 +221,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<void *> it(&holderList);
-
 		// add to List
-		it.addRight((void *) wCnvsHldr);
+		holderList.push_front(wCnvsHldr);
 
 		wCnvsHldr->worldCanvas()->addRefreshEventHandler(*itsAnimatorRefEH);
 
@@ -234,24 +231,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // remove a WorldCanvasHolder from the buffer
 	void Animator::removeWorldCanvasHolder(WorldCanvasHolder& wCnvsHldr) {
-		// create iterator
-		ListIter<void *> it(&holderList);
+		std::list<void *> orig = holderList;
+		std::list<void *> removed;
+		holderList.clear( );
+		std::partition_copy( orig.begin( ), orig.end( ),
+							 std::back_inserter(removed),
+							 std::back_inserter(holderList),
+							 [&](void *vp){return vp == &wCnvsHldr;} );
 
-		// while something in the list
-		while(!it.atEnd()) {
-			// check if this is the one
-			if (it.getRight() == (void *) &wCnvsHldr) {
-				// if so, delete
-				it.removeRight();
-				wCnvsHldr.worldCanvas()->removeRefreshEventHandler(*itsAnimatorRefEH);
-				// addWorldCanvasHolder does not prevent to store the same WorldCanvas
-				// twice, so we should continue iterating, so we cannot do here: break;
-			} else {
-				it++;
-			}
+		if ( removed.size( ) > 0 ) {
+			wCnvsHldr.worldCanvas()->removeRefreshEventHandler(*itsAnimatorRefEH);
 		}
-
-
 	}
 
 // handle a refresh event - ie. see if the resetCoordinates att
@@ -271,35 +261,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // refresh
 	void Animator::refresh() {
-		// create iterator
-		ListIter<void *> it(&holderList);
 
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wCnvsHldr;
-
-		// while something in the list
-		while(!it.atEnd()) {
-			// check if this is the one
-			wCnvsHldr = (WorldCanvasHolder *) it.getRight();
-
+		for ( void *vp : holderList ) {
+			WorldCanvasHolder *wCnvsHldr = (WorldCanvasHolder*) vp;
 			// and refresh the WorldCanvas of this WorldCanvasHolder
 			(wCnvsHldr->worldCanvas())->refresh();
-
-			// go to next WorldCanvasHolder
-			it++;
 		}
 	}
 
 
 // Register the List of AttributeBuffers
-	void Animator::setBlinkRestrictions(List<void *> *newAttBufList) {
+	void Animator::setBlinkRestrictions(std::list<void *> *newAttBufList) {
 		if (newAttBufList == 0) {
 			throw(AipsError("nimator::setBlinkRestrictions - "
 			                "null pointer passed"));
 		}
 
 		attBufList = newAttBufList;
-
 	}
 
 
@@ -426,30 +404,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // reset the animator
 	void Animator::reset() {
 		uInt nelements = 0;
-
-		// create iterator
-		ListIter<void *> it(&holderList);
-
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wcHolder;
-
-		// commented out dgb 1998/12/17: don't want to renegotiate spatial
-		// coords on screen, just movie plane...
-		//Attribute coordReset("resetCoordinates", true);
-
-		// while something in the list
-		while(!it.atEnd()) {
-			// check if this is the one
-			wcHolder = (WorldCanvasHolder *) it.getRight();
-
+        for ( void *vp : holderList ) {
+            WorldCanvasHolder *wcHolder = (WorldCanvasHolder *) vp;
 			// get the nelements  from this WorldCanvasHolder
-			nelements = max(nelements, wcHolder->nelements());
-
-			// tell WorldCanvas that coordinates need updating
-			//wcHolder->worldCanvas()->setAttribute(coordReset);
-
-			// go to next WorldCanvasHolder
-			it++;
+			nelements = max( nelements, wcHolder->nelements( ) );
 		}
 		setMinAndMaxCoord(0.0, max(0.0, Double(nelements)-1.0));
 		setStep(1.0);
@@ -518,12 +476,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // write the correct Attributes on the WorldCanvasHolders
 	void Animator::writeRestrictions() {
 
-		// create iterator for the List of WorldCanvasHolders
-		ListIter<void *> holderIt(&holderList);
-
-		// and pointer to a WorldCanvasHolder
-		WorldCanvasHolder *wCnvsHldr;
-
 		// pointer for the extra Attribute that could be written
 		Attribute *extraAtt;
 		extraAtt = 0;
@@ -539,27 +491,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			extraAtt = new Attribute("zValue", currentCoord, coordTolerance);
 		}
 
-		// create iterator for the List of AttributeBuffers
-		ListIter<void *> *atIt;
-		atIt = 0;
-
 		// and a pointer to an AttributeBuffer
 		AttributeBuffer *attBuf = 0;
-
 		if (attBufList != 0) {
-			atIt = new ListIter<void *>(attBufList);
-
+			auto atIt = attBufList->begin( );
+			
 			// go to correct position in List and extract the AttributeBuffer
-			numberInList = min(numberInList, Int(atIt->len())-1);
-			atIt->pos(numberInList);
-			attBuf = (AttributeBuffer *) atIt->getRight();
+			numberInList = min(numberInList, Int(attBufList->size( ))-1);
+			std::advance(atIt,numberInList);
+			attBuf = (AttributeBuffer *) *atIt;
 		}
 
 
 		// loop the WorldCanvasHolder list
-		while(!holderIt.atEnd()) {
-			// get the WorldCanvas
-			wCnvsHldr = (WorldCanvasHolder *) holderIt.getRight();
+		for ( void *vp : holderList ) {
+
+			WorldCanvasHolder *wCnvsHldr = (WorldCanvasHolder*) vp;
 
 			// if needed, write extra Attribute and remove 'the wrong one'
 			if (matchMode == Animator::MATCH_INDEX) {
@@ -577,19 +524,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				wCnvsHldr->setRestrictions(*attBuf);
 			}
 
-			// iterate
-			holderIt++;
 		}
 
 		//cleanup
 		if (extraAtt != 0) {
 			delete extraAtt;
 		}
-		if (atIt != 0) {
-			delete atIt;
-		}
-
-
 
 	}
 
@@ -602,8 +542,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return 0;
 		} else {
 			// else, find length and return
-			ListIter<void *> it(attBufList);
-			return Int(it.len());
+			return Int(attBufList->size( ));
 		}
 	}
 

@@ -13,8 +13,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="string" name="imagename" mustexist="true">
-    	<description>Name of the input image</description>
-    	<value/>
+        <description>Name of the input image</description>
+        <value/>
         <example>imagename='ngc5921.im'</example>
     </param>
     <param type="any" name="region">

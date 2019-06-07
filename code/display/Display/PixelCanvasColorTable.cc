@@ -51,27 +51,23 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //
 
 	void PixelCanvasColorTable::addResizeCallback(PixelCanvasColorTableResizeCB cb, void * clientData) {
-		ListIter<void *> it(resizeCBList_);
-		ListIter<void *> dit(clientDataList_);
-		it.toEnd();
-		dit.toEnd();
-		it.addRight((void *) cb);
-		dit.addRight(clientData);
+        resizeCBList_.push_back((void *)cb);
+        clientDataList_.push_back(clientData);
 	}
 
 	void PixelCanvasColorTable::removeResizeCallback(PixelCanvasColorTableResizeCB cb, void * clientData) {
-		ListIter<void *> it(resizeCBList_);
-		ListIter<void *> dit(clientDataList_);
-		while(!it.atEnd() && !dit.atEnd()) {
-			if (it.getRight() == (void *) cb && dit.getRight() == clientData) {
-				it.removeRight();
-				dit.removeRight();
+		auto it = resizeCBList_.begin( );
+		auto dit = clientDataList_.begin( );
+		while ( it != resizeCBList_.end( ) && dit != clientDataList_.end( ) ) {
+			if ( *it == (void *) cb && *dit == clientData) {
+                resizeCBList_.erase(it);
+                clientDataList_.erase(dit);
 				break;
 			}
-			if (!it.atEnd()) {
+			if ( it != resizeCBList_.end( ) ) {
 				it++;
 			}
-			if (!dit.atEnd()) {
+			if ( dit != clientDataList_.end( ) ) {
 				dit++;
 			}
 		}
@@ -85,11 +81,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		//dcmapMgr_.redistributeColormaps();
 
 		//cout << "Pcctbl : doing resize callbacks..." << endl;
-		ListIter<void *> it(resizeCBList_);
-		ListIter<void *> dit(clientDataList_);
-		while(!it.atEnd()) {
-			((PixelCanvasColorTableResizeCB) it.getRight())(this, nColors(), dit.getRight(), reason);
-			it++;
+		auto dit = clientDataList_.begin( );
+		for ( void *vp : resizeCBList_ ) {
+			auto resize_cb = (PixelCanvasColorTableResizeCB) vp;
+			(resize_cb)(this, nColors(), *dit, reason);
 			dit++;
 		}
 		//cout << "Pcctbl : done with resize callbacks." << endl;
