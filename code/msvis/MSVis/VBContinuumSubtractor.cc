@@ -45,9 +45,13 @@
 #include <scimath/Fitting/LinearFitSVD.h>
 #include <scimath/Functionals/Polynomial.h>
 
+#include <msvis/MSVis/VisBuffer2.h>
+
 //#include <algorithm>
 
 using namespace casacore;
+using namespace casa::vi;
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 VBContinuumSubtractor::VBContinuumSubtractor():
@@ -608,6 +612,154 @@ Bool VBContinuumSubtractor::apply(VisBuffer& vb,
   }
   return ok;
 }
+
+
+// Do the subtraction  VB2 version
+Bool VBContinuumSubtractor::apply2(VisBuffer2& vb,
+				   Cube<Complex>& Vout,
+				   //const MS::PredefinedColumns whichcol,
+				   const Cube<Complex>& coeffs,
+				   const Cube<Bool>& coeffsOK,
+				   const Bool doSubtraction,
+				   const Bool squawk)
+{
+    using casacore::operator*;
+
+  LogIO os(LogOrigin("VBContinuumSubtractor", "apply2"));
+
+  if(!doShapesMatch(vb, os, squawk))
+    return false;
+    
+  Bool ok = areFreqsInBounds(vb, squawk); // A Bool might be too Boolean here.
+  ok = true;                              // Yep, returning false for a slight
+                                          // extrapolation is too harsh.
+
+  Cube<Complex>& viscube(Vout);
+  
+  Cube<Bool> fC;
+  fC.reference(vb.flagCube());
+
+  uInt nchan = vb.nChannels();
+  uInt nvbrow = vb.nRows();
+
+  Vector<Double> freqpow(fitorder_p + 1);           // sf**ordind
+  freqpow[0] = 1.0;
+  const Vector<Double>& freq(vb.getFrequencies(0));
+
+  for(uInt c = 0; c < nchan; ++c){
+    Double sf = freqscale_p * (freq[c] - midfreq_p);      // scaled frequency
+  
+    for(Int ordind = 1; ordind <= fitorder_p; ++ordind)
+      freqpow[ordind] = sf * freqpow[ordind - 1];
+
+    for(uInt vbrow = 0; vbrow < nvbrow; ++vbrow){
+      uInt blind = hashFunction(vb.antenna1()(vbrow),
+                                vb.antenna2()(vbrow));
+
+      for(uInt corrind = 0; corrind < ncorr_p; ++corrind){
+        if(coeffsOK(corrind, 0, blind)){
+          Complex cont = coeffs(corrind, 0, blind);
+
+          for(Int ordind = 1; ordind <= fitorder_p; ++ordind)
+            cont += coeffs(corrind, ordind, blind) * freqpow[ordind];
+          if(doSubtraction)
+            viscube(corrind, c, vbrow) -= cont;
+          else
+            viscube(corrind, c, vbrow) = cont;            
+
+          // TODO: Adjust WEIGHT_SPECTRUM (create if necessary?), WEIGHT, and
+          // SIGMA.
+        }
+        else
+        {
+            // jagonzal: Do not flag data in case of not successful
+            // sfit because it might be cause by the line-free mask
+        	// and we may end up flagging 'good' line channels
+            if (!tvi_debug) fC(corrind, c, vbrow) = true;
+            // jagonzal: When returning the continuum, in case of not
+            // successful fit we should return 0, not the input data
+            if (tvi_debug and !doSubtraction) viscube(corrind, c, vbrow) = 0;
+        }
+        //vb.flag()(c, vbrow) = true;
+      }
+    }
+  }
+  return ok;
+}
+
+Bool VBContinuumSubtractor::doShapesMatch(VisBuffer2& vb,
+                                          LogIO& os, const Bool squawk) const
+{
+  Bool theydo = true;
+
+  if(vb.nCorrelations() != static_cast<Int>(ncorr_p)){
+    theydo = false;
+    if(squawk)
+      os << LogIO::SEVERE
+         << "The supplied number of correlations, " << vb.nCorrelations()
+         << ", does not match the expected " << ncorr_p
+         << LogIO::POST;
+  }
+  if(max(vb.antenna2()) > maxAnt_p){
+    theydo = false;             // Should it just flag unknown baselines?
+    if(squawk)
+      os << LogIO::SEVERE
+         << "The fit is only valid for antennas with indices <= " << maxAnt_p
+         << LogIO::POST;
+  }
+  return theydo;
+}
+
+void VBContinuumSubtractor::getMinMaxFreq(VisBuffer2& vb,
+                                          Double& minfreq,
+                                          Double& maxfreq,
+                                          const Bool initialize)
+{
+  const Vector<Double>& freq(vb.getFrequencies(0));  // row=0, assumed uniform in VB2
+  Int hichan = vb.nChannels() - 1;
+  Int lochan = 0;
+
+  if(initialize){
+    maxfreq = -1.0;
+    minfreq = DBL_MAX;
+  }
+  
+  if(freq[hichan] < freq[lochan]){
+    lochan = hichan;
+    hichan = 0;
+  }
+  if(freq[hichan] > maxfreq)
+    maxfreq = freq[hichan];
+  if(freq[lochan] < minfreq)
+    minfreq = freq[lochan];
+}
+
+
+Bool VBContinuumSubtractor::areFreqsInBounds(VisBuffer2& vb,
+                                             const Bool squawk) const
+{
+  Double maxfreq, minfreq;
+  
+  getMinMaxFreq(vb, minfreq, maxfreq);
+  Bool result = minfreq >= lofreq_p && maxfreq <= hifreq_p;
+
+  if(squawk && !result){
+    // The truth was considered too alarming (CAS-1968).
+    // LogIO os(LogOrigin("VBContinuumSubtractor", "areFreqsInBounds"));
+    LogIO os(LogOrigin("VBContinuumSubtractor", "apply"));
+
+    os << LogIO::WARN
+       << "Extrapolating to cover [" << 1.0e-9 * minfreq << ", "
+       << 1.0e-9 * maxfreq << "] (GHz).\n"
+       << "The frequency range used for the continuum fit was ["
+       << 1.0e-9 * lofreq_p << ", "
+       << 1.0e-9 * hifreq_p << "] (GHz)."
+       << LogIO::POST;
+  }
+  return result;
+}
+
+
 
 } //# NAMESPACE CASA - END
 
