@@ -2393,7 +2393,7 @@ void Calibrater::fluxscale(const String& infile,
   if (outfile=="") 
     throw(AipsError("output fluxscaled caltable name must be specified!"));
   else {
-    if (File(outfile).exists()) 
+    if (File(outfile).exists() && !append) 
       throw(AipsError("output caltable name, "+outfile+" exists. Please specify a different caltable name"));
   }
 
