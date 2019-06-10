@@ -34,7 +34,7 @@ Bootstrap the flux density scale from standard calibrators.
         </param>
 
         <param type="string" name="fluxtable">
-<shortdescription>Name of output, flux-scaled calibration table</shortdescription>
+<shortdescription>Name of output, flux-scaled calibration table (required)</shortdescription>
 <description>Name of output, flux-scaled calibration table (required)
                      Default: none
 
