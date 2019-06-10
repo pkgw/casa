@@ -5902,11 +5902,6 @@ ia.close()
      <value>false</value>
      </param>
   
-     <param type="bool"  name="async">
-     <description>Run asynchronously?</description>
-     <value>false</value>
-     </param>
-     
      <param type="bool"  name="stretch">
         <description>Stretch the mask if necessary and possible? Default False</description>
         <value>false</value>
@@ -6930,10 +6925,6 @@ ia.close()
          <value>false</value>
      </param>
   
-     <param type="bool"  name="async">
-     <description>Run asynchronously?</description>
-     <value>false</value>
-     </param>
 </input>
 <returns type="image"/>
 
@@ -7836,11 +7827,6 @@ ia.close()
      <value>false</value>
      </param>
   
-     <param type="bool"  name="async">
-     <description>Run asynchronously?</description>
-     <value>false</value>
-     </param>
-     
      <param type="bool"  name="stretch">
         <description>Stretch the mask if necessary and possible? Default False</description>
         <value>false</value>
@@ -7983,11 +7969,6 @@ ia.close()
         <value>false</value>
      </param>
   
-     <param type="bool"  name="async">
-     <description>Run asynchronously?</description>
-     <value>false</value>
-     </param>
-     
      <param type="bool"  name="stretch">
         <description>Stretch the mask if necessary and possible? Default False</description>
         <value>false</value>
@@ -10326,11 +10307,6 @@ ia.close()
      <value>false</value>
      </param>
   
-     <param type="bool"  name="async">
-     <description>Run asynchronously?</description>
-     <value>false</value>
-     </param>
-     
      <param type="bool"  name="stretch">
         <description>Stretch the mask if necessary and possible? Default False</description>
         <value>false</value>
