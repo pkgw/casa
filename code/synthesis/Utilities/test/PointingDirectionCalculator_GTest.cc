@@ -302,7 +302,7 @@ private:
      //*
 
      const bool fgCopyMS    = true;	// always must be TRUE for TestDirection 
-     const bool fgDeleteMS  = true;   // if FALSE, MS is not deleted. (for debug) 
+     const bool fgDeleteMS  = false;   // if FALSE, MS is not deleted. (for debug) 
 };
 
 //+
@@ -2167,7 +2167,7 @@ protected:
         // Fixture::InterpolationListedItems option
         //*
           const uInt start_sn =0; 	         // starting senario no. in loop.
-          const uInt end_sn   =3;              // end senario no. in loop
+          const uInt end_sn   =0;              // end senario no. in loop
 
           uInt preparedColumn_  = 3;      // Number of prepeared Pointing-Column (1 to 5)
           uInt preparedAntenna_ = 3;      // Number of Antenna (more than 0 )
@@ -2413,6 +2413,24 @@ typedef struct Parm {
 
 std::vector<ParamList>  paramListS[] =
 {
+#if 1
+#define ANT    0
+#define NTEST   2580
+#define FUNC   TrajectoryFunction::Type::Normalized_Linear 
+    //// 10-JUN-2019, SPECIAL ////
+    {
+       {true,  ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 0.2,    0.1,     FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 2.0,    1.0,     FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 20.0,   10.0,    FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 200.0,  100.0,   FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 2000.0,    1000.0,    FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 20000.0,   10000.0,   FUNC,  5.0E-05 },
+       {true,  ANT, NTEST, 200000.0,  100000.0,  FUNC,  5.0E-05 },
+
+    },
+#endif 
     // Senario 0 (Big Ratio) //
     {
       {true,  0,1800, 1.0,  1.0	  ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
@@ -2540,15 +2558,16 @@ TEST_F(TestDirection, InterpolationSingle )
       use_spline = true;
 
     // define Number of Antenna prepeared in MS =TUNABLE //
-      setMaxAntenna(3);             // more than zero (usually =1 ) 
+      setMaxAntenna(2);             // more than zero (usually =1 ) 
       setMaxPointingColumns(5);     // from 1 to 5 (see  PtColID::nItems;)
 
     // Dividing Count in delta Time // 
-      setInterpolationDivCount(3);   // default = 10 
+      setInterpolationDivCount(3);   // programmer default = 10, on Bamboo =3 
 
     // set Examination Condition (revised by CAS-8418) //
 
-      uInt numRow = 1000;
+       uInt numRow = 1000;
+
       selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
       setCondition( numRow,       // number of row
                     0.1,          // Pointing Interval
