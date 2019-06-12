@@ -207,11 +207,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<WCPositionEH*> iter(&itsPositionEHList);
-
 		// add to List
-		iter.addRight(newHandler);
+		itsPositionEHList.push_front(newHandler);
 
 	}
 
@@ -223,11 +220,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<WCMotionEH*> iter(&itsMotionEHList);
-
 		// add to List
-		iter.addRight(newHandler);
+		itsMotionEHList.push_front(newHandler);
 	}
 
 // add a refresh handler on the DisplayData
@@ -239,11 +233,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<WCRefreshEH*> iter(&itsRefreshEHList);
-
 		// add to List
-		iter.addRight(newHandler);
+		itsRefreshEHList.push_front(newHandler);
 
 	}
 // add a display handler on the DisplayData
@@ -255,93 +246,37 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			                "null pointer passed"));
 		}
 
-		// create iterator
-		ListIter<DisplayEH*> iter(&itsDisplayEHList);
-
 		// add to List
-		iter.addRight(newHandler);
+		itsDisplayEHList.push_front(newHandler);
 	}
 // remove a position event handler
 	void DisplayData::removePositionEventHandler(WCPositionEH& handler) {
-
-		// create iterator
-		ListIter<WCPositionEH*> iter(&itsPositionEHList);
-
-		// loop through List
-		while (!iter.atEnd()) {
-			// if this is the one
-			if ( &handler == iter.getRight()) {
-				// delete it from list
-				iter.removeRight();
-				// added 1998/08/21 dgb
-				break;
-			}
-			// addPositionEventHandler does not prevent from add the same event
-			// handler twice, so have to keep on looping
-			iter++;
-		}
+		std::list<WCPositionEH*> orig = itsPositionEHList;
+		itsPositionEHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsPositionEHList), [&](WCPositionEH *p) { return p != &handler; } );
 	}
 
 // remove a motion event handler
 	void DisplayData::removeMotionEventHandler(WCMotionEH& handler) {
-
-		// create iterator
-		ListIter<WCMotionEH*> iter(&itsMotionEHList);
-
-		// loop through List
-		while (!iter.atEnd()) {
-			// if this is the one
-			if ( &handler == iter.getRight()) {
-				// delete it from list
-				iter.removeRight();
-				// added 1998/08/21 dgb
-				break;
-			}
-			// addMotionEventHandler does not prevent from add the same event
-			// handler twice, so have to keep on looping    // go to next
-			iter++;
-		}
+		std::list<WCMotionEH*> orig = itsMotionEHList;
+		itsMotionEHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsMotionEHList), [&](WCMotionEH *p) { return p != &handler; } );
 	}
 
 // remove a refresh handler
 	void DisplayData::removeRefreshEventHandler(WCRefreshEH& handler) {
-
-		// create iterator
-		ListIter<WCRefreshEH*> iter(&itsRefreshEHList);
-
-		// loop through List
-		while (!iter.atEnd()) {
-			// if this is the one
-			if ( &handler == iter.getRight()) {
-				// delete it from list
-				iter.removeRight();
-				break;
-			}
-			// addRefreshEventHandler does not prevent from add the same event
-			// handler twice, so have to keep on looping
-			iter++;
-		}
-	}
+		std::list<WCRefreshEH*> orig = itsRefreshEHList;
+		itsRefreshEHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsRefreshEHList), [&](WCRefreshEH *p) { return p != &handler; } );
+    }
 
 // remove a display handler
 	void DisplayData::removeDisplayEventHandler(DisplayEH& handler) {
-
-		// create iterator
-		ListIter<DisplayEH*> iter(&itsDisplayEHList);
-
-		// loop through List
-		while (!iter.atEnd()) {
-			// if this is the one
-			if ( &handler == iter.getRight()) {
-				// delete it from list
-				iter.removeRight();
-				break;
-			}
-			// addDisplayEventHandler does not prevent from add the same event
-			// handler twice, so have to keep on looping
-			iter++;
-		}
+		std::list<DisplayEH*> orig = itsDisplayEHList;
+		itsDisplayEHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsDisplayEHList), [&](DisplayEH *p) { return p != &handler; } );
 	}
+
 	void DisplayData::setColormap(Colormap *cmap, Float weight) {
 		if (cmap == 0) {
 			throw(AipsError("DisplayData::setColormap - "
@@ -352,15 +287,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		}
 
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
-		WorldCanvasHolder *wcHolder = 0;
 		WorldCanvas *wcanvas = 0;
 		if (weight != itsColormapWeight) {
 			// will have to clear, possibly unregister, then register:
 			// for this case, the resize callbacks can be expected to happen...
-			it.toStart();
-			while (!it.atEnd()) {
-				wcHolder = it.getRight();
+			for ( auto wcHolder : itsWCHList ) {
 				wcanvas = wcHolder->worldCanvas();
 
 				wcanvas->clear();
@@ -371,11 +302,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				/*
 				if (itsColormap) {
 				wcanvas->registerColormap(cmap, itsColormap);
-				     } else {
+					 } else {
 				wcanvas->registerColormap(cmap, weight);
-				     }
-				     */
-				it++;
+					 }
+					 */
 			}
 			itsColormap = cmap;
 			itsColormapWeight = weight;
@@ -388,23 +318,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// 1. there is no "replaceColormap" method in the infrastructure!
 			// 2. it'll require further work for the case of panelling, so
 			// for the moment, I just treat it like the previous case:
-			it.toStart();
-			while (!it.atEnd()) {
-				wcHolder = it.getRight();
+			for ( auto wcHolder : itsWCHList ) {
+
 				wcanvas = wcHolder->worldCanvas();
 				/*
 				wcanvas->clear();
 				if (itsColormap) {
 				wcanvas->unregisterColormap(itsColormap);
-				     }
-				     wcanvas->registerColormap(cmap, weight);
-				     */
+					 }
+					 wcanvas->registerColormap(cmap, weight);
+					 */
 				if (itsColormap) {
 					wcanvas->registerColormap(cmap, itsColormap);
 				} else {
 					wcanvas->registerColormap(cmap, weight);
 				}
-				it++;
 			}
 			itsColormap = cmap;
 			itsColormapWeight = weight;
@@ -418,27 +346,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return;
 		}
 
-		// create iterator and temporary
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
-		WorldCanvasHolder *wcHolder = 0;
-
-		// and register the Colormap with all the PixelCanvases
-		while (!it.atEnd()) {
-			wcHolder = it.getRight();
+		for ( auto wcHolder : itsWCHList )
 			(wcHolder->worldCanvas())->unregisterColormap(itsColormap);
-			it++;
-		}
+
 		// no ColorMap on this DisplayData
 		itsColormap = 0;
 	}
 
 	void DisplayData::notifyRegister(WorldCanvasHolder *wcHolder) {
-		// create iterator
-		ListIter<WorldCanvasHolder*> it(&itsWCHList);
 
-		// add to list
-		it.toEnd();
-		it.addRight(wcHolder);
+        itsWCHList.push_back(wcHolder);
 
 		WorldCanvas* wc = wcHolder->worldCanvas();
 
@@ -448,19 +365,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void DisplayData::refresh(Bool clean) {
-		if (clean) {
-			cleanup();
-		}
-
-		// create iterator
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
-		it.toStart();
-
-		// loop
-		while (!it.atEnd()) {
-			(it.getRight())->refresh();
-			it++;
-		}
+		if (clean) cleanup();
+        for ( auto holder : itsWCHList ) holder->refresh( );
 	}
 
 	Bool DisplayData::labelAxes(const WCRefreshEvent &) {
@@ -474,16 +380,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// in their destructor.
 
 		while (true) {
-			// The ListIter is recreated each time, because the WCH it points at
-			// is deleted out from under it elsewhere (in notifyUnregister(), below).
-			// (If someone knows it is safe to use a single ListIter here anyway,
-			// they can change this code if they want to...)
-			ListIter<WorldCanvasHolder*> wchs(&itsWCHList);
-			if(wchs.atEnd()) return;
-			WorldCanvasHolder* wch= wchs.getRight();
-			if (wch==0)  {
-				return;		// (shouldn't happen).
-			}
+			if ( itsWCHList.size( ) == 0 ) return;
+			// This 'wch'is deleted elsewhere (in notifyUnregister(), below).
+			WorldCanvasHolder* wch = itsWCHList.front( );
+			itsWCHList.pop_front( );
+			if (wch==0) return;						// (shouldn't happen).
 			wch->removeDisplayData(*this, true);
 		}
 	}
@@ -504,9 +405,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Block<Int> zInds;
 		Int size = 0;
 
-		ConstListIter<WorldCanvasHolder*> wchs(&itsWCHList);
-		for (wchs.toStart(); !wchs.atEnd(); wchs++) {
-			WorldCanvasHolder* wch = wchs.getRight();
+		for ( auto wch : itsWCHList ) {
 			Int zIndex;
 			Bool zIndexExists;
 			const AttributeBuffer *wchRestrs = wch->restrictionBuffer();
@@ -529,39 +428,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void DisplayData::notifyUnregister(WorldCanvasHolder &wcHolder,
-	                                   Bool ignoreRefresh) {
-		// create iterator
-		ListIter<WorldCanvasHolder*> it(&itsWCHList);
-		it.toStart();
-		Bool removed = false;
-		// loop
-		while (!it.atEnd() && !removed) {
-			WorldCanvasHolder* holder = it.getRight();
-			if ( &wcHolder == holder ) {
-				// if this is the one
+									   Bool ignoreRefresh) {
+		std::list<WorldCanvasHolder*> orig = itsWCHList;
+		itsWCHList.clear( );
+		std::copy_if( orig.begin( ), orig.end( ),
+                      std::back_inserter(itsWCHList),
+                      [&](WorldCanvasHolder *holder){return &wcHolder != holder;} );
 
-				WorldCanvas* wc = wcHolder.worldCanvas();
+		if ( orig.size( ) != itsWCHList.size( ) ) {
+			WorldCanvas* wc = wcHolder.worldCanvas( );
+			wc->removeIndexedImage(this);				// attempt to avoid some erroneous
 
-				wc->removeIndexedImage(this);	// attempt to avoid some erroneous
-				// reuse (probably unnecessary)....
-				if (itsColormap !=0) {
-					// if there is a colormap, unregister it
-					wc->unregisterColormap(itsColormap);
-				}
-				// remove WorldCanvasHolder from list
-				oldWCHolder = holder;
-				it.removeRight();
+			// if there is a colormap, unregister it
+			if (itsColormap !=0) wc->unregisterColormap(itsColormap);
+			oldWCHolder = &wcHolder;
 
-				removed = true;
-			} else {
-				it++;
-			}
-		}
-
-		// now we must clean up this DD, and it'll get redrawn now on any
-		// other WCHs it's registered on: need to fix this to properly
-		// support multiple WCH.
-		if (removed) {
+			// now we must clean up this DD, and it'll get redrawn now on any
+			// other WCHs it's registered on: need to fix this to properly
+			// support multiple WCH.
 			if (!ignoreRefresh) {
 				refresh(true);
 			} else {
@@ -575,22 +459,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	Bool DisplayData::isCSmaster(const WorldCanvasHolder* wch) const {
-
 		// Is this DD the CS master of the passed WCH?
-
 		if(wch!=0) return wch->isCSmaster(this);
 
 		// Defaulting wch to zero asks whether this DD is CS master of
 		// _some_ WCH on which it is registered.  This option is mostly
 		// a kludge, since the DD may be CS master of some WCHs and not
 		// others if there is more than one display panel.
-
-		ConstListIter<WorldCanvasHolder*> wchs(&itsWCHList);
-		for (wchs.toStart(); !wchs.atEnd(); wchs++) {
-			if(wchs.getRight()->isCSmaster(this)) return true;
-		}
-
-		return false;
+		return std::any_of( itsWCHList.begin( ), itsWCHList.end( ), [&](WorldCanvasHolder *holder){return holder->isCSmaster(this);} );
 	}
 
 
@@ -684,54 +560,38 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	void DisplayData::setAttributeOnPrimaryWCHs(Attribute &at) {
-		// create iterator
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
-		it.toStart();
-		// loop
-		WorldCanvasHolder *wch = 0;
-		while (!it.atEnd()) {
-			wch = it.getRight();
-			if (wch->isCSmaster(this)) {
-				wch->worldCanvas()->setAttribute(at);
-			}
-			it++;
+		for ( auto wch : itsWCHList ) {
+			if (wch->isCSmaster(this)) wch->worldCanvas()->setAttribute(at);
 		}
 	}
 
 	const WorldCanvasHolder *DisplayData::findHolder(const WorldCanvas *wCanvas) const {
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
 		WorldCanvasHolder *tholder = 0;
-		it.toStart();
-		while (!it.atEnd() && !tholder) {
-			tholder = it.getRight();
-			if (tholder->worldCanvas() != wCanvas) {
-				tholder = 0;
-				it++;
-			}
-		}
-		if ( tholder == NULL && wCanvas->csMaster() == this ){
+        for ( auto holder : itsWCHList ) {
+			if (holder->worldCanvas() == wCanvas) {
+                tholder = holder;
+                break;
+            }
+        }
+		if ( tholder == 0 && wCanvas->csMaster() == this ){
 			tholder = oldWCHolder;
 		}
 		return tholder;
 	}
 
 	WorldCanvasHolder *DisplayData::findHolder(const WorldCanvas *wCanvas) {
-		ConstListIter<WorldCanvasHolder*> it(&itsWCHList);
 		WorldCanvasHolder *tholder = 0;
-		it.toStart();
-		while (!it.atEnd() && !tholder) {
-			tholder = it.getRight();
-			if (tholder->worldCanvas() != wCanvas) {
-				tholder = 0;
-				it++;
-			}
-		}
-		if ( tholder == NULL && wCanvas->csMaster() == this ){
+        for ( auto holder : itsWCHList ) {
+			if (holder->worldCanvas() == wCanvas) {
+                tholder = holder;
+                break;
+            }
+        }
+		if ( tholder == 0 && wCanvas->csMaster() == this ){
 			tholder = oldWCHolder;
 		}
 		return tholder;
 	}
-
 
 	void DisplayData::delTmpData(String &tmpData) {
 		Path tmpPath(tmpData);
@@ -755,42 +615,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	void DisplayData::positionEH(const WCPositionEvent &ev) {
-		WCPositionEH *eh = 0;
-		ConstListIter<WCPositionEH*> iter(&itsPositionEHList);
-		iter.toStart();
-		while (!iter.atEnd()) {
-			eh = iter.getRight();
-			if (eh) {
-				(*eh)(ev);
-			}
-			iter++;
-		}
+		for ( WCPositionEH *eh : itsPositionEHList ) {
+            if ( eh ) (*eh)(ev);
+        }
 	}
 
 	void DisplayData::motionEH(const WCMotionEvent &ev) {
-		WCMotionEH *eh = 0;
-		ConstListIter<WCMotionEH*> iter(&itsMotionEHList);
-		iter.toStart();
-		while (!iter.atEnd()) {
-			eh = iter.getRight();
-			if (eh) {
-				(*eh)(ev);
-			}
-			iter++;
-		}
+        for ( WCMotionEH *eh : itsMotionEHList ) {
+            if ( eh ) (*eh)(ev);
+        }
 	}
+
 // overide DisplayEH::handleEvent to forward DisplayEvents
 	void DisplayData::handleEvent(DisplayEvent &ev) {
-		DisplayEH *eh = 0;
-		ConstListIter<DisplayEH*> iter(&itsDisplayEHList);
-		iter.toStart();
-		while (!iter.atEnd()) {
-			eh = iter.getRight();
-			if (eh) {
-				eh->handleEvent(ev);
-			}
-			iter++;
-		}
+        for ( DisplayEH *eh : itsDisplayEHList ) {
+            if ( eh ) eh->handleEvent(ev);
+        }
 	}
 
 	DisplayData::DisplayData(const DisplayData &other) :

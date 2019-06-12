@@ -43,7 +43,7 @@
 #include <ms/MeasurementSets/MSColumns.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 
-#include <casa/Containers/List.h>
+#include <list>
 
 #include <msvis/MSVis/VisBuffer.h>
 #include <msvis/MSVis/VisibilityIterator.h>

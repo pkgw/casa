@@ -180,12 +180,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Shift the zoom window for all the tool's WCs.  (Note that
 		// all must be using compatible coordinate conversions).
 		// (std. WC refresh will refresh MWCTools as well).
-		itsWCListIter->toStart();
-		while (!itsWCListIter->atEnd()) {
-			WorldCanvas *wc = itsWCListIter->getRight();
+		for ( auto wc : itsWCList ) {
 			wc->setZoomRectangleLCS(blc, trc);
 			wc->refresh(Display::LinearCoordinateChange);
-			(*itsWCListIter)++;
 		}
 
 		zoomed(blc, trc);

@@ -64,13 +64,13 @@ int main(int argc, char **argv)
    SpectralCoordinate spc(MFrequency::LSRK, 1.5e9, 1e6, 0.0 , 1.420405752E9);
    CoordinateSystem cs;
    cs.addCoordinate(dc); cs.addCoordinate(stc); cs.addCoordinate(spc);
-   Int x=10000; Int y=10000;
+   Int x=10000; Int y=12000;
    PagedImage<Complex> im(IPosition(4,x,y,1,1), cs, "gulu0.image");
    im.set(0.0);
    im.putAt(Complex(3.0, 1.5),IPosition(4,x/100*20,y/100*80,0,0));
    im.putAt (Complex(4.0, 2.0),IPosition(4,x/100*60,y/100*70,0,0));
    im.putAt(Complex(1.0, 0.5),IPosition(4,x/100*10,y/100*10,0,0));
-   im.putAt(Complex(2.0, 1.0),IPosition(4,x/100*75,x/100*25,0,0));
+   im.putAt(Complex(2.0, 1.0),IPosition(4,x/100*75,y/100*25,0,0));
    PagedImage<Complex> im3(IPosition(4,x,y,1,1), cs, "gulu_lat.image");
    im3.copyData(im);
    Double wtime0=0.0;
@@ -84,6 +84,7 @@ int main(int argc, char **argv)
      omp_set_num_threads(numthreads);
 #endif
    }
+   FFT2D ftw(true);
    {
      Array<Complex> arr0;
      Array<Complex> arr1;
@@ -113,8 +114,9 @@ int main(int argc, char **argv)
        arr0.putStorage(scr, del);
      }
      //////Lets do FFT via FFTW
+     
      {
-       FFT2D ft(true);
+       
        im.get(arr1, true);
 #ifdef _OPENMP
        wtime0=omp_get_wtime();
@@ -122,14 +124,14 @@ int main(int argc, char **argv)
 
        Bool del;
        Complex *scr= arr1.getStorage(del);
-       ft.doFFT(scr, Long(x), Long(y), true);
+       ftw.doFFT(scr, Long(x), Long(y), true);
 
 #ifdef _OPENMP
        cerr << "FFTW forward " << x << " by " << y << " complex takes " << omp_get_wtime()-wtime0 << endl;
        wtime0=omp_get_wtime();
 #endif
 
-       ft.doFFT(scr, Long(x), Long(y), false);
+       ftw.doFFT(scr, Long(x), Long(y), false);
 
 #ifdef _OPENMP
        cerr << "FFTW backward " << x << " by " << y << " complex takes " << omp_get_wtime()-wtime0 << endl;
@@ -185,8 +187,8 @@ int main(int argc, char **argv)
    Bool del;
    Complex *scr= arr.getStorage(del);
    cerr << "isRef " << isRef << " storage is copy " << del << endl;
-   FFT2D smp(true);
-   smp.c2cFFT(scr, Long(x), Long(y));
+   //FFT2D smp(true);
+   ftw.c2cFFT(scr, Long(x), Long(y));
 #ifdef _OPENMP
    wtime2=omp_get_wtime();
 #endif
@@ -198,7 +200,7 @@ int main(int argc, char **argv)
     cerr << "getting array " << wtime1-wtime0 << " fft " << wtime2-wtime1 << " put " << omp_get_wtime()-wtime2 << endl;
    wtime0=omp_get_wtime();
 #endif
-   smp.c2cFFT(scr, Long(x), Long(y), false);
+   ftw.c2cFFT(scr, Long(x), Long(y), false);
 #ifdef _OPENMP  
    wtime1=omp_get_wtime();
 #endif

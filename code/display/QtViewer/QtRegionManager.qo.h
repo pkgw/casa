@@ -31,7 +31,7 @@
 #define QTREGIONMANAGER_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/QtViewer/QtDisplayPanel.qo.h>
 #include <display/DisplayDatas/DisplayData.h>
 
@@ -149,7 +149,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	private:
 		casacore::PtrBlock<const casacore::ImageRegion * >  unionRegions_p;
-		casacore::List<RegionShape*> regShapes_p;
+		std::list<RegionShape*> regShapes_p;
 		void unfoldIntoSimpleRegionPtrs(casacore::PtrBlock<const casacore::WCRegion*>& outRegPtrs, const casacore::WCRegion*& wcreg);
 		QHash<QString, DisplayData*> regData;
 		QHash<QString, bool> regState;
