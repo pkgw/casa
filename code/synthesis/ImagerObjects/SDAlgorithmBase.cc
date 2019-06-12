@@ -337,6 +337,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return loopcontrols.majorCycleRequired(currentresidual);
   }
 
+  Long SDAlgorithmBase::estimateRAM(){
+
+    //Simple deconvolvers will have psf + residual + model + mask (1 plane at a time)
+    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*4/1024;
+    return mem;
+  }
+
   void SDAlgorithmBase::setRestoringBeam( GaussianBeam restbeam, String usebeam )
   {
     LogIO os( LogOrigin("SDAlgorithmBase","setRestoringBeam",WHERE) );

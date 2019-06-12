@@ -60,7 +60,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual  ~SDAlgorithmMSClean();
     
     //    void restore( casacore::CountedPtr<SIImageStore> imagestore );
-    
+
+      //returns the estimate of memory used in kilobytes (kB);
+    virtual casacore::Long estimateRAM();
   protected:
     
     // Local functions to be overloaded by various algorithm deconvolvers.

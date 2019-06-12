@@ -742,6 +742,30 @@ void SIMapperCollection::initializeGrid(vi::VisibilityIterator2& vi, Bool dopsf,
       }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+  Long SIMapperCollection::estimateRAM(){
+    Long mem=0;
+    	for (uInt k=0; k < itsMappers.nelements(); ++k)
+	  {
+            if(! ((itsMappers[k])->getFTM2()))
+              throw(AipsError("No VI/VB2 FTMachine set"));
+            ///IFT
+            if(((itsMappers[k])->getFTM2())->estimateRAM()> 0){
+              mem+=((itsMappers[k])->getFTM2())->estimateRAM();
+            //FT
+              mem+=((itsMappers[k])->getFTM2(False))->estimateRAM();
+            }
+            else{
+              //Assuming double precision...ignoring padding etc.
+              mem+=6*sizeof(float)*(((itsMappers[k])->imageStore())->getShape().product());
+            }
+            //Imagestorages
+            mem+=((itsMappers[k])->imageStore())->estimateRAM();
+  	  }
+        return mem;
+  }
+  
   //////////////////////////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////////////////////////
 

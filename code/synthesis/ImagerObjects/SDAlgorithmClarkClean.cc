@@ -80,6 +80,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  }
 
   //  void SDAlgorithmClarkClean::initializeDeconvolver( Float &peakresidual, Float &modelflux )
+  Long SDAlgorithmClarkClean::estimateRAM(){
+
+    //Simple deconvolvers will have psf + residual + model + mask (1 plane at a time)
+    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*6/1024;
+    return mem;
+  }
   void SDAlgorithmClarkClean::initializeDeconvolver()
   {
     LogIO os( LogOrigin("SDAlgorithmClarkClean","initializeDeconvolver",WHERE) );

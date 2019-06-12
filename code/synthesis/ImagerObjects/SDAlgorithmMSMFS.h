@@ -57,7 +57,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual  ~SDAlgorithmMSMFS();
     
     void restore( std::shared_ptr<SIImageStore> imagestore );
-    
+     ///returns the estimate of memory used in kilobytes (kB);
+    virtual casacore::Long estimateRAM();
   protected:
     
     // Local functions to be overloaded by various algorithm deconvolvers.

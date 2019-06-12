@@ -825,6 +825,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return mods;
   }
 
+  Long SIImageStore::estimateRAM(){
+    //right now this is estimated at 2MB for the 2 complex lattices;
+    return Long(2000);
+  }
   void SIImageStore::setModelImage( Vector<String> modelnames)
   {
     LogIO os( LogOrigin("SIImageStore","setModelImage",WHERE) );

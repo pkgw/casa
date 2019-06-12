@@ -85,6 +85,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
  }
 
+  Long SDAlgorithmMSClean::estimateRAM(){
+    //Number of planes in memory
+    //npsf=nscales+1
+    //nresidual=4+nscales
+    //nmodel=1
+    //nmasks=2+nscales
+    //transfer functions=nscales*2
+    Long nplanes=5*itsScaleSizes.nelements()+7;
+    //in kB
+    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*nplanes/1024;
+    return mem;
+  }
  
   //  void SDAlgorithmMSClean::initializeDeconvolver( Float &peakresidual, Float &modelflux )
   void SDAlgorithmMSClean::initializeDeconvolver()

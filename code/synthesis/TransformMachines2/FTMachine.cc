@@ -613,6 +613,19 @@ using namespace casa::vi;
 
   }
 
+  
+  Long FTMachine::estimateRAM(){
+    //not set up yet 
+    if(!image)
+      return -1;
+    Long npixels=((image->shape()).product())/1024;
+    if(npixels==0) npixels=1; //1 kPixels is minimum then
+    Long factor=8;
+    if(!toVis_p && useDoubleGrid_p)
+      factor=16;
+    return (npixels*factor);
+  }
+  
   void FTMachine::shiftFreqToSource(Vector<Double>& freqs){
     MDoppler dopshift;
     MEpoch ep(mFrame_p.epoch());
