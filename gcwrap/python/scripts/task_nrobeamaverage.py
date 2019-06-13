@@ -47,7 +47,7 @@ def nrobeamaverage(
     casalog.origin('nrobeamaverage')
     try:
         #set temporary data name
-        tmpfile = 'tmp-nrobeamaverage-' + infile + '-' + "{0:%Y%m%d%H%M%S.%f}".format(datetime.datetime.now()) + '.ms'
+        tmpfile = 'tmp-nrobeamaverage-' + os.path.basename(infile.rstrip('/')) + '-' + "{0:%Y%m%d%H%M%S.%f}".format(datetime.datetime.now()) + '.ms'
 
         #data selection
         do_mst(infile=infile, datacolumn=datacolumn, 
