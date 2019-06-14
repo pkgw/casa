@@ -1492,11 +1492,11 @@ public:
         void writePseudoOnPointing  ( );
         void writePseudoOnMainTable (Double dt );
 
-        String MsName_ ;
+        String LocalMsName_ ;
 
 private:
     void init() {
-         MsName_ = DefaultLocalMsName()  ;
+         LocalMsName_ = DefaultLocalMsName()  ;
     }
 
 };
@@ -1509,7 +1509,7 @@ private:
 
 uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 {
-    AntennaTableAccess ata(MsName_,true);
+    AntennaTableAccess ata(LocalMsName_,true);
     ata.appendRow(addCnt);
     ata.flush();
     uInt nrow = ata.getNrow();
@@ -1536,7 +1536,7 @@ void setData(ANTENNADataBuff &data, uInt id)
 
 void MsEdit::prepareDataToAntennaTable( )
 {
-    AntennaTableAccess ata(MsName_,true);
+    AntennaTableAccess ata(LocalMsName_,true);
 
     uInt nrow_a = ata.getNrow();
     printf( "MsEdit: prepareDataToAntennaTable () current nrow=%d \n", nrow_a);
@@ -1575,12 +1575,12 @@ void MsEdit::prepareDataToAntennaTable( )
 uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
     {
-      PointingTableAccess pta(MsName_,true);
+      PointingTableAccess pta(LocalMsName_,true);
       pta.appendRow(AddCount);
       pta.flush();
     }
     
-    PointingTableAccess pta(MsName_,true);
+    PointingTableAccess pta(LocalMsName_,true);
     uInt nrow = pta.getNrow();
    
     return nrow;
@@ -1595,12 +1595,12 @@ uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 void MsEdit::duplicateNewColumnsFromDirection()
 {
     { 
-        PointingTableAccess ata(MsName_,true);
+        PointingTableAccess ata(LocalMsName_,true);
         ata.duplicateColumns();
     } /* Once close */ 
 
     {
-        PointingTableAccess ata(MsName_,true);
+        PointingTableAccess ata(LocalMsName_,true);
         ata.fillNewColumns();
     }
 } 
@@ -1615,7 +1615,7 @@ void MsEdit::duplicateNewColumnsFromDirection()
 void  MsEdit::writePseudoOnPointing()
 {
 
-    PointingTableAccess pT( MsName_, true);
+    PointingTableAccess pT( LocalMsName_, true);
 
     //+
     //  Loop for each Row,
@@ -1710,7 +1710,7 @@ void  MsEdit::writePseudoOnPointing()
 
 uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 {
-     MainTableAccess   mta(MsName_,true);
+     MainTableAccess   mta(LocalMsName_,true);
      mta.appendRow(AddCount);
      uInt nRow = mta.getNrow();
      mta.flush();
@@ -1726,7 +1726,7 @@ uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 
 void  MsEdit::writePseudoOnMainTable(Double div)
 {
-    MainTableAccess   mta(MsName_,true);
+    MainTableAccess   mta(LocalMsName_,true);
 
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow()  ;
