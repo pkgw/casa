@@ -678,8 +678,10 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
         } else {
             auto xAxisIndex = QPOptions::axis(xAxis);
             auto xStep = m_canvas.axisStepSize(xAxisIndex);
-            const auto * scaleDiv = getAxisScaleDiv(xAxisIndex);
-            if ( scaleDiv != nullptr and not scaleDiv->isIncreasing() )
+            auto ok_direction = this->axisScaleSortDirection(xAxis);
+            auto ok = ok_direction.first;
+            auto sortDirection = ok_direction.second;
+            if ( ok and ( sortDirection == SortDirection::DESCENDING) )
                 m_canvas.setAxisScale(xAxisIndex, xMax, xMin, xStep);
             else
                 m_canvas.setAxisScale(xAxisIndex, xMin, xMax, xStep);
