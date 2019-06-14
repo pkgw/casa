@@ -357,8 +357,8 @@ String BaseClass::CopyMStoWork(String master)
                        True,    // Overwrite 
                        True  ); // Users permisssion 
 
-        printf( "- copied from Remote MS [%s]  \n", dst.c_str() );
-        printf( "         to   Local MS  [%s]  \n", src.c_str() );
+        printf( "- copied from Remote MS [%s]  \n", src.c_str() );
+        printf( "         to   Local  MS [%s]  \n", dst.c_str() );
 
        return dst;
     }
@@ -1798,8 +1798,11 @@ protected:
  ----------------------------------------*/
 void TestMeasurementSet::test_constructor(String const name)
 {
+    // Copy to Local //
+        String local_ms = CopyMStoWork(name);
+
     // CONSTRUCTOR  //
-        MeasurementSet ms0( name  );      
+        MeasurementSet ms0(local_ms);      
         PointingDirectionCalculator calc(ms0);
 
     // Initial brief Inspection //
@@ -1827,7 +1830,7 @@ TEST_F(TestMeasurementSet, variousConstructor )
     {
         FunctionalDescription( "CALC Constructor by various MS", 
                                std::to_string(m)+". " + MsList.name(m).c_str()  );
-        String name = env.getCasaMasterPath()+ MsList.name(m);
+        String name =  MsList.name(m);
         if ( MsList.isException(m))
         {
             EXPECT_ANY_THROW( test_constructor(name) );
