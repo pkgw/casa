@@ -46,7 +46,7 @@
 #include <measures/TableMeasures/ScalarMeasColumn.h>
 #include <measures/TableMeasures/ArrayMeasColumn.h>
 #include <tables/Tables/ScalarColumn.h>
-
+// CAS-8418 //
 #include <synthesis/Utilities/SDPosInterpolator.h>
 #include <memory>  // for unique_ptr<> 
 #include <utility> // for std::pair
@@ -127,7 +127,6 @@ namespace casa {
 ///
 
 class SplineInterpolation;       // CAS-8418 Forward Reference //
-// class DirectionColumnsAccessor;  // CAS-8418 Forward Reference //
 
 class PointingDirectionCalculator {
 public:
@@ -140,6 +139,9 @@ public:
                                        casacore::uInt rownr);
     typedef
     enum DC_ { DIRECTION, TARGET, POINTING_OFFSET, SOURCE_OFFSET, ENCODER, nItems} PtColID;
+
+    typedef casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
+    COEFF;
 
     // Enumerations for memory layout of the output pointing direction array.
     // User should select the layout according to an usercase of this class.
@@ -193,8 +195,8 @@ public:
     // "SOURCE_OFFSET", and "ENCODER". These values are all case-sensitive.
     //
     // CAS-8418 Update
-    //   Spline-Interpolation initialze is inserted for each POINTING Column.
-    //   Once this initialization is done, the object will be reused.
+    //   Spline-Interpolation initialization is inserted for each POINTING Column.
+    //   Once this is done, the object will be reused.
     //-
        
     void setDirectionColumn(casacore::String const &columnName = "DIRECTION");
@@ -299,15 +301,16 @@ public:
 
     inline void setSplineInterpolation(bool mode) {useSplineInterpolation_ = mode;};
 
-    // Spline Object handle (on Debug)
-
-    inline casa::SplineInterpolation      *getCurrentSplineObj() {return currSpline_; }
-
     // Curret Direction column (=accessor in this source) (for UT)
 
     inline PtColID  getCurretAccessorId()  { return  accessorId_ ; };
 
-private:
+    // Exporting COEFF table. //
+
+    bool    isCoefficientReady();   // true if current COEFF is availabe 
+    COEFF   exportCoeff();          // returns copy of COEFF
+
+private: 
 
     void init();
     void initPointingTable(casacore::Int const antennaId);
@@ -382,14 +385,16 @@ private:
     // Accessor ID (See typedef above. ) 
       PtColID   accessorId_ ;
  
-    // creating temporary Spline object (in construction)
+    // check specified Column when creating Spline-Object.
 
       bool checkColumn(casacore::MeasurementSet const &ms,
                         casacore::String const &columnName );
 
-    // Initialize Coefficient and others  
-      bool initializeSplinefromPointingColumn(casacore::MeasurementSet const &ms,
-                                                PtColID  colNo );
+    // Initialize Coefficient table.
+      bool initializeSplinefromPointingColumn(casacore::MeasurementSet const &ms, PtColID  colNo );
+
+    // Current Spline-Object handle. (only available SplineInterpolation class) 
+      casa::SplineInterpolation         *getCurrentSplineObj() {return currSpline_; }
 
 };
 
@@ -409,19 +414,18 @@ public:
 
          ~SplineInterpolation() {    }
 
-        // Calculate function //
+        // Calculating Function //
 
         casacore::Vector<casacore::Double>   calculate(casacore::uInt row,
                                                        casacore::Double dt,
                                                        casacore::uInt AntennaID =0);
-        // Internal stauts (for inspection)  //
+        // Spline-Obj coefficient status   //
 
         bool isCoefficientReady()   {return stsCofficientReady; }
        
         // Programmers API:: for Coefficient Table access // 
 
-        casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > >
-        getCoeff() { return coeff_; }
+        COEFF getCoeff() { return coeff_; }
 
 private:
         //  default constructor 
@@ -434,8 +438,8 @@ private:
                      PointingDirectionCalculator::ACCESSOR const my_accessor);
 
         // Coefficient (set up by SDPosInterpolator)
-          casacore::Vector<casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > > 
-          coeff_;
+
+          COEFF  coeff_;
        
         // Interal Staus (one Spline status)//
  

@@ -359,20 +359,9 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
      if (getCurrentSplineObj()->isCoefficientReady() == false )
      {
-#if 0 //SN05JUN2019: Duplicated message //
-         LogIO os(LogOrigin("PointingDirectionCalculator", "doGetDirection(i)", WHERE));
-         os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA,  \n"
-                           << "forced to use Linear Interpolation " << LogIO::POST;
-#endif 
          useSplineInterpolation_ = false;
      }
 
-#if 0
-     // Trap //
-     if(accessorId_ == ENCODER) 
-         currSpline_ = nullptr;
-#endif 
- 
      debuglog << "initializeSplinefromPointingColumn, Normal End." << debugpost;
 
      // ---org code ---
@@ -477,13 +466,8 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 
             // doGetDirection call //
      
-// #  define   OLD_DOGET
+            Vector<Double> direction = doGetDirection(j,currentAntenna); // CAS-8418 args werre changed. 
 
-#ifdef  OLD_DOGET
-            Vector<Double> direction = doGetDirection(j);
-#else
-            Vector<Double> direction = doGetDirection(j,currentAntenna);
-#endif
             debuglog << "index for lat: " << (j * increment)
                     << " (cf. outDirectionFlattened.nelements()="
                     << outDirectionFlattened.nelements() << ")" << debugpost;
@@ -505,13 +489,9 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 //   number of data is insufficient
 // - Interpolation path in the module was separated. 
 //***************************************************
-#ifdef  OLD_DOGET
-Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow) {
-     debuglog << "doGetDirection(" << irow << "," << lastAntennaIndex_ << ")" << debugpost;
-#else
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID) {
      debuglog << "doGetDirection(" << irow << "," << antID << ")" << debugpost;
-#endif 
+
 // sec:1 Linear , Spline common// 
     Double currentTime =  timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
     resetTime(currentTime);
@@ -552,14 +532,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             //+
             // CAS-8418::  Spline Interpolation section.
             //-
-#ifdef  OLD_DOGET
 
-#if 0 // Right action (fortunately) //
-            uInt antID = lastAntennaIndex_;  // OLD code with problem: antID must be given from caller. // 
-#else // Wrong action (appearantly) //
-            uInt antID = 0;       // OLD code with problem: antID must be given from caller. // 
-#endif 
-#endif 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
  
@@ -682,11 +655,8 @@ Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
     }
     debuglog << "doGetDirection" << debugpost;
 
-#ifdef  OLD_DOGET
-    Vector<Double> direction = doGetDirection(i);
-#else
-    Vector<Double> direction = doGetDirection(i,currentAntennaIndex);
-#endif 
+    Vector<Double> direction = doGetDirection(i,currentAntennaIndex);  // CAS-8418 args were changed 
+
     return direction;
 }
 
@@ -915,6 +885,25 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
     ss << "FAILED:: No spline obj, atempted to make. No column on Pointing Table." << endl;
     throw AipsError(ss.str());
    
+}
+
+//+
+// CAS-8418::
+// Exporting Internal Status/Object Service 
+//- 
+
+// Export  COEFF:  returns Coefficitent Table of the current Spline-Object
+PointingDirectionCalculator::COEFF  PointingDirectionCalculator::exportCoeff()
+{
+    SplineInterpolation *sp =  this->getCurrentSplineObj();
+    return (sp->getCoeff());
+}
+
+// Export status of COEFF: returns true if COEFF is available.
+bool PointingDirectionCalculator::isCoefficientReady()
+{
+    SplineInterpolation *sp =  this->getCurrentSplineObj();
+    return (sp->isCoefficientReady() );
 }
 
 //***************************************************
@@ -1180,5 +1169,6 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     return outval;
 
 }
+
  
 }  //# NAMESPACE CASA - END
