@@ -2272,7 +2272,7 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
     for (uInt loop=0; loop < nDiv  ; loop ++ )
     {
         //+
-        // SetUp Testing  MeasurmentSet
+        // SetUp Testing  MeasurementSet
         //-  
         Double div = (Double)loop/(Double)nDiv;    // 0 <= div  < 1.0 // 
         writeOnMain( div );
@@ -3119,9 +3119,7 @@ protected:
         String  ObservationSel      = "";
         String  UVRangeSel          = "";
         String  MSSelect            = "";
-#if 0
-        String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-#endif 
+
         TestSelectData()
         {
         }
@@ -3193,14 +3191,13 @@ TEST_F(TestSelectData, Antenna )
     // MS name for this Test //
    
       MSNameList  mslist;
-      const String name = env.getCasaMasterPath() 
-                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+      const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
 
-       printf( " Used MS is [%s] \n", name.c_str() );
+       printf( " Used MS is [%s] \n", remote_ms.c_str() );
   
     // Create Object //
-
-       MeasurementSet ms( name.c_str() ); 
+       String local_ms = CopyMStoWork(remote_ms); 
+       MeasurementSet ms( local_ms ); 
        PointingDirectionCalculator calc(ms);
 
     // Initial brief Inspection //
@@ -3285,20 +3282,18 @@ TEST_F(TestSelectData, Spw )
 {
     TestDescription( "selectData (key=Spw)" );
 
-    // MS name for this Test //
+    // MS name for this Test // 
+   
+      MSNameList  mslist; 
+      const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
 
-        MSNameList  mslist;
-        const String name = env.getCasaMasterPath()
-                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
-
-        printf( " Used MS is [%s] \n", name.c_str() );
-
+       printf( " Used MS is [%s] \n", remote_ms.c_str() );
+  
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
+       String local_ms = CopyMStoWork(remote_ms); 
+       MeasurementSet ms( local_ms ); 
+       PointingDirectionCalculator calc(ms);
+ 
     // Initial brief Inspection //
     
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -3366,13 +3361,12 @@ TEST_F(TestSelectData, Field )
     
     // MS name for this Test //
     
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String remote_ms = MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
+        String local_ms = CopyMStoWork(remote_ms);     
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3434,15 +3428,15 @@ TEST_F(TestSelectData, Time )
         const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
     
     // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
+
+        String remote_ms = MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
+
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
-    
+
     // Initial brief Inspection //
     
       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -3506,13 +3500,13 @@ TEST_F(TestSelectData, Feed )
         const String MsName = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
     
     // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
+
+        String remote_ms = MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
+
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3559,14 +3553,14 @@ TEST_F(TestSelectData, Intent )
     
     // MS name for this Test //
     
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String remote_ms = MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
-    
+
     // Initial brief Inspection //
 
        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
@@ -3621,13 +3615,12 @@ TEST_F(TestSelectData, Observation )
     
     // MS name for this Test //
     
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String remote_ms = MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3742,15 +3735,13 @@ TEST_F(TestSelectData, MSselect )
 
     // MS name for this Test //
         MSNameList  mslist;
-        const String name = env.getCasaMasterPath()
-                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+        const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
  
-        printf( " Used MS is [%s] \n", name.c_str() );
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
@@ -3934,12 +3925,12 @@ TEST_F(TestSetFrame, setFrame )
     
     // MS name for this Test //
 
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String remote_ms =  MsName;
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
 
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Various Frame Type (String) //
