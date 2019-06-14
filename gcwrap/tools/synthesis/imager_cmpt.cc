@@ -82,7 +82,8 @@ imager::advise( const bool takeadvice, const double amplitudeloss, const ::casac
    // pixels and facets are expected to be returned !
          rstat = itsImager->advise(takeadvice, amplitudeloss, qfieldofview,
                                    qcell, pixels, facets, mphaseCenter);
-         cell = *recordFromQuantity(qcell);
+         const unique_ptr<casac::record> tmpRec(recordFromQuantity(qcell));
+         cell = *tmpRec;
       //std::cerr << qcell << std::endl;
       //std::cerr << pixels << std::endl;
       //std::cerr << facets << std::endl;

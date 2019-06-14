@@ -289,7 +289,8 @@ int main( int argc, const char *argv[] ) {
 	// on linux argv[0] will be "casaviewer"
 	// on OSX with the viewer packaged with CASA argv[0] will be "CASAViewer"
 	// on OSX with the viewer packaged separately argv[0] will be "CASAviewer"
-	if ( ends_with(exepath, "Contents/MacOS/CASAviewer") ) {
+	if ( ends_with(exepath, "Contents/MacOS/CASAviewer") ||
+         ends_with(exepath, "Contents/MacOS/casaviewer") ) {
 		// initialize CASAviewer app data...
 		if ( ! casacore::AppStateSource::fetch( ).initialized( ) ) {
 			// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -322,7 +323,9 @@ int main( int argc, const char *argv[] ) {
 			QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
 		}
 
-	} else if ( ends_with(exepath, "/AppRun") || ends_with(exepath, "/CASAviewer.app/usr/bin/CASAviewer") ) {
+	} else if ( ends_with(exepath, "/AppRun") ||
+                ends_with(exepath, "/CASAviewer.app/usr/bin/CASAviewer") ||
+                ends_with(exepath, "/casaviewer.app/usr/bin/casaviewer") ) {
 
 		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 		// linux  --  path is specific to package format
