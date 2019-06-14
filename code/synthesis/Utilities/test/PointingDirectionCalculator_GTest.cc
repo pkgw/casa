@@ -154,6 +154,7 @@ private:
 //+
 // Direction Column List
 //-
+
 class PointingColumnList 
 {
 public:
@@ -163,7 +164,7 @@ private:
         std::vector<string> DirList 
          = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
 };
-
+ 
 
 //****************************************
 // Execution / Running Enviromnent
@@ -211,7 +212,7 @@ private:
             } 
             else {
                 cout << "hit npos" << endl;
-                return "/hoge/";
+                return "/data/";
             }
         } 
         else {
@@ -249,12 +250,9 @@ private:
 // Base TestClass 
 //  for TEST FIXTURE
 //**************************************
-class BaseClass : public ::testing::Test
+class BaseClass :public DefaultNames, public RunEnv,  public ::testing::Test
 {
 public:
-
-     // Common Names //
-     DefaultNames names;
 
      // Running Environment //
      RunEnv       env;
@@ -262,7 +260,9 @@ public:
      //+
      // MS copy/delete to make Test-MS
      //-
-     void CopyDefaultMStoWork();
+     String CopyMStoWork(String master);
+     String CopyDefaultMStoWork();
+
      void DeleteWorkingMS();
 
      //+
@@ -276,8 +276,8 @@ public:
     uInt    expectedNrow = 0;   // C++11 feature //
 
     BaseClass()  { 
-        DefaultLocalMsName_  = names.DefaultLocalMsName(); 
-        DefaultRemoteMsName_ = names.DefaultRemoteMsName();
+        DefaultLocalMsName_  = DefaultLocalMsName(); 
+        DefaultRemoteMsName_ = DefaultRemoteMsName();
     }
 
     ~BaseClass() { }
@@ -329,16 +329,21 @@ void BaseClass::Description(const String &Title, const String &Param)
 //  Copying a MeasurementSet template from Master Repository.
 //
 //   This is for Some testing items which must contain planned Data in the MS.
-//   After copying, This UT programme moify the MS for each purpose.
-//***************************************************************************
-void BaseClass::CopyDefaultMStoWork()
+//   After cop/ing, This UT programme moify the MS for each purpose.
+//**************************************************************************
+String BaseClass::CopyDefaultMStoWork( )
 {
-    // Maser MS // 
-        const String master    = names.DefaultRemoteMsName();
+    String master    = DefaultRemoteMsName();
+    CopyMStoWork(master);
 
+    return DefaultLocalMsName();
+}
+
+String BaseClass::CopyMStoWork(String master)
+{
     // Src / Dst Path 
         const String src = env.getCasaMasterPath() + master;
-        const String dst = names.DefaultLocalMsName();
+        const String dst = DefaultLocalMsName();
 
     // Src/Dst Path (Path) 
         casacore::Path        sourcePath(src);
@@ -348,13 +353,16 @@ void BaseClass::CopyDefaultMStoWork()
     // Copy File   //
     if(fgCopyMS)
     {
-        std::cout << "- copying " <<endl;
-        std::cout << "  to " << dst << endl;
-        std::cout << "  from " << src << endl;
         dir_ctrl.copy( targetPath,
                        True,    // Overwrite 
                        True  ); // Users permisssion 
+
+        printf( "- copied from Remote MS [%s]  \n", dst.c_str() );
+        printf( "         to   Local MS  [%s]  \n", src.c_str() );
+
+       return dst;
     }
+    return "";
 }
 
 //+
@@ -364,7 +372,7 @@ void BaseClass::CopyDefaultMStoWork()
 
 void BaseClass::DeleteWorkingMS()
 {
-    String dst         = names.DefaultLocalMsName();
+    String dst         = DefaultLocalMsName();
 
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
@@ -1080,7 +1088,6 @@ public:
              Array<Double> init_data3( Ipo, -0.3);
              for (uInt row=0; row<nrow; row++)
              {
-                 // set Shape of New added Colum //
                  pointingPointingOffset. setShape(row, Ipo);
                  pointingSourceOffset.   setShape(row, Ipo);
                  pointingEncoder.        setShape(row, Ipo);
@@ -1456,22 +1463,9 @@ private:
 //  - Modifying test-MS
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
-class MsEdit         
+class MsEdit : public  DefaultNames        
 {
 public:
-    // Special Column //
-#if 0        
-        ScalarColumn<String> antennaName      = columnAntenna->name(); 
-        ScalarColumn<String> antennaStation   = columnAntenna->station();
-        ScalarColumn<String> antennaType      = columnAntenna->type();
-        ScalarColumn<String> antennaMount     = columnAntenna->mount();
-        ArrayColumn<Double>  antennaPosition  = columnAntenna->position();
-        ArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
-
-        ScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
-#endif 
-
-    DefaultNames   names;
 
     TuneMSConfig  tuneMS;
 
@@ -1498,14 +1492,11 @@ public:
         void writePseudoOnPointing  ( );
         void writePseudoOnMainTable (Double dt );
 
-    //+
-    // Default File Name
-    //-
         String MsName_ ;
 
 private:
     void init() {
-         MsName_ = names.DefaultLocalMsName()  ;
+         MsName_ = DefaultLocalMsName()  ;
     }
 
 };
@@ -1864,14 +1855,14 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
     TestDescription( "RowId functions  by various MS"  );
 
-    String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-     FunctionalDescription("Testing RowId functions." , MsName );
+    // Copy specified MS to local MS.
 
-    String name = env.getCasaMasterPath()+MsName;
-
+    String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";                               
+    String local_ms = CopyMStoWork(remote_ms); 
+       
    // Measurment Set and Constructor //
 
-     MeasurementSet ms0( name  );       
+     MeasurementSet ms0( local_ms  );       
      PointingDirectionCalculator calc(ms0);
      uInt nrow0 = calc.getNrowForSelectedMS(); 
 
@@ -1913,12 +1904,12 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
         // Vecrtor<uInt> getRowID() 
         
-          Description("(1) Vector<uInt> getRowId() ", name );
+          Description("(1) Vector<uInt> getRowId() ", local_ms);
           Vector<uInt> vRowId = calc.getRowId();
 
         // getRowId( int ) //
  
-          Description("(2) uInt getRowId() ", name );
+          Description("(2) uInt getRowId() ", local_ms );
 
         // Show and Verify //
           
@@ -1958,15 +1949,12 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 class TestDirection : public BaseClass
 {
 public:
-        // Name database //
-          DefaultNames   names;
 
         // Default Local MS name //
           String         DefaultLocalMsName;
  
         // Interpolation Mode //
           bool use_spline = false;
-
 
         // Interpolation divition Count in 'Delta Time' //
 
@@ -1991,22 +1979,7 @@ public:
 
         PointingColumnList pColLis_;
 
-        // NEW: CAS-8418 relatedly commonized
-
-        unique_ptr<casa::PointingDirectionCalculator> calc0;
-        casa::PointingDirectionCalculator             *pdc;
-
-        void start(const String msName)
-        {
-            MeasurementSet ms( msName.c_str() );
-
-            // create PDCalc obj. on this class to share //
-            unique_ptr<casa::PointingDirectionCalculator> 
-                   calcTmp( new casa::PointingDirectionCalculator(ms));
-            calc0 = std::move(calcTmp);
-            pdc   = calc0.get();
-        }
-
+        // Internal method //
         void setCondition(uInt numRow, Double pointingInterval, Double mainInterval, Double errLimit)
         {
             msedit.tuneMS.    setMainRowCount   (numRow);       // aprox. 1-2H 
@@ -2056,15 +2029,13 @@ public:
             msedit.writePseudoOnMainTable (div);
         }
 
+         SplineInterpolation::COEFF  tmpCoeff(PointingDirectionCalculator& calc);
+
 protected:
 
         // MeasurementSet Editting  //
         
           casa::MsEdit  msedit;
-
-        // Handle Spline Object , and Coeff Table //
-        SplineInterpolation        *sp ;            // =  calc.getCurrentSplineObj();
-        SplineInterpolation::COEFF coeff ;          // =  sp->getCoeff();
 
         // Add 3 OFFSET Colums ,copied from DIRECTION column. //
 
@@ -2084,7 +2055,7 @@ protected:
         {
             BaseClass::SetUp();
   
-            DefaultLocalMsName = names.DefaultLocalMsName();
+            DefaultLocalMsName = BaseClass::DefaultLocalMsName();
 
             // SetUp Number of Anntena for TEST //
             msedit.tuneMS.setMaxAntenna( numAntenna_ ); 
@@ -2105,12 +2076,10 @@ protected:
              DeleteWorkingMS();
         }
 
-
         //* 
         // Fixture TestCondition option
         // (Programmer Tunable)
         //*
-
             // Listing option
             const bool       fgResultListing_ = false;
             // Convertion option (by setFrame)
@@ -2404,7 +2373,7 @@ std::vector<ParamList>  paramListS[] =
       {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
     },
 
-// Insufficient Data, small number of data. 
+    // Senario 4 (Insufficient Data, small number of data.) // 
     {
       {true, 1,  1260,   1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
       {true, 1,  5,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
@@ -2477,7 +2446,7 @@ TEST_F(TestDirection, InterpolationListedItems )
               setMaxPointingColumns( preparedColumn_ );
 
             // Interpolation Divide Count //
-              setInterpolationDivCount(10);   // default = 10 
+              setInterpolationDivCount(3);   // default = 10 
 
             //+
             // set Examination Condition (revised by CAS-8418) //
@@ -2506,11 +2475,6 @@ TEST_F(TestDirection, InterpolationListedItems )
 }
 
 
-//*****************************************
-// Interporation Test in getDirection()
-// Examine Coeff Table
-//    with Pointing Column and AntennaId 
-//*****************************************
 
 TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 {
@@ -2572,9 +2536,9 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 
         calc.setDirectionColumn(name);
 
-        // Check out Spline Object ..//
-          sp =  calc.getCurrentSplineObj();
-          coeff = sp->getCoeff();
+        // get current Coefficient Table //
+
+        PointingDirectionCalculator::COEFF coeff = calc.exportCoeff();
 
         //*
         // Inspection of Table
@@ -2651,27 +2615,25 @@ TEST_F(TestDirection, CompareInterpolation )
 
     for(uInt fno=0; fno<MsList.size(); fno++)
     {
-        // Direction 
-        Matrix<Double>  DirList1; // for Linear
-        Matrix<Double>  DirList2; // for Spline
 
-        // selected MS name //
-        String name = env.getCasaMasterPath()+MsList[fno]; 
-        printf( "MS[%s] is used. \n",name.c_str() );
+        // copy  MS from remote //
+        String remote_ms = MsList[fno]; 
+        String local_ms = CopyMStoWork(remote_ms); 
 
         // Dump Pointing
+
         if(dumpPointingTbl){
-           PointingTableAccess pta(name);
+           PointingTableAccess pta(local_ms);
            pta.dump("Pointing_"+std::to_string(fno)+ ".csv" );
         }
         // Dump Main
         if(dumpMainTbl){
-           MainTableAccess mta(name);
+           MainTableAccess mta(local_ms);
            mta.dump("Main_"+std::to_string(fno)+ ".csv" );
         }
  
         // Create Object //
-        MeasurementSet ms0( name );
+        MeasurementSet ms0(local_ms);
         PointingDirectionCalculator calc(ms0);
 
         //+
@@ -2700,6 +2662,10 @@ TEST_F(TestDirection, CompareInterpolation )
         //******************
         // Examine Linear
         //******************
+
+        Matrix<Double>  DirList1; // for Linear
+        Matrix<Double>  DirList2; // for Spline
+
         if(true)
         {
             // Set Interporation Mode //
@@ -2771,13 +2737,13 @@ TEST_F(TestDirection, CompareInterpolation )
 
 static void inspectAccessor( PointingDirectionCalculator  &calc )
 {
+    // Check Cofficient is ready //
+    ASSERT_EQ( calc.isCoefficientReady(), true );
+    // Check current Pointing Column ID is accessible //
     uInt Id = calc.getCurretAccessorId();
-    SplineInterpolation *sp =  calc.getCurrentSplineObj();
 
-    // Inspect Coefficient Table //
-    ASSERT_EQ( sp->isCoefficientReady(), true );
+    printf( "Spline Cofficient by Pointing [Column= %d] OK.\n",Id);
 
-    printf( "Spline Cofficient by Pointing Column[%d] = GTest OK.\n",Id);
 }
 
 //------------------------------
@@ -2810,10 +2776,10 @@ TEST_F(TestDirection, setDirectionColumn  )
     // Add INTERPOLATION TEST DATA 
       writeOnPointing();
 
-    // Easy Access //
-
-      start(DefaultLocalMsName);
-    
+    // MS and calc //
+      MeasurementSet ms( DefaultLocalMsName );
+      PointingDirectionCalculator calc(ms);
+ 
     // Test loop //
     uInt Count =1 ;		// Debug option to check memory leak etc. //
     for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
@@ -2824,8 +2790,8 @@ TEST_F(TestDirection, setDirectionColumn  )
             Description("Column Name" , ColName );
 
             // UNIT TEST //
-            EXPECT_NO_THROW( pdc->setDirectionColumn( ColName ) );
-            inspectAccessor(*pdc);
+            EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+            inspectAccessor( calc );
         }
     }    
 }
@@ -3095,35 +3061,33 @@ TEST_F(TestDirection, Matrixshape )
     //      getDirection by IPPosition(p,q,r)
     //-
 
-        Matrix<Double> DirList1;
-        Matrix<Double> DirList2;
-        uInt N_Col;  
-        uInt N_Row ;  
-
         // COLUMN //
     
         Description("setDirectionListMatrixShape", "COLUMN_MAJOR" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
-        
-        DirList1  = calc.getDirection();
-        N_Col    = DirList1.ncolumn();
-        N_Row    = DirList1.nrow();
-        printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
 
-        EXPECT_EQ( N_Col, (uInt)2);
+        {
+          Matrix<Double> DirList  = calc.getDirection();
+          auto N_Col    = DirList.ncolumn();
+          auto N_Row    = DirList.nrow();
+          printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
+
+          EXPECT_EQ( N_Col, (uInt)2);
+        }
 
         // ROW  //
-
+       
         Description("setDirectionListMatrixShape", "ROW_MAJOR");
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::ROW_MAJOR) );
 
-        DirList2  = calc.getDirection();
-        N_Col    = DirList2.ncolumn();
-        N_Row    = DirList2.nrow();
-        printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
+        {
+          Matrix<Double> DirList  = calc.getDirection();
+          auto N_Col    = DirList.ncolumn();
+          auto N_Row    = DirList.nrow();
+          printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
 
-        EXPECT_EQ( N_Row, (uInt)2);
-
+          EXPECT_EQ( N_Row, (uInt)2);
+        }
 }
 
 
@@ -3177,6 +3141,19 @@ protected:
         void test_selectdata(PointingDirectionCalculator & calc);
 
 };
+
+
+//**********************************************
+// TENTATIVE (revised due to code review)
+//    common class for simplified interface
+//    Usage:
+//            Ms = "./sdimaging/sdimaging.ms";
+//            keyList = {"*", "&&A", "*" };
+//            TestSelectData( "sdimaging.ms",
+//                             keyList );
+//
+//**********************************************
+
 
 /*------------------------------------------------------
    Execution of selectData(...)
@@ -3900,7 +3877,8 @@ const std::vector<FrameTypeList> DefinedFrametypes
       
         // Test Fixture Sub //
 
-        void check_direction_info(PointingDirectionCalculator& calc, uInt n_frame );
+        void check_direction_info(PointingDirectionCalculator& calc, 
+                                  String name, bool available);
 };
 
 /*-----------------------------------------------
@@ -3908,47 +3886,32 @@ const std::vector<FrameTypeList> DefinedFrametypes
 
    1) setFrame( given name by ARG )
    2) getDirectionType()
-   - 1)and 2) MUST BE SAME.
    3) output (converted to string) must be same 
-
-  Internally use: MDirection getDirectionType()
   -----------------------------------------------*/
 
-void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, uInt n_frame )
+void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, 
+                                        String name, bool available )
 {
     // setFrame call (No exception is expected) //
 
-      EXPECT_NO_THROW( calc.setFrame( DefinedFrametypes[n_frame].name ));
+      EXPECT_NO_THROW( calc.setFrame( name ));
 
     // Get Direction Typeby String  //
-#if 1  
-      casacore::MDirection DirType  = calc.getDirectionType();
-      printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
-      printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
 
-#else  // NEED TO SEE MDirection ..//
       auto DirType  = calc.getDirectionType();
+      String converted = casacore::MDirection::showType	(DirType);
 
-      String converted = DirType.showType();
-      String sub_str   = DefinedFrametypes[n_frame].name;
-
-      printf( "#   MDirection: [%s] \n",  converted.c_str()  ) ;
-      printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
-
-#endif    
-      String converted = DirType.toString();
-      String sub_str   = DefinedFrametypes[n_frame].name;
-
-    // GTEST :: Check SubString // 
+      printf( "=============================  \n"  ) ;
+      printf( "#   Given String          [%s] \n", name. c_str() );
+      printf( "#   MDirection Converted: [%s] \n",  converted.c_str()  ) ;
+      printf( "-----------------------------  \n"  ) ;
         
-      Description( "Checking frame sub-string. ",DirType.toString().c_str() );
+    // GTEST:: Some of them are not supported and throw Exception //
 
-    // Some of them are not supported and throw Exception //
-
-    if(  DefinedFrametypes[n_frame].available == true)       
-        EXPECT_TRUE( converted.find(sub_str) !=std::string::npos); 
+    if(available == true)       
+        EXPECT_TRUE ( name == converted ); 
     else
-        EXPECT_FALSE( converted.find(sub_str) !=std::string::npos);
+        EXPECT_FALSE( name == converted );
 
 }
 
@@ -3978,13 +3941,9 @@ TEST_F(TestSetFrame, setFrame )
     
     // Various Frame Type (String) //
 
-        for(uInt k = 0; k < DefinedFrametypes.size() ; k++  )
+        for(auto itr=DefinedFrametypes.begin();itr!=DefinedFrametypes.end() ;++itr )
         {
-            FunctionalDescription( "setFrame(Rsved Name) ", DefinedFrametypes[k].name.c_str() );
-
-            // Execute and check Exception and other requirements//
-        
-            check_direction_info( calc, k ) ;
+            check_direction_info( calc, itr->name, itr->available ) ;
         }
 }
 
@@ -4006,6 +3965,7 @@ TEST_F(TestSetFrame, setFrame )
              Poining-Column and also with AntennaID.
 - 31-MAY-19  Git Push. "Ready to Validate". Further blush up continue
 - 05-JUN-19  Working in Blush up test code. remove reduntdant.
+- 10-JUN-19  Source Reviewed. Started correction.
  **********************************************************************/
 
 int main (int nArgs, char * args [])
