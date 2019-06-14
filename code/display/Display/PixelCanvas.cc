@@ -185,29 +185,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		refreshActive_ = true;
 		PCRefreshEvent ev(this,reason);
-		ListIter<void *> it1(&refreshEHList_);
-		while(!it1.atEnd()) {
-			(*((PCRefreshEH *) it1.getRight()))(ev);
-			it1++;
+		for ( void *vp : refreshEHList_ ) {
+			auto eh = (PCRefreshEH*) vp;
+			(*eh)(ev);
 		}
 		refreshActive_ = false;
 	}
 
 	void PixelCanvas::addRefreshEventHandler(const PCRefreshEH & eh) {
-		ListIter<void *> it1(&refreshEHList_);
-		it1.toEnd();
-		it1.addRight((void *) &eh);
+        refreshEHList_.push_back((void*)&eh);
 	}
 
 	void PixelCanvas::removeRefreshEventHandler(const PCRefreshEH & eh) {
-		ListIter<void *> it1(&refreshEHList_);
-		while(!it1.atEnd()) {
-			if (it1.getRight() == (void *) &eh) {
-				it1.removeRight();
-				break;
-			}
-			it1++;
-		}
+		std::list<void *> orig = refreshEHList_;
+		refreshEHList_.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(refreshEHList_),
+					  [&](void *p){return p != &eh;} );
 	}
 
 //
@@ -216,31 +209,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void PixelCanvas::callMotionEventHandlers(Int x, Int y, uInt state) {
 		PCMotionEvent ev(this,x,y,state);
-		ConstListIter<void *> it1(&motionEHList_);
-		while(!it1.atEnd()) {
-			(*((PCMotionEH *) it1.getRight()))(ev);
-			it1++;
+		for ( void *vp : motionEHList_ ) {
+			auto eh = (PCMotionEH *) vp;
+			(*eh)(ev);
 		}
 	}
 
 	void PixelCanvas::addMotionEventHandler(const PCMotionEH &eh) {
-		if (motionEHList_.len() == 0)
-			enableMotionEvents();
-		ListIter<void *> it1(&motionEHList_);
-		it1.toEnd();
-		it1.addRight((void *) &eh);
+		motionEHList_.push_back((void*)&eh);
 	}
 
 	void PixelCanvas::removeMotionEventHandler(const PCMotionEH & eh) {
-		ListIter<void *> it1(&motionEHList_);
-		while(!it1.atEnd()) {
-			if (it1.getRight() == (void *) &eh) {
-				it1.removeRight();
-				break;
-			}
-			it1++;
-		}
-		if (motionEHList_.len() == 0)
+		std::list<void *> orig = motionEHList_;
+		motionEHList_.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(motionEHList_),
+					  [&](void *p){return p != &eh;} );
+		if (motionEHList_.size( ) == 0)
 			disableMotionEvents();
 	}
 
@@ -248,31 +232,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //  POSITION EVENT
 //
 
-	void PixelCanvas::callPositionEventHandlers(Display::KeySym keysym, Bool keystate,
-	        Int x, Int y, uInt state) {
+	void PixelCanvas::callPositionEventHandlers( Display::KeySym keysym, Bool keystate,
+												 Int x, Int y, uInt state ) {
 		PCPositionEvent ev(this, keysym, keystate, x, y, state);
-		ConstListIter<void *> it1(&positionEHList_);
-		while(!it1.atEnd()) {
-			(*((PCPositionEH *) it1.getRight()))(ev);
-			it1++;
+		for ( void *vp : positionEHList_ ) {
+			auto eh = (PCPositionEH *) vp;
+			(*eh)(ev);
 		}
 	}
 
 	void PixelCanvas::addPositionEventHandler(const PCPositionEH & eh) {
-		ListIter<void *> it1(&positionEHList_);
-		it1.toEnd();
-		it1.addRight((void *) &eh);
+		positionEHList_.push_back((void*)&eh);
 	}
 
 	void PixelCanvas::removePositionEventHandler(const PCPositionEH & eh) {
-		ListIter<void *> it1(&positionEHList_);
-		while(!it1.atEnd()) {
-			if (it1.getRight() == (void *) &eh) {
-				it1.removeRight();
-				break;
-			}
-			it1++;
-		}
+		std::list<void *> orig = positionEHList_;
+		positionEHList_.clear( );
+		std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(positionEHList_),
+					  [&](void *p){return p != &eh;} );
 	}
 
 //

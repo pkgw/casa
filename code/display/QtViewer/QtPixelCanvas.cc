@@ -195,7 +195,6 @@ namespace casa {
 		p_(), pw_(),
 		drawList_(0),
 		drawListNo_(0),
-		drawlists_(0),
 		itsDeviceForegroundColor("white"),
 		itsDeviceBackgroundColor("black"),
 		itsPen(QColor("white")),
@@ -225,7 +224,6 @@ namespace casa {
 		p_(), pw_(),
 		drawList_(0),
 		drawListNo_(0),
-		drawlists_(0),
 		itsDeviceForegroundColor("white"),
 		itsDeviceBackgroundColor("black"),
 		itsPen(QColor("white")),
@@ -1067,7 +1065,7 @@ namespace casa {
 	}
 
 	Bool QtPixelCanvas::validList(uInt list) {
-		return drawlists_.isDefined(list);
+		return drawlists_.find(list) != drawlists_.end( );
 	}
 
 
@@ -1081,7 +1079,7 @@ namespace casa {
 
 		for(drawListNo_=0; validList(drawListNo_); drawListNo_++) {}
 		// Find first unused drawlist number.
-		drawlists_.define(drawListNo_, drawList_);
+		drawlists_[drawListNo_] = drawList_;
 		// Save new drawlist in the cache.
 		return drawListNo_;
 	}
@@ -1106,7 +1104,7 @@ namespace casa {
 		// Safety: user no doubt intended to close list before drawing it.
 
 		if(!validList(list)) return;
-		QPicture* dl = static_cast<QPicture*>(drawlists_(list));
+		QPicture* dl = static_cast<QPicture*>(drawlists_[list]);
 		if(dl==0) return;	// (shouldn't happen).
 
 		p_.drawPicture(0,0, *dl);
@@ -1115,15 +1113,16 @@ namespace casa {
 
 	void QtPixelCanvas::deleteList(uInt list) {
 		if(!validList(list)) return;
-		QPicture* dl = static_cast<QPicture*>(drawlists_(list));
+        auto dlptr = drawlists_.find(list);
+		QPicture* dl = static_cast<QPicture*>(dlptr->second);
 		delete dl;
-		drawlists_.remove(list);
+		drawlists_.erase(dlptr);
 	}
 
 
 	void QtPixelCanvas::deleteLists() {
-		for (uInt i=0; i<drawlists_.ndefined(); i++) {
-			QPicture* dl = static_cast<QPicture*>(drawlists_.getVal(i));
+		for (auto iter = drawlists_.begin( ); iter != drawlists_.end( ); ++iter) {
+			QPicture* dl = static_cast<QPicture*>(iter->second);
 			delete dl;
 		}
 		drawlists_.clear();

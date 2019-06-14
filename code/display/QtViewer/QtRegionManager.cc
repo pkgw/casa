@@ -202,10 +202,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			//cout << "calling add" <<endl;
 			addRegionsToShape(theShapes, wcreg);
 			theShapes->setLineColor("cyan");
-			ListIter<RegionShape*> rgiter(regShapes_p);
-			rgiter.toEnd();
 			qdp_->registerRegionShape(theShapes);
-			rgiter.addRight(theShapes);
+			regShapes_p.push_back(theShapes);
 		}
 
 	}
@@ -353,8 +351,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			DisplayDataHolder::DisplayDataIterator iter = qdp_->endRegistered();
 			iter--;
 			QtDisplayData* qdd = (*iter);
-			ListIter<RegionShape*> rgiter(regShapes_p);
-			rgiter.toEnd();
 			//QtDisplayData* qdd = qdds.getRight();
 
 			if( (qdd->imageInterface())) {
@@ -374,7 +370,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					RSRectangle *rect= new RSRectangle((blc(0)+trc(0))/2.0,(blc(1)+trc(1))/2.0,fabs(trc(0)-blc(0)), fabs(trc(1)-blc(1)), dirType);
 					rect->setLineColor("cyan");
 					qdp_->registerRegionShape(rect);
-					rgiter.addRight(rect);
+					regShapes_p.push_back(rect);
 				} else if(type.contains("poly")) {
 					Record vertices=mousereg.asRecord("world");
 					Vector<Double> xs = vertices.asArrayDouble("x");
@@ -388,7 +384,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					RSPolygon *poly= new RSPolygon(xs,ys,dirType);
 					poly->setLineColor("cyan");
 					qdp_->registerRegionShape(poly);
-					rgiter.addRight(poly);
+					regShapes_p.push_back(poly);
 				}
 
 			}
@@ -865,15 +861,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		}
 		unionRegions_p.resize(0, true);
-		ListIter<RegionShape*> rgiter(regShapes_p);
-		rgiter.toEnd();
-		while(!rgiter.atStart()) {
-			rgiter--;
-			if(qdp_->isRegistered(rgiter.getRight())) {
-				qdp_->unregisterRegionShape(rgiter.getRight());
-
-			}
-			rgiter.removeRight();
+		while ( regShapes_p.size( ) > 0 ) {
+			RegionShape *rs = regShapes_p.back( );
+			if ( qdp_->isRegistered(rs) )
+				qdp_->unregisterRegionShape(rs);
+			regShapes_p.pop_back( );
 		}
 		insertButton->setEnabled(false);
 		deleteButton->setEnabled(false);

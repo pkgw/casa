@@ -33,7 +33,6 @@
 #include <casa/Arrays/Slice.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <scimath/Mathematics/FFTServer.h>
 #include <measures/Measures/MeasTable.h>
 #include <scimath/Mathematics/MathFunc.h>
@@ -88,21 +87,21 @@ using namespace casacore;
 using namespace casa::refim;
 
 
-  HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p("")
+  HetArrayConvFunc::HetArrayConvFunc() : convFunctionMap_p(0), nDefined_p(0),msId_p(-1), actualConvIndex_p(-1), vpTable_p("")
 {
     calcFluxScale_p=true;
     init(PBMathInterface::AIRY);
 }
 
 HetArrayConvFunc::HetArrayConvFunc(const PBMathInterface::PBClass typeToUse, const String vpTable):
-    convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1), vpTable_p(vpTable)
+    convFunctionMap_p(0), nDefined_p(0), msId_p(-1), actualConvIndex_p(-1), vpTable_p(vpTable)
 {
     calcFluxScale_p=true;
     init(typeToUse);
 
 }
 
-HetArrayConvFunc::HetArrayConvFunc(const RecordInterface& rec, Bool calcFluxneeded):convFunctionMap_p(0), nDefined_p(0), antDiam2IndexMap_p(-1),msId_p(-1), actualConvIndex_p(-1) {
+HetArrayConvFunc::HetArrayConvFunc(const RecordInterface& rec, Bool calcFluxneeded):convFunctionMap_p(0), nDefined_p(0), msId_p(-1), actualConvIndex_p(-1) {
     String err;
     fromRecord(err, rec, calcFluxneeded);
 }
@@ -127,7 +126,7 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
         const ROMSAntennaColumns& ac=vb.subtableColumns().antenna();
         antIndexToDiamIndex_p.resize(ac.nrow());
         antIndexToDiamIndex_p.set(-1);
-        Int diamIndex=antDiam2IndexMap_p.ndefined();
+        Int diamIndex=antDiam2IndexMap_p.size( );
         Vector<Double> dishDiam=ac.dishDiameter().getColumn();
         Vector<String>dishName=ac.name().getColumn();
         String telescop=vb.subtableColumns().observation().telescopeName()(0);
@@ -151,12 +150,12 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 	os << LogOrigin("HetArrConvFunc", "findAntennaSizes")  << LogIO::NORMAL;
             ////////We'll be using dish diameter as key
             for (uInt k=0; k < dishDiam.nelements(); ++k) {
-                if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(String::toString(dishDiam(k)))) {
-                    antIndexToDiamIndex_p(k)=antDiam2IndexMap_p(String::toString(dishDiam(k)));
+                if( (diamIndex !=0) && antDiam2IndexMap_p.find(String::toString(dishDiam(k))) != antDiam2IndexMap_p.end( ) ) {
+                    antIndexToDiamIndex_p(k)=antDiam2IndexMap_p[String::toString(dishDiam(k))];
                 }
                 else {
                     if(dishDiam[k] > 0.0) { //there may be stations with no dish on
-                        antDiam2IndexMap_p.define(String::toString(dishDiam(k)), diamIndex);
+                        antDiam2IndexMap_p.insert(std::pair<casacore::String, casacore::Int>(String::toString(dishDiam(k)), diamIndex));
                         antIndexToDiamIndex_p(k)=diamIndex;
                         antMath_p.resize(diamIndex+1);
                         if(pbClass_p== PBMathInterface::AIRY) {
@@ -265,15 +264,15 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
                             dishDefined[k]=true;
                             recordToUse=j;
 
-                            if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(key)) {
-                                antIndexToDiamIndex_p(k)=antDiam2IndexMap_p(key);
+                            if((diamIndex !=0) && antDiam2IndexMap_p.find(key) != antDiam2IndexMap_p.end( )) {
+                                antIndexToDiamIndex_p(k)=antDiam2IndexMap_p[key];
                                 beamDone=true;
                             }
                         }
                     }
                     if(!beamDone && dishDefined[k]) {
                         key=recs[recordToUse].isDefined("realimage") ? recs[recordToUse].asString("realimage") : recs[recordToUse].asString("compleximage");
-                        antDiam2IndexMap_p.define(key, diamIndex);
+                        antDiam2IndexMap_p.insert(std::pair<casacore::String, casacore::Int>(key, diamIndex));
                         antIndexToDiamIndex_p(k)=diamIndex;
                         antMath_p.resize(diamIndex+1);
                         if(recs[recordToUse].isDefined("realimage") && recs[recordToUse].isDefined("imagimage")) {
@@ -302,12 +301,12 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
 	else if(vpTable_p != String("")){
 	  ////When we get vpmanager to give beams on antenna name we
 	  //should change this key to antenna name and loop over all antenna names
-	  if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(telescop+String("_")+String::toString(dishDiam(0)))) {
-	    antIndexToDiamIndex_p.set(antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))));
+      if((diamIndex !=0) && antDiam2IndexMap_p.find(telescop+String("_")+String::toString(dishDiam(0))) != antDiam2IndexMap_p.end( ) ) {
+	    antIndexToDiamIndex_p.set(antDiam2IndexMap_p[telescop+String("_")+String::toString(dishDiam(0))]);
 	  }
 	  else{
-	    antDiam2IndexMap_p.define(telescop+"_"+String::toString(dishDiam(0)), diamIndex);
-	    antIndexToDiamIndex_p.set(diamIndex);
+		 antDiam2IndexMap_p.insert(std::pair<casacore::String, casacore::Int>(telescop+"_"+String::toString(dishDiam(0)), diamIndex));
+		 antIndexToDiamIndex_p.set(diamIndex);
 	     VPManager *vpman=VPManager::Instance();
 	     vpman->loadfromtable(vpTable_p);
 	     Record rec;
@@ -323,11 +322,11 @@ void HetArrayConvFunc::findAntennaSizes(const vi::VisBuffer2& vb) {
             ///Have to use telescop part as string as in multims case different
             //telescopes may have same dish size but different commonpb
             // VLA and EVLA for e.g.
-            if((diamIndex !=0) && antDiam2IndexMap_p.isDefined(telescop+String("_")+String::toString(dishDiam(0)))) {
-                antIndexToDiamIndex_p.set(antDiam2IndexMap_p(telescop+String("_")+String::toString(dishDiam(0))));
+            if((diamIndex !=0) && antDiam2IndexMap_p.find(telescop+String("_")+String::toString(dishDiam(0))) != antDiam2IndexMap_p.end( )) {
+                antIndexToDiamIndex_p.set(antDiam2IndexMap_p[telescop+String("_")+String::toString(dishDiam(0))]);
             }
             else {
-                antDiam2IndexMap_p.define(telescop+"_"+String::toString(dishDiam(0)), diamIndex);
+                antDiam2IndexMap_p.insert(std::pair<casacore::String, casacore::Int>(telescop+"_"+String::toString(dishDiam(0)), diamIndex));
                 antIndexToDiamIndex_p.set(diamIndex);
                 antMath_p.resize(diamIndex+1);
                 antMath_p[diamIndex]=PBMath::pbMathInterfaceForCommonPB(whichPB, True);

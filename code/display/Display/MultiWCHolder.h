@@ -28,8 +28,8 @@
 #ifndef TRIALDISPLAY_MULTIWCHOLDER_H
 #define TRIALDISPLAY_MULTIWCHOLDER_H
 
+#include <list>
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <display/Display/DisplayEnums.h>
 #include <display/Display/AttributeBuffer.h>
 
@@ -196,15 +196,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Return number of WCHs (subpanels).
 		virtual casacore::Int nWCHs() {
-			return casacore::Int(itsWCHList.len());
+			return casacore::Int(itsWCHList.size( ));
 		}
 
 		// Clear PC in MWCH's area (not implemented on this level).
 		virtual void clear() {  }
 
 		// Added to collect region statistics from MultiRectTool::update_stats( )...
-		casacore::List<DisplayData*> *displayDatas( ) {
-			return &itsDDList;
+        std::list<DisplayData*> &displayDatas( ) {
+			return itsDDList;
 		}
 
 	protected:
@@ -228,10 +228,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// The list of WorldCanvasHolders that are managed by this
 		// MultiWCHolder.
-		casacore::List<WorldCanvasHolder *> itsWCHList;
+		std::list<WorldCanvasHolder*> itsWCHList;
 
 		// The list of DisplayDatas that are managed by this MultiWCHolder.
-		casacore::List<DisplayData *> itsDDList;
+		std::list<DisplayData*> itsDDList;
 
 		// Subset of above DDs which will have blinking restrictions added
 		// (Countour plots, e.g., do not; they always display).  This should

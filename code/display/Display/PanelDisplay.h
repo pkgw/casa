@@ -28,10 +28,9 @@
 #ifndef TRIALDISPLAY_PANELDISPLAY_H
 #define TRIALDISPLAY_PANELDISPLAY_H
 
+#include <list>
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <casa/Containers/RecordInterface.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/Utilities/DisplayOptions.h>
 #include <display/Display/MultiWCHolder.h>
 #include <display/Display/DisplayEnums.h>
@@ -140,7 +139,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			return itsPixelCanvas;
 		}
 
-		casacore::ConstListIter<WorldCanvas* >* myWCLI;
+		// get controlled access to world canvases shared among a number of objects
+		// return value indicates if the operation was possible (in the future it
+		// may be necessary to serialize access so this function may return false
+		// if mutual exclusion prevents access to the world canvas list)
+		bool wcsApply( std::function<void(WorldCanvas *)> apply );
 
 		virtual void addTool(const casacore::String& key, const std::shared_ptr<MultiWCTool> & );
 		/* virtual void addTool(const casacore::String& key, MultiWCTool* value); */
@@ -154,11 +157,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void enableTool(const casacore::String& toolname);
 		virtual void disableTool(const casacore::String& toolname);
 		virtual const std::shared_ptr<MultiWCTool> getTool(const casacore::String& key);
-
-		virtual casacore::ListIter<WorldCanvas* > wcs() {
-			//return itsWCLI;
-			return casacore::ListIter<WorldCanvas* >(itsWCList);
-		}
 
 		// Is the specified DisplayData the one in charge of coordinate
 		// state of the Panel's WCs?
@@ -216,9 +214,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::Bool itsGeometrySet;
 
 		// The WorldCanvases which we made, and a convenient iterator.
-		casacore::List<WorldCanvas* > itsWCList;
-		//casacore::ListIter<WorldCanvas* >* itsWCLI;
-
+		std::list<WorldCanvas*> itsWCList;
 
 		// The WorldCanvasHolders which we made, and a convenient iterator.
 
@@ -230,11 +226,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// Also note: _exactly the same list_ (with the same _name_, even)
 		// is maintained on MWCH level (to be fixed).
 
-		casacore::List<WorldCanvasHolder* > itsWCHList;
+		std::list<WorldCanvasHolder* > itsWCHList;
 
-		//casacore::ListIter<WorldCanvasHolder* >* itsWCHLI;
-
-		casacore::SimpleOrderedMap<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
+		std::map<casacore::String, std::shared_ptr<MultiWCTool> > itsMWCTools;
 
 		// unSetup the Geometry.
 		void unSetupGeometry();

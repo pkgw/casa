@@ -52,8 +52,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsContrastScale(1.0),
 		itsInvertRed(false),
 		itsInvertGreen(false),
-		itsInvertBlue(false),
-		itsPCColorTables(0, 4) {
+		itsInvertBlue(false) {
 		itsColormapDefinition = new ColormapDefinition(itsName);
 		itsOwnShapingFunction = false;
 		itsLogScale = 0;
@@ -72,8 +71,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		itsContrastScale(1.0),
 		itsInvertRed(false),
 		itsInvertGreen(false),
-		itsInvertBlue(false),
-		itsPCColorTables(0, 4) {
+		itsInvertBlue(false) {
 		itsColormapDefinition = new ColormapDefinition(itsName);
 		itsOwnShapingFunction = false;
 		setShapingFunction(0);
@@ -144,27 +142,28 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // register a PixelCanvasColorTable
 	void Colormap::registerPCColorTable(PixelCanvasColorTable *pcctbl) {
 		// do we have this one already?
-		if (itsPCColorTables.isDefined(pcctbl)) {
+		if ( itsPCColorTables.find(pcctbl) != itsPCColorTables.end( )) {
 			// yes, increment ref count
-			itsPCColorTables.define(pcctbl, itsPCColorTables(pcctbl) + 1);
+			itsPCColorTables[pcctbl] = itsPCColorTables[pcctbl] + 1;
 		} else {
 			// new definition, referenced once
-			itsPCColorTables.define(pcctbl, 1);
+			itsPCColorTables[pcctbl] = 1;
 		}
 	}
 
 // unregister a PixelCanvasColorTable
 	void Colormap::unregisterPCColorTable(PixelCanvasColorTable *pcctbl) {
 		// do we have this one?
-		if (itsPCColorTables.isDefined(pcctbl)) {
+        auto pcptr = itsPCColorTables.find(pcctbl);
+		if (pcptr != itsPCColorTables.end( )) {
 			// yes, find refcount
-			uInt val = itsPCColorTables(pcctbl);
+			uInt val = pcptr->second;
 			if (val > 1) {
 				// reduce refcount
-				itsPCColorTables.define(pcctbl, val - 1);
+				itsPCColorTables[pcctbl] = val - 1;
 			} else {
 				// remove it
-				itsPCColorTables.remove(pcctbl);
+				itsPCColorTables.erase(pcptr);
 			}
 		} else {
 			// error
@@ -173,15 +172,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // reinstall the colormap on the PixelCanvasColorTables that use it
 	void Colormap::reinstall() {
-		for (uInt i = 0; i < itsPCColorTables.ndefined(); i++) {
-			(itsPCColorTables.getKey(i))->colormapManager().reinstallColormaps();
+		for (auto iter = itsPCColorTables.begin(); iter != itsPCColorTables.end( ); ++iter) {
+			(iter->first)->colormapManager().reinstallColormaps();
 		}
 	}
 
 // do resizeCallbacks on the PixelCanvasColorTables that use this
 	void Colormap::doResizeCallbacks() {
-		for (uInt i = 0; i < itsPCColorTables.ndefined(); i++) {
-			(itsPCColorTables.getKey(i))->doResizeCallbacks();
+		for (auto iter = itsPCColorTables.begin(); iter != itsPCColorTables.end( ); ++iter) {
+			(iter->first)->doResizeCallbacks();
 		}
 	}
 

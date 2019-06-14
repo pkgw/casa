@@ -574,7 +574,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // loop over rows
     uInt i,j;
-    SimpleOrderedMap<String, Int > antTypeMap(-1);
+    std::map<String, Int > antTypeMap;
     for(i=0; i<numRows_p; i++){
       if(ObsName_p(i) == obsName
 	 && StartTime_p(i).get(uS) <= obsTime.get(uS)
@@ -616,9 +616,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      || ( 0. <= modAz  && modAz <= modAzMax))
 	     && azelMin(1) <= azel(1) && azel(1) <= azelMax(1)){
 	    // memorize the antenna type
-	    if(!antTypeMap.isDefined(AntennaType_p(i))){
+	    if( antTypeMap.find(AntennaType_p(i)) == antTypeMap.end( ) ){
 	      rval = true;
-	      antTypeMap.define(AntennaType_p(i),1);
+	      antTypeMap.insert(std::pair<String, Int >(AntennaType_p(i),1));
 	    }
 	  }
 	}
@@ -626,10 +626,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } // end for
 
     if(rval){
-      uInt nKeys = antTypeMap.ndefined();
-      antTypes.resize(nKeys);
-      for(uInt i=0; i<nKeys; i++){
-	antTypes(i) = antTypeMap.getKey(i);
+      antTypes.resize(antTypeMap.size( ));
+      uInt count = 0;
+      for( auto iter = antTypeMap.begin( ); iter != antTypeMap.end( ); ++iter, ++count ){
+        antTypes(count) = iter->first;
       }
     }
 

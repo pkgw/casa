@@ -839,7 +839,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 if ( dditer != managed_datas.end( ) ) {
                     QtDisplayData *dd = dditer->second->data( );
                     if ( dd->hasColorBar( ) ) {
-                        qtGO( [&]( ) { dd->setOptions( cw, true); } );
+                        qtGO( [=]( ) { dd->setOptions( cw, true); } );
                     }
                 }
             }
@@ -847,7 +847,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         }
 
         if ( dd->hasColorBar( ) ) {
-            qtGO( [&]( ) { dd->setOptions( cw, true); } );
+            qtGO( [=]( ) { dd->setOptions( cw, true); } );
         }
 
         return grpc::Status::OK;
@@ -883,6 +883,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         if ( dd == 0 ) {
 
+            if ( debug ) {
+                std::cout << "searching for data id..." << std::endl;
+                fflush(stdout);
+            }
+
             // if we have a "id-less" panel (INT_MAX), see if we can
             // set the range on rasters there...
             if ( data == 0 ) {
@@ -896,7 +901,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                         if ( dditer != managed_datas.end( ) ) {
                             QtDisplayData *dd = dditer->second->data( );
                             if ( dd->displayType( ) == "raster" ) {
-                                qtGO( [&]( ) { dd->setOptions(rec,true); } );
+                                qtGO( [=]( ) { dd->setOptions(rec,true); } );
                                 found = true;
                             }
                         }
@@ -909,7 +914,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "data id not found");
         }
 
-        qtGO( [&]( ){ dd->setOptions(rec,true); } );
+        if ( debug ) {
+            std::cout << "found data id (" << dd << ")..." << std::endl;
+            fflush(stdout);
+        }
+
+        qtGO( [=]( ){ dd->setOptions(rec,true); } );
 
         return grpc::Status::OK;
     }
@@ -978,7 +988,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 if ( dditer != managed_datas.end( ) ) {
                     QtDisplayData *dd = dditer->second->data( );
                     if ( dd->displayType( ) == "contour" ) {
-                        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+                        qtGO( [=]( ) { dd->setOptions(rec,true); } );
                         set_contour = true;
                     }
                 }
@@ -987,7 +997,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
             else return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "no changes made");
         }
 
-        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+        qtGO( [=]( ) { dd->setOptions(rec,true); } );
         return grpc::Status::OK;
     }
 
@@ -1031,7 +1041,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 if ( dditer != managed_datas.end( ) ) {
                     QtDisplayData *dd = dditer->second->data( );
                     if ( dd->displayType( ) == "contour" ) {
-                        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+                        qtGO( [=]( ) { dd->setOptions(rec,true); } );
                         set_thickness = true;
                     }
                 }
@@ -1042,7 +1052,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         }
 
-        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+        qtGO( [=]( ) { dd->setOptions(rec,true); } );
         return grpc::Status::OK;
 
     }
@@ -1090,7 +1100,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
                 if ( dditer != managed_datas.end( ) ) {
                     QtDisplayData *dd = dditer->second->data( );
                     if ( dd->displayType( ) == "contour" ) {
-                        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+                        qtGO( [=]( ) { dd->setOptions(rec,true); } );
                         set_color = true;
                     }
                 }
@@ -1101,7 +1111,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
         }
 
-        qtGO( [&]( ) { dd->setOptions(rec,true); } );
+        qtGO( [=]( ) { dd->setOptions(rec,true); } );
         return grpc::Status::OK;
 
     }

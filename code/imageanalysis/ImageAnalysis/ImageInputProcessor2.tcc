@@ -26,7 +26,6 @@
 
 #include <imageanalysis/ImageAnalysis/ImageInputProcessor.h>
 
-#include <casa/Containers/HashMap.h>
 #include <casa/Utilities/Sort.h>
 #include <casa/iostream.h>
 

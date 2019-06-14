@@ -347,7 +347,10 @@ Bool FluxStdPerleyButler2017::setSourceCoeffs()
   String stddatapath;
   String stdTabName("PerleyButler2017Coeffs");
 
-  if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
+  String resolvepath = casatools::get_state( ).resolve("nrao/VLA/standards/"+stdTabName);
+  if (resolvepath != "nrao/VLA/standards/"+stdTabName) {
+      stddatapath = resolvepath;
+  } else if(!Aipsrc::findDir(stddatapath,"./"+stdTabName)) {
     if(!Aipsrc::findDir(stddatapath, Aipsrc::aipsRoot()+"/data/nrao/VLA/standards/"+stdTabName)) {
       ostringstream oss;
       oss << "The coefficient data for Perley-Butler 2017, " <<  stdTabName

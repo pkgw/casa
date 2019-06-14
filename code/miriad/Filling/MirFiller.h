@@ -29,7 +29,7 @@
 #ifndef BIMA_MIRFILLER_H
 #define BIMA_MIRFILLER_H
 
-#include <casa/Containers/List.h>
+#include <list>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Cube.h>
 #include <casa/Arrays/Matrix.h>
