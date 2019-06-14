@@ -1861,12 +1861,12 @@ TEST_F(TestMeasurementSet, RowId_inMS )
     // Copy specified MS to local MS.
 
     String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";                               
-    String local_ms = CopyMStoWork(remote_ms); 
        
    // Measurment Set and Constructor //
-
+     String local_ms = CopyMStoWork(remote_ms);
      MeasurementSet ms0( local_ms  );       
      PointingDirectionCalculator calc(ms0);
+
      uInt nrow0 = calc.getNrowForSelectedMS(); 
 
    // Prepare  Arraay ..//
@@ -2132,10 +2132,10 @@ private:
 std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt antId )
 {
     printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, antId);
-    const String MsName = DefaultLocalMsName;
+    const String local_ms = DefaultLocalMsName;
 
     // Create Object //
-        MeasurementSet ms( MsName.c_str() );
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);   
 
     //  MatrixShape (COLUMN_MAJOR)
@@ -2523,10 +2523,10 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     //   creating 5 spline objects with specified Pointing Column.
     //-
 
-    const String MsName = DefaultLocalMsName;
+    const String local_ms = DefaultLocalMsName;
 
     // Create Object //
-    MeasurementSet ms( MsName.c_str() );
+    MeasurementSet ms( local_ms );
     PointingDirectionCalculator calc(ms);
    
     //+
@@ -2811,11 +2811,11 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String MsName = DefaultLocalMsName;     
+    const String local_ms = DefaultLocalMsName;     
 
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
         expectedNrow = calc.getNrowForSelectedMS();
  
@@ -2905,12 +2905,12 @@ TEST_F(TestDirection, VerifyCAS11818 )
 
     // MS name for this Test //
 
-        String name =   MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String local_ms =   MsName;
+        printf( " Used MS is [%s] \n", local_ms.c_str() );
    
     // Create Object //
     
-        MeasurementSet ms( name.c_str() );
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
         expectedNrow = calc.getNrowForSelectedMS();
     
@@ -2963,7 +2963,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String MsName = DefaultLocalMsName;    //  
+    const String local_ms = DefaultLocalMsName;    //  
 
      // List all info on Pointing Table. //
      //   _List series. was Removed. 
@@ -2971,7 +2971,7 @@ TEST_F(TestDirection, setMovingSource  )
 
     // Create Object //
     
-        MeasurementSet ms( MsName ); 
+        MeasurementSet ms( local_ms ); 
         PointingDirectionCalculator calc(ms);
         expectedNrow = calc.getNrowForSelectedMS();
     
@@ -3050,11 +3050,11 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    const String MsName = DefaultLocalMsName;    //  
+    const String local_ms = DefaultLocalMsName;    //  
     
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     //+
@@ -3684,15 +3684,13 @@ TEST_F(TestSelectData, UVRange )
 
     // MS name for this Test //
         MSNameList  mslist;
-        const String name = env.getCasaMasterPath()
-                          + mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
+        const String remote_ms =  mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
  
-        printf( " Used MS is [%s] \n", name.c_str() );
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
     // Initial brief Inspection //
