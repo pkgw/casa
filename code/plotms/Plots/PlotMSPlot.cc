@@ -1847,10 +1847,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			}
 			if (x==PMS::RA) {
 				PMS::Axis y = cacheParams->yAxis(i);
-				if (y==PMS::DEC) {
-					const bool increasing { false };
-					canvas->setAxisScaleDirection(cx,increasing);
-				}
+				if (y==PMS::DEC)
+					canvas->setAxisScaleSortDirection(cx,SortDirection::DESCENDING);
 			}
 		}
 	}

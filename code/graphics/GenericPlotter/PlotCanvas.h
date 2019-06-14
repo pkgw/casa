@@ -255,8 +255,9 @@ public:
     // tool stacks.
     virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale) = 0;
     
-    // Sets the direction of the scale for the given axis
-    virtual void setAxisScaleDirection(PlotAxis axis, bool increasing=true) = 0;
+    // Sets/gets the sort direction of the scale for the given axis
+    virtual bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) = 0;
+    virtual std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) = 0;
 
     // Convenience method for setting the axis scale for two axes at once.  May
     // reset tool stacks.

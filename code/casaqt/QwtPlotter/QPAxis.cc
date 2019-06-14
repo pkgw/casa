@@ -374,8 +374,12 @@ void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
 	}
 }
 
-void QPAxis::setAxisScaleDirection(PlotAxis /*axis*/, bool /* increasing */) {
-	//
+bool QPAxis::setAxisScaleSortDirection(PlotAxis /*axis*/, SortDirection /*direction*/){
+	return false;
+}
+
+std::pair<bool,SortDirection> QPAxis::axisScaleSortDirection(PlotAxis /*axis*/){
+	return std::make_pair(false,SortDirection::ASCENDING);
 }
 
 

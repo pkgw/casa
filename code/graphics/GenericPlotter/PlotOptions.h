@@ -49,6 +49,11 @@ typedef std::pair<double, double> psize_t;
 // ENUMS //
 ///////////
 
+enum SortDirection {
+	ASCENDING,
+	DESCENDING
+};
+
 
 // Enum for the four plot axes.  If this enum is changed, PlotCanvas::allAxes()
 // needs to be updated.

@@ -437,12 +437,26 @@ void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
     }
 }
 
-void QPCanvas::setAxisScaleDirection(PlotAxis axis, bool increasing) {
-
+std::pair<bool,SortDirection> QPCanvas::axisScaleSortDirection(PlotAxis axis) {
 	const auto *scaleDiv = getAxisScaleDiv(QPOptions::axis(axis));
-	if (scaleDiv == nullptr) return;
-	bool mustInvert = ( scaleDiv->isIncreasing() != increasing );
-	if (mustInvert) invertAxis(axis);
+	if (scaleDiv == nullptr) return std::make_pair(false,SortDirection::ASCENDING);
+	SortDirection direction {SortDirection::ASCENDING} ;
+#if QWT_VERSION >= 0x060000
+	if (not scaleDiv->isIncreasing() ) direction = SortDirection::DESCENDING;
+#else
+	if ( scaleDiv->lowerBound() > scaleDiv->upperBound() )
+		direction = SortDirection::DESCENDING;
+#endif
+	return std::make_pair(true,direction);
+}
+
+bool QPCanvas::setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) {
+	auto ok_direction = axisScaleSortDirection(axis);
+	auto ok = ok_direction.first;
+	if (not ok ) return false;
+	auto currentDirection = ok_direction.second;
+	if (direction != currentDirection ) invertAxis(axis);
+	return true;
 }
 
 bool QPCanvas::axisReferenceValueSet(PlotAxis axis) const {

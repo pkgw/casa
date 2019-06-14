@@ -199,8 +199,9 @@ public:
     // Implements PlotCanvas::setAxisScale().
     void setAxisScale(PlotAxis axis, PlotAxisScale scale);
 
-    // Implements PlotCanvas::setAxisScaleDirection().
-    void setAxisScaleDirection(PlotAxis axis, bool increasing = true);
+    // Implements PlotCanvas::setAxisScaleSortDirection().
+    bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction);
+    std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis);
 
     // Implements PlotCanvas::axisReferenceValueSet().
     bool axisReferenceValueSet(PlotAxis axis) const;
