@@ -177,18 +177,53 @@ public:
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
-              AZEL, ICRS, J2000)
+              AZELGEO, ICRS, J2000, B1950, GALACTIC)
     PMS_ENUM2(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
-              "AzEl", "ICRS", "J2000")
+              "AZELGEO", "ICRS", "J2000", "B1950", "GALACTIC")
     // </group>
+    static const casacore::String & longitudeName(CoordSystem r) {
+        static const casacore::String longitude { "Longitude" };
+        static const casacore::String rightAscension { "Right Ascension" };
+        static const casacore::String azimuth { "Azimuth" };
+        switch (r) {
+        case CoordSystem::ICRS:
+        case CoordSystem::B1950:
+        case CoordSystem::J2000:
+            return rightAscension;
+        case CoordSystem::GALACTIC:
+            return longitude;
+        case CoordSystem::AZELGEO:
+            return azimuth;
+        default:
+            return longitude;
+        }
+    }
+
+    static const casacore::String & latitudeName(CoordSystem r) {
+        static const casacore::String latitude { "Latitude" };
+        static const casacore::String declination { "Declination" };
+        static const casacore::String elevation { "Elevation" };
+        switch (r) {
+        case CoordSystem::ICRS:
+        case CoordSystem::B1950:
+        case CoordSystem::J2000:
+            return declination;
+        case CoordSystem::GALACTIC:
+            return latitude;
+        case CoordSystem::AZELGEO:
+            return elevation;
+        default:
+            return latitude;
+        }
+    }
 
     // Enum for the different interpolation methods for data axes.
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              NEAREST, CUBIC)
+              NEAREST, CUBIC_SPLINE)
     PMS_ENUM2(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              "Nearest", "Cubic")
+              "Nearest", "Cubic Spline")
     // </group>
 
     // Returns whether or not the given axis needs the second data parameter to

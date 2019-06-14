@@ -1845,6 +1845,13 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
                     canvas->setAxisRange(cy, atmrange);
                 }
 			}
+			if (x==PMS::RA) {
+				PMS::Axis y = cacheParams->yAxis(i);
+				if (y==PMS::DEC) {
+					const bool increasing { false };
+					canvas->setAxisScaleDirection(cx,increasing);
+				}
+			}
 		}
 	}
 	itsParent_->getPlotter()->makeSquarePlot(makeSquare, waveplot);
@@ -1895,6 +1902,12 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				xLabelSingle.gsub("(from 1858/11/17)", "");
 			if (x == PMS::FREQUENCY)
 				xLabelSingle = addFreqFrame(xLabelSingle);
+			if (PMS::axisIsRaDec(x)) {
+				auto xFrame = cacheParams->xFrame();
+				xLabelSingle = PMS::coordSystem(xFrame) + " ";
+				if (x==PMS::RA) xLabelSingle += PMS::longitudeName(xFrame);
+				else xLabelSingle += PMS::latitudeName(xFrame);
+			}
 			if (axisIsAveraged(x, averaging) && !allCalTables)
 				xLabelSingle = "Average " + xLabelSingle;
 			if (allCalTables && xLabelSingle.contains("Corr")) 
@@ -1931,6 +1944,12 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 						yLabelSingle.gsub("(from 1858/11/17)", "");
 					if (y == PMS::FREQUENCY)
 						yLabelSingle = addFreqFrame(yLabelSingle);
+					if (PMS::axisIsRaDec(y)) {
+						auto yFrame = cacheParams->yFrame();
+						yLabelSingle = PMS::coordSystem(yFrame) + " ";
+						if (y==PMS::RA) yLabelSingle += PMS::longitudeName(yFrame);
+						else yLabelSingle += PMS::latitudeName(yFrame);
+					}
 					if (axisIsAveraged(y, averaging) && !isCalTable)
 						yLabelSingle = "Average " + yLabelSingle;
 					if (isCalTable && yLabelSingle.contains("Corr"))
@@ -2042,6 +2061,10 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 			bounds = make_pair(minval, maxval);
 			canvas->setAxisRange(paxis, bounds);
 		}
+	} if ( axis == PMS::RA ) {
+		// explicitely set range
+		bounds = make_pair(minval, maxval);
+		canvas->setAxisRange(paxis, bounds);
 	}
 }
 

@@ -272,7 +272,9 @@ MS Parameters
         <value />
         <value>icrs</value>
         <value>j2000</value>
+        <value>b1950</value>
         <value>azelgeo</value>
+        <value>galactic</value>
       </allowed>
     </param>
     
@@ -283,7 +285,9 @@ MS Parameters
         <value />
         <value>nearest</value>
         <value>linear</value>
-        <value>cubic</value>
+        <value>cubic spline</value>
+        <!--  allow also shorter equivalent for 'cubic spline': -->
+        <value>spline</value>
       </allowed>
     </param>
     
@@ -487,7 +491,9 @@ MS Parameters
         <value />
         <value>icrs</value>
         <value>j2000</value>
+        <value>b1950</value>
         <value>azelgeo</value>
+        <value>galactic</value>
       </allowed>
     </param>
     
@@ -499,7 +505,7 @@ MS Parameters
         <value />
         <value>nearest</value>
         <value>linear</value>
-        <value>cubic</value>
+        <value>cubic spline</value>
       </allowed>
     </param>
     

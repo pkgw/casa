@@ -255,6 +255,9 @@ public:
     // tool stacks.
     virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale) = 0;
     
+    // Sets the direction of the scale for the given axis
+    virtual void setAxisScaleDirection(PlotAxis axis, bool increasing=true) = 0;
+
     // Convenience method for setting the axis scale for two axes at once.  May
     // reset tool stacks.
     // DEFAULT IMPLEMENTATION.
@@ -343,6 +346,9 @@ public:
     // the tools may be using this method.
     virtual void setAxisRange(PlotAxis axis, double from, double to) = 0;
     
+    // Swap scale's boundaries of the given axis
+    virtual void invertAxis(PlotAxis axis) = 0;
+
     // See setAxisRange(PlotAxis, double, double).
     // DEFAULT IMPLEMTNATION.
     virtual void setAxisRange(PlotAxis axis, const prange_t& range);

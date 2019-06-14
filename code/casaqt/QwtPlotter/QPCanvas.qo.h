@@ -172,6 +172,9 @@ public:
     // Implements PlotCanvas::setAxisScale().
     void setAxisScale(PlotAxis axis, PlotAxisScale scale);
 
+    // Implements PlotCanvas::setAxisScaleDirection().
+    void setAxisScaleDirection(PlotAxis axis, bool increasing=true);
+
     // Implements PlotCanvas::axisReferenceValueSet().
     bool axisReferenceValueSet(PlotAxis axis) const;
     
@@ -213,6 +216,9 @@ public:
     // Implements PlotCanvas::setAxisRange().
     void setAxisRange(PlotAxis axis, double from, double to);
     
+    // Implements PlotCanvas::invertAxis().
+    void invertAxis(PlotAxis axis);
+
     // Overrides PlotCanvas::setAxesRanges().
     void setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
                        PlotAxis yAxis, double yFrom, double yTo);

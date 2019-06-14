@@ -892,8 +892,8 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 					case PMS::InterpMethod::NEAREST:
 						interpolator.setInterpMethod(TviInterp::NEAREST);
 						break;
-					case PMS::InterpMethod::CUBIC:
-						interpolator.setInterpMethod(TviInterp::SPLINE);
+					case PMS::InterpMethod::CUBIC_SPLINE:
+						interpolator.setInterpMethod(TviInterp::CUBIC_SPLINE);
 						break;
 					default:
 						String errMsg("MSCache::loadChunks(): unsupported pointing interpolation method: ");
@@ -901,7 +901,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						throw(AipsError(errMsg));
 					}
 					switch (loadXYFrame_[i]){
-					case PMS::CoordSystem::AZEL:
+					case PMS::CoordSystem::AZELGEO:
 						piTvi->setOutputDirectionFrame(MDirection::AZELGEO);
 						break;
 					case PMS::CoordSystem::ICRS:
@@ -909,6 +909,12 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						break;
 					case PMS::CoordSystem::J2000:
 						piTvi->setOutputDirectionFrame(MDirection::J2000);
+						break;
+					case PMS::CoordSystem::B1950:
+						piTvi->setOutputDirectionFrame(MDirection::B1950);
+						break;
+					case PMS::CoordSystem::GALACTIC:
+						piTvi->setOutputDirectionFrame(MDirection::GALACTIC);
 						break;
 					}
 					auto & raBlock = raMap_.at(raDecParams);

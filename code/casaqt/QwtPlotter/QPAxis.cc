@@ -374,6 +374,10 @@ void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
 	}
 }
 
+void QPAxis::setAxisScaleDirection(PlotAxis /*axis*/, bool /* increasing */) {
+	//
+}
+
 
 bool QPAxis::axisReferenceValueSet(PlotAxis /*axis*/) const {
     return false;
@@ -467,6 +471,9 @@ void QPAxis::setAxisRange(PlotAxis /*axis*/, double /*from*/, double /*to*/) {
     //setAxesRanges(axis, from, to, axis, from, to);
 }
 
+void QPAxis::invertAxis(PlotAxis /*axis*/) {
+    //;
+}
 
 void QPAxis::setAxesRanges(PlotAxis /*xAxis*/, double /*xFrom*/, double /*xTo*/,
         PlotAxis /*yAxis*/, double /*yFrom*/, double /*yTo*/) {
