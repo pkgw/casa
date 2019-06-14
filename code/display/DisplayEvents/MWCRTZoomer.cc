@@ -50,12 +50,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// this scope always.
 		if ((fabs(linBlc(0) - linTrc(0)) > (Double)0.0) &&
 		        (fabs(linBlc(1) - linTrc(1)) > (Double)0.0)) {
-			itsWCListIter->toStart();
-			while (!itsWCListIter->atEnd()) {
-				WorldCanvas *wc = itsWCListIter->getRight();
+			for ( auto wc : itsWCList ) {
 				wc->setZoomRectangleLCS(linBlc, linTrc);
 				wc->refresh(Display::LinearCoordinateChange);
-				(*itsWCListIter)++;
 			}
 			zoomed(linBlc, linTrc);
 		}
@@ -63,18 +60,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void MWCRTZoomer::unzoom() {
 		reset();
-		itsWCListIter->toStart();
-		if(itsWCListIter->atEnd()) return;
-		itsCurrentWC = itsWCListIter->getRight();
-		// (so that zoomed() callback always has a valid 'current WC'...)
-
-		String attString = "resetCoordinates";
-		Attribute resetAtt(attString, true);
-		while (!itsWCListIter->atEnd()) {
-			WorldCanvas *wc = itsWCListIter->getRight();
+		Attribute resetAtt("resetCoordinates", true);
+		for ( auto wc : itsWCList ) {
 			wc->setAttribute(resetAtt);
 			wc->refresh(Display::LinearCoordinateChange);
-			(*itsWCListIter)++;
 		}
 		Vector<Double> blc(2), trc(2);
 		WorldCanvas *cwc = itsCurrentWC;
@@ -96,9 +85,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if(factor<=0. || factor==1.) return;
 
 		reset();
-		itsWCListIter->toStart();
-		if(itsWCListIter->atEnd()) return;
-		WorldCanvas *wc = itsWCListIter->getRight();
+
+		if( itsWCList.size( ) == 0 ) return;
+		WorldCanvas *wc = itsWCList.front( );
 
 		Vector<Double> blc(2), trc(2), ctr(2), radius(2);
 		blc(0) = wc->linXMin();
@@ -118,16 +107,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	void MWCRTZoomer::zoom(const Vector<Double>& blc,
 	                       const Vector<Double>& trc) {
 		reset();
-		itsWCListIter->toStart();
-		if(itsWCListIter->atEnd()) return;
-		itsCurrentWC = itsWCListIter->getRight();
+
+		if( itsWCList.size( ) == 0 ) return;
 		// (so that zoomed() callback always has a valid current WC...)
 
-		while (!itsWCListIter->atEnd()) {
-			WorldCanvas *wc = itsWCListIter->getRight();
+		for ( auto wc : itsWCList ) {
 			wc->setZoomRectangleLCS(blc, trc);
 			wc->refresh(Display::LinearCoordinateChange);
-			(*itsWCListIter)++;
 		}
 		zoomed(blc, trc);
 	}
@@ -147,13 +133,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		       (wblc - (linTrc + linBlc) / 2.0);
 		ntrc = (wblc + wtrc) / 2.0 +
 		       (wtrc - wblc) / (linTrc - linBlc) *
-		       (wtrc - (linTrc + linBlc) / 2.0);
-		itsWCListIter->toStart();
-		while (!itsWCListIter->atEnd()) {
-			WorldCanvas *wc = itsWCListIter->getRight();
+			   (wtrc - (linTrc + linBlc) / 2.0);
+		for ( auto wc : itsWCList ) {
 			wc->setZoomRectangleLCS(nblc, ntrc);
 			wc->refresh(Display::LinearCoordinateChange);
-			(*itsWCListIter)++;
 		}
 		zoomed(nblc, ntrc);
 	}

@@ -432,6 +432,78 @@ class test_onefield(testref_base):
           self.checkfinal(pstr=report)
 
 
+     def test_onefield_cube_restoringbeam(self):
+          """ [onefield] Test explicit restoring beams for cube : Test peak flux with niter=0, compared with smoothing vs restoringbeam"""
+          
+          self.prepData('refim_point.ms')
+          
+          ret1 = tclean(vis=self.msfile,imagename=self.img,
+                        imsize=100,cell='10.0arcsec',interpolation='nearest',
+                        interactive=0,niter=0,specmode='cube',
+                        parallel=self.parallel)
+          imsmooth(imagename=self.img+'.image', targetres=True, major='120.0arcsec', minor='120.0arcsec', pa='0deg',outfile=self.img+'.smoothed.image',overwrite=True)
+
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'.rest',
+                        imsize=100,cell='10.0arcsec',interpolation='nearest',
+                        interactive=0,niter=0,specmode='cube',restoringbeam='120.0arcsec',
+                        parallel=self.parallel)
+          
+          header = imhead(self.img+'.rest.image',verbose=False)
+               
+          estr = "["+inspect.stack()[1][3]+"] Has single restoring beam ? : " + self.th.verdict( header.has_key('restoringbeam')) + "\n"
+
+          report = self.th.checkall(imexist=[self.img+'.rest.image'], 
+                                     imval=[(self.img+'.image',1.36,[50,50,0,2]),
+                                            (self.img+'.smoothed.image',1.54,[50,50,0,2]),
+                                            (self.img+'.rest.image',1.54,[50,50,0,2]),
+                                            (self.img+'.image',0.79,[50,50,0,18]),
+                                            (self.img+'.smoothed.image',1.21,[50,50,0,18]),
+                                            (self.img+'.rest.image',1.21,[50,50,0,18])  ])
+
+          ## Note : In this test, setting niter=2000 will get all the runs to produce the same correct values.
+          
+          ## Pass or Fail (and why) ?
+          self.checkfinal(estr+report)
+
+
+     def test_onefield_mtmfs_restoringbeam(self):
+          """ [onefield] Test explicit restoring beams for mtmfs : Test peak flux with niter=0, compared with smoothing vs   restoringbeam"""
+          
+          self.prepData('refim_point.ms')
+          
+          ret1 = tclean(vis=self.msfile,imagename=self.img,
+                        imsize=100,cell='10.0arcsec',
+                        interactive=0,niter=0,specmode='mfs', deconvolver='mtmfs',
+                        parallel=self.parallel)
+
+          imsmooth(imagename=self.img+'.image.tt0', targetres=True, 
+                   major='120.0arcsec', minor='120.0arcsec', pa='0deg',
+                   outfile=self.img+'.smoothed.image.tt0',overwrite=True)
+          imsmooth(imagename=self.img+'.image.tt1', targetres=True, 
+                   major='120.0arcsec', minor='120.0arcsec', pa='0deg',
+                   outfile=self.img+'.smoothed.image.tt1',overwrite=True)
+          #os.system('rm -rf '+code+'trest_1_smoothed.alpha')
+          immath(imagename=[self.img+'.smoothed.image.tt0', self.img+'.smoothed.image.tt1'], 
+                 mode='evalexpr', expr='IM1/IM0',outfile=self.img+'.smoothed.alpha')
+
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'.rest',
+                        imsize=100,cell='10.0arcsec',
+                        interactive=0,niter=0,specmode='mfs', deconvolver='mtmfs',restoringbeam='120.0arcsec',
+                        parallel=self.parallel)
+          
+          report = self.th.checkall(imexist=[self.img+'.rest.image.tt0'], 
+                                     imval=[(self.img+'.image.tt0',1.06,[50,50,0,0]),
+                                            (self.img+'.alpha',-1.03,[50,50,0,0]),
+                                            (self.img+'.smoothed.image.tt0',1.5,[50,50,0,0]),
+                                            (self.img+'.smoothed.alpha',-2.19,[50,50,0,0]),
+                                            (self.img+'.rest.image.tt0',1.5,[50,50,0,0]), 
+                                            (self.img+'.rest.alpha',-2.19,[50,50,0,0])  ])
+
+          ## Note : In this test, setting niter=100 will get all the runs to produce the same, correct alpha=-1.0 
+
+          ## Pass or Fail (and why) ?
+          self.checkfinal(report)
+
 ##############################################
 ##############################################
 
@@ -1781,14 +1853,12 @@ class test_cube(testref_base):
               ret = tclean(vis=self.msfile,imagename=self.img+'1',specmode='cube',imsize=100,cell='10.0arcsec',niter=10,deconvolver='hogbom',
                        restoringbeam='common',parallel=self.parallel)
           self.assertTrue(os.path.exists(self.img+'1.psf') and os.path.exists(self.img+'1.image') )
-          report2=self.th.checkall(imexist=[self.img+'1.image'],imval=[(self.img+'1.image',0.8906,[54,50,0,0]), (self.img+'1.image',0.35945,[54,50,0,19]) , (self.img+'1.residual',0.033942,[54,50,0,19]) ])
+          report2=self.th.checkall(imexist=[self.img+'1.image'],imval=[(self.img+'1.image',0.8906,[54,50,0,0]), (self.img+'1.image',0.51977,[54,50,0,19]) , (self.img+'1.residual',0.033942,[54,50,0,19]) ])
           # OLD - first channel has been restored by a 'common' beam picked from channel 2
           self.checkfinal(report1+report2)
 
-#  def test_cube_explicit_restoringbeam(self):
+#     def test_cube_explicit_restoringbeam(self):
 #          """ [cube] Test explicit restoring beams : Test peak flux and off source value for smoothed residuals"""
-
-
 
      def test_cube_common_restoringbeam(self):
           """ [cube] Test_cube_restoringbeam (cas10849/10946) : Test parallel and serial run on same refconcat images  """
@@ -1814,7 +1884,7 @@ class test_cube(testref_base):
 
           report2 = self.th.checkall(imexist=[self.img+'.image'], 
                                      imval=[(self.img+'.image',0.770445,[54,50,0,1]),
-                                            (self.img+'.image',0.408929,[54,50,0,15])  ])
+                                            (self.img+'.image',0.567246,[54,50,0,15])  ])
           
           ## Pass or Fail (and why) ?
           self.checkfinal(estr+report2)

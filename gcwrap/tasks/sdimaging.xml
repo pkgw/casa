@@ -53,8 +53,8 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name="outfile">
-	    <description>name of output image</description>
-	    <value></value>
+            <description>name of output image</description>
+            <value></value>
     </param>
 
     <param type="bool" name="overwrite">
@@ -64,8 +64,8 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="field">
-	    <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
-	    <any type="variant" limittypes="string stringArray"/>
+            <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
+            <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
 
@@ -112,13 +112,13 @@ values. See description below for details of gridfunction available.
     <param type="any" name="start" subparam="true">
             <description>start of output spectral dimension, e.g. "0", "110GHz", "-20km/s"</description>
             <any type="variant" limittypes="string int"/>
-	    <value type="int">0</value>
+            <value type="int">0</value>
     </param>
 
     <param type="any" name="width" subparam="true">
             <description>width of output spectral channels</description>
-	    <any type="variant"  limittypes="string int"/>
-	    <value type="int">1</value>
+            <any type="variant"  limittypes="string int"/>
+            <value type="int">1</value>
     </param>
 
     <param type="string" name="veltype" ignorecase="true"  subparam="true">
@@ -193,7 +193,7 @@ values. See description below for details of gridfunction available.
 
     <param type="any" name="imsize">
             <description>x and y image size in pixels, e.g., [64,64]. Single value: same for both spatial axes ([] = number of pixels to cover whole pointings in MSes)</description>
-	    <any type="variant" limittypes="intArray doubleArray"/>
+            <any type="variant" limittypes="intArray doubleArray"/>
             <value type="intArray"/>
     </param>
 
@@ -209,20 +209,20 @@ values. See description below for details of gridfunction available.
             <value type="string"></value>
     </param>
 
-	<param type="string" name="projection">
-	    <description>map projection type</description>
-	    <value>SIN</value>
-	    <allowed kind="enum" ignorecase="true">
-	        <value>SIN</value>
-	        <value>CAR</value>
-	        <value>TAN</value>
-	        <value>SFL</value>
-	    </allowed>
-	</param>
+        <param type="string" name="projection">
+            <description>map projection type</description>
+            <value>SIN</value>
+            <allowed kind="enum" ignorecase="true">
+                <value>SIN</value>
+                <value>CAR</value>
+                <value>TAN</value>
+                <value>SFL</value>
+            </allowed>
+        </param>
 
     <param type="string" name="ephemsrcname">
-	    <description>ephemeris source name, e.g. "MARS"</description>
-	    <value></value>
+            <description>ephemeris source name, e.g. "MARS"</description>
+            <value></value>
     </param>
 
     <param type="string" name="pointingcolumn">
@@ -266,18 +266,18 @@ values. See description below for details of gridfunction available.
             </allowed>
     </param>
 
-   	<param type="bool" name="clipminmax">
-   			<shortdescription>Clip minimum and maximum value from each pixel</shortdescription>
-   			<description>Clip minimum and maximum value from each pixel. Note the benefit of clipping is lost when the number of integrations contributing to each gridded pixel is small, or where the incidence of spurious datapoints is approximately or greater than the number of beams (in area) encompassed by expected image.</description>
-   			<value>False</value>
-   	</param>
+        <param type="bool" name="clipminmax">
+                        <shortdescription>Clip minimum and maximum value from each pixel</shortdescription>
+                        <description>Clip minimum and maximum value from each pixel. Note the benefit of clipping is lost when the number of integrations contributing to each gridded pixel is small, or where the incidence of spurious datapoints is approximately or greater than the number of beams (in area) encompassed by expected image.</description>
+                        <value>False</value>
+        </param>
 
     <constraints>
             <when param="mode">
                 <equals value="channel">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Begin the output cube at the frequency of this channel in the MS</description>
+                        <description>Begin the output cube at the frequency of this channel in the MS</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Width of output channel relative to MS channel (# to average)("" = 1 channel) </description>
@@ -286,7 +286,7 @@ values. See description below for details of gridfunction available.
                 <equals value="frequency">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Frequency of first channel: e.g. "1.4GHz" (""= first channel in first SpW of MS)</description>
+                        <description>Frequency of first channel: e.g. "1.4GHz" (""= first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Channel width: e.g "1.0kHz"(""=width of first channel in first SpW of MS)</description>
@@ -295,7 +295,7 @@ values. See description below for details of gridfunction available.
                 <equals value="velocity">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Velocity of first channel: e.g "0.0km/s"(""=first channel in first SpW of MS)</description>
+                        <description>Velocity of first channel: e.g "0.0km/s"(""=first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Channel width e.g "-1.0km/s" (""=width of first channel in first SpW of MS)</description>

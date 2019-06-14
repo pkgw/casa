@@ -59,6 +59,7 @@
 #include <display/DisplayCanvas/WCCSNLAxisLabeller.h>
 #include <display/DisplayDatas/PrincipalAxesDD.h>
 #include <display/functional/elements.h>
+#include <list>
 
 #include <iostream>
 using namespace std;
@@ -1069,15 +1070,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // create iterator and temporary pointers
 
-		ConstListIter<WCRefreshEH*> iter(refreshEventHandlerList());
-		WCRefreshEH *tmp_EH = 0;
-
-// loop
-
-		while (!iter.atEnd()) {
-			tmp_EH = iter.getRight();
-			(*tmp_EH)(ev);
-			iter++;
+		for ( WCRefreshEH *eh : *refreshEventHandlerList( ) ) {
+			(*eh)(ev);
 		}
 
 		PrincipalAxesDM *theImage = 0;

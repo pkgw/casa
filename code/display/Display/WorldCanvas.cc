@@ -99,7 +99,6 @@ WorldCanvas::WorldCanvas(PixelCanvas * pc,
   itsHeldReason(Display::BackCopiedToFront),
   itsCoordinateSystem(0),
   itsGrabbing(false),
-  images_(0,16),
   itsCSmaster(0) {
 	setWorldCanvasPosition(xOrigin, yOrigin, xSize, ySize);
 	ctorInit();
@@ -115,13 +114,6 @@ WorldCanvas::~WorldCanvas() {
 	itsPixelCanvas->removeRefreshEventHandler(*this);
 	itsPixelCanvas->removeMotionEventHandler(*this);
 	itsPixelCanvas->removePositionEventHandler(*this);
-
-	delete itsMEHListIter;
-	itsMEHListIter = 0;
-	delete itsPEHListIter;
-	itsPEHListIter = 0;
-	delete itsREHListIter;
-	itsREHListIter = 0;
 
 	if (itsOwnDataScaleHandler) {
 		delete itsDataScaleHandler;
@@ -147,48 +139,30 @@ WorldCanvas::~WorldCanvas() {
 
 // Add event handlers.
 void WorldCanvas::addRefreshEventHandler(DisplayEH &eh) {
-	itsREHListIter->toEnd();
-	itsREHListIter->addRight(&eh);
+	itsRefreshEHList.push_back(&eh);
 }
 void WorldCanvas::addMotionEventHandler(WCMotionEH &eh) {
-	itsMEHListIter->toEnd();
-	itsMEHListIter->addRight(&eh);
+	itsMotionEHList.push_back(&eh);
 }
 void WorldCanvas::addPositionEventHandler(WCPositionEH &eh) {
-	itsPEHListIter->toEnd();
-	itsPEHListIter->addRight(&eh);
+	itsPositionEHList.push_back(&eh);
 }
 
 // Remove event handlers.
 void WorldCanvas::removeRefreshEventHandler(const DisplayEH &eh) {
-	itsREHListIter->toStart();
-	while (!itsREHListIter->atEnd()) {
-		if (itsREHListIter->getRight() == &eh) {
-			itsREHListIter->removeRight();
-			break;
-		}
-		(*itsREHListIter)++;
-	}
+	std::list<DisplayEH*> orig = itsRefreshEHList;
+    itsRefreshEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsRefreshEHList), [&](DisplayEH *e){return e != &eh;} );
 }
 void WorldCanvas::removeMotionEventHandler(const WCMotionEH &eh) {
-	itsMEHListIter->toStart();
-	while (!itsMEHListIter->atEnd()) {
-		if (itsMEHListIter->getRight() == &eh) {
-			itsMEHListIter->removeRight();
-			break;
-		}
-		(*itsMEHListIter)++;
-	}
+	std::list<WCMotionEH*> orig = itsMotionEHList;
+    itsMotionEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsMotionEHList), [&](WCMotionEH *e){return e != &eh;} );
 }
 void WorldCanvas::removePositionEventHandler(const WCPositionEH &eh) {
-	itsPEHListIter->toStart();
-	while (!itsPEHListIter->atEnd()) {
-		if (itsPEHListIter->getRight() == &eh) {
-			itsPEHListIter->removeRight();
-			break;
-		}
-		(*itsPEHListIter)++;
-	}
+	std::list<WCPositionEH*> orig = itsPositionEHList;
+    itsPositionEHList.clear( );
+	std::copy_if( orig.begin( ), orig.end( ), std::back_inserter(itsPositionEHList), [&](WCPositionEH *e){return e != &eh;} );
 }
 
 // Call event handlers.
@@ -198,28 +172,23 @@ void WorldCanvas::callRefreshEventHandlers(const WCRefreshEvent &ev) {
 	if (!(itsPixelCanvas->refreshAllowed())) {
 		return;
 	}
-	itsREHListIter->toStart();
-	while (!itsREHListIter->atEnd()) {
+
+	for ( auto deh : itsRefreshEHList ) {
 		// This list now contains generic DisplayEHs as well (1/02).
 		// Only the true WCRefreshEHs on this list can/should handle
 		// WCRefreshEvents through the old-style 'operator()' interface.
-		WCRefreshEH* refEH=dynamic_cast<WCRefreshEH*>(itsREHListIter->getRight());
+		WCRefreshEH* refEH=dynamic_cast<WCRefreshEH*>(deh);
 		if(refEH != 0) (*refEH)(ev);
-		(*itsREHListIter)++;
 	}
 }
 void WorldCanvas::callMotionEventHandlers(const WCMotionEvent &ev) {
-	itsMEHListIter->toStart();
-	while (!itsMEHListIter->atEnd()) {
-		(*(itsMEHListIter->getRight()))(ev);
-		(*itsMEHListIter)++;
+	for ( auto meh : itsMotionEHList ) {
+		(*meh)(ev);
 	}
 }
 void WorldCanvas::callPositionEventHandlers(const WCPositionEvent &ev) {
-	itsPEHListIter->toStart();
-	while (!itsPEHListIter->atEnd()) {
-		(*(itsPEHListIter->getRight()))(ev);
-		(*itsPEHListIter)++;
+	for ( auto peh : itsPositionEHList ) {
+		(*peh)(ev);
 	}
 }
 
@@ -230,10 +199,10 @@ void WorldCanvas::callPositionEventHandlers(const WCPositionEvent &ev) {
 // be implemented in the future, if found to be desirable.
 
 void WorldCanvas::handleEvent(DisplayEvent& ev) {
-	ConstListIter<DisplayEH*> ehs(&itsRefreshEHList);
 	// avoid itsREHListIter because of recursion issues.
 	// (It might be best to can the member ListIters altogether...)
-	for(ehs.toStart(); !ehs.atEnd(); ehs++) ehs.getRight()->handleEvent(ev);
+    std::list<DisplayEH*> handlers = itsRefreshEHList;    
+    for ( auto handler : handlers ) handler->handleEvent(ev);
 }
 
 
@@ -1782,7 +1751,10 @@ void WorldCanvas::drawImage(const Vector<Double> &blc,
 
 	if (!worldToPix(pBlc, wBlc)) {	// (Shouldn't happen)
 		delete im;
-		if(drawObj!=0) images_.remove(drawObj);
+		if(drawObj!=0) {
+            auto found = images_.find(drawObj);
+            if ( found != images_.end( ) ) images_.erase(found);
+        }
 		return;
 	}
 
@@ -1846,13 +1818,13 @@ WorldCanvas::ColorIndexedImage_* WorldCanvas::getClearedColorIndexedImage(
 
 	ColorIndexedImage_* im;
 
-	if(drawObj!=0 && images_.isDefined(drawObj)) {
-		im = images_(drawObj);		// Retrieve existing cached image
+	if( drawObj != 0 && images_.find(drawObj) != images_.end( ) ) {
+		im = images_[drawObj];		// Retrieve existing cached image
 		im->clear();
 	}			// and clear it for reuse.
 	else {
 		im = new ColorIndexedImage_;	// create new color-indexed image.
-		if(drawObj!=0) images_.define(drawObj, im);
+		if( drawObj != 0 ) images_[drawObj] = im;
 	}
 	// cache it, if caller wishes.
 	return im;
@@ -1866,9 +1838,9 @@ Bool WorldCanvas::redrawIndexedImage(void* drawObj,
 	// Redraw from color-indexed image cache, if possible (speeds up
 	// colormap-only changes considerably).
 
-	if(!images_.isDefined(drawObj)) return false;	// No such image.
+	if( images_.find(drawObj) == images_.end( ) ) return false;	// No such image.
 
-	ColorIndexedImage_* im = images_(drawObj);
+	ColorIndexedImage_* im = images_[drawObj];
 
 	if( reason != Display::ColorTableChange ||
 			im->colormapSize != itsPixelCanvas->getColormapSize() ) {
@@ -1890,17 +1862,17 @@ Bool WorldCanvas::removeIndexedImage(void* drawObj) {
 	// Remove a color-indexed image from the cache, if any.  Return value
 	// indicates whether there was anything to remove.
 
-	if(!images_.isDefined(drawObj)) return false;
-	delete images_(drawObj);
-	images_.remove(drawObj);
+    auto found = images_.find(drawObj);
+	if( found == images_.end( ) ) return false;
+	delete found->second;
+	images_.erase(found);
 	return true;
 }
 
 
 void WorldCanvas::clearColormapChangeCache() {
 	// Clear the whole colormap change cache (see images_, below).
-
-	for(uInt i=0; i<images_.ndefined(); i++) delete images_.getVal(i);
+	for( auto pair : images_ ) delete pair.second;
 	images_.clear();
 }
 
@@ -2544,10 +2516,6 @@ void WorldCanvas::ctorInit() {
 	itsOwnCoordinateHandler = true;
 	itsOwnResampleHandler = true;
 	itsOwnDataScaleHandler = true;
-
-	itsREHListIter = new ListIter<DisplayEH *>(&itsRefreshEHList);
-	itsPEHListIter = new ListIter<WCPositionEH *>(&itsPositionEHList);
-	itsMEHListIter = new ListIter<WCMotionEH *>(&itsMotionEHList);
 
 	itsPixelCanvas->addRefreshEventHandler(*this);
 	itsPixelCanvas->addMotionEventHandler(*this);

@@ -30,7 +30,6 @@
 
 #include <list>
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Vector.h>
 #include <display/DisplayEvents/PCRefreshEH.h>
@@ -1269,12 +1268,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Event handler lists and convenient iterators.
 		// <group>
-		casacore::List<DisplayEH *> itsRefreshEHList;
-		casacore::List<WCPositionEH *> itsPositionEHList;
-		casacore::List<WCMotionEH *> itsMotionEHList;
-		mutable casacore::ListIter<DisplayEH *> *itsREHListIter;
-		mutable casacore::ListIter<WCPositionEH *> *itsPEHListIter;
-		mutable casacore::ListIter<WCMotionEH *> *itsMEHListIter;
+		std::list<DisplayEH *> itsRefreshEHList;
+		std::list<WCPositionEH *> itsPositionEHList;
+		std::list<WCMotionEH *> itsMotionEHList;
 		// </group>
 
 		// Other handler lists.
@@ -1373,7 +1369,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// to redrawIndexedImage() in order to reuse the image.
 		//# This mechanism attempts to avoid some erroneous reuses of
 		//# 'itsCachedImage' among different DDs (bugs 4937, 5032).   (dk 3/05)
-		casacore::SimpleOrderedMap<void*, ColorIndexedImage_*> images_;
+        std::map<void*, ColorIndexedImage_*> images_;
 
 		// Retrieve an indexed image to write onto.  Used (exclusively) by
 		// WC::drawImage().  If one exists in the cache under this objId key,

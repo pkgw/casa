@@ -261,7 +261,7 @@ def flagdata(vis,
         opts_dict = {'writeflags': writeflags, 'timedev': timedev, 'freqdev': freqdev}
         fh.save_rflag_consolidated_files(mode, action, retVar, opts_dict, inpfile)
 
-        # In async mode return the job ids
+        # In async_mode return the job ids
         if ParallelTaskHelper.getAsyncMode():
             return retVar
         else:

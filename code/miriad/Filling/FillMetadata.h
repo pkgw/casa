@@ -29,11 +29,8 @@
 #ifndef BIMA_FILLMETADATA_H
 #define BIMA_FILLMETADATA_H
 
-#include <casa/Containers/List.h>
-#include <casa/Containers/OrderedPair.h>
-#include <casa/Containers/OrderedMap.h>
-#include <casa/Containers/HashMap.h>
-#include <casa/Containers/HashMapIter.h>
+#include <map>
+#include <list>
 #include <casa/Arrays/Vector.h>
 #include <measures/Measures/Stokes.h>
 #include <miriad/Filling/MirTypeAssert.h>
@@ -757,7 +754,7 @@ class MirSource : public MirInfo {
     // add a new position for this source
     void addPosition(casacore::Double mtime, casacore::Double mra, casacore::Double mdec) {
 	if (! motion_p) {
-	    motion_p = new casacore::OrderedMap<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> >(
+	    motion_p = new std::map<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> >(
 		casacore::OrderedPair<casacore::Double,Double>(0,0), 2);
 	    motion_p->define(time, casacore::OrderedPair<casacore::Double, casacore::Double>(ra, dec));
 	}
@@ -775,8 +772,8 @@ class MirSource : public MirInfo {
 	ra.resize(n);
 	dec.resize(n);
 
-	casacore::MapIter<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> > iter(*motion_p);
-	for(casacore::uInt i=0; ! iter.atEnd(); ++iter, ++i) {
+	std::map<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> >::iterator iter motion_p->begin( );
+	for(casacore::uInt i=0; iter != motion_p->end( ); ++iter, ++i) {
 	    time(i) = iter.getKey();
 	    ra(i) = iter.getVal().x();
 	    dec(i) = iter.getVal().y();
@@ -792,7 +789,7 @@ class MirSource : public MirInfo {
     }
 
 private:
-    casacore::OrderedMap<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> > *motion_p;
+    std::map<casacore::Double, casacore::OrderedPair<casacore::Double, casacore::Double> > *motion_p;
     static casacore::Int nxtid_p;
 };
 

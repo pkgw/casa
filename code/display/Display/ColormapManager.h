@@ -28,8 +28,8 @@
 #ifndef TRIALDISPLAY_COLORMAPMANAGER_H
 #define TRIALDISPLAY_COLORMAPMANAGER_H
 
+#include <map>
 #include <casa/aips.h>
-#include <casa/Containers/SimOrdMap.h>
 #include <display/Display/Colormap.h>
 
 //# Forward declarations
@@ -132,7 +132,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Return the number of registered Colormaps.
 		casacore::uInt nMaps() const {
-			return itsInfoMap.ndefined();
+			return itsInfoMap.size( );
 		}
 
 		// Return a pointer to a Colormap by number.
@@ -147,7 +147,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		PixelCanvasColorTable * itsPCColorTable;
 
 		// casacore::Map which associates Colormap pointers with ColormapInfo.
-		casacore::SimpleOrderedMap<const Colormap *, ColormapInfo *> itsInfoMap;
+		std::map<const Colormap *, ColormapInfo *> itsInfoMap;
 
 	};
 
