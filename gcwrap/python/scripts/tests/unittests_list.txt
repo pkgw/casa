@@ -101,6 +101,7 @@ test_measures                   jjacobs@nrao.edu
 test_msmd                       dmehring@nrao.edu
 test_mstransform                jagonzal@eso.org
 test_mstransform_mms            scastro@eso.org
+test_nrobeamaverage             wataru.kawasaki@nao.ac.jp
 test_partition                  scastro@eso.org
 test_plotants                   jkern@nrao.edu
 test_plotcal                    pford@nrao.edu

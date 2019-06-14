@@ -145,6 +145,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_mst_cvel.py
   test_mst_cvelB.py
   test_mst_split.py
+  test_nrobeamaverage.py
   test_oldhanningsmooth.py
   test_oldsplit.py
   test_mstool.py
