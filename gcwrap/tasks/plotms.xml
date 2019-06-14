@@ -273,8 +273,8 @@ MS Parameters
         <value>icrs</value>
         <value>j2000</value>
         <value>b1950</value>
-        <value>azelgeo</value>
         <value>galactic</value>
+        <value>azelgeo</value>
       </allowed>
     </param>
     
@@ -284,7 +284,6 @@ MS Parameters
       <allowed kind="enum">
         <value />
         <value>nearest</value>
-        <value>linear</value>
         <value>cubic spline</value>
         <!--  allow also shorter equivalent for 'cubic spline': -->
         <value>spline</value>
@@ -492,8 +491,8 @@ MS Parameters
         <value>icrs</value>
         <value>j2000</value>
         <value>b1950</value>
-        <value>azelgeo</value>
         <value>galactic</value>
+        <value>azelgeo</value>
       </allowed>
     </param>
     
@@ -504,8 +503,9 @@ MS Parameters
       <allowed kind="enum" type="string">
         <value />
         <value>nearest</value>
-        <value>linear</value>
         <value>cubic spline</value>
+        <!--  allow also shorter equivalent for 'cubic spline': -->
+        <value>spline</value>
       </allowed>
     </param>
     
