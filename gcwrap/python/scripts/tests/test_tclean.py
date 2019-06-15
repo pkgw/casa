@@ -232,8 +232,54 @@ class test_onefield(testref_base):
           report=self.th.checkall(imexist=[self.img+'.psf',self.img+'_2.psf',self.img+'_3.psf'] )
           self.checkfinal(pstr=report)
 
+     # weighting test
+     def test_onefield_weighting(self):
+          """ [onefield] Test_Onefield_weighting : mfs with different weighting (natural, uniform, briggs, radial, superuniform)"""
+          self.prepData('refim_twochan.ms')
+          # default = natural
+          ret0 = tclean(vis=self.msfile,imagename=self.img+'0',imsize=100,cell='8.0arcsec',niter=10,weighting='natural', interactive=0,parallel=self.parallel) 
+          # uniform
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,weighting='uniform', interactive=0,parallel=self.parallel) 
+          report=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image', self.img+'.model'], imval=[(self.img+'.psf',1.0,[50,50,0,0])])
+          self.checkfinal(pstr=report)
+
+          # briggs r=-2
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=-2, interactive=0,parallel=self.parallel)     
+          report2=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'2.psf', self.img+'2.residual', self.img+'2.image', self.img+'2.model'], imval=[(self.img+'2.psf',1.0,[50,50,0,0])])
+
+          # briggs r=0.5(default)
+          ret3 = tclean(vis=self.msfile,imagename=self.img+'3',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=0.5, interactive=0,parallel=self.parallel)     
+          report3=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'3.psf', self.img+'3.residual', self.img+'3.image', self.img+'3.model'], imval=[(self.img+'3.psf',1.0,[50,50,0,0])])
+
+          # briggs r=2
+          ret4 = tclean(vis=self.msfile,imagename=self.img+'4',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=2, interactive=0,parallel=self.parallel)     
+          report4=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'4.psf', self.img+'4.residual', self.img+'4.image', self.img+'4.model'], imval=[(self.img+'4.psf',1.0,[50,50,0,0])])
+
+          # radial
+          ret5 = tclean(vis=self.msfile,imagename=self.img+'5',imsize=100,cell='8.0arcsec',niter=10,weighting='radial', interactive=0,parallel=self.parallel)     
+          report5=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'5.psf', self.img+'5.residual', self.img+'5.image', self.img+'5.model'], imval=[(self.img+'5.psf',1.0,[50,50,0,0])])
+
+          # superuniform
+          ret6 = tclean(vis=self.msfile,imagename=self.img+'6',imsize=100,cell='8.0arcsec',niter=10,weighting='superuniform', interactive=0,parallel=self.parallel)     
+          report6=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'6.psf', self.img+'6.residual', self.img+'6.image', self.img+'6.model'], imval=[(self.img+'6.psf',1.0,[50,50,0,0])])
+
+          # beamareas: uniform < briggs-r=-2 < briggs r=0.5 < briggs r=+2 < natural, ...
+          # by default, it checks if im1's beam < im2's beam
+          print "Test beamarea of tst0.image (natural) is greater than beamarea of tst.image (uniform)"
+          self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'0.image'))
+          print "Test beamarea of tst2.image (briggs -2) is greater than beamarea of tst.image (uniform)"
+          self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'2.image'))
+          print "Test beamarea of tst3.image (briggs 0.5) is greater than beamarea of tst2.image (briggs -2))"
+          self.assertTrue(self.th.check_beam_compare(self.img+'2.image', self.img+'3.image'))
+          print "Test beamarea of tst4.image (briggs 2) is greater than beamarea of tst3.image (briggs 0.5))"
+          self.assertTrue(self.th.check_beam_compare(self.img+'3.image', self.img+'4.image'))
+     
+     
+
      def test_onefield_twoMS(self):
-          """ [onefield] Test_Onefield_twoMS : One field, two input MSs """
+          """ [onefield] Test_Onefield_twoMS : One field, two input MSs, also
+          test automatic fallback to 'data' column when no 'corrected' data
+          column"""
           ms1 = 'refim_point_onespw0.ms'
           ms2 = 'refim_point_onespw1.ms'
           self.prepData(ms1)
@@ -246,7 +292,7 @@ class test_onefield(testref_base):
 #              correct=True
 #          self.assertTrue(correct)
           ## This run should go smoothly.
-          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='data',parallel=self.parallel)
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.psf',self.img+'.residual'])
           self.delData(ms1)
           self.delData(ms2)
@@ -266,8 +312,8 @@ class test_onefield(testref_base):
 #          except Exception as e:
 #              correct=True
 #          self.assertTrue(correct)
-          ## This run should go smoothly.
-          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='data',weighting='briggs', interactive=0, parallel=self.parallel)
+          ## This run should go smoothly. 
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,weighting='briggs', interactive=0, parallel=self.parallel)
           report=self.th.checkall(ret=ret, peakres=0.365259, modflux=0.798692, imexist=[self.img+'.psf',self.img+'.residual'])
           self.delData(ms1)
           self.delData(ms2)
@@ -290,6 +336,7 @@ class test_onefield(testref_base):
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+
      @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Erratic in parallel")
      def test_onefield_briggsabs(self):
           """[onefield] test_onefield_briggsabs: """
@@ -458,6 +505,8 @@ class test_onefield(testref_base):
           report=self.th.checkall(ret=ret, peakres=0.369, modflux=0.689, iterdone=10, imexist=[self.img+'.psf.tt0', self.img+'.residual.tt0', self.img+'.image.tt0', self.img+'.model.tt0'], imval=[(self.img+'.psf.tt0',1.0,[50,50,0,0]),(self.img+'.image.tt0',1.05,[50,50,0,0])])
           ## iterdone=11 only because of the return (iterdone_p+1) in MultiTermMatrixCleaner::mtclean() !
           self.checkfinal(pstr=report)
+
+ 
 
 
 ##############################################

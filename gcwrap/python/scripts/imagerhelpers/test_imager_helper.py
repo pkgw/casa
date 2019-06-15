@@ -152,15 +152,14 @@ class TestHelpers():
      def getpeakres(self,summ):
           # for cube this gets peakres of the last channel that has been
           # CLEANed.
-          print " summ=",summ
-          print " summ.keys()=", summ.keys()
+          #print " summ=",summ
+          # print " summ.keys()=", summ.keys()
           if summ.has_key('summaryminor'):
                reslist = summ['summaryminor'][1,:]
-               print "reslist=",reslist
+               #print "reslist=",reslist
                peakres = reslist[ len(reslist)-1 ]
           else:
                peakres = None
-          print "PEAKRE===", peakres
           return peakres
 
      def getmodflux(self,summ):
