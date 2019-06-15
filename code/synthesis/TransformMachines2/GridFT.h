@@ -226,7 +226,9 @@ public:
   virtual casacore::String name() const;
   virtual void setMiscInfo(const casacore::Int qualifier){(void)qualifier;};
   virtual void ComputeResiduals(vi::VisBuffer2&/*vb*/, casacore::Bool /*useCorrected*/) {};
-
+  ///estimate of memory necessary in kB
+   virtual casacore::Long estimateRAM(const casacore::CountedPtr<SIImageStore>& imstore);
+  
 protected:
 
 

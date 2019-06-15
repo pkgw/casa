@@ -751,10 +751,10 @@ void SIMapperCollection::initializeGrid(vi::VisibilityIterator2& vi, Bool dopsf,
             if(! ((itsMappers[k])->getFTM2()))
               throw(AipsError("No VI/VB2 FTMachine set"));
             ///IFT
-            if(((itsMappers[k])->getFTM2())->estimateRAM()> 0){
-              mem+=((itsMappers[k])->getFTM2())->estimateRAM();
+            if(((itsMappers[k])->getFTM2())->estimateRAM(((itsMappers[k])->imageStore()))> 0){
+              mem+=((itsMappers[k])->getFTM2())->estimateRAM(((itsMappers[k])->imageStore()));
             //FT
-              mem+=((itsMappers[k])->getFTM2(False))->estimateRAM();
+              mem+=((itsMappers[k])->getFTM2(False))->estimateRAM(((itsMappers[k])->imageStore()));
             }
             else{
               //Assuming double precision...ignoring padding etc.

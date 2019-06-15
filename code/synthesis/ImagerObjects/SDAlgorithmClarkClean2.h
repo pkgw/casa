@@ -55,7 +55,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     SDAlgorithmClarkClean2(casacore::String clarktype);
     virtual  ~SDAlgorithmClarkClean2();
      ///returns the estimate of memory used in kilobytes (kB);
-    virtual casacore::Long estimateRAM();
+    virtual casacore::Long estimateRAM(const std::vector<int>& imstor);
 
   protected:
     

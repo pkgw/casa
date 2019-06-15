@@ -85,16 +85,27 @@ namespace casa { //# NAMESPACE CASA - BEGIN
    
  }
 
-  Long SDAlgorithmMSClean::estimateRAM(){
+  Long SDAlgorithmMSClean::estimateRAM(const vector<int>& imsize){
+    Long mem=0;
+    IPosition shp;
+    if(itsImages)
+      shp=itsImages->getShape();
+    else if(imsize.size() >1)
+      shp=IPosition(imsize);
+    else
+      return 0;
+      //throw(AipsError("Deconvolver cannot estimate the memory usage at this point"));
+    
     //Number of planes in memory
     //npsf=nscales+1
     //nresidual=4+nscales
     //nmodel=1
     //nmasks=2+nscales
     //transfer functions=nscales*2
-    Long nplanes=5*itsScaleSizes.nelements()+7;
+      Long nplanes=5*itsScaleSizes.nelements()+7;
     //in kB
-    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*nplanes/1024;
+      mem=sizeof(Float)*(shp(0))*(shp(1))*nplanes/1024;
+    
     return mem;
   }
  

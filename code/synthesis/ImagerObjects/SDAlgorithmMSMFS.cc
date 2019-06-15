@@ -160,21 +160,35 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   }
 
-  Long SDAlgorithmMSMFS::estimateRAM(){
+  Long SDAlgorithmMSMFS::estimateRAM(const vector<int>& imsize){
     ///taken from imager_resource_predictor.py
-    // psf patches in the Hessian
+
+    Long mem=0;
+    IPosition shp;
+    if(itsImages){
+      shp=itsImages->getShape();
+    }
+    else if(imsize.size() >1){
+      shp=IPosition(imsize);
+    }
+    else
+      return 0;
+      //throw(AipsError("Deconvolver cannot estimate the memory usage at this point"));
+    
+      // psf patches in the Hessian    
     Long nscales=itsScaleSizes.nelements();
     Long n4d = (nscales * (nscales+1) / 2.0) * (itsNTerms * (itsNTerms+1) / 2);
-          
-    Long nsupport = Long(Float(100.0/Float(itsImages->getShape()(0)))* Float(100.0/Float(itsImages->getShape()(1))* Float(n4d + nscales)));
+      
+      Long nsupport = Long(Float(100.0/Float(shp(0)))* Float(100.0/Float(shp(1))* Float(n4d + nscales)));
+      
+      Long nfull = 2 + 2 + 3 * nscales + 3 * itsNTerms + (2 * itsNTerms - 1) + 2 * itsNTerms * nscales;
+      Long nfftserver = 1 + 2*2 ; /// 1 float and 2 complex
+      
+      Long mystery = 1 + 1;  /// TODO
 
-    Long nfull = 2 + 2 + 3 * nscales + 3 * itsNTerms + (2 * itsNTerms - 1) + 2 * itsNTerms * nscales;
-    Long nfftserver = 1 + 2*2 ; /// 1 float and 2 complex
-
-    Long mystery = 1 + 1;  /// TODO
-
-    Long ntotal = nsupport + nfull + nfftserver + mystery;
-    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*ntotal/1024;
+      Long ntotal = nsupport + nfull + nfftserver + mystery;
+      mem=sizeof(Float)*(shp(0))*(shp(1))*ntotal/1024;
+    
     return mem;
   }
   void SDAlgorithmMSMFS::takeOneStep( Float loopgain, Int cycleNiter, Float cycleThreshold, Float &peakresidual, Float &modelflux, Int &iterdone)

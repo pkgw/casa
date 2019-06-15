@@ -617,15 +617,19 @@ using namespace casa::vi;
   }
 
   
-  Long FTMachine::estimateRAM(){
+  Long FTMachine::estimateRAM(const CountedPtr<SIImageStore>& imstor){
     //not set up yet 
-    if(!image)
+    if(!image && !imstor)
       return -1;
-    Long npixels=((image->shape()).product())/1024;
+    Long npixels=0;
+    if(image)
+      npixels=((image->shape()).product())/1024;
+    else
+      npixels=(*(imstor->backwardGrid())).shape().product()/1024;
     if(npixels==0) npixels=1; //1 kPixels is minimum then
-    Long factor=8;
+    Long factor=sizeof(Complex);
     if(!toVis_p && useDoubleGrid_p)
-      factor=16;
+      factor=sizeof(DComplex);
     return (npixels*factor);
   }
   

@@ -82,7 +82,7 @@ public:
 
   virtual casacore::uInt getNTaylorTerms(){return 1;};
   ///returns the estimate of memory used in kilobytes (kB);
-  virtual casacore::Long estimateRAM();
+  virtual casacore::Long estimateRAM(const std::vector<int>& imsize);
 protected:
 
   // Pure virtual functions to be implemented by various algorithm deconvolvers.

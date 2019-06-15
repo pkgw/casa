@@ -337,10 +337,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return loopcontrols.majorCycleRequired(currentresidual);
   }
 
-  Long SDAlgorithmBase::estimateRAM(){
-
+  Long SDAlgorithmBase::estimateRAM(const vector<int>& imsize){
+    Long mem=0;
+    if(itsImages)
     //Simple deconvolvers will have psf + residual + model + mask (1 plane at a time)
-    Long mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*4/1024;
+      mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*4/1024;
+    else if(imsize.size() >1)
+      mem=sizeof(Float)*(imsize[0])*(imsize[1])*4/1024;
+    else
+      return 0;
+      //throw(AipsError("Deconvolver cannot estimate the memory usage at this point"));
     return mem;
   }
 
