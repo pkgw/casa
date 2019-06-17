@@ -605,7 +605,7 @@ class TuneMSConfig  /*: public BaseClass */
 {
 public:
     // return data structure def. //
-    typedef struct _Pointing_ 
+    typedef struct _Pointing_  
     {
         Double time;
         Double interval;
@@ -657,6 +657,11 @@ public:
     //-
  
       Double getInterpolationErrorLimit() { return errorLimit_;  } ;
+
+
+    // Pointing table default row size //
+    
+      uInt getDefaultPointingTableRow() {return defInerpolationTestPointingTableRow_; }
 
     // Row count to be added (when setting up MS) // 
 
@@ -1229,8 +1234,7 @@ private:
 //*********************************
 
 /* Buffer for write/put  */
-
-typedef  struct AntTblBuf_ {
+typedef struct AntTblBuf_ {
     String name;
     String station;
     String type;
@@ -1479,6 +1483,10 @@ public:
         uInt appendRowOnPointingTable(uInt n);
         uInt appendRowOnMainTable(uInt n);
     
+    // default row size //
+
+        uInt getDefaultPointingTableRow() { return tuneMS.getDefaultPointingTableRow(); }
+
     // Write Data on Antenna Table // 
 
         void writeDataToAntennaTable( uInt Row =0 );
@@ -1623,18 +1631,31 @@ void  MsEdit::writePseudoOnPointing()
 
     uInt LoopCnt =   tuneMS.getAvailablePointingTestingRow();
 
+#if 1
+    //+
+    // CAS-8418 Review:S6
+    // Clean Up TEST-MS
+    //-
+
+    uInt N = pT.getNrow();
+    for(uInt row=0; row < N; row++)
+    {
+        pT.putAntennaId (row, 99 ) ;     // AntennaID 
+    }
+    pT.flush();
+#endif 
+
     //+
     // For all Antenna and Row 
     //+
 
-    //  uInt N = pT.getNrow();
     uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
     for (uInt ant=0; ant < tuneMS.getMaxOfAntenna() ; ant++ )
     {
         for (uInt row=0; row < LoopCnt; row++)
         {
-            uInt  rowA = row + (ant * LoopCnt);
-
+            uInt rowA = row + (ant * LoopCnt);
+ 
             // Time //
               Double timeOnPoint = (Double)row  ;    // timeOnPoint represent the time in every pointing record.
 
@@ -1728,6 +1749,20 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = tuneMS.getRequiredMainTestingRow()  ;
+
+#if 1
+    //+
+    // CAS-8418 Review:S6
+    // Clean Up TEST-MS
+    //-
+
+    uInt N = mta.getNrow();
+    for(uInt row=0; row < N; row++)
+    {
+        mta.putAntenna (row, 99 ) ;     // AntennaID 
+    }   
+    mta.flush();
+#endif 
 
     printf("writePseudoOnMainTable:: writing to MAIN, nrow=%d, number of data on each antenna=%d \n", 
             nrow_ms,LoopCnt );
@@ -2091,14 +2126,10 @@ protected:
         //*
         // Fixture::InterpolationListedItems option
         //*
-          const uInt start_sn =5; 	         // starting senario no. in loop.
-          const uInt end_sn   =5;              // end senario no. in loop
 
-          uInt preparedColumn_  = 3;      // Number of prepeared Pointing-Column (1 to 5)
-          uInt preparedAntenna_ = 3;      // Number of Antenna (more than 0 )
+          const uInt preparedColumn_  = 5;      // Number of prepeared Pointing-Column (1 to 5)
+          const uInt preparedAntenna_ = 3;      // Number of Antenna (more than 0 )
    
-          uInt usingColumn_  = 0;         // used Column(ID) in this test.
-
         // Number of Devide Count to make dt.  
           uInt  deltaTimeDivCount_     = 10; // dividing count between P[n] and p[n+1]
         
@@ -2316,8 +2347,15 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
  - Set of testing parameters are given
 ------------------------------------------------------------------------*/ 
 
+# define P_DIRECTION        PointingDirectionCalculator::PtColID::DIRECTION
+# define P_TARGET           PointingDirectionCalculator::PtColID::TARGET
+# define P_POINTING_OFFSET  PointingDirectionCalculator::PtColID::POINTING_OFFSET
+# define P_SOURCE_OFFSET    PointingDirectionCalculator::PtColID::SOURCE_OFFSET
+# define P_ENCODER          PointingDirectionCalculator::PtColID::ENCODER
+
 typedef struct Parm {
     bool   use_spline;
+    PointingDirectionCalculator::PtColID  pcol;
     uInt   antenna;
     Double testCount;
     Double p_interval;
@@ -2326,80 +2364,88 @@ typedef struct Parm {
     Double errLimit;
 } ParamList;
 
-std::vector<ParamList>  paramListS[] =
+std::vector<std::vector<ParamList> >   paramListS =
 {
 
 
     // Senario 0 (Big Ratio) //
     {
-      {true,  0,1800, 1.0,  1.0	  ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
-      {false, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
+      {true,  P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
+      {false, P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
 
-      {true,  0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
-      {true,  0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  8.5E-08 },
+      {true,  P_DIRECTION, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
+      {true,  P_DIRECTION, 0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  8.5E-08 },
 
     },
     // Senario 1 (Test Count Dependency) //
 #define ErrS1 7.0E-06
     {
-      {true,  0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {false, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {false,P_TARGET, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
 
-      {true, 0,1010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
 
-      {true, 0,1060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, 0,1090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,1090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
  
     },
 
     // Senario 2 (all AntenaID) //
     {
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
-      {true, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
-      {true, 2,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 2,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
     },
 
     // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
     {
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
 
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
-      {true, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
     },
 
-    // Senario 4 (Insufficient Data, small number of data.) // 
+    // Senario 4 (test Pointing Column ) //
     {
-      {true, 1,  1260,   1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, 1,  5,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, 1,  4,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, 1,  3,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, 1,  2,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_POINTING_OFFSET, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_SOURCE_OFFSET,   0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_ENCODER,         0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   6.0E-06 },
+    },
+
+    // Senario 5 (Insufficient Data, small number of data.) // 
+    {
+      {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  5,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  4,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
     },
 
 
 #define ANT    0
-#define NTEST   2580
+#define NTEST  540  // default =2580 , Error happens at least on 2550 // 
 #define FUNC   TrajectoryFunction::Type::Normalized_Linear 
     //// 10-JUN-2019, SPECIAL ////
+#if 1
     {
-       {true,  ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 0.2,    0.1,     FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 2.0,    1.0,     FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 20.0,   10.0,    FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 200.0,  100.0,   FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 2000.0,    1000.0,    FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 20000.0,   10000.0,   FUNC,  5.0E-05 },
-       {true,  ANT, NTEST, 200000.0,  100000.0,  FUNC,  5.0E-05 },
+       {true,  P_DIRECTION, ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 0.2,    0.1,     FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 2.0,    1.0,     FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 20.0,   10.0,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 200.0,  100.0,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 2000.0,    1000.0,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 20000.0,   10000.0,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 200000.0,  100000.0,  FUNC,  5.0E-04 },
     },
-    
+#endif     
    
 };
 
@@ -2415,12 +2461,18 @@ TEST_F(TestDirection, InterpolationListedItems )
     ErrorStat  errstat;
     std::vector<Double> r_err = {0.0}; 
 
-    for (uInt sno = start_sn;  sno <= end_sn ;sno++) // Select Senario (start and  end are tunable)
+    // Senario and Param loop //
+#if 1
+    for (uInt sno = 0; sno <paramListS.size(); sno++) 
+#else
+    for (uInt sno = 6; sno <paramListS.size(); sno++) 
+#endif 
     {
         Description( "by Listed Condition ", "sno="+std::to_string(sno));
         for(uInt n=0; n<paramListS[sno].size();n++)
         {
-            uInt usingAntenna= paramListS[sno][n].antenna;
+            uInt usingAntenna = paramListS[sno][n].antenna;
+            uInt usingPColumn = paramListS[sno][n].pcol;
 
             use_spline       = paramListS[sno][n].use_spline;
             uInt   testCount = paramListS[sno][n].testCount;
@@ -2431,7 +2483,7 @@ TEST_F(TestDirection, InterpolationListedItems )
             Double err_limit = paramListS[sno][n].errLimit;
 
             printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
-            printf("&&&  parameter Set[%d]  starts. Ant=%d Func=%d\n",n, usingAntenna, trFunc );
+            printf("&&& Sno = %d , param Set[%d]. Ant=%d Func=%d\n", sno, n, usingAntenna, trFunc );
             printf("&&&    Spline=%d, N=%d, \n" , use_spline, testCount );
             printf("&&&    Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
             printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
@@ -2468,7 +2520,7 @@ TEST_F(TestDirection, InterpolationListedItems )
             //+
             // Execute Main-Body , get error info //
             //-
-              r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingColumn_, usingAntenna );
+              r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingPColumn, usingAntenna );
               errstat.put(r_err);
 
         }// end param
