@@ -749,7 +749,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 GainTrackingRow (GainTrackingTable &table, GainTrackingRow &row);
+	 GainTrackingRow (GainTrackingTable &table, GainTrackingRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

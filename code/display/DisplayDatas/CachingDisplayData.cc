@@ -25,6 +25,7 @@
 //#
 //# $Id$
 
+#include <algorithm>
 #include <casa/System/AipsrcValue.h>
 #include <display/DisplayDatas/CachingDisplayData.h>
 #include <display/DisplayDatas/CachingDisplayMethod.h>
@@ -43,13 +44,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		                       String("display.cachesize"), 256);
 		itsOptionsMaximumCacheSize = itsDefaultMaximumCacheSize;
 		installDefaultOptions();
-		itsElementListIter = new ListIter<void *>(&itsElementList);
 	}
 
 // Destructor.
 	CachingDisplayData::~CachingDisplayData() {
 		purgeCache();
-		delete itsElementListIter;
 	}
 
 // Install the default options for this DisplayData.
@@ -161,15 +160,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			// store position of oldest cached CachingDisplayMethod in case
 			// we have reached maximum allowed and need to delete one.
 			Bool found = false;
-			itsElementListIter->toStart();
-			while (!itsElementListIter->atEnd() && !found) {
-				cdMethod = (CachingDisplayMethod *)itsElementListIter->getRight();
-				found = ((cdMethod->worldCanvas() == wc) &&
-				         cdMethod->matches(*wchRestrictions) &&
-				         cdMethod->matches(*ddRestrictions));
-				(*itsElementListIter)++;
+			for ( void *vp : itsElementList ) {
+				cdMethod = (CachingDisplayMethod *) vp;
+				if ( (cdMethod->worldCanvas() == wc) &&
+					 cdMethod->matches(*wchRestrictions) &&
+					 cdMethod->matches(*ddRestrictions) ) {
+					found = true;
+					break;
+				}
 			}
-
 			String newCoordsAttr("newCoordinates");
 
 			if (wc->existsAttribute(newCoordsAttr)) {
@@ -184,8 +183,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				// preferentially add this CachingDisplayMethod at start of list
 				// since it is quicker to find it there next time.  Thus the oldest
 				// CachingDisplayMethod is always at the end of the list.
-				itsElementListIter->toStart();
-				itsElementListIter->addRight((void *)cdMethod);
+				itsElementList.push_front((void *)cdMethod);
 				// and now trim the cache, ie. remove anything beyond allowable
 				// size of cache.
 				trimCache();
@@ -277,33 +275,24 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Empty cache of all DMs for a given WCH.
 	void CachingDisplayData::purgeCache(const WorldCanvasHolder& wch) {
-		CachingDisplayMethod *cdm;
-		itsElementListIter->toStart();
-		while (!itsElementListIter->atEnd()) {
-			cdm = (CachingDisplayMethod *)itsElementListIter->getRight();
-			if (cdm->worldCanvas() == wch.worldCanvas()) {
-				itsElementListIter->removeRight();
-				delete cdm;
-				cdm=0;
-			} else {
-				(*itsElementListIter)++;
-			}
-		}
+        std::list<void*> orig = itsElementList;
+        std::list<void*> to_delete;
+        itsElementList.clear( );
+        std::partition_copy( orig.begin( ), orig.end( ),
+                             std::back_inserter(to_delete),
+                             std::back_inserter(itsElementList),
+                             [&](void *vp){return ((CachingDisplayMethod *)vp)->worldCanvas() == wch.worldCanvas();} );
+        for ( void *vp : to_delete ) { delete (CachingDisplayMethod *)vp; }
 	}
 
 
 // Clear out cache entries beyond end of list
 	void CachingDisplayData::trimCache() {
-		CachingDisplayMethod *cdMethod = 0;
-		if (Int(itsElementListIter->len()) > itsOptionsMaximumCacheSize) {
-			itsElementListIter->pos(itsOptionsMaximumCacheSize);
-			while (!itsElementListIter->atEnd()) {
-				cdMethod = (CachingDisplayMethod *)itsElementListIter->getRight();
-				itsElementListIter->removeRight();
-				delete cdMethod;
-				cdMethod=0;
-			}
-		}
+        while ( itsElementList.size( ) > (size_t) itsOptionsMaximumCacheSize ) {
+            CachingDisplayMethod *back = (CachingDisplayMethod *) itsElementList.back( );
+            itsElementList.pop_back( );
+            delete back;
+        }
 	}
 
 	void CachingDisplayData::installDefaultOptions() {

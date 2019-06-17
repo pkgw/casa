@@ -197,13 +197,18 @@ private:
     // in their respective bins
     std::map<casacore::Int, std::vector<ChanBin>> _chanBins {};
     casacore::Int _minSamp = 2;
-    casacore::Bool _combineCorr = false;
+    casacore::Bool _combineCorr {false};
     casacore::CountedPtr<
         casacore::StatisticsAlgorithm<casacore::Double,
         casacore::Array<casacore::Float>::const_iterator,
         casacore::Array<casacore::Bool>::const_iterator>
     > _statAlg {} ;
     std::unique_ptr<std::pair<casacore::Double, casacore::Double>> _wtrange {};
+    // The _chanSelFlags key is the spw. The value is a Cube for convenience
+    // for subchunk computations that require the same shaped cube of flags to
+    // be applied. The dimension that counts is the second (zero-based 1) as it
+    // has length equal to the number of channels in the spw. A value of True
+    // indicates that the channel is "flagged", ie should not be used.
     std::map<casacore::uInt, casacore::Cube<casacore::Bool>> _chanSelFlags {};
 
     mutable size_t _nTotalPts = 0;
@@ -240,9 +245,17 @@ private:
         const VisBuffer2 * const vb
     ) const;
 
+    void _computeWeightSpectrumAndFlags() const;
+
     const casacore::Cube<casacore::Complex> _dataCube(
         const VisBuffer2 *const vb
     ) const;
+
+    void _gatherAndComputeWeights() const;
+
+    void _gatherAndComputeWeightsSlidingTimeWindow() const;
+
+    void _gatherAndComputeWeightsTimeBlockProcessing() const;
 
     // combines the flag cube with the channel selection flags (if any)
     casacore::Cube<casacore::Bool> _getResultantFlags(
@@ -252,13 +265,8 @@ private:
         const casacore::Cube<casacore::Bool>& flagCube
     ) const;
 
-    void _computeWeightSpectrumAndFlags() const;
-
-    void _gatherAndComputeWeights() const;
-
-    void _gatherAndComputeWeightsSlidingTimeWindow() const;
-
-    void _gatherAndComputeWeightsTimeBlockProcessing() const;
+    // CAS-12358
+    void _logUsedChannels() const;
 
     // multi-threaded case
     casacore::Double _computeWeight(

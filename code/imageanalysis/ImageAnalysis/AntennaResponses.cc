@@ -133,22 +133,22 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if(numRows>0){
       // read columns and append to vectors;
 
-      ROScalarColumn<Int> beamIdCol(tab, "BEAM_ID");
-      ROScalarColumn<String> nameCol(tab, "NAME");
-      ROScalarColumn<Int> beamNumberCol(tab, "BEAM_NUMBER");
+      ScalarColumn<Int> beamIdCol(tab, "BEAM_ID");
+      ScalarColumn<String> nameCol(tab, "NAME");
+      ScalarColumn<Int> beamNumberCol(tab, "BEAM_NUMBER");
       ROScalarMeasColumn<MEpoch> startTimeCol(tab, "START_TIME");
-      ROScalarColumn<String> antennaTypeCol(tab, "ANTENNA_TYPE");
-      ROScalarColumn<String> receiverTypeCol(tab, "RECEIVER_TYPE");
-      ROScalarColumn<Int> numSubbandsCol(tab, "NUM_SUBBANDS");
-      ROArrayColumn<String> bandNameCol(tab, "BAND_NAME");
+      ScalarColumn<String> antennaTypeCol(tab, "ANTENNA_TYPE");
+      ScalarColumn<String> receiverTypeCol(tab, "RECEIVER_TYPE");
+      ScalarColumn<Int> numSubbandsCol(tab, "NUM_SUBBANDS");
+      ArrayColumn<String> bandNameCol(tab, "BAND_NAME");
       ROArrayQuantColumn<Double> subbandMinFreqCol(tab, "SUBBAND_MIN_FREQ");
       ROArrayQuantColumn<Double> subbandMaxFreqCol(tab, "SUBBAND_MAX_FREQ");
       ROScalarMeasColumn<MDirection> centerCol(tab, "CENTER");
       ROScalarMeasColumn<MDirection> validCenterMinCol(tab, "VALID_CENTER_MIN");
       ROScalarMeasColumn<MDirection> validCenterMaxCol(tab, "VALID_CENTER_MAX");
-      ROArrayColumn<Int> functionTypeCol(tab, "FUNCTION_TYPE");   
-      ROArrayColumn<String> functionNameCol(tab, "FUNCTION_NAME");
-      ROArrayColumn<uInt> functionChannelCol(tab, "FUNCTION_CHANNEL");
+      ArrayColumn<Int> functionTypeCol(tab, "FUNCTION_TYPE");   
+      ArrayColumn<String> functionNameCol(tab, "FUNCTION_NAME");
+      ArrayColumn<uInt> functionChannelCol(tab, "FUNCTION_CHANNEL");
       ROArrayQuantColumn<Double> nomFreqCol(tab, "NOMINAL_FREQ");
       ROArrayQuantColumn<Double> rotAngOffsetCol(tab, "RESPONSE_ROTATION_OFFSET");
 
@@ -574,7 +574,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     // loop over rows
     uInt i,j;
-    SimpleOrderedMap<String, Int > antTypeMap(-1);
+    std::map<String, Int > antTypeMap;
     for(i=0; i<numRows_p; i++){
       if(ObsName_p(i) == obsName
 	 && StartTime_p(i).get(uS) <= obsTime.get(uS)
@@ -616,9 +616,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	      || ( 0. <= modAz  && modAz <= modAzMax))
 	     && azelMin(1) <= azel(1) && azel(1) <= azelMax(1)){
 	    // memorize the antenna type
-	    if(!antTypeMap.isDefined(AntennaType_p(i))){
+	    if( antTypeMap.find(AntennaType_p(i)) == antTypeMap.end( ) ){
 	      rval = true;
-	      antTypeMap.define(AntennaType_p(i),1);
+	      antTypeMap.insert(std::pair<String, Int >(AntennaType_p(i),1));
 	    }
 	  }
 	}
@@ -626,10 +626,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     } // end for
 
     if(rval){
-      uInt nKeys = antTypeMap.ndefined();
-      antTypes.resize(nKeys);
-      for(uInt i=0; i<nKeys; i++){
-	antTypes(i) = antTypeMap.getKey(i);
+      antTypes.resize(antTypeMap.size( ));
+      uInt count = 0;
+      for( auto iter = antTypeMap.begin( ); iter != antTypeMap.end( ); ++iter, ++count ){
+        antTypes(count) = iter->first;
       }
     }
 

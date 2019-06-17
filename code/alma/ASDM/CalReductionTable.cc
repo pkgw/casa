@@ -297,7 +297,7 @@ namespace asdm {
 
 
 CalReductionRow* CalReductionTable::newRow(CalReductionRow* row) {
-	return new CalReductionRow(*this, *row);
+	return new CalReductionRow(*this, row);
 }
 
 	//

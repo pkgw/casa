@@ -240,7 +240,7 @@ private:
   casacore::Vector<casacore::Vector<casacore::Double> > antUVW_p;
 
   // the 3 fundamental attributes of the state machine
-  casacore::ROArrayColumn<casacore::Double> phaseDir_p; 
+  casacore::ArrayColumn<casacore::Double> phaseDir_p; 
   //casacore::Int                   subarrayId_p;
 
   // The number of wavelengths by which a feed may move relative to the

@@ -40,7 +40,7 @@
 namespace casacore{
 
 class MFrequency;
-//class ROScalarColumn<casacore::Double>;  There doesn't seem to be a way to forward
+//class ScalarColumn<casacore::Double>;  There doesn't seem to be a way to forward
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -234,7 +234,7 @@ class FluxCalc_SS_JPL_Butler
   // Find the row in mjd closest to time_p, and the rows just before and after
   // it, taking boundaries into account.
   casacore::Bool get_row_numbers(casacore::uInt& rowbef, casacore::uInt& rowclosest, casacore::uInt& rowaft,
-		       const casacore::ROScalarColumn<casacore::Double>& mjd);
+		       const casacore::ScalarColumn<casacore::Double>& mjd);
 
   // Put a quadratic, linear, or nearest neighbor interpolation of colname into
   // val.  Returns whether or not it did it.

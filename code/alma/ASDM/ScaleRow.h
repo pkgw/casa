@@ -433,7 +433,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 ScaleRow (ScaleTable &table, ScaleRow &row);
+	 ScaleRow (ScaleTable &table, ScaleRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

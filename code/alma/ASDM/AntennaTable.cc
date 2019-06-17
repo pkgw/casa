@@ -287,7 +287,7 @@ namespace asdm {
 
 
 AntennaRow* AntennaTable::newRow(AntennaRow* row) {
-	return new AntennaRow(*this, *row);
+	return new AntennaRow(*this, row);
 }
 
 	//

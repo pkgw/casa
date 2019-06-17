@@ -29,7 +29,7 @@
 #include <display/DisplayShapes/DSScreenEllipse.h>
 
 #include <casa/Quanta/UnitMap.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/WorldCanvas.h>
 #include <casa/Arrays/ArrayMath.h>
 

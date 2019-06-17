@@ -7,29 +7,52 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 
 <task type="function" name="importnro" category="single dish, import/export" >
-
-  <shortdescription>Convert NOSTAR data into a CASA visibility file (MS)</shortdescription>
-
+<shortdescription>Convert NOSTAR data into a CASA visibility file (MS)</shortdescription>
+<description>
+Task importnro enables one to convert the data obtained with the
+NRO45m telescope into the CASA MS2 format. At this moment, only the
+OTF data (NOSTAR data) obtained with the SAM45 spectrometer is
+supported, and the OTF data obtained with the other spectrometers
+(e.g., AOS) and the PSW data (NEWSTAR data) are outside of scope
+(Jan./25/2017)
+</description>
   <input>
 
     <param type="string" name="infile" mustexist="true">
-          <description>Name of input NOSTAR data</description>
+<shortdescription>Name of input NOSTAR data</shortdescription>
+<description>Name of input NOSTAR data
+                     Default: none
+</description>
           <value></value>
     </param>
 
     <param type="string" name="outputvis" kind="ms">
-          <description>Root name of the ms to be created. Note the .ms is NOT added </description>
+<shortdescription>Root name of the ms to be created. Note the .ms is NOT added </shortdescription>
+<description>Root name of the ms to be created. Note the .ms is NOT
+added 
+                     Default: none
+
+                        Example: outputvis='myms.ms'
+</description>
           <value></value>
     </param>
 
     <param type="bool" name="overwrite">
-	    <description>Over write an existing MS(s)</description>
-	    <value>False</value>
+<shortdescription>Over write an existing MS(s)</shortdescription>
+<description>Over write an existing MS(s)
+                     Default: False (do not overwrite)
+                     Options: False|True
+</description>
+      <value>False</value>
     </param>
 
     <param type="bool" name="parallel">
-	    <description>Turn on parallel execution</description>
-	    <value>False</value>
+<shortdescription>Turn on parallel execution</shortdescription>
+<description>Turn on parallel execution
+                     Default: False (serial execution)
+                     Options: False|True
+</description>
+      <value>False</value>
     </param>
 
     </input>
@@ -37,18 +60,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
   <returns type="bool"/>
 
   <example>
-Keyword arguments:
-asdm -- Name of input NOSTAR data
-        default: none; example: asdm='mydata.Y'
-
-outputvis -- Root ms name. Note that a prefix (.ms) is NOT appended to this name.
-             default: none; example outputvis='myms.ms'
-
-overwrite -- overwrite an existing MS
-             default: False (do not overwrite)
-
-parallel  -- Turn on parallel execution
-             default: False (serial execution)
+FOR MORE INFORMATION, SEE THE TASK PAGES OF IMPORTNRO IN CASA DOCS:
+https://casa.nrao.edu/casadocs/
   </example>
 
 </task>

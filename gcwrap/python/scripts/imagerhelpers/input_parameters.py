@@ -59,6 +59,7 @@ class ImagerParameters():
                  sysvel='', 
                  sysvelframe='',
                  interpolation='nearest',
+                 perchanweightdensity=False,
 
                  gridder="standard",
 #                 ftmachine='gridft', 
@@ -89,6 +90,7 @@ class ImagerParameters():
 
                  weighting='natural', 
                  robust=0.5,
+                 noise='0.0Jy',
                  npixels=0,
                  uvtaper=[],
 
@@ -189,8 +191,13 @@ class ImagerParameters():
                                    'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
                                    'minweight': minweight, 'clipminmax': clipminmax, 'imagename':imagename})     })
         ######### weighting
-
-        self.weightpars = fixedDict({'type':weighting,'robust':robust, 'npixels':npixels,'uvtaper':uvtaper, 'multifield':mosweight})
+        rmode='none'
+        if(weighting=='briggsabs'):
+            rmode='abs'
+            weighting='briggs'
+        elif(weighting=='briggs'):
+            rmode='norm'
+        self.weightpars = fixedDict({'type':weighting,'rmode':rmode,'robust':robust, 'noise': noise, 'npixels':npixels,'uvtaper':uvtaper, 'multifield':mosweight, 'usecubebriggs': perchanweightdensity})
 
         ######### Normalizers ( this is where flat noise, flat sky rules will go... )
         self.allnormpars = fixedDict({ self.defaultKey : fixedDict({#'mtype': mtype,
@@ -610,7 +617,8 @@ class ImagerParameters():
         if imagename.count('/'):
             splitname = imagename.split('/')
             prefix = splitname[ len(splitname)-1 ]
-            dirname = './' + imagename[0: len(imagename)-len(prefix)]   # has '/' at end
+            ### if it has a leading / then absolute path is assumed
+            dirname = (imagename[0: len(imagename)-len(prefix)])  if (imagename[0] == '/') else    ('./' + imagename[0: len(imagename)-len(prefix)]) # has '/' at end
 
         inamelist = [fn for fn in os.listdir(dirname) if any([fn.startswith(prefix)])];
 
@@ -645,7 +653,8 @@ class ImagerParameters():
             if imagename.count('/'):
                 splitname = imagename.split('/')
                 prefix = splitname[ len(splitname)-1 ]
-                dirname = './' + imagename[0: len(imagename)-len(prefix)]   # has '/' at end
+                dirname = (imagename[0: len(imagename)-len(prefix)])  if (imagename[0] == '/') else    ('./' + imagename[0: len(imagename)-len(prefix)]) # has '/' at end
+                
 
             dirnames[immod] = dirname
             prefixes[immod] = prefix

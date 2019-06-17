@@ -255,7 +255,7 @@ namespace asdm {
 
 
 PolarizationRow* PolarizationTable::newRow(PolarizationRow* row) {
-	return new PolarizationRow(*this, *row);
+	return new PolarizationRow(*this, row);
 }
 
 	//

@@ -26,7 +26,6 @@
 
 #include <imageanalysis/ImageAnalysis/ImageInputProcessor.h>
 
-#include <casa/Containers/HashMap.h>
 #include <casa/Utilities/Sort.h>
 #include <casa/iostream.h>
 
@@ -69,7 +68,7 @@ String ImageInputProcessor::_stokesFromRecord(
  	if(csys.hasPolarizationCoordinate()) {
  		Int polAxis = csys.polarizationAxisNumber();
  		uInt stokesBegin, stokesEnd;
- 		ImageRegion *imreg = ImageRegion::fromRecord(region, "");
+ 		std::unique_ptr<ImageRegion> imreg(ImageRegion::fromRecord(region, ""));
  		Array<Float> blc, trc;
  		Bool oneRelAccountedFor = false;
  		if (imreg->isLCSlicer()) {

@@ -18,7 +18,6 @@
 #include <casa/BasicSL/String.h>
 #include <casa/Containers/Record.h>
 #include <casa/Containers/RecordDesc.h>
-#include <casa/Containers/SimOrdMap.h>
 
 #include <casa/Quanta/QC.h>
 #include <casa/Utilities/Regex.h>
@@ -866,11 +865,11 @@ casac::record* calibrater::fluxscale(
     String oName( "NAME" );
 
     Table oFieldTable( itsMS->fieldTableName() );
-    ROScalarColumn<String> oFieldColumn( oFieldTable, oName );
+    ScalarColumn<String> oFieldColumn( oFieldTable, oName );
     Vector<String> oFieldName( oFieldColumn.getColumn() );
 
     Table oSPWTable( itsMS->spectralWindowTableName() );
-    ROScalarColumn<String> oSPWColumn( oSPWTable, oName );
+    ScalarColumn<String> oSPWColumn( oSPWTable, oName );
     Vector<String> oSPWName( oSPWColumn.getColumn() );
 
 

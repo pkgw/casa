@@ -6,16 +6,16 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="initweights" category="calibration">
-	<shortdescription>Initializes weight information in the MS</shortdescription>
+      <shortdescription>Initializes weight information in the MS</shortdescription>
 
 <input>
-	<param type="string" name="vis" mustexist="true">
-		<description>Name of input visibility file (MS)</description>
-		<value></value>
-	</param>
-	<param type="string" name="wtmode">
-		<description>Initialization mode</description>
-		<value>nyq</value>
+      <param type="string" name="vis" mustexist="true">
+            <description>Name of input visibility file (MS)</description>
+            <value></value>
+      </param>
+      <param type="string" name="wtmode">
+            <description>Initialization mode</description>
+            <value>nyq</value>
                 <allowed kind="enum">
                        <value>nyq</value>
                        <value>sigma</value>
@@ -26,31 +26,31 @@
                        <value>tsys</value>
                        <value>tinttsys</value>
                 </allowed>
-	</param>
-	<param type="string" name="tsystable" mustexist="false"  subparam="true">
-		<description>Tsys calibration table to apply on the fly</description>
-		<value></value>
-	</param>
+      </param>
+      <param type="string" name="tsystable" mustexist="false"  subparam="true">
+            <description>Tsys calibration table to apply on the fly</description>
+            <value></value>
+      </param>
 
-	<param type="string" name="gainfield" subparam="true">
-		<description>Select a subset of calibrators from Tsys table</description>
-		<value></value>
-	</param>
+      <param type="string" name="gainfield" subparam="true">
+            <description>Select a subset of calibrators from Tsys table</description>
+            <value></value>
+      </param>
 
-	<param type="string" name="interp" subparam="true">
-		<description>Interpolation type in time[,freq]. default==\'linear,linear\'</description>
-		<value></value>
-	</param>
+      <param type="string" name="interp" subparam="true">
+            <description>Interpolation type in time[,freq]. default==\'linear,linear\'</description>
+            <value></value>
+      </param>
 
-	<param type="intArray" name="spwmap" subparam="true">
-		<description>Spectral windows combinations to form for gaintable(s)</description>
-		<value></value>
-	</param>
+      <param type="intArray" name="spwmap" subparam="true">
+            <description>Spectral windows combinations to form for gaintable(s)</description>
+            <value></value>
+      </param>
 
-	<param type="bool" name="dowtsp">
-		<description>Initialize the WEIGHT_SPECTRUM column</description>
-		<value>False</value>
-	</param>
+      <param type="bool" name="dowtsp">
+            <description>Initialize the WEIGHT_SPECTRUM column</description>
+            <value>False</value>
+      </param>
 
    <constraints>
         <when param="wtmode">
@@ -65,16 +65,16 @@
                         <default param="gainfield"><value type="string"/></default>
                         <default param="interp"><value type="string"/></default>
                         <default param="spwmap"><value type="intArray"/></default>
-		</equals>
+            </equals>
                 <equals value="tinttsys">
                         <default param="tsystable"><value type="string"/></default>
                         <default param="gainfield"><value type="string"/></default>
                         <default param="interp"><value type="string"/></default>
                         <default param="spwmap"><value type="intArray"/></default>
-		</equals>
+            </equals>
         </when>
    </constraints>
-	</input>
+      </input>
 <returns type="void"/>
 
 <example>

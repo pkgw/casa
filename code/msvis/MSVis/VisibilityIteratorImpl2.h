@@ -49,7 +49,7 @@ namespace casacore{
 template <typename T> class ArrayColumn;
 template <typename T> class CountedPtr;
 class VisModelDataI;
-template <typename T> class ROArrayColumn;
+template <typename T> class ArrayColumn;
 template <typename T, Int N> class RigidVector;
 template <typename T, Int N> class SquareMatrix;
 }
@@ -796,18 +796,18 @@ protected:
 	template <typename T>
 	void
 	getColumnRows(
-		const casacore::ROScalarColumn<T> & column,
+		const casacore::ScalarColumn<T> & column,
 		casacore::Vector<T> & array) const;
 
 	template <typename T>
 	void
-	getColumnRowsMatrix(const casacore::ROArrayColumn<T> & column,
+	getColumnRowsMatrix(const casacore::ArrayColumn<T> & column,
 	                    casacore::Matrix<T> & array,
 	                    casacore::Bool correlationSlicing) const;
 
 	template <typename T>
 	void
-	getColumnRows(const casacore::ROArrayColumn<T> & column,
+	getColumnRows(const casacore::ArrayColumn<T> & column,
 	              casacore::Array<T> & array) const;
 
 	casacore::Vector<casacore::Double>
@@ -859,7 +859,7 @@ protected:
 	getViP() const;
 
 //    void getVisibilityAsStokes(casacore::Matrix<CStokesVector> & visibilityStokes,
-//                                const casacore::ROArrayColumn<casacore::Complex> & column) const;
+//                                const casacore::ArrayColumn<casacore::Complex> & column) const;
 
 	VisBuffer2 *
 	getVisBuffer(const VisibilityIterator2 *) const;

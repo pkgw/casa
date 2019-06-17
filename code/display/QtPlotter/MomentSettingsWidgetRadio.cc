@@ -446,7 +446,7 @@ namespace casa {
 		if ( imageAnalysis == nullptr ){
 			if ( taskMonitor != nullptr ){
 				Record region = _makeRegionRecord( );
-				if ( ! region.nfields() > 0 ){
+				if ( region.nfields() == 0 ){
 					String empty("");
 					std::shared_ptr<const ImageInterface<float> > image = taskMonitor->getImage();
 					if ( image ){

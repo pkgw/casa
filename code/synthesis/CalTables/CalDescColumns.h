@@ -87,22 +87,22 @@ class ROCalDescColumns
   virtual ~ROCalDescColumns() {};
 
   // Read-only column accessors
-  const casacore::ROScalarColumn<casacore::Int>& numSpw() const {return numSpw_p;};
-  const casacore::ROArrayColumn<casacore::Int>& numChan() const {return numChan_p;};
-  const casacore::ROScalarColumn<casacore::Int>& numReceptors() const {return numReceptors_p;};
-  const casacore::ROScalarColumn<casacore::Int>& nJones() const {return nJones_p;};
-  const casacore::ROArrayColumn<casacore::Int>& spwId() const {return spwId_p;};
-  const casacore::ROArrayColumn<casacore::Double>& chanFreq() const {return chanFreq_p;};
+  const casacore::ScalarColumn<casacore::Int>& numSpw() const {return numSpw_p;};
+  const casacore::ArrayColumn<casacore::Int>& numChan() const {return numChan_p;};
+  const casacore::ScalarColumn<casacore::Int>& numReceptors() const {return numReceptors_p;};
+  const casacore::ScalarColumn<casacore::Int>& nJones() const {return nJones_p;};
+  const casacore::ArrayColumn<casacore::Int>& spwId() const {return spwId_p;};
+  const casacore::ArrayColumn<casacore::Double>& chanFreq() const {return chanFreq_p;};
   const casacore::ROArrayMeasColumn<casacore::MFrequency>& chanFreqMeas() const
     {return chanFreqMeas_p;};
-  const casacore::ROScalarColumn<casacore::Int>& measFreqRef() const {return measFreqRef_p;};
-  const casacore::ROArrayColumn<casacore::Double>& chanWidth() const {return chanWidth_p;}
+  const casacore::ScalarColumn<casacore::Int>& measFreqRef() const {return measFreqRef_p;};
+  const casacore::ArrayColumn<casacore::Double>& chanWidth() const {return chanWidth_p;}
   const casacore::ROArrayQuantColumn<casacore::Double>& chanWidthQuant() const {
     return chanWidthQuant_p;}
-  const casacore::ROArrayColumn<casacore::Int>& chanRange() const {return chanRange_p;}
-  const casacore::ROArrayColumn<casacore::String>& polznType() const {return polznType_p;}
-  const casacore::ROScalarColumn<casacore::String>& jonesType() const {return jonesType_p;};
-  const casacore::ROScalarColumn<casacore::String>& msName() const {return msName_p;};
+  const casacore::ArrayColumn<casacore::Int>& chanRange() const {return chanRange_p;}
+  const casacore::ArrayColumn<casacore::String>& polznType() const {return polznType_p;}
+  const casacore::ScalarColumn<casacore::String>& jonesType() const {return jonesType_p;};
+  const casacore::ScalarColumn<casacore::String>& msName() const {return msName_p;};
 
  protected:
   // Prohibit public use of the null constructor, which
@@ -115,7 +115,7 @@ class ROCalDescColumns
     {return calTable.calDescAsTable();}
 
   // Attach a table column accessor
-  void attach (const CalTable& calTable, casacore::ROTableColumn& tabCol, 
+  void attach (const CalTable& calTable, casacore::TableColumn& tabCol, 
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);
   void attach (const CalTable& calTable, casacore::ROTableMeasColumn& tabCol,
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);
@@ -128,20 +128,20 @@ class ROCalDescColumns
   ROCalDescColumns& operator= (const ROCalDescColumns&);
 
   // Private column accessors
-  casacore::ROScalarColumn<casacore::Int> numSpw_p;
-  casacore::ROArrayColumn<casacore::Int> numChan_p;
-  casacore::ROScalarColumn<casacore::Int> numReceptors_p;
-  casacore::ROScalarColumn<casacore::Int> nJones_p;
-  casacore::ROArrayColumn<casacore::Int> spwId_p;
-  casacore::ROArrayColumn<casacore::Double> chanFreq_p;
+  casacore::ScalarColumn<casacore::Int> numSpw_p;
+  casacore::ArrayColumn<casacore::Int> numChan_p;
+  casacore::ScalarColumn<casacore::Int> numReceptors_p;
+  casacore::ScalarColumn<casacore::Int> nJones_p;
+  casacore::ArrayColumn<casacore::Int> spwId_p;
+  casacore::ArrayColumn<casacore::Double> chanFreq_p;
   casacore::ROArrayMeasColumn<casacore::MFrequency> chanFreqMeas_p;
-  casacore::ROScalarColumn<casacore::Int> measFreqRef_p;
-  casacore::ROArrayColumn<casacore::Double> chanWidth_p;
+  casacore::ScalarColumn<casacore::Int> measFreqRef_p;
+  casacore::ArrayColumn<casacore::Double> chanWidth_p;
   casacore::ROArrayQuantColumn<casacore::Double> chanWidthQuant_p;
-  casacore::ROArrayColumn<casacore::Int> chanRange_p;
-  casacore::ROArrayColumn<casacore::String> polznType_p;
-  casacore::ROScalarColumn<casacore::String> jonesType_p;
-  casacore::ROScalarColumn<casacore::String> msName_p;
+  casacore::ArrayColumn<casacore::Int> chanRange_p;
+  casacore::ArrayColumn<casacore::String> polznType_p;
+  casacore::ScalarColumn<casacore::String> jonesType_p;
+  casacore::ScalarColumn<casacore::String> msName_p;
 };
 
 // <summary> 
@@ -213,7 +213,7 @@ class CalDescColumns
   casacore::Table& calDescAsTable(CalTable& calTable) {return calTable.calDescAsTable();}
 
   // Attach a table column accessor
-  void attach (CalTable& calTable, casacore::ROTableColumn& tabCol, 
+  void attach (CalTable& calTable, casacore::TableColumn& tabCol, 
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);
   void attach (CalTable& calTable, casacore::ROTableMeasColumn& tabCol,
 	       MSCalEnums::colDef colEnum, const casacore::Bool& optional = false);

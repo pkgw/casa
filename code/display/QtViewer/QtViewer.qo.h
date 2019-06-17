@@ -30,6 +30,9 @@
 #define QTVIEWER_H
 #include <list>
 #include <string>
+#if defined(WITHOUT_DBUS)
+#include <queue>
+#endif
 #include <display/QtViewer/QtViewerBase.qo.h>
 
 #include <graphics/X11/X_enter.h>
@@ -42,6 +45,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	class QtDisplayPanelGui;
 	class QtCleanPanelGui;
 	class QtCleanPanelGui2;
+
+#if defined(WITHOUT_DBUS)
+	class grpcViewerState;
+#endif
 
 // <summary>
 // Qt implementation of main viewer supervisory object -- Gui level.
@@ -76,7 +83,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	public:
 
-		QtViewer( const std::list<std::string> &args, bool is_server=false, const char *dbus_name=0 );
+		// When DBus is used "server_string" is the DBus name for the viewer on the message bus, but
+		// when gRPC is used "server_string" is the gRPC URL which should be used to register the
+		// viewer server.
+		QtViewer( const std::list<std::string> &args, bool is_server=false, const char *server_string=0 );
 		~QtViewer();
 
 		// Called from casaviewer.cc, true indicates that this application has been activated,
@@ -105,6 +115,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// e.g., createDPG()).
 		virtual void quit();
 
+#if defined(WITHOUT_DBUS)
+
+		void grpc_handle_op( );
+
+	signals:
+		void grpc_panel_result( QtDisplayPanelGui*, int );
+
+	public:
+		std::mutex grpc_queue_mutex;
+		std::queue<std::function<void()>> grpc_queue;
+
+#endif
 
 	private:
 		friend class QtDisplayPanelGui;
@@ -114,12 +136,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 #if ! defined(WITHOUT_DBUS)
 		QtDBusViewerAdaptor* dbus_;
+#else
+		std::shared_ptr<grpcViewerState> grpc_;
 #endif
 		std::list<std::string> args_;
 
 	private:
 		static QString name_;
-		QString dbus_name_;
+		QString server_string_;
 		bool is_server_;
 		typedef std::vector<QtDisplayPanelGui*> panel_list_t;
 		panel_list_t panels;

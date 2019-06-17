@@ -2290,6 +2290,12 @@ bool image::fromascii(
 ) {
     try {
         _log << _ORIGIN;
+        _log << LogIO::WARN << __func__ << "() IS DEPRECATED AND WILL BE "
+            << "REMOVED IN A NEAR-FUTURE VERSION OF CASA. YOU SHOULD USE "
+            << "ANOTHER SET OF IMAGE EXPORT AND IMPORT METHODS SUCH AS "
+            << "tofits()/fromfits() TO EXPORT AND IMPORT CASA IMAGES. IF YOU "
+            << "SIMPLY WISH TO MODIFY PIXEL VALUES, USE getchunk()/putchunk() "
+            << "OR getregion()/putregion() FOR THAT" << LogIO::POST;
         ThrowIf(infile.empty(), "infile must be specified");
         ThrowIf(
             shape.size() == 1 && shape[0] == -1,
@@ -2919,7 +2925,7 @@ record* image::getslice(
 image* image::hanning(
     const string& outfile, const variant& region,
     const variant& vmask, int axis, bool drop,
-    bool overwrite, bool /* async */, bool stretch,
+    bool overwrite, bool stretch,
     const string& dmethod
 ) {
     LogOrigin lor(_class, __func__);
@@ -3854,7 +3860,7 @@ image* image::moments(
     double stddev, const string& velocityType,
     const string& out, const string& smoothout,
     bool overwrite, bool removeAxis,
-    bool stretch, bool /* async */
+    bool stretch
 ) {
     try {
         _log << _ORIGIN;
@@ -4882,7 +4888,7 @@ void image::_processDirection(
 image* image::rebin(
     const string& outfile, const vector<int>& bin,
     const variant& region, const variant& vmask,
-    bool dropdeg, bool overwrite, bool /* async */,
+    bool dropdeg, bool overwrite,
     bool stretch, bool crop
 ) {
     LogOrigin lor(_class, __func__);
@@ -4954,7 +4960,7 @@ image* image::regrid(
     const vector<int>& inaxes, const variant& region, const variant& vmask,
     const string& method, int decimate, bool replicate, bool doRefChange,
     bool dropDegenerateAxes, bool overwrite, bool forceRegrid,
-    bool specAsVelocity, bool /* async */, bool stretch
+    bool specAsVelocity, bool stretch
 ) {
     try {
         LogOrigin lor(_class, __func__);
@@ -6158,6 +6164,11 @@ bool image::toASCII(
 ) {
     // sep is hard-wired as ' ' which is what imagefromascii expects
     _log << _ORIGIN;
+    _log << LogIO::WARN << __func__ << "() IS DEPRECATED AND WILL BE REMOVED "
+        << "IN A NEAR-FUTURE VERSION OF CASA. YOU SHOULD USE ANOTHER IMAGE "
+        << "EXPORT METHOD SUCH AS tofits() TO EXPORT CASA IMAGES. IF YOU "
+        << "SIMPLY WISH TO MODIFY PIXEL VALUES, USE getchunk()/putchunk() OR "
+        << "getregion()/putregion() FOR THAT" << LogIO::POST;
     if (_detached()) {
         return false;
     }
@@ -6195,7 +6206,7 @@ bool image::tofits(
     const variant& vmask, bool overwrite,
     bool dropdeg, bool deglast, bool dropstokes,
     bool stokeslast, bool wavelength, bool airwavelength,
-    bool /* async */, bool stretch, bool history
+    bool stretch, bool history
 ) {
     _log << _ORIGIN;
     if (_detached()) {

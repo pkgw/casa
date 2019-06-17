@@ -413,7 +413,7 @@ void MosaicFT::prepGridForDegrid(){
   
   logIO() << LogIO::DEBUGGING << "Starting FFT of image" << LogIO::POST;
    // Now do the FFT2D in place
-  LatticeFFT::cfft2d(*lattice);
+  ft_p.c2cFFT(*lattice);
   ///////////////////////
   /*{
     CoordinateSystem ftCoords(image->coordinates());
@@ -437,7 +437,8 @@ void MosaicFT::prepGridForDegrid(){
 
 void MosaicFT::finalizeToVis()
 {
-  //cerr << "Time degrid " << timedegrid_p << endl;
+  logIO() << LogOrigin("MosaicFT", "finalizeToVis")  << LogIO::NORMAL;
+  logIO()<< LogIO::NORMAL2 << "Time degrid " << timedegrid_p << LogIO::POST;
   timedegrid_p=0.0;
   
   if(!arrayLattice.null()) arrayLattice=0;
@@ -585,9 +586,9 @@ void MosaicFT::reset(){
 
 void MosaicFT::finalizeToSky()
 {
-
-  //cerr<< "time massage data " << timemass_p << endl;
-  //cerr << "time gridding " << timegrid_p << endl;
+  logIO() << LogOrigin("MosaicFT", "finalizeToSky")  << LogIO::NORMAL;
+  logIO() << LogIO::NORMAL2 << "time to massage data " << timemass_p << LogIO::POST;
+  logIO() << LogIO::NORMAL2<< "time gridding " << timegrid_p << LogIO::POST;
    timemass_p=0.0;
    timegrid_p=0.0;
   // Now we flush the cache and report statistics
@@ -611,7 +612,7 @@ void MosaicFT::finalizeToSky()
       //Don't need the double-prec grid anymore...
       griddedWeight2.resize();
     }
-    LatticeFFT::cfft2d(*weightLattice, false);
+    ft_p.c2cFFT(*weightLattice, false);
     //Get the stokes right
     CoordinateSystem coords=convWeightImage_p->coordinates();
     Int stokesIndex=coords.findCoordinate(Coordinate::STOKES);
@@ -990,8 +991,10 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   if(max(chanMap)==-1)
     return;
 
-  const Matrix<Float> *imagingweight;
-  imagingweight=&(vb.imagingWeight());
+  //const Matrix<Float> *imagingweight;
+  //imagingweight=&(vb.imagingWeight());
+  Matrix<Float> imagingweight;
+  getImagingWeight(imagingweight, vb);
 
   if(dopsf) type=FTMachine::PSF;
 
@@ -999,7 +1002,7 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
   //Fortran gridder need the flag as ints 
   Cube<Int> flags;
   Matrix<Float> elWeight;
-  interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
+  interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
   
  
 
@@ -1070,9 +1073,9 @@ void MosaicFT::put(const vi::VisBuffer2& vb, Int row, Bool dopsf,
 
 
   //Tell the gridder to grid the weights too ...need to do that once only
-  Int doWeightGridding=1;
-  if(doneWeightImage_p)
-    doWeightGridding=-1;
+  //Int doWeightGridding=1;
+  //if(doneWeightImage_p)
+  //  doWeightGridding=-1;
   Bool del;
   //    IPosition s(flags.shape());
   const IPosition& fs=flags.shape();
@@ -1141,8 +1144,8 @@ Int  ixsub, iysub, icounter;
   //nth=1;
   ////////***************
   if (nth >3){
-    ixsub=16;
-    iysub=16; 
+    ixsub=8;
+    iysub=8; 
   }
   else if(nth >1){
      ixsub=2;
@@ -1190,7 +1193,7 @@ Int  ixsub, iysub, icounter;
   if(useDoubleGrid_p) {
     DComplex *gridstor=griddedData2.getStorage(gridcopy);
     
-#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc,xsect, ysect, nxsect, nysect) shared(swgtptr) 
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, /*doWeightGridding,*/ datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor,  csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc,xsect, ysect, nxsect, nysect) shared(swgtptr) 
     {   
 #pragma omp for schedule(dynamic)      
     for(icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1273,7 +1276,7 @@ Int  ixsub, iysub, icounter;
     //cerr << "maps "  << convChanMap_p << "   " << chanMap  << endl;
     //cerr << "nchan " << nchan << "  nchanconv " << nChanConv << endl;
     Complex *gridstor=griddedData.getStorage(gridcopy);
-#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, doWeightGridding, datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc, xsect, ysect, nxsect, nysect)  shared(swgtptr) 
+#pragma omp parallel default(none) private(icounter, del) firstprivate(idopsf, /*doWeightGridding,*/ datStorage, wgtStorage, flagstor, rowflagstor, convstor, wconvstor, pmapstor, cmapstor, gridstor, csupp, nxp, nyp, np, nc,ixsub, iysub, rend, rbeg, csamp, csize, nvp, nvc, nvisrow, phasorstor, locstor, offstor, convrowmapstor, convchanmapstor, convpolmapstor, nPolConv, nChanConv, nConvFunc, xsect, ysect, nxsect, nysect)  shared(swgtptr) 
     {   
 #pragma omp for schedule(dynamic)      
       for(icounter=0; icounter < ixsub*iysub; ++icounter){
@@ -1493,7 +1496,7 @@ void MosaicFT::get(vi::VisBuffer2& vb, Int row)
  }//end pragma parallel
  Int rbeg=startRow+1;
  Int rend=endRow+1;
- Int npart=nth*2;
+ Int npart=nth;
  
  Bool gridcopy;
  const Complex *gridstor=griddedData.getStorage(gridcopy);
@@ -1723,7 +1726,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
 	    << "Starting FFT and scaling of image" << LogIO::POST;
     if(useDoubleGrid_p){
       ArrayLattice<DComplex> darrayLattice(griddedData2);
-      LatticeFFT::cfft2d(darrayLattice,false);
+      ft_p.c2cFFT(darrayLattice,false);
       griddedData.resize(griddedData2.shape());
       convertArray(griddedData, griddedData2);
       
@@ -1736,7 +1739,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
     else{
       arrayLattice = new ArrayLattice<Complex>(griddedData);
       lattice=arrayLattice;
-      LatticeFFT::cfft2d(*lattice,false);
+      ft_p.c2cFFT(*lattice,false);
     }
    {////Do the grid correction
       Int inx = lattice->shape()(0);

@@ -982,7 +982,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalCurveRow (CalCurveTable &table, CalCurveRow &row);
+	 CalCurveRow (CalCurveTable &table, CalCurveRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

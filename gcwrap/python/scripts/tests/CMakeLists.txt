@@ -141,6 +141,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_msmd.py
   test_mstransform.py
   test_mstransform_mms.py
+  test_mstransform_subset.py
   test_mst_cvel.py
   test_mst_cvelB.py
   test_mst_split.py
@@ -189,6 +190,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_sdpolaverage.py
   test_sdsidebandsplit.py
   test_sdsmooth.py
+  test_tclean.py
 
   ### CASAGUIDES ###
   test_FirstLook_Imaging.py
@@ -214,6 +216,11 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_req_task_clearcal.py
   test_req_task_imhead.py
   test_req_task_visstat.py
+  test_req_task_delmod.py
+  test_req_task_feather.py
+  test_req_task_imrebin.py
+  test_req_task_uvmodelfit.py
+  test_req_task_imreframe.py
 
   ###
   test_setjy.py

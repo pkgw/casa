@@ -310,7 +310,7 @@ void Scantable2MSReader::initializeSpecific() {
 //  }
 
   // TCAL_ID mapping
-  ROScalarColumn<uInt> id_column(tcal_table_, "ID");
+  ScalarColumn<uInt> id_column(tcal_table_, "ID");
   tcal_id_map_.clear();
   for (uInt i = 0; i < tcal_table_.nrow(); ++i) {
     tcal_id_map_[id_column(i)] = i;
@@ -374,7 +374,7 @@ Bool Scantable2MSReader::getAntennaRowImpl(AntennaRecord &record) {
 Bool Scantable2MSReader::getObservationRowImpl(ObservationRecord &record) {
 //  std::cout << "Scantabl2MSReader::getObservationRowImpl" << std::endl;
 
-  ROScalarColumn<Double> column(*main_table_, "TIME");
+  ScalarColumn<Double> column(*main_table_, "TIME");
   Vector<Double> time_list = column.getColumn();
   if (record.time_range.size() != 2) {
     record.time_range.resize(2);

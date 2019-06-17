@@ -291,7 +291,7 @@ namespace asdm {
 
 
 CalDataRow* CalDataTable::newRow(CalDataRow* row) {
-	return new CalDataRow(*this, *row);
+	return new CalDataRow(*this, row);
 }
 
 	//

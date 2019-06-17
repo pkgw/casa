@@ -362,7 +362,7 @@ void CasacRegionManager::_setRegion(
     const Record* regionPtr
 )  {
     // region record pointer provided
-    regionRecord = *(regionPtr->clone());
+    regionRecord = *(regionPtr);
     // set stokes from the region record
     diagnostics = "used provided region record";
 }
@@ -785,7 +785,7 @@ String CasacRegionManager::_stokesFromRecord(
             : csys.stokesCoordinate().stokes().size() - 1;
     }
     else {
-        ImageRegion *imreg = ImageRegion::fromRecord(region, "");
+        std::unique_ptr<ImageRegion> imreg(ImageRegion::fromRecord(region, ""));
         Array<Float> blc, trc;
         Bool oneRelAccountedFor = false;
         if (imreg->isLCSlicer()) {

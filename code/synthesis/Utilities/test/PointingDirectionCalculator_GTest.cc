@@ -929,14 +929,14 @@ void MsEdit::writeDataToAntennaTable(String MsName, uInt Row )
 
     // Special Column //
         
-        ROScalarColumn<String> antennaName      = columnAntenna->name(); 
-        ROScalarColumn<String> antennaStation   = columnAntenna->station();
-        ROScalarColumn<String> antennaType      = columnAntenna->type();
-        ROScalarColumn<String> antennaMount     = columnAntenna->mount();
-        ROArrayColumn<Double>  antennaPosition  = columnAntenna->position();
-        ROArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
+        ScalarColumn<String> antennaName      = columnAntenna->name(); 
+        ScalarColumn<String> antennaStation   = columnAntenna->station();
+        ScalarColumn<String> antennaType      = columnAntenna->type();
+        ScalarColumn<String> antennaMount     = columnAntenna->mount();
+        ArrayColumn<Double>  antennaPosition  = columnAntenna->position();
+        ArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
 
-        ROScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
+        ScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
 
         // Set Up Locate data  to be copied to Columns. //
 
@@ -1044,19 +1044,19 @@ void MsEdit::writeDataToPointingTable(String MsName )
     // Listing  (Pointing) 
     //-
 
-        ROScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROScalarColumn<String> pointingName           = columnPointing ->name();
-        ROScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
-        ROScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
+        ScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
+        ScalarColumn<Double> pointingTime           = columnPointing ->time();
+        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+        ScalarColumn<String> pointingName           = columnPointing ->name();
+        ScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
+        ScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
 
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
 
-        ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-        ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-        ROArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
+        ArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
+        ArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
+        ArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
 
         // Matrix Shape //
 
@@ -1257,15 +1257,15 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
     // Time Info
     //-
 
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+        ScalarColumn<Double> pointingTime           = columnPointing ->time();
+        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
  
     //+
     // Listing Columns(Direction related) on Pointing 
     //-
 
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
 
         IPosition Ipo = pointingDirection.shape(0);
         printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
@@ -1404,8 +1404,8 @@ void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String M
     //   Time Info
     //-
 
-        ROScalarColumn<Double> mainTime           ;
-        ROScalarColumn<Double> mainInterval       ;
+        ScalarColumn<Double> mainTime           ;
+        ScalarColumn<Double> mainInterval       ;
  
     // Attach ..//
 
@@ -2325,10 +2325,10 @@ void DumpPointingTable(String MsName)
     // Listing  (Pointing) 
     //-
 
-        ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();
+        ScalarColumn<Double> pointingTime           = columnPointing ->time();
+        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
 
         printf( "================================\n");
         printf( " Pointing (Time and Dir) \n");
@@ -2748,7 +2748,7 @@ TEST_F(TestDirection, getDirectionExtended )
     //  (first attach to Column e )
     //-
 
-        casacore::ROArrayColumn<casacore::Double> uvwColumn;	
+        casacore::ArrayColumn<casacore::Double> uvwColumn;	
         uvwColumn .attach( ms0 , "UVW");
 
     //+

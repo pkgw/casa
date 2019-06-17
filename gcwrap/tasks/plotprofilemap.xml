@@ -67,20 +67,20 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <value></value>
     </param>
     
-	<param type="string" name="linecolor">
-	  <description>Line color</description>
-	  <value>b</value>
-	</param>
-	
-	<param type="string" name="linestyle">
-	  <description>Line style</description>
-	  <value>-</value>
-	</param>
-	
-	<param type="double" name="linewidth">
-	  <description>Line width in points</description>
-	  <value>0.2</value>
-	</param>
+  <param type="string" name="linecolor">
+    <description>Line color</description>
+    <value>b</value>
+  </param>
+  
+  <param type="string" name="linestyle">
+    <description>Line style</description>
+    <value>-</value>
+  </param>
+  
+  <param type="double" name="linewidth">
+    <description>Line width in points</description>
+    <value>0.2</value>
+  </param>
 
     <param type="bool" name="separatepanel">
       <description>Separate plots</description>
@@ -217,12 +217,12 @@ if you don't want to overwrite existing file.
                           'plot' (plot masked data with different 
                                   color specified by maskedcolor)
     maskedcolor -- line color for masked data
-	showaxislabel -- Show axis labels on the bottom left panel
-	                 default: False
-	showtick -- Show ticks
-	            default: False
-	showticklabel -- Show tick labels on the bottom left panel
-	                 default: False
+    showaxislabel -- Show axis labels on the bottom left panel
+                     default: False
+    showtick -- Show ticks
+                default: False
+    showticklabel -- Show tick labels on the bottom left panel
+                     default: False
     figsize -- size of the figure
                default: '' (matplotlib default)
                example: '10cm' (10cm square)
@@ -242,7 +242,7 @@ See example of the above parameter description section.
 If the number of panels is less than the number of pixels of input image, 
 more than one pixels are assigned to one panel. In that case, spectra to be 
 shown are the average of the assigned spectra in each pixel.
-   	  
+  
 Default value for numpanels is empty string ('') which corresponds to an auto 
 calculation of the number of panels based on the number of pixels of input 
 image. Formula for the number of horizontal and vertical panels, nh and nv, 
@@ -252,7 +252,7 @@ are as follows:
     step = (max(nx, ny) - 1) / npanel + 1
     nh = nx / step + 1
     nv = ny / step + 1
-   	    
+  
 where nx and ny are the number of pixels along direction axes. In the above 
 calculation, upper limit for nh and nv is 9.
 

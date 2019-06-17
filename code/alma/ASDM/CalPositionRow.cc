@@ -3041,10 +3041,10 @@ receiverBand = CReceiverBand::from_int(0);
 		
 	}
 	
-	CalPositionRow::CalPositionRow (CalPositionTable &t, CalPositionRow &row) : table(t) {
+	CalPositionRow::CalPositionRow (CalPositionTable &t, CalPositionRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -3098,59 +3098,59 @@ receiverBand = CReceiverBand::from_int(0);
 		else {
 	
 		
-			antennaName = row.antennaName;
+			antennaName = row->antennaName;
 		
-			atmPhaseCorrection = row.atmPhaseCorrection;
+			atmPhaseCorrection = row->atmPhaseCorrection;
 		
-			calDataId = row.calDataId;
+			calDataId = row->calDataId;
 		
-			calReductionId = row.calReductionId;
-		
-		
-		
-		
-			startValidTime = row.startValidTime;
-		
-			endValidTime = row.endValidTime;
-		
-			antennaPosition = row.antennaPosition;
-		
-			stationName = row.stationName;
-		
-			stationPosition = row.stationPosition;
-		
-			positionMethod = row.positionMethod;
-		
-			receiverBand = row.receiverBand;
-		
-			numAntenna = row.numAntenna;
-		
-			refAntennaNames = row.refAntennaNames;
-		
-			axesOffset = row.axesOffset;
-		
-			axesOffsetErr = row.axesOffsetErr;
-		
-			axesOffsetFixed = row.axesOffsetFixed;
-		
-			positionOffset = row.positionOffset;
-		
-			positionErr = row.positionErr;
-		
-			reducedChiSquared = row.reducedChiSquared;
+			calReductionId = row->calReductionId;
 		
 		
 		
 		
-		if (row.delayRmsExists) {
-			delayRms = row.delayRms;		
+			startValidTime = row->startValidTime;
+		
+			endValidTime = row->endValidTime;
+		
+			antennaPosition = row->antennaPosition;
+		
+			stationName = row->stationName;
+		
+			stationPosition = row->stationPosition;
+		
+			positionMethod = row->positionMethod;
+		
+			receiverBand = row->receiverBand;
+		
+			numAntenna = row->numAntenna;
+		
+			refAntennaNames = row->refAntennaNames;
+		
+			axesOffset = row->axesOffset;
+		
+			axesOffsetErr = row->axesOffsetErr;
+		
+			axesOffsetFixed = row->axesOffsetFixed;
+		
+			positionOffset = row->positionOffset;
+		
+			positionErr = row->positionErr;
+		
+			reducedChiSquared = row->reducedChiSquared;
+		
+		
+		
+		
+		if (row->delayRmsExists) {
+			delayRms = row->delayRms;		
 			delayRmsExists = true;
 		}
 		else
 			delayRmsExists = false;
 		
-		if (row.phaseRmsExists) {
-			phaseRms = row.phaseRms;		
+		if (row->phaseRmsExists) {
+			phaseRms = row->phaseRms;		
 			phaseRmsExists = true;
 		}
 		else

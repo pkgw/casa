@@ -13,20 +13,20 @@ or to a new directional reference frame. If a template image is used, then the i
 template images must have the same coordinate structure.
 </description>
 <input>
-	<param type="string" name="imagename" mustexist="true">
-		<description>Name of the source image</description>
-		<value></value>
-	</param>
-	<param type="any" name="template">
+     <param type="string" name="imagename" mustexist="true">
+          <description>Name of the source image</description>
+          <value></value>
+     </param>
+     <param type="any" name="template">
         <any type="variant"/>
-		<description>A dictionary, refcode, or name of an image that provides the output shape and coordinate system</description>
-		<value type="string">get</value>
-	</param>
+          <description>A dictionary, refcode, or name of an image that provides the output shape and coordinate system</description>
+          <value type="string">get</value>
+     </param>
 
-	<param type="string" name="output">
-		<description>Name for the regridded image</description>
-		<value></value>
-	</param>
+     <param type="string" name="output">
+          <description>Name for the regridded image</description>
+          <value></value>
+     </param>
 
      <param type="bool" direction="in" name="asvelocity">
         <description>Regrid spectral axis in velocity space rather than frequency space?</description>

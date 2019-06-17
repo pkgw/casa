@@ -75,16 +75,16 @@ def </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:apply-te
 </xsl:choose>
 </xsl:for-each>
 <xsl:text disable-output-escaping="yes">
-	pathname='file://' + xmlpath( ) + '/'
-	trec = casac.utils().torecord(pathname+</xsl:text>&apos;<xsl:value-of select="$taskname"></xsl:value-of><xsl:text disable-output-escaping="yes">.xml&apos;)
+        pathname='file://' + xmlpath( ) + '/'
+        trec = casac.utils().torecord(pathname+</xsl:text>&apos;<xsl:value-of select="$taskname"></xsl:value-of><xsl:text disable-output-escaping="yes">.xml&apos;)
 </xsl:text>
 <xsl:text disable-output-escaping="yes">
         casalog.origin(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;)
         if trec.has_key(&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;) and casac.utils().verify(mytmp, trec[&apos;</xsl:text><xsl:value-of select="$taskname"/><xsl:text disable-output-escaping="yes">&apos;]) :
-	    result = task_</xsl:text><xsl:value-of select="$taskname"/>.<xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
+            result = task_</xsl:text><xsl:value-of select="$taskname"/>.<xsl:value-of select="$taskname"/>(<xsl:call-template name="doargs2"/>)
 </xsl:for-each><xsl:text disable-output-escaping="yes">
-	else :
-	  result = False
+        else :
+          result = False
         return result
 </xsl:text>
 </xsl:template>
@@ -173,7 +173,7 @@ def </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:apply-te
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:value-of select="aps:value"/>]<xsl:text>&#10;</xsl:text>        
 </xsl:when>
 <xsl:when test="lower-case(@type)='stringarray'">
-	<xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
+        <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="arraytype"><xsl:value-of>string</xsl:value-of></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
 </xsl:when>
 <xsl:when test="lower-case(@type)='intarray'">
 <xsl:text>        a[&apos;</xsl:text><xsl:value-of select="@name"/>&apos;]  = [<xsl:apply-templates select="aps:value"><xsl:with-param name="unitsare"><xsl:if test="@units"><xsl:value-of select="@units"/></xsl:if></xsl:with-param></xsl:apply-templates>]<xsl:text>&#10;</xsl:text>        
@@ -368,12 +368,12 @@ def </xsl:text><xsl:value-of select="@name"/><xsl:text>(</xsl:text><xsl:apply-te
 <xsl:param name="arraytype"/>
 <xsl:choose>
 <xsl:when test="count(aps:value)">
-	<xsl:for-each select="aps:value">
+        <xsl:for-each select="aps:value">
         <xsl:choose>
-		<xsl:when test="$unitsare!=''">&apos;<xsl:value-of select="."/><xsl:value-of select="$unitsare"></xsl:value-of>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>	
-		<xsl:when test="lower-case(@type)='string'">&apos;<xsl:value-of select="."/>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>
-		<xsl:otherwise><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:value-of select="."/><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:if test="position()&lt;last()">, </xsl:if></xsl:otherwise>
-	</xsl:choose>
+                <xsl:when test="$unitsare!=''">&apos;<xsl:value-of select="."/><xsl:value-of select="$unitsare"></xsl:value-of>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>
+                <xsl:when test="lower-case(@type)='string'">&apos;<xsl:value-of select="."/>&apos;<xsl:if test="position()&lt;last()">, </xsl:if></xsl:when>
+                <xsl:otherwise><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:value-of select="."/><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:if test="position()&lt;last()">, </xsl:if></xsl:otherwise>
+        </xsl:choose>
 </xsl:for-each>
 </xsl:when>
 <xsl:otherwise><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:value-of select="."/><xsl:if test="$arraytype='string'">&apos;</xsl:if><xsl:if test="position()&lt;last()">, </xsl:if>

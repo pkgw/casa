@@ -116,7 +116,7 @@ namespace casa{
       void makeGWplane(casacore::Matrix<casacore::Complex>& screen, const casacore::Int iw, casacore::Double s0, casacore::Double s1, casacore::Float *& wsaveptr, casacore::Int& lsav, casacore::Int& inner, casacore::Complex*& cor, casacore::Double&cpWscale);
       casacore::Block <casacore::CountedPtr<casacore::Cube<casacore::Complex> > > convFunctions_p;
       casacore::Block <casacore::CountedPtr<casacore::Vector<casacore::Int> > > convSupportBlock_p;
-      casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
+      std::map <casacore::String, casacore::Int> convFunctionMap_p;
 
       casacore::Vector<casacore::Int> convSizes_p;
 

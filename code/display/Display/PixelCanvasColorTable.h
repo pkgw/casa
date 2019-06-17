@@ -29,7 +29,7 @@
 #define TRIALDISPLAY_PIXELCANVASCOLORTABLE_H
 
 #include <casa/Arrays/Vector.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/Colormap.h>
 #include <display/Display/ColormapManager.h>
 #include <display/Display/DisplayEnums.h>
@@ -300,11 +300,11 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		ColormapManager dcmapMgr_;
 
 		// casacore::List of resize callbacks
-		casacore::List<void *> resizeCBList_;
+		std::list<void *> resizeCBList_;
 		// casacore::List of client data for resize callbacks
-		casacore::List<void *> clientDataList_;
+		std::list<void *> clientDataList_;
 		// casacore::List of pixelCanvases on this color table
-		casacore::List<void *> pixelCanvasList_;
+		std::list<void *> pixelCanvasList_;
 	};
 
 

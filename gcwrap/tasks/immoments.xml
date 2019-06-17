@@ -15,8 +15,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="string" name="imagename" kind="image" mustexist="true" >
-    	<description>Name of the input image</description>
-    	<value></value>
+        <description>Name of the input image</description>
+        <value></value>
         <example>imagename=ngc5921_task.image</example>
     </param>
 
@@ -27,15 +27,15 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="any" name="axis" >
-	<description>The momement axis: ra, dec, lat, long, spectral, or stokes</description>
-	<any type='variant' limittypes='string int'/>
-    	<value type='string'>spectral</value>
+    <description>The momement axis: ra, dec, lat, long, spectral, or stokes</description>
+    <any type='variant' limittypes='string int'/>
+        <value type='string'>spectral</value>
         <example>axis=&quot;ra&quot;</example>
     </param>
 
     <param type="any" name="region">
         <description>Region selection. Default is to use the full image.</description>
-	<any type='variant' limittypes='string stringArray'/>
+    <any type='variant' limittypes='string stringArray'/>
         <value type='string'/>
         <example>region=&quot;myregion.crtf&quot;</example>
     </param>
@@ -47,41 +47,41 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="string" name="chans" >
-	<description>Channels to use. Default is to use all channels.</description>
-    	<value/>
+    <description>Channels to use. Default is to use all channels.</description>
+        <value/>
         <example>chans=&quot;1~4&quot;</example>
     </param>
 
     <param type="string" name="stokes">
-	    <description>Stokes planes to use. Default is to use all Stokes planes.</description>
-	    <value/>
-	    <example>stokes=&quot;IQ&quot;</example>
+        <description>Stokes planes to use. Default is to use all Stokes planes.</description>
+        <value/>
+        <example>stokes=&quot;IQ&quot;</example>
     </param>
 
     <param type="string" name="mask">
-	    <description>Mask to use. Default is none.</description>
-	    <any type="variant"/>
-	    <value type="stringArray"></value>
+        <description>Mask to use. Default is none.</description>
+        <any type="variant"/>
+        <value type="stringArray"></value>
         <example>mask=&quot;my.im > 5&quot;</example>
     </param>
 
     <param type="any" name="includepix">
-    	<description>Range of pixel values to include</description>
-	<any type="variant" limittypes="int doubleArray intArray"/>
-	<value type="int">-1</value>
+        <description>Range of pixel values to include</description>
+    <any type="variant" limittypes="int doubleArray intArray"/>
+    <value type="int">-1</value>
     <example>includepix=[4, 5]</example>
     </param>
 
     <param type="any" name="excludepix">
-    	<description>Range of pixel values to exclude</description>
-	<any type="variant" limittypes="int doubleArray intArray"/>
-	<value type="int">-1</value>
+        <description>Range of pixel values to exclude</description>
+    <any type="variant" limittypes="int doubleArray intArray"/>
+    <value type="int">-1</value>
     <example>excludepix=[-10, 0]</example>
     </param>
 
     <param type="string" name="outfile">
-	    <description>Output image file name (or root for multiple moments) </description>
-	<value/>
+        <description>Output image file name (or root for multiple moments) </description>
+    <value/>
     <example>outfile=&quot;mymoments.im&quot;</example>
     </param>
     
@@ -102,28 +102,28 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <returns type="bool"/>
 
 <example>
-	The spectral moment distributions at each pixel are
-	determined.  See the cookbook and User Reference Manual for
-	mathematical details.
+        The spectral moment distributions at each pixel are
+        determined.  See the cookbook and User Reference Manual for
+        mathematical details.
 
-	The main control of the calculation is given by parameter
-	moments:
-	
+        The main control of the calculation is given by parameter
+        moments:
+    
         moments=-1  - mean value of the spectrum
-	moments=0   - integrated value of the spectrum
-	moments=1   - intensity weighted coordinate;traditionally used to get 
-		      'velocity fields'
-   	moments=2   - intensity weighted dispersion of the coordinate; traditionally
-		      used to get &quot;velocity dispersion&quot;
-	moments=3   - median of I
-	moments=4   - median coordinate
-	moments=5   - standard deviation about the mean of the spectrum
-	moments=6   - root mean square of the spectrum
-	moments=7   - absolute mean deviation of the spectrum
-	moments=8   - maximum value of the spectrum
-	moments=9   - coordinate of the maximum value of the spectrum
-	moments=10  - minimum value of the spectrum
-    moments=11  - coordinate of the minimum value of the spectrum
+        moments=0   - integrated value of the spectrum
+        moments=1   - intensity weighted coordinate;traditionally used to get 
+                      'velocity fields'
+        moments=2   - intensity weighted dispersion of the coordinate; traditionally
+                      used to get &quot;velocity dispersion&quot;
+        moments=3   - median of I
+        moments=4   - median coordinate
+        moments=5   - standard deviation about the mean of the spectrum
+        moments=6   - root mean square of the spectrum
+        moments=7   - absolute mean deviation of the spectrum
+        moments=8   - maximum value of the spectrum
+        moments=9   - coordinate of the maximum value of the spectrum
+        moments=10  - minimum value of the spectrum
+        moments=11  - coordinate of the minimum value of the spectrum
 
    Keyword arguments:
    imagename    Name of input image

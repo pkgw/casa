@@ -347,7 +347,7 @@ namespace asdm {
 
 
 CalDelayRow* CalDelayTable::newRow(CalDelayRow* row) {
-	return new CalDelayRow(*this, *row);
+	return new CalDelayRow(*this, row);
 }
 
 	//

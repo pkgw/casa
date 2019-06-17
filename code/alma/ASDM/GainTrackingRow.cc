@@ -1980,10 +1980,10 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 		
 	}
 	
-	GainTrackingRow::GainTrackingRow (GainTrackingTable &t, GainTrackingRow &row) : table(t) {
+	GainTrackingRow::GainTrackingRow (GainTrackingTable &t, GainTrackingRow *row) : table(t) {
 		hasBeenAdded = false;
 		
-		if (&row == 0) {
+		if (row == 0) {
 	
 	
 	
@@ -2021,49 +2021,49 @@ void GainTrackingRow::attSpectrumFromBin(EndianIStream& eis) {
 		else {
 	
 		
-			antennaId = row.antennaId;
+			antennaId = row->antennaId;
 		
-			spectralWindowId = row.spectralWindowId;
+			spectralWindowId = row->spectralWindowId;
 		
-			timeInterval = row.timeInterval;
+			timeInterval = row->timeInterval;
 		
-			feedId = row.feedId;
-		
-		
-		
-		
-			numReceptor = row.numReceptor;
-		
-			attenuator = row.attenuator;
-		
-			polarizationType = row.polarizationType;
+			feedId = row->feedId;
 		
 		
 		
 		
-		if (row.samplingLevelExists) {
-			samplingLevel = row.samplingLevel;		
+			numReceptor = row->numReceptor;
+		
+			attenuator = row->attenuator;
+		
+			polarizationType = row->polarizationType;
+		
+		
+		
+		
+		if (row->samplingLevelExists) {
+			samplingLevel = row->samplingLevel;		
 			samplingLevelExists = true;
 		}
 		else
 			samplingLevelExists = false;
 		
-		if (row.numAttFreqExists) {
-			numAttFreq = row.numAttFreq;		
+		if (row->numAttFreqExists) {
+			numAttFreq = row->numAttFreq;		
 			numAttFreqExists = true;
 		}
 		else
 			numAttFreqExists = false;
 		
-		if (row.attFreqExists) {
-			attFreq = row.attFreq;		
+		if (row->attFreqExists) {
+			attFreq = row->attFreq;		
 			attFreqExists = true;
 		}
 		else
 			attFreqExists = false;
 		
-		if (row.attSpectrumExists) {
-			attSpectrum = row.attSpectrum;		
+		if (row->attSpectrumExists) {
+			attSpectrum = row->attSpectrum;		
 			attSpectrumExists = true;
 		}
 		else

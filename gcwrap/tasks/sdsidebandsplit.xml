@@ -61,7 +61,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="bool" name="getbothside">
-	    <description>sideband separation (True) or supression (False)</description>
+      <description>sideband separation (True) or supression (False)</description>
             <value>False</value>
     </param>
 
@@ -76,7 +76,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
  
     <param type="bool" name="otherside">
-	    <description>solve the solution of the other side band side and subtract the solution</description>
+      <description>solve the solution of the other side band side and subtract the solution</description>
             <value>False</value>
     </param>
 
@@ -85,9 +85,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
       <description>Rejection limit of solution. The value must be greater than 0.0 and less than 1.0.</description>
       <value>0.2</value>
       <allowed kind="range">
-	      <value range="min">0.0</value>
-	      <value range="max">1.0</value>
-	  </allowed>
+        <value range="min">0.0</value>
+        <value range="max">1.0</value>
+    </allowed>
     </param>
 
 <!-- CONSTRAINTS -->

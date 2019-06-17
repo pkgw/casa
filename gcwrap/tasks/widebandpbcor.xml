@@ -49,10 +49,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <!-- SUB-PARAMETERS -->
 
             <!-- pbcor = True -->
-	    <param type="string" name="reffreq" subparam="true" >
-	      <description>Reference frequency (if specified in clean)</description>
-	      <value></value>
-	    </param>
+      <param type="string" name="reffreq" subparam="true" >
+        <description>Reference frequency (if specified in clean)</description>
+        <value></value>
+      </param>
 
             <param type="double" name="pbmin" subparam="true">
               <description>PB threshold below which to not correct</description>
@@ -67,26 +67,26 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <param type="intArray" name="spwlist" subparam="true">
               <description>List of N spw ids</description>
               <value type="vector">
-		<value></value>
-	      </value>
+    <value></value>
+        </value>
             </param>
         
             <param type="intArray" name="chanlist" subparam="true">
               <description>List of N channel ids</description>
               <value type="vector">
-		<value></value>
-	      </value>
+    <value></value>
+        </value>
             </param>
         
             <param type="doubleArray" name="weightlist" subparam="true">
               <description>List of N weights (relative)</description>
               <value type="vector">
-		<value></value>
-	      </value>
+    <value></value>
+        </value>
             </param>
         
-	    <!-- calcalpha = True 
-	    <param type="bool" name="calcerror" subparam="true">
+      <!-- calcalpha = True 
+      <param type="bool" name="calcerror" subparam="true">
               <description>Re-calculate spectral-index error image </description>
               <value>False</value>
             </param> -->
@@ -96,7 +96,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
             <constraints>                    
 
                 <when param="action">
-		  <equals type="string" value="pbcor">
+      <equals type="string" value="pbcor">
                         <default param="reffreq"><value type="string"></value></default>
                         <default param="pbmin"><value type="double">0.2</value></default>
                         <default param="field"><value type="string"></value></default>
@@ -104,7 +104,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         <default param="chanlist"><value type="intArray"></value></default>
                         <default param="weightlist"><value type="doubleArray"></value></default>
                     </equals>
-		</when>
+    </when>
 
              </constraints>
 

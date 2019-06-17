@@ -816,7 +816,7 @@ private:
 	 * @param table The table to which this row belongs.
 	 * @param row  The row which is to be copied.
 	 */
-	 CalDataRow (CalDataTable &table, CalDataRow &row);
+	 CalDataRow (CalDataTable &table, CalDataRow *row);
 	 	
 	////////////////////////////////
 	// Intrinsic Table Attributes //

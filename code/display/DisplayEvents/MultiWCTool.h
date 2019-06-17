@@ -28,8 +28,8 @@
 #ifndef TRIALDISPLAY_MULTIWCTOOL_H
 #define TRIALDISPLAY_MULTIWCTOOL_H
 
+#include <list>
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
 #include <display/DisplayEvents/WCPositionEH.h>
 #include <display/DisplayEvents/WCMotionEH.h>
 #include <display/DisplayEvents/WCRefreshEH.h>
@@ -166,9 +166,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// (i.e., it now causes, rather than responds to, refresh events).
 		virtual void refresh();
 
-		// An iterator for the WorldCanvases.
-		mutable casacore::ListIter<WorldCanvas *> *itsWCListIter;
-
 		// Cause subsequent drawing commands to be clipped to the current WC
 		// (or its drawing area).  Be sure to reset when finished drawing;
 		// clipping will apply to drawing on entire PC.
@@ -192,7 +189,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// </group>
 
 		// The WorldCanvases to which this tool is connected.
-		casacore::List<WorldCanvas *> itsWCList;
+		friend class MWCRTZoomer;
+		friend class MWCPannerTool;
+		std::list<WorldCanvas*> itsWCList;
 
 		// whether the event handlers are registered
 		casacore::Bool itsEventHandlersRegistered;
