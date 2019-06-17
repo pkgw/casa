@@ -121,7 +121,7 @@ private:
     {
         // Exeption(bool)  , Filename //
  
-        {true, "./sdimaging-t.ms"   		},
+        {true, "hoge/sdimaging.ms"        },
         {false, "sdimaging/sdimaging.ms"        },
         {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
 
@@ -145,8 +145,6 @@ private:
         {false, "sdimaging/selection_misc.ms"           },
         {false, "sdimaging/selection_spw.ms"            },
         {false, "sdimaging/selection_spw_unifreq.ms"    },
-        {true, ".sis14_twhya_calibrated_flagged.ms"     },
-        {true, ".sis14_twhya_calibrated_flagged-t.ms"   },
  
     };
 };
@@ -356,7 +354,7 @@ String BaseClass::CopyMStoWork(String master)
         dir_ctrl.copy( targetPath,
                        True,    // Overwrite 
                        True  ); // Users permisssion 
-
+        // info //
         printf( "- copied from Remote MS [%s]  \n", src.c_str() );
         printf( "         to   Local  MS [%s]  \n", dst.c_str() );
 
