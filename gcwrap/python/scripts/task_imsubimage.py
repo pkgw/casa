@@ -18,10 +18,12 @@ def imsubimage(
             raise Exception, "outfile must be specified."
         xregion = region
         if (type(region) != type({})):
+            tmp_csys = myia.coordsys()
             xregion = _rg.frombcs(
-                csys=myia.coordsys().torecord(), shape=myia.shape(), box=box,
+                csys=tmp_csys.torecord(), shape=myia.shape(), box=box,
                 chans=chans, stokes=stokes, stokescontrol="a", region=region
             )
+            tmp_csys.done()
         outia = myia.subimage(
             outfile=outfile, region=xregion, mask=mask, dropdeg=dropdeg,
             overwrite=overwrite, list=verbose, stretch=stretch, keepaxes=keepaxes
