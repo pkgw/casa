@@ -658,11 +658,6 @@ public:
  
       Double getInterpolationErrorLimit() { return errorLimit_;  } ;
 
-
-    // Pointing table default row size //
-    
-      uInt getDefaultPointingTableRow() {return defInerpolationTestPointingTableRow_; }
-
     // Row count to be added (when setting up MS) // 
 
       uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
@@ -1483,10 +1478,6 @@ public:
         uInt appendRowOnPointingTable(uInt n);
         uInt appendRowOnMainTable(uInt n);
     
-    // default row size //
-
-        uInt getDefaultPointingTableRow() { return tuneMS.getDefaultPointingTableRow(); }
-
     // Write Data on Antenna Table // 
 
         void writeDataToAntennaTable( uInt Row =0 );
@@ -1997,19 +1988,9 @@ public:
         uInt getInterpolationDivCount() { return deltaTimeDivCount_; }
         void setInterpolationDivCount(uInt n) {  deltaTimeDivCount_ = n;  }   
 
-        // Prepared Antenna and Pointing-Columns in MS //
-
-        void setMaxAntenna(uInt n) {
-                 msedit.tuneMS.setMaxAntenna(n); 
-                 numAntenna_ = n;  
-        }
-        void setMaxPointingColumns(uInt n) {
-                 msedit.tuneMS.setMaxPointingColumns(n);
-                 numPointingColumn_     = n;
-        }
-
-        size_t getMaxAntenna()         { return numAntenna_;}
-        size_t getMaxPointingColumn() { return numPointingColumn_; }
+        // Resource Count // 
+        size_t getMaxAntenna()         { return preparedAntenna_;}
+        size_t getMaxPointingColumn()  { return preparedColumn_ ; }
 
         // Pointing Colum List (common definition) //
 
@@ -2094,7 +2075,7 @@ protected:
             DefaultLocalMsName = BaseClass::DefaultLocalMsName();
 
             // SetUp Number of Anntena for TEST //
-            msedit.tuneMS.setMaxAntenna( numAntenna_ ); 
+            msedit.tuneMS.setMaxAntenna(  preparedAntenna_ ); 
 
             //+
             // Copy and add columns,  init columns, 
@@ -2147,10 +2128,6 @@ protected:
  
 private:
 
-        // Resources (Tunable from external methods) //
-
-          uInt  numAntenna_        ;
-          uInt  numPointingColumn_ ;
 };
 
 //-------------------------------------------------
@@ -2378,21 +2355,20 @@ std::vector<std::vector<ParamList> >   paramListS =
 
     },
     // Senario 1 (Test Count Dependency) //
-#define ErrS1 7.0E-06
+#define ErrS1 2.0E-05
     {
-      {true, P_TARGET, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {false,P_TARGET, 0,1000, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {false,P_TARGET, 0,500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
 
-      {true, P_TARGET, 0,1010, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1020, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1030, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1040, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1050, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-
-      {true, P_TARGET, 0,1060, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1070, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1080, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,1090, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,530, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,540, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,550, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,560, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
  
     },
 
@@ -2418,7 +2394,7 @@ std::vector<std::vector<ParamList> >   paramListS =
       {true, P_SOURCE_OFFSET,   0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   5.0E-06 },
       {true, P_ENCODER,         0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   6.0E-06 },
     },
-
+ 
     // Senario 5 (Insufficient Data, small number of data.) // 
     {
       {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
@@ -2428,12 +2404,11 @@ std::vector<std::vector<ParamList> >   paramListS =
       {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
     },
 
-
+#if 0
+    // Senario 6 (Interval , floating point preciseness) //
 #define ANT    0
 #define NTEST  540  // default =2580 , Error happens at least on 2550 // 
 #define FUNC   TrajectoryFunction::Type::Normalized_Linear 
-    //// 10-JUN-2019, SPECIAL ////
-#if 1
     {
        {true,  P_DIRECTION, ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-04 },
        {true,  P_DIRECTION, ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-04 },
@@ -2445,8 +2420,7 @@ std::vector<std::vector<ParamList> >   paramListS =
        {true,  P_DIRECTION, ANT, NTEST, 20000.0,   10000.0,   FUNC,  5.0E-04 },
        {true,  P_DIRECTION, ANT, NTEST, 200000.0,  100000.0,  FUNC,  5.0E-04 },
     },
-#endif     
-   
+#endif    
 };
 
 //*******************************************
@@ -2462,11 +2436,7 @@ TEST_F(TestDirection, InterpolationListedItems )
     std::vector<Double> r_err = {0.0}; 
 
     // Senario and Param loop //
-#if 1
-    for (uInt sno = 0; sno <paramListS.size(); sno++) 
-#else
-    for (uInt sno = 6; sno <paramListS.size(); sno++) 
-#endif 
+    for (uInt sno = 0; sno < paramListS.size(); sno++) 
     {
         Description( "by Listed Condition ", "sno="+std::to_string(sno));
         for(uInt n=0; n<paramListS[sno].size();n++)
@@ -2491,14 +2461,11 @@ TEST_F(TestDirection, InterpolationListedItems )
             // Copy Template MS //
 
 #if 1       
-// THIS IS NECESARY //
+            // THIS IS VERY UNUSUAL CODING . NEED TO BE REVISED //
               SetUp();
-#endif 
-            // define Number of Antenna prepeared in MS //
-              setMaxAntenna( preparedAntenna_ );
-              setMaxPointingColumns( preparedColumn_ );
-
+#endif
             // Interpolation Divide Count //
+
               setInterpolationDivCount(3);   // default = 10 
 
             //+
@@ -2534,11 +2501,6 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
      TestDescription( "Coefficient Table Test (by Antenna and Pointing-Columns)" );
 
       use_spline = true;
-
-    // define Number of Antenna prepeared in MS //
-
-      setMaxAntenna(3);
-      setMaxPointingColumns(PointingDirectionCalculator::PtColID::nItems);
 
     // set Examination Condition  //
 
@@ -2805,10 +2767,6 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
 //------------------------------
 TEST_F(TestDirection, setDirectionColumn  )
 {
-
-    // =TUNABLE
-      setMaxAntenna(1);         // more than zero 
-      setMaxPointingColumns(5); // from 1 to 5 (see  PtColID::nItems;) 
 
     // set Examination Condition (revised by CAS-8418) //
  
@@ -3193,19 +3151,7 @@ protected:
 
 };
 
-
-//**********************************************
-// TENTATIVE (revised due to code review)
-//    common class for simplified interface
-//    Usage:
-//            Ms = "./sdimaging/sdimaging.ms";
-//            keyList = {"*", "&&A", "*" };
-//            TestSelectData( "sdimaging.ms",
-//                             keyList );
-//
-//**********************************************
-
-
+ 
 /*------------------------------------------------------
    Execution of selectData(...)
     - args are given from external variables
