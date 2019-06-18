@@ -32,6 +32,7 @@
 #include "ATMCommon.h"
 #include <string>
 
+using std::string;
 
 ATM_NAMESPACE_BEGIN
 
@@ -48,7 +49,7 @@ class Angle
   /** A full constructor: Angle value in default units (SI: radians) */
   Angle(double angle);
   /** A full constructor: Angle value + units. Implemented units are: deg [DEG], rad [RAD] [Rad]*/
-  Angle(double angle, const std::string &units);
+  Angle(double angle, const string &units);
 
   /** Destructor */
   virtual ~Angle();
@@ -57,7 +58,7 @@ class Angle
   double get() const { return valueIS_; }
   /** Accessor to the angle value in specified units. Implemented units are: deg [DEG], rad [RAD] [Rad].
    *  If none of these implemented units is given, the SI value will be returned. */
-  double get(const std::string &units) const;
+  double get(const string &units) const;
 
   /** Operator "equal to a Angle" */
   Angle& operator=(const Angle &rhs) { if(&rhs != this) valueIS_ = rhs.valueIS_; return *this; }
