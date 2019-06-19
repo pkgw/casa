@@ -119,9 +119,9 @@ synthesisimager::selectdata(const casac::record& selpars)
 
       //if( ! itsImager ) itsImager = new SynthesisImagerVi2();
       itsImager = makeSI();
-      casacore::Record recpars = *toRecord( selpars );
+      std::unique_ptr<casacore::Record> recpars(toRecord( selpars ));
       SynthesisParamsSelect pars;
-      pars.fromRecord( recpars );
+      pars.fromRecord( *recpars );
 
       itsImager->selectData( pars );
 
@@ -183,15 +183,15 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
   try 
     {
     
-      //if( ! itsImager ) itsImager = new SynthesisImager();
-      itsImager = makeSI();
-    casacore::Record irecpars = *toRecord( impars );
+    //if( ! itsImager ) itsImager = new SynthesisImager();
+    itsImager = makeSI();
+    std::unique_ptr<casacore::Record> irecpars(toRecord( impars ));
     ////Temporary fix till we get the checking for phasecenter in fromRecord 
     ////to deal with this
     //////////////
     String movingSource="";
-    if( irecpars.dataType("phasecenter") == TpString ){
-      String pcen=irecpars.asString("phasecenter");
+    if( irecpars->dataType("phasecenter") == TpString ){
+      String pcen=irecpars->asString("phasecenter");
       //seems to be a table so assuming ephemerides table 
       //Or A known planet
       //Or special case
@@ -206,7 +206,7 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
 	  *itsLog << "Will be Using measures internal ephemeris  for  " << casacore::MDirection::showType(refType) << " to track " << casacore::LogIO::POST;
 	} 
 	movingSource=pcen;
-	irecpars.define("phasecenter", "");
+	irecpars->define("phasecenter", "");
       }
       
       
@@ -215,12 +215,12 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
     }
 
     SynthesisParamsImage ipars;
-    ipars.fromRecord( irecpars );
+    ipars.fromRecord( *irecpars );
     
       
-    casacore::Record grecpars = *toRecord( gridpars );
+    std::unique_ptr<casacore::Record> grecpars (toRecord( gridpars ));
     SynthesisParamsGrid gpars;
-    gpars.fromRecord( grecpars );
+    gpars.fromRecord( *grecpars );
     ipars.trackSource=False;
     if(movingSource != casacore::String("")){
       itsImager->setMovingSource(movingSource);
@@ -563,8 +563,8 @@ bool synthesisimager::executemajorcycle(const casac::record& controls)
 
     //if( ! itsImager ) itsImager = new SynthesisImager();
     itsImager = makeSI();
-    casacore::Record recpars = *toRecord( controls );
-    itsImager->executeMajorCycle( recpars );
+    std::unique_ptr<casacore::Record> recpars(toRecord( controls ));
+    itsImager->executeMajorCycle( *recpars );
 
   } catch  (AipsError x) {
     RETHROW(x);
