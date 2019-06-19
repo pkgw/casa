@@ -806,7 +806,7 @@ double atmosphere::doTwoIdATMFuncDouble(Func func, ClassType obj, int nc, int sp
       unsigned int spw = static_cast<unsigned int>(spwid);
       if (nc < 0) {
 	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
+	*itsLog << LogIO::DEBUG1 << "Using reference channel " << chan << LogIO::POST;
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
@@ -837,7 +837,7 @@ Quantity atmosphere::doTwoIdATMFuncQuantum(Func func, ClassType obj, int nc, int
       unsigned int spw = static_cast<unsigned int>(spwid);
       if (nc < 0) {
 	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
+	*itsLog << LogIO::DEBUG1 << "Using reference channel " << chan << LogIO::POST;
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
@@ -1430,7 +1430,7 @@ atmosphere::getTebbSky(int nc, int spwid, const Quantity& wh2o)
       unsigned int spw = static_cast<unsigned int>(spwid);
       if (nc < 0) {
 	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
+	*itsLog << LogIO::DEBUG1 << "Using reference channel " << chan << LogIO::POST;
       } else {
 	chan = static_cast<unsigned int>(nc);
       }
@@ -1537,7 +1537,7 @@ atmosphere::getTrjSky(int nc, int spwid, const Quantity& wh2o)
       unsigned int spw = static_cast<unsigned int>(spwid);
       if (nc < 0) {
 	chan = pSpectralGrid->getRefChan(spw);
-	*itsLog << "Using reference channel " << chan << LogIO::POST;
+	*itsLog << LogIO::DEBUG1 <<  "Using reference channel " << chan << LogIO::POST;
       } else {
 	chan = static_cast<unsigned int>(nc);
       }

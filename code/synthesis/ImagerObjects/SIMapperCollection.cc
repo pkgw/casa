@@ -242,7 +242,6 @@ void SIMapperCollection::initializeGrid(vi::VisibilityIterator2& vi, Bool dopsf,
 	  } 
 	  else if (col==refim::FTMachine::OBSERVED) {
 	    vb.setVisCube(vb.visCube()-vb.visCubeModel());
-	    
 	  }
 	}// if non zero model
 
@@ -255,11 +254,9 @@ void SIMapperCollection::initializeGrid(vi::VisibilityIterator2& vi, Bool dopsf,
     if (mapperid < 0)
       {
 	//cout << "Using column : " << col << endl;
-
 	for (uInt k=0; k < itsMappers.nelements(); ++k)
 	  {
 	    (itsMappers[k])->grid(vb, dopsf, col);
-	    
 	  }
       }
     else 

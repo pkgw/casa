@@ -110,13 +110,17 @@ def immoments(
               'remove it or change the output file name.'
         elif ( len( outfile ) ==  1 ):
             raise Exception, 'outfile is not specified but must be'
-        _myia.open(imagename) 
-        reg = _rg.frombcs(csys=_myia.coordsys().torecord(),
+        _myia.open(imagename)
+        _tmp_csys = _myia.coordsys()
+        reg = _rg.frombcs(csys=_tmp_csys.torecord(),
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
             stokescontrol="a", region=region
         )
+        _tmp_csys.done()
         if isinstance(axis, str):
-             axis = _myia.coordsys().findaxisbyname(axis)
+            _tmp_csys = _myia.coordsys()
+            axis = _tmp_csys.findaxisbyname(axis)
+            _tmp_csys.done()
         outia = _myia.moments(
             moments=moments, axis=int(axis), mask=mask,
             region=reg, includepix=includepix,
