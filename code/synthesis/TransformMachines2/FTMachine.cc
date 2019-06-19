@@ -90,6 +90,7 @@ using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
+                           ephemTableName_p(""), 
 			   movingDirShift_p(0.0), 
 			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
@@ -110,7 +111,9 @@ using namespace casa::vi;
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
+    tangentSpecified_p(false), fixMovingSource_p(false), 
+    ephemTableName_p(""), 
+    movingDirShift_p(0.0),
     distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
@@ -187,6 +190,7 @@ using namespace casa::vi;
       //moving source stuff
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
+      ephemTableName_p = other.ephemTableName_p;
       firstMovingDir_p=other.firstMovingDir_p;
       movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
@@ -271,7 +275,6 @@ using namespace casa::vi;
    }
   //----------------------------------------------------------------------
     void FTMachine::initMaps(const vi::VisBuffer2& vb) {
-
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
@@ -319,17 +322,22 @@ using namespace casa::vi;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
-	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	  if(mFrame_p.comet())
+	  if (mFrame_p.comet())
 	    mFrame_p.resetComet(mcomet);
 	  else
-	     mFrame_p.set(mcomet);
-	  
-	}
-	else{
-	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	    mFrame_p.set(mcomet);
+	} else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+	  MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+	  if (mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	    mFrame_p.set(mcomet);
+	  tmphadec = MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+	} else {
+	  tmphadec = MDirection::Convert(movingDir_p, outref1)();
 	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
@@ -1141,7 +1149,6 @@ using namespace casa::vi;
   			    const vi::VisBuffer2& vb)
     {
 
-
       if(lastMSId_p != vb.msId())
 	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
@@ -1807,7 +1814,6 @@ using namespace casa::vi;
     return chanMap;
   }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
-
     //Int spw=vb.spectralWindows()[0];
     nvischan  = vb.nChannels();
     chanMap.resize(nvischan);
@@ -1817,25 +1823,26 @@ using namespace casa::vi;
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
     //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
-     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
-    	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
-     else
-    	 lsrFreq=vb.getFrequencies(0);
-
-     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
-       if(lastMSId_p != vb.msId()){
-	 romscol_p=new ROMSColumns(vb.ms());
-       //if ms changed ...reset ephem table
-	 if(upcase(movingDir_p.getRefString()).contains("APP")){
-	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	   mFrame_p.resetComet(mcomet);
-	 }
-       }
+    if (freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST ) {
+      lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
+    }
+    else {
+      lsrFreq=vb.getFrequencies(0);
+    }
+    if (spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p) {
+      if(lastMSId_p != vb.msId()){
+	romscol_p=new ROMSColumns(vb.ms());
+	//if ms changed ...reset ephem table
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  mFrame_p.resetComet(mcomet);
+	}
+      }
 	
-       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
-       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
-       shiftFreqToSource(lsrFreq);
-     }
+      mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+      mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+      shiftFreqToSource(lsrFreq);
+    }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);
@@ -1965,6 +1972,7 @@ using namespace casa::vi;
     if(Table::isReadable(sourcename, False)){
       sourcename="COMET";
       ephemtab=sname;
+      ephemTableName_p = sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){

@@ -365,6 +365,7 @@ VisSet::~VisSet() {
   if(!multims_p){
     (*blockOfMS_p)[0]=MeasurementSet();//breaking reference
   }
+  delete blockOfMS_p;
 };
 
 
