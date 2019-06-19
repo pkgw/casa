@@ -267,7 +267,7 @@ class test_onefield(testref_base):
           # by default, it checks if im1's beam < im2's beam
           print "Test beamarea of tst0.image (natural) is greater than beamarea of tst.image (uniform)"
           self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'0.image'))
-          # parallel fails
+          # parallel fails - uniform wt. psf seems to be bigger in parallel than that of serial run
           #print "Test beamarea of tst2.image (briggs -2) is greater than beamarea of tst.image (uniform)"
           #self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'2.image'))
           print "Test beamarea of tst3.image (briggs 0.5) is greater than beamarea of tst2.image (briggs -2))"
@@ -507,7 +507,15 @@ class test_onefield(testref_base):
           ## iterdone=11 only because of the return (iterdone_p+1) in MultiTermMatrixCleaner::mtclean() !
           self.checkfinal(pstr=report)
 
- 
+     
+     def test_onefield_gridders(self):
+          """ [onefield] Test_Onefield_gridders : Check all single field gridder equivalent names are accepted """
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',gridder='ft', interactive=0,parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'], imval=[(self.img+'.psf', 1.0, [50,50,0,0])])
+          ret2 = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',gridder='gridft', interactive=0,parallel=self.parallel)
+          report2=self.th.checkall(imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'], imval=[(self.img+'.psf', 1.0, [50,50,0,0])])
+          self.checkfinal(pstr=report+report2)
 
 
 ##############################################
