@@ -52,7 +52,7 @@
 #include <images/Images/ImageInterface.h>
 #include <images/Images/SubImage.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
-
+#include <synthesis/Utilities/FFT2D.h>
 #include <synthesis/ImagerObjects/SIImageStore.h>
 #include <synthesis/ImagerObjects/SIImageStoreMultiTerm.h>
 
@@ -406,6 +406,7 @@ protected:
   // moving source stuff
   casacore::MDirection movingDir_p;
   casacore::Bool fixMovingSource_p;
+  casacore::String ephemTableName_p;
   casacore::MDirection firstMovingDir_p;
   // This will hold the angular difference between movingDir and firstMovingDir with 
   // the frame conversion done properly etc..
@@ -541,7 +542,7 @@ protected:
   ///moving source spectral frame stuff
   casacore::MRadialVelocity::Convert obsvelconv_p;
   casacore::MeasTable::Types mtype_p;
-
+  FFT2D ft_p;
 
  private:
   //Some temporary wasteful function for swapping axes because we don't 

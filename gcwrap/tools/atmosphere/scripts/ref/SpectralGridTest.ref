@@ -5,13 +5,12 @@ depending on whether the shared libraries
 are cached or not.
 =========================================
 
+]0;IPython: CAS-11140-update-atm-for-casa-5.6/testIPython 5.1.0 -- An enhanced Interactive Python.
+
+CASA 5.5.0-0  ID -- Common Astronomy Software Applications
+
+2019-03-29 20:41:00	INFO	::casa	CASA Version 5.5.0-0  ID
 casa:42: DeprecationWarning: BaseException.message has been deprecated as of Python 2.6
-]0;IPython: attool_test/refsIPython 5.1.0 -- An enhanced Interactive Python.
-
-CASA 5.1.0-32  ID c3ceb4437ff916fc88aa8040765c1f8667368426 -- Common Astronomy Software Applications
-
-*** Loading ATNF ASAP Package...
-*** ... ASAP (rev# unknown ) import complete ***
 SpectralGridTest: Test 1:
 SpectralGridTest: Number of channels retrieved: 64 Input: 64
 SpectralGridTest: Reference frequency retrieved: 89.990000 GHz Input: 89.990000 GHz
@@ -23,7 +22,7 @@ SpectralGridTest: Frequency range: from 89.680000 to 90.310000 GHz
 SpectralGridTest: Number of channels for spectral window identifier 0: 64
 SpectralGridTest: Expect an error here
 SpectralGridTest: Exception: Spw ID out of range..
-SpectralGridTest: ... thrown by void casac::atmosphere::assert_spwid(int) at File: /home/exported/data/kana/gitrepo/casa/gcwrap/tools/atmosphere/atmosphere_cmpt.cc, line: 47
+SpectralGridTest: ... thrown by void casac::atmosphere::assert_spwid(int) at File: /home/jagonzal/casa/repo/src/CAS-11140-update-atm-for-casa-5.6/gcwrap/tools/atmosphere/atmosphere_cmpt.cc, line: 47
 SpectralGridTest: End of Test 1
 
 SpectralGridTest: Test 2

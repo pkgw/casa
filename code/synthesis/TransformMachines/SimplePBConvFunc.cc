@@ -80,7 +80,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
         npol_p(-1), pointToPix_p(), directionIndex_p(-1), thePix_p(0),
         filledFluxScale_p(false),doneMainConv_p(0),
                                       
-	calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
+	calcFluxScale_p(true), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()  {
     //
 
     pbClass_p=PBMathInterface::COMMONPB;
@@ -90,7 +90,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
     nchan_p(-1),npol_p(-1),pointToPix_p(),
     directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),doneMainConv_p(0), 
-     calcFluxScale_p(true), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
+     calcFluxScale_p(true), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p() {
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
@@ -98,7 +98,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
     doneMainConv_p(0), 
-    calcFluxScale_p(calcfluxneeded), convFunctionMap_p(-1), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()
+    calcFluxScale_p(calcfluxneeded), actualConvIndex_p(-1), convSize_p(0), convSupport_p(0), pointingPix_p()
   {
     String err;
     fromRecord(err, rec, calcfluxneeded);
@@ -1068,7 +1068,7 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
        convSupportBlock_p.resize(numConv, true, false);
        convWeights_p.resize(numConv, true, false);
        convSizes_p.resize(numConv, true, false);
-       convFunctionMap_p=SimpleOrderedMap<String, Int>(-1);
+       convFunctionMap_p.clear( );
        vbConvIndex_p.erase(vbConvIndex_p.begin(), vbConvIndex_p.end());
        for (Int k=0; k < numConv; ++k){
 	 convFunctions_p[k]=new Array<Complex>();

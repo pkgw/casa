@@ -530,11 +530,30 @@ void RefractiveIndexProfile::mkRefractiveIndexProfile()
   // first = false;  // [-Wunused_but_set_variable]
 }
 
-Opacity RefractiveIndexProfile::getDryOpacity()
-{
-  return getDryOpacity(0);
-}
 
+Opacity RefractiveIndexProfile::getDryOpacityUpTo(unsigned int nc, Length refalti)
+{
+  unsigned int ires; unsigned int numlayerold; Length alti;  double fractionLast; 
+  Opacity opacityout0; Opacity opacityout1; Opacity zeroOp(0.0,"np");
+  
+  if(refalti.get("km") <= altitude_.get("km")) {
+    return zeroOp;
+  }else{
+      fractionLast = 1.0; numlayerold = numLayer_;
+      opacityout0=getDryOpacity(nc); ires=numlayerold-1; alti=altitude_;
+      for(unsigned int i=0; i<numLayer_; i++){
+	if(alti.get("km") < refalti.get("km") &&  (alti.get("km")+v_layerThickness_[i]/1000.0) >= refalti.get("km"))
+	  { ires=i; fractionLast = (refalti.get("m")-alti.get("m"))/v_layerThickness_[i]; }
+	alti = alti + Length(v_layerThickness_[i],"m");
+      }
+      numLayer_ = ires;
+      opacityout0=getDryOpacity(nc);
+      numLayer_ = ires+1;
+      opacityout1=getDryOpacity(nc);      
+      numLayer_ = numlayerold;
+      return opacityout0+(opacityout1-opacityout0)*fractionLast;
+  }
+}
 Opacity RefractiveIndexProfile::getDryOpacity(unsigned int nc)
 {
   if(!chanIndexIsValid(nc)) return Opacity(-999.0);
@@ -548,12 +567,6 @@ Opacity RefractiveIndexProfile::getDryOpacity(unsigned int nc)
   return Opacity(kv);
 }
 
-Opacity RefractiveIndexProfile::getDryOpacity(unsigned int spwid,
-                                              unsigned int nc)
-{
-  if(!spwidAndIndexAreValid(spwid, nc)) return Opacity(-999.0);
-  return getDryOpacity(v_transfertId_[spwid] + nc);
-}
 
 Opacity RefractiveIndexProfile::getAverageDryOpacity(unsigned int spwid)
 {

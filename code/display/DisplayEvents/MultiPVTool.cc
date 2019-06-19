@@ -284,10 +284,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			if ( selected_regions.size( ) > 0 ) {
 				std::string errMsg_;
 				std::map<String,bool> processed;
-				DisplayData *dd = 0;
-				List<DisplayData*> *dds = pd_->displayDatas( );
-				for ( ListIter<DisplayData *> ddi(*dds); ! ddi.atEnd( ); ++ddi ) {
-					dd = ddi.getRight( );
+				for ( auto dd : pd_->displayDatas( ) ) {
 					MSAsRaster *msar = dynamic_cast<MSAsRaster*>(dd);
 					if ( msar == 0 ) continue;
 					for ( pvlinelist::iterator iter = selected_regions.begin(); iter != selected_regions.end(); ++iter ) {
@@ -793,13 +790,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if(!itsCurrentWC->pixToLin(lin, pixmax)) return;		// (unlikely)
 		if(wldOk) wldOk = itsCurrentWC->linToWorld(trc, lin);
 
-		DisplayData *dd = 0;
-		List<DisplayData*> *dds = pd_->displayDatas( );
-
 		std::string errMsg_;
 		std::map<String,bool> processed;
-		for ( ListIter<DisplayData *> ddi(*dds); ! ddi.atEnd( ); ++ddi ) {
-			dd = ddi.getRight( );
+		for ( auto dd : pd_->displayDatas( ) ) {
 
 			PrincipalAxesDD* padd = dynamic_cast<PrincipalAxesDD*>(dd);
 			if (padd==0) continue;

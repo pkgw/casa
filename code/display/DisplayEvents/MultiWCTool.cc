@@ -36,26 +36,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // (Required) default constructor.
 	MultiWCTool::MultiWCTool() :
 		DisplayTool(),
-		itsWCListIter(0),
 		itsCurrentWC(0),
 		itsEventHandlersRegistered(false) {
-		itsWCListIter = new ListIter<WorldCanvas *>(&itsWCList);
 	}
 
 	MultiWCTool::MultiWCTool(const Display::KeySym &keysym, bool enable_events ) :
 		DisplayTool(keysym),
-		itsWCListIter(0),
 		itsCurrentWC(0),
 		itsEventHandlersRegistered(false) {
-		itsWCListIter = new ListIter<WorldCanvas *>(&itsWCList);
 		if ( enable_events ) enable();
 	}
 
 	MultiWCTool::~MultiWCTool() {
 		MultiWCTool::disable();
-		if (itsWCListIter) {
-			delete itsWCListIter;
-		}
 	}
 
 // (Required) copy constructor.
@@ -69,8 +62,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void MultiWCTool::addWorldCanvas(WorldCanvas &worldcanvas) {
-		itsWCListIter->toEnd();
-		itsWCListIter->addRight(&worldcanvas);
+		itsWCList.push_back( &worldcanvas );
 		if (itsEventHandlersRegistered) {
 			worldcanvas.addPositionEventHandler(*this);
 			worldcanvas.addMotionEventHandler(*this);
@@ -79,82 +71,63 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void MultiWCTool::removeWorldCanvas(WorldCanvas &worldcanvas) {
-		itsWCListIter->toStart();
-		while (!itsWCListIter->atEnd()) {
-			if (itsWCListIter->getRight() == &worldcanvas) {
-				itsWCListIter->removeRight();
-				if (itsEventHandlersRegistered) {
-					worldcanvas.removePositionEventHandler(*this);
-					worldcanvas.removeMotionEventHandler(*this);
-					worldcanvas.removeRefreshEventHandler(*this);
-				}
-				break;
-			}
-			(*itsWCListIter)++;
+		std::list<WorldCanvas*> orig = itsWCList;
+		std::list<WorldCanvas*> removed;
+		itsWCList.clear( );
+		std::partition_copy( orig.begin( ), orig.end( ),
+							 std::back_inserter(removed),
+							 std::back_inserter(itsWCList),
+							 [&](WorldCanvas *wc){return wc == &worldcanvas;} );
+		if ( removed.size( ) > 0 && itsEventHandlersRegistered ) {
+			worldcanvas.removePositionEventHandler(*this);
+			worldcanvas.removeMotionEventHandler(*this);
+			worldcanvas.removeRefreshEventHandler(*this);
 		}
 	}
 
 	void MultiWCTool::addWorldCanvases(PanelDisplay* pdisp) {
-		itsWCListIter->toEnd();
-		pdisp->myWCLI->toStart();
-		while (!(pdisp->myWCLI->atEnd())) {
-			WorldCanvas* wcanvas = pdisp->myWCLI->getRight();
-			itsWCListIter->addRight(wcanvas);
-			if (itsEventHandlersRegistered) {
-				wcanvas->addPositionEventHandler(*this);
-				wcanvas->addMotionEventHandler(*this);
-				wcanvas->addRefreshEventHandler(*this);
-			}
-			(*(pdisp->myWCLI))++;
-		}
+		pdisp->wcsApply( [&]( WorldCanvas *wcanvas ) {
+							itsWCList.push_back(wcanvas);
+							if (itsEventHandlersRegistered) {
+								wcanvas->addPositionEventHandler(*this);
+								wcanvas->addMotionEventHandler(*this);
+								wcanvas->addRefreshEventHandler(*this);
+							}
+			} );
 	}
 
 	void MultiWCTool::removeWorldCanvases(PanelDisplay* pdisp) {
 		disable();
 
-		itsWCListIter->toStart();
-		while (!itsWCListIter->atEnd()) {
-			Bool found=false;
-			pdisp->myWCLI->toStart();
-			while (!pdisp->myWCLI->atEnd()) {
-				WorldCanvas* wcanvas = pdisp->myWCLI->getRight();
-				if (itsWCListIter->getRight() == wcanvas) {
-					found=true;
-					break;
-				}
-				(*(pdisp->myWCLI))++;
-			}
-			if(found) itsWCListIter->removeRight();
-			else (*itsWCListIter)++;
+		std::list<WorldCanvas*> orig = itsWCList;
+		itsWCList.clear( );
+		for ( auto wc : orig ) {
+			Bool found = false;
+			pdisp->wcsApply( [&]( WorldCanvas *wcanvas ) { found = found || wcanvas == wc; } );
+			if( ! found ) itsWCList.push_back(wc);
 		}
 
 		enable();
 	}
 
 	void MultiWCTool::enable() {
-		if (!itsEventHandlersRegistered) {
+		if ( ! itsEventHandlersRegistered ) {
 			itsEventHandlersRegistered = true;
-			itsWCListIter->toStart();
-			while (!itsWCListIter->atEnd()) {
-				WorldCanvas *wc = itsWCListIter->getRight();
+			for ( auto wc : itsWCList ) {
 				wc->addPositionEventHandler(*this);
 				wc->addMotionEventHandler(*this);
 				wc->addRefreshEventHandler(*this);
-				(*itsWCListIter)++;
 			}
 		}
 	}
 
 	void MultiWCTool::disable() {
-		if (itsEventHandlersRegistered) {
+		if ( itsEventHandlersRegistered ) {
 			itsEventHandlersRegistered = false;
-			itsWCListIter->toStart();
-			while (!itsWCListIter->atEnd()) {
-				WorldCanvas *wc = itsWCListIter->getRight();
+			for ( auto wc : itsWCList ) {
 				wc->removePositionEventHandler(*this);
 				wc->removeMotionEventHandler(*this);
 				wc->removeRefreshEventHandler(*this);
-				(*itsWCListIter)++;
 			}
 		}
 	}

@@ -313,14 +313,12 @@ namespace casa {
 			bool handled = true;
 			if ( ! handled ) {
 				handled = true;
-				ConstListIter<WorldCanvas*> wcl = panel_->displayPanel()->panelDisplay()->myWCLI;
-				wcl.toStart( );
+
 				// really need to change this to find the world canvas for the display data that is currently visible...
-				// instead of just taking the first one in the list...  <<<see also QtDisplayPanel.cc>>>
-				WorldCanvas *wc_ = 0;
-				if(wcl.len() > 0) {
-					wc_ = wcl.getRight( );
-				}
+				// instead of just taking the first one in the list...	<<<see also QtDisplayPanel.cc>>>
+				WorldCanvas* wc_ = 0;
+				panel_->displayPanel()->panelDisplay()->wcsApply( [&](WorldCanvas *w) { if ( wc_ == 0 ) wc_ = w; } );
+
 				if ( wc_ ) {
 					if ( type.compare("CASA region file") == 0 ) {
 						load_crtf_regions( wc_, path );

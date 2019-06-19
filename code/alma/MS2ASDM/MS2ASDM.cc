@@ -90,20 +90,7 @@ namespace casa {
     runningId_p(0),
     currentUid_p("uid://X0/X0/X0"),
     telName_p(""),
-    // the Id to Tag maps
-    asdmStationId_p(Tag()),
-    asdmAntennaId_p(Tag()),
-    asdmSpectralWindowId_p(Tag()),
-    asdmPolarizationId_p(Tag()),
-    asdmProcessorId_p(Tag()),
-    asdmFieldId_p(Tag()),
-    asdmEphemerisId_p(Tag()),
-    asdmDataDescriptionId_p(Tag()),
-    asdmStateId_p(Tag()),
-    asdmConfigDescriptionId_p(Tag()),
-    asdmSBSummaryId_p(Tag()),
-    asdmExecBlockId_p(Tag()),
-    // other maps
+    // the maps with defaults
     asdmFeedId_p(-1),
     asdmSourceId_p(-1),
     asdmPointingModelId_p(-1)
@@ -575,7 +562,7 @@ namespace casa {
 	  }
 	  if(!found){
 	    ant.push_back(antenna1()(i));
-	    stateIdV.push_back( asdmStateId_p(stateId()(i)) );
+	    stateIdV.push_back( asdmStateId_p[stateId()(i)] );
 	  }
 	  found = false;
 	  for(uInt j=0;j<ant.size();j++){
@@ -586,7 +573,7 @@ namespace casa {
 	  }
 	  if(!found){
 	    ant.push_back(antenna2()(i));
-	    stateIdV.push_back( asdmStateId_p(stateId()(i)) );
+	    stateIdV.push_back( asdmStateId_p[stateId()(i)] );
 	  }
 	  i++;
 	}
@@ -623,7 +610,7 @@ namespace casa {
       uInt PolId = dataDescription().polarizationId()(theDDId);
       uInt numStokesMS = polarization().numCorr()(PolId);
 
-      asdm::PolarizationRow* PR = (ASDM_p->getPolarization()).getRowByKey(asdmPolarizationId_p(PolId));
+      asdm::PolarizationRow* PR = (ASDM_p->getPolarization()).getRowByKey(asdmPolarizationId_p[PolId]);
       uInt numStokes = PR->getNumCorr();
       Array<Int> corrT = polarization().corrType()(PolId);
       vector<StokesParameterMod::StokesParameter> crossPolProducts = PR->getCorrType();
@@ -1130,7 +1117,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmStationId_p.define(String(name), tR->getStationId());
+          asdmStationId_p[String(name)] = tR->getStationId();
       }
       else{
 	os << LogIO::SEVERE << "Duplicate station in MS Antenna table: " << irow << LogIO::POST;
@@ -1184,8 +1171,8 @@ namespace casa {
 
       Tag stationId;
       String sId = antenna().station()(irow); // the station name
-      if(asdmStationId_p.isDefined(sId)){
-	stationId = asdmStationId_p(sId);
+      if(asdmStationId_p.find(sId) != asdmStationId_p.end( )){
+          stationId = asdmStationId_p[sId];
       }
       else{
 	os << LogIO::SEVERE << "Internal error: No station ID defined for station name " << sId << LogIO::POST;
@@ -1199,7 +1186,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmAntennaId_p.define(irow, tR->getAntennaId());
+          asdmAntennaId_p[irow] = tR->getAntennaId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Antenna table :" << irow << LogIO::POST;
@@ -1291,7 +1278,7 @@ namespace casa {
 
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmSpectralWindowId_p.define(irow, tR->getSpectralWindowId());
+          asdmSpectralWindowId_p[irow] = tR->getSpectralWindowId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Spectral Window table :" << irow << LogIO::POST;
@@ -1337,12 +1324,11 @@ namespace casa {
 
 	Int spwId = source().spectralWindowId()(irow);
 	Tag spectralWindowId;
-	if(!asdmSpectralWindowId_p.isDefined(spwId)){
+	if( asdmSpectralWindowId_p.find(spwId) == asdmSpectralWindowId_p.end( ) ){
 	  os << LogIO::SEVERE << "Undefined SPW id " << spwId << " in MS Source table row "<< irow << LogIO::POST;
 	  return false;
-	}
-	else{
-	  spectralWindowId = asdmSpectralWindowId_p(spwId);
+	} else {
+	  spectralWindowId = asdmSpectralWindowId_p[spwId];
 	}
 	string code = source().code()(irow).c_str();
 	if(code=="" || code==" "){
@@ -1396,9 +1382,9 @@ namespace casa {
 	if(tR2 != tR){ // did not lead to the creation of a new tag
 	  os << LogIO::WARN << "Duplicate MS Source table row " << irow << ", source id " << sId << LogIO::POST;
 	}
-	if(!asdmSourceId_p.isDefined(sId)){
+	if( asdmSourceId_p.find(sId) == asdmSourceId_p.end( ) ){
 	  int souId = tR2->getSourceId();
-	  asdmSourceId_p.define(sId, souId);
+	  asdmSourceId_p[sId] = souId;
 	}
       } // end loop over source table
     } // id if source table exists
@@ -1558,7 +1544,7 @@ namespace casa {
 
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmPolarizationId_p.define(irow, tR->getPolarizationId());
+          asdmPolarizationId_p[irow] = tR->getPolarizationId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS Polarization table :" << irow << LogIO::POST;
@@ -1795,8 +1781,8 @@ namespace casa {
 	tR2 = tT.add(tR);
 
 	if(tR2 == tR){ // adding this row caused a new tag to be defined
-	  // enter tag into the map
-	  asdmProcessorId_p.define(irow, tR->getProcessorId());
+            // enter tag into the map
+            asdmProcessorId_p[irow] = tR->getProcessorId();
 	}
 	else{
 	  os << LogIO::WARN << "Duplicate row in MS Processor table :" << irow << LogIO::POST;
@@ -1819,7 +1805,7 @@ namespace casa {
       tR = tT.newRow(modeId, processorType, processorSubType);
       tT.add(tR);
       // enter tag into the map connecting it to "-1"
-      asdmProcessorId_p.define(-1, tR->getProcessorId());
+      asdmProcessorId_p[-1] = tR->getProcessorId();
     } // end if
 
     EntityId theUid(getCurrentUid());
@@ -1919,8 +1905,8 @@ namespace casa {
       tR->setTime(ASDMArrayTime(field().timeQuant()(irow).getValue("s")));
 
       Int sId = field().sourceId()(irow);
-      if(asdmSourceId_p.isDefined(sId)){
-	tR->setSourceId(asdmSourceId_p(sId));	
+      if ( asdmSourceId_p.find(sId) != asdmSourceId_p.end( ) ) {
+          tR->setSourceId(asdmSourceId_p[sId]);	
       }
       else if(sId!=-1){ // -1 means "no source"
 	os << LogIO::WARN << "Undefined source id " << sId << " in MS field table row " << irow << LogIO::POST;
@@ -1942,7 +1928,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmFieldId_p.define(irow, tR->getFieldId());
+          asdmFieldId_p[irow] = tR->getFieldId();
       }
       else{
 	if(sId == tR2->getSourceId()){ // if also the Source ID agrees, we really have a duplication
@@ -1955,7 +1941,7 @@ namespace casa {
 	if(tR2 == tR){ // adding this row caused a new tag to be defined
 	  os << LogIO::WARN << "Duplicate row in MS Field table :" << irow << endl
 	     << "   appended \"_B\" to field name for second occurrence. New field name: " << fieldName << LogIO::POST;
-	  asdmFieldId_p.define(irow, tR->getFieldId());
+	  asdmFieldId_p[irow] = tR->getFieldId();
 	}
 	else{
 	  os << LogIO::SEVERE << "Duplicate row in MS Field table :" << irow << LogIO::POST;
@@ -2050,8 +2036,8 @@ namespace casa {
       // parameters of the new feed row
       Tag antennaId;
       Int aid = feed().antennaId()(irow);
-      if(asdmAntennaId_p.isDefined(aid)){
-	antennaId = asdmAntennaId_p(aid);
+      if( asdmAntennaId_p.find(aid) != asdmAntennaId_p.end( ) ){
+          antennaId = asdmAntennaId_p[aid];
       }
       else{
 	os << LogIO::SEVERE << "Undefined antenna id " << aid << " in MS feed table row "<< irow << LogIO::POST;
@@ -2134,15 +2120,15 @@ namespace casa {
       if(spwid == -1){ // this means the MS Feed row is valid for all SPWs => need to insert same row for each SPW!
 	// loop over all SPWs
 	for(Int ispw=0; ispw<(Int)spectralWindow().nrow(); ispw++){
-	  if(asdmSpectralWindowId_p.isDefined(ispw)){
-	    spectralWindowId = asdmSpectralWindowId_p(ispw);
+	  if( asdmSpectralWindowId_p.find(ispw) != asdmSpectralWindowId_p.end( ) ){
+	    spectralWindowId = asdmSpectralWindowId_p[ispw];
 	    spwIdV.push_back(spectralWindowId); 
 	  }
 	}  
       }
-      else if(asdmSpectralWindowId_p.isDefined(spwid)){
-	spectralWindowId = asdmSpectralWindowId_p(spwid);
-	spwIdV.push_back(spectralWindowId); // just one entry
+      else if( asdmSpectralWindowId_p.find(spwid) != asdmSpectralWindowId_p.end( ) ){
+          spectralWindowId = asdmSpectralWindowId_p[spwid];
+          spwIdV.push_back(spectralWindowId); // just one entry
       }
       else{
 	os << LogIO::SEVERE << "Undefined SPW id " << spwid << " in MS feed table row "<< irow << LogIO::POST;
@@ -2182,16 +2168,16 @@ namespace casa {
 
       int asdmFId = tR->getFeedId(); // the determination of the feed id is done internally by the add() method
       Int fId = feed().feedId()(irow);
-      if(asdmFeedId_p.isDefined(fId)){ // there is already a mapping
-	if(asdmFId!=asdmFeedId_p(fId)){ // but it doesn't agree with the newly defined id
+      if( asdmFeedId_p.find(fId) != asdmFeedId_p.end( ) ){ // there is already a mapping
+	if(asdmFId!=asdmFeedId_p[fId]){ // but it doesn't agree with the newly defined id
 	  os << LogIO::WARN << "Internal problem: field id map inconsistent for MS feed table row:" << irow 
-	     << ". MS FId " << fId << " is already mapped to ASDM FId" << asdmFeedId_p(fId)
+	     << ". MS FId " << fId << " is already mapped to ASDM FId" << asdmFeedId_p[fId]
 	     << " but should also be mapped to ASDM FId " << asdmFId << LogIO::POST;
 	}
       }
       else{
 	// enter id into the map
-	asdmFeedId_p.define(fId, asdmFId);
+	asdmFeedId_p[fId] = asdmFId;
       }
 
       // add the same row for the remaining SPW Ids in the vector accumulated above
@@ -2231,16 +2217,16 @@ namespace casa {
       Tag spectralWindowId;
       Int polId = dataDescription().polarizationId()(irow);
       Int spwId = dataDescription().spectralWindowId()(irow);
-      if(asdmPolarizationId_p.isDefined(polId)){
-	polOrHoloId = asdmPolarizationId_p(polId);
+      if( asdmPolarizationId_p.find(polId) != asdmPolarizationId_p.end( ) ){
+	polOrHoloId = asdmPolarizationId_p[polId];
       }
       else{
 	os << LogIO::SEVERE << "Inconsistent MS: undefined polarization id " << polId 
 	   << " in row " << irow << " of the DataDesc table." << LogIO::POST;
 	return false;
       }
-      if(asdmSpectralWindowId_p.isDefined(spwId)){
-	spectralWindowId = asdmSpectralWindowId_p(spwId);
+      if( asdmSpectralWindowId_p.find(spwId) != asdmSpectralWindowId_p.end( ) ){
+	spectralWindowId = asdmSpectralWindowId_p[spwId];
       }
       else{
 	os << LogIO::SEVERE << "Inconsistent MS: undefined SPW id " << spwId 
@@ -2255,7 +2241,7 @@ namespace casa {
       tR2 = tT.add(tR);
       if(tR2 == tR){ // adding this row caused a new tag to be defined
 	// enter tag into the map
-	asdmDataDescriptionId_p.define(irow, tR->getDataDescriptionId());
+	asdmDataDescriptionId_p[irow] = tR->getDataDescriptionId();
       }
       else{
 	os << LogIO::WARN << "Duplicate row in MS DataDesc table :" << irow << LogIO::POST;
@@ -2355,7 +2341,7 @@ namespace casa {
       // add the new row to the table
       tT.add(tR);
       // enter tag into the map
-      asdmStateId_p.define(-1, tR->getStateId());
+      asdmStateId_p[-1] = tR->getStateId();
     }
     else{ // MS State table exists
       for(uInt irow=0; irow<state().nrow(); irow++){
@@ -2395,7 +2381,7 @@ namespace casa {
 	
 	tR2 = tT.add(tR);
 	// enter tag into the map
-	asdmStateId_p.define(irow, tR2->getStateId());
+	asdmStateId_p[irow] = tR2->getStateId();
 	if(tR2 != tR){ // adding this row did not cause a new tag to be defined
 	  os << LogIO::WARN << "Duplicate row in MS State table :" << irow << LogIO::POST;
 	}
@@ -2445,7 +2431,7 @@ namespace casa {
 	vector< Int > feedIdV;
 	vector< int > nRecV;
 	vector< int > nChanV;
-	SimpleOrderedMap <Int, Int> antennaDone(-1);
+        MapWithDefault<Int, Int> antennaDone(-1);
 
 	uInt irow = mainTabRow;
 	// while ddid and feed id remain the same
@@ -2456,7 +2442,7 @@ namespace casa {
 	      ){
 	  Int aId = antenna1()(irow);
 	  //   if info for given antenna not yet filled
-	  if(!antennaDone.isDefined(aId)){
+	  if( antennaDone.find(aId) == antennaDone.end( ) ){
 	    //       get info for antenna and fill vectors
 	    aIdV.push_back(aId);
 	    Int spwId = dataDescription().spectralWindowId()(DDId);
@@ -2464,11 +2450,11 @@ namespace casa {
 	    feedIdV.push_back(f1Id);
 	    nRecV.push_back(feed().numReceptors()(f1Id)); 
 	    nChanV.push_back(spectralWindow().numChan()(spwId));
-	    antennaDone.define(aId, f1Id);
+	    antennaDone[aId] = f1Id;
 	  }
 	  aId = antenna2()(irow);
 	  //   if info for given antenna not yet filled
-	  if(!antennaDone.isDefined(aId)){
+	  if( antennaDone.find(aId) == antennaDone.end( ) ){
 	    //       get info for antenna and fill vectors
 	    aIdV.push_back(aId);
 	    Int spwId = dataDescription().spectralWindowId()(DDId);
@@ -2476,7 +2462,7 @@ namespace casa {
 	    feedIdV.push_back(f2Id);
 	    nRecV.push_back(feed().numReceptors()(f2Id)); 
 	    nChanV.push_back(spectralWindow().numChan()(spwId));
-	    antennaDone.define(aId, f2Id);
+	    antennaDone[aId] = f2Id;
 	  }
 	  irow++;
 	} // end while
@@ -2488,9 +2474,9 @@ namespace casa {
 	// create new rows in syscal table based on the vectors
 	for(uInt i=0; i<aIdV.size(); i++){
 	  // parameters of the new SysCal row
-	  Tag antennaId = asdmAntennaId_p(aIdV[i]);
-	  Tag spectralWindowId = asdmSpectralWindowId_p(SPWIdV[i]);
-	  int feedId = asdmFeedId_p(feedIdV[i]);
+	  Tag antennaId = asdmAntennaId_p[aIdV[i]];
+	  Tag spectralWindowId = asdmSpectralWindowId_p[SPWIdV[i]];
+	  int feedId = asdmFeedId_p[feedIdV[i]];
 	  int numReceptor = nRecV[i];
 	  int numChan = nChanV[i];
 
@@ -2505,9 +2491,9 @@ namespace casa {
     else{ // MS SysCal table exists
       for(uInt irow=0; irow<nSysCalRows; irow++){
 	// parameters of the new row
-	Tag antennaId = asdmAntennaId_p( sysCal().antennaId()(irow) );
+	Tag antennaId = asdmAntennaId_p[ sysCal().antennaId()(irow) ];
 	Int spwId = sysCal().spectralWindowId()(irow);
-	Tag spectralWindowId = asdmSpectralWindowId_p( spwId );
+	Tag spectralWindowId = asdmSpectralWindowId_p[ spwId ];
 	int feedId = sysCal().feedId()(irow);
 	ArrayTimeInterval timeInterval( ASDMTimeInterval(sysCal().timeQuant()(irow), sysCal().intervalQuant()(irow)) );
 
@@ -2882,12 +2868,12 @@ namespace casa {
       asdm::ConfigDescriptionRow* tR = 0;
       
       Tag procIdTag;
-      if(asdmProcessorId_p.isDefined(procId)){
-	procIdTag = asdmProcessorId_p(procId);
+      if(asdmProcessorId_p.find(procId) != asdmProcessorId_p.end()){
+	procIdTag = asdmProcessorId_p[procId];
       }
       else{
-	if(procId == dummyProcId && asdmProcessorId_p.isDefined(-1)){ // there is no MS Proc table and the main table is
-	  procIdTag = asdmProcessorId_p(-1);                          //   using wrong proc ids
+	if(procId == dummyProcId && asdmProcessorId_p.find(-1) != asdmProcessorId_p.end( )){ // there is no MS Proc table and the main table is
+	  procIdTag = asdmProcessorId_p[-1];                          //   using wrong proc ids
 	}
 	else{
 	  os << LogIO::SEVERE << "Internal error: undefined mapping for processor id " << procId << LogIO::POST;
@@ -2924,7 +2910,7 @@ namespace casa {
 	}	  
         ///////////
 
-	if(!asdmDataDescriptionId_p.isDefined(iDDId)){
+	if(asdmDataDescriptionId_p.find(iDDId) == asdmDataDescriptionId_p.end( )){
 	  os << LogIO::SEVERE << "Internal error: undefined mapping for data desc. id " << iDDId
 	     << " in main table row " << jrow << LogIO::POST;
 	  return false;
@@ -3005,7 +2991,7 @@ namespace casa {
 	    }
 	    if(!found){
 	      msAntennaIdV.push_back(aId);
-	      if(!asdmAntennaId_p.isDefined(aId)){
+	      if(asdmAntennaId_p.find(aId) == asdmAntennaId_p.end( )){
 		os << LogIO::SEVERE << "Internal error: undefined mapping for antenna1 id " << aId 
 		   << " in main table row " << irow << LogIO::POST;
 		return false;
@@ -3021,7 +3007,7 @@ namespace casa {
 	    }
 	    if(!found){
 	      msAntennaIdV.push_back(aId);
-	      if(!asdmAntennaId_p.isDefined(aId)){
+	      if(asdmAntennaId_p.find(aId) == asdmAntennaId_p.end( )){
 		os << LogIO::SEVERE << "Internal error: undefined mapping for antenna2 id " << aId 
 		   << " in main table row " << irow << LogIO::POST;
 		return false;
@@ -3042,7 +3028,7 @@ namespace casa {
 	    if(!found){
 	      msFeedKeyV.push_back(fKeyi);
 	      msFeedIdV.push_back(fIdi);
-	      if(!asdmFeedId_p.isDefined(fIdi)){
+	      if(asdmFeedId_p.find(fIdi) == asdmFeedId_p.end( )){
 		os << LogIO::SEVERE << "Internal error: undefined mapping for feed1 id " << fIdi
 		   << " in main table row " << irow << LogIO::POST;
 		return false;
@@ -3060,7 +3046,7 @@ namespace casa {
 	    if(!found){
 	      msFeedKeyV.push_back(fKeyi);
 	      msFeedIdV.push_back(fIdi);
-	      if(!asdmFeedId_p.isDefined(fIdi)){
+	      if(asdmFeedId_p.find(fIdi) == asdmFeedId_p.end( )){
 		os << LogIO::SEVERE << "Internal error: undefined mapping for feed2 id " << fIdi
 		   << " in main table row " << irow << LogIO::POST;
 		return false;
@@ -3073,18 +3059,18 @@ namespace casa {
 	    // sort the  antenna ids before entering them into the ConfigDescription table
 	  std::sort(msAntennaIdV.begin(), msAntennaIdV.end());
 	  for(uInt i=0; i<msAntennaIdV.size(); i++){
-	    antennaId.push_back(asdmAntennaId_p(msAntennaIdV[i]));
+              antennaId.push_back(asdmAntennaId_p[msAntennaIdV[i]]);
 	  }
 	  numAntenna = antennaId.size();
 	  
 	  // (there is just one DDId per config description in this scheme)
-	  dataDId.push_back(asdmDataDescriptionId_p(msDDIdV[0]));
+	  dataDId.push_back(asdmDataDescriptionId_p[msDDIdV[0]]);
 	  numDD = 1;
 	  
 	  // sort the feed ids before entering them into the ConfigDescription table
 	  std::sort(msFeedIdV.begin(), msFeedIdV.end());
 	  for(uInt i=0; i<msFeedIdV.size(); i++){
-	    feedId.push_back(asdmFeedId_p(msFeedIdV[i]));
+	    feedId.push_back(asdmFeedId_p[msFeedIdV[i]]);
 	  }
 	  numFeed = feedId.size();
 	  if(numAntenna>1){
@@ -3148,7 +3134,7 @@ namespace casa {
 	  
 	  tR2 = tT.add(tR);
 	  Tag newTag = tR2->getConfigDescriptionId();
-	  asdmConfigDescriptionId_p.define(mainTabRow, newTag); 
+	  asdmConfigDescriptionId_p[mainTabRow] = newTag;
 	  if(verbosity_p>1){
 	    cout << "Defined conf desc id for main table row " << mainTabRow << endl;
 	  }
@@ -3199,16 +3185,16 @@ namespace casa {
     
     asdm::ExecBlockRow* tER = 0;
 
-    SimpleOrderedMap <asdm::Tag, Double> execBlockStartTime(-1.); // map from SBSummaryID to current execblock start time
-    SimpleOrderedMap <asdm::Tag, Double> execBlockEndTime(-1.); // map from SBSummaryID to current execblock end time
-    SimpleOrderedMap <asdm::Tag, asdm::ConfigDescriptionRow*> correspConfigDescRow(0); // map from SBSummaryID to the 
+    MapWithDefault <asdm::Tag, Double> execBlockStartTime(-1.); // map from SBSummaryID to current execblock start time
+    MapWithDefault <asdm::Tag, Double> execBlockEndTime(-1.); // map from SBSummaryID to current execblock end time
+    MapWithDefault <asdm::Tag, asdm::ConfigDescriptionRow*> correspConfigDescRow(0); // map from SBSummaryID to the 
                                                                              // ConfigDescription row of current exec block
-    SimpleOrderedMap <asdm::Tag, Int> execBlockNumber(0); // map from SBSummaryID to current execblock number
-    SimpleOrderedMap <asdm::Tag, Int> obsIdFromSBSum(-1); // map from SBSummaryID to current obs ID
-    SimpleOrderedMap <asdm::Tag, Double> minBaseline(0.); // map from SBSummaryID to minimum baseline of current exec block
-    SimpleOrderedMap <asdm::Tag, Double> maxBaseline(0.); // map from SBSummaryID to maximum baseline of current exec block
+    MapWithDefault <asdm::Tag, Int> execBlockNumber(0); // map from SBSummaryID to current execblock number
+    MapWithDefault <asdm::Tag, Int> obsIdFromSBSum(-1); // map from SBSummaryID to current obs ID
+    MapWithDefault <asdm::Tag, Double> minBaseline(0.); // map from SBSummaryID to minimum baseline of current exec block
+    MapWithDefault <asdm::Tag, Double> maxBaseline(0.); // map from SBSummaryID to maximum baseline of current exec block
 
-    SimpleOrderedMap <Int, Int> firstFieldIdFromObsId(-1); // map from obsId to first field id (for the representative direction)
+    MapWithDefault <Int, Int> firstFieldIdFromObsId(-1); // map from obsId to first field id (for the representative direction)
 
     // unfortunately, we have to loop over the main table to get the information
 
@@ -3374,11 +3360,11 @@ namespace casa {
       vector< Angle > centerDirection;
       Int fId = fieldId()(mainTabRow);
       // an observation (and an SB) can have many fields. use the first one as representative direction
-      if(firstFieldIdFromObsId.isDefined(obsId)){
-	fId = firstFieldIdFromObsId(obsId);
+      if(firstFieldIdFromObsId.find(obsId) != firstFieldIdFromObsId.end( )){
+	fId = firstFieldIdFromObsId[obsId];
       }
       else{
-	firstFieldIdFromObsId.define(obsId,fId);
+	firstFieldIdFromObsId[obsId] = fId;
       } 
       ////MDirection theFieldDir = field().phaseDirMeas(fId,0);
       ////centerDirection.push_back( theFieldDir.getAngle( unitASDMAngle() ).getValue()(0) ); // RA
@@ -3406,13 +3392,13 @@ namespace casa {
 	if(verbosity_p>2){
 	  cout << "New SBSummary tag created: " << tR2 << endl;
 	}
-	if(asdmSBSummaryId_p.isDefined(sbKey)){
+	if( asdmSBSummaryId_p.find(sbKey) != asdmSBSummaryId_p.end( ) ){
 	  os << LogIO::WARN << "There is more than one scheduling block necessary for the obsid - freqBand pair (" 
 	     << obsId << ", " << bandNum << ").\n This can presently not yet be handled properly.\n" 
 	     << "(MS Main table row " << mainTabRow << ")" << LogIO::POST;
 	}
 	else{
-	  asdmSBSummaryId_p.define(sbKey, sBSummaryTag);
+        asdmSBSummaryId_p[sbKey] = sBSummaryTag;
 	}
       }
 
@@ -3421,37 +3407,34 @@ namespace casa {
       // Step 2: write exec block table
 
       // has the exec block been started already?
-      if(execBlockStartTime.isDefined(sBSummaryTag)){ // yes
+      if(execBlockStartTime.find(sBSummaryTag) != execBlockStartTime.end( )){ // yes
 
 	// continue accumulation of min and max baseline
 	Double baseLine = MVBaseline( (antenna().positionMeas()(antenna1()(mainTabRow))).getValue(),
 				      (antenna().positionMeas()(antenna2()(mainTabRow))).getValue()
 				      ).getLength().getValue(unitASDMLength());
-	if(baseLine>maxBaseline(sBSummaryTag)){
-	  maxBaseline.remove(sBSummaryTag);
-	  maxBaseline.define(sBSummaryTag, baseLine);
+	if(baseLine>maxBaseline[sBSummaryTag]){
+        maxBaseline[sBSummaryTag] = baseLine;
 	}
-	else if(baseLine<minBaseline(sBSummaryTag)){
-	  minBaseline.remove(sBSummaryTag);
-	  minBaseline.define(sBSummaryTag, baseLine);
+	else if(baseLine<minBaseline[sBSummaryTag]){
+        minBaseline[sBSummaryTag] = baseLine;
 	}
 
 	// is the exec block complete?
 	Double endT = timestampEndSecs(mainTabRow);
-	if(endT > execBlockEndTime(sBSummaryTag)){ // integration intervals may be different for different DD Ids, take max endT
-	  execBlockEndTime.remove(sBSummaryTag);
-	  execBlockEndTime.define(sBSummaryTag, endT);
+	if(endT > execBlockEndTime[sBSummaryTag]){ // integration intervals may be different for different DD Ids, take max endT
+        execBlockEndTime[sBSummaryTag] = endT;
 	}
 	if(verbosity_p>2){
-	  cout << "interval = " << endT - execBlockStartTime(sBSummaryTag) << ", duration == " <<  durationSecs << endl;
+	  cout << "interval = " << endT - execBlockStartTime[sBSummaryTag] << ", duration == " <<  durationSecs << endl;
 	}
 
-	if(endT - execBlockStartTime(sBSummaryTag) >= durationSecs){ // yes, it is complete
+	if(endT - execBlockStartTime[sBSummaryTag] >= durationSecs){ // yes, it is complete
 	  // parameters for a new row
   
-	  ArrayTime startTime = ASDMArrayTime(execBlockStartTime(sBSummaryTag));
+	  ArrayTime startTime = ASDMArrayTime(execBlockStartTime[sBSummaryTag]);
 	  ArrayTime endTime = ASDMArrayTime(endT);
-	  int execBlockNum = execBlockNumber(sBSummaryTag);
+	  int execBlockNum = execBlockNumber[sBSummaryTag];
 	  EntityRef execBlockUID; // to be filled with the EntityRef of the containing ASDM 
 	  try{
 	    execBlockUID = EntityRef(asdmUID_p, "", "ASDM", asdmVersion_p);
@@ -3487,13 +3470,13 @@ namespace casa {
 	  ////EntityRef sbSummary = sbSummaryUID;
 	  EntityRef sessionReference = sbSummaryUID;
 	  ////string schedulerMode = "CASA exportasdm"; //???
-	  Length baseRangeMin = Length( minBaseline(sBSummaryTag) );
-	  Length baseRangeMax = Length( maxBaseline(sBSummaryTag) );
+	  Length baseRangeMin = Length( minBaseline[sBSummaryTag] );
+	  Length baseRangeMax = Length( maxBaseline[sBSummaryTag] );
 	  Length baseRmsMinor = Length(0); // ???
 	  Length baseRmsMajor = Length(0); // ???
 	  Angle basePa = Angle(0); // ???
 	  bool aborted = false;
-	  asdm::ConfigDescriptionRow* cDR = correspConfigDescRow(sBSummaryTag);
+	  asdm::ConfigDescriptionRow* cDR = correspConfigDescRow[sBSummaryTag];
 	  int numAntenna = cDR->getNumAntenna();
 	  vector< Tag > antennaId = cDR->getAntennaId();
 
@@ -3512,20 +3495,26 @@ namespace casa {
 	    os << LogIO::SEVERE << "Internal error: attempt to store duplicate exec block row." << LogIO::POST;
 	    return false;
 	  }
-	  asdmExecBlockId_p.define(execBlockStartTime(sBSummaryTag), tER->getExecBlockId());
+	  asdmExecBlockId_p[execBlockStartTime[sBSummaryTag]] = tER->getExecBlockId();
 
 	  if(verbosity_p>2){
-	    cout << "eblock id defined in loop 1 for start time " << setprecision(13) << execBlockStartTime(sBSummaryTag) << endl;
-	    cout << "                                  end time " << setprecision(13) << execBlockEndTime(sBSummaryTag) << endl;
+	    cout << "eblock id defined in loop 1 for start time " << setprecision(13) << execBlockStartTime[sBSummaryTag] << endl;
+	    cout << "                                  end time " << setprecision(13) << execBlockEndTime[sBSummaryTag] << endl;
 	  }
 
 	  // undefine the mapping for this Tag since the ExecBlock was completed
-	  execBlockStartTime.remove(sBSummaryTag);
-	  execBlockEndTime.remove(sBSummaryTag);
-	  correspConfigDescRow.remove(sBSummaryTag);
-	  obsIdFromSBSum.remove(sBSummaryTag);
-	  minBaseline.remove(sBSummaryTag);
-	  maxBaseline.remove(sBSummaryTag);
+      auto startptr = execBlockStartTime.find(sBSummaryTag);
+	  if ( startptr != execBlockStartTime.end( ) ) execBlockStartTime.erase(startptr);
+      auto endptr = execBlockEndTime.find(sBSummaryTag);
+	  if ( endptr != execBlockEndTime.end( ) ) execBlockEndTime.erase(endptr);
+      auto corptr = correspConfigDescRow.find(sBSummaryTag);
+	  if ( corptr != correspConfigDescRow.end( ) ) correspConfigDescRow.erase(corptr);
+	  auto sumptr = obsIdFromSBSum.find(sBSummaryTag);
+	  if ( sumptr != obsIdFromSBSum.end( ) ) obsIdFromSBSum.erase(sumptr);
+	  auto minptr = minBaseline.find(sBSummaryTag);
+	  if ( minptr != minBaseline.end( ) ) minBaseline.erase(minptr);
+	  auto maxptr = maxBaseline.find(sBSummaryTag);
+	  if ( maxptr != maxBaseline.end( ) ) maxBaseline.erase(maxptr);
 	  
 	}
 // 	else{ // no, it is not complete	 
@@ -3534,50 +3523,51 @@ namespace casa {
       else{// no, it has not been started, yet
 
 	// check if there is another exec block which started at the same time
-	for(uInt i=0; i<execBlockStartTime.ndefined(); i++){
-	  if(execBlockStartTime.getVal(i) == timestampStartSecs(mainTabRow)){
-	    os << LogIO::SEVERE << "Observation of different frequency bands at the same time and under the same observation ID is not supported by the ASDM."
-	     << "\n  Please split out the different spectral bands into individual MSs and process separately." << LogIO::POST;
-	    return false;
-	  }
-	}
+          for ( auto iter = execBlockStartTime.begin( ); iter != execBlockStartTime.end( ); ++iter ) {
+              if ( iter->second == timestampStartSecs(mainTabRow) ){
+                  os << LogIO::SEVERE << "Observation of different frequency bands at the same time and under the same observation ID is not supported by the ASDM."
+                     << "\n  Please split out the different spectral bands into individual MSs and process separately." << LogIO::POST;
+                  return false;
+              }
+          }
 
-	execBlockStartTime.define(sBSummaryTag, timestampStartSecs(mainTabRow));
+          execBlockStartTime[sBSummaryTag] = timestampStartSecs(mainTabRow);
+          execBlockEndTime[sBSummaryTag] = timestampEndSecs(mainTabRow); // will be updated
 
-	execBlockEndTime.define(sBSummaryTag, timestampEndSecs(mainTabRow)); // will be updated
 	Int oldNum = 0;
-	if(execBlockNumber.isDefined(sBSummaryTag)){ 
+    auto numptr = execBlockNumber.find(sBSummaryTag);
+	if( numptr != execBlockNumber.end( ) ){ 
 	  // increment exec block number
-	  oldNum = execBlockNumber(sBSummaryTag);
-	  execBlockNumber.remove(sBSummaryTag);
+        oldNum = numptr->second;
+        execBlockNumber.erase(numptr);
 	}
-	execBlockNumber.define(sBSummaryTag, oldNum + 1); // sequential numbering starting at 1
+	execBlockNumber[sBSummaryTag] = oldNum + 1; // sequential numbering starting at 1
 
 	if(verbosity_p>2){
 	  cout << "eblock number " << oldNum + 1 << " defined for start time " << setprecision (9) << timestampStartSecs(mainTabRow) << endl;
 	}
 
-	obsIdFromSBSum.define(sBSummaryTag, obsId); // remember the obsId for this exec block
+	obsIdFromSBSum[sBSummaryTag] = obsId; // remember the obsId for this exec block
 	
-	if(!asdmConfigDescriptionId_p.isDefined(mainTabRow)){
+	if( asdmConfigDescriptionId_p.find(mainTabRow) == asdmConfigDescriptionId_p.end( ) ){
 	  os << LogIO::SEVERE << "Internal error: undefined config description id for MS main table row "
 	     << mainTabRow << LogIO::POST;
 	  return false;
 	}  
-	asdm::ConfigDescriptionRow* cDR = (ASDM_p->getConfigDescription()).getRowByKey(asdmConfigDescriptionId_p(mainTabRow));
+	asdm::ConfigDescriptionRow* cDR = (ASDM_p->getConfigDescription()).getRowByKey(asdmConfigDescriptionId_p[mainTabRow]);
 	if(cDR ==0){
 	  os << LogIO::SEVERE << "Internal error: no row in ASDM ConfigDesc Table for ConfigDescriptionId stored for main table row "
 	     << mainTabRow << LogIO::POST;
 	  return false;
 	}
-	correspConfigDescRow.define(sBSummaryTag, cDR); // remember the config description row for this exec block
+	correspConfigDescRow[sBSummaryTag] = cDR; // remember the config description row for this exec block
 
 	// start accumulation of min and max baseline
 	Double bLine = MVBaseline( (antenna().positionMeas()(antenna1()(mainTabRow))).getValue(),
 				   (antenna().positionMeas()(antenna2()(mainTabRow))).getValue()
 				   ).getLength().getValue(unitASDMLength());
-	minBaseline.define(sBSummaryTag, bLine);
-	maxBaseline.define(sBSummaryTag, bLine);
+	minBaseline[sBSummaryTag] = bLine;
+	maxBaseline[sBSummaryTag] = bLine;
       }
       // skip rest of this timestamp
       Double tStamp = time()(mainTabRow);
@@ -3590,14 +3580,14 @@ namespace casa {
     } // end loop over main table
 
     // are there pending exec blocks?
-    while(execBlockStartTime.ndefined()>0){ // yes
-      Tag sBSummaryTag = execBlockStartTime.getKey(0); 
+    while(execBlockStartTime.size()>0){ // yes
+      Tag sBSummaryTag = execBlockStartTime.begin( )->first;
       tR = tT.getRowByKey(sBSummaryTag);
-      Int obsId = obsIdFromSBSum(sBSummaryTag);
+      Int obsId = obsIdFromSBSum[sBSummaryTag];
       // parameters for a new row      
-      ArrayTime startTime = ASDMArrayTime(execBlockStartTime(sBSummaryTag));
-      ArrayTime endTime = ASDMArrayTime(execBlockEndTime(sBSummaryTag));
-      int execBlockNum = execBlockNumber(sBSummaryTag);
+      ArrayTime startTime = ASDMArrayTime(execBlockStartTime[sBSummaryTag]);
+      ArrayTime endTime = ASDMArrayTime(execBlockEndTime[sBSummaryTag]);
+      int execBlockNum = execBlockNumber[sBSummaryTag];
       EntityRef execBlockUID; // to be filled with the EntityRef of the containing ASDM 
       try{
 	execBlockUID = EntityRef(asdmUID_p, "", "ASDM", asdmVersion_p);
@@ -3635,13 +3625,13 @@ namespace casa {
       ////EntityRef sbSummary = tR->getSbSummaryUID();
       EntityRef sessionReference = tR->getSbSummaryUID();
       ////string schedulerMode = "CASA exportasdm"; //???
-      Length baseRangeMin = Length( minBaseline(sBSummaryTag) );
-      Length baseRangeMax = Length( maxBaseline(sBSummaryTag) );
+      Length baseRangeMin = Length( minBaseline[sBSummaryTag] );
+      Length baseRangeMax = Length( maxBaseline[sBSummaryTag] );
       Length baseRmsMinor = Length(0); // ???
       Length baseRmsMajor = Length(0); // ???
       Angle basePa = Angle(0); // ???
       bool aborted = false;
-      asdm::ConfigDescriptionRow* cDR = correspConfigDescRow(sBSummaryTag);
+      asdm::ConfigDescriptionRow* cDR = correspConfigDescRow[sBSummaryTag];
       int numAntenna = cDR->getNumAntenna();
       vector< Tag > antennaId = cDR->getAntennaId();
       
@@ -3660,16 +3650,18 @@ namespace casa {
 	os << LogIO::SEVERE << "Internal error: attempt to store duplicate exec block row." << LogIO::POST;
 	return false;
       }
-      asdmExecBlockId_p.define(execBlockStartTime(sBSummaryTag), tER->getExecBlockId());
+      asdmExecBlockId_p[execBlockStartTime[sBSummaryTag]] = tER->getExecBlockId();
 
       if(verbosity_p>2){
-	cout << "eblock id defined in loop 2 for start time " << setprecision(13) << execBlockStartTime(sBSummaryTag) << endl;
-	cout << "                                  end time " << setprecision(13) << execBlockEndTime(sBSummaryTag) << endl;
+	cout << "eblock id defined in loop 2 for start time " << setprecision(13) << execBlockStartTime[sBSummaryTag] << endl;
+	cout << "                                  end time " << setprecision(13) << execBlockEndTime[sBSummaryTag] << endl;
       }
 
       // undefine the mapping for this Tag since the ExecBlock was completed
-      execBlockStartTime.remove(sBSummaryTag); // need only remove from the map what is tested
-      execBlockEndTime.remove(sBSummaryTag); 
+      auto startptr = execBlockStartTime.find(sBSummaryTag); // need only remove from the map what is tested
+      if ( startptr != execBlockStartTime.end( ) ) execBlockStartTime.erase(startptr);
+      auto endptr = execBlockEndTime.find(sBSummaryTag);
+      if ( endptr != execBlockEndTime.end( ) ) execBlockEndTime.erase(endptr);
 
     }
 
@@ -3785,14 +3777,14 @@ namespace casa {
       Double rowTime = timestampStartSecs(mainTabRow);
       
       //   asdmExecBlockId_p defined for this timestamp?
-      if(asdmExecBlockId_p.isDefined(rowTime)){ // a new exec block has started
+      if(asdmExecBlockId_p.find(rowTime) != asdmExecBlockId_p.end( )){ // a new exec block has started
 	// is there a previous exec block?
 	if(execBlockId != Tag()){
 	  //  finish the old exec block
 	}
 	// set up new exec block
 	// parameters for the first scan
-	execBlockId = asdmExecBlockId_p(rowTime);
+	execBlockId = asdmExecBlockId_p[rowTime];
 	asdm::ExecBlockRow* EBR = (ASDM_p->getExecBlock()).getRowByKey(execBlockId);
 	scanNumber = 1; // ASDM scan numbering starts at 1
         subscanNumber = 1; // dito for subscans
@@ -3822,9 +3814,9 @@ namespace casa {
 	Double rowTimeB = rowTime;
 	while(rowTime - rowTimeB < searchIntervalSecs && mainTabRowB>0){
 	  rowTimeB = timestampStartSecs(--mainTabRowB);
-	  if(asdmExecBlockId_p.isDefined(rowTimeB)){
+	  if(asdmExecBlockId_p.find(rowTimeB) != asdmExecBlockId_p.end( )){
 	    foundEBStart = true;
-	    execBlockId = asdmExecBlockId_p(rowTimeB);
+	    execBlockId = asdmExecBlockId_p[rowTimeB];
 	    asdm::ExecBlockRow* EBR = (ASDM_p->getExecBlock()).getRowByKey(execBlockId);
 	    scanNumber = 1; // ASDM scan numbering starts at 1
 	    subscanNumber = 1; // dito for subscans
@@ -3862,45 +3854,44 @@ namespace casa {
 	
 	// find all DDIds in the time between now and end of subscan
 	uInt irow = mainTabRow;
-	SimpleOrderedMap< Int, uInt > subScanDDIdStartRows(0);
+	std::map< Int, uInt > subScanDDIdStartRows;
 	while(irow<nMainTabRows &&
 	      timestampStartSecs(irow) < subScanEnd){
 	  Int ddId = dataDescId()(irow);
-	  if(!subScanDDIdStartRows.isDefined(ddId)){
-	    subScanDDIdStartRows.define(ddId, irow);    // memorize their start rows
+	  if(subScanDDIdStartRows.find(ddId) == subScanDDIdStartRows.end( )){
+          subScanDDIdStartRows[ddId] = irow;    // memorize their start rows
 	  }
 	  irow++;
 	}
 	
 	// for each DDId found
-	for(uInt ddIndex=0; ddIndex < subScanDDIdStartRows.ndefined(); ddIndex++){
-	  Int theDDId = subScanDDIdStartRows.getKey(ddIndex);
+	for( auto iter = subScanDDIdStartRows.begin( ); iter != subScanDDIdStartRows.end( ); ++iter ){
+	  Int theDDId = iter->first;
 
 	  // find all FieldIds in the time between now and now+subscanduration or until Scan ends	  
 	  uInt irow2 = mainTabRow;
-	  SimpleOrderedMap< Int, uInt > subScanStartRows(0);
-	  SimpleOrderedMap< Int, uInt > subScanEndRows(0);
+	  std::map< Int, uInt > subScanStartRows;
+	  std::map< Int, uInt > subScanEndRows;
 	  while(irow2<nMainTabRows &&
 		timestampStartSecs(irow2) < subScanEnd){
 	    Int ddId = dataDescId()(irow2);
 	    Int fId = fieldId()(irow2);
 	    if(ddId == theDDId){
-	      if(subScanEndRows.isDefined(fId)){
-		subScanEndRows.remove(fId);
-		subScanEndRows.define(fId, irow2);    // update end row
-	      }
-	      if(!subScanStartRows.isDefined(fId)){
-		subScanStartRows.define(fId, irow2);    // memorize their start rows
-		subScanEndRows.define(fId, irow2);    // and end rows
-	      }
+            if( subScanEndRows.find(fId) != subScanEndRows.end( ) ){
+                subScanEndRows[fId] = irow2;    // update end row
+            }
+            if( subScanStartRows.find(fId) == subScanStartRows.end( ) ){
+                subScanStartRows[fId] = irow2;    // memorize their start rows
+                subScanEndRows[fId] = irow2;    // and end rows
+            }
 	    }
 	    irow2++;
 	  }
 	  // for each FieldId
-	  for(uInt fIndex=0; fIndex < subScanStartRows.ndefined(); fIndex++){
-	    Int theFId = subScanStartRows.getKey(fIndex);
-	    uInt startRow = subScanStartRows(theFId);
-	    uInt endRow = subScanEndRows(theFId);
+	  for( auto iter = subScanStartRows.begin( ); iter != subScanStartRows.end( ); ++iter ) {
+	    Int theFId = iter->first;
+	    uInt startRow = subScanStartRows[theFId];
+	    uInt endRow = subScanEndRows[theFId];
 	    // write subscan
 	    // parameters for the new SubScan table row
 	    ArrayTime subScanStartArrayTime = ASDMArrayTime(timestampStartSecs(startRow)); 
@@ -3913,12 +3904,12 @@ namespace casa {
 	    // parameters for the corresponding new Main table row
 	    ArrayTime mainTime = ASDMArrayTime((timestampStartSecs(startRow) + timestampEndSecs(endRow))/2.); // midpoint!
 
-	    if(!asdmConfigDescriptionId_p.isDefined(startRow)){
+	    if(asdmConfigDescriptionId_p.find(startRow) == asdmConfigDescriptionId_p.end( )){
 	      os << LogIO::SEVERE << "Internal error: undefined config description id for MS main table row "
 		 << startRow << LogIO::POST;
 	      return false;
 	    }  
-	    Tag configDescriptionId = asdmConfigDescriptionId_p(startRow);
+	    Tag configDescriptionId = asdmConfigDescriptionId_p[startRow];
 	    asdm::ConfigDescriptionRow* CDR = (ASDM_p->getConfigDescription()).getRowByKey(configDescriptionId);
 	    if(CDR ==0){
 	      os << LogIO::SEVERE << "Internal error: no row in ASDM ConfigDesc Table for ConfigDescriptionId stored for main table row "
@@ -3926,7 +3917,7 @@ namespace casa {
 	      return false;
 	    }
 
-	    Tag fieldIdTag = asdmFieldId_p(theFId);
+	    Tag fieldIdTag = asdmFieldId_p[theFId];
 	    int numAntenna = CDR->getNumAntenna();
 	    TimeSamplingMod::TimeSampling timeSampling = TimeSamplingMod::INTEGRATION;
 	    Interval interval = ASDMInterval(intervalQuant()(startRow).getValue("s")); // data sampling interval
@@ -4087,8 +4078,8 @@ namespace casa {
 	asdm::PointingModelRow* tR2 = 0;
 
 	tR2 = tT.add(tR);
-	if(!asdmPointingModelId_p.isDefined(antennaId)){
-	  asdmPointingModelId_p.define(antennaId, tR2->getPointingModelId() );
+	if(asdmPointingModelId_p.find(antennaId) == asdmPointingModelId_p.end( )){
+        asdmPointingModelId_p[antennaId] = tR2->getPointingModelId();
 	}
 
       } // end loop over receptors
@@ -4128,7 +4119,7 @@ namespace casa {
     // loop over MS antenna table
     for(Int aId=0; aId<(Int)antenna().nrow(); aId++){
 
-      if(!asdmAntennaId_p.isDefined(aId)){
+      if(asdmAntennaId_p.find(aId) == asdmAntennaId_p.end( )){
 	os << LogIO::SEVERE << "Internal error: no tag defined for antenna id " 
 	   << aId << LogIO::POST;
 	return false;
@@ -4156,7 +4147,7 @@ namespace casa {
 	uInt numRows=1; // number of rows with contiguous timestamps for this antenna 
 	
 	// parameters for the next pointing table row
-	Tag antennaId = asdmAntennaId_p(aId);
+	Tag antennaId = asdmAntennaId_p[aId];
 	ArrayTimeInterval timeInterval( ASDMTimeInterval( pointing().timeQuant()(firstRow), pointing().intervalQuant()(firstRow)) );
 
 	bool pointingTracking = pointing().tracking()(firstRow);
@@ -4280,7 +4271,7 @@ namespace casa {
 	  }
 	} 
 
-	int pointingModelId = asdmPointingModelId_p(antennaId);
+	int pointingModelId = asdmPointingModelId_p[antennaId];
         double endTimeMJD = timeInterval.getStartInMJD() + timeInterval.getDurationInDays();
 
 	// check if there are more rows for this antenna with adjacent time intervals

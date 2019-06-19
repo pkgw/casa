@@ -23,7 +23,7 @@
 #ifndef FlagAgentBase_H_
 #define FlagAgentBase_H_
 
-#include <casa/Containers/OrderedMap.h>
+#include <map>
 // needed for antennaPairMap, polarizationMap, VisMapper, FlagMapper, etc. which should
 // probably be split from the rather large FlagDataHandler.h
 #include <flagging/Flagging/FlagDataHandler.h>
@@ -253,16 +253,16 @@ protected:
 	void indigen(std::vector<casacore::uInt> &index, casacore::uInt size);
 
 	// For checking ids
-	bool find(casacore::Vector<casacore::Int> &validRange, casacore::Int element);
+	bool find(const casacore::Vector<casacore::Int> &validRange, casacore::Int element);
 
 	// For checking ranges
-	bool find(casacore::Matrix<casacore::Double> &validRange, casacore::Double element);
+	bool find(const casacore::Matrix<casacore::Double> &validRange, casacore::Double element);
 
 	// For checking pairs
-	bool find(casacore::Matrix<casacore::Int> &validPairs, casacore::Int element1, casacore::Int element2);
+	bool find(const casacore::Matrix<casacore::Int> &validPairs, casacore::Int element1, casacore::Int element2);
 
 	// For checking columns
-	bool find(casacore::Block<int> &columns, int col);
+	bool find(const casacore::Block<int> &columns, int col);
 
 	// Check if a given number is nan (for visibilities,gains and Tsys primarily)
 	bool isNaN(casacore::Double number);
@@ -317,7 +317,7 @@ protected:
 
 	// Common used members that must be accessible to derived classes
 	FlagDataHandler *flagDataHandler_p;
-	casacore::LogIO *logger_p;
+	std::unique_ptr<casacore::LogIO> logger_p;
 	casacore::String agentName_p;
 	casacore::String summaryName_p;
 	casacore::String mode_p;
@@ -381,7 +381,7 @@ private:
 	casacore::Matrix<casacore::Int> baselineList_p;
 	casacore::Matrix<casacore::Double> uvwList_p;
 	casacore::Bool uvwUnits_p;
-	casacore::OrderedMap<casacore::Int, casacore::Vector<casacore::Int> > polarizationList_p;
+    std::map<casacore::Int, casacore::Vector<casacore::Int> > polarizationList_p;
 	casacore::Vector<casacore::Int> observationList_p;
 	casacore::Vector<casacore::Int> scanIntentList_p;
 
