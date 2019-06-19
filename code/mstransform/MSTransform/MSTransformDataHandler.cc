@@ -738,9 +738,7 @@ Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
         std::map<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
 
         // Iterate over the ordered map to fill the vector maps
-        ConstMapIter<Int, Vector<Vector<Int> > > mi(corrmap);
         for ( auto mi = corrmap.begin( ); mi != corrmap.end( ); ++mi)
-        for (mi.toStart(); !mi.atEnd(); ++mi)
         {
             Int pol = mi->first;
             std::vector<int> correlations_idx = mi->second[0].tovector();
