@@ -627,8 +627,9 @@ PyObject *map_vector_numpy( const std::vector<std::string> &vec ) {
     initialize_numpy( );
     unsigned int size = 0;
     for ( const auto &elem : vec ) {
-	unsigned int slen = elem.size();
-	if ( slen > size ) size = slen;
+        unsigned int slen = elem.size();
+        if ( slen > size )
+            size = slen;
     }
     npy_intp dim[1];
     dim[0] = vec.size();
@@ -647,8 +648,9 @@ PyObject *map_array_numpy( const std::vector<std::string> &vec, const std::vecto
     initialize_numpy( );
     unsigned int size = 0;
     for ( const auto &elem : vec ) {
-	unsigned int slen = elem.size();
-	if ( slen > size ) size = slen;
+        unsigned int slen = elem.size();
+        if ( slen > size )
+            size = slen;
     }
     npy_intp *dim = new npy_intp[shape.size()];
     copy( shape.begin(), shape.end(), dim );
