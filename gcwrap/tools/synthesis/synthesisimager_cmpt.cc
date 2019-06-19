@@ -628,8 +628,11 @@ bool synthesisimager::makesdpsf()
   try {
 
     //if( ! itsImager ) itsImager = new SynthesisImager();
+//std::cout << "makesdpdf()<0>" << std::flush << std::endl;
     itsImager = makeSI();
+//std::cout << "makesdpdf()<1>" << std::flush << std::endl;
     itsImager->makeSdImage(true);
+//std::cout << "makesdpdf()<2>" << std::flush << std::endl;
 
   } catch  (AipsError x) {
     RETHROW(x);

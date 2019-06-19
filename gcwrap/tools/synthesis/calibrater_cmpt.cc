@@ -150,8 +150,8 @@ calibrater::selectvis(const ::casac::variant& time,
     LogIO os(LogOrigin("calibrater", "setdata"), logSink_p);
     os << "Beginning selectvis--(MSSelection version)-------" << LogIO::POST;
     
-    casacore::MRadialVelocity mmStart = new casacore::MRadialVelocity(casa::casaQuantity(mstart));
-    casacore::MRadialVelocity mmStep = new casacore::MRadialVelocity(casa::casaQuantity(mstep));
+    const casacore::MRadialVelocity mmStart(casa::casaQuantity(mstart));
+    const casacore::MRadialVelocity mmStep(casa::casaQuantity(mstep));
     
     // run reset because setdata is going to delete itsCI's VisSet,
     //  which existing VisJones objects rely upon

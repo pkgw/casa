@@ -5,12 +5,11 @@ depending on whether the shared libraries
 are cached or not.
 =========================================
 
-]0;IPython: atmosphere/attool_testIPython 5.1.0 -- An enhanced Interactive Python.
+]0;IPython: CAS-11140-update-atm-for-casa-5.6/testIPython 5.1.0 -- An enhanced Interactive Python.
 
-CASA 5.1.0-32  ID c3ceb4437ff916fc88aa8040765c1f8667368426 -- Common Astronomy Software Applications
+CASA 5.5.0-0  ID -- Common Astronomy Software Applications
 
-*** Loading ATNF ASAP Package...
-*** ... ASAP (rev# unknown ) import complete ***
+2019-03-29 20:40:13	INFO	::casa	CASA Version 5.5.0-0  ID
 Test of constructor Atmosphere(altitude,temperature,pressure,maxAltitude,humidity,dTempdH,dP,dPm,h0,MIDLAT_SUMMER)
 BASIC ATMOSPHERIC PARAMETERS TO GENERATE REFERENCE ATMOSPHERIC PROFILE
   
@@ -26,12 +25,12 @@ Tropospheric lapse rate:      -5.6 K/km
 Atmospheric type:             MIDLATSUMMER
 User-defined temperature profile: OFF
 
-Built atmospheric profile with 24 layers.
+Built atmospheric profile with 23 layers.
 
 
 
 Test: getGroundWH2O()
-Guessed water content:  1.60356893859 mm
+Guessed water content:  1.59989986077 mm
 
 Test: getProfile()
 altitude	thickness	temperature	watermassdensity	pressure
@@ -49,27 +48,26 @@ altitude	thickness	temperature	watermassdensity	pressure
 3544.1548907 	888.717483124 	252.961141565 	0.000171285545574 	493.057312863
 4801.81890072 	1257.66401002 	246.951273384 	0.000100156768927 	426.884539736
 6697.6726578 	1895.85375708 	238.121423636 	4.55293515022e-05 	343.581040963
-8400.39466164 	1702.72200384 	230.056516558 	1.8517445092e-05 	266.005869374
-10400.3946616 	2000.0 	222.0 	7.33775373215e-06 	207.546380359
-12400.3946616 	2000.0 	216.2 	2.69940874244e-06 	156.254791927
-14400.3946616 	2000.0 	215.7 	9.93056979661e-07 	113.820173959
-18150.3946616 	3750.0 	216.7 	2.35871707217e-07 	83.1868318906
-22150.3946616 	4000.0 	220.0 	3.39805412203e-08 	53.2945400581
-26150.3946616 	4000.0 	224.7 	4.59876617058e-09 	29.5339127106
-30400.3946616 	4250.0 	231.0 	5.84667507679e-10 	16.300184048
-36400.3946616 	6000.0 	239.85 	4.50847171267e-11 	9.01270214752
-42400.3946616 	6000.0 	252.2 	2.24463589393e-12 	4.465400318
+10107.2084339 	3409.53577609 	224.756516558 	1.20855415227e-05 	234.930022736
+12107.2084339 	2000.0 	216.2 	3.12559879309e-06 	156.254791927
+14107.2084339 	2000.0 	215.7 	1.14984353733e-06 	113.820173959
+17857.2084339 	3750.0 	216.7 	2.73111778818e-07 	83.1868318906
+21857.2084339 	4000.0 	220.0 	3.93454822002e-08 	53.2945400581
+25857.2084339 	4000.0 	224.7 	5.32483197764e-09 	29.5339127106
+30107.2084339 	4250.0 	231.0 	6.76976416217e-10 	16.300184048
+36107.2084339 	6000.0 	239.85 	5.22028158325e-11 	9.01270214752
+42107.2084339 	6000.0 	252.2 	2.59902516085e-12 	4.465400318
 
 Test of initSpectralWindow()
 1 channel(s) in band 0
 
 Test: getOpacity()
- - dryOpacity  0.0221086626098 wetOpacity  0.011451264425 neper
+ - dryOpacity  0.0219053934378 wetOpacity  0.0114968403022 neper
 
-AbsCoeff getAbsCoeff() (3 first layers): 1.96702345103e-06 1.89862777944e-06 1.81585278848e-06
+AbsCoeff getAbsCoeff() (3 first layers): 1.99620940176e-06 1.92701107811e-06 1.84325715929e-06
 
 Test of SkyBrightness calculations
-SkyBrightness = 21.8934243963 K  TEBB
+SkyBrightness = 21.8884641656 K  TEBB
 
 ==========================================================
 Test with spectral data
@@ -77,23 +75,23 @@ Test of initSpectralWindow
 2  bands  4 channels(s)
 Test: Opacity getOpacitySpec
 band 0
- - dryOpacity  0.0223240390653  wet Opacity  0.0114020118433 mm-1
- - dryOpacity  0.0221803898669  wet Opacity  0.0114348320508 mm-1
- - dryOpacity  0.022038354366  wet Opacity  0.0114677093826 mm-1
- - dryOpacity  0.0218997427678  wet Opacity  0.0115006411695 mm-1
+ - dryOpacity  0.0221188841019  wet Opacity  0.0114479084437 mm-1
+ - dryOpacity  0.0219767628953  wet Opacity  0.0114807145694 mm-1
+ - dryOpacity  0.0218356898248  wet Opacity  0.0115127715395 mm-1
+ - dryOpacity  0.0216982524878  wet Opacity  0.0115441980447 mm-1
 band 1
- - dryOpacity  0.0203240527734  wet Opacity  0.0119338702613 mm-1
- - dryOpacity  0.0202197562424  wet Opacity  0.0119675924098 mm-1
- - dryOpacity  0.0201177743063  wet Opacity  0.0120013722009 mm-1
- - dryOpacity  0.0200181187729  wet Opacity  0.0120352090001 mm-1
+ - dryOpacity  0.0201359004681  wet Opacity  0.0119482305247 mm-1
+ - dryOpacity  0.0200323928162  wet Opacity  0.011980288522 mm-1
+ - dryOpacity  0.0199311549142  wet Opacity  0.0120125127622 mm-1
+ - dryOpacity  0.0198322092293  wet Opacity  0.0120448961929 mm-1
 
 Test of SkyBrightness calculations
-Band 0  channel  0 TebbSky =  21.9208210662 K
-Band 0  channel  1 TebbSky =  21.9025109897 K
-Band 0  channel  2 TebbSky =  21.8848234565 K
-Band 0  channel  3 TebbSky =  21.8683489397 K
-Band 1  channel  0 TebbSky =  21.7368157901 K
-Band 1  channel  1 TebbSky =  21.7328718423 K
-Band 1  channel  2 TebbSky =  21.7297740721 K
-Band 1  channel  3 TebbSky =  21.7275274255 K
+Band 0  channel  0 TebbSky =  21.9154395319 K
+Band 0  channel  1 TebbSky =  21.8976698875 K
+Band 0  channel  2 TebbSky =  21.8796556768 K
+Band 0  channel  3 TebbSky =  21.8623465976 K
+Band 1  channel  0 TebbSky =  21.710218291 K
+Band 1  channel  1 TebbSky =  21.7051089052 K
+Band 1  channel  2 TebbSky =  21.7009286614 K
+Band 1  channel  3 TebbSky =  21.6976805525 K
 

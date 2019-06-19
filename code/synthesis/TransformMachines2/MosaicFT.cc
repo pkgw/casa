@@ -413,7 +413,7 @@ void MosaicFT::prepGridForDegrid(){
   
   logIO() << LogIO::DEBUGGING << "Starting FFT of image" << LogIO::POST;
    // Now do the FFT2D in place
-  LatticeFFT::cfft2d(*lattice);
+  ft_p.c2cFFT(*lattice);
   ///////////////////////
   /*{
     CoordinateSystem ftCoords(image->coordinates());
@@ -612,7 +612,7 @@ void MosaicFT::finalizeToSky()
       //Don't need the double-prec grid anymore...
       griddedWeight2.resize();
     }
-    LatticeFFT::cfft2d(*weightLattice, false);
+    ft_p.c2cFFT(*weightLattice, false);
     //Get the stokes right
     CoordinateSystem coords=convWeightImage_p->coordinates();
     Int stokesIndex=coords.findCoordinate(Coordinate::STOKES);
@@ -1726,7 +1726,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
 	    << "Starting FFT and scaling of image" << LogIO::POST;
     if(useDoubleGrid_p){
       ArrayLattice<DComplex> darrayLattice(griddedData2);
-      LatticeFFT::cfft2d(darrayLattice,false);
+      ft_p.c2cFFT(darrayLattice,false);
       griddedData.resize(griddedData2.shape());
       convertArray(griddedData, griddedData2);
       
@@ -1739,7 +1739,7 @@ ImageInterface<Complex>& MosaicFT::getImage(Matrix<Float>& weights,
     else{
       arrayLattice = new ArrayLattice<Complex>(griddedData);
       lattice=arrayLattice;
-      LatticeFFT::cfft2d(*lattice,false);
+      ft_p.c2cFFT(*lattice,false);
     }
    {////Do the grid correction
       Int inx = lattice->shape()(0);

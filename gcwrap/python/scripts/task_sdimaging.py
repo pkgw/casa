@@ -447,6 +447,10 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         # it should be called after infiles are registered to imager
         self._configure_map_property()
         
+        print '-----------------------------------------------------------'
+        print 'imager_param = '
+        print self.imager_param
+        print '-----------------------------------------------------------'
         casalog.post("Using phasecenter \"%s\""%(self.imager_param['phasecenter']), "INFO")
 
         self.imager.defineimage(**self.imager_param)#self.__get_param())

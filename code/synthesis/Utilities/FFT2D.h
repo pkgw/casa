@@ -36,6 +36,10 @@ namespace casa{
    ///This is a not a full generic   fft class...use casacore::FFTServer or casacore::LatticeFFT for that
    //This is optimized with minimal memcopies for 2D FFTs 
    //Assumes 2D x, y array to be even numbers (e.g (100, 200)...will not work for (101, 200))
+   //IMPORTANT: do not use the same FFT2D object for different sizes of x,y. Create
+   //another one if necessary as the plan or butterfly in fftpack, for x,y shape is kept
+   //and reused so may give wrong result if the FFT2D is used for x',y' shape !!
+   //
    typedef unsigned long long ooLong;
  public:
    FFT2D(casacore::Bool useFFTW=true);
@@ -67,14 +71,17 @@ namespace casa{
    static void complexConvert(casacore::DComplex*& srcD, casacore::Complex*& scr,  const ooLong len, const casacore::Bool down=false);
  private:
    //casacore::FFTW stuff
-   fftwf_plan planC2C_p;
+   fftwf_plan planC2C_forw_p;
+   fftwf_plan planC2C_back_p;
    fftwf_plan planR2C_p;
-   fftw_plan planC2CD_p;
+   fftw_plan planC2CD_forw_p;
+   fftw_plan planC2CD_back_p;
    casacore::Bool useFFTW_p;
    //casacore::FFTPack stuff
    std::vector<casacore::Float> wsave_p;
    casacore::Int lsav_p;
    //casacore::FFTW fft1_p;
+   casacore::Long nx_p, ny_p;
  };
 };// end of namespace casa
 #endif

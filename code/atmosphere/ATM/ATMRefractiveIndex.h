@@ -946,6 +946,7 @@ private:
                                                    double pressure,
                                                    double frequency);
 
+  unsigned int vpIndex(double nu);
   double linebroadening(double frequency,
                         double temperature,
                         double pressure,
