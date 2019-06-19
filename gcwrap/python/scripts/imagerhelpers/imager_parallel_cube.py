@@ -80,7 +80,7 @@ class PyParallelCubeSynthesisImager():
         nnodes = len(self.listOfNodes)
         if nnodes > fid0nchan:
            self.modifiedListOfNodes = self.listOfNodes[0:fid0nchan]
-           casalog.post("Nchan = "+str(fid0nchan)+", Will use only "+str(len(self.modifiedListOfNodes))+" nodes out of "+str(nnodes-1), "WARN");
+           casalog.post("Nchan = "+str(fid0nchan)+", Will use only "+str(len(self.modifiedListOfNodes))+" nodes out of "+str(nnodes), "WARN");
         else:
            self.modifiedListOfNodes = self.listOfNodes[:]
 
