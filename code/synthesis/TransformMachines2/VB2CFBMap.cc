@@ -68,15 +68,15 @@ using namespace vi;
 				       const vi::VisBuffer2& vb,
 				       const int& row)
     {
-      if (doPointing_p)
-	{
-	  if (phaseGradCalculator_p->needsNewPhaseGrad(pointingOffset, vb, 0))
-	    {
-	      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
-	      newPhaseGradComputed_p=true;
-	    }
-	}
-      else
+      // if (doPointing_p)
+      // 	{
+      // 	  if (phaseGradCalculator_p->needsNewPhaseGrad(pointingOffset, vb, 0))
+      // 	    {
+      // 	      phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
+      // 	      newPhaseGradComputed_p=true;
+      // 	    }
+      // 	}
+      // else
 	{
 	  phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,cfb,vb, 0);
 	}
