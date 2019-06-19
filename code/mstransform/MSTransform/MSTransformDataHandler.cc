@@ -696,31 +696,31 @@ void MSTransformDataHandler::selectArray(const String& subarray)
 // -----------------------------------------------------------------------
 Bool MSTransformDataHandler::selectCorrelations(const String& corrstr)
 {
-	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
+    LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
 
-	corrString_p = corrstr;
-	const Bool areSelecting = corrstr != "" && corrstr != "*";
+    corrString_p = corrstr;
+    const Bool areSelecting = corrstr != "" && corrstr != "*";
 
-	// Get correlation slices
-	MSSelection mssel1;
-	if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
-	mssel1.getCorrSlices(corrSlices_p, &ms_p);
+    // Get correlation slices
+    MSSelection mssel1;
+    if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
+    mssel1.getCorrSlices(corrSlices_p, &ms_p);
 
-	// Get correlation map
-	// jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
-	//                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
-	MSSelection mssel2;
-	if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
-	return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
+    // Get correlation map
+    // jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
+    //                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
+    MSSelection mssel2;
+    if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
+    return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
-											const MeasurementSet& ms,
-											Vector<Vector<Int> >& outToIn,
-											const Bool areSelecting)
+Bool MSTransformDataHandler::getCorrMaps(MSSelection& mssel,
+                                         const MeasurementSet& ms,
+                                         Vector<Vector<Int> >& outToIn,
+                                         const Bool areSelecting)
 {
 
     // ?? This always returns true!!!?!!
