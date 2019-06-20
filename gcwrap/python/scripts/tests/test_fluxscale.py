@@ -218,6 +218,35 @@ class fluxscale1_test(unittest.TestCase):
         self.assertTrue(os.path.exists(outtable))
         self.assertFalse(thisdict.has_key('0'))
 
+    def test_append(self):
+        '''Fluxscale test 1.8: test append=True: append to the existing fluxtable'''
+
+        tblocal = tbtool()
+        # Output(append)
+        outtable = self.msfile + '.test1.8.fcal'
+
+        fpath = os.path.join(datapath,self.reffile)
+        if os.path.lexists(fpath):        
+            shutil.copytree(fpath, outtable, symlinks=True)
+            tblocal.open(outtable)
+            nrowinit=tblocal.nrows() 
+            tblocal.close()
+        else:
+            self.fail('Data does not exist -> '+fpath)
+      
+        #input
+        gtable = self.gtable
+
+
+        thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
+                  transfer='1445*,1331*', append=True)
+        self.assertTrue(os.path.exists(outtable))
+        self.assertFalse(thisdict.has_key('0'))
+        tblocal.open(outtable)
+        nrowafter=tblocal.nrows() 
+        tblocal.close()
+        self.assertTrue(2*nrowinit==nrowafter)
+
 class fluxscale2_test(unittest.TestCase):
 
     def setUp(self):
