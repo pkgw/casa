@@ -92,7 +92,7 @@ namespace casa {
 //+
 // MeasurementSet NameList class
 //-
-class MSNameList {
+class MsNameList {
 
 public:
     typedef struct _MSDef   {
@@ -270,10 +270,7 @@ public:
 
     uInt    expectedNrow = 0;   // C++11 feature //
 
-    BaseClass()  { 
-        DefaultLocalMsName_  = DefaultLocalMsName(); 
-        DefaultRemoteMsName_ = DefaultRemoteMsName();
-    }
+    BaseClass()  { }
 
     ~BaseClass() { }
 
@@ -281,9 +278,6 @@ public:
     void TearDown() { }
 
 private:
-
-     String DefaultLocalMsName_;
-     String DefaultRemoteMsName_;
 
      //*
      // Programmer option:: 
@@ -977,7 +971,7 @@ public:
           ms.resync();
       }
       // Row //
-      uInt getNrow()   { return (nrow = hPointing.nrow()) ;  };
+      uInt getNrow()   { return (nRow = hPointing.nrow()) ;  };
       void appendRow(uInt AddCnt)  { hPointing.addRow(AddCnt);}
       void removeRow(uInt row)     { hPointing.removeRow(row);}
 
@@ -1029,7 +1023,7 @@ public:
              Array<Double> init_data1( Ipo, -0.1);
              Array<Double> init_data2( Ipo, -0.2);
              Array<Double> init_data3( Ipo, -0.3);
-             for (uInt row=0; row<nrow; row++)
+             for (uInt row=0; row<nRow; row++)
              {
                  pointingPointingOffset. setShape(row, Ipo);
                  pointingSourceOffset.   setShape(row, Ipo);
@@ -1091,7 +1085,7 @@ public:
               FILE *fp=fopen( fname.c_str(), "w");
               Double prevTime =getTime(0);
               Double intervalD =getInterval(0);
-              for(uInt row=0;row<nrow;row++)
+              for(uInt row=0;row<nRow;row++)
               {
                   uInt   antId    = getAntennaId(row);
                   Double time     = getTime(row);
@@ -1121,7 +1115,7 @@ private:
       void init()
       {      
            hPointing = ms.pointing();
-           nrow   = hPointing.nrow();
+           nRow   = hPointing.nrow();
 
            unique_ptr<casacore::ROMSPointingColumns>  colPt( new casacore::ROMSPointingColumns(hPointing) );
            columnPointing = std::move(colPt);
@@ -1148,7 +1142,7 @@ private:
    // local var. //
     casacore::MeasurementSet     ms;
     casacore::MSPointing         hPointing;
-    casacore::uInt               nrow;
+    casacore::uInt               nRow;
 
     std::unique_ptr<casacore::ROMSPointingColumns>   columnPointing;
 
@@ -1330,7 +1324,7 @@ public:
         ms.resync();
     }
     // Row //
-    uInt getNrow()               { return (nrow = ms.nrow()) ;  };
+    uInt getNrow()               { return (nRow = ms.nrow()) ;  };
     void appendRow(uInt AddCnt)  { ms.addRow(AddCnt); }
     void removeRow(uInt row)      { ms.removeRow(row); }
 
@@ -1353,7 +1347,7 @@ public:
         Double prevTime =getTime(0);
         Double intervalD =getInterval(0);
  
-        for(uInt row=0;row<nrow;row++)
+        for(uInt row=0;row<nRow;row++)
         {
             uInt   antId    = getAntennaId(row);
             Double time     = getTime(row);
@@ -1376,10 +1370,7 @@ public:
 
 private:
 
-    void init()
-    {
-        nrow     = ms.nrow();
-    }
+    void init() { nRow     = ms.nrow(); }
 
     void prepareColumns()
     {
@@ -1391,7 +1382,7 @@ private:
 
     // handle (in MS, directly connects to Columns)
      casacore::MeasurementSet     ms;
-     casacore::uInt               nrow;
+     casacore::uInt               nRow;
     // Columns //
      ScalarColumn<Int>    antenna1_col  ;
      ScalarColumn<Int>    antenna2_col  ;
@@ -1738,10 +1729,12 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 // PointingDirectionCalculator Class 
 // Constructor
 //-
-class TestMeasurementSet : public BaseClass
+class TestMeasurementSet : public BaseClass 
 {
 
 public:
+
+        MsNameList  MsNames;
 
 protected:
 
@@ -1793,16 +1786,15 @@ void TestMeasurementSet::test_constructor(String const name)
 
 TEST_F(TestMeasurementSet, variousConstructor )
 {
-    // MS name database //
-    MSNameList  MsList;
+
     TestDescription( "CALC Constructor by various MS " );
 
-    for(uInt m=0; m< MsList.count(); m++)
+    for(uInt m=0; m< MsNames.count(); m++)
     {
         FunctionalDescription( "CALC Constructor by various MS", 
-                               std::to_string(m)+". " + MsList.name(m).c_str()  );
-        String name =  MsList.name(m);
-        if ( MsList.isException(m))
+                               std::to_string(m)+". " + MsNames.name(m).c_str()  );
+        String name =  MsNames.name(m);
+        if ( MsNames.isException(m))
         {
             EXPECT_ANY_THROW( test_constructor(name) );
         }
@@ -1924,9 +1916,6 @@ class TestDirection : public BaseClass
 {
 public:
 
-        // Default Local MS name //
-          String         DefaultLocalMsName;
- 
         // Interpolation Mode //
           bool use_spline = false;
 
@@ -2015,8 +2004,6 @@ protected:
         {
             BaseClass::SetUp();
   
-            DefaultLocalMsName = BaseClass::DefaultLocalMsName();
-
             // SetUp Number of Anntena for TEST //
             msedit.tuneMS.setMaxAntenna(  preparedAntenna_ ); 
 
@@ -2081,7 +2068,7 @@ private:
 std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt antId )
 {
     printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, antId);
-    const String local_ms = DefaultLocalMsName;
+    const String local_ms = DefaultLocalMsName(); // from BaseClass //
 
     // Create Object //
         MeasurementSet ms( local_ms );
@@ -2248,14 +2235,13 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
 
    Interporatio Test in getDirection()  as;
 
-   (1) InterpolationListedItems performs works on Listed Parameter.
-   (2) InterpolationSingle      performs single condition on
-                        multiple antenna and multiple pointing columns 
-   (3) CoefficientOnColumnAndAntenna examines wheather spline coefficients  
+   (1) InterpolationListedItems performs, Listed Parameter being used.
+
+   (2) CoefficientOnColumnAndAntenna examines wheather spline coefficients  
                         by Antenna and Pointing-Column are normally stored.
-   (4) CompareInterpolation   examins to compare two results by
+   (3) CompareInterpolation   examins to compare two results by
                         Linear and Spline interpolation. 
-   (5) setDirectionColumn  probes wheather spline interpolation initialization is 
+   (4) setDirectionColumn  probes wheather spline interpolation initialization is 
                         performed based on a specified Poining-Column.
 
   -----------------------------------------------------------------------------*/
@@ -2267,12 +2253,14 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
  - Set of testing parameters are given
 ------------------------------------------------------------------------*/ 
 
+/* short description */
 # define P_DIRECTION        PointingDirectionCalculator::PtColID::DIRECTION
 # define P_TARGET           PointingDirectionCalculator::PtColID::TARGET
 # define P_POINTING_OFFSET  PointingDirectionCalculator::PtColID::POINTING_OFFSET
 # define P_SOURCE_OFFSET    PointingDirectionCalculator::PtColID::SOURCE_OFFSET
 # define P_ENCODER          PointingDirectionCalculator::PtColID::ENCODER
 
+/* Parameter list */
 typedef struct Parm {
     bool   use_spline;
     PointingDirectionCalculator::PtColID  pcol;
@@ -2286,8 +2274,6 @@ typedef struct Parm {
 
 std::vector<std::vector<ParamList> >   paramListS =
 {
-
-
     // Senario 0 (Big Ratio) //
     {
       {true,  P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     2.0E-06 },
@@ -2372,8 +2358,7 @@ std::vector<std::vector<ParamList> >   paramListS =
 //*******************************************
 TEST_F(TestDirection, InterpolationListedItems )
 {
-  TestDescription( "Interpolation by Listed condition." );
-    // Combiniation List of Pointing Interval and Main Interval //
+    TestDescription( "Interpolation by Listed condition." );
 
     ErrorStat  errstat;
     std::vector<Double> r_err = {0.0}; 
@@ -2479,7 +2464,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     //   creating 5 spline objects with specified Pointing Column.
     //-
 
-    const String local_ms = DefaultLocalMsName;
+    const String local_ms = DefaultLocalMsName();
 
     // Create Object //
     MeasurementSet ms( local_ms );
@@ -2734,7 +2719,7 @@ TEST_F(TestDirection, setDirectionColumn  )
       writeOnPointing();
 
     // MS and calc //
-      MeasurementSet ms( DefaultLocalMsName );
+      MeasurementSet ms( DefaultLocalMsName() );
       PointingDirectionCalculator calc(ms);
  
     // Test loop //
@@ -2765,7 +2750,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String local_ms = DefaultLocalMsName;     
+    const String local_ms = DefaultLocalMsName();     
 
     // Create Object //
     
@@ -2855,7 +2840,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    const String MsName = DefaultLocalMsName;    //  
+    const String MsName = DefaultLocalMsName();    //  
 
     // MS name for this Test //
 
@@ -2917,7 +2902,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String local_ms = DefaultLocalMsName;    //  
+    const String local_ms = DefaultLocalMsName();    //  
 
      // List all info on Pointing Table. //
      //   _List series. was Removed. 
@@ -3004,7 +2989,7 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    const String local_ms = DefaultLocalMsName;    //  
+    const String local_ms = DefaultLocalMsName();    //  
     
     // Create Object //
     
