@@ -201,7 +201,10 @@ public:
 
     // Implements PlotCanvas::setAxisScaleSortDirection().
     bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction);
-    std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis);
+    std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) const;
+
+    void setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format);
+    AngleFormat axisScaleAngleFormat(PlotAxis axis) const;
 
     // Implements PlotCanvas::axisReferenceValueSet().
     bool axisReferenceValueSet(PlotAxis axis) const;

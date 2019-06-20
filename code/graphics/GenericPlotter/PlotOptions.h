@@ -78,8 +78,16 @@ const PlotAxisBitset none_sides      = 0x0;
 enum PlotAxisScale {
     NORMAL,
     LOG10,        // logarithmic scale
+    ANGLE,        // display scale values as formatted angles
     DATE_MJ_SEC,  // display scale values as dates (modified julian seconds)
     DATE_MJ_DAY   // display scale values as dates (modified julian days)
+};
+
+// Enum for angle formats
+enum AngleFormat {
+	DECIMAL,  // Decimal Number
+	HMS,      // Hours Minutes Seconds
+	DMS       // Degrees Arcminutes Arcseconds
 };
 
 // Enum for cursors.

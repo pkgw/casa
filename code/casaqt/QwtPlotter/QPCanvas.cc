@@ -437,7 +437,7 @@ void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
     }
 }
 
-std::pair<bool,SortDirection> QPCanvas::axisScaleSortDirection(PlotAxis axis) {
+std::pair<bool,SortDirection> QPCanvas::axisScaleSortDirection(PlotAxis axis) const {
 	const auto *scaleDiv = getAxisScaleDiv(QPOptions::axis(axis));
 	if (scaleDiv == nullptr) return std::make_pair(false,SortDirection::ASCENDING);
 	SortDirection direction {SortDirection::ASCENDING} ;
@@ -457,6 +457,14 @@ bool QPCanvas::setAxisScaleSortDirection(PlotAxis axis, SortDirection direction)
 	auto currentDirection = ok_direction.second;
 	if (direction != currentDirection ) invertAxis(axis);
 	return true;
+}
+
+// Sets/gets the angle format of the scale for the given axis
+void QPCanvas::setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format){
+	m_scaleDraws[QPOptions::axis(axis)]->setAngleFormat(format);
+}
+AngleFormat QPCanvas::axisScaleAngleFormat(PlotAxis axis) const {
+	return m_scaleDraws[QPOptions::axis(axis)]->angleFormat();
 }
 
 bool QPCanvas::axisReferenceValueSet(PlotAxis axis) const {

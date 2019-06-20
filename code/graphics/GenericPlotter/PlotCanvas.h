@@ -257,7 +257,11 @@ public:
     
     // Sets/gets the sort direction of the scale for the given axis
     virtual bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) = 0;
-    virtual std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) = 0;
+    virtual std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) const = 0;
+
+    // Sets/gets the angle format of the scale for the given axis
+    virtual void setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format) = 0;
+    virtual AngleFormat axisScaleAngleFormat(PlotAxis axis) const = 0;
 
     // Convenience method for setting the axis scale for two axes at once.  May
     // reset tool stacks.

@@ -378,8 +378,15 @@ bool QPAxis::setAxisScaleSortDirection(PlotAxis /*axis*/, SortDirection /*direct
 	return false;
 }
 
-std::pair<bool,SortDirection> QPAxis::axisScaleSortDirection(PlotAxis /*axis*/){
+std::pair<bool,SortDirection> QPAxis::axisScaleSortDirection(PlotAxis /*axis*/) const {
 	return std::make_pair(false,SortDirection::ASCENDING);
+}
+
+void QPAxis::setAxisScaleAngleFormat(PlotAxis /*axis*/, AngleFormat /*format*/){
+	//
+}
+AngleFormat QPAxis::axisScaleAngleFormat(PlotAxis /*axis*/) const {
+	return AngleFormat::DECIMAL;
 }
 
 
