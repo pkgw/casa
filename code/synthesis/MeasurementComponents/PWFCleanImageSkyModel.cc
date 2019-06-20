@@ -95,7 +95,7 @@ void PWFCleanImageSkyModel::makeApproxPSFs(SkyEquation& se){
   MakeApproxPSFAlgorithm makepsf ;
   Int rank;
   Bool allDone, assigned; 
-  OrderedMap <Int, Int> psfNo(0);
+  std::map<Int, Int> psfNo;
   Int gotten=0;
 
   try{
@@ -108,7 +108,7 @@ void PWFCleanImageSkyModel::makeApproxPSFs(SkyEquation& se){
        	//applicator.get(beam(psfNo(rank)));
 	Array<Float> psfArray;
 	applicator.get(psfArray);
-	PSF(psfNo(rank)).putSlice(psfArray, IPosition(4, 0, 0, 0, 0));	 
+	PSF(psfNo.at(rank)).putSlice(psfArray, IPosition(4, 0, 0, 0, 0));	 
 	++gotten;
 	/*if((*beam_p[psfNo(rank)])(0) == Float(-1.0)){
 	  os << "Model " << thismodel << "PSF formation failed "
@@ -132,7 +132,7 @@ void PWFCleanImageSkyModel::makeApproxPSFs(SkyEquation& se){
       Record image_container;
       cImage(thismodel).toRecord(errorString, image_container);
       applicator.put(image_container);
-      psfNo.define(rank, thismodel);
+      psfNo.insert( std::pair<Int,Int>(rank, thismodel) );
    
       //Serial transport execution
       applicator.apply(makepsf);
@@ -145,7 +145,7 @@ void PWFCleanImageSkyModel::makeApproxPSFs(SkyEquation& se){
       //applicator.get(beam(psfNo(rank)));
       Array<Float> psfArray;
       applicator.get(psfArray);
-      PSF(psfNo(rank)).putSlice(psfArray, IPosition(4, 0, 0, 0, 0));   
+      PSF(psfNo.at(rank)).putSlice(psfArray, IPosition(4, 0, 0, 0, 0));   
       /*if((*beam_p[psfNo(rank)])(0)== Float(-1.0)){
 	os << "Model "<< psfNo(rank) <<"Beam forming failed "<< LogIO::POST ;
 	}*/

@@ -25,9 +25,9 @@ queried via eg the slsearch task.
 <description>Files containing Splatalogue lists.
 
                      The downloaded files must be in a specific format
-		     for this task to succeed. Fro details, see the splattotable
-		     task pages on CASA Docs
-		     (https://casa.nrao.edu/casadocs/)
+                     for this task to succeed. Fro details, see the splattotable
+                     task pages on CASA Docs
+                     (https://casa.nrao.edu/casadocs/)
 </description>
             <value/>
             <example>["mysplat1.txt", "mysplat2,txt"]</example>

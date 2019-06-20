@@ -53,7 +53,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                default: ''= all fields
                  If field string is a non-negative integer, it is assumed to
                  be a field index otherwise, it is assumed to be a
-		 field name
+                 field name
                  field='0~2'; field ids 0,1,2
                  field='0,4,5~7'; field ids 0,4,5,6,7
                  field='3C286,3C295'; field named 3C286 and 3C295
@@ -78,7 +78,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                  spw='0:5~61'; spw 0, channels 5 to 61
                  spw='&lt;2';   spectral windows less than 2 (i.e. 0,1)
                  spw='0,10,3:3~45'; spw 0,10 all channels, spw 3,
-				    channels 3 to 45.
+                                    channels 3 to 45.
                  spw='0~2:2~6'; spw 0,1,2 with channels 2 through 6 in each.
                  For multiple MS input, a list of spw strings can be used:
                  spw=['0','0~3']; spw ids 0 for the first MS and 0-3 for the second
@@ -101,12 +101,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                    default: '' (all); examples,
                    timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
                    Note: if YYYY/MM/DD is missing date defaults to first
-			 day in data set
+                         day in data set
                    timerange='09:14:0~09:54:0' picks 40 min on first day
                    timerange='25:00:00~27:30:00' picks 1 hr to 3 hr
-			     30min on NEXT day
+                             30min on NEXT day
                    timerange='09:44:00' pick data within one integration
-		             of time
+                             of time
                    timerange='&gt; 10:24:00' data after this time
                    For multiple MS input, a list of timerange strings can be
                    used:
@@ -141,18 +141,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
                    default: '' (all)
                    If antenna string is a non-negative integer, it is
- 		   assumed to be an antenna index, otherwise, it is
- 		   considered an antenna name.
+                   assumed to be an antenna index, otherwise, it is
+                   considered an antenna name.
                    antenna='5\&amp;6'; baseline between antenna index 5 and
- 				 index 6.
+                                 index 6.
                    antenna='VA05\&amp;VA06'; baseline between VLA antenna 5
- 				       and 6.
+                                       and 6.
                    antenna='5\&amp;6;7\&amp;8'; baselines 5-6 and 7-8
                    antenna='5'; all baselines with antenna index 5
                    antenna='05'; all baselines with antenna number 05
- 				(VLA old name)
+                                (VLA old name)
                    antenna='5,6,9'; all baselines with antennas 5,6,9
- 				   index number
+                                   index number
                    For multiple MS input, a list of antenna strings can be
                    used:
                    antenna=['5','5\&amp;6'];
@@ -301,9 +301,9 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                         phasecenter='J2000 292.5deg  -40.0deg'
                         phasecenter='J2000 5.105rad  -0.698rad'
                         phasecenter='ICRS 13:05:27.2780 -049.28.04.458'
-			phasecenter='myComet_ephem.tab'
-			phasecenter='MOON'
-			phasecenter='TRACKFIELD'
+                        phasecenter='myComet_ephem.tab'
+                        phasecenter='MOON'
+                        phasecenter='TRACKFIELD'
 </description>
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
@@ -330,24 +330,24 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 </description>
       <value type="string">I</value>
-	    <allowed kind="enum">
-	      <value>I</value>
-              <value>Q</value>
-              <value>U</value>
-              <value>V</value>
-              <value>IV</value>
-	      <value>QU</value>
-              <value>IQ</value>
-	      <value>UV</value>
-	      <value>IQUV</value>
-	      <value>RR</value>
-	      <value>LL</value>
-	      <value>XX</value>
-	      <value>YY</value>
-	      <value>RRLL</value>
-	      <value>XXYY</value>
-	      <value>pseudoI</value>
-	    </allowed>
+      <allowed kind="enum">
+        <value>I</value>
+        <value>Q</value>
+        <value>U</value>
+        <value>V</value>
+        <value>IV</value>
+        <value>QU</value>
+        <value>IQ</value>
+        <value>UV</value>
+        <value>IQUV</value>
+        <value>RR</value>
+        <value>LL</value>
+        <value>XX</value>
+        <value>YY</value>
+        <value>RRLL</value>
+        <value>XXYY</value>
+        <value>pseudoI</value>
+      </allowed>
     </param>
 
     <param type="string" name="projection" > <!-- subparam="true"> -->
@@ -357,10 +357,10 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                      A list of supported (but untested) projections can be found here :
                      http://casa.nrao.edu/active/docs/doxygen/html/classcasa_1_1Projection.html#a3d5f9ec787e4eabdce57ab5edaf7c0cd
 
-<!-- AZP	Zenithal/Azimuthal perspective.
+<!-- AZP Zenithal/Azimuthal perspective.
 SZP  Slant zenithal perspective, new.
 TAN Gnomonic.
-SIN 	Orthographics/synthesis. (NCP is a hard-coded special case)
+SIN Orthographics/synthesis. (NCP is a hard-coded special case)
 STG  Stereographic.
 ARC zenith/azimuthal equidistant.
 ZPN zenithal/azimuthal polynomial.
@@ -469,27 +469,27 @@ HPX HEALPix grid.  -->
                                                         a spectral line observed over an extended time range
                                                         may be smeared out in frequency. There is strictly
                                                         no valid spectral frame with which to label the output
-							images, but they will list the frame defined in the MS.
+                                                        images, but they will list the frame defined in the MS.
 
-							mode='cubesource': Spectral line imaging while
-							tracking moving source (near field or solar system
-							objects). The velocity of the source is accounted
-							and the frequency reported is in the source frame.
-							As there is not SOURCE frame defined,
-							the frame reported will be REST (as it may not be
-							in the rest frame emission region may be
-							moving w.r.t the systemic velocity frame)
+                                                        mode='cubesource': Spectral line imaging while
+                                                        tracking moving source (near field or solar system
+                                                        objects). The velocity of the source is accounted
+                                                        and the frequency reported is in the source frame.
+                                                        As there is not SOURCE frame defined,
+                                                        the frame reported will be REST (as it may not be
+                                                        in the rest frame emission region may be
+                                                        moving w.r.t the systemic velocity frame)
 
 
 </description>
      <value type="string">mfs</value>
-	    <allowed kind="enum">
-	      <value>mfs</value>
-	      <value>cont</value>
-	      <value>cube</value>
-	      <value>cubedata</value>
-	      <value>cubesource</value>
-	    </allowed>
+     <allowed kind="enum">
+       <value>mfs</value>
+       <value>cont</value>
+       <value>cube</value>
+       <value>cubedata</value>
+       <value>cubesource</value>
+     </allowed>
     </param>
 
     <param type="any" name="reffreq" subparam="true">
@@ -656,11 +656,11 @@ HPX HEALPix grid.  -->
 
 </description>
       <value type="string">linear</value>
-	    <allowed kind="enum">
-	      <value>nearest</value>
+      <allowed kind="enum">
+              <value>nearest</value>
               <value>linear</value>
-	      <value>cubic</value>
-	    </allowed>
+              <value>cubic</value>
+      </allowed>
     </param>
 <param type="bool" name="perchanweightdensity" subparam="true">
            <shortdescription>whether to calculate weight density per channel in Briggs style weighting or not</shortdescription>
@@ -713,7 +713,7 @@ HPX HEALPix grid.  -->
                          across the concatenated cube.
              
 </description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
 
 <!--============================================== -->
@@ -853,21 +853,21 @@ HPX HEALPix grid.  -->
                       domain without consideration to weights.
 
 </description>
-	    <value type="string">standard</value>
-	    <allowed kind="enum">
-	      <value>standard</value>
-	      <value>ft</value>
-	      <value>gridft</value>
+      <value type="string">standard</value>
+      <allowed kind="enum">
+              <value>standard</value>
+              <value>ft</value>
+              <value>gridft</value>
               <value>widefield</value>
               <value>wproject</value>
               <value>wprojectft</value>
-	      <value>mosaic</value>
-	      <value>ftmosaic</value>
-	      <value>mosaicft</value>
-	      <value>imagemosaic</value>
-	      <value>awproject</value>
-	      <value>awprojectft</value>
-	    </allowed>
+              <value>mosaic</value>
+              <value>ftmosaic</value>
+              <value>mosaicft</value>
+              <value>imagemosaic</value>
+              <value>awproject</value>
+              <value>awprojectft</value>
+      </allowed>
     </param>
 
     <param type="int" name="facets" subparam="true">
@@ -886,21 +886,21 @@ HPX HEALPix grid.  -->
 <param type="any" name="psfphasecenter"  subparam="true"> 
      <shortdescription>optional direction to calculate psf for mosaic (default is image phasecenter)</shortdescription>
      <description>For mosaic use psf centered on this
-			     optional direction. You may need to use
-			     this if for example the mosaic does not
-			     have any pointing in the center of the
-			     image. Another reason; as the psf is
-			     approximate for a mosaic, this may help
-			     to deconvolve a non central bright source
-			     well and quickly.
+                             optional direction. You may need to use
+                             this if for example the mosaic does not
+                             have any pointing in the center of the
+                             image. Another reason; as the psf is
+                             approximate for a mosaic, this may help
+                             to deconvolve a non central bright source
+                             well and quickly.
 
-			     example:
+                             example:
 
-			        psfphasecenter=6 #center psf on field 6
-				psfphasecenter='J2000 19h30m00 -40d00m00'
-				psfphasecenter='J2000 292.5deg -40.0deg'
-				psfphasecenter='J2000 5.105rad -0.698rad'
-				psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458'
+                                psfphasecenter=6 #center psf on field 6
+                                psfphasecenter='J2000 19h30m00 -40d00m00'
+                                psfphasecenter='J2000 292.5deg -40.0deg'
+                                psfphasecenter='J2000 5.105rad -0.698rad'
+                                psfphasecenter='ICRS 13:05:27.2780 -049.28.04.458'
 </description>
       <any type="variant" limittypes="int string"/>
       <value type="string"></value>
@@ -995,13 +995,13 @@ HPX HEALPix grid.  -->
            <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
 <description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
 </description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
     <param type="bool" name="mosweight" subparam="true">
            <shortdescription>Indepently weight each field in a mosaic</shortdescription>
 <description>When doing Brigg's style weighting (including uniform) to perform the weight density calculation for each field indepedently if True. If False the weight density is calculated from the average uv distribution of all the fields.
 </description>
-	    <value type="bool">True</value>
+      <value type="bool">True</value>
     </param>
     <param type="bool" name="aterm" subparam="true">
            <shortdescription>Use aperture illumination functions during gridding</shortdescription>
@@ -1012,12 +1012,12 @@ HPX HEALPix grid.  -->
                        function models of each antenna.
 
 </description>
-	    <value type="bool">True</value>
+      <value type="bool">True</value>
     </param>
 
     <param type="bool" name="psterm" subparam="true">
            <shortdescription>Use prolate spheroidal during gridding</shortdescription>
-	   <description>Include the Prolate Spheroidal (PS) funtion as the anti-aliasing 
+     <description>Include the Prolate Spheroidal (PS) funtion as the anti-aliasing 
                         operator in the gridding convolution functions used for gridding.
 
                         Setting this parameter to true is necessary when aterm is set to 
@@ -1043,7 +1043,7 @@ HPX HEALPix grid.  -->
                         Standard         False   True       1                FT(PS)
 
 </description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
 
     <param type="bool" name="wbawp" subparam="true">
@@ -1052,7 +1052,7 @@ HPX HEALPix grid.  -->
                        Scale aperture illumination functions appropriately with frequency
                        when gridding and combining data from multiple channels.
  </description>
-	    <value type="bool">True</value>
+      <value type="bool">True</value>
     </param>
 
     <param type="bool" name="conjbeams" subparam="true">
@@ -1071,11 +1071,11 @@ HPX HEALPix grid.  -->
                        index of -1.4 due to the frequency dependence of the PB [Sault and Wieringa, 1994].  
                        If left uncorrected during gridding, this spectral structure must be modeled 
                        in the minor cycle (using the mtmfs algorithm) to avoid dynamic range limits 
-		       (of a few hundred for a 2:1 bandwidth).
-		       This works for specmode='mfs' and its value is ignored for cubes
+                       (of a few hundred for a 2:1 bandwidth).
+                       This works for specmode='mfs' and its value is ignored for cubes
 
 </description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
 
     <param type="string" name="cfcache" subparam="true">
@@ -1100,7 +1100,7 @@ HPX HEALPix grid.  -->
                        By default, cfcache = imagename + '.cf'
 
 </description>
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>
 
     <param type="double" name="computepastep" subparam="true">
@@ -1126,7 +1126,7 @@ HPX HEALPix grid.  -->
 
                        Instead of recomputing the AIF for every timestep's parallactic angle,
                        the nearest existing AIF is used and rotated
-		       after the PA changed by rotatepastep value.
+                       after the PA changed by rotatepastep value.
 
                        A value of 360.0 deg (the default) disables rotation of the AIF.
 
@@ -1268,23 +1268,23 @@ HPX HEALPix grid.  -->
 
 
 </description>
-	    <value type="string">hogbom</value>
-	    <allowed kind="enum">
-	      <value>hogbom</value>
+      <value type="string">hogbom</value>
+      <allowed kind="enum">
+              <value>hogbom</value>
               <value>clark</value>
-	      <value>clarkstokes</value>
+              <value>clarkstokes</value>
               <value>clark_exp</value>
-	      <value>clarkstokes_exp</value>
-	      <value>multiscale</value>
-	      <value>mtmfs</value>
-	      <value>mem</value>
-<!--	      <value>aasp</value> -->
-	    </allowed>
+              <value>clarkstokes_exp</value>
+              <value>multiscale</value>
+              <value>mtmfs</value>
+              <value>mem</value>
+<!--        <value>aasp</value> -->
+      </allowed>
     </param>
 
     <param type="any" name="scales" subparam="true">
            <shortdescription>List of scale sizes (in pixels) for multi-scale algorithms</shortdescription>
-	   <description>List of scale sizes (in pixels) for multi-scale and mtmfs algorithms.
+     <description>List of scale sizes (in pixels) for multi-scale and mtmfs algorithms.
                                   --&gt;  scales=[0,6,20]
                                   This set of scale sizes should represent the sizes
                                   (diameters in units of number of pixels)
@@ -1301,9 +1301,9 @@ HPX HEALPix grid.  -->
                                   spatial frequency (as a scale size much larger than what the
                                   instrument is sensitive to is unconstrained by the data making
                                   it harder to recovery from errors during the minor cycle).
-	   </description>
-	    <any type="variant" limittypes="intArray floatArray"/>
-	    <value type="intArray"></value>
+     </description>
+      <any type="variant" limittypes="intArray floatArray"/>
+      <value type="intArray"></value>
     </param>
 
     <param type="int" name="nterms" subparam="true">
@@ -1417,8 +1417,8 @@ HPX HEALPix grid.  -->
                                   residuals that have been convolved to the same target resolution.
 
 </description>
-	    <any type="variant" limittypes="string stringArray"/>
-	    <value type="stringArray"></value>
+      <any type="variant" limittypes="string stringArray"/>
+      <value type="stringArray"></value>
     </param>
 
     <param type="bool" name="pbcor" subparam="true">
@@ -1560,15 +1560,15 @@ HPX HEALPix grid.  -->
                                                          Robust/Briggs weighting generates a PSF that can
                                                          vary smoothly between 'natural' and 'uniform' and
                                                          allow customized trade-offs between PSF shape and
-							 imaging sensitivity.
-			weighting='briggsabs' : Experimental option.
-			                                 Same as Briggs except the formula is different A=
-							 robust*robust and B is dependent on the
-							 noise per visibility estimated. Giving noise='0Jy'
-							 is a not a reasonable option.
-							 In this mode (or formula)  robust values
-							 from -2.0 to 0.0 only make sense (2.0 and
-							 -2.0 will get the same weighting)
+                                                         imaging sensitivity.
+                        weighting='briggsabs' : Experimental option.
+                                                         Same as Briggs except the formula is different A=
+                                                         robust*robust and B is dependent on the
+                                                         noise per visibility estimated. Giving noise='0Jy'
+                                                         is a not a reasonable option.
+                                                         In this mode (or formula)  robust values
+                                                         from -2.0 to 0.0 only make sense (2.0 and
+                                                         -2.0 will get the same weighting)
 
                        weighting='superuniform' : This is similar to uniform weighting except that
                                                                     the total_wt_per_cell is replaced by the
@@ -1590,15 +1590,15 @@ HPX HEALPix grid.  -->
                of Dan Briggs' thesis (http://www.aoc.nrao.edu/dissertations/dbriggs)
 
 </description>
-	    <value type="string">natural</value>
-	    <allowed kind="enum">
-	      <value>natural</value>
-	      <value>uniform</value>
-	      <value>briggs</value>
-	      <value>briggsabs</value>
-	      <value>radial</value>
-	      <value>superuniform</value>
-	    </allowed>
+      <value type="string">natural</value>
+      <allowed kind="enum">
+        <value>natural</value>
+        <value>uniform</value>
+        <value>briggs</value>
+        <value>briggsabs</value>
+        <value>radial</value>
+        <value>superuniform</value>
+      </allowed>
 
     </param>
 
@@ -1611,17 +1611,17 @@ HPX HEALPix grid.  -->
                             (robust=0.5 is equivalent to robust=0.0 in AIPS IMAGR.)
 
 </description>
-	    <value type="double">0.5</value>
-	    <allowed kind="range">
-	      <value range="min">-2.0</value>
-	      <value range="max">2.0</value>
-	    </allowed>
+      <value type="double">0.5</value>
+      <allowed kind="range">
+        <value range="min">-2.0</value>
+        <value range="max">2.0</value>
+      </allowed>
     </param>
 
     <param type="any" name="noise"  subparam="true">
-	    <description>noise parameter for briggs abs mode weighting</description>
-	    <any type="variant"/>
-	    <value type="string">1.0Jy</value>	    
+      <description>noise parameter for briggs abs mode weighting</description>
+      <any type="variant"/>
+      <value type="string">1.0Jy</value>
     </param>
     
     <param type="int" name="npixels" subparam="true">
@@ -1641,19 +1641,19 @@ HPX HEALPix grid.  -->
                                      7 pixels on a side.
 
 </description>
-	    <value type="int">0</value>
+      <value type="int">0</value>
     </param>
 
 <!--
     <param type="bool" name="uvtaper">
            <shortdescription>xxx</shortdescription>
 <description>Apply additional uv tapering of visibilities</description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
 -->
 
     <param type="stringArray" name="uvtaper" subparam="true">
-	   <shortdescription>uv-taper on outer baselines in uv-plane</shortdescription>
+     <shortdescription>uv-taper on outer baselines in uv-plane</shortdescription>
 <description>uv-taper on outer baselines in uv-plane
 
                    Apply a Gaussian taper in addition to the weighting scheme specified
@@ -1668,24 +1668,24 @@ HPX HEALPix grid.  -->
 
                    NOTE: the on-sky FWHM in arcsec is roughly  the uv taper/200 (klambda).
                    default: uvtaper=[]; no Gaussian taper applied
- 		   example: uvtaper=['5klambda']  circular taper
- 				FWHM=5 kilo-lambda
+                   example: uvtaper=['5klambda']  circular taper
+                                FWHM=5 kilo-lambda
                             uvtaper=['5klambda','3klambda','45.0deg']
                             uvtaper=['10arcsec'] on-sky FWHM 10 arcseconds
                             uvtaper=['300.0'] default units are lambda
- 			        in aperture plane
+                                in aperture plane
 
 </description>
-	    <value type="vector">
-	      <value></value>
-	    </value>
+      <value type="vector">
+        <value></value>
+      </value>
     </param>
 
 <!--
     <param type="stringArray" name="innertaper" subparam="true">
-	   <shortdescription>xxx</shortdescription>
+     <shortdescription>xxx</shortdescription>
 <description>uv-taper in center of uv-plane (not implemented)</description>
-	    <value>1.0</value>
+      <value>1.0</value>
     </param>
 -->
 
@@ -1889,9 +1889,9 @@ HPX HEALPix grid.  -->
     </param>
 
 <!--    <param type="bool" name="interactive" subparam="true">
-	   <shortdescription>xxx</shortdescription>
+     <shortdescription>xxx</shortdescription>
 <description>True to be able to modify masks and parameters at runtime</description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param> -->
     <param type="any" name="interactive" subparam="true">
      <shortdescription>Modify masks and parameters at runtime</shortdescription>
@@ -2002,20 +2002,20 @@ HPX HEALPix grid.  -->
 
 </description>
       <value type="string">user</value>
-	    <allowed kind="enum">
+      <allowed kind="enum">
               <value>user</value>
               <value>pb</value>
-	      <value>auto-multithresh</value>
-	    </allowed>
+              <value>auto-multithresh</value>
+      </allowed>
     </param>
 
     <!-- sub-parameters-->
     <param type="any" name="mask" subparam="true">
-	   <shortdescription>Mask (a list of image name(s) or region file(s) or region string(s) )</shortdescription>
+     <shortdescription>Mask (a list of image name(s) or region file(s) or region string(s) )</shortdescription>
 <description>Mask (a list of image name(s) or region file(s) or region string(s)
 
     <!--<param type="string" name="mask" subparam="true">
-	   <shortdescription>Mask string (image name or region file or region string)</shortdescription>
+     <shortdescription>Mask string (image name or region file or region string)</shortdescription>
 <description>Mask string (image name or region file or region string)
 -->
                        The name of a CASA image or region file or region string that specifies
@@ -2093,26 +2093,26 @@ HPX HEALPix grid.  -->
 </description>
 
 <!---
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>-->
-	    <any type="variant" limittypes="string stringArray"/>
-	    <value type="string"></value>
+      <any type="variant" limittypes="string stringArray"/>
+      <value type="string"></value>
     </param>
 
 
     <param type="double" name="pbmask" subparam="true">
-	   <shortdescription>primary beam mask</shortdescription>
+     <shortdescription>primary beam mask</shortdescription>
 <description>Sub-parameter for usemask='auto-multithresh': primary beam mask
 
-          	       Examples : pbmask=0.0 (default, no pb mask)
-          	                  pbmask=0.2 (construct a mask at the 0.2 pb gain level)
+                       Examples : pbmask=0.0 (default, no pb mask)
+                                  pbmask=0.2 (construct a mask at the 0.2 pb gain level)
 
 </description>
-	    <value type="double">0.0</value>
+      <value type="double">0.0</value>
     </param>
     <!--- auto-thresh and auto-thresh sub param 
     <param type="any" name="maskthreshold" subparam="true">
-	   <shortdescription>threshold for automasking (string with unit, e.g. "1.0mJy", sigma,  or fraction of peak ,e.g. 0.1)</shortdescription>
+     <shortdescription>threshold for automasking (string with unit, e.g. "1.0mJy", sigma,  or fraction of peak ,e.g. 0.1)</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": threshold for automasking
                        Threshold value in a string with a unit, sigma (e.g. 3.0)  or fraction of peak (e.g, 0.05)
                        For a float value, if it is &gt;= 1.0, it is interpreted as sigma (i.e. sigma*rms for threshold). If it is &lt; 1.0, it is interpreted as
@@ -2123,29 +2123,29 @@ HPX HEALPix grid.  -->
                                   threshold = 5.0 ( threshold used is 5.0 * rms )
                                   threshold = '' (default, use 3.0 * rms )
 </description>
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>
      -->
     <!-- auto-thresh and auto-thresh sub param 
     <param type="any" name="maskresolution" subparam="true">
-	   <shortdescription>resolution for automasking (string, e.g. "10arcsec", or a float value as multiplicative factor of the beam)</shortdescription>
+     <shortdescription>resolution for automasking (string, e.g. "10arcsec", or a float value as multiplicative factor of the beam)</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": resolution for automasking
                        The residual image is binned (npix x npix), where npix is maskresolution converted in the number of pixels
                        Examples : maskresolution='10arcsec'
                                   maskresolution=2.0 (2 x bmaj)
                                   maskresolution=''  (default, use a restoring beam major axis)
 </description>
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>
     -->
     <!-- auto-thresh and auto-thresh sub param 
     <param type="int" name="nmask" subparam="true">
-	   <shortdescription>the maximum number of masks to be added by automasking</shortdescription>
+     <shortdescription>the maximum number of masks to be added by automasking</shortdescription>
 <description>Sub-parameter for "auto-thresh" and "auto-thresh2": Maximum number of mask regions to be added by automasking at the beginning each minor cycles run
                        Examples : nmask=2
                                   nmask=0  (default, set no limit on the number of mask regions to be added)
 </description>
-	    <value type="int">0</value>
+      <value type="int">0</value>
     </param>
     -->
     <!-- Amanda's code -->
@@ -2322,7 +2322,7 @@ HPX HEALPix grid.  -->
 
 
     <param type="string" name="savemodel">
-	   <shortdescription>Options to save model visibilities (none, virtual, modelcolumn)</shortdescription>
+     <shortdescription>Options to save model visibilities (none, virtual, modelcolumn)</shortdescription>
 <description>Options to save model visibilities (none, virtual, modelcolumn)
 
                        Often, model visibilities must be created and saved in the MS
@@ -2366,16 +2366,16 @@ HPX HEALPix grid.  -->
                                       clear out existing models from an MS if confusion arises.
 
 </description>
-	    <value type="string">none</value>
-	    <allowed kind="enum">
-	      <value>none</value>
+      <value type="string">none</value>
+      <allowed kind="enum">
+              <value>none</value>
               <value>virtual</value>
-	      <value>modelcolumn</value>
-	    </allowed>
+              <value>modelcolumn</value>
+      </allowed>
     </param>
 
 <!--    <param type="string" name="makeimages">
-	   <shortdescription>List of output images (auto,choose)</shortdescription>
+     <shortdescription>List of output images (auto,choose)</shortdescription>
 <description> List of output images.
                        This option is mainly to force uniformity of outputs
                        for scripting purposes while retaining the feature of
@@ -2391,13 +2391,13 @@ HPX HEALPix grid.  -->
                                                              or to ensure consistent output products.
 
 </description>
-	    <value type="string">auto</value>
+      <value type="string">auto</value>
     </param>
 -->
 
 
     <param type="bool" name="calcres">
-	   <shortdescription>Calculate initial residual image</shortdescription>
+     <shortdescription>Calculate initial residual image</shortdescription>
 <description>Calculate initial residual image
 
                       This parameter controls what the first major cycle does.
@@ -2419,7 +2419,7 @@ HPX HEALPix grid.  -->
                                                   without recomputing it.
 
 </description>
-	    <value type="bool">True</value>
+      <value type="bool">True</value>
     </param>
 
 
@@ -2514,7 +2514,7 @@ HPX HEALPix grid.  -->
                                    (Proper synchronization of iteration control is work in progress.)
 
 </description>
-	    <value type="bool">False</value>
+      <value type="bool">False</value>
     </param>
 
 
@@ -2522,14 +2522,14 @@ HPX HEALPix grid.  -->
 <!--    <param type="string" name="clusterdef" subparam="true">
            <shortdescription>xxx</shortdescription>
 <description>Name of a file that contains the cluster definition</description>
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>
 -->
 <!--
     <param type="string" name="workdir" subparam="true">
            <shortdescription>xxx</shortdescription>
 <description>Directory name for per-node products (default=imagename.workdir)</description>
-	    <value type="string"></value>
+      <value type="string"></value>
     </param>
 -->
 
@@ -2541,181 +2541,181 @@ HPX HEALPix grid.  -->
 <!--
      <when param="vis">
       <notequals type="string" value="">
-	 <default param="field"><value>""</value></default>
-	 <default param="spw"><value>""</value></default>
-	 <default param="timerange"><value>""</value></default>
-	 <default param="uvrange"><value>""</value></default>
-	 <default param="antenna"><value>""</value></default>
-	 <default param="scan"><value>""</value></default>
-	 <default param="observation"><value>""</value></default>
-	 <default param="intent"><value>""</value></default>
-	 <default param="datacolumn"><value>"corrected"</value></default>
+         <default param="field"><value>""</value></default>
+         <default param="spw"><value>""</value></default>
+         <default param="timerange"><value>""</value></default>
+         <default param="uvrange"><value>""</value></default>
+         <default param="antenna"><value>""</value></default>
+         <default param="scan"><value>""</value></default>
+         <default param="observation"><value>""</value></default>
+         <default param="intent"><value>""</value></default>
+         <default param="datacolumn"><value>"corrected"</value></default>
        </notequals>
       </when>
 -->
 
      <when param="selectdata">
       <equals type="bool" value="True">
-	 <default param="field"><value>""</value></default>
-	 <default param="spw"><value>""</value></default>
-	 <default param="timerange"><value>""</value></default>
-	 <default param="uvrange"><value>""</value></default>
-	 <default param="antenna"><value>""</value></default>
-	 <default param="scan"><value>""</value></default>
-	 <default param="observation"><value>""</value></default>
-	 <default param="intent"><value>""</value></default>
-<!--	 <default param="datacolumn"><value>"corrected"</value></default> -->
+         <default param="field"><value>""</value></default>
+         <default param="spw"><value>""</value></default>
+         <default param="timerange"><value>""</value></default>
+         <default param="uvrange"><value>""</value></default>
+         <default param="antenna"><value>""</value></default>
+         <default param="scan"><value>""</value></default>
+         <default param="observation"><value>""</value></default>
+         <default param="intent"><value>""</value></default>
+<!--         <default param="datacolumn"><value>"corrected"</value></default> -->
        </equals>
       </when>
 
 <!--
      <when param="imagename">
        <notequals type="string" value="">
-	 <default param="imsize"><value>100</value></default>
-	 <default param="cell"><value>"1arcsec"</value></default>
-	 <default param="phasecenter"><value>""</value></default>
-	 <default param="stokes"><value>"I"</value></default>
-	 <default param="projection"><value>"SIN"</value></default>
-	 <default param="startmodel"><value>""</value></default>
+         <default param="imsize"><value>100</value></default>
+         <default param="cell"><value>"1arcsec"</value></default>
+         <default param="phasecenter"><value>""</value></default>
+         <default param="stokes"><value>"I"</value></default>
+         <default param="projection"><value>"SIN"</value></default>
+         <default param="startmodel"><value>""</value></default>
        </notequals>
       </when>
 -->
      <when param="specmode">
        <equals type="string" value="mfs">
-	 <default param="reffreq"><value>""</value></default>
-<!--	 <default param="nterms"><value>1</value></default> -->
+         <default param="reffreq"><value>""</value></default>
+<!--         <default param="nterms"><value>1</value></default> -->
        </equals>
        <equals type="string" value="cube">
-	 <default param="nchan"><value>-1</value></default>
-	 <default param="start"><value>""</value></default>
-	 <default param="width"><value>""</value></default>
-	 <default param="outframe"><value>""</value></default>
-	 <default param="veltype"><value>"radio"</value></default>
-	 <default param="restfreq"><value>[]</value></default>
-	 <default param="interpolation"><value>"linear"</value></default>
-	 <default param="chanchunks"><value>1</value></default>
-	 <default param="perchanweightdensity"><value>False</value></default>
+         <default param="nchan"><value>-1</value></default>
+         <default param="start"><value>""</value></default>
+         <default param="width"><value>""</value></default>
+         <default param="outframe"><value>""</value></default>
+         <default param="veltype"><value>"radio"</value></default>
+         <default param="restfreq"><value>[]</value></default>
+         <default param="interpolation"><value>"linear"</value></default>
+         <default param="chanchunks"><value>1</value></default>
+         <default param="perchanweightdensity"><value>False</value></default>
        </equals>
        <equals type="string" value="cubesource">
-	 <default param="nchan"><value>-1</value></default>
-	 <default param="start"><value>""</value></default>
-	 <default param="width"><value>""</value></default>
-	 <default param="outframe"><value>"REST"</value></default>
-	 <default param="veltype"><value>"radio"</value></default>
-	 <default param="restfreq"><value>[]</value></default>
-	 <default param="interpolation"><value>"linear"</value></default>
-	 <default param="chanchunks"><value>1</value></default>
-	 <default param="perchanweightdensity"><value>False</value></default>
+         <default param="nchan"><value>-1</value></default>
+         <default param="start"><value>""</value></default>
+         <default param="width"><value>""</value></default>
+         <default param="outframe"><value>"REST"</value></default>
+         <default param="veltype"><value>"radio"</value></default>
+         <default param="restfreq"><value>[]</value></default>
+         <default param="interpolation"><value>"linear"</value></default>
+         <default param="chanchunks"><value>1</value></default>
+         <default param="perchanweightdensity"><value>False</value></default>
        </equals>
        
        <equals type="string" value="cubedata">
-	 <default param="nchan"><value>-1</value></default>
-	 <default param="start"><value>""</value></default>
-	 <default param="width"><value>""</value></default>
-	 <default param="veltype"><value>"radio"</value></default>
-	 <default param="restfreq"><value>[]</value></default>
-	 <default param="interpolation"><value>"linear"</value></default>
-	 <default param="chanchunks"><value>1</value></default>
-	 <default param="perchanweightdensity"><value>False</value></default>
+         <default param="nchan"><value>-1</value></default>
+         <default param="start"><value>""</value></default>
+         <default param="width"><value>""</value></default>
+         <default param="veltype"><value>"radio"</value></default>
+         <default param="restfreq"><value>[]</value></default>
+         <default param="interpolation"><value>"linear"</value></default>
+         <default param="chanchunks"><value>1</value></default>
+         <default param="perchanweightdensity"><value>False</value></default>
        </equals>
      </when>
 
      <when param="gridder">
        <equals type="string" value="standard">
-	 <default param="vptable"><value>""</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="widefield">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="facets"><value>1</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="facets"><value>1</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="wproject">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="wprojectft">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="mosaic">
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="usepointing"><value>False</value></default>
-	 <default param="mosweight"><value>True</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
-	 <default param="psfphasecenter"><value>""</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="usepointing"><value>False</value></default>
+         <default param="mosweight"><value>True</value></default>
+         <default param="pblimit"><value>0.2</value></default>
+         <default param="conjbeams"><value>False</value></default>
+         <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="mosaicft">
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="usepointing"><value>False</value></default>
-	 <default param="mosweight"><value>True</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
-	 <default param="psfphasecenter"><value>""</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="usepointing"><value>False</value></default>
+         <default param="mosweight"><value>True</value></default>
+         <default param="pblimit"><value>0.2</value></default>
+         <default param="conjbeams"><value>False</value></default>
+         <default param="psfphasecenter"><value>""</value></default>
        </equals>
        <equals type="string" value="ftmosaic">
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="usepointing"><value>False</value></default>
-	 <default param="mosweight"><value>True</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="usepointing"><value>False</value></default>
+         <default param="mosweight"><value>True</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="imagemosaic">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="vptable"><value>""</value></default>
-	 <default param="pblimit"><value>0.2</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="vptable"><value>""</value></default>
+         <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="awproject">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="psterm"><value>False</value></default>
-	 <default param="aterm"><value>True</value></default>
-	 <default param="cfcache"><value>""</value></default>
-	 <default param="computepastep"><value>360.0</value></default>
-	 <default param="rotatepastep"><value>360.0</value></default>
-	 <default param="wbawp"><value>False</value></default>
-<!--	 <default param="vptable"><value>""</value></default> -->
-	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="psterm"><value>False</value></default>
+         <default param="aterm"><value>True</value></default>
+         <default param="cfcache"><value>""</value></default>
+         <default param="computepastep"><value>360.0</value></default>
+         <default param="rotatepastep"><value>360.0</value></default>
+         <default param="wbawp"><value>False</value></default>
+<!--         <default param="vptable"><value>""</value></default> -->
+         <default param="pblimit"><value>0.2</value></default>
+         <default param="conjbeams"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
-	 <default param="wprojplanes"><value>1</value></default>
-	 <default param="normtype"><value>"flatnoise"</value></default>
-	 <default param="psterm"><value>False</value></default>
-	 <default param="aterm"><value>True</value></default>
-	 <default param="cfcache"><value>""</value></default>
-	 <default param="computepastep"><value>360.0</value></default>
-	 <default param="rotatepastep"><value>360.0</value></default>
-	 <default param="wbawp"><value>False</value></default>
-<!--	 <default param="vptable"><value>""</value></default> -->
-	 <default param="pblimit"><value>0.2</value></default>
-	 <default param="conjbeams"><value>False</value></default>
+         <default param="wprojplanes"><value>1</value></default>
+         <default param="normtype"><value>"flatnoise"</value></default>
+         <default param="psterm"><value>False</value></default>
+         <default param="aterm"><value>True</value></default>
+         <default param="cfcache"><value>""</value></default>
+         <default param="computepastep"><value>360.0</value></default>
+         <default param="rotatepastep"><value>360.0</value></default>
+         <default param="wbawp"><value>False</value></default>
+<!--         <default param="vptable"><value>""</value></default> -->
+         <default param="pblimit"><value>0.2</value></default>
+         <default param="conjbeams"><value>False</value></default>
        </equals>
      </when>
 
      <when param="weighting">
        <equals type="string" value="natural">
-	 <default param="uvtaper"><value>[]</value></default>
+         <default param="uvtaper"><value>[]</value></default>
        </equals>
        <equals type="string" value="uniform">
        </equals>
        <equals type="string" value="briggs">
-	 <default param="robust"><value>0.5</value></default>
-	 <default param="npixels"><value>0</value></default>
-	 <default param="uvtaper"><value>[]</value></default>
+         <default param="robust"><value>0.5</value></default>
+         <default param="npixels"><value>0</value></default>
+         <default param="uvtaper"><value>[]</value></default>
        </equals>
        <equals type="string" value="briggsabs">
-	 <default param="robust"><value>0.5</value></default>
-	 <default param="noise"><value>"1.0Jy"</value></default>
-	 <default param="npixels"><value>0</value></default>
-	 <default param="uvtaper"><value>[]</value></default>
+         <default param="robust"><value>0.5</value></default>
+         <default param="noise"><value>"1.0Jy"</value></default>
+         <default param="npixels"><value>0</value></default>
+         <default param="uvtaper"><value>[]</value></default>
        </equals>
      </when>
 
@@ -2724,8 +2724,8 @@ HPX HEALPix grid.  -->
        <equals type="bool" value="False">
        </equals>
        <equals type="bool" value="True">
-	 <default param="outertaper"><value>[]</value></default>
-	 <default param="innertaper"><value>[]</value></default>
+         <default param="outertaper"><value>[]</value></default>
+         <default param="innertaper"><value>[]</value></default>
        </equals>
      </when>
 -->
@@ -2736,12 +2736,12 @@ HPX HEALPix grid.  -->
        <equals type="string" value="clark">
        </equals>
        <equals type="string" value="multiscale">
-	 <default param="scales"><value type="intArray"></value></default>
-	 <default param="smallscalebias"><value>0.6</value></default>
+         <default param="scales"><value type="intArray"></value></default>
+         <default param="smallscalebias"><value>0.6</value></default>
        </equals>
        <equals type="string" value="mtmfs">
-	 <default param="scales"><value type="intArray"></value></default>
-	 <default param="nterms"><value>2</value></default>
+         <default param="scales"><value type="intArray"></value></default>
+         <default param="nterms"><value>2</value></default>
        </equals>
        <equals type="string" value="aasp">
        </equals>
@@ -2749,28 +2749,28 @@ HPX HEALPix grid.  -->
 
      <when param="restoration">
        <equals type="bool" value="True">
-	 <default param="restoringbeam"><value type="stringArray"></value></default>
-	 <default param="pbcor"><value>False</value></default>
+         <default param="restoringbeam"><value type="stringArray"></value></default>
+         <default param="pbcor"><value>False</value></default>
        </equals>
      </when>
 
      <when param="niter">
        <notequals type="int" value="0">
-	 <default param="gain"><value>0.1</value></default>
-	 <default param="threshold"><value>0.0</value></default>
+         <default param="gain"><value>0.1</value></default>
+         <default param="threshold"><value>0.0</value></default>
          <default param="nsigma"><value>0.0</value></default>
-	 <default param="cycleniter"><value>-1</value></default>
-	 <default param="cyclefactor"><value>1.0</value></default>
-	 <default param="minpsffraction"><value>0.05</value></default>
-	 <default param="maxpsffraction"><value>0.8</value></default>
-	 <default param="interactive"><value>False</value></default>
-<!--	 <default param="mask"><value>""</value></default> -->
-<!--	 <default param="savemodel"><value>"none"</value></default>
- 	 <default param="calcres"><value>True</value></default>
-	 <default param="calcpsf"><value>True</value></default>  -->
+         <default param="cycleniter"><value>-1</value></default>
+         <default param="cyclefactor"><value>1.0</value></default>
+         <default param="minpsffraction"><value>0.05</value></default>
+         <default param="maxpsffraction"><value>0.8</value></default>
+         <default param="interactive"><value>False</value></default>
+<!--         <default param="mask"><value>""</value></default> -->
+<!--         <default param="savemodel"><value>"none"</value></default>
+         <default param="calcres"><value>True</value></default>
+         <default param="calcpsf"><value>True</value></default>  -->
        </notequals>
 <!--       <equals type="int" value="0">
-	 <default param="calcpsf"><value>True</value></default>
+         <default param="calcpsf"><value>True</value></default>
        </equals> -->
      </when>
 
@@ -2779,8 +2779,8 @@ HPX HEALPix grid.  -->
        <equals type="bool" value="False">
        </equals>
        <equals type="bool" value="True">
- 	 <default param="clusterdef"><value>""</value></default>
-	 <default param="workdir"><value>""</value></default>
+         <default param="clusterdef"><value>""</value></default>
+         <default param="workdir"><value>""</value></default>
        </equals>
      </when>
 -->
@@ -2837,10 +2837,10 @@ HPX HEALPix grid.  -->
      <when param="makeimages">
        <equals type="string" value="auto"/>
        <equals type="string" value="choose">
-	 <default param="calcres"><value type="bool">True</value></default>
-	 <default param="calcpsf"><value type="bool">True</value></default>
-	 <default param="restoremodel"><value type="string">auto</value></default>
-	 <default param="writepb"><value type="string">auto</value></default>
+         <default param="calcres"><value type="bool">True</value></default>
+         <default param="calcpsf"><value type="bool">True</value></default>
+         <default param="restoremodel"><value type="string">auto</value></default>
+         <default param="writepb"><value type="string">auto</value></default>
 
        </equals>
      </when>

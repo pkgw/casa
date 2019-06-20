@@ -120,10 +120,10 @@ namespace casa {
       casacore::Array<casacore::Complex> resample(const casacore::Array<casacore::Complex>& inarray, const casacore::Double factor);
       casacore::Matrix<casacore::Complex> resample2(const casacore::Matrix<casacore::Complex>& inarray, const casacore::Double factor);
       PBMathInterface::PBClass pbClass_p;
-      //casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
+      //std::map <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Vector<casacore::Int64> convFunctionMap_p;
       casacore::Int64 nDefined_p;
-      casacore::SimpleOrderedMap <casacore::String, casacore::Int> antDiam2IndexMap_p;
+      std::map<casacore::String, casacore::Int> antDiam2IndexMap_p;
       casacore::Vector<casacore::Int> antIndexToDiamIndex_p;
       casacore::Block<casacore::CountedPtr<PBMathInterface> > antMath_p;
       casacore::Int msId_p;

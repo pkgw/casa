@@ -75,11 +75,11 @@ spectrum is
       <description>SD calibration mode</description>
       <value>ps</value>
       <allowed kind="enum">
-	    <value>ps</value>
+      <value>ps</value>
         <value>otfraster</value>
         <value>otf</value>
-	    <value>tsys</value>
-	    <value>apply</value>
+      <value>tsys</value>
+      <value>apply</value>
         <value>ps,apply</value>
         <value>tsys,apply</value>
         <value>ps,tsys,apply</value>

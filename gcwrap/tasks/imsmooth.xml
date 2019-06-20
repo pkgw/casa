@@ -23,8 +23,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="string" name="imagename" kind="image" mustexist="true" >
-    	<description>Name of the input image. Must be specified.</description>
-    	<value></value>
+        <description>Name of the input image. Must be specified.</description>
+        <value></value>
     </param>
     <param type="string" name="kernel">
         <description>Type of kernel to use. Acceptable values are "b", "box", or "boxcar" for a boxcar kernel, "g", "gauss", or "gaussian" for a gaussian kernel, "c", "common", or "commonbeam" to use the common beam of an image with multiple beams as the gaussian to which to convolve all the planes, "i" or "image" to use an image as the kernel.</description>
@@ -44,21 +44,21 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         </allowed>
     </param>
     <param type="any" name="major" subparam="yes">
-	    <description>Major axis for the kernels. Standard quantity representation. Must be specified for kernel="boxcar".</description>
- 	    <any type='variant' limittype='string int float record'/>
-    	<value type="string"/>
+        <description>Major axis for the kernels. Standard quantity representation. Must be specified for kernel="boxcar".</description>
+        <any type='variant' limittype='string int float record'/>
+        <value type="string"/>
         <example>"4arcsec"</example>
     </param>
     <param type="any" name="minor" subparam="yes">
-	    <description>Minor axis. Standard quantity representation. Must be specified for kernel="boxcar".</description>
- 	    <any type='variant' limittype='string int float record'/>
-    	<value type="string"/>
+        <description>Minor axis. Standard quantity representation. Must be specified for kernel="boxcar".</description>
+        <any type='variant' limittype='string int float record'/>
+        <value type="string"/>
         <example>"2arcsec"</example>
     </param>
     <param type="any" name="pa" subparam="yes">
-	    <description>Position angle used only for gaussian kernel. Standard quantity representation.</description>
- 	    <any type='variant' limittype='string int float record'/>
-    	<value type="string"/>
+        <description>Position angle used only for gaussian kernel. Standard quantity representation.</description>
+        <any type='variant' limittype='string int float record'/>
+        <value type="string"/>
         <example>"40deg"</example>
     </param>
     <param type="bool" name="targetres" subparam="yes">
@@ -79,7 +79,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
     <param type="any" name="region">
         <description>Region selection. Default is to use the full image.</description>
-	<any type='variant' limittype='string stringArray'/>
+    <any type='variant' limittype='string stringArray'/>
         <value type='string'/>
     </param>
     <param type="string" name="box">
@@ -87,20 +87,20 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         <value/>
     </param>
     <param type="string" name="chans" >
-	<description>Channels to use. Default is to use all channels.</description>
-    	<value/>
+    <description>Channels to use. Default is to use all channels.</description>
+        <value/>
     </param>
     <param type="string" name="stokes">
-	    <description>Stokes planes to use. Default is to use all Stokes planes.</description>
-	    <value/>
+        <description>Stokes planes to use. Default is to use all Stokes planes.</description>
+        <value/>
     </param>
     <param type="string" name="mask">
-	    <description>Mask to use. Default is none.</description>
-	    <value/>
+        <description>Mask to use. Default is none.</description>
+        <value/>
     </param>
     <param type="string" name="outfile" >
-	    <description>Output image name. Must be specified.</description>
-	<value/>
+        <description>Output image name. Must be specified.</description>
+    <value/>
     </param>
     <param type="bool" direction="in" name="stretch" subparam="true">
         <description>If true, stretch the mask if necessary and possible.</description>
@@ -125,23 +125,12 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                     from a usability point of view I'd say the default value should be True,
                     but it has to be False for backwards compatibility
                 -->
-		        <default param="targetres"><value type="bool">False</value></default>
-		        <default param="major"><value type="string"/></default>
-		        <default param="minor"><value type="string"/></default>
-		        <default param="pa"><value type="string"/></default>
-	        </equals>
-            <equals value="gaussian">
-                <default param="beam"><value type="string"></value></default>
-                <!--
-                    from a usability point of view I'd say the default value should be True,
-                    but it has to be False for backwards compatibility
-                -->
-		        <default param="targetres"><value type="bool">False</value></default>
-		        <default param="major"><value type="string"/></default>
+                <default param="targetres"><value type="bool">False</value></default>
+                <default param="major"><value type="string"/></default>
                 <default param="minor"><value type="string"/></default>
                 <default param="pa"><value type="string"/></default>
-	        </equals>
-	        <equals value="g">
+            </equals>
+            <equals value="gaussian">
                 <default param="beam"><value type="string"></value></default>
                 <!--
                     from a usability point of view I'd say the default value should be True,
@@ -152,7 +141,18 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 <default param="minor"><value type="string"/></default>
                 <default param="pa"><value type="string"/></default>
             </equals>
-	        <equals value="box">
+            <equals value="g">
+                <default param="beam"><value type="string"></value></default>
+                <!--
+                    from a usability point of view I'd say the default value should be True,
+                    but it has to be False for backwards compatibility
+                -->
+                <default param="targetres"><value type="bool">False</value></default>
+                <default param="major"><value type="string"/></default>
+                <default param="minor"><value type="string"/></default>
+                <default param="pa"><value type="string"/></default>
+            </equals>
+            <equals value="box">
                 <default param="major"><value type="string"/></default>
                 <default param="minor"><value type="string"/></default>
             </equals>
@@ -172,7 +172,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
                 <default param="kimage"><value type="string"/></default>
                 <default param="scale"><value type="double">-1.0</value></default>
             </equals>
-	    </when>
+        </when>
         <when param="mask">
             <notequals type="string" value="">
                 <default param="stretch"><value type="bool">False</value></default>
@@ -188,7 +188,7 @@ direction plane of an image. Smoothing is typically performed in order to reduce
 an image.
 
 Keyword arguments:
-	
+
 imagename    Input image name. Must be specified.
 outfile      Output smoothed image file name. Must be specified.
 kernel       Type of kernel to use when smoothing ("g", "gauss", or "gaussian" for a gaussian

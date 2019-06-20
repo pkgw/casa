@@ -386,8 +386,7 @@ void GridFT::prepGridForDegrid(){
    image->clearCache();
    // Now do the FFT2D in place
    //LatticeFFT::cfft2d(*lattice);
-   FFT2D ftp;
-   ftp.c2cFFT(*lattice);
+   ft_p.c2cFFT(*lattice);
    //logIO() << LogIO::DEBUGGING
    //	    << "Finished grid correction and FFT of image" << LogIO::POST;
     
@@ -1226,8 +1225,7 @@ ImageInterface<Complex>& GridFT::getImage(Matrix<Float>& weights, Bool normalize
       {
 	ArrayLattice<DComplex> darrayLattice(griddedData2);
 	//LatticeFFT::cfft2d(darrayLattice,false);
-	FFT2D ftp;
-	ftp.c2cFFT(darrayLattice, False);
+	ft_p.c2cFFT(darrayLattice, False);
 	griddedData.resize(griddedData2.shape());
 	convertArray(griddedData, griddedData2);
 	
@@ -1243,8 +1241,7 @@ ImageInterface<Complex>& GridFT::getImage(Matrix<Float>& weights, Bool normalize
       lattice=arrayLattice;
       
       //LatticeFFT::cfft2d(*lattice,false);
-      FFT2D ftp;
-      ftp.c2cFFT(*lattice, False);
+      ft_p.c2cFFT(*lattice, False);
     }
 
     
