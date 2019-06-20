@@ -1974,27 +1974,21 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		casacore::Int scan = vb->scan()(0);
 		casacore::Array<casacore::Double> chanFreqGHz = vb->getFrequencies(0, freqFrame_)/1e9;
 		casacore::Vector<casacore::Double> curve(1, 0.0);
-		if (plotmsAtm_) {
-			curve.resize();
-			if ((axis==PMS::ATM) || (axis==PMS::TSKY)) {
-				bool isAtm = (axis==PMS::ATM);
-				curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz, isAtm);
-			} else {
-				curve = plotmsAtm_->calcImageSidebandCurve(spw, scan, chanFreqGHz);
+		if (axis == PMS::ATM) { 
+			if (plotmsAtm_) {
+				plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, chanFreqGHz);
 			}
-		}
-		switch (axis) {
-			case PMS::ATM:
-				*atm_[vbnum] = curve;
-				break;
-			case PMS::TSKY:
-				*tsky_[vbnum] = curve;
-				break;
-			case PMS::IMAGESB:
-				*imageSideband_[vbnum] = curve;
-				break;
-			default:
-				break;
+			*atm_[vbnum] = curve;
+		} else if (axis == PMS::TSKY) {
+			if (plotmsAtm_) {
+				plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, chanFreqGHz);
+			}
+			*tsky_[vbnum] = curve;
+		} else {
+			if (plotmsAtm_) {
+				plotmsAtm_->calcImageCurve(curve, spw, scan, chanFreqGHz);
+			}
+			*imageSideband_[vbnum] = curve;
 		}
 		break;
 	}

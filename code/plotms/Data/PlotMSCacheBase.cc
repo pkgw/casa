@@ -382,14 +382,27 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		size_t yIndex = dataCount + i;
 		// set up atmospheric overlays
 		if ((axes[yIndex] == PMS::ATM) || (axes[yIndex] == PMS::TSKY)) {
-			plotmsAtm_ = new PlotMSAtm(filename_, selection_, cacheType()==PlotMSCacheBase::MS, this);
-		} 
-		if ((axes[yIndex] == PMS::IMAGESB) && plotmsAtm_) {
+			bool showatm = (axes[yIndex] == PMS::ATM);
+			bool isMS = (cacheType() == PlotMSCacheBase::MS);
+			bool xIsChan = (axes[i] == PMS::CHANNEL);
+			if ((plotmsAtm_ != nullptr) && (filename == plotmsAtm_->filename()) &&
+				(selection == plotmsAtm_->selection())) {
+				plotmsAtm_->setShowAtm(showatm);
+				plotmsAtm_->setXAxisIsChan(xIsChan);
+			} else {
+				if (plotmsAtm_ != nullptr) {
+					deleteAtm();
+				}
+				plotmsAtm_ = new PlotMSAtm(filename_, selection_, showatm, isMS, xIsChan, this);
+			}
+		} else if ((axes[yIndex] == PMS::IMAGESB) && plotmsAtm_) {
 			// warn if not possible and why
 			if (!plotmsAtm_->hasReceiverTable()) {
-				logWarn("load_cache", "Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
+				logWarn("load_cache",
+					"Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
 			} else if (!plotmsAtm_->canGetLOsForSpw()) {
-				logWarn("load_cache", "Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
+				logWarn("load_cache",
+					"Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
 			}
 		}
 		// separate x and y axes
@@ -2041,24 +2054,8 @@ void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
 	}
 }
 
-bool PlotMSCacheBase::hasOverlay() {
-	// check loaded axes for overlays
-	bool overlay(false);
-	std::vector<PMS::Axis> axes(loadedAxes());
-	for (auto axis: axes) {
-		if (PMS::axisIsOverlay(axis)) {
-			overlay = true;
-			break;
-		}
-	}
-	return overlay;
-}
-
 bool PlotMSCacheBase::canShowImageCurve() {
-	if (plotmsAtm_) {
-		return plotmsAtm_->canShowImageCurve();
-    }
-	return false;
+    return (hasOverlay() && plotmsAtm_->canShowImageCurve());
 }
 
 template<typename T>

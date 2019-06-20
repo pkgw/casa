@@ -634,27 +634,21 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
           casacore::Int scan = cti.thisScan();
           casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
           casacore::Vector<casacore::Double> curve(1, 0.0);
-          if (plotmsAtm_) {
-              curve.resize();
-              if ((axis==PMS::ATM) || (axis==PMS::TSKY)) { 
-                  bool isAtm = (axis==PMS::ATM); // false = TSKY
-                  curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz, isAtm);
-              } else {
-                  curve = plotmsAtm_->calcImageSidebandCurve(spw, scan, freqsGHz);
+          if (axis == PMS::ATM) { 
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, freqsGHz);
               }
-          }
-          switch (axis) {
-              case PMS::ATM:
-                  *atm_[chunk] = curve;
-                  break;
-              case PMS::TSKY:
-                  *tsky_[chunk] = curve;
-                  break;
-              case PMS::IMAGESB:
-                  *imageSideband_[chunk] = curve;
-                  break;
-              default:
-                  break;
+              *atm_[chunk] = curve;
+          } else if (axis == PMS::TSKY) {
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, freqsGHz);
+              }
+              *tsky_[chunk] = curve;
+          } else {
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcImageCurve(curve, spw, scan, freqsGHz);
+              }
+              *imageSideband_[chunk] = curve;
           }
           break;
         }

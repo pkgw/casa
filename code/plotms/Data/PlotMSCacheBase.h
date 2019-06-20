@@ -97,9 +97,9 @@ public:
   int nmetadata() const {return N_METADATA;};
   PMS::Axis metadata(int i) {return METADATA[i];};
 
-  // loaded ATM or TSKY
-  bool hasOverlay();
-  // must have receiver table not be split ms
+  // ATM or TSKY axis; for adjusting plot ranges
+  inline bool hasOverlay() { return (plotmsAtm_ != nullptr); }
+  // IMAGESB axis; for axis labels/title (image curve axis not always loaded)
   bool canShowImageCurve();
 
   // Reference an indexer; returns -1 if there is no indexer
@@ -733,8 +733,6 @@ protected:
 
   // For atm/tsky overlays
   PlotMSAtm* plotmsAtm_;
-  bool canShowImage_;
-
 
 private:
   void _updateAntennaMask( casacore::Int a, casacore::Vector<casacore::Bool>& antMask, const casacore::Vector<casacore::Int> selectedAntennas );
