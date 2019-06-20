@@ -252,9 +252,6 @@ class BaseClass :public DefaultNames, public RunEnv,  public ::testing::Test
 {
 public:
 
-     // Running Environment //
-     RunEnv       env;
-
      //+
      // MS copy/delete to make Test-MS
      //-
@@ -293,8 +290,8 @@ private:
      // Test MS copy and delete flag Enable/Dislable 
      //*
 
-     const bool fgCopyMS    = true;	// always must be TRUE for TestDirection 
-     const bool fgDeleteMS  = false;   // if FALSE, MS is not deleted. (for debug) 
+     const bool fgCopyMS    = true;   // MUST BE  TRUE, except r, except rare debugging case. 
+     const bool fgDeleteMS  = true;   // if FALSE, MS is not deleted. (for debug) 
 };
 
 //+
@@ -340,7 +337,7 @@ String BaseClass::CopyDefaultMStoWork( )
 String BaseClass::CopyMStoWork(String master)
 {
     // Src / Dst Path 
-        const String src = env.getCasaMasterPath() + master;
+        const String src = getCasaMasterPath() + master;
         const String dst = DefaultLocalMsName();
 
     // Src/Dst Path (Path) 
@@ -355,8 +352,8 @@ String BaseClass::CopyMStoWork(String master)
                        True,    // Overwrite 
                        True  ); // Users permisssion 
         // info //
-        printf( "- copied from Remote MS [%s]  \n", src.c_str() );
-        printf( "         to   Local  MS [%s]  \n", dst.c_str() );
+        printf( "- copying from Remote MS [%s]  \n", src.c_str() );
+        printf( "          to   Local  MS [%s]  \n", dst.c_str() );
 
        return dst;
     }
@@ -384,18 +381,15 @@ void BaseClass::DeleteWorkingMS()
     }
 }
 
-//*****************************************************
-// Interpolation Testing Trajectory lcass
-// (implemented by Singleton) 
-//****************************************************
+//*********************************************************
+// Interpolation Testing Trajectory cass (static function)
+//*********************************************************
 
-class TrajectoryFunction
+class TrajFunc
 {
     typedef void (*FUNCTYPE)(Double, Double&, Double& ); // Function typdef //
 
 public:
-
-    static uInt Dummy( uInt n ) { return n; }
 
     // Function Name Def //
     typedef enum _Tr_  {
@@ -414,185 +408,172 @@ public:
     // num(size) of function def. //
     size_t size() { return fpTrajectoryfunc.size(); }
     
-    // calculation (default) //
-    void calc(Double r_time, Double& X, Double& Y) {
-           (*fpTrajectoryfunc[currTrajFuncNo])( r_time, X, Y ); return; }
-
-    // calculation (specified) //
-    void calc(Double r_time, Double& X, Double& Y, uInt Fno) {
-           (*fpTrajectoryfunc[Fno])( r_time, X, Y ); return; }
+    // calculation //
+    static void calc(Double r_time, Double& X, Double& Y) {
+                     (*fpTrajectoryfunc[currTrajFuncNo])( r_time, X, Y ); return; }
 
     // set type //
-    void setType(uInt no ) {
+    static void setType(uInt no ) {
            if( no < fpTrajectoryfunc.size() )  currTrajFuncNo = no;}
 
-    // get instance (first call) //
-    static TrajectoryFunction &getInstance() { static TrajectoryFunction inst; return inst; }
+    // func Table //
+    static  std::vector<FUNCTYPE> fpTrajectoryfunc;
+    
 
 private:
-    // SINGLETON Set up. //
-    TrajectoryFunction() {}
-    ~TrajectoryFunction(){}
-    TrajectoryFunction(const TrajectoryFunction&);
-    TrajectoryFunction& operator=(const TrajectoryFunction&);
-
     // Selected Function //
-     uInt currTrajFuncNo =0;
+     static uInt currTrajFuncNo ;
 
-static void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
-{
-    X = -1.0 + 2.0 * r_time;
-    Y = -1.0 + 2.0 * r_time;
-    return;
-} 
-
-static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
-{
-    // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
-    X =  (r_time * 2.0 - 1.0 ) * M_PI ;
-    Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
-    return;
-}
-
-static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
-{
-    X = 1.0 * cos( 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 2.0*M_PI  * r_time );
-    return;
-}
-
-static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
-{   
-    X = 2.0 * cos( 8.0*  2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
-    return;
-}   
-
-static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
-{
-    double FREQ= 20.0; 
-    X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
-    Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
-    return;
-}
-
-static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
-{        
-    const Double Amp1 = 0.5;
-    const Double Amp2 = 0.6;
-    const Double Omega = 2.0 * M_PI ; 
-         
-    Double x1  = Amp1 * cos( Omega * r_time );
-    Double y1  = Amp2 * sin( Omega * r_time );
-
-    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
-    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
-
-    X = x1 + x4;
-    Y = y1 + y4;
-    return;
-}
-
-static void Function_gauss( Double r_time, Double& X, Double& Y)
-{
-    Double t   = r_time - 0.5;
-    Double A = 50;
-
-    Double gauss  = exp (-A*t*t);
-
-    X = gauss;
-    Y = gauss;
-    return;
-}
-
-static void Function_zero(Double r_time, Double& X, Double& Y)
-{
-    X = 0.0 + 0.0*r_time;
-    Y = 0.0 + 0.0*r_time;
-    return;
-}
-static void Function_const(Double r_time, Double& X, Double& Y)
-{
-    X = 1.0 + 0.0*r_time;
-    Y = 1.0 + 0.0*r_time;
-    return;
-}
-static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
-{
-    // Border //
-    double c1 = 0.1;
-    double c2 = 0.3;
-    double c3 = 1.0 - c2;
-    double c4 = 1.0 - c1;
-
-    double a1 = -1.0/c1;
-
-    double a2 = 1.0 /(c1*(c2-c1));
-    double b2 = (c1-c2)/(4*c1);
-    
-    double m = 0.5 -c2;
-    double a3 = 1.0/2.0/(m*m)/c1;
-    double b3 = 1.0/(2.0*c1);
-
-    double a4 = -a2;
-    double b4 = -b2;
-   
-    double a5 = a1;
-
-    X = Y = 0.0;
-
-    //  sections //
-    if( r_time <= c1 )
+    static void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
     {
+        X = -1.0 + 2.0 * r_time;
+        Y = -1.0 + 2.0 * r_time;
+    } 
+
+    static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
+    {
+        // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
+        X =  (r_time * 2.0 - 1.0 ) * M_PI ;
+        Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
+    }
+
+    static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
+    {
+        X = 1.0 * cos( 2.0*M_PI  * r_time );
+        Y = 1.0 * sin( 2.0*M_PI  * r_time );
+    }
+
+    static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
+    {   
+        X = 2.0 * cos( 8.0*  2.0*M_PI  * r_time );
+        Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
+    }   
+
+    static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
+    {
+        double FREQ= 20.0; 
+        X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
+        Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
+    }
+
+    static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
+    {        
+        const Double Amp1 = 0.5;
+        const Double Amp2 = 0.6;
+        const Double Omega = 2.0 * M_PI ; 
+         
+        Double x1  = Amp1 * cos( Omega * r_time );
+        Double y1  = Amp2 * sin( Omega * r_time );
+
+        Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
+        Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
+
+        X = x1 + x4;
+        Y = y1 + y4;
+    }
+
+    static void Function_gauss( Double r_time, Double& X, Double& Y)
+    {
+        Double t   = r_time - 0.5;
+        Double A = 50;
+
+        Double gauss  = exp (-A*t*t);
+
+        X = gauss;
+        Y = gauss;
+    }
+
+    static void Function_zero(Double r_time, Double& X, Double& Y)
+    {
+        X = 0.0 + 0.0*r_time;
+        Y = 0.0 + 0.0*r_time;
+    }
+
+    static void Function_const(Double r_time, Double& X, Double& Y)
+    {
+        X = 1.0 + 0.0*r_time;
+        Y = 1.0 + 0.0*r_time;
+    }
+
+    static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
+    {
+      // Border //
+      double c1 = 0.1;
+      double c2 = 0.3;
+      double c3 = 1.0 - c2;
+      double c4 = 1.0 - c1;
+
+      double a1 = -1.0/c1;
+
+      double a2 = 1.0 /(c1*(c2-c1));
+      double b2 = (c1-c2)/(4*c1);
+    
+      double m = 0.5 -c2;
+      double a3 = 1.0/2.0/(m*m)/c1;
+      double b3 = 1.0/(2.0*c1);
+
+      double a4 = -a2;
+      double b4 = -b2;
+   
+      double a5 = a1;
+
+      X = Y = 0.0;
+
+      //  sections //
+      if( r_time <= c1 )
+      {
         double f = a1 * (r_time - c1);     
         X = Y = f;
-    }
-    else
-    if( r_time <= c2 )
-    {
+      }
+      else
+      if( r_time <= c2 )
+      {
         double x = r_time - (c1+c2)/2.0;
         double f = a2 * x*x + b2;
         X = Y = f;
-    }
-    else
-    if( r_time <= c3 )
-    {
+      }
+      else
+      if( r_time <= c3 )
+      {
         double x = r_time -0.5;
         double f = a3* x*x*x - b3*x;
         X = Y = f;
-    }
-    else
-    if( r_time <= c4 )
-    {
+      }
+      else
+      if( r_time <= c4 )
+      {
         double x = r_time -(c3+c4)/2.0;
         double f = a4 * x*x + b4;
         X = Y = f;
-    }
-    else
-    {
+      }
+      else
+      {
         double f = a5 *(r_time -c4);  
         X = Y = f;
-    }
+      }
+    } // end of function
+}; // end class def
 
-    return;
-}
+//+
+// Entitiy of TrajFunc 
+//-
 
-
-    // Function Table //
-    std::vector<FUNCTYPE>  fpTrajectoryfunc
-    {    
-        Function_SimpleLinear,        // 0
-        Function_NormalizedLinear,    // 1
-        Function_sinusoid_slow,       // 2
-        Function_sinusoid_quick,      // 3
-        Function_sinusoid_hasty,      // 4
-        Function_harmonics_sinusoid,  // 5
-        Function_gauss,               // 6   (new 12/11)
-        Function_zero,                 // 7
-        Function_const,                // 8
-        Function_SplineSpecial         // 9
-    };   
-}; // end class
+// selected function //
+  uInt TrajFunc::currTrajFuncNo =0;
+// function table // 
+  std::vector<TrajFunc::FUNCTYPE>  TrajFunc::fpTrajectoryfunc
+  {    
+     Function_SimpleLinear,        // 0
+     Function_NormalizedLinear,    // 1
+     Function_sinusoid_slow,       // 2
+     Function_sinusoid_quick,      // 3
+     Function_sinusoid_hasty,      // 4
+     Function_harmonics_sinusoid,  // 5
+     Function_gauss,               // 6   
+     Function_zero,                 // 7
+     Function_const,                // 8
+     Function_SplineSpecial         // 9
+  };
 
 //************************************************************
 // Tuning MS Configulation for testing mainly getDirection() 
@@ -668,10 +649,6 @@ public:
       uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
       void setMaxAntenna(uInt n) { prepareMaxAntenna_ = n;  }
    
-    // Pointing Columns //
-
-      void setMaxPointingColumns(uInt n ) { prepareMaxPointingColumns_ = n; }
-
     // Force to set up special MS for multiple access test(by AntennaID and PointingColumns )
 
       bool ifCoeffLocTest() { return fgCoeffLocationTest; }
@@ -731,12 +708,10 @@ private:
       Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
       Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
-    // Number of Antenna , Number of avilable Pointing Columns
-    //   to prepeare for the Test  
-
+    // Number of Antenna to prepeare //
       uInt prepareMaxAntenna_         = 1;    // Tunable by set function. //
-      uInt prepareMaxPointingColumns_ = 1;    // Tunable by set function. //
 
+    // Coefficient Test (special)
       bool fgCoeffLocationTest  = false; 
 };
 
@@ -822,16 +797,6 @@ void TuneMSConfig::Initialize(Double p_interval, Double m_interval )
         init();
 }
 
-void TuneMSConfig::Initialize( )
-{
-        Double p_int = 0.048;
-        Double m_int = 1.008;
-
-        setMainRowCount(currentDefaultTestingRowCnt_);
-        Initialize(p_int, m_int);  // Give Pointing and Main Intervals. //
-}
-
-
 //+
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
@@ -846,15 +811,8 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 
         PseudoPointingData  point2; 
 
-        //+
         //  relative time limit (r_time)
-        //   (on private)
-        //-
-
-        if (r_time__  > 1.0) {
-            printf( "r_time::Exceeded 1.0: %f \n",r_time__ );
-            assert( r_time__  < 1.0); 
-        }
+        assert(r_time__  <= 1.0);
  
         //+
         //  Determin TIME upon Base Date. 
@@ -883,7 +841,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 
         // prepare five sets // 
         for(uInt n=0;n<DirColCount;n++) {
-            TrajectoryFunction::getInstance().calc( r_time__, X2[n], Y2[n] );
+            TrajFunc::calc( r_time__, X2[n], Y2[n] );
         }
 
         // Probe the range //
@@ -1798,6 +1756,8 @@ protected:
         virtual void TearDown()
         {
             BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
         }
 
         // Test Fixture Sub //
@@ -1991,10 +1951,6 @@ public:
                                          mainInterval ) ;      // Main Interval
 
             msedit.tuneMS.    setInterpolationErrorLimit( errLimit );
-        }
-        void selectTrajectory( uInt no )
-        {
-            TrajectoryFunction::getInstance(). setType(no);   // Trajectory Function Type // 
         }
 
         void prepareAntenna()
@@ -2324,7 +2280,7 @@ typedef struct Parm {
     Double testCount;
     Double p_interval;
     Double m_interval;
-    TrajectoryFunction::Type trFunc;
+    TrajFunc::Type trFunc;
     Double errLimit;
 } ParamList;
 
@@ -2334,68 +2290,68 @@ std::vector<std::vector<ParamList> >   paramListS =
 
     // Senario 0 (Big Ratio) //
     {
-      {true,  P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     2.0E-06 },
-      {false, P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajectoryFunction::Type::Spline_Special,     1.0E-05 },
+      {true,  P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     2.0E-06 },
+      {false, P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     1.0E-05 },
 
-      {true,  P_DIRECTION, 0,2520, 0.048,  0.001,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-05 },
-      {true,  P_DIRECTION, 0, 800, 0.048,  1.008,  TrajectoryFunction::Type::Normalized_Linear,  8.5E-08 },
+      {true,  P_DIRECTION, 0,2520, 0.048,  0.001,  TrajFunc::Type::Normalized_Linear,  5.0E-05 },
+      {true,  P_DIRECTION, 0, 800, 0.048,  1.008,  TrajFunc::Type::Normalized_Linear,  8.5E-08 },
 
     },
     // Senario 1 (Test Count Dependency) //
 #define ErrS1 2.0E-05
     {
-      {true, P_TARGET, 0,500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {false,P_TARGET, 0,500, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,500, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {false,P_TARGET, 0,500, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
 
-      {true, P_TARGET, 0,510, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,520, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,530, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,540, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,550, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,560, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,570, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,580, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
-      {true, P_TARGET, 0,590, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,510, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,520, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,530, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,540, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,550, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,560, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,570, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,580, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,590, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
  
     },
 
     // Senario 2 (all AntenaID) //
     {
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
-      {true, P_DIRECTION, 1,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
-      {true, P_DIRECTION, 2,1260, 0.05,  0.01,  TrajectoryFunction::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 1,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 2,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
     },
 
     // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
     {
-      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,  5.0E-06 },
-      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,  5.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajFunc::Type::Sinusoid_Slow,      5.0E-06 },
 
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Normalized_Linear,  6.0E-06 },
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajectoryFunction::Type::Sinusoid_Slow,      5.0E-05 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  6.0E-06 },
+      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Sinusoid_Slow,      5.0E-05 },
     },
 
     // Senario 4 (test Pointing Column ) //
     {
-      {true, P_POINTING_OFFSET, 0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   5.0E-06 },
-      {true, P_SOURCE_OFFSET,   0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   5.0E-06 },
-      {true, P_ENCODER,         0,1260, 0.01,  0.05,  TrajectoryFunction::Type::Normalized_Linear,   6.0E-06 },
+      {true, P_POINTING_OFFSET, 0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_SOURCE_OFFSET,   0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_ENCODER,         0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
     },
  
     // Senario 5 (Insufficient Data, small number of data.) // 
     {
-      {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, P_DIRECTION, 1,  5,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, P_DIRECTION, 1,  4,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
-      {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajectoryFunction::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  5,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  4,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
     },
 
 #if 1
     // Senario 6 (Interval , floating point preciseness) //
 #define ANT    0
 #define NTEST  540  // default =2580 , Error happens at least on 2550 // 
-#define FUNC   TrajectoryFunction::Type::Normalized_Linear 
+#define FUNC   TrajFunc::Type::Normalized_Linear 
     {
        {true,  P_DIRECTION, ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-04 },
        {true,  P_DIRECTION, ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-04 },
@@ -2457,7 +2413,8 @@ TEST_F(TestDirection, InterpolationListedItems )
             //+
             // set Examination Condition (revised by CAS-8418) //
             //-
-              selectTrajectory( trFunc );
+
+              TrajFunc::setType( trFunc);
 
               setCondition( testCount,   /*numinTestingRow */      //number of row
                             p_i,    // Pointing Interval
@@ -2490,7 +2447,8 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
 
     // set Examination Condition  //
 
-      selectTrajectory(TrajectoryFunction::Type::Zero); // Trajectory(Curve) Function
+      TrajFunc::setType(TrajFunc::Type::Zero);
+
       setCondition( 1008,       // number of row
                     0.05,      // Pointing Interval
                     0.001,      // Main Interval
@@ -2757,7 +2715,9 @@ TEST_F(TestDirection, setDirectionColumn  )
     // set Examination Condition (revised by CAS-8418) //
  
       uInt numRow = 1000;
-      selectTrajectory( TrajectoryFunction::Type::Normalized_Linear );
+
+      TrajFunc::setType(TrajFunc::Type::Normalized_Linear);
+ 
       setCondition( numRow,       // number of row
                      0.01,          // Pointing Interval
                      0.01,         // Main Interval
@@ -3131,6 +3091,8 @@ protected:
         virtual void TearDown()
        {
             BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
        }
 
         void test_selectdata(PointingDirectionCalculator & calc);
@@ -3170,11 +3132,8 @@ TEST_F(TestSelectData, Antenna )
 {
     TestDescription( "selectData (key=Antenna)" );
 
-    // MS name for this Test //
-   
-      MSNameList  mslist;
-      const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
-
+    // MS name for this Test //   
+       const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
        printf( " Used MS is [%s] \n", remote_ms.c_str() );
   
     // Create Object //
@@ -3265,10 +3224,7 @@ TEST_F(TestSelectData, Spw )
     TestDescription( "selectData (key=Spw)" );
 
     // MS name for this Test // 
-   
-      MSNameList  mslist; 
-      const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
-
+       const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
        printf( " Used MS is [%s] \n", remote_ms.c_str() );
   
     // Create Object //
@@ -3339,11 +3295,7 @@ TEST_F(TestSelectData, Field )
 
     // Using MS //
     
-        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-    
-        String remote_ms = MsName;
+        const String remote_ms = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
@@ -3407,11 +3359,7 @@ TEST_F(TestSelectData, Time )
 
     // Using MS //
     
-        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-
-        String remote_ms = MsName;
+        const String remote_ms = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
 
     // Create Object //
@@ -3479,11 +3427,7 @@ TEST_F(TestSelectData, Feed )
 
     // Using MS //
     
-        const String MsName = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-
-        String remote_ms = MsName;
+        const String remote_ms = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
 
     // Create Object //
@@ -3531,11 +3475,7 @@ TEST_F(TestSelectData, Intent )
 
     // Using MS //
     
-        const String MsName = "sdimaging/selection_intent.ms";    // 
-    
-    // MS name for this Test //
-    
-        String remote_ms = MsName;
+        const String remote_ms = "sdimaging/selection_intent.ms";    // 
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
@@ -3593,11 +3533,7 @@ TEST_F(TestSelectData, Observation )
 
     // Using MS //
     
-        const String MsName = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
-    
-    // MS name for this Test //
-    
-        String remote_ms = MsName;
+        const String remote_ms = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
@@ -3665,9 +3601,7 @@ TEST_F(TestSelectData, UVRange )
     TestDescription( "selectData (key=UV Range)" );
 
     // MS name for this Test //
-        MSNameList  mslist;
-        const String remote_ms =  mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
- 
+        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
@@ -3714,9 +3648,7 @@ TEST_F(TestSelectData, MSselect )
     TestDescription( "selectData (key=MS Select)" );
 
     // MS name for this Test //
-        MSNameList  mslist;
-        const String remote_ms = mslist.name(2); // "listobs/uid___X02_X3d737_X1_01_small.ms";
- 
+        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
     
     // Create Object //
@@ -3847,6 +3779,8 @@ const std::vector<FrameTypeList> DefinedFrametypes
         virtual void TearDown()
        {
             BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
        }
       
         // Test Fixture Sub //
@@ -3899,15 +3833,10 @@ TEST_F(TestSetFrame, setFrame )
 { 
     TestDescription( "setFrame (String FrameName)" );
 
-    // Using MS //
-    
-        const String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";    
-    
-    // MS name for this Test //
-
-        String remote_ms =  MsName;
+    // Using MS // 
+        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";    
         printf( " Used MS is [%s] \n", remote_ms.c_str() );
-
+ 
     // Create Object //
         String local_ms = CopyMStoWork(remote_ms);
         MeasurementSet ms( local_ms );
@@ -3920,8 +3849,6 @@ TEST_F(TestSetFrame, setFrame )
             check_direction_info( calc, itr->name, itr->available ) ;
         }
 }
-
-
 
 }  // END namespace
 
