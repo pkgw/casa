@@ -37,17 +37,17 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
     <param type="stringArray" name="listitems" subparam="true">
       <description>items to list ([] for all)</description>
-		 <value type="stringArray">
-		   <value type="string">telescope</value>
-		   <value type="string">observer</value>
-		   <value type="string">project</value>
-		   <value type="string">field</value>
-		   <value type="string">freq_group_name</value>
-		   <value type="string">spw_name</value>
-		   <value type="string">schedule</value>
-		   <value type="string">schedule_type</value>
-		   <value type="string">release_date</value>
-		 </value>
+         <value type="stringArray">
+                   <value type="string">telescope</value>
+                   <value type="string">observer</value>
+                   <value type="string">project</value>
+                   <value type="string">field</value>
+                   <value type="string">freq_group_name</value>
+                   <value type="string">spw_name</value>
+                   <value type="string">schedule</value>
+                   <value type="string">schedule_type</value>
+                   <value type="string">release_date</value>
+         </value>
       <example>listitems = ['field', 'ptcs']; see help for list of keywords</example>
     </param>
 
@@ -73,20 +73,20 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     <constraints>
           <when param="mode">
              <equals type="string" value="list">
-	       <default param="listitems">
-		 <value type="stringArray">
-		   <value type="string">'telescope'</value>
-		   <value type="string">'observer'</value>
-		   <value type="string">'project'</value>
-		   <value type="string">'field'</value>
-		   <value type="string">'freq_group_name'</value>
-		   <value type="string">'spw_name'</value>
-		   <value type="string">'schedule'</value>
-		   <value type="string">'schedule_type'</value>
-		   <value type="string">'release_date'</value>
-		 </value>
-	       </default>
-	     </equals>
+           <default param="listitems">
+         <value type="stringArray">
+           <value type="string">'telescope'</value>
+           <value type="string">'observer'</value>
+           <value type="string">'project'</value>
+           <value type="string">'field'</value>
+           <value type="string">'freq_group_name'</value>
+           <value type="string">'spw_name'</value>
+           <value type="string">'schedule'</value>
+           <value type="string">'schedule_type'</value>
+           <value type="string">'release_date'</value>
+         </value>
+           </default>
+         </equals>
              <equals type="string" value="summary"/>
              <equals type="string" value="get">
                    <default param="hdkey"><value type="string"/></default>

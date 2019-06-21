@@ -1469,7 +1469,9 @@ void SIImageStore::setWeightDensity( std::shared_ptr<SIImageStore> imagetoset )
 	  
 	  if(toBeUsed.getMinor(image.coordinates().worldAxisUnits()[0]) > pixwidth)
 	    {
+	      //cerr << "old beam area " << oldbeam.getArea("rad2") << " new beam " << newbeam.getArea("rad2") << endl;
 	      StokesImageUtil::Convolve(image, toBeUsed, True);
+	      image.copyData(LatticeExpr<Float>(image*newbeam.getArea("rad2")/ oldbeam.getArea("rad2")));
 	    }
 	}
     }

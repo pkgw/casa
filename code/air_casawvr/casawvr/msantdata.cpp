@@ -24,7 +24,7 @@ namespace LibAIR2 {
     const size_t nant=antTable.nrow();
     res.resize(nant, 3);
     casacore::ROMSAntennaColumns acols(antTable);
-    const casacore::ROArrayColumn<casacore::Double> &pos (acols.position());
+    const casacore::ArrayColumn<casacore::Double> &pos (acols.position());
     for(size_t i=0; i<nant; ++i)
     {
       casacore::Array<casacore::Double> a;
@@ -42,7 +42,7 @@ namespace LibAIR2 {
     const size_t nant=antTable.nrow();
 
     casacore::ROMSAntennaColumns acols(antTable);
-    const casacore::ROScalarColumn<casacore::String> &names (acols.name());
+    const casacore::ScalarColumn<casacore::String> &names (acols.name());
     for(size_t i=0; i<nant; ++i)
     {
       res.insert(aname_t::value_type(i, std::string(names(i))));

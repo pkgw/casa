@@ -167,7 +167,7 @@ namespace casa{
     private:
       casacore::Bool checkPBOfField(const VisBuffer& vb);
       void addPBToFlux(const VisBuffer& vb);
-      casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
+      std::map <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Int actualConvIndex_p;
       PBMathInterface::PBClass pbClass_p;
 

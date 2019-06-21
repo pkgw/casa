@@ -51,15 +51,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Bool DrawingDisplayMethod::drawIntoList(Display::RefreshReason reason,
 	                                        WorldCanvasHolder &wcHolder) {
 		// use friendship to access list of DDDObjects
-		ListIter<void *> *listIter =
-		    ((DrawingDisplayData *)parentDisplayData())->itsDDDOListIter;
-		DDDObject *dddObject;
-		listIter->toStart();
-		while (!listIter->atEnd()) {
-			dddObject = (DDDObject *)listIter->getRight();
-			dddObject->draw(reason, wcHolder.worldCanvas());
-			(*listIter)++;
-		}
+        for ( void *vp : ((DrawingDisplayData *) parentDisplayData( ))->itsDDDOList ) {
+            auto dddObject = (DDDObject*) vp;
+			dddObject->draw( reason, wcHolder.worldCanvas( ) );
+        }
 		return true;
 	}
 

@@ -74,8 +74,8 @@ logsink::logsink(const std::string &filename, bool telemetrytoggle, const std::s
   }
 
   // jagonzal: Set task and processor name
-  taskname = new casacore::String("casa");
-  processor_name = casacore::String("casa");
+  taskname = "casa";
+  processor_name = "casa";
 
   //cout << "thelogsink=" << thelogsink << endl;
   thelogsink = new casa::TSLogSink(theLogName);
@@ -120,10 +120,10 @@ bool logsink::origin(const std::string &fromwhere)
     delete itsorigin;
     itsorigin = new LogOrigin(processor_name);
     //String* taskname = new String(fromwhere);
-    taskname = new String(fromwhere);
-    itsorigin->taskName(*taskname);
-    thelogsink->setTaskName(*taskname);
-    LogSink().globalSink().setTaskName(*taskname);
+    taskname = fromwhere;
+    itsorigin->taskName(taskname);
+    thelogsink->setTaskName(taskname);
+    LogSink().globalSink().setTaskName(taskname);
     return rstat;
 }
 
@@ -131,9 +131,9 @@ bool logsink::origin(const std::string &fromwhere)
 // but in the MPI case we use the hostname and rank involved)
 bool logsink::processorOrigin(const std::string &fromwhere)
 {
-	bool rstat = true;
+    bool rstat = true;
 
-    processor_name = casacore::String(fromwhere);
+    processor_name = fromwhere;
 
     return rstat;
 }
@@ -273,7 +273,7 @@ logsink::postLocally(const std::string& message,
 
 std::mutex _stat_mutex;
 bool logsink::poststat(const std::string& message,
-		   const std::string& origin)
+                       const std::string& /*origin*/)
 {
     int fd = open(telemetryLog.c_str(), O_RDWR | O_CREAT, 0666);
     int telemetryFileLocked = flock(fd, LOCK_EX | LOCK_NB);
@@ -289,7 +289,7 @@ bool logsink::poststat(const std::string& message,
                 strftime(formattedtime, 20, "%Y-%m-%d %H:%M:%S", localtime(&convertedtime));
                 std::string telemetryOrigin =" ";
                 if(itsorigin) {
-                    std:string origOrigin = itsorigin->toString();
+                    std::string origOrigin = itsorigin->toString();
                     std::remove_copy(origOrigin.begin(), origOrigin.end(), std::back_inserter(telemetryOrigin), ':');
                 }
                 tlog << formattedtime << " :: " << telemetryLoggerPid<< " ::"<< telemetryOrigin << " :: " << message << "\n";

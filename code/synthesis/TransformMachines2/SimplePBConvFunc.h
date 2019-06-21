@@ -178,7 +178,7 @@ namespace refim{ //namespace for imaging refactor
     private:
       casacore::Bool checkPBOfField(const vi::VisBuffer2& vb);
       void addPBToFlux(const vi::VisBuffer2& vb);
-      casacore::SimpleOrderedMap <casacore::String, casacore::Int> convFunctionMap_p;
+      std::map <casacore::String, casacore::Int> convFunctionMap_p;
       casacore::Int actualConvIndex_p;
       PBMathInterface::PBClass pbClass_p;
 

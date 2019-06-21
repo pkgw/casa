@@ -5,8 +5,6 @@
  *      Author: jjacobs
  */
 
-#undef casacore
-
 #include <msvis/MSVis/PointingDirectionCache.h>
 
 #include <casa/Exceptions/Error.h>

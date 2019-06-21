@@ -619,7 +619,7 @@ Bool MSTransformDataHandler::selectSpw(const String& spwstr,const Vector<Int>& s
 // -----------------------------------------------------------------------
 std::set<Int> MSTransformDataHandler::findBadSpws(MeasurementSet& ms,Vector<Int> spwv)
 {
-	ROScalarColumn<Int> spws_in_dd(	ms.dataDescription(),
+	ScalarColumn<Int> spws_in_dd(	ms.dataDescription(),
 									MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
 	std::set<Int> uniqSpwsInDD;
 	uInt nspwsInDD = spws_in_dd.nrow();
@@ -696,71 +696,72 @@ void MSTransformDataHandler::selectArray(const String& subarray)
 // -----------------------------------------------------------------------
 Bool MSTransformDataHandler::selectCorrelations(const String& corrstr)
 {
-	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
+    LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
 
-	corrString_p = corrstr;
-	const Bool areSelecting = corrstr != "" && corrstr != "*";
+    corrString_p = corrstr;
+    const Bool areSelecting = corrstr != "" && corrstr != "*";
 
-	// Get correlation slices
-	MSSelection mssel1;
-	if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
-	mssel1.getCorrSlices(corrSlices_p, &ms_p);
+    // Get correlation slices
+    MSSelection mssel1;
+    if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
+    mssel1.getCorrSlices(corrSlices_p, &ms_p);
 
-	// Get correlation map
-	// jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
-	//                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
-	MSSelection mssel2;
-	if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
-	return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
+    // Get correlation map
+    // jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
+    //                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
+    MSSelection mssel2;
+    if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
+    return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
-											const MeasurementSet& ms,
-											Vector<Vector<Int> >& outToIn,
-											const Bool areSelecting)
+Bool MSTransformDataHandler::getCorrMaps(MSSelection& mssel,
+                                         const MeasurementSet& ms,
+                                         Vector<Vector<Int> >& outToIn,
+                                         const Bool areSelecting)
 {
 
-	// ?? This always returns true!!!?!!
-	Bool cando = true;
+    // ?? This always returns true!!!?!!
+    Bool cando = true;
 
-	// The total number of polids
-	uInt npol = ms.polarization().nrow();
+    // The total number of polids
+    uInt npol = ms.polarization().nrow();
 
-	// Nominally empty selection for all polids
-	outToIn.resize(npol);
-	outToIn.set(Vector<Int> ());
-	if (areSelecting)
-	{
-		// Get the corr indices as an ordered map
-		OrderedMap<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
+    // Nominally empty selection for all polids
+    outToIn.resize(npol);
+    outToIn.set(Vector<Int> ());
+    if (areSelecting)
+    {
+        // Get the corr indices as an ordered map
+        std::map<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
 
-		// Iterate over the ordered map to fill the vector maps
-		ConstMapIter<Int, Vector<Vector<Int> > > mi(corrmap);
-		for (mi.toStart(); !mi.atEnd(); ++mi)
-		{
-			Int pol = mi.getKey();
-			outToIn[pol] = mi.getVal()[0];
-		}
-	}
-	else
-	{ 	// Make outToIn an identity map.
-		ROScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
+        // Iterate over the ordered map to fill the vector maps
+        for ( auto mi = corrmap.begin( ); mi != corrmap.end( ); ++mi)
+        {
+            Int pol = mi->first;
+            std::vector<int> correlations_idx = mi->second[0].tovector();
+            std::sort(correlations_idx.begin(), correlations_idx.end()); 
+            outToIn[pol] = correlations_idx;
+        }
+    }
+    else
+    { 	// Make outToIn an identity map.
+        ScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
 
-		for (uInt polid = 0; polid < npol; ++polid)
-		{
-			uInt ncorr = numCorr(polid);
-			outToIn[polid].resize(ncorr);
-			for (uInt cid = 0; cid < ncorr; ++cid)
-			{
-				outToIn[polid][cid] = cid;
-			}
-		}
-	}
+        for (uInt polid = 0; polid < npol; ++polid)
+        {
+            uInt ncorr = numCorr(polid);
+            outToIn[polid].resize(ncorr);
+            for (uInt cid = 0; cid < ncorr; ++cid)
+            {
+                outToIn[polid][cid] = cid;
+            }
+        }
+    }
 
-	return cando;
+    return cando;
 }
 
 // -----------------------------------------------------------------------
@@ -838,7 +839,7 @@ Bool MSTransformDataHandler::makeMSBasicStructure(String& msname,
 	// handle column keywords copy for CORRECTED_DATA -> DATA
 	if (colNamesTok.nelements() == 1 && colNamesTok[0] == MS::CORRECTED_DATA && mssel_p.isColumn(MS::CORRECTED_DATA)) {
 	    TableColumn outCol(msOut_p, "DATA");
-	    ROTableColumn inCol(mssel_p, "CORRECTED_DATA");
+	    TableColumn inCol(mssel_p, "CORRECTED_DATA");
 	    // Copy the keywords CORRECTED_DATA -> DATA
 	    copyMainTableKeywords(outCol.rwKeywordSet(), inCol.keywordSet());
 	}
@@ -1007,9 +1008,9 @@ Bool MSTransformDataHandler::makeSelection()
 	spw2ddid_p = thisSelection.getSPWDDIDList(elms);
 
 	const MSDataDescription ddtable = elms->dataDescription();
-	ROScalarColumn<Int> polId(ddtable,MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
+	ScalarColumn<Int> polId(ddtable,MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
 	const MSPolarization poltable = elms->polarization();
-	ROArrayColumn<Int> pols(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
+	ArrayColumn<Int> pols(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
 
 	// Get the list of DDI for the selected polarizations
 	Vector<Int> polDDIList = thisSelection.getDDIDList(elms);
@@ -1084,8 +1085,8 @@ Bool MSTransformDataHandler::makeSelection()
 	{
 		/*
 		// Watch out! getAntenna*List() and getBaselineList() return negative numbers for negated antennas!
-		ROScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
-		ROScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
+		ScalarColumn<Int> ant1c(mssel_p, MS::columnName(MS::ANTENNA1));
+		ScalarColumn<Int> ant2c(mssel_p, MS::columnName(MS::ANTENNA2));
 		Vector<Int> selAnts(ant1c.getColumn());
 		uInt nAnts = selAnts.nelements();
 
@@ -1570,15 +1571,15 @@ Bool MSTransformDataHandler::fillFieldTable()
 	MSFieldColumns msField(msOut_p.field());
 
 	const ROMSFieldColumns& fieldIn = mscIn_p->field();
-	ROScalarColumn<String> code(fieldIn.code());
-	ROArrayColumn<Double> delayDir(fieldIn.delayDir());
-	ROScalarColumn<Bool> flagRow(fieldIn.flagRow());
-	ROScalarColumn<String> name(fieldIn.name());
-	ROScalarColumn<Int> numPoly(fieldIn.numPoly());
-	ROArrayColumn<Double> phaseDir(fieldIn.phaseDir());
-	ROArrayColumn<Double> refDir(fieldIn.referenceDir());
-	ROScalarColumn<Int> sourceId(fieldIn.sourceId());
-	ROScalarColumn<Double> time(fieldIn.time());
+	ScalarColumn<String> code(fieldIn.code());
+	ArrayColumn<Double> delayDir(fieldIn.delayDir());
+	ScalarColumn<Bool> flagRow(fieldIn.flagRow());
+	ScalarColumn<String> name(fieldIn.name());
+	ScalarColumn<Int> numPoly(fieldIn.numPoly());
+	ArrayColumn<Double> phaseDir(fieldIn.phaseDir());
+	ArrayColumn<Double> refDir(fieldIn.referenceDir());
+	ScalarColumn<Int> sourceId(fieldIn.sourceId());
+	ScalarColumn<Double> time(fieldIn.time());
 
 	String refstr;
 	String nameVarRefColDelayDir, nameVarRefColPhaseDir, nameVarRefColRefDir;
@@ -1730,7 +1731,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColDelayDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColDelayDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColDelayDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColDelayDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1741,7 +1742,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColPhaseDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColPhaseDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColPhaseDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColPhaseDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1752,7 +1753,7 @@ Bool MSTransformDataHandler::fillFieldTable()
 			// need to copy the reference column
 			if (!nameVarRefColRefDir.empty())
 			{
-				ROScalarColumn<Int> dM(mssel_p.field(), nameVarRefColRefDir);
+				ScalarColumn<Int> dM(mssel_p.field(), nameVarRefColRefDir);
 				ScalarColumn<Int> cdMDirRef(msOut_p.field(),nameVarRefColRefDir);
 				for (uInt k = 0; k < fieldid_p.nelements(); ++k)
 				{
@@ -1778,7 +1779,7 @@ Bool MSTransformDataHandler::copyEphemerisTable(MSFieldColumns & msField)
 {
 	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
 	const ROMSFieldColumns& fieldIn = mscIn_p->field();
-	ROScalarColumn<Int> eID(fieldIn.ephemerisId());
+	ScalarColumn<Int> eID(fieldIn.ephemerisId());
 
 	if (eID.hasContent())
 	{
@@ -1793,7 +1794,7 @@ Bool MSTransformDataHandler::copyEphemerisTable(MSFieldColumns & msField)
 		}
 
 		String destPathName = Path(msOut_p.field().tableName()).absoluteName();
-		ROScalarColumn<String> name(fieldIn.name());
+		ScalarColumn<String> name(fieldIn.name());
 
 		for (uInt k = 0; k < nField; ++k)
 		{
@@ -1858,10 +1859,10 @@ Bool MSTransformDataHandler::fillPolTable()
 
 	// Input polarization table
 	const MSPolarization &poltable = mssel_p.polarization();
-	ROScalarColumn<Int> numCorr(poltable,MSPolarization::columnName(MSPolarization::NUM_CORR));
-	ROArrayColumn<Int> corrType(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
-	ROArrayColumn<Int> corrProd(poltable,MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
-	ROScalarColumn<Bool> flagRow(poltable,MSPolarization::columnName(MSPolarization::FLAG_ROW));
+	ScalarColumn<Int> numCorr(poltable,MSPolarization::columnName(MSPolarization::NUM_CORR));
+	ArrayColumn<Int> corrType(poltable,MSPolarization::columnName(MSPolarization::CORR_TYPE));
+	ArrayColumn<Int> corrProd(poltable,MSPolarization::columnName(MSPolarization::CORR_PRODUCT));
+	ScalarColumn<Bool> flagRow(poltable,MSPolarization::columnName(MSPolarization::FLAG_ROW));
 
 	// Output polarization table
 	MSPolarizationColumns& msPol(msc_p->polarization());
@@ -1947,8 +1948,8 @@ Bool MSTransformDataHandler::fillDDITable()
 	// Input ddi table
 	const MSDataDescription &inputDDI = mssel_p.dataDescription();
 
-	ROScalarColumn<Int> polIdCol(inputDDI, MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
-	ROScalarColumn<Int> spwIdCol(inputDDI,MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
+	ScalarColumn<Int> polIdCol(inputDDI, MSDataDescription::columnName(MSDataDescription::POLARIZATION_ID));
+	ScalarColumn<Int> spwIdCol(inputDDI,MSDataDescription::columnName(MSDataDescription::SPECTRAL_WINDOW_ID));
 
 	// Get selected SPWs
 	Vector<Int> selectedSpwIds(nddid);
@@ -2234,13 +2235,13 @@ Bool MSTransformDataHandler::fillSPWTable()
         if (haveSpwDI) msSpW.dopplerId().put(outSPWId, inSpWCols.dopplerId()(spw_p[k]));
         if (haveSpwSWF) 
         {
-            ROScalarColumn<String> inSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
+            ScalarColumn<String> inSwfCol(mssel_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
             ScalarColumn<String> outSwfCol(msOut_p.spectralWindow(), "SDM_WINDOW_FUNCTION");
             outSwfCol.put(outSPWId, inSwfCol(spw_p[k]));
         }
         if (haveSpwSNB) 
         {
-            ROScalarColumn<Int> inSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
+            ScalarColumn<Int> inSnbCol(mssel_p.spectralWindow(), "SDM_NUM_BIN");
             ScalarColumn<Int> outSnbCol(msOut_p.spectralWindow(), "SDM_NUM_BIN");
             outSnbCol.put(outSPWId, inSnbCol(spw_p[k]));
         }
@@ -2466,8 +2467,8 @@ Bool MSTransformDataHandler::copyPointing()
 				newPCs.setDirectionRef(MDirection::castType(oldPCs.directionMeasCol().getMeasRef().getType()));
 				newPCs.setEncoderDirectionRef(MDirection::castType(oldPCs.encoderMeas().getMeasRef().getType()));
 
-				const ROScalarColumn<Int>& antIds = oldPCs.antennaId();
-				const ROScalarColumn<Double>& time = oldPCs.time();
+				const ScalarColumn<Int>& antIds = oldPCs.antennaId();
+				const ScalarColumn<Double>& time = oldPCs.time();
 				ScalarColumn<Int>& outants = newPCs.antennaId();
 
 				uInt nTRanges = selTimeRanges_p.ncolumn();
@@ -2581,9 +2582,9 @@ Bool MSTransformDataHandler::copySource()
 			return true;
 		}
 
-		const ROScalarColumn<Int>& inSId = incols.sourceId();
+		const ScalarColumn<Int>& inSId = incols.sourceId();
 		ScalarColumn<Int>& outSId = outcols.sourceId();
-		const ROScalarColumn<Int>& inSPW = incols.spectralWindowId();
+		const ScalarColumn<Int>& inSPW = incols.spectralWindowId();
 		ScalarColumn<Int>& outSPW = outcols.spectralWindowId();
 
 		// row number in output.
@@ -3104,8 +3105,8 @@ Bool MSTransformDataHandler::filterOptSubtable(const String& subtabname)
 
 				// At this point msOut_p has subtab with 0 rows.
 				Table outtab(msOut_p.tableName() + '/' + subtabname,Table::Update);
-				ROScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");
-				ROScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID");
+				ScalarColumn<Int> inAntIdCol(intab, "ANTENNA_ID");
+				ScalarColumn<Int> inSpwIdCol(intab, "SPECTRAL_WINDOW_ID");
 				const Vector<Int>& antIds = inAntIdCol.getColumn();
 				const Vector<Int>& spwIds = inSpwIdCol.getColumn();
 
@@ -3237,7 +3238,7 @@ Bool MSTransformDataHandler::copyGenericSubtables()
 			if (inDesc.isColumn(name))
 			{
 			    TableColumn outCol(msOut_p, name);
-			    ROTableColumn inCol(mssel_p, name);
+			    TableColumn inCol(mssel_p, name);
 
 			    TableCopy::copySubTables(outCol.rwKeywordSet(),
 						     inCol.keywordSet(),
@@ -3346,7 +3347,7 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
                         if (spwTable_i.tableDesc().isColumn("SDM_WINDOW_FUNCTION") &&
                             spwTable_i.tableDesc().columnDescSet().isDefined("SDM_WINDOW_FUNCTION"))
                         {
-                            ROScalarColumn<String> swfCol_i(spwTable_i, "SDM_WINDOW_FUNCTION");
+                            ScalarColumn<String> swfCol_i(spwTable_i, "SDM_WINDOW_FUNCTION");
                             ScalarColumn<String> swfCol_0(spwTable_0, "SDM_WINDOW_FUNCTION");
                             swfCol_0.put(rowIndex, swfCol_i(subms_row_index));
                         }
@@ -3354,7 +3355,7 @@ Bool MSTransformDataHandler::mergeSpwSubTables(Vector<String> filenames)
                         if (spwTable_i.tableDesc().isColumn("SDM_NUM_BIN") &&
                             spwTable_i.tableDesc().columnDescSet().isDefined("SDM_NUM_BIN"))
                         {
-                            ROScalarColumn<Int> snbCol_i(spwTable_i, "SDM_NUM_BIN");
+                            ScalarColumn<Int> snbCol_i(spwTable_i, "SDM_NUM_BIN");
                             ScalarColumn<Int> snbCol_0(spwTable_0, "SDM_NUM_BIN");
                             snbCol_0.put(rowIndex, snbCol_i(subms_row_index));
                         }

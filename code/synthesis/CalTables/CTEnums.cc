@@ -34,8 +34,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //----------------------------------------------------------------------------
 
 // Static data initialization
-SimpleOrderedMap <Int, String> CTEnums::theirFieldMap ("");
-SimpleOrderedMap <Int, DataType> CTEnums::theirTypeMap (TpOther);
+std::map <Int, String> CTEnums::theirFieldMap;
+std::map <Int, DataType> CTEnums::theirTypeMap;
 
 //----------------------------------------------------------------------------
 
@@ -44,50 +44,54 @@ void CTEnums::initMaps ()
 // Initialize the static map containing the field names.
 // Skip this step if already initialized.
 //
-  if (!theirFieldMap.ndefined()) {
-    theirFieldMap.define (ANTENNA1, "ANTENNA1");
-    theirFieldMap.define (ANTENNA2, "ANTENNA2");
-    theirFieldMap.define (SCAN_NUMBER, "SCAN_NUMBER");
-    theirFieldMap.define (TIME, "TIME");
-    theirFieldMap.define (TIME_EXTRA_PREC, "TIME_EXTRA_PREC");
-    theirFieldMap.define (INTERVAL, "INTERVAL");
-    theirFieldMap.define (ARRAY_ID, "ARRAY_ID");
-    theirFieldMap.define (FIELD_ID, "FIELD_ID");
-    theirFieldMap.define (OBSERVATION_ID, "OBSERVATION_ID");
-    theirFieldMap.define (SPECTRAL_WINDOW_ID, "SPECTRAL_WINDOW_ID");
+  if ( theirFieldMap.size( ) == 0 ) {
+      theirFieldMap = {
+          {ANTENNA1, "ANTENNA1"},
+          {ANTENNA2, "ANTENNA2"},
+          {SCAN_NUMBER, "SCAN_NUMBER"},
+          {TIME, "TIME"},
+          {TIME_EXTRA_PREC, "TIME_EXTRA_PREC"},
+          {INTERVAL, "INTERVAL"},
+          {ARRAY_ID, "ARRAY_ID"},
+          {FIELD_ID, "FIELD_ID"},
+          {OBSERVATION_ID, "OBSERVATION_ID"},
+          {SPECTRAL_WINDOW_ID, "SPECTRAL_WINDOW_ID"},
 
-    theirFieldMap.define (CPARAM, "CPARAM");
-    theirFieldMap.define (FPARAM, "FPARAM");
-    theirFieldMap.define (PARAMERR, "PARAMERR");
-    theirFieldMap.define (FLAG, "FLAG");
-    theirFieldMap.define (SNR, "SNR");
-    theirFieldMap.define (WEIGHT, "WEIGHT");
-    
+          {CPARAM, "CPARAM"},
+          {FPARAM, "FPARAM"},
+          {PARAMERR, "PARAMERR"},
+          {FLAG, "FLAG"},
+          {SNR, "SNR"},
+          {WEIGHT, "WEIGHT"}
+      };
+
   };
 
 // Initialize the static map containing the basic field data types
 // Skip this step if already initialized.
 //
-  if (!theirTypeMap.ndefined()) {
-    theirTypeMap.define (ANTENNA1, TpInt);
-    theirTypeMap.define (ANTENNA2, TpInt);
-    theirTypeMap.define (SCAN_NUMBER, TpInt);
-    theirTypeMap.define (TIME, TpDouble);
-    theirTypeMap.define (TIME_EXTRA_PREC, TpDouble);
-    theirTypeMap.define (INTERVAL, TpDouble);
-    theirTypeMap.define (ARRAY_ID, TpInt);
-    theirTypeMap.define (FIELD_ID, TpInt);
-    theirTypeMap.define (OBSERVATION_ID, TpInt);
-    theirTypeMap.define (SPECTRAL_WINDOW_ID, TpInt);
+  if ( theirTypeMap.size( ) == 0 ) {
+      theirTypeMap = {
+          {ANTENNA1, TpInt},
+          {ANTENNA2, TpInt},
+          {SCAN_NUMBER, TpInt},
+          {TIME, TpDouble},
+          {TIME_EXTRA_PREC, TpDouble},
+          {INTERVAL, TpDouble},
+          {ARRAY_ID, TpInt},
+          {FIELD_ID, TpInt},
+          {OBSERVATION_ID, TpInt},
+          {SPECTRAL_WINDOW_ID, TpInt},
 
-    theirTypeMap.define (CPARAM, TpComplex);
-    theirTypeMap.define (FPARAM, TpFloat);
-    theirTypeMap.define (PARAMERR, TpFloat);
-    theirTypeMap.define (FLAG, TpBool);
-    theirTypeMap.define (SNR, TpFloat);
-    theirTypeMap.define (WEIGHT, TpFloat);
-    
-  };
+          {CPARAM, TpComplex},
+          {FPARAM, TpFloat},
+          {PARAMERR, TpFloat},
+          {FLAG, TpBool},
+          {SNR, TpFloat},
+          {WEIGHT, TpFloat}
+      };
+
+  }
 
 };
 
@@ -104,10 +108,10 @@ String CTEnums::fieldName (Int enumField)
 //    Exception if invalid field enumeration.
 //
   // Initialize map if empty
-  if (!theirFieldMap.ndefined()) initMaps();
+  if ( theirFieldMap.size( ) == 0 ) initMaps();
   
   // Return the column name
-  return theirFieldMap (enumField);
+  return theirFieldMap[enumField];
 };
 
 //----------------------------------------------------------------------------
@@ -144,10 +148,10 @@ DataType CTEnums::basicType (Int enumField)
 //    Exception if invalid field enumeration.
 //
   // Initialize map if empty
-  if (!theirTypeMap.ndefined()) initMaps();
+  if ( theirTypeMap.size( ) == 0 ) initMaps();
   
   // Return the column name
-  return theirTypeMap (enumField);
+  return theirTypeMap[enumField];
 };
 
 //----------------------------------------------------------------------------

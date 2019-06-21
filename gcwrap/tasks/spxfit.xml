@@ -18,8 +18,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 <input>
     <param type="any" name="imagename" >
         <any type="variant" listtypes="string stringArray"/>
-    	<description>Name of the input image(s)</description>
-    	<value type="string"></value>
+        <description>Name of the input image(s)</description>
+        <value type="string"></value>
         <example>imagename='ngc5921_task.image'</example>
     </param>
     <param type="string" direction="in" name="box">

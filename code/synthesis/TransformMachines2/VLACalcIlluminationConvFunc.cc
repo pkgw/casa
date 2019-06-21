@@ -432,8 +432,8 @@ namespace casa{
     
     const ROMSSpWindowColumns& spwCol = 
       vb.subtableColumns().spectralWindow();
-    ROArrayColumn<Double> chanfreq = spwCol.chanFreq();
-    ROScalarColumn<Double> reffreq = spwCol.refFrequency();
+    ArrayColumn<Double> chanfreq = spwCol.chanFreq();
+    ScalarColumn<Double> reffreq = spwCol.refFrequency();
     //    Freq = sum(chanFreq)/chanFreq.nelements();
     
     Freq = max(chanfreq.getColumn());

@@ -6,30 +6,30 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="listhistory" category="information">
-	<shortdescription>List the processing history of a dataset:</shortdescription>
-	<description>
-	List the processing history of a dataset:
-	The list of all task processing steps will be
-	given in the logger.
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value></value>
-		</param>
-	</input>
+    <shortdescription>List the processing history of a dataset:</shortdescription>
+    <description>
+        List the processing history of a dataset:
+        The list of all task processing steps will be
+        given in the logger.
+    </description>
+    <input>
+        <param type="string" name="vis" mustexist="true">
+            <description>Name of input visibility file (MS)</description>
+            <value></value>
+        </param>
+    </input>
 <returns type="void"/>
 
 <example>
 
-	The list of all task processing steps in a visibility data set
+        The list of all task processing steps in a visibility data set
         are listed in the logger.
 
-	Keyword arguments:
-	vis -- Name of input visibility file 
-		default: none; example: vis='ngc5921.ms'
+        Keyword arguments:
+        vis -- Name of input visibility file 
+                default: none; example: vis='ngc5921.ms'
         async -- Run asynchronously 
-  		    default = False; do not run asychronously
+                default = False; do not run asychronously
  </example>
  </task>
  </casaxml>

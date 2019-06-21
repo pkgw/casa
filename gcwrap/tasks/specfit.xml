@@ -17,8 +17,8 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <input>
     <param type="string" name="imagename" mustexist="true" >
-    	<description>Name of the input image</description>
-    	<value></value>
+        <description>Name of the input image</description>
+        <value></value>
         <example>imagename='ngc5921_task.image'</example>
     </param>
     <param type="string" direction="in" name="box">

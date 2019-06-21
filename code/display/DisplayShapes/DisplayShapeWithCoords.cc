@@ -466,160 +466,108 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		return rel;
 	}
 
-	WorldCanvas* DisplayShapeWithCoords::chooseWCFromPixPoints(const
-	        Matrix<Float>
-	        points,
-	        PanelDisplay* pd) {
+	WorldCanvas* DisplayShapeWithCoords::chooseWCFromPixPoints( const Matrix<Float> points, PanelDisplay* pd ) {
+
 		WorldCanvas* toReturn(0);
-		Bool success = false;
-		Bool pointsuccess = true;
 
-		ListIter<WorldCanvas* > wcs = pd->wcs();
-		wcs.toStart();
-
-		while(!wcs.atEnd() && !success) {
-			// Test all points.
-			const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-			if (!test) {
-				pointsuccess = false;
-			}
-
-			for (uInt i=0 ; i < points.nrow() ; i ++) {
-
-				pointsuccess =
-				    pointsuccess &&
-				    (wcs.getRight()->inWC(Int(points(i,0)+0.5), Int(points(i,1)+0.5)) &&
-				     wcs.getRight()->inDrawArea(Int(points(i,0)+0.5),
-				                                Int(points(i,1)+0.5)));
-
-			}
-
-			if (pointsuccess) {
-				toReturn = wcs.getRight();
-				success = true;
-			} else {
-				wcs.step();
-			}
-		}
+		pd->wcsApply( [&](WorldCanvas *wc) {
+						if ( toReturn == 0 ) {
+							const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+							if ( test ) {
+								Bool pointsuccess = true;
+								for (uInt i=0 ; i < points.nrow() ; i ++) {
+									pointsuccess = pointsuccess &&
+												   ( wc->inWC(Int(points(i,0)+0.5), Int(points(i,1)+0.5)) &&
+													 wc->inDrawArea(Int(points(i,0)+0.5), Int(points(i,1)+0.5)) );
+								}
+								if (pointsuccess) toReturn = wc;
+							}
+						}
+					} );
 
 
-		// if that returns nothing, look for one just in WC..
-		if (!success) {
-			wcs.toStart();
-			pointsuccess = true;
-
-			while(!wcs.atEnd() && !success) {
-				const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-				if (!test) {
-					pointsuccess = false;
-				}
-
-				for (uInt i=0 ; i < points.nrow() ; i ++) {
-					pointsuccess =
-					    pointsuccess &&
-					    (wcs.getRight()->inWC(Int(points(i,0)+0.5), Int(points(i,1)+0.5)));
-				}
-
-
-				if (pointsuccess) {
-					toReturn = wcs.getRight();
-					success = true;
-				} else {
-					wcs.step();
-				}
-
-			}
+		if ( toReturn == 0 ) {
+			// if that returns nothing, look for one just in WC..
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							if ( toReturn == 0 ) {
+								const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+								if ( test ) {
+									Bool pointsuccess = true;
+									for (uInt i=0 ; i < points.nrow() ; i ++) {
+										pointsuccess = pointsuccess && (wc->inWC(Int(points(i,0)+0.5), Int(points(i,1)+0.5)));
+									}
+									if (pointsuccess) toReturn = wc;
+								}
+							}
+						} );
 		}
 
 		return toReturn;
-
 	}
 
 	WorldCanvas* DisplayShapeWithCoords::chooseWCFromPixPoint(const Float& xPos,
-	        const Float& yPos,
-	        PanelDisplay* pd) {
+			const Float& yPos,
+			PanelDisplay* pd) {
+
 		WorldCanvas* toReturn(0);
-		Bool success = false;
 
-		// Look for ones where the point is in WC and in draw area
-		ListIter<WorldCanvas* > wcs = pd->wcs();
+		pd->wcsApply( [&](WorldCanvas *wc) {
+						if ( toReturn == 0 ) {
+							if ( wc->inWC( Int(xPos+0.5), Int(yPos+0.5) ) &&
+								 wc->inDrawArea( Int(xPos+0.5), Int(yPos+0.5)) ) {
 
+								const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
 
-		wcs.toStart();
+								if (test) toReturn = wc;
+							}
+						}
+			} );
+		
+		if ( toReturn == 0 ) {
+			// if that returns nothing, look for one just in WC..
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							if ( toReturn == 0 ) {
+								if ( wc->inWC( Int(xPos+0.5), Int(yPos+0.5)) ) {
+									const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
 
-		while(!wcs.atEnd() &&  !success) {
+									if (test) toReturn = wc;
+								}
+							}
+				} );
 
-			if (wcs.getRight()->inWC(Int(xPos+0.5), Int(yPos+0.5)) &&
-			        wcs.getRight()->inDrawArea(Int(xPos+0.5), Int(yPos+0.5))) {
-
-				const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-
-				if (test) {
-					toReturn = wcs.getRight();
-					success = true;
-				} else {
-					wcs.step();
-				}
-
-			} else {
-				wcs.step();
-			}
-		}
-
-
-		// if that returns nothing, look for one just in WC..
-		if (!success) {
-			wcs.toStart();
-			while(!wcs.atEnd() && !success) {
-				if (wcs.getRight()->inWC(Int(xPos+0.5), Int(yPos+0.5))) {
-
-					const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-
-					if (test) {
-						toReturn = wcs.getRight();
-						success = true;
-					} else {
-						wcs.step();
-					}
-				} else {
-					wcs++;
-				}
-			}
 		}
 
 		return toReturn;
-
 	}
 
 	WorldCanvas* DisplayShapeWithCoords::chooseWCFromWorldPoints(const Record&
-	        settings,
-	        const String&
-	        field,
-	        PanelDisplay* pd) {
-		WorldCanvas* toReturn(0);
+			settings,
+			const String&
+			field,
+			PanelDisplay* pd) {
 
 		if (!settings.isDefined(field)) {
-			throw(AipsError("Field (" + field +") not found when searching for"
-			                " a WorldCanvas"));
+			throw(AipsError( "Field (" + field +") not found when searching for"
+							 " a WorldCanvas" ));
 		}
 
 		if (!pd) {
-			throw(AipsError("Bad paneldisplay supplied when searching for a "
-			                "WorldCanvas"));
+			throw(AipsError( "Bad paneldisplay supplied when searching for a "
+							 "WorldCanvas" ));
 
 		}
 
 		if (settings.dataType(field) != TpRecord) {
-			throw(AipsError("Bad data type for field \'" + field + "\'. I was "
-			                "expecting a record"));
+			throw(AipsError( "Bad data type for field \'" + field + "\'. I was "
+							 "expecting a record" ));
 
 		}
 
 		// TODO units
 
 		// Record
-		//   points
-		//       quantas
+		//	 points
+		//		 quantas
 
 		Record subRecord;
 		subRecord = settings.subRecord(field);
@@ -651,108 +599,81 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		}
 
-		Bool success = false;
-
 		Vector<Double> pix(2);
 		Vector<Double> wcent(2);
-		Bool currentOK = true;
-		ListIter<WorldCanvas* > wcs = pd->wcs();
-		wcs.toStart();
-
-		while (!wcs.atEnd() && !success) {
-			const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-			if (!test) {
-				currentOK = false;
-			}
-
-			// Check all points for current WC.
-			for (uInt i =0; i < worldPoints.nrow() ; i++) {
-
-				wcent(0) = worldPoints(i,0);
-				wcent(1) = worldPoints(i,1);
-
-				if (!wcs.getRight()->worldToPix(wcent, pix)) {
-					currentOK = false;
-				}
-
-				if (currentOK) {
-					currentOK = currentOK &&
-					            wcs.getRight()->inWC(Int(pix(0)+0.5), Int(pix(1)+0.5)) &&
-					            wcs.getRight()->inDrawArea(Int(pix(0)+0.5), Int(pix(1)+0.5));
-				}
-			}
-
-			// Are all those points OK?
-			if (currentOK) {
-				toReturn = wcs.getRight();
-				success = true;
-			} else {
-				wcs.step();
-			}
-		}
-
-		// Check for just on WC (not in draw area)
-		if (!success) {
-			currentOK = true;
-			wcs.toStart();
-
-			while(!wcs.atEnd() && !success) {
-				const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-				if (!test) {
-					currentOK = false;
-				}
-
-				// Check all points for current WC.
-				for (uInt i =0; i < worldPoints.nrow() ; i++) {
-					wcent(0) = worldPoints(i,0);
-					wcent(1) = worldPoints(i,1);
-					if (!wcs.getRight()->worldToPix(wcent, pix)) {
-						currentOK = false;
-					}
-					if (currentOK) {
-						currentOK = currentOK &&
-						            wcs.getRight()->inWC(Int(pix(0)+0.5), Int(pix(1)+0.5));
-					}
-				}
-
-				// Are all those points OK?
-				if (currentOK) {
-					toReturn = wcs.getRight();
-					success = true;
-				} else {
-					wcs.step();
-				}
-			}
-		}
-
-		return toReturn;
-	}
-
-
-	WorldCanvas* DisplayShapeWithCoords::chooseWCFromWorldPoint(const Record&
-	        settings,
-	        PanelDisplay* pd) {
-
-		Bool success = false;
 
 		WorldCanvas* toReturn(0);
 
+		pd->wcsApply( [&](WorldCanvas *wc) {
+						if ( toReturn == 0 ) {
+							const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+							if ( test ) {
+								// Check all points for current WC.
+								Bool pointsuccess = true;
+								for (uInt i =0; i < worldPoints.nrow() ; i++) {
+
+									wcent(0) = worldPoints(i,0);
+									wcent(1) = worldPoints(i,1);
+
+									if ( wc->worldToPix(wcent, pix) ) {
+										pointsuccess = pointsuccess &&
+														wc->inWC(Int(pix(0)+0.5), Int(pix(1)+0.5)) &&
+														wc->inDrawArea(Int(pix(0)+0.5), Int(pix(1)+0.5));
+									} else pointsuccess = false;
+								}
+								if ( pointsuccess ) toReturn = wc;
+							}
+						}
+			} );
+
+		if ( toReturn == 0 ) {
+			// Check for just on WC (not in draw area)
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							if ( toReturn == 0 ) {
+								const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+								if ( test ) {
+									// Check all points for current WC.
+									Bool pointsuccess = true;
+									for (uInt i =0; i < worldPoints.nrow() ; i++) {
+
+										wcent(0) = worldPoints(i,0);
+										wcent(1) = worldPoints(i,1);
+
+										if ( wc->worldToPix(wcent, pix) ) {
+											pointsuccess = pointsuccess &&
+														   wc->inWC( Int(pix(0)+0.5), Int(pix(1)+0.5) );
+
+										} else pointsuccess = false;
+									}
+									if ( pointsuccess ) toReturn = wc;
+								}
+							}
+				} );
+
+		}
+		return toReturn;
+	}
+
+	WorldCanvas* DisplayShapeWithCoords::chooseWCFromWorldPoint(const Record&
+			settings,
+			PanelDisplay* pd) {
+
 		if (!settings.isDefined("center")) {
 			throw (AipsError("When trying to choose a WC, the field \'center\' was"
-			                 " not defined."));
+							 " not defined."));
 		}
 
 
 
 		if (settings.dataType("center") != TpRecord) {
 			throw (AipsError("When trying to choose a WC, the field \'center\' was"
-			                 " of incorrect type."));
+							 " of incorrect type."));
 
 		}
 		Record subRecord = settings.subRecord("center");
 		if (subRecord.nfields() != 2) {
 			throw (AipsError("When trying to choose a WC, the field \'center\' had"
-			                 " the wrong number of fields."));
+							 " the wrong number of fields."));
 		}
 
 		Record x = subRecord.subRecord(0);
@@ -764,15 +685,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		xh.fromRecord(error, x);
 		if (error.length() != 0) {
 			throw(AipsError("I couldn't get data from field \'center\' because"
-			                " the first element returned an error when I tried to "
-			                "make a quantum out of it"));
+							" the first element returned an error when I tried to "
+							"make a quantum out of it"));
 		}
 
 		yh.fromRecord(error, y);
 		if (error.length() != 0) {
 			throw(AipsError("I couldn't get data from field \'center\' because"
-			                " the second element returned an error when I tried to "
-			                "make a quantum out of it"));
+							" the second element returned an error when I tried to "
+							"make a quantum out of it"));
 		}
 		Vector<Double> wcent(2);
 		wcent(0) = Double(xh.asQuantumFloat().getValue());
@@ -783,51 +704,31 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		Vector<Double> pix(2);
 
-		ListIter<WorldCanvas* > wcs = pd->wcs();
-		wcs.toStart();
-
-		while (!wcs.atEnd() && !success) {
-			// UNITS??!?!?
-			if (wcs.getRight()->worldToPix(wcent, pix)) {
-				if (wcs.getRight()->inWC(Int(pix(0)+0.5), Int(pix(1)+0.5)) &&
-				        (wcs.getRight()->inDrawArea(Int(pix(0)+0.5), Int(pix(1)+0.5)))) {
-
-					const DisplayCoordinateSystem* test = &(wcs.getRight()->coordinateSystem());
-					if (test) {
-						toReturn = wcs.getRight();
-						success = true;
-					} else {
-						wcs.step();
-					}
-				} else {
-					wcs.step();
-				}
-			} else {
-				wcs.step();
-			}
-		}
-
-		if (!success) {
-			wcs.toStart();
-			while(!wcs.atEnd() && !success) {
-				if (wcs.getRight()->worldToPix(wcent, pix)) {
-					if (wcs.getRight()->inWC(Int(pix(0)+0.5), Int(pix(1)+0.5))) {
-						const DisplayCoordinateSystem* test =
-						    &(wcs.getRight()->coordinateSystem());
-
-						if (test) {
-							toReturn = wcs.getRight();
-							success = true;
-						} else {
-							wcs.step();
+		WorldCanvas* toReturn(0);
+		pd->wcsApply( [&](WorldCanvas *wc) {
+						if ( toReturn == 0 ) {
+							// UNITS??!?!?
+							if ( wc->worldToPix(wcent, pix) ) {
+								if ( wc->inWC( Int(pix(0)+0.5), Int(pix(1)+0.5) ) &&
+									 wc->inDrawArea( Int(pix(0)+0.5), Int(pix(1)+0.5) ) ) {
+									const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+									if ( test ) toReturn = wc;
+								}
+							}
 						}
-					} else {
-						wcs.step();
-					}
-				} else {
-					wcs.step();
-				}
-			}
+			} );
+
+		if ( toReturn == 0 ) {
+			pd->wcsApply( [&](WorldCanvas *wc) {
+							if ( toReturn == 0 ) {
+								if ( wc->worldToPix(wcent, pix) ) {
+									if ( wc->inWC( Int(pix(0)+0.5), Int(pix(1)+0.5) ) ) {
+										const DisplayCoordinateSystem* test = &(wc->coordinateSystem());
+										if (test) toReturn = wc;
+									}
+								}
+							}
+				} );
 		}
 
 		return toReturn;

@@ -662,14 +662,14 @@ namespace casa{
 	cout << "initialising antTypeMap to " << antTypeMap_p << endl;
       }
 
-      SimpleOrderedMap<Int, Int > cFKeysEncountered(-1); 
+      std::map<Int, Int > cFKeysEncountered;
       Int cfKeyCount = 0;
       for(uInt i=0; i<(uInt)vb.nRow(); i++){
 	Int cfKey = cFKeyFromAntennaTypes(antTypeMap_p(vb.antenna1()(i)),
 					  antTypeMap_p(vb.antenna2()(i)));
 	map(i) = cfKey;
-	if(cFKeysEncountered(cfKey)<0){ // new cFKey
-	  cFKeysEncountered.define(cfKey, cfKeyCount);
+	if(cFKeysEncountered.find(cfKey) == cFKeysEncountered.end( )){ // new cFKey
+	  cFKeysEncountered.insert(std::pair<Int, Int >(cfKey, cfKeyCount));
 	  cfKeyCount++;
 	}
       }  

@@ -1307,7 +1307,7 @@ table::iscelldefined(const std::string& columnname, const int rownr)
  Bool rstat(false);
  try {
 	 if(itsTable){
-		 ROTableColumn tabColumn(itsTable->table(), columnname);
+		 TableColumn tabColumn(itsTable->table(), columnname);
 		 rstat = tabColumn.isDefined(rownr);
 	 } else {
 		 *itsLog << LogIO::WARN << "No table specified, please open first" << LogIO::POST;
