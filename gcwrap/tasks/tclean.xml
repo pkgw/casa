@@ -1356,8 +1356,8 @@ HPX HEALPix grid.  -->
     </param>
 
     <param type="double" name="smallscalebias" subparam="true">
-     <shortdescription>A scale bias when using multi-scale and mtmfs algorithms </shortdescription>
-     <description>A numerical control to bias the scales when using multi-scale and mtmfs algorithms.
+     <shortdescription>Biases the scale selection when using multi-scale or mtmfs deconvolvers </shortdescription>
+     <description>A numerical control to bias the scales when using multi-scale or mtmfs algorithms.
                       The peak from each scale's smoothed residual is
                       multiplied by ( 1 - smallscalebias * scale/maxscale )
                       to increase or decrease the amplitude relative to other scales,
