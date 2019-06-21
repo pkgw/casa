@@ -89,65 +89,6 @@ namespace casa {
 //  - Expected Exception are describged in the definition
 //******************************************************************************
 
-//+
-// MeasurementSet NameList class
-//-
-class MsNameList {
-
-public:
-    typedef struct _MSDef   {
-        bool   ExThrow;  // True = cause Exeption
-        String name;     // MS name, with relative path from CASAPATH
-    } MSDef;
-
-    // Get File Name by Number //
-    const String  name(uInt No ) {
-        const String msg = "Internal Bugcheck:";
-        if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-        return TestMSList[No].name;
-    }
-
-    // True is this access makes Exception 
-    bool isException(uInt No) { 
-        const String msg = "Internal Bugcheck:";
-        if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-        return TestMSList[No].ExThrow;
-   }
-    uInt count() { return TestMSList.size();  }
-
-private:
-
-    std::vector<MSDef> TestMSList 
-    {
-        // Exeption(bool)  , Filename //
- 
-        {true, "hoge/sdimaging.ms"        },
-        {false, "sdimaging/sdimaging.ms"        },
-        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
-
-        // Following 2 MS are affected assert(), cannot run on UT
-        // Release EXE must throws Excepton. 
-#if 0
-        {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-        {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
-#endif 
-        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
-        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
-        {false, "sdimaging/azelpointing.ms"      	},
-        {false, "sdimaging/clipping_1row.ms"            },
-        {false, "sdimaging/clipping_2rows.ms"           },
-        {false, "sdimaging/clipping_3rows.ms"           },
-        {false, "sdimaging/clipping_3rows_2chans.ms"    },
-        {false, "sdimaging/clipping_3rows_suprious.ms"  },
-        {false, "sdimaging/pointing6.ms"                },
-        {false, "sdimaging/sdimaging_flagtest.ms"       },
-        {false, "sdimaging/selection_intent.ms"         },
-        {false, "sdimaging/selection_misc.ms"           },
-        {false, "sdimaging/selection_spw.ms"            },
-        {false, "sdimaging/selection_spw_unifreq.ms"    },
- 
-    };
-};
 
 //+
 // Direction Column List
@@ -400,58 +341,52 @@ public:
     } Type;
 
     // num(size) of function def. //
-    size_t size() { return fpTrajectoryfunc.size(); }
+    size_t size() { return fpTrajfunc.size(); }
     
     // calculation //
     static void calc(Double r_time, Double& X, Double& Y) {
-                     (*fpTrajectoryfunc[currTrajFuncNo])( r_time, X, Y ); return; }
+                     (*fpTrajfunc[currTrajFuncNo])( r_time, X, Y ); return; }
 
     // set type //
     static void setType(uInt no ) {
-           if( no < fpTrajectoryfunc.size() )  currTrajFuncNo = no;}
+           if( no < fpTrajfunc.size() )  currTrajFuncNo = no;}
 
     // func Table //
-    static  std::vector<FUNCTYPE> fpTrajectoryfunc;
+    static  std::vector<FUNCTYPE> fpTrajfunc;
     
 
 private:
     // Selected Function //
      static uInt currTrajFuncNo ;
 
-    static void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
-    {
+    static void Function_SimpleLinear( Double r_time, Double &X, Double &Y ){
         X = -1.0 + 2.0 * r_time;
         Y = -1.0 + 2.0 * r_time;
     } 
 
-    static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
-    {
+    static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y ){
         // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
         X =  (r_time * 2.0 - 1.0 ) * M_PI ;
         Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
     }
 
-    static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
-    {
+    static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y){
         X = 1.0 * cos( 2.0*M_PI  * r_time );
         Y = 1.0 * sin( 2.0*M_PI  * r_time );
     }
 
-    static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
-    {   
+    static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y){   
         X = 2.0 * cos( 8.0*  2.0*M_PI  * r_time );
         Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
     }   
 
-    static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y)
-    {
+    static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y){
         double FREQ= 20.0; 
         X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
         Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
     }
 
-    static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
-    {        
+    static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y){        
         const Double Amp1 = 0.5;
         const Double Amp2 = 0.6;
         const Double Omega = 2.0 * M_PI ; 
@@ -466,8 +401,7 @@ private:
         Y = y1 + y4;
     }
 
-    static void Function_gauss( Double r_time, Double& X, Double& Y)
-    {
+    static void Function_gauss( Double r_time, Double& X, Double& Y){
         Double t   = r_time - 0.5;
         Double A = 50;
 
@@ -477,20 +411,17 @@ private:
         Y = gauss;
     }
 
-    static void Function_zero(Double r_time, Double& X, Double& Y)
-    {
+    static void Function_zero(Double r_time, Double& X, Double& Y){
         X = 0.0 + 0.0*r_time;
         Y = 0.0 + 0.0*r_time;
     }
 
-    static void Function_const(Double r_time, Double& X, Double& Y)
-    {
+    static void Function_const(Double r_time, Double& X, Double& Y){
         X = 1.0 + 0.0*r_time;
         Y = 1.0 + 0.0*r_time;
     }
 
-    static void Function_SplineSpecial(Double r_time, Double& X, Double& Y)
-    {
+    static void Function_SplineSpecial(Double r_time, Double& X, Double& Y){
       // Border //
       double c1 = 0.1;
       double c2 = 0.3;
@@ -512,7 +443,6 @@ private:
       double a5 = a1;
 
       X = Y = 0.0;
-
       //  sections //
       if( r_time <= c1 )
       {
@@ -555,7 +485,7 @@ private:
 // selected function //
   uInt TrajFunc::currTrajFuncNo =0;
 // function table // 
-  std::vector<TrajFunc::FUNCTYPE>  TrajFunc::fpTrajectoryfunc
+  std::vector<TrajFunc::FUNCTYPE>  TrajFunc::fpTrajfunc
   {    
      Function_SimpleLinear,        // 0
      Function_NormalizedLinear,    // 1
@@ -1734,18 +1664,17 @@ class TestMeasurementSet : public BaseClass
 
 public:
 
-        MsNameList  MsNames;
+typedef struct _MSDef   {
+    bool   except;  // True = cause Exeption
+    String name;     // MS name, with relative path from CASAPATH
+} MSDef;
 
 protected:
 
         TestMeasurementSet() { }
         ~TestMeasurementSet() { }
 
-        virtual void SetUp()
-        {
-            BaseClass::SetUp();
-        }
-
+        virtual void SetUp()        { }
         virtual void TearDown()
         {
             BaseClass::TearDown();
@@ -1754,54 +1683,69 @@ protected:
         }
 
         // Test Fixture Sub //
-        void test_constructor(String const name );
+        void test_constructor(String const name, bool excep );
+        void test_constructor2(String const name );
 };
 
 /*---------------------------------------
   attempt to open vaious Measurement Set
  ----------------------------------------*/
-void TestMeasurementSet::test_constructor(String const name)
+void TestMeasurementSet::test_constructor2(String const name)
 {
     // Copy to Local //
         String local_ms = CopyMStoWork(name);
-
     // CONSTRUCTOR  //
         MeasurementSet ms0(local_ms);      
         PointingDirectionCalculator calc(ms0);
-
     // Initial brief Inspection //
         uInt nrow =  calc.getNrowForSelectedMS();
         printf("# Constuctor Initial Check.  [%s] row =%d\n", name.c_str(), nrow );
         EXPECT_NE((uInt)0, nrow );
 }
+void TestMeasurementSet::test_constructor(String name, bool excep )
+{
+    if ( excep )
+         EXPECT_ANY_THROW(  TestMeasurementSet::test_constructor2(name) );
+    else
+         EXPECT_NO_THROW(  TestMeasurementSet::test_constructor2(name) );
+}
 
 /*--------------------------------------------
  *  Constructor test by Vaisous Measurment Set 
- *
- *  - prepare some MSs.
- *  - Most of them works normal, some throws
- *    Exception.
- *  - MS descrition is defines in this file.
  * --------------------------------------------*/
 
 TEST_F(TestMeasurementSet, variousConstructor )
 {
-
     TestDescription( "CALC Constructor by various MS " );
-
-    for(uInt m=0; m< MsNames.count(); m++)
+ 
+    std::vector<TestMeasurementSet::MSDef> TestMSList 
     {
-        FunctionalDescription( "CALC Constructor by various MS", 
-                               std::to_string(m)+". " + MsNames.name(m).c_str()  );
-        String name =  MsNames.name(m);
-        if ( MsNames.isException(m))
-        {
-            EXPECT_ANY_THROW( test_constructor(name) );
-        }
-        else
-        {
-          EXPECT_NO_THROW( test_constructor(name) );
-        }
+        // Exeption(bool)  , Filename //
+        {true, "hoge/sdimaging.ms"        },
+        {false, "sdimaging/sdimaging.ms"        },
+        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
+        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/azelpointing.ms"      	},
+        {false, "sdimaging/clipping_1row.ms"            },
+        {false, "sdimaging/clipping_2rows.ms"           },
+        {false, "sdimaging/clipping_3rows.ms"           },
+        {false, "sdimaging/clipping_3rows_2chans.ms"    },
+        {false, "sdimaging/clipping_3rows_suprious.ms"  },
+        {false, "sdimaging/pointing6.ms"                },
+        {false, "sdimaging/sdimaging_flagtest.ms"       },
+        {false, "sdimaging/selection_intent.ms"         },
+        {false, "sdimaging/selection_misc.ms"           },
+        {false, "sdimaging/selection_spw.ms"            },
+        {false, "sdimaging/selection_spw_unifreq.ms"    },
+ 
+    };
+    for(auto itr =TestMSList.begin(); itr!=TestMSList.end();++itr)
+    {
+        FunctionalDescription( "CALC Constructor by various MS",itr->name.c_str()  );
+        auto name =  itr->name;
+        auto excep = itr->except;
+        test_constructor(name, excep);
     }
 }
 
@@ -2333,7 +2277,7 @@ std::vector<std::vector<ParamList> >   paramListS =
       {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
     },
 
-#if 1
+#if 0
     // Senario 6 (Interval , floating point preciseness) //
 #define ANT    0
 #define NTEST  540  // default =2580 , Error happens at least on 2550 // 
@@ -2651,7 +2595,6 @@ TEST_F(TestDirection, CompareInterpolation )
             printf( "getDirection()::Number of Col = %zu \n", n_col );
         }
 
-
         //****************************
         // List, Compare and Examine
         //****************************
@@ -2687,7 +2630,6 @@ static void inspectAccessor( PointingDirectionCalculator  &calc )
     uInt Id = calc.getCurretAccessorId();
 
     printf( "Spline Cofficient by Pointing [Column= %d] OK.\n",Id);
-
 }
 
 //------------------------------
@@ -2878,11 +2820,9 @@ TEST_F(TestDirection, VerifyCAS11818 )
 
             Description("calling  getDirection() ", pColLis_.name(k) );
             Matrix<Double>  DirList;   
-#if 1
+
             EXPECT_NO_THROW( DirList= calc.getDirection() );
-#else
-            DirList= calc.getDirection();
-#endif 
+
             uInt  N_Row;
             N_Row  = DirList.nrow();
 
