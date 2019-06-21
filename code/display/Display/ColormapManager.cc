@@ -34,8 +34,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 	ColormapManager::ColormapManager(PixelCanvasColorTable * pcctbl) :
-		itsPCColorTable(pcctbl),
-		itsInfoMap(static_cast<ColormapInfo *>(0), (uInt)4) {
+		itsPCColorTable(pcctbl) {
 	}
 
 	ColormapManager::~ColormapManager() {
@@ -43,9 +42,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void ColormapManager::registerColormap(Colormap *cmap, Float weight) {
 		if ( cmap ){
-			if (itsInfoMap.isDefined(cmap)) {
+			if (itsInfoMap.find(cmap) != itsInfoMap.end( )) {
 				// already known
-				ColormapInfo * mi = itsInfoMap(cmap);
+				ColormapInfo * mi = itsInfoMap[cmap];
 				mi->ref();
 				// compare weights -- if different call redistribute
 				if (mi->weight() != weight)	{
@@ -57,7 +56,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				// new colormap
 				ColormapInfo *mi = new ColormapInfo(cmap, weight, 0, 0);
 				mi->ref();
-				itsInfoMap.define(cmap, mi);
+				itsInfoMap[cmap] = mi;
 				redistributeColormaps();
 			}
 			// now tell the cmap that it is used by the PixelCanvasColorTable
@@ -71,54 +70,58 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (cmap == cmapToReplace) {
 			return;
 		}
-		if (itsInfoMap.isDefined(cmap)) {
+		if (itsInfoMap.find(cmap) != itsInfoMap.end( )) {
 			// already defined, so add to ref count, and decrement ref count
 			// of cmapToReplace by attempting to unregister it
-			ColormapInfo *mi = itsInfoMap(cmap);
+			ColormapInfo *mi = itsInfoMap[cmap];
 			mi->ref();
 			cmap->registerPCColorTable(itsPCColorTable);
-			if (itsInfoMap.isDefined(cmapToReplace)) {
+			if (itsInfoMap.find(cmapToReplace) != itsInfoMap.end( )) {
 				unregisterColormap(cmapToReplace);
 			}
 			return;
-		} else if (!itsInfoMap.isDefined(cmapToReplace)) {
+		} else if (itsInfoMap.find(cmapToReplace) == itsInfoMap.end( )) {
 			// but cmapToReplace is not defined, so just register in the usual
 			// way!
 			registerColormap(cmap);
 			return;
 		} else {
 			// ok, let's see if we can replace cmapToReplace:
-			ColormapInfo *mi = itsInfoMap(cmapToReplace);
-			mi->unref(); // decrement ref of cmapToReplace no matter what.
-			cmapToReplace->unregisterPCColorTable(itsPCColorTable);
-			if (mi->refCount() != 0) {
-				// we cannot, so just register in the usual way.
-				registerColormap(cmap);
-				return;
-			}
-			// okilidokile, on with the substitution
-			ColormapInfo *minew = new ColormapInfo(cmap, 1.0, 0, 0);
-			minew->ref();
-			itsInfoMap.rename(cmap, cmapToReplace);
-			itsInfoMap.define(cmap, minew);
-			minew->setWeight(mi->weight());
-			minew->setOffset(mi->offset());
-			minew->setSize(mi->size());
-			delete mi;
-			cmapToReplace->unregisterPCColorTable(itsPCColorTable);
-			cmap->registerPCColorTable(itsPCColorTable);
-			reinstallColormaps();
+            auto iter = itsInfoMap.find(cmapToReplace);
+            if ( iter != itsInfoMap.end( ) ) {
+                ColormapInfo *mi = iter->second;
+                itsInfoMap.erase(iter);
+                mi->unref(); // decrement ref of cmapToReplace no matter what.
+                cmapToReplace->unregisterPCColorTable(itsPCColorTable);
+                if (mi->refCount() != 0) {
+                    // we cannot, so just register in the usual way.
+                    registerColormap(cmap);
+                    return;
+                }
+                // okilidokile, on with the substitution
+                ColormapInfo *minew = new ColormapInfo(cmap, 1.0, 0, 0);
+                minew->ref();
+                itsInfoMap[cmap] = minew;
+                minew->setWeight(mi->weight());
+                minew->setOffset(mi->offset());
+                minew->setSize(mi->size());
+                cmapToReplace->unregisterPCColorTable(itsPCColorTable);
+                cmap->registerPCColorTable(itsPCColorTable);
+                reinstallColormaps();
+                delete mi;
+            }
 		}
 		return;
 	}
 
 	Bool ColormapManager::unregisterColormap(Colormap *cmap) {
-		if (itsInfoMap.isDefined(cmap)) {
-			ColormapInfo * mi = itsInfoMap(cmap);
+        auto miptr = itsInfoMap.find(cmap);
+		if (miptr != itsInfoMap.end( )) {
+			ColormapInfo * mi = miptr->second;
 			mi->unref();
 			if (mi->refCount() == 0) {
-				itsInfoMap.remove(cmap);
-				AlwaysAssert(!(itsInfoMap.isDefined(cmap)), AipsError);
+				itsInfoMap.erase(miptr);
+				AlwaysAssert(itsInfoMap.find(cmap) == itsInfoMap.end( ), AipsError);
 				delete mi;
 				redistributeColormaps();
 			}
@@ -135,8 +138,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	uInt ColormapManager::getColormapSize(const Colormap *cmap) const {
 		uInt retval = 0;
-		if (itsInfoMap.isDefined(cmap)) {
-			ColormapInfo * mi = itsInfoMap(cmap);
+		auto miptr = itsInfoMap.find(cmap);
+		if (miptr != itsInfoMap.end( )) {
+			ColormapInfo * mi = miptr->second;
 			retval = mi->size();
 		} else {
 			cerr << "Colormap: " << *cmap << endl;
@@ -147,8 +151,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	uInt ColormapManager::getColormapOffset(const Colormap *cmap) const {
 		uInt retval = 0;
-		if (itsInfoMap.isDefined(cmap)) {
-			ColormapInfo * mi = itsInfoMap(cmap);
+		auto miptr = itsInfoMap.find(cmap);
+		if (miptr != itsInfoMap.end( )) {
+			ColormapInfo * mi = miptr->second;
 			retval = mi->offset();
 		} else {
 			cerr << "Colormap: " << *cmap << endl;
@@ -159,12 +164,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	Bool ColormapManager::member(const Colormap *cmap) const {
 		// needs to return base_pixel plus dcmap's offset
-		return (itsInfoMap.isDefined(cmap)) ? true : false;
+		return (itsInfoMap.find(cmap) != itsInfoMap.end( )) ? true : false;
 	}
 
 	const Colormap *ColormapManager::getMap(const uInt mapnum) const {
 		if (mapnum < nMaps()) {
-			return itsInfoMap.getKey(mapnum);
+			uInt count = 0;
+			for ( auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter, ++count )
+				if ( count == mapnum ) return iter->first;
 		}
 		return (Colormap *)NULL;
 	}
@@ -177,11 +184,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		uInt nRigid = 0;
 		uInt nFlexible = 0;
-		uInt n = itsInfoMap.ndefined();
+		uInt n = itsInfoMap.size( );
 		uInt size = itsPCColorTable->nColors();
 		uInt p = 0;
 		Float totalWeight = 0;
-		uInt i;
 
 		if (n == 0) {
 			// use default colormap
@@ -189,8 +195,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 
 		// compute statistics for controlled colormaps
-		for (i = 0; i < n; i++) {
-			ColormapInfo * mi = itsInfoMap.getVal(i);
+		for (auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter) {
+			ColormapInfo * mi = iter->second;
 			if (mi->colormap()->rigid()) {
 				nRigid++;
 				p += mi->colormap()->rigidSize();
@@ -213,8 +219,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// set distribution for for fixed maps
 		p = 0;
-		for (i = 0; i < n; i++) {
-			ColormapInfo * mi = itsInfoMap.getVal(i);
+		for (auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter) {
+			ColormapInfo * mi = iter->second;
 			if (mi->colormap()->rigid()) {
 				mi->setOffset(p);
 				mi->setSize(mi->colormap()->rigidSize());
@@ -225,8 +231,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Compute distribution for remaining flexible data colormaps
 		if (nFlexible == 1) {
-			for (i = 0; i < n; i++) {
-				ColormapInfo * mi = itsInfoMap.getVal(i);
+			for (auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter) {
+				ColormapInfo * mi = iter->second;
 				if (!mi->colormap()->rigid()) {
 					mi->setOffset(p);
 					mi->setSize(spaceLeft);
@@ -234,8 +240,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			}
 		} else {
 			uInt count = 0;
-			for (i = 0; i < n; i++) {
-				ColormapInfo * mi = itsInfoMap.getVal(i);
+            for (auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter) {
+				ColormapInfo * mi = iter->second;
 				if (!mi->colormap()->rigid()) {
 					count++;
 					uInt share;
@@ -264,8 +270,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Vector<Float> blueMap(1u,0.0);
 		Vector<Float> alphaMap(1u,0.0);
 
-		for (uInt i = 0; i < itsInfoMap.ndefined(); i++) {
-			ColormapInfo * mi = itsInfoMap.getVal(i);
+        for (auto iter = itsInfoMap.begin( ); iter != itsInfoMap.end( ); ++iter) {
+			ColormapInfo * mi = iter->second;
 			redMap.resize(mi->size());
 			greenMap.resize(mi->size());
 			blueMap.resize(mi->size());
@@ -277,13 +283,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	ostream & operator << (ostream & os, const ColormapManager & cm) {
 		cout << "-------------------- Colormap Manager ----------------------\n";
-		uInt nMaps = cm.itsInfoMap.ndefined();
+		uInt nMaps = cm.itsInfoMap.size();
 		cout << "    Range of values: 0 to " << cm.itsPCColorTable->nColors()-1
 		     << endl;
 		cout << "Number of Colormaps: " << nMaps << endl;
-		for (uInt i = 0; i < nMaps; i++) {
-			ColormapInfo * mi = cm.itsInfoMap.getVal(i);
-			cout << "Map # " << i+1 << " :" << *mi->colormap() << " Occupies ["
+        uInt count = 0;
+		for (auto iter = cm.itsInfoMap.begin( ); iter != cm.itsInfoMap.end( ); ++iter, ++count) {
+			ColormapInfo * mi = iter->second;
+			cout << "Map # " << count+1 << " :" << *mi->colormap() << " Occupies ["
 			     << mi->offset() << ","
 			     << mi->size() + mi->offset() - 1 << "]";
 			cout << "." << endl;

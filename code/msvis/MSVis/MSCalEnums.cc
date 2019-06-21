@@ -34,8 +34,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //----------------------------------------------------------------------------
 
 // Static data initialization
-SimpleOrderedMap <Int, String> MSCalEnums::theirFieldMap ("");
-SimpleOrderedMap <Int, DataType> MSCalEnums::theirTypeMap (TpOther);
+std::map <Int, String> MSCalEnums::theirFieldMap;
+std::map <Int, DataType> MSCalEnums::theirTypeMap;
 
 //----------------------------------------------------------------------------
 
@@ -44,200 +44,204 @@ void MSCalEnums::initMaps ()
 // Initialize the static map containing the field names.
 // Skip this step if already initialized.
 //
-  if (!theirFieldMap.ndefined()) {
-    theirFieldMap.define (ANTENNA1, "ANTENNA1");
-    theirFieldMap.define (ANTENNA2, "ANTENNA2");
-    theirFieldMap.define (FEED1, "FEED1");
-    theirFieldMap.define (FEED2, "FEED2");
-    theirFieldMap.define (PULSAR_BIN, "PULSAR_BIN");
-    theirFieldMap.define (SCAN_NUMBER, "SCAN_NUMBER");
-    theirFieldMap.define (TIME, "TIME");
-    theirFieldMap.define (TIME_EXTRA_PREC, "TIME_EXTRA_PREC");
-    theirFieldMap.define (INTERVAL, "INTERVAL");
-    theirFieldMap.define (ARRAY_ID, "ARRAY_ID");
-    theirFieldMap.define (PROCESSOR_ID, "PROCESSOR_ID");
-    theirFieldMap.define (FIELD_ID, "FIELD_ID");
-    theirFieldMap.define (OBSERVATION_ID, "OBSERVATION_ID");
-    theirFieldMap.define (PULSAR_GATE_ID, "PULSAR_GATE_ID");
-    theirFieldMap.define (SPECTRAL_WINDOW_ID, "SPECTRAL_WINDOW_ID");
-    theirFieldMap.define (PHASE_ID, "PHASE_ID");
-    theirFieldMap.define (STATE_ID, "STATE_ID");
+  if ( theirFieldMap.size( ) == 0 ) {
+      theirFieldMap = {
+          {ANTENNA1, "ANTENNA1"},
+          {ANTENNA2, "ANTENNA2"},
+          { FEED1, "FEED1" },
+          { FEED2, "FEED2" },
+          { PULSAR_BIN, "PULSAR_BIN" },
+          { SCAN_NUMBER, "SCAN_NUMBER" },
+          { TIME, "TIME" },
+          { TIME_EXTRA_PREC, "TIME_EXTRA_PREC" },
+          { INTERVAL, "INTERVAL" },
+          { ARRAY_ID, "ARRAY_ID" },
+          { PROCESSOR_ID, "PROCESSOR_ID" },
+          { FIELD_ID, "FIELD_ID" },
+          { OBSERVATION_ID, "OBSERVATION_ID" },
+          { PULSAR_GATE_ID, "PULSAR_GATE_ID" },
+          { SPECTRAL_WINDOW_ID, "SPECTRAL_WINDOW_ID" },
+          { PHASE_ID, "PHASE_ID" },
+          { STATE_ID, "STATE_ID" },
 
-    theirFieldMap.define (FREQ_GROUP, "FREQ_GROUP");
-    theirFieldMap.define (FREQ_GROUP_NAME, "FREQ_GROUP_NAME");
-    theirFieldMap.define (FIELD_NAME, "FIELD_NAME");
-    theirFieldMap.define (FIELD_CODE, "FIELD_CODE");
-    theirFieldMap.define (SOURCE_NAME, "SOURCE_NAME");
-    theirFieldMap.define (SOURCE_CODE, "SOURCE_CODE");
-    theirFieldMap.define (CALIBRATION_GROUP, "CALIBRATION_GROUP");
+          { FREQ_GROUP, "FREQ_GROUP" },
+          { FREQ_GROUP_NAME, "FREQ_GROUP_NAME" },
+          { FIELD_NAME, "FIELD_NAME" },
+          { FIELD_CODE, "FIELD_CODE" },
+          { SOURCE_NAME, "SOURCE_NAME" },
+          { SOURCE_CODE, "SOURCE_CODE" },
+          { CALIBRATION_GROUP, "CALIBRATION_GROUP" },
 
-    theirFieldMap.define (GAIN, "GAIN");
-    theirFieldMap.define (REF_ANT, "REF_ANT");
-    theirFieldMap.define (REF_FEED, "REF_FEED"); 
-    theirFieldMap.define (REF_RECEPTOR, "REF_RECEPTOR");
-    theirFieldMap.define (REF_FREQUENCY, "REF_FREQUENCY");
-    theirFieldMap.define (MEAS_FREQ_REF, "MEAS_FREQ_REF");
-    theirFieldMap.define (REF_DIRECTION, "REF_DIRECTION");
-    theirFieldMap.define (MEAS_DIR_REF, "MEAS_DIR_REF");
-    theirFieldMap.define (POINTING_OFFSET, "POINTING_OFFSET");
-    theirFieldMap.define (MEAS_POINTING, "MEAS_POINTING");
-    theirFieldMap.define (CAL_DESC_ID, "CAL_DESC_ID");
-    theirFieldMap.define (CAL_HISTORY_ID, "CAL_HISTORY_ID");
+          { GAIN, "GAIN" },
+          { REF_ANT, "REF_ANT" },
+          { REF_FEED, "REF_FEED" },
+          { REF_RECEPTOR, "REF_RECEPTOR" },
+          { REF_FREQUENCY, "REF_FREQUENCY" },
+          { MEAS_FREQ_REF, "MEAS_FREQ_REF" },
+          { REF_DIRECTION, "REF_DIRECTION" },
+          { MEAS_DIR_REF, "MEAS_DIR_REF" },
+          { POINTING_OFFSET, "POINTING_OFFSET" },
+          { MEAS_POINTING, "MEAS_POINTING" },
+          { CAL_DESC_ID, "CAL_DESC_ID" },
+          { CAL_HISTORY_ID, "CAL_HISTORY_ID" },
     
-    theirFieldMap.define (TOTAL_SOLUTION_OK, "TOTAL_SOLUTION_OK");
-    theirFieldMap.define (TOTAL_FIT, "TOTAL_FIT");
-    theirFieldMap.define (TOTAL_FIT_WEIGHT, "TOTAL_FIT_WEIGHT");
-    theirFieldMap.define (SOLUTION_OK, "SOLUTION_OK");
-    theirFieldMap.define (FIT, "FIT");
-    theirFieldMap.define (FIT_WEIGHT, "FIT_WEIGHT");
-    theirFieldMap.define (FLAG, "FLAG");
-    theirFieldMap.define (SNR, "SNR");
+          { TOTAL_SOLUTION_OK, "TOTAL_SOLUTION_OK" },
+          { TOTAL_FIT, "TOTAL_FIT" },
+          { TOTAL_FIT_WEIGHT, "TOTAL_FIT_WEIGHT" },
+          { SOLUTION_OK, "SOLUTION_OK" },
+          { FIT, "FIT" },
+          { FIT_WEIGHT, "FIT_WEIGHT" },
+          { FLAG, "FLAG" },
+          { SNR, "SNR" },
     
-    theirFieldMap.define (NUM_SPW, "NUM_SPW");
-    theirFieldMap.define (NUM_CHAN, "NUM_CHAN");
-    theirFieldMap.define (NUM_RECEPTORS, "NUM_RECEPTORS");
-    theirFieldMap.define (N_JONES, "N_JONES");
-    theirFieldMap.define (CHAN_FREQ, "CHAN_FREQ");
-    theirFieldMap.define (CHAN_WIDTH, "CHAN_WIDTH"); 
-    theirFieldMap.define (CHAN_RANGE, "CHAN_RANGE");
-    theirFieldMap.define (JONES_TYPE, "JONES_TYPE");
-    theirFieldMap.define (POLARIZATION_TYPE, "POLARIZATION_TYPE");
-    theirFieldMap.define (MS_NAME, "MS_NAME");
+          { NUM_SPW, "NUM_SPW" },
+          { NUM_CHAN, "NUM_CHAN" },
+          { NUM_RECEPTORS, "NUM_RECEPTORS" },
+          { N_JONES, "N_JONES" },
+          { CHAN_FREQ, "CHAN_FREQ" },
+          { CHAN_WIDTH, "CHAN_WIDTH" },
+          { CHAN_RANGE, "CHAN_RANGE" },
+          { JONES_TYPE, "JONES_TYPE" },
+          { POLARIZATION_TYPE, "POLARIZATION_TYPE" },
+          { MS_NAME, "MS_NAME" },
     
-    theirFieldMap.define (CAL_PARMS, "CAL_PARMS");
-    theirFieldMap.define (CAL_TABLES, "CAL_TABLES");
-    theirFieldMap.define (CAL_SELECT, "CAL_SELECT");
-    theirFieldMap.define (CAL_NOTES, "CAL_NOTES");
+          { CAL_PARMS, "CAL_PARMS" },
+          { CAL_TABLES, "CAL_TABLES" },
+          { CAL_SELECT, "CAL_SELECT" },
+          { CAL_NOTES, "CAL_NOTES" },
     
-    theirFieldMap.define (CAL_DESC, "CAL_DESC");
-    theirFieldMap.define (CAL_HISTORY, "CAL_HISTORY");
-    theirFieldMap.define (OBSERVATION, "OBSERVATION");
+          { CAL_DESC, "CAL_DESC" },
+          { CAL_HISTORY, "CAL_HISTORY" },
+          { OBSERVATION, "OBSERVATION" },
     
-    theirFieldMap.define (ROT_MEASURE, "ROT_MEASURE");
-    theirFieldMap.define (ROT_MEASURE_ERROR, "ROT_MEASURE_ERROR");
-    theirFieldMap.define (IONOSPH_TEC, "IONOSPH_TEC");
-    theirFieldMap.define (IONOSPH_TEC_ERROR, "IONOSPH_TEC_ERROR");
+          { ROT_MEASURE, "ROT_MEASURE" },
+          { ROT_MEASURE_ERROR, "ROT_MEASURE_ERROR" },
+          { IONOSPH_TEC, "IONOSPH_TEC" },
+          { IONOSPH_TEC_ERROR, "IONOSPH_TEC_ERROR" },
 
-    theirFieldMap.define (PHASE_OFFSET, "PHASE_OFFSET");
-    theirFieldMap.define (SB_DELAY, "SB_DELAY");
-    theirFieldMap.define (DELAY_RATE, "DELAY_RATE");
+          { PHASE_OFFSET, "PHASE_OFFSET" },
+          { SB_DELAY, "SB_DELAY" },
+          { DELAY_RATE, "DELAY_RATE" },
 
-    theirFieldMap.define (POLY_TYPE, "POLY_TYPE");
-    theirFieldMap.define (POLY_MODE, "POLY_MODE");
-    theirFieldMap.define (SCALE_FACTOR, "SCALE_FACTOR");
-    theirFieldMap.define (VALID_DOMAIN, "VALID_DOMAIN");
-    theirFieldMap.define (N_POLY_AMP, "N_POLY_AMP");
-    theirFieldMap.define (N_POLY_PHASE, "N_POLY_PHASE");
-    theirFieldMap.define (POLY_COEFF_AMP, "POLY_COEFF_AMP");
-    theirFieldMap.define (POLY_COEFF_PHASE, "POLY_COEFF_PHASE");
-    theirFieldMap.define (PHASE_UNITS, "PHASE_UNITS");
+          { POLY_TYPE, "POLY_TYPE" },
+          { POLY_MODE, "POLY_MODE" },
+          { SCALE_FACTOR, "SCALE_FACTOR" },
+          { VALID_DOMAIN, "VALID_DOMAIN" },
+          { N_POLY_AMP, "N_POLY_AMP" },
+          { N_POLY_PHASE, "N_POLY_PHASE" },
+          { POLY_COEFF_AMP, "POLY_COEFF_AMP" },
+          { POLY_COEFF_PHASE, "POLY_COEFF_PHASE" },
+          { PHASE_UNITS, "PHASE_UNITS" },
 
-    theirFieldMap.define (SIDEBAND_REF, "SIDEBAND_REF");
+          { SIDEBAND_REF, "SIDEBAND_REF" },
 
-    theirFieldMap.define (N_KNOTS_AMP, "N_KNOTS_AMP");
-    theirFieldMap.define (N_KNOTS_PHASE, "N_KNOTS_PHASE");
-    theirFieldMap.define (SPLINE_KNOTS_AMP, "SPLINE_KNOTS_AMP");
-    theirFieldMap.define (SPLINE_KNOTS_PHASE, "SPLINE_KNOTS_PHASE");
-  };
+          { N_KNOTS_AMP, "N_KNOTS_AMP" },
+          { N_KNOTS_PHASE, "N_KNOTS_PHASE" },
+          { SPLINE_KNOTS_AMP, "SPLINE_KNOTS_AMP" },
+          { SPLINE_KNOTS_PHASE, "SPLINE_KNOTS_PHASE" }
+      };
+  }
 
 // Initialize the static map containing the basic field data types
 // Skip this step if already initialized.
 //
-  if (!theirTypeMap.ndefined()) {
-    theirTypeMap.define (ANTENNA1, TpInt);
-    theirTypeMap.define (ANTENNA2, TpInt);
-    theirTypeMap.define (FEED1, TpInt);
-    theirTypeMap.define (FEED2, TpInt);
-    theirTypeMap.define (PULSAR_BIN, TpInt);
-    theirTypeMap.define (SCAN_NUMBER, TpInt);
-    theirTypeMap.define (TIME, TpDouble);
-    theirTypeMap.define (TIME_EXTRA_PREC, TpDouble);
-    theirTypeMap.define (INTERVAL, TpDouble);
-    theirTypeMap.define (ARRAY_ID, TpInt);
-    theirTypeMap.define (PROCESSOR_ID, TpInt);
-    theirTypeMap.define (FIELD_ID, TpInt);
-    theirTypeMap.define (OBSERVATION_ID, TpInt);
-    theirTypeMap.define (PULSAR_GATE_ID, TpInt);
-    theirTypeMap.define (SPECTRAL_WINDOW_ID, TpInt);
-    theirTypeMap.define (PHASE_ID, TpInt);
-    theirTypeMap.define (STATE_ID, TpInt);
+  if ( theirTypeMap.size( ) == 0 ) {
+      theirTypeMap = {
+          { ANTENNA1, TpInt },
+          { ANTENNA2, TpInt },
+          { FEED1, TpInt },
+          { FEED2, TpInt },
+          { PULSAR_BIN, TpInt },
+          { SCAN_NUMBER, TpInt },
+          { TIME, TpDouble },
+          { TIME_EXTRA_PREC, TpDouble },
+          { INTERVAL, TpDouble },
+          { ARRAY_ID, TpInt },
+          { PROCESSOR_ID, TpInt },
+          { FIELD_ID, TpInt },
+          { OBSERVATION_ID, TpInt },
+          { PULSAR_GATE_ID, TpInt },
+          { SPECTRAL_WINDOW_ID, TpInt },
+          { PHASE_ID, TpInt },
+          { STATE_ID, TpInt },
 
-    theirTypeMap.define (FREQ_GROUP, TpInt);
-    theirTypeMap.define (FREQ_GROUP_NAME, TpString);
-    theirTypeMap.define (FIELD_NAME, TpString);
-    theirTypeMap.define (FIELD_CODE, TpString);
-    theirTypeMap.define (SOURCE_NAME, TpString);
-    theirTypeMap.define (SOURCE_CODE, TpString);
-    theirTypeMap.define (CALIBRATION_GROUP, TpInt);
+          { FREQ_GROUP, TpInt },
+          { FREQ_GROUP_NAME, TpString },
+          { FIELD_NAME, TpString },
+          { FIELD_CODE, TpString },
+          { SOURCE_NAME, TpString },
+          { SOURCE_CODE, TpString },
+          { CALIBRATION_GROUP, TpInt },
 
-    theirTypeMap.define (GAIN, TpComplex);
-    theirTypeMap.define (REF_ANT, TpInt);
-    theirTypeMap.define (REF_FEED, TpInt); 
-    theirTypeMap.define (REF_RECEPTOR, TpInt);
-    theirTypeMap.define (REF_FREQUENCY, TpDouble);
-    theirTypeMap.define (MEAS_FREQ_REF, TpInt);
-    theirTypeMap.define (REF_DIRECTION, TpDouble);
-    theirTypeMap.define (MEAS_DIR_REF, TpInt);
-    theirTypeMap.define (CAL_DESC_ID, TpInt);
-    theirTypeMap.define (CAL_HISTORY_ID, TpInt);
+          { GAIN, TpComplex },
+          { REF_ANT, TpInt },
+          { REF_FEED, TpInt },
+          { REF_RECEPTOR, TpInt },
+          { REF_FREQUENCY, TpDouble },
+          { MEAS_FREQ_REF, TpInt },
+          { REF_DIRECTION, TpDouble },
+          { MEAS_DIR_REF, TpInt },
+          { CAL_DESC_ID, TpInt },
+          { CAL_HISTORY_ID, TpInt },
     
-    theirTypeMap.define (TOTAL_SOLUTION_OK, TpBool);
-    theirTypeMap.define (TOTAL_FIT, TpFloat);
-    theirTypeMap.define (TOTAL_FIT_WEIGHT, TpFloat);
-    theirTypeMap.define (SOLUTION_OK, TpBool);
-    theirTypeMap.define (FIT, TpFloat);
-    theirTypeMap.define (FIT_WEIGHT, TpFloat);
-    theirTypeMap.define (FLAG, TpBool);
-    theirTypeMap.define (SNR, TpFloat);
+          { TOTAL_SOLUTION_OK, TpBool },
+          { TOTAL_FIT, TpFloat },
+          { TOTAL_FIT_WEIGHT, TpFloat },
+          { SOLUTION_OK, TpBool },
+          { FIT, TpFloat },
+          { FIT_WEIGHT, TpFloat },
+          { FLAG, TpBool },
+          { SNR, TpFloat },
     
-    theirTypeMap.define (NUM_SPW, TpInt);
-    theirTypeMap.define (NUM_CHAN, TpInt);
-    theirTypeMap.define (NUM_RECEPTORS, TpInt);
-    theirTypeMap.define (N_JONES, TpInt);
-    theirTypeMap.define (CHAN_FREQ, TpDouble);
-    theirTypeMap.define (CHAN_WIDTH, TpDouble); 
-    theirTypeMap.define (CHAN_RANGE, TpInt);
-    theirTypeMap.define (JONES_TYPE, TpString);
-    theirTypeMap.define (POLARIZATION_TYPE, TpString);
-    theirTypeMap.define (MS_NAME, TpString);
+          { NUM_SPW, TpInt },
+          { NUM_CHAN, TpInt },
+          { NUM_RECEPTORS, TpInt },
+          { N_JONES, TpInt },
+          { CHAN_FREQ, TpDouble },
+          { CHAN_WIDTH, TpDouble },
+          { CHAN_RANGE, TpInt },
+          { JONES_TYPE, TpString },
+          { POLARIZATION_TYPE, TpString },
+          { MS_NAME, TpString },
     
-    theirTypeMap.define (CAL_PARMS, TpString);
-    theirTypeMap.define (CAL_TABLES, TpString);
-    theirTypeMap.define (CAL_SELECT, TpString);
-    theirTypeMap.define (CAL_NOTES, TpString);
+          { CAL_PARMS, TpString },
+          { CAL_TABLES, TpString },
+          { CAL_SELECT, TpString },
+          { CAL_NOTES, TpString },
     
-    theirTypeMap.define (CAL_DESC, TpTable);
-    theirTypeMap.define (CAL_HISTORY, TpTable);
-    theirTypeMap.define (OBSERVATION, TpTable);
+          { CAL_DESC, TpTable },
+          { CAL_HISTORY, TpTable },
+          { OBSERVATION, TpTable },
     
-    theirTypeMap.define (ROT_MEASURE, TpFloat);
-    theirTypeMap.define (ROT_MEASURE_ERROR, TpFloat);
-    theirTypeMap.define (IONOSPH_TEC, TpFloat);
-    theirTypeMap.define (IONOSPH_TEC_ERROR, TpFloat);
+          { ROT_MEASURE, TpFloat },
+          { ROT_MEASURE_ERROR, TpFloat },
+          { IONOSPH_TEC, TpFloat },
+          { IONOSPH_TEC_ERROR, TpFloat },
 
-    theirTypeMap.define (PHASE_OFFSET, TpFloat);
-    theirTypeMap.define (SB_DELAY, TpFloat);
-    theirTypeMap.define (DELAY_RATE, TpFloat);
+          { PHASE_OFFSET, TpFloat },
+          { SB_DELAY, TpFloat },
+          { DELAY_RATE, TpFloat },
 
-    theirTypeMap.define (POLY_TYPE, TpString);
-    theirTypeMap.define (POLY_MODE, TpString);
-    theirTypeMap.define (SCALE_FACTOR, TpComplex);
-    theirTypeMap.define (VALID_DOMAIN, TpDouble);
-    theirTypeMap.define (N_POLY_AMP, TpInt);
-    theirTypeMap.define (N_POLY_PHASE, TpInt);
-    theirTypeMap.define (POLY_COEFF_AMP, TpDouble);
-    theirTypeMap.define (POLY_COEFF_PHASE, TpDouble);
-    theirTypeMap.define (PHASE_UNITS, TpString);
+          { POLY_TYPE, TpString },
+          { POLY_MODE, TpString },
+          { SCALE_FACTOR, TpComplex },
+          { VALID_DOMAIN, TpDouble },
+          { N_POLY_AMP, TpInt },
+          { N_POLY_PHASE, TpInt },
+          { POLY_COEFF_AMP, TpDouble },
+          { POLY_COEFF_PHASE, TpDouble },
+          { PHASE_UNITS, TpString },
 
-    theirTypeMap.define (SIDEBAND_REF, TpComplex);
+          { SIDEBAND_REF, TpComplex },
 
-    theirTypeMap.define (N_KNOTS_AMP, TpInt);
-    theirTypeMap.define (N_KNOTS_PHASE, TpInt);
-    theirTypeMap.define (SPLINE_KNOTS_AMP, TpDouble);
-    theirTypeMap.define (SPLINE_KNOTS_PHASE, TpDouble);
-  };
+          { N_KNOTS_AMP, TpInt },
+          { N_KNOTS_PHASE, TpInt },
+          { SPLINE_KNOTS_AMP, TpDouble },
+          { SPLINE_KNOTS_PHASE, TpDouble }
+      };
+  }
 
-};
+}
 
 //----------------------------------------------------------------------------
 
@@ -252,10 +256,10 @@ String MSCalEnums::fieldName (Int enumField)
 //    Exception if invalid field enumeration.
 //
   // Initialize map if empty
-  if (!theirFieldMap.ndefined()) initMaps();
+  if ( theirFieldMap.size( ) == 0 ) initMaps();
   
   // Return the column name
-  return theirFieldMap (enumField);
+  return theirFieldMap[enumField];
 };
 
 //----------------------------------------------------------------------------
@@ -292,10 +296,10 @@ DataType MSCalEnums::basicType (Int enumField)
 //    Exception if invalid field enumeration.
 //
   // Initialize map if empty
-  if (!theirTypeMap.ndefined()) initMaps();
+  if ( theirTypeMap.size( ) == 0 ) initMaps();
   
   // Return the column name
-  return theirTypeMap (enumField);
+  return theirTypeMap[enumField];
 };
 
 //----------------------------------------------------------------------------

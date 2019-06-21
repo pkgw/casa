@@ -30,7 +30,7 @@
 #define QTVIEWERBASE_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/QtViewer/QtMouseToolState.qo.h>
 #include <casa/Arrays/Vector.h>
 

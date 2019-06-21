@@ -63,7 +63,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
   VPManager::VPManager(Bool verbose):
     vplist_p(),
-    vplistdefaults_p(-1),
     aR_p()
   {
     reset(verbose);
@@ -96,7 +95,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(Int pbtype = static_cast<Int>(PBMath::DEFAULT) + 1;
 	pbtype < static_cast<Int>(PBMath::NONE); ++pbtype){
       PBMath::nameCommonPB(static_cast<PBMath::CommonPB>(pbtype), telName);
-      vplistdefaults_p.define(telName,-1);
+      if ( vplistdefaults_p.find(telName) != vplistdefaults_p.end( ) ) vplistdefaults_p[telName] = -1;
+      else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,-1));
     }
 
     // check for available AntennaResponses tables in the Observatories table
@@ -133,15 +133,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	       << antRespPath << LogIO::POST;
 	  }
 
-	  if(vplistdefaults_p.isDefined(telName)){ // there is already a vp for this telName
-	    Int ifield = vplistdefaults_p(telName);
+      auto vpiter = vplistdefaults_p.find(telName);
+	  if( vpiter != vplistdefaults_p.end( ) ){ // there is already a vp for this telName
+	    Int ifield = vpiter->second;
 	    if(ifield>=0){
 	      Record rrec = vplist_p.rwSubRecord(ifield);
 	      rrec.define("dopb", false);
 	    }
-	    vplistdefaults_p.remove(telName);	    
+	    vplistdefaults_p.erase(vpiter);	    
 	  }
-	  vplistdefaults_p.define(telName,vplist_p.nfields()); 
+	  if ( vplistdefaults_p.find(telName) != vplistdefaults_p.end( ) ) vplistdefaults_p[telName] = vplist_p.nfields();
+	  else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(telName,vplist_p.nfields())); 
 	  rec.define("dopb", true);
 	  
 	  vplist_p.defineRecord(vplist_p.nfields(), rec);
@@ -183,12 +185,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     td2.addColumn(ScalarColumnDesc<Int>("vplistnum"));
     SetupNewTable defaultsSetup(tablename+"/VPLIST_DEFAULTS", td2, Table::New);
     
-    Table tb2(defaultsSetup, Table::Plain, vplistdefaults_p.ndefined());
+    Table tb2(defaultsSetup, Table::Plain, vplistdefaults_p.size( ));
     ScalarColumn<String> telcol2(tb2, "tel_and_anttype");
     ScalarColumn<Int> listnumcol(tb2, "vplistnum");
-    for (uInt k=0; k < vplistdefaults_p.ndefined(); ++k){
-      telcol2.put(k, vplistdefaults_p.getKey(k));
-      listnumcol.put(k, vplistdefaults_p.getVal(k));
+    uInt keycount = 0;
+    for ( auto iter = vplistdefaults_p.begin( ); iter != vplistdefaults_p.end( ); ++iter, ++keycount ){
+      telcol2.put(keycount, iter->first);
+      listnumcol.put(keycount, iter->second);
     }
 
     tb.rwKeywordSet().defineTable("VPLIST_DEFAULTS", tb2);
@@ -223,7 +226,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     ScalarColumn<Int> listnumcol(tb2, "vplistnum");
 
     Record tempvplist;
-    SimpleOrderedMap<String, Int> tempvplistdefaults(-1);
+    std::map<String, Int> tempvplistdefaults;
 
     for (uInt k=0; k < tb.nrow(); k++){
       tempvplist.defineRecord(k, Record(pbcol(k)));
@@ -238,7 +241,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   << LogIO::POST;
 	return false;
       }
-      tempvplistdefaults.define(telcol2(k), vplistnum);
+      if ( tempvplistdefaults.find(telcol2(k)) != tempvplistdefaults.end( ) ) tempvplistdefaults[telcol2(k)] = vplistnum;
+      else tempvplistdefaults.insert(std::pair<casacore::String, casacore::Int >(telcol2(k), vplistnum));
     }
 
     // overwrite existing information
@@ -267,9 +271,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     for(Int pbtype = static_cast<Int>(PBMath::DEFAULT) + 1;
         pbtype < static_cast<Int>(PBMath::NONE); ++pbtype){
       PBMath::nameCommonPB(static_cast<PBMath::CommonPB>(pbtype), telName);
-      if(vplistdefaults_p.isDefined(telName)
-	 && (vplistdefaults_p(telName)==-1)
-	 ){
+      auto vpiter = vplistdefaults_p.find(telName);
+      if ( vpiter != vplistdefaults_p.end( ) && vpiter->second == -1 ) {
 	os << LogIO::NORMAL << " * ";
       }
       else{
@@ -291,9 +294,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       for (uInt i=0; i < vplist_p.nfields(); ++i){
 	TableRecord antRec(vplist_p.asRecord(i));
 	String telName = antRec.asString("telescope");
-	if(vplistdefaults_p.isDefined(telName)
-	   && ((Int)i == vplistdefaults_p(telName))
-	   ){
+    auto vpiter = vplistdefaults_p.find(telName);
+	if ( vpiter != vplistdefaults_p.end( ) && ((Int)i == vpiter->second) ) {
 	  os << i << "   * ";
 	}
 	else{
@@ -309,10 +311,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  // antenna types
 	  uInt counter=0;
 	  os << " (used for antenna types ";
-	  for(uInt j=0; j<vplistdefaults_p.ndefined(); j++){
-	    String aDesc = vplistdefaults_p.getKey(j);
+	  for ( auto iter = vplistdefaults_p.begin( ); iter != vplistdefaults_p.end( ); ++iter ) {
+	    String aDesc = iter->first;
 	    if(telName == telFromAntDesc(aDesc)
-	       && ((Int)i == vplistdefaults_p(aDesc))
+	       && ((Int)i == iter->second)
 	       ){
 	      if(counter>0){
 		os << ", ";
@@ -372,7 +374,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec);
@@ -438,7 +442,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
     
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -506,7 +512,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -578,7 +586,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -644,7 +654,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -712,7 +724,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -779,7 +793,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -820,7 +836,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("antennanames", antennaNames);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -912,7 +930,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("usesymmetricbeam", usesymmetricbeam);
 
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -939,7 +959,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     rec.define("antresppath", tablepath);
     
     if(dopb){
-      vplistdefaults_p.define(rec.asString(rec.fieldNumber("telescope")), vplist_p.nfields());
+        auto key = rec.asString(rec.fieldNumber("telescope"));
+        if ( vplistdefaults_p.find(key) != vplistdefaults_p.end( ) ) vplistdefaults_p[key] = vplist_p.nfields( );
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(key, vplist_p.nfields( )));
     } 
 
     vplist_p.defineRecord(vplist_p.nfields(), rec); 
@@ -984,11 +1006,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       srec.define("dopb", true);
     }
     // unset set an existing default 
-    if(vplistdefaults_p.isDefined(antennaDesc)){ 
-      vplistdefaults_p.remove(antennaDesc);
+    auto vpiter = vplistdefaults_p.find(antennaDesc);
+    if( vpiter != vplistdefaults_p.end( ) ){ 
+      vplistdefaults_p.erase(vpiter);
     }
     if(vplistfield>-2){ // (-2 means don't set a default)
-      vplistdefaults_p.define(antennaDesc,vplistfield);
+        if ( vplistdefaults_p.find(antennaDesc) != vplistdefaults_p.end( ) ) vplistdefaults_p[antennaDesc] = vplistfield;
+        else vplistdefaults_p.insert(std::pair<casacore::String, casacore::Int >(antennaDesc,vplistfield));
     }
 
     return true;
@@ -1003,15 +1027,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     String antDesc = antennaDescription(telescope, antennatype);
 
-    if(vplistdefaults_p.isDefined(antDesc)){
-      vplistfield = vplistdefaults_p(antDesc);
-    }
-    else if(vplistdefaults_p.isDefined(telescope)){ // found global entry
-      vplistfield = vplistdefaults_p(telescope);
-    }
-    else{
-      vplistfield = -2;
-      return false;
+    auto vpiter = vplistdefaults_p.find(antDesc);
+    if( vpiter != vplistdefaults_p.end( ) ){
+      vplistfield = vpiter->second;
+    } else {
+        auto tpiter = vplistdefaults_p.find(telescope);
+        if( tpiter != vplistdefaults_p.end( ) ) { // found global entry
+            vplistfield = tpiter->second;
+        } else {
+            vplistfield = -2;
+            return false;
+        }
     }
 
     return true;
@@ -1095,8 +1121,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if(ifield==-2 or !isReference){ // no global response or reference
       uInt count = 0;
-      for(uInt i=0; i<vplistdefaults_p.ndefined(); i++){
-	String aDesc = vplistdefaults_p.getKey(i);
+      for( auto iter = vplistdefaults_p.begin( ); iter != vplistdefaults_p.end( ); ++iter ) {
+	String aDesc = iter->first;
 	if(telescope == telFromAntDesc(aDesc)){
 	  String aType = antTypeFromAntDesc(aDesc);
 	  Bool tFound = false;

@@ -1082,7 +1082,7 @@ class sdimaging_test3(sdimaging_unittest_base):
 ###
 # Test auto-resolution of spatial gridding parameters
 ###
-class sdimaging_autocoord(sdimaging_unittest_base):
+class sdimaging_test_autocoord(sdimaging_unittest_base):
     """
     Test auto-resolution of spatial gridding parameters
 
@@ -2681,7 +2681,7 @@ class sdimaging_test_mapextent(unittest.TestCase):
         self.assertTrue(trc[1] < trc_ref[1] + margin * extent[1], msg='Unexpected coordinate (trc DEC is too wide)')              
         
     def test_azel_pointing(self):
-        """test_azel_pointing: Verify phasecenter in J2000 is properly calculated from AZELGEO pointing direction"""
+        # test_azel_pointing: Verify phasecenter in J2000 is properly calculated from AZELGEO pointing direction
         self.__copy_table(self.infiles_azel)
         self.run_test(infiles=self.infiles_azel)
         npix_ref = numpy.array([27,37])
@@ -2708,16 +2708,150 @@ class sdimaging_test_mapextent(unittest.TestCase):
     def test_ephemeris(self):
         for infile in self.infiles_ephem:
             self.__copy_table(infile)
-        self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
+        #self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
+        self.run_test(infiles=self.infiles_ephem, phasecenter='URANUS', restfreq='230GHz') #CAS-11955
         npix_ref = numpy.array([37,26])
         # set reference value manually since expected map area for 
         # ephemeris object is difficult to calculate 
-        blcf_ref = '00:46:43.672 +04.14.51.504'
-        trcf_ref = '00:46:27.547 +04.17.39.004'
+        #blcf_ref = '00:46:43.672 +04.14.51.504'
+        #trcf_ref = '00:46:27.547 +04.17.39.004'
+        blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955
+        trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955
         blc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], blcf_ref.split()))
         trc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], trcf_ref.split()))
         #blc_ref, trc_ref = get_mapextent_ephemeris(self.infiles_ephem)
         self.verify_mapextent(npix_ref, blc_ref, trc_ref)
+    
+###
+#
+# Test case for moving object
+#
+###
+class sdimaging_test_ephemeris(unittest.TestCase):
+    """
+    Tests if tracking moving object works correctly
+    
+        test_ephemeris_notset -- Verify scanned area in the output image is 
+                                 distorted from rectangle
+        test_ephemeris_sun -- Verify image center is fixed to the center of the 
+                              Sun and the scanned area is off the image center
+        test_ephemeris_trackf -- Verify image center is fixed to the positions
+                                 written in ephemeris table attached to the input MS
+                                 without explicitly specifying ephemeris table name
+        test_ephemeris_table -- Verify image center is fixed to the positions
+                                 written in ephemeris table by explicitly specifying 
+                                 its name
+
+    Data:
+        The test data 'Sun.spw18.ms' is a raster-scanned dataset of the Sun, with an 
+        ephemeris table 'EPHEM0_Sol_58327.6.tab' attached (in the FIELD directory). 
+        The data is taken so that the scanned points are enclosed in a rectangle 
+        region if the moving target position (off the solar center) is fixed in the 
+        output image. If moving object tracking does not work, the data points will 
+        be distributed in a parallelogram-like region. FYI, the data is generated 
+        using the following command:
+        mstransform(vis='uid___A002_Xd01cd7_X3f35.ms', outputvis='ephemtest.spw18.ms', 
+                    reindex=False, spw='18', intent='OBSERVE_TARGET#ON_SOURCE', 
+                    datacolumn='float_data')
+    """
+
+    datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/sdimaging/'
+    infiles = 'ephemtest.spw18.ms'
+    ephtab  = infiles + '/FIELD/EPHEM0_Sol_58327.6.tab'
+    outfile = 'sdimaging_test_ephemeris.im'
+    
+    param_base = {'infiles': infiles,
+                  'field': 'Sol',
+                  'spw': '18',
+                  'mode': 'channel',
+                  'start': 0,
+                  'nchan': 1,
+                  'width': 1, 
+                  'cell': '4arcsec',
+                  'imsize': 1000,
+                  'gridfunction': 'BOX',
+                  'outfile': outfile,
+                  'intent': ""}
+    
+    def __remove_table(self, f):
+        if os.path.exists(f):
+            shutil.rmtree(f)
+    
+    def __copy_table(self, f):
+        self.__remove_table(f)
+        testutils.copytree_ignore_subversion(self.datapath, f)
+        
+    def setUp(self):
+        self.cache_validator = testutils.TableCacheValidator()
+
+        default(sdimaging)
+        self.param = self.param_base.copy()
+        self.__copy_table(self.infiles)
+        
+    def tearDown(self):
+        self.__remove_table(self.infiles)
+        os.system('rm -rf %s*'%(self.outfile))
+        
+        self.assertTrue(self.cache_validator.validate())
+
+    def run_test(self, **kwargs):
+        self.param.update(**kwargs)
+        status = sdimaging(**self.param)
+        self.assertIsNone(status, msg='sdimaging failed to execute')
+        outfile = self.outfile + image_suffix
+        self.assertTrue(os.path.exists(outfile), msg='output image is not created.')
+        
+    def verify_scanned_region(self, phasecenter):
+        _phasecenter = phasecenter.strip().upper()
+        outfile = self.outfile + image_suffix
+        self.assertTrue(os.path.exists(outfile), msg='output image is not created.')
+
+        with tbmanager(outfile) as tb:
+            imdata = tb.getcell('map', 0)
+            imsize = self.param_base['imsize']
+            for y in xrange(imsize):
+                # get min and max of non-zero pixels for each raster-scan row
+                xmin = imsize
+                xmax = 0
+                for x in xrange(imsize):
+                    if imdata[x][y][0][0] > 0.0:
+                        if x < xmin: xmin = x
+                        if xmax < x: xmax = x
+
+                # set reference border
+                if _phasecenter == '':
+                    xmin_ref = 436.0 - (y - 500.0) / 15.0
+                elif _phasecenter == 'SUN':
+                    xmin_ref = 649.0
+                else: # for table name or 'TRACKFIELD'
+                    xmin_ref = 438.0
+                xmax_ref = xmin_ref + 129.0
+
+                # check if (xmin, xmax) inside (xmin_ref, xmax_ref) 
+                # for each y (=raster-scan row)
+                # but ignore the lowest raw in the phasecenter=='' case
+                ignore_case = (_phasecenter == '') and (y == 436)
+                if not ignore_case:
+                    inside_border = (xmin_ref <= xmin) and (xmax <= xmax_ref)
+                    message = 'Data x-range(' + str(xmin) + ', ' + str(xmax) + ') outside the reference border(' + str(xmin_ref) + ', ' + str(xmax_ref) + ') at y=' + str(y)
+                    self.assertTrue(inside_border, msg=message)
+
+    def execute(self, phasecenter):
+        self.run_test(phasecenter=phasecenter)
+        self.verify_scanned_region(phasecenter=phasecenter)
+        
+    def test_ephemeris_notset(self):
+        self.execute('')
+
+    def test_ephemeris_sun(self):
+        self.execute('SUN')
+
+    def test_ephemeris_trackf(self):
+        self.execute('TRACKFIELD')
+
+    def test_ephemeris_table(self):
+        self.execute(self.ephtab)
+
     
 ###
 #
@@ -2749,7 +2883,6 @@ class sdimaging_test_interp(unittest.TestCase):
                   imsize = [512, 512],
                   cell = "2arcsec",
                   phasecenter = "J2000 0:00:00.0 00.00.00.0",
-                  ephemsrcname = '',
                   pointingcolumn = "direction",
                   stokes = 'I')
     infiles = []
@@ -2898,7 +3031,6 @@ class sdimaging_test_interp_old(unittest.TestCase):
                   imsize = [512, 512],
                   cell = "2arcsec",
                   phasecenter = "J2000 0:00:00.0 00.00.00.0",
-                  ephemsrcname = "Venus",
                   pointingcolumn = "direction")
     outfile = params['outfile']
 
@@ -3486,13 +3618,17 @@ def calc_mapproperty(statistics):
 
 
 def suite():
-    return [sdimaging_test0,sdimaging_test1,
+    return [
+            sdimaging_test0,sdimaging_test1,
             sdimaging_test2,sdimaging_test3,
-            sdimaging_autocoord,sdimaging_test_selection,
-            sdimaging_test_flag,sdimaging_test_polflag,
+            sdimaging_test_autocoord,
+            sdimaging_test_selection,
+            sdimaging_test_flag,
+            sdimaging_test_polflag,
             sdimaging_test_mslist,
             sdimaging_test_restfreq, 
             sdimaging_test_mapextent,
+            sdimaging_test_ephemeris,
             sdimaging_test_interp,
             sdimaging_test_clipping,
             sdimaging_test_projection

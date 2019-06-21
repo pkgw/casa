@@ -10,8 +10,6 @@
 
 #include <casacore/measures/Measures/MDirection.h>
 
-#undef casacore
-
 #include <memory>
 #include <vector>
 
