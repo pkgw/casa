@@ -253,7 +253,7 @@ public:
     
     // Sets the scale for the given axis and rescales accordingly.  May reset
     // tool stacks.
-    virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale) = 0;
+    virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base=10) = 0;
     
     // Sets/gets the sort direction of the scale for the given axis
     virtual bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) = 0;

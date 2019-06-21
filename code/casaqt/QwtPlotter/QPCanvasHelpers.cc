@@ -93,7 +93,7 @@ QPScaleDraw::~QPScaleDraw() { }
 
 PlotAxisScale QPScaleDraw::scale() const { return m_scale; }
 
-void QPScaleDraw::setScale(PlotAxisScale scale) {
+void QPScaleDraw::setScale(PlotAxisScale scale, uInt base) {
     if(scale != m_scale) {
         m_scale = scale;
         if ( m_parent != NULL ){
@@ -105,7 +105,7 @@ void QPScaleDraw::setScale(PlotAxisScale scale) {
 #endif
             }
             else {
-                m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine());
+                m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine(base));
             }
             if(m_parent->autoReplot())
                 m_parent->replot();

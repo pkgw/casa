@@ -1734,7 +1734,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		x = getDefaultXAxis();
 		cacheParams->setXAxis(x);
 	}
-	canvas->setAxisScale(cx, PMS::axisScale(x));
+	uInt base = PMS::axisIsRaDec(x) ? 12 : 10;
+	canvas->setAxisScale(cx, PMS::axisScale(x),base);
 	canvas->setAxisScaleAngleFormat(cx,PMS::angleFormat(x,cacheParams->xFrame()));
 	bool xref = itsCache_->hasReferenceValue(x);
 	double xrefval = itsCache_->referenceValue(x);
@@ -1756,7 +1757,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		}
 		// yaxis scale
 		PlotAxis cy = axesParams->yAxis( i );
-		canvas->setAxisScale(cy, PMS::axisScale(y));
+		uInt base = PMS::axisIsRaDec(y) ? 12 : 10;
+		canvas->setAxisScale(cy, PMS::axisScale(y), base);
 		auto yCoordSystem  = cacheParams->yFrame( i );
 		canvas->setAxisScaleAngleFormat(cy,PMS::angleFormat(y,yCoordSystem));
 		// yaxis ref value

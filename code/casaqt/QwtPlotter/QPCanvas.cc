@@ -429,11 +429,11 @@ PlotAxisScale QPCanvas::axisScale(PlotAxis axis) const   {
     return m_scaleDraws[QPOptions::axis(axis)]->scale(); 
 }
 
-void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
-    m_scaleDraws[QPOptions::axis(axis)]->setScale(scale);
+void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale, uInt base) {
+    m_scaleDraws[QPOptions::axis(axis)]->setScale(scale,base);
     int axisListenerCount = axisListeners.size();
     for ( int i = 0; i < axisListenerCount; i++ ){
-    	axisListeners[i]->setAxisScale( axis, scale );
+    	axisListeners[i]->setAxisScale( axis, scale, base);
     }
 }
 

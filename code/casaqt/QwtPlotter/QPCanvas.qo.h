@@ -169,7 +169,7 @@ public:
     PlotAxisScale axisScale(PlotAxis axis) const;
 
     // Implements PlotCanvas::setAxisScale().
-    void setAxisScale(PlotAxis axis, PlotAxisScale scale);
+    void setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base=10);
 
     // Implements PlotCanvas::setAxisScaleSortDirection().
     bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction);

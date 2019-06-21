@@ -367,10 +367,10 @@ PlotAxisScale QPAxis::axisScale(PlotAxis /*axis*/) const   {
 }
 
 
-void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
+void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base) {
 	QwtPlot::Axis dAxis = QPOptions::axis(axis);
 	if ( axisType == dAxis  && axisWidget != NULL ){
-		axisWidget->setAxisScale( scale );
+		axisWidget->setAxisScale(scale,base);
 	}
 }
 

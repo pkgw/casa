@@ -104,7 +104,7 @@ public:
     // Gets/Sets the scale used.
     // <group>
     PlotAxisScale scale() const;
-    void setScale(PlotAxisScale scale);
+    void setScale(PlotAxisScale scale, casacore::uInt base=10);
     // </group>
     
     // Gets/Sets the format used for date values.  See Plotter::dateFormat().
