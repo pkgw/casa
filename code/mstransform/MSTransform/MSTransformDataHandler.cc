@@ -696,70 +696,72 @@ void MSTransformDataHandler::selectArray(const String& subarray)
 // -----------------------------------------------------------------------
 Bool MSTransformDataHandler::selectCorrelations(const String& corrstr)
 {
-	LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
+    LogIO os(LogOrigin("MSTransformDataHandler", __FUNCTION__));
 
-	corrString_p = corrstr;
-	const Bool areSelecting = corrstr != "" && corrstr != "*";
+    corrString_p = corrstr;
+    const Bool areSelecting = corrstr != "" && corrstr != "*";
 
-	// Get correlation slices
-	MSSelection mssel1;
-	if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
-	mssel1.getCorrSlices(corrSlices_p, &ms_p);
+    // Get correlation slices
+    MSSelection mssel1;
+    if (areSelecting) mssel1.setPolnExpr(corrstr.c_str());
+    mssel1.getCorrSlices(corrSlices_p, &ms_p);
 
-	// Get correlation map
-	// jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
-	//                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
-	MSSelection mssel2;
-	if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
-	return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
+    // Get correlation map
+    // jagonzal (CAS-6951): We have to use another MSSelection because the first one corrupts the correlation
+    //                      expression for instance "XX;YY" is turned into "XX" after calling getCorrSlices
+    MSSelection mssel2;
+    if (areSelecting) mssel2.setPolnExpr(corrstr.c_str());
+    return MSTransformDataHandler::getCorrMaps(mssel2, ms_p, inPolOutCorrToInCorrMap_p, areSelecting);
 }
 
 // -----------------------------------------------------------------------
 //
 // -----------------------------------------------------------------------
-Bool MSTransformDataHandler::getCorrMaps(	MSSelection& mssel,
-											const MeasurementSet& ms,
-											Vector<Vector<Int> >& outToIn,
-											const Bool areSelecting)
+Bool MSTransformDataHandler::getCorrMaps(MSSelection& mssel,
+                                         const MeasurementSet& ms,
+                                         Vector<Vector<Int> >& outToIn,
+                                         const Bool areSelecting)
 {
 
-	// ?? This always returns true!!!?!!
-	Bool cando = true;
+    // ?? This always returns true!!!?!!
+    Bool cando = true;
 
-	// The total number of polids
-	uInt npol = ms.polarization().nrow();
+    // The total number of polids
+    uInt npol = ms.polarization().nrow();
 
-	// Nominally empty selection for all polids
-	outToIn.resize(npol);
-	outToIn.set(Vector<Int> ());
-	if (areSelecting)
-	{
-		// Get the corr indices as an ordered map
+    // Nominally empty selection for all polids
+    outToIn.resize(npol);
+    outToIn.set(Vector<Int> ());
+    if (areSelecting)
+    {
+        // Get the corr indices as an ordered map
         std::map<Int, Vector<Vector<Int> > > corrmap(mssel.getCorrMap(&ms));
 
-		// Iterate over the ordered map to fill the vector maps
-		for ( auto mi = corrmap.begin( ); mi != corrmap.end( ); ++mi)
-		{
-			Int pol = mi->first;
-			outToIn[pol] = mi->second[0];
-		}
-	}
-	else
-	{ 	// Make outToIn an identity map.
-		ScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
+        // Iterate over the ordered map to fill the vector maps
+        for ( auto mi = corrmap.begin( ); mi != corrmap.end( ); ++mi)
+        {
+            Int pol = mi->first;
+            std::vector<int> correlations_idx = mi->second[0].tovector();
+            std::sort(correlations_idx.begin(), correlations_idx.end()); 
+            outToIn[pol] = correlations_idx;
+        }
+    }
+    else
+    { 	// Make outToIn an identity map.
+        ScalarColumn<Int> numCorr(ms.polarization(),MSPolarization::columnName(MSPolarization::NUM_CORR));
 
-		for (uInt polid = 0; polid < npol; ++polid)
-		{
-			uInt ncorr = numCorr(polid);
-			outToIn[polid].resize(ncorr);
-			for (uInt cid = 0; cid < ncorr; ++cid)
-			{
-				outToIn[polid][cid] = cid;
-			}
-		}
-	}
+        for (uInt polid = 0; polid < npol; ++polid)
+        {
+            uInt ncorr = numCorr(polid);
+            outToIn[polid].resize(ncorr);
+            for (uInt cid = 0; cid < ncorr; ++cid)
+            {
+                outToIn[polid][cid] = cid;
+            }
+        }
+    }
 
-	return cando;
+    return cando;
 }
 
 // -----------------------------------------------------------------------

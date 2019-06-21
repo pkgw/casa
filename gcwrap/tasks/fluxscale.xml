@@ -34,8 +34,8 @@ Bootstrap the flux density scale from standard calibrators.
         </param>
 
         <param type="string" name="fluxtable">
-<shortdescription>Name of output, flux-scaled calibration table</shortdescription>
-<description>Name of output, flux-scaled calibration table
+<shortdescription>Name of output, flux-scaled calibration table (required)</shortdescription>
+<description>Name of output, flux-scaled calibration table (required)
                      Default: none
 
                         Example: fluxtable='ngc5921.gcal2'
@@ -103,8 +103,7 @@ Bootstrap the flux density scale from standard calibrators.
         <param type="bool" name="append">
 <shortdescription>Append solutions?</shortdescription>
 <description>Append fluxscaled solutions to the fluxtable?
-                     Default: False (will overwrite if already
-                     existing)
+                     Default: False (the fluxtable must not exist)
                      Options: False|True
 </description>
             <value>False</value>
