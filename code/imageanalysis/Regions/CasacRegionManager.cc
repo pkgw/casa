@@ -362,7 +362,7 @@ void CasacRegionManager::_setRegion(
     const Record* regionPtr
 )  {
     // region record pointer provided
-    regionRecord = *(regionPtr->clone());
+    regionRecord = *(regionPtr);
     // set stokes from the region record
     diagnostics = "used provided region record";
 }
