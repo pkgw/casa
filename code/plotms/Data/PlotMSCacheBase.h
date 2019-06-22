@@ -178,7 +178,7 @@ public:
             /*PlotMSCacheThread**/ThreadCommunication* thread = NULL);
   
   // Clears the cache of all stored values.  This should be called when the
-  // underlying casacore::MS or casacore::MS selection is changed, thus invalidating stored data.
+  // underlying MS/CalTable or selection is changed, thus invalidating stored data.
   void clear();
   void clearRanges();
   

@@ -1857,15 +1857,32 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					canvas->setAxisRange(cx, xybounds);
 					canvas->setAxisRange(cy, xybounds);
 					makeSquare = true;
-					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
+					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE)) {
 						waveplot=true;
-                } else if (y==PMS::ATM || y==PMS::TSKY) {
-                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
-                    pair<double,double> atmrange;
-                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
-                    else atmrange = make_pair(0, ymax+0.1);
-                    canvas->setAxisRange(cy, atmrange);
-                }
+					}
+				} else if (PMS::axisIsOverlay(y)) {
+					// This assumes that the user is plotting a single y-axis;
+					// yaxis 0 is user-set, yaxis 1 is atm/tsky,
+					// and yaxis 2 is image sideband
+					itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+					pair<double,double> atmrange;
+					// in all cases, do not allow ymin < 0
+					if (y == PMS::ATM) {
+					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
+						atmrange = make_pair(max(ymin, 0.0), min(ymax+2.0, 100.0));
+					} else if (y == PMS::TSKY) {
+					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
+						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
+					} else {
+						double yminISB, ymaxISB;
+						itsCache_->indexer(2,iteration).minsMaxes(xmin, xmax, yminISB, ymaxISB);
+						ymin = min(ymin, yminISB);
+						ymax = max(ymax, ymaxISB);
+					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
+						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
+					}
+					canvas->setAxisRange(cy, atmrange);
+				}
 			}
 		}
 	}

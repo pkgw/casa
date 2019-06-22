@@ -275,8 +275,9 @@ void PlotMSAtm::calcImageCurve(casacore::Vector<casacore::Double>& curve,
         return;
     }
 
-    casacore::Vector<casacore::Double> imageFreqs = calcImageFrequencies(
-        spw, chanFreqs);
+    casacore::Vector<casacore::Double> imageFreqs =
+        calcImageFrequencies(spw, chanFreqs);
+
     if (allTrue(isNaN(imageFreqs))) { // get LO1 failed
         curve.set(doubleNaN()); // NaN will not be plotted
         return;
@@ -554,7 +555,7 @@ void PlotMSAtm::getMeanWeather() {
             }
             noWeather = false;
         } catch (AipsError & err) {
-            cout << err.getMesg() << endl;
+			std::cout << "Failed to read WEATHER table:" << err.getMesg() << std::endl;
         }
     }
 

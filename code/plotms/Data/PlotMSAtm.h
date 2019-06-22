@@ -82,7 +82,8 @@ public:
     // accessors
     inline casacore::String filename() { return filename_; }
     inline PlotMSSelection selection() { return selection_; }
-    inline bool showatm() { return showatm_; }
+    inline bool showatm() { return showatm_; } // false is tsky
+    inline bool xAxisIsChan() { return xIsChan_; }
 
     inline void setShowAtm(bool showatm) { showatm_ = showatm; }
     inline void setXAxisIsChan(bool isChan) { xIsChan_ = isChan; }
@@ -166,8 +167,8 @@ private:
     casacore::String filename_;
     PlotMSSelection selection_;
     bool showatm_; // true=showatm, false=showtsky
-    bool isMS_;
-	bool xIsChan_; // reverse image curve vector for channel axis
+    bool isMS_;    // true=MS, false=CalTable
+	bool xIsChan_; // image curve changes for chan/freq x-axis
     PlotMSCacheBase* parent_; // for log messages
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
     NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan

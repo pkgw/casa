@@ -377,34 +377,49 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentXInterp_.clear();
 	currentYInterp_.clear();
 	size_t dataCount = axes.size() / 2;
+	// whether to recalculate image sideband
+	bool changedImageSbAxis(true), changedImageSbXAxis(true);
 	// Remember the axes that we will load for plotting:
 	for (size_t i = 0; i < dataCount; i++) {
-		size_t yIndex = dataCount + i;
 		// set up atmospheric overlays
+		size_t yIndex = dataCount + i;
 		if ((axes[yIndex] == PMS::ATM) || (axes[yIndex] == PMS::TSKY)) {
 			bool showatm = (axes[yIndex] == PMS::ATM);
 			bool isMS = (cacheType() == PlotMSCacheBase::MS);
 			bool xIsChan = (axes[i] == PMS::CHANNEL);
-			if ((plotmsAtm_ != nullptr) && (filename == plotmsAtm_->filename()) &&
-				(selection == plotmsAtm_->selection())) {
+			if (plotmsAtm_ == nullptr) {
+				plotmsAtm_ = new PlotMSAtm(filename_, selection_, showatm, isMS, xIsChan, this);
+			} else {
+			    changedImageSbAxis = (showatm != plotmsAtm_->showatm()); // changed atm/tsky
+				changedImageSbXAxis = (xIsChan != plotmsAtm_->xAxisIsChan()); // changed chan/freq
 				plotmsAtm_->setShowAtm(showatm);
 				plotmsAtm_->setXAxisIsChan(xIsChan);
-			} else {
-				if (plotmsAtm_ != nullptr) {
-					deleteAtm();
-				}
-				plotmsAtm_ = new PlotMSAtm(filename_, selection_, showatm, isMS, xIsChan, this);
 			}
-		} else if ((axes[yIndex] == PMS::IMAGESB) && plotmsAtm_) {
-			// warn if not possible and why
-			if (!plotmsAtm_->hasReceiverTable()) {
-				logWarn("load_cache",
-					"Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
-			} else if (!plotmsAtm_->canGetLOsForSpw()) {
-				logWarn("load_cache",
-					"Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
+		} else if (axes[yIndex] == PMS::IMAGESB) {
+			// if already loaded, check if need to recalculate
+			bool needToCalculateSideband(true);
+			if (loadedAxes_[PMS::IMAGESB] && !changedImageSbAxis) {
+				needToCalculateSideband = false; // imagesb loaded for correct atm/tsky
+				if (changedImageSbXAxis) {
+					// reverse vectors when switch between chan/freq
+					for (size_t i=0; i < imageSideband_.size(); ++i) {
+						reverseArray(*imageSideband_[i], 0);
+					}
+				}
+			}
+			if (needToCalculateSideband) {
+				loadedAxes_[PMS::IMAGESB] = false; // (re)calculate for atm/tsky
+				// warn if not possible
+				if (!plotmsAtm_->hasReceiverTable()) {
+					logWarn("load_cache",
+						"Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
+				} else if (!plotmsAtm_->canGetLOsForSpw()) {
+					logWarn("load_cache",
+						"Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
+				}
 			}
 		}
+
 		// separate x and y axes
 		currentX_.push_back(axes[i]);
 		currentXData_.push_back(data[i]);
@@ -2062,7 +2077,7 @@ template<typename T>
 T PlotMSCacheBase::checkIndex(int index, const std::vector<T>& v, const std::string &vname) const {
 	if (index >= 0 && static_cast<unsigned int>(index) < v.size()) return v[index];
 	stringstream ss;
-	ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+	ss	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
 		<< "Illegal access to vector: " << vname << " of size: " << v.size()
 		<< " with index: " << index ;
 	throw AipsError(ss.str());
@@ -2073,7 +2088,7 @@ const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaDataX(int index) const 
 	auto axis = checkIndex<PMS::Axis>(index,currentX_,"currentX_");
 	if ( axis != PMS::RA ) {
 		stringstream ss;
-		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+		ss	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
 			<< "Illegal call. Argument index= " << index
 			<< " but currentX_[" << index << "]=" << PMS::axis(axis);
 		throw AipsError(ss.str());
