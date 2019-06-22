@@ -1864,7 +1864,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					// This assumes that the user is plotting a single y-axis;
 					// yaxis 0 is user-set, yaxis 1 is atm/tsky,
 					// and yaxis 2 is image sideband
-					itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+					itsCache_->indexer(i,iteration).minsMaxes(xmin, xmax, ymin, ymax);
 					pair<double,double> atmrange;
 					// in all cases, do not allow ymin < 0
 					if (y == PMS::ATM) {
@@ -1874,10 +1874,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
 						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
 					} else {
-						double yminISB, ymaxISB;
-						itsCache_->indexer(2,iteration).minsMaxes(xmin, xmax, yminISB, ymaxISB);
-						ymin = min(ymin, yminISB);
-						ymax = max(ymax, ymaxISB);
+						double yminAtm, ymaxAtm;
+						itsCache_->indexer(i-1,iteration).minsMaxes(xmin, xmax, yminAtm, ymaxAtm);
+						ymin = min(ymin, yminAtm);
+						ymax = max(ymax, ymaxAtm);
 					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
 						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
 					}
