@@ -154,13 +154,14 @@ class ROVisibilityIterator;
      virtual void setWeightDensity(const casacore::Block<casacore::Matrix<casacore::Float> >& density);
 
      // Form corr-indep weight by averaging parallel-hand weights
-     void unPolChanWeight(casacore::Matrix<casacore::Float>& chanRowWt, const casacore::Cube<casacore::Float>& corrChanRowWt) const;
+     static void unPolChanWeight(casacore::Matrix<casacore::Float>& chanRowWt, const casacore::Cube<casacore::Float>& corrChanRowWt);
 
      casacore::Vector<casacore::Int> shapeOfdensityGrid();
      
     private:
      void cube2Matrix(const casacore::Cube<casacore::Bool>& fcube, casacore::Matrix<casacore::Bool>& fMat);
-     casacore::SimpleOrderedMap <casacore::String, casacore::Int> multiFieldMap_p;
+
+     std::map<casacore::String, casacore::Int> multiFieldMap_p;
      casacore::Block<casacore::CountedPtr<casacore::TempLattice<casacore::Float> > > gwt_p;
      mutable casacore::Matrix<casacore::Float>  a_gwt_p;
      casacore::String wgtType_p;

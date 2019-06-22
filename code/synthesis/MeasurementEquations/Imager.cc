@@ -1543,7 +1543,7 @@ Bool Imager::setdata(const String& mode, const Vector<Int>& nchan,
     dataspectralwindowids_p.resize();
     const ROMSSpWindowColumns spwc(ms_p->spectralWindow());
     uInt nspw = spwc.nrow();
-    const ROScalarColumn<Int> spwNchans(spwc.numChan());
+    const ScalarColumn<Int> spwNchans(spwc.numChan());
     Vector<Int> nchanvec = spwNchans.getColumn();
     Int maxnchan = 0;
     for (uInt i=0;i<nchanvec.nelements();i++) {

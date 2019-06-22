@@ -44,6 +44,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	const String PanelDisplay::X_SIZE = "xsize";
 	const String PanelDisplay::Y_SIZE = "ysize";
 
+	// get controlled access to world canvases shared among a number of objects
+	// return value indicates if the operation was possible (in the future it
+	// may be necessary to serialize access so this function may return false
+	// if mutual exclusion prevents access to the world canvas list)
+	bool PanelDisplay::wcsApply( std::function<void(WorldCanvas *)> apply ) {
+		for ( auto wc : itsWCList ) apply(wc);
+		return true;
+	}
+
 // Constructor.
 	PanelDisplay::PanelDisplay(PixelCanvas* pixelcanvas,
 	                           const Int nx, const Int ny,
@@ -52,15 +61,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	                           const Float dx, const Float dy,
 	                           const PanelDisplay::FillOrder order) :
 		MultiWCHolder(),
-		myWCLI(0),
 		itsPixelCanvas(pixelcanvas),
-		itsGeometrySet(false),
-		//itsWCLI(0),
-		//itsWCHLI(0),
-		itsMWCTools( std::shared_ptr<MultiWCTool>( ), uInt(10) ) {
-		myWCLI = new ConstListIter<WorldCanvas* >(itsWCList);
-		//itsWCLI = new ListIter<WorldCanvas* >(itsWCList);
-		//itsWCHLI = new ListIter<WorldCanvasHolder* >(itsWCHList);
+		itsGeometrySet(false) {
+
 		itslpgm =10;
 		itsrpgm = 1; //4
 		itstpgm = 1; //4
@@ -72,8 +75,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	PanelDisplay::~PanelDisplay() {
 		unSetupGeometry();
 		// cleanup Tools
-		while (itsMWCTools.ndefined() > 0u) {
-			String key = itsMWCTools.getKey(0u);
+		while (itsMWCTools.size() > 0u) {
+			String key = itsMWCTools.begin( )->first;
 			removeTool(key);
 		}
 		itsMWCTools.clear();
@@ -83,30 +86,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		if (itsWCHLI) {
 		  delete itsWCHLI;
 		}*/
-		if (myWCLI) {
-			delete myWCLI;
-		}
 	}
 
 	void PanelDisplay::setAttributes(AttributeBuffer& at) {
-		ListIter<WorldCanvas* >itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
+		for ( auto wc : itsWCList ) {
 			wc->setAttributes(at);
-			(itsWCLI)++;
 		}
 	}
 
 	void PanelDisplay::getAttributeValue(const String& name, Int& newValue) const {
-		ConstListIter<WorldCanvas* > itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			wc->getAttributeValue(name, newValue);
-			//get only the fisrt one - they should all be the same (for now)
-			itsWCLI.toEnd();
-		}
+		if ( itsWCList.size( ) > 0 )
+			itsWCList.front( )->getAttributeValue(name, newValue);
 	}
 
 // Option handling functions.
@@ -402,10 +392,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		                   static_cast<Float>(itsNX);
 		Float yPanelSize = (itsYSize - static_cast<Float>(itsNY - 1) * itsDY) /
 		                   static_cast<Float>(itsNY);
-		ListIter<WorldCanvas* > itsWCLI( itsWCList );
-		ListIter<WorldCanvasHolder* > itsWCHLI( itsWCHList );
-		itsWCHLI.toStart();
-		itsWCLI.toStart();
 
 		// Prepare to synchornize zoom windows and CS master of any new WCs with
 		// existing ones.
@@ -415,11 +401,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		WorldCanvas* wc0 = 0;
 		WorldCanvasHolder* wch0 = 0;
 
-		Bool oldWCexists=(!itsWCLI.atEnd());
+		Bool oldWCexists= (itsWCList.size( ) != 0);
+
 		if(oldWCexists) {
 
-			wc0 = itsWCLI.getRight();
-			wch0 = itsWCHLI.getRight();
+			wc0 = itsWCList.front( );
+			wch0 = itsWCHList.front( );
 
 			Vector<Double> zoomBlc(2), zoomTrc(2);
 			zoomBlc[0]=wc0->linXMin();
@@ -433,11 +420,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 		Float y = itsYOrigin + itsYSize - yPanelSize;
+		std::list<WorldCanvas*>::iterator wc_iter = itsWCList.begin( );
+        std::list<WorldCanvasHolder*>::iterator wch_iter = itsWCHList.begin( );
 		for (Int i = 0; i < itsNY; i++) {
 			Float x = itsXOrigin;
 			for (Int j = 0; j < itsNX; j++) {
 
-				if(itsWCLI.atEnd()) {
+				if ( wc_iter == itsWCList.end( ) ) {
 
 					// out of WC[H]s--create new ones
 
@@ -445,8 +434,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					                                  x,y, xPanelSize,yPanelSize);
 					WorldCanvasHolder* wch = new WorldCanvasHolder(wc);
 
-					itsWCLI.addRight(wc);
-					itsWCHLI.addRight(wch);
+					itsWCHList.insert(wch_iter,wch);
+					itsWCList.insert(wc_iter,wc);
 
 					// (To be fixed): _two identical WCH lists_ are maintained
 					// (an oversight, no doubt).
@@ -469,32 +458,37 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 					// just recycle / reposition old ones.
 
-					WorldCanvas* wc = itsWCLI.getRight();
-					wc->setWorldCanvasPosition(x,y, xPanelSize,yPanelSize);
+					(*wc_iter)->setWorldCanvasPosition(x,y, xPanelSize,yPanelSize);
+
+					++wc_iter;
+                    ++wch_iter;
 				}
 
-				(itsWCLI)++;
-				(itsWCHLI)++;
 				x += xPanelSize + itsDX;
 			}
 			y -= yPanelSize + itsDY;
 		}
 
 		// remove any leftover WC{H}s
+		std::list<WorldCanvasHolder*> wch_del;
+		std::list<WorldCanvas*> wc_del;
+		if ( wch_iter != itsWCHList.end( ) ) {
+			wch_del.splice( wch_del.begin( ),
+							itsWCHList, wch_iter, itsWCHList.end( ) );
+		}
+		if ( wc_iter != itsWCList.end( ) ) {
+			wc_del.splice( wc_del.begin( ),
+						   itsWCList, wc_iter, itsWCList.end( ) );
+		}
 
-		while (!itsWCHLI.atEnd()) {
-			WorldCanvasHolder* wch = itsWCHLI.getRight();
-			removeWCHolder(*wch);
-			itsWCHLI.removeRight();
-			delete wch;
-			wch=0;
-		}
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			itsWCLI.removeRight();
-			delete wc;
-			wc=0;
-		}
+        for ( auto d : wch_del ) {
+            // lo, our parent (MultiWCHolder) maintains a DUPLICATE list
+            // of WorldCanvasHolders, and it's even called the same thing
+            // so convienient...
+            removeWCHolder(*d);
+            delete d;
+        }
+        for ( auto w : wc_del ) delete w;
 
 		updateTools(false,true);	// (restore mouse tools).
 		setDefaultOptions();
@@ -513,26 +507,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		}
 		updateTools(true,false);
 		// 1. remove the WorldCanvasHolders
-		ListIter<WorldCanvasHolder* >itsWCHLI( itsWCHList );
-		itsWCHLI.toStart();
-		while (!itsWCHLI.atEnd()) {
-			WorldCanvasHolder* wch = itsWCHLI.getRight();
-			removeWCHolder(*wch);
-			itsWCHLI.removeRight();
-			delete wch;
-			wch=0;
-			// don't increment iterator - removeRight() has that effect!
-		}
+		std::list<WorldCanvasHolder*> wch_orig = itsWCHList;
+		itsWCHList.clear( );
+		for ( auto wch : wch_orig ) delete wch;
 		// 2. delete WorldCanvases.
-		ListIter<WorldCanvas* >itsWCLI( itsWCList );
-		itsWCLI.toStart();
-		while (!itsWCLI.atEnd()) {
-			WorldCanvas* wc = itsWCLI.getRight();
-			itsWCLI.removeRight();
-			delete wc;
-			wc=0;
-			// don't increment iterator - removeRight() has that effect!
-		}
+		std::list<WorldCanvas*> wc_orig = itsWCList;
+		itsWCList.clear( );
+		for ( auto wc : wc_orig ) delete wc;
 		itsGeometrySet = false;
 		// we have remove WorldCanvases from the PixelCanvas, so we should
 		// refresh the entire PixelCanvas.
@@ -541,25 +522,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	WorldCanvasHolder* PanelDisplay::wcHolder(WorldCanvas* wcanvas) const {
-		ConstListIter<WorldCanvasHolder* >itsWCHLI( itsWCHList );
-		itsWCHLI.toStart();
-		while (!itsWCHLI.atEnd()) {
-			WorldCanvasHolder* wch = itsWCHLI.getRight();
-			if (wch->worldCanvas() == wcanvas) {
+		for ( auto wch : itsWCHList ) {
+			if (wch->worldCanvas( ) == wcanvas) {
 				return wch;
 			}
-			(itsWCHLI)++;
 		}
 		return 0;
 	}
 
 	void PanelDisplay::setCSmaster( DisplayData* dd ) {
-		ListIter<WorldCanvasHolder*> wchIter (itsWCHList);
-		wchIter.toStart();
-		while ( !wchIter.atEnd()) {
-			WorldCanvasHolder* worldCanvasHolder = wchIter.getRight();
-			worldCanvasHolder->setCSMaster(dd);
-			wchIter++;
+		for ( auto wch : itsWCHList ) {
+			wch->setCSMaster(dd);
 		}
 		itsPixelCanvas->refresh(Display::WorldCoordinateChange, true);
 	}
@@ -567,13 +540,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	Bool PanelDisplay::isCSmaster(const DisplayData *dd) const {
 		// Is the specified DisplayData the one in charge of coordinate
 		// state of the Panel's WCs?
-		ConstListIter<WorldCanvasHolder*> wchs(itsWCHList);
-		return !wchs.atEnd() && wchs.getRight()->isCSmaster(dd);
+		return itsWCHList.size( ) > 0 && itsWCHList.front( )->isCSmaster(dd);
 	}
 
 
 	Bool PanelDisplay::hasTools() {
-		if (itsMWCTools.ndefined() > 0) {
+		if (itsMWCTools.size() > 0) {
 			return true;
 		} else {
 			return false;
@@ -582,44 +554,44 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 	void PanelDisplay::updateTools(Bool remove, Bool add) {
-		if (itsMWCTools.ndefined() == 0) {
+		if (itsMWCTools.size() == 0) {
 			return;
 		}
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
 			if (remove) {
-				itsMWCTools.getVal(i)->removeWorldCanvases(this);
+				iter->second->removeWorldCanvases(this);
 			}
 			if (add) {
-				itsMWCTools.getVal(i)->addWorldCanvases(this);
+				iter->second->addWorldCanvases(this);
 			}
 		}
 	}
 
 	void PanelDisplay::disableTools() {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			itsMWCTools.getVal(i)->disable( );
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			iter->second->disable( );
 		}
 	}
 
 	void PanelDisplay::enableTools() {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			itsMWCTools.getVal(i)->enable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			iter->second->enable();
 		}
 	}
 
 	void PanelDisplay::enableTool(const String& toolname) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->enable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->enable();
 				break;
 			}
 		}
 	}
 
 	void PanelDisplay::disableTool(const String& toolname) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->disable();
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->disable();
 				break;
 			}
 		}
@@ -627,43 +599,39 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void PanelDisplay::setToolKey(const String& toolname,
 	                              const Display::KeySym& keysym) {
-		for (uInt i=0; i < itsMWCTools.ndefined(); i++) {
-			if (itsMWCTools.getKey(i) == toolname) {
-				itsMWCTools.getVal(i)->setKey(keysym);
+		for (auto iter = itsMWCTools.begin( ); iter != itsMWCTools.end( ); ++iter) {
+			if (iter->first == toolname) {
+				iter->second->setKey(keysym);
 				break;
 			}
 		}
 	}
 
 	void PanelDisplay::addTool(const String& key, const std::shared_ptr<MultiWCTool> &value) {
-		if (!itsMWCTools.isDefined(key)) {
-			itsMWCTools.define(key, value);
+        auto wcptr = itsMWCTools.find(key);
+		if ( wcptr == itsMWCTools.end( ) ) {
+			itsMWCTools[key] = value;
 			value->addWorldCanvases(this);
 		}
 	}
 
 	void PanelDisplay::removeTool(const String& key) {
-		if(!itsMWCTools.isDefined(key)) return;
-		std::shared_ptr<MultiWCTool> tool = itsMWCTools(key);
-		itsMWCTools.remove(key);
+        auto wcptr = itsMWCTools.find(key);
+		if(wcptr == itsMWCTools.end( )) return;
+		std::shared_ptr<MultiWCTool> tool = wcptr->second;
+		itsMWCTools.erase(wcptr);
 		if ( tool.get( ) == 0 ) return;
 		tool->removeWorldCanvases(this);
 	}
 
 	const std::shared_ptr<MultiWCTool> PanelDisplay::getTool(const String& key) {
-		if(!itsMWCTools.isDefined(key)) return std::shared_ptr<MultiWCTool>( );
-		return itsMWCTools(key);
+        auto wcptr = itsMWCTools.find(key);
+		if(wcptr == itsMWCTools.end( )) return std::shared_ptr<MultiWCTool>( );
+		return wcptr->second;
 	}
 
 	float PanelDisplay::getDrawUnit(  ) const {
-		float drawUnit = 0;
-		ConstListIter<WorldCanvasHolder* >itsWCHLI( itsWCHList );
-		itsWCHLI.toStart();
-		if (!itsWCHLI.atEnd()) {
-			WorldCanvasHolder* wch = itsWCHLI.getRight();
-			drawUnit = wch->getDrawUnit();
-		}
-		return drawUnit;
+		return itsWCHList.size( ) > 0 ? itsWCHList.front( )->getDrawUnit() : 0.0;
 	}
 
 	int PanelDisplay::getColumnCount( ) const {

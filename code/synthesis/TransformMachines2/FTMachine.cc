@@ -42,6 +42,7 @@
 #include <synthesis/TransformMachines2/FTMachine.h>
 #include <synthesis/TransformMachines2/SkyJones.h>
 #include <synthesis/TransformMachines2/VisModelData.h>
+#include <synthesis/TransformMachines2/BriggsCubeWeightor.h>
 #include <scimath/Mathematics/RigidVector.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
 #include <synthesis/TransformMachines2/Utils.h>
@@ -89,6 +90,7 @@ using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
+                           ephemTableName_p(""), 
 			   movingDirShift_p(0.0), 
 			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
@@ -97,18 +99,21 @@ using namespace casa::vi;
 			   pointingDirCol_p("DIRECTION"),
 			   cfStokes_p(), cfCache_p(), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(), 
 			   canComputeResiduals_p(false), toVis_p(true), 
-                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
+                           numthreads_p(-1), pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
+    tangentSpecified_p(false), fixMovingSource_p(false), 
+    ephemTableName_p(""), 
+    movingDirShift_p(0.0),
     distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
@@ -116,13 +121,14 @@ using namespace casa::vi;
     pointingDirCol_p("DIRECTION"),
     cfStokes_p(), cfCache_p(cfcache), cfs_p(), cfwts_p(), cfs2_p(), cfwts2_p(),
     convFuncCtor_p(cf),canComputeResiduals_p(false), toVis_p(true), numthreads_p(-1), 
-    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1)
+    pbLimit_p(0.05),sj_p(0), cmplxImage_p( ), vbutil_p(), phaseCenterTime_p(-1.0), doneThreadPartition_p(-1), briggsWeightor_p(nullptr)
   {
     spectralCoord_p=SpectralCoordinate();
     isPseudoI_p=false;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   LogIO& FTMachine::logIO() {return logIO_p;};
@@ -184,6 +190,7 @@ using namespace casa::vi;
       //moving source stuff
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
+      ephemTableName_p = other.ephemTableName_p;
       firstMovingDir_p=other.firstMovingDir_p;
       movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
@@ -218,6 +225,8 @@ using namespace casa::vi;
       nysect_p=other.nysect_p;
       obsvelconv_p=other.obsvelconv_p;
       mtype_p=other.mtype_p;
+      briggsWeightor_p=other.briggsWeightor_p;
+      ft_p=other.ft_p;
     };
     return *this;
   };
@@ -227,7 +236,10 @@ using namespace casa::vi;
     String err;
     if(!(this->toRecord(err, rec)))
       throw(AipsError("Error in cloning FTMachine"));
-    return VisModelData::NEW_FT(rec);
+    FTMachine* retval=VisModelData::NEW_FT(rec);
+    if(retval)
+      retval->briggsWeightor_p=briggsWeightor_p;
+    return retval;
   }
 
   //----------------------------------------------------------------------
@@ -263,7 +275,6 @@ using namespace casa::vi;
    }
   //----------------------------------------------------------------------
     void FTMachine::initMaps(const vi::VisBuffer2& vb) {
-
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
@@ -311,17 +322,22 @@ using namespace casa::vi;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
-	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	  if(mFrame_p.comet())
+	  if (mFrame_p.comet())
 	    mFrame_p.resetComet(mcomet);
 	  else
-	     mFrame_p.set(mcomet);
-	  
-	}
-	else{
-	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	    mFrame_p.set(mcomet);
+	} else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+	  MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+	  if (mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	    mFrame_p.set(mcomet);
+	  tmphadec = MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+	} else {
+	  tmphadec = MDirection::Convert(movingDir_p, outref1)();
 	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
@@ -526,7 +542,21 @@ using namespace casa::vi;
 
       //cerr << "initmaps polmap "<< polMap << endl;
 
+
+      
+
     }
+  void FTMachine::initBriggsWeightor(vi::VisibilityIterator2& vi){
+    ///Lastly initialized Briggs cube weighting scheme
+    if(!briggsWeightor_p.null()){
+      String error;
+      Record rec;
+      if(!toRecord(error, rec))
+        throw (AipsError("Could not initialize BriggsWeightor")); 
+      briggsWeightor_p->init(vi, *image, rec);
+
+    }
+  }
 
   FTMachine::~FTMachine() 
   {
@@ -1119,7 +1149,6 @@ using namespace casa::vi;
   			    const vi::VisBuffer2& vb)
     {
 
-
       if(lastMSId_p != vb.msId())
 	romscol_p=new ROMSColumns(vb.ms());
       //the uvw rotation is done for common tangent reprojection or if the
@@ -1396,7 +1425,6 @@ using namespace casa::vi;
     outRecord.define("nchan", nchan);
     outRecord.define("nvischan", nvischan);
     outRecord.define("nvispol", nvispol);
-    saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
     //no need to save uvwMachine_p
     outRecord.define("douvwrotation", doUVWRotation_p);
     outRecord.define("freqinterpmethod", static_cast<Int>(freqInterpMethod_p));
@@ -1413,13 +1441,11 @@ using namespace casa::vi;
     outRecord.define("chanmap", chanMap);
     outRecord.define("polmap", polMap);
     outRecord.define("nvischanmulti", nVisChan_p);
-    spectralCoord_p.save(outRecord, "spectralcoord");
+
+    //save moving source related variables
+    storeMovingSourceState(error, outRecord);
     //outRecord.define("doconversion", doConversion_p);
     outRecord.define("pointingdircol", pointingDirCol_p);
-    saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
-    outRecord.define("fixmovingsource", fixMovingSource_p);
-    saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
-    movingDirShift_p=MVDirection(0.0);
     outRecord.define("usedoublegrid", useDoubleGrid_p);
     outRecord.define("cfstokes", cfStokes_p);
     outRecord.define("polinuse", polInUse_p);
@@ -1525,12 +1551,7 @@ using namespace casa::vi;
     }
     
    
-    { const Record rec=inRecord.asRecord("mlocation_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      mLocation_p=mh.asMPosition();
-    }
+   
     inRecord.get("douvwrotation", doUVWRotation_p);
    
     //inRecord.get("spwchanselflag", spwChanSelFlag_p);
@@ -1548,26 +1569,10 @@ using namespace casa::vi;
     inRecord.get("chanmap", chanMap);
     inRecord.get("polmap", polMap);
     inRecord.get("nvischanmulti", nVisChan_p);
-    SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
-    if(tmpSpec){
-      spectralCoord_p=*tmpSpec;
-      delete tmpSpec;
-    }
     //inRecord.get("doconversion", doConversion_p);
     inRecord.get("pointingdircol", pointingDirCol_p);
-    { const Record rec=inRecord.asRecord("movingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      movingDir_p=mh.asMDirection();
-    }
-    inRecord.get("fixmovingsource", fixMovingSource_p);
-    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
-      MeasureHolder mh;
-      if(!mh.fromRecord(error, rec))
-	return false;
-      firstMovingDir_p=mh.asMDirection();
-    }
+    
+    
     inRecord.get("usedoublegrid", useDoubleGrid_p);
     inRecord.get("cfstokes", cfStokes_p);
     inRecord.get("polinuse", polInUse_p);
@@ -1588,9 +1593,86 @@ using namespace casa::vi;
     ///may have changed.
     doneThreadPartition_p=-1;
     vbutil_p=nullptr;
+    briggsWeightor_p=nullptr;
+    ft_p=FFT2D(true);
+    if(!recoverMovingSourceState(error, inRecord))
+      return False;
     return true;
   };
+  Bool FTMachine::storeMovingSourceState(String& error, RecordInterface& outRecord){
+
+    Bool retval=True;
+    retval=retval && saveMeasure(outRecord, "mlocation_rec", error, mLocation_p);
+    spectralCoord_p.save(outRecord, "spectralcoord");
+    retval=retval && saveMeasure(outRecord, "movingdir_rec", error, movingDir_p);
+    outRecord.define("fixmovingsource", fixMovingSource_p);
+    retval=retval && saveMeasure(outRecord, "firstmovingdir_rec", error, firstMovingDir_p);
+    movingDirShift_p=MVDirection(0.0);
+    if( mFrame_p.comet()){
+      String ephemTab=MeasComet(*(mFrame_p.comet())).getTablePath();
+      outRecord.define("ephemeristable",ephemTab);
+    }
+    return retval;
+  }
+  Bool FTMachine::recoverMovingSourceState(String& error, const RecordInterface& inRecord){
+    Bool retval=True;
+    inRecord.get("fixmovingsource", fixMovingSource_p);
+    { const Record rec=inRecord.asRecord("firstmovingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      firstMovingDir_p=mh.asMDirection();
+    }
+    { const Record rec=inRecord.asRecord("movingdir_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      movingDir_p=mh.asMDirection();
+    }
+     { const Record rec=inRecord.asRecord("mlocation_rec");
+      MeasureHolder mh;
+      if(!mh.fromRecord(error, rec))
+	return false;
+      mLocation_p=mh.asMPosition();
+    }
+     SpectralCoordinate *tmpSpec=SpectralCoordinate::restore(inRecord, "spectralcoord");
+    if(tmpSpec){
+      spectralCoord_p=*tmpSpec;
+      delete tmpSpec;
+    }
+    if(inRecord.isDefined("ephemeristable")){
+      String ephemtab;
+      inRecord.get("ephemeristable", ephemtab);
+      MeasComet laComet;
+      if(Table::isReadable(ephemtab, False)){
+	Table laTable(ephemtab);
+	Path leSentier(ephemtab);
+	laComet=MeasComet(laTable, leSentier.absoluteName());
+      }
+      else{
+        laComet= MeasComet(ephemtab);
+      }
+      if(!mFrame_p.comet())
+	mFrame_p.set(laComet);
+      else
+	mFrame_p.resetComet(laComet);
+    }
+    
+    return retval;
+  }
   
+  
+  void FTMachine::getImagingWeight(Matrix<Float>& imwgt, const vi::VisBuffer2& vb){
+    //cerr << "BRIGGSweightor " << briggsWeightor_p.null()  << " or " << !briggsWeoght_p << endl;
+    if(briggsWeightor_p.null()){
+      imwgt=vb.imagingWeight();
+    }
+    else
+      briggsWeightor_p->weightUniform(imwgt, vb);
+
+
+
+  }
   // Make a plain straightforward honest-to-FSM image. This returns
   // a complex image, without conversion to Stokes. The representation
   // is that required for the visibilities.
@@ -1727,8 +1809,11 @@ using namespace casa::vi;
     }
   */
 
+  Vector<Int> FTMachine::channelMap(const vi::VisBuffer2& vb){
+    matchChannel(vb);
+    return chanMap;
+  }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
-
     //Int spw=vb.spectralWindows()[0];
     nvischan  = vb.nChannels();
     chanMap.resize(nvischan);
@@ -1738,25 +1823,26 @@ using namespace casa::vi;
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
     //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
-     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
-    	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
-     else
-    	 lsrFreq=vb.getFrequencies(0);
-
-     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
-       if(lastMSId_p != vb.msId()){
-	 romscol_p=new ROMSColumns(vb.ms());
-       //if ms changed ...reset ephem table
-	 if(upcase(movingDir_p.getRefString()).contains("APP")){
-	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	   mFrame_p.resetComet(mcomet);
-	 }
-       }
+    if (freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST ) {
+      lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
+    }
+    else {
+      lsrFreq=vb.getFrequencies(0);
+    }
+    if (spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p) {
+      if(lastMSId_p != vb.msId()){
+	romscol_p=new ROMSColumns(vb.ms());
+	//if ms changed ...reset ephem table
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  mFrame_p.resetComet(mcomet);
+	}
+      }
 	
-       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
-       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
-       shiftFreqToSource(lsrFreq);
-     }
+      mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+      mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+      shiftFreqToSource(lsrFreq);
+    }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);
@@ -1886,6 +1972,7 @@ using namespace casa::vi;
     if(Table::isReadable(sourcename, False)){
       sourcename="COMET";
       ephemtab=sname;
+      ephemTableName_p = sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){
@@ -1952,7 +2039,9 @@ using namespace casa::vi;
     }
   
   }
-  
+  void FTMachine::setFreqInterpolation(const InterpolateArray1D<Double,Complex>::InterpolationMethod type){
+    freqInterpMethod_p=type;
+  }
   
   // helper function to swap the y and z axes of a Cube
   void FTMachine::swapyz(Cube<Complex>& out, const Cube<Complex>& in)

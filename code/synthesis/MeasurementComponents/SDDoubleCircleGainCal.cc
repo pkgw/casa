@@ -71,7 +71,7 @@ inline void fillNChanParList(casacore::String const &msName,
 casacore::Vector<casacore::Int> &nChanParList) {
   casacore::MeasurementSet const ms(msName);
   casacore::MSSpectralWindow const &msspw = ms.spectralWindow();
-  casacore::ROScalarColumn<casacore::Int> nchanCol(msspw, "NUM_CHAN");
+  casacore::ScalarColumn<casacore::Int> nchanCol(msspw, "NUM_CHAN");
   debuglog << "nchanCol=" << nchanCol.getColumn() << debugpost;
   nChanParList = nchanCol.getColumn()(
   casacore::Slice(0, nChanParList.nelements()));
@@ -120,7 +120,7 @@ public:
 private:
   DataColumnAccessor() {
   }
-  casacore::ROArrayColumn<casacore::Complex> dataCol_;
+  casacore::ArrayColumn<casacore::Complex> dataCol_;
 };
 
 class FloatDataColumnAccessor {
@@ -137,7 +137,7 @@ public:
 private:
   FloatDataColumnAccessor() {
   }
-  casacore::ROArrayColumn<casacore::Float> dataCol_;
+  casacore::ArrayColumn<casacore::Float> dataCol_;
 };
 
 inline bool isEphemeris(casacore::String const &name) {
@@ -492,15 +492,15 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
         worker.unsetSmoothing();
       }
 
-//      ROArrayColumn<Double> uvwColumn(ms, "UVW");
+//      ArrayColumn<Double> uvwColumn(ms, "UVW");
 //      Matrix<Double> uvw = uvwColumn.getColumn();
 //      debuglog<< "uvw.shape " << uvw.shape() << debugpost;
 //
       // make a map between SOURCE_ID and source NAME
       auto const &sourceTable = ms.source();
-      ROScalarColumn<Int> idCol(sourceTable,
+      ScalarColumn<Int> idCol(sourceTable,
           sourceTable.columnName(MSSource::MSSourceEnums::SOURCE_ID));
-      ROScalarColumn<String> nameCol(sourceTable,
+      ScalarColumn<String> nameCol(sourceTable,
           sourceTable.columnName(MSSource::MSSourceEnums::NAME));
       std::map<Int, String> sourceMap;
       for (uInt irow = 0; irow < sourceTable.nrow(); ++irow) {
@@ -553,10 +553,10 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
         << "(nchan " << nChanParList()[ispw] << ")" << LogIO::POST;
 
         Int ifield = msIter.fieldId();
-        ROScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
+        ScalarColumn<Int> antennaCol(currentMS, "ANTENNA1");
         //currAnt_ = antennaCol(0);
         Int iantenna = antennaCol(0);
-        ROScalarColumn<Int> feedCol(currentMS, "FEED1");
+        ScalarColumn<Int> feedCol(currentMS, "FEED1");
         debuglog<< "FIELD_ID " << msIter.fieldId()
         << " ANTENNA1 " << iantenna//currAnt_
         << " FEED1 " << feedCol(0)
@@ -601,11 +601,11 @@ void SDDoubleCircleGainCal::executeDoubleCircleGainCal(
 //      debuglog<< "offset_direction[" << i << "]=" << direction_p[i] << debugpost;
 //    }
 
-    ROScalarColumn<Double> timeCol(currentMS, "TIME");
+    ScalarColumn<Double> timeCol(currentMS, "TIME");
     Vector<Double> time = timeCol.getColumn();
     Accessor dataCol(currentMS);
     Cube<Float> data = dataCol.getColumn();
-    ROArrayColumn<Bool> flagCol(currentMS, "FLAG");
+    ArrayColumn<Bool> flagCol(currentMS, "FLAG");
     Cube<Bool> flag = flagCol.getColumn();
 //    debuglog<< "data = " << data << debugpost;
 

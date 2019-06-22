@@ -11,7 +11,6 @@
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Slicer.h>
 #include <casa/BasicSL/String.h>
-#include <casa/Containers/Stack.h>
 #include <casa/Quanta/MVDoppler.h>
 #include <casa/aips.h>
 #include <casa/System/AipsrcValue.h>
@@ -387,6 +386,13 @@ VisibilityIterator2::useImagingWeight (const VisImagingWeight & viw)
 {
     CheckImplementationPointer ();
     impl_p->useImagingWeight(viw);
+}
+
+const VisImagingWeight & 
+VisibilityIterator2::getImagingWeightGenerator () const
+{
+    CheckImplementationPointer ();
+    return impl_p->getImagingWeightGenerator ();
 }
 
 void

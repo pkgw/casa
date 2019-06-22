@@ -35,8 +35,6 @@
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
-#include <casa/Containers/OrderedMap.h>
-#include <casa/Containers/MapIO.h>
 #include <tables/TaQL/ExprNode.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <ms/MeasurementSets/MSMainEnums.h>
@@ -58,7 +56,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual void init(const casacore::Table& ctAsTable)
     {casacore::MSSelectableMainColumn::init(ctAsTable);ct_p = NewCalTable(ctAsTable); ctCols_p=new ROCTMainColumns(ct_p);}
 
-    virtual const casacore::ROArrayColumn<casacore::Bool>& flag() {return ctCols_p->flag();}
+    virtual const casacore::ArrayColumn<casacore::Bool>& flag() {return ctCols_p->flag();}
 
     virtual casacore::Bool flagRow(const casacore::Int& i) {return allTrue(ctCols_p->flag()(i));}
     

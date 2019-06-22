@@ -90,8 +90,8 @@ pagerows    rows per page of listing
     </param>
 
     <param type="string" name="caltable" mustexist="true">
-	    <description>Input calibration table to list</description>
-	    <value></value>
+      <description>Input calibration table to list</description>
+      <value></value>
     </param>
 
     <param type="string" name="field">
@@ -101,14 +101,14 @@ pagerows    rows per page of listing
     </param>
 
     <param type="string" name="antenna">
-	    <description>Antenna name or index</description>
-	    <value></value>
+      <description>Antenna name or index</description>
+      <value></value>
         <example>''==>all; antenna='3'</example>
     </param>
 
     <param type="string" name="spw">
-	    <description>Spectral window and channel</description>
-	    <value></value>
+      <description>Spectral window and channel</description>
+      <value></value>
         <example>''==>all; spw='5:0~10'</example>
     </param>
 

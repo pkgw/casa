@@ -94,7 +94,6 @@ GJonesSpline::GJonesSpline (VisSet& vs) :
   //cacheTimeValid_p(0),
   calBuffer_p(NULL),
   //rawPhaseRemoval_p(false),
-  timeValueMap_p(0),
   solTimeStamp_p(0.0)
 {
 // Construct from a visibility set
@@ -128,7 +127,6 @@ GJonesSpline::GJonesSpline (const MSMetaInfoForCal& msmc) :
   // cacheTimeValid_p(0),
   calBuffer_p(NULL),
   // rawPhaseRemoval_p(false),
-  timeValueMap_p(0),
   solTimeStamp_p(0.0)
 {
 // Construct from a MSMetaInfoForCal
@@ -314,7 +312,7 @@ void GJonesSpline::selfGatherAndSolve (VisSet& vs, VisEquation& ve)
   // Initialize time-series accumulation buffers for the
   // corrected and corrupted visibility data and associated
   // weights. 
-  SimpleOrderedMap<String,Int> timeValueMap(0);
+  std::map<String,Int> timeValueMap;
   Vector<Double> timeValues;
   PtrBlock<Matrix<Complex>* > visTimeSeries;
   PtrBlock<Matrix<Double>* > weightTimeSeries;
@@ -431,12 +429,12 @@ void GJonesSpline::selfGatherAndSolve (VisSet& vs, VisEquation& ve)
 	  String timeKey = mvt.string(MVTime::TIME, 7);
 	  Int timeIndex = 0;
 	  // Check the time stamp index to this precision
-	  if (timeValueMap.isDefined(timeKey)) {
-	    timeIndex = timeValueMap(timeKey);
+      if (timeValueMap.find(timeKey) != timeValueMap.end( )) {
+	    timeIndex = timeValueMap[timeKey];
 	  } else {
 	    // Create a new time series entry
 	    timeIndex = nTimeSeries++;
-	    timeValueMap.define(timeKey, timeIndex);
+	    timeValueMap.insert(std::pair<casacore::String, casacore::Int>(timeKey, timeIndex));
 	    timeValues.resize(nTimeSeries, true);
 	    timeValues(timeIndex) = svb.time()(row);
 	    Complex czero(0,0);
@@ -461,7 +459,7 @@ void GJonesSpline::selfGatherAndSolve (VisSet& vs, VisEquation& ve)
   // Create amplitude, phase and weight arrays per time-slot
   // and interferometer index in the form required by the
   // GILDAS solver, splinant.
-  Int nTimes = timeValueMap.ndefined();
+  Int nTimes = timeValueMap.size( );
 
   os << LogIO::NORMAL 
      << "Number of timestamps in data = " << nTimes

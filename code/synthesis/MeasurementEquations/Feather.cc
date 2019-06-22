@@ -881,7 +881,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	} else {
 	  // get the PB from the vpTable
 	  Table vpTable( vpTableStr );
-	  ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+	  ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
 	  myPBp = new PBMath(recCol(0));
 	}
 	AlwaysAssert((myPBp != 0), AipsError);
@@ -1280,7 +1280,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       } else {
 	// get the PB from the vpTable
 	Table vpTable( vpTableStr );
-	ROScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
+	ScalarColumn<TableRecord> recCol(vpTable, (String)"pbdescription");
 	myPBp = new PBMath(recCol(0));
       }
       AlwaysAssert((myPBp != 0), AipsError);

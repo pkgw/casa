@@ -31,7 +31,7 @@
 #include <casa/aips.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/DisplayCoordinateSystem.h>
 #include <display/Utilities/DisplayOptions.h>
 #include <display/Utilities/DlTarget.h>
@@ -792,16 +792,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Retrieve position, motion, refresh and display event handler lists.
 		// <group>
-		virtual const casacore::List<WCPositionEH*> *positionEventHandlerList() {
+		virtual const std::list<WCPositionEH*> *positionEventHandlerList() {
 			return &itsPositionEHList;
 		}
-		virtual const casacore::List<WCMotionEH*> *motionEventHandlerList() {
+		virtual const std::list<WCMotionEH*> *motionEventHandlerList() {
 			return &itsMotionEHList;
 		}
-		virtual const casacore::List<WCRefreshEH*> *refreshEventHandlerList() {
+		virtual const std::list<WCRefreshEH*> *refreshEventHandlerList() {
 			return &itsRefreshEHList;
 		}
-		virtual const casacore::List<DisplayEH*> *displayEventHandlerList() {
+		virtual const std::list<DisplayEH*> *displayEventHandlerList() {
 			return &itsDisplayEHList;
 		}
 		// </group>
@@ -840,13 +840,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		// notify routines used by the WorldCanvasHolder.  This can be used,
 		// for example, to find which WorldCanvas belongs to which
 		// WorldCanvasHolder.
-		casacore::List<WorldCanvasHolder*> itsWCHList;
+		std::list<WorldCanvasHolder*> itsWCHList;
 
 		// Lists of position, motion, refresh and display event handlers.
-		casacore::List<WCPositionEH*> itsPositionEHList;
-		casacore::List<WCMotionEH*> itsMotionEHList;
-		casacore::List<WCRefreshEH*> itsRefreshEHList;
-		casacore::List<DisplayEH*> itsDisplayEHList;
+		std::list<WCPositionEH*> itsPositionEHList;
+		std::list<WCMotionEH*> itsMotionEHList;
+		std::list<WCRefreshEH*> itsRefreshEHList;
+		std::list<DisplayEH*> itsDisplayEHList;
 
 		// DD 'Absolute Pixel Coordinates', e.g. channel numbers, are internally
 		// 0-based (begin numbering at 0), but certain external user-interface

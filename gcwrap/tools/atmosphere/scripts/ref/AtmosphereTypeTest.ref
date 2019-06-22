@@ -5,10 +5,9 @@ depending on whether the shared libraries
 are cached or not.
 =========================================
 
-]0;IPython: atmosphere/attool_testIPython 5.1.0 -- An enhanced Interactive Python.
+]0;IPython: CAS-11140-update-atm-for-casa-5.6/testIPython 5.1.0 -- An enhanced Interactive Python.
 
-CASA 5.1.0-32  ID c3ceb4437ff916fc88aa8040765c1f8667368426 -- Common Astronomy Software Applications
+CASA 5.5.0-0  ID -- Common Astronomy Software Applications
 
-*** Loading ATNF ASAP Package...
-*** ... ASAP (rev# unknown ) import complete ***
+2019-03-29 20:40:22	INFO	::casa	CASA Version 5.5.0-0  ID
 ['1 - TROPICAL', '2 - MIDLATSUMMER', '3 - MIDLATWINTER', '4 - SUBARTSUMMER', '5 - SUBARTWINTER']

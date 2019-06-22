@@ -45,8 +45,8 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( selpars );
-      rstat = fromRecord(  itsUtils->continuumDataPartition( recpars , npart ) );
+      std::unique_ptr<casacore::Record> recpars(toRecord( selpars ));
+      rstat = fromRecord(  itsUtils->continuumDataPartition( *recpars , npart ) );
     } 
   catch  (AipsError x) 
     {
@@ -62,7 +62,7 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( selpars );
+      std::unique_ptr<casacore::Record> recpars(toRecord( selpars ));
       casacore::Quantity qstart(1.0, "GHz");
       casacore::Quantity qend(1.5,"GHz");
       if( (fstart.toString().size() != 0) && String(fstart.toString()) != String("[]"))
@@ -72,7 +72,7 @@ synthesisutils::~synthesisutils()
       
       casacore::MFrequency::Types eltype;
       casacore::MFrequency::getType(eltype, frame);
-      rstat = fromRecord(  itsUtils->cubeDataPartition( recpars , npart, qstart.getValue("Hz"), qend.getValue("Hz"), eltype ) );
+      rstat = fromRecord(  itsUtils->cubeDataPartition( *recpars , npart, qstart.getValue("Hz"), qend.getValue("Hz"), eltype ) );
     } 
   catch  (AipsError x) 
     {
@@ -88,8 +88,8 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( selpars );
-      rstat = fromRecord(  itsUtils->cubeImagePartition( recpars , npart ) );
+      std::unique_ptr<casacore::Record> recpars(toRecord( selpars ));
+      rstat = fromRecord(  itsUtils->cubeImagePartition( *recpars , npart ) );
     } 
   catch  (AipsError x) 
     {
@@ -106,14 +106,14 @@ synthesisutils::~synthesisutils()
 
    try
      {
-        casacore::Record recselpars = *toRecord( selpars );
-        casacore::Record recincsys = *toRecord( incsysrec );
-        if (recincsys.nfields() != 0 ) {
+        std::unique_ptr<casacore::Record> recselpars(toRecord( selpars ));
+        std::unique_ptr<casacore::Record> recincsys(toRecord( incsysrec ));
+        if (recincsys->nfields() != 0 ) {
           CoordinateSystem *incsys;
-          incsys = CoordinateSystem::restore(recincsys,"coordsys");
+          incsys = CoordinateSystem::restore(*recincsys,"coordsys");
           Vector<CoordinateSystem> ocsysvec;
           Vector<Int> outnchanvec;
-          rstat = fromRecord( itsUtils->cubeDataImagePartition( recselpars, *incsys, npart, nchannel, ocsysvec, outnchanvec) );
+          rstat = fromRecord( itsUtils->cubeDataImagePartition( *recselpars, *incsys, npart, nchannel, ocsysvec, outnchanvec) );
         }
      }
    catch (AipsError x)
@@ -130,9 +130,9 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( selpars );
+      std::unique_ptr<casacore::Record> recpars(toRecord( selpars ));
       SynthesisParamsSelect pars;
-      pars.fromRecord( recpars );
+      pars.fromRecord( *recpars );
       rstat = fromRecord(  pars.toRecord()  );
     } 
   catch  (AipsError x) 
@@ -149,9 +149,9 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( impars );
+      std::unique_ptr<casacore::Record> recpars(toRecord( impars ));
       SynthesisParamsImage pars;
-      pars.fromRecord( recpars );
+      pars.fromRecord( *recpars );
       rstat = fromRecord(  pars.toRecord()  );
     } 
   catch  (AipsError x) 
@@ -169,9 +169,9 @@ synthesisutils::~synthesisutils()
 
   try 
     {
-      casacore::Record recpars = *toRecord( gridpars );
+      std::unique_ptr<casacore::Record> recpars(toRecord( gridpars ));
       SynthesisParamsGrid pars;
-      pars.fromRecord( recpars );
+      pars.fromRecord( *recpars );
       rstat = fromRecord(  pars.toRecord()  );
     } 
   catch  (AipsError x) 
@@ -189,8 +189,8 @@ synthesisutils::~synthesisutils()
   try
     {
       SynthesisParamsImage pars;
-      casacore::Record recpars = *toRecord( impars );
-      rstat = fromRecord( pars.updateParams( recpars ) );
+      std::unique_ptr<casacore::Record> recpars(toRecord( impars ));
+      rstat = fromRecord( pars.updateParams( *recpars ) );
     }
   catch  (AipsError x)
     {

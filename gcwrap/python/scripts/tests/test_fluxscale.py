@@ -101,19 +101,20 @@ class fluxscale1_test(unittest.TestCase):
         #         'spwName': np.array(['none'], dtype='|S5'), \
         #         'spwID': np.array([0])} 
       
-        # new returned dictionary (2013.09.12 TT)
-        refdict={'1': {'fitRefFreq': 0.0, 
-                       'spidxerr': np.array([ 0.,  0.,  0.]), 
-                       'spidx': np.array([ 0.,  0.,  0.]), 
-                       '0': {'fluxdErr': np.array([ 0.00055574,  0.        ,  0.        ,  0.        ]), 
-                             'numSol': np.array([ 54.,   0.,   0.,   0.]), 
-                             'fluxd': np.array([ 0.16825768,  0.        ,  0.        ,  0.        ])}, 
-                       'fitFluxd': 0.0, 
-                       'fieldName': '1445+09900002_0', 
-                       'fitFluxdErr': 0.0}, 
-                       'freq': np.array([  1.41266507e+09]), 
-                 'spwName': np.array(['none'],dtype='|S5'), 
-                 'spwID': np.array([0], dtype=np.int32)}
+        # new returned dictionary - updated 2019.05.15(TT)
+        refdict= {'1': {'fitRefFreq': 1412665073.7687755, 
+                        'spidxerr': np.array([ 0.,  0.]), 
+                        'spidx': np.array([ 0.,  0.]), 
+                        '0': {'fluxdErr': np.array([ 0.00055574,  0.        ,  0.        ,  0.        ]), 
+                              'numSol': np.array([ 54.,   0.,   0.,   0.]), 
+                              'fluxd': np.array([ 0.16825768,  0.        ,  0.        ,  0.        ])}, 
+                        'fitFluxd': 0.16825768258038631,
+                        'covarMat': np.array([], dtype=np.float64), 
+                        'fieldName': '1445+09900002_0', 
+                        'fitFluxdErr': 0.0}, 
+                        'freq': np.array([  1.41266507e+09]), 
+                  'spwName': np.array(['none'], dtype='|S5'), 
+                  'spwID': np.array([0], dtype=np.int32)}
 
         
         diff_fluxd=abs(refdict['1']['0']['fluxd'][0]-thisdict['1']['0']['fluxd'][0])/refdict['1']['0']['fluxd'][0]
@@ -279,6 +280,7 @@ class fluxscale2_test(unittest.TestCase):
         #         'spwID': np.array([0, 1, 2, 3, 4, 5], dtype=np.int32)} 
 
         # updated for new returned dictionary format (2013.09.12 TT)
+        # updated for new returned dictionary format (2019.05.16 TT)
         refdict= {'1': {'fitRefFreq': 0.0, 
                         'spidxerr': np.array([ 0.,  0.,  0.]), 
                         'fitFluxd': 0.0, 
@@ -302,11 +304,13 @@ class fluxscale2_test(unittest.TestCase):
                               'numSol': np.array([-1., -1., -1., -1.]), 
                               'fluxd': np.array([-1., -1., -1., -1.])}, 
                         'fieldName': '1310+323-F0', 
+                        'covarMat':np.array([], dtype=np.float64), 
                         'fitFluxdErr': 0.0}, 
                   'freq': np.array([  1.15138579e+11,   1.15217017e+11,  -1.00000000e+00, -1.00000000e+00,  
                                       -1.00000000e+00,  -1.00000000e+00]), 
                   'spwName': np.array(['', '', '', '', '', ''], dtype='|S1'), 
                   'spwID': np.array([0, 1, 2, 3, 4, 5], dtype=np.int32)}
+
 
         diff_fluxd=abs(refdict['1']['1']['fluxd'][0]-thisdict['1']['1']['fluxd'][0])/refdict['1']['1']['fluxd'][0]
 
@@ -379,7 +383,8 @@ class fluxscale3_test(unittest.TestCase):
                        '0': {'fluxdErr': np.array([ 0.00189683,  0.,  0.,  0.]), 
                              'numSol': np.array([ 54.,   0.,   0.,   0.]),
                              'fluxd': np.array([ 3.20832802,  0.,  0.,  0.])}, 
-                 'fitFluxd': 0.0, 'fieldName': '0841+708', 'fitFluxdErr': 0.0}, 
+                 'fitFluxd': 0.0,  'covarMat': np.array([], dtype=np.float64), 
+                 'fieldName': '0841+708', 'fitFluxdErr': 0.0}, 
                  'spwName': np.array(['127*24.4 kHz channels @ 1.42 GHz (BARY)'],dtype='|S40'),
                  'spwID': np.array([0], dtype=np.int32)} 
 
@@ -417,7 +422,8 @@ class fluxscale3_test(unittest.TestCase):
                        '0': {'fluxdErr': np.array([ 0.0022236,  0.,  0.,  0.]), 
                              'numSol': np.array([ 54.,   0.,   0.,   0.]), 
                              'fluxd': np.array([ 3.19455455,  0.,  0.,  0.])}, 
-                             'fitFluxd': 0.0, 'fieldName': '0841+708', 'fitFluxdErr': 0.0}, 
+                             'fitFluxd': 0.0, 'covarMat': np.array([], dtype=np.float64), 
+                             'fieldName': '0841+708', 'fitFluxdErr': 0.0}, 
                        'spwName': np.array(['127*24.4 kHz channels @ 1.42 GHz (BARY)'], dtype='|S40'), 
                        'spwID': np.array([0], dtype=np.int32)} 
 

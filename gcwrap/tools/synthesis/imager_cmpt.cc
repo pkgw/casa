@@ -45,7 +45,7 @@ imager::imager()
  itsMS = 0;
  hasValidMS_p=false;
  itsImager = new ImagerMultiMS() ;
- itsLog = new LogIO();
+ itsLog.reset(new LogIO());
  // OK this is probably not the way to set the plotter but it's OK for now I think.
  //PGPlotterInterface *worker(0);
  //try {
@@ -82,7 +82,8 @@ imager::advise( const bool takeadvice, const double amplitudeloss, const ::casac
    // pixels and facets are expected to be returned !
          rstat = itsImager->advise(takeadvice, amplitudeloss, qfieldofview,
                                    qcell, pixels, facets, mphaseCenter);
-         cell = *recordFromQuantity(qcell);
+         const unique_ptr<casac::record> tmpRec(recordFromQuantity(qcell));
+         cell = *tmpRec;
       //std::cerr << qcell << std::endl;
       //std::cerr << pixels << std::endl;
       //std::cerr << facets << std::endl;

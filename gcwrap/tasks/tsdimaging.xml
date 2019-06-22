@@ -60,8 +60,8 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="string" name="outfile">
-	    <description>prefix of output images (.image, .weight, .sumwt, .psf)</description>
-	    <value></value>
+            <description>prefix of output images (.image, .weight, .sumwt, .psf)</description>
+            <value></value>
     </param>
 
     <param type="bool" name="overwrite">
@@ -71,8 +71,8 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="field">
-	    <description>select data by field IDs and names, e.g. \'3C2*\' (\'\'=all)</description>
-	    <any type="variant" limittypes="string stringArray"/>
+            <description>select data by field IDs and names, e.g. \'3C2*\' (\'\'=all)</description>
+            <any type="variant" limittypes="string stringArray"/>
             <value type="string"></value>
     </param>
 
@@ -119,13 +119,13 @@ values. See description below for details of gridfunction available.
     <param type="any" name="start" subparam="true">
             <description>start of output spectral dimension, e.g. \'0\', \'110GHz\', \'-20km/s\'</description>
             <any type="variant" limittypes="string int"/>
-	    <value type="int">0</value>
+            <value type="int">0</value>
     </param>
 
     <param type="any" name="width" subparam="true">
             <description>width of output spectral channels</description>
-	    <any type="variant"  limittypes="string int"/>
-	    <value type="int">1</value>
+            <any type="variant"  limittypes="string int"/>
+            <value type="int">1</value>
     </param>
 
     <param type="string" name="veltype" ignorecase="true"  subparam="true">
@@ -200,7 +200,7 @@ values. See description below for details of gridfunction available.
 
     <param type="any" name="imsize">
             <description>x and y image size in pixels, e.g., [64,64]. Single value: same for both spatial axes ([] = number of pixels to cover whole pointings in MSes)</description>
-	    <any type="variant" limittypes="intArray doubleArray"/>
+            <any type="variant" limittypes="intArray doubleArray"/>
             <value type="vector">
             </value>
     </param>
@@ -212,26 +212,21 @@ values. See description below for details of gridfunction available.
     </param>
 
     <param type="any" name="phasecenter">
-            <description>image center direction: position or field index, e.g., \'J2000 17:30:15.0 -25.30.00.0\'. ('' = the center of pointing directions in MSes)</description>
+            <description>image center direction: position or field index or ephemeris source info, e.g., \'J2000 17:30:15.0 -25.30.00.0\', \'MARS\'. (\'\' = the center of pointing directions in MSes)</description>
             <any type="variant"/>
             <value type="string"></value>
     </param>
 
-	<param type="string" name="projection">
-	    <description>map projection type</description>
-	    <value>SIN</value>
-	    <allowed kind="enum" ignorecase="true">
-	        <value>SIN</value>
-	        <value>CAR</value>
-	        <value>TAN</value>
-	        <value>SFL</value>
-	    </allowed>
-	</param>
-
-    <param type="string" name="ephemsrcname">
-	    <description>ephemeris source name, e.g. \'MARS\'</description>
-	    <value></value>
-    </param>
+        <param type="string" name="projection">
+            <description>map projection type</description>
+            <value>SIN</value>
+            <allowed kind="enum" ignorecase="true">
+                <value>SIN</value>
+                <value>CAR</value>
+                <value>TAN</value>
+                <value>SFL</value>
+            </allowed>
+        </param>
 
     <param type="string" name="pointingcolumn">
             <shortdescription>pointing data column to use [\'direction\', \'target\', \'pointing_offset\', \'source_offset\' or \'encoder\']</shortdescription>
@@ -272,7 +267,7 @@ values. See description below for details of gridfunction available.
             <value>RRLL</value>
             <value>XXYY</value>
             <value>pseudoI</value>
-	    </allowed>
+            </allowed>
     </param>
 
     <param type="double" name="minweight">
@@ -292,18 +287,18 @@ values. See description below for details of gridfunction available.
             </allowed>
     </param>
 
-   	<param type="bool" name="clipminmax">
-   			<shortdescription>Clip minimum and maximum value from each pixel</shortdescription>
-   			<description>Clip minimum and maximum value from each pixel. Note the benefit of clipping is lost when the number of integrations contributing to each gridded pixel is small, or where the incidence of spurious datapoints is approximately or greater than the number of beams (in area) encompassed by expected image.</description>
-   			<value>False</value>
-   	</param>
+        <param type="bool" name="clipminmax">
+                        <shortdescription>Clip minimum and maximum value from each pixel</shortdescription>
+                        <description>Clip minimum and maximum value from each pixel. Note the benefit of clipping is lost when the number of integrations contributing to each gridded pixel is small, or where the incidence of spurious datapoints is approximately or greater than the number of beams (in area) encompassed by expected image.</description>
+                        <value>False</value>
+        </param>
 
     <constraints>
             <when param="mode">
                 <equals value="channel">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Begin the output cube at the frequency of this channel in the MS</description>
+                        <description>Begin the output cube at the frequency of this channel in the MS</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Width of output channel relative to MS channel (# to average)(\'\' = 1 channel) </description>
@@ -312,7 +307,7 @@ values. See description below for details of gridfunction available.
                 <equals value="frequency">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Frequency of first channel: e.g. \'1.4GHz\' (\'\'= first channel in first SpW of MS)</description>
+                        <description>Frequency of first channel: e.g. \'1.4GHz\' (\'\'= first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Channel width: e.g \'1.0kHz\'(\'\'=width of first channel in first SpW of MS)</description>
@@ -321,7 +316,7 @@ values. See description below for details of gridfunction available.
                 <equals value="velocity">
                     <default param="nchan"><value>-1</value></default>
                     <default param="start"><value type="string"></value>
-		        <description>Velocity of first channel: e.g \'0.0km/s\'(\'\'=first channel in first SpW of MS)</description>
+                        <description>Velocity of first channel: e.g \'0.0km/s\'(\'\'=first channel in first SpW of MS)</description>
                     </default>
                     <default param="width"><value type="string"></value>
                         <description>Channel width e.g \'-1.0km/s\' (\'\'=width of first channel in first SpW of MS)</description>
@@ -516,34 +511,42 @@ cell -- x and y cell size. default unit arcmin
         default: '' (= 1/3 of FWHM of primary beam)
         example: cell=['0.2arcmin, 0.2arcmin']
                  cell='0.2arcmin' (equivalent to example above)
-phasecenter -- image phase center: direction measure or field ID
+phasecenter -- image center: direction measure, field ID, or 
+               ephemerides source information for moving source (solar system objects)
         default: '' (= the center of pointing directions in 
                      POINTING table of infiles)
-        example: 6 (field id), 'J2000 13h44m00 -17d02m00',
-                 'AZEL -123d48m29 15d41m41'
+        example: phasecenter=6 (field ID)
+                 phasecenter='J2000 13h44m00 -17d02m00'
+                 phasecenter='AZEL -123d48m29 15d41m41'
+                 phasecenter='MARS'
+                 phasecenter='myComet_ephem.tab'
+                 phasecenter='TRACKFIELD'
+
+        If the phasecenter is the name known major solar system object 
+        ('MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN', 'URANUS', 
+        'NEPTUNE', 'PLUTO', 'SUN', 'MOON') or is an ephemerides table 
+        then that source is tracked and the background sources get smeared. 
+        There is a special case, when phasecenter='TRACKFIELD', which 
+        will use the ephemerides or polynomial phasecenter in the FIELD 
+        table of the MS's as the source center to track. 
+
+        When moving source correction is applied, the source is fixed to 
+        the position at the beginning of on-source observations in the data. 
+        Direction reference frame of output image refers phasecenter ('J2000' 
+        if phasecenter is empty). 
+
+        Caution: in case of specifying ephemeris table name, its name or path 
+                 must not start with known major solar system object listed 
+                 above (case-insensitive), otherwise, CASA will use its 
+                 internal ephemeris data for phasecenter instead. In such case 
+                 you need to add './' at the beginning so that the specified 
+                 table will be used. For example, if you wish to explicitly 
+                 specify ephemeris table attached to the input MS 'SunObs.ms', 
+                 set phasecenter like './SunObs.ms/FIELD/ephemtab_name.tab'. 
+                 
 projection -- map projection type. See Calabretta &amp; Greisen (2002) for detail.
         default: 'SIN' 
         options: 'SIN', 'CAR', 'TAN', 'SFL'
-ephemsrcname -- ephemeris source name for moving source (solar sytem objects)
-        default: '' (none)
-        If specified source name matches one of the solar system 
-        objects known by CASA (see examples below), the task realigns 
-        the data by correcting spatial shifts of the source during 
-        observation, so that the source appears to be fixed in the 
-        image. If specified name doesn't match, the task will fail. 
-        When moving source correction is applied, the source is fixed 
-        to the position at the beginning of the on-source observation 
-        in the data. Direction reference frame of output image refers 
-        phasecenter (it is 'J2000' if phasecenter is empty). Note that 
-        moving source correction is not applied unless the user 
-        explicitly set ephemsrcname even if target field is one of 
-        the solar system objects known by CASA. Note also that setting 
-        'pointing_offset' or 'source_offset' to directioncolumn 
-        disables moving source correction so that these values should 
-        not be used when the user wants to activate moving source 
-        correction. 
-        examples: 'MERCURY', 'VENUS', 'MARS', 'JUPITER', 'SATURN',
-                  'URANUS', 'NEPTUNE', 'PLUTO', 'SUN', 'MOON'
 pointingcolumn -- pointing data column to use
         option: 'direction', 'target', 'pointing_offset', 'source_offset', encoder' 
         default: 'direction'

@@ -8,7 +8,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="clearstat" category="utility">
 
-	<shortdescription>Clear all autolock locks</shortdescription>
+        <shortdescription>Clear all autolock locks</shortdescription>
 <description>
 This task is useful if another task that is running indicates
 that it is trying to obtain a lock on a file.
