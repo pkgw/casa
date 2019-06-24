@@ -1675,9 +1675,8 @@ protected:
         ~TestMeasurementSet() { }
 
         virtual void SetUp()        { }
-        virtual void TearDown()
+        virtual void TearDown()     
         {
-            BaseClass::TearDown();
             // Delete Working MS 
             DeleteWorkingMS();
         }
@@ -1717,7 +1716,8 @@ void TestMeasurementSet::test_constructor(String name, bool excep )
 TEST_F(TestMeasurementSet, variousConstructor )
 {
     TestDescription( "CALC Constructor by various MS " );
- 
+
+    // Measurement Set for Test //
     std::vector<TestMeasurementSet::MSDef> TestMSList 
     {
         // Exeption(bool)  , Filename //
@@ -1745,7 +1745,7 @@ TEST_F(TestMeasurementSet, variousConstructor )
         FunctionalDescription( "CALC Constructor by various MS",itr->name.c_str()  );
         auto name =  itr->name;
         auto excep = itr->except;
-        test_constructor(name, excep);
+          test_constructor(name, excep);
     }
 }
 
@@ -1766,15 +1766,14 @@ TEST_F(TestMeasurementSet, RowId_inMS )
     TestDescription( "RowId functions  by various MS"  );
 
     // Copy specified MS to local MS.
-
-    String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";                               
+     String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";                               
+     String local_ms = CopyMStoWork(remote_ms);
        
    // Measurment Set and Constructor //
-     String local_ms = CopyMStoWork(remote_ms);
      MeasurementSet ms0( local_ms  );       
      PointingDirectionCalculator calc(ms0);
 
-     uInt nrow0 = calc.getNrowForSelectedMS(); 
+     uInt nrow0 = calc.getNrowForSelectedMS(); // original nRow //
 
    // Prepare  Arraay ..//
 
@@ -1803,23 +1802,15 @@ TEST_F(TestMeasurementSet, RowId_inMS )
         // getRowIdForOriginalMS //
 
           Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
-
-         printf( " calling selectData() \n");     
-         calc.selectData( ant_sel,  "","","","","","","","","" );
-
-        // Nrow from Selected //
-
+          calc.selectData( ant_sel,  "","","","","","","","","" );
           uInt nrow = calc.getNrowForSelectedMS();
+
           printf("Selected nrow =%d\n",nrow);
 
         // Vecrtor<uInt> getRowID() 
         
           Description("(1) Vector<uInt> getRowId() ", local_ms);
           Vector<uInt> vRowId = calc.getRowId();
-
-        // getRowId( int ) //
- 
-          Description("(2) uInt getRowId() ", local_ms );
 
         // Show and Verify //
           
@@ -1946,8 +1937,6 @@ protected:
 
         virtual void SetUp()
         {
-            BaseClass::SetUp();
-  
             // SetUp Number of Anntena for TEST //
             msedit.tuneMS.setMaxAntenna(  preparedAntenna_ ); 
 
@@ -1961,8 +1950,6 @@ protected:
 
         virtual void TearDown()
         {
-            BaseClass::TearDown();
-
             // Delete Working MS 
              DeleteWorkingMS();
         }
@@ -2220,10 +2207,10 @@ std::vector<std::vector<ParamList> >   paramListS =
 {
     // Senario 0 (Big Ratio) //
     {
-      {true,  P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     2.0E-06 },
-      {false, P_DIRECTION, 0,1800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     1.0E-05 },
+      {true,  P_DIRECTION, 0,800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     1.0E-05 },
+      {false, P_DIRECTION, 0,800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     5.0E-05 },
 
-      {true,  P_DIRECTION, 0,2520, 0.048,  0.001,  TrajFunc::Type::Normalized_Linear,  5.0E-05 },
+      {true,  P_DIRECTION, 0, 800, 0.048,  0.001,  TrajFunc::Type::Normalized_Linear,  1.0E-04 },
       {true,  P_DIRECTION, 0, 800, 0.048,  1.008,  TrajFunc::Type::Normalized_Linear,  8.5E-08 },
 
     },
@@ -2334,7 +2321,7 @@ TEST_F(TestDirection, InterpolationListedItems )
 
               CopyDefaultMStoWork();
               addColumnsOnPointing();
-
+ 
             // Interpolation Divide Count //
 
               setInterpolationDivCount(3);   // default = 10 
@@ -2692,11 +2679,10 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String local_ms = DefaultLocalMsName();     
 
     // Create Object //
     
-        MeasurementSet ms( local_ms );
+        MeasurementSet ms( DefaultLocalMsName() );
         PointingDirectionCalculator calc(ms);
         expectedNrow = calc.getNrowForSelectedMS();
  
@@ -2782,11 +2768,10 @@ TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    const String MsName = DefaultLocalMsName();    //  
 
     // MS name for this Test //
 
-        String local_ms =   MsName;
+        String local_ms = DefaultLocalMsName();
         printf( " Used MS is [%s] \n", local_ms.c_str() );
    
     // Create Object //
@@ -3008,30 +2993,78 @@ protected:
         }
 
 
-        virtual void SetUp()
-        {
-            BaseClass::SetUp();
-        }
+        virtual void SetUp(){ }
 
         virtual void TearDown()
        {
-            BaseClass::TearDown();
             // Delete Working MS 
             DeleteWorkingMS();
        }
 
         void test_selectdata(PointingDirectionCalculator & calc);
 
+       //+
+       // for Reduced Code (CAS-8418 related) 
+       //-
+         void  openMS(String ms);    
+         void  closeMS();
+         void  clearKey();
+         void  selectTest(  String dmy,
+		       bool result, uInt expectedRow );
+
+         // PDCalc Obj. //
+         unique_ptr<PointingDirectionCalculator> calc0;
+
 };
 
- 
-/*------------------------------------------------------
-   Execution of selectData(...)
-    - args are given from external variables
-    - Note that 'calc' MUST be given by reference.
-  ------------------------------------------------------*/
+//-------------------------------
+// Temp New edition
+// with reduced code size
+//-------------------------------
 
-void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
+void  TestSelectData::openMS(String remote_ms )
+{
+    // open //
+      String local_ms = CopyMStoWork(remote_ms);
+      MeasurementSet ms( local_ms );
+    // calc // 
+      unique_ptr<PointingDirectionCalculator> calcTemp( new PointingDirectionCalculator(ms));
+      calc0 = std::move(calcTemp);
+}
+
+void TestSelectData::closeMS()
+{
+    clearKey();
+    calc0.reset();	// Free the object//
+}
+
+void TestSelectData::clearKey()
+{
+    AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
+    SpwSel              = "";
+    FieldSel            = "";
+    TimeSel             = "";
+    ScanSel             = "";
+    FeedSel             = "";
+    IntentSel           = "";
+    ObservationSel      = "";
+    UVRangeSel          = "";
+    MSSelect            = "";
+} 
+void TestSelectData::selectTest(String dmy , bool result, uInt expectedNRow )
+{
+    printf( "TestSelectData:: key = %s \n", dmy.c_str() );
+
+    // Exec //
+      if ( result )EXPECT_NO_THROW( test_selectdata(*calc0) );
+      else   {      EXPECT_ANY_THROW( test_selectdata(*calc0) ); return; }
+    // check
+      uInt nrow = calc0->getNrowForSelectedMS();
+      EXPECT_EQ (expectedNRow, nrow);     // see MS in detail //
+}
+
+
+void TestSelectData::test_selectdata(PointingDirectionCalculator &calc)
 {
 
       calc.selectData( AntSel,
@@ -3049,600 +3082,128 @@ void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
 }
 
 /*------------------------------------------
-   selectData( Antenna )
-   - Inspect the result with Antenna key. 
+   NEW selectData TEST
+   - more compact. 
   ------------------------------------------*/
 
-TEST_F(TestSelectData, Antenna )
+ TEST_F(TestSelectData, AllTest )
 {
-    TestDescription( "selectData (key=Antenna)" );
 
-    // MS name for this Test //   
-       const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
-       printf( " Used MS is [%s] \n", remote_ms.c_str() );
-  
-    // Create Object //
-       String local_ms = CopyMStoWork(remote_ms); 
-       MeasurementSet ms( local_ms ); 
-       PointingDirectionCalculator calc(ms);
+  TestDescription( "selectData (key=Antenna)" );
+    String MsAnt  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsAnt); 
 
-    // Initial brief Inspection //
-   
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n"); 
-       expectedNrow = calc.getNrowForSelectedMS();
-       printf("Expected nrow =%d\n",expectedNrow);
+    selectTest(  AntSel = "",        true,  1080 );
+    selectTest(  AntSel = "hoge&&&", false, 0    );
+    selectTest(  AntSel = "DV01&&&", true,  180  );
+    selectTest(  AntSel = "DV02&&&", true,  180  );
+    selectTest(  AntSel = "PM03&&&", true,  180  );
+    selectTest(  AntSel = "DV*&&&",  true,  360  );
+     closeMS();
 
-       EXPECT_NE( (uInt)0, expectedNrow );
-       
-    //+
-    // TEST SET 
-    //  1) Specify the condition
-    //  2) probe and confirm Exception
-    //  3) Result check , expected Nrow was selected 
-    //-
+  TestDescription( "selectData (key=Spw)" );
+    String MsSpw  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsSpw);
 
-    uInt  nrow ;
+    selectTest(  SpwSel = "",        true,  1080 );
+    selectTest(  SpwSel = "*",       true,  1080 );
+    selectTest(  SpwSel = "hoge",    false, 0 );
+    selectTest(  SpwSel = "0:13~20", true,  270 );
+    selectTest(  SpwSel = "0:13=20", false, 270 ); // Syntax Error
+    selectTest(  SpwSel = "1:13~15", true,  810 ); // with Out of Range
+     closeMS();
 
-      AntSel = "";
-        FunctionalDescription("Antenna: by NULL  (Matches) ",AntSel);
+  TestDescription( "selectData (key=Field)" );
+    String MsField  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsField);
 
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow); 
-        EXPECT_EQ (expectedNrow, nrow);     // see MS in detail //
+    selectTest(  FieldSel = "",        true,  4818 );
+    selectTest(  FieldSel = "*",       true,  4818 );
+    selectTest(  FieldSel = "hoge",    false,    0 );
+    selectTest(  FieldSel = "0",       false,  4818 );
+    selectTest(  FieldSel = "1",       true,   4818 );
+    selectTest(  FieldSel = "9",       false,  4818 ); 
+     closeMS();
 
-      AntSel = "hoge&&&";
-        FunctionalDescription("Testing Abnormal Name = hoge (No Matches))",AntSel );
+  TestDescription( "selectData (key=Time)" );
+    String MsTime  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsTime);
 
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ (expectedNrow, nrow);
+    selectTest(  TimeSel = "",                        true,   4818 );
+    selectTest(  TimeSel = "hoge",                    false,     0 );
+    selectTest(  TimeSel = ">1900/01/01/00:00:00",    true,   4818 );
+    selectTest(  TimeSel = ">2018/01/01/00:00:00",    false,     0 );
+    selectTest(  TimeSel = "<2014/12/4/00:39:25",     true,      5 );
+    selectTest(  TimeSel = "2014/12/4/00:40:00~2014/12/4/00:40:10",  true,   17 );
+     closeMS();
 
-      AntSel = "DV01&&&";
-        FunctionalDescription("Antenna: Normal specific Name. (Matches) ",AntSel);
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);     // see MS in detail //
-
-      AntSel = "DV02&&&";
-        FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);
-
-      AntSel = "PM03&&&";
-        FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);
+  TestDescription( "selectData (key=Feed)" );
+    String MsFeed  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsFeed);
  
-      AntSel = "DV*&&&";
+    selectTest(  FeedSel = "",         true,   4818 );
+    selectTest(  FeedSel = "0",        true,   4818 );
+    selectTest(  FeedSel = "1",        true,   4818 );
+     closeMS();
 
-        FunctionalDescription("Antenna: Normal with Wild card char. (Matches)",AntSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        printf("=> Calling getNrowForSelectedMS() after oelectData() called.\n");
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ( (uInt)360, nrow);
+  TestDescription( "selectData (key=Intent)" );
+    String MsIntent  = "sdimaging/selection_intent.ms";
+    openMS(MsIntent);
 
-        //+
-        // Other detail cases are to be programmed here if needed. 
-        //-
+    selectTest(  IntentSel = "",         true,    1024 );
+    selectTest(  IntentSel = "*HOGE*",   false,   0 );
+    selectTest(  IntentSel = "*CAL*",    true,    512 );
+    selectTest(  IntentSel = "*BAND*",   true,    512 );
+     closeMS();  
 
-        return;
-}
+  TestDescription( "selectData (key=Observation)" );
+    String MsObservation  = "/sdimaging/selection_spw.ms";
+    openMS(MsObservation);
 
-/*------------------------------------------
-   selectData( Spw )
-   - Inspect the result with Spw. 
-  ------------------------------------------*/
+    selectTest(  ObservationSel = "",       true,    737 );
+    selectTest(  ObservationSel = "hoge",   false,   0 );
+    selectTest(  ObservationSel = "0",    true,    256 );
+    selectTest(  ObservationSel = "1",    true,    256 );
+    selectTest(  ObservationSel = "2",    true,    225 );
+    selectTest(  ObservationSel = "9",    false,    0 );
+     closeMS();
 
-TEST_F(TestSelectData, Spw )
-{
-    TestDescription( "selectData (key=Spw)" );
+   TestDescription( "selectData (key=UVRange)" );
+    String MsUVRange  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsUVRange);
 
-    // MS name for this Test // 
-       const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
-       printf( " Used MS is [%s] \n", remote_ms.c_str() );
-  
-    // Create Object //
-       String local_ms = CopyMStoWork(remote_ms); 
-       MeasurementSet ms( local_ms ); 
-       PointingDirectionCalculator calc(ms);
- 
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
+    selectTest(  UVRangeSel = "",            true,    1080 );
+    selectTest(  UVRangeSel = "hoge",        false,   0 );
+    selectTest(  UVRangeSel = ">1.0lambda",  true,    540 );
+     closeMS();
 
-      uInt nrow;
-      SpwSel = "";
-        FunctionalDescription( "Spw:Nothig specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
+   TestDescription( "selectData (key=MSSelect)" );
+    String MsMSSelect  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsMSSelect);
 
-    
-      SpwSel = "*";
-        FunctionalDescription( "Spw: Wildcard *  specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      SpwSel = "hoge";
-        FunctionalDescription( "Spw: abnormal letters  specified.",SpwSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      SpwSel = "0:13~20";
-        FunctionalDescription( "Spw: spw=0, ch=13~20 specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ( (uInt)270, nrow);
-#if 0
-//
-// Once execution OK, the next Error query makes unexpected Return ?
-//
-      SpwSel = "0:13=20";
-        Description( "Spw: spw=0, ch=13~20 specified.(Syntax ERROR)",SpwSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-#endif 
-
-      SpwSel = "1:13~15";
-        FunctionalDescription( "Spw: spw=1, ch=13~20 specified.(None)",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)810, nrow);
-
+    selectTest(  MSSelect = "",                true,    1080 );
+    selectTest(  MSSelect = "hoge",            false,      0 );
+    selectTest(  MSSelect = "FIELD_ID==0",      true,    600 );
+    selectTest(  MSSelect = "FIELD_ID==1",      true,    360 );
+    selectTest(  MSSelect = "FIELD_ID==2",      true,    120 );
+    selectTest(  MSSelect = "FIELD_ID==3",     false,      0 );
+     closeMS();
 
 }
 
-/*------------------------------------------
-   selectData( Field )
-   - Inspect the result with Field. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Field )
-{ 
-    TestDescription( "selectData (key=Field)" );
-
-    // Using MS //
-    
-        const String remote_ms = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-    
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);     
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-      printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE( (uInt)0, expectedNrow );
-
-      uInt nrow;
-      FieldSel = "";
-        FunctionalDescription( "Files:Nothig specified.",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FieldSel = "*";
-        FunctionalDescription( "Field: Wildcard *  specified.",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FieldSel = "hoge";
-        FunctionalDescription( "Fieled: abnormal letters  specified.",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FieldSel = "0";  // Field ID 
-        FunctionalDescription( "Field: ID=0 specified.(No exits)",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)0, nrow);       // On-Table , None on MAIN .. //
-
-      FieldSel = "1";  // Field ID 
-        FunctionalDescription( "Field: ID=1 specified.(exits)",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FieldSel = "9";  // Out of Range
-        FunctionalDescription( "Field: ID=9 Not on the FIELD TABLE",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Time )
-   - Inspect the result with Time range. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Time )
-{ 
-    TestDescription( "selectData (key=Time)" );
-
-    // Using MS //
-    
-        const String remote_ms = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-
-    // Initial brief Inspection //
-    
-      printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      TimeSel = "";
-        FunctionalDescription( "Time: Nothig specified.",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      TimeSel = "hoge";
-        FunctionalDescription( "Time: abnormal letters  specified.",TimeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      TimeSel = ">1900/01/01/00:00:00";
-        FunctionalDescription( "Time: since 1900/01/01/00:00:00  specified.",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      TimeSel = ">2018/01/01/00:00:00";
-        FunctionalDescription( "Time: since 2018/01/01/00:00:00  specified. None matches",TimeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)0, nrow);
-
-      TimeSel = "<2014/12/4/00:39:25";  //  Time Condition  
-        FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        printf( "# Actually detected Nrow = %d \n" , nrow); 
-        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
-        EXPECT_EQ ((uInt)5,   nrow);    
-
-      TimeSel = "2014/12/4/00:40:00~2014/12/4/00:40:10";  //  Combined  10 sec 
-        FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        printf( "# Actually detected Nrow = %d \n" , nrow);
-        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
-        EXPECT_EQ ((uInt)17, nrow);    // SEE ACTUAL COUNT on Browser //
-
-}
-
-/*------------------------------------------
-   selectData( Feed )
-   - Inspect the result with Feed key. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Feed )
-{ 
-    TestDescription( "selectData (key=Feed)" );
-
-    // Using MS //
-    
-        const String remote_ms = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      FeedSel = "";
-        FunctionalDescription( "Feed: Nothig specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FeedSel = "0";    // NO DATA /
-        FunctionalDescription( "Feed: ID specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-      FeedSel = "1";    // NO DATA /
-        FunctionalDescription( "Feed: ID specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Intent )
-   - Inspect the result with Intent key. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Intent )
-{ 
-    TestDescription( "selectData (key=Intent)" );
-
-    // Using MS //
-    
-        const String remote_ms = "sdimaging/selection_intent.ms";    // 
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-    
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-
-    // Initial brief Inspection //
-
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      IntentSel = "";
-        FunctionalDescription( "Intent: Nothig specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
- 
-       // Usage : In what way this term is used. 
-        //   and where to exist in MS.
-          
-      IntentSel = "*HOGE*";     // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-      IntentSel = "*CAL*";      // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)512, nrow);
-
-      IntentSel = "*BAND*";      // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)512, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Observation )
-   - Inspect the result with Observation info. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Observation )
-{ 
-    TestDescription( "selectData (key=Observation)" );
-
-    // Using MS //
-    
-        const String remote_ms = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-    
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      ObservationSel = "";
-        FunctionalDescription( "Observation: Nothig specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-     ObservationSel = "hoge";     
-        FunctionalDescription( "Observation: abnormal expr..",ObservationSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-      ObservationSel = "0";     // one DATA /
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)256, nrow);
-
-      ObservationSel = "1";    // second DATA _
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uint)256, nrow);
-
-      ObservationSel = "2";    // 3rd.Data 
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-         EXPECT_EQ ((uint)225, nrow);
-
-      ObservationSel = "9";    // No Data (err) 
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)0, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( UVRange )
-   - Inspect the result with UVRange. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, UVRange )
-{ 
-    TestDescription( "selectData (key=UV Range)" );
-
-    // MS name for this Test //
-        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-    
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      UVRangeSel = "";
-        FunctionalDescription( "UVrange: Nothig specified.",UVRangeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      UVRangeSel = "hoge";     
-        FunctionalDescription( "UVrange: abnormal expr..",UVRangeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-      UVRangeSel = ">1.0lambda";        //  Exprecasacore::Table::TableOption:: Updatession Unknown...../
-        FunctionalDescription( "UVrange: ID specified.",UVRangeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)540, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( MS select ) - TaQL query -
-   - Inspect the result selected by TaQL form. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, MSselect )
-{ 
-    TestDescription( "selectData (key=MS Select)" );
-
-    // MS name for this Test //
-        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";
-        printf( " Used MS is [%s] \n", remote_ms.c_str() );
-    
-    // Create Object //
-        String local_ms = CopyMStoWork(remote_ms);
-        MeasurementSet ms( local_ms );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       expectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, expectedNrow );
-
-      uInt nrow;
-      MSSelect = "";
-        FunctionalDescription( "MSselect: Nothig specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (expectedNrow, nrow);
-
-      MSSelect = "hoge";     
-        FunctionalDescription( "MSselect: abnormal expr..",MSSelect);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (expectedNrow, nrow);
-
-      MSSelect = "FIELD_ID==0";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)600, nrow);
-
-      MSSelect = "FIELD_ID==1";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)360, nrow);
-
-      MSSelect = "FIELD_ID==2";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)120, nrow);
-
-      MSSelect = "FIELD_ID==3";        //  ERROR :Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)0, nrow);
-}
-
+//+
+// setFrame() Test
+//   Examine Direction Type 
+//-
 
 class TestSetFrame : public BaseClass
 {
 
 public:
-typedef struct _FrameName {
-    bool   available;
-    String name;
-} FrameTypeList;
+    typedef struct _FrameName {
+        bool   available;
+        String name;
+    } FrameTypeList;
 
 protected:
 
@@ -3693,17 +3254,12 @@ const std::vector<FrameTypeList> DefinedFrametypes
     };
 
         TestSetFrame () { }
-
         ~TestSetFrame () { }
 
-        virtual void SetUp()
-        {
-            BaseClass::SetUp();
-        }
+        virtual void SetUp() { }
 
         virtual void TearDown()
        {
-            BaseClass::TearDown();
             // Delete Working MS 
             DeleteWorkingMS();
        }
