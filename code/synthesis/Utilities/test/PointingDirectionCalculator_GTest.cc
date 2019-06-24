@@ -3348,6 +3348,7 @@ TEST_F(TestSetFrame, setFrame )
 - 31-MAY-19  Git Push. "Ready to Validate". Further blush up continue
 - 05-JUN-19  Working in Blush up test code. remove reduntdant.
 - 10-JUN-19  Source Reviewed. Started correction.
+- 24-JUN-19  Simplified TestSelectData, reduced code size .
  **********************************************************************/
 
 int main (int nArgs, char * args [])
