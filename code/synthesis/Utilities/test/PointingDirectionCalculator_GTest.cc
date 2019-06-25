@@ -74,12 +74,15 @@ using namespace std;
 
 //+
 // Additional CASACORE include files
+// Additional C++ include
 //-
 
 #include <cstdio>
 #include <casa/OS/EnvVar.h>
 #include <casacore/ms/MeasurementSets/MSAntennaColumns.h>
- 
+
+#include <memory>
+
 namespace casa {
 
 //******************************************************************************
@@ -478,11 +481,10 @@ private:
     } // end of function
 }; // end class def
 
-//+
+//----------------------
 // Entitiy of TrajFunc 
-//-
-
-// selected function //
+//----------------------
+// currently active(selected)  function //
   uInt TrajFunc::currTrajFuncNo =0;
 // function table // 
   std::vector<TrajFunc::FUNCTYPE>  TrajFunc::fpTrajfunc
@@ -536,7 +538,6 @@ public:
 
     // Init and Define Parameters 
 
-      void Initialize();
       void Initialize( Double, Double);
       void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt_ = n; }  
 
