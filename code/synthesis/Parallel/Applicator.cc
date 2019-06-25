@@ -42,8 +42,8 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
-Applicator::Applicator() : comm(0), algorithmIds(0),
-  knownAlgorithms((Algorithm*)0), LastID(101), usedAllThreads(false),
+Applicator::Applicator() : comm(0), algorithmIds( ),
+  knownAlgorithms( ), LastID(101), usedAllThreads(false),
   serial(true), nProcs(0), procStatus(0)
 {
 // Default constructor; requires later init().
@@ -168,11 +168,11 @@ void Applicator::loop()
     default :
       // In this case, an Algorithm tag is expected.
       // First check that it is known.
-      if (knownAlgorithms.isDefined(what)) {
+      if (knownAlgorithms.find(what) != knownAlgorithms.end( )) {
 	// Identified algorithm tag; set for subsequent communication
 	comm->setTag(what);
 	// Execute (apply) the algorithm
-	knownAlgorithms(what)->apply();
+	knownAlgorithms.at(what)->apply();
       } else {
 	throw(AipsError("Unidentified parallel algorithm code"));
       }
@@ -197,7 +197,7 @@ Bool Applicator::nextAvailProcess(Algorithm &a, Int &rank)
       rank = findFreeProc(lastOne);
       AlwaysAssert(rank >= 0, AipsError);
       if (lastOne) usedAllThreads = true;
-      Int tag = algorithmIds(a.name());
+      Int tag = algorithmIds.find(a.name()) == algorithmIds.end( ) ? 0 : algorithmIds.at(a.name());
       
       // Send wake-up message (containing the Algorithm tag) to
       // the assigned worker process to activate it (see loop()).
@@ -235,7 +235,7 @@ Int Applicator::nextProcessDone(Algorithm &a, Bool &allDone)
   if (!allDone) {
     // Wait for a process to finish with the correct algorithm tag
     comm->connectAnySource();
-    Int tag = algorithmIds(a.name());
+    Int tag = algorithmIds.find(a.name()) == algorithmIds.end( ) ? 0 : algorithmIds.at(a.name());
     comm->setTag(tag);
     Int doneSignal;
     rank = get(doneSignal);
@@ -278,8 +278,8 @@ void Applicator::apply(Algorithm &a)
 
 void Applicator::defineAlgorithm(Algorithm *a)
 {
-   knownAlgorithms.define(LastID, a);
-   algorithmIds.define(a->name(), LastID);
+   knownAlgorithms.insert( std::pair<casacore::Int,Algorithm*>(LastID, a) );
+   algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a->name(), LastID) );
    LastID++;
    return;
 }
@@ -290,24 +290,24 @@ void Applicator::defineAlgorithms()
 //
   // Clark CLEAN parallel deconvolution
   Algorithm *a1 = new ClarkCleanAlgorithm;
-  knownAlgorithms.define(LastID, a1);
-  algorithmIds.define(a1->name(), LastID);
+  knownAlgorithms.insert( std::pair<casacore::Int, Algorithm*>(LastID, a1) );
+  algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a1->name(), LastID) );
   LastID++;
   Algorithm *a2 = new ReadMSAlgorithm;
-  knownAlgorithms.define(LastID, a2);
-  algorithmIds.define(a2->name(), LastID);
+  knownAlgorithms.insert( std::pair<casacore::Int, Algorithm*>(LastID, a2) );
+  algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a2->name(), LastID) );
   LastID++;
   Algorithm *a3 = new MakeApproxPSFAlgorithm;
-  knownAlgorithms.define(LastID, a3);
-  algorithmIds.define(a3->name(), LastID);
+  knownAlgorithms.insert( std::pair<casacore::Int, Algorithm*>(LastID, a3) );
+  algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a3->name(), LastID) );
   LastID++;
   Algorithm *a4 = new PredictAlgorithm;
-  knownAlgorithms.define(LastID, a4);
-  algorithmIds.define(a4->name(), LastID);
+  knownAlgorithms.insert( std::pair<casacore::Int, Algorithm*>(LastID, a4) );
+  algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a4->name(), LastID) );
   LastID++;
   Algorithm *a5 = new ResidualAlgorithm;
-  knownAlgorithms.define(LastID, a5);
-  algorithmIds.define(a5->name(), LastID);
+  knownAlgorithms.insert( std::pair<casacore::Int, Algorithm*>(LastID, a5) );
+  algorithmIds.insert( std::pair<casacore::String, casacore::Int>(a5->name(), LastID) );
   LastID++;
   return;
 }

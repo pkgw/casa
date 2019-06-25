@@ -364,16 +364,17 @@ class simobserve_sky(simobserve_unittest_base):
                  self._get_data_prefix(antennalist,self.project)+".ms"
         self._check_msstats(currms,self.refms_int)
 
-#     def testSky_intLeak(self):
-#         """Test skymodel simulation: only observation (INT)"""
-#         skymodel = self.refmodel
-#         setpointings = False
-#         obsmode = ""
-#         leakage = 0.5
-#         res = simobserve(project=self.project,skymodel=skymodel,
-#                          setpointings=setpointings,ptgfile=ptgfile,
-#                          obsmode=obsmode,thermalnoise="",
-#                          leakage=leakage,graphics=self.graphics)
+    @unittest.skip("Previously disabled for unknown reason")
+    def testSky_intLeak(self):
+        """Test skymodel simulation: only observation (INT)"""
+        skymodel = self.refmodel
+        setpointings = False
+        obsmode = ""
+        leakage = 0.5
+        res = simobserve(project=self.project,skymodel=skymodel,
+                         setpointings=setpointings,ptgfile=ptgfile,
+                         obsmode=obsmode,thermalnoise="",
+                         leakage=leakage,graphics=self.graphics)
 
     def testSky_sdAll(self):
         """Test skymodel simulation: single dish"""
@@ -568,29 +569,28 @@ class simobserve_comp(simobserve_unittest_base):
         refptg = self.refpref + "square.aca.tp.ptg.txt"
         self._check_ptgfile(currptg, refptg)
 
-##### TEMPORARY discarding due to the bug in simulator.
-#     def testComp_sdObs(self):
-#         """Test complist simulation: only observation (SD)"""
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         setpointings = False
-#         ptgfile = self.refpref_sd + ".ptg.txt"
-#         integration = "4s"
-#         obsmode = "sd"
-#         sdantlist = self.sdantlist
-#         totaltime = "144s"
-#         res = simobserve(project=self.project,complist=complist,
-#                          compwidth = compwidth,
-#                          setpointings=setpointings,ptgfile=ptgfile,
-#                          integration=integration,obsmode=obsmode,
-#                          sdantlist=sdantlist,totaltime=totaltime,
-#                          thermalnoise="",graphics=self.graphics)
-#         self.assertTrue(res)
-#         # compare output MS
-#         currms = self.project + "/" + \
-#                  self._get_data_prefix(sdantlist,self.project)+".sd.ms"
-#         self._check_msstats(currms,self.refms_sd)
-        
+    @unittest.skip('Previously disabled with comment: "TEMPORARY discarding due to the bug in simulator. Pending CAS-5095."')
+    def testComp_sdObs(self):
+        """Test complist simulation: only observation (SD)"""
+        complist = self.incomp
+        compwidth = self.compwidth
+        setpointings = False
+        ptgfile = self.refpref_sd + ".ptg.txt"
+        integration = "4s"
+        obsmode = "sd"
+        sdantlist = self.sdantlist
+        totaltime = "144s"
+        res = simobserve(project=self.project,complist=complist,
+                         compwidth = compwidth,
+                         setpointings=setpointings,ptgfile=ptgfile,
+                         integration=integration,obsmode=obsmode,
+                         sdantlist=sdantlist,totaltime=totaltime,
+                         thermalnoise="",graphics=self.graphics)
+        self.assertTrue(res)
+        # compare output MS
+        currms = self.project + "/" + \
+                 self._get_data_prefix(sdantlist,self.project)+".sd.ms"
+        self._check_msstats(currms,self.refms_sd)
 
     def testComp_intObs(self):
         """Test complist simulation: only observation (INT)"""
@@ -614,44 +614,46 @@ class simobserve_comp(simobserve_unittest_base):
                  self._get_data_prefix(antennalist,self.project)+".ms"
         self._check_msstats(currms,self.refms_int)
 
-#     def testComp_intLeak(self):
-#         """Test complist simulation: only observation (INT)"""
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         setpointings = False
-#         obsmode = ""
-#         leakage = 0.5
-#         res = simobserve(project=self.project,complist=complist,
-#                          compwidth = compwidth,
-#                          setpointings=setpointings,ptgfile=ptgfile,
-#                          obsmode=obsmode,thermalnoise="",
-#                          leakage=leakage,graphics=self.graphics)
 
-##### TEMPORARY discarding due to the bug in simulator.
-#     def testComp_sdAll(self):
-#         """Test complist simulation: single dish"""
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         integration = "4s"
-#         direction = self.direction
-#         mapsize = ["60arcsec", "60arcsec"]
-#         maptype = "square"
-#         obsmode = "sd"
-#         sdantlist = "aca.tp.cfg"
-#         totaltime = "144s"
-#         res = simobserve(project=self.project,complist=complist,
-#                          compwidth = compwidth,setpointings=True,
-#                          integration=integration,direction=direction,
-#                          mapsize=mapsize,maptype=maptype,obsmode=obsmode,
-#                          totaltime=totaltime,antennalist="",sdantlist=sdantlist,
-#                          thermalnoise="",graphics=self.graphics)
-#         self.assertTrue(res)
-#         # compare outputs
-#         currpref = self.project + "/" + \
-#                  self._get_data_prefix(sdantlist,self.project)
-#         self._check_imstats(currpref+".compskymodel", self.refmodel)
-#         self._check_ptgfile(currpref+".ptg.txt", self.refpref_sd+".ptg.txt")
-#         self._check_msstats(currpref+".sd.ms",self.refms_sd)
+    @unittest.skip('Previously disabled for unknown reason.')
+    def testComp_intLeak(self):
+        """Test complist simulation: only observation (INT)"""
+        complist = self.incomp
+        compwidth = self.compwidth
+        setpointings = False
+        obsmode = ""
+        leakage = 0.5
+        res = simobserve(project=self.project,complist=complist,
+                         compwidth = compwidth,
+                         setpointings=setpointings,ptgfile=ptgfile,
+                         obsmode=obsmode,thermalnoise="",
+                         leakage=leakage,graphics=self.graphics)
+
+    @unittest.skip('Previously disabled with comment: "TEMPORARY discarding due to the bug in simulator. Pending CAS-5095."')
+    def testComp_sdAll(self):
+        """Test complist simulation: single dish"""
+        complist = self.incomp
+        compwidth = self.compwidth
+        integration = "4s"
+        direction = self.direction
+        mapsize = ["60arcsec", "60arcsec"]
+        maptype = "square"
+        obsmode = "sd"
+        sdantlist = "aca.tp.cfg"
+        totaltime = "144s"
+        res = simobserve(project=self.project,complist=complist,
+                         compwidth = compwidth,setpointings=True,
+                         integration=integration,direction=direction,
+                         mapsize=mapsize,maptype=maptype,obsmode=obsmode,
+                         totaltime=totaltime,antennalist="",sdantlist=sdantlist,
+                         thermalnoise="",graphics=self.graphics)
+        self.assertTrue(res)
+        # compare outputs
+        currpref = self.project + "/" + \
+                   self._get_data_prefix(sdantlist,self.project)
+        self._check_imstats(currpref+".compskymodel", self.refmodel)
+        self._check_ptgfile(currpref+".ptg.txt", self.refpref_sd+".ptg.txt")
+        self._check_msstats(currpref+".sd.ms",self.refms_sd)
 
     def testComp_intAll(self):
         """Test complist simulation: interferometer"""
@@ -822,31 +824,30 @@ class simobserve_skycomp(simobserve_unittest_base):
         refptg = self.refpref + "square.aca.tp.ptg.txt"
         self._check_ptgfile(currptg, refptg)
 
-##### TEMPORARY discarding due to the bug in simulator.
-#     def testSC_sdObs(self):
-#         """Test skymodel + complist simulation: only observation (SD)"""
-#         skymodel = self.inmodel
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         setpointings = False
-#         ptgfile = self.refpref_sd + ".ptg.txt"
-#         integration = "4s"
-#         obsmode = "sd"
-#         sdantlist = self.sdantlist
-#         totaltime = "144s"
-#         res = simobserve(project=self.project,skymodel=skymodel,
-#                          complist=complist,compwidth=compwidth,
-#                          setpointings=setpointings,ptgfile=ptgfile,
-#                          integration=integration,obsmode=obsmode,
-#                          sdantlist=sdantlist,totaltime=totaltime,
-#                          thermalnoise="",graphics=self.graphics)
-#         self.assertTrue(res)
-#         # compare output MS
-#         currms = self.project + "/" + \
-#                  self._get_data_prefix(sdantlist,self.project)+".sd.ms"
-#         self._check_msstats(currms,self.refms_sd,rtol=self.rtol_sdms)
+    @unittest.skip('Previously disabled with comment: "TEMPORARY discarding due to the bug in simulator. Pending CAS-5095."')
+    def testSC_sdObs(self):
+        """Test skymodel + complist simulation: only observation (SD)"""
+        skymodel = self.inmodel
+        complist = self.incomp
+        compwidth = self.compwidth
+        setpointings = False
+        ptgfile = self.refpref_sd + ".ptg.txt"
+        integration = "4s"
+        obsmode = "sd"
+        sdantlist = self.sdantlist
+        totaltime = "144s"
+        res = simobserve(project=self.project,skymodel=skymodel,
+                         complist=complist,compwidth=compwidth,
+                         setpointings=setpointings,ptgfile=ptgfile,
+                         integration=integration,obsmode=obsmode,
+                         sdantlist=sdantlist,totaltime=totaltime,
+                         thermalnoise="",graphics=self.graphics)
+        self.assertTrue(res)
+        # compare output MS
+        currms = self.project + "/" + \
+                 self._get_data_prefix(sdantlist,self.project)+".sd.ms"
+        self._check_msstats(currms,self.refms_sd,rtol=self.rtol_sdms)
         
-
     def testSC_intObs(self):
         """Test skymodel + complist simulation: only observation (INT)"""
         skymodel = self.inmodel
@@ -870,45 +871,46 @@ class simobserve_skycomp(simobserve_unittest_base):
                  self._get_data_prefix(antennalist,self.project)+".ms"
         self._check_msstats(currms,self.refms_int,rtol=self.rtol_intms)
 
-#     def testSC_intLeak(self):
-#         """Test skymodel + complist simulation: only leakage (INT)"""
-#         skymodel = self.inmodel
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         setpointings = False
-#         obsmode = ""
-#         leakage = 0.5
-#         res = simobserve(project=self.project,skymodel=skymodel,
-#                          complist=complist,compwidth=compwidth,
-#                          setpointings=setpointings,ptgfile=ptgfile,
-#                          obsmode=obsmode,thermalnoise="",
-#                          leakage=leakage,graphics=self.graphics)
+    @unittest.skip('Previously disabled for unknown reason.')
+    def testSC_intLeak(self):
+        """Test skymodel + complist simulation: only leakage (INT)"""
+        skymodel = self.inmodel
+        complist = self.incomp
+        compwidth = self.compwidth
+        setpointings = False
+        obsmode = ""
+        leakage = 0.5
+        res = simobserve(project=self.project,skymodel=skymodel,
+                         complist=complist,compwidth=compwidth,
+                         setpointings=setpointings,ptgfile=ptgfile,
+                         obsmode=obsmode,thermalnoise="",
+                         leakage=leakage,graphics=self.graphics)
 
-##### TEMPORARY discarding due to the bug in simulator.
-#     def testSC_sdAll(self):
-#         """Test skymodel + complist simulation: single dish"""
-#         skymodel = self.inmodel
-#         complist = self.incomp
-#         compwidth = self.compwidth
-#         integration = "4s"
-#         mapsize = ["60arcsec", "60arcsec"]
-#         maptype = "square"
-#         obsmode = "sd"
-#         sdantlist = "aca.tp.cfg"
-#         totaltime = "144s"
-#         res = simobserve(project=self.project,skymodel=skymodel,
-#                          complist=complist,compwidth=compwidth,
-#                          setpointings=True,integration=integration,
-#                          mapsize=mapsize,maptype=maptype,obsmode=obsmode,
-#                          totaltime=totaltime,antennalist="",sdantlist=sdantlist,
-#                          thermalnoise="",graphics=self.graphics)
-#         self.assertTrue(res)
-#         # compare outputs
-#         currpref = self.project + "/" + \
-#                  self._get_data_prefix(sdantlist,self.project)
-#         self._check_imstats(currpref+".skymodel.flat", self.refmodel)
-#         self._check_ptgfile(currpref+".ptg.txt", self.refpref_sd+".ptg.txt")
-#         self._check_msstats(currpref+".sd.ms",self.refms_sd,rtol=self.rtol_sdms)
+    @unittest.skip('Previously disabled with comment: "TEMPORARY discarding due to the bug in simulator. Pending CAS-5095."')
+    def testSC_sdAll(self):
+        """Test skymodel + complist simulation: single dish"""
+        skymodel = self.inmodel
+        complist = self.incomp
+        compwidth = self.compwidth
+        integration = "4s"
+        mapsize = ["60arcsec", "60arcsec"]
+        maptype = "square"
+        obsmode = "sd"
+        sdantlist = "aca.tp.cfg"
+        totaltime = "144s"
+        res = simobserve(project=self.project,skymodel=skymodel,
+                         complist=complist,compwidth=compwidth,
+                         setpointings=True,integration=integration,
+                         mapsize=mapsize,maptype=maptype,obsmode=obsmode,
+                         totaltime=totaltime,antennalist="",sdantlist=sdantlist,
+                         thermalnoise="",graphics=self.graphics)
+        self.assertTrue(res)
+        # compare outputs
+        currpref = self.project + "/" + \
+                   self._get_data_prefix(sdantlist,self.project)
+        self._check_imstats(currpref+".skymodel.flat", self.refmodel)
+        self._check_ptgfile(currpref+".ptg.txt", self.refpref_sd+".ptg.txt")
+        self._check_msstats(currpref+".sd.ms",self.refms_sd,rtol=self.rtol_sdms)
 
     def testSC_intAll(self):
         """Test skymodel + complist simulation: interferometer"""

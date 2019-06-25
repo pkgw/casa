@@ -145,6 +145,7 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_mst_cvel.py
   test_mst_cvelB.py
   test_mst_split.py
+  test_nrobeamaverage.py
   test_oldhanningsmooth.py
   test_oldsplit.py
   test_mstool.py
@@ -216,6 +217,11 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_req_task_clearcal.py
   test_req_task_imhead.py
   test_req_task_visstat.py
+  test_req_task_delmod.py
+  test_req_task_feather.py
+  test_req_task_imrebin.py
+  test_req_task_uvmodelfit.py
+  test_req_task_imreframe.py
 
   ###
   test_setjy.py

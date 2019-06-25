@@ -46,6 +46,7 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <casa/sstream.h>
+#include <casa/OS/File.h>
 #include <synthesis/MeasurementComponents/Calibrater.h>
 #include <synthesis/CalTables/CLPatchPanel.h>
 #include <synthesis/MeasurementComponents/CalSolVi2Organizer.h>
@@ -2387,6 +2388,14 @@ void Calibrater::fluxscale(const String& infile,
   //  (Currently, exact matches are required.)
 
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
+
+  //outfile check
+  if (outfile=="") 
+    throw(AipsError("output fluxscaled caltable name must be specified!"));
+  else {
+    if (File(outfile).exists() && !append) 
+      throw(AipsError("output caltable name, "+outfile+" exists. Please specify a different caltable name"));
+  }
 
   // Convert refFields/transFields to index lists
   Vector<Int> refidx(0);

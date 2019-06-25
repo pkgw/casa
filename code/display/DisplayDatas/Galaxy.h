@@ -31,7 +31,7 @@
 #include <casa/aips.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
-#include <casa/Containers/List.h>
+#include <list>
 
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -60,14 +60,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// Compute a new position, applying the force of the Galaxies in the List
 		// but do not update current position and velocity
-		void computeStep(casacore::List<void *>& galaxyList, casacore::Double timeStep,
+		void computeStep(std::list<void *>& galaxyList, casacore::Double timeStep,
 		                 casacore::Double dampingFactor = 1.0);
 
 		// update position and velocity to new value
 		void update();
 
 		// Compute a new position for the Stars in this Galaxy
-		void applyForceToStars(casacore::List<void *>& galaxyList, casacore::Double timeStep,
+		void applyForceToStars(std::list<void *>& galaxyList, casacore::Double timeStep,
 		                       casacore::Double dampingFactor);
 
 		// Rotate position and velocity
@@ -115,10 +115,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::Vector<casacore::Double> newVelocity;
 
 		// The list of Stars in this Galaxy
-		casacore::List<void *>   itsStarList;
+		std::list<void *>   itsStarList;
 		// and an iterator for this List
-
-		casacore::ListIter<void *> *itsStarListIter;
 
 		casacore::Vector<casacore::Int> oldPosition;
 		// Last offset applied to itsPosition
@@ -158,7 +156,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		void draw(PixelCanvas *pixelCanvas);
 
 		// Compute new position by applying the forces of the Galaxies in the List
-		void applyForce(casacore::List<void *>& galaxyList, casacore::Double timeStep,
+		void applyForce(std::list<void *>& galaxyList, casacore::Double timeStep,
 		                casacore::Double dampingFactor);
 
 		// Rotate position and velocity

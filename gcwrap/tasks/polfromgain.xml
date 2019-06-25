@@ -6,32 +6,32 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="polfromgain" category="calibration">
-	<shortdescription>Derive linear polarization from gain ratio</shortdescription>
-	<description>
-	  TBD
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of input visibility file (MS)</description>
-			<value></value>
-		</param>
+        <shortdescription>Derive linear polarization from gain ratio</shortdescription>
+        <description>
+          TBD
+        </description>
+        <input>
+                <param type="string" name="vis" mustexist="true">
+                        <description>Name of input visibility file (MS)</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="tablein" mustexist="true">
-			<description>Input calibration table</description>
-			<value></value>
-		</param>
+                <param type="string" name="tablein" mustexist="true">
+                        <description>Input calibration table</description>
+                        <value></value>
+                </param>
 
-		<param type="string" name="caltable">
-			<description>Output calibration table (forces polarization correction if specified)</description>
-			<value></value>
-		</param>
+                <param type="string" name="caltable">
+                        <description>Output calibration table (forces polarization correction if specified)</description>
+                        <value></value>
+                </param>
 
                 <param type="double" name="paoffset">
                         <description>Manual position angle offset</description>
                         <value>0.0</value>
                 </param>
 
-	</input>
+        </input>
 <returns type="void"/>
 
 <example>

@@ -9,7 +9,6 @@ namespace casacore{
   class LogIO;
   class String;
   class Record;
-  template <class K, class V> class SimpleOrderedMap;
   class LogSink;
 }
 

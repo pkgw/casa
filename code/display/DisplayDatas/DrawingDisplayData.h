@@ -29,7 +29,7 @@
 #define TRIALDISPLAY_DRAWINGDISPLAYDATA_H
 
 #include <casa/aips.h>
-#include <casa/Containers/List.h>
+#include <list>
 #include <display/Display/DisplayEnums.h>
 #include <display/DisplayDatas/PassiveCachingDD.h>
 
@@ -158,10 +158,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		casacore::Double itsDoubleClickInterval;
 
 		// casacore::List containing the DDDObjects for this DrawingDisplayData.
-		casacore::List<void *> itsDDDOList;
-
-		// Iterator for itsDDDOList
-		casacore::ListIter<void *> *itsDDDOListIter;
+		std::list<void *> itsDDDOList;
 
 		// Obvious!
 		DDDObject *itsObjectWhichIsShowingHandles;

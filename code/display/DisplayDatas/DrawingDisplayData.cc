@@ -53,12 +53,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		                          "display.controls.doubleclickinterval",
 		                          Double(0.5));
 		installDefaultOptions();
-		itsDDDOListIter = new ListIter<void *>(&itsDDDOList);
 	}
 
-	DrawingDisplayData::~DrawingDisplayData() {
-		delete itsDDDOListIter;
-	}
+	DrawingDisplayData::~DrawingDisplayData() { }
 
 	void DrawingDisplayData::setDefaultOptions() {
 		PassiveCachingDD::setDefaultOptions();
@@ -109,13 +106,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		return buffer;
 	}
 	void DrawingDisplayData::refreshEH(const WCRefreshEvent &ev) {
-		itsDDDOListIter->toStart();
-		DDDObject* temp= 0;
-		while (!itsDDDOListIter->atEnd()) {
-			temp = (DDDObject *)itsDDDOListIter->getRight();
-			temp->operator()(ev);
-			(*itsDDDOListIter)++;
-		}
+		for ( auto temp : itsDDDOList ) ((DDDObject *)temp)->operator()(ev);
 		PassiveCachingDD::refreshEH(ev);
 	}
 
@@ -140,8 +131,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 		// preferentially add to start of list for fast access to most
 		// recently added object
-		itsDDDOListIter->toStart();
-		itsDDDOListIter->addRight((void *)dddObject);
+		itsDDDOList.push_front((void *)dddObject);
 
 		// install event handlers
 		addPositionEventHandler(dddObject);
@@ -152,24 +142,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	Record DrawingDisplayData::description(const Int objectID) {
-		Record rec;
-//
-		itsDDDOListIter->toStart();
 		Bool found = false;
-		DDDObject* temp;
-
-		while (!itsDDDOListIter->atEnd() && !found) {
-			temp = (DDDObject *)itsDDDOListIter->getRight();
-			found = (objectID == temp->objectID());
-			if (found) {
-				rec = temp->description();
+		Record rec;
+		for ( auto temp : itsDDDOList ) {
+			if ( objectID == ((DDDObject *)temp)->objectID( ) ) {
+				found = true;
+				rec = ((DDDObject *)temp)->description();
 				break;
 			}
-//
-			if (!itsDDDOListIter->atEnd()) {
-				(*itsDDDOListIter)++;
-			}
 		}
+//
 		if (!found) {
 			throw(AipsError("Couldn't find object with given id"));
 		}
@@ -178,70 +160,59 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	}
 
 	void DrawingDisplayData::setDescription(const Int objectID,
-	                                        const Record &rec) {
-		itsDDDOListIter->toStart();
+											const Record &rec) {
 		Bool found = false;
-		DDDObject *temp = 0;
-		while (!itsDDDOListIter->atEnd() && !found) {
-			temp = (DDDObject *)itsDDDOListIter->getRight();
-			found = (objectID == temp->objectID());
-			if (found) {
-				temp->setDescription(rec);
+		for ( auto temp : itsDDDOList ) {
+			if ( objectID == ((DDDObject *)temp)->objectID( ) ) {
+				found = true;
+				((DDDObject *)temp)->setDescription(rec);
 				break;
 			}
-			(*itsDDDOListIter)++;
 		}
+
 		if (!found) {
 			LogIO os(LogOrigin("DrawingDisplayDatas", "setDescription(...)",
-			                   WHERE));
+							   WHERE));
 			os << LogIO::WARN << "Could not find object with given id" << LogIO::POST;
 		}
 	}
 
 	void DrawingDisplayData::removeObject(const Int objectID) {
-		itsDDDOListIter->toStart();
-		Bool found = false;
-		DDDObject *temp = 0;
-		while (!itsDDDOListIter->atEnd() && !found) {
-			temp = (DDDObject *)itsDDDOListIter->getRight();
-			found = (objectID == temp->objectID());
-			if (found) {
-				itsDDDOListIter->removeRight();
-				if (itsObjectWhichIsShowingHandles == temp) {
-					itsObjectWhichIsShowingHandles = 0;
-				}
-				temp->showHandles(false, false); // this removes motion EH
-				removePositionEventHandler(*temp);
-				break;
-			}
-			if (!itsDDDOListIter->atEnd()) {
-				(*itsDDDOListIter)++;
-			}
+		std::list<void*> orig = itsDDDOList;
+		std::list<void*> to_remove; 
+		itsDDDOList.clear( );
+		std::partition_copy( orig.begin( ), orig.end( ),
+							 std::back_inserter(to_remove),
+							 std::back_inserter(itsDDDOList),
+							 [&](void *vp){return ((DDDObject *)vp)->objectID( ) == objectID;} );
+		for ( void *vp : to_remove ) {
+			auto temp = (DDDObject *) vp;
+			if ( itsObjectWhichIsShowingHandles == temp )
+				itsObjectWhichIsShowingHandles = 0;
+			temp->showHandles(false, false);				// this removes motion EH
+			removePositionEventHandler(*temp);
 		}
-		if (!found) {
+
+		if ( to_remove.size( ) == 0 ) {
 			LogIO os(LogOrigin("DrawingDisplayDatas", "removeObject(...)",
-			                   WHERE));
+							   WHERE));
 			os << LogIO::WARN << "Could not find object with given id" << LogIO::POST;
 		} else {
-			delete temp;
-			temp=0;
+			for ( void *vp : to_remove ) {
+				auto temp = (DDDObject *) vp;
+				delete temp;
+			}
 			// call refresh
 			refresh();
 		}
 	}
 
 	void DrawingDisplayData::setHandleState(DDDObject *item, const Bool state) {
-		itsDDDOListIter->toStart();
-		Bool found = false;
-		DDDObject *temp = 0;
-		while (!itsDDDOListIter->atEnd() && !found) {
-			temp = (DDDObject *)itsDDDOListIter->getRight();
-			found = (temp == item);
-			(*itsDDDOListIter)++;
-		}
-		if (!found) {
-			throw(AipsError("Cannot find object in list"));
-		}
+
+		bool found = std::any_of( itsDDDOList.begin( ), itsDDDOList.end( ), [&](void *vp){return vp == item;} );
+
+		if (!found) throw(AipsError("Cannot find object in list"));
+
 		if (state) {
 			if (itsObjectWhichIsShowingHandles) {
 				// switch other off

@@ -35,8 +35,6 @@
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
-#include <casa/Containers/OrderedMap.h>
-#include <casa/Containers/MapIO.h>
 #include <tables/TaQL/ExprNode.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 #include <ms/MeasurementSets/MSMainEnums.h>

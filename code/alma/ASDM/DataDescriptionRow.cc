@@ -330,7 +330,9 @@ namespace asdm {
 
 			setPulsarId(Parser::getTag("pulsarId","Pulsar",rowDoc));
 
-		}
+		} else {
+                    clearPulsarId();
+                }
 		
 	
 
@@ -723,8 +725,9 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 	 * to which they belong.
 	 * @param table The table to which this row belongs.
 	 */ 
-	DataDescriptionRow::DataDescriptionRow (DataDescriptionTable &t) : table(t) {
+    DataDescriptionRow::DataDescriptionRow (DataDescriptionTable &t) : table(t) {
 		hasBeenAdded = false;
+                pulsarIdExists = false;
 		
 	
 	
@@ -768,6 +771,7 @@ void DataDescriptionRow::pulsarIdFromBin(EndianIStream& eis) {
 	
 	DataDescriptionRow::DataDescriptionRow (DataDescriptionTable &t, DataDescriptionRow *row) : table(t) {
 		hasBeenAdded = false;
+                pulsarIdExists = false;
 		
 		if (row == 0) {
 	

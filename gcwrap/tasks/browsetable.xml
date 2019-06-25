@@ -30,8 +30,8 @@ the table.
                      Options: False|True
 
                      Warning: the GUI seems to ignore whether the
-		     table tool is opened read-only - just be careful,
-		     esp. if filtering.
+                     table tool is opened read-only - just be careful,
+                     esp. if filtering.
 </description>
       <value>False</value>
     </param>
@@ -64,12 +64,12 @@ the table.
     </param>
     <constraints>
       <when param="tablename">
-	<notequals type="string" value="">
+        <notequals type="string" value="">
           <default param="mightedit"><value type="bool">False</value></default>
-	  <default param="sortlist"><value type="string"></value></default>
-	  <default param="taql"><value type="string"></value></default>
-	  <default param="skipcols"><value type="string"></value></default>
-	</notequals>
+          <default param="sortlist"><value type="string"></value></default>
+          <default param="taql"><value type="string"></value></default>
+          <default param="skipcols"><value type="string"></value></default>
+        </notequals>
       </when>
     </constraints>
   </input>

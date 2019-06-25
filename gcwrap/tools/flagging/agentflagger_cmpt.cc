@@ -32,11 +32,10 @@ using namespace casa;
 using namespace casacore;
 namespace casac {
 
-agentflagger::agentflagger()
+agentflagger::agentflagger(): logger_p(new LogIO(LogOrigin("agentflagger","",WHERE)))
 {
 	try
 	{
-		logger_p = new LogIO(LogOrigin("agentflagger","",WHERE));
 		agentflagger_p = new AgentFlagger();
 
 	} catch (AipsError x) {
@@ -123,9 +122,9 @@ agentflagger::selectdata(
 		if (agentflagger_p) {
 
 			if (! selconfig.empty()) {
-				Record config = *toRecord(selconfig);
-				// Select based on the record
-				return agentflagger_p->selectData(config);
+                            std::unique_ptr<Record> config(toRecord(selconfig));
+                            // Select based on the record
+                            return agentflagger_p->selectData(*config);
 			}
 			else {
 
@@ -152,16 +151,16 @@ agentflagger::parseagentparameters(const ::casac::record& aparams)
 	try
 	{
 
-		Record agent_params = *toRecord(aparams);
+            std::unique_ptr<Record> agent_params(toRecord(aparams));
 
-		if(agentflagger_p){
-			return agentflagger_p->parseAgentParameters(agent_params);
-		}
+            if(agentflagger_p){
+                return agentflagger_p->parseAgentParameters(*agent_params);
+            }
 
-		return false;
+            return false;
 	} catch(AipsError x) {
-		*logger_p << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
-		RETHROW(x);
+            *logger_p << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
+            RETHROW(x);
 	}
 }
 

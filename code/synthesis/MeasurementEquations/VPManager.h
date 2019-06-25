@@ -28,6 +28,7 @@
 #ifndef SYNTHESIS_VPMANAGER_H
 #define SYNTHESIS_VPMANAGER_H
 
+#include <map>
 #include <imageanalysis/ImageAnalysis/AntennaResponses.h>
 
 namespace casacore{
@@ -223,7 +224,7 @@ namespace casa {
       static casacore::Mutex mutex_p;
 
       casacore::Record vplist_p; 
-      casacore::SimpleOrderedMap<casacore::String, casacore::Int > vplistdefaults_p; 
+      std::map<casacore::String, casacore::Int > vplistdefaults_p; 
       AntennaResponses aR_p; 
 
       inline casacore::String antennaDescription(const casacore::String& telescope,

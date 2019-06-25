@@ -87,7 +87,7 @@
 class IDIndex {
 private:
     casacore::Int offset;
-    casacore::SimpleOrderedMap<casacore::Int, casacore::Int> idmap;
+    std::map<casacore::Int, casacore::Int> idmap;
 public:    
     // create an ID set.  <src>first</src> is the output index that the first
     // input ID passed to <src>add()</src> will be mapped to.

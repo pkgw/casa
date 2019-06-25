@@ -6,29 +6,29 @@
       file:///opt/casa/code/xmlcasa/xml/casa.xsd">
 
 <task type="function" name="listpartition" category="information">
-	<shortdescription>List the summary of a multi-MS data set in the logger or in a file</shortdescription>
-	<description>
+       <shortdescription>List the summary of a multi-MS data set in the logger or in a file</shortdescription>
+       <description>
        Lists the following properties of a multi-measurement set:
        sub-MS name, scan list, spw list, list of number of channels per spw, 
        number of rows for all scans.
-	</description>
-	<input>
-		<param type="string" name="vis" mustexist="true">
-			<description>Name of Multi-MS or normal MS.</description>
-			<value></value>
-		</param>
+       </description>
+       <input>
+              <param type="string" name="vis" mustexist="true">
+                     <description>Name of Multi-MS or normal MS.</description>
+                     <value></value>
+              </param>
 
         <param type="bool" name="createdict">
             <description>Create and return a dictionary with Sub-MS information</description>
             <value>False</value>
         </param>
-		
-		<param type="string" name="listfile">
-			<description>Name of ASCII file to save output: ''==>to terminal</description>
-			<value></value>
-		</param>
+              
+              <param type="string" name="listfile">
+                     <description>Name of ASCII file to save output: ''==>to terminal</description>
+                     <value></value>
+              </param>
             
-	</input>
+       </input>
 <returns type="void"/>
 
 <example>
