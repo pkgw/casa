@@ -134,7 +134,7 @@ class CalAntennaSolutionsRow;
  * <BR>
  * 
  * \par Role
- * Results of atmosphere calibration by TelCal. This calibration determines the system temperatures corrected for atmospheric absorption. Ionospheric effects are not dealt with in the Table.
+ * Results of atmosphere calibration by TelCal. This calibration determines the system temperatures corrected for atmospheric absorption. Ionospheric effects are not dealt with in the Table. Note: spectralWindowId was added here after SDMs with this table were produced by ALMA. No xml versions of this table were produced prior to that change, only bin versions.
  * <BR>
  
  * Generated from model's revision "-1", branch ""
@@ -199,6 +199,15 @@ class CalAntennaSolutionsRow;
  * <TD> &nbsp;refers to a unique row in CalReduction Table. </TD>
  * </TR>
 	
+ * <TR>
+ 		
+ * <TD> spectralWindowId </TD>
+ 		 
+ * <TD> Tag</TD>
+ * <TD> &nbsp; </TD>
+ * <TD> &nbsp;Identifies a unique row in the SpectralWindow table. </TD>
+ * </TR>
+	
 
 
  * <TR> <TH BGCOLOR="#CCCCCC"  colspan="4" valign="center"> Value <br> (Mandatory) </TH></TR>
@@ -228,10 +237,7 @@ class CalAntennaSolutionsRow;
  * <TD> refAntennaName </TD> 
  * <TD> std::string </TD>
  * <TD>  &nbsp;  </TD> 
- * <TD> &nbsp;the name of the antenna used as a
-reference to get the antenna-based
-phases.
- </TD>
+ * <TD> &nbsp;The reference anntenna name.  </TD>
  * </TR>
 	
  * <TR>
@@ -273,28 +279,28 @@ phases.
  * <TD> phaseAnt </TD> 
  * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
- * <TD> &nbsp;the antenna based phase solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * <TD> &nbsp;the anntenna based phase solution averaged over the scan. </TD>
  * </TR>
 	
  * <TR>
  * <TD> phaseAntRMS </TD> 
  * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
- * <TD> &nbsp;the RMS of the phase fluctuations relative to the antenna based average phase (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * <TD> &nbsp;the RMS of the phase fluctuations relative to the antenna based average phase. </TD>
  * </TR>
 	
  * <TR>
  * <TD> amplitudeAnt </TD> 
  * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
- * <TD> &nbsp;the antenna based amplitude solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * <TD> &nbsp;the antennna based amplitude solution averaged over the scan. </TD>
  * </TR>
 	
  * <TR>
  * <TD> amplitudeAntRMS </TD> 
  * <TD> std::vector<float > </TD>
  * <TD>  numReceptor </TD> 
- * <TD> &nbsp;the antenna based amplitude solution averaged over the scan (one value per receptor per antenna). See refAntennaName for the association of the values of this array with the antennas. </TD>
+ * <TD> &nbsp;the RMS of the amplitude fluctuations relattive to the antenna based average amplitude (one value per receptor per antenna). </TD>
  * </TR>
 	
 
@@ -446,6 +452,8 @@ public:
 	
  	 * @param calReductionId
 	
+ 	 * @param spectralWindowId
+	
  	 * @param startValidTime
 	
  	 * @param endValidTime
@@ -473,7 +481,7 @@ public:
  	 * @param amplitudeAntRMS
 	
      */
-	CalAntennaSolutionsRow *newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS);
+	CalAntennaSolutionsRow *newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS);
 	
 
 
@@ -554,9 +562,11 @@ public:
 	
 	 * @param calReductionId
 	
+	 * @param spectralWindowId
+	
  	 *
 	 */
- 	CalAntennaSolutionsRow* getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId);
+ 	CalAntennaSolutionsRow* getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId);
 
  	 	
 
@@ -579,6 +589,8 @@ public:
  	 * @param calDataId
  	 		
  	 * @param calReductionId
+ 	 		
+ 	 * @param spectralWindowId
  	 		
  	 * @param startValidTime
  	 		
@@ -607,7 +619,7 @@ public:
  	 * @param amplitudeAntRMS
  	 		 
  	 */
-	CalAntennaSolutionsRow* lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS); 
+	CalAntennaSolutionsRow* lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS); 
 
 
 	void setUnknownAttributeBinaryReader(const std::string& attributeName, BinaryAttributeReaderFunctor* barFctr);
