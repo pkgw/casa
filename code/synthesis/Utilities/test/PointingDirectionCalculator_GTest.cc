@@ -567,12 +567,13 @@ public:
 
       uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
       uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain_);      };
-	
-    // prepared Antenna Count //
+
+    // Resouece	
+    //    Antenna and Pointing Column //
 
       uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
-      void setMaxAntenna(uInt n) { prepareMaxAntenna_ = n;  }
-   
+      uInt getMaxOfPointingColumn() { return prepareMaxPointingColumn_; }
+
     // Force to set up special MS for multiple access test(by AntennaID and PointingColumns )
 
       bool ifCoeffLocTest() { return fgCoeffLocationTest; }
@@ -632,8 +633,9 @@ private:
       Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
       Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
-    // Number of Antenna to prepeare //
-      uInt prepareMaxAntenna_         = 1;    // Tunable by set function. //
+    // Number of Antenna , Pointing-Columns //
+      const uInt prepareMaxAntenna_                = 3;    // Master resource //
+      const uInt prepareMaxPointingColumn_         = 5;    // Master resource //
 
     // Coefficient Test (special)
       bool fgCoeffLocationTest  = false; 
@@ -1856,11 +1858,6 @@ public:
         // Interpolation divition Count in 'Delta Time' //
 
         uInt getInterpolationDivCount() { return deltaTimeDivCount_; }
-        void setInterpolationDivCount(uInt n) {  deltaTimeDivCount_ = n;  }   
-
-        // Resource Count // 
-        size_t getMaxAntenna()         { return preparedAntenna_;}
-        size_t getMaxPointingColumn()  { return preparedColumn_ ; }
 
         // Pointing Colum List (common definition) //
 
@@ -1912,10 +1909,6 @@ public:
 
 protected:
 
-        // MeasurementSet Editting  //
-#if 0
-          casa::MsEdit  msedit;
-#endif 
         // Add 3 OFFSET Colums ,copied from DIRECTION column. //
 
         void addColumnsOnPointing() { duplicateNewColumnsFromDirection(); }
@@ -1932,12 +1925,7 @@ protected:
 
         virtual void SetUp()
         {
-            // SetUp Number of Anntena for TEST //
-            setMaxAntenna(  preparedAntenna_ ); 
-
-            //+
             // Copy and add columns,  init columns, 
-            //-
 
             CopyDefaultMStoWork();
             addColumnsOnPointing();
@@ -1961,14 +1949,9 @@ protected:
             const bool       fgGoogleTest_    = true;   // must be true, except debug
 
         //*
-        // Fixture::InterpolationListedItems option
-        //*
-
-          const uInt preparedColumn_  = 5;      // Number of prepeared Pointing-Column (1 to 5)
-          const uInt preparedAntenna_ = 3;      // Number of Antenna (more than 0 )
-   
         // Number of Devide Count to make dt.  
-          uInt  deltaTimeDivCount_     = 10; // dividing count between P[n] and p[n+1]
+        //*
+          uInt  deltaTimeDivCount_     = 3; // dividing count between P[n] and p[n+1]
         
         //*
         // Fixture::CofficientOnColumnAndAntenna option 
@@ -2320,10 +2303,6 @@ TEST_F(TestDirection, InterpolationListedItems )
               CopyDefaultMStoWork();
               addColumnsOnPointing();
  
-            // Interpolation Divide Count //
-
-              setInterpolationDivCount(3);   // default = 10 
-
             //+
             // set Examination Condition (revised by CAS-8418) //
             //-
@@ -2382,7 +2361,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     //   for all regisetered Antenna 
     //-
 
-    for(uInt pcol=0; pcol < getMaxPointingColumn() ; pcol++)  // THIS IS NOT A SECURE CODE // 
+    for(uInt pcol=0; pcol < getMaxOfPointingColumn() ; pcol++)   
     {
         // Write Data on Pointing TAble  
         writeOnPointing();
@@ -2403,7 +2382,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     // Poinying-Column and Antenna Loop
     //- 
     PointingColumnList pList;
-    for(uInt pcol=0; pcol < getMaxPointingColumn(); pcol++) 
+    for(uInt pcol=0; pcol < getMaxOfPointingColumn(); pcol++) 
     {
         String name =pColLis_.name(pcol);
 
@@ -2419,7 +2398,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
         //  - b0 indicates an AntenaId , expressed by 0.1 * AntID + 0.1 ;
         //    THESE VALUSEs are build in MsEdit::writePseudoOnPointing(). 
         //*
-        for(uInt ant=0;ant < getMaxAntenna() ;ant++)
+        for(uInt ant=0;ant < getMaxOfAntenna()  ;ant++)
         {
             if(showCofficient) // Show Coefficient (option)//
             {
