@@ -1326,11 +1326,9 @@ private:
 //  - Modifying test-MS
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
-class MsEdit : public  DefaultNames        
+class MsEdit : public  TuneMSConfig, public  DefaultNames        
 {
 public:
-
-    TuneMSConfig  tuneMS;
 
     MsEdit() { init();  }
 
@@ -1417,7 +1415,8 @@ void MsEdit::prepareDataToAntennaTable( )
     }
 
     // Write records as defined. //
-    uInt N = tuneMS.getMaxOfAntenna();
+    uInt N = getMaxOfAntenna();
+
     for(uInt ant = 0; ant < N; ant++)
     {
         // set  //
@@ -1486,7 +1485,7 @@ void  MsEdit::writePseudoOnPointing()
     //          In ordinary case +1 causes Exceeding row count.
     //-
 
-    uInt LoopCnt =   tuneMS.getAvailablePointingTestingRow();
+    uInt LoopCnt = getAvailablePointingTestingRow();
 
 #if 1
     //+
@@ -1507,7 +1506,7 @@ void  MsEdit::writePseudoOnPointing()
     //+
 
     uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
-    for (uInt ant=0; ant < tuneMS.getMaxOfAntenna() ; ant++ )
+    for (uInt ant=0; ant < getMaxOfAntenna() ; ant++ )
     {
         for (uInt row=0; row < LoopCnt; row++)
         {
@@ -1526,11 +1525,11 @@ void  MsEdit::writePseudoOnPointing()
             // Calculate Pseudo-Direction based on timeOnPoint //
 
               TuneMSConfig::PseudoPointingData  psd_data  
-                    = tuneMS.pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
+                = pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
  
         
             // Coeff for combiniation of Antenna and Column  //
-            if( tuneMS.ifCoeffLocTest() )
+            if( ifCoeffLocTest() )
             {
                 //+
                 // Test-Pattern Data 
@@ -1605,7 +1604,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     MainTableAccess   mta(LocalMsName_,true);
 
     uInt nrow_ms = mta.getNrow();
-    uInt LoopCnt = tuneMS.getRequiredMainTestingRow()  ;
+    uInt LoopCnt = getRequiredMainTestingRow()  ;
 
 #if 1
     //+
@@ -1623,7 +1622,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 
     printf("writePseudoOnMainTable:: writing to MAIN, nrow=%d, number of data on each antenna=%d \n", 
             nrow_ms,LoopCnt );
-    for (uInt ant =0; ant  < tuneMS.getMaxOfAntenna() ; ant ++ )
+    for (uInt ant =0; ant  < getMaxOfAntenna() ; ant ++ )
     {
         for (uInt row=0; row < LoopCnt; row++)
         {
@@ -1632,7 +1631,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
             // Pseudo Data (TEST DATA );
 
             TuneMSConfig::PseudoPointingData  psd_data
-                   = tuneMS.pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
+                   = pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
 
             // Time Set  //
 
@@ -1847,7 +1846,7 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 /*---------------------------------------
   getDirection  base class
  ----------------------------------------*/
-class TestDirection : public BaseClass
+class TestDirection : public MsEdit, public BaseClass
 {
 public:
 
@@ -1870,47 +1869,43 @@ public:
         // Internal method //
         void setCondition(uInt numRow, Double pointingInterval, Double mainInterval, Double errLimit)
         {
-            msedit.tuneMS.    setMainRowCount   (numRow);       // aprox. 1-2H 
-            msedit.tuneMS.    Initialize( pointingInterval,     // Pointing Interval
-                                         mainInterval ) ;      // Main Interval
+            setMainRowCount   (numRow);       // aprox. 1-2H 
+            Initialize( pointingInterval,     // Pointing Interval
+                        mainInterval ) ;      // Main Interval
 
-            msedit.tuneMS.    setInterpolationErrorLimit( errLimit );
+            setInterpolationErrorLimit( errLimit );
         }
 
         void prepareAntenna()
         {
-            uInt N =  msedit.tuneMS.getMaxOfAntenna();
+            uInt N =  getMaxOfAntenna();
 
-            msedit.appendRowOnAntennaTable(N-1);   // add  more (#0 is ready)
-            msedit.prepareDataToAntennaTable();
+            appendRowOnAntennaTable(N-1);   // add  more (#0 is ready)
+            prepareDataToAntennaTable();
         }
 
         void prepareRows()
         {
-            msedit.appendRowOnPointingTable ( msedit.tuneMS. getAddInerpolationTestPointingTableRow() );
-            msedit.appendRowOnMainTable     ( msedit.tuneMS. getAddInerpolationTestMainTableRow() );
+            appendRowOnPointingTable ( getAddInerpolationTestPointingTableRow() );
+            appendRowOnMainTable     ( getAddInerpolationTestMainTableRow() );
         }
 
         // MS Tune Parameters //
 
-        uInt   getRequiredMainTestingRow() {return msedit.tuneMS.getRequiredMainTestingRow(); }
+        Double getMainInterval()     { return(getMainTableInterval()); }
+        Double getPointingInterval() { return(getPointingTableInterval()); }
 
-        Double getMainInterval()     { return(msedit.tuneMS.getMainTableInterval()); }
-        Double getPointingInterval() { return(msedit.tuneMS.getPointingTableInterval()); }
-
-        uInt   getIntervalAdjust()       { return msedit.tuneMS.getIntervalAdjust(); }
-
-        Double getErrorLimit() { return (msedit.tuneMS.getInterpolationErrorLimit());}
+        Double getErrorLimit() { return (getInterpolationErrorLimit());}
 
         // Easy Access // 
         void writeOnPointing()
         {
-            msedit.writePseudoOnPointing () ;
+            writePseudoOnPointing () ;
         }
  
         void writeOnMain(Double div)    // 0<= div < 1.0 //
         {
-            msedit.writePseudoOnMainTable (div);
+            writePseudoOnMainTable (div);
         }
 
          SplineInterpolation::COEFF  tmpCoeff(PointingDirectionCalculator& calc);
@@ -1918,12 +1913,12 @@ public:
 protected:
 
         // MeasurementSet Editting  //
-        
+#if 0
           casa::MsEdit  msedit;
-
+#endif 
         // Add 3 OFFSET Colums ,copied from DIRECTION column. //
 
-        void addColumnsOnPointing() { msedit.duplicateNewColumnsFromDirection(); }
+        void addColumnsOnPointing() { duplicateNewColumnsFromDirection(); }
 
         //*
         // Sub-function of TEST_F(TestDirection....)  
@@ -1938,7 +1933,7 @@ protected:
         virtual void SetUp()
         {
             // SetUp Number of Anntena for TEST //
-            msedit.tuneMS.setMaxAntenna(  preparedAntenna_ ); 
+            setMaxAntenna(  preparedAntenna_ ); 
 
             //+
             // Copy and add columns,  init columns, 
@@ -1999,7 +1994,7 @@ private:
 std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt antId )
 {
     printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, antId);
-    const String local_ms = DefaultLocalMsName(); // from BaseClass //
+    const String local_ms = BaseClass::DefaultLocalMsName(); // from BaseClass //
 
     // Create Object //
         MeasurementSet ms( local_ms );
@@ -2035,15 +2030,16 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
     //-
         if(fgConversion_)
         {
+            printf( "setFrame()\n");  
             String frameName = "AZELGEO" ;
             calc.setFrame( frameName );
         }
 
     //+
     //  getDirection()
-    //-
-        Matrix<Double>  DirList1  = calc.getDirection();
 
+        Matrix<Double>  DirList1  = calc.getDirection();
+        printf( "END calc.getDirection()\n");
     //+
     // Direction Interpolation
     //-
@@ -2059,8 +2055,10 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
     //***********************************************************************
 
     // Adjust end of row to to stop loop //
-    uInt LoopCnt =  getRequiredMainTestingRow()  - getIntervalAdjust() ; 
 
+    uInt LoopCnt =   getRequiredMainTestingRow()  - getIntervalAdjust() ;
+ 
+    printf( "for (LoopCnt=%d) \n",LoopCnt); 
     for (uInt row=0; row < LoopCnt ; row++)   
     {
         // Direction(1) by getDirection //
@@ -2071,7 +2069,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
         // Direction by generated/estimated //
 
           TuneMSConfig::PseudoPointingData  gen_out2
-                  = msedit.tuneMS.pseudoPointingInfoMain2 ( (Double)row + div ); 
+                  = pseudoPointingInfoMain2 ( (Double)row + div ); 
                     // dt:Interpolation offset  (sec)
 
           Double generated_1 = gen_out2.position[colNo].first;
@@ -2093,8 +2091,8 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
           // Google Test On/Off
           if(fgGoogleTest_)
           {
-	      EXPECT_LE( absErr_1, msedit.tuneMS.getInterpolationErrorLimit()  ); 
-              EXPECT_LE( absErr_2, msedit.tuneMS.getInterpolationErrorLimit()  ); 
+	      EXPECT_LE( absErr_1, getInterpolationErrorLimit()  ); 
+              EXPECT_LE( absErr_2, getInterpolationErrorLimit()  ); 
           }
 
           // Output List (in One line) On/OFF   //
@@ -2377,7 +2375,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
       prepareRows();
 
     // NEW: 8-MAR-2019 Set Pseudo control in Special mode 
-      msedit.tuneMS.setCoeffLocTest( true ) ; 
+      setCoeffLocTest( true ) ; 
 
     //+
     // Create MS for all Pointing Columns  and,
@@ -2395,7 +2393,7 @@ TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
     //   creating 5 spline objects with specified Pointing Column.
     //-
 
-    const String local_ms = DefaultLocalMsName();
+    const String local_ms = BaseClass::DefaultLocalMsName();
 
     // Create Object //
     MeasurementSet ms( local_ms );
@@ -2648,7 +2646,7 @@ TEST_F(TestDirection, setDirectionColumn  )
       writeOnPointing();
 
     // MS and calc //
-      MeasurementSet ms( DefaultLocalMsName() );
+      MeasurementSet ms( BaseClass::DefaultLocalMsName() );
       PointingDirectionCalculator calc(ms);
  
     // Test loop //
@@ -2682,7 +2680,7 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
     // Create Object //
     
-        MeasurementSet ms( DefaultLocalMsName() );
+        MeasurementSet ms( BaseClass::DefaultLocalMsName() );
         PointingDirectionCalculator calc(ms);
         expectedNrow = calc.getNrowForSelectedMS();
  
@@ -2771,7 +2769,7 @@ TEST_F(TestDirection, VerifyCAS11818 )
 
     // MS name for this Test //
 
-        String local_ms = DefaultLocalMsName();
+        String local_ms = BaseClass::DefaultLocalMsName();
         printf( " Used MS is [%s] \n", local_ms.c_str() );
    
     // Create Object //
@@ -2827,7 +2825,7 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String local_ms = DefaultLocalMsName();    //  
+    const String local_ms = BaseClass::DefaultLocalMsName();    //  
 
      // List all info on Pointing Table. //
      //   _List series. was Removed. 
@@ -2914,7 +2912,7 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    const String local_ms = DefaultLocalMsName();    //  
+    const String local_ms = BaseClass::DefaultLocalMsName();    //  
     
     // Create Object //
     
