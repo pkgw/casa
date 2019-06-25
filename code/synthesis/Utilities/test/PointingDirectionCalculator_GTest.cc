@@ -731,12 +731,6 @@ void TuneMSConfig::Initialize(Double p_interval, Double m_interval )
 
 TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime)
 {
-        uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
-
-        casacore::Vector<Double> point;
-        point.resize(DirColCount);
-
-        PseudoPointingData  point2; 
 
         //  relative time limit (r_time)
         assert(r_time__  <= 1.0);
@@ -757,7 +751,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
         //+
         // Designed Function of POINITNG location
         //-
-
+        uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
         Double X2[DirColCount];
         Double Y2[DirColCount]; 
       
@@ -780,7 +774,7 @@ TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double ro
 
         // Direction Values //
         // CAS-8418 New  Interface //
-
+        PseudoPointingData  point2;
         point2.time         = basetime.second();
         point2.interval     = Interval__;
         point2.relativeTime = r_time__;  
@@ -1527,8 +1521,8 @@ void  MsEdit::writePseudoOnPointing()
 
             // Calculate Pseudo-Direction based on timeOnPoint //
 
-              TuneMSConfig::PseudoPointingData  psd_data  
-                = pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
+              auto  psd_data 
+               = pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
  
         
             // Coeff for combiniation of Antenna and Column  //
@@ -1633,7 +1627,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
 
             // Pseudo Data (TEST DATA );
 
-            TuneMSConfig::PseudoPointingData  psd_data
+             auto psd_data
                    = pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
 
             // Time Set  //
@@ -1852,6 +1846,17 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 class TestDirection : public MsEdit, public BaseClass
 {
 public:
+ /* Parameter list */
+typedef struct Parm {
+     bool   use_spline;
+     PointingDirectionCalculator::PtColID  pcol;
+     uInt   antenna;
+     uInt   testCount;
+     Double p_interval;
+     Double m_interval;
+     TrajFunc::Type trFunc;
+     Double errLimit;
+} ParamList;
 
         // Interpolation Mode //
           bool use_spline = false;
@@ -1965,7 +1970,16 @@ protected:
           const bool dumpPointingTbl =  false;
           const bool dumpMainTbl     =  false;
           const bool showResult      =  true;
- 
+
+        ///*
+        /// RESERVED::
+        /// NEW PROGRAM STRUCTURE 
+        ///  of InterpolationListedItems
+        ///*
+
+          // here describes new module with simplified structure //
+        
+
 private:
 
 };
@@ -2052,9 +2066,7 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
 
         // Direction by generated/estimated //
 
-          TuneMSConfig::PseudoPointingData  gen_out2
-                  = pseudoPointingInfoMain2 ( (Double)row + div ); 
-                    // dt:Interpolation offset  (sec)
+          auto  gen_out2 = pseudoPointingInfoMain2 ((Double)row + div); // dt:Interpolation offset  (sec)
 
           Double generated_1 = gen_out2.position[colNo].first;
           Double generated_2 = gen_out2.position[colNo].second;
@@ -2173,19 +2185,7 @@ std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double 
 # define P_SOURCE_OFFSET    PointingDirectionCalculator::PtColID::SOURCE_OFFSET
 # define P_ENCODER          PointingDirectionCalculator::PtColID::ENCODER
 
-/* Parameter list */
-typedef struct Parm {
-    bool   use_spline;
-    PointingDirectionCalculator::PtColID  pcol;
-    uInt   antenna;
-    Double testCount;
-    Double p_interval;
-    Double m_interval;
-    TrajFunc::Type trFunc;
-    Double errLimit;
-} ParamList;
-
-std::vector<std::vector<ParamList> >   paramListS =
+std::vector<std::vector<TestDirection::ParamList> >   paramListS =
 {
     // Senario 0 (Big Ratio) //
     {
@@ -2216,25 +2216,25 @@ std::vector<std::vector<ParamList> >   paramListS =
 
     // Senario 2 (all AntenaID) //
     {
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
-      {true, P_DIRECTION, 1,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
-      {true, P_DIRECTION, 2,1260, 0.05,  0.01,  TrajFunc::Type::Spline_Special,  7.0E-05 },
+      {true, P_DIRECTION, 0,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
+      {true, P_DIRECTION, 1,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
+      {true, P_DIRECTION, 2,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
     },
 
     // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
     {
-      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,  5.0E-06 },
-      {true, P_DIRECTION, 0,1260, 0.01,  0.05,  TrajFunc::Type::Sinusoid_Slow,      5.0E-06 },
+      {true, P_DIRECTION, 0,1080, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,  5.0E-06 },
+      {true, P_DIRECTION, 0,1080, 0.01,  0.05,  TrajFunc::Type::Sinusoid_Slow,      5.0E-06 },
 
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  6.0E-06 },
-      {true, P_DIRECTION, 0,1260, 0.05,  0.01,  TrajFunc::Type::Sinusoid_Slow,      5.0E-05 },
+      {true, P_DIRECTION, 0,1080, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  6.0E-06 },
+      {true, P_DIRECTION, 0,1080, 0.05,  0.01,  TrajFunc::Type::Sinusoid_Slow,      5.0E-05 },
     },
 
     // Senario 4 (test Pointing Column ) //
     {
-      {true, P_POINTING_OFFSET, 0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
-      {true, P_SOURCE_OFFSET,   0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
-      {true, P_ENCODER,         0,1260, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
+      {true, P_POINTING_OFFSET, 0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_SOURCE_OFFSET,   0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_ENCODER,         0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
     },
  
     // Senario 5 (Insufficient Data, small number of data.) // 
@@ -2247,7 +2247,10 @@ std::vector<std::vector<ParamList> >   paramListS =
     },
 
 #if 0
-    // Senario 6 (Interval , floating point preciseness) //
+    //+
+    // Option::
+    // Senario 6 (Interval , floating point preciseness) 
+    //-
 #define ANT    0
 #define NTEST  540  // default =2580 , Error happens at least on 2550 // 
 #define FUNC   TrajFunc::Type::Normalized_Linear 
@@ -2286,12 +2289,12 @@ TEST_F(TestDirection, InterpolationListedItems )
             uInt usingPColumn = paramListS[sno][n].pcol;
 
             use_spline       = paramListS[sno][n].use_spline;
-            uInt   testCount = paramListS[sno][n].testCount;
-            Double p_i       = paramListS[sno][n].p_interval;
-            Double m_i       = paramListS[sno][n].m_interval;
+            auto testCount   = paramListS[sno][n].testCount;
+            auto     p_i     = paramListS[sno][n].p_interval;
+            auto     m_i     = paramListS[sno][n].m_interval;
 
             auto   trFunc    = paramListS[sno][n].trFunc;
-            Double err_limit = paramListS[sno][n].errLimit;
+            auto   err_limit = paramListS[sno][n].errLimit;
 
             printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
             printf("&&& Sno = %d , param Set[%d]. Ant=%d Func=%d\n", sno, n, usingAntenna, trFunc );
