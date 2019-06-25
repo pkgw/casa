@@ -158,21 +158,22 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
+std::shared_ptr<CalStatsFitter::FIT>
+CalStatsFitter::fit( const Vector<Double>& oAbs,
     const Vector<Double>& oValue, const Vector<Double>& oValueErr,
     Vector<Bool>& oFlag, const ORDER& eOrder, const TYPE& eType,
     const WEIGHT& eWeight ) {
 
   // Calculate the desired fit and populate the pointer to the FIT structure
 
-  CalStatsFitter::FIT* poFit;
+ std::shared_ptr<CalStatsFitter::FIT> poFit(nullptr);
 
   switch ((uInt) eType) {
 
     case (uInt) LSQ:
       try {
-        poFit = new CalStatsFitter::FIT( lsqFit( oAbs, oValue, oValueErr, oFlag,
-            eOrder, eWeight ) );
+        poFit.reset( new CalStatsFitter::FIT( lsqFit( oAbs, oValue, oValueErr, oFlag,
+                                                      eOrder, eWeight ) ));
       }
       catch ( AipsError oAE ) {
         throw( oAE );
@@ -187,8 +188,8 @@ CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
         case (uInt) AVERAGE:
         case (uInt) LINEAR:
           try {
-            poFit = new CalStatsFitter::FIT( robustFit(
-                oAbs, oValue, oValueErr, oFlag, eOrder, eWeight, 5.0 ) );
+            poFit.reset( new CalStatsFitter::FIT( robustFit( oAbs, oValue, oValueErr, oFlag,
+                                                             eOrder, eWeight, 5.0 ) ));
           }
           catch ( AipsError oAE ) {
 	    throw( oAE );
@@ -213,7 +214,7 @@ CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
 
   // Return the reference to the FIT structure
 
-  return( *poFit );
+  return poFit;
 
 }
 
