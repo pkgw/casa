@@ -1,0 +1,34 @@
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package rpc.plotms;
+
+service app {
+    rpc getPlotMSPid(google.protobuf.Empty) returns (Pid);
+    rpc setShowGui(Toggle) returns (google.protobuf.Empty);
+    rpc setGridSize(GridSize) returns (google.protobuf.Empty);
+    rpc isDrawing(google.protobuf.Empty) returns (Toggle);
+    rpc clearPlots(google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc setPlotMSFilename(SetVis) returns (google.protobuf.Empty);
+}
+
+message Pid {
+    int32 id = 1;
+}
+
+message Toggle {
+    bool state = 1;
+}
+
+message GridSize {
+    int32 rows = 1;
+    int32 cols = 2;
+}
+
+message SetVis {
+    string name = 1;
+    int32 index = 2;
+    bool update = 3;
+}
