@@ -32,13 +32,13 @@
 #include <plotms/PlotMS/PlotMSDBusApp.h>
 #include <casadbus/utilities/Diagnostic.h>
 #else
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <plotms/PlotMS/grpcPlotMSAdaptor.qo.h>
 #endif
 #include <casacore/casa/System/AppState.h>
 #include <algorithm>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <plotms/Plots/PlotMSPlotParameterGroups.h>
 #include <plotms/Plots/PlotMSPlot.h>
 #ifndef NO_CRASH_REPORTER
