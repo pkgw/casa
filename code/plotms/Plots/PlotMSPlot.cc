@@ -1859,7 +1859,6 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 		double minval, double maxval, PlotCanvasPtr& canvas, bool setUserRange) {
 	// Set manual range for certain cases; otherwise autorange
 	pair<double, double> bounds = std::make_pair(minval, maxval);
-	bool rangeSet(false);
 
 	// CAS-3263 points near zero are not plotted, so add lower margin
 	if ((minval > -0.5) && (minval < 1.0) && (maxval > 10.0)) {
@@ -1870,7 +1869,6 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
         }
 		bounds = std::make_pair(minval, maxval);
 		canvas->setAxisRange(paxis, bounds);
-		rangeSet = true;
 	}
 	
 	if (axis==PMS::TIME) {
@@ -1879,13 +1877,11 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 		if (diff > 120.0) {  // seconds (2 minutes)
 			bounds = std::make_pair(minval, maxval);
 			canvas->setAxisRange(paxis, bounds);
-			rangeSet = true;
 		} else if (diff == 0.0) {
 			// override autoscale which sets crazy tick marks;
 			// add 2-sec margins
 			bounds = std::make_pair(minval-2.0, maxval+2.0);
 			canvas->setAxisRange(paxis, bounds);
-			rangeSet = true;
 		}
 	} else if (PMS::axisIsUV(axis)) {
 		// make range symmetrical for uv plot
@@ -1895,11 +1891,7 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 			maxval = maximum;
 			bounds = std::make_pair(minval, maxval);
 			canvas->setAxisRange(paxis, bounds);
-			rangeSet = true;
 		}
-	}
-	if (setUserRange && !rangeSet) {
-		canvas->setAxisRange(paxis, bounds);
 	}
 }
 
