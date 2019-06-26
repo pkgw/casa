@@ -97,6 +97,7 @@ def immoments(
     retValue=None
     casalog.origin('immoments')
     _myia = iatool()
+    _tmp_csys = None
     try:
         if (len(outfile) == 0):
             raise Exception, "outfile must be specified" 
@@ -116,11 +117,9 @@ def immoments(
             shape=_myia.shape(), box=box, chans=chans, stokes=stokes,
             stokescontrol="a", region=region
         )
-        _tmp_csys.done()
         if isinstance(axis, str):
-            _tmp_csys = _myia.coordsys()
             axis = _tmp_csys.findaxisbyname(axis)
-            _tmp_csys.done()
+        _tmp_csys.done()
         outia = _myia.moments(
             moments=moments, axis=int(axis), mask=mask,
             region=reg, includepix=includepix,
@@ -145,9 +144,11 @@ def immoments(
         raise
     finally:
         _myia.done()
+        _rg.done()
         if outia:
             outia.done()
-
+        if _tmp_csys:
+            _tmp_csys.done()
 
 def _immoments_get_created_images(out1name, outfile):
     dirpath = os.path.dirname(out1name)
