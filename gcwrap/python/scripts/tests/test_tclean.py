@@ -166,7 +166,7 @@ class testref_base(unittest.TestCase):
 
      def checkfinal(self,pstr=""):
           #pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  casa -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_refimager["+ inspect.stack()[1][3] +"]"
-          pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  runUnitTest.main(['test_refimager["+ inspect.stack()[1][3] +"]'])"
+          pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  runUnitTest.main(['test_tclean["+ inspect.stack()[1][3] +"]'])"
           casalog.post(pstr,'INFO')
           if( pstr.count("(Fail") > 0 ):
                self.fail("\n"+pstr)
@@ -589,6 +589,31 @@ class test_onefield(testref_base):
 
           ## Pass or Fail (and why) ?
           self.checkfinal(report)
+
+     def test_onefield_projections(self):
+          """ [onefield] Test_Onefield_projections : test selected projections  """
+          self.prepData('refim_twochan.ms')
+          # default projection = SIN
+          ret = tclean(vis=self.msfile,imagename=self.img+'SIN',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'NCP',projection='NCP',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret3 = tclean(vis=self.msfile,imagename=self.img+'TAN',projection='TAN',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret4 = tclean(vis=self.msfile,imagename=self.img+'ARC',projection='ARC',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          # Current fails with "wcs wcsset_error: Invalid parameter value" for HEALPix
+          #ret5 = tclean(vis=self.msfile,imagename=self.img+'HPX',projection='HPX',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          testname=inspect.stack()[0][3]
+          report=self.th.checkall(ret=ret, imexist=[self.img+'SIN.image', self.img+'NCP.image', self.img+'TAN.image',self.img+'ARC.image'], imval=[(self.img+'SIN.psf',1.0,[50,50,0,0])])
+          retSIN = imhead(self.img+"SIN.image", mode='list')
+          retNCP = imhead(self.img+"NCP.image", mode='list')
+          retTAN = imhead(self.img+"TAN.image", mode='list')
+          retARC = imhead(self.img+"ARC.image", mode='list')
+
+          checkimage = "["+testname+"] The image in SIN projection : (" + self.th.verdict(retSIN['projection']=='SIN') + ")\n"
+          # in serial 'NCP' is added in projection key but in parallel, this seems to be trancated.
+          checkimage += "["+testname+"] The image in NCP projection : (" + self.th.verdict(retNCP['projection'].find('SIN ([0, 1.16122]')==0) + ")\n"
+          checkimage += "["+testname+"] The image in TAN projection : (" + self.th.verdict(retTAN['projection']=='TAN') + ")\n"
+          checkimage += "["+testname+"] The image in ARC projection : (" + self.th.verdict(retARC['projection']=='ARC') + ")\n"
+          
+          self.checkfinal(pstr=checkimage+report)
 
 ##############################################
 ##############################################

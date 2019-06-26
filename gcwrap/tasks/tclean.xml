@@ -351,7 +351,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="string" name="projection" > <!-- subparam="true"> -->
-     <shortdescription>Coordinate projection (SIN, HPX)</shortdescription>
+     <shortdescription>Coordinate projection </shortdescription>
 <description>Coordinate projection
                      Examples : SIN,   NCP
                      A list of supported (but untested) projections can be found here :
