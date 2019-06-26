@@ -30,6 +30,7 @@
 
 #include <casa/OS/Path.h>
 #include <casa/OS/File.h>
+#include <casa/Arrays/ArrayLogical.h>
 #include <casa/Arrays/ArrayMath.h>
 #include <casa/Arrays/ArrayUtil.h>
 #include <measures/Measures/MDirection.h>
@@ -275,8 +276,8 @@ void PlotMSAtm::calcImageCurve(casacore::Vector<casacore::Double>& curve,
         return;
     }
 
-    casacore::Vector<casacore::Double> imageFreqs =
-        calcImageFrequencies(spw, chanFreqs);
+    casacore::Vector<casacore::Double> imageFreqs;
+    bool imageFreqsReversed = calcImageFrequencies(imageFreqs, spw, chanFreqs);
 
     if (allTrue(isNaN(imageFreqs))) { // get LO1 failed
         curve.set(doubleNaN()); // NaN will not be plotted
@@ -285,6 +286,9 @@ void PlotMSAtm::calcImageCurve(casacore::Vector<casacore::Double>& curve,
 
     // calculate curve with image frequencies
     curve = calcOverlayCurve(spw, scan, imageFreqs);
+    if (imageFreqsReversed) {
+        casacore::reverseArray(curve, 0);
+    }
 }
 
 casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
@@ -315,8 +319,8 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     getMeanWeather();
 
     unsigned int numChan(chanFreqs.nelements());
-	casacore::Vector<casacore::Double> curve(numChan);
-	curve.set(doubleNaN());
+    casacore::Vector<casacore::Double> curve(numChan);
+    curve.set(doubleNaN());
 
     unsigned int midChan(numChan / 2);
     // Set the reference freq to be the middle of the middle two channels
@@ -329,7 +333,7 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     }
     unsigned int refChan((numCalcChan - 1) / 2);
     casacore::Double chanSep = (chanFreqs(numChan-1) - chanFreqs(0)) / (numCalcChan - 1);
-	if (!isfinite(refFreq) || !isfinite(chanSep)) { // if ms has nan frequencies
+    if (!isfinite(refFreq) || !isfinite(chanSep)) { // if ms has nan frequencies
         return curve;
     }
 
@@ -456,9 +460,9 @@ void PlotMSAtm::getMedianPwv() {
                           water(0) = waterCol(i); // save water value closest to timerange
                           mintimediff = timediff;
                       } else if (timediff == mintimediff) {
-						  size_t waterSize = water.size();
-						  water.resize(waterSize + 1, true);
-						  water(waterSize) = waterCol(i);
+                          size_t waterSize = water.size();
+                          water.resize(waterSize + 1, true);
+                          water(waterSize) = waterCol(i);
                       }
                   }
               }
@@ -522,9 +526,9 @@ void PlotMSAtm::getMeanWeather() {
                 if ((pressUnits == "Pa") && (meanP > 1013.25)) {
                     meanP /= (float)100.0;  // Pa to hPa
                 }
-				if (meanP != 0.0) {
+                if (meanP != 0.0) {
                     pressure = meanP;
-					defaultP = false;
+                    defaultP = false;
                 }
             }
             // humidity
@@ -533,9 +537,9 @@ void PlotMSAtm::getMeanWeather() {
                 if (!selhumidity.empty()) {
                     meanH = mean(selhumidity);
                 }
-				if (meanH != 0.0) {
+                if (meanH != 0.0) {
                     humidity = meanH;
-					defaultH = false;
+                    defaultH = false;
                 }
             }
 
@@ -548,18 +552,18 @@ void PlotMSAtm::getMeanWeather() {
                 if ((meanT > 0.0) && (tempUnits == "C")) {
                     meanT += (float)273.15;  // convert C to K
                 }
-				if (meanT != 0.0) {
+                if (meanT != 0.0) {
                     temperature = meanT;
-					defaultT = false;
+                    defaultT = false;
                 }
             }
             noWeather = false;
         } catch (AipsError & err) {
-			std::cout << "Failed to read WEATHER table:" << err.getMesg() << std::endl;
+            std::cout << "Failed to read WEATHER table:" << err.getMesg() << std::endl;
         }
     }
 
-	if ((noWeather) || (defaultP && defaultH && defaultT)) {
+    if ((noWeather) || (defaultP && defaultH && defaultT)) {
         parent_->logmesg("load_cache", "Using default weather values for Atm/Tsky");
     }
 
@@ -765,16 +769,20 @@ bool PlotMSAtm::canGetLOsForSpw() {
     return (maxReceiverSpw == nSpwSpws-1);
 }
 
-casacore::Vector<casacore::Double> PlotMSAtm::calcImageFrequencies(casacore::Int spw,
-    const casacore::Vector<casacore::Double>& chanFreqs) {
-    // get LO1 and calculate image frequencies
+bool PlotMSAtm::calcImageFrequencies(
+      casacore::Vector<casacore::Double>& imageFreqs,
+      casacore::Int spw, const casacore::Vector<casacore::Double>& chanFreqs) {
+    // Get LO1 for spw and calculate image frequencies for signal frequencies;
+    // returns whether frequencies are reversed in image sideband
     unsigned int numChan(chanFreqs.nelements());
-    casacore::Vector<casacore::Double> imageFreqs(numChan, 0.0);
+    imageFreqs.resize(numChan);
+
     double freqLO1(0.0);
     if (!getLO1FreqForSpw(freqLO1, spw)) { // spw not found
         imageFreqs.set(doubleNaN());
-        return imageFreqs;
+        return false;
     }
+    parent_->logmesg("load_cache", "Using LO1 " + String::toString(freqLO1) + " for image sideband calculation");
 
     // use image frequencies based on LO1 frequency
     casacore::Vector<casacore::Double> lo1Freqs(numChan,  (2.0 * freqLO1));
@@ -782,65 +790,69 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcImageFrequencies(casacore::Int
 
     // calculate number of chans to use for calculation, reference channel,
     // reference frequency, and channel separation for atm::SpectralGrid
-    unsigned int numCalcChan(numChan);
-    unsigned int midChan(numCalcChan/2);
+    unsigned int midChan(numChan/2);
     // Set the reference freq to be the middle of the middle two channels
     casacore::Double refFreq = 0.5 * (imageFreqs(IPosition(2, midChan-1, 0)) +
         imageFreqs(IPosition(2, midChan, 0)));
-    // reduce number of channels to shorten calc time
-    if (numChan > MAX_ATM_CALC_CHAN_) { 
-        while (numCalcChan > MAX_ATM_CALC_CHAN_) {
-            numCalcChan /= 2;
-        }
-        midChan = numCalcChan/2;
-    }
-    unsigned int refChan((numCalcChan - 1) / 2);
+    unsigned int refChan((numChan - 1) / 2);
     casacore::Double chanSep = (imageFreqs(IPosition(2, numChan-1, 0)) -
-        imageFreqs(IPosition(2, 0, 0))) / (numCalcChan - 1);
+        imageFreqs(IPosition(2, 0, 0))) / (numChan - 1);
     if (!isfinite(refFreq) || !isfinite(chanSep)) {
         imageFreqs.set(doubleNaN());
-        return imageFreqs;
+        return false;
     }
         
-    if (numCalcChan % 2 == 0) {
+    if (numChan % 2 == 0) {
         refFreq -= chanSep*0.5;
     }
 
     // Set up SpectralGrid and get frequencies
-    atm::SpectralGrid* specGrid = new atm::SpectralGrid(numCalcChan, refChan,
+    atm::SpectralGrid* specGrid = new atm::SpectralGrid(numChan, refChan,
         atm::Frequency(refFreq, "GHz"), atm::Frequency(chanSep, "GHz"));
     for (unsigned int chan=0; chan<numChan; ++chan) {
         imageFreqs[chan] = specGrid->getChanFreq(0, static_cast<unsigned int>(chan)).get("GHz");
     }
-    //imageFreqs = lo1Freqs - imageFreqs;
-    return imageFreqs;
+
+    casacore::Vector<casacore::Double> adjustedImageFreqs = lo1Freqs - imageFreqs;
+    return !(allNearAbs(adjustedImageFreqs, chanFreqs, 1e-7));
 }
 
 bool PlotMSAtm::getLO1FreqForSpw(double& freqGHz, int spw) {
     // For showimage, get the freqLO[0] column value from ASDM_RECEIVER table.
     // Assigns freqGHz argument, returns whether spw was found
-    if (!hasReceiverTable())
-        return false;
-
     bool foundSpw(false);
+    if (!hasReceiverTable()) {
+        return foundSpw;
+    }
+
+    // get names and freqLOs from ASDM_RECEIVER table, only keep first "WVR" freq
     casacore::Table receiverTable = Table::openTable(tableName_ + "::ASDM_RECEIVER");
-    casacore::Vector<casacore::String> receiverSpws =
-        ScalarColumn<casacore::String>(receiverTable, "spectralWindowId").getColumn();
+    casacore::Vector<casacore::String> receiverNames =
+        ScalarColumn<casacore::String>(receiverTable, "name").getColumn();
     ArrayColumn<casacore::Double> freqLOCol(receiverTable, "freqLO");
-    for (size_t i = 0; i < receiverSpws.size(); ++i) {
-        casacore::String spwId = receiverSpws(i);
-        casacore::String spwIdNumber = spwId.after(spwId.rfind("_"));
-        try {
-            int thisSpw = std::stoi(spwIdNumber);
-            if (thisSpw == spw) {
-                foundSpw = true;
-                double freq = *(freqLOCol.get(i).data()); // first element of array
-                freqGHz = freq * 1e-9; // GHz
-                break;
+    casacore::Vector<casacore::Double> freqLOs;
+    bool gotWvr(false);
+    for (size_t i = 0; i < receiverNames.size(); ++i) {
+        if (receiverNames(i).contains("WVR")) {
+            if (gotWvr) {
+                continue;
+            } else {
+                gotWvr = true;
             }
-        } catch (std::invalid_argument& error) {
-            // ignore: cannot convert spwIdNumber to int
         }
+
+        // get freqLO[0] and convert to GHz
+        double freqLO = *(freqLOCol.get(i).data()); // first element of array
+        freqLO *= 1e-9;
+        // add this freqLO value
+        size_t loSize(freqLOs.size());
+        freqLOs.resize(loSize + 1, true);
+        freqLOs(loSize) = freqLO;
+    }
+
+    if (freqLOs.size() > spw) {
+        freqGHz = freqLOs(spw);
+        foundSpw = true;
     }
     return foundSpw;
 }

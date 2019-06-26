@@ -148,8 +148,8 @@ private:
 
     // image sideband curve
     bool getLO1FreqForSpw(double& freq, int spw);
-    casacore::Vector<casacore::Double> calcImageFrequencies(casacore::Int spw,
-        const casacore::Vector<casacore::Double>& chanFreqs);
+    bool calcImageFrequencies(casacore::Vector<casacore::Double>& imageFreqs,
+        casacore::Int spw, const casacore::Vector<casacore::Double>& chanFreqs);
 
     // utility functions
     // Determine unique time values in input vector
@@ -168,7 +168,7 @@ private:
     PlotMSSelection selection_;
     bool showatm_; // true=showatm, false=showtsky
     bool isMS_;    // true=MS, false=CalTable
-	bool xIsChan_; // image curve changes for chan/freq x-axis
+    bool xIsChan_; // image curve changes for chan/freq x-axis
     PlotMSCacheBase* parent_; // for log messages
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
     NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan
