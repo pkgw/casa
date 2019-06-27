@@ -105,7 +105,12 @@ void QPScaleDraw::setScale(PlotAxisScale scale, uInt base) {
 #endif
             }
             else {
+#if QWT_VERSION >= 0x060000
                 m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine(base));
+#else
+                base = 10;
+                m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine());
+#endif
             }
             if(m_parent->autoReplot())
                 m_parent->replot();
