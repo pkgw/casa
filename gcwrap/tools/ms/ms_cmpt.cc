@@ -6294,14 +6294,14 @@ ms::iterinit(const std::vector<std::string>& columns, const double interval,
             Vector<vi::ViiLayerFactory*> layers(1);
             layers[0] = &viilayer;
 
+            std::unique_ptr<vi::ChannelAverageTVILayerFactory> chanavglayer(nullptr);
             // Add channel-averaging layer if requested in selectchannel 
             if (chanAverage) {
                 Record config;
                 config.define("chanbin", chansel_p[2]);
-                vi::ChannelAverageTVILayerFactory* chanavglayer =
-                    new vi::ChannelAverageTVILayerFactory(config);
+                chanavglayer.reset(new vi::ChannelAverageTVILayerFactory(config));
                 layers.resize(layers.size()+1, True);
-                layers[1] = chanavglayer;
+                layers[1] = chanavglayer.get();
             }
 
             // Create VI2

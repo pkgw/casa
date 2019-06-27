@@ -71,7 +71,7 @@ class plotweather_test(unittest.TestCase):
 
         opac = plotweather(vis=self.msNoWeatherfile, plotName=self.fig)
         self.assertIsNotNone(opac)
-        self.assertAlmostEqual(opac[0], 0.0054102503282849731)
+        self.assertAlmostEqual(opac[0], 0.0054234724819465846)
         self.assertFalse(os.path.exists(self.fig))
         if (os.path.exists(self.msNoWeatherfile)):
             shutil.rmtree(self.msNoWeatherfile)
@@ -81,7 +81,7 @@ class plotweather_test(unittest.TestCase):
         res = plotweather(vis=self.msfile, plotName=self.fig)
         self.assertIsNotNone(res)
         opac = res[0]/1e55
-        self.assertAlmostEqual(opac, 1.3601326636302511)
+        self.assertAlmostEqual(opac, 1.3867727940788754)
         self.assertTrue(os.path.exists(self.fig))
 
     def test4(self):
@@ -89,7 +89,7 @@ class plotweather_test(unittest.TestCase):
         res = plotweather(vis=self.msfile, doPlot=False)
         self.assertIsNotNone(res)
         opac = res[0]/1e55
-        self.assertAlmostEqual(opac, 1.3601326636302511)
+        self.assertAlmostEqual(opac, 1.3867727940788754)
         defaultFig = self.msfile + ".plotweather.png"
         self.assertFalse(os.path.exists(defaultFig))
 
@@ -98,7 +98,7 @@ class plotweather_test(unittest.TestCase):
         res = plotweather(vis=self.msfile, seasonal_weight=0.75, plotName=self.fig)
         self.assertIsNotNone(res)
         opac = res[0]/1e54
-        self.assertAlmostEqual(opac, 6.8006633181512548)
+        self.assertAlmostEqual(opac, 6.9338639703943761)
         self.assertTrue(os.path.exists(self.fig))
 
     def test6(self):
