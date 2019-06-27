@@ -1734,8 +1734,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		x = getDefaultXAxis();
 		cacheParams->setXAxis(x);
 	}
-	uInt base = PMS::axisIsRaDec(x) ? 12 : 10;
-	canvas->setAxisScale(cx, PMS::axisScale(x),base);
+	canvas->setAxisScale(cx, PMS::axisScale(x),PMS::axisScaleBase(x));
 	canvas->setAxisScaleAngleFormat(cx,PMS::angleFormat(x,cacheParams->xFrame()));
 	bool xref = itsCache_->hasReferenceValue(x);
 	double xrefval = itsCache_->referenceValue(x);
@@ -1757,8 +1756,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		}
 		// yaxis scale
 		PlotAxis cy = axesParams->yAxis( i );
-		uInt base = PMS::axisIsRaDec(y) ? 12 : 10;
-		canvas->setAxisScale(cy, PMS::axisScale(y), base);
+		canvas->setAxisScale(cy, PMS::axisScale(y), PMS::axisScaleBase(y));
 		auto yCoordSystem  = cacheParams->yFrame( i );
 		canvas->setAxisScaleAngleFormat(cy,PMS::angleFormat(y,yCoordSystem));
 		// yaxis ref value
@@ -1852,8 +1850,18 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			}
 			if (x==PMS::RA) {
 				PMS::Axis y = cacheParams->yAxis(i);
-				if (y==PMS::DEC)
-					canvas->setAxisScaleSortDirection(cx,SortDirection::DESCENDING);
+				if (y==PMS::DEC) {
+					auto xFrame = cacheParams->xFrame();
+					SortDirection sortDir;
+					switch(xFrame){
+					case PMS::CoordSystem::AZELGEO:
+						sortDir = SortDirection::ASCENDING;
+						break;
+					default:
+						sortDir = SortDirection::DESCENDING;
+					}
+					canvas->setAxisScaleSortDirection(cx,sortDir);
+				}
 			}
 		}
 	}

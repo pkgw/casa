@@ -215,6 +215,7 @@ public:
     static bool axisIsOverlay(Axis axis);
     // right ascension or declination
     static bool axisIsRaDec(Axis axis);
+    static casacore::uInt axisScaleBase(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.

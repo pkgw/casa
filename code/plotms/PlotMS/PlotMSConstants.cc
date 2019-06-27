@@ -101,6 +101,17 @@ bool PMS::axisIsRaDec(Axis axis) {
     }
 }
 
+uInt PMS::axisScaleBase(Axis axis) {
+    switch(axis) {
+    case RA:
+    case DEC:
+        // This is on order to get axis ticks values of
+        // minutes/seconds as multiple of 5 when possible
+        return 12;
+    default: return 10;
+    }
+}
+
 const casacore::String & PMS::longitudeName(CoordSystem r) {
     static const casacore::String longitude { "Longitude" };
     static const casacore::String rightAscension { "Right Ascension" };
@@ -150,16 +161,19 @@ bool PMS::isDirectionComponent(Axis axis, DirectionComponent &dc){
 	}
 }
 AngleFormat PMS::angleFormat(CoordSystem ref, DirectionComponent dc){
+	AngleFormat angleFmt { AngleFormat::DECIMAL };
 	switch(ref){
 	case CoordSystem::ICRS:
 	case CoordSystem::J2000:
 	case CoordSystem::B1950:
-		return dc == DirectionComponent::LONGITUDE ?
+		angleFmt = ( dc == DirectionComponent::LONGITUDE ) ?
 				AngleFormat::HMS : AngleFormat::DMS;
+		break;
 	case CoordSystem::GALACTIC:
 	case CoordSystem::AZELGEO:
-		return AngleFormat::DMS;
+		angleFmt=AngleFormat::DMS;
 	}
+	return angleFmt;
 }
 
 AngleFormat PMS::angleFormat(Axis axis, CoordSystem ref){
