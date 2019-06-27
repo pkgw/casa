@@ -698,6 +698,8 @@ class test_axis(plotms_test_base):
                               highres = True,
                               overwrite = True,
                               #
+                              showgui = False,
+                              #
                               clearplots = is_first_plot
                           )
                     self.assertTrue(res)
