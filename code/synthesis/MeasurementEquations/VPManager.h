@@ -29,7 +29,7 @@
 #define SYNTHESIS_VPMANAGER_H
 
 #include <map>
-#include <imageanalysis/ImageAnalysis/AntennaResponses.h>
+#include <synthesis/MeasurementEquations/AntennaResponses.h>
 
 namespace casacore{
 

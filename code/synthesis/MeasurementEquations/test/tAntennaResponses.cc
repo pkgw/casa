@@ -27,7 +27,7 @@
 //# $Id: $
 
 #include <casa/aips.h>
-#include <imageanalysis/ImageAnalysis/AntennaResponses.h>
+#include <synthesis/MeasurementEquations/AntennaResponses.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Exceptions/Error.h>
 #include <measures/Measures/MPosition.h>
