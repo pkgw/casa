@@ -80,13 +80,109 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         ::grpc::Status setPlotMSFilename( ::grpc::ServerContext *context,
                                           const ::rpc::plotms::SetVis *req,
                                           ::google::protobuf::Empty* );
+        ::grpc::Status setPlotAxes( ::grpc::ServerContext *context,
+                                    const ::rpc::plotms::SetAxes *req,
+                                    ::google::protobuf::Empty* );
+        ::grpc::Status setShowAtm( ::grpc::ServerContext *context,
+                                   const ::rpc::plotms::SetToggle *req,
+                                   ::google::protobuf::Empty* );
+        ::grpc::Status setShowTsky( ::grpc::ServerContext *context,
+                                    const ::rpc::plotms::SetToggle *req,
+                                    ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSSelection( ::grpc::ServerContext *context,
+                                           const ::rpc::plotms::SetSelection *req,
+                                           ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSAveraging( ::grpc::ServerContext *context,
+                                           const ::rpc::plotms::SetAveraging *req,
+                                           ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSTransformations( ::grpc::ServerContext *context,
+                                                 const ::rpc::plotms::SetTransform *req,
+                                                 ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSCalibration( ::grpc::ServerContext *context,
+                                             const ::rpc::plotms::SetCalibration *req,
+                                             ::google::protobuf::Empty* );
+        ::grpc::Status setFlagExtension( ::grpc::ServerContext *context,
+                                         const ::rpc::plotms::SetFlagExtension *req,
+                                         ::google::protobuf::Empty* );
+        ::grpc::Status setExportRange( ::grpc::ServerContext *context,
+                                       const ::rpc::plotms::ExportRange *req,
+                                       ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSIterate( ::grpc::ServerContext *context,
+                                         const ::rpc::plotms::SetIterate *req,
+                                         ::google::protobuf::Empty* );
+        ::grpc::Status setColorAxis( ::grpc::ServerContext *context,
+                                     const ::rpc::plotms::SetString *req,
+                                     ::google::protobuf::Empty* );
+        ::grpc::Status setSymbol( ::grpc::ServerContext *context,
+                                  const ::rpc::plotms::SetSymbol *req,
+                                  ::google::protobuf::Empty* );
+        ::grpc::Status setFlaggedSymbol( ::grpc::ServerContext *context,
+                                         const ::rpc::plotms::SetSymbol *req,
+                                         ::google::protobuf::Empty* );
+        ::grpc::Status setConnect( ::grpc::ServerContext *context,
+                                   const ::rpc::plotms::SetConnect *req,
+                                   ::google::protobuf::Empty* );
+        ::grpc::Status setLegend( ::grpc::ServerContext *context,
+                                   const ::rpc::plotms::SetLegend *req,
+                                   ::google::protobuf::Empty* );
+        ::grpc::Status setTitle( ::grpc::ServerContext *context,
+                                 const ::rpc::plotms::SetString *req,
+                                 ::google::protobuf::Empty* );
+        ::grpc::Status setTitleFont( ::grpc::ServerContext *context,
+                                     const ::rpc::plotms::SetInt *req,
+                                     ::google::protobuf::Empty* );
+        ::grpc::Status setXAxisFont( ::grpc::ServerContext *context,
+                                     const ::rpc::plotms::SetInt *req,
+                                     ::google::protobuf::Empty* );
+        ::grpc::Status setYAxisFont( ::grpc::ServerContext *context,
+                                     const ::rpc::plotms::SetInt *req,
+                                     ::google::protobuf::Empty* );
+        ::grpc::Status setXAxisLabel( ::grpc::ServerContext *context,
+                                      const ::rpc::plotms::SetString *req,
+                                      ::google::protobuf::Empty* );
+        ::grpc::Status setYAxisLabel( ::grpc::ServerContext *context,
+                                      const ::rpc::plotms::SetString *req,
+                                      ::google::protobuf::Empty* );
+        ::grpc::Status setGridParams( ::grpc::ServerContext *context,
+                                      const ::rpc::plotms::SetGrid *req,
+                                      ::google::protobuf::Empty* );
+        ::grpc::Status setXRange( ::grpc::ServerContext *context,
+                                  const ::rpc::plotms::SetRange *req,
+                                  ::google::protobuf::Empty* );
+        ::grpc::Status setYRange( ::grpc::ServerContext *context,
+                                  const ::rpc::plotms::SetRange *req,
+                                  ::google::protobuf::Empty* );
+        ::grpc::Status setPlotMSPageHeaderItems( ::grpc::ServerContext *context,
+                                                 const ::rpc::plotms::SetString *req,
+                                                 ::google::protobuf::Empty* );
+        ::grpc::Status save( ::grpc::ServerContext *context,
+                             const ::rpc::plotms::Save *req,
+                             ::google::protobuf::Empty* );
+        ::grpc::Status update( ::grpc::ServerContext *context,
+                               const ::google::protobuf::Empty *req,
+                               ::google::protobuf::Empty* );
+
     protected:
         // update parameters
+        void update_parameters( );
         void update_parameters(int index);
-        enum group_tags { T_MSDATA };
+        void populate_selection( const ::rpc::plotms::SetSelection &req, PlotMSSelection &sel );
+        enum group_tags { T_MSDATA, T_CACHE, T_AXES, T_ITER, T_DISP, T_CAN, T_HEAD };
         std::map<std::pair<int,int>,PlotMSPlotParameters::Group*> param_groups;
         PMS_PP_MSData *sys_ppdata(PlotMSPlotParameters* sp);
+        PMS_PP_Cache *sys_ppcache(PlotMSPlotParameters* sp);
+        PMS_PP_Axes *sys_ppaxes(PlotMSPlotParameters* sp);
+        PMS_PP_Iteration *sys_ppiter(PlotMSPlotParameters* sp);
+        PMS_PP_Display *sys_ppdisp(PlotMSPlotParameters* sp);
+        PMS_PP_Canvas *sys_ppcan(PlotMSPlotParameters* sp);
+        PMS_PP_PageHeader *sys_pphead(PlotMSPlotParameters* sp);
         PMS_PP_MSData *ppdata(int index);
+        PMS_PP_Cache *ppcache(int index);
+        PMS_PP_Axes *ppaxes(int index);
+        PMS_PP_Iteration *ppiter(int index);
+        PMS_PP_Display *ppdisp(int index);
+        PMS_PP_Canvas *ppcan(int index);
+        PMS_PP_PageHeader *pphead(int index);
         void qtGO( std::function<void()> );
 
     signals:
