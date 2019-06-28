@@ -158,7 +158,6 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 }
 
 PlotMSCacheBase::~PlotMSCacheBase() {
-	//  cout << "PMSCB::~PMSCB" << endl;
 	delete indexer0_;
 
 	// Deflate everything
@@ -377,8 +376,10 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	currentXInterp_.clear();
 	currentYInterp_.clear();
 	size_t dataCount = axes.size() / 2;
-	// whether to recalculate image sideband
-	bool changedImageSbAxis(true), changedImageSbXAxis(true);
+	// whether to plot/recalculate image sideband
+	bool canPlotImageSideband(true);
+	bool changedImageSbAxis(true);
+	bool changedImageSbXAxis(true);
 	// Remember the axes that we will load for plotting:
 	for (size_t i = 0; i < dataCount; i++) {
 		// set up atmospheric overlays
@@ -413,9 +414,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 				if (!plotmsAtm_->hasReceiverTable()) {
 					logWarn("load_cache",
 						"Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
+					canPlotImageSideband = false;
 				} else if (!plotmsAtm_->canGetLOsForSpw()) {
 					logWarn("load_cache",
 						"Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
+					canPlotImageSideband = false;
 				}
 			}
 		}
@@ -530,11 +533,15 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	stringstream ss;
 	ss << "Caching for the new plot: ";
 	if (currentX_.size() > 1 ) ss << std::endl;
-	for ( size_t i = 0; i < currentX_.size(); i++ ){
-		ss << PMS::axis(currentY_[i]) << "(" << currentY_[i] << ")";  
-		if (PMS::axisIsData(currentY_[i]))
+	for ( size_t i = 0; i < currentX_.size(); i++ ) {
+		PMS::Axis yaxis = currentY_[i];
+		if ((yaxis == PMS::IMAGESB) && !canPlotImageSideband) {
+			continue;
+		}
+		ss << PMS::axis(yaxis) << "(" << yaxis << ")";  
+		if (PMS::axisIsData(yaxis))
 			ss << ":" << PMS::dataColumn(currentYData_[i]);
-		if (PMS::axisIsRaDec(currentY_[i]) )
+		if (PMS::axisIsRaDec(yaxis) )
 			ss << "[" << "ref="    << PMS::coordSystem(currentYFrame_[i]) << ", "
 				<< "interp=" << PMS::interpMethod(currentYInterp_[i]) << "]";
 				ss << " vs. " << PMS::axis(currentX_[i]) << "(" << currentX_[i] << ")";
@@ -2070,7 +2077,7 @@ void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
 }
 
 bool PlotMSCacheBase::canShowImageCurve() {
-    return (hasOverlay() && plotmsAtm_->canShowImageCurve());
+	return (hasOverlay() && plotmsAtm_->canShowImageCurve());
 }
 
 template<typename T>

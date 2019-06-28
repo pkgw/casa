@@ -164,19 +164,24 @@ private:
     // use cal table times if available, else ms times
     void getTimeRange(casacore::Double& mintime, casacore::Double& maxtime);
 
-    casacore::String filename_;
-    PlotMSSelection selection_;
-    bool showatm_; // true=showatm, false=showtsky
-    bool isMS_;    // true=MS, false=CalTable
-    bool xIsChan_; // image curve changes for chan/freq x-axis
+    casacore::String filename_, tableName_, telescopeName_;
+    bool showatm_;         // true=showatm, false=showtsky
+    bool isMS_;            // true=MS, false=CalTable
+    bool xIsChan_;         // image curve changes for chan/freq x-axis
+	bool canCalculatePwv_;     // has CALWVR or CALATMOSPHERE subtable
+	bool canCalculateWeather_; // has WEATHER subtable
     PlotMSCacheBase* parent_; // for log messages
+    PlotMSSelection selection_;
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
-    NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan
-    casacore::String tableName_, telescopeName_;
+    NewCalTable *caltable_, *selct_;        // selected CT for each spw/scan
+
+    // updated for every spw/scan selection:
+    int selectedSpw_, selectedScan_;
     casacore::Double pwv_, airmass_;
     casacore::Vector<casacore::Double> mstimes_, caltimes_;
     casacore::Vector<casacore::Int> fields_;
     casacore::Record weather_;
+    std::map<int, double> loFreqForSpw_;
     const unsigned int MAX_ATM_CALC_CHAN_;
 };
 

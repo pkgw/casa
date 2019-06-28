@@ -116,10 +116,11 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   // poln ratio
   polnRatio_ = false;
   if (selection_.corr()=="/") {
-    if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F')
+    if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F') {
       throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
-    else
+	} else {
       polnRatio_ = true;
+    }
   }
 
   antnames_.resize();

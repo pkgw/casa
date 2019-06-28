@@ -1834,6 +1834,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			}
 		}
 		// y range
+		bool hasAtmOverlay(false);
 		for ( int i = 0; i < yAxisCount; i++ ){
 			PlotAxis cy = axesParams->yAxis( i );
 			if ( axesParams->yRangeSet(i) ){
@@ -1867,19 +1868,31 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					itsCache_->indexer(i,iteration).minsMaxes(xmin, xmax, ymin, ymax);
 					pair<double,double> atmrange;
 					// in all cases, do not allow ymin < 0
-					if (y == PMS::ATM) {
-					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
-						atmrange = make_pair(max(ymin, 0.0), min(ymax+2.0, 100.0));
-					} else if (y == PMS::TSKY) {
-					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
-						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
-					} else {
+					if (y == PMS::ATM) {  // range in 0 - 100
+                        hasAtmOverlay = true;
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						atmrange = make_pair(max((ymin-lowerMargin), 0.0), min(ymax+upperMargin, 100.0));
+					} else if (y == PMS::TSKY) { // range above 0
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						atmrange = make_pair(max((ymin-lowerMargin), 0.0), (ymax+upperMargin));
+					} else { // range above 0
+						// get combined range of image sideband and atm/tsky overlay
 						double yminAtm, ymaxAtm;
 						itsCache_->indexer(i-1,iteration).minsMaxes(xmin, xmax, yminAtm, ymaxAtm);
 						ymin = min(ymin, yminAtm);
 						ymax = max(ymax, ymaxAtm);
-					    ymin -= (ymax-ymin) * 3.0; // add margin to bottom of overlay axis
-						atmrange = make_pair(max(ymin, 0.0), ymax+2.0);
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						if (hasAtmOverlay) {
+							atmrange = make_pair(max((ymin-lowerMargin), 0.0), min((ymax+upperMargin), 100.0));
+						} else {
+							atmrange = make_pair(max((ymin-lowerMargin), 0.0), (ymax+upperMargin));
+						}
 					}
 					canvas->setAxisRange(cy, atmrange);
 				}
@@ -1955,8 +1968,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				for ( int j=0; j<plotYAxisCount; j++ ){
 					PMS::Axis y = plotCacheParams->yAxis( j );
 					// skip if image sideband axis could not be loaded
-					if ((y == PMS::IMAGESB) && !itsCache_->canShowImageCurve())
+					if ((y == PMS::IMAGESB) && !itsCache_->canShowImageCurve()) {
+						std::cout << "PDEBUG: Y AXIS LABEL skipping imagesb, cannot show image curve" << std::endl;
 						continue;
+                    }
 					if (isCalTable && PMS::axisIsData(y))
 						y = getCalAxis(calTypes(i), y);
 					yAxes.push_back(y);  // save for title

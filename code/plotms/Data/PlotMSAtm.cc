@@ -48,15 +48,19 @@ namespace casa {
 PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
         bool showatm, bool isMS, bool xAxisIsChan, PlotMSCacheBase* parent):
     filename_(filename),
-    selection_(userSel),
+    tableName_(""),
+    telescopeName_(""),
     showatm_(showatm),
     isMS_(isMS),
     xIsChan_(xAxisIsChan),
+    canCalculatePwv_(false),
+    canCalculateWeather_(false),
     parent_(parent),
+    selection_(userSel),
     ms_(nullptr),
     caltable_(nullptr),
-    tableName_(""),
-    telescopeName_(""),
+    selectedSpw_(-1),
+    selectedScan_(-1),
     pwv_(0.0),
     airmass_(0.0),
     MAX_ATM_CALC_CHAN_(512) {
@@ -66,6 +70,27 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
     } else { // create NCT and MS if possible
         setUpCalTable(filename, userSel);
     }
+
+    // check and log this once
+    if (!tableName_.empty()) {
+        casacore::Table mstab(tableName_);
+        if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
+            canCalculatePwv_ = true;
+        }
+        if (mstab.keywordSet().fieldNumber("WEATHER") > -1) {
+            canCalculateWeather_ = true;
+        }
+    }
+    if (!canCalculatePwv_) {
+        parent_->logmesg("load_cache",
+            "No ASDM_CALWVR or ASDM_CALATMOSPHERE table to calculate pwv.");
+        parent_->logmesg("load_cache",
+            "Using default pwv for telescope " + telescopeName_ + ".");
+    }
+    if (!canCalculateWeather_) {
+        parent_->logmesg("load_cache",
+            "No WEATHER table, using default weather values for Atm/Tsky.");
+    } 
 
     selms_ = new MeasurementSet(); // selected per chunk
     selct_ = new NewCalTable();    // selected per chunk
@@ -315,8 +340,14 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
             getMSTimes(*selms_);   // update times_ for airmass calc
         }
     }
-    getMedianPwv();
-    getMeanWeather();
+
+    if ((spw != selectedSpw_) || (scan != selectedScan_)) {
+        // recalculate for this selection
+        getMedianPwv();
+        getMeanWeather();
+        selectedSpw_ = spw;
+        selectedScan_ = scan;
+    }
 
     unsigned int numChan(chanFreqs.nelements());
     casacore::Vector<casacore::Double> curve(numChan);
@@ -418,22 +449,22 @@ void PlotMSAtm::getMedianPwv() {
     // Get pwv (precipitable water vapor) from MS subtable in mm
     casacore::Double pwv(0.0);
     // values from ASDM_CAL subtables if they exist
-    if (!tableName_.empty()) {
-        casacore::String subname;
+    if (canCalculatePwv_) {
+        casacore::String subtableName;
         casacore::Table mstab(tableName_), subtable;
         casacore::Vector<casacore::Double> waterCol, timesCol;
         try {
           if (mstab.keywordSet().fieldNumber("ASDM_CALWVR") > -1) {
-            subname = tableName_ + "::ASDM_CALWVR";
-            subtable = Table::openTable(subname);
+            subtableName = tableName_ + "::ASDM_CALWVR";
+            subtable = Table::openTable(subtableName);
             if (subtable.nrow() > 0) {
               waterCol = ScalarColumn<casacore::Double>(subtable, "water").getColumn();
               timesCol = ScalarColumn<casacore::Double>(subtable, "startValidTime").getColumn();
             }
           }
           if (waterCol.empty() && mstab.keywordSet().fieldNumber("ASDM_CALATMOSPHERE") > -1) {
-              subname = tableName_ + "::ASDM_CALATMOSPHERE";
-              subtable = Table::openTable(subname);
+              subtableName = tableName_ + "::ASDM_CALATMOSPHERE";
+              subtable = Table::openTable(subtableName);
               if (subtable.nrow() > 0) {
                 Array<Double> waterColArray = ArrayColumn<casacore::Double>(subtable, "water").getColumn();
                 waterCol = waterColArray(Slicer(Slice(0), Slice()));
@@ -442,9 +473,7 @@ void PlotMSAtm::getMedianPwv() {
           }
           mstab.closeSubTables();
 
-          if (waterCol.empty()) {
-              parent_->logmesg("load_cache", "No ASDM_CALWVR or ASDM_CALATMOSPHERE values to calculate pwv.");
-          } else {
+          if (!waterCol.empty()) {
               casacore::Double mintime(0.0), maxtime(0.0);
               getTimeRange(mintime, maxtime);  // min/max times for selected ms/ct
               // find values in time range
@@ -472,15 +501,14 @@ void PlotMSAtm::getMedianPwv() {
             // openTable failed, use default pwv
         }
     }
-    // else use default value in mm
+
     if (pwv == 0.0) {
+        // use default value in mm
         if (telescopeName_=="ALMA") {
             pwv = 1.0;
         } else {
             pwv = 5.0;
         }
-        parent_->logmesg("load_cache",
-            "Using default pwv " + casacore::String::toString(pwv) + " for telescope " + telescopeName_);
     }
     pwv_ = pwv;
 }
@@ -490,13 +518,10 @@ void PlotMSAtm::getMeanWeather() {
     // Set defaults; CAS-9053 default pressure depends on telescope
     casacore::Float humidity(20.0), temperature(273.15);
     casacore::Float pressure = (telescopeName_=="ALMA" ? 563.0 : 786.0);  // mb
-    bool defaultP(true), defaultH(true), defaultT(true);
 
     // Use values from WEATHER table if it exists
-    bool noWeather(true);
-    if (!tableName_.empty()) {
+    if (canCalculateWeather_) {
         try {
-            // openTable throws exception if table doesn't exist
             casacore::Table wtable = Table::openTable(tableName_ + "::WEATHER");
             TableColumn tempCol = TableColumn(wtable, "TEMPERATURE");
             String tempUnits = tempCol.keywordSet().asArrayString("QuantumUnits").tovector()[0];
@@ -528,7 +553,6 @@ void PlotMSAtm::getMeanWeather() {
                 }
                 if (meanP != 0.0) {
                     pressure = meanP;
-                    defaultP = false;
                 }
             }
             // humidity
@@ -539,7 +563,6 @@ void PlotMSAtm::getMeanWeather() {
                 }
                 if (meanH != 0.0) {
                     humidity = meanH;
-                    defaultH = false;
                 }
             }
 
@@ -554,17 +577,11 @@ void PlotMSAtm::getMeanWeather() {
                 }
                 if (meanT != 0.0) {
                     temperature = meanT;
-                    defaultT = false;
                 }
             }
-            noWeather = false;
         } catch (AipsError & err) {
             std::cout << "Failed to read WEATHER table:" << err.getMesg() << std::endl;
         }
-    }
-
-    if ((noWeather) || (defaultP && defaultH && defaultT)) {
-        parent_->logmesg("load_cache", "Using default weather values for Atm/Tsky");
     }
 
     // to use in atmosphere.initAtmProfile (tool)
@@ -734,12 +751,14 @@ casacore::Vector<T> PlotMSAtm::getValuesInTimeRange(casacore::Vector<T> inputCol
 
 bool PlotMSAtm::hasReceiverTable() {
     // axis can be calculated only if ms has ASDM_RECEIVER table
+	bool hasTable(false);
     if (tableName_.empty()) {
-        return false;
+        return hasTable;
     }
     // check if ms has receiver subtable
     casacore::Table mstab(tableName_);
-    return mstab.keywordSet().fieldNumber("ASDM_RECEIVER") > -1;
+    hasTable = (mstab.keywordSet().fieldNumber("ASDM_RECEIVER") > -1);
+    return hasTable;
 }
 
 bool PlotMSAtm::canGetLOsForSpw() {
@@ -782,7 +801,6 @@ bool PlotMSAtm::calcImageFrequencies(
         imageFreqs.set(doubleNaN());
         return false;
     }
-    parent_->logmesg("load_cache", "Using LO1 " + String::toString(freqLO1) + " for image sideband calculation");
 
     // use image frequencies based on LO1 frequency
     casacore::Vector<casacore::Double> lo1Freqs(numChan,  (2.0 * freqLO1));
@@ -824,35 +842,45 @@ bool PlotMSAtm::getLO1FreqForSpw(double& freqGHz, int spw) {
     if (!hasReceiverTable()) {
         return foundSpw;
     }
-
-    // get names and freqLOs from ASDM_RECEIVER table, only keep first "WVR" freq
-    casacore::Table receiverTable = Table::openTable(tableName_ + "::ASDM_RECEIVER");
-    casacore::Vector<casacore::String> receiverNames =
-        ScalarColumn<casacore::String>(receiverTable, "name").getColumn();
-    ArrayColumn<casacore::Double> freqLOCol(receiverTable, "freqLO");
-    casacore::Vector<casacore::Double> freqLOs;
-    bool gotWvr(false);
-    for (size_t i = 0; i < receiverNames.size(); ++i) {
-        if (receiverNames(i).contains("WVR")) {
-            if (gotWvr) {
-                continue;
-            } else {
-                gotWvr = true;
+    if (loFreqForSpw_.count(spw)) {
+        freqGHz = loFreqForSpw_[spw];
+        foundSpw = true;
+    } else {
+        // get names and freqLOs from ASDM_RECEIVER table, only keep first "WVR" freq
+        casacore::Table receiverTable = Table::openTable(tableName_ + "::ASDM_RECEIVER");
+        casacore::Vector<casacore::String> receiverNames =
+            ScalarColumn<casacore::String>(receiverTable, "name").getColumn();
+        ArrayColumn<casacore::Double> freqLOCol(receiverTable, "freqLO");
+        casacore::Vector<casacore::Double> freqLOs;
+        bool gotWvr(false);
+        for (size_t i = 0; i < receiverNames.size(); ++i) {
+            if (receiverNames(i).contains("WVR")) {
+                if (gotWvr) {
+                    continue;
+                } else {
+                    gotWvr = true;
+                }
             }
+
+            // get freqLO[0] and convert to GHz
+            double freqLO = *(freqLOCol.get(i).data()); // first element of array
+            freqLO *= 1e-9;
+            // add this freqLO value
+            size_t loSize(freqLOs.size());
+            freqLOs.resize(loSize + 1, true);
+            freqLOs(loSize) = freqLO;
         }
 
-        // get freqLO[0] and convert to GHz
-        double freqLO = *(freqLOCol.get(i).data()); // first element of array
-        freqLO *= 1e-9;
-        // add this freqLO value
-        size_t loSize(freqLOs.size());
-        freqLOs.resize(loSize + 1, true);
-        freqLOs(loSize) = freqLO;
-    }
-
-    if (freqLOs.size() > spw) {
-        freqGHz = freqLOs(spw);
-        foundSpw = true;
+        int freqsize = freqLOs.size();
+        if (freqsize > spw) {
+            freqGHz = freqLOs(spw);
+            // only log this when calculated for this spw
+            parent_->logmesg("load_cache",
+                "Image sideband LO1=" + String::toString(freqGHz) + " for spw " + String::toString(spw));
+            // cache this for later chunks
+            loFreqForSpw_[spw] = freqGHz;
+            foundSpw = true;
+        }
     }
     return foundSpw;
 }

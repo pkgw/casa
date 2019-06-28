@@ -181,7 +181,6 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 	completeLoadPageHeaderCache();
 
 	deleteVi(); // close any open tables
-	deleteAtm();
 }
 
 void MSCache::loadError(String mesg) {
