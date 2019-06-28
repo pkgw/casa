@@ -625,7 +625,6 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
  }
 
  MDirection VisBufferUtil::getPointingDir(const VisBuffer& vb, const Int antid, const Int vbrow){
-<<<<<<< HEAD
 	
    Timer tim;
    tim.mark();
@@ -706,10 +705,10 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
    /////
    //	 String index=String::toString(vb.time()(vbrow))+String("_")+String::toString(antid);
-   std::ostringstream oss;
-   oss.precision(13);
-   oss << vb.time()(vbrow) << "_" << antid  ;
-   String index=oss.str();
+   // std::ostringstream oss;
+   // oss.precision(13);
+   // oss << vb.time()(vbrow) << "_" << antid  ;
+   // String index=oss.str();
    //cerr << "index "<< index << endl;
    ////////////
    /*
