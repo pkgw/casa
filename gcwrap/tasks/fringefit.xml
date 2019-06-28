@@ -103,6 +103,12 @@ Previous calibrations should be applied on the fly.
                 <value>True</value>
         </param>
 
+   <param type="int" name="niter">
+                <description>Maximum number of iterations for least-squares solver</description>
+		          <value>100</value>
+	</param>
+   
+
    <param type="doubleArray" name="delaywindow">
                 <description>Constrain FFT delay search to a window; a two-element list, units of nanoseconds</description>
                 <value></value>
@@ -117,7 +123,6 @@ Previous calibrations should be applied on the fly.
                 <description>Append solutions to the (existing) table</description>
                 <value>False</value>
         </param>
-   
         <param type="bool" name="docallib" >
                 <description>Use callib or traditional cal apply parameters</description>
                 <value>False</value>

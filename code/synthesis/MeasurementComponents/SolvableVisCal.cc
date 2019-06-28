@@ -4904,7 +4904,10 @@ SolvableVisJones::SolvableVisJones(const Int& nAnt) :
 SolvableVisJones::~SolvableVisJones() {
 
   if (prtlev()>2) cout << "SVJ::~SVJ()" << endl;
-
+  if (dJ1_)
+      delete dJ1_;
+  if (dJ2_)
+      delete dJ2_;
 }
 
 void SolvableVisJones::reReference() {
