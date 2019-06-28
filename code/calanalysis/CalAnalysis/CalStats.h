@@ -276,7 +276,7 @@ class CalStats {
       public:
       AXES oAxes;
       DATA oData;
-      T oT;
+      std::shared_ptr<T> oT;
       OUT( void );
       OUT( const OUT& oOut );
       ~OUT( void );
@@ -297,16 +297,16 @@ class CalStats {
     virtual ~CalStats( void );
 
     // Axis ID states
-    casacore::IPosition& axisIterID( void ) const;
-    AXIS& axisNonIterID( void ) const;
+    casacore::IPosition axisIterID( void ) const;
+    AXIS axisNonIterID( void ) const;
 
     // Axis value states
-    casacore::Vector<casacore::String>& axisIterFeed( void ) const;
-    casacore::Vector<casacore::Double>& axisIterUser( void ) const;
-    casacore::Vector<casacore::Double>& axisNonIter( void ) const;
+    casacore::Vector<casacore::String> axisIterFeed( void ) const;
+    casacore::Vector<casacore::Double> axisIterUser( void ) const;
+    casacore::Vector<casacore::Double> axisNonIter( void ) const;
 
     // Output statistics cube shape state
-    casacore::IPosition& statsShape( void ) const;
+    casacore::IPosition statsShape( void ) const;
 
     // casacore::Input data states
     casacore::Cube<casacore::Double>& value( void ) const;
@@ -314,15 +314,16 @@ class CalStats {
     casacore::Cube<casacore::Bool>& flag( void ) const;
 
     // The axis names
-    static casacore::String& axisName( const AXIS& eAxis );
+    static casacore::String axisName( const AXIS& eAxis );
 
     // Calculate statistics (allowed T: CalStats::NONE gets data without
     // calculating statistics, CalStatsFitter::FIT calculates fits, and
     // CalStatsHist::HIST calculates histogram statistics).  Member function
     // stats() is the main user interface and statsWrap() is the supporting
     // wrapper.
-    template <typename T> casacore::Matrix<OUT<T> >& stats( const ARG<T>& oArg );
-    template <typename T> T& statsWrap( const casacore::Vector<casacore::Double>& oAbs,
+    template <typename T> std::shared_ptr<casacore::Matrix<OUT<T> >>
+      stats( const ARG<T>& oArg );
+    template <typename T> std::shared_ptr<T> statsWrap( const casacore::Vector<casacore::Double>& oAbs,
         const casacore::Vector<casacore::Double>& oValue, const casacore::Vector<casacore::Double>& oValueErr,
         casacore::Vector<casacore::Bool>& oFlag, const ARG<T>& oArg );
 
@@ -400,20 +401,16 @@ template <> class CalStats::ARG<CalStatsFitter::FIT> {
 
 // Default constructor
 template <typename T>
-CalStats::OUT<T>::OUT( void ) {
+CalStats::OUT<T>::OUT( void ): oT() {
   oAxes = CalStats::AXES();
   oData = CalStats::DATA();
-  oT = T();
-  return;
 }
 
 // Copy constructor
 template <typename T>
-CalStats::OUT<T>::OUT( const CalStats::OUT<T>& oOut ) {
+  CalStats::OUT<T>::OUT( const CalStats::OUT<T>& oOut ): oT( new T(*oOut.oT.get())) {
   oAxes = CalStats::AXES( oOut.oAxes );
   oData = CalStats::DATA( oOut.oData );
-  oT = T( oOut.oT );
-  return;
 }
 
 // Destructor
@@ -426,7 +423,7 @@ CalStats::OUT<T>& CalStats::OUT<T>::operator=( const CalStats::OUT<T>& oOut ) {
   if ( this != &oOut ) {
     oAxes = CalStats::AXES( oOut.oAxes );
     oData = CalStats::DATA( oOut.oData );
-    oT = T( oOut.oT );
+    oT.reset(new T(*oOut.oT.get()));
   }
   return( *this );
 }
@@ -472,13 +469,13 @@ Modification history:
 // -----------------------------------------------------------------------------
 
 template <typename T>
-casacore::Matrix<CalStats::OUT<T> >& CalStats::stats( const CalStats::ARG<T>& oArg ) {
+std::shared_ptr<casacore::Matrix<CalStats::OUT<T>>> CalStats::stats( const CalStats::ARG<T>& oArg ) {
 
   // Initialize the CalStats::OUT<T> array and its iterator
 
-  casacore::Array<CalStats::OUT<T> >* poOut = new casacore::Array<OUT<T> >( oStatsShape );
+  std::shared_ptr<casacore::Matrix<CalStats::OUT<T> >> poOut(new casacore::Matrix<OUT<T> >( oStatsShape ));
 
-  casacore::ArrayIterator<CalStats::OUT<T> > oOutIter( *poOut, oAxisIterID, false );
+  casacore::ArrayIterator<CalStats::OUT<T> > oOutIter(*poOut, oAxisIterID, false);
 
 
   // For each iteration, convert the resulting arrays to vectors and feed them
@@ -516,7 +513,7 @@ casacore::Matrix<CalStats::OUT<T> >& CalStats::stats( const CalStats::ARG<T>& oA
       casacore::LogIO log( casacore::LogOrigin( "CalStats", "stats<T>()", WHERE ) );
       log << casacore::LogIO::WARN << oAE.getMesg() << ", iteration: "
           << oPos.asVector() << ", continuing ..." << casacore::LogIO::POST;
-      oOut.oT = T();
+      oOut.oT.reset(new T());
     }
 
     // The flag output vector is set here because robust fitting can change them
@@ -537,9 +534,8 @@ casacore::Matrix<CalStats::OUT<T> >& CalStats::stats( const CalStats::ARG<T>& oA
   // Return the reference to the casacore::Matrix<CalStats::OUT<T> > instance
 
   poOut->removeDegenerate();
-  casacore::Matrix<CalStats::OUT<T> >* poMatrix = (casacore::Matrix<CalStats::OUT<T> >*) poOut;
 
-  return( *poMatrix );
+  return poOut;
 
 }
 
