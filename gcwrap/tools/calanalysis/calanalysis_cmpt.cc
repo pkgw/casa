@@ -661,7 +661,7 @@ std::vector<int> calanalysis::numchannel( void ) {
 
   // Call the CalAnalysis::stats<T>() member function for getting
 
-  std::shared_ptr<Vector<CalAnalysis::OUTPUT<CalStats::NONE>>> oOutput;
+  Vector<CalAnalysis::OUTPUT<CalStats::NONE> > oOutput;
 
   try {
     oOutput = poCA->stats<CalStats::NONE>( oInput, oArg );
@@ -679,7 +679,7 @@ std::vector<int> calanalysis::numchannel( void ) {
   // number of rows times the number of columns.  Each row and column represents
   // an iteration in the CalStats() instance.
 
-  uInt uiNumOutput = oOutput->nelements();
+  uInt uiNumOutput = oOutput.nelements();
 
   uInt uiNumIter = 0;
 
@@ -689,15 +689,15 @@ std::vector<int> calanalysis::numchannel( void ) {
 
   for ( uInt o=0; o<uiNumOutput; o++ ) {
 
-    uInt uiNumRow = (*oOutput)[o].oOut->shape()[0];
-    uInt uiNumCol = (*oOutput)[o].oOut->shape()[1];
+    uInt uiNumRow = oOutput[o].oOut.shape()[0];
+    uInt uiNumCol = oOutput[o].oOut.shape()[1];
 
     for ( uInt row=0; row<uiNumRow; row++ ) {
       for ( uInt col=0; col<uiNumCol; col++ ) {
 
         ::casac::record oRecIter;
 
-        Bool bWriteInput = writeInput( (*oOutput)[o], row, col, oRecIter );
+        Bool bWriteInput = writeInput( oOutput[o], row, col, oRecIter );
 
         if ( !bWriteInput ) {
           LogIO log( LogOrigin( "calanalysis", "get()", WHERE ) );
@@ -705,7 +705,7 @@ std::vector<int> calanalysis::numchannel( void ) {
           return( poRecord );
 	}
 
-        Bool bWriteData = writeData( (*oOutput)[o], row, col, oRecIter );
+        Bool bWriteData = writeData( oOutput[o], row, col, oRecIter );
 
         if ( !bWriteData ) {
           LogIO log( LogOrigin( "calanalysis", "get()", WHERE ) );
@@ -783,8 +783,7 @@ std::vector<int> calanalysis::numchannel( void ) {
 
   // Call the CalAnalysis::stats<T>() member function for getting and fitting
 
-  std::shared_ptr<Vector<CalAnalysis::OUTPUT<CalStatsFitter::FIT>>> oOutput;
-  //std::shared_ptr<Vector<CalAnalysis::OUTPUT<CalStats::NONE>>> oOutput;
+  Vector<CalAnalysis::OUTPUT<CalStatsFitter::FIT> > oOutput;
 
   try {
     oOutput = poCA->stats<CalStatsFitter::FIT>( oInput, oArg );
@@ -802,7 +801,7 @@ std::vector<int> calanalysis::numchannel( void ) {
   // number of rows times the number of columns.  Each row and column represents
   // an iteration in the CalStats() instance.
 
-  uInt uiNumOutput = oOutput->nelements();
+  uInt uiNumOutput = oOutput.nelements();
 
   uInt uiNumIter = 0;
 
@@ -812,15 +811,15 @@ std::vector<int> calanalysis::numchannel( void ) {
 
   for ( uInt o=0; o<uiNumOutput; o++ ) {
 
-    uInt uiNumRow = (*oOutput)[o].oOut->shape()[0];
-    uInt uiNumCol = (*oOutput)[o].oOut->shape()[1];
+    uInt uiNumRow = oOutput[o].oOut.shape()[0];
+    uInt uiNumCol = oOutput[o].oOut.shape()[1];
 
     for ( uInt row=0; row<uiNumRow; row++ ) {
       for ( uInt col=0; col<uiNumCol; col++ ) {
 
         ::casac::record oRecIter;
 
-        Bool bWriteInput = writeInput( (*oOutput)[o], row, col, oRecIter );
+        Bool bWriteInput = writeInput( oOutput[o], row, col, oRecIter );
 
         if ( !bWriteInput ) {
           LogIO log( LogOrigin( "calanalysis", "fit()", WHERE ) );
@@ -828,7 +827,7 @@ std::vector<int> calanalysis::numchannel( void ) {
           return( poRecord );
 	}
 
-        Bool bWriteData = writeData( (*oOutput)[o], row, col, oRecIter );
+        Bool bWriteData = writeData( oOutput[o], row, col, oRecIter );
 
         if ( !bWriteData ) {
           LogIO log( LogOrigin( "calanalysis", "fit()", WHERE ) );
@@ -836,7 +835,7 @@ std::vector<int> calanalysis::numchannel( void ) {
           return( poRecord );
 	}
 
-        Bool bWriteFit = writeFit( oArg, (*oOutput)[o], row, col, oRecIter );
+        Bool bWriteFit = writeFit( oArg, oOutput[o], row, col, oRecIter );
 
         if ( !bWriteFit ) {
           LogIO log( LogOrigin( "calanalysis", "fit()", WHERE ) );
@@ -1222,7 +1221,7 @@ Bool calanalysis::parseSPW( const ::casac::variant& spw,
 
     oChannel.resize( uiNumSPW );
     for ( uInt s=0; s<uiNumSPW; s++ ) {
-      CalAnalysis::unique<uInt>( oChannelTemp[s], oChannel[s] );
+      oChannel[s] = CalAnalysis::unique<uInt>( oChannelTemp[s] );
     }
 
   }
@@ -1304,7 +1303,7 @@ Bool calanalysis::parseFeed( const ::casac::variant& feed,
     delete [] aoFeed;
 
     oFeed.resize();
-    CalAnalysis::unique<String>( oFeedTemp, oFeed );
+    oFeed = CalAnalysis::unique<String>( oFeedTemp );
 
     if ( oFeed.nelements() != 1 && oFeed.nelements() != 2 ) {
       oFeed.resize();

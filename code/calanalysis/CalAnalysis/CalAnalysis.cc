@@ -341,7 +341,7 @@ CalAnalysis::CalAnalysis( const String& oTableName ) {
 
   feedSet( feedGet(oTableName) );
 
-  spwInfoSet(CalAnalysis::SPW_INFO(oTableName));
+  spwInfoSet( spwInfoGet(oTableName) );
 
 
   // Return
@@ -400,7 +400,7 @@ None.
 
 Outputs:
 --------
-The String instance containing the new format calibration table
+The reference to the String instance containing the new format calibration table
 name, returned via the function value.
 
 Modification history:
@@ -412,11 +412,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::calName( void ) const {
+String& CalAnalysis::calName( void ) const {
 
-  // return the variable containing the new format calibration table name
+  // Copy the private variable containing the new format calibration table name
+  // and return it
 
-  return oCalName;
+  String* poCalName = new String( oCalName );
+
+  return( *poCalName );
 
 }
 
@@ -436,7 +439,7 @@ None.
 
 Outputs:
 --------
-The String instance containing the MS name, returned via the
+The reference to the String instance containing the MS name, returned via the
 function value.
 
 Modification history:
@@ -448,11 +451,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::msName( void ) const {
+String& CalAnalysis::msName( void ) const {
 
-  // return the private variable containing the MS name
+  // Copy the private variable containing the MS name and return it
 
-  return oMSName;
+  String* poMSName = new String( oMSName );
+
+  return( *poMSName );
 
 }
 
@@ -472,7 +477,7 @@ None.
 
 Outputs:
 --------
-The String instance containing the visibility calibration type,
+The reference to the String instance containing the visibility calibration type,
 returned via the function value.
 
 Modification history:
@@ -484,11 +489,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::visCal( void ) const {
+String& CalAnalysis::visCal( void ) const {
 
-  // Return opy the private variable containing the visibility calibration type
+  // Copy the private variable containing the visibility calibration type and
+  // return it
 
-  return oVisCal;
+  String* poVisCal = new String( oVisCal );
+
+  return( *poVisCal );
 
 }
 
@@ -508,7 +516,7 @@ None.
 
 Outputs:
 --------
-The String instance containing the parameter type, returned via
+The reference to the String instance containing the parameter type, returned via
 the function value.
 
 Modification history:
@@ -520,11 +528,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::parType( void ) const {
+String& CalAnalysis::parType( void ) const {
 
-  // Return the private variable containing the parameter type
+  // Copy the private variable containing the parameter type and return it
 
-  return oParType;
+  String* poParType = new String( oParType );
+
+  return( *poParType );
 
 }
 
@@ -556,11 +566,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::polBasis( void ) const {
+String& CalAnalysis::polBasis( void ) const {
 
-  // Return the variable containing the polarization basis
+  // Copy the private variable containing the polarization basis and return it
 
-  return oPolBasis;
+  String* poPolBasis = new String( oPolBasis );
+
+  return( *poPolBasis );
 
 }
 
@@ -580,7 +592,7 @@ None.
 
 Outputs:
 --------
-The Vector<uInt> instance containing the fields, returned via
+The reference to the Vector<uInt> instance containing the fields, returned via
 the function value.
 
 Modification history:
@@ -592,11 +604,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::field( void ) const {
+Vector<uInt>& CalAnalysis::field( void ) const {
 
   // Copy the private variable containing the field numbers and return it
 
-  return oField.copy();
+  Vector<uInt>* poField = new Vector<uInt>( oField.copy() );
+
+  return( *poField );
 
 }
 
@@ -616,7 +630,7 @@ None.
 
 Outputs:
 --------
-The Vector<uInt> instance containing the antenna numbers,
+The reference to the Vector<uInt> instance containing the antenna numbers,
 returned via the function value.
 
 Modification history:
@@ -628,11 +642,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::antenna( void ) const {
+Vector<uInt>& CalAnalysis::antenna( void ) const {
 
-  // Return a copy of the private variable containing the antenna numbers
+  // Copy the private variable containing the antenna numbers and return it
 
-  return oAntenna.copy();
+  Vector<uInt>* poAntenna = new Vector<uInt>( oAntenna.copy() );
+
+  return( *poAntenna );
 
 }
 
@@ -652,7 +668,7 @@ None.
 
 Outputs:
 --------
-The the Vector<uInt> instance containing the antenna 1 numbers,
+The reference to the Vector<uInt> instance containing the antenna 1 numbers,
 returned via the function value.
 
 Modification history:
@@ -664,11 +680,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::antenna1( void ) const {
+Vector<uInt>& CalAnalysis::antenna1( void ) const {
 
   // Copy the private variable containing the antenna 1 numbers and return it
 
-  return oAntenna1.copy();
+  Vector<uInt>* poAntenna1 = new Vector<uInt>( oAntenna1.copy() );
+
+  return( *poAntenna1 );
 
 }
 
@@ -688,7 +706,7 @@ None.
 
 Outputs:
 --------
-The Vector<Int> instance containing the antenna 2 numbers,
+The reference to the Vector<Int> instance containing the antenna 2 numbers,
 returned via the function value.
 
 Modification history:
@@ -700,11 +718,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Int> CalAnalysis::antenna2( void ) const {
+Vector<Int>& CalAnalysis::antenna2( void ) const {
 
   // Copy the private variable containing the antenna 2 numbers and return it
 
-  return oAntenna2.copy();
+  Vector<Int>* poAntenna2 = new Vector<Int>( oAntenna2.copy() );
+
+  return( *poAntenna2 );
 
 }
 
@@ -724,7 +744,7 @@ None.
 
 Outputs:
 --------
-The Vector<Double> instance containing the times, returned via
+The reference to the Vector<Double> instance containing the times, returned via
 the function value.
 
 Modification history:
@@ -736,11 +756,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Double> CalAnalysis::time( void ) const {
+Vector<Double>& CalAnalysis::time( void ) const {
 
   // Copy the private variable containing the times and return it
 
-  return oTime.copy();
+  Vector<Double>* poTime = new Vector<Double>( oTime.copy() );
+
+  return( *poTime );
 
 }
 
@@ -760,7 +782,7 @@ None.
 
 Outputs:
 --------
-The Vector<String> instance containing the feeds, returned via
+The reference to the Vector<String> instance containing the feeds, returned via
 the function value.
 
 Modification history:
@@ -772,11 +794,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<String> CalAnalysis::feed( void ) const {
+Vector<String>& CalAnalysis::feed( void ) const {
 
   // Copy the private variable containing the feeds and return it
 
-  return oFeed.copy();
+  Vector<String>* poFeed = new Vector<String>( oFeed.copy() );
+
+  return( *poFeed );
 
 }
 
@@ -796,7 +820,7 @@ None.
 
 Outputs:
 --------
-The uInt variable containing the spectral windows, returned via
+The reference to the uInt variable containing the spectral windows, returned via
 the function value.
 
 Modification history:
@@ -810,11 +834,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-uInt CalAnalysis::numspw( void ) const {
+uInt& CalAnalysis::numspw( void ) const {
 
-  // Return the variable containing the number of spectral windows
+  // Copy the private variable containing the number of spectral windows and
+  // return it
 
-  return oSPWInfo.uiNumSPW;
+  uInt* puiNumSPW = new uInt( oSPWInfo.uiNumSPW );
+
+  return( *puiNumSPW );
 
 }
 
@@ -834,7 +861,7 @@ None.
 
 Outputs:
 --------
-The Vector<uInt> instance containing the spectral windows,
+The reference to the Vector<uInt> instance containing the spectral windows,
 returned via the function value.
 
 Modification history:
@@ -848,11 +875,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::spw( void ) const {
+Vector<uInt>& CalAnalysis::spw( void ) const {
 
   // Copy the private variable containing the spectral windows and return it
 
-  return oSPWInfo.oSPW.copy();
+  Vector<uInt>* poSPW = new Vector<uInt>( oSPWInfo.oSPW.copy() );
+
+  return( *poSPW );
 
 }
 
@@ -884,12 +913,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::numChannel( void ) const {
+Vector<uInt>& CalAnalysis::numChannel( void ) const {
 
   // Copy the private variable containing the number of channels for each
   // spectral window and return it
 
-  return oSPWInfo.oNumChannel.copy();
+  Vector<uInt>* poNumChannel = new Vector<uInt>( oSPWInfo.oNumChannel.copy() );
+
+  return( *poNumChannel );
 
 }
 
@@ -921,20 +952,20 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Vector<Double> > CalAnalysis::freq( void ) const {
+Vector<Vector<Double> >& CalAnalysis::freq( void ) const {
 
   // Copy the private variable containing the frequencies for each spectral
   // window and return it
 
   uInt uiNumSPW = oSPWInfo.uiNumSPW;
 
-  Vector<Vector<Double> > freq( uiNumSPW );
+  Vector<Vector<Double> >* poFreq = new Vector<Vector<Double> >( uiNumSPW );
 
   for ( uInt s=0; s<uiNumSPW; s++ ) {
-    freq[s] = oSPWInfo.oFrequency[s].copy();
+    poFreq->operator[](s) = oSPWInfo.oFrequency[s].copy();
   }
 
-  return freq;
+  return( *poFreq );
 
 }
 
@@ -977,13 +1008,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::calNameGet( const String& oTableName ) {
+String& CalAnalysis::calNameGet( const String& oTableName ) {
 
   // Get the new format calibration table name and return it
 
-  String poTableName = oTableName;
+  String* poTableName = new String( oTableName );
 
-  return poTableName;
+  return( *poTableName );
 
 }
 
@@ -1056,7 +1087,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::msNameGet( const String& oTableName ) {
+String& CalAnalysis::msNameGet( const String& oTableName ) {
 
   // Get the record containing the main table keywords
 
@@ -1068,9 +1099,9 @@ String CalAnalysis::msNameGet( const String& oTableName ) {
   // Get the associated MS name and return it
 
   uInt uiIndex = oR.fieldNumber( String( "MSName" ) );
-  String poMSName = RecordFieldPtr<String>(oR,uiIndex).get();
+  String* poMSName = new String( RecordFieldPtr<String>(oR,uiIndex).get() );
 
-  return poMSName;
+  return( *poMSName );
 
 }
 
@@ -1141,7 +1172,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::visCalGet( const String& oTableName ) {
+String& CalAnalysis::visCalGet( const String& oTableName ) {
 
   // Get the record containing the main table keywords
 
@@ -1153,9 +1184,9 @@ String CalAnalysis::visCalGet( const String& oTableName ) {
   // Get the visibility calibration type and return it
 
   uInt uiIndex = oR.fieldNumber( String( "VisCal" ) );
-  String poVisCal = RecordFieldPtr<String>(oR,uiIndex).get();
+  String* poVisCal = new String( RecordFieldPtr<String>(oR,uiIndex).get() );
 
-  return poVisCal;
+  return( *poVisCal );
 
 }
 
@@ -1229,7 +1260,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::parTypeGet( const String& oTableName ) {
+String& CalAnalysis::parTypeGet( const String& oTableName ) {
 
   // Get the record containing the main table keywords
 
@@ -1241,9 +1272,9 @@ String CalAnalysis::parTypeGet( const String& oTableName ) {
   // Get the parameter column type and return it
 
   uInt uiIndex = oR.fieldNumber( String( "ParType" ) );
-  String poParType = RecordFieldPtr<String>(oR,uiIndex).get();
+  String* poParType = new String( RecordFieldPtr<String>(oR,uiIndex).get() );
 
-  return poParType;
+  return( *poParType );
 
 }
 
@@ -1316,7 +1347,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String CalAnalysis::polBasisGet( const String& oTableName ) {
+String& CalAnalysis::polBasisGet( const String& oTableName ) {
 
   // Get the record containing the main table keywords
 
@@ -1329,12 +1360,12 @@ String CalAnalysis::polBasisGet( const String& oTableName ) {
   // letter, and return it
 
   uInt uiIndex = oR.fieldNumber( String( "PolBasis" ) );
-  String poPolBasis = RecordFieldPtr<String>(oR,uiIndex).get();
+  String* poPolBasis = new String( RecordFieldPtr<String>(oR,uiIndex).get() );
 
-  poPolBasis.upcase();
-  poPolBasis.operator=( poPolBasis.operator[](0) );
+  poPolBasis->upcase();
+  poPolBasis->operator=( poPolBasis->operator[](0) );
 
-  return poPolBasis;
+  return( *poPolBasis );
 
 }
 
@@ -1394,7 +1425,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<uInt> instance containing the field numbers,
+The reference to the Vector<uInt> instance containing the field numbers,
 returned via the function value.
 
 Modification history:
@@ -1409,7 +1440,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::fieldGet( const String& oTableName ) {
+Vector<uInt>& CalAnalysis::fieldGet( const String& oTableName ) {
 
   // Get the field numbers from the new format calibration table
 
@@ -1419,13 +1450,12 @@ Vector<uInt> CalAnalysis::fieldGet( const String& oTableName ) {
   Vector<Int> oFieldInt;
   oROSC.getColumn( oFieldInt, true );
 
-  Vector<Int> oFieldUnique;
-  unique<Int>(oFieldInt, oFieldUnique);
+  Vector<Int> oFieldUnique( unique<Int>(oFieldInt) );
 
-  Vector<uInt> field( oFieldUnique.nelements() );
-  convertArray<uInt,Int>( field, oFieldUnique );
+  Vector<uInt>* poField = new Vector<uInt>( oFieldUnique.nelements() );
+  convertArray<uInt,Int>( *poField, oFieldUnique );
 
-  return field;
+  return( *poField );
 
 }
 
@@ -1486,7 +1516,7 @@ Outputs:
 --------
 oFieldOut - This reference to the Vector<uInt> instance contains the checked and
             fixed field numbers.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -1498,19 +1528,19 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::fieldCheck( const Vector<uInt>& oFieldIn,
+Bool& CalAnalysis::fieldCheck( const Vector<uInt>& oFieldIn,
     Vector<uInt>& oFieldOut ) const {
 
   // Declare the success boolean
 
-  Bool success = false;
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the input field numbers and return the fixed field numbers
 
   if ( oFieldIn.nelements() == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   uInt uiNumFieldOut = 0;
@@ -1525,16 +1555,16 @@ Bool CalAnalysis::fieldCheck( const Vector<uInt>& oFieldIn,
   }
 
   if ( uiNumFieldOut == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -1556,7 +1586,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<uInt> instance containing the antenna numbers,
+The reference to the Vector<uInt> instance containing the antenna numbers,
 returned via the function value.
 
 Modification history:
@@ -1568,7 +1598,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::antennaGet( const String& oTableName ) {
+Vector<uInt>& CalAnalysis::antennaGet( const String& oTableName ) {
 
   // Create a temporary antenna subtable instance and get the number of antennas
   // (the number of rows)
@@ -1579,10 +1609,10 @@ Vector<uInt> CalAnalysis::antennaGet( const String& oTableName ) {
 
   // Create the vector containing the antenna numbers and return it
 
-  Vector<uInt> antenna( uiNumRow );
-  indgen<uInt>( antenna, 0 );
+  Vector<uInt>* poAntenna = new Vector<uInt>( uiNumRow );
+  indgen<uInt>( *poAntenna, 0 );
 
-  return antenna;
+  return( *poAntenna );
 
 
 }
@@ -1644,7 +1674,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<uInt> instance containing the antenna 1 numbers,
+The reference to the Vector<uInt> instance containing the antenna 1 numbers,
 returned via the function value.
 
 Modification history:
@@ -1656,7 +1686,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt> CalAnalysis::antenna1Get( const String& oTableName ) {
+Vector<uInt>& CalAnalysis::antenna1Get( const String& oTableName ) {
 
   // Get the antenna 1 numbers from the new format calibration table
 
@@ -1666,13 +1696,12 @@ Vector<uInt> CalAnalysis::antenna1Get( const String& oTableName ) {
   Vector<Int> oAntenna1Int;
   oROSC.getColumn( oAntenna1Int, true );
 
-  Vector<Int> oAntenna1Unique;
-  unique<Int>(oAntenna1Int, oAntenna1Unique);
+  Vector<Int> oAntenna1Unique( unique<Int>(oAntenna1Int) );
 
-  Vector<uInt> antenna1( oAntenna1Unique.nelements() );
-  convertArray<uInt,Int>( antenna1, oAntenna1Unique );
+  Vector<uInt>* poAntenna1 = new Vector<uInt>( oAntenna1Unique.nelements() );
+  convertArray<uInt,Int>( *poAntenna1, oAntenna1Unique );
 
-  return antenna1;
+  return( *poAntenna1 );
 
 }
 
@@ -1735,7 +1764,7 @@ Outputs:
 --------
 oAntenna1Out - This reference to the Vector<uInt> instance contains the checked
                and fixed antenna 1 numbers.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -1751,19 +1780,19 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::antenna1Check( const Vector<uInt>& oAntenna1In,
+Bool& CalAnalysis::antenna1Check( const Vector<uInt>& oAntenna1In,
     Vector<uInt>& oAntenna1Out ) const {
 
   // Declare the success boolean
 
-  Bool success(false);
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the input antenna 1 numbers and return the fixed antenna 1 numbers
 
   if ( oAntenna1In.nelements() == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   uInt uiNumAntenna1Out = 0;
@@ -1778,16 +1807,16 @@ Bool CalAnalysis::antenna1Check( const Vector<uInt>& oAntenna1In,
   }
 
   if ( uiNumAntenna1Out == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -1809,7 +1838,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<Int> instance containing the antenna 2 numbers,
+The reference to the Vector<Int> instance containing the antenna 2 numbers,
 returned via the function value.
 
 Modification history:
@@ -1821,7 +1850,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Int> CalAnalysis::antenna2Get( const String& oTableName ) {
+Vector<Int>& CalAnalysis::antenna2Get( const String& oTableName ) {
 
   // Get the antenna 2 numbers from the new format calibration table
 
@@ -1831,13 +1860,9 @@ Vector<Int> CalAnalysis::antenna2Get( const String& oTableName ) {
   Vector<Int> oAntenna2Int;
   oROSC.getColumn( oAntenna2Int, true );
 
+  Vector<Int>* poAntenna2 = new Vector<Int>( unique<Int>(oAntenna2Int) );
 
-  Vector<Int> uniqueA2;
-  unique<Int>(oAntenna2Int, uniqueA2);
-
-  Vector<Int> antenna2( uniqueA2 );
-
-  return antenna2;
+  return( *poAntenna2 );
 
 }
 
@@ -1900,7 +1925,7 @@ Outputs:
 --------
 oAntenna2Out - This reference to the Vector<Int> instance contains the checked
                and fixed antenna 2 numbers.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -1914,19 +1939,19 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::antenna2Check( const Vector<Int>& oAntenna2In,
+Bool& CalAnalysis::antenna2Check( const Vector<Int>& oAntenna2In,
     Vector<Int>& oAntenna2Out ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the input antenna 1 numbers and return the fixed antenna 1 numbers
 
   if ( oAntenna2In.nelements() == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   uInt uiNumAntenna2Out = 0;
@@ -1941,16 +1966,16 @@ Bool CalAnalysis::antenna2Check( const Vector<Int>& oAntenna2In,
   }
 
   if ( uiNumAntenna2Out == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -1971,7 +1996,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<Double> instance containing the times, returned via
+The reference to the Vector<Double> instance containing the times, returned via
 the function value.
 
 Modification history:
@@ -1983,7 +2008,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Double> CalAnalysis::timeGet( const String& oTableName ) {
+Vector<Double>& CalAnalysis::timeGet( const String& oTableName ) {
 
   // Create a temporary new format calibration table instance
 
@@ -1996,13 +2021,13 @@ Vector<Double> CalAnalysis::timeGet( const String& oTableName ) {
   Vector<Double> oTimeTemp;
   oROSC.getColumn( oTimeTemp, true );
 
-  Vector<Double> timev( 0 );
-  unique<Double>( oTimeTemp, timev );
+  Vector<Double>* poTime = new Vector<Double>( 0 );
+  *poTime = unique<Double>( oTimeTemp );
 
 
   // Return the time stamps
 
-  return timev;
+  return( *poTime );
 
 }
 
@@ -2066,7 +2091,7 @@ dStartTimeOut - This reference to a Double variable contains the start time.
 dStopTimeOut  - This reference to a Double variable contains the stop time.
 oTimeOut      - This reference to the Vector<Double> instance containing the
                 time stamps.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2080,30 +2105,30 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::timeCheck( const Double& dStartTimeIn,
+Bool& CalAnalysis::timeCheck( const Double& dStartTimeIn,
     const Double& dStopTimeIn, Double& dStartTimeOut, Double& dStopTimeOut,
     Vector<Double>& oTimeOut ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the start and stop times
 
   if ( dStartTimeIn > dStopTimeIn ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   if ( dStartTimeIn > oTime[uiNumTime-1] ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   if ( dStopTimeIn < oTime[0] ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2120,8 +2145,8 @@ Bool CalAnalysis::timeCheck( const Double& dStartTimeIn,
   }
 
   if ( oTimeOut.nelements() == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   dStartTimeOut = min( oTimeOut );
@@ -2130,9 +2155,9 @@ Bool CalAnalysis::timeCheck( const Double& dStartTimeIn,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -2156,7 +2181,7 @@ oTableName - This reference to a String instance contains the new format
 
 Outputs:
 --------
-The Vector<String> instance containing the feeds, returned via
+The reference to the Vector<String> instance containing the feeds, returned via
 the function value.
 
 Modification history:
@@ -2171,7 +2196,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<String> CalAnalysis::feedGet( const String& oTableName ) {
+Vector<String>& CalAnalysis::feedGet( const String& oTableName ) {
 
   // Get the number of feeds from the new format calibration table
 
@@ -2196,27 +2221,27 @@ Vector<String> CalAnalysis::feedGet( const String& oTableName ) {
   // Set the feeds
 
   uInt uiNumFeedTemp = oParamErrCell0.shape()[0];
-  Vector<String> feed( uiNumFeedTemp, "" );
+  Vector<String>* poFeed = new Vector<String>( uiNumFeedTemp, "" );
 
   if ( uiNumFeedTemp == 1 ) {
-    feed[0] = "S";
+    poFeed->operator[](0) = "S";
   } else {
     if ( polBasisGet(oTableName) == "L" ) {
-      feed[0] = "X";
-      feed[1] = "Y";
+      poFeed->operator[](0) = "X";
+      poFeed->operator[](1) = "Y";
     } else if ( polBasisGet(oTableName) == "R" ) {
-      feed[0] = "R";
-      feed[1] = "L";
+      poFeed->operator[](0) = "R";
+      poFeed->operator[](1) = "L";
     } else {
-      feed[0] = "1";
-      feed[1] = "2";
+      poFeed->operator[](0) = "1";
+      poFeed->operator[](1) = "2";
     }
   }
 
 
   // Return the feeds
 
-  return feed;
+  return( *poFeed );
 
 }
 
@@ -2278,7 +2303,7 @@ Outputs:
 --------
 oFeedOut - This reference to the Vector<String> instance contains the checked
            and fixed feeds.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2292,19 +2317,19 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
+Bool& CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
     Vector<String>& oFeedOut ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the input feed values
 
   if ( oFeedIn.nelements() == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   uInt uiNumFeedOut = 0;
@@ -2319,27 +2344,27 @@ Bool CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
   }
 
   if ( uiNumFeedOut == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Get the unique feed vector
 
   oFeedOut.resize();
-  unique<String>( oFeedIn, oFeedOut );
+  oFeedOut = unique<String>( oFeedIn );
 
   if ( oFeedOut.nelements() > 2 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   if ( oFeedOut.nelements() == 1 ) {
     if ( oFeedOut[0] != "R" && oFeedOut[0] != "L" &&
          oFeedOut[0] != "X" && oFeedOut[0] != "Y" &&
          oFeedOut[0] != "1" && oFeedOut[0] != "2" && oFeedOut[0] != "S" ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
   }
 
@@ -2348,15 +2373,15 @@ Bool CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
     if ( oFeedOut[0] != "R" && oFeedOut[0] != "L" &&
          oFeedOut[0] != "X" && oFeedOut[0] != "Y" &&
          oFeedOut[0] != "1" && oFeedOut[0] != "2" ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
 
     if ( oFeedOut[1] != "R" && oFeedOut[1] != "L" &&
          oFeedOut[1] != "X" && oFeedOut[1] != "Y" &&
          oFeedOut[1] != "1" && oFeedOut[1] != "2" ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
 
     if ( oFeedOut[0] == "L" && oFeedOut[1] == "R" ) {
@@ -2379,9 +2404,9 @@ Bool CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -2484,7 +2509,7 @@ Outputs:
 --------
 oInputOut - This reference to an INPUT instance contains the checked and fixed
             inputs to the CalAnalysis::stats<T>() member function.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2496,12 +2521,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
+Bool& CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
     CalAnalysis::INPUT& oInputOut ) {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the fields and create a new field vector
@@ -2509,8 +2534,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( !fieldCheck( oInputIn.oField, oInputOut.oField ) ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput()", WHERE ) );
     log << LogIO::WARN << "One or more invalid fields" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2519,15 +2544,15 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( !antenna1Check( oInputIn.oAntenna1, oInputOut.oAntenna1 ) ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput()", WHERE ) );
     log << LogIO::WARN << "One or more invalid antenna 1" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   if ( !antenna2Check( oInputIn.oAntenna2, oInputOut.oAntenna2 ) ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "One or more invalid antenna 2" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2539,8 +2564,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( !bTimeCheck ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "Invalid start and/or stop times" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2549,8 +2574,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( !feedCheck( oInputIn.oFeed, oInputOut.oFeed ) ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "Invalid feed(s)" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2568,8 +2593,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( !bSPWCheck ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "Invalid spectral window information" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2580,8 +2605,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "User-defined iteration axis must be frequency/time"
         << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   oInputOut.eAxisIterUserID = oInputIn.eAxisIterUserID;
@@ -2594,8 +2619,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
        oInputIn.eRAP != CalAnalysis::PHASE ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "Invalid RAP parameter" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   oInputOut.eRAP = oInputIn.eRAP;
@@ -2613,8 +2638,8 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
   if ( oInputIn.dJumpMax < 0.0 ) {
     LogIO log( LogOrigin( "CalAnalysis", "statsCheckInput<T>()", WHERE ) );
     log << LogIO::WARN << "Invalid maximum jump parameter" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   oInputOut.dJumpMax = oInputIn.dJumpMax;
@@ -2622,9 +2647,9 @@ Bool CalAnalysis::statsCheckInput( const CalAnalysis::INPUT& oInputIn,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -2685,7 +2710,7 @@ oFParamGroup   - This Vector<Cube<Double> > instance contains the real
 oParamErrGroup - This Vector<Cube<Double> > instance contains the parameter
                  errors.
 oFlagGroup     - This Vector<Cube<Bool> > instance contains the flags.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2697,7 +2722,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
+Bool& CalAnalysis::getGroup( const NewCalTable& oNCT,
     const CalAnalysis::INPUT& oInput, Vector<uInt>& oFieldGroup,
     Vector<uInt>& oAntenna1Group, Vector<Int>& oAntenna2Group,
     Vector<Vector<Double> >& oTimeUniqueGroup,
@@ -2707,7 +2732,7 @@ Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Get the selected rows
@@ -2717,8 +2742,8 @@ Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
   if ( !rowSelect( oNCT, oInput, oRowSelect ) ) {
     LogIO log( LogOrigin( "CalAnalysis", "getGroup()", WHERE ) );
     log << LogIO::WARN << "No matching rows selected" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2739,8 +2764,8 @@ Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
   if ( !bRowGroup ) {
     LogIO log( LogOrigin( "CalAnalysis", "getGroup()", WHERE ) );
     log << LogIO::WARN << "Cannot group the data" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2752,8 +2777,8 @@ Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
   if ( !bFreqGroup ) {
     LogIO log( LogOrigin( "CalAnalysis", "getGroup()", WHERE ) );
     log << LogIO::WARN << "Cannot group frequencies" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -2766,16 +2791,16 @@ Bool CalAnalysis::getGroup( const NewCalTable& oNCT,
   if ( !bCubeGroup ) {
     LogIO log( LogOrigin( "CalAnalysis", "getGroup()", WHERE ) );
     log << LogIO::WARN << "Cannot group cubes" << LogIO::POST;
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -2798,7 +2823,7 @@ Outputs:
 --------
 oRowSelect - This Vector<uInt> instance contains the row numbers selected by the
              inputs.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2810,12 +2835,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::rowSelect( const NewCalTable& oNCT,
+Bool& CalAnalysis::rowSelect( const NewCalTable& oNCT,
     const CalAnalysis::INPUT& oInput, Vector<uInt>& oRowSelect ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Create the column accessors
@@ -2866,16 +2891,16 @@ Bool CalAnalysis::rowSelect( const NewCalTable& oNCT,
   // Were any rows found?  It not, return false
 
   if ( uiNumRowSelect == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -2916,7 +2941,7 @@ oTimeGroup       - This Vector<Vector<Double> > instance contains the times for
                    each group.
 oTimeUniqueGroup - This Vector<Vector<Double> > instance contains the unique
                    times for each group.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -2928,7 +2953,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::rowGroup( const NewCalTable& oNCT,
+Bool& CalAnalysis::rowGroup( const NewCalTable& oNCT,
     const Vector<uInt>& oRowSelect, Vector<Vector<uInt> >& oRowGroup,
     Vector<uInt>& oFieldGroup, Vector<uInt>& oAntenna1Group,
     Vector<Int>& oAntenna2Group, Vector<Vector<uInt> >& oSPWGroup,
@@ -2937,7 +2962,7 @@ Bool CalAnalysis::rowGroup( const NewCalTable& oNCT,
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // If there are no rows, return false
@@ -2945,8 +2970,8 @@ Bool CalAnalysis::rowGroup( const NewCalTable& oNCT,
   uInt uiNumRow = oRowSelect.nelements();
 
   if ( uiNumRow == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -3061,17 +3086,17 @@ Bool CalAnalysis::rowGroup( const NewCalTable& oNCT,
 
   for ( uInt g=0; g<uiNumGroup; g++ ) {
     oSPWUniqueGroup[g].resize();
-    unique<uInt>( oSPWGroup[g], oSPWUniqueGroup[g] );
+    oSPWUniqueGroup[g] = unique<uInt>( oSPWGroup[g] );
     oTimeUniqueGroup[g].resize();
-    unique<Double>( oTimeGroup[g], oTimeUniqueGroup[g] );
+    oTimeUniqueGroup[g] = unique<Double>( oTimeGroup[g] );
   }
 
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -3099,7 +3124,7 @@ Outputs:
 --------
 oSPWMap    - This Vector<uInt> instance contains the mapped spectral windows.
 oChanStart - This Vector<uInt> instance contains the start channels.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -3111,12 +3136,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::chanSPW( const Vector<uInt>& oSPW, const INPUT& oInput,
+Bool& CalAnalysis::chanSPW( const Vector<uInt>& oSPW, const INPUT& oInput,
     Vector<uInt>& oSPWMap, Vector<uInt>& oChanStart ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Initialize the number of spectral windows, the spectral window map and
@@ -3132,8 +3157,8 @@ Bool CalAnalysis::chanSPW( const Vector<uInt>& oSPW, const INPUT& oInput,
 
   for ( uInt s=0; s<uiNumSPW; s++ ) {
     if ( !where( oSPW[s], oInput.oSPW, oSPWMap[s] ) ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
   }
 
@@ -3149,9 +3174,9 @@ Bool CalAnalysis::chanSPW( const Vector<uInt>& oSPW, const INPUT& oInput,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -3177,7 +3202,7 @@ Outputs:
 oFreqGroup - This Vector<Vector<Double> >instance contains the frequencies (for
              each group.  They can come from multiple spectral windows (which
              are in different rows).
-The Bool variable containing the success boolean, returned via
+The reference to the Bool variable containing the success boolean, returned via
 the function value.
 
 Modification history:
@@ -3189,13 +3214,13 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::freqGroup( const INPUT& oInput,
+Bool& CalAnalysis::freqGroup( const INPUT& oInput,
     const Vector<Vector<uInt> >& oSPWUniqueGroup,
     Vector<Vector<Double> >& oFreqGroup ) const {
 
   // Declare the success boolean
 
-  Bool success = new Bool( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Create the instance for the spectral window subtable of the new format
@@ -3221,8 +3246,8 @@ Bool CalAnalysis::freqGroup( const INPUT& oInput,
     Vector<uInt> oSPWMap;
     Vector<uInt> oChanStart;
     if ( !chanSPW( oSPWUniqueGroup[g], oInput, oSPWMap, oChanStart ) ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
 
     for ( uInt s=0; s<oSPWUniqueGroup[g].nelements(); s++ ) {
@@ -3251,9 +3276,9 @@ Bool CalAnalysis::freqGroup( const INPUT& oInput,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -3298,7 +3323,7 @@ oFParamGroup   - This Vector<Cube<Double> > instance contains the real
 oParamErrGroup - This Vector<Cube<Double> > instance contains the parameter
                  errors.
 oFlagGroup     - This Vector<Cube<Bool> > instance contains the flags.
-The Bool variable containing the check boolean, returned via
+The reference to the Bool variable containing the check boolean, returned via
 the function value.
 
 Modification history:
@@ -3310,7 +3335,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
+Bool& CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
     const Vector<Vector<uInt> >& oRowGroup,
     const Vector<Vector<uInt> >& oSPWGroup,
     const Vector<Vector<uInt> >& oSPWUniqueGroup,
@@ -3323,7 +3348,7 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Create accessors for the CPARAM/FPARAM, PARAMERR, and FLAG columns
@@ -3360,8 +3385,8 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
     Vector<uInt> oSPWMap;
     Vector<uInt> oChanStart;
     if ( !chanSPW( oSPWUniqueGroup[g], oInput, oSPWMap, oChanStart ) ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
 
     // Initialize the shape of the output instances for the group
@@ -3415,8 +3440,8 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
       // Map the spectral window
       uInt s = 0;
       if ( !where( oSPWGroup[g][r], oSPWUniqueGroup[g], s ) ) {
-        success = false;
-        return success;
+        *poSuccess = false;
+        return( *poSuccess );
       }
 
       // Get the number of input channels and the channels for the mapped
@@ -3427,8 +3452,8 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
       // Map the time
       uInt t = 0;
       if ( !where( oTimeGroup[g][r], oTimeUniqueGroup[g], t ) ) {
-        success = false;
-        return success;
+         *poSuccess = false;
+        return( *poSuccess );
       }
 
       // Map the cubes from the new format calibration tables to the output
@@ -3451,9 +3476,9 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
