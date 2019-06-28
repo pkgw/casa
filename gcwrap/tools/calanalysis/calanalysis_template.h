@@ -29,7 +29,7 @@ Bool calanalysis::writeInput( const CalAnalysis::OUTPUT<T>& oOutput,
   // Write the feed
 
   std::string oFeedKey( "feed" );
-  std::string oFeedValue( oOutput.oOut(row,col).oAxes.sFeed.c_str() );
+  std::string oFeedValue( oOutput.oOut->operator()(row,col).oAxes.sFeed.c_str() );
 
   oRecIter.insert( oFeedKey, oFeedValue );
 
@@ -37,7 +37,7 @@ Bool calanalysis::writeInput( const CalAnalysis::OUTPUT<T>& oOutput,
   // Write the user-defined iteration axis
 
   std::string oAxisIterKey;
-  CalStats::AXIS eAxis = oOutput.oOut(row,col).oAxes.eAxisIterUserID;
+  CalStats::AXIS eAxis = oOutput.oOut->operator()(row,col).oAxes.eAxisIterUserID;
 
   if ( eAxis == CalStats::FREQUENCY ) {
     oAxisIterKey = std::string( "frequency" );
@@ -45,7 +45,7 @@ Bool calanalysis::writeInput( const CalAnalysis::OUTPUT<T>& oOutput,
     oAxisIterKey = std::string( "time" );
   }
 
-  double dAxisIterValue = oOutput.oOut(row,col).oAxes.dAxisIterUser;
+  double dAxisIterValue = oOutput.oOut->operator()(row,col).oAxes.dAxisIterUser;
   oRecIter.insert( oAxisIterKey, dAxisIterValue );
 
 
@@ -94,7 +94,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
   // Write the non-iteration axis
 
   std::string oAxisNonIterKey;
-  CalStats::AXIS eAxisNon = oOutput.oOut(row,col).oAxes.eAxisNonIterID;
+  CalStats::AXIS eAxisNon = oOutput.oOut->operator()(row,col).oAxes.eAxisNonIterID;
 
   if ( eAxisNon == CalStats::FREQUENCY ) {
     oAxisNonIterKey = std::string( "frequency" );
@@ -107,7 +107,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
 
   // Get the number of abscissae
 
-  casacore::uInt uiNumAbs = oOutput.oOut(row,col).oData.oAbs.nelements();
+  casacore::uInt uiNumAbs = oOutput.oOut->operator()(row,col).oData.oAbs.nelements();
 
 
   // Write the abscissae from the non-iteration axis (either times or
@@ -116,7 +116,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
   std::vector<double> oAbs( uiNumAbs );
 
   for ( casacore::uInt a=0; a<uiNumAbs; a++ ) {
-    oAbs[a] = oOutput.oOut(row,col).oData.oAbs[a];
+    oAbs[a] = oOutput.oOut->operator()(row,col).oData.oAbs[a];
   }
   
   oRecIter.insert( oAxisNonIterKey, oAbs );
@@ -127,7 +127,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
   std::vector<double> oValue( uiNumAbs );
 
   for ( casacore::uInt a=0; a<uiNumAbs; a++ ) {
-    oValue[a] = oOutput.oOut(row,col).oData.oValue[a];
+    oValue[a] = oOutput.oOut->operator()(row,col).oData.oValue[a];
   }
 
   oRecIter.insert( string("value"), oValue );
@@ -138,7 +138,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
   std::vector<double> oValueErr( uiNumAbs );
 
   for ( casacore::uInt a=0; a<uiNumAbs; a++ ) {
-    oValueErr[a] = oOutput.oOut(row,col).oData.oValueErr[a];
+    oValueErr[a] = oOutput.oOut->operator()(row,col).oData.oValueErr[a];
   }
 
   oRecIter.insert( string("valueErr"), oValueErr );
@@ -149,7 +149,7 @@ Bool calanalysis::writeData( const CalAnalysis::OUTPUT<T>& oOutput,
   std::vector<bool> oFlag( uiNumAbs );
 
   for ( casacore::uInt a=0; a<uiNumAbs; a++ ) {
-    oFlag[a] = oOutput.oOut(row,col).oData.oFlag[a];
+    oFlag[a] = oOutput.oOut->operator()(row,col).oData.oFlag[a];
   }
 
   oRecIter.insert( string("flag"), oFlag );
@@ -181,25 +181,25 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
 
   // Write the fit validity flag
 
-  bool valid = oOutput.oOut(row,col).oT.bValid;
+  bool valid = oOutput.oOut->operator()(row,col).oT->bValid;
 
   oRecIter.insert( std::string("validFit"), valid );
 
 
   // Write the fit reduced chi2 value
 
-  double redchi2 = oOutput.oOut(row,col).oT.dRedChi2;
+  double redchi2 = oOutput.oOut->operator()(row,col).oT->dRedChi2;
 
   oRecIter.insert( std::string("redChi2"), redchi2 );
 
 
   // Write the fit parameters
 
-  casacore::uInt uiNumPars = oOutput.oOut(row,col).oT.oPars.nelements();
+  casacore::uInt uiNumPars = oOutput.oOut->operator()(row,col).oT->oPars.nelements();
   std::vector<double> oPars( uiNumPars );
 
   for ( casacore::uInt p=0; p<uiNumPars; p++ ) {
-    oPars[p] = oOutput.oOut(row,col).oT.oPars[p];
+    oPars[p] = oOutput.oOut->operator()(row,col).oT->oPars[p];
   }
 
   oRecIter.insert( std::string("pars"), oPars );
@@ -210,7 +210,7 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
   std::vector<double> oVars( uiNumPars );
 
   for ( casacore::uInt p=0; p<uiNumPars; p++ ) {
-    oVars[p] = oOutput.oOut(row,col).oT.oCovars(p,p);
+    oVars[p] = oOutput.oOut->operator()(row,col).oT->oCovars(p,p);
   }
 
   oRecIter.insert( std::string("vars"), oVars );
@@ -222,7 +222,7 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
 
   for ( casacore::uInt pr=0,p=0; pr<uiNumPars; pr++ ) {
     for ( casacore::uInt pc=pr+1; pc<uiNumPars; pc++,p++ ) {
-      oCovars[p] = oOutput.oOut(row,col).oT.oCovars(pr,pc);
+      oCovars[p] = oOutput.oOut->operator()(row,col).oT->oCovars(pr,pc);
     }
   }
 
@@ -231,11 +231,11 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
 
   // Write the fit model
 
-  casacore::uInt uiNumData = oOutput.oOut(row,col).oT.oModel.nelements();
+  casacore::uInt uiNumData = oOutput.oOut->operator()(row,col).oT->oModel.nelements();
   std::vector<double> oModel( uiNumData );
 
   for ( casacore::uInt d=0; d<uiNumData; d++ ) {
-    oModel[d] = oOutput.oOut(row,col).oT.oModel[d];
+    oModel[d] = oOutput.oOut->operator()(row,col).oT->oModel[d];
   }
 
   oRecIter.insert( std::string("model"), oModel );
@@ -246,7 +246,7 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
   std::vector<double> oRes( uiNumData );
 
   for ( casacore::uInt d=0; d<uiNumData; d++ ) {
-    oRes[d] = oOutput.oOut(row,col).oT.oRes[d];
+    oRes[d] = oOutput.oOut->operator()(row,col).oT->oRes[d];
   }
 
   oRecIter.insert( std::string("res"), oRes );
@@ -254,14 +254,14 @@ Bool calanalysis::writeFit( const CalStats::ARG<T>& oArg,
 
   // Write the fit residual variance
 
-  casacore::Double dResVar = oOutput.oOut(row,col).oT.dResVar;
+  casacore::Double dResVar = oOutput.oOut->operator()(row,col).oT->dResVar;
 
   oRecIter.insert( std::string("resVar"), dResVar );
 
 
   // Write the fit residual mean
 
-  casacore::Double dResMean = oOutput.oOut(row,col).oT.dResMean;
+  casacore::Double dResMean = oOutput.oOut->operator()(row,col).oT->dResMean;
 
   oRecIter.insert( std::string("resMean"), dResMean );
 
