@@ -168,7 +168,7 @@ class CalStatsFitter {
     };
 
     // User interface to all fitting capabilities
-    static std::shared_ptr<FIT> fit( const casacore::Vector<casacore::Double>& oAbs, const casacore::Vector<casacore::Double>& oValue,
+    static FIT& fit( const casacore::Vector<casacore::Double>& oAbs, const casacore::Vector<casacore::Double>& oValue,
         const casacore::Vector<casacore::Double>& oValueErr, casacore::Vector<casacore::Bool>& oFlag,
         const ORDER& eOrder, const TYPE& eType, const WEIGHT& eWeight );
 
