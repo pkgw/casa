@@ -26,6 +26,7 @@
 //#
 //# $Id$
 
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/AWProjectWBFT.h>
 #include <synthesis/TransformMachines2/AWVisResampler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
@@ -861,13 +862,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //timer_p.mark();
     visResamplerWt_p->copy(*visResampler_p);
     
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb,doPointing));
     //cerr << "AWPWB: " << pointingOffset << endl;
-    visResamplerWt_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
+    // visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
+    // 				      paChangeDetector.getParAngleTolerance(),
+    // 				      chanMap,polMap,pointingOffset);
+    //    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
-    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
-    convFuncCtor_p->prepareConvFunction(vb,theMap);
+    convFuncCtor_p->prepareConvFunction(vb,*vb2CFBMap_p);
     //runTime1_p += timer_p.real();
     //
     // Set the uvw array to zero-sized array and dopsf=true.

@@ -72,13 +72,14 @@ def tclean(
 
     ### PB
     vptable,
-    usepointing, #=false
+#    usepointing, #=false
     mosweight, #=True
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
     conjbeams ,#= True,
     cfcache ,#= "",
+    dopointing, #= False
     computepastep ,#=360.0,
     rotatepastep ,#=360.0,
 

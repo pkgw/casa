@@ -86,7 +86,7 @@
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
 #include <synthesis/TransformMachines2/AWProjectWBFTNew.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
+//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
@@ -1760,6 +1760,9 @@ void SynthesisImagerVi2::unlockMSs()
 									   aTermOn,
 									   psTermOn, (wprojPlane > 1),
 									   mTermOn, wbAWP, conjBeams);
+
+    CountedPtr<refim::PointingOffsets> po = new refim::PointingOffsets(awConvFunc->getOversampling());
+    awConvFunc->setPointingOffsets(po);
     //
     // Construct the appropriate re-sampler.
     //
@@ -1788,6 +1791,7 @@ void SynthesisImagerVi2::unlockMSs()
     // Re-sampler objects.  
     //
     Float pbLimit_l=1e-3;
+
     theFT = new refim::AWProjectWBFTNew(wprojPlane, cache/2, 
 			      cfCacheObj, awConvFunc, 
 			      visResampler,
@@ -1894,7 +1898,7 @@ void SynthesisImagerVi2::unlockMSs()
    
     
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
-				   useDoublePrec, doConjBeams, gridpars_p.usePointing);
+				   useDoublePrec, doConjBeams, gridpars_p.doPointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;

@@ -3161,7 +3161,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    mType="imagemosaic";
 	    if (wprojplanes>1 || wprojplanes==-1){ ftmachine="wprojectft"; }
 	  }
-	if(gridder=="awproject" || gridder=="awprojectft")
+	if(gridder=="awproject" || gridder=="awprojectft" || gridder=="awp")
 	  {ftmachine="awprojectft";}
 	if(gridder=="singledish") {
 	  ftmachine="sd";

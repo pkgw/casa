@@ -986,14 +986,6 @@ HPX HEALPix grid.  -->
                                  parameterized aperture illumination functions, which are not
                                  available via the vpmanager. So, gridder='awproject' does not allow
                                  the user to set this parameter.
-
-</description>
-      <value type="string"></value>
-    </param>
-    
-  <param type="bool" name="usepointing" subparam="true">
-           <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
-<description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
 </description>
       <value type="bool">False</value>
     </param>
@@ -1101,6 +1093,13 @@ HPX HEALPix grid.  -->
 
 </description>
       <value type="string"></value>
+    </param>
+
+    <param type="bool" name="dopointing" subparam="true">
+     <shortdescription>The parameter makes the gridder utilize the pointing table phase directions while computing the residual image.</shortdescription>
+<description>The dopointing flag informs the gridder that it should utilize the pointing table
+to use the correct direction in which the antenna is pointing with respect to the pointing phasecenter. </description>
+      <value type="bool">False</value>
     </param>
 
     <param type="double" name="computepastep" subparam="true">
@@ -2644,7 +2643,7 @@ HPX HEALPix grid.  -->
        <equals type="string" value="mosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="usepointing"><value>False</value></default>
+         <default param="dopointing"><value>False</value></default>
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2654,7 +2653,7 @@ HPX HEALPix grid.  -->
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
          <default param="usepointing"><value>False</value></default>
-         <default param="mosweight"><value>True</value></default>
+         <default param="doweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
          <default param="psfphasecenter"><value>""</value></default>
@@ -2662,7 +2661,7 @@ HPX HEALPix grid.  -->
        <equals type="string" value="ftmosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="usepointing"><value>False</value></default>
+         <default param="dopointing"><value>False</value></default>
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
        </equals>
@@ -2673,30 +2672,35 @@ HPX HEALPix grid.  -->
          <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="awproject">
-         <default param="wprojplanes"><value>1</value></default>
-         <default param="normtype"><value>"flatnoise"</value></default>
-         <default param="psterm"><value>False</value></default>
-         <default param="aterm"><value>True</value></default>
-         <default param="cfcache"><value>""</value></default>
-         <default param="computepastep"><value>360.0</value></default>
-         <default param="rotatepastep"><value>360.0</value></default>
-         <default param="wbawp"><value>False</value></default>
-<!--         <default param="vptable"><value>""</value></default> -->
-         <default param="pblimit"><value>0.2</value></default>
-         <default param="conjbeams"><value>False</value></default>
+	 <default param="wprojplanes"><value>1</value></default>
+	 <default param="normtype"><value>"flatnoise"</value></default>
+	 <default param="psterm"><value>False</value></default>
+	 <default param="aterm"><value>True</value></default>
+	 <default param="cfcache"><value>""</value></default>
+	 <default param="computepastep"><value>360.0</value></default>
+	 <default param="rotatepastep"><value>360.0</value></default>
+	 <default param="wbawp"><value>False</value></default>
+	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
+	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="mosweight"><value>False</value></default>
+	 <default param="dopointing"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
-         <default param="wprojplanes"><value>1</value></default>
-         <default param="normtype"><value>"flatnoise"</value></default>
-         <default param="psterm"><value>False</value></default>
-         <default param="aterm"><value>True</value></default>
-         <default param="cfcache"><value>""</value></default>
-         <default param="computepastep"><value>360.0</value></default>
-         <default param="rotatepastep"><value>360.0</value></default>
-         <default param="wbawp"><value>False</value></default>
-<!--         <default param="vptable"><value>""</value></default> -->
-         <default param="pblimit"><value>0.2</value></default>
-         <default param="conjbeams"><value>False</value></default>
+	 <default param="wprojplanes"><value>1</value></default>
+	 <default param="normtype"><value>"flatnoise"</value></default>
+	 <default param="psterm"><value>False</value></default>
+	 <default param="aterm"><value>True</value></default>
+	 <default param="cfcache"><value>""</value></default>
+	 <default param="computepastep"><value>360.0</value></default>
+	 <default param="rotatepastep"><value>360.0</value></default>
+	 <default param="wbawp"><value>False</value></default>
+	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
+	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="dopointing"><value>False</value></default>
        </equals>
      </when>
 
