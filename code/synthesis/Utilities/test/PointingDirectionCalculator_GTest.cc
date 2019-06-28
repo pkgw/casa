@@ -2056,7 +2056,6 @@ std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt co
 
     uInt LoopCnt =   getRequiredMainTestingRow()  - getIntervalAdjust() ;
  
-    printf( "for (LoopCnt=%d) \n",LoopCnt); 
     for (uInt row=0; row < LoopCnt ; row++)   
     {
         // Direction(1) by getDirection //
