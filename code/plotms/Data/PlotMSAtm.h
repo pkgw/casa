@@ -161,6 +161,10 @@ private:
     casacore::Vector<T> getValuesInTimeRange(casacore::Vector<T> inputCol, 
         casacore::Vector<casacore::Double> timesCol, casacore::Double mintime,
         casacore::Double maxtime);
+    template <typename T>
+    void getClosestValues(casacore::Vector<T>& values,
+        casacore::Vector<casacore::Double>& times, casacore::Vector<T>& data,
+        double mintime, double maxtime);
     // use cal table times if available, else ms times
     void getTimeRange(casacore::Double& mintime, casacore::Double& maxtime);
 
@@ -168,8 +172,8 @@ private:
     bool showatm_;         // true=showatm, false=showtsky
     bool isMS_;            // true=MS, false=CalTable
     bool xIsChan_;         // image curve changes for chan/freq x-axis
-	bool canCalculatePwv_;     // has CALWVR or CALATMOSPHERE subtable
-	bool canCalculateWeather_; // has WEATHER subtable
+    bool canCalculatePwv_;     // has CALWVR or CALATMOSPHERE subtable
+    bool canCalculateWeather_; // has WEATHER subtable
     PlotMSCacheBase* parent_; // for log messages
     PlotMSSelection selection_;
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan

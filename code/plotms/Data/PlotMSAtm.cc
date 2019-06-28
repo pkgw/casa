@@ -63,7 +63,7 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
     selectedScan_(-1),
     pwv_(0.0),
     airmass_(0.0),
-    MAX_ATM_CALC_CHAN_(512) {
+    MAX_ATM_CALC_CHAN_(512)	{
 
     if (isMS) { // create MS
         setUpMS(filename, userSel);
@@ -342,11 +342,11 @@ casacore::Vector<casacore::Double> PlotMSAtm::calcOverlayCurve(
     }
 
     if ((spw != selectedSpw_) || (scan != selectedScan_)) {
-        // recalculate for this selection
-        getMedianPwv();
-        getMeanWeather();
+        // save new selection and recalculate
         selectedSpw_ = spw;
         selectedScan_ = scan;
+        getMedianPwv();
+        getMeanWeather();
     }
 
     unsigned int numChan(chanFreqs.nelements());
@@ -479,23 +479,9 @@ void PlotMSAtm::getMedianPwv() {
               // find values in time range
               casacore::Vector<casacore::Double> water =
                   getValuesInTimeRange(waterCol, timesCol, mintime, maxtime);
-              if (water.empty()) {
-                  // look for the value with the closest start time outside range
-                  casacore::Double mintimediff(1.0e12);
-                  for (size_t i = 0; i < timesCol.size(); ++i) {
-                      casacore::Double timediff = min(abs(timesCol(i)-mintime), abs(timesCol(i)-maxtime));
-                      if (timediff < mintimediff) {
-                          water.resize(1);
-                          water(0) = waterCol(i); // save water value closest to timerange
-                          mintimediff = timediff;
-                      } else if (timediff == mintimediff) {
-                          size_t waterSize = water.size();
-                          water.resize(waterSize + 1, true);
-                          water(waterSize) = waterCol(i);
-                      }
-                  }
+			  if (!water.empty()) {
+                  pwv = median(water) * 1000.0; // in mm
               }
-              pwv = median(water) * 1000.0; // in mm
           }
         } catch (AipsError & err) {
             // openTable failed, use default pwv
@@ -584,7 +570,7 @@ void PlotMSAtm::getMeanWeather() {
         }
     }
 
-    // to use in atmosphere.initAtmProfile (tool)
+    // to use in atm::AtmProfile 
     weather_.define("humidity", humidity);       // %
     weather_.define("pressure", pressure);       // mb
     weather_.define("temperature", temperature); // K
@@ -734,24 +720,47 @@ casacore::Double PlotMSAtm::getMeanScantime() {
 }
 
 template <typename T>
-casacore::Vector<T> PlotMSAtm::getValuesInTimeRange(casacore::Vector<T> inputCol, 
-        casacore::Vector<casacore::Double> timesCol, casacore::Double mintime,
+casacore::Vector<T> PlotMSAtm::getValuesInTimeRange(casacore::Vector<T> inputData, 
+        casacore::Vector<casacore::Double> times, casacore::Double mintime,
         casacore::Double maxtime) {
     // Use values with timestamps in times_ range
-    casacore::Vector<T> outputCol;
+    casacore::Vector<T> outputData;
     casacore::uInt outsize(0);
-    for (size_t j = 0; j < timesCol.size(); ++j) {
-        if ((timesCol(j) >= mintime) && (timesCol(j) <= maxtime)) {
-            outputCol.resize(outsize+1, True);
-            outputCol(outsize++) = inputCol(j);
+    for (size_t j = 0; j < times.size(); ++j) {
+        if ((times(j) >= mintime) && (times(j) <= maxtime)) {
+            outputData.resize(outsize+1, True);
+            outputData(outsize++) = inputData(j);
         }
     }
-    return outputCol;
+    if (outputData.empty()) {
+        getClosestValues(outputData, times, inputData, mintime, maxtime);
+    }
+    return outputData;
+}
+
+template <typename T>
+void PlotMSAtm::getClosestValues(casacore::Vector<T>& values,
+    casacore::Vector<casacore::Double>& times, casacore::Vector<T>& data,
+    double mintime, double maxtime) { 
+    // return value(s) with the closest time outside range mintime~maxtime
+    casacore::Double mintimediff(1.0e12);
+    for (size_t i = 0; i < times.size(); ++i) {
+        casacore::Double timediff = min(abs(times(i)-mintime), abs(times(i)-maxtime));
+        if (timediff < mintimediff) {
+            values.resize(1);
+            values(0) = data(i); // save value closest to timerange
+            mintimediff = timediff;
+        } else if (timediff == mintimediff) {
+            size_t valuesSize = values.size();
+            values.resize(valuesSize + 1, true);
+            values(valuesSize) = data(i);
+        }
+    }
 }
 
 bool PlotMSAtm::hasReceiverTable() {
     // axis can be calculated only if ms has ASDM_RECEIVER table
-	bool hasTable(false);
+    bool hasTable(false);
     if (tableName_.empty()) {
         return hasTable;
     }

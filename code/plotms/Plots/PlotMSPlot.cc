@@ -1969,7 +1969,6 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					PMS::Axis y = plotCacheParams->yAxis( j );
 					// skip if image sideband axis could not be loaded
 					if ((y == PMS::IMAGESB) && !itsCache_->canShowImageCurve()) {
-						std::cout << "PDEBUG: Y AXIS LABEL skipping imagesb, cannot show image curve" << std::endl;
 						continue;
                     }
 					if (isCalTable && PMS::axisIsData(y))
