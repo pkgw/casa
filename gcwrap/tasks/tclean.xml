@@ -2679,7 +2679,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 	 <default param="cfcache"><value>""</value></default>
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
-	 <default param="wbawp"><value>False</value></default>
+	 <default param="wbawp"><value>True</value></default>
 	 <default param="mosweight"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
@@ -2695,7 +2695,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 	 <default param="cfcache"><value>""</value></default>
 	 <default param="computepastep"><value>360.0</value></default>
 	 <default param="rotatepastep"><value>360.0</value></default>
-	 <default param="wbawp"><value>False</value></default>
+	 <default param="wbawp"><value>True</value></default>
 	 <default param="mosweight"><value>False</value></default>
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
