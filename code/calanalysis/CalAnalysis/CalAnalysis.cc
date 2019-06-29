@@ -3195,7 +3195,7 @@ Bool CalAnalysis::freqGroup( const INPUT& oInput,
 
   // Declare the success boolean
 
-  Bool success = new Bool( false );
+  Bool success = false;
 
 
   // Create the instance for the spectral window subtable of the new format
@@ -3328,13 +3328,13 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
 
   // Create accessors for the CPARAM/FPARAM, PARAMERR, and FLAG columns
 
-  ArrayColumn<Complex>* poCParamCol = NULL;
-  ArrayColumn<Float>* poFParamCol = NULL;
+  ArrayColumn<Complex> poCParamCol;
+  ArrayColumn<Float> poFParamCol;
 
   if ( oParType == String("Complex") ) {
-    poCParamCol = new ArrayColumn<Complex>( oNCT, String("CPARAM") );
+    poCParamCol = ArrayColumn<Complex>( oNCT, String("CPARAM") );
   } else {
-    poFParamCol = new ArrayColumn<Float>( oNCT, String("FPARAM") );
+    poFParamCol = ArrayColumn<Float>( oNCT, String("FPARAM") );
   }
 
   ArrayColumn<Float> oParamErrCol( oNCT, String("PARAMERR") );
@@ -3393,14 +3393,14 @@ Bool CalAnalysis::cubeGroup( const NewCalTable& oNCT, const INPUT& oInput,
       Array<Complex> oCParamCube;
       Array<Float> oFParamCube;
       if ( oParType == String("Complex") ) {
-        IPosition oShape( poCParamCol->operator()(uiRow).shape() );
+        IPosition oShape( poCParamCol( uiRow ).shape() );
         oCParamCube.resize( oShape, false );
-        oCParamCube = poCParamCol->operator()( uiRow );
+        oCParamCube = poCParamCol( uiRow );
         oFParamCube = Array<Float>( oShape, 0.0 );
       } else {
-        IPosition oShape( poFParamCol->operator()(uiRow).shape() );
+        IPosition oShape( poFParamCol(uiRow).shape() );
         oFParamCube.resize( oShape, false );
-        oFParamCube = poFParamCol->operator()( uiRow );
+        oFParamCube = poFParamCol( uiRow );
         oCParamCube = Array<Complex>( oShape, Complex(0.0,0.0) );
       }
 
