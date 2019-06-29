@@ -950,7 +950,7 @@ oDummy5 - This reference to a CalStats::ARG<CalStats::NONE> instance is a dummy.
 
 Outputs:
 --------
-The reference to the CalStats::NONE instance, returned via the function value.
+The CalStats::NONE instance, returned via the function value.
 
 Modification history:
 ---------------------
@@ -961,17 +961,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-template <> CalStats::NONE& CalStats::statsWrap<CalStats::NONE>(
+template <> CalStats::NONE CalStats::statsWrap<CalStats::NONE>(
     const Vector<Double>& /*oDummy1*/, const Vector<Double>& /*oDummy2*/,
     const Vector<Double>& /*oDummy3*/, Vector<Bool>& /*oDummy4*/,
     const CalStats::ARG<CalStats::NONE>& /*oDummy5*/ ) {
 
-  // Return the reference to a CalStats::NONE instance
+  // Return a CalStats::NONE instance
 
-  CalStats::NONE* poNone = new CalStats::NONE();
-
-  return( *poNone );
-
+  return CalStats::NONE();
 }
 
 // -----------------------------------------------------------------------------
@@ -998,7 +995,7 @@ oArg      - This reference to a CalStats::ARG<CalStats::NONE> instance contains
 
 Outputs:
 --------
-oFlag - This reference to a Vector<Bool> instance contains the flags.
+oFlag - This reference to  Vector<Bool> instance contains the flags.
 The reference to the CalStatsFitter::FIT instance, returned via the function
 value.
 
@@ -1013,24 +1010,24 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-template <> CalStatsFitter::FIT& CalStats::statsWrap<CalStatsFitter::FIT>(
+template <> CalStatsFitter::FIT CalStats::statsWrap<CalStatsFitter::FIT>(
     const Vector<Double>& oAbs, const Vector<Double>& oValue,
     const Vector<Double>& oValueErr, Vector<Bool>& oFlag,
     const CalStats::ARG<CalStatsFitter::FIT>& oArg ) {
 
-  // Perform the fit and return the reference to a CalStatsFitter::FIT instance
+  // Perform the fit and return the CalStatsFitter::FIT instance
 
-  CalStatsFitter::FIT* poFit = new CalStatsFitter::FIT();
+  CalStatsFitter::FIT fit;
 
   try {
-    *poFit = CalStatsFitter::fit( oAbs, oValue, oValueErr, oFlag, oArg.eOrder,
-        oArg.eType, oArg.eWeight );
+    fit = CalStatsFitter::fit( oAbs, oValue, oValueErr, oFlag, oArg.eOrder,
+                               oArg.eType, oArg.eWeight );
   }
   catch ( AipsError oAE ) {
     throw( oAE );
   }
 
-  return( *poFit );
+  return fit;
 
 }
 

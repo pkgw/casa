@@ -408,7 +408,7 @@ class CalAnalysis {
     // data without calculating statistics, CalStatsFitter::FIT calculates fits,
     // and CalStatsHist::HIST calculates histogram statistics).
     template <typename T>
-    casacore::Vector<OUTPUT<T> >& stats( const INPUT& oInput,
+    casacore::Vector<OUTPUT<T> > stats( const INPUT& oInput,
         const CalStats::ARG<T>& oArg );
 
     // casacore::Function to determine whether a value is present in an array
@@ -637,14 +637,13 @@ Modification history:
 // -----------------------------------------------------------------------------
 
 template <typename T>
-casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
+casacore::Vector<CalAnalysis::OUTPUT<T> > CalAnalysis::stats(
     const CalAnalysis::INPUT& oInput, const CalStats::ARG<T>& oArg ) {
 
   // Initialize the output vector containing statistics for each field ID,
   // antenna 1, and antenna 2
 
-  casacore::Vector<CalAnalysis::OUTPUT<T> >* poOutput =
-      new casacore::Vector<CalAnalysis::OUTPUT<T> >();
+  casacore::Vector<CalAnalysis::OUTPUT<T> > output;
 
 
   // Check and fix the inputs
@@ -656,7 +655,7 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
   if ( !bCheck ) {
     casacore::LogIO log( casacore::LogOrigin( "CalAnalysis", "stats<T>()", WHERE ) );
     log << casacore::LogIO::WARN << "Invalid parameter(s)" << casacore::LogIO::POST;
-    return( *poOutput );
+    return output;
   }
 
 
@@ -686,7 +685,7 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
   if ( !bGetGroup ) {
     casacore::LogIO log( casacore::LogOrigin( "CalAnalysis", "stats<T>()", WHERE ) );
     log << casacore::LogIO::WARN << "Cannot parse group(s)" << casacore::LogIO::POST;
-    return( *poOutput );
+    return output;
   }
 
 
@@ -695,20 +694,20 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
 
   casacore::uInt uiNumGroup = oFieldGroup.nelements();
 
-  poOutput->resize( uiNumGroup, false );
+  output.resize( uiNumGroup, false );
 
 
   // Send each group to CalStats<T>() and perform the desired operation
 
   for ( casacore::uInt g=0; g<uiNumGroup; g++ ) {
 
-    poOutput->operator[](g).uiField = oFieldGroup[g];
-    poOutput->operator[](g).uiAntenna1 = oAntenna1Group[g];
-    poOutput->operator[](g).iAntenna2 = oAntenna2Group[g];
-    poOutput->operator[](g).eRAP = oInputNew.eRAP;
-    poOutput->operator[](g).bNorm = oInputNew.bNorm;
-    poOutput->operator[](g).bUnwrap = oInputNew.bUnwrap;
-    poOutput->operator[](g).dJumpMax = oInputNew.dJumpMax;
+    output[g].uiField = oFieldGroup[g];
+    output[g].uiAntenna1 = oAntenna1Group[g];
+    output[g].iAntenna2 = oAntenna2Group[g];
+    output[g].eRAP = oInputNew.eRAP;
+    output[g].bNorm = oInputNew.bNorm;
+    output[g].bUnwrap = oInputNew.bUnwrap;
+    output[g].dJumpMax = oInputNew.dJumpMax;
 
     CalStats* poCS = NULL;
 
@@ -735,7 +734,7 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
           throw( casacore::AipsError( "Invalid parameter (REAL, AMPLITUDE, or PHASE)" ) );
       }
 
-      poOutput->operator[](g).oOut = poCS->stats<T>( oArg );
+      output[g].oOut = poCS->stats<T>( oArg );
 
       delete poCS;
 
@@ -747,7 +746,7 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
           << ", iteration (field,antenna1,antenna2) = (" << oFieldGroup[g]
           << "," << oAntenna1Group[g] << "," << oAntenna2Group[g]
           << "), continuing ..." << casacore::LogIO::POST;
-      poOutput->operator[](g).oOut = CalStats::OUT<T>();
+      output[g].oOut = CalStats::OUT<T>();
     }
 
   }
@@ -755,7 +754,7 @@ casacore::Vector<CalAnalysis::OUTPUT<T> >& CalAnalysis::stats(
 
   // Return the reference to the casacore::Vector<CalAnalysis::OUTPUT<T> > instance
 
-  return( *poOutput );
+  return output;
 
 }
 

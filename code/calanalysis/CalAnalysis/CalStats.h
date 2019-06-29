@@ -321,8 +321,8 @@ class CalStats {
     // CalStatsHist::HIST calculates histogram statistics).  Member function
     // stats() is the main user interface and statsWrap() is the supporting
     // wrapper.
-    template <typename T> casacore::Matrix<OUT<T> >& stats( const ARG<T>& oArg );
-    template <typename T> T& statsWrap( const casacore::Vector<casacore::Double>& oAbs,
+    template <typename T> casacore::Matrix<OUT<T> > stats( const ARG<T>& oArg );
+    template <typename T> T statsWrap( const casacore::Vector<casacore::Double>& oAbs,
         const casacore::Vector<casacore::Double>& oValue, const casacore::Vector<casacore::Double>& oValueErr,
         casacore::Vector<casacore::Bool>& oFlag, const ARG<T>& oArg );
 
@@ -470,13 +470,13 @@ Modification history:
 // -----------------------------------------------------------------------------
 
 template <typename T>
-casacore::Matrix<CalStats::OUT<T>>& CalStats::stats( const CalStats::ARG<T>& oArg ) {
+casacore::Matrix<CalStats::OUT<T>> CalStats::stats( const CalStats::ARG<T>& oArg ) {
 
   // Initialize the CalStats::OUT<T> array and its iterator
 
-  casacore::Array<CalStats::OUT<T> >* poOut = new casacore::Array<OUT<T> >( oStatsShape );
+  casacore::Array<CalStats::OUT<T> > out( oStatsShape );
 
-  casacore::ArrayIterator<CalStats::OUT<T> > oOutIter( *poOut, oAxisIterID, false );
+  casacore::ArrayIterator<CalStats::OUT<T> > oOutIter( out, oAxisIterID, false );
 
 
   // For each iteration, convert the resulting arrays to vectors and feed them
@@ -534,10 +534,10 @@ casacore::Matrix<CalStats::OUT<T>>& CalStats::stats( const CalStats::ARG<T>& oAr
 
   // Return the reference to the casacore::Matrix<CalStats::OUT<T> > instance
 
-  poOut->removeDegenerate();
+  out.removeDegenerate();
 
-  casacore::Matrix<CalStats::OUT<T> >* poMatrix = (casacore::Matrix<CalStats::OUT<T> >*) poOut;
-  return( *poMatrix );
+  casacore::Matrix<CalStats::OUT<T> > outMatrix = out;
+  return outMatrix;
 
 }
 
