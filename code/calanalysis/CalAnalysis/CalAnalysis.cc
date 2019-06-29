@@ -1440,7 +1440,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt>& CalAnalysis::fieldGet( const String& oTableName ) {
+Vector<uInt> CalAnalysis::fieldGet( const String& oTableName ) {
 
   // Get the field numbers from the new format calibration table
 
@@ -1450,12 +1450,13 @@ Vector<uInt>& CalAnalysis::fieldGet( const String& oTableName ) {
   Vector<Int> oFieldInt;
   oROSC.getColumn( oFieldInt, true );
 
-  Vector<Int> oFieldUnique( unique<Int>(oFieldInt) );
+  Vector<Int> oFieldUnique;
+  unique<Int>( oFieldInt, oFieldUnique );
 
-  Vector<uInt>* poField = new Vector<uInt>( oFieldUnique.nelements() );
-  convertArray<uInt,Int>( *poField, oFieldUnique );
+  Vector<uInt> field( oFieldUnique.nelements() );
+  convertArray<uInt,Int>( field, oFieldUnique );
 
-  return( *poField );
+  return field;
 
 }
 
@@ -1686,7 +1687,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<uInt>& CalAnalysis::antenna1Get( const String& oTableName ) {
+Vector<uInt> CalAnalysis::antenna1Get( const String& oTableName ) {
 
   // Get the antenna 1 numbers from the new format calibration table
 
@@ -1696,12 +1697,13 @@ Vector<uInt>& CalAnalysis::antenna1Get( const String& oTableName ) {
   Vector<Int> oAntenna1Int;
   oROSC.getColumn( oAntenna1Int, true );
 
-  Vector<Int> oAntenna1Unique( unique<Int>(oAntenna1Int) );
+  Vector<Int> oAntenna1Unique;
+  unique<Int>(oAntenna1Int, oAntenna1Unique);
 
-  Vector<uInt>* poAntenna1 = new Vector<uInt>( oAntenna1Unique.nelements() );
-  convertArray<uInt,Int>( *poAntenna1, oAntenna1Unique );
+  Vector<uInt> antenna1( oAntenna1Unique.nelements() );
+  convertArray<uInt,Int>( antenna1, oAntenna1Unique );
 
-  return( *poAntenna1 );
+  return antenna1;
 
 }
 
@@ -1850,7 +1852,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Int>& CalAnalysis::antenna2Get( const String& oTableName ) {
+Vector<Int> CalAnalysis::antenna2Get( const String& oTableName ) {
 
   // Get the antenna 2 numbers from the new format calibration table
 
@@ -1860,10 +1862,12 @@ Vector<Int>& CalAnalysis::antenna2Get( const String& oTableName ) {
   Vector<Int> oAntenna2Int;
   oROSC.getColumn( oAntenna2Int, true );
 
-  Vector<Int>* poAntenna2 = new Vector<Int>( unique<Int>(oAntenna2Int) );
+  Vector<Int> uniqueA2;
+  unique<Int>(oAntenna2Int, uniqueA2);
 
-  return( *poAntenna2 );
+  Vector<Int> antenna2( uniqueA2 );
 
+  return antenna2;
 }
 
 // -----------------------------------------------------------------------------
@@ -2008,7 +2012,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Double>& CalAnalysis::timeGet( const String& oTableName ) {
+Vector<Double> CalAnalysis::timeGet( const String& oTableName ) {
 
   // Create a temporary new format calibration table instance
 
@@ -2021,13 +2025,12 @@ Vector<Double>& CalAnalysis::timeGet( const String& oTableName ) {
   Vector<Double> oTimeTemp;
   oROSC.getColumn( oTimeTemp, true );
 
-  Vector<Double>* poTime = new Vector<Double>( 0 );
-  *poTime = unique<Double>( oTimeTemp );
-
+  Vector<Double> timev( 0 );
+  unique<Double>( oTimeTemp, timev );
 
   // Return the time stamps
 
-  return( *poTime );
+  return timev;
 
 }
 
@@ -2352,7 +2355,7 @@ Bool& CalAnalysis::feedCheck( const Vector<String>& oFeedIn,
   // Get the unique feed vector
 
   oFeedOut.resize();
-  oFeedOut = unique<String>( oFeedIn );
+  unique<String>( oFeedIn, oFeedOut );
 
   if ( oFeedOut.nelements() > 2 ) {
     *poSuccess = false;
@@ -3086,9 +3089,9 @@ Bool& CalAnalysis::rowGroup( const NewCalTable& oNCT,
 
   for ( uInt g=0; g<uiNumGroup; g++ ) {
     oSPWUniqueGroup[g].resize();
-    oSPWUniqueGroup[g] = unique<uInt>( oSPWGroup[g] );
+    unique<uInt>( oSPWGroup[g], oSPWUniqueGroup[g] );
     oTimeUniqueGroup[g].resize();
-    oTimeUniqueGroup[g] = unique<Double>( oTimeGroup[g] );
+    unique<Double>( oTimeGroup[g], oTimeUniqueGroup[g] );
   }
 
 

@@ -331,10 +331,10 @@ class CalAnalysis {
         SPW_INFO( void );
         ~SPW_INFO( void );
         SPW_INFO& operator=( const SPW_INFO& oSPWInfoIn );
-        casacore::Bool& freq( const casacore::Vector<casacore::uInt>& oSPWIn,
+        casacore::Bool freq( const casacore::Vector<casacore::uInt>& oSPWIn,
             const casacore::Vector<casacore::Vector<casacore::uInt> >& oChannelIn,
             casacore::Vector<casacore::Double>& oFreqOut ) const;
-        casacore::Bool& spwInfoCheck( const casacore::Vector<casacore::uInt>& oSPWIn,
+        casacore::Bool spwInfoCheck( const casacore::Vector<casacore::uInt>& oSPWIn,
             const casacore::Vector<casacore::Vector<casacore::uInt> >& oChannelIn, casacore::Vector<casacore::uInt>& oSPWOut,
             casacore::Vector<casacore::Vector<casacore::uInt> >& oChannelOut ) const;
     };
@@ -422,7 +422,7 @@ class CalAnalysis {
 
     // casacore::Function to return sorted unique values of a vector
     template <typename T>
-    static casacore::Vector<T>& unique( const casacore::Vector<T>& oVector );
+    static void unique( const casacore::Vector<T>& oVector, casacore::Vector<T>& unq);
 
   private:
     
@@ -453,7 +453,7 @@ class CalAnalysis {
 
     // Get the field numbers and set the private variables
     casacore::uInt uiNumField; casacore::Vector<casacore::uInt> oField;
-    casacore::Vector<casacore::uInt>& fieldGet( const casacore::String& oTableName );
+    casacore::Vector<casacore::uInt> fieldGet( const casacore::String& oTableName );
     void fieldSet( const casacore::Vector<casacore::uInt>& oFieldIn );
     casacore::Bool& fieldCheck( const casacore::Vector<casacore::uInt>& oFieldIn,
         casacore::Vector<casacore::uInt>& oFieldOut ) const;
@@ -465,21 +465,21 @@ class CalAnalysis {
 
     // Get the antenna 1 numbers and set the private variables
     casacore::uInt uiNumAntenna1; casacore::Vector<casacore::uInt> oAntenna1;
-    casacore::Vector<casacore::uInt>& antenna1Get( const casacore::String& oTableName );
+    casacore::Vector<casacore::uInt> antenna1Get( const casacore::String& oTableName );
     void antenna1Set( const casacore::Vector<casacore::uInt>& oAntenna1In );
     casacore::Bool& antenna1Check( const casacore::Vector<casacore::uInt>& oAntenna1In,
         casacore::Vector<casacore::uInt>& oAntenna1Out ) const;
 
     // Get the antenna 2 numbers and set the private variables
     casacore::uInt uiNumAntenna2; casacore::Vector<casacore::Int> oAntenna2;
-    casacore::Vector<casacore::Int>& antenna2Get( const casacore::String& oTableName );
+    casacore::Vector<casacore::Int> antenna2Get( const casacore::String& oTableName );
     void antenna2Set( const casacore::Vector<casacore::Int>& oAntenna2In );
     casacore::Bool& antenna2Check( const casacore::Vector<casacore::Int>& oAntenna2In,
         casacore::Vector<casacore::Int>& oAntenna2Out ) const;
 
     // Get the times and set the private variables
     casacore::uInt uiNumTime; casacore::Vector<casacore::Double> oTime;
-    casacore::Vector<casacore::Double>& timeGet( const casacore::String& oTableName );
+    casacore::Vector<casacore::Double> timeGet( const casacore::String& oTableName );
     void timeSet( const casacore::Vector<casacore::Double>& oTimeIn );
     casacore::Bool& timeCheck( const casacore::Double& dStartTimeIn, const casacore::Double& dStopTimeIn,
         casacore::Double& dStartTimeOut, casacore::Double& dStopTimeOut,
@@ -896,12 +896,7 @@ Modification history:
 // -----------------------------------------------------------------------------
 
 template <typename T>
-casacore::Vector<T>& CalAnalysis::unique( const casacore::Vector<T>& oVector ) {
-
-  // Initialize the unique vector
-
-  casacore::Vector<T>* poVectorUnique = new casacore::Vector<T>();
-
+void CalAnalysis::unique( const casacore::Vector<T>& oVector, casacore::Vector<T>& unq ) {
 
   // Form the unique vector
 
@@ -917,8 +912,8 @@ casacore::Vector<T>& CalAnalysis::unique( const casacore::Vector<T>& oVector ) {
     }
 
     if ( !bDupe ) {
-      poVectorUnique->resize( poVectorUnique->nelements()+1, true );
-      poVectorUnique->operator[](poVectorUnique->nelements()-1) = oVector[v1];
+      unq.resize( unq.nelements()+1, true );
+      unq.operator[](unq.nelements()-1) = oVector[v1];
     }
 
   }
@@ -929,13 +924,7 @@ casacore::Vector<T>& CalAnalysis::unique( const casacore::Vector<T>& oVector ) {
   casacore::Sort::Order eOrder = casacore::Sort::Ascending;
   casacore::Int iOptions = casacore::Sort::QuickSort;
 
-  casacore::GenSort<T>::sort( *poVectorUnique, eOrder, (int) iOptions );
-
-
-  // Return the unique sorted vector
-
-  return( *poVectorUnique );
-
+  casacore::GenSort<T>::sort( unq, eOrder, (int) iOptions );
 }
 
 // -----------------------------------------------------------------------------
