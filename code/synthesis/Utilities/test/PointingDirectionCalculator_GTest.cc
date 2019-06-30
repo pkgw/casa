@@ -2235,7 +2235,8 @@ std::vector<std::vector<TestDirection::ParamList> >   paramListS =
       {true, P_SOURCE_OFFSET,   0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
       {true, P_ENCODER,         0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
     },
- 
+
+#if 0 
     // Senario 5 (Insufficient Data, small number of data.) // 
     {
       {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
@@ -2244,6 +2245,7 @@ std::vector<std::vector<TestDirection::ParamList> >   paramListS =
       {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
       {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
     },
+#endif 
 
 #if 0
     //+
