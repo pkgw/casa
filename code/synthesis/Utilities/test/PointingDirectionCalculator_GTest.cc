@@ -1484,7 +1484,7 @@ void  MsEdit::writePseudoOnPointing()
 
     uInt LoopCnt = getAvailablePointingTestingRow();
 
-#if 0
+#if  1 
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1493,7 +1493,7 @@ void  MsEdit::writePseudoOnPointing()
     uInt N = pT.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        pT.putAntennaId (row, 99 ) ;     // AntennaID 
+        pT.putAntennaId (row, 9 ) ;     // AntennaID 
     }
     pT.flush();
 #endif 
@@ -1603,7 +1603,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = getRequiredMainTestingRow()  ;
 
-#if 0
+#if 1 
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1612,7 +1612,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt N = mta.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        mta.putAntenna (row, 99 ) ;     // AntennaID 
+        mta.putAntenna (row, 9 ) ;     // AntennaID 
     }   
     mta.flush();
 #endif 
