@@ -1723,11 +1723,11 @@ TEST_F(TestMeasurementSet, variousConstructor )
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/azelpointing.ms"      	},
-        {false, "sdimaging/clipping_1row.ms"            },
+/*        {false, "sdimaging/clipping_1row.ms"            },
         {false, "sdimaging/clipping_2rows.ms"           },
         {false, "sdimaging/clipping_3rows.ms"           },
         {false, "sdimaging/clipping_3rows_2chans.ms"    },
-        {false, "sdimaging/clipping_3rows_suprious.ms"  },
+        {false, "sdimaging/clipping_3rows_suprious.ms"  },  */
         {false, "sdimaging/pointing6.ms"                },
         {false, "sdimaging/sdimaging_flagtest.ms"       },
         {false, "sdimaging/selection_intent.ms"         },
