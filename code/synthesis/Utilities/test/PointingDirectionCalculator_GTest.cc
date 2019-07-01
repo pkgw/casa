@@ -1484,7 +1484,7 @@ void  MsEdit::writePseudoOnPointing()
 
     uInt LoopCnt = getAvailablePointingTestingRow();
 
-#if 1
+#if 0
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1603,7 +1603,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = getRequiredMainTestingRow()  ;
 
-#if 1
+#if 0
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1723,11 +1723,11 @@ TEST_F(TestMeasurementSet, variousConstructor )
         {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
         {false, "sdimaging/azelpointing.ms"      	},
-/*        {false, "sdimaging/clipping_1row.ms"            },
+        {false, "sdimaging/clipping_1row.ms"            },
         {false, "sdimaging/clipping_2rows.ms"           },
         {false, "sdimaging/clipping_3rows.ms"           },
         {false, "sdimaging/clipping_3rows_2chans.ms"    },
-        {false, "sdimaging/clipping_3rows_suprious.ms"  },  */
+        {false, "sdimaging/clipping_3rows_suprious.ms"  },  
         {false, "sdimaging/pointing6.ms"                },
         {false, "sdimaging/sdimaging_flagtest.ms"       },
         {false, "sdimaging/selection_intent.ms"         },
@@ -2236,7 +2236,6 @@ std::vector<std::vector<TestDirection::ParamList> >   paramListS =
       {true, P_ENCODER,         0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
     },
 
-#if 0 
     // Senario 5 (Insufficient Data, small number of data.) // 
     {
       {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
@@ -2245,7 +2244,6 @@ std::vector<std::vector<TestDirection::ParamList> >   paramListS =
       {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
       {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
     },
-#endif 
 
 #if 0
     //+
