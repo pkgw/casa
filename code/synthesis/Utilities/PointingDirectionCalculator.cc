@@ -95,12 +95,12 @@ NullLogger nulllogger;
 
 namespace {
 #define ARRAY_DIRECTION(ColumnName) \
-inline MDirection ColumnName ## Accessor(ROMSPointingColumns &pointingColumns, uInt rownr) { \
+inline MDirection ColumnName ## Accessor(MSPointingColumns &pointingColumns, uInt rownr) { \
     return pointingColumns.ColumnName ## Meas(rownr); \
 }
 
 #define SCALAR_DIRECTION(ColumnName) \
-inline MDirection ColumnName ## Accessor(ROMSPointingColumns &pointingColumns, uInt rownr) { \
+inline MDirection ColumnName ## Accessor(MSPointingColumns &pointingColumns, uInt rownr) { \
     return pointingColumns.ColumnName ## Meas()(rownr); \
 }
 
@@ -729,12 +729,12 @@ void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
     pointingTable_ = new MSPointing(selected.sort("TIME"));
 
     // attach columns
-    pointingColumns_ = new ROMSPointingColumns(*pointingTable_);
+    pointingColumns_ = new MSPointingColumns(*pointingTable_);
 
     // initialize pointingTimeUTC_
     uInt const nrowPointing = pointingTable_->nrow();
     pointingTimeUTC_.resize(nrowPointing);
-    ROScalarMeasColumn<MEpoch> pointingTimeColumn =
+    ScalarMeasColumn<MEpoch> pointingTimeColumn =
             pointingColumns_->timeMeas();
     for (uInt i = 0; i < nrowPointing; ++i) {
         MEpoch e = pointingTimeColumn(i);
@@ -962,12 +962,12 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         hPointing_ = hPointingTmp;
 
         // Column Handle //
-        std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPointing_ ));
+        std::unique_ptr<casacore::MSPointingColumns>
+                columnPointing( new casacore::MSPointingColumns( hPointing_ ));
 
         // Antenna List //
 
-        ROScalarColumn<casacore::Int>  antennaColumn = columnPointing->antennaId();
+        ScalarColumn<casacore::Int>  antennaColumn = columnPointing->antennaId();
         Vector<Int> antennaList =  antennaColumn.getColumn();
 
         uInt nrow = antennaList.nelements();
@@ -1026,8 +1026,8 @@ void SplineInterpolation::init(MeasurementSet const &ms,
 
     // prepere MS handle from selectedMS_
         MSPointing hPoint = antb.getPointingHandle();
-        std::unique_ptr<casacore::ROMSPointingColumns>
-                columnPointing( new casacore::ROMSPointingColumns( hPoint ));
+        std::unique_ptr<casacore::MSPointingColumns>
+                columnPointing( new casacore::MSPointingColumns( hPoint ));
 
     // Prepare Time and direction//
 
@@ -1041,16 +1041,16 @@ void SplineInterpolation::init(MeasurementSet const &ms,
 
     // Column handle (only time,direction are needed, others are reserved) //
     
-      ROScalarColumn<Double> pointingTime           = columnPointing ->time();
-      ROScalarColumn<Double> pointingInterval       = columnPointing ->interval();
+      ScalarColumn<Double> pointingTime           = columnPointing ->time();
+      ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
 
     // Following columns are accessed by 'accessor_'   //
    
-      ROArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-      ROArrayColumn<Double>  pointingTarget         = columnPointing ->target();    
-      ROArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-      ROArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-      ROArrayColumn<Double>  pointingencoder        = columnPointing ->encoder();
+      ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
+      ArrayColumn<Double>  pointingTarget         = columnPointing ->target();    
+      ArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
+      ArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
+      ArrayColumn<Double>  pointingencoder        = columnPointing ->encoder();
  
     for(uInt ant=0; ant <numAnt; ant++)
     {
