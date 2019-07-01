@@ -900,5 +900,23 @@ void PlotMSPlotter::gridSizeChanged( int rowCount, int colCount ){
 	itsPlotTab_->setGridSize(rowCount, colCount);
 }
 
+#if defined(WITHOUT_DBUS)
+void PlotMSPlotter::grpc_handle_op( ) {
+    std::lock_guard<std::mutex> exc(grpc_queue_mutex);
+    if ( ! grpc_queue.empty( ) ) {
+        std::function<void()> f = grpc_queue.front( );
+        grpc_queue.pop( );
+        f( );
+    }
+}
+
+void PlotMSPlotter::grpc_exit_now( ) {
+    close( );
+    itsParent_->quitApplication( );
+    QCoreApplication::exit( );
+    exit(0);
+}
+
+#endif
 
 }

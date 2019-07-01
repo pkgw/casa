@@ -33,7 +33,7 @@
 //#include <stdlib.h>
 //#include <string.h>
 #include <images/Images/TempImage.h>
-#include <imageanalysis/ImageAnalysis/AntennaResponses.h>
+#include <synthesis/MeasurementEquations/AntennaResponses.h>
 #include <tables/Tables/TableProxy.h>
 #include <casa/Exceptions.h>
 #include <casa/Containers/ValueHolder.h>

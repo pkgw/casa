@@ -158,28 +158,28 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
+CalStatsFitter::FIT CalStatsFitter::fit( const Vector<Double>& oAbs,
     const Vector<Double>& oValue, const Vector<Double>& oValueErr,
     Vector<Bool>& oFlag, const ORDER& eOrder, const TYPE& eType,
     const WEIGHT& eWeight ) {
 
   // Calculate the desired fit and populate the pointer to the FIT structure
 
-  CalStatsFitter::FIT* poFit;
+  CalStatsFitter::FIT fit;
 
   switch ((uInt) eType) {
 
     case (uInt) LSQ:
       try {
-        poFit = new CalStatsFitter::FIT( lsqFit( oAbs, oValue, oValueErr, oFlag,
-            eOrder, eWeight ) );
+        fit = CalStatsFitter::FIT( lsqFit( oAbs, oValue, oValueErr, oFlag,
+                                           eOrder, eWeight ) );
       }
       catch ( AipsError oAE ) {
         throw( oAE );
       }
-      poFit->eOrder = eOrder;
-      poFit->eType = eType;
-      poFit->eWeight = eWeight;
+      fit.eOrder = eOrder;
+      fit.eType = eType;
+      fit.eWeight = eWeight;
       break;
 
     case (uInt) ROBUST:
@@ -187,15 +187,15 @@ CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
         case (uInt) AVERAGE:
         case (uInt) LINEAR:
           try {
-            poFit = new CalStatsFitter::FIT( robustFit(
-                oAbs, oValue, oValueErr, oFlag, eOrder, eWeight, 5.0 ) );
+            fit = CalStatsFitter::FIT( robustFit( oAbs, oValue, oValueErr, oFlag, eOrder,
+                                                  eWeight, 5.0 ) );
           }
           catch ( AipsError oAE ) {
 	    throw( oAE );
 	  }
-          poFit->eOrder = eOrder;
-          poFit->eType = eType;
-          poFit->eWeight = eWeight;
+          fit.eOrder = eOrder;
+          fit.eType = eType;
+          fit.eWeight = eWeight;
 	  break;
         case (uInt) QUADRATIC:
         default:
@@ -211,9 +211,9 @@ CalStatsFitter::FIT& CalStatsFitter::fit( const Vector<Double>& oAbs,
   }
 
 
-  // Return the reference to the FIT structure
+  // Return the FIT structure
 
-  return( *poFit );
+  return fit;
 
 }
 
@@ -234,7 +234,7 @@ eOrder - This reference to the CalStatsFitter::ORDER enum.
 
 Outputs:
 --------
-The String reference to the order string, returned via the function value.
+The order string, returned via the function value.
 
 Modification history:
 ---------------------
@@ -245,28 +245,28 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String& CalStatsFitter::orderName( const CalStatsFitter::ORDER& eOrder ) {
+String CalStatsFitter::orderName( const CalStatsFitter::ORDER& eOrder ) {
 
   // Return the string corresponding to the CalStatsFitter::ORDER enum
 
-  String* poOrderName;
+  String orderName;
 
   switch ((uInt) eOrder) {
     case (uInt) CalStatsFitter::AVERAGE:
-      poOrderName = new String( "AVERAGE" );
+      orderName = String( "AVERAGE" );
       break;
     case (uInt) CalStatsFitter::LINEAR:
-      poOrderName = new String( "LINEAR" );
+      orderName = String( "LINEAR" );
       break;
     case (uInt) CalStatsFitter::QUADRATIC:
-      poOrderName = new String( "QUADRATIC" );
+      orderName = String( "QUADRATIC" );
       break;
     default:
       throw( AipsError( "Invalid order" ) );
       break;
   }
 
-  return( *poOrderName );
+  return orderName;
 
 }
 
@@ -286,7 +286,7 @@ eType - This reference to the CalStatsFitter::TYPE enum.
 
 Outputs:
 --------
-The String reference to the type string, returned via the function value.
+The type string, returned via the function value.
 
 Modification history:
 ---------------------
@@ -297,25 +297,25 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String& CalStatsFitter::typeName( const CalStatsFitter::TYPE& eType ) {
+String CalStatsFitter::typeName( const CalStatsFitter::TYPE& eType ) {
 
   // Return the string corresponding to the CalStatsFitter::TYPE enum
 
-  String* poTypeName;
+  String typeName;
 
   switch ((uInt) eType) {
     case (uInt) CalStatsFitter::LSQ:
-      poTypeName = new String( "LSQ" );
+      typeName = String( "LSQ" );
       break;
     case (uInt) CalStatsFitter::ROBUST:
-      poTypeName = new String( "ROBUST" );
+      typeName = String( "ROBUST" );
       break;
     default:
       throw( AipsError( "Invalid type" ) );
       break;
   }
 
-  return( *poTypeName );
+  return typeName;
 
 }
 
@@ -336,7 +336,7 @@ eWeight - This reference to the CalStatsFitter::WEIGHT enum.
 
 Outputs:
 --------
-The String reference to the weight string, returned via the function value.
+The weight string, returned via the function value.
 
 Modification history:
 ---------------------
@@ -347,25 +347,25 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String& CalStatsFitter::weightName( const CalStatsFitter::WEIGHT& eWeight ) {
+String CalStatsFitter::weightName( const CalStatsFitter::WEIGHT& eWeight ) {
 
   // Return the string corresponding to the CalStatsFitter::WEIGHT enum
 
-  String* poWeightName;
+  String weightName;
 
   switch ((uInt) eWeight) {
     case (uInt) CalStatsFitter::NO:
-      poWeightName = new String( "NO" );
+      weightName = String( "NO" );
       break;
     case (uInt) CalStatsFitter::YES:
-      poWeightName = new String( "YES" );
+      weightName = String( "YES" );
       break;
     default:
       throw( AipsError( "Invalid weight" ) );
       break;
   }
 
-  return( *poWeightName );
+  return weightName;
 
 }
 
@@ -444,7 +444,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-CalStatsFitter::FIT& CalStatsFitter::lsqFit( const Vector<Double>& oAbs,
+CalStatsFitter::FIT CalStatsFitter::lsqFit( const Vector<Double>& oAbs,
     const Vector<Double>& oValue, const Vector<Double>& oValueErr,
     Vector<Bool>& oFlag, const ORDER& eOrder, const WEIGHT& eWeight ) {
 
@@ -510,50 +510,50 @@ CalStatsFitter::FIT& CalStatsFitter::lsqFit( const Vector<Double>& oAbs,
   Bool bValid = oFitter.fit( oPars, oAbsC, oValueC, oValueErrC );
 
 
-  // Initialize the pointer to the CalStatsFitter::FIT structure
+  // Initialize the CalStatsFitter::FIT structure
 
-  CalStatsFitter::FIT* poFit = new CalStatsFitter::FIT();
+  CalStatsFitter::FIT fit;
 
 
-  // Populate the pointer to the FIT structure, including abscissa, parameter,
+  // Populate the FIT structure, including abscissa, parameter,
   // and covariance rescaling
 
   if ( bValid ) {
 
-    poFit->bValid = bValid;
+    fit.bValid = bValid;
 
-    poFit->oPars = Vector<Double>( oPars );
+    fit.oPars = Vector<Double>( oPars );
     for ( uInt o=0; o<=(uInt)eOrder; o++ ) {
       Double dScale = pow(dScaleX,(Int)o) / dScaleY;
-      poFit->oPars[o] /= dScale;
+      fit.oPars[o] /= dScale;
     }
 
-    poFit->oModel = Vector<Double>( uiNumData, (Double) 0.0 );
+    fit.oModel = Vector<Double>( uiNumData, (Double) 0.0 );
     for ( uInt o=0; o<=(uInt)eOrder; o++ ) {
-      poFit->oModel += poFit->oPars[o] * pow(oAbs,(Int)o);
+      fit.oModel += fit.oPars[o] * pow(oAbs,(Int)o);
     }
 
-    poFit->oRes = Vector<Double>( oValue - poFit->oModel );
+    fit.oRes = Vector<Double>( oValue - fit.oModel );
 
-    poFit->dResMean = mean<Double>( poFit->oRes );
-    poFit->dResVar = variance<Double>( poFit->oRes, poFit->dResMean );
+    fit.dResMean = mean<Double>( fit.oRes );
+    fit.dResVar = variance<Double>( fit.oRes, fit.dResMean );
 
     Double dMetric = oFitter.chiSquare() / ((Double) iDoF);
 
-    poFit->oCovars = Matrix<Double>( oFitter.compuCovariance() );
+    fit.oCovars = Matrix<Double>( oFitter.compuCovariance() );
     for ( uInt o1=0; o1<=(uInt)eOrder; o1++ ) {
       for ( uInt o2=0; o2<=(uInt)eOrder; o2++ ) {
         Double dScale = pow(dScaleX,(Int)o1) * pow(dScaleX,(Int)o2);
 	dScale /= pow(dScaleY,2);
-        poFit->oCovars(o1,o2) /= dScale;
+        fit.oCovars(o1,o2) /= dScale;
       }
     }
 
     if ( (Bool) eWeight ) {
-      poFit->dRedChi2 = dMetric;
+      fit.dRedChi2 = dMetric;
     } else {
-      poFit->oCovars *= dMetric;
-      poFit->dRedChi2 = 1.0;
+      fit.oCovars *= dMetric;
+      fit.dRedChi2 = 1.0;
     }
 
   } else {
@@ -563,9 +563,9 @@ CalStatsFitter::FIT& CalStatsFitter::lsqFit( const Vector<Double>& oAbs,
   }
 
 
-  // Return the reference to the FIT structure
+  // Return the FIT structure
 
-  return( *poFit );
+  return fit;
 
 }
 
@@ -652,7 +652,7 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-CalStatsFitter::FIT& CalStatsFitter::robustFit( const Vector<Double>& oAbs,
+CalStatsFitter::FIT CalStatsFitter::robustFit( const Vector<Double>& oAbs,
     const Vector<Double>& oValue, const Vector<Double>& oValueErr,
     Vector<Bool>& oFlag, const ORDER& eOrder, const WEIGHT& eWeight,
     const Double& dTrim ) {
@@ -723,20 +723,20 @@ CalStatsFitter::FIT& CalStatsFitter::robustFit( const Vector<Double>& oAbs,
 
   // Calculate the "trimmed" least-squares fit 
 
-  CalStatsFitter::FIT* poFitTrim = new CalStatsFitter::FIT();
+  CalStatsFitter::FIT fitTrim;
 
   try {
-    poFitTrim = new CalStatsFitter::FIT(
-        lsqFit( oAbs, oValue, oValueErr, oFlag, eOrder, eWeight ) );
+    fitTrim = CalStatsFitter::FIT( lsqFit( oAbs, oValue, oValueErr, oFlag, eOrder,
+                                           eWeight ) );
   }
   catch ( AipsError oAE ) {
     throw( oAE );
   }
 
 
-  // Return the reference to the FIT structure (trimmed least-squares fit)
+  // Return the FIT structure (trimmed least-squares fit)
 
-  return( *poFitTrim );
+  return fitTrim;
 
 }
 

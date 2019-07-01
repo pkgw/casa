@@ -1221,7 +1221,7 @@ Bool calanalysis::parseSPW( const ::casac::variant& spw,
 
     oChannel.resize( uiNumSPW );
     for ( uInt s=0; s<uiNumSPW; s++ ) {
-      oChannel[s] = CalAnalysis::unique<uInt>( oChannelTemp[s] );
+      CalAnalysis::unique<uInt>( oChannelTemp[s], oChannel[s] );
     }
 
   }
@@ -1303,7 +1303,7 @@ Bool calanalysis::parseFeed( const ::casac::variant& feed,
     delete [] aoFeed;
 
     oFeed.resize();
-    oFeed = CalAnalysis::unique<String>( oFeedTemp );
+    CalAnalysis::unique<String>( oFeedTemp, oFeed );
 
     if ( oFeed.nelements() != 1 && oFeed.nelements() != 2 ) {
       oFeed.resize();
