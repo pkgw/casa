@@ -1493,7 +1493,7 @@ void  MsEdit::writePseudoOnPointing()
     uInt N = pT.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        pT.putAntennaId (row, 9 ) ;     // AntennaID 
+        pT.putAntennaId (row, 0 ) ;     // AntennaID 
     }
     pT.flush();
 #endif 
@@ -1612,7 +1612,7 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt N = mta.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        mta.putAntenna (row, 9 ) ;     // AntennaID 
+        mta.putAntenna (row, 0 ) ;     // AntennaID 
     }   
     mta.flush();
 #endif 
