@@ -351,7 +351,7 @@ Outputs:
 --------
 oFreqOut - The reference to the Vector<Double> instance containing the
            frequencies.
-The Bool variable containing the success boolean, returned via
+The reference to the Bool variable containing the success boolean, returned via
 the function value.
 
 Modification history:
@@ -363,19 +363,19 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::SPW_INFO::freq( const Vector<uInt>& oSPWIn,
+Bool& CalAnalysis::SPW_INFO::freq( const Vector<uInt>& oSPWIn,
     const Vector<Vector<uInt> >& oChannelIn, Vector<Double>& oFreqOut ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Check the inputs
 
   if ( oSPWIn.nelements() != oChannelIn.nelements() ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
@@ -399,9 +399,9 @@ Bool CalAnalysis::SPW_INFO::freq( const Vector<uInt>& oSPWIn,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
@@ -444,27 +444,27 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Bool CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
+Bool& CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
     const Vector<Vector<uInt> >& oChannelIn, Vector<uInt>& oSPWOut,
     Vector<Vector<uInt> >& oChannelOut ) const {
 
   // Declare the success boolean
 
-  Bool success( false );
+  Bool* poSuccess = new Bool( false );
 
 
   // Does this instance contain valid spectral window and channel numbers?
 
   if ( !bValid ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
 
   // Get the output sorted unique spectral window number vector
 
   oSPWOut.resize();
-  unique<uInt>( oSPWIn, oSPWOut );
+  oSPWOut = unique<uInt>( oSPWIn );
 
   uInt uiNumSPWOut = oSPWOut.nelements();
 
@@ -472,14 +472,14 @@ Bool CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
   // Check the output spectral window numbers
 
   if ( uiNumSPWOut == 0 ) {
-    success = false;
-    return success;
+    *poSuccess = false;
+    return( *poSuccess );
   }
 
   for ( uInt s=0; s<uiNumSPWOut; s++ ) {
     if ( !exists<uInt>( oSPWOut[s], oSPW ) ) {
-      success = false;
-      return success;
+      *poSuccess = false;
+      return( *poSuccess );
     }
   }
 
@@ -509,8 +509,7 @@ Bool CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
   // Get output sorted unique channels within each spectral window
 
   for ( uInt s=0; s<uiNumSPWOut; s++ ) {
-    Vector<uInt> oChannelTemp;
-    unique<uInt>(oChannelOut[s], oChannelTemp);
+    Vector<uInt> oChannelTemp( unique<uInt>(oChannelOut[s]) );
     oChannelOut[s].resize();
     oChannelOut[s] = oChannelTemp;
   }
@@ -522,8 +521,8 @@ Bool CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
     uInt uiNumChannelOut = oChannelOut[s].nelements();
     for ( uInt c=0; c<uiNumChannelOut; c++ ) {
       if ( oChannelOut[s][c] >= oNumChannel[oSPWOut[s]] ) {
-        success = false;
-        return success;
+        *poSuccess = false;
+        return( *poSuccess );
       }
     }
   }
@@ -531,9 +530,9 @@ Bool CalAnalysis::SPW_INFO::spwInfoCheck( const Vector<uInt>& oSPWIn,
 
   // Return true
 
-  success = true;
+  *poSuccess = true;
 
-  return success;
+  return( *poSuccess );
 
 }
 
