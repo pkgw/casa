@@ -987,7 +987,7 @@ HPX HEALPix grid.  -->
                                  available via the vpmanager. So, gridder='awproject' does not allow
                                  the user to set this parameter.
 </description>
-      <value type="bool">False</value>
+      <value type="string"></value>
     </param>
     <param type="bool" name="mosweight" subparam="true">
            <shortdescription>Indepently weight each field in a mosaic</shortdescription>
