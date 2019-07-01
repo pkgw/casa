@@ -1421,6 +1421,14 @@ void MsEdit::prepareDataToAntennaTable( )
         // Put Data //
         ata.putRowData(ant, dt0);
     }
+    for(uInt ant = N; ant < N+1; ant++)
+    {
+        // set  //
+        setData(dt0, ant);
+        // Put Data //
+        ata.putRowData(ant, dt0);
+    }
+
 
     // flush and close // 
     ata.flush();
@@ -1484,7 +1492,6 @@ void  MsEdit::writePseudoOnPointing()
 
     uInt LoopCnt = getAvailablePointingTestingRow();
 
-#if  1 
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1493,10 +1500,9 @@ void  MsEdit::writePseudoOnPointing()
     uInt N = pT.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        pT.putAntennaId (row, 0 ) ;     // AntennaID 
+        pT.putAntennaId (row, N ) ;     // AntennaID 
     }
     pT.flush();
-#endif 
 
     //+
     // For all Antenna and Row 
@@ -1603,7 +1609,6 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt nrow_ms = mta.getNrow();
     uInt LoopCnt = getRequiredMainTestingRow()  ;
 
-#if 1 
     //+
     // CAS-8418 Review:S6
     // Clean Up TEST-MS
@@ -1612,10 +1617,9 @@ void  MsEdit::writePseudoOnMainTable(Double div)
     uInt N = mta.getNrow();
     for(uInt row=0; row < N; row++)
     {
-        mta.putAntenna (row, 0 ) ;     // AntennaID 
+        mta.putAntenna (row, N ) ;     // AntennaID 
     }   
     mta.flush();
-#endif 
 
     printf("writePseudoOnMainTable:: writing to MAIN, nrow=%d, number of data on each antenna=%d \n", 
             nrow_ms,LoopCnt );
@@ -1883,7 +1887,8 @@ typedef struct Parm {
         {
             uInt N =  getMaxOfAntenna();
 
-            appendRowOnAntennaTable(N-1);   // add  more (#0 is ready)
+            appendRowOnAntennaTable(N);  // N is required resource. existing =1, add N-1 and extra 1.
+
             prepareDataToAntennaTable();
         }
 
