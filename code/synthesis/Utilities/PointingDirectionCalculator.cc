@@ -677,7 +677,7 @@ void PointingDirectionCalculator::inspectAntenna() {
     // selectedMS_ must be sorted by ["ANTENNA1", "TIME"]
     antennaBoundary_.resize(selectedMS_->antenna().nrow() + 1);
     antennaBoundary_ = -1;
-    Int count = 0;
+    uInt count = 0;           // CAS-8418 :: Int ->iUnt //
     antennaBoundary_[count] = 0;
 
     ++count;
@@ -693,6 +693,12 @@ void PointingDirectionCalculator::inspectAntenna() {
             lastAnt = antennaList[i];
         }
     }
+    //+
+    // CAS-8418 access violation check
+    //-
+      assert( count <= selectedMS_->antenna().nrow() );
+    // end add 
+
     antennaBoundary_[count] = nrow;
     ++count;
     numAntennaBoundary_ = count;

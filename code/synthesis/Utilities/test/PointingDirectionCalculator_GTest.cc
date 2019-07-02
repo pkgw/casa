@@ -1414,21 +1414,13 @@ void MsEdit::prepareDataToAntennaTable( )
     // Write records as defined. //
     uInt N = getMaxOfAntenna();
 
-    for(uInt ant = 0; ant < N; ant++)
+    for(uInt ant = 0; ant < N+1; ant++)
     {
         // set  //
         setData(dt0, ant);
         // Put Data //
         ata.putRowData(ant, dt0);
     }
-    for(uInt ant = N; ant < N+1; ant++)
-    {
-        // set  //
-        setData(dt0, ant);
-        // Put Data //
-        ata.putRowData(ant, dt0);
-    }
-
 
     // flush and close // 
     ata.flush();
@@ -1886,9 +1878,7 @@ typedef struct Parm {
         void prepareAntenna()
         {
             uInt N =  getMaxOfAntenna();
-
             appendRowOnAntennaTable(N);  // N is required resource. existing =1, add N-1 and extra 1.
-
             prepareDataToAntennaTable();
         }
 
