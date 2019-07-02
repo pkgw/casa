@@ -776,8 +776,11 @@ class test_listobs(listobs_test_base):
         if CASA6:
             vis = casatools.ctsys.resolve('visibilities/evla/CAS-6733.ms')
 
-        else:
+        elif os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req'):
             vis = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/evla/CAS-6733.ms'
+        else:
+            vis = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/evla/CAS-6733.ms'
+            
         self.assertTrue(listobs(vis=vis))
 
     # Test average interval
