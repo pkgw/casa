@@ -3056,55 +3056,80 @@ class test_mosaic_mtmfs(testref_base):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = ''
           field='0'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
-          ret = widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.pbcor.image.tt0',1.021635,[512,596,0,0]),(self.img+'.pbcor.image.alpha', -0.4811849,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',-1.526915,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
+          widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
+          report1=self.th.checkall(imval=[(self.img+'.pbcor.image.tt0',1.021635,[512,596,0,0]),(self.img+'.pbcor.image.alpha', -0.4811849,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',-1.526915,[512,596,0,0])])
+         
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
+          widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
+          report2=self.th.checkall(imval=[(self.img+'.pbcor.image.tt0',1.02163529396,[512,596,0,0]),(self.img+'.pbcor.image.alpha', -0.481181353331 ,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',-1.52691471577,[512,596,0,0])])
+          
+          self.checkfinal(report1+report2)
      
+     ###########################
      #warning
      def test_mtmfs_standard_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
-          ret = widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.pbcor.image.tt0',0.7115,[512,596,0,0]),(self.img+'.pbcor.image.alpha',-1.2540572,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',0.027015,[512,596,0,0])])
-          self.checkfinal(report + '\n Warning: values must be theoretically validated')
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.696767389774,[512,596,0,0]),(self.img+'.alpha', -1.22704184055,[512,596,0,0])])
+          widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
+          report2=self.th.checkall(imval=[(self.img+'.pbcor.image.tt0',0.7115,[512,596,0,0]),(self.img+'.pbcor.image.alpha',-1.2540572,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',0.027015,[512,596,0,0])])
+          
+          os.system('rm -rf ' + self.img+'*')
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz')
+          report3=self.th.checkall(imval=[(self.img+'.image.tt0', 0.696766972542 ,[512,596,0,0]),(self.img+'.alpha',-1.2270386219,[512,596,0,0])])
+          widebandpbcor(vis=self.msfile, imagename=self.img,nterms=2,reffreq='1.5GHz',pbmin=0.1, field=field, spwlist=[0,1,2], chanlist=[0,0,0], weightlist=[1.0,1.0,1.0])
+          report4=self.th.checkall(imval=[(self.img+'.pbcor.image.tt0',0.7115,[512,596,0,0]),(self.img+'.pbcor.image.alpha',-1.2540572,[512,596,0,0]),(self.img+'.pbcor.workdirectory/' + self.img + '.pb.alpha',0.027015,[512,596,0,0])])
+          
+          self.checkfinal(report1 + report2 + report3 + report4 + '\n Warning: values must be theoretically validated')
           
 #############################
+     #
      def test_mtmfs_mosaic_cbFalse_onefield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',0.5302894,[512,596,0,0]),(self.img+'.pb.tt0',0.5144197,[512,596,0,0]),(self.img+'.alpha',-3.29580,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.5302894,[512,596,0,0]),(self.img+'.pb.tt0',0.5144197,[512,596,0,0]),(self.img+'.alpha',-3.29580,[512,596,0,0])])
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.450807213783 ,[512,596,0,0]),(self.img+'.pb.tt0',0.514419734478,[512,596,0,0]),(self.img+'.alpha',-1.6693893671,[512,596,0,0])])
+          self.checkfinal(report1+report2)
 
-     #warning
      def test_mtmfs_mosaic_cbFalse_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0', 0.97402,[512,596,0,0]),(self.img+'.pb.tt0', 0.982510,[512,596,0,0]),(self.img+'.alpha', -0.9880,[512,596,0,0])])
-          self.checkfinal(report + '\n Warning: values must be theoretically validated')
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0', 0.97402,[512,596,0,0]),(self.img+'.pb.tt0', 0.982510,[512,596,0,0]),(self.img+'.alpha', -0.9880,[512,596,0,0])])
           
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0', 0.982747793198,[512,596,0,0]),(self.img+'.pb.tt0', 0.982510685921,[512,596,0,0]),(self.img+'.alpha', -0.69006639719,[512,596,0,0])])
+          self.checkfinal(report1 + report2 + '\n Warning: values must be theoretically validated')
+      
      def test_mtmfs_mosaic_cbTrue_onefield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',0.492861807346,[512,596,0,0]),(self.img+'.pb.tt0', 0.492951124907,[512,596,0,0]),(self.img+'.alpha',-0.586531162262,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.492861807346,[512,596,0,0]),(self.img+'.pb.tt0', 0.492951124907,[512,596,0,0]),(self.img+'.alpha',-0.586531162262,[512,596,0,0])])
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.494806170464,[512,596,0,0]),(self.img+'.pb.tt0', 0.492951124907,[512,596,0,0]),(self.img+'.alpha',-0.548104763031,[512,596,0,0])])
+          self.checkfinal(report1 + report2)
      
-     #warning
      def test_mtmfs_mosaic_cbTrue_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',1.004476,[512,596,0,0]),(self.img+'.pb.tt0',0.98724,[512,596,0,0]),(self.img+'.alpha',-1.216693,[512,596,0,0])])
-          self.checkfinal(report + '\n Warning: values must be theoretically validated')
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',1.004476,[512,596,0,0]),(self.img+'.pb.tt0',0.98724,[512,596,0,0]),(self.img+'.alpha',-1.216693,[512,596,0,0])])
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.989150226116,[512,596,0,0]),(self.img+'.pb.tt0',0.987243115902,[512,596,0,0]),(self.img+'.alpha',-0.771613717079,[512,596,0,0])])
+          self.checkfinal(report1 + report2 + '\n Warning: values must be theoretically validated')
 
 #############################        
 
@@ -3113,38 +3138,50 @@ class test_mosaic_mtmfs(testref_base):
           phasecenter =''
           field='0'
           cfcache_path = refdatapath + 'cfcache_oneshiftpoint_mosaic_cbFalse'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',0.5269711,[512,596,0,0]),(self.img+'.pb.tt0',0.50752753,[512,596,0,0]),(self.img+'.alpha',-3.24132061,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.5269711,[512,596,0,0]),(self.img+'.pb.tt0',0.50752753,[512,596,0,0]),(self.img+'.alpha',-3.24132061,[512,596,0,0])])
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.451119929552,[512,596,0,0]),(self.img+'.pb.tt0',0.507527530193,[512,596,0,0]),(self.img+'.alpha',-1.65221953392,[512,596,0,0])])
+          self.checkfinal(report1 + report2)
 
-     #warning
+
      def test_mtmfs_awproject_cbFalse_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
           cfcache_path = refdatapath + 'cfcache_oneshiftpoint_mosaic_cbFalse'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',0.97862583398,[512,596,0,0]),(self.img+'.pb.tt0',0.979142010212,[512,596,0,0]),(self.img+'.alpha',-1.24368548393,[512,596,0,0])])
-          self.checkfinal(report + '\n Warning: values must be theoretically validated')
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.97862583398,[512,596,0,0]),(self.img+'.pb.tt0',0.979142010212,[512,596,0,0]),(self.img+'.alpha',-1.24368548393,[512,596,0,0])])
+          
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject', field=field,  cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.975049376488,[512,596,0,0]),(self.img+'.pb.tt0',0.979141950607,[512,596,0,0]),(self.img+'.alpha',-0.80353230238,[512,596,0,0])])
+          self.checkfinal(report1 + report2 + '\n Warning: values must be theoretically validated')
           
      def test_mtmfs_awproject_cbTrue_onefield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0'
           cfcache_path = refdatapath + 'cfcache_oneshiftpoint_mosaic_cbTrue'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache=cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0',0.477538466454,[512,596,0,0]),(self.img+'.pb.tt0', 0.479197412729,[512,596,0,0]),(self.img+'.alpha',  -0.562356948853,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache=cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.477538466454,[512,596,0,0]),(self.img+'.pb.tt0', 0.479197412729,[512,596,0,0]),(self.img+'.alpha',  -0.562356948853,[512,596,0,0])])
           
-          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache=cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.482177525759,[512,596,0,0]),(self.img+'.pb.tt0', 0.479197442532,[512,596,0,0]),(self.img+'.alpha',  -0.568624258041,[512,596,0,0])])
+          self.checkfinal(report1 + report2)
+             
      def test_mtmfs_awproject_cbTrue_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
           cfcache_path = refdatapath + 'cfcache_oneshiftpoint_mosaic_cbTrue'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache= cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
-          report=self.th.checkall(ret=ret, imval=[(self.img+'.image.tt0', 0.974482476711 ,[512,596,0,0]),(self.img+'.pb.tt0',0.979797422886,[512,596,0,0]),(self.img+'.alpha', -0.538577735424 ,[512,596,0,0])])
-          self.checkfinal(report)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache= cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report1=self.th.checkall(imval=[(self.img+'.image.tt0', 0.974482476711 ,[512,596,0,0]),(self.img+'.pb.tt0',0.979797422886,[512,596,0,0]),(self.img+'.alpha', -0.538577735424 ,[512,596,0,0])])
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,  cfcache= cfcache_path, conjbeams=True, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False)
+          report2=self.th.checkall(imval=[(self.img+'.image.tt0', 0.97661459446 ,[512,596,0,0]),(self.img+'.pb.tt0',0.979797422886,[512,596,0,0]),(self.img+'.alpha', -0.538577854633 ,[512,596,0,0])])
+          self.checkfinal(report1+report2)
 
 ###########################################################
 ###########################################################
@@ -3154,7 +3191,7 @@ class test_mosaic_cube(testref_base):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = ''
           field='0'
-          ret = tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,reffreq='1.5GHz',pbcor=True)
+          tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,reffreq='1.5GHz',pbcor=True)
           report1=self.th.checkall(imval=[(self.img+'.image.pbcor', 1.10922563076,[512,596,0,0]),(self.img+'.image.pbcor',0.989520609379,[512,596,0,1]),(self.img+'.image.pbcor',0.90361648798,[512,596,0,2])])
           
           source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
@@ -3163,9 +3200,18 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.505622766021, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,reffreq='1.5GHz',pbcor=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor', 1.10922467709,[512,596,0,0]),(self.img+'.image.pbcor', 0.989521086216,[512,596,0,1]),(self.img+'.image.pbcor',0.903617084026,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -0.505622766021, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
      
-     #warning
      def test_cube_standard_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
@@ -3179,7 +3225,18 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -1.249799253, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec', gridder='standard',field=field,pblimit=0.1,reffreq='1.5GHz',pbcor=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor', 0.895363807678,[512,596,0,0]),(self.img+'.image.pbcor',0.701696515083,[512,596,0,1]),(self.img+'.image.pbcor',0.539413094521,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -1.24979542771, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
      
 ###########################################################
      def test_cube_mosaic_cbFalse_mwFalse_onefield(self):
@@ -3195,7 +3252,17 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index,  -0.483567460558, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=False)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.11281049252,[512,596,0,0]),(self.img+'.image.pbcor',0.994237959385,[512,596,0,1]),(self.img+'.image.pbcor',0.912590324879,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index,  -0.48920856272, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
           
      def test_cube_mosaic_cbFalse_mwFalse_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
@@ -3210,9 +3277,19 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.516544552, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
           
           
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=False)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.11373543739,[512,596,0,0]),(self.img+'.image.pbcor',0.994349777699,[512,596,0,1]),(self.img+'.image.pbcor', 0.909038066864,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -0.500876470767, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
+           
      def test_cube_mosaic_cbFalse_mwTrue_onefield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
@@ -3226,8 +3303,18 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index,  -0.483548182038, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
           
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.11281049252,[512,596,0,0]),(self.img+'.image.pbcor',0.994237959385,[512,596,0,1]),(self.img+'.image.pbcor',0.912590324879,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index,  -0.48920856272, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
+
      def test_cube_mosaic_cbFalse_mwTrue_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
@@ -3241,15 +3328,26 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.51654520997, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
-#####################################################         
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.11373543739,[512,596,0,0]),(self.img+'.image.pbcor', 0.994349777699,[512,596,0,1]),(self.img+'.image.pbcor', 0.909038066864,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -0.50087647076, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
+#####################################################  
+
      def test_cube_awproject_cbFalse_mwFalse_onefield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0'
           cfcache_path = refdatapath + 'cfcache_oneshiftpoint_mosaic_cbFalse'
           tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=False)
-          report1=self.th.checkall(imval=[(self.img+'.image.pbcor', 1.1262229681,[512,596,0,0]),(self.img+'.image.pbcor', 0.996681272984,[512,596,0,1]),(self.img+'.image.pbcor',0.8681204319,[512,596,0,2])])
+          report1=self.th.checkall(imval=[(self.img+'.image.pbcor', 1.1262229681,[512,596,0,0]),(self.img+'.image.pbcor', 0.996681272984,[512,596,0,1]),(self.img+'.image.pbcor', 0.879481077194,[512,596,0,2])])
           
           source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
           source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
@@ -3257,7 +3355,17 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index,  -0.641964, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=False)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor', 1.13023257256,[512,596,0,0]),(self.img+'.image.pbcor', 1.00326132774,[512,596,0,1]),(self.img+'.image.pbcor',0.8681204319,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index,  -0.618663982179, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
           
      def test_cube_awproject_cbFalse_mwFalse_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
@@ -3273,7 +3381,17 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.590028509558, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=False)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.12036144733,[512,596,0,0]),(self.img+'.image.pbcor',0.994982719421,[512,596,0,1]),(self.img+'.image.pbcor', 0.889532327652,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -0.569002802902, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
           
           
      def test_cube_awproject_cbFalse_mwTrue_onefield(self):
@@ -3290,7 +3408,17 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.641964870168, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2)
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.13023257256,[512,596,0,0]),(self.img+'.image.pbcor',  1.00326132774,[512,596,0,1]),(self.img+'.image.pbcor', 0.879481077194,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index,  -0.61866398217, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4)
           
      def test_cube_awproject_cbFalse_mwTrue_twofield(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
@@ -3306,5 +3434,15 @@ class test_mosaic_cube(testref_base):
           v2 = 1.8 #In GHz
           spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
           report2 = self.th.checkval(spectral_index, -0.590028509558, valname='Spectral flux', exact=False)
-          self.checkfinal(report1+report2) 
+          
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field,cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=True)
+          report3=self.th.checkall(imval=[(self.img+'.image.pbcor',1.12036144733,[512,596,0,0]),(self.img+'.image.pbcor',0.994982719421,[512,596,0,1]),(self.img+'.image.pbcor', 0.889532327652,[512,596,0,2])])
+          
+          source_flux_v0 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,0])
+          source_flux_v2 = self.th.get_pix(self.img+'.image.pbcor',[512,596,0,2])
+          v0 = 1.2 #In GHz
+          v2 = 1.8 #In GHz
+          spectral_index = np.log(source_flux_v0/source_flux_v2)/np.log(v0/v2)
+          report4 = self.th.checkval(spectral_index, -0.569002802902, valname='Spectral flux', exact=False)
+          self.checkfinal(report1+report2+report3+report4) 
 
