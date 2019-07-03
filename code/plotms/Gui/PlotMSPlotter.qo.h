@@ -38,6 +38,11 @@
 
 #include <QMainWindow>
 #include <QToolButton>
+#if defined(WITHOUT_DBUS)
+#include <queue>
+#include <mutex>
+#include <functional>
+#endif
 
 namespace casa {
 
@@ -215,7 +220,15 @@ public slots:
     
     virtual bool close();
 
-    
+#if defined(WITHOUT_DBUS)
+    void grpc_handle_op( );
+    void grpc_exit_now( );
+
+public:
+		std::mutex grpc_queue_mutex;
+		std::queue<std::function<void()>> grpc_queue;
+#endif
+
 protected:
     // Overrides QWidget::closeEvent(), in case we're dealing with a plotter
     // that isn't Qt and thus is in its own window (and possibly its own

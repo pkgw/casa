@@ -67,7 +67,9 @@ VisBuffer::VisBuffer()
     validate();
     oldMSId_p = -1;
 
-    if (VisModelDataI::create() != NULL) visModelData_p = VisModelDataI::create();
+    std::unique_ptr<casa::VisModelDataI> check(VisModelDataI::create());
+    if (check)
+        visModelData_p = check.release();
 }
 
 VisBuffer::VisBuffer(ROVisibilityIterator & iter)
@@ -79,7 +81,9 @@ VisBuffer::VisBuffer(ROVisibilityIterator & iter)
     oldMSId_p = -1;
     corrSorted_p = false;
 
-    if (VisModelDataI::create() != NULL) visModelData_p = VisModelDataI::create();
+    std::unique_ptr<casa::VisModelDataI> check(VisModelDataI::create());
+    if (check)
+        visModelData_p = check.release();
 }
 
 VisBuffer::VisBuffer(const VisBuffer & vb)
