@@ -35,8 +35,24 @@ def importvla(archivefiles,vis,
 			else:
 				raise Exception, 'Archive file not found - please verify the name'
 	except Exception, instance:
-		print '*** Error importing %s to %s:' % (archivefiles, vis)
-		raise Exception, instance
+		casalog.post("*** Error importing %s to %s" % (archivefiles, vis), 'SEVERE')
+                casalog.post("    %s" % instance, 'SEVERE')
+		raise
+
+        nrows = 0
+        try:
+           _tb = tbtool()
+           ok &=_tb.open(vis)
+           nrows =  _tb.nrows()
+	   _tb.done()
+        except Exception, instance:
+           casalog.post("*** Error checking size of visibility file %s: %s" % (vis,instance), 'SEVERE')
+           raise
+
+        if nrows == 0:
+           msg = "*** visibility file is empty: %s" % vis
+           casalog.post(msg, 'SEVERE')
+           raise Exception(msg)
 
     # Write history
 	try:
@@ -49,13 +65,14 @@ def importvla(archivefiles,vis,
                              'WARN')
 
     # write initial flag version
-	try:
+        if ok:
+	   try:	
 		aflocal = casac.agentflagger()
 		ok &= aflocal.open(vis);
 		ok &= aflocal.saveflagversion('Original',
 							comment='Original flags at import into CASA',
 							merge='replace')
 		ok &= aflocal.done();
-	except Exception, instance:
-		print '*** Error writing initial flag version of %s:' % vis
-		raise Exception, instance
+	   except Exception, instance:
+		casalog.post("*** Error writing initial flag version of %s: %s" % (vis, instance), 'SEVERE')
+		raise

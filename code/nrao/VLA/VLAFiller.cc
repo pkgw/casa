@@ -104,8 +104,6 @@
 
 #include <tables/TaQL/ExprNode.h>
 
-
-
 const uInt maxCDA(VLAEnum::CDA3+1);
 const uInt maxIF(VLAEnum::IFD+1);
 const uInt nCat = 6; // Number of Flag categories
@@ -345,7 +343,6 @@ void VLAFiller::fill(Int verbose){
 	   << LogIO::POST;
 
 
-      
     while (fillOne()) {
       counts.nVLARecords++;
       if (nrow() != counts.nRows) {
@@ -421,14 +418,15 @@ void VLAFiller::fill(Int verbose){
 
   scanNumber().rwKeywordSet().define(RecordFieldId("LAST_SCAN"), 
 				     Vector<Int>(itsScan));
-
+ 
   {
     MSSpWindowColumns msSpW(itsMS.spectralWindow());
     Int nSpw=itsMS.spectralWindow().nrow();
-    if(nSpw==0) nSpw=1;
     Matrix<Int> selection(2,nSpw);
-    selection.row(0)=0; //start
-    selection.row(1)=msSpW.numChan().getColumn(); 
+    if (nSpw > 0) {
+       selection.row(0)=0; //start
+       selection.row(1)=msSpW.numChan().getColumn();
+    }
     ArrayColumn<Complex> mcd(itsMS,"MODEL_DATA");
     mcd.rwKeywordSet().define("CHANNEL_SELECTION",selection);
   }
@@ -1813,8 +1811,12 @@ void VLAFiller::logChanges(IterationStatus& counts) {
       if (d < thisDataId.nelements()) {
 	const Int curDD = thisDataId[d];
 	const Int curSpw = dd.spectralWindowId()(curDD);
+        bool logPostPending = false;
 	if (lastSpw[d] != curSpw) {
+          logPostPending = true;
 	  lastSpw[d] = curSpw;
+          // also reset lastPol so the pol is logged for this spw
+          lastPol[d] = -1;
 	  //itsLog << "Spectral window for IF#" 
 	  itsLog << "Spectral window " 
 		 << spw.ifConvChain()(curSpw) + 1
@@ -1831,10 +1833,11 @@ void VLAFiller::logChanges(IterationStatus& counts) {
 	  //  counts.nSpw =  curSpw + 1;
 	  //  itsLog << " NEW";
 	  //}
-	  //itsLog << LogIO::POST;
+	  // itsLog << LogIO::POST;
 	}
 	const Int curPol = dd.polarizationId()(curDD);
 	if (lastPol[d] != curPol) {
+          logPostPending = true;
 	  lastPol[d] = curPol;
 	  //itsLog << "Polarization setup for IF#" 
 	  //	 << spw.ifConvChain()(curSpw) + 1
@@ -1856,8 +1859,12 @@ void VLAFiller::logChanges(IterationStatus& counts) {
 	  //  counts.nPol =  curPol + 1;
 	  //  itsLog << " NEW";
 	  //}
-	  itsLog << LogIO::POST;
+	  //itsLog << LogIO::POST;
 	}
+        if (logPostPending) {
+            itsLog << LogIO::POST;
+            logPostPending = false;
+        }
       } else {
 	lastSpw[d] = -1;
 	lastPol[d] = -1;
