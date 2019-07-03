@@ -3248,7 +3248,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  "In the future, we may support the combination to signal the use of single-pointing sized image grids during gridding and iFT, "
 	  "and only accumulating it on the large mosaic image. For now, please set either mappertype='default' to get mosaic gridding "
 	  " or ftmachine='ft' or 'wprojectft' to get image domain mosaics. \n"; }
-
+    if( (ftmachine=="mosaicft") && (doPointing==True))
+      {
+	err+= "Cannot use "+ ftmachine + " with doPointing = True. The mode is currently not supported. It will be in an upcoming version." ;}
     if( facets < 1 )
       {err += "Must have at least 1 facet\n"; }
     //if( chanchunks < 1 )
@@ -3300,7 +3302,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     interpolation=String("nearest");
 
     //mosaic use pointing
-    usePointing=false;
+    doPointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3350,8 +3352,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
-    gridpar.define("usepointing", usePointing);
-    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));
