@@ -668,13 +668,14 @@ HPX HEALPix grid.  -->
                          When calculating weight density for Briggs
                          style weighting in a cube, this parameter
                          determines whether to calculate the weight
-                         density for each channel independently or a
-                         common weight density for all of the selected
-                         data (the default). This parameter has no
+                         density for each channel independently 
+                         (the default, True)
+                         or a common weight density for all of the selected
+                         data. This parameter has no
                          meaning for continuum (specmode='mfs')
                          imaging but for cube imaging
                          perchanweightdensity=True is a recommended
-                         alternative option that provides more uniform
+                         option that provides more uniform
                          sensitivity per channel for cubes, but with
                          generally larger psfs than the
                          perchanweightdensity=False (prior behavior)
