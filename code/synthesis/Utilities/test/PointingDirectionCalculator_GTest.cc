@@ -229,7 +229,7 @@ private:
      //*
 
      const bool fgCopyMS    = true;   // MUST BE  TRUE, except r, except rare debugging case. 
-     const bool fgDeleteMS  = true;   // if FALSE, MS is not deleted. (for debug) 
+     const bool fgDeleteMS  = false;   // if FALSE, MS is not deleted. (for debug) 
 };
 
 //+
@@ -3305,6 +3305,97 @@ TEST_F(TestSetFrame, setFrame )
             check_direction_info( calc, itr->name, itr->available ) ;
         }
 }
+
+TEST_F(TestDirection, MAIN )
+{
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+    MainTableAccess mta(remote_ms);
+
+    String filename = "8418-mainTable.csv" ;
+    mta.dump( filename );
+
+}
+
+TEST_F(TestDirection, POINTING )
+{
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+    PointingTableAccess pta(remote_ms);
+
+    String filename = "8418-pointingTable.csv" ;
+    pta.dump( filename );
+
+}
+
+TEST_F(TestDirection, EPH )
+{
+// Copy specified MS to local MS.
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+
+// Measurment Set and Constructor //
+    MeasurementSet ms0( remote_ms  );
+    PointingDirectionCalculator calc(ms0);
+
+// setFrame // 
+#if 0
+    calc.setFrame( "J2000" );
+#else
+    calc.setFrame( "AZELGEO" );
+#endif 
+
+// setMogving Source //
+
+    calc.setMovingSource( "URANUS" );
+
+// getDirection //
+    Matrix<Double> DirList  = calc.getDirection();
+    auto N_Col    = DirList.ncolumn();
+    auto N_Row    = DirList.nrow();
+        printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
+
+// List //
+
+    for (uInt row=0; row < N_Row ; row++)
+    {
+
+        Double dir_x = DirList(row,0);
+        Double dir_y = DirList(row,1);
+
+        printf ("Dir, %d, %12.8f, %12.8f  \n", row, dir_x, dir_y );
+
+    }
+
+
+#if 0
+// Coeff //
+    
+    PointingDirectionCalculator::COEFF coeff = calc.exportCoeff();
+
+    uInt ant =0;
+    uInt size = coeff[0].size();
+    for(uInt Index =0; Index<size; Index++)
+    {
+        Double a0 = coeff[ant][Index][0][0];
+        Double a1 = coeff[ant][Index][0][1];
+        Double a2 = coeff[ant][Index][0][2];
+        Double a3 = coeff[ant][Index][0][3];
+
+        Double b0 = coeff[ant][Index][1][0];
+        Double b1 = coeff[ant][Index][1][1];
+        Double b2 = coeff[ant][Index][1][2];
+        Double b3 = coeff[ant][Index][1][3];
+
+
+        printf ("%d, %9.6f,%9.6f,%9.6f,%9.6f, | , %9.6f,%9.6f,%9.6f,%9.6f  \n",
+                Index, a0,a1,a2,a3,   b0,b1,b2,b3 );
+    }
+
+#endif 
+
+
+}
+
+
+
 
 }  // END namespace
 
