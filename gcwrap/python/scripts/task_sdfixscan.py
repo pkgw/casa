@@ -15,7 +15,9 @@ def create_4d_image(infile, outfile):
     try:
         if len(image_shape) < 4:
             # add degenerate axes
-            axistypes = ia.coordsys().axiscoordinatetypes()
+
+            cs = ia.coordsys()
+            axistypes = cs.axiscoordinatetypes()
             no_stokes = 'Stokes' not in axistypes
             no_spectral = 'Spectral' not in axistypes
             stokes_axis = 'I' if no_stokes else ''
@@ -25,6 +27,7 @@ def create_4d_image(infile, outfile):
             # generage complete copy of input image using subimage
             outimage = ia.subimage(outfile=outfile)
     finally:
+        if len(image_shape) < 4: cs.done()
         ia.close()
         
     return outimage
@@ -329,6 +332,8 @@ class sdfixscan_worker(sdutil.sdtask_interface):
             direction_axis1 = axis_types[direction_axis0+1:].index('Direction') + direction_axis0 + 1
         except IndexError:
             raise RuntimeError('Direction axes don\'t exist.')
+        finally:
+            coordsys.done()
         nx = imshape_out[direction_axis0]
         ny = imshape_out[direction_axis1]
         tmp=[]
