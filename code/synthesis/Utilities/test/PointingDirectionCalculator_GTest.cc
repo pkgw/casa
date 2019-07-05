@@ -3336,15 +3336,11 @@ TEST_F(TestDirection, EPH )
     PointingDirectionCalculator calc(ms0);
 
 // setFrame // 
-#if 0
-    calc.setFrame( "J2000" );
-#else
+
     calc.setFrame( "AZELGEO" );
-#endif 
 
 // setMogving Source //
-
-    calc.setMovingSource( "URANUS" );
+//    calc.setMovingSource( "URANUS" );
 
 // getDirection //
     Matrix<Double> DirList  = calc.getDirection();
@@ -3385,7 +3381,7 @@ TEST_F(TestDirection, EPH )
         Double b3 = coeff[ant][Index][1][3];
 
 
-        printf ("%d, %9.6f,%9.6f,%9.6f,%9.6f, | , %9.6f,%9.6f,%9.6f,%9.6f  \n",
+        printf ("COEFF,%d, %9.6f,%9.6f,%9.6f,%9.6f, | , %9.6f,%9.6f,%9.6f,%9.6f  \n",
                 Index, a0,a1,a2,a3,   b0,b1,b2,b3 );
     }
 
