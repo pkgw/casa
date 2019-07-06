@@ -269,6 +269,7 @@ String MSCacheVolMeter::evalVolume(map<PMS::Axis,Bool> axes, Vector<Bool> axesma
 			case PMS::ANTPOS:
 			case PMS::ATM:
 			case PMS::TSKY:
+			case PMS::POLN:
 			case PMS::NONE:
 				break;
 			} // switch
@@ -458,6 +459,7 @@ String MSCacheVolMeter::evalVolume(std::vector<IPosition> vbShapes,
 			case PMS::ANTPOS:
 			case PMS::ATM:
 			case PMS::TSKY:
+			case PMS::POLN:
 			case PMS::NONE:
 				break;
 			} // switch

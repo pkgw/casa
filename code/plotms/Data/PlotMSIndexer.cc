@@ -88,7 +88,7 @@ PlotMSIndexer::PlotMSIndexer():
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = 0;
-	}
+}
 
 PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
 		PMS::Axis xAxis, PMS::DataColumn xData,
@@ -707,8 +707,15 @@ void PlotMSIndexer::setUpIndexing() {
 	nPoints_.reference(nSegPoints_);
 	nCumulative_.reference(nCumulPoints_);
 
-	if (itsXConnect_ != "none")
+	if (itsXConnect_ != "none") {
 		reindexForConnect();
+	}
+
+	// Compute nominal plot ranges
+	computeRanges();
+
+	// The indexer is now ready for plotting
+	indexerReady_ = true;
 }
 
 void PlotMSIndexer::reindexForConnect() {
@@ -2073,8 +2080,8 @@ void PlotMSIndexer::collapseMask0001(Int ch,Array<Bool>& collmask) {
 void PlotMSIndexer::computeRanges() {
 
 	// Initialize limits
-	xmin_=ymin_=xflmin_=yflmin_=DBL_MAX;
-	xmax_=ymax_=xflmax_=yflmax_=-DBL_MAX;
+	xmin_=ymin_=xflmin_=yflmin_ = DBL_MAX;
+	xmax_=ymax_=xflmax_=yflmax_ = -DBL_MAX;
 
 	// We will count up flagged/unflagged here
 	sizeMasked_=sizeUnMasked_=0;
