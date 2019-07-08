@@ -48,7 +48,10 @@
 #include <nrao/VLA/VLAEnum.h>
 #include <nrao/VLA/VLAFilterSet.h>
 #include <nrao/VLA/VLALogicalRecord.h>
-    
+
+#include <unordered_map>
+#include <string>
+
 #include <casa/namespace.h>
 namespace casacore{
 
@@ -314,6 +317,7 @@ private:
   casacore::Bool itsEVLAisOn;
   casacore::Bool itsInitEpoch;
   casacore::Bool itsRevBeenWarned;
+  std::unordered_map<std::string, bool> itsTransferWarned;
   
 };
 #endif

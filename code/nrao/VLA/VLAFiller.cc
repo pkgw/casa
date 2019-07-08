@@ -896,14 +896,18 @@ Bool VLAFiller::fillOne() {
     const Stokes::StokesTypes ant0Pol = itsRecord.ADA(0).ifPol(VLAEnum::IFA);
     for (uInt a = 1; a < nAnt; a++) {
       if (itsRecord.ADA(a).ifPol(VLAEnum::IFA) != ant0Pol) {
- 	itsLog << LogIO::WARN
- 	       << "The IF transfer switch for antenna " 
- 	       << itsRecord.ADA(a).antName(itsNewAntName)
-	       << " is different from the setting for antenna " 
-	       << itsRecord.ADA(0).antName(itsNewAntName) << "." << endl
-	       << "Correlations involving this antenna may have "
-	       << "incorrect polarisation labelling." 
-	       << LogIO::POST;
+          // only warn if there's been no warning on this antenna yet - only ants with warnings are ever here
+          if (itsTransferWarned.count(itsRecord.ADA(a).antName(itsNewAntName)) == 0) {
+              itsLog << LogIO::WARN
+                     << "The IF transfer switch for antenna " 
+                     << itsRecord.ADA(a).antName(itsNewAntName)
+                     << " is different from the setting for antenna " 
+                     << itsRecord.ADA(0).antName(itsNewAntName) << "." << endl
+                     << "Correlations involving this antenna may have "
+                     << "incorrect polarisation labelling." 
+                     << LogIO::POST;
+              itsTransferWarned[itsRecord.ADA(a).antName(itsNewAntName)] = true;
+          }
       }
     }
   }
