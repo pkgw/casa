@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" ?>
+<casaxml xmlns="http://casa.nrao.edu/schema/psetTypes.html"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://casa.nrao.edu/schema/casa.xsd
+file:///opt/casa/code/xmlcasa/xml/casa.xsd">
+
+<task type="function" name="nrobeamaverage" category="single dish">
+     <shortdescription>Average SD data over beams and do time averaging</shortdescription>
+
+<description>
+    
+    The task nrobeamaverage is for Nobeyama dataset of ON-ON observations.
+    It averages on-source spectra having specified beam IDs over specified 
+    time bins. 
+    
+</description>
+
+<input>
+
+    <param type="string" name="infile" mustexist="true">
+        <description>name of input SD dataset</description>
+        <value></value>
+    </param>
+    
+    <param type="string" name="datacolumn" ignorecase="true">
+        <description>name of data column to be used ["data", "float_data", or "corrected_data"]</description>
+        <value>float_data</value>
+    </param>
+
+    <param type="string" name="field">
+        <description>select data by field IDs and names, e.g. "3C2*" (""=all)</description>
+        <value></value>
+    </param>
+
+    <param type="string" name="spw">
+        <description>select data by IF IDs (spectral windows), e.g. "3,5,7" (""=all)</description>
+        <value></value>
+    </param>
+    
+    <param type="string" name="timerange">
+        <description>select data by time range, e.g. "09:14:0~09:54:0" (""=all) (see examples in help)</description>
+        <value></value>
+    </param>
+    
+    <param type="string" name="scan">
+        <description>select data by scan numbers, e.g. "21~23" (""=all)</description>
+        <value></value>
+    </param>
+
+    <param type="string" name="beam">
+        <description>beam IDs to be averaged over, e.g. "1,3" (""=all)</description>
+        <value></value>
+    </param>
+
+    <param type="string" name="timebin">
+        <description>bin width for time averaging.</description>     
+        <value type="string">0s</value>
+    </param>
+
+    <param type="string" name="outfile">
+        <description>name of output file</description>
+        <value></value>
+    </param>
+</input>
+
+<example>  
+-----------------
+Keyword arguments
+-----------------
+infile -- name of input SD dataset
+datacolumn -- name of data column to be used
+        options: 'data', 'float_data', or 'corrected_data'
+        default: 'float_data'
+field -- select data by field IDs and names
+        default: '' (use all fields)
+        example: field='3C2*' (all names starting with 3C2)
+                 field='0,4,5~7' (field IDs 0,4,5,6,7)
+                 field='0,3C273' (field ID 0 or field named 3C273)
+        this selection is in addition to the other selections to data
+spw -- select data by IF IDs (spectral windows)
+        default: '' (use all IFs)
+        example: spw='0~2,4'; spectral windows 0,1,2,4 (all channels)
+                 spw='&lt;2';  spectral windows less than 2 (i.e. 0,1)
+        this selection is in addition to the other selections to data
+timerange -- select data by time range
+        default: '' (use all)
+        example: timerange = 'YYYY/MM/DD/hh:mm:ss~YYYY/MM/DD/hh:mm:ss'
+                 Note: YYYY/MM/DD can be dropped as needed:
+                 timerange='09:14:00~09:54:00' # this time range
+                 timerange='09:44:00' # data within one integration of time
+                 timerange='&gt;10:24:00' # data after this time
+                 timerange='09:44:00+00:13:00' #data 13 minutes after time
+        this selection is in addition to the other selections to data
+scan -- select data by scan numbers
+        default: '' (use all scans)
+        example: scan='21~23' (scan IDs 21,22,23)
+        this selection is in addition to the other selections to data
+beam -- beam IDs to be averaged over
+        default: '' (all beam IDs)
+        example: beam='1,3' (beam IDs 1 and 3)
+                 NOTE: beam IDs of averaged spectra in the output file will 
+                       be the smallest one, e.g., in case of beam='1,3', 
+                       the averaged output spectra will have beam ID 1.
+                       Note also that beam IDs should be stored in the 
+                       ANTENNA column of input MS.
+timebin -- bin width for time averaging
+           default: '' (only beam IDs changed, no time averaging)
+outfile -- name of output file
+
+</example>
+</task>
+</casaxml>

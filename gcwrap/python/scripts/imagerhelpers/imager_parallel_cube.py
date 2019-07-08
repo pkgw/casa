@@ -72,6 +72,18 @@ class PyParallelCubeSynthesisImager():
                 allimagepars[fid]['nchan'] = self.SItool.updatenchan()
             alldataimpars[fid] = self.PH.partitionCubeSelection(allselpars,allimagepars[fid])
 
+        # if there are more nodes than nchan, there would be node(s)
+        # that do not get any subcubes and causes an error. So
+        # to avoid this, reduces the number of nodes actually uses.
+        # Variable nchans among the fields are not supported yet in parallel mode
+        fid0nchan = allimagepars['0']['nchan']
+        nnodes = len(self.listOfNodes)
+        if nnodes > fid0nchan:
+           self.modifiedListOfNodes = self.listOfNodes[0:fid0nchan]
+           casalog.post("Nchan = "+str(fid0nchan)+", Will use only "+str(len(self.modifiedListOfNodes))+" nodes out of "+str(nnodes), "WARN");
+        else:
+           self.modifiedListOfNodes = self.listOfNodes[:]
+
         #print "********************** ", alldataimpars.keys()
         #for kk in alldataimpars.keys():
         #    print "KEY : ", kk , " --->", alldataimpars[kk].keys()
@@ -84,7 +96,8 @@ class PyParallelCubeSynthesisImager():
         # Repack the data/image parameters per node
         #  - internally it stores zero-based node ids
         #  
-        for ipart in self.listOfNodes:
+        #for ipart in self.listOfNodes:
+        for ipart in self.modifiedListOfNodes:
             # convert to zero-based indexing for nodes
             nodeidx = str(ipart-1)
             tnode = str(ipart)
@@ -132,7 +145,8 @@ class PyParallelCubeSynthesisImager():
         joblist=[]
         #### MPIInterface related changes
         #for node in range(0,self.NN):
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("from imagerhelpers.input_parameters import ImagerParameters", node) )
             joblist.append( self.PH.runcmd("from imagerhelpers.imager_base import PySynthesisImager", node) )
         self.PH.checkJobs( joblist )
@@ -141,7 +155,8 @@ class PyParallelCubeSynthesisImager():
         joblist=[]
         #### MPIInterface related changes
         #for node in range(0,self.NN):
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("paramList = ImagerParameters()", node) )
             joblist.append( self.PH.runcmd("paramList.setSelPars("+str(self.allselpars[str(node)])+")", node) )
             joblist.append( self.PH.runcmd("paramList.setImagePars("+str(self.allimpars[str(node)])+")", node) )
@@ -162,26 +177,30 @@ class PyParallelCubeSynthesisImager():
 
     def initializeImagers(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.initializeImagers()", node) )
         self.PH.checkJobs( joblist )
 
     def initializeDeconvolvers(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.initializeDeconvolvers()", node) )
         self.PH.checkJobs( joblist )
 
     def initializeNormalizers(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.initializeNormalizers()", node) )
         self.PH.checkJobs( joblist )
 
     def setWeighting(self):
         ## Set weight parameters and accumulate weight density (natural)
         joblist=[];
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             ## Set weighting pars
             joblist.append( self.PH.runcmd("imager.setWeighting()", node ) )
         self.PH.checkJobs( joblist )
@@ -189,32 +208,37 @@ class PyParallelCubeSynthesisImager():
 
     def initializeIterationControl(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.initializeIterationControl()", node) )
         self.PH.checkJobs( joblist )
 
     def makePSF(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.makePSF()", node) )
         self.PH.checkJobs( joblist )
 
     def runMajorMinorLoops(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.runMajorMinorLoops()", node) )
         self.PH.checkJobs( joblist )
 
     def runMajorCycle(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 joblist.append( self.PH.runcmd("imager.runMajorCycle()", node) )
         self.PH.checkJobs( joblist )
 
     def runMinorCycle(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 joblist.append( self.PH.runcmd("imager.runMinorCycle()", node) )
         self.PH.checkJobs( joblist )
@@ -223,7 +247,8 @@ class PyParallelCubeSynthesisImager():
     def hasConverged(self):
 
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 joblist.append( self.PH.runcmd("rest = imager.hasConverged()", node) )
         self.PH.checkJobs( joblist )
@@ -231,7 +256,8 @@ class PyParallelCubeSynthesisImager():
 #        self.PH.runcmdcheck("rest = imager.hasConverged()")
 
         retval = True
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 rest = self.PH.pullval("rest", node )
                 retval = retval and rest[node]
@@ -243,7 +269,8 @@ class PyParallelCubeSynthesisImager():
     def updateMask(self):
 
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 joblist.append( self.PH.runcmd("maskchanged = imager.updateMask()", node) )
         self.PH.checkJobs( joblist )
@@ -251,7 +278,8 @@ class PyParallelCubeSynthesisImager():
 #        self.PH.runcmdcheck("maskchanged = imager.updateMask()")
 
         retval = False
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             if self.exitflag[str(node)]==False:
                 rest = self.PH.pullval("maskchanged", node )
                 retval = retval or rest[node]
@@ -261,25 +289,29 @@ class PyParallelCubeSynthesisImager():
 
     def predictModel(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.predictmodel()", node) )
         self.PH.checkJobs( joblist )
 
     def restoreImages(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.restoreImages()", node) )
         self.PH.checkJobs( joblist )
 
     def pbcorImages(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.pbcorImages()", node) )
         self.PH.checkJobs( joblist )
 
     def makePB(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.makePB()", node) )
         self.PH.checkJobs( joblist )
 
@@ -292,7 +324,8 @@ class PyParallelCubeSynthesisImager():
                 concatimname=self.allinimagepars[str(immod)]['imagename']+'.'+ ext
                 distpath = os.getcwd()
                 fullconcatimname = distpath+'/'+concatimname
-                for node in self.listOfNodes:
+                #for node in self.listOfNodes:
+                for node in self.modifiedListOfNodes:
                     #rootimname=self.allinimagepars[str(immod)]['imagename']+'.n'+str(node)
                     #fullimname =  self.PH.getpath(node) + '/' + rootimname 
                     fullimname = self.PH.getpartimagename( self.allinimagepars[str(immod)]['imagename']  , node )
@@ -319,12 +352,14 @@ class PyParallelCubeSynthesisImager():
 
     def getSummary(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("summ = imager.getSummary("+str(node)+")", node) )
         self.PH.checkJobs( joblist )
 
         fullsumm={}
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
              summ = self.PH.pullval("summ", node )
              fullsumm["node"+str(node)] = summ
 
@@ -332,7 +367,8 @@ class PyParallelCubeSynthesisImager():
 
     def deleteTools(self):
         joblist=[]
-        for node in self.listOfNodes:
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
             joblist.append( self.PH.runcmd("imager.deleteTools()", node) )
         self.PH.checkJobs( joblist )
 

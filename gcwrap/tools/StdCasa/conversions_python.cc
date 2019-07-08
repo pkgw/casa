@@ -42,10 +42,12 @@ STRINGTOCOMPLEX_DEFINITION(casac::complex,stringtoccomplex)
 
 #if USING_NUMPY_ARRAYS
 
+// Create a numpy array description that will be passed to with PyArray_NewFromDescr.
+// PyArray_NewFromDescr will steal it.
 static PyArray_Descr *get_string_description(unsigned int size) {
-    PyArray_Descr *string_descr = (PyArray_Descr*) malloc(sizeof(PyArray_Descr));
-    memcpy(string_descr,PyArray_DescrFromType(NPY_STRING),sizeof(PyArray_Descr));
+    auto string_descr = PyArray_DescrNewFromType(NPY_STRING);
     string_descr->elsize = size;
+
     return string_descr;
 }
 
@@ -624,9 +626,10 @@ MAP_ARRAY_NUMPY(bool, npy_bool, NPY_BOOL,*to = (npy_bool) *from)
 PyObject *map_vector_numpy( const std::vector<std::string> &vec ) {
     initialize_numpy( );
     unsigned int size = 0;
-    for ( std::vector<std::string>::const_iterator iter = vec.begin(); iter != vec.end(); ++iter ) {
-	unsigned int slen = (*iter).size( );
-	if ( slen > size ) size = slen;
+    for ( const auto &elem : vec ) {
+        unsigned int slen = elem.size();
+        if ( slen > size )
+            size = slen;
     }
     npy_intp dim[1];
     dim[0] = vec.size();
@@ -644,9 +647,10 @@ PyObject *map_vector_numpy( const std::vector<std::string> &vec ) {
 PyObject *map_array_numpy( const std::vector<std::string> &vec, const std::vector<int> &shape ) {
     initialize_numpy( );
     unsigned int size = 0;
-    for ( std::vector<std::string>::const_iterator iter = vec.begin(); iter != vec.end(); ++iter ) {
-	unsigned int slen = (*iter).size( );
-	if ( slen > size ) size = slen;
+    for ( const auto &elem : vec ) {
+        unsigned int slen = elem.size();
+        if ( slen > size )
+            size = slen;
     }
     npy_intp *dim = new npy_intp[shape.size()];
     copy( shape.begin(), shape.end(), dim );
