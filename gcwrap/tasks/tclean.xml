@@ -2653,7 +2653,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="mosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-<!--         <default param="dopointing"><value>False</value></default> -->
+         <default param="dopointing"><value>False</value></default> 
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2662,7 +2662,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="mosaicft">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-<!--         <default param="dopointing"><value>False</value></default> -->
+         <default param="dopointing"><value>False</value></default>
          <default param="doweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2671,7 +2671,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="ftmosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-<!--         <default param="dopointing"><value>False</value></default> -->
+         <default param="dopointing"><value>False</value></default>
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
        </equals>

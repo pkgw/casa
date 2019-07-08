@@ -1896,7 +1896,6 @@ void SynthesisImagerVi2::unlockMSs()
       //kpb=PBMath::DEFAULT;
     }
    
-    gridpars_p.doPointing=False ;// This is set here until the doPointing mosaic pointing code is turned on. Remove when in place.
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
 				   useDoublePrec, doConjBeams, gridpars_p.doPointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;

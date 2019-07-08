@@ -3179,8 +3179,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-	//mosaic use pointing
-	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3248,9 +3246,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  "In the future, we may support the combination to signal the use of single-pointing sized image grids during gridding and iFT, "
 	  "and only accumulating it on the large mosaic image. For now, please set either mappertype='default' to get mosaic gridding "
 	  " or ftmachine='ft' or 'wprojectft' to get image domain mosaics. \n"; }
-    if( (ftmachine=="mosaicft") && (doPointing==True))
-      {
-	err+= "Cannot use "+ ftmachine + " with doPointing = True. The mode is currently not supported. It will be in an upcoming version." ;}
+
     if( facets < 1 )
       {err += "Must have at least 1 facet\n"; }
     //if( chanchunks < 1 )
