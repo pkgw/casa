@@ -318,6 +318,6 @@ private:
   casacore::Bool itsInitEpoch;
   casacore::Bool itsRevBeenWarned;
   std::unordered_map<std::string, bool> itsTransferWarned;
-  
+  bool itsNoPolInfoWarned;  
 };
 #endif

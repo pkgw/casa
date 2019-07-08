@@ -180,7 +180,8 @@ VLAFiller::VLAFiller(MeasurementSet& output, VLALogicalRecord& input, Double fre
   itsApplyTsys(applyTsys),
   itsEVLAisOn(false),
   itsInitEpoch(false),
-  itsRevBeenWarned(false)
+  itsRevBeenWarned(false),
+  itsNoPolInfoWarned(false)
 {
   String antscheme=antnamescheme;
   antscheme.downcase();
@@ -741,142 +742,156 @@ Bool VLAFiller::fillOne() {
       itsSpId[c] = -1;
     } else {
       const VLAEnum::CDA thisCDA = VLAEnum::CDA(c);
-      // Firstly, determine the spectral characteristics of the
-      // data in the current CDA
-      const uInt nChan = sda.nChannels(thisCDA);
-      const Unit hz("Hz");
-      const Double chanWidth = sda.channelWidth(thisCDA);
-      const Quantum<Double> bandwidth(nChan*chanWidth, hz);
-      // The tolerance is set at 1/4 of a channel. It is not set smaller
-      // because when Doppler tracking is used the total bandwidth, when
-      // converted to the rest type, will be slightly different from the
-      // topocentric value. // above is the original comments.
-		// We reset the default tolerance for frequency to be the value of the
-		// channel width and also give user the ability to pass in a tolerance
-		// for frequency into vlafillerfromdisk(). For dataset G192 we need a 
-		// tolerance of 6 times of the channe width. For dataset NGC7538, one
-		// has to give a tolerance as larger as 60 times its channel width ( 60000000Hz ).
+      // can not deal with npol = 0, may be arising in poorly understood old correlator modes, needs investigating
+      if (sda.npol(thisCDA) == 0) {
+          // warn once and consider as if this is an invalid CDA
+          if (!itsNoPolInfoWarned) {
+              itsNoPolInfoWarned = true;
+              itsLog << LogIO::SEVERE
+                     << "Unable to determine polarization information for some or all correlator modes." << endl
+                     << "That data can not be filled and the resulting visibility file may be empty."
+                     << LogIO::POST;
+          }
+          itsSpId[c] = -1;
+      } else {
+          // Firstly, determine the spectral characteristics of the
+          // data in the current CDA
+          const uInt nChan = sda.nChannels(thisCDA);
+          const Unit hz("Hz");
+          const Double chanWidth = sda.channelWidth(thisCDA);
+          const Quantum<Double> bandwidth(nChan*chanWidth, hz);
+          // The tolerance is set at 1/4 of a channel. It is not set smaller
+          // because when Doppler tracking is used the total bandwidth, when
+          // converted to the rest type, will be slightly different from the
+          // topocentric value. 
+          // above is the original comments.
+          // We reset the default tolerance for frequency to be the value of the
+          // channel width and also give user the ability to pass in a tolerance
+          // for frequency into vlafillerfromdisk(). For dataset G192 we need a 
+          // tolerance of 6 times of the channe width. For dataset NGC7538, one
+          // has to give a tolerance as larger as 60 times its channel width ( 60000000Hz ).
       
-		if( itsFreqTolerance == 0.0 ) itsFreqTolerance = chanWidth;
-		const Quantum<Double> tolerance( itsFreqTolerance, hz);
-      // Determine the reference frequency.
-      MFrequency refFreq;
-      {
- 	if (sda.dopplerTracking(thisCDA)) {
-	  const MDoppler dop(Quantity(sda.radialVelocity(thisCDA), "m/s"),
-			     sda.dopplerDefn(thisCDA));
-	  refFreq =
-	    MFrequency::fromDoppler(dop,
-	 			    MVFrequency(sda.restFrequency(thisCDA)), 
-	 			    sda.restFrame(thisCDA));
-	} else {
-	  refFreq = MFrequency(MVFrequency(sda.obsFrequency(thisCDA)),
-			       MFrequency::TOPO);
-	}
-      }
-      // The local spectral Id is the value that is either zero or one and
-      // depends on which IF the data in the CDA came from. Be aware that data
-      // from IF B may have a local spectral Id value of either zero or one,
-      // depending on whether IF A is also being used.
-      uInt localSpId;
-      // See if there is a matching row.
-      {
-	const uInt nSpId = CDAId.nelements();
- 	const uInt ifChain = sda.electronicPath(thisCDA);
-	// set MeasFrame to MeasRef of MFrequency, which is need when converting MFrequency
-	// a different frame. 
-	// refFreq.getRef().set( itsFrame );
-	// no, ScalarMeasColumn<M>put() will not accept this! so instead, we do
-	// Find the channel frequencies and pass the first one to matchSpw().
-	Vector<Double> chanFreqs(nChan);
-	indgen(chanFreqs, sda.edgeFrequency( thisCDA )+0.5*chanWidth, chanWidth);
-	const MFrequency::Types itsFreqType = MFrequency::castType(refFreq.getRef().getType());
-	if (itsFreqType != MFrequency::TOPO) { 
-	  // have to convert the channel frequencies from topocentric to the specifed
-	  // frequency type.
-	  MFrequency::Convert freqCnvtr;
-	  freqCnvtr.setModel( MFrequency(MVFrequency(), MFrequency::Ref( MFrequency::TOPO, itsFrame )) );
-	  freqCnvtr.setOut( itsFreqType );
-	  Double freqInHzCnvtrd = freqCnvtr(chanFreqs(0)).getValue().getValue();
-	  chanFreqs( 0 ) = freqInHzCnvtrd;
-	}
+          if( itsFreqTolerance == 0.0 ) itsFreqTolerance = chanWidth;
+          const Quantum<Double> tolerance( itsFreqTolerance, hz);
+          // Determine the reference frequency.
+          MFrequency refFreq;
+          {
+              if (sda.dopplerTracking(thisCDA)) {
+                  const MDoppler dop(Quantity(sda.radialVelocity(thisCDA), "m/s"),
+                                     sda.dopplerDefn(thisCDA));
+                  refFreq =
+                      MFrequency::fromDoppler(dop,
+                                              MVFrequency(sda.restFrequency(thisCDA)), 
+                                              sda.restFrame(thisCDA));
+              } else {
+                  refFreq = MFrequency(MVFrequency(sda.obsFrequency(thisCDA)),
+                                       MFrequency::TOPO);
+              }
+          }
+          // The local spectral Id is the value that is either zero or one and
+          // depends on which IF the data in the CDA came from. Be aware that data
+          // from IF B may have a local spectral Id value of either zero or one,
+          // depending on whether IF A is also being used.
+          uInt localSpId;
+          // See if there is a matching row.
+          {
+              const uInt nSpId = CDAId.nelements();
+              const uInt ifChain = sda.electronicPath(thisCDA);
+              // set MeasFrame to MeasRef of MFrequency, which is need when converting MFrequency
+              // a different frame. 
+              // refFreq.getRef().set( itsFrame );
+              // no, ScalarMeasColumn<M>put() will not accept this! so instead, we do
+              // Find the channel frequencies and pass the first one to matchSpw().
+              Vector<Double> chanFreqs(nChan);
+              indgen(chanFreqs, sda.edgeFrequency( thisCDA )+0.5*chanWidth, chanWidth);
+              const MFrequency::Types itsFreqType = MFrequency::castType(refFreq.getRef().getType());
+              if (itsFreqType != MFrequency::TOPO) { 
+                  // have to convert the channel frequencies from topocentric to the specifed
+                  // frequency type.
+                  MFrequency::Convert freqCnvtr;
+                  freqCnvtr.setModel( MFrequency(MVFrequency(), MFrequency::Ref( MFrequency::TOPO, itsFrame )) );
+                  freqCnvtr.setOut( itsFreqType );
+                  Double freqInHzCnvtrd = freqCnvtr(chanFreqs(0)).getValue().getValue();
+                  chanFreqs( 0 ) = freqInHzCnvtrd;
+              }
 
-	MFrequency chanFreq1 = MFrequency( MVFrequency( chanFreqs( 0 ) ), itsFreqType );
-	// now call the matchSpw() method:
- 	itsSpId[c] = spectralWindow().matchSpw(refFreq, chanFreq1, itsFrame, doppler(), source(), nChan, bandwidth,
-					       ifChain, tolerance, itsSpId[c]);
+              MFrequency chanFreq1 = MFrequency( MVFrequency( chanFreqs( 0 ) ), itsFreqType );
+              // now call the matchSpw() method:
+              itsSpId[c] = spectralWindow().matchSpw(refFreq, chanFreq1, itsFrame, doppler(), source(), nChan, bandwidth,
+                                                     ifChain, tolerance, itsSpId[c]);
 
-     // for testing frequency handling
-    /*
-	cout.precision(12);
-	cout << "Field = " << sda.sourceName() 
-	     << " " << Int(thisCDA)
-	     << " lo=" << sda.edgeFrequency(thisCDA)
-	     << " (" << sda.obsFrequency(thisCDA)<<")"
-	     << " frame="<< sda.restFrame(thisCDA)
-	     << " v="<< sda.radialVelocity(thisCDA)
-	     << " rest="<< sda.restFrequency(thisCDA)
-	     << " freq1="<<chanFreqs(0)
-	     << " new="<<itsSpId[c]
-	     << endl;
-    */
+              // for testing frequency handling
+              /*
+                cout.precision(12);
+                cout << "Field = " << sda.sourceName() 
+                << " " << Int(thisCDA)
+                << " lo=" << sda.edgeFrequency(thisCDA)
+                << " (" << sda.obsFrequency(thisCDA)<<")"
+                << " frame="<< sda.restFrame(thisCDA)
+                << " v="<< sda.radialVelocity(thisCDA)
+                << " rest="<< sda.restFrequency(thisCDA)
+                << " freq1="<<chanFreqs(0)
+                << " new="<<itsSpId[c]
+                << endl;
+              */
 
- 	if (itsSpId[c] < 0) {
-	  // add an entry to Dopper subtable before addSpectralWindow! Also make sure addSouce is called before this!
-	  addDoppler( thisCDA );
-  	  itsSpId[c] = addSpectralWindow(thisCDA, refFreq, nChan,
-  					 bandwidth.getValue(hz), ifChain);
-	  localSpId = nSpId;
- 	} else {
-	  localSpId = 0;
-	  while (localSpId < nSpId && 
-		 CDAId[localSpId].nelements() > 0 && 
-		 itsSpId[CDAId[localSpId][0]] != itsSpId[c]) {
-	    localSpId++;
-	  }
-	}
-	if (localSpId == nSpId) {
-	  CDAId.resize(nSpId + 1);
-	}
-      }
-      // Put this CDA into its spot the indexing blocks.
-      const uInt nCDA = CDAId[localSpId].nelements();
-      CDAId[localSpId].resize(nCDA + 1);
-      CDAId[localSpId][nCDA] = thisCDA;
-      uInt polIdx = 0;
-      if (nCDA != 0) { // Here is a tricky section for you. 
-	               // The debugging statements should help
-  	const Block<uInt>& prevPolId =  polId[CDAId[localSpId][nCDA-1]];
-  	polIdx = prevPolId[prevPolId.nelements()-1] + 1;
+              if (itsSpId[c] < 0) {
+                  // add an entry to Dopper subtable before addSpectralWindow! Also make sure addSouce is called before this!
+                  addDoppler( thisCDA );
+                  itsSpId[c] = addSpectralWindow(thisCDA, refFreq, nChan,
+                                                 bandwidth.getValue(hz), ifChain);
+                  localSpId = nSpId;
+              } else {
+                  localSpId = 0;
+                  while (localSpId < nSpId && 
+                         CDAId[localSpId].nelements() > 0 && 
+                         itsSpId[CDAId[localSpId][0]] != itsSpId[c]) {
+                      localSpId++;
+                  }
+              }
+              if (localSpId == nSpId) {
+                  CDAId.resize(nSpId + 1);
+              }
+          }
+          // Put this CDA into its spot the indexing blocks.
+          const uInt nCDA = CDAId[localSpId].nelements();
+          CDAId[localSpId].resize(nCDA + 1);
+          CDAId[localSpId][nCDA] = thisCDA;
+          uInt polIdx = 0;
+          if (nCDA != 0) { // Here is a tricky section for you. 
+              // The debugging statements should help
+              const Block<uInt>& prevPolId =  polId[CDAId[localSpId][nCDA-1]];
+              polIdx = prevPolId[prevPolId.nelements()-1] + 1;
 
 #if defined(AIPS_DEBUG)
-	itsLog << LogIO::DEBUGGING;
-   	itsLog << "CDA's containing this spectral ID: [";
- 	for (uInt c = 0; c < CDAId[localSpId].nelements(); c++) {
- 	  itsLog << static_cast<Int>(CDAId[localSpId][c])
-		 << ((c+1 < CDAId[localSpId].nelements()) ? ", " : "]\n");
- 	}
-   	itsLog << "The previous CDA containing this spectral ID: " 
-  	       << static_cast<Int>(CDAId[localSpId][nCDA-1]) << endl;
-    	itsLog << "The polarisation map of this CDA: [" ;
-	{
-	  const uInt w = CDAId[localSpId][nCDA-1];
-	  for (uInt c = 0; c < polId[w].nelements(); c++) {
-	    itsLog << polId[w][c]
-		   << ((c+1 < polId[w].nelements()) ? ", " : "]\n");
-	  }
-	}
-   	itsLog << "The last element of the polarisation map: " 
-  	       << prevPolId.nelements()-1 << endl;
-   	itsLog << "The next polarisation starts at index: " 
-  	       <<  polIdx << endl;
-	itsLog << LogIO::POST << LogIO::NORMAL;
+              itsLog << LogIO::DEBUGGING;
+              itsLog << "CDA's containing this spectral ID: [";
+              for (uInt c = 0; c < CDAId[localSpId].nelements(); c++) {
+                  itsLog << static_cast<Int>(CDAId[localSpId][c])
+                         << ((c+1 < CDAId[localSpId].nelements()) ? ", " : "]\n");
+              }
+              itsLog << "The previous CDA containing this spectral ID: " 
+                     << static_cast<Int>(CDAId[localSpId][nCDA-1]) << endl;
+              itsLog << "The polarisation map of this CDA: [" ;
+              {
+                  const uInt w = CDAId[localSpId][nCDA-1];
+                  for (uInt c = 0; c < polId[w].nelements(); c++) {
+                      itsLog << polId[w][c]
+                             << ((c+1 < polId[w].nelements()) ? ", " : "]\n");
+                  }
+              }
+              itsLog << "The last element of the polarisation map: " 
+                     << prevPolId.nelements()-1 << endl;
+              itsLog << "The next polarisation starts at index: " 
+                     <<  polIdx << endl;
+              itsLog << LogIO::POST << LogIO::NORMAL;
 #endif
-      }
-      const uInt nPols = sda.npol(thisCDA);
-      polId[c].resize(nPols);
-      for (uInt p = 0; p < nPols; p++) {
-  	polId[c][p] = p + polIdx;
+          }
+          const uInt nPols = sda.npol(thisCDA);
+          polId[c].resize(nPols);
+          for (uInt p = 0; p < nPols; p++) {
+              polId[c][p] = p + polIdx;
+          }
       }
     }
   }
