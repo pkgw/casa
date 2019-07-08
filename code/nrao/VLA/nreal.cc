@@ -275,7 +275,7 @@ int diskread_(int */*unit_no*/, char *buffer)
    int RecordSize = PHYS_RECORD_SIZE;
    struct stat;
    int curDay;
-   size_t itemsGot;
+   size_t itemsGot = 0;
    static int feedback = 0;
 
 /*
