@@ -710,12 +710,6 @@ void PlotMSIndexer::setUpIndexing() {
 	if (itsXConnect_ != "none") {
 		reindexForConnect();
 	}
-
-	// Compute nominal plot ranges
-	computeRanges();
-
-	// The indexer is now ready for plotting
-	indexerReady_ = true;
 }
 
 void PlotMSIndexer::reindexForConnect() {
