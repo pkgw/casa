@@ -81,6 +81,7 @@ class ImagerParameters():
                  conjbeams = True,
                  computepastep =360.0,
                  rotatepastep =360.0,
+                 pointingoffsetsigdev =0.0,
                  
                  pblimit=0.01,
                  normtype='flatnoise',
@@ -183,6 +184,7 @@ class ImagerParameters():
                                    'cfcache': cfcache,'dopointing':dopointing, 'dopbcorr':dopbcorr, 
                                    'conjbeams':conjbeams, 'computepastep':computepastep,
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
+                                   'pointingoffsetsigdev':pointingoffsetsigdev,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
                                                'deconvolver':deconvolver, 'vptable':vptable, 'usepointing':usepointing,

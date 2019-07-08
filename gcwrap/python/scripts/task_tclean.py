@@ -82,6 +82,7 @@ def tclean(
     dopointing, #= False
     computepastep ,#=360.0,
     rotatepastep ,#=360.0,
+    pointingoffsetsigdev ,#=0.0,
 
     pblimit,#=0.01,
     normtype,#='flatnoise',
@@ -203,6 +204,9 @@ def tclean(
         casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
 
     #paramList.printParameters()
+    
+    if pointingoffsetsigdev!=0.0 and dopointing==False:
+        casalog.post("pointingoffsetsigdev is only revelent when dopointing is True", "WARN") 
 
     pcube=False
     concattype=''
