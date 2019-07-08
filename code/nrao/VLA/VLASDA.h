@@ -280,6 +280,8 @@ private:
   // the offset to the start of this SDA in the record. An offset of zero means
   // this SDA is not used in this record.
   casacore::uInt itsOffset;
+  // true if a warning that epoch==0.0 has been given
+  mutable bool itsZeroEpochWarned;
 };
 #endif
 

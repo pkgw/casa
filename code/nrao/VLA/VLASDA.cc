@@ -29,6 +29,8 @@
 #include <casa/Utilities/Assert.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Exceptions/Error.h>
+#include <casa/Logging/LogOrigin.h>
+#include <casa/Logging/LogIO.h>
 #include <casa/BasicMath/Math.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
@@ -675,6 +677,16 @@ MDirection::Types VLASDA::epoch() const {
   itsRecord.seek(where);
   Short year;
   itsRecord >> year;
+  if (year == 0) {
+      year = 1950;
+      if (!itsZeroEpochWarned) {
+          LogIO logErr(LogOrigin("VLAFiller","fill"));
+          logErr << LogIO::WARN
+                 << "epoch is 0.0, assuming B1950_VLA"
+                 << LogIO::POST;
+          itsZeroEpochWarned = true;
+      }
+  }
   if (year == 2000) {
     return MDirection::J2000;
   } else if (year == 1950) {
@@ -683,7 +695,11 @@ MDirection::Types VLASDA::epoch() const {
   } else if (year == -1) {
     return MDirection::APP;
   }
-  // I have to return something! This should be suitably meaningless.
+  // this will almost certainly result in an exception, try and explain why
+  LogIO logErr(LogOrigin("VLASDA","epoch"));
+  logErr << LogIO::SEVERE
+         << "Unrecognized epoch value : " << year << " this will likely fail"
+         << LogIO::POST;
   return MDirection::N_Types;
 }
 
