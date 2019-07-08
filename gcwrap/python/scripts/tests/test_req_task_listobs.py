@@ -76,8 +76,8 @@ else:
 if CASA6:
     mesSet = casatools.ctsys.resolve('visibilities/alma/uid___X02_X3d737_X1_01_small.ms')
 else:
-    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/uid___X02_X3d737_X1_01_small.ms'):
-        messet = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/uid___X02_X3d737_X1_01_small.ms'
+    if os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms'):
+        mesSet = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/alma/uid___X02_X3d737_X1_01_small.ms'
     else:
         mesSet = datapath + 'uid___X02_X3d737_X1_01_small.ms'
 
@@ -105,7 +105,6 @@ def _sha1it(filename):
 class listobs_test_base(unittest.TestCase):
 
     def setUp(self):
-        self.res = None
         if not CASA6:
             default(listobs)
 
@@ -256,7 +255,7 @@ class listobs_test_base(unittest.TestCase):
         self.assertTrue('No match found for the antenna specificion [ID(s): [3]]' in open('testlog.log').read(), msg='No warning for ID out of range')
         # This one is marked as correct by the documentation, but CASA disagrees
         listobs(vis=dataset, antenna=['0,DV01'])
-        self.assertTrue('incorrect data type used for field baseline' in open('testlog.log').read(), msg='Failed to recognize list as incorrect data type')
+        self.assertTrue('incorrect data type' in open('testlog.log').read(), msg='Failed to recognize list as incorrect data type')
         # return to default log file
 
     def selectcheck(self, dataset):
@@ -298,7 +297,7 @@ class listobs_test_base(unittest.TestCase):
         self.assertFalse('WARN' in open('testlog.log').read(), msg='Warnings are raised for valid inputs')
         # should raise warnings
         listobs(vis=dataset, uvrange=['0~50', '60~100'])
-        self.assertTrue('incorrect data type used for field uvdist' in open('testlog.log').read(), msg='Fails to raise warning for wrong data type')
+        self.assertTrue('incorrect data type' in open('testlog.log').read(), msg='Fails to raise warning for wrong data type')
         listobs(vis=dataset, uvrange='0-100')
         self.assertTrue('near char. 2 in string "0-100"' in open('testlog.log').read(), msg='Fails to raise warning for wrong delimiter')
         listobs(vis=dataset, uvrange='abc')
@@ -316,7 +315,7 @@ class listobs_test_base(unittest.TestCase):
         listobs(vis=dataset, timerange='abc')
         self.assertTrue('Parse error at or near ' in open('testlog.log').read())
         listobs(vis=dataset, timerange=[])
-        self.assertTrue('incorrect data type used for field time' in open('testlog.log').read())
+        self.assertTrue('incorrect data type' in open('testlog.log').read())
         listobs(vis=dataset, timerange='03:00:00-04:00:00')
         self.assertTrue('near char. 9 in string "03:00:00-04:00:00"' in open('testlog.log').read())
         listobs(vis=dataset, timerange='3~4')
@@ -346,7 +345,7 @@ class listobs_test_base(unittest.TestCase):
         self.assertFalse('WARN' in open('testlog.log').read(), msg='There are warnings for inputs that should raise none')
         # These should raise a warning
         listobs(vis=dataset, intent=[])
-        self.assertTrue('incorrect data type used for field scanintent' in open('testlog.log').read(), msg='Incorrect data type list accepted')
+        self.assertTrue('incorrect data type' in open('testlog.log').read(), msg='Incorrect data type list accepted')
         listobs(vis=dataset, intent='abc')
         self.assertTrue('No match found for "abc"' in open('testlog.log').read(), msg='Invalid string accepted without warning')
         # Set log path back to default
@@ -775,10 +774,13 @@ class test_listobs(listobs_test_base):
     def test_CAS_6733(self):
         """Verify listobs runs to completion on data set in CAS-6733. This was an infinite loop bugfix"""
         if CASA6:
-            vis = casatools.ctsys.resolve('regression/unittest/mstransform/CAS-6733.ms')
+            vis = casatools.ctsys.resolve('visibilities/evla/CAS-6733.ms')
 
+        elif os.path.exists(os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req'):
+            vis = os.environ.get('CASAPATH').split()[0] + '/data/casa-data-req/visibilities/evla/CAS-6733.ms'
         else:
-            vis = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/mstransform/' + "CAS-6733.ms"
+            vis = os.environ.get('CASAPATH').split()[0] + '/casa-data-req/visibilities/evla/CAS-6733.ms'
+            
         self.assertTrue(listobs(vis=vis))
 
     # Test average interval
