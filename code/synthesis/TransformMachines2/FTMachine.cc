@@ -90,6 +90,7 @@ using namespace casacore;
 using namespace casa::vi;
   FTMachine::FTMachine() : isDryRun(false), image(0), uvwMachine_p(0), 
 			   tangentSpecified_p(false), fixMovingSource_p(false), 
+                           ephemTableName_p(""), 
 			   movingDirShift_p(0.0), 
 			   distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
 			   useDoubleGrid_p(false), 
@@ -105,11 +106,14 @@ using namespace casa::vi;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   FTMachine::FTMachine(CountedPtr<CFCache>& cfcache,CountedPtr<ConvolutionFunction>& cf):
     isDryRun(false), image(0), uvwMachine_p(0), 
-    tangentSpecified_p(false), fixMovingSource_p(false), movingDirShift_p(0.0),
+    tangentSpecified_p(false), fixMovingSource_p(false), 
+    ephemTableName_p(""), 
+    movingDirShift_p(0.0),
     distance_p(0.0), lastFieldId_p(-1),lastMSId_p(-1), romscol_p(nullptr), 
     useDoubleGrid_p(false), 
     freqFrameValid_p(false), 
@@ -124,6 +128,7 @@ using namespace casa::vi;
     spwChanSelFlag_p=0;
     polInUse_p=0;
     pop_p = new PolOuterProduct;
+    ft_p=FFT2D(true);
   }
   
   LogIO& FTMachine::logIO() {return logIO_p;};
@@ -185,6 +190,7 @@ using namespace casa::vi;
       //moving source stuff
       movingDir_p=other.movingDir_p;
       fixMovingSource_p=other.fixMovingSource_p;
+      ephemTableName_p = other.ephemTableName_p;
       firstMovingDir_p=other.firstMovingDir_p;
       movingDirShift_p=other.movingDirShift_p;
       //Double precision gridding for those FTMachines that can do
@@ -220,6 +226,7 @@ using namespace casa::vi;
       obsvelconv_p=other.obsvelconv_p;
       mtype_p=other.mtype_p;
       briggsWeightor_p=other.briggsWeightor_p;
+      ft_p=other.ft_p;
     };
     return *this;
   };
@@ -268,7 +275,6 @@ using namespace casa::vi;
    }
   //----------------------------------------------------------------------
     void FTMachine::initMaps(const vi::VisBuffer2& vb) {
-
       logIO() << LogOrigin("FTMachine", "initMaps") << LogIO::NORMAL;
 
       AlwaysAssert(image, AipsError);
@@ -316,17 +322,22 @@ using namespace casa::vi;
         //First convert to HA-DEC or AZEL for parallax correction
         MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
         MDirection tmphadec;
-	if(upcase(movingDir_p.getRefString()).contains("APP")){
-	  tmphadec=MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
 	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	  if(mFrame_p.comet())
+	  if (mFrame_p.comet())
 	    mFrame_p.resetComet(mcomet);
 	  else
-	     mFrame_p.set(mcomet);
-	  
-	}
-	else{
-	  tmphadec=MDirection::Convert(movingDir_p, outref1)();
+	    mFrame_p.set(mcomet);
+	} else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+	  MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+	  if (mFrame_p.comet())
+	    mFrame_p.resetComet(mcomet);
+	  else
+	    mFrame_p.set(mcomet);
+	  tmphadec = MDirection::Convert(MDirection(MDirection::COMET), outref1)();
+	} else {
+	  tmphadec = MDirection::Convert(movingDir_p, outref1)();
 	}
         MDirection::Ref outref(directionCoord.directionType(), mFrame_p);
         firstMovingDir_p=MDirection::Convert(tmphadec, outref)();
@@ -717,10 +728,8 @@ using namespace casa::vi;
       // If image chan width is more than twice the data chan width, make a new list of
       // data frequencies on which to interpolate. This new list is sync'd with the starting image chan
       // and have the same width as the data chans.
-      /*   if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
-         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::cubic))){
-      */
-      if(width > 1.0){
+      if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
         Double minVF=min(visFreq);
         Double maxVF=max(visFreq);
         Double minIF=min(imageFreq_p);
@@ -737,10 +746,7 @@ using namespace casa::vi;
         else{ // Make a new list of frequencies.
   	Bool found;
   	uInt where=0;
-  	//Double interpwidth=visFreq[1]-visFreq[0];
-        Double interpwidth=copysign(fabs(imageFreq_p[1]-imageFreq_p[0])/floor(width), visFreq[1]-visFreq[0]);
-        if(name() != "GridFT")
-          cerr << "width " << width << " interpwidth " << interpwidth << endl;
+  	Double interpwidth=visFreq[1]-visFreq[0];
   	if(minIF < minVF){ // Need to find the first image-channel with data in it
   	  where=binarySearchBrackets(found, imageFreq_p, minVF, imageFreq_p.nelements());
   	  if(where != imageFreq_p.nelements()){
@@ -758,43 +764,25 @@ using namespace casa::vi;
 
           // This new list of frequencies starts at the first image channel minus half image channel.
   	// It ends at the last image channel plus half image channel.
-  	Int ninterpchan=(Int)ceil((maxIF-minIF+fabs(imageFreq_p[1]-imageFreq_p[0]))/fabs(interpwidth))+2;
+  	Int ninterpchan=(Int)ceil((maxIF-minIF+fabs(imageFreq_p[1]-imageFreq_p[0]))/fabs(interpwidth));
   	chanMap.resize(ninterpchan);
   	chanMap.set(-1);
   	interpVisFreq_p.resize(ninterpchan);
   	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-        if(freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)
-          interpVisFreq_p[0]-=interpwidth;
-        if(freqInterpMethod_p==InterpolateArray1D<Double, Complex>::cubic)
-          interpVisFreq_p[0]-=2.0*interpwidth;
   	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
 																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
   	for (Int k=1; k < ninterpchan; ++k){
   	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
   	}
 
-        Double halfdiff=fabs((imageFreq_p[1]-imageFreq_p[0])/2.0);
   	for (Int k=0; k < ninterpchan; ++k){
   	  ///chanmap with width
-  	  //Double nearestchanval = interpVisFreq_p[k]- (imageFreq_p[1]-imageFreq_p[0])/2.0;
-          
-  	  //where=binarySearchBrackets(found, imageFreq_p, nearestchanval, imageFreq_p.nelements());
-          Int which=-1;
-          for (Int j=0; j< Int(imageFreq_p.nelements()); ++j){
-            //cerr <<  (imageFreq_p[j]-halfdiff)  << "   "   << (imageFreq_p[j]+halfdiff) << " val " << interpVisFreq_p[k] << endl;
-              if( (interpVisFreq_p[k] >= (imageFreq_p[j]-halfdiff)) && (interpVisFreq_p[k] <  (imageFreq_p[j]+halfdiff)))
-              which=j;
-          }
-  	  if((which > -1) && (which < Int(imageFreq_p.nelements()))){
-  	    chanMap[k]=which;
-          }
-          else{
-            if(name() != "GridFT")
-              cerr << "MISSED it " << interpVisFreq_p[k] << endl;
-          }
+  	  Double nearestchanval = interpVisFreq_p[k]- (imageFreq_p[1]-imageFreq_p[0])/2.0;
+  	  where=binarySearchBrackets(found, imageFreq_p, nearestchanval, imageFreq_p.nelements());
+  	  if(where != imageFreq_p.nelements())
+  	    chanMap[k]=where;
   	}
-         if(name() != "GridFT")
-           cerr << std::setprecision(10) << "chanMap " << chanMap << endl; // " interpvisfreq " <<  interpVisFreq_p << " orig " << visFreq << endl;
+
         }// By now, we have a new list of frequencies, synchronized with image channels, but with data chan widths.
       }// end of ' if (we have to make new frequencies) '
       else{
@@ -817,7 +805,7 @@ using namespace casa::vi;
   	swapyz(flipflag,modflagCube);
   	swapyz(flipdata,origdata);
   	InterpolateArray1D<Double,Complex>::
-  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p, False, True);
+  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p);
   	flipdata.resize();
   	swapyz(flipdata,data);
   	data.resize();
@@ -837,21 +825,12 @@ using namespace casa::vi;
         // Now, interpolate the weights also.
         //   (1) Read in the flags from the vb ( setSpectralFlags -> modflagCube )
         //   (2) Collapse the flags along the polarization dimension to match shape of weight.
-      //If BriggsWeightor is used weight is already interpolated so we can bypass this
-            InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod weightinterp=freqInterpMethod_p;
-      
-      if(!briggsWeightor_p.null()){
-        weightinterp= InterpolateArray1D<casacore::Double,casacore::Complex>::nearestNeighbour;
-       }
-      //InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod weightinterp=InterpolateArray1D<casacore::Double,casacore::Complex>::nearestNeighbour;
-      
-      Matrix<Bool> chanflag(wt.shape());
+         Matrix<Bool> chanflag(wt.shape());
          AlwaysAssert( chanflag.shape()[0]==modflagCube.shape()[1], AipsError);
          AlwaysAssert( chanflag.shape()[1]==modflagCube.shape()[2], AipsError);
          chanflag=false;
-         //chanflag=chanflag || (wt==Float(0.0));
          for(uInt pol=0;pol<modflagCube.shape()[0];pol++)
-           chanflag = chanflag | modflagCube.yzPlane(pol);
+  	 chanflag = chanflag | modflagCube.yzPlane(pol);
 
          // (3) Interpolate the weights.
          //      Input flags are the collapsed vb flags : 'chanflag'
@@ -859,13 +838,11 @@ using namespace casa::vi;
          //            - contains info about channels that couldn't be interpolated.
          Matrix<Float> flipweight;
          flipweight=transpose(wt);
-         if(name() != "GridFT")
-           cerr << "chanflag " << chanflag.column(0) << "orig weight " << wt.column(0) << endl;
          Matrix<Bool> flipchanflag;
          flipchanflag=transpose(chanflag);
          Matrix<Bool> tempoutputflag;
          InterpolateArray1D<Double,Float>::
-           interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,weightinterp, False, True);
+  	 interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,freqInterpMethod_p);
          flipweight.resize();
          flipweight=transpose(weight);
          weight.resize();
@@ -874,8 +851,7 @@ using namespace casa::vi;
          flipchanflag=transpose(tempoutputflag);
          tempoutputflag.resize();
          tempoutputflag.reference(flipchanflag);
-          if(name() != "GridFT")
-            cerr << "tmpoutflag " <<  tempoutputflag.column(0) << "   weight " << weight.column(0) << endl;
+
          // (4) Now, fill these flags back into the flag cube
          //                 so that they get USED while gridding the PSF (and data)
          //      Taking the OR of the flags that came out of data-interpolation
@@ -889,7 +865,7 @@ using namespace casa::vi;
          AlwaysAssert( tempoutputflag.shape()[1]==flag.shape()[2], AipsError);
          for(uInt pol=0;pol<flag.shape()[0];pol++)
   	 flag.yzPlane(pol) = tempoutputflag | flag.yzPlane(pol);
-      
+
          // Fill the output array of image-channel flags.
          flags.resize(flag.shape());
          flags=0;
@@ -1003,17 +979,16 @@ using namespace casa::vi;
 		newImFreq=imageFreq_p;
 		
 		//cerr << "width " << width << endl;
-                /*         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
-                           ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::cube))){*/
-                if(width > 1.0){
-			Int newNchan=Int(std::floor(width))*imageFreq_p.nelements();
+         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
+			Int newNchan=Int(std::round(width))*imageFreq_p.nelements();
 			newImFreq.resize(newNchan);
-			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::floor(width);
+			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::round(width);
 			Double newStart=imageFreq_p[0]-(imageFreq_p[1]-imageFreq_p[0])/2.0+newIncr/2.0;
 			Cube<Complex> newflipgrid(flipgrid.shape()[0], flipgrid.shape()[1], newNchan);
 			for (Int k=0; k < newNchan; ++k){
 				newImFreq[k]=newStart+k*newIncr;
-				Int oldchan=k/Int(std::floor(width));
+				Int oldchan=k/Int(std::round(width));
 				newflipgrid.xyPlane(k)=flipgrid.xyPlane(oldchan);
 				
 			}
@@ -1173,7 +1148,6 @@ using namespace casa::vi;
   void FTMachine::rotateUVW(Matrix<Double>& uvw, Vector<Double>& dphase,
   			    const vi::VisBuffer2& vb)
     {
-
 
       if(lastMSId_p != vb.msId())
 	romscol_p=new ROMSColumns(vb.ms());
@@ -1620,6 +1594,7 @@ using namespace casa::vi;
     doneThreadPartition_p=-1;
     vbutil_p=nullptr;
     briggsWeightor_p=nullptr;
+    ft_p=FFT2D(true);
     if(!recoverMovingSourceState(error, inRecord))
       return False;
     return true;
@@ -1839,7 +1814,6 @@ using namespace casa::vi;
     return chanMap;
   }
   Bool FTMachine::matchChannel(const vi::VisBuffer2& vb){
-
     //Int spw=vb.spectralWindows()[0];
     nvischan  = vb.nChannels();
     chanMap.resize(nvischan);
@@ -1849,25 +1823,26 @@ using namespace casa::vi;
       //cerr << "doConve " << spw << "   " << doConversion_p[spw] << " freqframeval " << freqFrameValid_p << endl;
 //cerr <<"valid frame " << freqFrameValid_p << " polmap "<< polMap << endl;
     //cerr << "spectral coord system " << spectralCoord_p.frequencySystem(False) << endl;
-     if(freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST )
-    	 lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
-     else
-    	 lsrFreq=vb.getFrequencies(0);
-
-     if(spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p){
-       if(lastMSId_p != vb.msId()){
-	 romscol_p=new ROMSColumns(vb.ms());
-       //if ms changed ...reset ephem table
-	 if(upcase(movingDir_p.getRefString()).contains("APP")){
-	   MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
-	   mFrame_p.resetComet(mcomet);
-	 }
-       }
+    if (freqFrameValid_p &&spectralCoord_p.frequencySystem(False)!=MFrequency::REST ) {
+      lsrFreq=vb.getFrequencies(0,MFrequency::LSRK);
+    }
+    else {
+      lsrFreq=vb.getFrequencies(0);
+    }
+    if (spectralCoord_p.frequencySystem(False)==MFrequency::REST && fixMovingSource_p) {
+      if(lastMSId_p != vb.msId()){
+	romscol_p=new ROMSColumns(vb.ms());
+	//if ms changed ...reset ephem table
+	if (upcase(movingDir_p.getRefString()).contains("APP")) {
+	  MeasComet mcomet(Path((romscol_p->field()).ephemPath(vb.fieldId()(0))).absoluteName());
+	  mFrame_p.resetComet(mcomet);
+	}
+      }
 	
-       mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
-       mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
-       shiftFreqToSource(lsrFreq);
-     }
+      mFrame_p.resetEpoch(MEpoch(Quantity(vb.time()(0), "s")));
+      mFrame_p.resetDirection(vbutil_p->getEphemDir(vb, phaseCenterTime_p));
+      shiftFreqToSource(lsrFreq);
+    }
      //cerr << "lsrFreq " << lsrFreq.shape() << " nvischan " << nvischan << endl;
      //     if(doConversion_p.nelements() < uInt(spw+1))
      //	 doConversion_p.resize(spw+1, true);
@@ -1914,9 +1889,9 @@ using namespace casa::vi;
 	    Double limit=0;
 	    Double where=c(0)*fabs(spectralCoord_p.increment()(0));
 	    if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::linear)
-	      limit=2;
+	      limit=1;
 	    else if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::cubic ||  freqInterpMethod_p==InterpolateArray1D<Double,Complex>::spline)
-	      limit=4;
+	      limit=2;
 	    if(((pixel<0) && (where >= (0-limit*fabs(fwidth)))) )
 	      chanMap(chan)=-2;
 	    if((pixel>=nchan) ) {
@@ -1932,8 +1907,7 @@ using namespace casa::vi;
 	}
         }
       }
-      
-      //cerr << "CHANMAP " << chanMap << endl;
+      //cerr << "chanmap " << chanMap << endl;
       /* if(multiChanMap_p.nelements() < uInt(spw+1))
     	  multiChanMap_p.resize(spw+1);
       multiChanMap_p[spw].resize();
@@ -1950,7 +1924,7 @@ using namespace casa::vi;
       }
 
 
-      
+
 
       return true;
 
@@ -1998,6 +1972,7 @@ using namespace casa::vi;
     if(Table::isReadable(sourcename, False)){
       sourcename="COMET";
       ephemtab=sname;
+      ephemTableName_p = sname;
     }
     ///Special case
     if(upcase(sourcename)=="TRACKFIELD"){

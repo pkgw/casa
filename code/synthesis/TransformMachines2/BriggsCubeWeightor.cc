@@ -141,19 +141,11 @@ using namespace casa::vi;
   vscale_p=(ny_p*incr[1]);
   uorigin_p=nx_p/2;
   vorigin_p=ny_p/2;
-  ////TESTOO
-  //IPosition shp=templateimage.shape();
-  shp[3]=shp[3]+4; //add two channel at begining and end;
-  Vector<Double> refpix=cs.referencePixel();
-  refpix[3]+=2;
-  cs.setReferencePixel(refpix);
-  TempImage<Complex> newTemplate(shp, cs);
-  ///////////////////////
-  //ImageInterface<Complex>& newTemplate=const_cast<ImageInterface<Complex>& >(templateimage);
+  ImageInterface<Complex>& newTemplate=const_cast<ImageInterface<Complex>& >(templateimage);
   Vector<Matrix<Double> > sumWgts(nIndices);
   
   for(int index=0; index < nIndices; ++index){
-    initializeFTMachine(index, newTemplate, inRec);
+    initializeFTMachine(index, templateimage, inRec);
     Matrix<Float> dummy;
     
     ft_p[index]->initializeToSky(newTemplate, dummy, *vb);
@@ -175,7 +167,7 @@ using namespace casa::vi;
     Array<Float> griddedWeight;
     ft_p[index]->getGrid(griddedWeight);
     //cerr << index << " griddedWeight Shape " << griddedWeight.shape() << endl;
-    grids_p[index]->put(griddedWeight.reform(newTemplate.shape()));
+    grids_p[index]->put(griddedWeight.reform(templateimage.shape()));
     sumWgts[index]=ft_p[index]->getSumWeights();
     //cerr << "sumweight " << sumWgts[index] << endl;
     //clear the ftmachine
@@ -186,7 +178,7 @@ using namespace casa::vi;
   vi.origin();
   
   
-  Int nchan=newTemplate.shape()(3);
+  Int nchan=templateimage.shape()(3);
   for (uInt index=0; index< f2_p.nelements();++index){
     //cerr << "rmode " << rmode_p << endl;
     
@@ -238,7 +230,7 @@ using namespace casa::vi;
     String key=String::toString(vb.msId())+"_"+String::toString(vb.fieldId()(0));
     Int index=multiFieldMap_p[key];
     Vector<Int> chanMap=ft_p[0]->channelMap(vb);
-    cerr << "weightuniform chanmap " << chanMap << endl;
+    //cerr << "weightuniform chanmap " << chanMap << endl;
     ///No matching channels
     if(max(chanMap)==-1)
       return;
@@ -259,7 +251,7 @@ using namespace casa::vi;
     IPosition pos(4,0);
     for (Int row=0; row<nRow; row++) {
 	for (Int chn=0; chn<nvischan; chn++) {
-	  if ((!flag(chn,row)) && (chanMap(chn) > -1)) {
+	  if ((!flag(chn,row)) && (chanMap(chn) >-1)) {
 	    pos(3)=chanMap(chn);
 	    Float f=vb.getFrequency(0,chn)/C::c;
 	    u=-uvw(0, row)*f;
