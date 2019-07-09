@@ -63,7 +63,7 @@ PlotMSAtm::PlotMSAtm(casacore::String filename, PlotMSSelection& userSel,
     selectedScan_(-1),
     pwv_(0.0),
     airmass_(0.0),
-    MAX_ATM_CALC_CHAN_(512)	{
+    MAX_ATM_CALC_CHAN_(512) {
 
     if (isMS) { // create MS
         setUpMS(filename, userSel);
@@ -479,7 +479,7 @@ void PlotMSAtm::getMedianPwv() {
               // find values in time range
               casacore::Vector<casacore::Double> water =
                   getValuesInTimeRange(waterCol, timesCol, mintime, maxtime);
-			  if (!water.empty()) {
+              if (!water.empty()) {
                   pwv = median(water) * 1000.0; // in mm
               }
           }
@@ -857,12 +857,33 @@ bool PlotMSAtm::getLO1FreqForSpw(double& freqGHz, int spw) {
     } else {
         // get names and freqLOs from ASDM_RECEIVER table, only keep first "WVR" freq
         casacore::Table receiverTable = Table::openTable(tableName_ + "::ASDM_RECEIVER");
+        casacore::Vector<casacore::String> spwNames =
+            ScalarColumn<casacore::String>(receiverTable, "spectralWindowId").getColumn();
         casacore::Vector<casacore::String> receiverNames =
             ScalarColumn<casacore::String>(receiverTable, "name").getColumn();
         ArrayColumn<casacore::Double> freqLOCol(receiverTable, "freqLO");
         casacore::Vector<casacore::Double> freqLOs;
+        casacore::Vector<casacore::String> spwIds;
         bool gotWvr(false);
         for (size_t i = 0; i < receiverNames.size(); ++i) {
+            // only use first value for spw id
+            casacore::String spwIdStr = spwNames(i).after("SpectralWindow_");
+            bool foundSpwId(false);
+            for (size_t j=0; j < spwIds.size(); ++j) {
+                if (spwIds(j) == spwIdStr) {
+                    foundSpwId = True;
+                    break;
+                }
+            }
+            if (foundSpwId) {
+               continue;
+            }
+
+            size_t idsSize = spwIds.size();
+            spwIds.resize(idsSize + 1, true);
+            spwIds(idsSize) = spwIdStr;
+
+            // only use first value for WVR
             if (receiverNames(i).contains("WVR")) {
                 if (gotWvr) {
                     continue;
