@@ -181,7 +181,8 @@ VLAFiller::VLAFiller(MeasurementSet& output, VLALogicalRecord& input, Double fre
   itsEVLAisOn(false),
   itsInitEpoch(false),
   itsRevBeenWarned(false),
-  itsNoPolInfoWarned(false)
+  itsNoPolInfoWarned(false),
+  itsZeroEpochWarned(false)
 {
   String antscheme=antnamescheme;
   antscheme.downcase();
@@ -453,7 +454,7 @@ Bool VLAFiller::fillOne() {
   //For new ms and first go...make sure to init this to B1950 if data is so
   // as default blank ms is in J2000 direction  
   if(!itsInitEpoch){
-    itsMSDirType=sda.epoch();
+    itsMSDirType=validEpoch(sda.epoch());
     itsFrame.set(MDirection(MVDirection(), itsMSDirType));
     setDirectionRef(itsMSDirType);
     setUVWRef(Muvw::fromDirType(itsMSDirType));
@@ -502,7 +503,7 @@ Bool VLAFiller::fillOne() {
 
   { // Workout the field ID.
     const MVDirection fieldDirVal(sda.sourceDir());
-    const MDirection::Types fieldDirRef(sda.epoch());
+    const MDirection::Types fieldDirRef(validEpoch(sda.epoch()));
     // Need to convert the direction to the same type as the MS. Otherwise the
     // match will fail.
 
@@ -571,7 +572,7 @@ Bool VLAFiller::fillOne() {
     uInt elem = 0;
     Vector<Double> convertedUvw(3);
     Double u, v, w;
-    const Bool doConversion = (itsMSDirType == sda.epoch()) ? false : true;
+    const Bool doConversion = (itsMSDirType == validEpoch(sda.epoch())) ? false : true;
     for (uInt a = 0; a < nAnt; a++) {
       const VLAADA& ada = itsRecord.ADA(a);
       u = ada.u();
@@ -707,7 +708,7 @@ Bool VLAFiller::fillOne() {
     }
 
     const MVDirection fieldDirVal(itsRecord.SDA().sourceDir());
-    const MDirection::Types fieldDirRef(itsRecord.SDA().epoch());
+    const MDirection::Types fieldDirRef(validEpoch(itsRecord.SDA().epoch()));
     MDirection fieldDir(fieldDirVal, fieldDirRef);
 
     // For the actual direction, we put (Az,El) = (0,0). For the
@@ -872,7 +873,7 @@ Bool VLAFiller::fillOne() {
               }
               itsLog << "The previous CDA containing this spectral ID: " 
                      << static_cast<Int>(CDAId[localSpId][nCDA-1]) << endl;
-              itsLog << "The polarisation map of this CDA: [" ;
+              itsLog << "The polarization map of this CDA: [" ;
               {
                   const uInt w = CDAId[localSpId][nCDA-1];
                   for (uInt c = 0; c < polId[w].nelements(); c++) {
@@ -880,9 +881,9 @@ Bool VLAFiller::fillOne() {
                              << ((c+1 < polId[w].nelements()) ? ", " : "]\n");
                   }
               }
-              itsLog << "The last element of the polarisation map: " 
+              itsLog << "The last element of the polarization map: " 
                      << prevPolId.nelements()-1 << endl;
-              itsLog << "The next polarisation starts at index: " 
+              itsLog << "The next polarization starts at index: " 
                      <<  polIdx << endl;
               itsLog << LogIO::POST << LogIO::NORMAL;
 #endif
@@ -906,7 +907,7 @@ Bool VLAFiller::fillOne() {
   }
 
   // Check if the transfer switch is only set on some antennas. If so warn
-  // the user that the polarisation may be misslabeled
+  // the user that the polarization may be misslabeled
   {
     const Stokes::StokesTypes ant0Pol = itsRecord.ADA(0).ifPol(VLAEnum::IFA);
     for (uInt a = 1; a < nAnt; a++) {
@@ -919,7 +920,7 @@ Bool VLAFiller::fillOne() {
                      << " is different from the setting for antenna " 
                      << itsRecord.ADA(0).antName(itsNewAntName) << "." << endl
                      << "Correlations involving this antenna may have "
-                     << "incorrect polarisation labelling." 
+                     << "incorrect polarization labelling." 
                      << LogIO::POST;
               itsTransferWarned[itsRecord.ADA(a).antName(itsNewAntName)] = true;
           }
@@ -1038,7 +1039,7 @@ Bool VLAFiller::fillOne() {
     for (uInt cda = 0; cda < CDAId[s].nelements(); cda++) {
       itsLog << "    CDA: " << static_cast<Int>(CDAId[s][cda]) + 1 
 	     << " contains " << polId[CDAId[s][cda]].nelements() 
-	     << " polarisations [";
+	     << " polarizations [";
       for (uInt i = 0; i < polId[CDAId[s][cda]].nelements(); i++) {
 	itsLog << polId[CDAId[s][cda]][i]
 	       << ((i+1 < polId[CDAId[s][cda]].nelements()) ? ", " : "] (");
@@ -2202,7 +2203,7 @@ uInt VLAFiller::addPolarization(const Vector<Stokes::StokesTypes>& polTypes) {
       polProd(1, p) = 1;
       break;
     default:
-      throw(AipsError("VLAFiller::addPolarization - Bad polarisation value"));
+      throw(AipsError("VLAFiller::addPolarization - Bad polarization value"));
     }
   }
   pol.corrType().put(newRow, polInt);
@@ -2445,6 +2446,21 @@ void VLAFiller::fixFieldDuplicates(MSField& msFld) {
     }
   } 
 
+}
+
+casacore::MDirection::Types VLAFiller::validEpoch(casacore::MDirection::Types mdType)
+{
+    if (mdType == MDirection::N_Types) {
+        // epoch in data is 0, warn and assume B1950_VLA
+        mdType = MDirection::B1950_VLA;
+        if (!itsZeroEpochWarned) {
+            itsLog << LogIO::WARN
+                   << "epoch is 0, assuming B1950_VLA"
+                   << LogIO::POST;
+            itsZeroEpochWarned = true;
+        }
+    }
+    return mdType;
 }
 
 
