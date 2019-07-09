@@ -2724,8 +2724,7 @@ class sdimaging_test_mapextent(unittest.TestCase):
 # CAS-11955
         #self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
         self.run_test(infiles=self.infiles_ephem, phasecenter='URANUS', restfreq='230GHz') #CAS-11955
-        # npix_ref = numpy.array([37,26])   #CAS-11955 + CAS-8418
-        npix_ref = numpy.array([45,27])     #CAS-11955 + CAS-8418
+        npix_ref = numpy.array([37,26])   #CAS-11955 (same as CAS-8418)
         # set reference value manually since expected map area for 
         # ephemeris object is difficult to calculate 
         #blcf_ref = '00:46:43.672 +04.14.51.504'

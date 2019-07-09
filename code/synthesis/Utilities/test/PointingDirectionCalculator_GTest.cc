@@ -3342,6 +3342,8 @@ TEST_F(TestDirection, EPH )
 // setMogving Source //
 //    calc.setMovingSource( "URANUS" );
 
+    calc.setSplineInterpolation(true);
+
 // getDirection //
     Matrix<Double> DirList  = calc.getDirection();
     auto N_Col    = DirList.ncolumn();
@@ -3349,7 +3351,7 @@ TEST_F(TestDirection, EPH )
         printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
 
 // List //
-
+#if 1
     for (uInt row=0; row < N_Row ; row++)
     {
 
@@ -3359,7 +3361,7 @@ TEST_F(TestDirection, EPH )
         printf ("Dir, %d, %12.8f, %12.8f  \n", row, dir_x, dir_y );
 
     }
-
+#endif 
 
 #if 0
 // Coeff //

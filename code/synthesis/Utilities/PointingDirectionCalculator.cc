@@ -525,9 +525,14 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
         debuglog << "linear interpolation " << debugpost;
 
         // commonly used result buffer .. //
-          Vector<Double> interpolated(2);
+        Vector<Double> interpolated(2);
 
-        if(useSplineInterpolation_)     // SPLINE //
+        //*
+        // CAS-8418 THE LAST BOSS 
+        //*
+        bool fgsw = getCurrentSplineObj()->isTimeGap(antID, index);
+        if((fgsw==false) &&                // Not specially Marled. (CAS-8418)
+           (useSplineInterpolation_) )     // SPLINE //
         {
             //+
             // CAS-8418::  Spline Interpolation section.
@@ -1036,15 +1041,17 @@ void SplineInterpolation::init(MeasurementSet const &ms,
                 columnPointing( new casacore::MSPointingColumns( hPoint ));
 
     // Prepare Time and direction//
-
-      Vector<Vector<Double> >          tmp_time;
-      Vector<Vector<Vector<Double> > > tmp_dir;
+    //   CAS-8418::  moved to private area //
 
     // Resize (top level) //
-    
+  
       tmp_time.        resize(numAnt);
       tmp_dir.         resize(numAnt);
 
+    // THE LAST BOSS //
+      tmp_dtime.         resize(numAnt);
+      tmp_timegap.       resize(numAnt);
+ 
     // Column handle (only time,direction are needed, others are reserved) //
     
       ScalarColumn<Double> pointingTime           = columnPointing ->time();
@@ -1070,7 +1077,12 @@ void SplineInterpolation::init(MeasurementSet const &ms,
           tmp_dir [ant]. resize(size);
           tmp_time[ant]. resize(size);
 
+         // CAS-8418 THE LAST BOSS //
+          tmp_dtime[ant]. resize(size);
+          tmp_timegap[ant]. resize(size);
+ 
         // for each row // 
+        Double prv_time =  pointingTime.get(startPos); // For making diff time
         for (uInt row = startPos; row < endPos; row++) 
         {
             uInt index = row - startPos;
@@ -1086,6 +1098,34 @@ void SplineInterpolation::init(MeasurementSet const &ms,
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
 
+            // CAS-8418 THE LAST BOSS //
+
+              /* Pointing Interval */
+              Double p_interval =  pointingInterval.  get(row);
+              p_interval = round(10000.0 * p_interval )/10000.0;  // Round at 0.0001 order
+
+              /* Measured Interval */
+              Double dd = time - prv_time;
+              dd  = round(10000.0 * dd)/10000.0;  // Round at 0.0001 order
+  
+              tmp_dtime[ant][index] = dd; // record backward diff // 
+              prv_time  = time;
+
+              /* Mark the position */
+              tmp_timegap [ant][index  ] =false;
+              if(dd > p_interval){
+#if 1
+                  tmp_timegap [ant][index  ] =true;
+                  tmp_timegap [ant][index-1] =true;
+                  tmp_timegap [ant][index-2] =true;
+                  tmp_timegap [ant][index-3] =true;
+                  tmp_timegap [ant][index-4] =true;
+                  tmp_timegap [ant][index-5] =true;
+                  tmp_timegap [ant][index-6] =true;
+                  tmp_timegap [ant][index-7] =true;
+                  tmp_timegap [ant][index-8] =true;
+#endif 
+             }
         }
     }
 

@@ -2646,7 +2646,8 @@ class sdimaging_test_mapextent(unittest.TestCase):
         for infile in self.infiles_ephem:
             self.__copy_table(infile)
         self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
-        npix_ref = numpy.array([45,27])
+        # npix_ref = numpy.array([45,27])
+        npix_ref = numpy.array([37,26])
         # set reference value manually since expected map area for 
         # ephemeris object is difficult to calculate 
 #
