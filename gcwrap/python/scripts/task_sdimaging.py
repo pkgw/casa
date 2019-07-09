@@ -470,7 +470,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         if len(self.image_unit) > 0:
             casalog.post("Setting brightness unit '%s' to image." % self.image_unit)
             my_ia.setbrightnessunit(self.image_unit)
-
+        csys.done()
         my_ia.close()
 
         # Mask image pixels whose weight are smaller than minweight.
@@ -554,6 +554,7 @@ class sdimaging_worker(sdutil.sdtask_template_imaging):
         my_ia.close()
         outref = csys.referencecode('direction')[0]
         cell = list(csys.increment(type='direction',format='s')['string'])
+        csys.done()
         # pointing sampling
         ref_ms_spw = self.get_selection_param_for_ms(ref_ms_idx,self.spw)
         ref_ms_field = self.get_selection_param_for_ms(ref_ms_idx,self.field)
