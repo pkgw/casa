@@ -827,7 +827,7 @@ using namespace casa::vi;
   	swapyz(flipflag,modflagCube);
   	swapyz(flipdata,origdata);
   	InterpolateArray1D<Double,Complex>::
-  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p, False, True);
+  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p, False, False);
   	flipdata.resize();
   	swapyz(flipdata,data);
   	data.resize();
@@ -871,7 +871,7 @@ using namespace casa::vi;
          flipchanflag=transpose(chanflag);
          Matrix<Bool> tempoutputflag;
          InterpolateArray1D<Double,Float>::
-  	 interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,weightinterp, False, True);
+  	 interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,weightinterp, False, False);
          flipweight.resize();
          flipweight=transpose(weight);
          weight.resize();
