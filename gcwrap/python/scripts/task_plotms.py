@@ -38,7 +38,7 @@ def plotms(vis=None,
            plotfile=None, expformat=None, verbose=True, exprange=None,
            highres=None, dpi=None, width=None, height=None, overwrite=None,
            showgui=None, clearplots=None,
-           callib=None, headeritems=None, showatm=None, showtsky=None):
+           callib=None, headeritems=None, showatm=None, showtsky=None, showimage=None):
 # we'll add these later
 #           extspw=None, extantenna=None,
 #           exttime=None, extscans=None, extfield=None,
@@ -196,6 +196,7 @@ def plotms(vis=None,
     headeritems -- string of comma-separated page header items keywords
     showatm -- show atmospheric transmission curve
     showtsky -- show sky temperature curve
+    showimage -- show image sideband curve
 
     """
     # Check if DISPLAY environment variable is set.
@@ -549,6 +550,8 @@ def plotms(vis=None,
             showatm = False
         if not showtsky:
             showtsky = False
+        if not showimage:
+            showimage = False
         if showatm and showtsky:
             casalog.post('You have selected both showatm and showtsky.  Defaulting to showatm=True only.', "WARN")
             showtsky = False
@@ -557,9 +560,11 @@ def plotms(vis=None,
             if not validxaxis:
                 casalog.post('showatm and showtsky are only valid when xaxis is channel or frequency', 'SEVERE')
                 return False
-        pm.setShowAtm(showatm, False, plotindex)
-        pm.setShowTsky(showtsky, False, plotindex)
-        
+        if showimage and (not showatm and not showtsky):
+            casalog.post('Defaulting to showimage=False because showatm and showtsky are False.', "WARN")
+            showimage = False
+        pm.setShowCurve(showatm, showtsky, showimage, False, plotindex)
+
         # Set selection
         if selectdata:
             pm.setPlotMSSelection(field, spw, timerange, uvrange, antenna, scan,

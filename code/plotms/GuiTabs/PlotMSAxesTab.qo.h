@@ -68,35 +68,38 @@ public:
     bool isAxesValid() const;
 
 signals:
-	//Identifier for a y-axis has changed.
-	void yAxisIdentifierChanged( int index, QString id );
+    //Identifier for a y-axis has changed.
+    void yAxisIdentifierChanged( int index, QString id );
 
-	//A y-axis has been removed.
-	void yAxisIdentifierRemoved( int index );
+    //A y-axis has been removed.
+    void yAxisIdentifierRemoved( int index );
 
 private slots:
-	//Add a new y-axis.
-	void addYWidget();
+    //Add a new y-axis.
+    void addYWidget();
 
-	//Remove a y-axis.
-	void removeYWidget();
+    //Remove a y-axis.
+    void removeYWidget();
 
-	//Selected data for a y-axis has changed.
-	void axisIdentifierChanged(PlotMSAxisWidget* axisWidget);
+    //Selected data for a y-axis has changed.
+    void axisIdentifierChanged(PlotMSAxisWidget* axisWidget);
 
-	//Display the settings for a new y-axis.
-	void yAxisSelected( int index );
+    //Display the settings for a new y-axis.
+    void yAxisSelected( int index );
+
+    // atm/tsky/sideband enabled/changed
+    void overlayChanged();
 
 private:
 
-	//Hide/show features associated with multipleYAxes.
-	void setMultipleAxesYEnabled();
+    //Hide/show features associated with multipleYAxes.
+    void setMultipleAxesYEnabled();
 
-	//Relabel based on the new y-axis index.
-	void setYAxisLabel( PlotMSAxisWidget* yWidget, int index );
+    //Relabel based on the new y-axis index.
+    void setYAxisLabel( PlotMSAxisWidget* yWidget, int index );
 
-	// Get cache data for manual range
-	void setRangeFromCache(bool foundInCache, bool isDate);
+    // Get cache data for manual range
+    void setRangeFromCache(bool foundInCache, bool isDate);
 
     // Widgets for the x axis and y axis, respectively.
     PlotMSAxisWidget* itsXWidget_;
