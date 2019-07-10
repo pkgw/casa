@@ -546,7 +546,7 @@ None.
 
 Outputs:
 --------
-The reference to the IPosition instance containing the iteration axis IDs,
+The IPosition instance containing the iteration axis IDs,
 returned via the function value.
 
 Modification history:
@@ -558,14 +558,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-IPosition& CalStats::axisIterID( void ) const {
+IPosition CalStats::axisIterID( void ) const {
 
-  // Return the reference to the IPosition instance containing the iteration
+  // Return the IPosition instance containing the iteration
   // axis IDs
 
-  IPosition* poAxisIterID = new IPosition( oAxisIterID );
-
-  return( *poAxisIterID );
+  return oAxisIterID;
 
 }
 
@@ -585,7 +583,7 @@ None.
 
 Outputs:
 --------
-The reference to the CalStats::AXIS instance containing the non-iteration axis
+The CalStats::AXIS instance containing the non-iteration axis
 IDs, returned via the function value.
 
 Modification history:
@@ -597,14 +595,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-CalStats::AXIS& CalStats::axisNonIterID( void ) const {
+CalStats::AXIS CalStats::axisNonIterID( void ) const {
 
-  // Return the reference to the CalStats::AXIS instance containing the
-  // non-iteration axis IDs
+  // Return the CalStats::AXIS instance containing the non-iteration
+  // axis IDs
 
-  CalStats::AXIS* peAxisNonIterID = new CalStats::AXIS( eAxisNonIterID );
+  CalStats::AXIS axisNonIterID( eAxisNonIterID );
 
-  return( *peAxisNonIterID );
+  return axisNonIterID;
 
 }
 
@@ -624,7 +622,7 @@ None.
 
 Outputs:
 --------
-The reference to the Vector<String> instance containing the feed iteration axis
+The  Vector<String> instance containing the feed iteration axis
 values, returned via the function value.
 
 Modification history:
@@ -636,14 +634,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<String>& CalStats::axisIterFeed( void ) const {
+Vector<String> CalStats::axisIterFeed( void ) const {
 
-  // Return the reference to the Vector<String> instance containing the feed
+  // Return the Vector<String> instance containing the feed
   // iteration axis values
 
-  Vector<String>* poAxisIterFeed = new Vector<String>( oAxisIterFeed );
-
-  return( *poAxisIterFeed );
+  return oAxisIterFeed;
 
 }
 
@@ -663,7 +659,7 @@ None.
 
 Outputs:
 --------
-The reference to the Vector<Double> instance containing the user-defined
+The Vector<Double> instance containing the user-defined
 iteration axis values, returned via the function value.
 
 Modification history:
@@ -675,14 +671,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Double>& CalStats::axisIterUser( void ) const {
+Vector<Double> CalStats::axisIterUser( void ) const {
 
-  // Return the reference to the Vector<Double> instance containing the
+  // Return the Vector<Double> instance containing the
   // user-defined iteration axis values
 
-  Vector<Double>* poAxisIterUser = new Vector<Double>( oAxisIterUser );
-
-  return( *poAxisIterUser );
+  return oAxisIterUser;
 
 }
 
@@ -702,7 +696,7 @@ None.
 
 Outputs:
 --------
-The reference to the Vector<Double> instance containing the non-iteration axis
+The Vector<Double> instance containing the non-iteration axis
 values, returned via the function value.
 
 Modification history:
@@ -714,14 +708,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-Vector<Double>& CalStats::axisNonIter( void ) const {
+Vector<Double> CalStats::axisNonIter( void ) const {
 
-  // Return the reference to the Vector<Double> instance containing the
+  // Return the Vector<Double> instance containing the
   // non-iteration axis values
 
-  Vector<Double>* poAxisNonIter = new Vector<Double>( oAxisNonIter );
-
-  return( *poAxisNonIter );
+  return oAxisNonIter;
 
 }
 
@@ -741,7 +733,7 @@ None.
 
 Outputs:
 --------
-The reference to the IPosition instance containing the shape of the output
+The IPosition instance containing the shape of the output
 statistics cube, returned via the function value.
 
 Modification history:
@@ -753,14 +745,12 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-IPosition& CalStats::statsShape( void ) const {
+IPosition CalStats::statsShape( void ) const {
 
-  // Return the reference to the IPosition instance containing the shape of the
+  // Return the IPosition instance containing the shape of the
   // output statistics cube
 
-  IPosition* poStatsShape = new IPosition( oStatsShape );
-
-  return( *poStatsShape );
+  return oStatsShape;
 
 }
 
@@ -896,7 +886,7 @@ eAxis - This reference to the CalStats::AXIS enum.
 
 Outputs:
 --------
-The String reference to the axis string, returned via the function value.
+The axis string, returned via the function value.
 
 Modification history:
 ---------------------
@@ -907,28 +897,28 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-String& CalStats::axisName( const CalStats::AXIS& eAxis ) {
+String CalStats::axisName( const CalStats::AXIS& eAxis ) {
 
   // Return the string corresponding to the CalStats::AXIS enum
 
-  String* poAxisName;
+  String axisName;
 
   switch ((uInt) eAxis) {
     case (uInt) CalStats::FEED:
-      poAxisName = new String( "FEED" );
+      axisName =  "FEED";
       break;
     case (uInt) CalStats::FREQUENCY:
-      poAxisName = new String( "FREQUENCY" );
+      axisName = "FREQUENCY";
       break;
     case (uInt) CalStats::TIME:
-      poAxisName = new String( "TIME" );
+      axisName = "TIME";
       break;
     default:
       throw( AipsError( "Invalid axis" ) );
       break;
   }
 
-  return( *poAxisName );
+  return axisName;
 
 }
 
@@ -960,7 +950,7 @@ oDummy5 - This reference to a CalStats::ARG<CalStats::NONE> instance is a dummy.
 
 Outputs:
 --------
-The reference to the CalStats::NONE instance, returned via the function value.
+The CalStats::NONE instance, returned via the function value.
 
 Modification history:
 ---------------------
@@ -971,17 +961,14 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-template <> CalStats::NONE& CalStats::statsWrap<CalStats::NONE>(
+template <> CalStats::NONE CalStats::statsWrap<CalStats::NONE>(
     const Vector<Double>& /*oDummy1*/, const Vector<Double>& /*oDummy2*/,
     const Vector<Double>& /*oDummy3*/, Vector<Bool>& /*oDummy4*/,
     const CalStats::ARG<CalStats::NONE>& /*oDummy5*/ ) {
 
-  // Return the reference to a CalStats::NONE instance
+  // Return a CalStats::NONE instance
 
-  CalStats::NONE* poNone = new CalStats::NONE();
-
-  return( *poNone );
-
+  return CalStats::NONE();
 }
 
 // -----------------------------------------------------------------------------
@@ -1008,7 +995,7 @@ oArg      - This reference to a CalStats::ARG<CalStats::NONE> instance contains
 
 Outputs:
 --------
-oFlag - This reference to a Vector<Bool> instance contains the flags.
+oFlag - This reference to  Vector<Bool> instance contains the flags.
 The reference to the CalStatsFitter::FIT instance, returned via the function
 value.
 
@@ -1023,24 +1010,24 @@ Modification history:
 
 // -----------------------------------------------------------------------------
 
-template <> CalStatsFitter::FIT& CalStats::statsWrap<CalStatsFitter::FIT>(
+template <> CalStatsFitter::FIT CalStats::statsWrap<CalStatsFitter::FIT>(
     const Vector<Double>& oAbs, const Vector<Double>& oValue,
     const Vector<Double>& oValueErr, Vector<Bool>& oFlag,
     const CalStats::ARG<CalStatsFitter::FIT>& oArg ) {
 
-  // Perform the fit and return the reference to a CalStatsFitter::FIT instance
+  // Perform the fit and return the CalStatsFitter::FIT instance
 
-  CalStatsFitter::FIT* poFit = new CalStatsFitter::FIT();
+  CalStatsFitter::FIT fit;
 
   try {
-    *poFit = CalStatsFitter::fit( oAbs, oValue, oValueErr, oFlag, oArg.eOrder,
-        oArg.eType, oArg.eWeight );
+    fit = CalStatsFitter::fit( oAbs, oValue, oValueErr, oFlag, oArg.eOrder,
+                               oArg.eType, oArg.eWeight );
   }
   catch ( AipsError oAE ) {
     throw( oAE );
   }
 
-  return( *poFit );
+  return fit;
 
 }
 

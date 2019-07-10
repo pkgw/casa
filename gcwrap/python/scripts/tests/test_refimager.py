@@ -95,6 +95,7 @@ import operator
 import inspect
 import numpy as np
 from parallel.parallel_task_helper import ParallelTaskHelper
+from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
 
 
 _ia = iatool( )
@@ -124,8 +125,11 @@ class testref_base(unittest.TestCase):
           # To use subdir in the output image names in some tests (CAS-10937)
           self.img_subdir = 'refimager_tst_subdir'
           self.parallel = False
+          self.nnode = 0
           if ParallelTaskHelper.isMPIEnabled():
               self.parallel = True
+              self.PH = PyParallelImagerHelper()
+              self.nnode = len(self.PH.getNodeList())
 
           self.th = TestHelpers()
 
@@ -245,6 +249,28 @@ class test_onefield(testref_base):
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. onefield with two MSs, briggs weighing. Enable this when CAS011978 is fixed")
+     def test_onefield_twoMS_Briggs(self):
+          """ [onefield] Test_Onefield_twoMS with Briggs weighting: One field, two input MSs (for verification of CAS-11978)"""
+          ms1 = 'refim_point_onespw0.ms'
+          ms2 = 'refim_point_onespw1.ms'
+          self.prepData(ms1)
+          self.prepData(ms2)
+#          try:
+#               ## This run should fail with an exception
+#               ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10)
+#               correct=False
+#          except Exception as e:
+#              correct=True
+#          self.assertTrue(correct)
+          ## This run should go smoothly.
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='data',weighting='briggs', interactive=0, parallel=self.parallel)
+          report=self.th.checkall(ret=ret, peakres=0.365259, modflux=0.798692, imexist=[self.img+'.psf',self.img+'.residual'])
+          self.delData(ms1)
+          self.delData(ms2)
+          self.checkfinal(pstr=report)
+
 
      def test_onefield_twoMS_diffcolumns(self):
           """ [onefield] Test_Onefield_twoMS_diffcolumns : One field, two input MSs, one with data and one with data and corrected """
@@ -736,7 +762,10 @@ class test_multifield(testref_base):
           ret={}
           if self.parallel:
             ret=self.th.mergeParaCubeResults(retpar, ['iterdone', 'nmajordone'])
-            iterdone_expected=46
+            if self.nnode < 2:
+              iterdone_expected=42  # single server case = serial
+            else:
+              iterdone_expected=46
           else:
             iterdone_expected=42
             ret=retpar 
@@ -2547,6 +2576,16 @@ class test_widefield(testref_base):
           self.checkfinal(report)
 
           #do stokes V too..
+
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. mosaic, Briggs weighting with mosweight=True. Enable this after fixing CAS-11978")
+     def test_widefield_mosaicft_mfs_mosweightTrue(self):
+          """ [widefield] Test_Widefield_mosaic : MFS with mosaicft  stokes I briggs mosweight=True(default)"""
+          self.prepData("refim_mawproject.ms")
+          ret = tclean(vis=self.msfile,spw='1',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",
+                       niter=30,gridder='mosaicft',deconvolver='hogbom',pblimit=0.3,weighting='briggs', parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',0.962813, [256,256,0,0]),(self.img+'.weight',0.50520, [256,256,0,0]) ] )
+          #ret = clean(vis=self.msfile,spw='1',field='*',imagename=self.img+'.old',imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,imagermode='mosaic',psfmode='hogbom')
+          self.checkfinal(report)
 
      def test_widefield_mosaicft_mtmfs(self):
           """ [widefield] Test_Widefield_mosaicft_mtmfs : MT-MFS with mosaicft  stokes I, alpha """

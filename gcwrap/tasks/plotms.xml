@@ -1188,6 +1188,11 @@ Export plot as image Parameters
         <value>False</value>
      </param>
      
+     <param type="bool" name="showimage">
+        <description>Compute and overlay the image sideband curve</description>
+        <value>False</value>
+     </param>
+  
 <!--
 ###############################################################################
 Plotxy Compliance Parameters

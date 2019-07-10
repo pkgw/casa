@@ -33,6 +33,9 @@
 #include <plotms/PlotMS/PlotMSFlagging.h>
 #include <plotms/PlotMS/PlotEngine.h>
 #include <plotms/Actions/PlotMSAction.h>
+#if defined(WITHOUT_DBUS)
+#include <plotms/PlotMS/grpcPlotMSAdaptor.qo.h>
+#endif
 
 namespace casa {
 
@@ -54,12 +57,20 @@ public:
     // Default constructor that uses default options.  If connectToDBus is
     // true, then the application registers itself with CASA's DBus server
     // using the PlotMSDBusApp::dbusName() with the current process ID.
-    PlotMSApp(bool connectToDBus = false, bool userGui = true);
+    PlotMSApp(bool connectToDBus = false, bool userGui = true
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address = ""
+#endif
+              );
     
     // Constructor which takes the given parameters.  If connectToDBus is true,
     // then the application registers itself with CASA's DBus server using the
     // PlotMSDBusApp::dbusName() with the current process ID.
-    PlotMSApp(const PlotMSParameters& params, bool connectToDBus = false, bool userGui = true);
+    PlotMSApp(const PlotMSParameters& params, bool connectToDBus = false, bool userGui = true
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address = ""
+#endif
+              );
     
     // Destructor
     ~PlotMSApp();
@@ -202,9 +213,12 @@ private:
     
     // Plot manager.
     PlotMSPlotManager itsPlotManager_;
-    
+#if ! defined(WITHOUT_DBUS)
     // DBus application, or NULL if one is not needed.
     PlotMSDBusApp* itsDBus_;
+#else
+    std::shared_ptr<grpcPlotMSState> grpc_;
+#endif
 
 	//Whether the most recent plot updated was successfully
 	//completed.  A null selection, for example, could result
@@ -212,7 +226,11 @@ private:
     bool operationCompleted;
 
     // Initializes a new PlotMS object, to be called from constructor.
-    void initialize(bool connectToDBus, bool userGui );
+    void initialize(bool connectToDBus, bool userGui
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address=""
+#endif
+                    );
     
     // Disable copy constructor and operator for now.
     // <group>

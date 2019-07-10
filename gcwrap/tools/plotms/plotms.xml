@@ -1435,11 +1435,11 @@ called.
   <returns />    
 </method>
 
-<method type="function" name="setShowAtm">
-  <keyword>setShowAtm</keyword>
-  <shortdescription>Whether to overlay the atmospheric curve.</shortdescription>
+<method type="function" name="setShowCurve">
+  <keyword>setShowCurve</keyword>
+  <shortdescription>Whether to overlay the atm, tsky, and image curves.</shortdescription>
   <description>
-Request that the atmospheric transmission curve is calculateda and overplotted.
+Request that the atmospheric or sky temperature transmission curve is calculated and overplotted.  Optionally display the image sideband curve.
 If updateImmediately is true, this change takes effect immediately IF the
 plotms window is currently shown; otherwise it will only be applied next time
 update() and/or show() is called.
@@ -1447,6 +1447,14 @@ update() and/or show() is called.
   <input>
     <param type="bool" name="showatm">
       <description>whether to plot atm curve</description>
+      <value>false</value>
+    </param>
+    <param type="bool" name="showtsky">
+      <description>whether to plot tsky curve</description>
+      <value>false</value>
+    </param>
+    <param type="bool" name="showimage">
+      <description>whether to plot image sideband curve</description>
       <value>false</value>
     </param>
     <param type="bool" name="updateImmediately">
@@ -1478,33 +1486,6 @@ update() and/or show() is called.
   </returns>
 </method>
 
-<method type="function" name="setShowTsky">
-  <keyword>setShowTsky</keyword>
-  <shortdescription>Whether to overlay the sky temperature curve.</shortdescription>
-  <description>
-Request that the sky temperature curve is calculated and overplotted.  If
-updateImmediately is true, this change takes effect immediately IF the plotms
-window is currently shown; otherwise it will only be applied next time update()
-and/or show() is called.
-  </description>
-  <input>
-    <param type="bool" name="showtsky">
-      <description>whether to plot tsky curve</description>
-      <value>false</value>
-    </param>
-    <param type="bool" name="updateImmediately">
-      <description>whether to apply this change immediately, IF the window is currently shown</description>
-      <value>true</value>
-    </param>
-    <param type="int" name="plotIndex">
-      <description>Index of the plot (0-based).</description>
-      <value>0</value>
-    </param>
-  </input>
-  <example />
-  <returns />
-</method>
-
 <method type="function" name="getShowTsky">
   <keyword>getShowTsky</keyword>
   <shortdescription>Get whether tsky curve is overlaid</shortdescription>
@@ -1518,6 +1499,22 @@ and/or show() is called.
   <example />
   <returns type="bool">
     <description>showtsky flag</description>
+  </returns>
+</method>
+
+<method type="function" name="getShowImage">
+  <keyword>getShowImage</keyword>
+  <shortdescription>Get whether image sideband curve is overlaid</shortdescription>
+  <description />
+  <input>
+    <param type="int" name="plotIndex">
+      <description>Index of the plot (0-based).</description>
+      <value>0</value>
+    </param>
+  </input>  
+  <example />
+  <returns type="bool">
+    <description>showimage flag</description>
   </returns>
 </method>
 

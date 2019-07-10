@@ -71,6 +71,7 @@ public:
     static const casacore::String PARAM_AXIS_Y_LOCATION;
     static const casacore::String PARAM_SHOWATM; // bool
     static const casacore::String PARAM_SHOWTSKY; // bool
+    static const casacore::String PARAM_SHOWIMAGE; // bool
     static const casacore::String PARAM_GRIDROWS; //int
     static const casacore::String PARAM_GRIDCOLS; //int
     static const casacore::String PARAM_CLEARSELECTIONS; // bool

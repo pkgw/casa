@@ -57,6 +57,7 @@ const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
 const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
 const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
+const String PlotMSDBusApp::PARAM_SHOWIMAGE = "showimage";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -411,6 +412,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 						PMS::dataColumn(c->yDataColumn()));
 				ret.define(PARAM_SHOWATM, c->showAtm());
 				ret.define(PARAM_SHOWTSKY, c->showTsky());
+				ret.define(PARAM_SHOWIMAGE, c->showImage());
 			}
 
 			if (disp!=NULL)  {
@@ -627,6 +629,11 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 				parameters.dataType(PARAM_SHOWTSKY) == TpBool)   {
 			bool show = parameters.asBool(PARAM_SHOWTSKY);
 			ppcache->setShowTsky(show);
+		}
+		if(parameters.isDefined(PARAM_SHOWIMAGE) &&
+				parameters.dataType(PARAM_SHOWIMAGE) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWIMAGE);
+			ppcache->setShowImage(show);
 		}
 
 

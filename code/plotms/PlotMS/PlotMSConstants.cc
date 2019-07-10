@@ -53,7 +53,7 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
     case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
-	case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
+    case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
     default: return false;
     }
 }
@@ -63,7 +63,7 @@ bool PMS::axisNeedsCalSlice(Axis axis) {
     case AMP: case PHASE: case REAL: case IMAG: 
     case GAMP: case GPHASE: case GREAL: case GIMAG:
     case DELAY: case SWP: case TSYS: case OPAC: case SNR: case TEC:
-	case ANTPOS: case FLAG:
+    case ANTPOS: case FLAG:
         return true;
     default: return false;
     }
@@ -85,7 +85,7 @@ bool PMS::axisIsUV(Axis axis) {
 
 bool PMS::axisIsOverlay(Axis axis) {
     switch(axis) {
-    case ATM: case TSKY: return true;
+    case ATM: case TSKY: case IMAGESB: return true;
     default: return false;
     }
 }
@@ -122,25 +122,25 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     switch(axis) {
     
     case TIME:
-       	return UDATETIME;
+        return UDATETIME;
     case TIME_INTERVAL:
         return SECONDS;
     case FREQUENCY:
-       	return GHERTZ;
+        return GHERTZ;
     case VELOCITY:
-       	return KILOMETERS_PER_SECOND;
+        return KILOMETERS_PER_SECOND;
     case UVDIST:
     case U:
     case V:
     case W:
     case ANTPOS:
-       	return METERS;
+        return METERS;
     case UVDIST_L:
     case UWAVE:
     case VWAVE:
     case WWAVE:
-    	//Should be lambda
-    	return WAVELENGTHS;
+        //Should be lambda
+        return WAVELENGTHS;
     case PHASE:
     case GPHASE:
     case ELEVATION:
@@ -151,20 +151,20 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
     case AZ0:
     case EL0:
     case PA0:
-    	return DEGREES;
+        return DEGREES;
     case HA0:
-    	return HOURS;
+        return HOURS;
    case RADIAL_VELOCITY:
-       	return KILOMETERS_PER_SECOND;
+        return KILOMETERS_PER_SECOND;
    case DELAY:
-	   	return NANOSECONDS;
+        return NANOSECONDS;
    case TSYS:
    case TSKY:
-	   	return KELVIN;
+        return KELVIN;
    case OPAC:
-	   return NEPERS;
+        return NEPERS;
    case RHO:
-       	return KILOMETERS;
+        return KILOMETERS;
    case ATM:
         return PERCENT;
    default: return UNONE;
@@ -276,19 +276,19 @@ const vector<String>& PMS::COLORS_LIST() {
     static vector<String> colors;
     if(colors.size() == 0) {
         colors.resize(10);
-		colors[0] = "#202020";
-		colors[1] = "#E00066";
-		colors[2] = "#E07600";
-		colors[3] = "#66D000";
-		colors[4] = "#AC6600";
-		colors[5] = "#0091A0";
-		colors[6] = "#10E050";
-		colors[7] = "#6600E0";
-		colors[8] = "#0066F0";
-		colors[9] = "#A868D8";
-	}
+        colors[0] = "#202020";
+        colors[1] = "#E00066";
+        colors[2] = "#E07600";
+        colors[3] = "#66D000";
+        colors[4] = "#AC6600";
+        colors[5] = "#0091A0";
+        colors[6] = "#10E050";
+        colors[7] = "#6600E0";
+        colors[8] = "#0066F0";
+        colors[9] = "#A868D8";
+    }
     
-	return colors;
+    return colors;
 }
 
 
