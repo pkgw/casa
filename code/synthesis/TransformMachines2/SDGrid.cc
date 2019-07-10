@@ -437,73 +437,69 @@ void SDGrid::findPBAsConvFunction(const ImageInterface<Complex>& image,
   // Set the reference value to the first pointing in the coordinate
   // system used in the POINTING table.
   {
-    uInt row=0;
+    uInt row = 0;
     const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
-    Bool nullPointingTable=(act_mspc.nrow() < 1);
-    // uInt pointIndex=getIndex(*mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
-    Int pointIndex=-1;
-    if(!nullPointingTable){
+    Bool nullPointingTable = (act_mspc.nrow() < 1);
+    Int pointIndex = -1;
+    if (!nullPointingTable){
       //if(vb.newMS()) This thing is buggy...using msId change
-      if(vb.msId() != msId_p){
+      if (vb.msId() != msId_p) {
 	lastIndex_p=0;
-  if(lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
-    lastIndexPerAnt_p.resize(vb.nAntennas());
-  }
-	lastIndexPerAnt_p=0;
-	msId_p=vb.msId();
+	if (lastIndexPerAnt_p.nelements() < (size_t)vb.nAntennas()) {
+	  lastIndexPerAnt_p.resize(vb.nAntennas());
+	}
+	lastIndexPerAnt_p = 0;
+	msId_p = vb.msId();
       }
-      pointIndex=getIndex(act_mspc, vb.time()(row), -1.0, vb.antenna1()(row));
-      if(pointIndex < 0)
-	pointIndex=getIndex(act_mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
-      
+      pointIndex = getIndex(act_mspc, vb.time()(row), -1.0, vb.antenna1()(row));
+      if (pointIndex < 0)
+	pointIndex = getIndex(act_mspc, vb.time()(row), vb.timeInterval()(row), vb.antenna1()(row));
     }
-    if(!nullPointingTable && ((pointIndex<0)||(pointIndex>=Int(act_mspc.time().nrow())))) {
+    if (!nullPointingTable && ((pointIndex < 0) || (pointIndex >= Int(act_mspc.time().nrow())))) {
       ostringstream o;
       o << "Failed to find pointing information for time " <<
 	MVTime(vb.time()(row)/86400.0);
       logIO_p << String(o) << LogIO::EXCEPTION;
     }
+
     MEpoch epoch(Quantity(vb.time()(row), "s"));
-    if(!pointingToImage) {
-      lastAntID_p=vb.antenna1()(row);
-      MPosition pos;
-      pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
-      mFrame_p=MeasFrame(epoch, pos);
-      if(!nullPointingTable){
-	worldPosMeas=directionMeas(act_mspc, pointIndex);
+    if (!pointingToImage) {
+      lastAntID_p = vb.antenna1()(row);
+      MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+      mFrame_p = MeasFrame(epoch, pos);
+      if (!nullPointingTable) {
+	worldPosMeas = directionMeas(act_mspc, pointIndex);
+      } else {
+	worldPosMeas = vb.direction1()(row);
       }
-      else{
-	worldPosMeas=vb.direction1()(row);
-      }
+
       // Make a machine to convert from the worldPosMeas to the output
       // Direction Measure type for the relevant frame
       MDirection::Ref outRef(dc.directionType(), mFrame_p);
       pointingToImage = new MDirection::Convert(worldPosMeas, outRef);
-      
-      if(!pointingToImage) {
+      if (!pointingToImage) {
 	logIO_p << "Cannot make direction conversion machine" << LogIO::EXCEPTION;
       }
-    }
-    else {
+
+    } else {
       mFrame_p.resetEpoch(epoch);
-      if(lastAntID_p != vb.antenna1()(row)){
-	MPosition pos;
-	lastAntID_p=vb.antenna1()(row);
-	pos=vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+      if (lastAntID_p != vb.antenna1()(row)) {
+	lastAntID_p = vb.antenna1()(row);
+	MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
 	mFrame_p.resetPosition(pos);
       }
     }
-    if(!nullPointingTable){
-      worldPosMeas=(*pointingToImage)(directionMeas(act_mspc,pointIndex));
-    }
-    else{
-      worldPosMeas=(*pointingToImage)(vb.direction1()(row));
+
+    if (!nullPointingTable) {
+      worldPosMeas = (*pointingToImage)(directionMeas(act_mspc, pointIndex));
+    } else {
+      worldPosMeas = (*pointingToImage)(vb.direction1()(row));
     }
     delete pointingToImage;
-    pointingToImage=0;
+    pointingToImage = 0;
   }
   
-  directionCoord=coords.directionCoordinate(directionIndex);
+  directionCoord = coords.directionCoordinate(directionIndex);
   //make sure we use the same units
   worldPosMeas.set(dc.worldAxisUnits()(0));
 
@@ -631,10 +627,8 @@ void SDGrid::initializeToVis(ImageInterface<Complex>& iimage,
 
     lattice=arrayLattice;
   }
-
   AlwaysAssert(lattice, AipsError);
   AlwaysAssert(wLattice, AipsError);
-
 }
 
 void SDGrid::finalizeToVis()
@@ -669,7 +663,6 @@ void SDGrid::initializeToSky(ImageInterface<Complex>& iimage,
   if(convType=="pb") {
     findPBAsConvFunction(*image, vb);
   }
-
   // Initialize the maps for polarization and channel. These maps
   // translate visibility indices into image indices
   initMaps(vb);
@@ -1508,7 +1501,7 @@ Int SDGrid::getIndex(const ROMSPointingColumns& mspc, const Double& time,
     else {
       // Is the midpoint of this pointing table entry within the specified
       // tolerance of the main table entry?
-      if(abs(midpoint-time) <= (mspc_interval/2.0+tol)) {
+      if (abs(midpoint-time) <= (mspc_interval/2.0+tol)) {
 	//lastIndex_p=i;
   lastIndexPerAnt_p[antid]=i;
 	return i;
@@ -1522,9 +1515,8 @@ Int SDGrid::getIndex(const ROMSPointingColumns& mspc, const Double& time,
 Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
 
   Bool dointerp;
-  Bool nullPointingTable = false;
   const ROMSPointingColumns& act_mspc = vb.subtableColumns().pointing();
-  nullPointingTable = (act_mspc.nrow() < 1);
+  Bool nullPointingTable = (act_mspc.nrow() < 1);
   Int pointIndex = -1;
   if (!nullPointingTable) {
     ///if(vb.newMS())  vb.newMS does not work well using msid 
@@ -1569,9 +1561,8 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
   MEpoch epoch(Quantity(vb.time()(row), "s"));
   if (!pointingToImage) {
     // Set the frame
-    MPosition pos;
     lastAntID_p = vb.antenna1()(row);
-    pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
+    MPosition pos = vb.subtableColumns().antenna().positionMeas()(lastAntID_p);
     mFrame_p = MeasFrame(epoch, pos);
     if (!nullPointingTable) {
       if (dointerp) {
@@ -1583,7 +1574,6 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
       worldPosMeas = vb.direction1()(row);
     }
 
-    //worldPosMeas=directionMeas(act_mspc, pointIndex);
     // Make a machine to convert from the worldPosMeas to the output
     // Direction Measure type for the relevant frame
     MDirection::Ref outRef(directionCoord.directionType(), mFrame_p);
@@ -1636,14 +1626,23 @@ Bool SDGrid::getXYPos(const vi::VisBuffer2& vb, Int row) {
     }
     //via HADEC or AZEL for parallax of near sources
     MDirection::Ref outref1(MDirection::AZEL, mFrame_p);
-    MDirection tmphadec=MDirection::Convert(movingDir_p, outref1)();
-    MDirection actSourceDir=(*pointingToImage)(tmphadec);
+    MDirection tmphadec;
+    if (upcase(movingDir_p.getRefString()).contains("APP")) {
+      tmphadec = MDirection::Convert((vbutil_p->getEphemDir(vb, phaseCenterTime_p)), outref1)();
+    } else if (upcase(movingDir_p.getRefString()).contains("COMET")) {
+      MeasComet mcomet(Path(ephemTableName_p).absoluteName());
+      mFrame_p.set(mcomet);
+      tmphadec = MDirection::Convert(movingDir_p, outref1)();
+    } else {
+      tmphadec = MDirection::Convert(movingDir_p, outref1)();
+    }
+    MDirection actSourceDir = (*pointingToImage)(tmphadec);
     Vector<Double> actPix;
     directionCoord.toPixel(actPix, actSourceDir);
 
     //cout << row << " scan " << vb.scan()(row) << "xyPos " << xyPos << " xyposmovorig " << xyPosMovingOrig_p << " actPix " << actPix << endl; 
 
-    xyPos=xyPos+xyPosMovingOrig_p-actPix;
+    xyPos = xyPos + xyPosMovingOrig_p - actPix;
   }
 
   return result;

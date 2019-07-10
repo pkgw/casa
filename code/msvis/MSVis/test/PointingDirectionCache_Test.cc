@@ -14,8 +14,6 @@
 #include <casacore/casa/Arrays/Vector.h>
 #include <casacore/casa/Exceptions/Error.h>
 
-#undef casacore
-
 using namespace casa;
 using namespace casa::vi;
 using namespace casa::vi::pd_cache;

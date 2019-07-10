@@ -537,12 +537,10 @@ coordsys::copy()
 bool
 coordsys::done()
 {
-	*_log << LogOrigin("coordsys", __func__);
 	_csys.set(0);
 	_log.set(0);
 	_imageName = "";
 	return true;
-
 }
 
 ::casac::record *

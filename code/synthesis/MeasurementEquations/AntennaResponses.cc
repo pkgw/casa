@@ -29,7 +29,7 @@
 
 //# Includes
 #include <casa/aips.h>
-#include <imageanalysis/ImageAnalysis/AntennaResponses.h>
+#include <synthesis/MeasurementEquations/AntennaResponses.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Exceptions/Error.h>
 #include <casa/Quanta/MVTime.h>

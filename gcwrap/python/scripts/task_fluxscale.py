@@ -85,6 +85,15 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
                casalog.origin('fluxscale')
 
                mycb = cbtool()
+               # check the input param
+               if fluxtable=="": 
+                   casalog.post("Missing fluxtable name.","SEVERE")
+                   raise Exception, "Missing fluxtable name." 
+               else:
+                   if os.path.exists(fluxtable) and not append:
+                       casalog.post("fluxtable %s exists." % fluxtable, "SEVERE")
+                       raise Exception, "fluxtable %s exists. Please specify a different name. Or set append=True, to append the results to the table." % fluxtable
+
                mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                output = mycb.fluxscale(tablein=caltable,tableout=fluxtable,reference=reference,
                               transfer=transfer,listfile=listfile,append=append,
