@@ -3416,7 +3416,7 @@ class test_mosaic_cube(testref_base):
           self.checkfinal(report1+report2+report3+report4)
 
      def test_cube_mosaic_cbFalse_mwTrue_twofield(self):
-          self.prepData('refim_oneshiftpoint.mosaic. ms')
+          self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0,1'
           tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='cube',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,reffreq='1.5GHz',pbcor=True,mosweight=True,parallel=self.parallel)

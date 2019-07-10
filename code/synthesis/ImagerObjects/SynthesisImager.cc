@@ -625,7 +625,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				    const Bool mTermOn,//    = false,
 				    const Bool wbAWP,//      = true,
 				    const String cfCache,//  = "",
-				    const Bool doPointing,// = false,
+				    const Bool usePointing,// = false,
 				    const Bool doPBCorr,//   = true,
 				    const Bool conjBeams,//  = true,
 				    const Float computePAStep,         //=360.0
@@ -677,7 +677,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   gridpars.mTermOn=mTermOn;
   gridpars.wbAWP=wbAWP;
   gridpars.cfCache=cfCache;
-  gridpars.doPointing=doPointing;
+  gridpars.usePointing=usePointing;
   gridpars.doPBCorr=doPBCorr;
   gridpars.conjBeams=conjBeams;
   gridpars.computePAStep=computePAStep;
@@ -754,7 +754,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			gridpars.padding,gridpars.useAutoCorr,gridpars.useDoublePrec,
 			gridpars.convFunc,
 			gridpars.aTermOn,gridpars.psTermOn, gridpars.mTermOn,
-			gridpars.wbAWP,gridpars.cfCache,gridpars.doPointing,
+			gridpars.wbAWP,gridpars.cfCache,gridpars.usePointing,
 			gridpars.doPBCorr,gridpars.conjBeams,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
@@ -1663,7 +1663,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					const Bool mTermOn,          //= false,
 					const Bool wbAWP,            //= true,
 					const String cfCache,        //= "",
-					const Bool doPointing,       //= false,
+					const Bool usePointing,       //= false,
 					const Bool doPBCorr,         //= true,
 					const Bool conjBeams,        //= true,
 					const Float computePAStep,         //=360.0
@@ -1716,7 +1716,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       createAWPFTMachine(theFT, theIFT, ftname, facets, wprojplane, 
 			 padding, useAutocorr, useDoublePrec, gridFunction,
 			 aTermOn, psTermOn, mTermOn, wbAWP, cfCache, 
-			 doPointing, doPBCorr, conjBeams, computePAStep,
+			 usePointing, doPBCorr, conjBeams, computePAStep,
 			 rotatePAStep, cache,tile,imageNamePrefix);
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
@@ -1800,7 +1800,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 					   const Bool mTermOn,          //= false,
 					   const Bool wbAWP,            //= true,
 					   const String cfCache,        //= "",
-					   const Bool doPointing,       //= false,
+					   const Bool usePointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
 					   const Float computePAStep,   //=360.0
@@ -1887,7 +1887,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     theFT = new AWProjectWBFTNew(wprojPlane, cache/2, 
 			      cfCacheObj, awConvFunc, 
 			      visResampler,
-			      /*true */doPointing, doPBCorr, 
+			      /*true */usePointing, doPBCorr, 
 			      tile, computePAStep, pbLimit_l, true,conjBeams,
 			      useDoublePrec);
 
@@ -1915,7 +1915,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // theIFT = new AWProjectWBFT(wprojPlane, cache/2, 
     // 			       cfCacheObj, awConvFunc, 
     // 			       visResampler,
-    // 			       /*true */doPointing, doPBCorr, 
+    // 			       /*true */usePointing, doPBCorr, 
     // 			       tile, computePAStep, pbLimit_l, true,conjBeams,
     // 			       useDoublePrec);
 

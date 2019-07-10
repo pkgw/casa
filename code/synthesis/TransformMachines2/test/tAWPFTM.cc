@@ -77,7 +77,7 @@ void createAWPFTMachine(CountedPtr<refim::FTMachine>& theFT, CountedPtr<refim::F
 			const Bool mTermOn= false,
 			const Bool wbAWP= true,
 			const String cfCache= "testCF.cf",
-			const Bool doPointing= false,
+			const Bool usePointing= false,
 			const Bool doPBCorr= true,
 			const Bool conjBeams= true,
 			const Float computePAStep=360.0,
@@ -112,7 +112,7 @@ void createAWPFTMachine(CountedPtr<refim::FTMachine>& theFT, CountedPtr<refim::F
 									 false);
    CountedPtr<refim::PointingOffsets> po = new refim::PointingOffsets(awConvFunc->getOversampling());
 
-   po->setDoPointing(doPointing);
+   po->setUsePointing(usePointing);
    awConvFunc->setPointingOffsets(po);
   //
   // Construct the appropriate re-sampler.
@@ -132,7 +132,7 @@ void createAWPFTMachine(CountedPtr<refim::FTMachine>& theFT, CountedPtr<refim::F
   theFT = new refim::AWProjectWBFTNew(wprojPlane, cache/2, 
 			       cfCacheObj, awConvFunc, 
 			       visResampler,
-			       /*true */doPointing, doPBCorr, 
+			       /*true */usePointing, doPBCorr, 
 			       tile, computePAStep, pbLimit_l, true,conjBeams,
 			       useDoublePrec);
   

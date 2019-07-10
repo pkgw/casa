@@ -1095,9 +1095,9 @@ HPX HEALPix grid.  -->
       <value type="string"></value>
     </param>
 
-    <param type="bool" name="dopointing" subparam="true">
+    <param type="bool" name="usepointing" subparam="true">
      <shortdescription>The parameter makes the gridder utilize the pointing table phase directions while computing the residual image.</shortdescription>
-<description>The dopointing flag informs the gridder that it should utilize the pointing table
+<description>The usepointing flag informs the gridder that it should utilize the pointing table
 to use the correct direction in which the antenna is pointing with respect to the pointing phasecenter. </description>
       <value type="bool">False</value>
     </param>
@@ -2653,7 +2653,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="mosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="dopointing"><value>False</value></default> 
+         <default param="usepointing"><value>False</value></default> 
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2662,7 +2662,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="mosaicft">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="dopointing"><value>False</value></default>
+         <default param="usepointing"><value>False</value></default>
          <default param="doweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2671,7 +2671,7 @@ to use the correct direction in which the antenna is pointing with respect to th
        <equals type="string" value="ftmosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="dopointing"><value>False</value></default>
+         <default param="usepointing"><value>False</value></default>
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
        </equals>
@@ -2696,7 +2696,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
 	 <default param="mosweight"><value>False</value></default>
-	 <default param="dopointing"><value>False</value></default>
+	 <default param="usepointing"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
 	 <default param="wprojplanes"><value>1</value></default>
@@ -2712,7 +2712,7 @@ to use the correct direction in which the antenna is pointing with respect to th
 <!--	 <default param="vptable"><value>""</value></default> -->
 	 <default param="pblimit"><value>0.2</value></default>
 	 <default param="conjbeams"><value>False</value></default>
-	 <default param="dopointing"><value>False</value></default>
+	 <default param="usepointing"><value>False</value></default>
        </equals>
      </when>
 

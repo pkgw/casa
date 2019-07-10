@@ -53,7 +53,7 @@
      $     nvalue, cnorm, rsupport,sampling, off,
      $     cfscale,
      $     scale,lambda, sDPA,cDPA,currentCFPA,convOrigin,convSize,
-     $     wconvsize, polused, dopointingcorrection, dograd,nant,
+     $     wconvsize, polused, usepointingcorrection, dograd,nant,
      $     raoff,decoff, ConjPlane, PolnPlane, nx,ny,npol,nchan,
      $     apol,achan,ant1,ant2,uvw,nrow,irow)
       
@@ -63,7 +63,7 @@
       integer gridorigin(3)
       integer rsupport,sampling, off(3), convOrigin, convSize,wconvsize,
      $     polused
-      integer dopointingcorrection, dograd,nant
+      integer usepointingcorrection, dograd,nant
       integer ix,iy,iloc(3),loc(3),origin(3), 
      $     ConjPlane, PolnPlane,apol,achan
       double precision offset(3),cfscale,lambda,sDPA,cDPA,currentCFPA,
@@ -102,7 +102,7 @@ c           iloc(1)=(ix*sampling+off(1))* cfscale
             tc=cDPA
             if (mreindex(iu,iv,iloc(1),iloc(2),
      $           ts,tc,convOrigin,convSize)) then
-               if (dopointingcorrection .eq. 1) then
+               if (usepointingcorrection .eq. 1) then
                   griduvw(1)=(iloc(1)-convOrigin)/(scale(1)*sampling)
                   griduvw(2)=(iloc(2)-convOrigin)/(scale(2)*sampling)
                   ra1 = raoff(apol,1,ant1(irow)+1)
@@ -147,7 +147,7 @@ C
       complex function getarea(doavgpb,func,area,rsupport, sampling, 
      $     off, 
      $     cfscale,scale,lambda,sDPA, cDPA, currentCFPA, convOrigin, 
-     $     convSize, wconvsize, polused,dopointingcorrection, dograd, 
+     $     convSize, wconvsize, polused,usepointingcorrection, dograd, 
      $     nant, raoff,decoff, ConjPlane, PolnPlane,ant1,ant2,uvw,
      $     nrow,irow)
       
@@ -155,7 +155,7 @@ C
       integer ant1(nrow),ant2(nrow)
       integer rsupport,sampling, off(3), convOrigin, convSize,wconvsize,
      $     polused
-      integer dopointingcorrection, dograd,nant
+      integer usepointingcorrection, dograd,nant
       integer ix,iy,iloc(3),loc(3), ConjPlane, PolnPlane
       real raoff(2,1,nant), decoff(2,1,nant)
       double precision ra1,ra2,dec1,dec2
@@ -212,7 +212,7 @@ C
      $     support, convsize, convwtsize, sampling, wconvsize, convfunc, 
      $     chanmap, polmap,polused,sumwt,
      $     ant1, ant2, nant, scanno, sigma,raoff, decoff,area,
-     $     dograd,dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     dograd,usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,doavgpb,avgpb,cfRefFreq,convWts,
      $     wtsupport)
       
@@ -220,7 +220,7 @@ C
       implicit none
       integer nx, ny, npol, nchan, nvispol, nvischan, nrow,polused
       integer npa,paindex
-      integer convsize, sampling, wconvsize,dograd,dopointingcorrection
+      integer convsize, sampling, wconvsize,dograd,usepointingcorrection
       complex values(nvispol, nvischan, nrow)
       complex grid(nx, ny, npol, nchan),avgpb(nx,ny,npol,nchan)
       double precision uvw(3, nrow), freq(nvischan), c, scale(3),
@@ -363,7 +363,7 @@ c                              cnorm2 = getarea(doavgpb,convfunc,area,
      $                             currentCFPA, convWtOrigin, 
      $                             convwtsize,
      $                             wconvsize, polused,
-     $                             dopointingcorrection,dograd, 
+     $                             usepointingcorrection,dograd, 
      $                             nant,raoff,decoff,ConjPlane,
      $                             PolnPlane,ant1,ant2,uvw,nrow,irow)
                               cnorm2=accumulate(doavgpb,area,avgpb,lloc,
@@ -373,7 +373,7 @@ c     $                             convfunc,tmpvalue,cnorm2,wtsupport,
      $                             cfscale,scale,lambda,sDPA,cDPA, 
      $                             currentCFPA,convWtOrigin,convwtsize,
      $                             wconvsize,polused,
-     $                             dopointingcorrection,dograd,nant,
+     $                             usepointingcorrection,dograd,nant,
      $                             raoff,decoff,ConjPlane,PolnPlane,
      $                             nx,ny,npol,nchan,apol,achan, 
      $                             ant1,ant2,uvw,nrow,irow)
@@ -401,7 +401,7 @@ c$$$                              off(2)=0
      $                             sDPA, cDPA,currentCFPA, 
      $                             convOrigin, convSize,
      $                             wconvsize, polused,
-     $                             dopointingcorrection,
+     $                             usepointingcorrection,
      $                             dograd, nant,raoff,decoff,
      $                             ConjPlane,PolnPlane,ant1,ant2,
      $                             uvw,nrow,irow)
@@ -412,7 +412,7 @@ c$$$                              off(2)=0
      $                             scale,lambda,
      $                             sDPA,cDPA,currentCFPA,convOrigin,
      $                             convSize,wconvsize,polused,
-     $                             dopointingcorrection,dograd,nant,
+     $                             usepointingcorrection,dograd,nant,
      $                             raoff,decoff,ConjPlane,PolnPlane,
      $                             nx,ny,npol,nchan,apol,achan,
      $                             ant1,ant2,uvw,nrow,irow)
@@ -455,7 +455,7 @@ C
      $     c, support, convsize, sampling, wconvsize, convfunc,
      $     chanmap, polmap,polused, ant1, ant2, nant, 
      $     scanno, sigma, raoff, decoff,area,dograd,
-     $     dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
       
       implicit none
@@ -475,7 +475,7 @@ C
       integer chanmap(*), polmap(*)
       
       integer nant, scanno, ant1(nrow), ant2(nrow),dograd,
-     $     dopointingcorrection
+     $     usepointingcorrection
       real raoff(nant), decoff(nant)
       double precision sigma,area,lambda,cfscale
       
@@ -562,7 +562,7 @@ c      dPA=0
                                  if(mreindex(iu,iv,iloc(1),iloc(2),
      $                                sDPA,cDPA, convOrigin, convSize)) 
      $                                then
-                                    if (dopointingcorrection .eq. 1)then
+                                    if (usepointingcorrection.eq.1)then
                                        griduvw(1)=(loc(1)-offset(1)
      $                                      +ix-1)/scale(1)-uvw(1,irow)
      $                                      /lambda
@@ -620,7 +620,7 @@ C
      $     nx, ny, npol, nchan, freq, c, support, convsize, sampling, 
      $     wconvsize, convfunc, chanmap, polmap,polused,ant1,ant2,nant, 
      $     scanno, sigma, raoff, decoff,area,dograd,
-     $     dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
       
       implicit none
@@ -642,7 +642,7 @@ C
       integer chanmap(*), polmap(*)
       
       integer nant, scanno, ant1(nrow), ant2(nrow),dograd,
-     $     dopointingcorrection
+     $     usepointingcorrection
       real raoff(2,1,nant), decoff(2,1,nant)
       double precision sigma,area,lambda,cfscale
       
@@ -737,7 +737,7 @@ c                                 iloc(1) = (ix*sampling+off(1))*cfscale
                                  if(mreindex(iu,iv,iloc(1),iloc(2),
      $                                sDPA,cDPA, convOrigin, convSize)) 
      $                                then
-                                    if (dopointingcorrection .eq. 1)then
+                                    if (usepointingcorrection.eq.1)then
 c$$$                                         griduvw(1)=(loc(1)-offset(1)
 c$$$     $                                       +ix-1)/scale(1)-uvw(1,irow)
 c$$$     $                                        /lambda
@@ -783,7 +783,7 @@ c$$$                                    endif
      $                                   grid(loc(1)+ix,loc(2)+iy,apol,
      $                                   achan)
                                       
-                                    if ((doconj .eq. 1) .and. 
+                                    if ((doconj.eq.1) .and. 
      $                                   (dograd .eq. 1)) then
                                        pdcwt1 = conjg(pdcwt1)
                                        pdcwt2 = conjg(pdcwt2)
@@ -834,7 +834,7 @@ C
      $     c, support, convsize, sampling, wconvsize, convfunc,
      $     chanmap, polmap,polused, ant1, ant2, nant, 
      $     scanno, sigma, raoff, decoff,area,dograd,
-     $     dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
       
       implicit none
@@ -854,7 +854,7 @@ C
       integer chanmap(*), polmap(*)
       
       integer nant, scanno, ant1(nrow), ant2(nrow),dograd,
-     $     dopointingcorrection
+     $     usepointingcorrection
       real raoff(2,1,nant), decoff(2,1,nant)
       double precision sigma,area,lambda,cfscale
       
@@ -947,7 +947,7 @@ c     iloc(1)=1+(ix*sampling+off(1))+convOrigin
                                  if(mreindex(iu,iv,iloc(1),iloc(2),
      $                                sDPA,cDPA, convOrigin, convSize))
      $                                then
-                                    if (dopointingcorrection .eq. 1) 
+                                    if (usepointingcorrection .eq. 1) 
      $                                   then
 c$$$                                       griduvw(1) = (loc(1)-offset(1)
 c$$$     $                                      +ix-1)
@@ -1012,7 +1012,7 @@ c$$$     $                                   norm(apol)
 
 c$$$  write(*,*)abs(grid(loc(1)+ix,loc(2)+iy
 c$$$  $                                ,apol,achan)),ix,iy,apol,abs(cwt),
-c$$$  $                                (pcwt),dopointingcorrection
+c$$$  $                                (pcwt),usepointingcorrection
                                  endif
                               end do
 c     write(*,*)

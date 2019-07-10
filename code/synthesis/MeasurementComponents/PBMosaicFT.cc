@@ -129,7 +129,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Get various parameters from the visibilities.  
     //
     //bandID_p = getVisParams();
-    if (applyPointingOffset) doPointing=1; else doPointing=0;
+    if (applyPointingOffset) usePointing=1; else usePointing=0;
 
     convFuncCacheReady=false;
     PAIndex = -1;
@@ -600,7 +600,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Float *decoff,
 		Double *area,
 		Int *doGrad,
-		Int *doPointingCorrection,
+		Int *usePointingCorrection,
 		Int *nPA,
 		Int *paIndex,
 		Int *CFMap,
@@ -644,7 +644,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		Float *raoff, Float *decoff,
 		Double *area, 
 		Int *dograd,
-		Int *doPointingCorrection,
+		Int *usePointingCorrection,
 		Int *nPA,
 		Int *paIndex,
 		Int *CFMap,
@@ -687,7 +687,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  Float *raoff, Float *decoff,
 		  Double *area, 
 		  Int *dograd,
-		  Int *doPointingCorrection,
+		  Int *usePointingCorrection,
 		  Int *nPA,
 		  Int *paIndex,
 		  Int *CFMap,
@@ -775,8 +775,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     actualConvSize = convFunc.shape()(0);
     
     IPosition shp=convSupport.shape();
-    Int alwaysDoPointing=1;
-    alwaysDoPointing=doPointing;
+    Int alwaysUsePointing=1;
+    alwaysUsePointing=usePointing;
     dpbmos(uvw_p,
 	   dphase_p,
 	   visdata_p,
@@ -811,7 +811,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   l_off_p, m_off_p,
 	   &area,
 	   &doGrad,
-	   &alwaysDoPointing,
+	   &alwaysUsePointing,
 	   &npa,
 	   &paIndex_Fortran,
 	   CFMap_p,
@@ -916,8 +916,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     actualConvSize = convFunc.shape()(0);
     
     IPosition shp=convSupport.shape();
-    Int alwaysDoPointing=1;
-    alwaysDoPointing = doPointing;
+    Int alwaysUsePointing=1;
+    alwaysUsePointing = usePointing;
     dpbmosgrad(uvw_p,
 	     dphase_p,
 	     visdata_p,
@@ -955,7 +955,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	     l_off_p, m_off_p,
 	     &area,
 	     &doGrad,
-	     &alwaysDoPointing,
+	     &alwaysUsePointing,
 	     &npa,
 	     &paIndex_Fortran,
 	     CFMap_p,
@@ -1090,8 +1090,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (fabs(lastPAUsedForWtImg-actualPA)*57.2956 >= DELTAPA) lastPAUsedForWtImg = actualPA;
 
     IPosition shp=convSupport.shape();
-    Int alwaysDoPointing=1;
-    alwaysDoPointing = doPointing;
+    Int alwaysUsePointing=1;
+    alwaysUsePointing = usePointing;
     gpbmos(uvw_p,
 	   dphase_p,
 	   visdata_p,
@@ -1131,7 +1131,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	   l_off_p, m_off_p,
 	   &area,
 	   &doGrad,
-	   &alwaysDoPointing,
+	   &alwaysUsePointing,
 	   &npa,
 	   &paIndex_Fortran,
 	   CFMap_p,

@@ -46,7 +46,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PointingOffsets 
   {
   public:
-    PointingOffsets(const int& convOversampling):epJ_p(), doPointing_p(false),vbUtils_p()
+    PointingOffsets(const int& convOversampling):epJ_p(), usePointing_p(false),vbUtils_p()
     {
       convOversampling_p = convOversampling;
       PO_DEBUG_P = SynthesisUtils::getenv("PO_DEBUG",0);
@@ -57,20 +57,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     void setEPJones(SolvableVisJones* epJ) {epJ_p = epJ;};
     virtual casacore::Vector<casacore::Vector<casacore::Double> >findMosaicPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-									const vi::VisBuffer2& vb, const casacore::Bool& doPointing=false);
+									const vi::VisBuffer2& vb, const casacore::Bool& usePointing=false);
 
     virtual casacore::Vector<casacore::Vector<casacore::Double> >findAntennaPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-									 const vi::VisBuffer2& vb, const casacore::Bool& doPointing=true);
+									 const vi::VisBuffer2& vb, const casacore::Bool& usePointing=true);
 
     virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-								  const vi::VisBuffer2& vb, const casacore::Bool doPointing=false);
+								  const vi::VisBuffer2& vb, const casacore::Bool usePointing=false);
 
     casacore::Vector<double> gradPerPixel(const casacore::Vector<double>& p);
     casacore::Vector<casacore::Double>& toPix(const vi::VisBuffer2& vb, 
 					      const casacore::MDirection& dir1, const casacore::MDirection& dir2);
     void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage, const vi::VisBuffer2& vb);
 
-    void setDoPointing(const bool& dop=false) {doPointing_p = dop;}
+    void setUsePointing(const bool& dop=false) {usePointing_p = dop;}
 
   private:
 
@@ -87,7 +87,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::MDirection direction1_p;
     casacore::MDirection direction2_p;
     casacore::CountedPtr<SolvableVisJones> epJ_p;
-    bool doPointing_p;
+    bool usePointing_p;
     VisBufferUtil vbUtils_p;
 
     int PO_DEBUG_P;

@@ -36,14 +36,14 @@ C
      $     support, convsize, sampling, wconvsize, convfunc, 
      $     chanmap, polmap,polused,sumwt,
      $     ant1, ant2, nant, scanno, sigma,raoff, decoff,area,
-     $     dograd,dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     dograd,usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
 
 
       implicit none
       integer nx, ny, npol, nchan, nvispol, nvischan, nrow,polused
       integer npa,paindex
-      integer convsize, sampling, wconvsize,dograd,dopointingcorrection
+      integer convsize, sampling, wconvsize,dograd,usepointingcorrection
       complex values(nvispol, nvischan, nrow)
       complex grid(nx, ny, npol, nchan)
       double precision uvw(3, nrow), freq(nvischan), c, scale(3),
@@ -189,7 +189,7 @@ c$$$                                 iv=iv+off(2)*cfscale
                                  if (reindex(iu,iv,iloc(1),iloc(2),
      $                                ts,tc,
      $                                convOrigin, convSize)) then
-                                    if (dopointingcorrection .eq. 1) 
+                                    if (usepointingcorrection .eq. 1) 
      $                                   then
 c$$$                                       griduvw(1) = (loc(1)-offset(1)+
 c$$$     $                                      ix-1)
@@ -270,7 +270,7 @@ c$$$                                 iv=iv+off(2)*cfscale
 C
 C Compute the pointing offset term
 C
-                                    if (dopointingcorrection .eq. 1) 
+                                    if (usepointingcorrection .eq. 1) 
      $                                   then
 c$$$                                       iu=iu-off(1)*cfscale
 c$$$                                       iv=iv-off(2)*cfscale
@@ -355,7 +355,7 @@ C
      $     c, support, convsize, sampling, wconvsize, convfunc,
      $     chanmap, polmap,polused, ant1, ant2, nant, 
      $     scanno, sigma, raoff, decoff,area,dograd,
-     $     dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
 
       implicit none
@@ -375,7 +375,7 @@ C
       integer chanmap(*), polmap(*)
 
       integer nant, scanno, ant1(nrow), ant2(nrow),dograd,
-     $     dopointingcorrection
+     $     usepointingcorrection
       real raoff(nant), decoff(nant)
       double precision sigma,area,lambda
 
@@ -487,7 +487,7 @@ c$$$                              iv = nint(-sDPA*ixr + cDPA*iyr)
      $                             ts,tc, convOrigin, convSize)) 
      $                             then
 
-                                 if (dopointingcorrection .eq. 1) then
+                                 if (usepointingcorrection .eq. 1) then
 c$$$                                    iu = iu - off(1)*cfscale
 c$$$                                    iv = iv - off(2)*cfscale
 C
@@ -581,7 +581,7 @@ C
      $     nx, ny, npol, nchan, freq, c, support, convsize, sampling, 
      $     wconvsize, convfunc, chanmap, polmap,polused,ant1,ant2,nant, 
      $     scanno, sigma, raoff, decoff,area,dograd,
-     $     dopointingcorrection,npa,paindex,cfmap,conjcfmap,
+     $     usepointingcorrection,npa,paindex,cfmap,conjcfmap,
      $     currentCFPA,actualPA,cfRefFreq)
 
       implicit none
@@ -603,7 +603,7 @@ C
       integer chanmap(*), polmap(*)
 
       integer nant, scanno, ant1(nrow), ant2(nrow),dograd,
-     $     dopointingcorrection
+     $     usepointingcorrection
       real raoff(2,1,nant), decoff(2,1,nant)
       double precision sigma,area,lambda
 
@@ -702,7 +702,7 @@ c      convOrigin = (convsize+1)/2
 c$$$                              if(reindex(ixr,iyr,iloc(1),iloc(2),
 c$$$     $                             ts,tc, convOrigin, convSize)) 
      $                             then
-                                 if (dopointingcorrection .eq. 1) then
+                                 if (usepointingcorrection .eq. 1) then
 c$$$                                    iu=iu-off(1)*cfscale
 c$$$                                    iv=iv-off(2)*cfscale
 C

@@ -45,7 +45,7 @@ using namespace vi;
   namespace refim{
   Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
 
-    VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p(),doPointing_p(false)
+    VB2CFBMap::VB2CFBMap(): vb2CFBMap_p(), cfPhaseGrad_p(), phaseGradCalculator_p(),usePointing_p(false)
     {
       phaseGradCalculator_p = new PhaseGrad();
       newPhaseGradComputed_p = false;
@@ -58,7 +58,7 @@ using namespace vi;
 	  phaseGradCalculator_p = other.phaseGradCalculator_p;
 	  cfPhaseGrad_p.assign(other.cfPhaseGrad_p);
 	  vb2CFBMap_p.assign(other.vb2CFBMap_p);
-	  doPointing_p = other.doPointing_p;
+	  usePointing_p = other.usePointing_p;
 	}
       return *this;
     };
@@ -68,7 +68,7 @@ using namespace vi;
 				       const vi::VisBuffer2& vb,
 				       const int& row)
     {
-      // if (doPointing_p)
+      // if (usePointing_p)
       // 	{
       // 	  if (phaseGradCalculator_p->needsNewPhaseGrad(pointingOffset, vb, 0))
       // 	    {
@@ -92,7 +92,7 @@ using namespace vi;
 				    const Vector<Int>& /*dataChan2ImChanMap*/,
 				    const Vector<Int>& /*dataPol2ImPolMap*/,
 				    const Vector<Vector<Double> >& pointingOffset)
-				    //const Bool& /*doPointing*/)
+				    //const Bool& /*usePointing*/)
     {
       //    VBRow2CFMapType& vbRow2CFMap_p,
       const Int nRow=vb.nRows(); 

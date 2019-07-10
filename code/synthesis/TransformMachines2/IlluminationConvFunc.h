@@ -120,7 +120,7 @@ namespace casa{
 
 		  
     virtual casacore::Vector< casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
-								  const VisBuffer2& /*vb*/, const casacore::Bool& /*doPointing*/)
+								  const VisBuffer2& /*vb*/, const casacore::Bool& /*usePointing*/)
     {throw(casacore::AipsError("IlluminationConvFunc::findPointingOffset() not implemented"));};
 
   private:

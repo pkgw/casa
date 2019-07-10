@@ -76,7 +76,6 @@ class ImagerParameters():
                  mterm=True,
                  wbawp = True,
                  cfcache = "",
-                 dopointing = False,
                  dopbcorr = True,
                  conjbeams = True,
                  computepastep =360.0,
@@ -181,13 +180,13 @@ class ImagerParameters():
         ######### Gridding
         self.allgridpars = fixedDict({ self.defaultKey :fixedDict({'gridder':gridder,
                                    'aterm': aterm, 'psterm':psterm, 'mterm': mterm, 'wbawp': wbawp, 
-                                   'cfcache': cfcache,'dopointing':dopointing, 'dopbcorr':dopbcorr, 
+                                   'cfcache': cfcache,'usepointing':usepointing, 'dopbcorr':dopbcorr, 
                                    'conjbeams':conjbeams, 'computepastep':computepastep,
                                    'rotatepastep':rotatepastep, #'mtype':mtype, # 'weightlimit':weightlimit,
                                    'pointingoffsetsigdev':pointingoffsetsigdev,
                                    'facets':facets,'chanchunks':chanchunks,
                                    'interpolation':interpolation, 'wprojplanes':wprojplanes,
-                                               'deconvolver':deconvolver, 'vptable':vptable, 'usepointing':usepointing,
+                                               'deconvolver':deconvolver, 'vptable':vptable,
                                    ## single-dish specific
                                    'convfunc': gridfunction, 'convsupport': convsupport,
                                    'truncate': truncate, 'gwidth': gwidth, 'jwidth': jwidth,
