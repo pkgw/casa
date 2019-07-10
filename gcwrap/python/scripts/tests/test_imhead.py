@@ -926,7 +926,8 @@ class imhead_test(unittest.TestCase):
         
         for image in [imf, imc]:
             logfile = image + ".log"
-            open(logfile,'w').close
+            # Because append?
+            open(logfile,'w').close()
             casalog.setlogfile(logfile)
             res = imhead(imagename=image, mode='list', verbose=True)
             self.assertTrue(res)

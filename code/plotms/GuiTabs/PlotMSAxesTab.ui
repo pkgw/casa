@@ -86,16 +86,7 @@
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="mainLayout" stretch="0,0,0,0,0,0,1">
-   <property name="spacing">
-    <number>3</number>
-   </property>
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMaximumSize</enum>
-   </property>
-   <property name="margin">
-    <number>1</number>
-   </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QFrame" name="xFrame">
      <property name="sizePolicy">
@@ -192,10 +183,7 @@
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line">
-     <property name="autoFillBackground">
-      <bool>true</bool>
-     </property>
+    <widget class="Line" name="line_2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -247,6 +235,16 @@
        </widget>
       </item>
       <item>
+       <widget class="Line" name="line">
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QRadioButton" name="tskyRadio">
         <property name="text">
          <string>Tsky</string>
@@ -267,6 +265,73 @@
        </spacer>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QFrame" name="overlayFrame_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="autoFillBackground">
+      <bool>true</bool>
+     </property>
+     <layout class="QHBoxLayout" name="overlayLayout_2">
+      <property name="spacing">
+       <number>3</number>
+      </property>
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="horizontalSpacer2_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="imageSbCheckBox">
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="text">
+         <string>Image Sideband Curve:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -431,7 +496,7 @@
      </property>
     </widget>
    </item>
-   <item alignment="Qt::AlignHCenter">
+   <item>
     <widget class="QFrame" name="buttonsFrame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -515,6 +580,15 @@
     </spacer>
    </item>
   </layout>
+  <zorder>xFrame</zorder>
+  <zorder>overlayFrame</zorder>
+  <zorder>yAxisChooserFrame</zorder>
+  <zorder>yAxisFrame</zorder>
+  <zorder>buttonsFrame</zorder>
+  <zorder>overlayFrame_2</zorder>
+  <zorder>tskyRadio</zorder>
+  <zorder>line_2</zorder>
+  <zorder>line_3</zorder>
  </widget>
  <resources/>
  <connections>

@@ -543,7 +543,7 @@ public:
 		return itsShowAtm_;
 	}
 	void setShowAtm (const bool & value) {
-	    if (itsShowAtm_!= value) {
+	    if (itsShowAtm_ != value) {
 		    itsShowAtm_ = value;
 		    updated();
 	    }
@@ -553,12 +553,21 @@ public:
 		return itsShowTsky_;
 	}
 	void setShowTsky (const bool & value) {
-	    if (itsShowTsky_!= value) {
+	    if (itsShowTsky_ != value) {
 		    itsShowTsky_ = value;
 		    updated();
 	    }
     }
 
+    bool showImage() const {
+		return itsShowImage_;
+	}
+	void setShowImage (const bool & value) {
+	    if (itsShowImage_ != value) {
+		    itsShowImage_ = value;
+		    updated();
+	    }
+    }
 	void resize( int count );
 
 private:
@@ -577,6 +586,7 @@ private:
 	
 	bool itsShowAtm_;
 	bool itsShowTsky_;
+	bool itsShowImage_;
 
 
 	/* Key strings for casacore::Record */
@@ -590,6 +600,7 @@ private:
 	static const casacore::String REC_YINTERPS;
 	static const casacore::String REC_SHOWATM;
 	static const casacore::String REC_SHOWTSKY;
+	static const casacore::String REC_SHOWIMAGE;
 
 	void setDefaults();
 };

@@ -128,7 +128,7 @@ public:
           // Ephemeris
           RADIAL_VELOCITY, RHO,
           // Overlays
-          ATM, TSKY, NONE)
+          ATM, TSKY, IMAGESB, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
           // Metadata
@@ -150,7 +150,7 @@ public:
           "Antenna Positions",
           // Ephemeris
           "Radial Velocity", "Distance (rho)", 
-          "Atm Transmission", "Tsky", "None")
+          "Atm Transmission", "Tsky", "Image Sideband", "None")
     // </group>
               
     // Returns the axes scale for the given axis.  Currently NORMAL unless the

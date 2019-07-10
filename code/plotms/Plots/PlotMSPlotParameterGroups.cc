@@ -251,6 +251,7 @@ const String PMS_PP_Cache::REC_XDATACOLS = "xdatacolumns";
 const String PMS_PP_Cache::REC_YDATACOLS = "ydatacolumns";
 const String PMS_PP_Cache::REC_SHOWATM = "showatm";
 const String PMS_PP_Cache::REC_SHOWTSKY = "showtsky";
+const String PMS_PP_Cache::REC_SHOWIMAGE = "showimage";
 
 
 PMS_PP_Cache::PMS_PP_Cache(PlotFactoryPtr factory)
@@ -273,6 +274,7 @@ Record PMS_PP_Cache::toRecord() const
 	rec.define(REC_YDATACOLS, PMS::toIntVector<PMS::DataColumn>(itsYData_));
 	rec.define(REC_SHOWATM, itsShowAtm_);
 	rec.define(REC_SHOWTSKY, itsShowTsky_);
+	rec.define(REC_SHOWIMAGE, itsShowImage_);
 	return rec;
 }
 
@@ -334,6 +336,15 @@ void PMS_PP_Cache::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
+    if (record.isDefined(REC_SHOWIMAGE) && record.dataType(REC_SHOWIMAGE) == TpBool)
+	{
+		bool tmp = record.asBool(REC_SHOWIMAGE);
+		if (itsShowImage_ != tmp)
+		{
+			itsShowImage_ = tmp;
+			valuesChanged = true;
+		}
+	}
 
 	if (valuesChanged) updated();
 }
@@ -361,6 +372,7 @@ PMS_PP_Cache& PMS_PP_Cache::assign(const PMS_PP_Cache* o){
 		itsYInterp_ = o->itsYInterp_;
         itsShowAtm_ = o->itsShowAtm_;
         itsShowTsky_ = o->itsShowTsky_;
+        itsShowImage_ = o->itsShowImage_;
 		updated();
 	}
 	return *this;
@@ -381,6 +393,7 @@ bool PMS_PP_Cache::operator==(const Group& other) const
 	if (itsYInterp_ != o->itsYInterp_) return false;
     if (itsShowAtm_ != o->itsShowAtm_) return false;
     if (itsShowTsky_ != o->itsShowTsky_) return false;
+    if (itsShowImage_ != o->itsShowImage_) return false;
 	return true;
     		}
 
@@ -399,6 +412,7 @@ void PMS_PP_Cache::setDefaults(){
 	itsYInterp_ = vector<PMS::InterpMethod>(1, PMS::DEFAULT_INTERPMETHOD);
     itsShowAtm_ = false;
     itsShowTsky_ = false;
+    itsShowImage_ = false;
 }
 
 void PMS_PP_Cache::resize( int count ){

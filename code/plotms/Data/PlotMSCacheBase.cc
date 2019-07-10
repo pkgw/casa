@@ -88,7 +88,7 @@ const unsigned int PlotMSCacheBase::THREAD_SEGMENT = 10;
 PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 		  plotms_(parent),
 		  itsPlot_(plot),
-		  indexer0_(NULL),
+		  indexer0_(nullptr),
 		  indexer_(0),
 		  nChunk_(0),
 		  refTime_p(0.0),
@@ -106,7 +106,7 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 		  userCanceled_(false),
           calType_(""),
           polnRatio_(false),
-          plotmsAtm_(NULL)
+          plotmsAtm_(nullptr)
 {
 	// Make the empty indexer0 object so we have and empty PlotData object
 	int dataCount = 1;
@@ -124,8 +124,8 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 	plmask_.resize( dataCount );
 	for ( int i = 0; i < dataCount; i++ ){
 		netAxesMask_[i].resize(4,false);
-		indexer_[i].set( NULL );
-		plmask_[i].set( NULL  );
+		indexer_[i].set( nullptr );
+		plmask_[i].set( nullptr  );
 	}
 	xminG_.resize(dataCount);
 	xminG_.set(0);
@@ -158,7 +158,6 @@ PlotMSCacheBase::PlotMSCacheBase(PlotMSApp* parent, PlotMSPlot* plot):
 }
 
 PlotMSCacheBase::~PlotMSCacheBase() {
-	//  cout << "PMSCB::~PMSCB" << endl;
 	delete indexer0_;
 
 	// Deflate everything
@@ -237,7 +236,7 @@ PMS::Axis PlotMSCacheBase::getIterAxis() const {
 
 PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<PlotRegion> & regions,
 		bool showUnflagged, bool showFlagged){
-	PlotLogMessage* mesg = NULL;
+	PlotLogMessage* mesg = nullptr;
 	String mesgContents;
 	int dataCount = indexer_.size();
 	if ( dataCount == 1 ){
@@ -248,7 +247,7 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 	}
 	else {
 		String contents;
-		PlotLogMessage* subMesg = NULL;
+		PlotLogMessage* subMesg = nullptr;
 		for ( int i = 0; i < dataCount; i++ ){
 			int indexCount = indexer_[i].size();
 			if ( 0 <= plotIterIndex && plotIterIndex < indexCount){
@@ -267,7 +266,7 @@ PlotLogMessage* PlotMSCacheBase::locateRange( int plotIterIndex, const Vector<Pl
 
 PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagging& flagging,
 		const Vector<PlotRegion>& regions, bool showFlagged){
-	PlotLogMessage* mesg = NULL;
+	PlotLogMessage* mesg = nullptr;
 
 	// not allowed for solvable cal tables!
 	String type(calType());
@@ -285,7 +284,7 @@ PlotLogMessage* PlotMSCacheBase::flagRange( int plotIterIndex, casa::PlotMSFlagg
 	}
 	else {
 		String contents;
-		PlotLogMessage* subMesg = NULL;
+		PlotLogMessage* subMesg = nullptr;
 		for ( int i = 0; i < dataCount; i++ ){
 			int indexCount = indexer_[i].size();
 			if ( 0 <= plotIterIndex && plotIterIndex < indexCount){
@@ -326,70 +325,20 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// need a way to keep track of whether:
 	// 1) we already have the metadata loaded
 	// 2) the underlying MS has changed, requiring a reloading of metadata
+
 	userCanceled_ = false;
 
 	// Trap ratio plots, only for cal tables
-	if ((selection.corr()=='/') && (cacheType()==PlotMSCacheBase::MS))
+	if ((selection.corr()=='/') && (cacheType()==PlotMSCacheBase::MS)) {
 		throw(AipsError("Polarization ratio plots not supported for measurement sets."));
-
-	// Remember the axes that we will load for plotting:
-	currentX_.clear();
-	currentY_.clear();
-	currentXData_.clear();
-	currentYData_.clear();
-	// RA/DEC axes params
-	currentXFrame_.clear();
-	currentYFrame_.clear();
-	currentXInterp_.clear();
-	currentYInterp_.clear();
-	int dataCount = axes.size() / 2;
-	bool doAtm(false);
-	for ( int i = 0; i < dataCount; i++ ){
-		currentX_.push_back(axes[i]);
-		currentXData_.push_back(data[i]);
-		currentY_.push_back(axes[dataCount+i]);
-		currentYData_.push_back(data[dataCount+i]);
-		if (axes[dataCount+i]==PMS::ATM || axes[dataCount+i]==PMS::TSKY)
-			doAtm=true;
 	}
-	// Copy RA/DEC axes params from plot's parameters,
-	if (itsPlot_ != nullptr){
-		auto * cacheParams = itsPlot_->parameters().typedGroup<PMS_PP_Cache>();
-		if (cacheParams == nullptr)
-			throw(AipsError("PlotMSCacheBase::load(): plot has no Cache parameter group"));
-		currentXFrame_ = cacheParams->xFrames();
-		currentYFrame_ = cacheParams->yFrames();
-		currentXInterp_ = cacheParams->xInterps();
-		currentYInterp_ = cacheParams->yInterps();
-		auto dataCount = axes.size()/2;
-		auto sizeOk = true;
-		sizeOk &= currentXFrame_.size() == dataCount;
-		sizeOk &= currentYFrame_.size() == dataCount;
-		sizeOk &= currentXInterp_.size() == dataCount;
-		sizeOk &= currentYInterp_.size() == dataCount;
-		if (not sizeOk )
-			throw(AipsError("PlotMSCacheBase::load(): Cache parameters: size mismatch"));
-	}
-	else {
-		currentXFrame_ = vector<PMS::CoordSystem>(dataCount,PMS::DEFAULT_COORDSYSTEM);
-		currentYFrame_ = vector<PMS::CoordSystem>(dataCount,PMS::DEFAULT_COORDSYSTEM);
-		currentXInterp_ = vector<PMS::InterpMethod>(dataCount,PMS::DEFAULT_INTERPMETHOD);
-		currentYInterp_ = vector<PMS::InterpMethod>(dataCount,PMS::DEFAULT_INTERPMETHOD);
-	}
-	// Compute the missing stacked parameters for RA/DEC axis parameters
-	xyFrame_.resize(axes.size());
-	std::copy(currentXFrame_.begin(),currentXFrame_.end(),xyFrame_.begin());
-	std::copy(currentYFrame_.begin(),currentYFrame_.end(),xyFrame_.begin()+currentXFrame_.size());
-
-	xyInterp_.resize(axes.size());
-	std::copy(currentXInterp_.begin(),currentXInterp_.end(),xyInterp_.begin());
-	std::copy(currentYInterp_.begin(),currentYInterp_.end(),xyInterp_.begin()+currentXInterp_.size());
 
 	// Maintain access to this msname, selection, & averager, because we'll
 	// use it if/when we flag, etc.
 	if ( filename_ != filename ){
 		setFilename(filename);  // sets filename_ and calType_ for cal table
 		ephemerisInitialized = false;
+		// no axes loaded for new dataset
 		const vector<PMS::Axis>& axes = PMS::axes();
 		for(unsigned int i = 0; i < axes.size(); i++) 
 			loadedAxes_[axes[i]] = false;
@@ -400,21 +349,124 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	transformations_ = transformations;
 	calibration_ = calibration;
 
-	if (doAtm)
-		plotmsAtm_ = new PlotMSAtm(filename_, selection_, cacheType()==PlotMSCacheBase::MS, this);
+	//log settings
+	casacore::Path fullpath(filename);
+	logLoad("Plotting table " + fullpath.baseName()); // filename only
+	if (!selection.isEmpty()) {
+		logLoad(selection_.toStringShort());
+	}
+	if (transformations.anyTransform()) {
+		logLoad(transformations_.summary());
+	}
+	if (averaging.anyAveraging()) {
+		logLoad(averaging_.summary());
+	}
+	if (calibration.useCallib()) {
+		logLoad(calibration_.summary());
+	}
 
-	//logLoad(selection_.summary());
-	logLoad(transformations_.summary());
-	logLoad(averaging_.summary());
-	logLoad(calibration_.summary());
+	// clear stored x and y axes
+	currentX_.clear();
+	currentY_.clear();
+	currentXData_.clear();
+	currentYData_.clear();
+	// RA/DEC axes params
+	currentXFrame_.clear();
+	currentYFrame_.clear();
+	currentXInterp_.clear();
+	currentYInterp_.clear();
+	size_t dataCount = axes.size() / 2;
+	// whether to plot/recalculate image sideband
+	bool canPlotImageSideband(true);
+	bool changedImageSbAxis(true);
+	bool changedImageSbXAxis(true);
+	// Remember the axes that we will load for plotting:
+	for (size_t i = 0; i < dataCount; i++) {
+		// set up atmospheric overlays
+		size_t yIndex = dataCount + i;
+		if ((axes[yIndex] == PMS::ATM) || (axes[yIndex] == PMS::TSKY)) {
+			bool showatm = (axes[yIndex] == PMS::ATM);
+			bool isMS = (cacheType() == PlotMSCacheBase::MS);
+			bool xIsChan = (axes[i] == PMS::CHANNEL);
+			if (plotmsAtm_ == nullptr) {
+				plotmsAtm_ = new PlotMSAtm(filename_, selection_, showatm, isMS, xIsChan, this);
+			} else {
+			    changedImageSbAxis = (showatm != plotmsAtm_->showatm()); // changed atm/tsky
+				changedImageSbXAxis = (xIsChan != plotmsAtm_->xAxisIsChan()); // changed chan/freq
+				plotmsAtm_->setShowAtm(showatm);
+				plotmsAtm_->setXAxisIsChan(xIsChan);
+			}
+		} else if (axes[yIndex] == PMS::IMAGESB) {
+			// if already loaded, check if need to recalculate
+			bool needToCalculateSideband(true);
+			if (loadedAxes_[PMS::IMAGESB] && !changedImageSbAxis) {
+				needToCalculateSideband = false; // imagesb loaded for correct atm/tsky
+				if (changedImageSbXAxis) {
+					// reverse vectors when switch between chan/freq
+					for (size_t i=0; i < imageSideband_.size(); ++i) {
+						reverseArray(*imageSideband_[i], 0);
+					}
+				}
+			}
+			if (needToCalculateSideband) {
+				loadedAxes_[PMS::IMAGESB] = false; // (re)calculate for atm/tsky
+				// warn if not possible
+				if (!plotmsAtm_->hasReceiverTable()) {
+					logWarn("load_cache",
+						"Cannot plot image sideband curve: no MeasurementSet ASDM_RECEIVER table for LO1 frequencies.");
+					canPlotImageSideband = false;
+				} else if (!plotmsAtm_->canGetLOsForSpw()) {
+					logWarn("load_cache",
+						"Cannot plot image sideband curve: MeasurementSet split, cannot get LO1 frequencies for reindexed spws.");
+					canPlotImageSideband = false;
+				}
+			}
+		}
+
+		// separate x and y axes
+		currentX_.push_back(axes[i]);
+		currentXData_.push_back(data[i]);
+		currentY_.push_back(axes[yIndex]);
+		currentYData_.push_back(data[yIndex]);
+	}
+
+	// Copy RA/DEC axes params from plot's parameters,
+	if (itsPlot_ != nullptr) {
+		auto * cacheParams = itsPlot_->parameters().typedGroup<PMS_PP_Cache>();
+		if (cacheParams == nullptr)
+			throw(AipsError("PlotMSCacheBase::load(): plot has no Cache parameter group"));
+		currentXFrame_ = cacheParams->xFrames();
+		currentYFrame_ = cacheParams->yFrames();
+		currentXInterp_ = cacheParams->xInterps();
+		currentYInterp_ = cacheParams->yInterps();
+		auto sizeOk = true;
+		sizeOk &= (currentXFrame_.size() == dataCount);
+		sizeOk &= (currentYFrame_.size() == dataCount);
+		sizeOk &= (currentXInterp_.size() == dataCount);
+		sizeOk &= (currentYInterp_.size() == dataCount);
+		if (not sizeOk )
+			throw(AipsError("PlotMSCacheBase::load(): Cache parameters: size mismatch"));
+	} else {
+		currentXFrame_ = vector<PMS::CoordSystem>(dataCount, PMS::DEFAULT_COORDSYSTEM);
+		currentYFrame_ = vector<PMS::CoordSystem>(dataCount, PMS::DEFAULT_COORDSYSTEM);
+		currentXInterp_ = vector<PMS::InterpMethod>(dataCount, PMS::DEFAULT_INTERPMETHOD);
+		currentYInterp_ = vector<PMS::InterpMethod>(dataCount, PMS::DEFAULT_INTERPMETHOD);
+	}
+	// Compute the missing stacked parameters for RA/DEC axis parameters
+	xyFrame_.resize(axes.size());
+	std::copy(currentXFrame_.begin(),currentXFrame_.end(),xyFrame_.begin());
+	std::copy(currentYFrame_.begin(),currentYFrame_.end(),xyFrame_.begin()+currentXFrame_.size());
+	xyInterp_.resize(axes.size());
+	std::copy(currentXInterp_.begin(),currentXInterp_.end(),xyInterp_.begin());
+	std::copy(currentYInterp_.begin(),currentYInterp_.end(),xyInterp_.begin()+currentXInterp_.size());
 
 	// Trap (currently) unsupported modes
-	for ( int i = 0; i < dataCount; i++ ){
+	for (size_t i = 0; i < dataCount; i++ ){
 		// Forbid antenna-based/baseline-based combination plots, for now
-		Vector<Bool> nAM=netAxesMask(currentX_[i],currentY_[i]);
-		if (nAM(2)&&nAM(3)){
-			throw(AipsError("Plots of antenna-based vs. baseline-based axes not supported ("+
-					PMS::axis(currentX_[i])+" and "+PMS::axis(currentY_[i])+")"));
+		Vector<Bool> nAM = netAxesMask(currentX_[i], currentY_[i]);
+		if (nAM(2) && nAM(3)) {
+			throw(AipsError("Plots of antenna-based vs. baseline-based axes not supported (" +
+					PMS::axis(currentX_[i]) + " and " + PMS::axis(currentY_[i]) + ")"));
 		}
 
 		// Check averaging validity
@@ -438,14 +490,14 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 			}
 		}
 		if ( averaging_.anyAveraging() ) {
-			auto loadAntDir = std::find_if(axes.begin(),axes.end(),PMS::axisIsRaDec) != axes.end();
+			auto loadAntDir = std::find_if(axes.begin(), axes.end(), PMS::axisIsRaDec) != axes.end();
 			if ( loadAntDir ) {
 				String warnMessage("Averaging not supported for axes: ");
 				warnMessage += PMS::axis(PMS::RA) + " and " + PMS::axis(PMS::DEC);
 				logWarn("load", warnMessage);
 				logWarn("load", "Ignoring any averaging");
 				averaging_ = PlotMSAveraging();
-				if ( thread != NULL ){
+				if ( thread != nullptr ){
 					thread->setError( "Averaging was ignored" );
 				}
 			}
@@ -470,23 +522,26 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 				String errorMessage( "Not loading axis "+axisName+
 						" because ephemeris data is not available for this ms.");
 				logWarn( "load", errorMessage);
-				if ( thread != NULL ){
+				if ( thread != nullptr ){
 					thread->setError( errorMessage );
 				}
 				throw AipsError(errorMessage );
 			}
 		}
-
 	}
 
 	stringstream ss;
 	ss << "Caching for the new plot: ";
-	if (dataCount > 1 ) ss << std::endl;
-	for ( int i = 0; i < dataCount; i++ ){
-		ss << PMS::axis(currentY_[i]) << "(" << currentY_[i] << ")";  
-		if (PMS::axisIsData(currentY_[i]))
+	if (currentX_.size() > 1 ) ss << std::endl;
+	for ( size_t i = 0; i < currentX_.size(); i++ ) {
+		PMS::Axis yaxis = currentY_[i];
+		if ((yaxis == PMS::IMAGESB) && !canPlotImageSideband) {
+			continue;
+		}
+		ss << PMS::axis(yaxis) << "(" << yaxis << ")";  
+		if (PMS::axisIsData(yaxis))
 			ss << ":" << PMS::dataColumn(currentYData_[i]);
-		if (PMS::axisIsRaDec(currentY_[i]) )
+		if (PMS::axisIsRaDec(yaxis) )
 			ss << "[" << "ref="    << PMS::coordSystem(currentYFrame_[i]) << ", "
 				<< "interp=" << PMS::interpMethod(currentYInterp_[i]) << "]";
 				ss << " vs. " << PMS::axis(currentX_[i]) << "(" << currentX_[i] << ")";
@@ -537,8 +592,10 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	}
 
 	// Ensure all _already-loaded_ axes are in the pending list
-	for (Int i= 0;i<PMS::NONE;++i)
-		if (loadedAxes_[PMS::Axis(i)]) pendingLoadAxes_[PMS::Axis(i)]=true;
+	for (Int i=0; i<PMS::NONE; ++i) {
+		if (loadedAxes_[PMS::Axis(i)])
+			pendingLoadAxes_[PMS::Axis(i)] = true;
+	}
 
 	// Check given axes. Should only be added to load list if:
 	// 1) not already in load list
@@ -563,29 +620,31 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		auto interp = xyInterp_[i];
 
 		// 1)  already in the load list? (loadAxes)
-		if (not PMS::axisIsRaDec(axis)) {
-			for(unsigned int j = 0; !found && j < loadAxes.size(); j++)
-				if(loadAxes[j]==axis && loadData[j]==dc) found = true;
-			if(found) continue;
-		}
-		else {
-			for(unsigned int j = 0; !found && j < loadAxes.size(); j++)
-				if (loadAxes[j]==axis && loadXYFrame_[j]==frame && loadXYInterp_[j]==interp)
+		if (not PMS::axisIsRaDec(axis)) { // check same datacolumn
+			for(unsigned int j = 0; !found && j < loadAxes.size(); j++) {
+				if(loadAxes[j]==axis && loadData[j]==dc)
 					found = true;
-			if(found) continue;
+			}
+			if (found)
+				continue;
+		} else {  // check same frame, interp for Ra and Dec
+			for(unsigned int j = 0; !found && j < loadAxes.size(); j++) {
+				if (loadAxes[j]==axis && loadXYFrame_[j]==frame && loadXYInterp_[j]==interp) 
+					found = true;
+			}
+			if(found)
+				continue;
 		}
 
-		//If ephemeris data is not available we should not load axes 
-		//associated with ephemeris data.
+		// If ephemeris data is not available we should not load axes 
+		// associated with ephemeris data.
 		bool ephemerisAvailable = isEphemeris();
-		if ( !ephemerisAvailable ){
-			if ( axis == PMS::RADIAL_VELOCITY || axis == PMS::RHO ){
-				continue;
-			}
+		if (!ephemerisAvailable && (axis == PMS::RADIAL_VELOCITY || axis == PMS::RHO)) {
+			continue;
 		}
 
 		// 2)  not already loaded? (loadedAxes)
-		if(!loadedAxes_[axis]) {
+		if (!loadedAxes_[axis]) {
 			loadAxes.push_back(axis);
 			loadData.push_back(dc);
 			loadXYFrame_.push_back(frame);
@@ -628,9 +687,8 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 		}
 	}
 
-	// Now Load data if the user doesn't cancel.
-	if(loadAxes.size() > 0) {
-
+	// Now load data if the user doesn't cancel.
+	if (loadAxes.size() > 0) {
 		// Call method that actually does the loading (MS- or Cal-specific)
 		loadIt(loadAxes,loadData,thread);
 
@@ -643,26 +701,11 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 				axis = loadAxes[i];
 				loadedAxes_[axis] = true;
 				String datacol = PMS::dataColumn(loadData[i]);
-				if(PMS::axisIsData(axis)) 
-					loadedAxesData_[axis].defineRecord(datacol, 
-						averaging.toRecord());
+				if (PMS::axisIsData(axis)) 
+					loadedAxesData_[axis].defineRecord(datacol, averaging.toRecord());
 			}
 		}
-
-		if (false) {
-			{
-				cout << "Finally loaded axes: " << flush;
-				Int nload(0);
-				for (Int i= 0;i<PMS::NONE;++i)
-					if (loadedAxes_[PMS::Axis(i)]) {
-						++nload;
-						cout << PMS::axis(PMS::Axis(i)) << " " << flush;
-					}
-				cout << " (" << nload << ")" <<  endl;
-			}
-		}
-
-	} // something to load
+	}
 
 	if (wasCanceled()) { 
 		logLoad("Cache loading cancelled.");
@@ -671,7 +714,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 
 	// Setup/revis masks that we use to realize axes relationships
 	netAxesMask_.resize( dataCount );
-	for ( int i = 0; i < dataCount; i++ ){
+	for ( size_t i = 0; i < dataCount; i++ ){
 		Vector<Bool> xmask(4,false);
 		Vector<Bool> ymask(4,false);
 		setAxesMask(currentX_[i],xmask);
@@ -682,7 +725,7 @@ void PlotMSCacheBase::load(const vector<PMS::Axis>& axes,
 	// Generate the plot mask from scratch
 	deletePlotMask();
 	plmask_.resize( dataCount );
-	for ( int i = 0; i < dataCount; i++ ){
+	for ( size_t i = 0; i < dataCount; i++ ){
 		setPlotMask( i );
 	}
 
@@ -921,6 +964,8 @@ void PlotMSCacheBase::release(const vector<PMS::Axis>& axes) {
 				break;
 			case PMS::TSKY: PMSC_DELETE(tsky_)
 				break;
+			case PMS::IMAGESB: PMSC_DELETE(imageSideband_)
+				break;
 			case PMS::NONE:
 				break;
 			}
@@ -1065,7 +1110,7 @@ bool PlotMSCacheBase::isIndexerInitialized( PMS::Axis iteraxis, Bool globalXRang
 			if ( indexer_[dataIndex].empty()){
 				initialized = false;
 			} else {
-				if ( indexer_[dataIndex][0] == NULL ||
+				if ( indexer_[dataIndex][0] == nullptr ||
 						indexer_[dataIndex][0]->isGlobalXRange() != globalXRange ||
 						indexer_[dataIndex][0]->isGlobalYRange() != globalYRange ) {
 					initialized = false;
@@ -1253,7 +1298,7 @@ void PlotMSCacheBase::setUpIndexer(PMS::Axis iteraxis, Bool globalXRange,
 	}
 
 	indexer_[dataIndex].resize(nIter);
-	indexer_[dataIndex].set( NULL );
+	indexer_[dataIndex].set( nullptr );
 	auto useRaDecIndexer = (
 			PMS::axisIsRaDec(currentX_[dataIndex]) or
 			PMS::axisIsRaDec(currentY_[dataIndex]) );
@@ -1741,6 +1786,9 @@ void PlotMSCacheBase::setCache(Int newnChunk,
             case PMS::TSKY:
                 addVectors(tsky_, increaseCache);
                 break;
+            case PMS::IMAGESB:
+                addVectors(imageSideband_, increaseCache);
+                break;
             case PMS::NONE:
                 break;
         }
@@ -1752,9 +1800,9 @@ void PlotMSCacheBase::addArrays(PtrBlock<Array<T>*>& input, bool increaseCache) 
     Int startIdx(0);
     if (increaseCache) {
         startIdx = input.size();
-        input.resize(nChunk_, false, true);
+        input.resize(nChunk_, /*forceSmaller*/ false, /*copyElements*/ true);
     } else {
-        input.resize(nChunk_, true, false);
+        input.resize(nChunk_, /*forceSmaller*/ true, /*copyElements*/ false);
     }
     // Construct (empty) pointed-to Vectors
     for (Int ic=startIdx; ic<nChunk_; ++ic) 
@@ -1766,9 +1814,9 @@ void PlotMSCacheBase::addMatrices(PtrBlock<Matrix<T>*>& input, bool increaseCach
     Int startIdx(0);
     if (increaseCache) {
         startIdx = input.size();
-        input.resize(nChunk_, false, true);
+        input.resize(nChunk_, /*forceSmaller*/ false, /*copyElements*/ true);
     } else {
-        input.resize(nChunk_, true, false);
+        input.resize(nChunk_, /*forceSmaller*/ true, /*copyElements*/ false);
     }
     // Construct (empty) pointed-to Vectors
     for (Int ic=startIdx; ic<nChunk_; ++ic) 
@@ -1780,9 +1828,9 @@ void PlotMSCacheBase::addVectors(PtrBlock<Vector<T>*>& input, bool increaseCache
     Int startIdx(0);
     if (increaseCache) {
         startIdx = input.size();
-        input.resize(nChunk_, false, true);
+        input.resize(nChunk_, /*forceSmaller*/ false, /*copyElements*/ true);
     } else {
-        input.resize(nChunk_, true, false);
+        input.resize(nChunk_, /*forceSmaller*/ true, /*copyElements*/ false);
     }
     // Construct (empty) pointed-to Vectors
     for (Int ic=startIdx; ic<nChunk_; ++ic) 
@@ -1896,6 +1944,7 @@ void PlotMSCacheBase::setAxesMask(PMS::Axis axis,Vector<Bool>& axismask) {
 	case PMS::FEED2:
 	case PMS::ATM:
 	case PMS::TSKY:
+	case PMS::IMAGESB:
 	case PMS::NONE:
 		break;
 	}
@@ -1917,7 +1966,7 @@ void PlotMSCacheBase::setPlotMask( int dataIndex ) {
 	// Generate the plot mask
 	//deletePlotMask();
 	plmask_[dataIndex].resize(nChunk());
-	plmask_[dataIndex].set(NULL);
+	plmask_[dataIndex].set(nullptr);
 	for (Int ichk=0; ichk<nChunk(); ++ichk) {
 		plmask_[dataIndex][ichk] = new Array<Bool>();
 		// create a collapsed version of the flags for this chunk
@@ -2008,42 +2057,34 @@ int PlotMSCacheBase::findColorIndex( int chunk, bool initialize ){
 }
 
 void PlotMSCacheBase::deleteAtm() {
-    if (plotmsAtm_) {
-        delete plotmsAtm_;
-        plotmsAtm_ = NULL;
-    }
+	if (plotmsAtm_) {
+		delete plotmsAtm_;
+		plotmsAtm_ = nullptr;
+	}
 }
 
 void PlotMSCacheBase::printAtmStats(casacore::Int scan) {
-    if (plotmsAtm_) {
-        stringstream ss;
-        ss << "Atmospheric curve stats for scan " << scan;
-        ss.precision(2);
-        ss << ": PWV " << fixed << plotmsAtm_->getPwv() << " mm, airmass ";
-        ss.precision(3); 
-        ss << fixed << plotmsAtm_->getAirmass();
-        logLoad(ss.str());
-    }
+	// print pwv and airmass
+	if (plotmsAtm_) {
+		stringstream ss;
+		ss << "Atmospheric curve stats for scan " << scan;
+		ss.precision(2);
+		ss << ": PWV " << fixed << plotmsAtm_->getPwv() << " mm, airmass ";
+		ss.precision(3); 
+		ss << fixed << plotmsAtm_->getAirmass();
+		logLoad(ss.str());
+	}
 }
 
-bool PlotMSCacheBase::hasOverlay() {
-	// check loaded axes for overlays
-	bool overlay(false);
-	std::vector<PMS::Axis> axes(loadedAxes());
-	for (uInt i=0; i<axes.size(); ++i) {
-		if (PMS::axisIsOverlay(axes[i])) {
-			overlay = true;
-			break;
-		}
-	}
-	return overlay;
+bool PlotMSCacheBase::canShowImageCurve() {
+	return (hasOverlay() && plotmsAtm_->canShowImageCurve());
 }
 
 template<typename T>
 T PlotMSCacheBase::checkIndex(int index, const std::vector<T>& v, const std::string &vname) const {
 	if (index >= 0 && static_cast<unsigned int>(index) < v.size()) return v[index];
 	stringstream ss;
-	ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+	ss	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
 		<< "Illegal access to vector: " << vname << " of size: " << v.size()
 		<< " with index: " << index ;
 	throw AipsError(ss.str());
@@ -2054,7 +2095,7 @@ const PlotMSCacheBase::RaDecData & PlotMSCacheBase::getRaDataX(int index) const 
 	auto axis = checkIndex<PMS::Axis>(index,currentX_,"currentX_");
 	if ( axis != PMS::RA ) {
 		stringstream ss;
-		ss 	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
+		ss	<< __FILE__ << ":" << __FUNCTION__ << "():" << __LINE__ << ": "
 			<< "Illegal call. Argument index= " << index
 			<< " but currentX_[" << index << "]=" << PMS::axis(axis);
 		throw AipsError(ss.str());

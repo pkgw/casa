@@ -1620,8 +1620,8 @@ least_squares_inner_driver (const size_t maxiter,
 
 
 void
-least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr,
-                     Int refant, const std::map< Int, std::set<Int> >& activeAntennas, LogIO& logSink) {
+least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& casa_flags, Matrix<Float>& casa_snr, Int refant,
+                     const std::map< Int, std::set<Int> >& activeAntennas, Int maxits, LogIO& logSink) {
     // The variable casa_param is the Casa calibration framework's RParam matrix; we transcribe our results into it only at the end.
     // n below is number of variables,
     // p is number of parameters
@@ -1655,7 +1655,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         // const double gtol = pow(GSL_DBL_EPSILON, 1.0/3.0);
         // ftol is not used
         // const double ftol = 1.0e-20;   
-        const size_t max_iter = 100;
+        const size_t max_iter = maxits ;
 
         const gsl_multilarge_nlinear_type *T = gsl_multilarge_nlinear_trust;
         gsl_multilarge_nlinear_parameters params = gsl_multilarge_nlinear_default_parameters();
@@ -2079,6 +2079,9 @@ void FringeJones::setSolve(const Record& solve) {
     } else {
         cerr << "No rate window!" << endl;
     }
+    if (solve.isDefined("niter")) {
+        maxits() = solve.asInt("niter");
+    }
 }
 
 // Note: this was previously omitted
@@ -2282,7 +2285,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         // FringeJones so we pass everything in, including the logSink
         // reference.  Note also that sRP is passed by reference and
         // altered in place.
-        least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), logSink());
+        least_squares_driver(sdbs, sRP, sPok, sSNR, refant(), drf.getActiveAntennas(), maxits(), logSink());
     }
     else {
         logSink() << "Skipping least squares optimisation." << LogIO::POST;

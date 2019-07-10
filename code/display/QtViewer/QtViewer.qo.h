@@ -30,6 +30,10 @@
 #define QTVIEWER_H
 #include <list>
 #include <string>
+#if defined(WITHOUT_DBUS)
+#include <queue>
+#include <mutex>
+#endif
 #include <display/QtViewer/QtViewerBase.qo.h>
 
 #include <graphics/X11/X_enter.h>
@@ -113,10 +117,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		virtual void quit();
 
 #if defined(WITHOUT_DBUS)
-		void grpc_panel( const QString &, bool, int );
+
+		void grpc_handle_op( );
 
 	signals:
 		void grpc_panel_result( QtDisplayPanelGui*, int );
+
+	public:
+		std::mutex grpc_queue_mutex;
+		std::queue<std::function<void()>> grpc_queue;
 
 #endif
 
