@@ -551,6 +551,7 @@ def set_beam_size(vis, imagename,
         csys = ia.coordsys()
         outref = csys.referencecode('direction')[0]
         cell = list(csys.increment(type='direction', format='s')['string'])
+        csys.done()
 
     old_tool = OldImagerBasedTools()
     sampling_params = old_tool.get_pointing_sampling_params(vis, field, spw, baseline, scan, intent,

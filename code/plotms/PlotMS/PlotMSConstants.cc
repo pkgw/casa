@@ -103,7 +103,7 @@ bool PMS::axisIsUVWave(Axis axis) {
 
 bool PMS::axisIsOverlay(Axis axis) {
     switch(axis) {
-    case ATM: case TSKY: return true;
+    case ATM: case TSKY: case IMAGESB: return true;
     default: return false;
     }
 }
@@ -172,18 +172,18 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
         return DEGREES;
     case HA0:
         return HOURS;
-    case RADIAL_VELOCITY:
+   case RADIAL_VELOCITY:
         return KILOMETERS_PER_SECOND;
-    case DELAY:
+   case DELAY:
         return NANOSECONDS;
-    case TSYS:
-    case TSKY:
+   case TSYS:
+   case TSKY:
         return KELVIN;
-    case OPAC:
+   case OPAC:
         return NEPERS;
-    case RHO:
+   case RHO:
         return KILOMETERS;
-    case ATM:
+   case ATM:
         return PERCENT;
     default:
         return UNONE;

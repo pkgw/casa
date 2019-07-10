@@ -226,7 +226,7 @@ private:
   void computeRanges();
 
   // Adjust the Y range for overlays to make room at top of plot
-  void adjustYRange(double& yMin, double& yMax);
+  void adjustYRangeForOverlay(double& yMin, double& yMax);
 
   // Compute baseline's length in meters between ant1 and ant2
   casacore::Double computeBaselineLength(casacore::Int ant1, casacore::Int ant2);

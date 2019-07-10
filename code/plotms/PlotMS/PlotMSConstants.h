@@ -128,7 +128,7 @@ public:
           // Ephemeris
           RADIAL_VELOCITY, RHO,
           // Overlays
-          ATM, TSKY,
+          ATM, TSKY, IMAGESB,
 		  // POLN only for plot axis labels, titles
 		  POLN, NONE)
 
@@ -152,7 +152,7 @@ public:
           "Antenna Positions",
           // Ephemeris
           "Radial Velocity", "Distance (rho)", 
-          "Atm Transmission", "Tsky",
+          "Atm Transmission", "Tsky", "Image Sideband", 
 		  "Poln", "None")
     // </group>
               
