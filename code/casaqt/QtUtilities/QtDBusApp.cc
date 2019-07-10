@@ -68,15 +68,13 @@ namespace casa {
     }
 
     QString QtDBusApp::serviceOwner( const QString &service ) {
-        char *str = strdup(service.toLatin1().data());
-	char *cur = strtok(str,".");
-	char *prev = cur;
-	while ( (cur = strtok(0,".")) ) {
-	    prev = cur;
-	}
-	QString result(object_base);
-	QTextStream(&result) << prev;
-	return result;
+        // This is to take the token after the last separator '.'. For example:
+        // service: edu.nrao.casa.plotms_28834 => "plotms_28834"
+        QString result(object_base);
+        auto tokens = service.toLatin1().split('.');
+        QTextStream(&result) << tokens.back();
+
+        return result;
     }
 
     QString QtDBusApp::serviceOwner( const std::string &service ) {

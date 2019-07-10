@@ -168,24 +168,24 @@ class CalStatsFitter {
     };
 
     // User interface to all fitting capabilities
-    static FIT& fit( const casacore::Vector<casacore::Double>& oAbs, const casacore::Vector<casacore::Double>& oValue,
+    static FIT fit( const casacore::Vector<casacore::Double>& oAbs, const casacore::Vector<casacore::Double>& oValue,
         const casacore::Vector<casacore::Double>& oValueErr, casacore::Vector<casacore::Bool>& oFlag,
         const ORDER& eOrder, const TYPE& eType, const WEIGHT& eWeight );
 
     // The enum names
-    static casacore::String& orderName( const ORDER& eOrder );
-    static casacore::String& typeName( const TYPE& eOrder );
-    static casacore::String& weightName( const WEIGHT& eOrder );
+    static casacore::String orderName( const ORDER& eOrder );
+    static casacore::String typeName( const TYPE& eOrder );
+    static casacore::String weightName( const WEIGHT& eOrder );
 
   private:
 
     // Least-squares fitting function
-    static FIT& lsqFit( const casacore::Vector<casacore::Double>& oAbs,
+    static FIT lsqFit( const casacore::Vector<casacore::Double>& oAbs,
         const casacore::Vector<casacore::Double>& oValue, const casacore::Vector<casacore::Double>& oValueErr,
         casacore::Vector<casacore::Bool>& oFlag, const ORDER& eOrder, const WEIGHT& eWeight );
 
     // Robust fitting function
-    static FIT& robustFit( const casacore::Vector<casacore::Double>& oAbs,
+    static FIT robustFit( const casacore::Vector<casacore::Double>& oAbs,
         const casacore::Vector<casacore::Double>& oValue, const casacore::Vector<casacore::Double>& oValueErr,
         casacore::Vector<casacore::Bool>& oFlag, const ORDER& eOrder, const WEIGHT& eWeight,
         const casacore::Double& dTrim );
