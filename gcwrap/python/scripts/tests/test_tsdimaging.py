@@ -2729,10 +2729,8 @@ class sdimaging_test_mapextent(unittest.TestCase):
         # ephemeris object is difficult to calculate 
         #blcf_ref = '00:46:43.672 +04.14.51.504'
         #trcf_ref = '00:46:27.547 +04.17.39.004'
-        #    blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955
-        #    trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955
-        blcf_ref = '00:47:11.587 +04.17.10.434' #CAS-11955 + CAS-8418
-        trcf_ref = '00:46:51.878 +04.20.04.634' #CAS-11955 + CAS-8418
+        blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955 + CAS-8418
+        trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955 + CAS-8418
 #
         blc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], blcf_ref.split()))
         trc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], trcf_ref.split()))

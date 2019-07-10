@@ -998,7 +998,13 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
                  ss << "Bugcheck. Bad sort in creating antenna list." << endl;
                  throw AipsError(ss.str());
             }    
-        }    
+        }
+    
+        //+
+        // CAS-8418 access violation check
+        //-
+          assert( count <= selectedMS_->antenna().nrow() );
+        // end add
 
         antennaBoundary_[count] = nrow;
         ++count;
@@ -1040,15 +1046,11 @@ void SplineInterpolation::init(MeasurementSet const &ms,
         std::unique_ptr<casacore::MSPointingColumns>
                 columnPointing( new casacore::MSPointingColumns( hPoint ));
 
-    // Prepare Time and direction//
-    //   CAS-8418::  moved to private area //
-
     // Resize (top level) //
-  
       tmp_time.        resize(numAnt);
       tmp_dir.         resize(numAnt);
 
-    // THE LAST BOSS //
+    // CAS-8418 Time Gap //
       tmp_dtime.         resize(numAnt);
       tmp_timegap.       resize(numAnt);
  
@@ -1077,7 +1079,7 @@ void SplineInterpolation::init(MeasurementSet const &ms,
           tmp_dir [ant]. resize(size);
           tmp_time[ant]. resize(size);
 
-         // CAS-8418 THE LAST BOSS //
+         // CAS-8418 Time Gap //
           tmp_dtime[ant]. resize(size);
           tmp_timegap[ant]. resize(size);
  
@@ -1098,11 +1100,11 @@ void SplineInterpolation::init(MeasurementSet const &ms,
             tmp_time[ant][index] = time;
             tmp_dir [ant][index] = dirVal;
 
-            // CAS-8418 THE LAST BOSS //
+            // CAS-8418 Time Gap //
 
               /* Pointing Interval */
               Double p_interval =  pointingInterval.  get(row);
-              p_interval = round(10000.0 * p_interval )/10000.0;  // Round at 0.0001 order
+              p_interval  = round(10000.0 * p_interval)/10000.0;  // Round at 0.0001 order
 
               /* Measured Interval */
               Double dd = time - prv_time;
@@ -1113,19 +1115,13 @@ void SplineInterpolation::init(MeasurementSet const &ms,
 
               /* Mark the position */
               tmp_timegap [ant][index  ] =false;
-              if(dd > p_interval){
-#if 1
-                  tmp_timegap [ant][index  ] =true;
-                  tmp_timegap [ant][index-1] =true;
-                  tmp_timegap [ant][index-2] =true;
-                  tmp_timegap [ant][index-3] =true;
-                  tmp_timegap [ant][index-4] =true;
-                  tmp_timegap [ant][index-5] =true;
-                  tmp_timegap [ant][index-6] =true;
-                  tmp_timegap [ant][index-7] =true;
-                  tmp_timegap [ant][index-8] =true;
-#endif 
-             }
+              if(dd >  p_interval){
+                  if(index >=2){
+                      tmp_timegap [ant][index  ] =true;
+                      tmp_timegap [ant][index-1] =true;
+                      tmp_timegap [ant][index-2] =true;
+                 }
+              }  
         }
     }
 

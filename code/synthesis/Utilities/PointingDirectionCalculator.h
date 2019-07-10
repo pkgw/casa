@@ -427,7 +427,7 @@ public:
 
         COEFF getCoeff() { return coeff_; }
 
-        // CAS-8418 THE LAST BOSS
+        // CAS-8418 Time Gap
         bool isTimeGap(casacore::uInt ant, casacore::uInt index)
                       { return tmp_timegap[ant][index]; }
 
@@ -453,12 +453,12 @@ private:
           void dumpCsvCoeff();
 
         //*
-        // CAS-8418 THE LAST BOSS
+        // CAS-8418 Time Gap
+        //   (relocated and new )
         //*
-         /* relocated */
+        
          casacore::Vector<casacore::Vector<casacore::Vector<casacore::Double> > > tmp_dir;
          casacore::Vector<casacore::Vector<casacore::Double> >          tmp_time;
-         /* new */
          casacore::Vector<casacore::Vector<casacore::Double> >          tmp_dtime;
          casacore::Vector<casacore::Vector<bool> >                      tmp_timegap;
 
