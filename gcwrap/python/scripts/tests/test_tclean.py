@@ -3409,31 +3409,31 @@ class test_mosaic_mtmfs(testref_base):
           self.checkfinal(report)
           
           
-     def test_mtmfs_mosaic_cbFalse_onefield_usTrue(self):
+     def test_mtmfs_mosaic_cbFalse_onefield_upTrue(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter = '' 
           field='0'
           tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, usepointing=True, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.5302894,[512,596,0,0]),(self.img+'.pb.tt0',0.5144197,[512,596,0,0]),(self.img+'.alpha',-3.29580,[512,596,0,0])])
           
-          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, usepointing=True, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.450807213783 ,[512,596,0,0]),(self.img+'.pb.tt0',0.514419734478,[512,596,0,0]),(self.img+'.alpha',-1.6693893671,[512,596,0,0])])
           self.checkfinal(report1+report2)
 
-     def test_mtmfs_mosaic_cbFalse_twofield_usTrue(self):
+     def test_mtmfs_mosaic_cbFalse_twofield_upTrue(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
           tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, usepointing=True, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report1=self.th.checkall(imval=[(self.img+'.image.tt0', 0.97402,[512,596,0,0]),(self.img+'.pb.tt0', 0.982510,[512,596,0,0]),(self.img+'.alpha', -0.9880,[512,596,0,0])])
           
-          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='mosaic',field=field, usepointing=True, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report2=self.th.checkall(imval=[(self.img+'.image.tt0', 0.982747793198,[512,596,0,0]),(self.img+'.pb.tt0', 0.982510685921,[512,596,0,0]),(self.img+'.alpha', -0.69006639719,[512,596,0,0])])
           self.checkfinal(report1 + report2 + '\n Warning: values must be theoretically validated')
           
           
           
-     def test_mtmfs_awproject_cbFalse_onefield_usTrue(self):
+     def test_mtmfs_awproject_cbFalse_onefield_upTrue(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter =''
           field='0'
@@ -3441,12 +3441,12 @@ class test_mosaic_mtmfs(testref_base):
           tclean(vis=self.msfile, imagename=self.img,niter=0,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, usepointing=True, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report1=self.th.checkall(imval=[(self.img+'.image.tt0',0.5269711,[512,596,0,0]),(self.img+'.pb.tt0',0.50752753,[512,596,0,0]),(self.img+'.alpha',-3.24132061,[512,596,0,0])])
           
-          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
+          tclean(vis=self.msfile, imagename=self.img,niter=10,specmode='mfs',spw='*',imsize=1024, phasecenter=phasecenter,cell='10.0arcsec',gridder='awproject',field=field, usepointing=True, cfcache=cfcache_path, conjbeams=False, wbawp=True, psterm=False,pblimit=0.1,deconvolver='mtmfs',nterms=2,reffreq='1.5GHz',pbcor=False,parallel=self.parallel)
           report2=self.th.checkall(imval=[(self.img+'.image.tt0',0.451119929552,[512,596,0,0]),(self.img+'.pb.tt0',0.507527530193,[512,596,0,0]),(self.img+'.alpha',-1.65221953392,[512,596,0,0])])
           self.checkfinal(report1 + report2)
 
 
-     def test_mtmfs_awproject_cbFalse_twofield_usTrue(self):
+     def test_mtmfs_awproject_cbFalse_twofield_upTrue(self):
           self.prepData('refim_oneshiftpoint.mosaic.ms')
           phasecenter ='J2000 19h59m28.5 +40d40m01.5' # pointing center of field0
           field='0,1'
