@@ -3306,6 +3306,11 @@ TEST_F(TestSetFrame, setFrame )
         }
 }
 
+//======================================
+// Time Gap Analysys Code  11-JUL-2019
+//   No use for release.
+//======================================
+#if 0
 TEST_F(TestDirection, MAIN )
 {
     String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
@@ -3391,7 +3396,7 @@ TEST_F(TestDirection, EPH )
 
 
 }
-
+#endif 
 
 
 
@@ -3413,6 +3418,7 @@ TEST_F(TestDirection, EPH )
 - 05-JUN-19  Working in Blush up test code. remove reduntdant.
 - 10-JUN-19  Source Reviewed. Started correction.
 - 24-JUN-19  Simplified TestSelectData, reduced code size .
+- 11-JUL-19  Added time gap test code tentatively. Commented out for push
  **********************************************************************/
 
 int main (int nArgs, char * args [])
