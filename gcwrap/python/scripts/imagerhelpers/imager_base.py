@@ -148,7 +148,7 @@ class PySynthesisImager:
         if((deconmem+griddermem) > 0.8*availmem):
             casalog.post("Memory available "+str(availmem)+" kB is very close to amount of required memory "+str(deconmem+griddermem)+" kB" , "WARN")
         else:
-            casalog.post("Memory available "+str(availmem)+" kB and  required memory "+str(deconmem+griddermem)+" kB" , "INFO")
+            casalog.post("Memory available "+str(availmem)+" kB and  required memory "+str(deconmem+griddermem)+" kB" , "INFO2")
 ############################################
     def restoreImages(self):
          for immod in range(0,self.NF):
