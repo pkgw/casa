@@ -155,7 +155,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     {if (name=="ATerm") return aTerm_p; else return NULL;}
     
     virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
-								  const VisBuffer2& /*vb*/, const casacore::Bool& usePointing);
+								  const VisBuffer2& /*vb*/, const casacore::Bool& doPointing);
 
 
 

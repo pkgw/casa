@@ -170,7 +170,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Get various parameters from the visibilities.  
     //
     bandID_p=-1;
-    if (applyPointingOffset) usePointing=1; else usePointing=0;
+    if (applyPointingOffset) doPointing=1; else doPointing=0;
 
     convFuncCacheReady=false;
     PAIndex = -1;
@@ -279,7 +279,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	// Get various parameters from the visibilities.  
 	//
 	bandID_p = other.bandID_p;
-	usePointing=other.usePointing;
+	doPointing=other.doPointing;
 
 	convFuncCacheReady=other.convFuncCacheReady;
 	PAIndex = other.PAIndex;
@@ -2309,7 +2309,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  Float *decoff,
 		  Double *area,
 		  Int *doGrad,
-		  Int *usePointingCorrection,
+		  Int *doPointingCorrection,
 		  Int *nPA,
 		  Int *paIndex,
 		  Int *CFMap,
@@ -2349,7 +2349,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  Float *raoff, Float *decoff,
 		  Double *area, 
 		  Int *dograd,
-		  Int *usePointingCorrection,
+		  Int *doPointingCorrection,
 		  Int *nPA,
 		  Int *paIndex,
 		  Int *CFMap,
@@ -2392,7 +2392,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		  Float *raoff, Float *decoff,
 		  Double *area, 
 		  Int *dograd,
-		  Int *usePointingCorrection,
+		  Int *doPointingCorrection,
 		  Int *nPA,
 		  Int *paIndex,
 		  Int *CFMap,
@@ -2528,7 +2528,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	     l_off_p, m_off_p,
 	     &area,
 	     &doGrad,
-	     &usePointing,
+	     &doPointing,
 	     &npa,
 	     &paIndex_Fortran,
 	     CFMap_p,
@@ -2677,7 +2677,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	     l_off_p, m_off_p,
 	     &area,
 	     &doGrad,
-	     &usePointing,
+	     &doPointing,
 	     &npa,
 	     &paIndex_Fortran,
 	     CFMap_p,
@@ -2843,7 +2843,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	     l_off_p, m_off_p,
 	     &area,
 	     &doGrad,
-	     &usePointing,
+	     &doPointing,
 	     &npa,
 	     &paIndex_Fortran,
 	     CFMap_p,
@@ -2904,7 +2904,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     const casacore::Complex *datStorage=data->getStorage(isCopy);
     Int NAnt = 0;
 
-    if (usePointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     //
     // If row is -1 then we pass through all rows
@@ -3083,7 +3083,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     findConvFunction(*image, vb);
     Int NAnt=0;
     if (bandID_p == -1) bandID_p=getVisParams(vb);
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,l_offsets,m_offsets,false);
 
     l_offsets=l_off;
@@ -3251,7 +3251,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     if (bandID_p == -1) bandID_p=getVisParams(vb);
     Int NAnt=0;
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,pointingOffsets,l_offsets,m_offsets,false);
 
     Matrix<Double> uvw(3, vb.uvw().nelements());
@@ -3425,7 +3425,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     if (bandID_p == -1) bandID_p=getVisParams(vb);
     Int NAnt=0;
-    if (usePointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(3, vb.uvw().nelements());
@@ -3584,7 +3584,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     Int NAnt=0;
     
-    if (usePointing) 
+    if (doPointing) 
       NAnt = findPointingOffsets(vb,l_offsets, m_offsets,true);
     
     
@@ -4198,7 +4198,7 @@ Bool nPBWProjectFT::fromRecord(String&, //error,
 	Float peak=0;
 	Int NAnt;
 	//    NAnt=findPointingOffsets(vb,l_offsets,m_offsets,true);
-	//     if (usePointing)
+	//     if (doPointing)
 	//       NAnt=findPointingOffsets(vb,l_offsets,m_offsets,false);
 	//     else
 	//       NAnt = 1;
@@ -4209,7 +4209,7 @@ Bool nPBWProjectFT::fromRecord(String&, //error,
 // 		<< LogIO::POST;
 	
 	noOfPASteps++;
-	if (!usePointing) NAnt=1;
+	if (!doPointing) NAnt=1;
 	//
 	// For now, disable the "jittering" of the avg. PB by antenna pointing offsets.
 	// May not be required even for the very deep imaging - but thinking is a bit 

@@ -1872,7 +1872,7 @@ Bool Imager::setoptions(const String& ftmachine, const Long cache, const Int til
 			const Int wprojplanes,
 			const String& epJTableName,
 			const Bool applyPointingOffsets,
-			const Bool usePointingCorrection,
+			const Bool doPointingCorrection,
 			const String& cfCacheDirName,
 			const Float& rotPAStep, 
 			const Float& computePAStep, 
@@ -1970,8 +1970,8 @@ Bool Imager::setoptions(const String& ftmachine, const Long cache, const Int til
   traceEvent(1,"Exiting Imager::setoptions",27);
 #endif
 
-  usePointing = applyPointingOffsets;
-  doPBCorr = usePointingCorrection;
+  doPointing = applyPointingOffsets;
+  doPBCorr = doPointingCorrection;
 ////The set below does not seemed to be remembered later in the process it 
 /// under some compiler version so setting a private variable to be used
 /// a negative number means use all that is available

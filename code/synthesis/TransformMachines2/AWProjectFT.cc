@@ -185,7 +185,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    usePointing=1; 
+    doPointing=1; 
 
     maxConvSupport=-1;  
     //
@@ -245,7 +245,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    if (applyPointingOffset) usePointing=1; else usePointing=0;
+    if (applyPointingOffset) doPointing=1; else doPointing=0;
 
     maxConvSupport=-1;  
     //
@@ -381,7 +381,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//
 	// Get various parameters from the visibilities.  
 	//
-	usePointing=other.usePointing;
+	doPointing=other.doPointing;
 
 	maxConvSupport=other.maxConvSupport;
 	//
@@ -1168,7 +1168,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     lastPAUsedForWtImg = currentCFPA = pa;
 
-    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(image,vb, usePointing));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(image,vb, doPointing));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
     // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
@@ -1176,7 +1176,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 						vb,
     // 					       dPAQuant,
     // 					       chanMap,polMap,pointingOffset);
-    vb2CFBMap_p->setUsePointing(usePointing);
+    vb2CFBMap_p->setDoPointing(doPointing);
     cfSource = vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p,
 						vb,
 						dPAQuant,
@@ -1715,7 +1715,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     interpolateFrequencyTogrid(vb, imagingweight,data, flags, elWeight, type);
     // nAnt set but not used
     // Int NAnt;
-    // if (usePointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    // if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     //
     // If row is -1 then we pass through all rows
     //
@@ -1842,7 +1842,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Nant_p     = vb.subtableColumns().antenna().nrow();
     // NAnt set but not used
     // Int NAnt=0;
-    // if (usePointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    // if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(negateUV(vb));
@@ -2464,10 +2464,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //timer_p.mark();
 
-    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, usePointing));
+    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
-      vb2CFBMap_p->setUsePointing(usePointing);
+      vb2CFBMap_p->setDoPointing(doPointing);
       vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,
 				      vb,
 				      paChangeDetector.getParAngleTolerance(),
@@ -2495,7 +2495,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
-	vb2CFBMap_p->setUsePointing(usePointing);
+	vb2CFBMap_p->setDoPointing(doPointing);
 	vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p, vb,
 				       paChangeDetector.getParAngleTolerance(),
 				       chanMap,polMap,pointingOffset);
@@ -2594,7 +2594,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     findConvFunction(*image, vb);
     Int NAnt=0;
     Nant_p     = vb.subtableColumns().antenna().nrow();
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,l_offsets,m_offsets,false);
 
     l_offsets=l_off;
@@ -2772,7 +2772,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Nant_p     = vb.subtableColumns().antenna().nrow();
     Int NAnt=0;
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,pointingOffsets,l_offsets,m_offsets,false);
 
     Matrix<Double> uvw(negateUV(vb));
@@ -2965,7 +2965,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     Int NAnt=0;
     
-    if (usePointing) 
+    if (doPointing) 
       NAnt = findPointingOffsets(vb,l_offsets, m_offsets,true);
     
     

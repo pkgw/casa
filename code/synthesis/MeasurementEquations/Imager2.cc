@@ -2657,7 +2657,7 @@ Bool Imager::createFTMachine()
 
     ft_p = new nPBWProjectFT(//*ms_p, 
 			     wprojPlanes_p, cache_p/2,
-                            cfCacheDirName_p, usePointing, doPBCorr,
+                            cfCacheDirName_p, doPointing, doPBCorr,
                              tile_p, computePAStep_p, pbLimit_p, true);
     //
     // Explicit type casting of ft_p does not look good.  It does not
@@ -2665,7 +2665,7 @@ Bool Imager::createFTMachine()
     // this
     //
     ((nPBWProjectFT *)ft_p)->setPAIncrement(parAngleInc_p);
-    if (usePointing)
+    if (doPointing)
       {
         try
           {
@@ -2725,7 +2725,7 @@ Bool Imager::createFTMachine()
                                skyPosThreshold_p);
       }
     ft_p = new PBMosaicFT(*ms_p, wprojPlanes_p, cache_p/2, 
-			  cfCacheDirName_p, /*true */usePointing, doPBCorr, 
+			  cfCacheDirName_p, /*true */doPointing, doPBCorr, 
 			  tile_p, computePAStep_p, pbLimit_p, true);
     ((PBMosaicFT *)ft_p)->setObservatoryLocation(mLocation_p);
     //
@@ -2736,7 +2736,7 @@ Bool Imager::createFTMachine()
     os << LogIO::NORMAL << "Setting PA increment to " << parAngleInc_p.getValue("deg") << " deg" << endl;
     ((nPBWProjectFT *)ft_p)->setPAIncrement(parAngleInc_p);
 
-    if (usePointing) 
+    if (doPointing) 
       {
 	try
 	  {
@@ -2919,7 +2919,7 @@ Bool Imager::createFTMachine()
 			     cfcache, awConvFunc, 
 			     //			     mthVisResampler,
 			     visResampler,
-			     /*true */usePointing, doPBCorr, 
+			     /*true */doPointing, doPBCorr, 
 			     tile_p, computePAStep_p, pbLimit_p, true,conjBeams_p,
 			     useDoublePrecGrid);
       
@@ -4905,7 +4905,7 @@ Bool Imager::pointingSampling(const String &referenceFrame,
   // 			     cfcache, awConvFunc, 
   // 			     //			     mthVisResampler,
   // 			     visResampler,
-  // 			     /*true */usePointing, doPBCorr, 
+  // 			     /*true */doPointing, doPBCorr, 
   // 			     tile_p, paStep_p, pbLimit_p, true);
       
   //   ((AWProjectWBFT *)ft_p)->setObservatoryLocation(mLocation_p);
@@ -4917,7 +4917,7 @@ Bool Imager::pointingSampling(const String &referenceFrame,
   //   // os << LogIO::NORMAL << "Setting PA increment to " << parAngleInc_p.getValue("deg") << " deg" << endl;
   //   ((AWProjectFT *)ft_p)->setPAIncrement(parAngleInc_p);
 
-  //   if (usePointing) 
+  //   if (doPointing) 
   //     {
   // 	try
   // 	  {
@@ -4995,7 +4995,7 @@ Bool Imager::pointingSampling(const String &referenceFrame,
   // 			     cfcache, awConvFunc, 
   // 			     //			     mthVisResampler,
   // 			     visResampler,
-  // 			     usePointing, doPBCorr,
+  // 			     doPointing, doPBCorr,
   // 			     tile_p, pbLimit_p, true);
   //     ((AWProjectFT *)ft_p)->setObservatoryLocation(mLocation_p);
   //     //
@@ -5008,7 +5008,7 @@ Bool Imager::pointingSampling(const String &referenceFrame,
   //     // 	 << paInc.getValue("deg") << " deg" << endl;
   //     ((AWProjectFT *)ft_p)->setPAIncrement(parAngleInc_p);
 
-  //     if (usePointing) 
+  //     if (doPointing) 
   // 	{
   // 	  try
   // 	    {

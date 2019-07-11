@@ -111,7 +111,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //    convSize=0;
     paChangeDetector.reset();
     pbLimit_p=pbLimit;
-    if (applyPointingOffset) usePointing=1; else usePointing=0;
+    if (applyPointingOffset) doPointing=1; else doPointing=0;
     maxConvSupport=-1;  
     //
     // Set up the Conv. Func. disk cache manager object.
@@ -837,7 +837,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //timer_p.mark();
     visResamplerWt_p->copy(*visResampler_p);
     
-    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb,usePointing));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb,doPointing));
     //cerr << "AWPWB: " << pointingOffset << endl;
     // visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
     // 				      paChangeDetector.getParAngleTolerance(),
@@ -972,7 +972,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 		Float *decoff,
 // 		Double *area,
 // 		Int *doGrad,
-// 		Int *usePointingCorrection,
+// 		Int *doPointingCorrection,
 // 		Int *nPA,
 // 		Int *paIndex,
 // 		Int *CFMap,
@@ -1016,7 +1016,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 		Float *raoff, Float *decoff,
 // 		Double *area, 
 // 		Int *dograd,
-// 		Int *usePointingCorrection,
+// 		Int *doPointingCorrection,
 // 		Int *nPA,
 // 		Int *paIndex,
 // 		Int *CFMap,
@@ -1059,7 +1059,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 		  Float *raoff, Float *decoff,
 // 		  Double *area, 
 // 		  Int *dograd,
-// 		  Int *usePointingCorrection,
+// 		  Int *doPointingCorrection,
 // 		  Int *nPA,
 // 		  Int *paIndex,
 // 		  Int *CFMap,
@@ -1155,8 +1155,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //     actualConvSize = cfs_p.data->shape()(0);
     
 //     //    IPosition shp=convSupport.shape();
-//     Int alwaysUsePointing=1;
-//     alwaysUsePointing=usePointing;
+//     Int alwaysDoPointing=1;
+//     alwaysDoPointing=doPointing;
 //     dpbmos(uvw_p,
 // 	   dphase_p,
 // 	   visdata_p,
@@ -1191,7 +1191,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 	   l_off_p, m_off_p,
 // 	   &area,
 // 	   &doGrad,
-// 	   &alwaysUsePointing,
+// 	   &alwaysDoPointing,
 // 	   &npa,
 // 	   &paIndex_Fortran,
 // 	   CFMap_p,
@@ -1302,8 +1302,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //     actualConvSize = cfs_p.data->shape()(0);
     
 //     //    IPosition shp=convSupport.shape();
-//     Int alwaysUsePointing=1;
-//     alwaysUsePointing = usePointing;
+//     Int alwaysDoPointing=1;
+//     alwaysDoPointing = doPointing;
 //     dpbmosgrad(uvw_p,
 // 	     dphase_p,
 // 	     visdata_p,
@@ -1341,7 +1341,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 	     l_off_p, m_off_p,
 // 	     &area,
 // 	     &doGrad,
-// 	     &alwaysUsePointing,
+// 	     &alwaysDoPointing,
 // 	     &npa,
 // 	     &paIndex_Fortran,
 // 	     CFMap_p,
@@ -1497,8 +1497,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 //     if (fabs(lastPAUsedForWtImg-actualPA)*57.2956 >= DELTAPA) lastPAUsedForWtImg = actualPA;
 
 //     //    IPosition shp=convSupport.shape();
-//     Int alwaysUsePointing=1;
-//     alwaysUsePointing = usePointing;
+//     Int alwaysDoPointing=1;
+//     alwaysDoPointing = doPointing;
 
 //     gpbmos(uvw_p,
 // 	   dphase_p,
@@ -1539,7 +1539,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 // 	   l_off_p, m_off_p,
 // 	   &area,
 // 	   &doGrad,
-// 	   &alwaysUsePointing,
+// 	   &alwaysDoPointing,
 // 	   &npa,
 // 	   &paIndex_Fortran,
 // 	   CFMap_p,

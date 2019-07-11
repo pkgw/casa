@@ -56,7 +56,7 @@ namespace casa{
   //----------------------------------------------------------------------
   //
   Vector<Vector<double> >PointingOffsets::findMosaicPointingOffset(const ImageInterface<Complex>& image,
-								   const VisBuffer2& vb, const Bool& usePointing)
+								   const VisBuffer2& vb, const Bool& doPointing)
   {
     storeImageParams(image,vb);
     //where in the image in pixels is this pointing
@@ -66,7 +66,7 @@ namespace casa{
     numRow = 0;
     Vector<Vector<double> >pixFieldGrad_l;
     pixFieldGrad_l.resize(1);
-    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,dc_p.directionType(),usePointing);
+    MDirection dir = vbUtils_p.getPointingDir(vb,antId,numRow,dc_p.directionType(),doPointing);
     thePix_p = toPix(vb, dir, dir);
 
     pixFieldGrad_p = gradPerPixel(thePix_p);
@@ -78,7 +78,7 @@ namespace casa{
   //----------------------------------------------------------------------
   //
   Vector<Vector<double> > PointingOffsets::findAntennaPointingOffset(const ImageInterface<Complex>& image,
-								     const vi::VisBuffer2& vb, const Bool& usePointing)
+								     const vi::VisBuffer2& vb, const Bool& doPointing)
   {
     Vector<Vector<double> >antOffsets;
     storeImageParams(image,vb);
@@ -91,8 +91,8 @@ namespace casa{
 	  cerr << "-------------------------------------------------------------------------" << endl;
 	for (int irow=0; irow<numRow_p;irow++)
 	  {
-	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, dc_p.directionType(), usePointing); 
-	    MDirection antDir2 =vbUtils_p.getPointingDir(vb, vb.antenna2()[irow], irow, dc_p.directionType(), usePointing); 
+	    MDirection antDir1 =vbUtils_p.getPointingDir(vb, vb.antenna1()[irow], irow, dc_p.directionType(), doPointing); 
+	    MDirection antDir2 =vbUtils_p.getPointingDir(vb, vb.antenna2()[irow], irow, dc_p.directionType(), doPointing); 
 	    
 	    //	    MVDirection vbdir=vb.direction1()(0).getValue();	
 	    casacore::Vector<double> thePixDir1_l, thePixDir2_l;
@@ -125,16 +125,16 @@ namespace casa{
   //----------------------------------------------------------------------
   //
   Vector< Vector<Double> > PointingOffsets::findPointingOffset(const ImageInterface<Complex>& image,
-							       const VisBuffer2& vb, const Bool usePointing)
+							       const VisBuffer2& vb, const Bool doPointing)
   {
-    setUsePointing(usePointing);
-    if (!usePointing) 
+    setDoPointing(doPointing);
+    if (!doPointing) 
       { 
-	return findMosaicPointingOffset(image,vb,usePointing);
+	return findMosaicPointingOffset(image,vb,doPointing);
       }
     else 
       {
-	return findAntennaPointingOffset(image,vb,usePointing);
+	return findAntennaPointingOffset(image,vb,doPointing);
       }
   }
   //

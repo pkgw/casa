@@ -161,7 +161,7 @@ namespace casa{
     virtual int getOversampling(){return 1;};
 
     virtual casacore::Vector<casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
-								  const VisBuffer2& vb, const casacore::Bool& usePointing) = 0;
+								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0;
 
 
 

@@ -495,7 +495,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     SolvableVisJones *epJ;
     casacore::Double HPBW, Diameter_p, sigma;
     casacore::Int Nant_p;
-    casacore::Int usePointing;
+    casacore::Int doPointing;
     casacore::Bool doPBCorrection;
     casacore::Bool makingPSF;
     

@@ -493,7 +493,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     casacore::CountedPtr<SolvableVisJones> epJ_p;
     casacore::Double sigma;
-    casacore::Int Nant_p, usePointing;
+    casacore::Int Nant_p, doPointing;
     casacore::Bool doPBCorrection, makingPSF, conjBeams_p;
     
     //    casacore::CountedPtr<CFCache> cfCache_p;

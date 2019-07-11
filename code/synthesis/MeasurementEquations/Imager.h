@@ -251,7 +251,7 @@ class Imager
 		  const casacore::Int wprojplanes=-1,
 		  const casacore::String& epJTableName="",
 		  const casacore::Bool applyPointingOffsets=true,
-		  const casacore::Bool usePointingCorrection=true,
+		  const casacore::Bool doPointingCorrection=true,
 		  const casacore::String& cfCacheDirName="", 
 		  const casacore::Float& rotpastep=5.0,
 		  const casacore::Float& computepastep=360.0,
@@ -1035,7 +1035,7 @@ protected:
   //
   EPJones *epJ;
   casacore::String epJTableName_p, cfCacheDirName_p;
-  casacore::Bool usePointing, doPBCorr, psTermOn_p, aTermOn_p, mTermOn_p, wbAWP_p, conjBeams_p;
+  casacore::Bool doPointing, doPBCorr, psTermOn_p, aTermOn_p, mTermOn_p, wbAWP_p, conjBeams_p;
   //SimplePlotterPtr plotter_p;
   casacore::Record interactiveState_p;
 

@@ -331,6 +331,9 @@ public:
   // Spectral axis interpolation
   casacore::String interpolation;
 
+  //mosaic use pointing table
+  casacore::Bool usePointing;
+  
   // Moving phase center ? 
   casacore::Quantity distance;
   casacore::MDirection trackDir;
@@ -338,7 +341,7 @@ public:
   casacore::String movingSource;
   
   // For wb-aprojection ftm.
-  casacore::Bool aTermOn, psTermOn,mTermOn,wbAWP,usePointing, doPBCorr, conjBeams;
+  casacore::Bool aTermOn, psTermOn,mTermOn,wbAWP,doPointing, doPBCorr, conjBeams;
   casacore::String cfCache;
   casacore::Float computePAStep, rotatePAStep;
 

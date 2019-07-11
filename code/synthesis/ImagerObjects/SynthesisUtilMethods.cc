@@ -3190,7 +3190,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	err += readVal( inrec, String("mterm"), mTermOn );
  	err += readVal( inrec, String("wbawp"), wbAWP );
 	err += readVal( inrec, String("cfcache"), cfCache );
-	err += readVal( inrec, String("usepointing"), usePointing );
+	err += readVal( inrec, String("dopointing"), doPointing );
 	err += readVal( inrec, String("dopbcorr"), doPBCorr );
 	err += readVal( inrec, String("conjbeams"), conjBeams );
 	err += readVal( inrec, String("computepastep"), computePAStep );
@@ -3298,7 +3298,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     interpolation=String("nearest");
 
     //mosaic use pointing
-    usePointing=false;
+    doPointing=false;
     // Moving phase center ?
     distance=Quantity(0,"m");
     trackSource=false;
@@ -3310,7 +3310,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     mTermOn    = false;
     wbAWP      = true;
     cfCache  = "";
-    usePointing = false;
+    doPointing = false;
     doPBCorr   = true;
     conjBeams  = true;
     computePAStep=360.0;
@@ -3357,7 +3357,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     gridpar.define("mterm",mTermOn );
     gridpar.define("wbawp", wbAWP);
     gridpar.define("cfcache", cfCache);
-    gridpar.define("usepointing",usePointing );
+    gridpar.define("dopointing",doPointing );
     gridpar.define("dopbcorr", doPBCorr);
     gridpar.define("conjbeams",conjBeams );
     gridpar.define("computepastep", computePAStep);

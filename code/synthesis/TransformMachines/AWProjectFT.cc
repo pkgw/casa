@@ -191,7 +191,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    usePointing=1; 
+    doPointing=1; 
 
     maxConvSupport=-1;  
     //
@@ -249,7 +249,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //
     // Get various parameters from the visibilities.  
     //
-    if (applyPointingOffset) usePointing=1; else usePointing=0;
+    if (applyPointingOffset) doPointing=1; else doPointing=0;
 
     maxConvSupport=-1;  
     //
@@ -381,7 +381,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//
 	// Get various parameters from the visibilities.  
 	//
-	usePointing=other.usePointing;
+	doPointing=other.doPointing;
 
 	maxConvSupport=other.maxConvSupport;
 	//
@@ -1694,7 +1694,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     interpolateFrequencyTogrid(vb, *imagingweight,data, flags, elWeight, type);
     // NAnt no longer appears to be used
     //Int NAnt;
-    //if (usePointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    //if (doPointing) NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     //NAnt=NAnt;  // Dummy statement to supress complier warnings and will be used when pointing offsets are used.
     //
     // If row is -1 then we pass through all rows
@@ -1820,7 +1820,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     Nant_p     = vb.msColumns().antenna().nrow();
     // NAnt set but not used
     //Int NAnt=0;
-    //if (usePointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
+    //if (doPointing)   NAnt = findPointingOffsets(vb,l_offsets,m_offsets,true);
     
     // Get the uvws in a form that Fortran can use
     Matrix<Double> uvw(3, vb.uvw().nelements());
@@ -2529,7 +2529,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     findConvFunction(*image, vb);
     Int NAnt=0;
     Nant_p     = vb.msColumns().antenna().nrow();
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,l_offsets,m_offsets,false);
 
     l_offsets=l_off;
@@ -2706,7 +2706,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     Nant_p     = vb.msColumns().antenna().nrow();
     Int NAnt=0;
-    if (usePointing)   
+    if (doPointing)   
       NAnt = findPointingOffsets(vb,pointingOffsets,l_offsets,m_offsets,false);
 
     Matrix<Double> uvw(3, vb.uvw().nelements());
@@ -2897,7 +2897,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     Int NAnt=0;
     
-    if (usePointing) 
+    if (doPointing) 
       NAnt = findPointingOffsets(vb,l_offsets, m_offsets,true);
     
     

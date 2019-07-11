@@ -2492,7 +2492,7 @@ Bool Simulator::createSkyEquation(const Vector<String>& image,
 	    gvp_p=new VPSkyJones(*ms_p, true, parAngleInc_p, squintType_p);
 	  }
 //	  ft_p = new PBWProjectFT(*ms_p, epJ, gvp_p, facets_p, cache_p/2, 
-//	  usePointing, tile_p, paStep_p, 
+//	  doPointing, tile_p, paStep_p, 
 //	  pbLimit_p, true);
 
 	String cfCacheDirName = "cache";
