@@ -149,7 +149,7 @@ tableplot::open(const std::vector<std::string>& tabnames)
 		if(adbg)cout << "nTabs : " << nTabs << endl;
 	
 		/* Open tables and attach to internal list */
-		if(TP->setTableS(TabNames,TabNames,SelStr)==-1) return false;
+		if(! TP->setTableS(TabNames,TabNames,SelStr)) return false;
 		
 		/* Record the tables - for use in data selection later on */
 		TABS.resize(0);
@@ -261,7 +261,7 @@ tableplot::selectdata(const std::string& taqlstring)
 		SelStr[i] = selectstring;
 	}
 	/* Attach selected tables to internal list */
-	if(TP->setTableT(SelTABS,TabNames,SelStr)==-1) return false;
+	if(! TP->setTableT(SelTABS,TabNames,SelStr)) return false;
 	
 	} catch (AipsError x) {
 		*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -387,7 +387,7 @@ tableplot::iterplotstart(const ::casac::record& poption, const std::vector<std::
 	if(Errors[1].length()>0)cout<< Errors[1] <<endl;
 	if(Errors[0].length()>0){cout<<"ERRORS :"<<Errors[0]<<endl;return false;}
 	
-	if(TP->iterMultiPlotStart(pop,temptaqlvector,tempiteraxes)==-1)
+	if(! TP->iterMultiPlotStart(pop,temptaqlvector,tempiteraxes))
 	 return false;
 
         TP->changeGuiButtonState("iternext","enabled");
@@ -452,7 +452,7 @@ tableplot::markregions(const int nrows, const int ncols, const int panel,const s
 		for(Int i=0;i<(Int)region.size();i++) 
 			regionvec[i] = (Double)region[i];
 		
-		if(TP->markRegions(nrows,ncols,panel,regionvec) == -1) return false;
+		if(! TP->markRegions(nrows,ncols,panel,regionvec)) return false;
 		
 	} catch (AipsError x) {
 		*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
@@ -530,7 +530,7 @@ tableplot::clearplot(const int nrows, const int ncols, const int panel)
 {
 	if(adbg)cout << " Clear Plot " << endl;
 	try {
-		if(TP->clearPlot(nrows,ncols,panel) == -1) return false;
+		if(! TP->clearPlot(nrows,ncols,panel)) return false;
 	
 	} catch (AipsError x) {
 		*itsLog << LogIO::SEVERE << "Exception Reported: " << x.getMesg() << LogIO::POST;
