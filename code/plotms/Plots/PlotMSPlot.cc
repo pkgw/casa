@@ -311,67 +311,88 @@ vector<PMS::DataColumn> PlotMSPlot::getCachedData(){
 }
 
 vector<PMS::Axis> PlotMSPlot::getCachedAxes() {
-    PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
-    // get default axes if not given by user
-    for(uInt i=0; i<c->numXAxes(); i++){
-        if (c->xAxis(i) == PMS::NONE) 
-            c->setXAxis(getDefaultXAxis(), i);
-    }
-    for(uInt i=0; i<c->numYAxes(); i++){
-        if (c->yAxis(i) == PMS::NONE) {
-            if (itsCache_->calType().startsWith("Xf")) {
+	PMS_PP_Cache* c = itsParams_.typedGroup<PMS_PP_Cache>();
+	// get default axes if not given by user
+	for (uInt i=0; i < c->numXAxes(); i++){
+		if (c->xAxis(i) == PMS::NONE) 
+			c->setXAxis(getDefaultXAxis(), i);
+	}
+	for (uInt i=0; i < c->numYAxes(); i++){
+		if (c->yAxis(i) == PMS::NONE) {
+			if (itsCache_->calType().startsWith("Xf")) {
                 c->setYAxis(PMS::GPHASE, i);
-            } else if (itsCache_->calType() == "GSPLINE") {
+			} else if (itsCache_->calType() == "GSPLINE") {
                 PMS_PP_MSData* d = itsParams_.typedGroup<PMS_PP_MSData>();
                 c->setYAxis(getGsplineAxis(d->filename()), i);
-            } else {
+			} else {
                 c->setYAxis(PMS::DEFAULT_YAXIS, i);
-            }
-        }
-    }
+			}
+		}
+	}
 
-    // add ATM/TSKY yaxis "under the hood" if valid xaxis
-    if (c->showAtm() || c->showTsky()) {
-        PMS::Axis xaxis = c->xAxis();
-        bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY );
-        if (!validXAxis) {
-            c->setShowAtm(false);
-            c->setShowTsky(false);
-            itsParent_->showWarning("Overlays are valid only when xaxis is Channel or Frequency");
-        } else {
-            // add here for script client
-            bool found(false);
-            const vector<PMS::Axis> yAxes = c->yAxes();
-            PMS::Axis atmAxis = (c->showAtm() ? PMS::ATM : PMS::TSKY);
-            for (uInt i=0; i<yAxes.size(); ++i) {
-                if (yAxes[i] == atmAxis) {
-                    found=True;
-                    break;
-                }
-            }
-            if (!found) {
-                // add ATM/TSKY to Cache axes
-                int index = c->numXAxes();
-                c->setAxes(xaxis, atmAxis, c->xDataColumn(0), 
-                        PMS::DEFAULT_DATACOLUMN, index);
-                // set Axes positions
-                PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
-                a->resize(index+1, true);  // copy values
-                a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
-                // keep same xaxis range
-                a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
-                // set Display symbol color
-                PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
-                PlotSymbolPtr atmSymbol = disp->unflaggedSymbol(index);
-                atmSymbol->setSymbol("circle");
-                atmSymbol->setSize(2,2);
-                atmSymbol->setColor("#FF00FF");
-                disp->setUnflaggedSymbol(atmSymbol, index);
-                PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
-                disp->setFlaggedSymbol(flaggedSymbol, index);
-            }
-        }
-    }
+	// add ATM/TSKY yaxis "under the hood" if valid xaxis
+	if (c->showAtm() || c->showTsky()) {
+		PMS::Axis xaxis = c->xAxis();
+		bool validXAxis = (xaxis==PMS::CHANNEL || xaxis==PMS::FREQUENCY );
+		if (!validXAxis) {
+			c->setShowAtm(false);
+			c->setShowTsky(false);
+			c->setShowImage(false);
+			itsParent_->showWarning("Overlays are valid only when xaxis is Channel or Frequency");
+		} else {
+			// add here for script client
+			bool foundOverlayAxis(false), foundImageAxis(false);
+			const vector<PMS::Axis> yAxes = c->yAxes();
+			PMS::Axis overlayAxis = (c->showAtm() ? PMS::ATM : PMS::TSKY);
+			for (uInt i=0; i<yAxes.size(); ++i) {
+				if (yAxes[i] == overlayAxis) {
+					foundOverlayAxis = True;
+				} else if (yAxes[i] == PMS::IMAGESB) {
+					foundImageAxis = True;
+				}
+			}
+			if (!foundOverlayAxis) {
+				// add ATM/TSKY to Cache axes
+				int index = c->numXAxes();
+				c->setAxes(xaxis, overlayAxis, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+				// set Axes positions
+				PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
+				a->resize(index+1, true);  // copy values
+				a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+				// keep same xaxis range
+				a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
+				// set Display symbol color
+				PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
+				PlotSymbolPtr overlaySymbol = disp->unflaggedSymbol(index);
+				overlaySymbol->setSymbol("circle");
+				overlaySymbol->setSize(2,2);
+				overlaySymbol->setColor("#FF00FF"); // magenta
+				disp->setUnflaggedSymbol(overlaySymbol, index);
+				PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+				disp->setFlaggedSymbol(flaggedSymbol, index);
+			}
+			if (c->showImage() && !foundImageAxis) {
+				// add IMAGESB (image sideband) to Cache axes
+				int index = c->numXAxes();
+				c->setAxes(xaxis, PMS::IMAGESB, c->xDataColumn(0), PMS::DEFAULT_DATACOLUMN, index);
+				// set Axes positions
+				PMS_PP_Axes* a = itsParams_.typedGroup<PMS_PP_Axes>();
+				a->resize(index+1, true);  // copy values
+				a->setAxes(a->xAxis(index-1), Y_RIGHT, index);
+				// keep same xaxis range
+				a->setXRange(a->xRangeSet(index-1), a->xRange(index-1), index);
+				// set Display symbol color
+				PMS_PP_Display* disp = itsParams_.typedGroup<PMS_PP_Display>();
+				PlotSymbolPtr imageSymbol = disp->unflaggedSymbol(index);
+				imageSymbol->setSymbol("circle");
+				imageSymbol->setSize(2,2);
+				imageSymbol->setColor("#000000"); // black
+				disp->setUnflaggedSymbol(imageSymbol, index);
+				PlotSymbolPtr flaggedSymbol = disp->flaggedSymbol();
+				disp->setFlaggedSymbol(flaggedSymbol, index);
+			}
+		}
+	}
 	vector<PMS::Axis> axes;
 	for(uInt i=0; i<c->numXAxes(); i++)
 		axes.push_back(c->xAxis(i));
@@ -634,10 +655,11 @@ bool PlotMSPlot::updateDisplay() {
 				PlotSymbolPtr unflaggedSym = display->unflaggedSymbol(row);
 				PlotSymbolPtr symbolUnmasked = itsParent_->createSymbol(unflaggedSym);
 				uInt dataSize = itsCache_->indexer(row,col).sizeUnmasked();
-				if (y==PMS::ATM || y==PMS::TSKY) 
+				if (PMS::axisIsOverlay(y)) {
 					customizeOverlaySymbol( symbolUnmasked, dataSize );
-				else 
+				} else {
 					customizeAutoSymbol( symbolUnmasked, dataSize );
+				}
 
 				PlotSymbolPtr flaggedSym = display->flaggedSymbol(row);
 				PlotSymbolPtr symbolMasked = itsParent_->createSymbol(flaggedSym);
@@ -1812,6 +1834,7 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 			}
 		}
 		// y range
+		bool hasAtmOverlay(false);
 		for ( int i = 0; i < yAxisCount; i++ ){
 			PlotAxis cy = axesParams->yAxis( i );
 			if ( axesParams->yRangeSet(i) ){
@@ -1835,15 +1858,44 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					canvas->setAxisRange(cx, xybounds);
 					canvas->setAxisRange(cy, xybounds);
 					makeSquare = true;
-					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE))
+					if (xIsUVwave && (y==PMS::UWAVE || y==PMS::VWAVE)) {
 						waveplot=true;
-                } else if (y==PMS::ATM || y==PMS::TSKY) {
-                    itsCache_->indexer(1,iteration).minsMaxes(xmin, xmax, ymin, ymax);
-                    pair<double,double> atmrange;
-                    if (y==PMS::ATM) atmrange = make_pair(0, min(ymax+1.0, 100.0));
-                    else atmrange = make_pair(0, ymax+0.1);
-                    canvas->setAxisRange(cy, atmrange);
-                }
+					}
+				} else if (PMS::axisIsOverlay(y)) {
+					// This assumes that the user is plotting a single y-axis;
+					// yaxis 0 is user-set, yaxis 1 is atm/tsky,
+					// and yaxis 2 is image sideband
+					itsCache_->indexer(i,iteration).minsMaxes(xmin, xmax, ymin, ymax);
+					pair<double,double> atmrange;
+					// in all cases, do not allow ymin < 0
+					if (y == PMS::ATM) {  // range in 0 - 100
+                        hasAtmOverlay = true;
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						atmrange = make_pair(max((ymin-lowerMargin), 0.0), min(ymax+upperMargin, 100.0));
+					} else if (y == PMS::TSKY) { // range above 0
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						atmrange = make_pair(max((ymin-lowerMargin), 0.0), (ymax+upperMargin));
+					} else { // range above 0
+						// get combined range of image sideband and atm/tsky overlay
+						double yminAtm, ymaxAtm;
+						itsCache_->indexer(i-1,iteration).minsMaxes(xmin, xmax, yminAtm, ymaxAtm);
+						ymin = min(ymin, yminAtm);
+						ymax = max(ymax, ymaxAtm);
+						double overlayRange(ymax - ymin);
+						double lowerMargin(overlayRange * 3.0);
+						double upperMargin(overlayRange > 2.0 ? 2.0 : overlayRange);
+						if (hasAtmOverlay) {
+							atmrange = make_pair(max((ymin-lowerMargin), 0.0), min((ymax+upperMargin), 100.0));
+						} else {
+							atmrange = make_pair(max((ymin-lowerMargin), 0.0), (ymax+upperMargin));
+						}
+					}
+					canvas->setAxisRange(cy, atmrange);
+				}
 			}
 		}
 	}
@@ -1915,6 +1967,10 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				int plotYAxisCount = plotAxisParams->numYAxes();
 				for ( int j=0; j<plotYAxisCount; j++ ){
 					PMS::Axis y = plotCacheParams->yAxis( j );
+					// skip if image sideband axis could not be loaded
+					if ((y == PMS::IMAGESB) && !itsCache_->canShowImageCurve()) {
+						continue;
+                    }
 					if (isCalTable && PMS::axisIsData(y))
 						y = getCalAxis(calTypes(i), y);
 					yAxes.push_back(y);  // save for title
