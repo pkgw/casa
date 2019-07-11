@@ -1069,10 +1069,10 @@ void SplineInterpolation::init(MeasurementSet const &ms,
  
     for(uInt ant=0; ant <numAnt; ant++)
     {
-       // Antenna Bounday Pos(start,end) //
-         std::pair<uInt,uInt> pos = antb.getAntennaBoundary(ant);
-         uInt startPos = pos.first;
-         uInt endPos   = pos.second;
+        // Antenna Bounday Pos(start,end) //
+          std::pair<uInt,uInt> pos = antb.getAntennaBoundary(ant);
+          uInt startPos = pos.first;
+          uInt endPos   = pos.second;
 
         // define size of each antenna
           uInt size = endPos - startPos;  
@@ -1083,8 +1083,10 @@ void SplineInterpolation::init(MeasurementSet const &ms,
           tmp_dtime[ant]. resize(size);
           tmp_timegap[ant]. resize(size);
  
+        // set up //
+          std::fill(tmp_timegap[ant].begin(), tmp_timegap[ant].end(), false); // DEFAULT = false // 
+          Double prv_time =  pointingTime.get(startPos); // For making diff time
         // for each row // 
-        Double prv_time =  pointingTime.get(startPos); // For making diff time
         for (uInt row = startPos; row < endPos; row++) 
         {
             uInt index = row - startPos;
@@ -1113,15 +1115,21 @@ void SplineInterpolation::init(MeasurementSet const &ms,
               tmp_dtime[ant][index] = dd; // record backward diff // 
               prv_time  = time;
 
-              /* Mark the position */
-              tmp_timegap [ant][index  ] =false;
-              if(dd >  p_interval){
-                  if(index >=2){
-                      tmp_timegap [ant][index  ] =true;
+              /* Mark the position (force to exec LINEAR) */
+               if((index < size-3 )&&(index >=3)) {
+                   if(dd >  p_interval){
+                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+2] =true;
+                      tmp_timegap [ant][index+1] =true;
+
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+
                       tmp_timegap [ant][index-1] =true;
                       tmp_timegap [ant][index-2] =true;
-                 }
-              }  
+                      tmp_timegap [ant][index-3] =true; // backward 
+ 
+                   }
+               }  
         }
     }
 
