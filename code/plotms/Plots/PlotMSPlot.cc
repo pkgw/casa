@@ -2248,12 +2248,15 @@ void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 		canvas->setAxisFont(xPlotAxis, xFont);
 
 		// Get label string using last format
-		casacore::String xLabel = canvasParams[plotcount-1]->xLabelFormat().getLabel(
-			xAxis, xHasRef, xRefVal, xColumn, commonPolnRatio);
-		if ((xAxis == PMS::FREQUENCY) && !freqFrame.empty()) {
-			xLabel += " " + freqFrame;
+		casacore::String xLabel("");
+		PlotMSLabelFormat xFormat = canvasParams[plotcount-1]->xLabelFormat();
+		if (xFormat.format != " ") {
+			xLabel = xFormat.getLabel(xAxis, xHasRef, xRefVal, xColumn, commonPolnRatio);
+			if ((xAxis == PMS::FREQUENCY) && !freqFrame.empty()) {
+				xLabel += " " + freqFrame;
+			}
+			addAxisDescription(xLabel, xAxis, commonCacheType, averaged);
 		}
-		addAxisDescription(xLabel, xAxis, commonCacheType, averaged);
 
 		// set label in canvas
 		canvas->setAxisLabel(xPlotAxis, xLabel);
@@ -2483,50 +2486,53 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 					(dataParams[plotindex]->selection().corr() == "/"));
 
 				// Set label
-				yLabel = canvasParams[plotindex]->yLabelFormat().getLabel(
-					yaxis, yHasRef, yRefVal, ycol, polnRatio);
-				if (yaxis == PMS::FREQUENCY) {
-					yLabel += " " + MFrequency::showType(plots[plotindex]->cache().getFreqFrame());
+				casacore::String yLabel("");
+				PlotMSLabelFormat yFormat = canvasParams[plotindex]->yLabelFormat();
+				if (yFormat.format != " ") {
+					yLabel = yFormat.getLabel(yaxis, yHasRef, yRefVal, ycol, polnRatio);
+					if (yaxis == PMS::FREQUENCY) {
+						yLabel += " " + MFrequency::showType(plots[plotindex]->cache().getFreqFrame());
+					}
+					addAxisDescription(yLabel, yaxis, cacheType, averaged);
 				}
-				addAxisDescription(yLabel, yaxis, cacheType, averaged);
-			}
 
-			// add to left or right axis properties
-			if (yPlotAxis == Y_LEFT) {
-				showLabelLeft |= showYLabel; // show if any shown
-				yHasRefLeft &= yHasRef;       // false unless all have ref
-				if (yHasRef) {
-					yRefValLeft = min(yRefValLeft, yRefVal);
-				}
-				if (pointsize >= 0) {
-					pointsizeLeft = pointsize;
-				}
-				if (!yLabel.empty()) {
-					if (yLabelLeft.empty()) {
-						yLabelLeft = yLabel;
-					} else if (yLabel != yLabelLeftLast) {
-						yLabelLeft.append( ", ");
-						yLabelLeft.append(yLabel);
+				// add to left or right axis properties
+				if (yPlotAxis == Y_LEFT) {
+					showLabelLeft |= showYLabel; // show if any shown
+					yHasRefLeft &= yHasRef;      // false unless all have ref
+					if (yHasRef) {
+						yRefValLeft = min(yRefValLeft, yRefVal);
 					}
-					yLabelLeftLast = yLabel;
-				}
-			} else { // Y_RIGHT
-				showLabelRight |= showYLabel; // show if any shown
-				yHasRefRight &= yHasRef;       // false unless all have ref
-				if (yHasRef) {
-					yRefValRight = min(yRefValRight, yRefVal);
-				}
-				if (pointsize >= 0) {
-					pointsizeRight = pointsize;
-				}
-				if (!yLabel.empty()) {
-					if (yLabelRight.empty()) {
-						yLabelRight = yLabel;
-					} else if (yLabel != yLabelRightLast) {
-						yLabelRight.append( ", ");
-						yLabelRight.append(yLabel);
+					if (pointsize >= 0) {
+						pointsizeLeft = pointsize;
 					}
-					yLabelRightLast = yLabel;
+					if (!yLabel.empty()) {
+						if (yLabelLeft.empty()) {
+							yLabelLeft = yLabel;
+						} else if (yLabel != yLabelLeftLast) {
+							yLabelLeft.append( ", ");
+							yLabelLeft.append(yLabel);
+						}
+						yLabelLeftLast = yLabel;
+					}
+				} else { // Y_RIGHT
+					showLabelRight |= showYLabel; // show if any shown
+					yHasRefRight &= yHasRef;       // false unless all have ref
+					if (yHasRef) {
+						yRefValRight = min(yRefValRight, yRefVal);
+					}
+					if (pointsize >= 0) {
+						pointsizeRight = pointsize;
+					}
+					if (!yLabel.empty()) {
+						if (yLabelRight.empty()) {
+							yLabelRight = yLabel;
+						} else if (yLabel != yLabelRightLast) {
+							yLabelRight.append( ", ");
+							yLabelRight.append(yLabel);
+						}
+						yLabelRightLast = yLabel;
+					}
 				}
 			}
 			yaxesIndex++;

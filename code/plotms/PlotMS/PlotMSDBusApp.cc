@@ -662,32 +662,44 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 		if(parameters.isDefined(PARAM_SHOWXLABEL) &&
 				parameters.dataType(PARAM_SHOWXLABEL) == TpBool)   {
 			Bool showX = parameters.asBool(PARAM_SHOWXLABEL);
-			ppcan->showXLabel(showX, index);
+			ppcan->showXLabel(showX);
 		}
 		if(parameters.isDefined(PARAM_SHOWYLABEL) &&
 				parameters.dataType(PARAM_SHOWYLABEL) == TpBool)   {
 			Bool showY = parameters.asBool(PARAM_SHOWYLABEL);
-			ppcan->showYLabel(showY, index);
+			ppcan->showYLabel(showY);
 		}
 
 		if(parameters.isDefined(PARAM_XAXISLABEL) &&
 				parameters.dataType(PARAM_XAXISLABEL) == TpString)   {
 			String S = parameters.asString(PARAM_XAXISLABEL);
 			PlotMSLabelFormat f = ppcan->xLabelFormat();
-			if (S.length()==0)
-				f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
-			else
+			if (S.length()==0) {
+				if (ppcan->xLabelShown()) {
+					f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
+				} else {
+					// a space translates to length 0; put space back
+					f.format = " ";
+				}
+			} else {
 				f.format = S;
+			}
 			ppcan->setXLabelFormat(f);
 		}
 		if(parameters.isDefined(PARAM_YAXISLABEL) &&
 				parameters.dataType(PARAM_YAXISLABEL) == TpString)   {
 			String S = parameters.asString(PARAM_YAXISLABEL);
 			PlotMSLabelFormat f = ppcan->yLabelFormat();
-			if (S.length()==0)
-				f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
-			else
+			if (S.length()==0) {
+				if (ppcan->yLabelShown()) {
+					f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
+				} else {
+					// a space translates to length 0; put space back
+					f.format = " ";
+				}
+			} else {
 				f.format = S;
+			}
 			ppcan->setYLabelFormat(f);
 		}
 
