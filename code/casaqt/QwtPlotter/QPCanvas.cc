@@ -429,12 +429,42 @@ PlotAxisScale QPCanvas::axisScale(PlotAxis axis) const   {
     return m_scaleDraws[QPOptions::axis(axis)]->scale(); 
 }
 
-void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
-    m_scaleDraws[QPOptions::axis(axis)]->setScale(scale);
+void QPCanvas::setAxisScale(PlotAxis axis, PlotAxisScale scale, uInt base) {
+    m_scaleDraws[QPOptions::axis(axis)]->setScale(scale,base);
     int axisListenerCount = axisListeners.size();
     for ( int i = 0; i < axisListenerCount; i++ ){
-    	axisListeners[i]->setAxisScale( axis, scale );
+    	axisListeners[i]->setAxisScale( axis, scale, base);
     }
+}
+
+std::pair<bool,SortDirection> QPCanvas::axisScaleSortDirection(PlotAxis axis) const {
+	const auto *scaleDiv = getAxisScaleDiv(QPOptions::axis(axis));
+	if (scaleDiv == nullptr) return std::make_pair(false,SortDirection::ASCENDING);
+	SortDirection direction {SortDirection::ASCENDING} ;
+#if QWT_VERSION >= 0x060000
+	if (not scaleDiv->isIncreasing() ) direction = SortDirection::DESCENDING;
+#else
+	if ( scaleDiv->lowerBound() > scaleDiv->upperBound() )
+		direction = SortDirection::DESCENDING;
+#endif
+	return std::make_pair(true,direction);
+}
+
+bool QPCanvas::setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) {
+	auto ok_direction = axisScaleSortDirection(axis);
+	auto ok = ok_direction.first;
+	if (not ok ) return false;
+	auto currentDirection = ok_direction.second;
+	if (direction != currentDirection ) invertAxis(axis);
+	return true;
+}
+
+// Sets/gets the angle format of the scale for the given axis
+void QPCanvas::setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format){
+	m_scaleDraws[QPOptions::axis(axis)]->setAngleFormat(format);
+}
+AngleFormat QPCanvas::axisScaleAngleFormat(PlotAxis axis) const {
+	return m_scaleDraws[QPOptions::axis(axis)]->angleFormat();
 }
 
 bool QPCanvas::axisReferenceValueSet(PlotAxis axis) const {
@@ -620,6 +650,19 @@ void QPCanvas::setAxisRange(PlotAxis axis, double from, double to) {
     setAxesRanges(axis, from, to, axis, from, to);
 }
 
+void QPCanvas::invertAxis(PlotAxis axis) {
+    bool autoreplot = m_canvas.autoReplot();
+    m_canvas.setAutoReplot(false);
+
+	QwtScaleDiv scaleDiv { *getAxisScaleDiv(QPOptions::axis(axis)) };
+	scaleDiv.invert();
+	m_canvas.setAxisScaleDiv(QPOptions::axis(axis),scaleDiv);
+	m_canvas.updateAxes();
+
+    m_canvas.setAutoReplot(autoreplot);
+    m_canvas.replot();
+}
+
 
 
 void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
@@ -629,38 +672,39 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
         logMethod(CLASS_NAME, "setAxesRanges", false);
         return;
     }
-    if(xTo < xFrom) {
-        double temp = xTo;
-        xTo = xFrom;
-        xFrom = temp;
-    }
-    if(yTo < yFrom) {
-        double temp = yTo;
-        yTo = yFrom;
-        yFrom = temp;
-    }
-    
+    const auto & xMin = std::min(xFrom,xTo);
+    const auto & xMax = std::max(xFrom,xTo);
+
     bool autoreplot = m_canvas.autoReplot();
     m_canvas.setAutoReplot(false);
     bool changed = false;
     
     // set bounds
-    if (xFrom != xTo) {
-        if ((axisScale(xAxis) >= PlotAxisScale::DATE_MJ_SEC) && (xTo-xFrom)>120.0) {
-            setTimeScaleDiv(xAxis, xFrom, xTo);  // ticks to even steps/minutes
+    if (xMin != xMax) {
+        if ((axisScale(xAxis) >= PlotAxisScale::DATE_MJ_SEC) && (xMax-xMin)>120.0) {
+            setTimeScaleDiv(xAxis, xMin, xMax);  // ticks to even steps/minutes
         } else {
-            m_canvas.setAxisScale(QPOptions::axis(xAxis), xFrom, xTo,
-                m_canvas.axisStepSize(QPOptions::axis(xAxis)));
+            auto xAxisIndex = QPOptions::axis(xAxis);
+            auto xStep = m_canvas.axisStepSize(xAxisIndex);
+            auto ok_direction = this->axisScaleSortDirection(xAxis);
+            auto ok = ok_direction.first;
+            auto sortDirection = ok_direction.second;
+            if ( ok and ( sortDirection == SortDirection::DESCENDING) )
+                m_canvas.setAxisScale(xAxisIndex, xMax, xMin, xStep);
+            else
+                m_canvas.setAxisScale(xAxisIndex, xMin, xMax, xStep);
         }
         m_canvas.updateAxes();
         changed = true;
     }
 
     if(yAxis != xAxis && yFrom != yTo) {
-        if (axisScale(yAxis) >= PlotAxisScale::DATE_MJ_SEC && (yTo-yFrom)>120.0) {
-            setTimeScaleDiv(yAxis, yFrom, yTo); // ticks to even steps/minutes
+        const auto & yMin = std::min(yFrom,yTo);
+        const auto & yMax = std::max(yFrom,yTo);
+        if (axisScale(yAxis) >= PlotAxisScale::DATE_MJ_SEC && (yMax-yMin)>120.0) {
+            setTimeScaleDiv(yAxis, yMin, yMax); // ticks to even steps/minutes
         } else {
-            m_canvas.setAxisScale(QPOptions::axis(yAxis), yFrom, yTo);
+            m_canvas.setAxisScale(QPOptions::axis(yAxis), yMin, yMax);
         }
         m_canvas.updateAxes();
         changed = true;
@@ -672,14 +716,16 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
         for(unsigned int i = 0; i < m_axesRatios.size(); i++)
             m_axesRatios[i] *= r;
         
-        double size = xTo - xFrom;
+        double size = xMax - xMin;
         double newSize, midPoint, newLow, newHigh;
         const QwtScaleDiv* div;
         
         for(unsigned int i = 0; i < m_axesRatios.size(); i++) {
             if(axisIndex(xAxis) != i) {
                 newSize = size * m_axesRatios[i];
-                div = getAxisScaleDiv(QPOptions::axis(axisIndex(i)));
+                auto curAxisIndex = QPOptions::axis(axisIndex(i));
+                div = getAxisScaleDiv(curAxisIndex);
+                if (div == nullptr) continue;
 #if QWT_VERSION < 0x050200
                 midPoint = (div->range() / 2) + div->lBound();
 #else
@@ -687,8 +733,7 @@ void QPCanvas::setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
 #endif
                 newLow = midPoint - (newSize / 2);
                 newHigh = midPoint + (newSize / 2);
-                m_canvas.setAxisScale(QPOptions::axis(axisIndex(i)),
-                                      newLow, newHigh);
+                m_canvas.setAxisScale(curAxisIndex,newLow, newHigh);
             }
         }
     }

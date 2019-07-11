@@ -56,7 +56,7 @@ public:
 	void setRelativeDateFormat(const casacore::String& newFormat);
 
 	//Axis scale
-	void setAxisScale(PlotAxisScale scale);
+	void setAxisScale(PlotAxisScale scale, casacore::uInt base=10);
 	void setReferenceValue(bool on, double value);
 
 	//Axis font

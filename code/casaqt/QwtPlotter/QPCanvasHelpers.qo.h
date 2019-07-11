@@ -33,6 +33,8 @@
 #include <casaqt/QwtPlotter/QPPlotItem.qo.h>
 #include <graphics/GenericPlotter/PlotCanvas.h>
 
+#include <casacore/casa/Quanta/MVAngle.h>
+
 #include <qwt_legend.h>
 #if QWT_VERSION >= 0x060000
 #include <qwt_plot_legenditem.h>
@@ -102,7 +104,7 @@ public:
     // Gets/Sets the scale used.
     // <group>
     PlotAxisScale scale() const;
-    void setScale(PlotAxisScale scale);
+    void setScale(PlotAxisScale scale, casacore::uInt base=10);
     // </group>
     
     // Gets/Sets the format used for date values.  See Plotter::dateFormat().
@@ -125,6 +127,10 @@ public:
     void setReferenceValue(bool on, double value = 0);
     // </group>
     
+    // Gets/Sets the format used for angle values
+    AngleFormat angleFormat() const;
+    void setAngleFormat(AngleFormat newFormat);
+
     // Overrides QwtScaleDraw::label().
     QwtText label(double value) const;
     
@@ -158,8 +164,12 @@ private:
 	bool m_referenceSet;
 	double m_referenceValue;
 	// </group>
-};
 
+	// Angle Format
+	AngleFormat m_angleFormat;
+	casacore::MVAngle::Format m_mvAngleFormat;
+	static const casacore::uInt m_angleFormatDefaultPrecision = 6;
+};
 
 // Legend Classes //
 
