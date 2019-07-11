@@ -72,14 +72,13 @@ def tclean(
 
     ### PB
     vptable,
-#    usepointing, #=false
     mosweight, #=True
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
     conjbeams ,#= True,
     cfcache ,#= "",
-    dopointing, #= False
+    usepointing, #=false
     computepastep ,#=360.0,
     rotatepastep ,#=360.0,
     pointingoffsetsigdev ,#=0.0,
@@ -205,8 +204,8 @@ def tclean(
 
     #paramList.printParameters()
     
-    if pointingoffsetsigdev!=0.0 and dopointing==False:
-        casalog.post("pointingoffsetsigdev is only revelent when dopointing is True", "WARN") 
+    if pointingoffsetsigdev!=0.0 and usepointing==False:
+        casalog.post("pointingoffsetsigdev is only revelent when usepointing is True", "WARN") 
 
     pcube=False
     concattype=''

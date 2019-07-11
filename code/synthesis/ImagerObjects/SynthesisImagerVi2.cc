@@ -619,7 +619,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.padding,gridpars.useAutoCorr,gridpars.useDoublePrec,
 			gridpars.convFunc,
 			gridpars.aTermOn,gridpars.psTermOn, gridpars.mTermOn,
-			gridpars.wbAWP,gridpars.cfCache,gridpars.doPointing,
+			gridpars.wbAWP,gridpars.cfCache,gridpars.usePointing,
 			gridpars.doPBCorr,gridpars.conjBeams,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
@@ -1539,7 +1539,7 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Bool mTermOn,          //= false,
 					const Bool wbAWP,            //= true,
 					   const String cfCache,        //= "",
-					   const Bool doPointing,       //= false,
+					   const Bool usePointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
 					const Float computePAStep,         //=360.0
@@ -1602,7 +1602,7 @@ void SynthesisImagerVi2::unlockMSs()
       createAWPFTMachine(theFT, theIFT, ftname, facets, wprojplane, 
 			 padding, useAutocorr, useDoublePrec, gridFunction,
 			 aTermOn, psTermOn, mTermOn, wbAWP, cfCache, 
-			 doPointing, doPBCorr, conjBeams, computePAStep,
+			 usePointing, doPBCorr, conjBeams, computePAStep,
 			 rotatePAStep, cache,tile,imageNamePrefix);
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
@@ -1704,7 +1704,7 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Bool mTermOn,          //= false,
 					   const Bool wbAWP,            //= true,
 					   const String cfCache,        //= "",
-					   const Bool doPointing,       //= false,
+					   const Bool usePointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
 					   const Float computePAStep,   //=360.0
@@ -1795,7 +1795,7 @@ void SynthesisImagerVi2::unlockMSs()
     theFT = new refim::AWProjectWBFTNew(wprojPlane, cache/2, 
 			      cfCacheObj, awConvFunc, 
 			      visResampler,
-			      /*true */doPointing, doPBCorr, 
+			      /*true */usePointing, doPBCorr, 
 			      tile, computePAStep, pbLimit_l, true,conjBeams,
 			      useDoublePrec);
 
@@ -1822,7 +1822,7 @@ void SynthesisImagerVi2::unlockMSs()
     // theIFT = new AWProjectWBFT(wprojPlane, cache/2, 
     // 			       cfCacheObj, awConvFunc, 
     // 			       visResampler,
-    // 			       /*true */doPointing, doPBCorr, 
+    // 			       /*true */usePointing, doPBCorr, 
     // 			       tile, computePAStep, pbLimit_l, true,conjBeams,
     // 			       useDoublePrec);
 
@@ -1897,7 +1897,7 @@ void SynthesisImagerVi2::unlockMSs()
     }
    
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
-				   useDoublePrec, doConjBeams, gridpars_p.doPointing);
+				   useDoublePrec, doConjBeams, gridpars_p.usePointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;
     if(rec.asString("name")=="IMAGE")
        pbtype=PBMathInterface::IMAGE;

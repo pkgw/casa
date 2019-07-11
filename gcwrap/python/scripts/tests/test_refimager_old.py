@@ -52,7 +52,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        aterm=True, psterm=False, mterm=True,\
                                        wbawp = False, 
                                        cfcache = "perm.mytest0.cube.cfcache.mos",
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       usepointing = False, dopbcorr = True, conjbeams = True, 
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        #pblimit=0.1,normtype='flatsky',
@@ -431,7 +431,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        aterm=True, psterm=False, mterm=True,\
                                        wbawp = True, 
                                        cfcache = "perm.wb.nt2.mytest0.cfcache",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       usepointing = False, dopbcorr = True, conjbeams = True, 
                                        computepastep =360.0, rotatepastep =360.0,#5.0,\
                                        deconvolver='mtmfs',\
                                        pblimit=0.1,normtype='flatnoise',
@@ -459,7 +459,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        aterm=True, psterm=False, mterm=True,\
                                        wbawp = True, 
                                        cfcache = "perm.wb.mytest0.cfcache",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       usepointing = False, dopbcorr = True, conjbeams = True, 
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        pblimit=0.1,normtype='flatnoise',
@@ -487,7 +487,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        aterm=True, psterm=False, mterm=True,\
                                        wbawp = False, 
                                        cfcache = "perm.mytest0.cfcache.mos",#.offcenter",\
-                                       dopointing = False, dopbcorr = True, conjbeams = True, 
+                                       usepointing = False, dopbcorr = True, conjbeams = True, 
                                        computepastep =360.0, rotatepastep =5.0,\
                                        deconvolver='hogbom',\
                                        #pblimit=0.1,normtype='flatsky',
