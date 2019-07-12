@@ -1164,6 +1164,13 @@ Calibrater::correct2(String mode)
       // Ensure apply list non-zero and properly sorted
       ve_p->setapply(vc_p);
 
+      bool forceOldVIByEnv(false);
+      forceOldVIByEnv = (getenv("VI1CAL")!=NULL);
+      if (forceOldVIByEnv && anyEQ(ve_p->listTypes(),VisCal::A)) {
+	logSink() << LogIO::WARN << "Using VI2 calibration apply.  AMueller (uvcontsub) no longer requires VI1 for apply." << LogIO::POST;
+      }
+
+      /*   CAS-12434 (2019Jun07, gmoellen): AMueller works with VB2 in _apply_ (only) context now
       // Trap uvcontsub case, since it does not yet handlg VB2
       if (anyEQ(ve_p->listTypes(),VisCal::A)) {
 
@@ -1175,7 +1182,7 @@ Calibrater::correct2(String mode)
 	else
 	  throw(AipsError("Cannot handle AMueller (uvcontsub) and other types simultaneously."));
       }
-
+      */
       
       // Report the types that will be applied
       applystate();

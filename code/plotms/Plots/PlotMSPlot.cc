@@ -1756,7 +1756,8 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		x = getDefaultXAxis();
 		cacheParams->setXAxis(x);
 	}
-	canvas->setAxisScale(cx, PMS::axisScale(x));
+	canvas->setAxisScale(cx, PMS::axisScale(x),PMS::axisScaleBase(x));
+	canvas->setAxisScaleAngleFormat(cx,PMS::angleFormat(x,cacheParams->xFrame()));
 	bool xref = itsCache_->hasReferenceValue(x);
 	double xrefval = itsCache_->referenceValue(x);
 	canvas->setAxisReferenceValue(cx, xref, xrefval);
@@ -1777,7 +1778,9 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 		}
 		// yaxis scale
 		PlotAxis cy = axesParams->yAxis( i );
-		canvas->setAxisScale(cy, PMS::axisScale(y));
+		canvas->setAxisScale(cy, PMS::axisScale(y), PMS::axisScaleBase(y));
+		auto yCoordSystem  = cacheParams->yFrame( i );
+		canvas->setAxisScaleAngleFormat(cy,PMS::angleFormat(y,yCoordSystem));
 		// yaxis ref value
 		bool yref = itsCache_->hasReferenceValue(y);
 		double yrefval = itsCache_->referenceValue(y);
@@ -1897,6 +1900,21 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 					canvas->setAxisRange(cy, atmrange);
 				}
 			}
+			if (x==PMS::RA) {
+				PMS::Axis y = cacheParams->yAxis(i);
+				if (y==PMS::DEC) {
+					auto xFrame = cacheParams->xFrame();
+					SortDirection sortDir;
+					switch(xFrame){
+					case PMS::CoordSystem::AZELGEO:
+						sortDir = SortDirection::ASCENDING;
+						break;
+					default:
+						sortDir = SortDirection::DESCENDING;
+					}
+					canvas->setAxisScaleSortDirection(cx,sortDir);
+				}
+			}
 		}
 	}
 	itsParent_->getPlotter()->makeSquarePlot(makeSquare, waveplot);
@@ -1947,6 +1965,12 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 				xLabelSingle.gsub("(from 1858/11/17)", "");
 			if (x == PMS::FREQUENCY)
 				xLabelSingle = addFreqFrame(xLabelSingle);
+			if (PMS::axisIsRaDec(x)) {
+				auto xFrame = cacheParams->xFrame();
+				xLabelSingle = PMS::coordSystem(xFrame) + " ";
+				if (x==PMS::RA) xLabelSingle += PMS::longitudeName(xFrame);
+				else xLabelSingle += PMS::latitudeName(xFrame);
+			}
 			if (axisIsAveraged(x, averaging) && !allCalTables)
 				xLabelSingle = "Average " + xLabelSingle;
 			if (allCalTables && xLabelSingle.contains("Corr")) 
@@ -1987,6 +2011,12 @@ void PlotMSPlot::setCanvasProperties (int row, int col, int numplots, uInt itera
 						yLabelSingle.gsub("(from 1858/11/17)", "");
 					if (y == PMS::FREQUENCY)
 						yLabelSingle = addFreqFrame(yLabelSingle);
+					if (PMS::axisIsRaDec(y)) {
+						auto yFrame = cacheParams->yFrame();
+						yLabelSingle = PMS::coordSystem(yFrame) + " ";
+						if (y==PMS::RA) yLabelSingle += PMS::longitudeName(yFrame);
+						else yLabelSingle += PMS::latitudeName(yFrame);
+					}
 					if (axisIsAveraged(y, averaging) && !isCalTable)
 						yLabelSingle = "Average " + yLabelSingle;
 					if (isCalTable && yLabelSingle.contains("Corr"))
@@ -2098,6 +2128,10 @@ void PlotMSPlot::setAxisRange(PMS::Axis axis, PlotAxis paxis,
 			bounds = make_pair(minval, maxval);
 			canvas->setAxisRange(paxis, bounds);
 		}
+	} if ( axis == PMS::RA ) {
+		// explicitely set range
+		bounds = make_pair(minval, maxval);
+		canvas->setAxisRange(paxis, bounds);
 	}
 }
 

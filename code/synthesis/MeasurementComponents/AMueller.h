@@ -95,6 +95,10 @@ public:
   // Apply this calibration to vb.  AMueller does NOT support trial
   //                                and ignores it!
   virtual void applyCal(VisBuffer& vb, casacore::Cube<casacore::Complex>& Vout, casacore::Bool trial=false);
+  // VB2 version (for apply context only!)
+  virtual void applyCal2(vi::VisBuffer2& vb, 
+                         casacore::Cube<casacore::Complex>& Vout,casacore::Cube<casacore::Float>& Wout,
+                         casacore::Bool trial=false);
 
   // Freq dependence
   virtual casacore::Bool freqDepPar() { return false; };
