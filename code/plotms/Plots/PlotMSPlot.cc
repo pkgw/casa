@@ -2253,7 +2253,7 @@ void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 			if ((xAxis == PMS::FREQUENCY) && (dataParams[i]->cacheType() == PlotMSCacheBase::MS)) {
 				casacore::String plotFreqFrame(MFrequency::showType(plots[i]->cache().getFreqFrame()));
 				if (i == 0) {
-					freqFrame =	plotFreqFrame;
+					freqFrame = plotFreqFrame;
 				} else if (plotFreqFrame != freqFrame) {
 					freqFrame = ""; // only add frame if they all have same one
 				}
@@ -2383,6 +2383,7 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 	// determine which axes need range set
 	double ymingLeft(DBL_MAX), ymaxgLeft(-DBL_MAX);   // global ymin/ymax for left axis
 	double ymingRight(DBL_MAX), ymaxgRight(-DBL_MAX); // global ymin/ymax for right axis
+	bool hasOverlay(false), hasAtmCurve(false);
 	for (size_t plotindex=0; plotindex < axesParams.size(); ++plotindex) {
 		for (size_t yindex=0; yindex < cacheParams[plotindex]->numYAxes(); ++yindex) {
 			PMS::Axis yaxis = cacheParams[plotindex]->yAxis(yindex);
@@ -2399,7 +2400,7 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 					axisScaleRight = NORMAL;  // NORMAL unless all TIME scales
 				}
 			}
-	
+
 			// min/max for range
 			double ymin(DBL_MAX), ymax(-DBL_MAX); // for each plot
 			if (axesParams[plotindex]->yRangeSet(yindex)) {
@@ -2432,12 +2433,8 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 				} else if (PMS::axisIsUV(yaxis)) {
 					getAxisBoundsForUV(ymin, ymax);
 				} else if (PMS::axisIsOverlay(yaxis)) {
-					getAxisBoundsForOverlay(ymin, ymax);
-					if (yaxis == PMS::ATM) {
-						ymax = min(ymax + 1.0, 100.0);
-					} else {
-						ymax += 0.1;
-					}
+					hasOverlay = true;
+					hasAtmCurve |= (yaxis == PMS::ATM);
 				}
 			}
 			if ((ymin != DBL_MAX) && (ymax != -DBL_MAX)) {
@@ -2462,6 +2459,14 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 		canvas->setAxisRange(Y_LEFT, ybounds);
 	}
 	if ((ymingRight != DBL_MAX) && (ymaxgRight != -DBL_MAX)) {
+		if (hasOverlay) {
+			getAxisBoundsForOverlay(ymingRight, ymaxgRight);
+			if (hasAtmCurve) { // limit max percent to 100
+				ymaxgRight = min(ymaxgRight + 1.0, 100.0);
+			} else {
+				ymaxgRight += 0.1;
+			}
+		}
 		pair<double, double> ybounds = make_pair(ymingRight, ymaxgRight);
 		canvas->setAxisRange(Y_RIGHT, ybounds);
 	}
@@ -2576,8 +2581,12 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 						if (yLabelRight.empty()) {
 							yLabelRight = yLabel;
 						} else if (yLabel != yLabelRightLast) {
-							yLabelRight.append( ", ");
-							yLabelRight.append(yLabel);
+							// do not repeat for overplots
+							if ((yLabel.contains("Atm") && !yLabelRight.contains("Atm")) ||
+								(yLabel.contains("Sideband") && !yLabelRight.contains("Sideband"))) {
+								yLabelRight.append( ", ");
+								yLabelRight.append(yLabel);
+							}
 						}
 						yLabelRightLast = yLabel;
 					}
