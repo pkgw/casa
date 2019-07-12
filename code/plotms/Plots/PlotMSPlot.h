@@ -372,17 +372,19 @@ private:
         PlotAxis xPlotAxis,
         PlotCanvasPtr canvas, 
         std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
         std::vector<PMS_PP_Display*>& displayParams,
         std::vector<PlotMSPlot*>& plots,
         int iteration);
     void setXAxisLabel(PlotCanvasPtr canvas,
         PMS::Axis xAxis, PMS::DataColumn xColumn, PlotAxis xPlotAxis,
+        std::vector<PMS_PP_Cache*> cacheParams,
         std::vector<PMS_PP_Canvas*> canvasParams,
         std::vector<PMS_PP_MSData*> dataParams,
         std::vector<PlotMSPlot*>& plots,
         int defaultFontSize, int commonCacheType, bool commonPolnRatio);
 
-    // x-axis, ranges, labels
+    // y-axis, ranges, labels
     void setYAxesProperties(std::vector<PMS::Axis>& yAxes,
         std::vector<PMS::DataColumn>& yColumns,
         PlotCanvasPtr canvas,
@@ -409,8 +411,9 @@ private:
         std::vector<PMS::Axis>& yAxes,
         std::vector<PMS::DataColumn>& yColumns,
         std::vector<PMS_PP_Axes*>& axesParams,
-        std::vector<PMS_PP_Canvas*> canvasParams,
-        std::vector<PMS_PP_MSData*> dataParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Canvas*>& canvasParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
         std::vector<PlotMSPlot*>& plots,
         int defaultFontSize);
 

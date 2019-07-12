@@ -59,7 +59,7 @@ public:
 	 * @param axis, the PlotAxis to which the scale applies.
 	 * @param scale, the new scale (linear, logarithmic, etc).
 	 */
-	virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale) = 0;
+	virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base=10) = 0;
 	/**
 	 * Set a starting value for an axis using a relative scale.
 	 * @param axis, the PlotAxis to which the base scale applies.

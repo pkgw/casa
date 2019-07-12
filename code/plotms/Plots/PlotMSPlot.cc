@@ -33,8 +33,6 @@
 #include <plotms/Data/CalCache.h>
 #include <QDebug>
 
-#include <iomanip>
-
 using namespace casacore;
 namespace casa {
 
@@ -2069,11 +2067,11 @@ void PlotMSPlot::setXAxisProperties(
 	setXAxis(xAxis, xColumn, xPlotAxis, axesParams, cacheParams, dataParams, plots, commonCacheType);
 
 	// range
-	setXAxisRange(xAxis, xPlotAxis, canvas, axesParams, displayParams, plots, iteration);
+	setXAxisRange(xAxis, xPlotAxis, canvas, axesParams, cacheParams, displayParams, plots, iteration);
 
 	// label
-	setXAxisLabel(canvas, xAxis, xColumn, xPlotAxis, canvasParams, dataParams, plots,
-		defaultLabelFont, commonCacheType, commonPolnRatio);
+	setXAxisLabel(canvas, xAxis, xColumn, xPlotAxis, cacheParams, canvasParams, dataParams,
+		plots, defaultLabelFont, commonCacheType, commonPolnRatio);
 }
 
 void PlotMSPlot::setXAxis(
@@ -2114,6 +2112,7 @@ void PlotMSPlot::setXAxis(
 			}
 			xPlotAxis = xpos; // use latest setting, not a deal breaker
 		}
+
 	}
 
 	if (commonCacheType == PlotMSCacheBase::CAL) {
@@ -2131,6 +2130,7 @@ void PlotMSPlot::setXAxisRange(
 	PlotAxis xPlotAxis,
 	PlotCanvasPtr canvas,
 	std::vector<PMS_PP_Axes*>& axesParams,
+	std::vector<PMS_PP_Cache*>& cacheParams,
 	std::vector<PMS_PP_Display*>& displayParams,
 	std::vector<PlotMSPlot*>& plots,
 	int iteration) {
@@ -2140,17 +2140,34 @@ void PlotMSPlot::setXAxisRange(
 	// Must set scale before range; NORMAL or TIME scale
 	canvas->setAxisScale(xPlotAxis, PMS::axisScale(xAxis));
 
+
 	// x range min/max for all plots
 	double xming(DBL_MAX), xmaxg(-DBL_MAX);  // global xmin/xmax
 	for (size_t plotindex=0; plotindex<axesParams.size(); ++plotindex) {
 		for (unsigned int xindex=0; xindex < axesParams[plotindex]->numXAxes(); ++xindex) {
+			// Set axis scale direction for Ra/Dec
+			if (xAxis == PMS::RA) {
+				if (cacheParams[plotindex]->yAxis(xindex) == PMS::DEC) {
+					auto xFrame = cacheParams[plotindex]->xFrame();
+					SortDirection sortDir;
+					switch(xFrame){
+						case PMS::CoordSystem::AZELGEO:
+							sortDir = SortDirection::ASCENDING;
+							break;
+						default:
+							sortDir = SortDirection::DESCENDING;
+					}
+					canvas->setAxisScaleSortDirection(xPlotAxis, sortDir);
+				}
+			}
+
 			// get min/max from each plot to manually scale
 			double xmin(DBL_MAX), xmax(-DBL_MAX);
 			if (axesParams[plotindex]->xRangeSet(xindex)) { // use user setting
 				xmin = axesParams[plotindex]->xRange(xindex).first;
 				xmax = axesParams[plotindex]->xRange(xindex).second;
-			} else if ((xAxis == PMS::TIME) || (PMS::axisIsUV(xAxis))) {
-				// needs to be set manually; get min/max from cache indexer
+			} else if ((xAxis == PMS::TIME) || (xAxis == PMS::RA) || (PMS::axisIsUV(xAxis))) {
+				// set range manually: get min/max from cache indexer
 				PlotMSIndexer indexer;
 				if (plots.size() == 1) {
 					indexer = itsCache_->indexer(xindex, iteration);
@@ -2196,6 +2213,7 @@ void PlotMSPlot::setXAxisRange(
 
 void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 	PMS::Axis xAxis, PMS::DataColumn xColumn, PlotAxis xPlotAxis,
+	std::vector<PMS_PP_Cache*> cacheParams,
 	std::vector<PMS_PP_Canvas*> canvasParams,
 	std::vector<PMS_PP_MSData*> dataParams,
 	std::vector<PlotMSPlot*>& plots,
@@ -2223,8 +2241,10 @@ void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 	canvas->setAxisReferenceValue(xPlotAxis, xHasRef, xRefVal);
 
 	if (showXLabel) {
+		// get settings for all plots
 		int pointsize(-1);              // use default if not user set
 		casacore::String freqFrame(""); // added to label if all plots have same frame
+		casacore::String coordSysFrameLabel(""); // used for label if axis is ra/dec
 		bool averaged(true);            // added to label if all plots have this axis averaged
 		for (int i=0; i<plotcount; ++i) {
 			if (canvasParams[i]->xFontSet()) {
@@ -2236,6 +2256,14 @@ void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 					freqFrame =	plotFreqFrame;
 				} else if (plotFreqFrame != freqFrame) {
 					freqFrame = ""; // only add frame if they all have same one
+				}
+			} else if (PMS::axisIsRaDec(xAxis)) {
+				auto xFrame = cacheParams[i]->xFrame();
+				coordSysFrameLabel = PMS::coordSystem(xFrame) + " ";
+				if (xAxis == PMS::RA) {
+					coordSysFrameLabel += PMS::longitudeName(xFrame);
+				} else {
+					coordSysFrameLabel += PMS::latitudeName(xFrame);
 				}
 			}
 			averaged &= axisIsAveraged(xAxis, dataParams[i]->averaging());
@@ -2251,11 +2279,15 @@ void PlotMSPlot::setXAxisLabel(PlotCanvasPtr canvas,
 		casacore::String xLabel("");
 		PlotMSLabelFormat xFormat = canvasParams[plotcount-1]->xLabelFormat();
 		if (xFormat.format != " ") {
-			xLabel = xFormat.getLabel(xAxis, xHasRef, xRefVal, xColumn, commonPolnRatio);
-			if ((xAxis == PMS::FREQUENCY) && !freqFrame.empty()) {
-				xLabel += " " + freqFrame;
+			if (PMS::axisIsRaDec(xAxis)) {
+				xLabel = coordSysFrameLabel;
+			} else {
+				xLabel = xFormat.getLabel(xAxis, xHasRef, xRefVal, xColumn, commonPolnRatio);
+				if ((xAxis == PMS::FREQUENCY) && !freqFrame.empty()) {
+					xLabel += " " + freqFrame;
+				}
+				addAxisDescription(xLabel, xAxis, commonCacheType, averaged);
 			}
-			addAxisDescription(xLabel, xAxis, commonCacheType, averaged);
 		}
 
 		// set label in canvas
@@ -2286,8 +2318,8 @@ void PlotMSPlot::setYAxesProperties(
 	setYAxesRanges(canvas, axesParams, cacheParams, displayParams, plots, iteration);
 
 	// label
-	setYAxesLabels(canvas, yAxes, yColumns, axesParams, canvasParams, dataParams,
-		plots, defaultLabelFont);
+	setYAxesLabels(canvas, yAxes, yColumns, axesParams, cacheParams, canvasParams,
+		dataParams, plots, defaultLabelFont);
 }
 
 void PlotMSPlot::setYAxes(std::vector<PMS::Axis>& yaxes,
@@ -2308,6 +2340,9 @@ void PlotMSPlot::setYAxes(std::vector<PMS::Axis>& yaxes,
 			PMS::Axis yaxis = cacheParams[plotindex]->yAxis(yindex);
 			if ((yaxis == PMS::CORR) && isCalTable) {
 				yaxis = PMS::POLN;
+			} else if ((yaxis == PMS::IMAGESB) && !plots[plotindex]->cache().canShowImageCurve()) {
+				// skip if image sideband axis could not be loaded
+				continue;
 			} else if (yaxis == PMS::NONE) {
 				if (isCalTable) {
 					if (calTableType.startsWith("Xf")) {
@@ -2364,13 +2399,15 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 					axisScaleRight = NORMAL;  // NORMAL unless all TIME scales
 				}
 			}
-
+	
 			// min/max for range
 			double ymin(DBL_MAX), ymax(-DBL_MAX); // for each plot
 			if (axesParams[plotindex]->yRangeSet(yindex)) {
 				ymin = axesParams[plotindex]->yRange(yindex).first;
 				ymax = axesParams[plotindex]->yRange(yindex).second;
-			} else if ((yaxis == PMS::TIME) || (PMS::axisIsUV(yaxis)) || PMS::axisIsOverlay(yaxis)) {
+			} else if ((yaxis == PMS::TIME) || (yaxis == PMS::RA) ||
+					   (PMS::axisIsUV(yaxis)) || PMS::axisIsOverlay(yaxis)) {
+				// explicitly set range for these axes; do not autorange
 				PlotMSIndexer indexer;
 				if (plots.size() == 1) {
 					indexer = itsCache_->indexer(yindex, iteration);
@@ -2434,8 +2471,9 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 	std::vector<PMS::Axis>& yAxes,
 	std::vector<PMS::DataColumn>& yColumns,
 	std::vector<PMS_PP_Axes*>& axesParams,
-	std::vector<PMS_PP_Canvas*> canvasParams,
-	std::vector<PMS_PP_MSData*> dataParams,
+	std::vector<PMS_PP_Cache*>& cacheParams,
+	std::vector<PMS_PP_Canvas*>& canvasParams,
+	std::vector<PMS_PP_MSData*>& dataParams,
 	std::vector<PlotMSPlot*>& plots,
 	int defaultFontSize) {
 	// y-axes scales, labels if shown
@@ -2489,11 +2527,21 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 				casacore::String yLabel("");
 				PlotMSLabelFormat yFormat = canvasParams[plotindex]->yLabelFormat();
 				if (yFormat.format != " ") {
-					yLabel = yFormat.getLabel(yaxis, yHasRef, yRefVal, ycol, polnRatio);
-					if (yaxis == PMS::FREQUENCY) {
-						yLabel += " " + MFrequency::showType(plots[plotindex]->cache().getFreqFrame());
+					if (PMS::axisIsRaDec(yaxis)) {
+						auto yFrame = cacheParams[plotindex]->yFrame(yindex);
+						yLabel = PMS::coordSystem(yFrame) + " ";
+						if (yaxis == PMS::RA) {
+							yLabel += PMS::longitudeName(yFrame);
+						} else {
+							yLabel += PMS::latitudeName(yFrame);
+						}
+					} else {
+						yLabel = yFormat.getLabel(yaxis, yHasRef, yRefVal, ycol, polnRatio);
+						if (yaxis == PMS::FREQUENCY) {
+							yLabel += " " + MFrequency::showType(plots[plotindex]->cache().getFreqFrame());
+						}
+						addAxisDescription(yLabel, yaxis, cacheType, averaged);
 					}
-					addAxisDescription(yLabel, yaxis, cacheType, averaged);
 				}
 
 				// add to left or right axis properties

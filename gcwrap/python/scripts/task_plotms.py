@@ -292,8 +292,18 @@ def plotms(vis=None,
         synonyms['data-model']='data-model_vector'
         synonyms['corrected/model']='corrected/model_vector'
         synonyms['data/model']='data/model_vector'
-        synonyms['azelgeo']='AzEl'
-        
+
+    if True:  # ant-ra/ant-dec axes parameters: Python/C++ parameters maps
+        # Reference Frames
+        cpp_radec_frame = {}
+        for py_radec_ref_frame in ['icrs','j2000','b1950','azelgeo','galactic']:
+            cpp_radec_frame[py_radec_ref_frame] = py_radec_ref_frame.upper()
+        # Interpolation Methods
+        cpp_radec_interp = {}
+        for py_radec_interp in ['nearest','cubic spline']:
+            cpp_radec_interp[py_radec_interp] = ' '.join(
+                [word.capitalize() for word in py_radec_interp.split()]  )
+        cpp_radec_interp['spline']=cpp_radec_interp['cubic spline']
     try:
         # Do preliminary checks on argument values
         # Set synonyms to existing_terms
@@ -321,21 +331,35 @@ def plotms(vis=None,
                 if synonyms.has_key(col):
                     ydatacolumn[index] = synonyms[col]
 
-        if isinstance(xframe, str):
-            if synonyms.has_key(xframe):
-                xframe = synonyms[xframe]
-        elif isinstance(xframe, list):
-            for index,frame in enumerate(xframe):
-                if synonyms.has_key(frame):
-                    xframe[index] = synonyms[frame]
+        for param_name in ['xframe','yframe']:
+            param_py_value = eval(param_name)
+            if isinstance(param_py_value, str):
+                if cpp_radec_frame.has_key(param_py_value):
+                    exec('{p_name} = cpp_radec_frame[param_py_value]'.format(
+                            p_name=param_name)
+                    )
+            elif isinstance(param_py_value, list):
+                for index,frame in enumerate(param_py_value):
+                    if cpp_radec_frame.has_key(frame):
+                        exec('{p_name}[{index}] = cpp_radec_frame[frame]'.format(
+                            p_name=param_name,
+                            index=index)
+                        )
 
-        if isinstance(yframe, str):
-            if synonyms.has_key(yframe):
-                yframe = synonyms[yframe]
-        elif isinstance(yframe, list):
-            for index,frame in enumerate(yframe):
-                if synonyms.has_key(frame):
-                    yframe[index] = synonyms[frame]
+        for param_name in ['xinterp','yinterp']:
+            param_py_value = eval(param_name)
+            if isinstance(param_py_value, str):
+                if cpp_radec_interp.has_key(param_py_value):
+                    exec('{p_name} = cpp_radec_interp[param_py_value]'.format(
+                            p_name=param_name)
+                    )
+            elif isinstance(param_py_value, list):
+                for index,interp in enumerate(param_py_value):
+                    if cpp_radec_interp.has_key(interp):
+                        exec('{p_name}[{index}] = cpp_radec_interp[interp]'.format(
+                            p_name=param_name,
+                            index=index)
+                        )
 
         # check vis exists
         vis = vis.strip()

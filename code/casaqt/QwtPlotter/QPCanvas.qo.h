@@ -51,7 +51,6 @@ namespace casa {
 class QPPlotter;
 class AxisListener;
 
-
 // Implementation of PlotCanvas for the Qwt plotter.  Mainly consists of
 // wrappers and containers around a QwtPlot object.
 class QPCanvas : public QFrame, public QPExportCanvas {
@@ -170,7 +169,15 @@ public:
     PlotAxisScale axisScale(PlotAxis axis) const;
 
     // Implements PlotCanvas::setAxisScale().
-    void setAxisScale(PlotAxis axis, PlotAxisScale scale);
+    void setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base=10);
+
+    // Implements PlotCanvas::setAxisScaleSortDirection().
+    bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction);
+    std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) const;
+
+    // Sets/gets the angle format of the scale for the given axis
+    void setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format);
+    AngleFormat axisScaleAngleFormat(PlotAxis axis) const;
 
     // Implements PlotCanvas::axisReferenceValueSet().
     bool axisReferenceValueSet(PlotAxis axis) const;
@@ -213,6 +220,9 @@ public:
     // Implements PlotCanvas::setAxisRange().
     void setAxisRange(PlotAxis axis, double from, double to);
     
+    // Implements PlotCanvas::invertAxis().
+    void invertAxis(PlotAxis axis);
+
     // Overrides PlotCanvas::setAxesRanges().
     void setAxesRanges(PlotAxis xAxis, double xFrom, double xTo,
                        PlotAxis yAxis, double yFrom, double yTo);

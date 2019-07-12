@@ -38,7 +38,6 @@
 
 //#include <QtCore/qmath.h>
 #include <QDebug>
-#include <iomanip>
 
 using namespace casacore;
 namespace casa {
