@@ -528,7 +528,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
         Vector<Double> interpolated(2);
 
         //*
-        // CAS-8418 THE LAST BOSS 
+        // CAS-8418 Time Gap 
         //*
         bool fgsw = getCurrentSplineObj()->isTimeGap(antID, index);
         if((fgsw==false) &&                // Not specially Marled. (CAS-8418)
@@ -1116,8 +1116,8 @@ void SplineInterpolation::init(MeasurementSet const &ms,
               prv_time  = time;
 
               /* Mark the position (force to exec LINEAR) */
-               if((index < size-3 )&&(index >=3)) {
-                   if(dd >  p_interval){
+               if(dd >  p_interval){
+                   if((index < size-3 )&&(index >=3)) {
                       tmp_timegap [ant][index+3] =true; // forward 
                       tmp_timegap [ant][index+2] =true;
                       tmp_timegap [ant][index+1] =true;
@@ -1128,6 +1128,46 @@ void SplineInterpolation::init(MeasurementSet const &ms,
                       tmp_timegap [ant][index-2] =true;
                       tmp_timegap [ant][index-3] =true; // backward 
  
+                   }
+                   //*
+                   // In case, marking on edges;
+                   // (note: time diff(=dd) is backward difference)
+                   //*
+                   else if (index == 1) {
+                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+2] =true;
+                      tmp_timegap [ant][index+1] =true;
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+                      tmp_timegap [ant][index-1] =true;
+                   }
+                   else if (index == 2) {
+                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+2] =true;
+                      tmp_timegap [ant][index+1] =true;
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+                      tmp_timegap [ant][index-1] =true;
+                      tmp_timegap [ant][index-2] =true;
+                   }
+                   else if (index == size-3) {
+                      tmp_timegap [ant][index+2] =true;
+                      tmp_timegap [ant][index+1] =true;
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+                      tmp_timegap [ant][index-1] =true;
+                      tmp_timegap [ant][index-2] =true;
+                      tmp_timegap [ant][index-3] =true; // backward 
+                   }
+                   else if (index == size-2) {
+                      tmp_timegap [ant][index+1] =true;
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+                      tmp_timegap [ant][index-1] =true;
+                      tmp_timegap [ant][index-2] =true;
+                      tmp_timegap [ant][index-3] =true; // backward 
+                   }
+                   else if (index == size-1) {
+                      tmp_timegap [ant][index  ] =true; // center (detected point)
+                      tmp_timegap [ant][index-1] =true;
+                      tmp_timegap [ant][index-2] =true;
+                      tmp_timegap [ant][index-3] =true; // backward 
                    }
                }  
         }
