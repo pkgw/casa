@@ -1116,6 +1116,8 @@ void SplineInterpolation::init(MeasurementSet const &ms,
               prv_time  = time;
 
               /* Mark the position (force to exec LINEAR) */
+             if(size>=7)
+             {  
                if(dd >  p_interval){
                    if((index < size-3 )&&(index >=3)) {
                       tmp_timegap [ant][index+3] =true; // forward 
@@ -1169,7 +1171,8 @@ void SplineInterpolation::init(MeasurementSet const &ms,
                       tmp_timegap [ant][index-2] =true;
                       tmp_timegap [ant][index-3] =true; // backward 
                    }
-               }  
+               }
+             }  
         }
     }
 
