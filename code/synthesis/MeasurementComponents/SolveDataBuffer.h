@@ -128,6 +128,7 @@ public:
   const casacore::Vector<casacore::Int>& fieldId() const { return vb_->fieldId(); };
   casacore::Int nChannels() const { return vb_->nChannels(); };
   const casacore::Vector<casacore::Double>& freqs() const { return freqs_; };  // stored on ctor
+  casacore::Double centroidFreq() const { return centroidFreq_; };        // calc/stored on ctor
   casacore::Int nCorrelations() const { return vb_->nCorrelations(); };
   const casacore::Cube<casacore::Complex>& visCubeModel() const { return vb_->visCubeModel(); };
   const casacore::Cube<casacore::Complex>& visCubeCorrected() const { return vb_->visCubeCorrected(); };
@@ -202,6 +203,7 @@ private:
   // The frequencies
   //  Currently, assumed uniform over rows
   casacore::Vector<double> freqs_;
+  double centroidFreq_;
 
   // The correlation types
   //  Currently, assumed uniform over rows
@@ -287,6 +289,13 @@ public:
   // ~Centroid frequency over all SDBs
   casacore::Double centroidFreq() const;
 
+  // Simple centroid of per-SDB centroidFreqs 
+  //  NB: this differs from centroidFreq in that it is _not_ a simple average of all SDB channel freqs
+  //      this matters when different SDBs have different spws with different bandwidths/channelizations
+  //      Eventually, this aggregation should be weighted by aggregate bandwidth, but this is not
+  //      yet available from the VB2.
+  casacore::Double aggregateCentroidFreq() const;
+
   // Does the SDBList contain usable data?
   //  (at least one SDB, with non-zero net weight)
   bool Ok();
@@ -321,8 +330,10 @@ private:
   // Keep SDBs as a list of pointers
   casacore::PtrBlock<SolveDataBuffer*> SDB_;
 
-  // Aggregate frequency storage (so we can return a reference)
+  // Aggregate frequency storage (so we can calculate once-ish and return a reference)
   mutable casacore::Vector<double> freqs_;
+  mutable double aggCentroidFreq_;
+  mutable bool aggCentroidFreqOK_;
 
 };
 

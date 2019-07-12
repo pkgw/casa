@@ -50,6 +50,7 @@ SolveDataBuffer::SolveDataBuffer() :
   vb_(0),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -68,6 +69,7 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   vb_(0),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -92,6 +94,7 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   vb_(),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -112,6 +115,7 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   // copy over freqs_, corrs_,feedPa, nAnt_
   //  (things that normally require being attached)
   freqs_.assign(sdb.freqs_);
+  centroidFreq_=sdb.centroidFreq_;
   corrs_.assign(sdb.corrs_);
   feedPa_.assign(sdb.feedPa_);
   nAnt_=sdb.nAnt_;
@@ -491,6 +495,9 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
     }
   }
 
+  // Store the centroid freq (use mean, for now)
+  centroidFreq_ = mean(freqs_);
+
   // Store the feedPa info
   if (vb.isAttached())
     // Assumes vb.time() is constant!
@@ -536,7 +543,9 @@ String SolveDataBuffer::polBasis() const
 SDBList::SDBList() :
   nSDB_(0),
   SDB_(),
-  freqs_()
+  freqs_(),
+  aggCentroidFreq_(0),
+  aggCentroidFreqOK_(false)
 {}
 
 SDBList::~SDBList() 
@@ -562,6 +571,8 @@ void SDBList::add(const vi::VisBuffer2& vb)
 
   // Clear the freqs_ info (forces recalculation)
   freqs_.resize(0);
+  aggCentroidFreq_=0.0;
+  aggCentroidFreqOK_=false;
 
 }
 
@@ -724,6 +735,37 @@ casacore::Double SDBList::centroidFreq() const {
     }
   }
   return fsum/Double(nf);
+}
+
+// ~Centroid frequency over all SDBs
+casacore::Double SDBList::aggregateCentroidFreq() const {
+
+  // Trap no data case
+  if (nSDB_==0)
+    throw(AipsError("SDBList::aggregateCentroidFreq(): No SDBs in this SDBList yet."));
+
+  // Need to calculate?
+  if (!aggCentroidFreqOK_) {
+  
+    if (nSDB_==1) {
+      // from first and only SDB
+      aggCentroidFreq_=SDB_[0]->centroidFreq();  
+    }
+    else {
+      // More than one SDB, need to gather simple mean
+      // TBD:  weight this by per-SDB bandwidth
+      aggCentroidFreq_=0.0;
+      for (Int isdb=0;isdb<nSDB_;++isdb)
+	aggCentroidFreq_+=SDB_[isdb]->centroidFreq();
+      aggCentroidFreq_/Double(nSDB_);
+    }
+    // We've calculated it
+    aggCentroidFreqOK_=true;
+  }
+ 
+  // Reach here, one way or another we have a good value, so return it
+  return aggCentroidFreq_;
+
 }
 
 String SDBList::polBasis() const

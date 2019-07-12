@@ -97,6 +97,11 @@ TEST_F(DelayFFTTest, BasicDelayFFTTest) {
     Vector<Complex> v1(Vobs1.xyPlane(0).row(0));
     v1*=this->appdel(nchan1,rf1,df1,tau,90.0);
 
+    Cube<Float> wt0(1,nchan0,1);
+    wt0.set(1.0);   // unit weight
+    Cube<Float> wt1(1,nchan1,1);
+    wt1.set(0.5);   // half the weight per channel
+
     //    cout << "phase(Vobs0) = " << phase(Vobs0)*180/C::pi << endl;
     //    cout << "phase(Vobs1) = " << phase(Vobs1)*180/C::pi << endl;
 
@@ -104,24 +109,27 @@ TEST_F(DelayFFTTest, BasicDelayFFTTest) {
 
     DelayFFT sum(90.0,df1,pbw,1,1,-1,Complex(0.0));
       
-    DelayFFT delfft0(rf0,df0,pbw,Vobs0);
+    DelayFFT delfft0(rf0,df0,pbw,Vobs0,wt0);  
     delfft0.FFT();
     delfft0.shift(90.0);
     sum.add(delfft0);
     delfft0.searchPeak();
 
-    //cout << "A0 = " << amplitude(delfft0.Vpad()) << endl;
+    //cout << "A0 = " << max(amplitude(delfft0.Vpad())) << endl;
     //cout << "ph0 = " << phase(delfft0.Vpad())*(180.0/C::pi) << endl;
 
-    DelayFFT delfft1(rf1,df1,pbw,Vobs1);
+    DelayFFT delfft1(rf1,df1,pbw,Vobs1,wt1);  // wt=0.5 cf first one
     delfft1.FFT();
     delfft1.shift(90.0);
     sum.add(delfft1);
     delfft1.searchPeak();
 
+    //cout << "A1 = " << max(amplitude(delfft1.Vpad())) << endl;
+    //cout << "ph1 = " << phase(delfft1.Vpad())*(180.0/C::pi) << endl;
+
     sum.searchPeak();
 
-    //cout << "A1 = " << amplitude(delfft1.Vpad()) << endl;
+    //cout << "Asum = " << max(amplitude(sum.Vpad())) << endl;
     //cout << "ph1 = " << phase(delfft1.Vpad())*(180.0/C::pi) << endl;
 
     if (KJONES_TEST_VERBOSE) {
@@ -141,6 +149,94 @@ TEST_F(DelayFFTTest, BasicDelayFFTTest) {
 
 }
 
+
+TEST_F(DelayFFTTest, AdvancedDelayFFTTest) {
+
+    Int nchan0(10),nchan1(20),nchan2(20);
+    Double df0(0.1),df1(0.05),df2(0.025), dfmin(0.025);
+    Double rf0(90.0), rf1(91.0), rf2(92.0);
+    Float tau(-0.5333);
+
+    Cube<Complex> Vobs0(1,nchan0,1), Vobs1(1,nchan1,1), Vobs2(1,nchan2,1);
+    Vobs0.set(Complex(1.0));
+    Vobs1.set(Complex(1.0));
+    Vobs2.set(Complex(1.0));
+
+    Vector<Complex> v0(Vobs0.xyPlane(0).row(0));
+    v0*=this->appdel(nchan0,rf0,df0,tau,90.0);
+
+    Vector<Complex> v1(Vobs1.xyPlane(0).row(0));
+    v1*=this->appdel(nchan1,rf1,df1,tau,90.0);
+
+    Vector<Complex> v2(Vobs2.xyPlane(0).row(0));
+    v2*=this->appdel(nchan2,rf2,df2,tau,90.0);
+
+    Cube<Float> wt0(1,nchan0,1);
+    wt0.set(df0);   // unit weight
+    Cube<Float> wt1(1,nchan1,1);
+    wt1.set(df1);   // half the weight per channel
+    Cube<Float> wt2(1,nchan2,1);
+    wt2.set(df2);   // 10% the weight per channel
+
+    Double pbw(64.0);
+
+    DelayFFT sum(90.0,dfmin,pbw,1,1,-1,Complex(0.0));
+      
+    DelayFFT delfft0(rf0,df0,pbw,Vobs0,wt0);  
+    delfft0.FFT();
+    delfft0.searchPeak();
+    //delfft0.shift(90.0);
+    //sum.add(delfft0);
+    sum.addWithDupAndShift(delfft0);
+
+    //cout << "A0 = " << max(amplitude(delfft0.Vpad())) << endl;
+    //cout << "ph0 = " << phase(delfft0.Vpad())*(180.0/C::pi) << endl;
+
+    DelayFFT delfft1(rf1,df1,pbw,Vobs1,wt1);  // wt=0.5 cf first one
+    delfft1.FFT();
+    delfft1.searchPeak();
+    //  delfft1.shift(90.0);
+    //sum.add(delfft1);
+    sum.addWithDupAndShift(delfft1);
+
+    //cout << "A1 = " << max(amplitude(delfft1.Vpad())) << endl;
+    //cout << "ph1 = " << phase(delfft1.Vpad())*(180.0/C::pi) << endl;
+
+    DelayFFT delfft2(rf2,df2,pbw,Vobs2,wt2);  // wt=0.5 cf first one
+    delfft2.FFT();
+    delfft2.searchPeak();
+    //delfft2.shift(90.0);
+    //sum.add(delfft2);
+    sum.addWithDupAndShift(delfft2);
+
+    //cout << "A2 = " << max(amplitude(delfft2.Vpad())) << endl;
+    //cout << "ph2 = " << phase(delfft2.Vpad())*(180.0/C::pi) << endl;
+
+    sum.searchPeak();
+
+    //cout << "Asum = " << max(amplitude(sum.Vpad())) << endl;
+    //cout << "ph1 = " << phase(delfft1.Vpad())*(180.0/C::pi) << endl;
+
+    if (KJONES_TEST_VERBOSE) {
+      cout << boolalpha;
+      cout << "delay0 = " << delfft0.delay()(0,0) << " delta=" << delfft0.delay()(0,0)-tau << " " 
+	   << delfft0.flag()(0,0) << endl;
+      cout << "delay1 = " << delfft1.delay()(0,0) << " delta=" << delfft1.delay()(0,0)-tau << " " 
+	   << delfft1.flag()(0,0) << endl;
+      cout << "delay2 = " << delfft2.delay()(0,0) << " delta=" << delfft2.delay()(0,0)-tau << " " 
+	   << delfft2.flag()(0,0) << endl;
+      cout << "sum    = " << sum.delay()(0,0) << " delta=" << sum.delay()(0,0)-tau << " " 
+	   << sum.flag()(0,0) << endl;
+    }
+
+    ASSERT_TRUE(allNearAbs(delfft0.delay(),tau,1e-5));
+    ASSERT_TRUE(allNearAbs(delfft1.delay(),tau,1e-5));
+    ASSERT_TRUE(allNearAbs(delfft2.delay(),tau,1e-5));
+    ASSERT_TRUE(allNearAbs(sum.delay(),tau,1e-5));
+
+
+}
+
 class KJonesTest : public VisCalTestBase {
 
 public:
@@ -154,9 +250,9 @@ public:
     // canned delays
     indgen(del);
     del*=-1.0f;
-    del*=Float(1.0/nChan/0.001);
+    del*=Float(0.25/nChan/0.001);
     del/=2.0f;
-    del+=0.01f;
+    //del+=0.01f;
     del(0,0,0)=0.0;
     del(1,0,0)=0.0;
     cout.precision(16);
@@ -257,9 +353,10 @@ TEST_F(KJonesTest, SBDSolveTest) {
       Cube<Float> soldiff=abs(K.solveRPar()-del);
 
       //cout << "K.solveRPar() = " << K.solveRPar() << endl;
+      //cout << "del = " << del << endl;
       //cout << "Diff = " << soldiff  << endl;
 
-      ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-3));  // at available resoln
+      EXPECT_TRUE(allNearAbs(soldiff,0.0f,1e-3));  // at available resoln
 
 
     }
@@ -367,6 +464,7 @@ TEST_F(KJonesTest, MBDSolveTest) {
   Cube<Float> soldiff=abs(K.solveRPar()-del);
   
   //cout << "K.solveRPar() = " << K.solveRPar() << endl;
+  //cout << "del = " << del << endl;
   //cout << "Diff = " << soldiff  << endl;
   
   ASSERT_TRUE(allNearAbs(soldiff,0.0f,1e-4));  // at available resoln
