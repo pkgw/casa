@@ -778,8 +778,9 @@ using namespace casa::vi;
           interpVisFreq_p[0]-=interpwidth;
         if(freqInterpMethod_p==InterpolateArray1D<Double, Complex>::cubic)
           interpVisFreq_p[0]-=2.0*interpwidth;
-  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
-																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
+        Double startedge=abs(imageFreq_p[1]-imageFreq_p[0])/2.0 -abs(interpwidth)/2.0;
+  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-startedge):(interpVisFreq_p[0]+startedge);
+
   	for (Int k=1; k < ninterpchan; ++k){
   	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
   	}
@@ -804,6 +805,8 @@ using namespace casa::vi;
   	
        
   	}
+        //        if(name() != "GridFT")
+        //  cerr << std::setprecision(10) << "chanMap " << chanMap <<  endl; //" interpvisfreq " <<  interpVisFreq_p << " orig " << visFreq << endl;
 
         }// By now, we have a new list of frequencies, synchronized with image channels, but with data chan widths.
       }// end of ' if (we have to make new frequencies) '
