@@ -2708,30 +2708,15 @@ class sdimaging_test_mapextent(unittest.TestCase):
     def test_ephemeris(self):
         for infile in self.infiles_ephem:
             self.__copy_table(infile)
-# CAS-8418
-        '''
-        self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
-        npix_ref = numpy.array([45,27])
-        # set reference value manually since expected map area for 
-        # ephemeris object is difficult to calculate 
-# CAS-8418
-#       blcf_ref = '00:46:43.672 +04.14.51.504'
-        blcf_ref = '00:46:45.464 +04.14.51.503'
-#       trcf_ref = '00:46:27.547 +04.17.39.004'
-        trcf_ref = '00:46:25.756 +04.17.45.703'
-
-        '''
-# CAS-11955
         #self.run_test(infiles=self.infiles_ephem, ephemsrcname='Uranus', restfreq='230GHz')
         self.run_test(infiles=self.infiles_ephem, phasecenter='URANUS', restfreq='230GHz') #CAS-11955
-        npix_ref = numpy.array([37,26])   #CAS-11955 (same as CAS-8418)
+        npix_ref = numpy.array([37,26])
         # set reference value manually since expected map area for 
         # ephemeris object is difficult to calculate 
         #blcf_ref = '00:46:43.672 +04.14.51.504'
         #trcf_ref = '00:46:27.547 +04.17.39.004'
-        blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955 + CAS-8418
-        trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955 + CAS-8418
-#
+        blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955
+        trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955
         blc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], blcf_ref.split()))
         trc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], trcf_ref.split()))
         #blc_ref, trc_ref = get_mapextent_ephemeris(self.infiles_ephem)
