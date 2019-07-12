@@ -46,7 +46,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   class PointingOffsets 
   {
   public:
-    PointingOffsets(const int& convOversampling):epJ_p(), doPointing_p(false),vbUtils_p()
+    PointingOffsets(const int& convOversampling):thePix_p(), pixFieldGrad_p(), imageObsInfo_p(), nx_p(0), ny_p(0), nchan_p(0), npol_p(0), directionIndex_p(0), csys_p(), dc_p(), pointFrame_p(), timeMType_p(), timeUnit_p(), direction1_p(), direction2_p(), doPointing_p(false), vbUtils_p()
     {
       convOversampling_p = convOversampling;
       PO_DEBUG_P = SynthesisUtils::getenv("PO_DEBUG",0);
