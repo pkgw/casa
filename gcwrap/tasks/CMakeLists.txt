@@ -74,6 +74,7 @@ makemask.xml
 msview.xml
 mstransform.xml
 msuvbin.xml
+nrobeamaverage.xml
 oldsplit.xml
 plotants.xml
 plotbandpass.xml

@@ -1280,7 +1280,6 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
   void SynthesisImagerVi2::makeSdImage(Bool dopsf)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
-
 //    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 

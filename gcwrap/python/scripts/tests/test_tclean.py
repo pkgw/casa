@@ -51,11 +51,8 @@
 #     test_cube_D1
 # 
 # Added to skip at least for 5.5
-#     test_iterbot_cube_2 (was failing in master)
-#     test_multifield_both_cube (was failing in master)
 #     test_cube_chanchunks
 #     test_cube_chanchunks_savemodel (possible race conditions)
-#     test_mask_5 (was failing in master)
 #     test_modelvis_2 (possible race conditions)
 #     test_modelvis_3 (possible race conditions)
 #     test_modelvis_5 (possible race conditions)
@@ -67,6 +64,11 @@
 #     test_modelvis_11 (possible race conditions)
 #     test_startmodel_with_mask_mfs(possible race conditions)
 #     test_startmodel_with_mask_mtmfs(possible race conditions)
+
+#Ressurected from skipping after some fixes
+#     test_mask_5
+#     test_iterbot_cube_2
+#     test_multifield_both_cube
 ##########################################################################
 #
 #  Datasets
@@ -95,6 +97,7 @@ import operator
 import inspect
 import numpy as np
 from parallel.parallel_task_helper import ParallelTaskHelper
+from imagerhelpers.parallel_imager_helper import PyParallelImagerHelper
 
 
 _ia = iatool( )
@@ -124,8 +127,11 @@ class testref_base(unittest.TestCase):
           # To use subdir in the output image names in some tests (CAS-10937)
           self.img_subdir = 'refimager_tst_subdir'
           self.parallel = False
+          self.nnode = 0
           if ParallelTaskHelper.isMPIEnabled():
               self.parallel = True
+              self.PH = PyParallelImagerHelper()
+              self.nnode = len(self.PH.getNodeList())
 
           self.th = TestHelpers()
 
@@ -160,7 +166,7 @@ class testref_base(unittest.TestCase):
 
      def checkfinal(self,pstr=""):
           #pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  casa -c `echo $CASAPATH | awk '{print $1}'`/gcwrap/python/scripts/regressions/admin/runUnitTest.py test_refimager["+ inspect.stack()[1][3] +"]"
-          pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  runUnitTest.main(['test_refimager["+ inspect.stack()[1][3] +"]'])"
+          pstr += "["+inspect.stack()[1][3]+"] : To re-run this test :  runUnitTest.main(['test_tclean["+ inspect.stack()[1][3] +"]'])"
           casalog.post(pstr,'INFO')
           if( pstr.count("(Fail") > 0 ):
                self.fail("\n"+pstr)
@@ -226,8 +232,55 @@ class test_onefield(testref_base):
           report=self.th.checkall(imexist=[self.img+'.psf',self.img+'_2.psf',self.img+'_3.psf'] )
           self.checkfinal(pstr=report)
 
+     # weighting test
+     def test_onefield_weighting(self):
+          """ [onefield] Test_Onefield_weighting : mfs with different weighting (natural, uniform, briggs, radial, superuniform)"""
+          self.prepData('refim_twochan.ms')
+          # default = natural
+          ret0 = tclean(vis=self.msfile,imagename=self.img+'0',imsize=100,cell='8.0arcsec',niter=10,weighting='natural', interactive=0,parallel=self.parallel) 
+          # uniform
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',niter=10,weighting='uniform', interactive=0,parallel=self.parallel) 
+          report=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image', self.img+'.model'], imval=[(self.img+'.psf',1.0,[50,50,0,0])])
+          self.checkfinal(pstr=report)
+
+          # briggs r=-2
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'2',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=-2, interactive=0,parallel=self.parallel)     
+          report2=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'2.psf', self.img+'2.residual', self.img+'2.image', self.img+'2.model'], imval=[(self.img+'2.psf',1.0,[50,50,0,0])])
+
+          # briggs r=0.5(default)
+          ret3 = tclean(vis=self.msfile,imagename=self.img+'3',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=0.5, interactive=0,parallel=self.parallel)     
+          report3=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'3.psf', self.img+'3.residual', self.img+'3.image', self.img+'3.model'], imval=[(self.img+'3.psf',1.0,[50,50,0,0])])
+
+          # briggs r=2
+          ret4 = tclean(vis=self.msfile,imagename=self.img+'4',imsize=100,cell='8.0arcsec',niter=10,weighting='briggs', robust=2, interactive=0,parallel=self.parallel)     
+          report4=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'4.psf', self.img+'4.residual', self.img+'4.image', self.img+'4.model'], imval=[(self.img+'4.psf',1.0,[50,50,0,0])])
+
+          # radial
+          ret5 = tclean(vis=self.msfile,imagename=self.img+'5',imsize=100,cell='8.0arcsec',niter=10,weighting='radial', interactive=0,parallel=self.parallel)     
+          report5=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'5.psf', self.img+'5.residual', self.img+'5.image', self.img+'5.model'], imval=[(self.img+'5.psf',1.0,[50,50,0,0])])
+
+          # superuniform
+          ret6 = tclean(vis=self.msfile,imagename=self.img+'6',imsize=100,cell='8.0arcsec',niter=10,weighting='superuniform', interactive=0,parallel=self.parallel)     
+          report6=self.th.checkall(ret=ret, peakres=0.263, modflux=0.575, iterdone=10, imexist=[self.img+'6.psf', self.img+'6.residual', self.img+'6.image', self.img+'6.model'], imval=[(self.img+'6.psf',1.0,[50,50,0,0])])
+
+          # beamareas: uniform < briggs-r=-2 < briggs r=0.5 < briggs r=+2 < natural, ...
+          # by default, it checks if im1's beam < im2's beam
+          print "Test beamarea of tst0.image (natural) is greater than beamarea of tst.image (uniform)"
+          self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'0.image'))
+          # parallel fails - uniform wt. psf seems to be bigger in parallel than that of serial run
+          #print "Test beamarea of tst2.image (briggs -2) is greater than beamarea of tst.image (uniform)"
+          #self.assertTrue(self.th.check_beam_compare(self.img+'.image', self.img+'2.image'))
+          print "Test beamarea of tst3.image (briggs 0.5) is greater than beamarea of tst2.image (briggs -2))"
+          self.assertTrue(self.th.check_beam_compare(self.img+'2.image', self.img+'3.image'))
+          print "Test beamarea of tst4.image (briggs 2) is greater than beamarea of tst3.image (briggs 0.5))"
+          self.assertTrue(self.th.check_beam_compare(self.img+'3.image', self.img+'4.image'))
+     
+     
+
      def test_onefield_twoMS(self):
-          """ [onefield] Test_Onefield_twoMS : One field, two input MSs """
+          """ [onefield] Test_Onefield_twoMS : One field, two input MSs, also
+          test automatic fallback to 'data' column when no 'corrected' data
+          column"""
           ms1 = 'refim_point_onespw0.ms'
           ms2 = 'refim_point_onespw1.ms'
           self.prepData(ms1)
@@ -240,11 +293,33 @@ class test_onefield(testref_base):
 #              correct=True
 #          self.assertTrue(correct)
           ## This run should go smoothly.
-          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,datacolumn='data',parallel=self.parallel)
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,parallel=self.parallel)
           report=self.th.checkall(imexist=[self.img+'.psf',self.img+'.residual'])
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. onefield with two MSs, briggs weighing. Enable this when CAS011978 is fixed")
+     def test_onefield_twoMS_Briggs(self):
+          """ [onefield] Test_Onefield_twoMS with Briggs weighting: One field, two input MSs (for verification of CAS-11978)"""
+          ms1 = 'refim_point_onespw0.ms'
+          ms2 = 'refim_point_onespw1.ms'
+          self.prepData(ms1)
+          self.prepData(ms2)
+#          try:
+#               ## This run should fail with an exception
+#               ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10)
+#               correct=False
+#          except Exception as e:
+#              correct=True
+#          self.assertTrue(correct)
+          ## This run should go smoothly. 
+          ret = tclean(vis=[ms1,ms2],field='0',spw=['0','0'], imagename=self.img,imsize=100,cell='8.0arcsec',deconvolver='hogbom',niter=10,weighting='briggs', interactive=0, parallel=self.parallel)
+          report=self.th.checkall(ret=ret, peakres=0.365259, modflux=0.798692, imexist=[self.img+'.psf',self.img+'.residual'])
+          self.delData(ms1)
+          self.delData(ms2)
+          self.checkfinal(pstr=report)
+
 
      def test_onefield_twoMS_diffcolumns(self):
           """ [onefield] Test_Onefield_twoMS_diffcolumns : One field, two input MSs, one with data and one with data and corrected """
@@ -262,6 +337,7 @@ class test_onefield(testref_base):
           self.delData(ms1)
           self.delData(ms2)
           self.checkfinal(pstr=report)
+
      @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. Erratic in parallel")
      def test_onefield_briggsabs(self):
           """[onefield] test_onefield_briggsabs: """
@@ -431,6 +507,16 @@ class test_onefield(testref_base):
           ## iterdone=11 only because of the return (iterdone_p+1) in MultiTermMatrixCleaner::mtclean() !
           self.checkfinal(pstr=report)
 
+     
+     def test_onefield_gridders(self):
+          """ [onefield] Test_Onefield_gridders : Check all single field gridder equivalent names are accepted """
+          self.prepData('refim_twochan.ms')
+          ret = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',gridder='ft', interactive=0,parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'], imval=[(self.img+'.psf', 1.0, [50,50,0,0])])
+          ret2 = tclean(vis=self.msfile,imagename=self.img,imsize=100,cell='8.0arcsec',gridder='gridft', interactive=0,parallel=self.parallel)
+          report2=self.th.checkall(imexist=[self.img+'.psf', self.img+'.residual', self.img+'.image'], imval=[(self.img+'.psf', 1.0, [50,50,0,0])])
+          self.checkfinal(pstr=report+report2)
+
 
      def test_onefield_cube_restoringbeam(self):
           """ [onefield] Test explicit restoring beams for cube : Test peak flux with niter=0, compared with smoothing vs restoringbeam"""
@@ -503,6 +589,31 @@ class test_onefield(testref_base):
 
           ## Pass or Fail (and why) ?
           self.checkfinal(report)
+
+     def test_onefield_projections(self):
+          """ [onefield] Test_Onefield_projections : test selected projections  """
+          self.prepData('refim_twochan.ms')
+          # default projection = SIN
+          ret = tclean(vis=self.msfile,imagename=self.img+'SIN',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret2 = tclean(vis=self.msfile,imagename=self.img+'NCP',projection='NCP',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret3 = tclean(vis=self.msfile,imagename=self.img+'TAN',projection='TAN',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          ret4 = tclean(vis=self.msfile,imagename=self.img+'ARC',projection='ARC',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          # Current fails with "wcs wcsset_error: Invalid parameter value" for HEALPix
+          #ret5 = tclean(vis=self.msfile,imagename=self.img+'HPX',projection='HPX',imsize=100,cell='8.0arcsec',interactive=0,parallel=self.parallel)
+          testname=inspect.stack()[0][3]
+          report=self.th.checkall(ret=ret, imexist=[self.img+'SIN.image', self.img+'NCP.image', self.img+'TAN.image',self.img+'ARC.image'], imval=[(self.img+'SIN.psf',1.0,[50,50,0,0])])
+          retSIN = imhead(self.img+"SIN.image", mode='list')
+          retNCP = imhead(self.img+"NCP.image", mode='list')
+          retTAN = imhead(self.img+"TAN.image", mode='list')
+          retARC = imhead(self.img+"ARC.image", mode='list')
+
+          checkimage = "["+testname+"] The image in SIN projection : (" + self.th.verdict(retSIN['projection']=='SIN') + ")\n"
+          # in serial 'NCP' is added in projection key but in parallel, this seems to be trancated.
+          checkimage += "["+testname+"] The image in NCP projection : (" + self.th.verdict(retNCP['projection'].find('SIN ([0, 1.16122]')==0) + ")\n"
+          checkimage += "["+testname+"] The image in TAN projection : (" + self.th.verdict(retTAN['projection']=='TAN') + ")\n"
+          checkimage += "["+testname+"] The image in ARC projection : (" + self.th.verdict(retARC['projection']=='ARC') + ")\n"
+          
+          self.checkfinal(pstr=checkimage+report)
 
 ##############################################
 ##############################################
@@ -596,7 +707,8 @@ class test_iterbot(testref_base):
 
           self.checkfinal(report)
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     #@unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     # test_imager_helper issue - now fixed and working
      def test_iterbot_cube_2(self):
           """ [iterbot] Test_Iterbot_cube_2 : High threshold, iterate only on line channels. """
           self.prepData('refim_point_withline.ms')
@@ -604,6 +716,7 @@ class test_iterbot(testref_base):
 
           ret={}
           if self.parallel:
+            # peakres and modflux is determined from node1 
             ret=self.th.mergeParaCubeResults(retpar, ['iterdone', 'nmajordone', 'peakres', 'modflux'])
           else:
             ret=retpar 
@@ -726,7 +839,6 @@ class test_multifield(testref_base):
           self.checkfinal(report)
 
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
      def test_multifield_both_cube(self):
           """ [multifield] Test_Multifield_both_cube : Two fields, both cube"""
           self.prepData("refim_twopoints_twochan.ms")
@@ -736,7 +848,10 @@ class test_multifield(testref_base):
           ret={}
           if self.parallel:
             ret=self.th.mergeParaCubeResults(retpar, ['iterdone', 'nmajordone'])
-            iterdone_expected=46
+            if self.nnode < 2:
+              iterdone_expected=42  # single server case = serial
+            else:
+              iterdone_expected=46
           else:
             iterdone_expected=42
             ret=retpar 
@@ -1978,7 +2093,8 @@ class test_mask(testref_base):
           report=self.th.checkall(imexist=[self.img+'1.mask', self.img+'2.mask'], imval=[(self.img+'1.mask',0.0,[50,50,0,1]),(self.img+'1.mask',1.0,[50,50,0,2]),(self.img+'1.mask',1.0,[50,50,0,10]),(self.img+'1.mask',0.0,[50,50,0,11]),(self.img+'2.mask',1.0,[50,50,0,0]),(self.img+'2.mask',1.0,[50,50,0,4]),(self.img+'2.mask',0.0,[50,50,0,10])])
           self.checkfinal(report)
 
-     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     #@unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily for 5.5")
+     # parallel mode issue was fixed in imageanalysis 2019.05.23
      def test_mask_5(self):
           """ [mask] test_mask_5 : Input cube mask that has different chan
           ranges (use mask from the 1st tclean with a different channel range in the 2nd tclean run)"""
@@ -2549,6 +2665,16 @@ class test_widefield(testref_base):
           self.checkfinal(report)
 
           #do stokes V too..
+
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip test. mosaic, Briggs weighting with mosweight=True. Enable this after fixing CAS-11978")
+     def test_widefield_mosaicft_mfs_mosweightTrue(self):
+          """ [widefield] Test_Widefield_mosaic : MFS with mosaicft  stokes I briggs mosweight=True(default)"""
+          self.prepData("refim_mawproject.ms")
+          ret = tclean(vis=self.msfile,spw='1',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",
+                       niter=30,gridder='mosaicft',deconvolver='hogbom',pblimit=0.3,weighting='briggs', parallel=self.parallel)
+          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',0.962813, [256,256,0,0]),(self.img+'.weight',0.50520, [256,256,0,0]) ] )
+          #ret = clean(vis=self.msfile,spw='1',field='*',imagename=self.img+'.old',imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",niter=30,imagermode='mosaic',psfmode='hogbom')
+          self.checkfinal(report)
 
      def test_widefield_mosaicft_mtmfs(self):
           """ [widefield] Test_Widefield_mosaicft_mtmfs : MT-MFS with mosaicft  stokes I, alpha """

@@ -248,6 +248,7 @@ public:
 
   virtual casacore::Bool& zeroRates() { return zeroRates_; }
   virtual casacore::Bool& globalSolve() { return globalSolve_; } 
+  virtual casacore::Int& maxits() { return maxits_; }
   virtual casacore::Array<casacore::Double>& delayWindow() { return delayWindow_; }
   virtual casacore::Array<casacore::Double>& rateWindow() { return rateWindow_; }
   
@@ -260,7 +261,7 @@ protected:
 
   // phase, delay, rate
   //  TBD:  Need to cater for parameter opt-out  (e.g., no rate solve, etc.)
-  virtual casacore::Int nPar() { return 6; };
+  virtual casacore::Int nPar() { return 8; };
 
   // Jones matrix elements are NOT trivial
   virtual casacore::Bool trivialJonesElem() { return false; };
@@ -290,6 +291,7 @@ private:
   casacore::Bool globalSolve_;
   casacore::Array<casacore::Double> delayWindow_;
   casacore::Array<casacore::Double> rateWindow_;
+  casacore::Int maxits_;
 };
 
 

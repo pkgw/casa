@@ -351,7 +351,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="string" name="projection" > <!-- subparam="true"> -->
-     <shortdescription>Coordinate projection (SIN, HPX)</shortdescription>
+     <shortdescription>Coordinate projection </shortdescription>
 <description>Coordinate projection
                      Examples : SIN,   NCP
                      A list of supported (but untested) projections can be found here :
@@ -668,13 +668,14 @@ HPX HEALPix grid.  -->
                          When calculating weight density for Briggs
                          style weighting in a cube, this parameter
                          determines whether to calculate the weight
-                         density for each channel independently or a
-                         common weight density for all of the selected
-                         data (the default). This parameter has no
+                         density for each channel independently 
+                         (the default, True)
+                         or a common weight density for all of the selected
+                         data. This parameter has no
                          meaning for continuum (specmode='mfs')
                          imaging but for cube imaging
                          perchanweightdensity=True is a recommended
-                         alternative option that provides more uniform
+                         option that provides more uniform
                          sensitivity per channel for cubes, but with
                          generally larger psfs than the
                          perchanweightdensity=False (prior behavior)
@@ -713,7 +714,7 @@ HPX HEALPix grid.  -->
                          across the concatenated cube.
              
 </description>
-      <value type="bool">False</value>
+      <value type="bool">True</value>
     </param>
 
 <!--============================================== -->
@@ -2594,7 +2595,7 @@ HPX HEALPix grid.  -->
          <default param="restfreq"><value>[]</value></default>
          <default param="interpolation"><value>"linear"</value></default>
          <default param="chanchunks"><value>1</value></default>
-         <default param="perchanweightdensity"><value>False</value></default>
+         <default param="perchanweightdensity"><value>True</value></default>
        </equals>
        <equals type="string" value="cubesource">
          <default param="nchan"><value>-1</value></default>
@@ -2605,7 +2606,7 @@ HPX HEALPix grid.  -->
          <default param="restfreq"><value>[]</value></default>
          <default param="interpolation"><value>"linear"</value></default>
          <default param="chanchunks"><value>1</value></default>
-         <default param="perchanweightdensity"><value>False</value></default>
+         <default param="perchanweightdensity"><value>True</value></default>
        </equals>
        
        <equals type="string" value="cubedata">

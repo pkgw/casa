@@ -59,9 +59,9 @@ void ExternalAxisWidget::setRelativeDateFormat(const String& newFormat){
 	}
 }
 
-void ExternalAxisWidget::setAxisScale(PlotAxisScale scale){
+void ExternalAxisWidget::setAxisScale(PlotAxisScale scale, uInt base){
 	if ( scaleDraw != NULL ){
-		scaleDraw->setScale( scale );
+		scaleDraw->setScale(scale,base);
 	}
 }
 

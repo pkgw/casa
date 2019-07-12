@@ -184,15 +184,15 @@ public:
 		   16, // ntime per scan
 		   false),  // unpolarized
     // nPar, 1, {1 | nAntennas}
-    fpar(6, 1, VisCalTestBase::nAnt, 0.0f)  // 6 pars per antenna
+    fpar(8, 1, VisCalTestBase::nAnt, 0.0f)  // 8 pars per antenna
   {
       // Add FringeJonesTest specific init
       //  e.g., fill fpar with interesting values
     for (Int i=1; i!=VisCalTestBase::nAnt; i++) {
       // 1, 4 are delay.
       fpar(1, 0, i) = 2.3;
-      fpar(4, 0, i) = -1.7;
-      // Parameters 2 and 5 are rate.  But VisCal::setMeta currently
+      fpar(5, 0, i) = -1.7;
+      // Parameters 2 and 6 are rate.  But VisCal::setMeta currently
       // only supports a single double for time, and this meta data is
       // used to generate all the Jones matrices for the FringeJones
       // (or any other VisCal subclass) calibrater; I don't feel
@@ -200,7 +200,7 @@ public:
       // intervene on this, so for now we can only test zero rates for
       // the FringeJones class proper.
       fpar(2, 0, i) = 0.0;
-      fpar(5, 0, i) = 0.0;
+      fpar(6, 0, i) = 0.0;
     }
     // uncomment to see data shape summary from
     //VisCalTestBase::summary("FringeJonesTest");  
@@ -261,7 +261,7 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
   solvePar.define("refant",refant);
   solvePar.define("globalsolve", true);
   solvePar.define("weightfactor", 2);
-  solvePar.define("maxits", 100);
+  solvePar.define("niter", 20);
   solvePar.define("zerorates", true);
   Array<Double> delayWindow(IPosition(1, 2));
   Array<Double> rateWindow(IPosition(1, 2));
@@ -336,10 +336,10 @@ TEST_F(FringeJonesTest, FringeJones_selfSolveOneTest) {
     cerr << "Parameters out: " << p << endl;
   }
   ASSERT_TRUE(allNearAbs(p(1, 1), delay1, 2e-2));
-  ASSERT_TRUE(allNearAbs(p(4, 1), delay2, 2e-2));
+  ASSERT_TRUE(allNearAbs(p(5, 1), delay2, 2e-2));
   
   ASSERT_TRUE(allNearAbs(p(2, 1), rate1, 1e-5));
-  ASSERT_TRUE(allNearAbs(p(5, 1), rate2, 1e-5));
+  ASSERT_TRUE(allNearAbs(p(6, 1), rate2, 1e-5));
 
   ASSERT_TRUE(FJsol.refant()==0);
   

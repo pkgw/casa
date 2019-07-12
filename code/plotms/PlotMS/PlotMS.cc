@@ -27,7 +27,17 @@
 #include <plotms/PlotMS/PlotMS.h>
 
 #include <plotms/Gui/PlotMSPlotter.qo.h>
+#if ! defined(WITHOUT_DBUS)
 #include <plotms/PlotMS/PlotMSDBusApp.h>
+#else
+#include <plotms/PlotMS/grpcPlotMSAdaptor.qo.h>
+#include <casagrpc/protos/registrar.grpc.pb.h>
+
+using casatools::rpc::Registrar;
+
+#include <fcntl.h>
+#include <unistd.h>
+#endif
 #include <plotms/Client/ClientFactory.h>
 #include <plotms/Actions/ActionFactory.h>
 #include <plotms/Actions/ActionCacheLoad.h>
@@ -62,23 +72,47 @@ namespace casa {
 
 // Constructors/Destructors //
 
-PlotMSApp::PlotMSApp(bool connectToDBus, bool userGui) :
+PlotMSApp::PlotMSApp(bool connectToDBus, bool userGui
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address
+#endif
+                     ) :
 		itsLastPlotter_(NULL), isGUI_(userGui), allow_popups(true), 
-		itsExportFormat( PlotExportFormat::JPG, ""), 
-		itsDBus_(NULL) {
-	initialize(connectToDBus, userGui);
+		itsExportFormat( PlotExportFormat::JPG, "")
+#if ! defined(WITHOUT_DBUS)
+		, itsDBus_(NULL)
+#endif
+{
+	initialize(connectToDBus, userGui
+#if defined(WITHOUT_DBUS)
+                        , casapy_address
+#endif
+               );
 }
 
-PlotMSApp::PlotMSApp(const PlotMSParameters& params, bool connectToDBus,
-			bool userGui) :
+PlotMSApp::PlotMSApp(const PlotMSParameters& params, bool connectToDBus, bool userGui
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address
+#endif
+                     ) :
 		itsPlotter_(NULL), itsLastPlotter_(NULL), isGUI_(userGui), 
 		allow_popups(true), itsParameters_(params),
-		itsExportFormat( PlotExportFormat::JPG, ""), itsDBus_(NULL) {
-	initialize(connectToDBus, userGui);
+		itsExportFormat( PlotExportFormat::JPG, "")
+#if ! defined(WITHOUT_DBUS)
+        , itsDBus_(NULL)
+#endif
+{
+	initialize(connectToDBus, userGui
+#if defined(WITHOUT_DBUS)
+                        , casapy_address
+#endif
+               );
 }
 
 PlotMSApp::~PlotMSApp() {
+#if ! defined(WITHOUT_DBUS)
     if(itsDBus_ != NULL) delete itsDBus_;
+#endif
 }
 
 
@@ -327,8 +361,14 @@ vector<String> PlotMSApp::getFiles() const {
 
 // Private Methods //
 
-void PlotMSApp::initialize(bool connectToDBus, bool userGui) {
+void PlotMSApp::initialize(bool connectToDBus, bool userGui
+#if defined(WITHOUT_DBUS)
+                        , const casacore::String &casapy_address
+#endif
+                           ) {
 
+	char *server_string = 0;
+	std::function<void( )> do_notify = []( ) { };
 	operationCompleted = true;
     itsParameters_.addWatcher(this);
 
@@ -353,13 +393,148 @@ void PlotMSApp::initialize(bool connectToDBus, bool userGui) {
     // Update internal state to reflect parameters.
     parametersHaveChanged(itsParameters_,
             PlotMSWatchedParameters::ALL_UPDATE_FLAGS());
-    
     if(connectToDBus) {
+#if ! defined(WITHOUT_DBUS)
         itsDBus_ = new PlotMSDBusApp(*this);
         itsDBus_->connectToDBus();
-    }
+#else
+        auto qplotobj = dynamic_cast<PlotMSPlotter*>(itsPlotter_);
+        if ( ! qplotobj ) {
+            fprintf(stderr, "cannot start plot server because no Qt plotter is available");
+            exit(1);
+        }
 
-    showGUI( userGui );
+        static const auto debug = getenv("GRPC_DEBUG");
+        grpcPlotMSState *state = new grpcPlotMSState(this);
+
+        //***
+        //*** set up a default address (grpc picks port) and address buffers
+        //***
+        char address_buf[100];
+        constexpr char address_template[] = "0.0.0.0:%d";
+        snprintf(address_buf,sizeof(address_buf),address_template,0);
+        std::string server_address(address_buf);
+        int selected_port = 0;
+
+        //***
+        //*** build grpc service
+        //***
+        grpc::ServerBuilder builder;
+        // Listen on the given address without any authentication mechanism.
+        builder.AddListeningPort(server_address, grpc::InsecureServerCredentials(), &selected_port);
+        // Register "service" as the instance through which we'll communicate with
+        // clients. In this case it corresponds to an *synchronous* service.
+        // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+        // plotms service (and currently interactive clean service though this needs
+        // to eventually move to a seperate grpc service description which could e.g. be
+        // shared with carta
+        auto plotms_svc = state->plotms_service.get( );
+        builder.RegisterService(plotms_svc);
+        // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+        // shutdown service is used by casatools etc. to notify gui services
+        // when the system is shutting down...
+        auto shutdown_svc = state->shutdown_service.get( );
+        builder.RegisterService(shutdown_svc);
+        QObject::connect( shutdown_svc, SIGNAL(exit_now( )),
+                          qplotobj, SLOT(grpc_exit_now( )) );
+        // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+        // all gui operations must happen in the "gui thread" because Qt is not
+        // thread-safe... connect qt events from services to PlotMSPlotter so that
+        // grpc events/commands can be executed in the Qt GUI thread...
+        plotms_svc->set_plotter(qplotobj);
+        QObject::connect( plotms_svc, SIGNAL(new_op( )),
+                          qplotobj, SLOT(grpc_handle_op( )) );
+
+        // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+        // Launch server...
+        state->server = builder.BuildAndStart( );
+        if ( selected_port > 0 ) {
+				// if an available port can be found, selected_port is set to a value greater than zero
+				snprintf(address_buf,sizeof(address_buf),address_template,selected_port);
+				state->uri = address_buf;
+				if ( debug ) {
+					std::cout << "plotms service available at " << state->uri << std::endl;
+					fflush(stdout);
+				}
+
+				// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+				// complete startup
+				grpc_.reset(state);
+
+				server_string = casapy_address.size( ) > 0 ? strdup(casapy_address.c_str( )) : 0;
+				if ( server_string ) {
+					if ( access( server_string, F_OK ) == -1 ) {
+						do_notify = [=]( ) {
+							// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+							// create the connection to the registrar for service registration using the uri
+							// provided on the command line...
+							std::unique_ptr<Registrar::Stub> proxy =
+								Registrar::NewStub(grpc::CreateChannel(server_string, grpc::InsecureChannelCredentials( )));
+							// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+							// register our "shutdown, "image-view" and "interactive-clean" services with
+							// the registrar...
+							casatools::rpc::ServiceId sid;
+							sid.set_id("casaplotms");
+							sid.set_uri(state->uri);
+							sid.add_types("shutdown");
+							sid.add_types("plotms");
+							grpc::ClientContext context;
+							casatools::rpc::ServiceId accepted_sid;
+							if ( debug ) {
+								std::cout << "registering services with registrar (at " << server_string << ")" << std::endl;
+								fflush(stdout);
+							}
+							::grpc::Status status = proxy->add(&context,sid,&accepted_sid);
+							if ( ! status.ok( ) ) {
+								// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+								// if registration was not successful, we exit...
+								std::cerr << "registration failed, exiting..." << std::endl;
+								fflush(stderr);
+								state->server->Shutdown( );
+								QCoreApplication::exit(1);
+								exit(1);
+							}
+							if ( debug ) {
+								std::cout << "accepted service id: ( " << accepted_sid.id( ) << ", " << accepted_sid.uri( ) << ", ";
+								for ( auto i=accepted_sid.types( ).begin( ); i != accepted_sid.types( ).end( ); ++i )
+									std::cout << "'" << (*i) << "' ";
+								std::cout << ")" << std::endl;
+								fflush(stdout);
+							}
+						};
+					} else {
+						do_notify = [=]( ) {
+							int fd;
+							if ( (fd = open(server_string, O_WRONLY)) != -1 ) {
+								char uri[strlen(state->uri.c_str( ))+2];
+								sprintf(uri,"%s\n",state->uri.c_str( ));
+								if ( (size_t) write( fd, uri, strlen(uri)) != strlen(uri) ) {
+									qWarning("server failed to write gRPC URI to named pipe...");
+									qFatal("exiting...");
+									exit(1);
+								}
+								::close(fd);
+							} else {
+								qWarning("server failed to open gRPC URI named pipe...");
+								qFatal("exiting...");
+								exit(1);
+							}
+						};
+					}
+				} else {
+					grpc_.reset( );
+					if ( debug ) {
+						std::cout << "no registrar provided... skipped registering." << std::endl;
+						fflush(stdout);
+					}
+				}
+			} else grpc_.reset( );
+
+#endif
+	}
+	showGUI( userGui );
+	do_notify( );
+	free(server_string);
 }
 
 

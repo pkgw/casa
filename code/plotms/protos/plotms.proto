@@ -1,0 +1,226 @@
+
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+package rpc.plotms;
+
+service app {
+    rpc getPlotMSPid(google.protobuf.Empty) returns (Pid);
+    rpc setShowGui(Toggle) returns (google.protobuf.Empty);
+    rpc setGridSize(GridSize) returns (google.protobuf.Empty);
+    rpc isDrawing(google.protobuf.Empty) returns (Toggle);
+    rpc clearPlots(google.protobuf.Empty) returns (google.protobuf.Empty);
+    rpc setPlotMSFilename(SetVis) returns (google.protobuf.Empty);
+    rpc setPlotAxes(SetAxes) returns (google.protobuf.Empty);
+    rpc setShowAtm(SetToggle) returns (google.protobuf.Empty);
+    rpc setShowTsky(SetToggle) returns (google.protobuf.Empty);
+    rpc setPlotMSSelection(SetSelection) returns (google.protobuf.Empty);
+    rpc setPlotMSAveraging(SetAveraging) returns (google.protobuf.Empty);
+    rpc setPlotMSTransformations(SetTransform) returns (google.protobuf.Empty);
+    rpc setPlotMSCalibration(SetCalibration) returns (google.protobuf.Empty);
+    rpc setFlagExtension(SetFlagExtension) returns (google.protobuf.Empty);
+    rpc setExportRange(ExportRange) returns (google.protobuf.Empty);
+    rpc setPlotMSIterate(SetIterate) returns (google.protobuf.Empty);
+    rpc setColorAxis(SetString) returns (google.protobuf.Empty);
+    rpc setSymbol(SetSymbol) returns (google.protobuf.Empty);
+    rpc setFlaggedSymbol(SetSymbol) returns (google.protobuf.Empty);
+    rpc setConnect(SetConnect) returns (google.protobuf.Empty);
+    rpc setLegend(SetLegend) returns (google.protobuf.Empty);
+    rpc setTitle(SetString) returns (google.protobuf.Empty);
+    rpc setXAxisLabel(SetString) returns (google.protobuf.Empty);
+    rpc setYAxisLabel(SetString) returns (google.protobuf.Empty);
+    rpc setTitleFont(SetInt) returns (google.protobuf.Empty);
+    rpc setXAxisFont(SetString) returns (google.protobuf.Empty);
+    rpc setYAxisFont(SetString) returns (google.protobuf.Empty);
+    rpc setGridParams(SetGrid) returns (google.protobuf.Empty);
+    rpc SetXRange(SetRange) returns (google.protobuf.Empty);
+    rpc SetYRange(SetRange) returns (google.protobuf.Empty);
+    rpc setPlotMSPageHeaderItems(SetString) returns (google.protobuf.Empty);
+    rpc save(Save) returns (google.protobuf.Empty);
+    rpc update(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message Pid {
+    int32 id = 1;
+}
+
+message Toggle {
+    bool state = 1;
+}
+
+message GridSize {
+    int32 rows = 1;
+    int32 cols = 2;
+}
+
+message SetVis {
+    int32 index = 1;
+    bool update = 2;
+    string name = 3;
+}
+
+message SetAxes {
+    int32 index = 1;
+    int32 dataindex = 2;
+    bool update = 3;
+    string x = 4;
+    string y = 5;
+    string xdata = 6;
+    string ydata = 7;
+    string xframe = 8;
+    string yframe = 9;
+    string xinterp = 10;
+    string yinterp = 11;
+    string yaxisloc = 12;
+}
+
+message SetToggle {
+    int32 index = 1;
+    bool update = 2;
+    bool state = 3;
+}
+
+message SetSelection {
+    int32 index = 1;
+    bool update = 2;
+    string field = 3;
+    string spw = 4;
+    string timerange = 5;
+    string uvrange = 6;
+    string antenna = 7;
+    string scan = 8;
+    string corr = 9;
+    string array = 10;
+    string observation = 11;
+    string intent = 12;
+    string feed = 13;
+    string msselect = 14;
+}
+
+message SetAveraging {
+    int32 index = 1;
+    bool update = 2;
+    string channel = 3;
+    string time = 4;
+    bool scan = 5;
+    bool field = 6;
+    bool baseline = 7;
+    bool antenna = 8;
+    bool spw = 9;
+    bool scalar = 10;
+}
+
+message SetTransform {
+    int32 index = 1;
+    bool update = 2;
+    string freqframe = 3;
+    string veldef = 4;
+    string restfreq = 5;      // this was a variant in CASA 5
+    double xshift = 6;
+    double yshift = 7;
+}
+
+message SetCalibration {
+    int32 index = 1;
+    bool update = 2;
+    bool uselib = 3;
+    string callib = 4;
+}
+
+message SetFlagExtension {
+    bool extend = 1;
+    string correlation = 2;
+    bool channel = 3;
+    bool spw = 4;
+    string antenna = 5;
+    bool time = 6;
+    bool scans = 7;
+    bool field = 8;
+    bool use_alternative = 9;
+    SetSelection alternative_selection = 10;
+}
+
+message ExportRange {
+    string value = 1;
+}
+
+message SetIterate {
+    int32 index = 1;
+    bool update = 2;
+    string iteraxis = 3;
+    int32 rowindex = 4;
+    int32 colindex = 5;
+    bool xselfscale = 6;
+    bool yselfscale = 7;
+    bool commonaxisx = 8;
+    bool commonaxisy = 9;
+}
+
+message SetString {
+    int32 index = 1;
+    bool update = 2;
+    string value = 3;
+}
+
+message SetInt {
+    int32 index = 1;
+    bool update = 2;
+    int32 value = 3;
+}
+
+message SetSymbol {
+    int32 index = 1;
+    int32 dataindex = 2;
+    bool update = 3;
+    string shape = 4;
+    int32 size = 5;
+    string color = 6;
+    string fill = 7;
+    bool outline = 8;
+}
+
+message SetConnect {
+    int32 index = 1;
+    bool update = 2;
+    string xconnector = 3;
+    bool timeconnector = 4;
+}
+
+message SetLegend {
+    int32 index = 1;
+    bool update = 2;
+    bool show = 3;
+    string position = 4;
+}
+
+message SetGrid {
+    int32 index = 1;
+    bool update = 2;
+    bool showmajor = 3;
+    int32 majorwidth = 4;
+    string majorstyle = 5;
+    string majorcolor = 6;
+    bool showminor = 7;
+    int32 minorwidth = 8;
+    string minorstyle = 9;
+    string minorcolor = 10;
+}
+
+message SetRange {
+    int32 index = 1;
+    bool update = 2;
+    bool automatic = 3;
+    double min = 4;
+    double max = 5;
+}
+
+message Save {
+    string path = 1;
+    string format = 2;
+    bool highres = 3;
+    int32 dpi = 4;
+    int32 width = 5;
+    int32 height = 6;
+    bool verbose = 7;
+}

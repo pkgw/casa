@@ -46,6 +46,7 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <casa/sstream.h>
+#include <casa/OS/File.h>
 #include <synthesis/MeasurementComponents/Calibrater.h>
 #include <synthesis/CalTables/CLPatchPanel.h>
 #include <synthesis/MeasurementComponents/CalSolVi2Organizer.h>
@@ -789,6 +790,7 @@ Bool Calibrater::setsolve (const String& type,
                            const Bool smooth,
                            const Bool zerorates,
                            const Bool globalsolve,
+                           const Int niter,
                            const Vector<Double>& delaywindow, 
                            const Vector<Double>& ratewindow,
 			   const String& solmode,
@@ -825,6 +827,7 @@ Bool Calibrater::setsolve (const String& type,
   solveparDesc.addField ("globalsolve", TpBool);
   solveparDesc.addField ("delaywindow", TpArrayDouble);
   solveparDesc.addField ("ratewindow", TpArrayDouble);
+  solveparDesc.addField ("niter", TpInt);
 
   // single dish specific fields
   solveparDesc.addField ("fraction", TpFloat);
@@ -851,6 +854,7 @@ Bool Calibrater::setsolve (const String& type,
   solvepar.define ("minsnr", minsnr);
   solvepar.define ("zerorates", zerorates);
   solvepar.define ("globalsolve", globalsolve);
+  solvepar.define ("niter", niter);
   solvepar.define ("delaywindow", delaywindow);
   solvepar.define ("ratewindow", ratewindow);
   solvepar.define ("solmode", solmode);
@@ -1160,6 +1164,13 @@ Calibrater::correct2(String mode)
       // Ensure apply list non-zero and properly sorted
       ve_p->setapply(vc_p);
 
+      bool forceOldVIByEnv(false);
+      forceOldVIByEnv = (getenv("VI1CAL")!=NULL);
+      if (forceOldVIByEnv && anyEQ(ve_p->listTypes(),VisCal::A)) {
+	logSink() << LogIO::WARN << "Using VI2 calibration apply.  AMueller (uvcontsub) no longer requires VI1 for apply." << LogIO::POST;
+      }
+
+      /*   CAS-12434 (2019Jun07, gmoellen): AMueller works with VB2 in _apply_ (only) context now
       // Trap uvcontsub case, since it does not yet handlg VB2
       if (anyEQ(ve_p->listTypes(),VisCal::A)) {
 
@@ -1171,7 +1182,7 @@ Calibrater::correct2(String mode)
 	else
 	  throw(AipsError("Cannot handle AMueller (uvcontsub) and other types simultaneously."));
       }
-
+      */
       
       // Report the types that will be applied
       applystate();
@@ -2387,6 +2398,14 @@ void Calibrater::fluxscale(const String& infile,
   //  (Currently, exact matches are required.)
 
   logSink() << LogOrigin("Calibrater","fluxscale") << LogIO::NORMAL3;
+
+  //outfile check
+  if (outfile=="") 
+    throw(AipsError("output fluxscaled caltable name must be specified!"));
+  else {
+    if (File(outfile).exists() && !append) 
+      throw(AipsError("output caltable name, "+outfile+" exists. Please specify a different caltable name"));
+  }
 
   // Convert refFields/transFields to index lists
   Vector<Int> refidx(0);

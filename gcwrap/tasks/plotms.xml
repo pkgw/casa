@@ -272,6 +272,8 @@ MS Parameters
         <value />
         <value>icrs</value>
         <value>j2000</value>
+        <value>b1950</value>
+        <value>galactic</value>
         <value>azelgeo</value>
       </allowed>
     </param>
@@ -282,8 +284,9 @@ MS Parameters
       <allowed kind="enum">
         <value />
         <value>nearest</value>
-        <value>linear</value>
-        <value>cubic</value>
+        <value>cubic spline</value>
+        <!--  allow also shorter equivalent for 'cubic spline': -->
+        <value>spline</value>
       </allowed>
     </param>
     
@@ -487,6 +490,8 @@ MS Parameters
         <value />
         <value>icrs</value>
         <value>j2000</value>
+        <value>b1950</value>
+        <value>galactic</value>
         <value>azelgeo</value>
       </allowed>
     </param>
@@ -498,8 +503,9 @@ MS Parameters
       <allowed kind="enum" type="string">
         <value />
         <value>nearest</value>
-        <value>linear</value>
-        <value>cubic</value>
+        <value>cubic spline</value>
+        <!--  allow also shorter equivalent for 'cubic spline': -->
+        <value>spline</value>
       </allowed>
     </param>
     
@@ -1188,6 +1194,11 @@ Export plot as image Parameters
         <value>False</value>
      </param>
      
+     <param type="bool" name="showimage">
+        <description>Compute and overlay the image sideband curve</description>
+        <value>False</value>
+     </param>
+  
 <!--
 ###############################################################################
 Plotxy Compliance Parameters
