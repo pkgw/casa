@@ -32,6 +32,7 @@
 #include <string>
 #if defined(WITHOUT_DBUS)
 #include <queue>
+#include <mutex>
 #endif
 #include <display/QtViewer/QtViewerBase.qo.h>
 

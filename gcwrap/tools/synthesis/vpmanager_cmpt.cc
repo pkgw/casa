@@ -26,7 +26,7 @@
 #include <casa/Quanta/MVFrequency.h>
 #include <casa/Quanta/Quantum.h>
 #include <synthesis/MeasurementEquations/VPManager.h>
-#include <imageanalysis/ImageAnalysis/AntennaResponses.h>
+#include <synthesis/MeasurementEquations/AntennaResponses.h>
 
 using namespace std;
 using namespace casacore;

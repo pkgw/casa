@@ -35,6 +35,7 @@
 
 using casatools::rpc::Registrar;
 
+#include <unistd.h>
 #endif
 #include <display/QtViewer/QtViewer.qo.h>
 #include <display/QtViewer/QtDisplayPanelGui.qo.h>
@@ -87,6 +88,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		} else {
 			dbus_ = 0;
 #else
+			static const auto debug = getenv("GRPC_DEBUG");
 
 			grpcViewerState *state = new grpcViewerState(this);
 
@@ -136,57 +138,83 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 				// if an available port can be found, selected_port is set to a value greater than zero
 				snprintf(address_buf,sizeof(address_buf),address_template,selected_port);
 				state->uri = address_buf;
-				if (getenv("GRPC_DEBUG")) {
+				if ( debug ) {
 					std::cout << "viewer service available at " << state->uri << std::endl;
 					fflush(stdout);
 				}
-				// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-				// create the connection to the registrar for service registration using the uri
-				// provided on the command line...
-				std::unique_ptr<Registrar::Stub> proxy =
-					Registrar::NewStub(grpc::CreateChannel(server_string, grpc::InsecureChannelCredentials( )));
-				// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-				// register our "shutdown, "image-view" and "interactive-clean" services with
-				// the registrar...
-				casatools::rpc::ServiceId sid;
-				sid.set_id("casaviewer");
-				sid.set_uri(state->uri);
-				sid.add_types("shutdown");
-				sid.add_types("image-view");
-				sid.add_types("interactive-clean");
-				grpc::ClientContext context;
-				casatools::rpc::ServiceId accepted_sid;
-				if (getenv("GRPC_DEBUG")) {
-					std::cout << "registering services with registrar (at " << server_string << ")" << std::endl;
-					fflush(stdout);
-				}
-				::grpc::Status status = proxy->add(&context,sid,&accepted_sid);
-				if ( ! status.ok( ) ) {
+				if ( server_string ) {
+					if ( access( server_string, F_OK ) == -1 ) {
+						// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+						// create the connection to the registrar for service registration using the uri
+						// provided on the command line...
+						std::unique_ptr<Registrar::Stub> proxy =
+							Registrar::NewStub(grpc::CreateChannel(server_string, grpc::InsecureChannelCredentials( )));
+						// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+						// register our "shutdown, "image-view" and "interactive-clean" services with
+						// the registrar...
+						casatools::rpc::ServiceId sid;
+						sid.set_id("casaviewer");
+						sid.set_uri(state->uri);
+						sid.add_types("shutdown");
+						sid.add_types("image-view");
+						sid.add_types("interactive-clean");
+						grpc::ClientContext context;
+						casatools::rpc::ServiceId accepted_sid;
+						if ( debug ) {
+							std::cout << "registering services with registrar (at " << server_string << ")" << std::endl;
+							fflush(stdout);
+						}
+						::grpc::Status status = proxy->add(&context,sid,&accepted_sid);
+						if ( ! status.ok( ) ) {
+							// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+							// if registration was not successful, we exit...
+							std::cerr << "registration failed, exiting..." << std::endl;
+							fflush(stderr);
+							state->server->Shutdown( );
+							QCoreApplication::exit(1);
+							exit(1);
+						}
+						if ( debug ) {
+							std::cout << "accepted service id: ( " << accepted_sid.id( ) << ", " << accepted_sid.uri( ) << ", ";
+							for ( auto i=accepted_sid.types( ).begin( ); i != accepted_sid.types( ).end( ); ++i )
+								std::cout << "'" << (*i) << "' ";
+							std::cout << ")" << std::endl;
+							fflush(stdout);
+						}
+					} else {
+						int fd;
+						if ( (fd = open(server_string, O_WRONLY)) != -1 ) {
+							char uri[strlen(state->uri.c_str( ))+2];
+							sprintf(uri,"%s\n",state->uri.c_str( ));
+							if ( write( fd, uri, strlen(uri)) != strlen(uri) ) {
+								qWarning("server failed to write gRPC URI to named pipe...");
+								qFatal("exiting...");
+								exit(1);
+							}
+							close(fd);
+						} else {
+							qWarning("server failed to open gRPC URI named pipe...");
+							qFatal("exiting...");
+							exit(1);
+						}
+					}
+
 					// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-					// if registration was not successful, we exit...
-					std::cerr << "registration failed, exiting..." << std::endl;
-					fflush(stderr);
-					state->server->Shutdown( );
-					QCoreApplication::exit(1);
-					exit(1);
+					// complete startup
+					grpc_.reset(state);
+				} else {
+					grpc_.reset( );
+					if ( debug ) {
+						std::cout << "no registrar provided... skipped registering." << std::endl;
+						fflush(stdout);
+					}
 				}
 
-				// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-				// complete startup
-				grpc_.reset(state);
-				if (getenv("GRPC_DEBUG")) {
-					std::cout << "accepted service id: ( " << accepted_sid.id( ) << ", " << accepted_sid.uri( ) << ", ";
-					for ( auto i=accepted_sid.types( ).begin( ); i != accepted_sid.types( ).end( ); ++i )
-						std::cout << "'" << (*i) << "' ";
-					std::cout << ")" << std::endl;
-					fflush(stdout);
-				}
 			} else grpc_.reset( );
-
 #endif
 		}
-	}
 
+	}
 
 	QtViewer::~QtViewer() {
 		// wonder if we need to delete dbus adaptor...
@@ -284,9 +312,9 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	void QtViewer::quit() {
 #if defined(WITHOUT_DBUS)
-
+		static const auto debug = getenv("GRPC_DEBUG");
 		if ( grpc_ && grpc_->server ) {
-			if (getenv("GRPC_DEBUG")) {
+			if ( debug ) {
 				std::cout << "entering QtViewer::quit( )..." << std::endl;
 				std::cout << "		  ...shutting down grpc server..." << std::endl;
 				fflush(stdout);
@@ -294,7 +322,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 			grpc_->server->Shutdown( );
 		}
 		
-		if ( getenv("GRPC_DEBUG") && grpc_->server ) {
+		if ( debug && grpc_->server ) {
 			std::cout << "		  ...shutting down qt..." << std::endl;
 			fflush(stdout);
 		}

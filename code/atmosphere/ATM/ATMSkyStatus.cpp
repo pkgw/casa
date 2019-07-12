@@ -705,6 +705,71 @@ Opacity SkyStatus::getH2OLinesOpacity(unsigned int nc)
   return ((getUserWH2O().get()) / (getGroundWH2O().get())) * kv;
 }
 
+Opacity SkyStatus::getH2OLinesOpacityUpTo(unsigned int nc, Length refalti)
+{
+  unsigned int ires; unsigned int numlayerold; Length alti;  
+  Opacity opacityout0; Opacity opacityout1; Opacity zeroOp(0.0,"np");
+  double fractionLast; double g1; double g2;
+
+  if(refalti.get("km") <= altitude_.get("km")) {
+    return zeroOp;
+  }else{
+      fractionLast = 1.0; numlayerold = numLayer_;
+      g1=getGroundWH2O().get();
+      opacityout0=getH2OLinesOpacity(nc); ires=numlayerold-1; alti=altitude_;
+      for(unsigned int i=0; i<numLayer_; i++){
+	if(alti.get("km") < refalti.get("km") &&  (alti.get("km")+v_layerThickness_[i]/1000.0) >= refalti.get("km"))
+	  { ires=i; fractionLast = (refalti.get("m")-alti.get("m"))/v_layerThickness_[i]; }
+	alti = alti + Length(v_layerThickness_[i],"m");
+      }
+      numLayer_ = ires; g2=getGroundWH2O().get();
+      opacityout0=getH2OLinesOpacity(nc)*(g2/g1);
+      numLayer_ = ires+1; g2=getGroundWH2O().get();
+      opacityout1=getH2OLinesOpacity(nc)*(g2/g1);      
+      numLayer_ = numlayerold;
+      return opacityout0+(opacityout1-opacityout0)*fractionLast;
+  }
+}
+
+/*
+Opacity SkyStatus::getTotalOpacityUpTo(unsigned int nc, Length refalti)    //15NOV2017
+  {
+    unsigned int ires; unsigned int numlayerold; Length alti;
+    Opacity opacityout; Opacity opacityout0;
+    Opacity opacityout1; Opacity zeroOp(0.0,"np");
+    double fractionLast; double g1; double g2;
+
+    if(refalti.get("km") <= altitude_.get("km")) {
+      return zeroOp;
+    }else{
+      fractionLast = 1.0; numlayerold = numLayer_;
+      g1=getGroundWH2O().get(); ires = numlayerold-1; alti=altitude_;
+      for(unsigned int i=0; i<numLayer_; i++){
+	if(alti.get("km") < refalti.get("km") &&  (alti.get("km")+v_layerThickness_[i]/1000.0) >= refalti.get("km"))
+	  { ires=i; fractionLast = (refalti.get("m")-alti.get("m"))/v_layerThickness_[i]; }
+	alti = alti + Length(v_layerThickness_[i],"m");
+      }
+      numLayer_ = ires+1; g2=getGroundWH2O().get();
+      // std::cout << "En getTotalOpacityUpTo numlayerold numLayer_ fractionLast " << numlayerold << " " << numLayer_ << " " << fractionLast << std::endl;
+      // std::cout << "calculando opacityout1" << std::endl;
+      opacityout1 = getWetOpacity(nc)*(g2/g1) + getDryOpacity(nc);
+      // std::cout << "opacityout1= " << opacityout1.get("np") << std::endl;
+      // std::cout << "calculando opacityout0" << std::endl;
+      // std::cout << "ires=" << ires << std::endl;
+      if(ires == 0){
+	opacityout0 = zeroOp;
+      }else{
+	numLayer_ = ires; g2=getGroundWH2O().get();
+	opacityout0 = getWetOpacity(nc)*(g2/g1) + getDryOpacity(nc);
+      }
+      //    std::cout << "opacityout0= " << opacityout0.get("np") << std::endl;
+      opacityout = opacityout0 + (opacityout1-opacityout0)*fractionLast;
+      numLayer_ = numlayerold;
+      return opacityout;
+    }
+  }
+*/
+
 Opacity SkyStatus::getH2OContOpacity(unsigned int nc)
 {
   if(!chanIndexIsValid(nc)) return (double) -999.0;
@@ -713,6 +778,33 @@ Opacity SkyStatus::getH2OContOpacity(unsigned int nc)
     kv = kv + imag(vv_N_H2OContPtr_[nc]->at(j)) * v_layerThickness_[j];
   }
   return ((getUserWH2O().get()) / (getGroundWH2O().get())) * kv;
+}
+
+Opacity SkyStatus::getH2OContOpacityUpTo(unsigned int nc, Length refalti)
+{
+  unsigned int ires; unsigned int numlayerold; Length alti;  
+  Opacity opacityout0; Opacity opacityout1; Opacity zeroOp(0.0,"np");
+  double fractionLast; double g1; double g2;
+
+  
+  if(refalti.get("km") <= altitude_.get("km")) {
+    return zeroOp;
+  }else{
+      fractionLast = 1.0; numlayerold = numLayer_;
+      g1=getGroundWH2O().get();
+      opacityout0=getH2OContOpacity(nc); ires=numlayerold-1; alti=altitude_;
+      for(unsigned int i=0; i<numLayer_; i++){
+	if(alti.get("km") < refalti.get("km") &&  (alti.get("km")+v_layerThickness_[i]/1000.0) >= refalti.get("km"))
+	  { ires=i; fractionLast = (refalti.get("m")-alti.get("m"))/v_layerThickness_[i]; }
+	alti = alti + Length(v_layerThickness_[i],"m");
+      }
+      numLayer_ = ires; g2=getGroundWH2O().get();
+      opacityout0=getH2OContOpacity(nc)*(g2/g1);
+      numLayer_ = ires+1; g2=getGroundWH2O().get();
+      opacityout1=getH2OContOpacity(nc)*(g2/g1);      
+      numLayer_ = numlayerold;
+      return opacityout0+(opacityout1-opacityout0)*fractionLast;
+  }
 }
 
 Angle SkyStatus::getDispersiveH2OPhaseDelay(unsigned int nc)
@@ -1748,7 +1840,7 @@ double SkyStatus::getSigmaTransmissionFit(unsigned int spwId,
           && getSpectralWindow(spwId)[i] * 1E-09 <= f2.get("GHz"))) {
         num++;
         rms = rms + pow((v_transmission[i] - exp(-airm
-                            * (getDryOpacity(spwId, i).get()
+						 * ( (getDryContOpacity(spwId, i).get()+getO2LinesOpacity(spwId, i).get()+0.65*getO3LinesOpacity(spwId, i).get()  )  // getDryOpacity(spwId, i).get()
                                 + getWetOpacity(spwId, i).get()))),
                         2);
       }
@@ -1868,14 +1960,15 @@ Length SkyStatus::mkWaterVaporRetrieval_fromFTS(unsigned int spwId,
       if(nl == getSpectralWindow(spwId).size() || (getSpectralWindow(spwId)[i]
           * 1E-09 >= fre1.get("GHz") && getSpectralWindow(spwId)[i] * 1E-09
           <= fre2.get("GHz"))) {
-
-        transmission_fit[i] = exp(-(getDryOpacity(spwId, i).get() + pfit_wh2o
-            * getWetOpacity(spwId, i).get()));
+	//                                                         
+        transmission_fit[i] = exp(-( (getDryContOpacity(spwId, i).get()+getO2LinesOpacity(spwId, i).get()+0.65*getO3LinesOpacity(spwId, i).get() )                                              //getDryOpacity(spwId, i).get()
+				     + pfit_wh2o * getWetOpacity(spwId, i).get() ) );
+	//                                                         
         f1 = transmission_fit[i];
         psave = pfit_wh2o;
         pfit_wh2o = pfit_wh2o + deltaa;
-        f2 = exp(-(getDryOpacity(spwId, i).get() + pfit_wh2o
-            * getWetOpacity(spwId, i).get()));
+        f2 = exp(-( (getDryContOpacity(spwId, i).get()+getO2LinesOpacity(spwId, i).get()+0.65*getO3LinesOpacity(spwId, i).get() )     //getDryOpacity(spwId, i).get()
+		   + pfit_wh2o* getWetOpacity(spwId, i).get()));
         deriv = (f2 - f1) / deltaa;
         pfit_wh2o = psave;
         beta = beta + (measuredSkyTransmission[i] - transmission_fit[i])
@@ -1907,8 +2000,8 @@ Length SkyStatus::mkWaterVaporRetrieval_fromFTS(unsigned int spwId,
       if(nl == getSpectralWindow(spwId).size() || (getSpectralWindow(spwId)[i]
           * 1E-09 >= fre1.get("GHz") && getSpectralWindow(spwId)[i] * 1E-09
           <= fre2.get("GHz"))) {
-        transmission_fit[i] = exp(-(getDryOpacity(spwId, i).get() + pfit_wh2o_b
-            * getWetOpacity(spwId, i).get()));
+        transmission_fit[i] = exp(-( ( getDryContOpacity(spwId, i).get()+getO2LinesOpacity(spwId, i).get()+0.65*getO3LinesOpacity(spwId, i).get() )             //      (getDryOpacity(spwId, i).get())
+				     + pfit_wh2o_b * getWetOpacity(spwId, i).get()));
         res = -transmission_fit[i] + measuredSkyTransmission[i];
         chisqr = chisqr + res * res;
       }

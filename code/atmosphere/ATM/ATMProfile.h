@@ -81,7 +81,9 @@ public:
   /** A constructor of an empty profile with n layers, that can be filled up later. */
   AtmProfile(unsigned int n);
 
-  /** A long constructor of the atmospheric profile from the basic set of parameters described above. */
+  /** A long constructor of the atmospheric profile from the basic set of parameters described above. 
+      Please note that this constructor assumes that the &altitude of the antenna is the SAME of the 
+      weather station that provides: &groundPressure, &groundTemperature, and &relativeHumidity */
   AtmProfile(const Length &altitude,
              const Pressure &groundPressure,
              const Temperature &groundTemperature,
@@ -93,6 +95,7 @@ public:
              const Length &topAtmProfile,
              unsigned int atmType); //Atmospheretype atmType);
 
+  
   /** A long constructor of the atmospheric profile from the basic set of parameters described above which, 
       in addition, includes user-defined temperature profile  */
   AtmProfile(const Length &altitude,
@@ -105,8 +108,8 @@ public:
              double pressureStepFactor,
              const Length &topAtmProfile,
              unsigned int atmType,
-	     const std::vector<Length> &v_layerBoundaries,
-	     const std::vector<Temperature> &v_layerTemperature); 
+	     const vector<Length> &v_layerBoundaries,
+	     const vector<Temperature> &v_layerTemperature); 
 
 
   
@@ -145,24 +148,24 @@ public:
    vapor density in each layer in kg/m**3). QUESTION: SHOULD O3, CO, N2O, NO2, SO2 PROFILES BE FILLED UP
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<MassDensity> &v_layerWaterVapor);
-  AtmProfile(const std::vector<Length> &v_layerBoundaries,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<MassDensity> &v_layerWaterVapor);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<MassDensity> &v_layerWaterVapor);
+  AtmProfile(const vector<Length> &v_layerBoundaries,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<MassDensity> &v_layerWaterVapor);
 
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<NumberDensity> &v_layerWaterVapor);
-  AtmProfile(const std::vector<Length> &v_layerBoundaries,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<NumberDensity> &v_layerWaterVapor);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<NumberDensity> &v_layerWaterVapor);
+  AtmProfile(const vector<Length> &v_layerBoundaries,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<NumberDensity> &v_layerWaterVapor);
 
   /** The user provides his own atmospheric profile (in this case five vectors for layer thickness in m,
    average pressure in each layer in mb, average temperature in each layer in K, average water vapor
@@ -171,17 +174,17 @@ public:
    INTERNALLY FROM A STANDARD ATMOSPHERE OR LEFT ITS ABUNDANCES EQUAL TO ZERO ? */
 
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<MassDensity> &v_layerWaterVapor,
-             const std::vector<NumberDensity> &v_layerO3);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<MassDensity> &v_layerWaterVapor,
+             const vector<NumberDensity> &v_layerO3);
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<NumberDensity> &v_layerWaterVapor,
-             const std::vector<NumberDensity> &v_layerO3);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<NumberDensity> &v_layerWaterVapor,
+             const vector<NumberDensity> &v_layerO3);
 
   /** The user provides his own atmospheric profile (in this case seven vectors for layer thickness in m,
    average pressure in each layer in mb, average temperature in each layer in K, average water vapor
@@ -189,26 +192,26 @@ public:
    average CO number density in each layer in molecules/m**3, average N2O, NO2, SO2 number density in each
    layer in molecules/m**3) */
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<MassDensity> &v_layerWaterVapor,
-             const std::vector<NumberDensity> &v_layerO3,
-             const std::vector<NumberDensity> &v_layerCO,
-             const std::vector<NumberDensity> &v_layerN2O,
-             const std::vector<NumberDensity> &v_layerNO2,
-             const std::vector<NumberDensity> &v_layerSO2);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<MassDensity> &v_layerWaterVapor,
+             const vector<NumberDensity> &v_layerO3,
+             const vector<NumberDensity> &v_layerCO,
+             const vector<NumberDensity> &v_layerN2O,
+             const vector<NumberDensity> &v_layerNO2,
+             const vector<NumberDensity> &v_layerSO2);
 
   AtmProfile(const Length &altitude,
-	     const std::vector<Length> &v_layerThickness,
-             const std::vector<Pressure> &v_layerPressure,
-             const std::vector<Temperature> &v_layerTemperature,
-             const std::vector<NumberDensity> &v_layerWaterVapor,
-             const std::vector<NumberDensity> &v_layerO3,
-             const std::vector<NumberDensity> &v_layerCO,
-             const std::vector<NumberDensity> &v_layerN2O,
-             const std::vector<NumberDensity> &v_layerNO2,
-             const std::vector<NumberDensity> &v_layerSO2);
+	     const vector<Length> &v_layerThickness,
+             const vector<Pressure> &v_layerPressure,
+             const vector<Temperature> &v_layerTemperature,
+             const vector<NumberDensity> &v_layerWaterVapor,
+             const vector<NumberDensity> &v_layerO3,
+             const vector<NumberDensity> &v_layerCO,
+             const vector<NumberDensity> &v_layerN2O,
+             const vector<NumberDensity> &v_layerNO2,
+             const vector<NumberDensity> &v_layerSO2);
 
   AtmProfile(const AtmProfile &a); // copy constructor
 
@@ -278,6 +281,14 @@ public:
   /** Alternative accessor to the ground altitude of site (length units) */
   Length getGroundAltitude() const { return altitude_; }
 
+   /** setter for the ground altitude of site (length units). Careful! It will remove or add layers if necessary. 
+       Ground values of T/P/h would change as well */
+  void setAltitude(const Length &groundaltitude);
+
+  /** Alternative setter for the ground altitude of site (length units). Careful! It will remove or add layers if necessary. 
+       Ground values of T/P/h would change as well */
+  // void setGroundAltitude(const Length &groundaltitude);
+ 
   /** Accessor to the altitude of the tropopause (length units) */
   Length getTropopauseAltitude() const { return tropoAltitude_; }
 
@@ -288,7 +299,7 @@ public:
   unsigned int getNumLayer() const { return numLayer_; }
 
   /** Method to access the Temperature Profile  */
-  std::vector<Temperature> getTemperatureProfile() const;
+  vector<Temperature> getTemperatureProfile() const;
 
   /**
    * Method to access the average Temperature in layer i (thickness of layers in ThicknessProfile)
@@ -313,7 +324,7 @@ public:
 
   /** Method to retrieve the layer thickness from site altitude upwards.
    *  Use Altitude to + ThicknessProfile to know the vertical grid. */
-  std::vector<Length> getThicknessProfile() const;
+  vector<Length> getThicknessProfile() const;
 
   /**
    * Method to access the layer thickness of layer i
@@ -371,7 +382,7 @@ public:
   //void setLayerWaterVapor(const NumberDensity &layerWaterVapor, unsigned int i) { setLayerWaterVapor(i, layerWaterVapor); }
 
   /** Method to get the Pressure Profile */
-  std::vector<Pressure> getPressureProfile() const;
+  vector<Pressure> getPressureProfile() const;
 
   /** Method to access the average Pressure in layer i
    * @exception AtmException if the layer is not valid.
@@ -469,7 +480,7 @@ protected:
   Temperature tropoTemperature_; //!< Temperature at the tropopause
   unsigned int tropoLayer_; //!< Layer where tropopause starts
   Length tropoAltitude_; //!< Altitude where tropopause starts
-  Pressure groundPressure_; //!< Ground pressure at the site (mb)
+  Pressure groundPressure_; //!< Ground pressure at the site 
   Humidity relativeHumidity_; /** Relative humidity at the site (%)
    used only to make an estimate
    of the water vapor column, first guess) */
@@ -480,9 +491,11 @@ protected:
    P_ground=550; DP: 10; DP1:
    1.2 ==> The pressure levels will
    then be 550, 560, 572, 586.4, .... */
+
   Length altitude_; //!< Altitude of the site (km)
   Length topAtmProfile_; //!< Top of atmospheric profile (km)
   unsigned int numLayer_; //!< Total number of layers in the output	atmospheric profiles
+  double fractionLast_;  //!< Fraction of last layer needed for some calculations
   bool newBasicParam_;
   vector<double> v_layerThickness_; //!< Thickness of layer (m)
   vector<double> v_layerTemperature_; //!< Temp. of layers (K)
@@ -537,7 +550,7 @@ protected:
 private:
   MassDensity rwat(const Temperature &t, const Humidity &rh, const Pressure &p) const;
   Humidity rwat_inv(const Temperature &tt, const MassDensity &dd, const Pressure &pp) const;
-  std::vector<NumberDensity> st76(const Length &ha, unsigned int tip) const;
+  vector<NumberDensity> st76(const Length &ha, unsigned int tip) const;
   double poli2(double ha,
                double x1,
                double x2,

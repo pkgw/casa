@@ -2044,7 +2044,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  //cerr << "datafstart " << datafstart << " end " << datafend << endl;
 	  
 	  if (mode=="cubedata") {
-	    
 	    freqmin = datafstart;
 	    freqmax = datafend;
 	  }
@@ -2070,7 +2069,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    */
 	  }
 	  else {
-	    
 	    //VisBufferUtil::getFreqRange(freqmin,freqmax, vi2, freqFrameValid? freqFrame:MFrequency::REST );
 	    //cerr << "before " << freqmin << "   " << freqmax << endl;
 	    MSUtil::getFreqRangeInSpw( freqmin, freqmax, spwids, firstChannels,
@@ -2773,7 +2771,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     MDirection tmpazel;
     if(planetType >=MDirection::MERCURY && planetType <MDirection::COMET){
       tmpazel=MDirection::Convert(trackDir, outref1)();
-      
     }
     else{
       MeasComet mcomet(Path(ephemtab).absoluteName());

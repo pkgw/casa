@@ -75,20 +75,35 @@ class PlotMSAtm {
 public:
 
     // construct with bandpass table name
-    PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool isMS,
-        PlotMSCacheBase* parent);
+    PlotMSAtm(casacore::String filename, PlotMSSelection& userSel, bool showatm,
+        bool isMS, bool xAxisIsChan, PlotMSCacheBase* parent);
     ~PlotMSAtm();
 
-    // Returns curve vector (atm if atm=true, else tsky);
-    // pass in frequencies (GHz) in case of channel-averaging
-    // (let VIVB2 do the work)
-    casacore::Vector<casacore::Double> calcOverlayCurve(
-        casacore::Int spw, casacore::Int scan, 
-        const casacore::Vector<casacore::Double>& chanFreqs,
-        bool atm);
+    // accessors
+    inline casacore::String filename() { return filename_; }
+    inline PlotMSSelection selection() { return selection_; }
+    inline bool showatm() { return showatm_; } // false is tsky
+    inline bool xAxisIsChan() { return xIsChan_; }
+
+    inline void setShowAtm(bool showatm) { showatm_ = showatm; }
+    inline void setXAxisIsChan(bool isChan) { xIsChan_ = isChan; }
+
+    // passes arguments through to calcOverlayCurve
+    void calcAtmTskyCurve(casacore::Vector<casacore::Double>& curve,
+        casacore::Int spw, casacore::Int scan,
+        const casacore::Vector<casacore::Double>& chanFreqs);
+    // calculates image frequencies then calls calcOverlayCurve
+    void calcImageCurve(casacore::Vector<casacore::Double>& curve,
+        casacore::Int spw, casacore::Int scan,
+        const casacore::Vector<casacore::Double>& chanFreqs);
 
     inline casacore::Double getPwv() { return pwv_; }
     inline casacore::Double getAirmass() { return airmass_; }
+
+    // image sideband curve helpers
+    inline bool canShowImageCurve() { return (hasReceiverTable() && canGetLOsForSpw()); }
+    bool hasReceiverTable();
+    bool canGetLOsForSpw();
 
 private:
 
@@ -97,14 +112,20 @@ private:
 
     // info from MS
     void setUpMS(casacore::String filename, PlotMSSelection& userSel);
-    void getMSTimes();
-    void getMSFields();
+    void getMSTimes(MeasurementSet& ms);
+    void getMSFields(MeasurementSet& ms);
 
     // info from cal tables
     void setUpCalTable(casacore::String filename, PlotMSSelection& userSel);
-    void getCalTimes();
-    void getCalFields();
-    void getCalMS();
+    void getCalTimes(NewCalTable& ct);
+    void getCalFields(NewCalTable& ct);
+    void getCalMS(); // uses original caltable_
+
+    // common function for plotbandpass CalcAtmTransmission algorithm
+    // Returns curve vector (atm, tsky, image sideband);
+    casacore::Vector<casacore::Double> calcOverlayCurve(
+        casacore::Int spw, casacore::Int scan,
+        const casacore::Vector<casacore::Double>& chanFreqs);
 
     // for user selection then each chunk's spw and scan
     void applyMSSelection(PlotMSSelection& selection,
@@ -114,36 +135,58 @@ private:
 
     // calculated values
     void getMeanWeather();  // stored in weather_ Record
-	casacore::Table selectWeatherTable(casacore::Table& intable,
+    casacore::Table selectWeatherTable(casacore::Table& intable,
         casacore::String tempUnits, casacore::String pressureUnits);
     void getMedianPwv();    // stored in pwv_
     casacore::Double computeMeanAirmass();
-    casacore::Double getElevation(casacore::Int fieldId);
+    casacore::Double getPointingElevation();
+    casacore::Double getFieldElevation(casacore::Int fieldId); // no pointing table
     casacore::Double getMeanScantime();
 
     // atmosphere tool
     atm::AtmProfile* getAtmProfile();
 
+    // image sideband curve
+    bool getLO1FreqForSpw(double& freq, int spw);
+    bool calcImageFrequencies(casacore::Vector<casacore::Double>& imageFreqs,
+        casacore::Int spw, const casacore::Vector<casacore::Double>& chanFreqs);
+
     // utility functions
-    // Sets times_ = unique values in TIME column
-    void getUniqueTimes(casacore::Vector<casacore::Double> alltimes);
+    // Determine unique time values in input vector
+    void getUniqueTimes(casacore::Vector<casacore::Double> inputTimes,
+        casacore::Vector<casacore::Double>& uniqueTimes);
     // Sets fields_ = unique values in FIELD column
     void getUniqueFields(casacore::Vector<casacore::Int> allfields);
     template <typename T>
-    casacore::Vector<T> getValuesNearTimes(
-        casacore::Vector<T> inputCol, 
-        casacore::Vector<casacore::Double> timesCol);
+    casacore::Vector<T> getValuesInTimeRange(casacore::Vector<T> inputCol, 
+        casacore::Vector<casacore::Double> timesCol, casacore::Double mintime,
+        casacore::Double maxtime);
+    template <typename T>
+    void getClosestValues(casacore::Vector<T>& values,
+        casacore::Vector<casacore::Double>& times, casacore::Vector<T>& data,
+        double mintime, double maxtime);
+    // use cal table times if available, else ms times
+    void getTimeRange(casacore::Double& mintime, casacore::Double& maxtime);
 
-    bool isMS_;
+    casacore::String filename_, tableName_, telescopeName_;
+    bool showatm_;         // true=showatm, false=showtsky
+    bool isMS_;            // true=MS, false=CalTable
+    bool xIsChan_;         // image curve changes for chan/freq x-axis
+    bool canCalculatePwv_;     // has CALWVR or CALATMOSPHERE subtable
+    bool canCalculateWeather_; // has WEATHER subtable
     PlotMSCacheBase* parent_; // for log messages
+    PlotMSSelection selection_;
     casacore::MeasurementSet *ms_, *selms_; // selected MS for each spw/scan
-    NewCalTable *caltable_, *selct_;  // selected CT for each spw/scan
-    casacore::String tableName_, telescopeName_;
+    NewCalTable *caltable_, *selct_;        // selected CT for each spw/scan
+
+    // updated for every spw/scan selection:
+    int selectedSpw_, selectedScan_;
     casacore::Double pwv_, airmass_;
-    casacore::Vector<casacore::Double> times_;
+    casacore::Vector<casacore::Double> mstimes_, caltimes_;
     casacore::Vector<casacore::Int> fields_;
     casacore::Record weather_;
-	const unsigned int MAX_ATM_CALC_CHAN_;
+    std::map<int, double> loFreqForSpw_;
+    const unsigned int MAX_ATM_CALC_CHAN_;
 };
 
 }
