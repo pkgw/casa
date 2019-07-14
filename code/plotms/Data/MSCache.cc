@@ -891,8 +891,8 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 					case PMS::InterpMethod::NEAREST:
 						interpolator.setInterpMethod(TviInterp::NEAREST);
 						break;
-					case PMS::InterpMethod::CUBIC:
-						interpolator.setInterpMethod(TviInterp::SPLINE);
+					case PMS::InterpMethod::CUBIC_SPLINE:
+						interpolator.setInterpMethod(TviInterp::CUBIC_SPLINE);
 						break;
 					default:
 						String errMsg("MSCache::loadChunks(): unsupported pointing interpolation method: ");
@@ -900,7 +900,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						throw(AipsError(errMsg));
 					}
 					switch (loadXYFrame_[i]){
-					case PMS::CoordSystem::AZEL:
+					case PMS::CoordSystem::AZELGEO:
 						piTvi->setOutputDirectionFrame(MDirection::AZELGEO);
 						break;
 					case PMS::CoordSystem::ICRS:
@@ -908,6 +908,12 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						break;
 					case PMS::CoordSystem::J2000:
 						piTvi->setOutputDirectionFrame(MDirection::J2000);
+						break;
+					case PMS::CoordSystem::B1950:
+						piTvi->setOutputDirectionFrame(MDirection::B1950);
+						break;
+					case PMS::CoordSystem::GALACTIC:
+						piTvi->setOutputDirectionFrame(MDirection::GALACTIC);
 						break;
 					}
 					auto & raBlock = raMap_.at(raDecParams);
@@ -1921,9 +1927,14 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		raDecMat.resize(2, dir1Vec.nelements());
 		auto nAnts = dir1Vec.nelements();
 		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
-			raDecMat.column(iant) = dir1Vec(iant).getAngle("deg").getValue();
+			const auto & mVDirection = dir1Vec(iant).getValue();
+			const double within_0_360 = 0.0;
+			auto dirLong360 = MVAngle(mVDirection.getLong())(within_0_360).degree();
+			auto dirLat     = MVAngle(mVDirection.getLat()).degree();
+			raDecMat(0,iant) = dirLong360;
+			raDecMat(1,iant) = dirLat;
 		}
-		*((*loadRa_)[vbnum]) = raDecMat.row(0);
+		*((*loadRa_ )[vbnum]) = raDecMat.row(0);
 		*((*loadDec_)[vbnum]) = raDecMat.row(1);
 		break;
 	}

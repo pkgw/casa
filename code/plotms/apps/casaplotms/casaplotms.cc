@@ -178,6 +178,9 @@ setbuf(stdout, NULL); /* for debugging - forces all printf() to flush immediatel
 	auto ends_with = []( const std::string& str, const std::string& ending ) {
 		return ( str.size( ) >= ending.size( ) ) && equal( ending.rbegin( ), ending.rend( ), str.rbegin( ) );
 	};
+	auto begins_with = []( const std::string& str, const std::string& beginning ) {
+		return str.size( ) >= beginning.size( ) && str.substr(0, beginning.size( )) == beginning;
+	};
 
 	if ( ends_with(exepath, "Contents/MacOS/CASAplotms") ||
          ends_with(exepath, "Contents/MacOS/casaplotms") ) {
@@ -204,9 +207,8 @@ setbuf(stdout, NULL); /* for debugging - forces all printf() to flush immediatel
 			QCoreApplication::addLibraryPath(QString(pluginpath.c_str( )));
 		}
 
-	} else if ( ends_with(exepath, "/AppRun") ||
-                ends_with(exepath, "/CASAplotms.app/usr/bin/CASAplotms") ||
-                ends_with(exepath, "/casaplotms.app/usr/bin/casaplotms") ) {
+	} else if ( begins_with(exepath,"/tmp/.mount") && ends_with(exepath,"/usr/bin/casaplotms") ||
+                ends_with(exepath,"/casaplotms.app/usr/bin/casaplotms") ) {
 
 		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 		// linux  --  path is specific to package format
@@ -219,11 +221,11 @@ setbuf(stdout, NULL); /* for debugging - forces all printf() to flush immediatel
 		// initialize CASAplotms app data...
 		// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 		// generate path to data...
-		bool packed_app = ends_with(exepath, "/AppRun");
 		std::string datapath(exepath);
-		//     packed_app -> .../AppRun
-		// not packed_app -> .../CASAplotms.app/usr/bin/CASAplotms
-		datapath.erase( datapath.end( ) -  (packed_app ? 6 : 18), datapath.end( ) );
+		//	   .../usr/bin/casaplotms
+		//		   123456789012345678
+		//					1
+		datapath.erase( datapath.end( ) - 18, datapath.end( ) );
 		std::string pluginpath = datapath;			   // save for later...
 		datapath += "data";
 		// initialize casacore...

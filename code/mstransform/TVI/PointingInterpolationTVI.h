@@ -35,7 +35,7 @@ public:
 
 		enum class InterpMethod {
 			NEAREST,
-			SPLINE
+			CUBIC_SPLINE
 		};
 
 		void setInterpMethod(InterpMethod method);

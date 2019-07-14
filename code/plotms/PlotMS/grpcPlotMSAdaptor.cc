@@ -797,7 +797,7 @@ namespace casa {
 
     // -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----  -----
     bool grpcPlotMS::invalid_index(int index) {
-        return index < 0 || index >= itsPlotms_->getPlotManager().numPlots( );
+        return index < 0 || index > itsPlotms_->getPlotManager().numPlots( );
     }
 
 }
