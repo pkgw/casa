@@ -222,7 +222,7 @@ String PI_TVI::taQLSet(const std::set<int> & inputSet){
 using PI_Interp = PI_TVI::Interpolator;
 
 PI_Interp::Interpolator()
-	: interp_(InterpMethod::SPLINE),
+	: interp_(InterpMethod::CUBIC_SPLINE),
 	  nearestPointingTimeStamp_(0.0)
 {
 }

@@ -757,15 +757,6 @@ public:
         else return (ants.find(iant) != ants.end());
     }
     Int
-    get_param_index(size_t iant, size_t icor) {
-        // here we use parallel correlation indices, because parameters
-        // by definition only have one hand.
-        if (iant == refant) return -1;
-        int ipar = antennaIndexMap[iant];
-        if (iant > refant) ipar -= 1;
-        return 3*(ipar*nCorrelations + icor);
-    }
-    Int
     get_param_corr_index(size_t iant) {
         if (iant == refant) return -1;
         int ipar = antennaIndexMap[iant];
@@ -1687,9 +1678,9 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
             }
             Int ind = bundle.get_param_corr_index(iant);
             if (ind < 0) continue;
-            gsl_vector_set(gp, ind+0, casa_param(3*icor + 0, iant));
-            gsl_vector_set(gp, ind+1, casa_param(3*icor + 1, iant));
-            gsl_vector_set(gp, ind+2, casa_param(3*icor + 2, iant));
+            gsl_vector_set(gp, ind+0, casa_param(4*icor + 0, iant));
+            gsl_vector_set(gp, ind+1, casa_param(4*icor + 1, iant));
+            gsl_vector_set(gp, ind+2, casa_param(4*icor + 2, iant));
         }
         gsl_vector *gp_orig = gsl_vector_alloc(p);
         // Keep a copy of original parameters
@@ -1731,6 +1722,7 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
         // }
         // cerr << "]" << endl;
         
+        // Transcribe parameters back into CASA arrays
         for (size_t iant=0; iant != bundle.get_max_antenna_index()+1; iant++) {
             if (!bundle.isActive(iant)) continue;
             Int iparam = bundle.get_param_corr_index(iant);
@@ -1749,9 +1741,9 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
                 // }
                 if (DEVDEBUG) {
                     logSink << "Old values for ant " << iant << " correlation " << icor 
-                            << ": Angle " << casa_param(3*icor + 0, iant)
-                            << " delay " << casa_param(3*icor + 1, iant) << " ns "
-                            << " rate " << casa_param(3*icor + 2, iant) << "."
+                            << ": Angle " << casa_param(4*icor + 0, iant)
+                            << " delay " << casa_param(4*icor + 1, iant) << " ns "
+                            << " rate " << casa_param(4*icor + 2, iant) << "."
                             << endl
                             << "New values for ant " << iant << " correlation " << icor 
                             << ": Angle " << gsl_vector_get(res, iparam+0)
@@ -1765,17 +1757,19 @@ least_squares_driver(SDBList& sdbs, Matrix<Float>& casa_param, Matrix<Bool>& cas
                 // number of iterations is not a deal-breaker, leave it
                 // to SNR calculation to decide if the results are
                 // useful.
-                casa_param(3*icor + 0, iant) = gsl_vector_get(res, iparam+0);
-                casa_param(3*icor + 1, iant) = gsl_vector_get(res, iparam+1);
-                casa_param(3*icor + 2, iant) = gsl_vector_get(res, iparam+2);
+                casa_param(4*icor + 0, iant) = gsl_vector_get(res, iparam+0);
+                casa_param(4*icor + 1, iant) = gsl_vector_get(res, iparam+1);
+                casa_param(4*icor + 2, iant) = gsl_vector_get(res, iparam+2);
+                casa_param(4*icor + 3, iant) = 0.0;
                 for (size_t i=0; i!=3; i++) {
-                    casa_snr(3*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
+                    casa_snr(4*icor + i, iant) = gsl_vector_get(snr_vector, iparam+0);
                 }
             } else { // gsl solver failed; flag data
                 logSink << "Least-squares solver failed to converge; flagging" << endl;
-                casa_flags(3*icor + 0, iant) = false;
-                casa_flags(3*icor + 1, iant) = false;
-                casa_flags(3*icor + 2, iant) = false;
+                casa_flags(4*icor + 0, iant) = false;
+                casa_flags(4*icor + 1, iant) = false;
+                casa_flags(4*icor + 2, iant) = false;
+                casa_flags(4*icor + 3, iant) = false;
             }
         }
 
@@ -1853,11 +1847,10 @@ void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
   if (single) {
     for (Int ipol=0;ipol<2;ipol++) {
       Double dtime=(currTime_-timeRef_)-timelist_(currIdx_);
-      Double phase=result_(IPosition(2,ipol*3,0));
-      Double rate=result_(IPosition(2,ipol*3+2,0));
-      //phase+=2.0*C::pi*rate*refFreqs(ispw)*dtime;
+      Double phase=result_(IPosition(2,ipol*4,0));
+      Double rate=result_(IPosition(2,ipol*4+2,0));
       phase+=2.0*C::pi*rate*centroidFreq*dtime;
-      result_(IPosition(2,ipol*3,0))=phase;
+      result_(IPosition(2,ipol*4,0))=phase;
     }
   } else {
     Vector<uInt> rows(2); indgen(rows); rows+=uInt(currIdx_);
@@ -1871,13 +1864,11 @@ void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
 
     for (Int ipol=0;ipol<2;ipol++) {
       Vector<Double> phase(2), rate(2);
-      phase(0)=r.xyPlane(0)(IPosition(2,ipol*3,0));
-      phase(1)=r.xyPlane(1)(IPosition(2,ipol*3,0));
-      rate(0)=r.xyPlane(0)(IPosition(2,ipol*3+2,0));
-      rate(1)=r.xyPlane(1)(IPosition(2,ipol*3+2,0));
+      phase(0)=r.xyPlane(0)(IPosition(2,ipol*4,0));
+      phase(1)=r.xyPlane(1)(IPosition(2,ipol*4,0));
+      rate(0)=r.xyPlane(0)(IPosition(2,ipol*4+2,0));
+      rate(1)=r.xyPlane(1)(IPosition(2,ipol*4+2,0));
 
-      //phase(0)+=2.0*C::pi*rate(0)*refFreqs(ispw)*dtime(0);
-      //phase(1)+=2.0*C::pi*rate(1)*refFreqs(ispw)*dtime(1);
       phase(0)+=2.0*C::pi*rate(0)*centroidFreq*dtime(0);
       phase(1)+=2.0*C::pi*rate(1)*centroidFreq*dtime(1);
 
@@ -1885,7 +1876,7 @@ void CTRateAwareTimeInterp1::applyPhaseRate(Bool single)
       ph(0)=Complex(cos(phase(0)),sin(phase(0)));
       ph(1)=Complex(cos(phase(1)),sin(phase(1)));
       ph(0)=Float(wt)*ph(0) + Float(1.0-wt)*ph(1);
-      result_(IPosition(2,ipol*3,0))=arg(ph(0));
+      result_(IPosition(2,ipol*4,0))=arg(ph(0));
     }
   }
 }
@@ -2108,10 +2099,6 @@ void FringeJones::calcAllJones() {
   ArrayIterator<Float>   Piter(currRPar(),1);
   ArrayIterator<Bool>    POKiter(currParOK(),1);
 
-  if (DEVDEBUG) {
-      cerr << "       calcAllJones() => KrefFreqs_(currSpw()) " << KrefFreqs_(currSpw()) << endl;
-      cerr << "       currTime() " << currTime() << endl;
-  }
   Double phase;
 
   for (Int iant=0; iant<nAnt(); iant++) {
@@ -2123,17 +2110,17 @@ void FringeJones::calcAllJones() {
       oneJones.reference(Jiter.array());
       oneJOK.reference(JOKiter.array());
 
-      for (Int ipar=0;ipar<nPar();ipar+=3) {
+      for (Int ipar=0;ipar<nPar();ipar+=4) {
 	if (onePOK(ipar)) {
 	  phase=onePar(ipar);
 	  phase+=2.0*C::pi*onePar(ipar+1)*
 	    (currFreq()(ich)-KrefFreqs_(currSpw()));
 	  phase+=2.0*C::pi*onePar(ipar+2)*KrefFreqs_(currSpw())*1e9*
 	    (currTime() - refTime());
-	  oneJones(ipar/3)=Complex(cos(phase),sin(phase));
-	  oneJOK(ipar/3)=True;
+	  oneJones(ipar/4)=Complex(cos(phase),sin(phase));
+	  oneJOK(ipar/4)=True;
 	} else {
-	  oneJOK(ipar/3)=False;
+	  oneJOK(ipar/4)=False;
 	}
       }
       // Advance iterators
@@ -2158,22 +2145,25 @@ FringeJones::calculateSNR(Int nCorr, DelayRateFFT drf) {
         for (Int iant=0; iant != nAnt(); iant++) {
             if (iant == refant()) {
                 Double maxsnr = 999.0;
-                sSNR(3*icor + 0, iant) = maxsnr;
-                sSNR(3*icor + 1, iant) = maxsnr;
-                sSNR(3*icor + 2, iant) = maxsnr;
+                sSNR(4*icor + 0, iant) = maxsnr;
+                sSNR(4*icor + 1, iant) = maxsnr;
+                sSNR(4*icor + 2, iant) = maxsnr;
+                sSNR(4*icor + 3, iant) = maxsnr;
             }
             else if (activeAntennas.find(iant) != activeAntennas.end()) {
-                Double delay = sRP(3*icor + 1, iant);
-                Double rate = sRP(3*icor + 2, iant);
+                Double delay = sRP(4*icor + 1, iant);
+                Double rate = sRP(4*icor + 2, iant);
                 // Note that DelayRateFFT::snr is also used to calculate SNRs for the least square values!
                 Float snrval = drf.snr(icor, iant, delay, rate);
-                sSNR(3*icor + 0, iant) = snrval;
-                sSNR(3*icor + 1, iant) = snrval;
-                sSNR(3*icor + 2, iant) = snrval;
+                sSNR(4*icor + 0, iant) = snrval;
+                sSNR(4*icor + 1, iant) = snrval;
+                sSNR(4*icor + 2, iant) = snrval;
+                sSNR(4*icor + 3, iant) = snrval;
             } else {
-                sPok(3*icor + 0, iant) = false;
-                sPok(3*icor + 1, iant) = false;
-                sPok(3*icor + 2, iant) = false;
+                sPok(4*icor + 0, iant) = false;
+                sPok(4*icor + 1, iant) = false;
+                sPok(4*icor + 2, iant) = false;
+                sPok(4*icor + 3, iant) = false;
             }
         }
     }
@@ -2233,16 +2223,19 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
     // Map from MS antenna number to index
     // transcribe fft results to sRP
     Int ncol = drf.param().ncolumn();
-
-    for (Int i=0; i!=ncol; i++) {
-        IPosition start(2, 0,                  i);
-        IPosition stop(2, drf.param().nrow(), 1);
-        IPosition step(2, 1,                  1);
-        Slicer sl(start, stop, step, Slicer::endIsLength);
-        sRP(sl) = drf.param()(sl);
-        sPok(sl) = !(drf.flag()(sl));
-    }
+    Int nrow = drf.param().nrow();
     
+    for (Int i=0; i!=ncol; i++) {
+        for (Int j=0; j!=nrow; j++) {
+            Int oj = (j>=3) ? j+1 : j;
+            sRP(IPosition(2, oj, i)) = drf.param()(IPosition(2, j, i));
+            sPok(IPosition(2, oj, i)) = !(drf.flag()(IPosition(2, j, i)));
+        }
+        // Our estimate for dispersion is zero, unconditionally, and we stand by it.
+        sPok(IPosition(2, 3, i)) = true;
+        if (nrow > 3)
+            sPok(IPosition(2, 7, i)) = true;
+    }
     size_t nCorrOrig(sdbs(0).nCorrelations());
     size_t nCorr = (nCorrOrig> 1 ? 2 : 1); // number of p-hands
 
@@ -2256,7 +2249,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         const set<Int>& activeAntennas = drf.getActiveAntennasCorrelation(icor);
         for (Int iant=0; iant != nAnt(); iant++) {
             if (iant != refant() && (activeAntennas.find(iant) != activeAntennas.end())) {
-                Float s = sSNR(3*icor + 0, iant);
+                Float s = sSNR(4*icor + 0, iant);
 		// Start the log message; finished below
 		logSink() << "Antenna " << iant << " correlation " << icor << " has (FFT) SNR of " << s;
                 if (s < threshold) {
@@ -2264,9 +2257,10 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
                     logSink() << " below threshold (" << threshold << ")";
                     // Don't assume these will be flagged later; do it right away.
                     // (The least squares routine will eventually become optional.)
-                    sPok(3*icor + 0, iant) = false;
-                    sPok(3*icor + 1, iant) = false;
-                    sPok(3*icor + 2, iant) = false;
+                    sPok(4*icor + 0, iant) = false;
+                    sPok(4*icor + 1, iant) = false;
+                    sPok(4*icor + 2, iant) = false;
+                    sPok(4*icor + 3, iant) = false;
                 }
 		// Finish the log message
 		logSink() << "." << LogIO::POST;
@@ -2303,11 +2297,9 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
 
     for (Int iant=0; iant != nAnt(); iant++) {
         for (size_t icor=0; icor != nCorr; icor++) {
-            // Double df_bootleg =
-            drf.get_df_all();
-            Double phi0 = sRP(3*icor + 0, iant);
-            Double delay = sRP(3*icor + 1, iant);
-            Double rate = sRP(3*icor + 2, iant);
+            Double phi0 = sRP(4*icor + 0, iant);
+            Double delay = sRP(4*icor + 1, iant);
+            Double rate = sRP(4*icor + 2, iant);
             // Double delta1 = df0*delay;
             // Double delta1 = 0.5*df_bootleg*delay/1e9;
             // auto it =
@@ -2333,7 +2325,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
                      << "centroidFreq "<< centroidFreq << " Adding corrections for frequency (" << 360*delta1 << ")" 
                      << " and time (" << 360*delta2 << ") degrees." << endl;
             }
-            sRP(3*icor + 0, iant) += delta3;
+            sRP(4*icor + 0, iant) += delta3;
          }
     }
     
@@ -2343,7 +2335,7 @@ FringeJones::selfSolveOne(SDBList& sdbs) {
         
         for (size_t icor=0; icor != nCorr; icor++) {
             for (Int iant=0; iant != nAnt(); iant++) {
-                sRP(3*icor + 2, iant) = 0.0;
+                sRP(4*icor + 2, iant) = 0.0;
             }
         }
     }
@@ -2457,7 +2449,7 @@ void FringeJones::applyRefAnt() {
 
   Vector<Int> nPol(nSpw(),nPar());  // TBD:or 1, if data was single pol
 
-  if (nPar()==6) {
+  if (nPar()==8) {
     // Verify that 2nd poln has unflagged solutions, PER SPW
     ROCTMainColumns ctmc(*ct_);
 

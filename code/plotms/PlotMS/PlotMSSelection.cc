@@ -94,7 +94,7 @@ String PlotMSSelection::toStringShort() const {
     stringstream ss;
     ss.precision(6);
     if ( !isEmpty() ){
-        ss << " Sel: ";
+        ss << "  Selection: ";
         const vector<Field>& f = fields();
         bool valueWritten = false;
         for(unsigned int i = 0; i < f.size(); i++){
@@ -105,7 +105,7 @@ String PlotMSSelection::toStringShort() const {
                 } else {
                     valueWritten = true;
                 }
-                ss << f[i] << ": "<<fieldValue;
+                ss << PlotMSSelection::field(f[i]) << ": "<<fieldValue;
             }
         }
     }

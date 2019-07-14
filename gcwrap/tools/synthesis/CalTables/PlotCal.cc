@@ -648,7 +648,7 @@ void PlotCal::getAxisTaQL(const String& axis,
       }
       else if (axis.contains("PHASE")) {
 	if (calType_p.contains("FRINGE")) {
-	  taql = "((180.0/PI())*(FPARAM[1,"+chansel+"]-FPARAM[4,"+chansel+"]))";
+	  taql = "((180.0/PI())*(FPARAM[1,"+chansel+"]-FPARAM[5,"+chansel+"]))";
 	  label = "Fringe Phase POLN Difference (deg)";
 	}
 	else {
@@ -683,7 +683,7 @@ void PlotCal::getAxisTaQL(const String& axis,
       }
       else if (axis.contains("DEL")) {
 	if (calType_p.contains("FRINGE")) {
-	  taql = "(FPARAM[2,"+chansel+"]-FPARAM[5,"+chansel+"])";
+	  taql = "(FPARAM[2,"+chansel+"]-FPARAM[6,"+chansel+"])";
 	  label = "Fringe Delay POLN Difference (nsec)";
 	} else {
 	  if (isNCT_p) 
@@ -695,7 +695,7 @@ void PlotCal::getAxisTaQL(const String& axis,
       }
       else if (axis.contains("RATE")) {
 	if (calType_p.contains("FRINGE")) {
-	  taql = "((FPARAM[3,"+chansel+"]-FPARAM[6,"+chansel+"])/1E-12)";
+	  taql = "((FPARAM[3,"+chansel+"]-FPARAM[7,"+chansel+"])/1E-12)";
 	  label = "Fringe Delay Rate POLN Difference (psec/sec)";
 	} else {
 	  throw(AipsError("Fringe delay rate not available in the specified CalTable."));
@@ -741,8 +741,8 @@ void PlotCal::getAxisTaQL(const String& axis,
       else if (axis.contains("PHASE")) {
 	if (calType_p.contains("FRINGE")) {
 	  if (polType_p=="R") polsel="1";
-	  else if (polType_p=="L") polsel="4";
-	  else polsel="1:4:3";
+	  else if (polType_p=="L") polsel="5";
+	  else polsel="1:5:4";
 	  taql = "((180.0/PI())*(FPARAM["+polsel+","+chansel+"]))";
 	  label = "Fringe Phase (deg)";
 	}
@@ -777,8 +777,8 @@ void PlotCal::getAxisTaQL(const String& axis,
       else if (axis.contains("DEL")) {
 	if (calType_p.contains("FRINGE")) {
 	  if (polType_p=="R") polsel="2";
-	  else if (polType_p=="L") polsel="5";
-	  else polsel="2:5:3";
+	  else if (polType_p=="L") polsel="6";
+	  else polsel="2:6:4";
 	  label = "Fringe Delay (nsec)";
 	  taql = "(FPARAM["+polsel+","+chansel+"])";
 	}
@@ -793,8 +793,8 @@ void PlotCal::getAxisTaQL(const String& axis,
       else if (axis.contains("RATE")) {
 	if (calType_p.contains("FRINGE")) {
 	  if (polType_p=="R") polsel="3";
-	  else if (polType_p=="L") polsel="6";
-	  else polsel="3:6:3";
+	  else if (polType_p=="L") polsel="7";
+	  else polsel="3:7:4";
 	}
 	else {
 	  throw(AipsError("Fringe delay rate not available in the specified CalTable."));
