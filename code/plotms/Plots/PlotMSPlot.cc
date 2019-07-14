@@ -1962,6 +1962,7 @@ void PlotMSPlot::getAxisBoundsForOverlay(double& minval, double& maxval) {
 	double range(maxval - minval);
 	minval -= range * 3.0;
 	minval = max(minval, 0.0);
+	maxval += range * 0.1;
 }
 
 bool PlotMSPlot::axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging) {
@@ -2462,9 +2463,7 @@ void PlotMSPlot::setYAxesRanges(PlotCanvasPtr canvas,
 		if (hasOverlay) {
 			getAxisBoundsForOverlay(ymingRight, ymaxgRight);
 			if (hasAtmCurve) { // limit max percent to 100
-				ymaxgRight = min(ymaxgRight + 1.0, 100.0);
-			} else {
-				ymaxgRight += 0.1;
+				ymaxgRight = min(ymaxgRight, 100.0);
 			}
 		}
 		pair<double, double> ybounds = make_pair(ymingRight, ymaxgRight);
@@ -2500,6 +2499,10 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 	// Settings for each y-axis in each plot; add each label to left/right label
 	for (size_t plotindex = 0; plotindex < axesParams.size(); ++plotindex) {
 		for (size_t yindex = 0; yindex < axesParams[plotindex]->numYAxes(); ++yindex) {
+			int numYAxes = yAxes.size();
+			if (numYAxes <= yaxesIndex) { // imagesb axis removed
+				break;
+			}
 			PlotAxis yPlotAxis = axesParams[plotindex]->yAxis(yindex);
 			PMS::Axis yaxis = yAxes[yaxesIndex];
 			PMS::DataColumn ycol = yColumns[yaxesIndex];
@@ -2583,6 +2586,7 @@ void PlotMSPlot::setYAxesLabels(PlotCanvasPtr canvas,
 						} else if (yLabel != yLabelRightLast) {
 							// do not repeat for overplots
 							if ((yLabel.contains("Atm") && !yLabelRight.contains("Atm")) ||
+							    (yLabel.contains("Tsky") && !yLabelRight.contains("Tsky")) ||
 								(yLabel.contains("Sideband") && !yLabelRight.contains("Sideband"))) {
 								yLabelRight.append( ", ");
 								yLabelRight.append(yLabel);
