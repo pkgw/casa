@@ -1751,10 +1751,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
         // for an empty (= no mask) mask, use Chauvenet algorithm with maxiter=5 and zscore=-1
         if (nmaskpix==0.0 || fullmask ) {
           os<<"[C"<<ichan<<"] Using Chauvenet algorithm for the image statistics "<<LogIO::POST;
+          if(arrminsNoMask.nelements()==0 || arrmaxsNoMask.nelements() ==0 || arrrmssNoMask.nelements() ==0){
+            throw(AipsError("No image statistics possible on zero element data"));
+          }
           min = arrminsNoMask(statsind);
           max = arrmaxsNoMask(statsind);
           rms = arrrmssNoMask(statsind);
-          if (robust) { 
+          if (robust) {
+              if(arrmadsNoMask.nelements()==0 || arrmdnsNoMask.nelements() ==0 || arrrmssNoMask.nelements() ==0)               
+                throw(AipsError("No robust image statistics possible on zero element data"));
              mad = arrmadsNoMask(statsind);
              mdn = arrmdnsNoMask(statsind);
           }
