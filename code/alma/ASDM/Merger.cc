@@ -3114,6 +3114,14 @@ namespace asdm {
 				
 			
 		
+			
+				
+				
+			Tag spectralWindowIdTag = getTag(row->getSpectralWindowId(), mergeSpectralWindowPtr);
+			row->setSpectralWindowId(spectralWindowIdTag);
+				
+			
+		
 			CalAntennaSolutionsRow * retRow = ds1->getCalAntennaSolutions().add(row);
 			// this statement is never executed, but it hides the unused return value from the compiler to silence that warning.
 			if (false) cout << (unsigned long long) retRow;
