@@ -88,7 +88,8 @@ const int PMS_PP::UPDATE_PLOTMS_OPTIONS =
 
 // PMS_PP_MSData record keys.
 const String PMS_PP_MSData::REC_FILENAME = "filename";
-const String PMS_PP_MSData::REC_TYPE = "type";
+const String PMS_PP_MSData::REC_CACHETYPE = "cachetype";
+const String PMS_PP_MSData::REC_CALTYPE = "caltype";
 const String PMS_PP_MSData::REC_SELECTION = "selection";
 const String PMS_PP_MSData::REC_AVERAGING = "averaging";
 const String PMS_PP_MSData::REC_TRANSFORMATIONS = "transformations";
@@ -120,7 +121,8 @@ Record PMS_PP_MSData::toRecord() const
 {
 	Record rec;
 	rec.define(REC_FILENAME, itsFilename_);
-	rec.define(REC_TYPE, itsType_);
+	rec.define(REC_CACHETYPE, itsCacheType_);
+	rec.define(REC_CALTYPE, itsCalType_);
 	rec.defineRecord(REC_SELECTION, itsSelection_.toRecord());
 	rec.defineRecord(REC_AVERAGING, itsAveraging_.toRecord());
 	rec.defineRecord(REC_TRANSFORMATIONS, itsTransformations_.toRecord());
@@ -137,9 +139,14 @@ void PMS_PP_MSData::fromRecord(const Record& record)
 		itsFilename_ = record.asString(REC_FILENAME);
 		valuesChanged = true;
 	}
-	if (record.isDefined(REC_TYPE) && record.dataType(REC_TYPE) == TpInt && itsType_ != record.asInt(REC_TYPE))
+	if (record.isDefined(REC_CACHETYPE) && record.dataType(REC_CACHETYPE) == TpInt && itsCacheType_ != record.asInt(REC_CACHETYPE))
 	{
-		itsType_ = record.asInt(REC_TYPE);
+		itsCacheType_ = record.asInt(REC_CACHETYPE);
+		valuesChanged = true;
+	}
+	if (record.isDefined(REC_CALTYPE) && record.dataType(REC_CALTYPE) == TpString && itsCalType_ != record.asString(REC_CALTYPE))
+	{
+		itsCalType_ = record.asString(REC_CALTYPE);
 		valuesChanged = true;
 	}
 	if (record.isDefined(REC_SELECTION) && record.dataType(REC_SELECTION) == TpRecord)
@@ -199,7 +206,8 @@ PMS_PP_MSData& PMS_PP_MSData::assign(const PMS_PP_MSData* o){
 	if (o != NULL && *this != *o)
 	{
 		itsFilename_ = o->itsFilename_;
-		itsType_ = o->itsType_;
+		itsCacheType_ = o->itsCacheType_;
+		itsCalType_ = o->itsCalType_;
 		itsSelection_ = o->itsSelection_;
 		itsAveraging_ = o->itsAveraging_;
 		itsTransformations_ = o->itsTransformations_;
@@ -215,7 +223,8 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 	const PMS_PP_MSData* o = dynamic_cast<const PMS_PP_MSData*>(&other);
 	if (o == NULL) return false;
 	if (itsFilename_ != o->itsFilename_) return false;
-	if (itsType_ != o->itsType_) return false;
+	if (itsCacheType_ != o->itsCacheType_) return false;
+	if (itsCalType_ != o->itsCalType_) return false;
 	if (itsSelection_ != o->itsSelection_) return false;
 	if (itsAveraging_ != o->itsAveraging_) return false;
 	if (itsTransformations_ != o->itsTransformations_) return false;
@@ -228,7 +237,8 @@ bool PMS_PP_MSData::operator==(const Group& other) const
 void PMS_PP_MSData::setDefaults()
 {
 	itsFilename_ = "";
-    itsType_ = 0; // MS
+    itsCacheType_ = 0; // MS
+    itsCalType_ = "";
 	itsSelection_ = PlotMSSelection();
 	itsAveraging_ = PlotMSAveraging();
 	itsTransformations_ = PlotMSTransformations();
@@ -796,14 +806,14 @@ void PMS_PP_Axes::setRanges(const bool& xSet, const bool& ySet,
 ///////////////////////////////
 
 // PMS_PP_Canvas record keys.
+const String PMS_PP_Canvas::REC_SHOWXLABELS = "showXLabels";
 const String PMS_PP_Canvas::REC_XLABELS = "xLabelFormats";
 const String PMS_PP_Canvas::REC_XFONTSSET = "xFontsSet";
 const String PMS_PP_Canvas::REC_XAXISFONTS = "xAxisFonts";
+const String PMS_PP_Canvas::REC_SHOWYLABELS = "showYLabels";
 const String PMS_PP_Canvas::REC_YLABELS = "yLabelFormats";
 const String PMS_PP_Canvas::REC_YFONTSSET = "yFontsSet";
 const String PMS_PP_Canvas::REC_YAXISFONTS = "yAxisFonts";
-const String PMS_PP_Canvas::REC_SHOWXAXES = "showXAxes";
-const String PMS_PP_Canvas::REC_SHOWYAXES = "showYAxes";
 const String PMS_PP_Canvas::REC_SHOWLEGENDS = "showLegends";
 const String PMS_PP_Canvas::REC_LEGENDSPOS = "legendPositions";
 const String PMS_PP_Canvas::REC_TITLES = "canvasTitleFormats";
@@ -839,8 +849,8 @@ Record PMS_PP_Canvas::toRecord() const
 		for (unsigned int i = 0; i < itsYLabels_.size(); i++) tmpRec.define(i, itsYLabels_[i] .format);
 		rec.defineRecord(REC_YLABELS, tmpRec);
 	}
-	rec.define(REC_SHOWXAXES, Vector<bool>(itsXAxesShown_));
-	rec.define(REC_SHOWYAXES, Vector<bool>(itsYAxesShown_));
+	rec.define(REC_SHOWXLABELS, Vector<bool>(itsXLabelsShown_));
+	rec.define(REC_SHOWYLABELS, Vector<bool>(itsYLabelsShown_));
 	rec.define(REC_XFONTSSET, Vector<bool>(itsXFontsSet_));
 	rec.define(REC_YFONTSSET, Vector<bool>(itsYFontsSet_));
 	rec.define(REC_XAXISFONTS, Vector<int>(itsXAxisFonts_));
@@ -939,23 +949,23 @@ void PMS_PP_Canvas::fromRecord(const Record& record)
 			valuesChanged = true;
 		}
 	}
-	if (record.isDefined(REC_SHOWXAXES) && record.dataType(REC_SHOWXAXES) == TpArrayBool)
+    if (record.isDefined(REC_SHOWXLABELS) && record.dataType(REC_SHOWXLABELS) == TpArrayBool)
 	{
 		vector<bool> tmp;
-		record.asArrayBool(REC_SHOWXAXES).tovector(tmp);
-		if (itsXAxesShown_ != tmp)
+		record.asArrayBool(REC_SHOWXLABELS).tovector(tmp);
+		if (itsXLabelsShown_ != tmp)
 		{
-			itsXAxesShown_ = tmp;
+			itsXLabelsShown_ = tmp;
 			valuesChanged = true;
 		}
 	}
-	if (record.isDefined(REC_SHOWYAXES) && record.dataType(REC_SHOWYAXES) == TpArrayBool)
+    if (record.isDefined(REC_SHOWYLABELS) && record.dataType(REC_SHOWYLABELS) == TpArrayBool)
 	{
 		vector<bool> tmp;
-		record.asArrayBool(REC_SHOWYAXES).tovector(tmp);
-		if (itsYAxesShown_ != tmp)
+		record.asArrayBool(REC_SHOWYLABELS).tovector(tmp);
+		if (itsYLabelsShown_ != tmp)
 		{
-			itsYAxesShown_ = tmp;
+			itsYLabelsShown_ = tmp;
 			valuesChanged = true;
 		}
 	}
@@ -1106,8 +1116,8 @@ PMS_PP_Canvas& PMS_PP_Canvas::assign(const PMS_PP_Canvas* o ){
 		itsXAxisFonts_ = o->itsXAxisFonts_;
 		itsYFontsSet_ = o->itsYFontsSet_;
 		itsYAxisFonts_ = o->itsYAxisFonts_;
-		itsXAxesShown_ = o->itsXAxesShown_;
-		itsYAxesShown_ = o->itsYAxesShown_;
+		itsXLabelsShown_ = o->itsXLabelsShown_;
+		itsYLabelsShown_ = o->itsYLabelsShown_;
 		itsLegendsShown_ = o->itsLegendsShown_;
 		itsLegendsPos_ = o->itsLegendsPos_;
 		itsTitles_ = o->itsTitles_;
@@ -1135,8 +1145,8 @@ bool PMS_PP_Canvas::operator==(const Group& other) const
 	if (itsYFontsSet_ != o->itsYFontsSet_) return false;
 	if (itsXAxisFonts_ != o->itsXAxisFonts_) return false;
 	if (itsYAxisFonts_ != o->itsYAxisFonts_) return false;
-	if (itsXAxesShown_ != o->itsXAxesShown_) return false;
-	if (itsYAxesShown_ != o->itsYAxesShown_) return false;
+	if (itsXLabelsShown_ != o->itsXLabelsShown_) return false;
+	if (itsYLabelsShown_ != o->itsYLabelsShown_) return false;
 	if (itsLegendsShown_.size() != o->itsLegendsShown_.size() || itsLegendsPos_.size() != o->itsLegendsPos_.size() || itsLegendsShown_.size() != itsLegendsPos_.size()) return false;
 	for (unsigned int i = 0; i < itsLegendsShown_.size(); i++) if (itsLegendsShown_[i] != o->itsLegendsShown_[i] || (itsLegendsShown_[i] && itsLegendsPos_[i] != o->itsLegendsPos_[i])) return false;
 	if (itsTitles_ != o->itsTitles_) return false;
@@ -1158,8 +1168,8 @@ void PMS_PP_Canvas::setDefaults()
 	itsYFontsSet_ = vector<bool>(1, PMS::DEFAULT_FONTSET);
 	itsXAxisFonts_ = vector<Int>(1, PMS::DEFAULT_FONT);
 	itsYAxisFonts_ = vector<Int>(1, PMS::DEFAULT_FONT);
-	itsXAxesShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXIS);
-	itsYAxesShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXIS);
+	itsXLabelsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXISLABEL);
+	itsYLabelsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWAXISLABEL);
 	itsLegendsShown_ = vector<bool>(1, PMS::DEFAULT_SHOWLEGEND);
 	itsLegendsPos_ = vector<PlotCanvas::LegendPosition>(1, PMS::DEFAULT_LEGENDPOSITION);
 	itsTitles_ = vector<PlotMSLabelFormat>(1, PlotMSLabelFormat(PMS::DEFAULT_TITLE_FORMAT));
@@ -1187,13 +1197,13 @@ void PMS_PP_Canvas::setLabelFormats(const PlotMSLabelFormat& xFormat,
 	}
 }
 
-void PMS_PP_Canvas::showAxes(const bool& xShow, const bool& yShow,
+void PMS_PP_Canvas::showAxesLabels(const bool& xShowLabel, const bool& yShowLabel,
 		unsigned int index)
 {
-	if (itsXAxesShown_[index] != xShow || itsYAxesShown_[index] != yShow)
+	if (itsXLabelsShown_[index] != xShowLabel || itsYLabelsShown_[index] != yShowLabel)
 	{
-		itsXAxesShown_[index] = xShow;
-		itsYAxesShown_[index] = yShow;
+		itsXLabelsShown_[index] = xShowLabel;
+		itsYLabelsShown_[index] = yShowLabel;
 		updated();
 	}
 }

@@ -332,30 +332,124 @@ private:
     void logMessage( const QString& msg ) const;
 
     void clearCanvasProperties( int row, int col);
-    void setCanvasProperties (int row, int col, int numplots, casacore::uInt iteration,
-            PMS_PP_Axes* axesParams, PMS_PP_Cache* cacheParams, 
-            PMS_PP_Canvas *canvParams, PMS_PP_Iteration *iterParams,
-            PMS_PP_MSData* dataParams, PMS_PP_Display* displayParams );
+    void setCanvasProperties (PlotCanvasPtr canvas, int numplots,
+        casacore::uInt iteration, PMS_PP_Axes* axesParams,
+        PMS_PP_Cache* cacheParams, PMS_PP_Canvas *canvParams,
+        PMS_PP_Iteration *iterParams, PMS_PP_MSData* dataParams,
+        PMS_PP_Display* displayParams, int gridRow, int gridCol);
 
-    // range must be modified in certain cases
-    void setAxisRange(PMS::Axis axis, PlotAxis paxis, double min, double max,
-        PlotCanvasPtr& canvas);
+    // Common canvas settings
+    // Share external axes for iterated plots
+    void setCommonAxes(std::vector<PMS_PP_Iteration*>& iterParams, PlotCanvasPtr canvas);
+    // type is MS unless all CalTables
+    int getCommonCacheType(std::vector<PMS_PP_MSData*>& dataParams);
+    // true if all plots have selected this polarization
+    bool getCommonPolnRatio(std::vector<PMS_PP_MSData*>& dataParams);
 
-    // To modify axis label if needed:
-    bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
-    casacore::String addFreqFrame(casacore::String freqLabel);
-    PMS::Axis getCalAxis(casacore::String calType, PMS::Axis axis);
-    PMS::Axis getDefaultXAxis();
+    // x-axis, ranges, labels
+    void setXAxisProperties(PMS::Axis& xAxis,
+        PMS::DataColumn& xColumn,
+        PlotCanvasPtr canvas,
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Canvas*>& canvParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
+        std::vector<PMS_PP_Display*>& displayParams,
+        std::vector<PlotMSPlot*>& plots,
+        int commonCacheType,
+        bool commonPolnRatio,
+        int iteration,
+        int defaultLabelFont);
+    void setXAxis(PMS::Axis& xAxis,
+        PMS::DataColumn& xColumn,
+        PlotAxis& xPlotaxis,
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
+        std::vector<PlotMSPlot*>& plots,
+        int commonCacheType);
+    void setXAxisRange(PMS::Axis xAxis,
+        PlotAxis xPlotAxis,
+        PlotCanvasPtr canvas, 
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Display*>& displayParams,
+        std::vector<PlotMSPlot*>& plots,
+        int iteration);
+    void setXAxisLabel(PlotCanvasPtr canvas,
+        PMS::Axis xAxis, PMS::DataColumn xColumn, PlotAxis xPlotAxis,
+        std::vector<PMS_PP_Cache*> cacheParams,
+        std::vector<PMS_PP_Canvas*> canvasParams,
+        std::vector<PMS_PP_MSData*> dataParams,
+        std::vector<PlotMSPlot*>& plots,
+        int defaultFontSize, int commonCacheType, bool commonPolnRatio);
+
+    // y-axis, ranges, labels
+    void setYAxesProperties(std::vector<PMS::Axis>& yAxes,
+        std::vector<PMS::DataColumn>& yColumns,
+        PlotCanvasPtr canvas,
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Canvas*>& canvParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
+        std::vector<PMS_PP_Display*>& displayParams,
+        std::vector<PlotMSPlot*>& plots,
+        int iteration,
+        int defaultLabelFont);
+    void setYAxes(std::vector<PMS::Axis>& yaxes,
+        std::vector<PMS::DataColumn>& ycolumns,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
+        std::vector<PlotMSPlot*>& plots);
+    void setYAxesRanges(PlotCanvasPtr canvas,
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Display*>& displayParams,
+        std::vector<PlotMSPlot*>& plots,
+        int iteration);
+    void setYAxesLabels(PlotCanvasPtr canvas,
+        std::vector<PMS::Axis>& yAxes,
+        std::vector<PMS::DataColumn>& yColumns,
+        std::vector<PMS_PP_Axes*>& axesParams,
+        std::vector<PMS_PP_Cache*>& cacheParams,
+        std::vector<PMS_PP_Canvas*>& canvasParams,
+        std::vector<PMS_PP_MSData*>& dataParams,
+        std::vector<PlotMSPlot*>& plots,
+        int defaultFontSize);
+
+    // title
+    void setTitleProperties(casacore::String& title, PlotCanvasPtr canvas,
+        std::vector<PMS_PP_Canvas*>& canvasParams,
+        std::vector<PMS_PP_Iteration*>& iterParams,
+        std::vector<PlotMSPlot*>& plots,
+        int defaultTitleFont, int iteration);
+
+    // axis ranges for square plots
+    void setSquareAxesRange(PlotCanvasPtr canvas);
+    // specify axis ranges for certain axes
+    void getAxisBoundsForTime(double& min, double& max);
+    void getAxisBoundsForUV(double& min, double& max);
+    void getAxisBoundsForOverlay(double& min, double& max);
+
+    // Validate or handle axes for MS/Cal
+    PMS::Axis getDefaultXAxis(int cachetype, casacore::String caltype);
     PMS::Axis getGsplineAxis(const casacore::String filename);
-	void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
-	void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
+    PMS::Axis msDataAxisToCal(PMS::Axis inputAxis, casacore::String calType);
+    PMS::Axis calDataAxisToMS(PMS::Axis inputAxis);
+    void checkColoraxis(casacore::String caltype, PMS_PP_Display* display); 
+    void checkIteraxis(casacore::String caltype, PMS_PP_Iteration* iter);
+
+    // For axis labels and title
+    bool axisIsAveraged(PMS::Axis axis, PlotMSAveraging averaging);
+    void addAxisDescription(casacore::String& label, PMS::Axis axis,
+        int commonCacheType, bool averaged);
 
     //Note:  First index for a plot is the dataCount,
     //second index is the number of iteration.
     std::vector<std::vector<MaskedScatterPlotPtr> > itsPlots_;
 
     //Note:  First index for a canvas is the number of rows,
-    //second index is the column withen a grid.
+    //second index is the column within a grid for iterated plots.
     std::vector<std::vector<PlotCanvasPtr> > itsCanvases_;
 
     std::vector<std::vector</*QPScatterPlot**/ColoredPlotPtr> > itsColoredPlots_;

@@ -57,7 +57,18 @@ PlotAxisScale PMS::axisScale(Axis axis) {
 bool PMS::axisIsData(Axis axis) {
     switch(axis) {
     case AMP: case PHASE: case REAL: case IMAG: case WTxAMP: 
-    case GAMP: case GPHASE: case GREAL: case GIMAG: return true;
+    case GAMP: case GPHASE: case GREAL: case GIMAG:
+    case DELAY: case SWP: case TSYS: case OPAC:
+    case TEC: case ANTPOS: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsCalData(Axis axis) {
+    switch(axis) {
+    case GAMP: case GPHASE: case GREAL: case GIMAG:
+    case DELAY: case SWP: case TSYS: case OPAC:
+    case TEC: case ANTPOS: return true;
     default: return false;
     }
 }
@@ -83,6 +94,13 @@ bool PMS::axisIsWeight(Axis axis) {
 bool PMS::axisIsUV(Axis axis) {
     switch(axis) {
     case U: case V: case UWAVE: case VWAVE: return true;
+    default: return false;
+    }
+}
+
+bool PMS::axisIsUVWave(Axis axis) {
+    switch(axis) {
+    case UWAVE: case VWAVE: return true;
     default: return false;
     }
 }
@@ -252,7 +270,9 @@ PMS::AxisUnit PMS::axisUnit(Axis axis) {
         return KILOMETERS;
    case ATM:
         return PERCENT;
-   default: return UNONE;
+    default:
+        return UNONE;
+
     //The following axis have units which are proportion to Jansky, but are
     //time varying so Jansky is not accurate.  For now, we are not including
     //units with them.
@@ -388,6 +408,7 @@ const int PMS::DEFAULT_GRID_COLS = 1;
 
 const PMS::Axis PMS::DEFAULT_XAXIS = TIME;
 const PMS::Axis PMS::DEFAULT_YAXIS = AMP;
+const PMS::Axis PMS::DEFAULT_CAL_YAXIS = GAMP;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN = DATA;
 const PMS::DataColumn PMS::DEFAULT_DATACOLUMN_WT = CORRECTED;
 const PMS::CoordSystem PMS::DEFAULT_COORDSYSTEM = ICRS;
@@ -406,7 +427,7 @@ const String PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT =
     PlotMSLabelFormat::TAG(PlotMSLabelFormat::TAG_ENDIF_UNIT());
 const bool PMS::DEFAULT_FONTSET = false;
 const int PMS::DEFAULT_FONT = 0;
-const bool PMS::DEFAULT_SHOWAXIS = true;
+const bool PMS::DEFAULT_SHOWAXISLABEL = true;
 const bool PMS::DEFAULT_SHOWLEGEND = false;
 const PlotCanvas::LegendPosition PMS::DEFAULT_LEGENDPOSITION =
     PlotCanvas::INT_URIGHT;
