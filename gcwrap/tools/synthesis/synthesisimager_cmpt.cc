@@ -245,7 +245,7 @@ bool synthesisimager::defineimage(const casac::record& impars, const casac::reco
 			    gpars.padding, gpars.useAutoCorr, gpars.useDoublePrec, gpars.wprojplanes, 
 			    gpars.convFunc, ipars.startModel, gpars.aTermOn,
 			    gpars.psTermOn, gpars.mTermOn, gpars.wbAWP, gpars.cfCache,
-			    gpars.doPointing,gpars.doPBCorr,gpars.conjBeams,
+			    gpars.usePointing,gpars.doPBCorr,gpars.conjBeams,
 			    gpars.computePAStep,gpars.rotatePAStep);
     */
 
@@ -290,7 +290,7 @@ synthesisimager::setimage(const std::string& imagename,
 			     const bool mterm,//    = false,
 			     const bool wbawp,//      = true,
 			     const std::string& cfcache,//  = "",
-			     const bool dopointing,// = false,
+			     const bool usepointing,// = false,
 			     const bool dopbcorr,//   = true,
 			     const bool conjbeams,//  = false,
 			     const float computepastep,         //=360.0
@@ -392,7 +392,7 @@ synthesisimager::setimage(const std::string& imagename,
 			      ntaylorterms, refFreq, 
 			      imageprojection, cdistance, freqframetype, tracksource, trackDir, overwrite,
 			      padding, useautocorr, usedoubleprec, wprojplanes, convfunc, startmodel, aterm,
-			      psterm, mterm,wbawp, cfcache,dopointing,dopbcorr,conjbeams,computepastep,rotatepastep);
+			      psterm, mterm,wbawp, cfcache,usepointing,dopbcorr,conjbeams,computepastep,rotatepastep);
     } 
   catch  (AipsError x) 
     {

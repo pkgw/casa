@@ -57,6 +57,7 @@ const String PlotMSDBusApp::PARAM_AXIS_Y = "yAxis";
 const String PlotMSDBusApp::PARAM_AXIS_Y_LOCATION = "yAxisLocation";
 const String PlotMSDBusApp::PARAM_SHOWATM = "showatm";
 const String PlotMSDBusApp::PARAM_SHOWTSKY = "showtsky";
+const String PlotMSDBusApp::PARAM_SHOWIMAGE = "showimage";
 const String PlotMSDBusApp::PARAM_GRIDROWS = "gridRows";
 const String PlotMSDBusApp::PARAM_GRIDCOLS = "gridCols";
 const String PlotMSDBusApp::PARAM_SHOWLEGEND = "showLegend";
@@ -96,6 +97,8 @@ const String PlotMSDBusApp::PARAM_COLORIZE = "colorize";
 const String PlotMSDBusApp::PARAM_COLORAXIS = "coloraxis";
 const String PlotMSDBusApp::PARAM_CANVASTITLE = "canvastitle";
 const String PlotMSDBusApp::PARAM_CANVASTITLEFONT = "canvastitlefont";
+const String PlotMSDBusApp::PARAM_SHOWXLABEL = "showxlabel";
+const String PlotMSDBusApp::PARAM_SHOWYLABEL = "showylabel";
 const String PlotMSDBusApp::PARAM_XAXISLABEL = "xaxislabel";
 const String PlotMSDBusApp::PARAM_YAXISLABEL = "yaxislabel";
 const String PlotMSDBusApp::PARAM_XAXISFONT = "xaxisfont";
@@ -411,6 +414,7 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 						PMS::dataColumn(c->yDataColumn()));
 				ret.define(PARAM_SHOWATM, c->showAtm());
 				ret.define(PARAM_SHOWTSKY, c->showTsky());
+				ret.define(PARAM_SHOWIMAGE, c->showImage());
 			}
 
 			if (disp!=NULL)  {
@@ -422,6 +426,8 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			if (can!=NULL)   {
 				ret.define(PARAM_CANVASTITLE,  can->titleFormat().format);
 				ret.define(PARAM_CANVASTITLEFONT,  can->titleFont());
+				ret.define(PARAM_SHOWXLABEL,  can->xLabelShown());
+				ret.define(PARAM_SHOWYLABEL,  can->yLabelShown());
 				ret.define(PARAM_XAXISLABEL,  can->xLabelFormat().format);
 				ret.define(PARAM_YAXISLABEL,  can->yLabelFormat().format);
 				ret.define(PARAM_XAXISFONT,  can->xAxisFont());
@@ -628,6 +634,11 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			bool show = parameters.asBool(PARAM_SHOWTSKY);
 			ppcache->setShowTsky(show);
 		}
+		if(parameters.isDefined(PARAM_SHOWIMAGE) &&
+				parameters.dataType(PARAM_SHOWIMAGE) == TpBool)   {
+			bool show = parameters.asBool(PARAM_SHOWIMAGE);
+			ppcache->setShowImage(show);
+		}
 
 
 		if(parameters.isDefined(PARAM_CANVASTITLE) &&
@@ -641,31 +652,54 @@ void PlotMSDBusApp::dbusRunXmlMethod(
 			ppcan->setTitleFormat(f);
 		}
 
-        if(parameters.isDefined(PARAM_CANVASTITLEFONT) &&
+		if(parameters.isDefined(PARAM_CANVASTITLEFONT) &&
 				parameters.dataType(PARAM_CANVASTITLEFONT) == TpInt)   {
 			Int size = parameters.asInt(PARAM_CANVASTITLEFONT);
-            ppcan->setTitleFontSet((size > 0));
+			ppcan->setTitleFontSet((size > 0));
 			ppcan->setTitleFont(size);
+		}
+
+		if(parameters.isDefined(PARAM_SHOWXLABEL) &&
+				parameters.dataType(PARAM_SHOWXLABEL) == TpBool)   {
+			Bool showX = parameters.asBool(PARAM_SHOWXLABEL);
+			ppcan->showXLabel(showX);
+		}
+		if(parameters.isDefined(PARAM_SHOWYLABEL) &&
+				parameters.dataType(PARAM_SHOWYLABEL) == TpBool)   {
+			Bool showY = parameters.asBool(PARAM_SHOWYLABEL);
+			ppcan->showYLabel(showY);
 		}
 
 		if(parameters.isDefined(PARAM_XAXISLABEL) &&
 				parameters.dataType(PARAM_XAXISLABEL) == TpString)   {
 			String S = parameters.asString(PARAM_XAXISLABEL);
 			PlotMSLabelFormat f = ppcan->xLabelFormat();
-			if (S.length()==0)
-				f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
-			else
+			if (S.length()==0) {
+				if (ppcan->xLabelShown()) {
+					f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
+				} else {
+					// a space translates to length 0; put space back
+					f.format = " ";
+				}
+			} else {
 				f.format = S;
+			}
 			ppcan->setXLabelFormat(f);
 		}
 		if(parameters.isDefined(PARAM_YAXISLABEL) &&
 				parameters.dataType(PARAM_YAXISLABEL) == TpString)   {
 			String S = parameters.asString(PARAM_YAXISLABEL);
 			PlotMSLabelFormat f = ppcan->yLabelFormat();
-			if (S.length()==0)
-				f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
-			else
+			if (S.length()==0) {
+				if (ppcan->yLabelShown()) {
+					f = PlotMSLabelFormat(PMS::DEFAULT_CANVAS_AXIS_LABEL_FORMAT);
+				} else {
+					// a space translates to length 0; put space back
+					f.format = " ";
+				}
+			} else {
 				f.format = S;
+			}
 			ppcan->setYLabelFormat(f);
 		}
 

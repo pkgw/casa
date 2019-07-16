@@ -261,7 +261,7 @@ protected:
 
   // phase, delay, rate
   //  TBD:  Need to cater for parameter opt-out  (e.g., no rate solve, etc.)
-  virtual casacore::Int nPar() { return 6; };
+  virtual casacore::Int nPar() { return 8; };
 
   // Jones matrix elements are NOT trivial
   virtual casacore::Bool trivialJonesElem() { return false; };

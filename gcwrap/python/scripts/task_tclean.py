@@ -72,15 +72,16 @@ def tclean(
 
     ### PB
     vptable,
-    usepointing, #=false
     mosweight, #=True
     aterm,#=True,
     psterm,#=True,
     wbawp ,#= True,
     conjbeams ,#= True,
     cfcache ,#= "",
+    usepointing, #=false
     computepastep ,#=360.0,
     rotatepastep ,#=360.0,
+    pointingoffsetsigdev ,#=0.0,
 
     pblimit,#=0.01,
     normtype,#='flatnoise',
@@ -202,6 +203,9 @@ def tclean(
         casalog.post(usemask+" is deprecated, will be removed in CASA 5.4.  It is recommended to use auto-multithresh instead", "WARN") 
 
     #paramList.printParameters()
+    
+    if pointingoffsetsigdev!=0.0 and usepointing==False:
+        casalog.post("pointingoffsetsigdev is only revelent when usepointing is True", "WARN") 
 
     pcube=False
     concattype=''

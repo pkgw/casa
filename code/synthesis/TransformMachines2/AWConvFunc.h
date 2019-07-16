@@ -35,6 +35,7 @@
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
 #include <synthesis/TransformMachines2/CFBuffer.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PSTerm.h>
 #include <synthesis/TransformMachines2/WTerm.h>
 #include <synthesis/TransformMachines2/ATerm.h>
@@ -122,7 +123,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Bool findSupport(casacore::Array<casacore::Complex>& func, casacore::Float& threshold,casacore::Int& origin, casacore::Int& R);
     virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
 					      const VisBuffer2& /*vb*/) {casacore::Vector<casacore::Double> tt(2); tt=0;return tt;};
-    virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& cfs);
+    //virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& cfs);
+    virtual void prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& cfs);
     casacore::Int mapAntIDToAntType(const casacore::Int& ant) {return aTerm_p->mapAntIDToAntType(ant);};
 
     virtual casacore::Vector<casacore::Double> makeFreqValList(casacore::Double& freqScale,
@@ -147,9 +149,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     static casacore::Bool resizeCF(casacore::Array<casacore::Complex>& func,  casacore::Int& xSupport, casacore::Int& ySupport,
 			 const casacore::Int& supportBuffer, const casacore::Float& sampling, const casacore::Complex& peak);
     static int getOversampling(PSTerm& psTerm, WTerm& wTerm, ATerm& aTerm);
+    int getOversampling(){return getOversampling(*psTerm_p, *wTerm_p, *aTerm_p);}
+
     virtual casacore::CountedPtr<CFTerms> getTerm(const casacore::String& name)
     {if (name=="ATerm") return aTerm_p; else return NULL;}
     
+    virtual casacore::Vector<casacore::Vector<casacore::Double> >findPointingOffset(const casacore::ImageInterface<casacore::Complex>& /*image*/,
+								  const VisBuffer2& /*vb*/, const casacore::Bool& doPointing);
+
+
+
     casacore::CountedPtr<ATerm> aTerm_p;
     casacore::CountedPtr<PSTerm> psTerm_p;
     casacore::CountedPtr<WTerm> wTerm_p;
@@ -164,7 +173,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     void makePBSq(casacore::ImageInterface<casacore::Complex>& inImage);
 
 
-    casacore::Vector<casacore::Double> thePix_p, pixFieldGrad_p;
+    casacore::Vector<casacore::Double> thePix_p;
+    casacore::Vector<casacore::Vector<casacore::Double> >pixFieldGrad_p;
     casacore::Double imRefFreq_p;
     casacore::Bool wbAWP_p, conjPB_p;
     casacore::CountedPtr<CFBuffer> baseCFB_p;

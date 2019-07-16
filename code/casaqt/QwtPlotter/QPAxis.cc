@@ -367,11 +367,26 @@ PlotAxisScale QPAxis::axisScale(PlotAxis /*axis*/) const   {
 }
 
 
-void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale) {
+void QPAxis::setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base) {
 	QwtPlot::Axis dAxis = QPOptions::axis(axis);
 	if ( axisType == dAxis  && axisWidget != NULL ){
-		axisWidget->setAxisScale( scale );
+		axisWidget->setAxisScale(scale,base);
 	}
+}
+
+bool QPAxis::setAxisScaleSortDirection(PlotAxis /*axis*/, SortDirection /*direction*/){
+	return false;
+}
+
+std::pair<bool,SortDirection> QPAxis::axisScaleSortDirection(PlotAxis /*axis*/) const {
+	return std::make_pair(false,SortDirection::ASCENDING);
+}
+
+void QPAxis::setAxisScaleAngleFormat(PlotAxis /*axis*/, AngleFormat /*format*/){
+	//
+}
+AngleFormat QPAxis::axisScaleAngleFormat(PlotAxis /*axis*/) const {
+	return AngleFormat::DECIMAL;
 }
 
 
@@ -467,6 +482,9 @@ void QPAxis::setAxisRange(PlotAxis /*axis*/, double /*from*/, double /*to*/) {
     //setAxesRanges(axis, from, to, axis, from, to);
 }
 
+void QPAxis::invertAxis(PlotAxis /*axis*/) {
+    //;
+}
 
 void QPAxis::setAxesRanges(PlotAxis /*xAxis*/, double /*xFrom*/, double /*xTo*/,
         PlotAxis /*yAxis*/, double /*yFrom*/, double /*yTo*/) {

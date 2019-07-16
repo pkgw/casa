@@ -116,10 +116,11 @@ void CalCache::loadIt(vector<PMS::Axis>& loadAxes,
   // poln ratio
   polnRatio_ = false;
   if (selection_.corr()=="/") {
-    if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F')
+    if (calType_=="BPOLY" || calType_[0] == 'T' || calType_[0] == 'F') {
       throw(AipsError("Polarization ratio plots not supported for " + calType_ + " tables."));
-    else
+	} else {
       polnRatio_ = true;
+    }
   }
 
   antnames_.resize();
@@ -628,20 +629,28 @@ void CalCache::loadCalAxis(ROCTIter& cti, Int chunk, PMS::Axis axis, String pol)
           break;
         }
         case PMS::ATM:
-        case PMS::TSKY: { 
+        case PMS::TSKY: 
+        case PMS::IMAGESB: {
           casacore::Int spw = cti.thisSpw();
           casacore::Int scan = cti.thisScan();
           casacore::Vector<casacore::Double> freqsGHz = cti.freq()/1e9;
           casacore::Vector<casacore::Double> curve(1, 0.0);
-          bool isAtm = (axis==PMS::ATM);
-          if (plotmsAtm_) {
-              curve.resize();    
-              curve = plotmsAtm_->calcOverlayCurve(spw, scan, freqsGHz, isAtm);
-          }
-          if (isAtm)
+          if (axis == PMS::ATM) { 
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, freqsGHz);
+              }
               *atm_[chunk] = curve;
-          else
+          } else if (axis == PMS::TSKY) {
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, freqsGHz);
+              }
               *tsky_[chunk] = curve;
+          } else {
+              if (plotmsAtm_) {
+                  plotmsAtm_->calcImageCurve(curve, spw, scan, freqsGHz);
+              }
+              *imageSideband_[chunk] = curve;
+          }
           break;
         }
         default:

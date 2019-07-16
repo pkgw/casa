@@ -53,10 +53,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 		      const casacore::CountedPtr<WTerm> wTerm,
 		      const casacore::Bool wbAWP=false,
 		      const casacore::Bool conjPB=casacore::True):
-      AWConvFunc(ATerm,psTerm,wTerm,wbAWP, conjPB), imageDC_p(),imageObsInfo_p(),
-      nx_p(-1), ny_p(-1),nchan_p(-1),npol_p(-1),csys_p(),dc_p(),pointToPix_p(),
-      pointFrame_p(),timeMType_p(),timeUnit_p(),directionIndex_p(-1),
-      direction1_p(), direction2_p()
+      AWConvFunc(ATerm,psTerm,wTerm,wbAWP, conjPB)
     {};
     ~AWConvFuncEPJones() {};
     AWConvFuncEPJones& operator=(const AWConvFuncEPJones& other);
@@ -76,26 +73,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     virtual casacore::Vector<casacore::Double> findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
 					      const VisBuffer2& vb);
 
-    void toPix(const VisBuffer2& vb);
-    void storeImageParams(const casacore::ImageInterface<casacore::Complex>& iimage,
-			  const VisBuffer2& vb);
-  private:
-    // MosaicFT related
-    casacore::DirectionCoordinate imageDC_p;
-    casacore::ObsInfo imageObsInfo_p;
-    casacore::Int nx_p; 
-    casacore::Int ny_p;
-    casacore::Int nchan_p;
-    casacore::Int npol_p;
-    casacore::CoordinateSystem csys_p;
-    casacore::DirectionCoordinate dc_p;
-    casacore::MDirection::Convert pointToPix_p;
-    casacore::MeasFrame pointFrame_p;
-    casacore::MEpoch::Types timeMType_p;
-    casacore::Unit timeUnit_p;
-    casacore::Int directionIndex_p;
-    casacore::MDirection direction1_p;
-    casacore::MDirection direction2_p;
   };
   //
   //-------------------------------------------------------------------------------------------

@@ -135,7 +135,7 @@ def tclean2(
     #####################################################
 
     # mterm = True
-    # dopointing = False
+    # usepointing = False
     # dopbcorr = True
     # workdir = ''
     # cflist = []
@@ -191,7 +191,7 @@ def tclean2(
             #mterm=mterm,
         wbawp = wbawp,
             cfcache = cfcache,
-            #dopointing = dopointing,
+            #usepointing = usepointing,
             #dopbcorr = dopbcorr,
         conjbeams = conjbeams,
             computepastep =computepastep,

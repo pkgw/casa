@@ -35,6 +35,9 @@
 #include <synthesis/MeasurementComponents/AMueller.h>
 #include <synthesis/MeasurementEquations/VisEquation.h>
 
+#include <msvis/MSVis/VisBuffer2.h>
+
+
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
@@ -347,6 +350,44 @@ void AMueller::applyCal(VisBuffer& vb, Cube<Complex>& Vout,Bool trial)
                    !spwApplied_p[cspw]))
       throw(AipsError("Could not place the continuum-subtracted data in "
                       + MS::columnName(whichcol)));
+    spwApplied_p[cspw] = true;
+  }
+}
+
+
+// Apply this calibration to VisBuffer visibilities
+void AMueller::applyCal2(vi::VisBuffer2& vb, 
+                         casacore::Cube<casacore::Complex>& Vout,casacore::Cube<casacore::Float>& Wout,
+                         casacore::Bool trial)
+
+{
+  LogIO os(LogOrigin("AMueller", "applyCal2()", WHERE));
+
+  if(fitorder_p == 0){
+    VisMueller::applyCal2(vb, Vout, Wout, trial);
+  }
+  else{
+    if(prtlev() > 3)
+      os << "  AMueller::applyCal2()" << LogIO::POST;
+
+    if (trial)
+      throw(AipsError("trial apply not supported by AMueller with fitorder_p>0"));
+    
+    Int cspw = currSpw();
+    VBContinuumSubtractor vbcs;
+
+    if (lofreq_p[cspw]>0.0 &&
+	hifreq_p[cspw]>0.0)
+      vbcs.init(currCPar().shape(), nAnt() - 1, totnumchan_p[cspw],
+		lofreq_p[cspw], hifreq_p[cspw]);
+    else
+      throw(AipsError("AMueller::applyCal2: Bad freq domain info."));
+
+    // Correct Vout
+    if(!vbcs.apply2(vb, Vout, currCPar(), currParOK(), doSub_p,
+                   !spwApplied_p[cspw]))
+      throw(AipsError("Error applying continuum-subtraction"));
+
     spwApplied_p[cspw] = true;
   }
 }

@@ -38,7 +38,6 @@
 
 //#include <QtCore/qmath.h>
 #include <QDebug>
-#include <iomanip>
 
 using namespace casacore;
 namespace casa {
@@ -88,10 +87,11 @@ PlotMSIndexer::PlotMSIndexer():
 		  self(const_cast<PlotMSIndexer*>(this))
 {
 	dataIndex_ = 0;
-	}
+}
 
-PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent, PMS::Axis xAxis,
-		PMS::DataColumn xData, PMS::Axis yAxis, PMS::DataColumn yData,
+PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
+		PMS::Axis xAxis, PMS::DataColumn xData,
+		PMS::Axis yAxis, PMS::DataColumn yData,
 		String xconnect, bool timeconnect, int index ):
 		  plotmscache_(parent),
 		  currChunk_(0),
@@ -157,8 +157,8 @@ PlotMSIndexer::PlotMSIndexer(PlotMSCacheBase* parent,
 		nSegPoints_(),nCumulPoints_(),cacheChunk_(),cacheOffset_(),
 		currentX_(xAxis),
 		currentY_(yAxis),
-        currentXdata_(xDataColumn),
-        currentYdata_(yDataColumn),
+		currentXdata_(xDataColumn),
+		currentYdata_(yDataColumn),
 		indexerReady_(false),
 		connectReady_(false),
 		icorrmax_(),
@@ -221,7 +221,8 @@ void PlotMSIndexer::xAndYAt(unsigned int index, double& x, double& y) const {
 
 bool PlotMSIndexer::minsMaxes(double& xMin, double& xMax, double& yMin, double& yMax) {
 
-	if (this->size()<1) return false;
+	if (this->size()<1)
+		return false;
 
 	// return the collective (flagged/unflagged) min/max
 	// X:
@@ -245,8 +246,9 @@ bool PlotMSIndexer::minsMaxes(double& xMin, double& xMax, double& yMin, double& 
 		yMin = min(ymin_, yflmin_);
 		yMax = max(ymax_, yflmax_);
 	}
-	if (plotmscache_->hasOverlay())
-		adjustYRange(yMin, yMax);
+	if (plotmscache_->hasOverlay()) {
+		adjustYRangeForOverlay(yMin, yMax);
+	}
 
 	return true;
 }
@@ -265,7 +267,8 @@ void PlotMSIndexer::xyAndMaskAt(unsigned int index, double& x, double& y, bool& 
 
 bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, double& yMin, double& yMax) {
 
-	if (this->size()<1) return false;
+	if (this->size()<1)
+		return false;
 
 	// return the collective (flagged) min/max
 	// X:
@@ -273,8 +276,7 @@ bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, double& yMin, do
 		// Use globals from the cache
 		xMin = plotmscache_->xflminG_[dataIndex_];
 		xMax = plotmscache_->xflmaxG_[dataIndex_];
-	}
-	else {
+	} else {
 		// get local ones
 		xMin = xflmin_;
 		xMax = xflmax_;
@@ -284,14 +286,13 @@ bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, double& yMin, do
 		// Use globals from the cache
 		yMin = plotmscache_->yflminG_[dataIndex_];
 		yMax = plotmscache_->yflmaxG_[dataIndex_];
-	}
-	else {
+	} else {
 		// use local ones
 		yMin = yflmin_;
 		yMax = yflmax_;
 	}
 	if (plotmscache_->hasOverlay())
-		adjustYRange(yMin, yMax);
+		adjustYRangeForOverlay(yMin, yMax);
 
 	return true;
 }
@@ -300,18 +301,25 @@ bool PlotMSIndexer::maskedMinsMaxes(double& xMin, double& xMax, double& yMin, do
 
 bool PlotMSIndexer::maskedMinsMaxesRaw(double& xMin, double& xMax, 
 		double& yMin, double& yMax) {
-	if (this->size()<1) return false;
+	if (this->size()<1)
+		return false;
+
 	xMin=xflmin_;
 	xMax=xflmax_;
 	yMin=yflmin_;
 	yMax=yflmax_;
+
+	if (plotmscache_->hasOverlay()) {
+		adjustYRangeForOverlay(yMin, yMax);
+	}
+
 	return true;
 }
 
 bool PlotMSIndexer::unmaskedMinsMaxes(double& xMin, double& xMax, 
 		double& yMin, double& yMax) {
-
-	if (this->size()<1) return false;
+	if (this->size()<1)
+		return false;
 
 	// return the collective (unflagged) min/max
 	// X:
@@ -319,8 +327,7 @@ bool PlotMSIndexer::unmaskedMinsMaxes(double& xMin, double& xMax,
 		// Use globals from the cache
 		xMin = plotmscache_->xminG_[dataIndex_];
 		xMax = plotmscache_->xmaxG_[dataIndex_];
-	}
-	else {
+	} else {
 		// get local ones
 		xMin = xmin_;
 		xMax = xmax_;
@@ -331,38 +338,41 @@ bool PlotMSIndexer::unmaskedMinsMaxes(double& xMin, double& xMax,
 		// Use globals from the cache
 		yMin = plotmscache_->yminG_[dataIndex_];
 		yMax = plotmscache_->ymaxG_[dataIndex_];
-	}
-	else {
+	} else {
 		// get local ones
 		yMin = ymin_;
 		yMax = ymax_;
 	}
-	if (plotmscache_->hasOverlay())
-		adjustYRange(yMin, yMax);
+
+	if (plotmscache_->hasOverlay()) {
+		adjustYRangeForOverlay(yMin, yMax);
+	}
 
 	return true;
 }
 
-void PlotMSIndexer::adjustYRange(double& yMin, double& yMax) {
-	double range = yMax-yMin;
+void PlotMSIndexer::adjustYRangeForOverlay(double& yMin, double& yMax) {
+	// add margin to top of non-overlay axis
 	if (!PMS::axisIsOverlay(currentY_)) {
-		// add margin to top of non-overlay axis
-		yMax += range * 0.25;
-	} else {
-		// add margin to bottom of overlay axis
-		if (range < 5.0) range = 5.0;
-		yMin -= range*2.0;
-		if (yMin < 0.0) yMin = 0.0;
+	    double yrange = yMax - yMin;
+		yMax += yrange * 0.25;
 	}
 }
 
 bool PlotMSIndexer::unmaskedMinsMaxesRaw(double& xMin, double& xMax, 
-		double& yMin, double& yMax) {
-	if (this->size()<1) return false;
+	double& yMin, double& yMax) {
+	if (this->size()<1)
+		return false;
+
 	xMin=xmin_;
 	xMax=xmax_;
 	yMin=ymin_;
 	yMax=ymax_;
+
+	if (plotmscache_->hasOverlay()) {
+		adjustYRangeForOverlay(yMin, yMax);
+	}
+
 	return true;
 }
 
@@ -401,7 +411,7 @@ unsigned int PlotMSIndexer::binAt(unsigned int i) const {
 		}
 	} else {
 		binValue = connectBinAt(i);
-    }
+	}
 	return binValue;
 }
 
@@ -474,12 +484,15 @@ void PlotMSIndexer::setUpIndexing() {
 
 	nperchan_.resize(nChunk());
 	nperchan_.set(1);
-	if (plotmscache_->netAxesMask_[dataIndex_](0)) nperchan_ *= chsh.row(0);
+	if (plotmscache_->netAxesMask_[dataIndex_](0))
+		nperchan_ *= chsh.row(0);
 
 	nperbsln_.resize(nChunk());
 	nperbsln_.set(1);
-	if (plotmscache_->netAxesMask_[dataIndex_](0)) nperbsln_ *= chsh.row(0);
-	if (plotmscache_->netAxesMask_[dataIndex_](1)) nperbsln_ *= chsh.row(1);
+	if (plotmscache_->netAxesMask_[dataIndex_](0))
+		nperbsln_ *= chsh.row(0);
+	if (plotmscache_->netAxesMask_[dataIndex_](1))
+		nperbsln_ *= chsh.row(1);
 
 	nperant_.reference(nperbsln_);
 
@@ -706,8 +719,9 @@ void PlotMSIndexer::setUpIndexing() {
 	nPoints_.reference(nSegPoints_);
 	nCumulative_.reference(nCumulPoints_);
 
-	if (itsXConnect_ != "none")
+	if (itsXConnect_ != "none") {
 		reindexForConnect();
+	}
 }
 
 void PlotMSIndexer::reindexForConnect() {
@@ -1289,6 +1303,9 @@ void PlotMSIndexer::setMethod(CacheMemPtr& getmethod,PMS::Axis axis,
 	case PMS::TSKY:
 		getmethod = &PlotMSCacheBase::getTsky;
 		break;
+	case PMS::IMAGESB:
+		getmethod = &PlotMSCacheBase::getImageSideband;
+		break;
 	default:
 		throw(AipsError("Can't find get method for "+PMS::axis(axis)+"."));
 		break;
@@ -1354,6 +1371,7 @@ void PlotMSIndexer::setIndexer(IndexerMethPtr& indexmethod,PMS::Axis axis) {
 	case PMS::CHANNEL:
 	case PMS::ATM:
 	case PMS::TSKY:
+	case PMS::IMAGESB:
 		indexmethod = &PlotMSIndexer::getIndex0100;
 		break;
 
@@ -2072,8 +2090,8 @@ void PlotMSIndexer::collapseMask0001(Int ch,Array<Bool>& collmask) {
 void PlotMSIndexer::computeRanges() {
 
 	// Initialize limits
-	xmin_=ymin_=xflmin_=yflmin_=DBL_MAX;
-	xmax_=ymax_=xflmax_=yflmax_=-DBL_MAX;
+	xmin_=ymin_=xflmin_=yflmin_ = DBL_MAX;
+	xmax_=ymax_=xflmax_=yflmax_ = -DBL_MAX;
 
 	// We will count up flagged/unflagged here
 	sizeMasked_=sizeUnMasked_=0;

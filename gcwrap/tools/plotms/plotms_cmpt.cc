@@ -54,10 +54,10 @@ const unsigned int plotms::LAUNCH_TOTAL_WAIT_US    = 5000000;
 // Constructors/Destructors //
 
   plotms::plotms() : itsWatcher_(this){
-	  showGui = true;
-	  asyncCall = true;
-	  isTask = false;
-	  app_pid = -1;
+    showGui = true;
+    asyncCall = true;
+    isTask = false;
+    app_pid = -1;
   }
 
   plotms::~plotms() { closeApp(); }
@@ -148,7 +148,7 @@ string plotms::getLogFilter() {
 
 void plotms::setPlotMSPid(int pid) {
     // Connect dbus to existing plotms pid
-	// (most likely started by procmgr)
+    // (most likely started by procmgr)
     app_pid = pid;
     app.dbusName() = to_string(QtDBusApp::generateServiceName(
         app.getName(), pid));
@@ -167,11 +167,11 @@ void plotms::setPlotMSPid(int pid) {
                 " time window.  Check running processes and try again if "
                 "desired." << endl;
     }
-	isTask = true;
+    isTask = true;
 }
 
 int plotms::getPlotMSPid() {
-	return app_pid;
+    return app_pid;
 }
 
 void plotms::setClearSelectionOnAxesChange(const bool clearSelection) {
@@ -192,7 +192,7 @@ void plotms::setCachedImageSize(const int width, const int height) {
 }
 
 void plotms::setCachedImageSizeToScreenResolution() {
-	// call Async calls launchApp
+    // call Async calls launchApp
     callAsync(PlotMSDBusApp::METHOD_SETCACHEDIMAGESIZETOSCREENRES);
 }
 
@@ -207,18 +207,17 @@ int plotms::getCachedImageHeight() {
 }
 
 void plotms::setGridSize( int rowCount, int colCount ){
-	launchApp();
+    launchApp();
     Record params;
-	params.define(PlotMSDBusApp::PARAM_GRIDROWS, rowCount);
+    params.define(PlotMSDBusApp::PARAM_GRIDROWS, rowCount);
     params.define(PlotMSDBusApp::PARAM_GRIDCOLS, colCount );
     QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
-	            PlotMSDBusApp::METHOD_SETPLOTMSPARAMS, params, /*true*/asyncCall);
+                PlotMSDBusApp::METHOD_SETPLOTMSPARAMS, params, /*true*/asyncCall);
 }
 
 
 
-void plotms::setPlotMSFilename(
-		const string& msFilename,
+void plotms::setPlotMSFilename(const string& msFilename,
         const bool updateImmediately, const int plotIndex ) {
     launchApp();
     SETSINGLEPLOT(FILENAME, msFilename, asyncCall )
@@ -235,7 +234,7 @@ void plotms::setPlotMSSelection(const string& field, const string& spw,
         const string& array, const string& observation, 
         const string& intent, const string& feed, const string& msselect,
         const bool updateImmediately, const int plotIndex) {
-	// setPlotMSSelection_ calls launchApp()
+    // setPlotMSSelection_ calls launchApp()
     PlotMSSelection sel;
     sel.setField(field);
     sel.setSpw(spw);
@@ -254,8 +253,8 @@ void plotms::setPlotMSSelection(const string& field, const string& spw,
 }
 
 void plotms::setPlotMSSelectionRec(const record& selection,
-		const bool updateImmediately, const int plotIndex) {
-	// setPlotMSSelection_ calls launchApp()
+        const bool updateImmediately, const int plotIndex) {
+    // setPlotMSSelection_ calls launchApp()
     Record* sel1 = toRecord(selection);
     PlotMSSelection sel;
     sel.fromRecord(*sel1);
@@ -269,13 +268,10 @@ record* plotms::getPlotMSSelection(const int plotIndex) {
     GETSINGLEPLOTREC(SELECTION) }
 
 void plotms::setPlotMSAveraging(const string& channel, const string& time,
-				const bool scan, const bool field, 
-				const bool baseline,
-				const bool antenna, const bool spw, 
-				const bool scalar,
-				const bool updateImmediately,
-				const int plotIndex) {
-	// setPlotMSAveraging_ calls launchApp()
+      const bool scan, const bool field, const bool baseline, const bool antenna,
+      const bool spw, const bool scalar, const bool updateImmediately,
+      const int plotIndex) {
+    // setPlotMSAveraging_ calls launchApp()
     PlotMSAveraging avg;
     avg.setChannel(channel);
     avg.setTime(time);
@@ -290,8 +286,8 @@ void plotms::setPlotMSAveraging(const string& channel, const string& time,
 }
 
 void plotms::setPlotMSAveragingRec(const record& averaging,
-		const bool updateImmediately, const int plotIndex) {
-	// setPlotMSAveraging_ calls launchApp()
+       const bool updateImmediately, const int plotIndex) {
+    // setPlotMSAveraging_ calls launchApp()
     Record* avg1 = toRecord(averaging);
     PlotMSAveraging avg;
     avg.fromRecord(*avg1);
@@ -305,13 +301,13 @@ record* plotms::getPlotMSAveraging(const int plotIndex) {
     GETSINGLEPLOTREC(AVERAGING) }
 
 void plotms::setPlotMSTransformations(const std::string& freqframe, 
-				      const std::string& veldef, 
-				      const ::casac::variant& restfreq, 
-				      const double xshift, 
-				      const double yshift, 
-				      const bool updateImmediately, 
-				      const int plotIndex) {
-	// setPlotMSTransformations_ calls launchApp()
+        const std::string& veldef, 
+        const ::casac::variant& restfreq, 
+        const double xshift, 
+        const double yshift, 
+        const bool updateImmediately, 
+        const int plotIndex) {
+    // setPlotMSTransformations_ calls launchApp()
     PlotMSTransformations trans;
     trans.setFrame(freqframe);
     trans.setVelDef(veldef);
@@ -325,9 +321,8 @@ void plotms::setPlotMSTransformations(const std::string& freqframe,
 }
 
 void plotms::setPlotMSTransformationsRec(const record& transformations, 
-					 const bool updateImmediately, 
-					 const int plotIndex) {
-	// setPlotMSTransformations_ calls launchApp()
+      const bool updateImmediately, const int plotIndex) {
+    // setPlotMSTransformations_ calls launchApp()
     Record* trans1 = toRecord(transformations);
     PlotMSTransformations trans;
     trans.fromRecord(*trans1);
@@ -342,12 +337,11 @@ record* plotms::getPlotMSTransformations(const int plotIndex) {
 }
 
 void plotms::setPlotMSIterate(const std::string& iteraxis,
-				  const int rowIndex, const int colIndex,
-			      const bool xselfscale, const bool yselfscale,
-			      const bool commonAxisX, const bool commonAxisY,
-			      const bool updateImmediately, 
-			      const int plotIndex) {
-	// setPlotMSIterate_ calls launchApp()
+      const int rowIndex, const int colIndex,
+      const bool xselfscale, const bool yselfscale,
+      const bool commonAxisX, const bool commonAxisY,
+      const bool updateImmediately, const int plotIndex) {
+    // setPlotMSIterate_ calls launchApp()
     PlotMSIterParam iter;
     iter.setIterAxis(iteraxis);
     iter.setGridRow( rowIndex );
@@ -359,21 +353,19 @@ void plotms::setPlotMSIterate(const std::string& iteraxis,
       iter.setCommonAxisY( false );
     }
     else {
-    	iter.setGlobalScaleX( xselfscale);
-    	iter.setGlobalScaleY( yselfscale);
-    	iter.setCommonAxisX( commonAxisX );
-    	iter.setCommonAxisY( commonAxisY );
+        iter.setGlobalScaleX( xselfscale);
+        iter.setGlobalScaleY( yselfscale);
+        iter.setCommonAxisX( commonAxisX );
+        iter.setCommonAxisY( commonAxisY );
     }
 
     setPlotMSIterate_(iter, updateImmediately, plotIndex);
 }
 
 
-void plotms::setPlotMSCalibration(const bool use, 
-				const std::string& callibrary,
-				const bool updateImmediately, 
-				const int plotIndex) {
-	// setPlotMSCalibration_ calls launchApp()
+void plotms::setPlotMSCalibration(const bool use, const std::string& callibrary,
+      const bool updateImmediately, const int plotIndex) {
+    // setPlotMSCalibration_ calls launchApp()
     PlotMSCalibration pmscalib;
     pmscalib.setUseCallib(use);
     pmscalib.setCalLibrary(callibrary);
@@ -382,8 +374,8 @@ void plotms::setPlotMSCalibration(const bool use,
 }
 
 void plotms::setcallib(const string& callib, const bool updateImmediately,
-			const int plotIndex) {
-	// setPlotMSCalibration_ calls launchApp()
+      const int plotIndex) {
+    // setPlotMSCalibration_ calls launchApp()
     PlotMSCalibration pmscalib;
     pmscalib.setUseCallib(true);
     pmscalib.setCalLibrary(callib);
@@ -398,7 +390,7 @@ record* plotms::getPlotMSCalibration(const int plotIndex) {
 
 void plotms::setPlotMSPageHeaderItems(const string& pageHeaderItems,
         const bool updateImmediately, const int plotIndex) {
-	launchApp();
+    launchApp();
     Record params;
     params.define(PlotMSDBusApp::PARAM_PAGE_HEADER_ITEMS, pageHeaderItems);
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
@@ -481,7 +473,7 @@ void plotms::setFlaggedSymbol(
 
 void plotms::setConnect(
     const string& xconnector, const bool timeconnector,
-	const bool updateImmediately, const int plotIndex)
+    const bool updateImmediately, const int plotIndex)
 {
     launchApp();
     Record params;
@@ -528,6 +520,12 @@ void plotms::setXAxisLabel(const string& text,  const bool updateImmediately, co
 {
     launchApp();
     Record params;
+    // space disables label
+    if (text == " ") {
+        params.define(PlotMSDBusApp::PARAM_SHOWXLABEL, false);
+    } else {
+        params.define(PlotMSDBusApp::PARAM_SHOWXLABEL, true);
+    }
     params.define(PlotMSDBusApp::PARAM_XAXISLABEL,  text);
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
     params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
@@ -546,8 +544,8 @@ void plotms::setXAxisFont(const int size,  const bool updateImmediately, const i
             PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
-void plotms::setYAxisFont(const int size,  const bool updateImmediately, const int plotIndex) 
-{
+void plotms::setYAxisFont(const int size,  const bool updateImmediately,
+      const int plotIndex) {
     launchApp();
     Record params;
     params.define(PlotMSDBusApp::PARAM_YAXISFONT,  size);
@@ -557,8 +555,7 @@ void plotms::setYAxisFont(const int size,  const bool updateImmediately, const i
             PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
-void plotms::setExportRange(const string& range )
-{
+void plotms::setExportRange(const string& range ) {
     launchApp();
     Record params;
     params.define(PlotMSDBusApp::PARAM_EXPORT_RANGE,  range);
@@ -567,10 +564,15 @@ void plotms::setExportRange(const string& range )
 }
 
 void plotms::setYAxisLabel(const string& text,  const bool updateImmediately,
-		const int plotIndex)
-{
+      const int plotIndex) {
     launchApp();
     Record params;
+    // space disables label
+    if (text == " ") {
+        params.define(PlotMSDBusApp::PARAM_SHOWYLABEL, false);
+    } else {
+        params.define(PlotMSDBusApp::PARAM_SHOWYLABEL, true);
+    }
     params.define(PlotMSDBusApp::PARAM_YAXISLABEL,  text);
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
     params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
@@ -690,11 +692,13 @@ void plotms::setPlotAxes(const string& xAxis, const string& yAxis,
             PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
 }
 
-void plotms::setShowAtm(const bool showatm, const bool updateImmediately, const int plotIndex) 
+void plotms::setShowCurve(const bool showatm, const bool showtsky, const bool showimage, const bool updateImmediately, const int plotIndex) 
 {
     launchApp();
     Record params;
     params.define(PlotMSDBusApp::PARAM_SHOWATM, showatm);
+    params.define(PlotMSDBusApp::PARAM_SHOWTSKY, showtsky);
+    params.define(PlotMSDBusApp::PARAM_SHOWIMAGE, showimage);
     params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
     params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
     QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
@@ -707,21 +711,16 @@ bool plotms::getShowAtm(const int plotIndex)
     GETSINGLEPLOTBOOL(SHOWATM) 
 }
 
-void plotms::setShowTsky(const bool showtsky, const bool updateImmediately, const int plotIndex) 
-{
-    launchApp();
-    Record params;
-    params.define(PlotMSDBusApp::PARAM_SHOWTSKY, showtsky);
-    params.define(PlotMSDBusApp::PARAM_UPDATEIMMEDIATELY, updateImmediately);
-    params.define(PlotMSDBusApp::PARAM_PLOTINDEX, plotIndex);
-    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
-         PlotMSDBusApp::METHOD_SETPLOTPARAMS, params, /*true*/asyncCall);
-}
-
 bool plotms::getShowTsky(const int plotIndex) 
 {
     launchApp();
     GETSINGLEPLOTBOOL(SHOWTSKY) 
+}
+
+bool plotms::getShowImage(const int plotIndex) 
+{
+    launchApp();
+    GETSINGLEPLOTBOOL(SHOWIMAGE) 
 }
 
 string plotms::getPlotXAxis(const int plotIndex) 
@@ -764,7 +763,7 @@ void plotms::setFlagExtension(const bool extend, const string& correlation,
         const bool channel, const bool spw, const string& antenna,
         const bool time, const bool scans, const bool field,
         const record& alternateSelection) {
-	// setFlagging_ calls launchApp()
+    // setFlagging_ calls launchApp()
     PlotMSFlagging flag;
     flag.setExtend(extend);
     flag.setCorr(correlation);
@@ -788,7 +787,7 @@ void plotms::setFlagExtension(const bool extend, const string& correlation,
 }
 
 void plotms::setFlagExtensionRec(const record& flagExtension) {
-	// setFlagging_ calls launchApp()
+    // setFlagging_ calls launchApp()
     Record* flag1 = toRecord(flagExtension);
     PlotMSFlagging flag;
     flag.fromRecord(*flag1);
@@ -814,12 +813,12 @@ record* plotms::locateInfo() {
 }
 
 bool plotms::update() {
-	bool result(false);
+    bool result(false);
     if (launchApp()) { // if plotms or dbus crashed, return false to task
-		QtDBusXmlApp::dbusXmlCall( dbus::FROM_NAME, app.dbusName(),
-				PlotMSDBusApp::METHOD_UPDATE, Record(), result );
-	} 
-	return result;
+        QtDBusXmlApp::dbusXmlCall( dbus::FROM_NAME, app.dbusName(),
+            PlotMSDBusApp::METHOD_UPDATE, Record(), result );
+    } 
+    return result;
 }
 
 void plotms::waitUntilIdle() {
@@ -833,97 +832,95 @@ void plotms::waitUntilIdle() {
 }
 
 /*void plotms::show()   {
-	if ( !showGui ){
-		callAsync(PlotMSDBusApp::METHOD_SHOW);
-	}
-	else {
-		QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
-	            PlotMSDBusApp::METHOD_SHOW, Record(), asyncCall);
-	}
+    if ( !showGui ) {
+        callAsync(PlotMSDBusApp::METHOD_SHOW);
+    } else {
+        QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+            PlotMSDBusApp::METHOD_SHOW, Record(), asyncCall);
+    }
 }
 
 void plotms::hide()   {
-	if ( !showGui ){
-		callAsync(PlotMSDBusApp::METHOD_HIDE);
-	}
-	else {
-		QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
-			            PlotMSDBusApp::METHOD_HIDE, Record(), asyncCall);
-	}
+    if ( !showGui ) {
+        callAsync(PlotMSDBusApp::METHOD_HIDE);
+    } else {
+        QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+            PlotMSDBusApp::METHOD_HIDE, Record(), asyncCall);
+    }
 }*/
 
 void plotms::setShowGui( bool showGui ){
-	// Set the variable first: used by launchApp() 
-	this->showGui = showGui;
+    // Set the variable first: used by launchApp() 
+    this->showGui = showGui;
 
-	// When app is being launched, showGui determines whether it is
-	// a script client or not.  Afterward, it will just show the GUI
-	// if it has been closed by the user in non-scripting mode.
-	launchApp();
+    // When app is being launched, showGui determines whether it is
+    // a script client or not.  Afterward, it will just show the GUI
+    // if it has been closed by the user in non-scripting mode.
+    launchApp();
 
-	// Allow the user to switch between script and gui clients;
-	// no state is carried between clients
-	if ( showGui ){
-		//This is needed in the case where the is running plotms
-		//from casapy.  If the user closes plotms, and then calls
-		//the constructor again, plotms will not be shown without
-		//this line.
-		callAsync(PlotMSDBusApp::METHOD_SHOW);
-	} else {
-		callAsync(PlotMSDBusApp::METHOD_HIDE);
-	}
+    // Allow the user to switch between script and gui clients;
+    // no state is carried between clients
+    if ( showGui ){
+        //This is needed in the case where the is running plotms
+        //from casapy.  If the user closes plotms, and then calls
+        //the constructor again, plotms will not be shown without
+        //this line.
+        callAsync(PlotMSDBusApp::METHOD_SHOW);
+    } else {
+        callAsync(PlotMSDBusApp::METHOD_HIDE);
+    }
 }
 
 void plotms::clearPlots(){
-	launchApp();
-	QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ), 
-		PlotMSDBusApp::METHOD_CLEARPLOTS, Record(), asyncCall );
+    launchApp();
+    QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ), 
+        PlotMSDBusApp::METHOD_CLEARPLOTS, Record(), asyncCall );
 }
 
 bool plotms::save(const string& filename, const string& format, const bool verbose,
-		const bool highres, int dpi, int width, int height) {
+        const bool highres, int dpi, int width, int height) {
     bool retValue(false);
     if (launchApp()) {  // if plotms or dbus crashed, return false to task
-		Record params;
-		params.define(PlotMSDBusApp::PARAM_EXPORT_FILENAME, filename);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_FORMAT, format);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_VERBOSE, verbose);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_HIGHRES, highres);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_DPI, dpi);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_WIDTH, width);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_HEIGHT, height);
-		params.define(PlotMSDBusApp::PARAM_EXPORT_ASYNC, false);
+        Record params;
+        params.define(PlotMSDBusApp::PARAM_EXPORT_FILENAME, filename);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_FORMAT, format);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_VERBOSE, verbose);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_HIGHRES, highres);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_DPI, dpi);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_WIDTH, width);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_HEIGHT, height);
+        params.define(PlotMSDBusApp::PARAM_EXPORT_ASYNC, false);
 
-		QtDBusXmlApp::dbusXmlCall(dbus::FROM_NAME, app.dbusName( ),
-			PlotMSDBusApp::METHOD_SAVE, params, retValue);
-	}
+        QtDBusXmlApp::dbusXmlCall(dbus::FROM_NAME, app.dbusName( ),
+            PlotMSDBusApp::METHOD_SAVE, params, retValue);
+    }
     return retValue;
 }
 
 bool plotms::isDrawing() {
-	bool retValue(false);
+    bool retValue(false);
     if (launchApp()) {
-		Record params;
-		QtDBusXmlApp::dbusXmlCall(dbus::FROM_NAME, app.dbusName(),
-			PlotMSDBusApp::METHOD_ISDRAWING, params, retValue);
-	}
-	return retValue;
+        Record params;
+        QtDBusXmlApp::dbusXmlCall(dbus::FROM_NAME, app.dbusName(),
+            PlotMSDBusApp::METHOD_ISDRAWING, params, retValue);
+    }
+    return retValue;
 }
 
 bool plotms::isClosed() {
-	launchApp();
-	Record params;
-	bool retValue;
-	QtDBusXmlApp::dbusXmlCall(
-		dbus::FROM_NAME, app.dbusName(),
-		PlotMSDBusApp::METHOD_ISCLOSED, params, retValue);
-	return retValue;
+    launchApp();
+    Record params;
+    bool retValue;
+    QtDBusXmlApp::dbusXmlCall(
+        dbus::FROM_NAME, app.dbusName(),
+        PlotMSDBusApp::METHOD_ISCLOSED, params, retValue);
+    return retValue;
 }
 
 void plotms::killApp() {
-	if (app_pid > 0) {
-		kill(app_pid,9);
-	}
+    if (app_pid > 0) {
+        kill(app_pid,9);
+    }
 }
 
 // Private Methods //
@@ -939,76 +936,74 @@ bool plotms::displaySet() {
 }
 
 bool plotms::launchApp() {
-	bool result(false);	
-	if(displaySet()) {
-		if (app.dbusName( ).empty()) { // hasn't been launched yet
-			   result = launchCasaplotms();
-		} else {
-			if (QtDBusApp::serviceIsAvailable(app.dbusName( ))) {  // running ok
-				result = true;
-			} else {  // something crashed!
-				if (!isTask) // relaunch for tool/application
-					result = launchCasaplotms();	
-			}
-		}
-	}
-	return result;
+    bool result(false);
+    if (displaySet()) {
+        if (app.dbusName( ).empty()) { // hasn't been launched yet
+            result = launchCasaplotms();
+        } else {
+            if (QtDBusApp::serviceIsAvailable(app.dbusName( ))) {  // running ok
+                result = true;
+            } else {  // something crashed!
+                if (!isTask) // relaunch for tool/application
+                    result = launchCasaplotms();
+            }
+        }
+    }
+    return result;
 }
 
 bool plotms::launchCasaplotms() {
-	// Launch PlotMS application with the DBus switch.
-	// Return value is whether it launched successfully	
-	bool launched(false);
-	pid_t pid = fork();
-	app_pid = pid;
-	if(pid == 0) {
-		String scriptClient;
-		if ( !showGui ){
-			scriptClient = "--nogui";
-		}
-		asyncCall = showGui;
-		String file = itsLogFilename_.empty() ? "" :
-				PlotMSDBusApp::APP_LOGFILENAME_SWITCH + "=" +
-				itsLogFilename_;
-		String filter = itsLogFilter_.empty() ? "" :
-				PlotMSDBusApp::APP_LOGFILTER_SWITCH + "=" +
-				itsLogFilter_;
-		String nopop="--nopopups";
+    // Launch PlotMS application with the DBus switch.
+    // Return value is whether it launched successfully
+    bool launched(false);
+    pid_t pid = fork();
+    app_pid = pid;
+    if(pid == 0) {
+        String scriptClient;
+        if ( !showGui ){
+            scriptClient = "--nogui";
+        }
+        asyncCall = showGui;
+        String file = itsLogFilename_.empty() ? "" :
+             PlotMSDBusApp::APP_LOGFILENAME_SWITCH + "=" + itsLogFilename_;
+        String filter = itsLogFilter_.empty() ? "" :
+             PlotMSDBusApp::APP_LOGFILTER_SWITCH + "=" + itsLogFilter_;
+        String nopop="--nopopups";
 
-		execlp(PlotMSDBusApp::APP_NAME.c_str(),
-				PlotMSDBusApp::APP_NAME.c_str(),
-				PlotMSDBusApp::APP_CASAPY_SWITCH.c_str(),
-				nopop.c_str(),
-				file.c_str(), filter.c_str(),
-				scriptClient.c_str(),
-				NULL);
-		launched = true;
+        execlp(PlotMSDBusApp::APP_NAME.c_str(),
+               PlotMSDBusApp::APP_NAME.c_str(),
+               PlotMSDBusApp::APP_CASAPY_SWITCH.c_str(),
+               nopop.c_str(),
+               file.c_str(), filter.c_str(),
+               scriptClient.c_str(),
+               NULL);
+        launched = true;
 
-	} else {
-		app.dbusName( ) = to_string(QtDBusApp::generateServiceName(app.getName( ),pid));
-		QtApp::init();
-		// Wait for it to have launched...
-		unsigned int slept = 0;
-		while(!launched && slept < LAUNCH_TOTAL_WAIT_US) {
-			usleep(LAUNCH_WAIT_INTERVAL_US);
-			launched = QtDBusApp::serviceIsAvailable(app.dbusName( ));
-			slept += LAUNCH_WAIT_INTERVAL_US;
-		}
-		if(!launched) {
-			app.dbusName( ) = "";
-			cerr << "ERROR: plotms application did not launch within specified"
-					" time window.  Check running processes and try again if "
-					"desired." << endl;
-		} 
-	}
-	return launched;
+    } else {
+        app.dbusName( ) = to_string(QtDBusApp::generateServiceName(app.getName( ),pid));
+        QtApp::init();
+        // Wait for it to have launched...
+        unsigned int slept = 0;
+        while(!launched && slept < LAUNCH_TOTAL_WAIT_US) {
+            usleep(LAUNCH_WAIT_INTERVAL_US);
+            launched = QtDBusApp::serviceIsAvailable(app.dbusName( ));
+            slept += LAUNCH_WAIT_INTERVAL_US;
+        }
+        if(!launched) {
+            app.dbusName( ) = "";
+            cerr << "ERROR: plotms application did not launch within specified"
+                    " time window.  Check running processes and try again if "
+                    "desired." << endl;
+        } 
+    }
+    return launched;
 }
 
 void plotms::closeApp() {
     // Tell PlotMS application to quit.
     if(!app.dbusName( ).empty()){
-    	QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
-    			PlotMSDBusApp::METHOD_QUIT, Record(), asyncCall);
+        QtDBusXmlApp::dbusXmlCallNoRet(dbus::FROM_NAME, app.dbusName( ),
+            PlotMSDBusApp::METHOD_QUIT, Record(), asyncCall);
     }
 }
 
@@ -1064,7 +1059,7 @@ void plotms::setPlotMSCalibration_(const PlotMSCalibration& calib,
 
 
 void plotms::setPlotMSIterate_(const PlotMSIterParam& iter,
-			       const bool updateImmediately, const int plotIndex) {
+        const bool updateImmediately, const int plotIndex) {
     launchApp();
     Record params;
     params.defineRecord(PlotMSDBusApp::PARAM_ITERATE, iter.toRecord());
@@ -1138,9 +1133,9 @@ void plotms::setLegend( const bool showLegend,  const string& legendPosition,
     launchApp();
     string legendPos = legendPosition;
     if ( showLegend ){
-    	if ( legendPosition=="" ){
-    		legendPos="upperright";
-    	}
+        if ( legendPosition=="" ){
+            legendPos="upperright";
+        }
     }
 
     Record params;
@@ -1192,12 +1187,13 @@ void plotms::setYRange(const bool yautorange,  const double ymin, const double y
 
     if (enable)
       cout << "IF you have _already_ launched plotms, please exit and" << endl
-	   << " restart casapy to enable iteration-capable plotting." << endl
-	   << " Otherwise, you should be good to go!" << endl;
+           << " restart casapy to enable iteration-capable plotting." << endl
+           << " Otherwise, you should be good to go!" << endl;
     else {
       cout << "IF you have _already_ launched plotms, please exit and" << endl
-	   << " restart casapy _and_ rerun this method to disable iteration-capable plotting." << endl
-	   << " Otherwise, you should be good to go!" << endl;
+           << " restart casapy _and_ rerun this method to disable iteration-capable plotting."
+           << endl
+           << " Otherwise, you should be good to go!" << endl;
     }
     doIter_=enable;
   }
@@ -1207,8 +1203,5 @@ void plotms::setYRange(const bool yautorange,  const double ymin, const double y
   return true;
 
 }*/
-
-
-
 
 }  // end namespace

@@ -89,6 +89,8 @@ namespace asdm {
 			"calDataId"
 		,
 			"calReductionId"
+		,
+			"spectralWindowId"
 		
 		
 			, "startValidTime"
@@ -130,7 +132,7 @@ namespace asdm {
 	//	
 	static string attributesNamesInBinOfCalAntennaSolutions_a[] = {
     
-    	 "antennaName" , "atmPhaseCorrection" , "receiverBand" , "basebandName" , "calDataId" , "calReductionId" , "startValidTime" , "endValidTime" , "numReceptor" , "refAntennaName" , "direction" , "frequencyRange" , "integrationTime" , "polarizationTypes" , "correctionValidity" , "phaseAnt" , "phaseAntRMS" , "amplitudeAnt" , "amplitudeAntRMS" 
+    	 "antennaName" , "atmPhaseCorrection" , "receiverBand" , "basebandName" , "calDataId" , "calReductionId" , "spectralWindowId" , "startValidTime" , "endValidTime" , "numReceptor" , "refAntennaName" , "direction" , "frequencyRange" , "integrationTime" , "polarizationTypes" , "correctionValidity" , "phaseAnt" , "phaseAntRMS" , "amplitudeAnt" , "amplitudeAntRMS" 
     	,
     	
     
@@ -156,6 +158,8 @@ namespace asdm {
 		"calDataId"
 	,
 		"calReductionId"
+	,
+		"spectralWindowId"
 		 
 	};
 	 
@@ -285,6 +289,8 @@ namespace asdm {
 	
  	 * @param calReductionId 
 	
+ 	 * @param spectralWindowId 
+	
  	 * @param startValidTime 
 	
  	 * @param endValidTime 
@@ -312,7 +318,7 @@ namespace asdm {
  	 * @param amplitudeAntRMS 
 	
      */
-	CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS){
+	CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS){
 		CalAntennaSolutionsRow *row = new CalAntennaSolutionsRow(*this);
 			
 		row->setAntennaName(antennaName);
@@ -326,6 +332,8 @@ namespace asdm {
 		row->setCalDataId(calDataId);
 			
 		row->setCalReductionId(calReductionId);
+			
+		row->setSpectralWindowId(spectralWindowId);
 			
 		row->setStartValidTime(startValidTime);
 			
@@ -388,8 +396,10 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
 						x->getCalDataId()
 						,
 						x->getCalReductionId()
+						,
+						x->getSpectralWindowId()
 						))
-			//throw DuplicateKey(x.getAntennaName() + "|" + x.getAtmPhaseCorrection() + "|" + x.getReceiverBand() + "|" + x.getBasebandName() + "|" + x.getCalDataId() + "|" + x.getCalReductionId(),"CalAntennaSolutions");
+			//throw DuplicateKey(x.getAntennaName() + "|" + x.getAtmPhaseCorrection() + "|" + x.getReceiverBand() + "|" + x.getBasebandName() + "|" + x.getCalDataId() + "|" + x.getCalReductionId() + "|" + x.getSpectralWindowId(),"CalAntennaSolutions");
 			throw DuplicateKey("Duplicate key exception in ","CalAntennaSolutionsTable");
 		
 		row.push_back(x);
@@ -413,6 +423,8 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
 						x->getCalDataId()
 						,
 						x->getCalReductionId()
+						,
+						x->getSpectralWindowId()
 						) != (CalAntennaSolutionsRow *) 0) 
 			throw DuplicateKey("Dupicate key exception in ", "CalAntennaSolutionsTable");
 		row.push_back(x);
@@ -456,6 +468,8 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
 			x->getCalDataId()
 	,
 			x->getCalReductionId()
+	,
+			x->getSpectralWindowId()
 			
 		)) throw DuplicateKey("Duplicate key exception in ", "CalAntennaSolutionsTable");
 		
@@ -503,7 +517,7 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
  ** no row exists for that key.
  **
  */
- 	CalAntennaSolutionsRow* CalAntennaSolutionsTable::getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId)  {
+ 	CalAntennaSolutionsRow* CalAntennaSolutionsTable::getRowByKey(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId)  {
  	checkPresenceInMemory();
 	CalAntennaSolutionsRow* aRow = 0;
 	for (unsigned int i = 0; i < privateRows.size(); i++) {
@@ -533,6 +547,10 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
 				if (aRow->calReductionId != calReductionId) continue;
 			
 		
+			
+				if (aRow->spectralWindowId != spectralWindowId) continue;
+			
+		
 		return aRow;
 	}
 	return 0;		
@@ -557,6 +575,8 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
  * @param calDataId.
  	 		
  * @param calReductionId.
+ 	 		
+ * @param spectralWindowId.
  	 		
  * @param startValidTime.
  	 		
@@ -585,11 +605,11 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::newRow(CalAntennaSolutionsRow*
  * @param amplitudeAntRMS.
  	 		 
  */
-CalAntennaSolutionsRow* CalAntennaSolutionsTable::lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
+CalAntennaSolutionsRow* CalAntennaSolutionsTable::lookup(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
 		CalAntennaSolutionsRow* aRow;
 		for (unsigned int i = 0; i < privateRows.size(); i++) {
 			aRow = privateRows.at(i); 
-			if (aRow->compareNoAutoInc(antennaName, atmPhaseCorrection, receiverBand, basebandName, calDataId, calReductionId, startValidTime, endValidTime, numReceptor, refAntennaName, direction, frequencyRange, integrationTime, polarizationTypes, correctionValidity, phaseAnt, phaseAntRMS, amplitudeAnt, amplitudeAntRMS)) return aRow;
+			if (aRow->compareNoAutoInc(antennaName, atmPhaseCorrection, receiverBand, basebandName, calDataId, calReductionId, spectralWindowId, startValidTime, endValidTime, numReceptor, refAntennaName, direction, frequencyRange, integrationTime, polarizationTypes, correctionValidity, phaseAnt, phaseAntRMS, amplitudeAnt, amplitudeAntRMS)) return aRow;
 		}			
 		return 0;	
 } 
@@ -788,6 +808,7 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::lookup(std::string antennaName
 		oss << "<basebandName/>\n"; 
 		oss << "<calDataId/>\n"; 
 		oss << "<calReductionId/>\n"; 
+		oss << "<spectralWindowId/>\n"; 
 		oss << "<startValidTime/>\n"; 
 		oss << "<endValidTime/>\n"; 
 		oss << "<numReceptor/>\n"; 
@@ -928,6 +949,8 @@ CalAntennaSolutionsRow* CalAntennaSolutionsTable::lookup(std::string antennaName
     attributesSeq.push_back("calDataId") ; 
     	 
     attributesSeq.push_back("calReductionId") ; 
+    	 
+    attributesSeq.push_back("spectralWindowId") ; 
     	 
     attributesSeq.push_back("startValidTime") ; 
     	 

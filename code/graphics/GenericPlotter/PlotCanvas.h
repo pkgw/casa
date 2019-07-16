@@ -228,11 +228,9 @@ public:
     virtual void showAxes(PlotAxisBitset axes) = 0;
     
     
-    #if (0)  // checking hypothesis: this is not used anywhere
     // Returns true if the given axis is shown, false otherwise.
     // DEFAULT IMPLEMENTATION.
     virtual bool isAxisShown(PlotAxis axis) const;
-    #endif 
     
     
     // Shows/hides the given axis.
@@ -253,8 +251,16 @@ public:
     
     // Sets the scale for the given axis and rescales accordingly.  May reset
     // tool stacks.
-    virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale) = 0;
+    virtual void setAxisScale(PlotAxis axis, PlotAxisScale scale, casacore::uInt base=10) = 0;
     
+    // Sets/gets the sort direction of the scale for the given axis
+    virtual bool setAxisScaleSortDirection(PlotAxis axis, SortDirection direction) = 0;
+    virtual std::pair<bool,SortDirection> axisScaleSortDirection(PlotAxis axis) const = 0;
+
+    // Sets/gets the angle format of the scale for the given axis
+    virtual void setAxisScaleAngleFormat(PlotAxis axis, AngleFormat format) = 0;
+    virtual AngleFormat axisScaleAngleFormat(PlotAxis axis) const = 0;
+
     // Convenience method for setting the axis scale for two axes at once.  May
     // reset tool stacks.
     // DEFAULT IMPLEMENTATION.
@@ -343,6 +349,9 @@ public:
     // the tools may be using this method.
     virtual void setAxisRange(PlotAxis axis, double from, double to) = 0;
     
+    // Swap scale's boundaries of the given axis
+    virtual void invertAxis(PlotAxis axis) = 0;
+
     // See setAxisRange(PlotAxis, double, double).
     // DEFAULT IMPLEMTNATION.
     virtual void setAxisRange(PlotAxis axis, const prange_t& range);

@@ -243,7 +243,8 @@ public:
                                                    casacore::Vector<casacore::Bool>& allpruned, 
                                                    casacore::Vector<casacore::uInt>& nreg,
                                                    casacore::Vector<casacore::uInt>& npruned,
-                                                   casacore::Double prunesize=0.0);
+                                                   casacore::Double prunesize=0.0, 
+                                                   casacore::Bool showchanlabel=true);
 
   // create a mask image (1/0 image) applying a different threshold for each channel plane
   void makeMaskByPerChanThreshold(const casacore::ImageInterface<casacore::Float>& image, 
@@ -336,13 +337,14 @@ public:
   casacore::Int getTotalPixels(casacore::ImageInterface<casacore::Float>& maskiamge);
 
   // for warning messages for empy initial mask in automask
-  void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
+  //void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Vector<casacore::String>& thresholdType);
+  void noMaskCheck(casacore::ImageInterface<casacore::Float>& mask, casacore::Matrix<casacore::String>& thresholdType);
 
   // determining skip channels for the mask changed less than the specfied percentage
   void skipChannels(const casacore::Float& fracChnage, 
                     casacore::ImageInterface<casacore::Float>& prevmask, 
                     casacore::ImageInterface<casacore::Float>& curmask, 
-                    const casacore::Vector<casacore::String>& threshtype,
+                    const casacore::Matrix<casacore::String>& threshtype,
                     const casacore::Bool isthresholdreached,
                     casacore::Vector<casacore::Bool>& chanFlag,
                     casacore::Vector<casacore::Bool>& zeroChanMask);
@@ -355,15 +357,23 @@ public:
                             const casacore::Array<casacore::Double>& maxs, 
                             const casacore::Array<casacore::Double>& mins, 
                             const casacore::Array<casacore::Double>& mdns,
-                            const casacore::Vector<casacore::Float>& maskthreshold, 
-                            const casacore::Vector<casacore::String>& masktype,
+                            //const casacore::Vector<casacore::Float>& maskthreshold, 
+                            const casacore::Matrix<casacore::Float>& maskthreshold, 
+                            //const casacore::Vector<casacore::String>& masktype,
+                            const casacore::Matrix<casacore::String>& masktype,
                             const casacore::Vector<casacore::Bool>& chanflag,
-                            const casacore::Vector<casacore::Bool>& zerochanmask,
-                            const casacore::Vector<casacore::uInt>& nreg,
-                            const casacore::Vector<casacore::uInt>& npruned,
-                            const casacore::Vector<casacore::uInt>& ngrowreg,
-                            const casacore::Vector<casacore::uInt>& ngrowpruned,
-                            const casacore::Vector<casacore::Float>& negmaskpixs,
+                            //const casacore::Vector<casacore::Bool>& zerochanmask,
+                            const casacore::Matrix<casacore::Bool>& zerochanmask,
+                            //const casacore::Vector<casacore::uInt>& nreg,
+                            const casacore::Matrix<casacore::uInt>& nreg,
+                            //const casacore::Vector<casacore::uInt>& npruned,
+                            const casacore::Matrix<casacore::uInt>& npruned,
+                            //const casacore::Vector<casacore::uInt>& ngrowreg,
+                            const casacore::Matrix<casacore::uInt>& ngrowreg,
+                            //const casacore::Vector<casacore::uInt>& ngrowpruned,
+                            const casacore::Matrix<casacore::uInt>& ngrowpruned,
+                            //const casacore::Vector<casacore::Float>& negmaskpixs,
+                            const casacore::Matrix<casacore::Float>& negmaskpixs,
                             const casacore::Record& miscsummaryinfo);
 
 

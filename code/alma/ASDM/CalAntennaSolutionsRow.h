@@ -135,6 +135,9 @@ class CalDataRow;
 
 // class asdm::CalReductionRow;
 class CalReductionRow;
+
+// class asdm::SpectralWindowRow;
+class SpectralWindowRow;
 	
 
 class CalAntennaSolutionsRow;
@@ -757,6 +760,38 @@ public:
 	
 
 
+	
+	// ===> Attribute spectralWindowId
+	
+	
+	
+
+	
+ 	/**
+ 	 * Get spectralWindowId.
+ 	 * @return spectralWindowId as Tag
+ 	 */
+ 	Tag getSpectralWindowId() const;
+	
+ 
+ 	
+ 	
+ 	/**
+ 	 * Set spectralWindowId with the specified Tag.
+ 	 * @param spectralWindowId The Tag value to which spectralWindowId is to be set.
+ 	 
+ 		
+ 			
+ 	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
+ 	 		
+ 	 */
+ 	void setSpectralWindowId (Tag spectralWindowId);
+  		
+	
+	
+	
+
+
 	///////////
 	// Links //
 	///////////
@@ -792,6 +827,21 @@ public:
 	
 
 	
+
+	
+		
+	/**
+	 * spectralWindowId pointer to the row in the SpectralWindow table having SpectralWindow.spectralWindowId == spectralWindowId
+	 * @return a SpectralWindowRow*
+	 * 
+	 
+	 */
+	 SpectralWindowRow* getSpectralWindowUsingSpectralWindowId();
+	 
+
+	
+
+	
 	
 	
 	/**
@@ -809,6 +859,8 @@ public:
 	 * @param calDataId
 	    
 	 * @param calReductionId
+	    
+	 * @param spectralWindowId
 	    
 	 * @param startValidTime
 	    
@@ -837,7 +889,7 @@ public:
 	 * @param amplitudeAntRMS
 	    
 	 */ 
-	bool compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS);
+	bool compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS);
 	
 	
 
@@ -938,6 +990,7 @@ void receiverBandFromBin( EndianIStream& eis);
 void basebandNameFromBin( EndianIStream& eis);
 void calDataIdFromBin( EndianIStream& eis);
 void calReductionIdFromBin( EndianIStream& eis);
+void spectralWindowIdFromBin( EndianIStream& eis);
 void startValidTimeFromBin( EndianIStream& eis);
 void endValidTimeFromBin( EndianIStream& eis);
 void numReceptorFromBin( EndianIStream& eis);
@@ -1232,10 +1285,28 @@ private:
 	
  	
 
+	
+	// ===> Attribute spectralWindowId
+	
+	
+
+	Tag spectralWindowId;
+
+	
+	
+ 	
+
 	///////////
 	// Links //
 	///////////
 	
+	
+		
+
+	 
+
+	
+
 	
 		
 
@@ -1262,6 +1333,7 @@ void receiverBandFromBin( EndianIStream& eis);
 void basebandNameFromBin( EndianIStream& eis);
 void calDataIdFromBin( EndianIStream& eis);
 void calReductionIdFromBin( EndianIStream& eis);
+void spectralWindowIdFromBin( EndianIStream& eis);
 void startValidTimeFromBin( EndianIStream& eis);
 void endValidTimeFromBin( EndianIStream& eis);
 void numReceptorFromBin( EndianIStream& eis);
@@ -1300,6 +1372,9 @@ void calDataIdFromText (const std::string & s);
 	
 	
 void calReductionIdFromText (const std::string & s);
+	
+	
+void spectralWindowIdFromText (const std::string & s);
 	
 	
 void startValidTimeFromText (const std::string & s);
