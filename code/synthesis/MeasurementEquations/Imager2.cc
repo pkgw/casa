@@ -199,7 +199,7 @@
 #include <synthesis/TransformMachines/MultiTermFT.h>
 #include <synthesis/TransformMachines/NewMultiTermFT.h>
 #include <synthesis/TransformMachines/AWConvFunc.h>
-#include <synthesis/TransformMachines/AWConvFuncEPJones.h>
+//#include <synthesis/TransformMachines/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines/NoOpATerm.h>
 
 #include <synthesis/Utilities/PointingDirectionCalculator.h>
@@ -2892,9 +2892,9 @@ Bool Imager::createFTMachine()
     //
     CountedPtr<ConvolutionFunction> awConvFunc;
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP_p);
-    if ((ftmachine_p=="mawproject") || (mTermOn_p))
-      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP_p);
-    else
+    // if ((ftmachine_p=="mawproject") || (mTermOn_p))
+    //   awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP_p);
+    // else
       awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP_p);
 
     //

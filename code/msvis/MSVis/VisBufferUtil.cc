@@ -36,6 +36,7 @@
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
 #include <casa/Arrays/Cube.h>
+#include <casacore/casa/Utilities/Sort.h>
 #include <casa/OS/Timer.h>
 #include <measures/Measures/UVWMachine.h>
 #include <measures/Measures/MeasTable.h>
@@ -48,6 +49,7 @@
 #include <msvis/MSVis/VisBuffer.h>
 #include <ms/MeasurementSets/MSColumns.h>
 #include <casa/iostream.h>
+#include <fstream>
 #include <iomanip>
 #ifdef _OPENMP
 #include <omp.h>
@@ -676,11 +678,11 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	   for (uInt k=0; k <nTimes; ++k){
 	     
 	     
-	     std::ostringstream oss;
-	     oss.precision(13);
-	     oss << tuniqptr[k] << "_" << a;
-	     String key=oss.str();
-	     
+	     // std::ostringstream oss;
+	     // oss.precision(13);
+	     // oss << tuniqptr[k] << "_" << a;
+	     // String key=oss.str();
+	     std::pair<double, int> key=make_pair(t[uniqIndx[k]],a);
 	     timeAntIndex_p[oldMSId_p][key]=indices[k] > -1 ? cshape : -1;
 	     
 	     if(indices[k] >-1){
@@ -703,10 +705,10 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
    /////
    //	 String index=String::toString(vb.time()(vbrow))+String("_")+String::toString(antid);
-   std::ostringstream oss;
-   oss.precision(13);
-   oss << vb.time()(vbrow) << "_" << antid  ;
-   String index=oss.str();
+   // std::ostringstream oss;
+   // oss.precision(13);
+   // oss << vb.time()(vbrow) << "_" << antid  ;
+   // String index=oss.str();
    //cerr << "index "<< index << endl;
    ////////////
    /*
@@ -716,6 +718,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
     }
    */
    /////////////
+   std::pair<double, int> index=make_pair(vb.time()(vbrow), antid);
    Int rowincache=timeAntIndex_p[oldMSId_p][index];
 	 ///////TESTOO
 	 /* if(rowincache>=0){
@@ -727,20 +730,33 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
      return vb.phaseCenter();
    return cachedPointingDir_p[oldMSId_p][rowincache];
 
-
-
  }
-  MDirection VisBufferUtil::getPointingDir(const vi::VisBuffer2& vb, const Int antid, const Int vbrow, const Bool usePointing){
-	 Timer tim;
-	 tim.mark();
+  MDirection VisBufferUtil::getPointingDir(const vi::VisBuffer2& vb, const Int antid, const Int vbrow, const MDirection::Types dirframe, const Bool usePointing){
+
+    //Double wtime0=omp_get_wtime();
 	 Int rowincache=-1;
 	 if(usePointing){
-	   ROMSColumns msc(vb.ms());
+	   
+	   
 	   if(oldMSId_p != vb.msId()){
+	     ROMSColumns msc(vb.ms());
 	     oldMSId_p=vb.msId();
 	     if(timeAntIndex_p.shape()(0) < (oldMSId_p+1)){
 	       timeAntIndex_p.resize(oldMSId_p+1, true);
 	       cachedPointingDir_p.resize(oldMSId_p+1, true);
+	     }
+	     MEpoch::Types timeType=MEpoch::castType(msc.timeMeas()(0).getRef().getType());
+	     Unit timeUnit(msc.timeMeas().measDesc().getUnits()(0).getName());
+	     MPosition pos;
+	     String tel;
+	     if (vb.subtableColumns().observation().nrow() > 0) {
+	       tel =vb.subtableColumns().observation().telescopeName()(msc.observationId()(0));
+	     }
+	     if (tel.length() == 0 || !tel.contains("VLA") ||
+		 !MeasTable::Observatory(pos,tel)) {
+	       // unknown observatory, use first antenna
+	       Int ant1=vb.antenna1()(0);
+	       pos=vb.subtableColumns().antenna().positionMeas()(ant1);
 	     }
 	     if(  timeAntIndex_p[oldMSId_p].empty()){
 	       Vector<Double> tOrig;
@@ -769,29 +785,38 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 			 Double *intcolptr=intervalcol.getStorage(intcolstor);
 			 Int * antcolptr=antcol.getStorage(antcolstor);
 			 Int npointrow=vb.ms().pointing().nrow();
-#pragma omp parallel for firstprivate(nTimes, tuniqptr, tcolptr, antcolptr, intcolptr, npointrow), shared(mspc)
+			 //ofstream myfile;
+			 //myfile.open ("POINTING.txt", ios::trunc);
+#pragma omp parallel for firstprivate(nTimes, tuniqptr, tcolptr, antcolptr, intcolptr, npointrow, timeType, timeUnit, pos, dirframe), shared(mspc)
 			 for (uInt a=0; a < nAnt; ++a){
 			   
 			   //Double wtime1=omp_get_wtime();
 			   Vector<Int> indices;
-			   Vector<MDirection> theDirs(nTimes);
+			   //Vector<MDirection> theDirs(nTimes);
 			   pointingIndex(tcolptr, antcolptr, intcolptr, npointrow, a, nTimes, tuniqptr, indices);
 			   
 #pragma omp critical
 			   {
+			     MEpoch timenow(Quantity(tuniqptr[0], timeUnit),timeType);
+			     MeasFrame mframe(timenow, pos);
+			     MDirection::Convert cvt(MDirection(), MDirection::Ref(dirframe, mframe));
 			     for (uInt k=0; k <nTimes; ++k){
 			       
 			       
-			       std::ostringstream oss;
+			       /*std::ostringstream oss;
 			       oss.precision(13);
 			       oss << tuniqptr[k] << "_" << a;
 			       String key=oss.str();
-			       
+			       */
+			       //			       myfile <<std::setprecision(13) <<  tuniqptr[k] << "_" << a << " index "<<  indices[k] << "\n";
+			       pair<double, int> key=make_pair(tuniqptr[k],a);
 			       timeAntIndex_p[oldMSId_p][key]=indices[k] > -1 ? cshape : -1;
 			       
 			       if(indices[k] >-1){
+				 timenow=MEpoch(Quantity(tuniqptr[k], timeUnit),timeType);
+				 mframe.resetEpoch(timenow);
+				 cachedPointingDir_p[oldMSId_p][cshape]=cvt(mspc.directionMeas(indices[k]));
 				 
-				 cachedPointingDir_p[oldMSId_p][cshape]=mspc.directionMeas(indices[k]);
 				 cshape+=1;
 			       }
 			       
@@ -801,7 +826,6 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 			   
 			   
 			 }
-			 
 			 cachedPointingDir_p[oldMSId_p].resize(cshape, True);
 	     }
 	     
@@ -809,16 +833,14 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
 	   /////
 	   //	 String index=String::toString(vb.time()(vbrow))+String("_")+String::toString(antid);
-	   std::ostringstream oss;
+	   /* std::ostringstream oss;
 	   oss.precision(13);
 	   oss << vb.time()(vbrow) << "_" << antid  ;
 	   String index=oss.str();
-	   rowincache=timeAntIndex_p[oldMSId_p][index];
-	 ///////TESTOO
-	 /* if(rowincache>=0){
-	   cerr << "msid " << oldMSId_p << " key "<< index << " index " << rowincache<<  "   "  << cachedPointingDir_p[oldMSId_p][rowincache] << endl;
-	   }*/
-	 /////////////
+	   */
+	   pair<double, int> index=make_pair(vb.time()(vbrow),antid);
+	   rowincache=timeAntIndex_p[oldMSId_p].at(index);
+
 	 //tim.show("retrieved cache");
 	 }///if usepointing
 	 if(rowincache <0)
@@ -835,48 +857,90 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
     
     indices.set(-1);
     Int guessRow=0;
-  
+    
     for(Int pt=0; pt < ntimes; ++pt){
       //cerr << "  " << guessRow ;
-      for (Int k=0; k< 2; ++k){
+     
+      /*for (Int k=0; k< 2; ++k){
 	Int start=guessRow;
 	Int end=nrow;
 	if(k==1){
 	  start=0;
 	  end=guessRow;
 	}
-	for (Int i=start; i<end; i++) {
+      */
+      Double nearval=1e99;
+      Int nearestIndx=-1;
+      Int start=0;
+      Int end=nrow;
+      for (Int i=start; i<end; i++) {
+	if(intervalcol[i]<=0.0 && ant==antcol[i]){
+	  if(abs(timecol[i]-ptime[pt]) < nearval){
+	    nearestIndx=i;
+	    nearval=abs(timecol[i]-ptime[pt]);
+	  }
+	}
+      }
+      indices[pt]=nearestIndx;
+
+      
+      for (Int i=start; i<end; i++) {
 	  if(ant == antcol[i]){
-	    Double halfInt=0.0;  
-	    if(intervalcol[i]==0.0){
+	    Double halfInt=0.0;
+	    Bool done=False;
+	    if(intervalcol[i]<=0.0){
+	    //  if(abs(timecol[inx[i]]-ptime[pt]) < nearval){
+	    //	nearestIndx=inx[i];
+	    //  }
 	      Int counter=0;
 	      Int adder=1;
-	  
-	      while(!( (timecol[i+counter]!=timecol[i]))){
+	      done=False;
+		//	      while(!( (timecol[i+counter]!=timecol[i]))){
+	      while(!done){
 		counter=counter+adder;
 		if(nrow <= i+counter){
-		adder=-1; 
-		counter=0;
+		  adder=-1; 
+		  counter=0;
 		}
 		////Could not find another point (interval is infinite)  hence only 1 valid point
 		if( (i+counter) < 0){
+		  cerr << "HIT BREAK " << endl;
 		  indices[pt]=i;
-		break;
+		  break;
 		}
-	      }       
+		if( (antcol[i+counter]==ant && timecol[i+counter] != timecol[i]) ){
+		  done=True;
+		}
+	      }
+	    
+	      //if(ant==12 && abs(timecol[i+counter]-timecol[i]) > 10.0){
+	      //cerr << "i " << i << "  counter " << counter << " done " << done << " adder " << adder << "ant count "<< antcol[i+counter] << "  diff " <<   abs(timecol[i+counter]-timecol[i]) << endl;
+	      // }
 	      halfInt = abs(timecol[i+counter]-timecol[i])/2.0;
 	    }
 	    else{
 	      halfInt = intervalcol[i]/2.0;
 	    }
 	    if (halfInt>0.0) {
-	      if (timecol[i] >= ptime[pt] - halfInt && timecol[i] <= ptime[pt] + halfInt) {
-		indices[pt]=i;
+	      
+	      if ((timecol[i] >= (ptime[pt] - halfInt)) && (timecol[i] <= (ptime[pt] + halfInt))) {
+		////TESTOO
+		//if(ant==12){
+		//  cerr << "timecol " << timecol[i] << " halfInt " << halfInt << " TEST " << timecol[nearestIndx] << " inx " << i << "   " << nearestIndx << endl;
+		//}
+		indices[pt]=abs(timecol[i]-ptime[pt]) <  nearval ? i : nearestIndx;
+		////////TESTOO
+		if(indices[pt] > 4688000){
+		  cerr <<  indices[pt] << " timecol " << timecol[i] << " halfInt " << halfInt << " TEST " << timecol[nearestIndx] << "  nearval " << nearval << " inx " << i << "   " << nearestIndx << endl;
+		  
+		}
+		///////////////////
 		guessRow=i;
 	      break;
 	      }
 	    } else {
 	      // valid for all times (we should also handle interval<0 -> timestamps)
+	      cerr << "JUMPY " << i << " ant " << ant << " halfint " << halfInt << " done "<< done <<  endl;
 	      indices[pt]=i;
 	      guessRow=i;
 	      break;
@@ -885,9 +949,10 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 	  }//if ant
 	}//start end
 	
-      }//k
+	//}//k
      
     }//pt
+ 
     //cerr << "ant " << ant << " indices " << indices << endl;
   }
 

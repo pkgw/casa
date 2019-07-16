@@ -3161,7 +3161,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	    mType="imagemosaic";
 	    if (wprojplanes>1 || wprojplanes==-1){ ftmachine="wprojectft"; }
 	  }
-	if(gridder=="awproject" || gridder=="awprojectft")
+	if(gridder=="awproject" || gridder=="awprojectft" || gridder=="awp")
 	  {ftmachine="awprojectft";}
 	if(gridder=="singledish") {
 	  ftmachine="sd";
@@ -3179,8 +3179,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 	// Spectral interpolation
 	err += readVal( inrec, String("interpolation"), interpolation );// not used in SI yet...
-	//mosaic use pointing
-	err += readVal( inrec, String("usepointing"), usePointing );
 	// Track moving source ?
 	err += readVal( inrec, String("distance"), distance );
 	err += readVal( inrec, String("tracksource"), trackSource );
@@ -3192,7 +3190,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	err += readVal( inrec, String("mterm"), mTermOn );
  	err += readVal( inrec, String("wbawp"), wbAWP );
 	err += readVal( inrec, String("cfcache"), cfCache );
-	err += readVal( inrec, String("dopointing"), doPointing );
+	err += readVal( inrec, String("usepointing"), usePointing );
 	err += readVal( inrec, String("dopbcorr"), doPBCorr );
 	err += readVal( inrec, String("conjbeams"), conjBeams );
 	err += readVal( inrec, String("computepastep"), computePAStep );
@@ -3312,7 +3310,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     mTermOn    = false;
     wbAWP      = true;
     cfCache  = "";
-    doPointing = false;
+    usePointing = false;
     doPBCorr   = true;
     conjBeams  = true;
     computePAStep=360.0;
@@ -3350,8 +3348,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     
     gridpar.define("interpolation",interpolation);
 
-    gridpar.define("usepointing", usePointing);
-    
     gridpar.define("distance", QuantityToString(distance));
     gridpar.define("tracksource", trackSource);
     gridpar.define("trackdir", MDirectionToString( trackDir ));
@@ -3361,7 +3357,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     gridpar.define("mterm",mTermOn );
     gridpar.define("wbawp", wbAWP);
     gridpar.define("cfcache", cfCache);
-    gridpar.define("dopointing",doPointing );
+    gridpar.define("usepointing",usePointing );
     gridpar.define("dopbcorr", doPBCorr);
     gridpar.define("conjbeams",conjBeams );
     gridpar.define("computepastep", computePAStep);

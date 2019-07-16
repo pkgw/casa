@@ -43,7 +43,7 @@ namespace casa{
     virtual void setMaximumCacheSize(const casacore::Long howManyRealPixels=-1) {cacheSizeInPixels_p=howManyRealPixels;}
     virtual casacore::Long maximumCacheSize() {return cacheSizeInPixels_p;}
     virtual void initTables(casacore::Int ){};
-    virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VBRow2CFBMapType& /*cfs*/){};
+    virtual void prepareConvFunction(const VisBuffer2& /*vb*/, VB2CFBMap& /*cfs*/){};
   private:
     casacore::Long cacheSizeInPixels_p;
   };

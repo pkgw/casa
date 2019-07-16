@@ -26,6 +26,7 @@
 //#
 //# $Id$
 
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/AWProjectWBFT.h>
 #include <synthesis/TransformMachines2/AWVisResampler.h>
 #include <synthesis/TransformMachines/StokesImageUtil.h>
@@ -525,13 +526,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if (avgPBReady_p) return;
     LogIO log_l(LogOrigin("AWProjectWBFT2", "makeSensitivityImage[R&D]"));
 
-
-    // Matrix<Float> cfWts(sumWt.shape());
-    // convertArray(cfWts,sumCFWeight);
-    // ftWeightImage(wtImage, cfWts, doFFTNorm);
+    // log_l << "Making sensitivity image" << LogIO::POST;
     // {
     //   String name("wtimg.im");
-    //   storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
+    //   storeArrayAsImage(name,griddedWeights_D.coordinates(),wtImage.get());
     // }
     ftWeightImage(wtImage, sumWt, doFFTNorm);
     // {
@@ -541,12 +539,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // if (tt_pp != "")
     //   { // uncommented by UUU
     // 	String name("ftwtimg"+sensitivityPatternQualifierStr_p+".im.conj");
-    // 	storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
+    // 	storeArrayAsImage(name,griddedWeights_D.coordinates(),wtImage.get());
     //   }
     // else
     //   { // uncommented by UUU
     // 	String name("ftwtimg"+sensitivityPatternQualifierStr_p+".im");
-    // 	storeArrayAsImage(name,griddedWeights.coordinates(),wtImage.get());
+    // 	storeArrayAsImage(name,griddedWeights_D.coordinates(),wtImage.get());
     //   }
 
     if (useDoubleGrid_p)
@@ -560,63 +558,75 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	sensitivityImage.setCoordinateInfo(griddedWeights.coordinates());
       }
 
-    Int sizeX=wtImage.shape()(0), sizeY=wtImage.shape()(1);
-    Array<Float> senBuf; sensitivityImage.get(senBuf,false); 
-    ArrayLattice<Float> senLat(senBuf, true);
+    //
+    // Rest of the code below is to (1) average the poln planes of the
+    // weight image for each freq. channel, and (2) copy the averaged
+    // value to the all the poln planes for each freq. channels of the
+    // sensitivity image.  
+    //
+    // Set up Lattice iterator on wtImage for averaging all poln
+    // planes and writing the result the only the first poln plane.
+    //
+    IPosition axisPath(2, 2, 3); // Step through the Poln (2) and Freq (3) axis.
+    IPosition cursorShapeWt(4, wtImage.shape()(0), wtImage.shape()(1), 1, 1);
 
-    Array<T> wtBuf; wtImage.get(wtBuf,false);
-    ArrayLattice<T> wtLat(wtBuf,true);
-    //
-    // Set up Lattice iteratos on wtImage and sensitivityImage
-    //
-    IPosition axisPath(4, 0, 1, 2, 3);
-    IPosition cursorShape(4, sizeX, sizeY, 1, 1);
-
-    LatticeStepper senImStepper(senLat.shape(), cursorShape, axisPath);
-    LatticeIterator<Float> senImIter(senLat, senImStepper);
-    //
-    // The following code is averaging RR and LL planes and writing
-    // the result to back to both planes.  This needs to be
-    // generalized for full-pol case.
-    //
-    IPosition start0(4,0,0,0,0), start1(4,0,0,1,0), length(4,sizeX,sizeY,1,1);
-    Slicer slicePol0(start0,length), slicePol1(start1,length);
-    Array<Float> polPlane0F, polPlane1F;
-    Array<Complex> polPlane0C, polPlane1C;
+    LatticeStepper wtImStepper(wtImage.shape(), cursorShapeWt, axisPath);
+    LatticeIterator<T> wtImIter(wtImage, wtImStepper);
+    int nPolPlanes=wtImage.shape()(2);
+    // First average all poln planes and write the result back to the first poln plane.
+    for(wtImIter.reset(); !wtImIter.atEnd(); /*increment is inside the for-loop below*/)
+    {
+      Matrix<T> tmpWt(wtImIter.rwMatrixCursor().shape());
+      ArrayLattice<T> tt(tmpWt,true);
+      for(int i=0;i<nPolPlanes;i++)
+	{
+	  //	  cerr << "WT0: " << i << " " << wtImIter.position() << endl;
+	  Matrix<T> tmp0_ref;tmp0_ref.reference(wtImIter.rwMatrixCursor().nonDegenerate());
+	  ArrayLattice<T> p0(tmp0_ref,true); //Make ArrayLattice from Array by refence
+	  LatticeExpr<T> le(tt+p0);
+	  tt.copyData(le); 
+	  wtImIter++;
+	}
+      LatticeExpr<T> le(tt/nPolPlanes);
+      tt.copyData(le); 
+    }
     
-    // Use StokesImageUtil to convert from Complex sensitivity pattern
-    // to real value image planes.
-    //    StokesImageUtil::To(sensitivityImage, griddedWeights);
-
+    IPosition cursorShape(4, sensitivityImage.shape()(0), sensitivityImage.shape()(1), 1, 1);
+    LatticeStepper senImStepper(sensitivityImage.shape(), cursorShape, axisPath);
+    LatticeIterator<Float> senImIter(sensitivityImage, senImStepper);
     //
     // Copy the real part of the average of all planes of the wtImage
-    // to all the planes of the sensitivity image (senImage).  Also
-    // convert from DComplex to Complex on-the-fly.
+    // to all the planes of the sensitivity image (senImage).
     //
-    LatticeStepper wtImStepper(wtImage.shape(), cursorShape, axisPath);
-    LatticeIterator<T> wtImIter(wtImage, wtImStepper);
-
-    Matrix<Complex> tmp(senImIter.rwMatrixCursor().shape());
-    tmp = 1.0;
-    for(wtImIter.reset(), senImIter.reset(); !wtImIter.atEnd(); wtImIter++, senImIter++)
+    // IPosition cShape(4,wtImage.shape()(0), wtImage.shape()(1),1,1);
+    // LatticeStepper YAwtImStepper(wtImage.shape(), cursorShapeWt, axisPath);
+    // LatticeIterator<T> YAwtImIter(wtImage, YAwtImStepper);
+    //
+    for(wtImIter.reset(),senImIter.reset(); !wtImIter.atEnd();/*increment is inside the first for-loop below*/)
       {
-	Matrix<T> tmp_ref;tmp_ref.reference(wtImIter.rwMatrixCursor().nonDegenerate());
-	for (int i=0;i<tmp.shape()(0);i++)
-	  for (int j=0;j<tmp.shape()(1);j++)
-	    tmp(i,j)=tmp_ref(i,j); // Use automatic type conversion (DComplex->Complex)
-	senImIter.rwMatrixCursor() = real(tmp);
+	// Extract the first polarization plane from the weight image. 
+	Matrix<T> wt_ref;wt_ref.reference(wtImIter.rwMatrixCursor().nonDegenerate());
+	ArrayLattice<T> p0(wt_ref,true);
+	for (int i=0;i<nPolPlanes;i++) wtImIter++; // Skip the rest of the poln planes
+
+	for(int i=0;i<sensitivityImage.shape()(2);i++)
+	  {
+	    // // Now replace the polarization planes with their average.  REVIEW THIS FOR FM CASE.
+	    Matrix<Float> tmp;tmp.reference(senImIter.rwMatrixCursor().nonDegenerate());
+	    ArrayLattice<Float> tt(tmp,true); //Make ArrayLattice from Array by refence
+	    LatticeExpr<Float> le(abs(p0));
+	    tt.copyData(le); 
+
+	    // Copy values to the sensitivty image, do type conversion if necessary
+	    // convertArray(senImIter.rwMatrixCursor(),real(tmp));
+	    //	    cerr << "SEN: " << senImIter.position() << " " << tmp.shape() << endl;
+	    senImIter++;
+	  }
       }
-    
     // {
     //   String name("ftwtimg.im");
     //   storeArrayAsImage(name,griddedWeights_D.coordinates(),sensitivityImage.get());
     // }
-
-    // for(senImIter.reset(); !senImIter.atEnd(); senImIter++)
-    //   {
-    // 	cerr << "Sen: " << senImIter.position() << endl;
-    // 	senImIter.rwMatrixCursor() = real(tmp);
-    //   }
 
     if (tt_pp == "")
       cfCache_p->flush(sensitivityImage,sensitivityPatternQualifierStr_p);
@@ -700,41 +710,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
     LogIO log_l(LogOrigin("AWProjectWBFT2","initializeToSky[R&D]"));
     AWProjectFT::initializeToSky(iimage,weight,vb);
-    // The following code is same as that in the parent class call above. 
-//     image=&iimage;
-    
-//     init();
-//     initMaps(vb);
-//     nx    = image->shape()(0);
-//     ny    = image->shape()(1);
-//     npol  = image->shape()(2);
-//     nchan = image->shape()(3);
 
-//     isTiled = false;
-
-//     sumWeight=0.0;
-//     weight.resize(sumWeight.shape());
-//     weight=0.0;
-
-//     if(isTiled) 
-//       {
-// 	imageCache->flush();
-// 	image->set(Complex(0.0));
-// 	//lattice=image;
-// 	lattice=CountedPtr<Lattice<Complex> > (image, false);
-//       }
-//     else 
-//       {
-// 	IPosition gridShape(4, nx, ny, npol, nchan);
-// 	griddedData.resize(gridShape);
-// 	griddedData=Complex(0.0);
-// //	if(arrayLattice) delete arrayLattice; arrayLattice=0;
-// 	arrayLattice = new ArrayLattice<Complex>(griddedData);
-// 	lattice=arrayLattice;
-// 	visResampler_p->initializeToSky(griddedData, sumWeight);
-//       }
-
-    //AlwaysAssert(lattice, AipsError);
     if (resetPBs_p)
       {
 	if (useDoubleGrid_p)
@@ -861,13 +837,16 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     //timer_p.mark();
     visResamplerWt_p->copy(*visResampler_p);
     
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb,doPointing));
     //cerr << "AWPWB: " << pointingOffset << endl;
-    visResamplerWt_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
+    // visResamplerWt_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
+    // 				      paChangeDetector.getParAngleTolerance(),
+    // 				      chanMap,polMap,pointingOffset);
+    //    VB2CFBMap& theMap=visResamplerWt_p->getVBRow2CFBMap();
+    vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
-    VBRow2CFBMapType& theMap=visResamplerWt_p->getVBRow2CFBMap();
-    convFuncCtor_p->prepareConvFunction(vb,theMap);
+    convFuncCtor_p->prepareConvFunction(vb,*vb2CFBMap_p);
     //runTime1_p += timer_p.real();
     //
     // Set the uvw array to zero-sized array and dopsf=true.

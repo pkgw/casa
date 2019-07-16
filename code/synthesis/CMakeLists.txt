@@ -60,10 +60,13 @@ casa_add_library( synthesis
  TransformMachines2/VLACalcIlluminationConvFunc.cc
  TransformMachines2/IlluminationConvFunc.cc
  TransformMachines2/CFCache.cc
- TransformMachines2/AWConvFuncEPJones.cc
+# TransformMachines2/AWConvFuncEPJones.cc
+ TransformMachines2/PointingOffsets.cc
+ TransformMachines2/PhaseGrad.cc
  TransformMachines2/AWConvFunc.cc
   TransformMachines2/PolOuterProduct.cc
   TransformMachines2/AWVisResampler.cc
+  TransformMachines2/VB2CFBMap.cc
  TransformMachines2/VisibilityResamplerBase.cc
  TransformMachines2/VisibilityResampler.cc
   TransformMachines2/SDGrid.cc
@@ -682,7 +685,7 @@ install (FILES
 	)
 install (FILES 
 	TransformMachines2/ATerm.h
-	TransformMachines2/AWConvFuncEPJones.h
+#	TransformMachines2/AWConvFuncEPJones.h
 	TransformMachines2/AWConvFunc.h
 	TransformMachines2/AWProjectFT.h
 	TransformMachines2/AWProjectWBFT.h
@@ -711,6 +714,8 @@ install (FILES
         TransformMachines2/MultiTermFTNew.h
 	TransformMachines2/NoOpATerm.h
 	TransformMachines2/PolOuterProduct.h
+	TransformMachines2/PointingOffsets.h
+	TransformMachines2/PhaseGrad.h
 	TransformMachines2/PSTerm.h
 	TransformMachines2/SetJyGridFT.h	
 	TransformMachines2/SimpleComponentFTMachine.h
@@ -719,6 +724,7 @@ install (FILES
 	TransformMachines2/TabulatedConvFunc.h
 	TransformMachines2/Utils.h
 	TransformMachines2/VBStore.h
+	TransformMachines2/VB2CFBMap.h
 	TransformMachines2/VisibilityResamplerBase.h
 	TransformMachines2/VisibilityResampler.h
 	TransformMachines2/VisModelData.h

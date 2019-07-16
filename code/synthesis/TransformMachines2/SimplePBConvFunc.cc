@@ -85,6 +85,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
 
     pbClass_p=PBMathInterface::COMMONPB;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
 }
 
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
@@ -94,6 +95,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
@@ -103,6 +105,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     String err;
     fromRecord(err, rec, calcfluxneeded);
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::~SimplePBConvFunc(){
     //
@@ -131,7 +134,8 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     	  Int ant1=vb.antenna1()(0);
     	  pos=vb.subtableColumns().antenna().positionMeas()(ant1);
       }
-      //cout << "TELESCOPE " << tel << endl;
+      imInfo.setTelescope(tel);
+      csys_p.setObsInfo(imInfo);
       //Store this to build epochs via the time access of visbuffer later
       timeMType_p=MEpoch::castType(mscol.timeMeas()(0).getRef().getType());
       timeUnit_p=Unit(mscol.timeMeas().measDesc().getUnits()(0).getName());
@@ -271,7 +275,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
       //ant1PointingCache_p[val]=vb.direction1()[0];
-      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0, usePointingTable_p);
+      ant1PointingCache_p[val]=vbutil_p->getPointingDir(vb, vb.antenna1()(0), 0, dc_p.directionType());
     }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);

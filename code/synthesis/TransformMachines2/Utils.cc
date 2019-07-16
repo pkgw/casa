@@ -1153,7 +1153,7 @@ namespace casa{
     os << csList << std::endl;
   }
  const casacore::Array<Complex> SynthesisUtils::getCFPixels(const casacore::String& Dir,
-							     const casacore::String& fileName)
+							    const casacore::String& fileName)
   {
     try
       {
@@ -1166,6 +1166,22 @@ namespace casa{
 	log_l << x.getMesg() << LogIO::EXCEPTION;
       }
     return casacore::Array<Complex>(); // Just to keep the complier happy.  Program control should never get here.
+  }
+  
+ const casacore::IPosition SynthesisUtils::getCFShape(const casacore::String& Dir,
+						      const casacore::String& fileName)
+  {
+    try
+      {
+	casacore::PagedImage<casacore::Complex> thisCF(Dir+'/'+fileName);
+	return thisCF.shape();
+      }
+    catch (AipsError &x)
+      {
+	LogIO log_l(LogOrigin("SynthesisUtils","getCFShape"));
+	log_l << x.getMesg() << LogIO::EXCEPTION;
+      }
+    return casacore::IPosition(); // Just to keep the complier happy.  Program control should never get here.
   }
   
   casacore::TableRecord SynthesisUtils::getCFParams(const casacore::String& Dir,

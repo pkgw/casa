@@ -46,7 +46,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   {
   public: 
     AWVisResampler(): VisibilityResampler(),
-		      cached_phaseGrad_p(),
+		      //		      cached_phaseGrad_p(),
                       cached_PointingOffset_p()
     {cached_PointingOffset_p.resize(2);cached_PointingOffset_p=-1000.0;runTimeG_p=runTimeDG_p=0.0;};
     //    AWVisResampler(const CFStore& cfs): VisibilityResampler(cfs)      {}
@@ -191,7 +191,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // casacore::Vector<casacore::Int> inc_p;
     //    casacore::Vector<casacore::Int> cfMap_p, conjCFMap_p;
     casacore::Vector<casacore::Int> gridInc_p, cfInc_p;
-    casacore::Matrix<casacore::Complex> cached_phaseGrad_p;
+    //    casacore::Matrix<casacore::Complex> cached_phaseGrad_p;
     casacore::Vector<casacore::Double> cached_PointingOffset_p;
     //
     // Re-sample the griddedData on the VisBuffer (a.k.a de-gridding).
@@ -284,14 +284,14 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // EVLA and ALMA, this is not useful.  Leaving it hear for now....
     //
     casacore::Bool reindex(const casacore::Vector<casacore::Int>& in, casacore::Vector<casacore::Int>& out,
-		 const casacore::Double& sinDPA, const casacore::Double& cosDPA,
-		 const casacore::Vector<casacore::Int>& Origin, const casacore::Vector<casacore::Int>& size);
+			   const casacore::Double& sinDPA, const casacore::Double& cosDPA,
+			   const casacore::Vector<casacore::Int>& Origin, const casacore::Vector<casacore::Int>& size);
 
- casacore::Complex* getConvFunc_p(const double& vbPA,
+    casacore::Complex* getConvFunc_p(const double& vbPA,
 				     casacore::Vector<casacore::Int>& cfShape,
 				     casacore::Vector<int>& support,
 				     int& muellerElement,
-				     CFBuffer& cfb,
+				     CountedPtr<CFBuffer>& cfb,
 				     casacore::Double& wVal, casacore::Int& fndx, 
 				     casacore::Int& wndx,
 				     PolMapType& mNdx, PolMapType& conjMNdx,
