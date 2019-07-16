@@ -83,7 +83,7 @@ Bool MatrixCleaner::validatePsf(const Matrix<Float> & psf)
  
 MatrixCleaner::MatrixCleaner():
   itsMask( ),
-  itsSmallScaleBias(0.6),
+  itsSmallScaleBias(0.0),
   itsMaskThreshold(0.9),
   itsDirty( ),
   itsXfr( ),
@@ -117,7 +117,7 @@ MatrixCleaner::MatrixCleaner():
 MatrixCleaner::MatrixCleaner(const Matrix<Float> & psf,
 				  const Matrix<Float> &dirty):
   itsMask( ),
-  itsSmallScaleBias(0.6),
+  itsSmallScaleBias(0.0),
   itsScaleSizes(0),
   itsMaximumResidual(0.0),
   itsStrengthOptimum(0.),
@@ -345,14 +345,11 @@ Int MatrixCleaner::clean(Matrix<Float>& model,
   Int scale;
   Vector<Float> scaleBias(nScalesToClean);
   if (nScalesToClean > 1) {
-    os << LogIO::NORMAL1 << "Scale biases =";
     for (scale=0;scale<nScalesToClean;scale++) {
       scaleBias(scale) = 1 - itsSmallScaleBias *
 	itsScaleSizes(scale)/itsScaleSizes(nScalesToClean-1);
-      if(scale) os << ",";
-      os << " " << scaleBias(scale);
+	os << "scale " << scale+1 << " = " << itsScaleSizes(scale) << " pixels with bias = " << scaleBias(scale) << LogIO::POST;
     }
-    os << LogIO::POST;
   } else {
     scaleBias(0) = 1.0;
   }
