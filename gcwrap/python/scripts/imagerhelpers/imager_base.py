@@ -134,6 +134,7 @@ class PySynthesisImager:
 
     def restoreImages(self):
          for immod in range(0,self.NF):
+              self.unlockimages(immod)
               self.SDtools[immod].restore()
 
 #############################################
