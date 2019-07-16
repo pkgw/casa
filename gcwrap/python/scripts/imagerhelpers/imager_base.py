@@ -143,7 +143,8 @@ class PySynthesisImager:
                 ims.append(ims[0])
             #print 'shape', self.allimpars[str(immod)]['imsize'], len(ims) 
             #print "DECON mem usage ", self.SDtools[immod].estimatememory(ims)
-            deconmem+=self.SDtools[immod].estimatememory(ims)
+            if(len(self.SDtools) > immod):
+                deconmem+=self.SDtools[immod].estimatememory(ims)
         availmem=casac.cu.hostinfo()['memory']['available']
         if((deconmem+griddermem) > 0.8*availmem):
             casalog.post("Memory available "+str(availmem)+" kB is very close to amount of required memory "+str(deconmem+griddermem)+" kB" , "WARN")
