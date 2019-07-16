@@ -74,11 +74,14 @@ using namespace std;
 
 //+
 // Additional CASACORE include files
+// Additional C++ include
 //-
 
 #include <cstdio>
 #include <casa/OS/EnvVar.h>
 #include <casacore/ms/MeasurementSets/MSAntennaColumns.h>
+
+#include <memory>
 
 namespace casa {
 
@@ -88,136 +91,22 @@ namespace casa {
 //  - Some MSs are not compatible with the required, which may cause Exception.
 //  - Expected Exception are describged in the definition
 //******************************************************************************
- 
-// MS name and expected Exception //
 
-typedef struct _MSDef
-{
-    bool   ExThrow;  // True = cause Exeption
-    String name;     // MS name, with relative path from CASAPATH
-} MSDef;
-
-// Antenna Data (for Wtiting individual record) 
-
-typedef  struct AntTblBuf_ {
-
-    String name;
-    String station;
-    String type;
-    String mount;
-
-    Vector<Double> position;
-    Vector<Double> offset;
-
-    Double  dish_diameter;
-    Int     orbit_id;
-    Double  mean_orbit[6];
-
-} ANTENNADataBuff ;
 
 //+
-//  Frame definitioan for  setFrame()
-//   - Strings and a bool var. wheather it is available in casacore.
-//   - Some of them causes Exeption Message from inside.
+// Direction Column List
 //-
-typedef struct _FrameName {
-    bool   available;
-    String name;
-} FrameTypeList;
 
-//+
-// MeasurementSet Name List
-//-
-std::vector<MSDef> TestMSList 
+class PointingColumnList 
 {
-    // Exeption(bool)  , Filename //
- 
-        {true, "./sdimaging-t.ms"   		},
-        {false, "sdimaging/sdimaging.ms"        },
-        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
-
-    // Following 2 MS are affected assert(), cannot run on UT
-    // Release EXE must throws Excepton. 
-    //      {true,  "concat/input/A2256LC2_4.5s-1.ms"               },
-    //      {true,  "concat/input/A2256LC2_4.5s-2.ms"               },
-
-        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
-        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
-        {false, "sdimaging/azelpointing.ms"      	},
-        {false, "sdimaging/clipping_1row.ms"            },
-        {false, "sdimaging/clipping_2rows.ms"           },
-        {false, "sdimaging/clipping_3rows.ms"           },
-        {false, "sdimaging/clipping_3rows_2chans.ms"    },
-        {false, "sdimaging/clipping_3rows_suprious.ms"  },
-        {false, "sdimaging/pointing6.ms"                },
-        {false, "sdimaging/sdimaging_flagtest.ms"       },
-        {false, "sdimaging/selection_intent.ms"         },
-        {false, "sdimaging/selection_misc.ms"           },
-        {false, "sdimaging/selection_spw.ms"            },
-        {false, "sdimaging/selection_spw_unifreq.ms"    },
-        {true, ".sis14_twhya_calibrated_flagged.ms"     },
-        {true, ".sis14_twhya_calibrated_flagged-t.ms"   },
-        {true,  "sdimaging/hogehoge.ms"                 },
-        {true,  "sdimaging/hogehoge.ms"                 },  // Extra Hoge for self-degbug .
- 
-    // Any additional definition can be written here as you want. // 
-
+public:
+        size_t size() { return DirList.size();}
+        string name(uint n) { return DirList[n]; }
+private:
+        std::vector<string> DirList 
+         = {"DIRECTION", "TARGET", "POINTING_OFFSET", "SOURCE_OFFSET", "ENCODER" };
 };
-
-// Default MS name .. //
-static const String DefaultLocalMsName = "./sdimaging-t.ms";
-
-// Get File Name by Number //
-const String  getMsNameFromList(uInt No )
-{
-    const String msg = "Internal Bugcheck:";
-    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-
-    return TestMSList[No].name;
-}
-
-// Get Exception information //
-bool  getMSThrowFromList(uInt  No )
-{
-    const String msg = "Internal Bugcheck:";
-    if( !(TestMSList.size() >  No) ) throw AipsError(msg.c_str());
-    
-    return TestMSList[No].ExThrow;
-}
-
-// Get Count of MS List //
-size_t getMSCountFromList()
-{
-    return TestMSList.size();
-}
-
-//******************************************************
-//  Log Title Output Functions for readable text 
-//  of this UT.
-//******************************************************
-
-void TestDescription( const String &Title )
-{
-    printf( "///////////////////////////////////////////////////////////////////////////// \n");
-    printf( " %s  \n",Title.c_str() );
-    printf( "///////////////////////////////////////////////////////////////////////////// \n");
-}
-
-void FunctionalDescription(const String &Title, const String &Param)
-{
-    printf("=============================================\n");
-    printf("# %s \n",Title.c_str());
-    printf("# [%s] \n",Param.c_str());
-    printf("=============================================\n");
-}
-
-void Description(const String &Title, const String &Param)
-{
-    printf("+-----------------------------\n");
-    printf("| %s \n",Title.c_str());
-    printf("| [%s] \n",Param.c_str());
-    printf("+-----------------------------\n");
-}
+ 
 
 //****************************************
 // Execution / Running Enviromnent
@@ -227,7 +116,6 @@ void Description(const String &Title, const String &Param)
 class RunEnv
 {
 public:
-
     RunEnv()
     {
         //+
@@ -236,19 +124,17 @@ public:
         
         CasaPath        = GetCasaPath( "CASAPATH" );
         CasaMasterPath  = CasaPath + "/data/regression/unittest/"; 
-        UnitTestTMasterFileName = CasaMasterPath + "sdimaging/sdimaging.ms";
 
         printf("RunEnv:: Environment Variable Information -----\n" );
         printf("CASAPATH      :%s \n", CasaPath.c_str());
         printf("CasaMasterPath:%s \n", CasaMasterPath.c_str());
     }
-
-
+    // Data path //
     const String getCasaPath()
     {
         return CasaPath;
     }
-
+    // Template MS path //
     const String getCasaMasterPath()
     {
         return CasaMasterPath;
@@ -256,26 +142,22 @@ public:
 
 private:
     
-    String GetCasaPath(const String pathname )
+    String GetCasaPath(const String &pathname ) 
     {
-        if (casacore::EnvironmentVariable::isDefined(pathname)) 
-        {
+        if (casacore::EnvironmentVariable::isDefined(pathname)){
             string casapath = casacore::EnvironmentVariable::get(pathname);
             size_t endindex = casapath.find(" ");
-            if (endindex != string::npos)
-            {
+            if (endindex != string::npos){
                 string casaroot = casapath.substr(0, endindex);
                 cout << pathname << "=" << casaroot << endl;
                 return (casaroot);
             } 
-            else 
-            {
+            else {
                 cout << "hit npos" << endl;
-                return "/hoge/";
+                return "/data/";
             }
         } 
-        else 
-        {
+        else {
             cout << "ERROR: Specified path " << pathname  << " is not defined" << endl;
             return "";
         }
@@ -283,51 +165,137 @@ private:
 
     String CasaPath;            // translated from CASAPATH 
     String CasaMasterPath;
-    String UnitTestTMasterFileName;
+
 };
 
+//************************************** 
+// Programme Wide Names and Definition 
+//**************************************
+
+class DefaultNames  {
+
+public:
+    DefaultNames() {};
+    ~DefaultNames() {};
+
+    String DefaultLocalMsName()  { return DefaultLocalMsName_; } 
+    String DefaultRemoteMsName() { return DefaultRemoteMsName_; }
+
+private:
+    const String DefaultLocalMsName_  =  "./sdimaging-t.ms";
+    const String DefaultRemoteMsName_ =  "sdimaging/sdimaging.ms"; 
+};
+
+    /* nothing at the moment */
+
+//************************************** 
+// Base TestClass 
+//  for TEST FIXTURE
+//**************************************
+class BaseClass :public DefaultNames, public RunEnv,  public ::testing::Test
+{
+public:
+
+     //+
+     // MS copy/delete to make Test-MS
+     //-
+     String CopyMStoWork(String master);
+     String CopyDefaultMStoWork();
+
+     void DeleteWorkingMS();
+
+     //+
+     // Console Message of test progress
+     //-
+
+     void TestDescription( const String &Title );
+     void FunctionalDescription(const String &Title, const String &Param);
+     void Description(const String &Title, const String &Param);
+
+    uInt    expectedNrow = 0;   // C++11 feature //
+
+    BaseClass()  { }
+
+    ~BaseClass() { }
+
+    void SetUp() { }
+    void TearDown() { }
+
+private:
+
+     //*
+     // Programmer option:: 
+     // Test MS copy and delete flag Enable/Dislable 
+     //*
+
+     const bool fgCopyMS    = true;   // MUST BE  TRUE, except r, except rare debugging case. 
+     const bool fgDeleteMS  = false;   // if FALSE, MS is not deleted. (for debug) 
+};
+
+//+
+//  Log Title Output Functions for readable text 
+//  of this UT.
+//-
+void BaseClass::TestDescription( const String &Title )
+{
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
+    printf( " %s  \n",Title.c_str() );
+    printf( "///////////////////////////////////////////////////////////////////////////// \n");
+}
+
+void BaseClass::FunctionalDescription(const String &Title, const String &Param)
+{
+    printf("=============================================\n");
+    printf("# %s \n",Title.c_str());
+    printf("# [%s] \n",Param.c_str());
+    printf("=============================================\n");
+}
+
+void BaseClass::Description(const String &Title, const String &Param)
+{
+    printf("+---------------------------------------------------\n");
+    printf("| %s   [%s] \n", Title.c_str(), Param.c_str());
+    printf("+---------------------------------------------------\n");
+}
 
 //**************************************************************************
-//  Copying template MS from Master Repository.
+//  Copying a MeasurementSet template from Master Repository.
 //
-//   This is for Some testing items which must contain test data in the MS.
-//   After copying, Modifying fuction for MS is executed depending on
-//   Test cases/items.
-//***************************************************************************
-
-void CopyDefaultMStoWork()
+//   This is for Some testing items which must contain planned Data in the MS.
+//   After cop/ing, This UT programme moify the MS for each purpose.
+//**************************************************************************
+String BaseClass::CopyDefaultMStoWork( )
 {
-    //  Environment //
+    String master    = DefaultRemoteMsName();
+    CopyMStoWork(master);
 
-        RunEnv env;
+    return DefaultLocalMsName();
+}
 
-    // Src/Dst Path (string) 
-
-        const String src = env.getCasaMasterPath() + "sdimaging/sdimaging.ms";
-        const String dst = DefaultLocalMsName;
+String BaseClass::CopyMStoWork(String master)
+{
+    // Src / Dst Path 
+        const String src = getCasaMasterPath() + master;
+        const String dst = DefaultLocalMsName();
 
     // Src/Dst Path (Path) 
-
         casacore::Path        sourcePath(src);
         casacore::Path        targetPath(dst);       
         casacore::Directory   dir_ctrl(sourcePath);
 
-        Description( "Copying Default MeasurementSet for modifed use to; " ,dst.c_str() );
+    // Copy File   //
+    if(fgCopyMS)
+    {
+        dir_ctrl.copy( targetPath,
+                       True,    // Overwrite 
+                       True  ); // Users permisssion 
+        // info //
+        printf( "- copying from Remote MS [%s]  \n", src.c_str() );
+        printf( "          to   Local  MS [%s]  \n", dst.c_str() );
 
-        printf( " - src filespec  : %s \n", src.c_str() );
-        printf( " - dest filespec : %s \n", dst.c_str() );
-
-    //+
-    // Copy File, use copy() method.
-    //   WARNING; Destination directory must be full described.
-    //-
-
-        if(true)
-        {
-            dir_ctrl.copy( targetPath,
-                           True,    // Overwrite 
-                           True  ); // Users permisssion 
-        }
+       return dst;
+    }
+    return "";
 }
 
 //+
@@ -335,651 +303,1129 @@ void CopyDefaultMStoWork()
 //  whenever One Test Fixture ends. 
 //-
 
-void DeleteWorkingMS()
+void BaseClass::DeleteWorkingMS()
 {
-    String dst         = DefaultLocalMsName;
+    String dst         = DefaultLocalMsName();
 
     casacore::Path        path(dst);
     casacore::Directory   dir_ctrl(path);
 
-    Description( "Deleting Working MeasurementSet for modifed use." ,dst.c_str() );
-
     // Delete File (Recursively done) 
-    // NOTE: for debug use, please change true-> falase )
-
-    if (true)
+    if (fgDeleteMS)
     {
-         dir_ctrl. removeRecursive(false /*keepDir=False */ );
+        std::cout << "- deleting " << dst << endl;
+
+        dir_ctrl. removeRecursive(false /*keepDir=False */ );
     }
 }
 
-//********************************************************
-//  INTERPOLATION  Generation 
-//   for Interporation Verification TEST 
-//  - Generate testing trajectry in Direction
-//  -  Interval(POINTING, MAIN)  (tunable in initialize() ).
-//********************************************************
+//*********************************************************
+// Interpolation Testing Trajectory cass (static function)
+//*********************************************************
 
-class EvaluateInterporation
+class TrajFunc
 {
+    typedef void (*FUNCTYPE)(Double, Double&, Double& ); // Function typdef //
+
 public:
 
-    EvaluateInterporation() { printf("EvaluateInterporation constructor \n" ); /* Minimum SetUp only */  }
+    // Function Name Def //
+    typedef enum _Tr_  {
+        Simple_Linear,        // 0
+        Normalized_Linear,    // 1
+        Sinusoid_Slow,       // 2
+        Sinusoid_Quick,      // 3
+        Sinusoid_Hasty,      // 4
+        Harmonics_Sinusoid,  // 5
+        Gauss,               // 6   
+        Zero,                // 7
+        Const,               // 8
+        Spline_Special
+    } Type;
+
+    // num(size) of function def. //
+    size_t size() { return fpTrajfunc.size(); }
+    
+    // calculation //
+    static void calc(Double r_time, Double& X, Double& Y) {
+                     (*fpTrajfunc[currTrajFuncNo])( r_time, X, Y ); return; }
+
+    // set type //
+    static void setType(uInt no ) {
+           if( no < fpTrajfunc.size() )  currTrajFuncNo = no;}
+
+    // func Table //
+    static  std::vector<FUNCTYPE> fpTrajfunc;
+    
+
+private:
+    // Selected Function //
+     static uInt currTrajFuncNo ;
+
+    static void Function_SimpleLinear( Double r_time, Double &X, Double &Y ){
+        X = -1.0 + 2.0 * r_time;
+        Y = -1.0 + 2.0 * r_time;
+    } 
+
+    static void Function_NormalizedLinear( Double r_time, Double &X, Double &Y ){
+        // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
+        X =  (r_time * 2.0 - 1.0 ) * M_PI ;
+        Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
+    }
+
+    static void Function_sinusoid_slow( Double r_time, Double& X, Double& Y){
+        X = 1.0 * cos( 2.0*M_PI  * r_time );
+        Y = 1.0 * sin( 2.0*M_PI  * r_time );
+    }
+
+    static void Function_sinusoid_quick( Double r_time, Double& X, Double& Y){   
+        X = 2.0 * cos( 8.0*  2.0*M_PI  * r_time );
+        Y = 1.0 * sin( 8.0*  2.0*M_PI  * r_time );
+    }   
+
+    static void Function_sinusoid_hasty( Double r_time, Double& X, Double& Y){
+        double FREQ= 20.0; 
+        X = 2.0 * cos( FREQ*  2.0*M_PI  * r_time );
+        Y = 1.0 * sin( FREQ*  2.0*M_PI  * r_time );
+    }
+
+    static void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y){        
+        const Double Amp1 = 0.5;
+        const Double Amp2 = 0.6;
+        const Double Omega = 2.0 * M_PI ; 
+         
+        Double x1  = Amp1 * cos( Omega * r_time );
+        Double y1  = Amp2 * sin( Omega * r_time );
+
+        Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
+        Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
+
+        X = x1 + x4;
+        Y = y1 + y4;
+    }
+
+    static void Function_gauss( Double r_time, Double& X, Double& Y){
+        Double t   = r_time - 0.5;
+        Double A = 50;
+
+        Double gauss  = exp (-A*t*t);
+
+        X = gauss;
+        Y = gauss;
+    }
+
+    static void Function_zero(Double r_time, Double& X, Double& Y){
+        X = 0.0 + 0.0*r_time;
+        Y = 0.0 + 0.0*r_time;
+    }
+
+    static void Function_const(Double r_time, Double& X, Double& Y){
+        X = 1.0 + 0.0*r_time;
+        Y = 1.0 + 0.0*r_time;
+    }
+
+    static void Function_SplineSpecial(Double r_time, Double& X, Double& Y){
+      // Border //
+      double c1 = 0.1;
+      double c2 = 0.3;
+      double c3 = 1.0 - c2;
+      double c4 = 1.0 - c1;
+
+      double a1 = -1.0/c1;
+
+      double a2 = 1.0 /(c1*(c2-c1));
+      double b2 = (c1-c2)/(4*c1);
+    
+      double m = 0.5 -c2;
+      double a3 = 1.0/2.0/(m*m)/c1;
+      double b3 = 1.0/(2.0*c1);
+
+      double a4 = -a2;
+      double b4 = -b2;
+   
+      double a5 = a1;
+
+      X = Y = 0.0;
+      //  sections //
+      if( r_time <= c1 )
+      {
+        double f = a1 * (r_time - c1);     
+        X = Y = f;
+      }
+      else
+      if( r_time <= c2 )
+      {
+        double x = r_time - (c1+c2)/2.0;
+        double f = a2 * x*x + b2;
+        X = Y = f;
+      }
+      else
+      if( r_time <= c3 )
+      {
+        double x = r_time -0.5;
+        double f = a3* x*x*x - b3*x;
+        X = Y = f;
+      }
+      else
+      if( r_time <= c4 )
+      {
+        double x = r_time -(c3+c4)/2.0;
+        double f = a4 * x*x + b4;
+        X = Y = f;
+      }
+      else
+      {
+        double f = a5 *(r_time -c4);  
+        X = Y = f;
+      }
+    } // end of function
+}; // end class def
+
+//----------------------
+// Entitiy of TrajFunc 
+//----------------------
+// currently active(selected)  function //
+  uInt TrajFunc::currTrajFuncNo =0;
+// function table // 
+  std::vector<TrajFunc::FUNCTYPE>  TrajFunc::fpTrajfunc
+  {    
+     Function_SimpleLinear,        // 0
+     Function_NormalizedLinear,    // 1
+     Function_sinusoid_slow,       // 2
+     Function_sinusoid_quick,      // 3
+     Function_sinusoid_hasty,      // 4
+     Function_harmonics_sinusoid,  // 5
+     Function_gauss,               // 6   
+     Function_zero,                 // 7
+     Function_const,                // 8
+     Function_SplineSpecial         // 9
+  };
+
+//************************************************************
+// Tuning MS Configulation for testing mainly getDirection() 
+//   for Interporation Verification.
+//  - Generate testing trajectry in Direction
+//  -  Interval(POINTING, MAIN) tunable. ( in initialize() ).
+//************************************************************
+
+class TuneMSConfig  /*: public BaseClass */ 
+{
+public:
+    // return data structure def. //
+    typedef struct _Pointing_  
+    {
+        Double time;
+        Double interval;
+        Double relativeTime;
+    
+        std::pair<Double,Double> position[PointingDirectionCalculator::PtColID::nItems];
+
+    } PseudoPointingData;
+ 
+    TuneMSConfig() {  }
 
     // Interval Time //
 
-        Double  getPointingTableInterval() { return pointingIntervalSec;}
-        Double  getMainTableInterval()     { return mainIntervalSec;}
+      Double  getPointingTableInterval() { return pointingIntervalSec_;}
+      Double  getMainTableInterval()     { return mainIntervalSec_;}
 
-    // Curve Function select //
-
-        void setCurveFunctionNo(uInt num) { printf("EvaluateInterporation:: selected Curve Function = %u \n", num ); 
-                                            curveFunctionNo = defaultCurveFunctionNo = num; }
+    // Calculation Error Limit //
+    
+      void setInterpolationErrorLimit(Double val) { 
+          printf("TuneMSConfig:: set interpolation err. limit = %e \n", val );
+          errorLimit_ = defaultInterpolationErrorLimit_ = val; 
+      }
 
     // Init and Define Parameters 
 
-        void Initialize();
-        void Initialize( Double, Double);
-        void setMainRowCount( uint n ) { requiredMainTestingRow =  defultMainTestingRow       = n; }  
+      void Initialize( Double, Double);
+      void setMainRowCount( uint n ) { requiredMainTestingRow_ =  currentDefaultTestingRowCnt_ = n; }  
 
-    // Offset between POINTNG and MAIN //
-
-        /* function reserved */
- 
     // Pseudo Trace(Direction) for the Test
 
-        casacore::Vector<Double>  pseudoDirInfoPointing(Double tn);
-        casacore::Vector<Double>  pseudoDirInfoMain    (Double tn);
+      PseudoPointingData     pseudoPointingInfoPointing(Double tn);
+      PseudoPointingData     pseudoPointingInfoMain2   (Double tn);
 
     // available POINTING TABLE count //
 
-       uInt getAvailablePointingTestingRow() { return availablePointingTestingRow; }
+      uInt getAvailablePointingTestingRow() { return std::round(availableNrowInPointing_); }
+
+    // required MAIN TABLE count 
+
+      uInt getRequiredMainTestingRow()      { return requiredMainTestingRow_; }
+
+    // Adjust Count
+
+      uInt getIntervalAdjust() { return intervalRatioAdj_ ; }
 
     //+
     // Numerical Error Statictic 
     //-
-  
-        Double getInterpolationErrorLimit() { return interpolationErrorLimit;  } ;
+ 
+      Double getInterpolationErrorLimit() { return errorLimit_;  } ;
 
-        uInt getAddInerpolationTestPointingTableRow() {return addInerpolationTestPointingTableRow; };
-        uInt getAddInerpolationTestMainTableRow()     {return addInerpolationTestMainTableRow; };
-	
-        bool checkExtendAvailable() 
-        {
-            if(availablePointingTestingRow < defInerpolationTestPointingTableRow) return true;
-            else return false; 
-        }
+    // Row count to be added (when setting up MS) // 
+
+      uInt getAddInerpolationTestPointingTableRow() {return std::round(extraNrowInPointing_); };
+      uInt getAddInerpolationTestMainTableRow()     {return std::round(extraNrowInMain_);      };
+
+    // Resouece	
+    //    Antenna and Pointing Column //
+
+      uInt getMaxOfAntenna() { return prepareMaxAntenna_; }
+      uInt getMaxOfPointingColumn() { return prepareMaxPointingColumn_; }
+
+    // Force to set up special MS for multiple access test(by AntennaID and PointingColumns )
+
+      bool ifCoeffLocTest() { return fgCoeffLocationTest; }
+      void setCoeffLocTest(bool val) { fgCoeffLocationTest = val; }  // indicate special traj.func //
 
 private:
 
-       // initialize  Commmon //
+    // Commmon Initialize//
+      void init();
 
-       void init();
+    //+
+    // create pseudo Pointing Info by Trajectory-function 
+    // return value contains various info 
+    //  => see PseudoPointingData type.
+    //-
 
-        casacore::Vector<Double>  pseudoDirInfo(Double tn);
+      PseudoPointingData        pseudoPointingBaseInfo(Double deltaTime);
 
-        //+
-        //  Relative Time (r_time) and Total Time
-        //   for Curve Function
-        //-
+    //+
+    //  Relative Time (r_time) and Total Time
+    //   for Trajectory Function
+    //-
 
-        Double  Interval  = 0.0; // Initilal ..
-        uInt    nRow      = 0;
-        Double  r_time     = 0.0;
+      Double  Interval__   = 0.0; 
+      Double  r_time__     = 0.0;
 
-       // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
+    // Pre-located row , use tables with extended. See MS (sdimaging.ms) by tool //
 
-        const uInt defInerpolationTestPointingTableRow   = 3843;
-        const uInt defInerpolationTestMainTableRow       = 3843;
+      # define ExistingRowCount  3843
+      # define RowCountToPrepare 5040
 
-        // Row Count to execute //
-        uInt requiredMainTestingRow     = 0;    //   MUST BE SET 
-        uInt defultMainTestingRow       = 5000; //   copied to required when Initialize() 
+      uInt currentDefaultTestingRowCnt_   =  RowCountToPrepare; 
 
-        uInt requiredPointingTestingRow = 0;    //   internally calculated
-        uInt availablePointingTestingRow = 0;    //   internally calculated   
+      const uInt defInerpolationTestPointingTableRow_   = ExistingRowCount;
+      const uInt defInerpolationTestMainTableRow_       = ExistingRowCount;
 
-        uInt addInerpolationTestPointingTableRow ;   // calculated when start
-        uInt addInerpolationTestMainTableRow ;       // calculated when start
+    // NEW:decrease cnt when dt come close to 1.0 //
 
-       // Error Limit (threshold) in GoogleTest Macro //
+      uInt  intervalRatioAdj_ =0 ;
 
-        Double interpolationErrorLimit ;
+    // Row Count to execute //
+      uInt requiredMainTestingRow_     = 0;    //   MUST BE SET 
 
-        //+
-        // Testing Function Select [TENTATIVE]
-        //   0: Simple Linear
-        //   1: Full-scale linear with PI , PI/2
-        //   8: Sinusoid (slow move)
-        //   9: Sinusoid (fast move)
-        //   10: Harmonics Sinusoid. (f0 + 5th.)
-        //-
+      Double  requiredNrowInPointing_ = 0;    //   internally calculated
+      Double  availableNrowInPointing_ = 0;    //   internally calculated   
 
-        uInt curveFunctionNo;                  // Testing Function Mo/
-        uInt defaultCurveFunctionNo = 0;       // Testing Function default //
+      Double  extraNrowInPointing_ ;   // calculated when start
+      Double  extraNrowInMain_ ;       // calculated when start
+
+    // Error Limit (threshold) in GoogleTest Macro //
+
+      Double errorLimit_ ;
+      Double defaultInterpolationErrorLimit_ = 1.0e-06 ;
 
     // Interval Second.
 
-         Double pointingIntervalSec =0.0;            // Interval Time to set in POINTING 
-         Double mainIntervalSec     =0.0;            // Interval Time to set in MAIN 
+      Double pointingIntervalSec_ =0.0;            // Interval Time to set in POINTING 
+      Double mainIntervalSec_     =0.0;            // Interval Time to set in MAIN 
 
-    // Parameters  (Time)
-    
-        Double dayOffset=0       ;      // Day offset   (Day)  ** NOT USED *** 
+    // Number of Antenna , Pointing-Columns //
+      const uInt prepareMaxAntenna_                = 3;    // Master resource //
+      const uInt prepareMaxPointingColumn_         = 5;    // Master resource //
 
+    // Coefficient Test (special)
+      bool fgCoeffLocationTest  = false; 
 };
 
 //+
 // Initialize
 //-
 
-void EvaluateInterporation::init()
+void TuneMSConfig::init()
 {
         // Bugcheck //
-        assert(requiredMainTestingRow!=0);
+          assert(requiredMainTestingRow_!=0);
 
-        printf( "EvaluateInterporation::init()::  Pointing Interval = %f\n", pointingIntervalSec);
-        printf( "EvaluateInterporation::init()::  Main     Interval = %f\n", mainIntervalSec);
-        printf( "EvaluateInterporation::init()::  Main Testing Row  = %d\n", requiredMainTestingRow );
+        // Interpolation Error Limit 
+          errorLimit_ =  defaultInterpolationErrorLimit_ ;
+
+        //+
+        // Measurment Set Size Set-Up.
+        //- 
+          printf( "TuneMSConfig::init()::  Pointing Interval = %f\n", pointingIntervalSec_);
+          printf( "TuneMSConfig::init()::  Main     Interval = %f\n", mainIntervalSec_);
+          printf( "TuneMSConfig::init()::  Main Testing Row  = %d\n", requiredMainTestingRow_ );
 
         //+
         //  Define Row Count in POINTING and Main
         //   - the reuired minimum numbers are up to Interval ration.
         //-
+       
+          Double TotalTime =  requiredMainTestingRow_ * mainIntervalSec_ ;
+          availableNrowInPointing_ = requiredNrowInPointing_  
+                                     = TotalTime / pointingIntervalSec_;
 
-            Double TotalTime =  requiredMainTestingRow * mainIntervalSec ;
-
-            availablePointingTestingRow = requiredPointingTestingRow  = TotalTime / pointingIntervalSec;
- 
-           // if POINTING table already have sufficient length 
-            if (requiredPointingTestingRow < defInerpolationTestPointingTableRow){
-                    availablePointingTestingRow = requiredPointingTestingRow;
-                    requiredPointingTestingRow  = defInerpolationTestPointingTableRow;
-            }
+        // if POINTING table already have sufficient length 
+        if (requiredNrowInPointing_ < defInerpolationTestPointingTableRow_)
+        {
+            requiredNrowInPointing_  = requiredMainTestingRow_ *  mainIntervalSec_ / pointingIntervalSec_ ;
+        }
 
         //+
         // Optimize Row Count
         //   - when required row is insufficient, set adding count and expand MS later. 
+        //   - when multiple-antenna is used number of tables are increased as below.
+        // (bug fix)
+        //    7-MAR-2019 prepareMaxAntenna_ was applied for exact row control.
         //-
 
-        if ( requiredPointingTestingRow > defInerpolationTestPointingTableRow )
+        if ( (prepareMaxAntenna_ * requiredNrowInPointing_) > defInerpolationTestPointingTableRow_ )
         {
-            addInerpolationTestPointingTableRow = requiredPointingTestingRow -defInerpolationTestPointingTableRow;
+            extraNrowInPointing_ = requiredNrowInPointing_ * prepareMaxAntenna_ 
+                                 - defInerpolationTestPointingTableRow_;
         }
         else
         {
-            addInerpolationTestPointingTableRow = 0;
+            extraNrowInPointing_ = 0;
         }
 
-        if ( requiredMainTestingRow > defInerpolationTestMainTableRow )
+        //+
+        // Expanding MAIN
+        //-
+        if ( (prepareMaxAntenna_ * requiredMainTestingRow_) > defInerpolationTestMainTableRow_ )
         {
-            addInerpolationTestMainTableRow = requiredMainTestingRow - defInerpolationTestMainTableRow;
+            extraNrowInMain_ = requiredMainTestingRow_ * prepareMaxAntenna_
+                             - defInerpolationTestMainTableRow_;
         }
         else
         {
-            addInerpolationTestMainTableRow  =0 ;
+            extraNrowInMain_  = 0 ;
         }
-
-        printf( "EvaluateInterporation::init()::File Size: Pointing, required =%d, adding size = %d \n", 
-                requiredPointingTestingRow ,addInerpolationTestPointingTableRow);
-        printf( "EvaluateInterporation::init()::File Size: MAIN    , required =%d, adding size = %d \n", 
-                requiredMainTestingRow ,addInerpolationTestMainTableRow);
 
 }
 
-void EvaluateInterporation::Initialize(Double p_interval, Double m_interval )
+void TuneMSConfig::Initialize(Double p_interval, Double m_interval )
 {
-        Description("EveInterp::initialize()::Setting Up INTERVALs ","" );
+        pointingIntervalSec_         =  p_interval;
+        mainIntervalSec_             =  m_interval;
 
-        pointingIntervalSec         =  p_interval;
-        mainIntervalSec             =  m_interval;
+        // Number of Row count used in TEST // 
+        requiredMainTestingRow_ =  currentDefaultTestingRowCnt_;
 
-        /*Tunable*/ 
-        requiredMainTestingRow =  defultMainTestingRow;
+        // Inerpolation Error limit (currently active)
+        errorLimit_  = defaultInterpolationErrorLimit_;
 
-        /*Tunable*/ 
-        curveFunctionNo     =  defaultCurveFunctionNo;
-
-        /*Tunable*/
-        interpolationErrorLimit  = 5.0E-06;
-
-        //+
-        //  Offset Time between in MAIN and in POITING 
-        //    Positive value forward the time (MAIN).
-        //-  
-
-        /*Tunable*/ // second and day offset on POINTING,  UNDER CONSTRUCTION // 
- 
         // common init //
         init();
 }
 
-void EvaluateInterporation::Initialize( )
-{
-
-        Double p_int = 0.048;
-        Double m_int = 1.008;
-
-        setMainRowCount(5000);
-        Initialize(p_int, m_int);  // Give Pointing and Main Intervals. //
-}
-
-//*****************************************************
-// Generate Pseudo POINTING Trajectory
-//   returns pointng info. by Vecror.
-//****************************************************
-
-//+
-// Local function definition
-//     Normalized time ::     0 <=  r_time <= 1.0 
-//     func(t) = {x(t), y(t) }:   (0 <= t <= 1)
-//-
-
-void Function_SimpleLinear( Double r_time, Double &X, Double &Y )
-{
-    X = -1.0 + 2.0 * r_time;
-    Y = -1.0 + 2.0 * r_time;
-
-    return;
-}
-
-void Function_NormalizedLinear( Double r_time, Double &X, Double &Y )
-{
-    // Normalized time :: | Rel_Time | < 1.0 , this case [0,1.0] is used //
-
-    X =  (r_time * 2.0 - 1.0 ) * M_PI ;
-    Y =  (r_time * 2.0 - 1.0 ) * (M_PI / 2.0);
-
-    return;
-}
-
-void Function_sinusoid_slow( Double r_time, Double& X, Double& Y)
-{
- 
-    X = 1.0 * cos( 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 2.0*M_PI  * r_time );
-
-    return;
-}
-
-void Function_sinusoid_quick( Double r_time, Double& X, Double& Y)
-{   
-    
-    X = 2.0 * cos( 10* 2.0*M_PI  * r_time );
-    Y = 1.0 * sin( 10*  2.0*M_PI  * r_time );
-   
-    return;
-}   
-
-void Function_harmonics_sinusoid( Double r_time, Double& X, Double& Y)
-{        
-    const Double Amp1 = 0.5;
-    const Double Amp2 = 0.6;
-    const Double Omega = 2.0 * M_PI ; 
-         
-    Double x1  = Amp1 * cos( Omega * r_time );
-    Double y1  = Amp2 * sin( Omega * r_time );
-
-    Double x4  = Amp1/1.5 * cos( 4.0 * Omega * r_time );
-    Double y4  = Amp2/1.5 * sin( 4.0 * Omega * r_time );        
-
-    X = x1 + x4;
-    Y = y1 + y4;
-
-    return;
-}
-
-
-void Function_Err(Double r_time, Double& X, Double& Y)
-{
-    X = r_time;
-    Y = r_time;
-
-    throw;
-}
- 
 //+
 //  Generate Pseuo Direction / Time Infomation
 //  both for Pointing and Main.
 //-
 
-typedef void (*FUNCTYPE)(Double, Double&, Double&);
-
-FUNCTYPE fpCurvefunc[]  = 
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingBaseInfo(Double rowTime)
 {
-    Function_SimpleLinear,
-    Function_NormalizedLinear,
-    Function_sinusoid_slow,
-    Function_sinusoid_quick,
-    Function_harmonics_sinusoid,
 
-    Function_Err
-
-};
-
-casacore::Vector<Double> EvaluateInterporation::pseudoDirInfo(Double delta)
-{
-        casacore::Vector<Double> point;
-        point.resize(5);
-
-        //+
         //  relative time limit (r_time)
-        //   (on private)
-        //-
-
-        if (r_time > 1.0) {
-            printf( "r_time::Exceeded 1.0: %f \n",r_time );
-        }
+        assert(r_time__  <= 1.0);
  
-
         //+
-        //  Determin TIME 
+        //  Determin TIME upon Base Date. 
         //    dd : in day.
         //-
 
-        Double time  = delta * Interval;
+        Double time  = rowTime * Interval__;
         Double dd    =  (22 *3600.0 
                          +  5*60 +  41.5 
                          + time  
-                         + dayOffset )
-                       /(3600*24) ;
+                       ) / (3600*24) ;
      
         casacore::MVTime  basetime (2003,11,12 ,dd);     
  
         //+
         // Designed Function of POINITNG location
         //-
-
-        Double X = 0.0;
-        Double Y = 0.0;
-
-        //+
-        //  Choose Function
-        //  (In near future, change to Templated Function in C++ )
+        uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
+        Double X2[DirColCount];
+        Double Y2[DirColCount]; 
+      
+        //+ 
+        //  Trajectory Function execution
+        //    (memo) debug function should be build in this class.
         //-
 
-        (*fpCurvefunc[curveFunctionNo])( r_time, X, Y );
-        
-        if(false)    printf("PSD_DEBUG time=%f, r_time=%f, XY( %f,%f) \n", time, r_time, X, Y);
+        // prepare five sets // 
+        for(uInt n=0;n<DirColCount;n++) {
+            TrajFunc::calc( r_time__, X2[n], Y2[n] );
+        }
 
         // Probe the range //
 
-	assert( abs(X) <=  M_PI );
-        assert( abs(Y) <=  M_PI/2.0 );
+        for(uInt n=0;n<DirColCount;n++) {
+            assert( abs(X2[n]) <=  M_PI );
+            assert( abs(Y2[n]) <=  M_PI/2.0 );
+        }
 
         // Direction Values //
+        // CAS-8418 New  Interface //
+        PseudoPointingData  point2;
+        point2.time         = basetime.second();
+        point2.interval     = Interval__;
+        point2.relativeTime = r_time__;  
 
-        point[0] = X;
-        point[1] = Y;
+        // Five different output values. //
+        for(uInt n=0;n<DirColCount;n++) {
+            point2.position[n] = make_pair(X2[n],Y2[n]);
+        }        
 
-        // Time and Interval //
-
-        point[2] = basetime.second();                 // Time  (sec) 
-        point[3] = Interval;               // Interval (sec) from Initial def.
-        point[4] = r_time;                 // Relative Time r_time: [0,1]
-      
-        //+
-        // Time on MAIN
-        //   basically with offset from main.
-        //   in orregular case , Time range in MAIN is not included in that of POINTNG,
-        //   or the starting time in MAIN is not included Pointing Time range.
-        // 
-        //   X following statemment can add time shift on MAIN time.
-        //-
-       
-        return point;
-
+        return point2; 
 }
 
-casacore::Vector<Double> EvaluateInterporation::pseudoDirInfoPointing(Double delta)
+
+TuneMSConfig::PseudoPointingData TuneMSConfig::pseudoPointingInfoPointing(Double deltaTime)
 {
-        Interval =   pointingIntervalSec;
-        nRow     =   availablePointingTestingRow;
-        r_time   =   delta/nRow;
+    // privide local conditon on private variables //
+      Interval__ =   pointingIntervalSec_;
+      r_time__   =   deltaTime/availableNrowInPointing_;
              
-        return(pseudoDirInfo(delta));
+      return(pseudoPointingBaseInfo(deltaTime));
 }
-
-casacore::Vector<Double> EvaluateInterporation::pseudoDirInfoMain(Double delta)
+             
+TuneMSConfig::PseudoPointingData  TuneMSConfig::pseudoPointingInfoMain2(Double deltaTime)
 {
-        Interval = mainIntervalSec;
-              
-        if(pointingIntervalSec <= mainIntervalSec ) // Ordinary case
-        {
-            nRow=  requiredMainTestingRow;
-            r_time =   delta / nRow ;
-        }   
-        else   // This case may happen that not all the rows in Pointng are used.
-        {
-            nRow = max ( requiredMainTestingRow ,  defInerpolationTestMainTableRow );
-            r_time =   delta / nRow   ;
-        }
-   
-        return(pseudoDirInfo(delta));
+    // privide local conditon on private variables //
+ 
+    Interval__ = mainIntervalSec_;
+
+    //+
+    // Number of data in Pointing and Main Table
+    //  to be compared.
+    //
+    // -  Determine number of row of Pointing and Main table.
+    //    this depends on which total time is longer.
+    //
+    // intervalRatioAdj_ controls end of loop
+    //-
+
+     uInt nRow   =  requiredMainTestingRow_;
+     r_time__ =   deltaTime / nRow ;
+
+     Double i_ratio_1 = mainIntervalSec_ / pointingIntervalSec_ ;
+     Double i_ratio_2 = pointingIntervalSec_ / mainIntervalSec_ ;
+ 
+    // Normal case //
+    if(mainIntervalSec_ > pointingIntervalSec_ ) //  interval_M  > interval_P (ratio >=2)
+    {
+        intervalRatioAdj_ = round(i_ratio_1);
+    }
+    else
+    if(mainIntervalSec_  <  pointingIntervalSec_ ) //  interval_M  > interval_P (ratio >=2)
+    {
+        intervalRatioAdj_ = round(i_ratio_2);  
+    } 
+    else       //   interval_M  == interval_P
+    {
+        intervalRatioAdj_ = 1;
+    }
+
+    return(pseudoPointingBaseInfo(deltaTime));
+
 }
 
 //+ 
 //  Interpolation Error statistics 
 //-
-class ErrorMax 
+class ErrorStat 
 {
 public:
-    ErrorMax() {  MaxErr.resize(2); MaxErr[0]=0.0; MaxErr[1]=0.0;}
+    ErrorStat() {
+        MaxErr.resize(2); MaxErr[0] = MaxErr[1] = 0.0;
+        MinErr.resize(2); MinErr[0] = MinErr[1] = 0.0;
+    }
     void put( Vector<Double> newval )
     {
         Double v0 = abs(newval[0]);
         Double v1 = abs(newval[1]);
         MaxErr[0] = max(v0, MaxErr[0]); 
         MaxErr[1] = max(v1, MaxErr[1]);
+        MinErr[0] = min(v0, MinErr[0]);
+        MinErr[1] = min(v1, MinErr[1]);
+
     }
-    std::vector<Double> get() { return MaxErr; }
+    std::vector<Double> e_max() { return MaxErr; }
+    std::vector<Double> e_min() { return MinErr; }
+
 private:
 
     std::vector<Double> MaxErr;
+    std::vector<Double> MinErr;
 
 };
 
-//+
-// Editting local MS for detail Test
-// (Tables) ANTENNA and POINTING . 
-//-
+//*********************************
+// Access Service class 
+//   for  POINTING table 
+//*********************************
 
+class PointingTableAccess
+{
+public:
+      // Constructor //
+      PointingTableAccess(String const &MsName, bool WriteAccess =false ) 
+      {
+          auto option = casacore::Table::TableOption::Old;
+          if(WriteAccess) option = casacore::Table::TableOption::Update;
+ 
+          MeasurementSet ms_t(MsName, option );
+          ms = std::move(ms_t);
+ 
+          init();           
+          prepareColumns();
+
+      }
+      // Destructor //
+      ~PointingTableAccess() { }
+
+      // Flush and close //
+      void flush()  {
+          ms.flush();
+          ms.resync();
+      }
+      // Row //
+      uInt getNrow()   { return (nRow = hPointing.nrow()) ;  };
+      void appendRow(uInt AddCnt)  { hPointing.addRow(AddCnt);}
+      void removeRow(uInt row)     { hPointing.removeRow(row);}
+
+      // Duplicate Column //
+      void duplicateColumns() { 
+          TableDesc  tblDsc = hPointing.tableDesc();
+
+          ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
+          ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
+          ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
+          ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
+
+          String colname1 = "POINTING_OFFSET";
+          String colname2 = "SOURCE_OFFSET";
+          String colname3 = "ENCODER";
+
+          RevColumnDesc1.setName( colname1 );
+          RevColumnDesc2.setName( colname2 );
+          RevColumnDesc3.setName( colname3 );
+
+          printf( "Adding 3 Columns(if not exist)  on Pointing Table \n" );
+
+          if( ! tblDsc.isColumn( colname1 ) ){
+              hPointing.addColumn(RevColumnDesc1);
+              printf("Column[%s]was created.\n",colname1.c_str());
+          }
+          if( ! tblDsc.isColumn( colname2 ) ){
+              hPointing.addColumn(RevColumnDesc2);
+              printf("Column[%s]was created.\n",colname2.c_str());
+          }
+          if( ! tblDsc.isColumn( colname3 ) ){
+              hPointing.addColumn(RevColumnDesc3); 
+              printf("Column[%s]was created.\n",colname3.c_str());
+          }
+
+           pointingPointingOffset = columnPointing ->pointingOffset();
+           pointingSourceOffset   = columnPointing ->sourceOffset();
+           pointingEncoder        = columnPointing ->encoder();
+
+          flush();
+      }
+      void fillNewColumns()
+      {   
+          //+
+          // Fill empty data
+          //-
+             IPosition Ipo = pointingDirection.shape(0);        
+             /* dummy data */ 
+             Array<Double> init_data1( Ipo, -0.1);
+             Array<Double> init_data2( Ipo, -0.2);
+             Array<Double> init_data3( Ipo, -0.3);
+             for (uInt row=0; row<nRow; row++)
+             {
+                 pointingPointingOffset. setShape(row, Ipo);
+                 pointingSourceOffset.   setShape(row, Ipo);
+                 pointingEncoder.        setShape(row, Ipo);
+ 
+                 // put initial data to Column //
+                 pointingPointingOffset. put( row, init_data1 );
+                 pointingSourceOffset.   put( row, init_data2 );
+                 pointingEncoder.        put( row, init_data3 );
+              }
+
+      }
+
+      // Column check //
+      bool checkColumn(String const &columnName ) 
+      {
+          String columnNameUpcase = columnName;
+          columnNameUpcase.upcase();
+          if (true == (ms.pointing().tableDesc().isColumn(columnNameUpcase))) return true;
+          else return false;
+      } 
+
+      //+
+      // Read (get) method  
+      //-
+
+      /* Vector */ 
+        Array<Double> getDirection     (uInt row) { return pointingDirection      .get(row); }
+        Array<Double> getTarget        (uInt row) { return pointingTarget         .get(row); }
+        Array<Double> getPointingOffset(uInt row) { return pointingPointingOffset .get(row); }
+        Array<Double> getSourceOffset  (uInt row) { return pointingSourceOffset   .get(row); }
+        Array<Double> getEncoder       (uInt row) { return pointingEncoder        .get(row); }
+ 
+      /* IPO */
+        IPosition getIpo() {return  pointingDirection.shape(0); }
+
+      /* Scalor */
+        uInt   getAntennaId(uInt row)       { return pointingAntennaId. get(row); }
+        Double getTime     (uInt row)       { return pointingTime.      get(row); }
+        Double getInterval (uInt row)       { return pointingInterval.  get(row); }
+
+      /// Write(put) ///
+        /* Vector type */
+          void putDirection      (uInt row, Array<Double> dir ) { pointingDirection.      put(row, dir ); }
+          void putTarget         (uInt row, Array<Double> dir ) { pointingTarget.         put(row, dir ); }
+          void putPointingOffset (uInt row, Array<Double> dir ) { pointingPointingOffset. put(row, dir ); }
+          void putSourceOffset   (uInt row, Array<Double> dir ) { pointingSourceOffset.   put(row, dir ); }
+          void putEncoder        (uInt row, Array<Double> dir ) { pointingEncoder.        put(row, dir ); }
+
+        /* Scolar type */
+          void putTime(uInt row, Double dd)      {  pointingTime.      put(row, dd ); }
+          void putInterval(uInt row, Double dd)  {  pointingInterval.  put(row, dd ); }
+          void putAntennaId(uInt row, Double dd) {  pointingAntennaId.  put(row, dd ); }
+
+      /// Debug Utility ///
+
+          void dump(String fname)
+          {
+              FILE *fp=fopen( fname.c_str(), "w");
+              Double prevTime =getTime(0);
+              Double intervalD =getInterval(0);
+              for(uInt row=0;row<nRow;row++)
+              {
+                  uInt   antId    = getAntennaId(row);
+                  Double time     = getTime(row);
+                  Double interval = getInterval(row); 
+               
+                  Vector<Double> Dir = getDirection(row);
+                  Vector<Double> Tar = getTarget(row);
+                  intervalD = time - prevTime;
+                  prevTime  = time;
+ 
+                  String strOpt= "";
+                  if(intervalD > (interval +0.001) ) strOpt = " gap ";
+                  if(intervalD > 1.0 )     strOpt = " gap over 1.0 sec";
+                  if(intervalD > 3.0 )     strOpt = " gap over 3.0 sec";
+                  if(intervalD > 10.0 )    strOpt = " gap over 10.0 sec";
+                  if(intervalD > 100.0 )   strOpt = " gap over 100.0 sec";
+                  if(intervalD > 200.0 )   strOpt = " gap over 200.0 sec";
+                  fprintf(fp, "%d,|,%d,%f,%f,|,%f,%f,|,%f,%f,,%f,%s \n",
+                              row, antId, time, interval,
+                              Dir[0], Dir[1], Tar[0],Tar[1],intervalD, strOpt.c_str()  );
+              }
+              fclose(fp);
+          }
+private:
+
+      // MS assign //
+      void init()
+      {      
+           hPointing = ms.pointing();
+           nRow   = hPointing.nrow();
+
+           unique_ptr<casacore::ROMSPointingColumns>  colPt( new casacore::ROMSPointingColumns(hPointing) );
+           columnPointing = std::move(colPt);
+      }
+
+      // Column Handle //
+      void prepareColumns() 
+      {
+          pointingAntennaId      = columnPointing ->antennaId();
+          pointingTime           = columnPointing ->time();
+          pointingInterval       = columnPointing ->interval();
+          pointingName           = columnPointing ->name();
+          pointingNumPoly        = columnPointing ->numPoly();
+          pointingTimeOrigin     = columnPointing ->timeOrigin();
+   
+          pointingDirection      = columnPointing ->direction();
+          pointingTarget         = columnPointing ->target();
+   
+          pointingPointingOffset = columnPointing ->pointingOffset();
+          pointingSourceOffset   = columnPointing ->sourceOffset();
+          pointingEncoder        = columnPointing ->encoder();
+      }
+
+   // local var. //
+    casacore::MeasurementSet     ms;
+    casacore::MSPointing         hPointing;
+    casacore::uInt               nRow;
+
+    std::unique_ptr<casacore::ROMSPointingColumns>   columnPointing;
+
+    ScalarColumn<Int>    pointingAntennaId      ;
+    ScalarColumn<Double> pointingTime           ;
+    ScalarColumn<Double> pointingInterval       ;
+    ScalarColumn<String> pointingName           ;
+    ScalarColumn<Int>    pointingNumPoly        ;
+    ScalarColumn<Double> pointingTimeOrigin     ;
+
+    ArrayColumn<Double>  pointingDirection      ;
+    ArrayColumn<Double>  pointingTarget         ;
+
+    ArrayColumn<Double>  pointingPointingOffset ;
+    ArrayColumn<Double>  pointingSourceOffset   ;
+    ArrayColumn<Double>  pointingEncoder        ;
+
+};
+
+//*********************************
+// Access Service class 
+//   for  Antenna table 
+//*********************************
+
+/* Buffer for write/put  */
+typedef struct AntTblBuf_ {
+    String name;
+    String station;
+    String type;
+    String mount;
+    
+    Vector<Double> position;
+    Vector<Double> offset;
+    
+    Double  dish_diameter;
+    Int     orbit_id;
+    Double  mean_orbit[6];
+
+} ANTENNADataBuff ;
+
+class AntennaTableAccess {
+
+public:
+      // Constructor //
+      AntennaTableAccess(String const &MsName, bool WriteAccess =false )
+      {
+          auto option = casacore::Table::TableOption::Old;
+          if(WriteAccess) option = casacore::Table::TableOption::Update;
+
+          MeasurementSet ms_t(MsName, option );
+          ms = std::move(ms_t);
+
+          init();
+          prepareColumns();
+      }
+
+      // Destructor //
+      ~AntennaTableAccess() { }
+
+      void flush() 
+      {
+          ms.flush();
+          ms.resync();
+      }
+      // Row //
+      uInt getNrow()               { return (nrow = hAntenna.nrow()) ;  };
+      void appendRow(uInt AddCnt)  { hAntenna.addRow(AddCnt); }
+      void removeRow(uInt row)      { hAntenna.removeRow(row); }
+
+      // block Read  //
+      ANTENNADataBuff  getRowData(uInt row)
+      {
+        ANTENNADataBuff out;     
+   
+        out.name     = antennaName.    get(row);
+        out.station  = antennaStation. get(row);
+        out.type     = antennaType.    get(row);
+        out.mount    = antennaMount.   get(row);
+
+        out.position = antennaPosition.get(row);
+        out.offset   = antennaOffset.   get(row);
+
+        out.dish_diameter = antennaDishDiameter. get(row);
+
+        return out;
+      }
+
+      // block Write //
+      void putRowData(uInt row, ANTENNADataBuff &data)
+      {
+
+        antennaName.         put(row, data.name);
+
+        antennaStation.      put(row, data.station);
+        antennaType.         put(row, data.type);
+        antennaMount.        put(row, data.mount);
+
+        // Vector data 
+        Array<Double>        data_1(ipoPosition, 0.0 ); data_1 = data.position;
+        antennaPosition.     put(row, data_1);
+
+        Array<Double>        data_2(ipoOffset, 0.0 );data_2 = data.offset;
+        antennaOffset.       put(row, data_2);
+
+        antennaDishDiameter. put(row, data.dish_diameter);
+
+      }
+
+private:
+
+     void init()
+     {
+         hAntenna = ms.antenna();
+         nrow     = hAntenna.nrow();
+
+         unique_ptr<casacore::MSAntennaColumns>  colAnt( new MSAntennaColumns( hAntenna ) );
+         columnAntenna = std::move(colAnt);
+ 
+     }
+ 
+     void prepareColumns()
+     {
+         antennaName      = columnAntenna->name();
+         antennaStation   = columnAntenna->station();
+         antennaType      = columnAntenna->type();
+         antennaMount     = columnAntenna->mount();
+         antennaPosition  = columnAntenna->position();
+         antennaOffset    = columnAntenna->offset();   
+         antennaDishDiameter    = columnAntenna->dishDiameter();
+ 
+         ipoPosition = antennaPosition.shape(0);
+         ipoOffset   = antennaOffset.shape(0);
+     }
+
+     casacore::MeasurementSet     ms;
+     casacore::MSAntenna          hAntenna;
+     casacore::uInt               nrow;
+
+     unique_ptr<casacore::MSAntennaColumns>  columnAntenna;
+
+     ScalarColumn<String>  antennaName          ;
+     ScalarColumn<String>  antennaStation       ;
+     ScalarColumn<String>  antennaType          ;
+     ScalarColumn<String>  antennaMount         ;
+     ArrayColumn<Double>   antennaPosition      ;
+     ArrayColumn<Double>   antennaOffset        ;
+     ScalarColumn<Double>  antennaDishDiameter  ;
+
+     IPosition ipoPosition;
+     IPosition ipoOffset;
+};
+
+//*********************************
+// Access Service class 
+//   for  Main table 
+//*********************************
+
+class MainTableAccess {
+
+public:
+    // constructor //
+    MainTableAccess(String const &MsName, bool WriteAccess =false )
+    {
+        auto option = casacore::Table::TableOption::Old;
+        if(WriteAccess) option = casacore::Table::TableOption::Update;
+
+        MeasurementSet ms_t(MsName, option );
+        ms = std::move(ms_t);
+
+        init();
+        prepareColumns();
+    }
+
+    // Destructor //
+    ~MainTableAccess() { }
+    void flush()
+    {
+        ms.flush();
+        ms.resync();
+    }
+    // Row //
+    uInt getNrow()               { return (nRow = ms.nrow()) ;  };
+    void appendRow(uInt AddCnt)  { ms.addRow(AddCnt); }
+    void removeRow(uInt row)      { ms.removeRow(row); }
+
+    // Write (put) //
+
+    void putAntenna  (uInt row, Double dd) { antenna1_col.     put(row, dd );}
+    void putAntenna2 (uInt row, Double dd) { antenna2_col.     put(row, dd );}
+
+    void putTime    (uInt row, Double dd) { mainTime_col.    put(row, dd );}
+    void putInterval(uInt row, Double dd) { mainInterval_col.put(row, dd );}
+
+    // Read (get) 
+    uInt   getAntennaId(uInt row)       { return antenna1_col.      get(row); }
+    Double getTime     (uInt row)       { return mainTime_col.      get(row); }
+    Double getInterval (uInt row)       { return mainInterval_col.  get(row); }
+
+    void dump(String fname)
+    {
+        FILE *fp=fopen( fname.c_str(), "w");
+        Double prevTime =getTime(0);
+        Double intervalD =getInterval(0);
+ 
+        for(uInt row=0;row<nRow;row++)
+        {
+            uInt   antId    = getAntennaId(row);
+            Double time     = getTime(row);
+            Double interval = getInterval(row); 
+               
+            intervalD = time - prevTime;
+            prevTime  = time;
+ 
+            String strOpt= "";
+            if(intervalD > (interval +0.001) ) strOpt = " gap ";
+            if(intervalD > 2.0 )     strOpt = " gap over 2.0 sec";
+            if(intervalD > 3.0 )     strOpt = " gap over 3.0 sec";
+            if(intervalD > 5.0 )     strOpt = " gap over 5.0 sec";
+            if(intervalD > 10.0 )    strOpt = " gap over 10.0 sec";
+            fprintf(fp, "%d,|,%d,%f,%f,%f,|, %s \n",
+                        row, antId, time, interval,intervalD, strOpt.c_str()  );
+        }
+        fclose(fp);
+    }
+
+private:
+
+    void init() { nRow     = ms.nrow(); }
+
+    void prepareColumns()
+    {
+        antenna1_col       .attach( ms  , "ANTENNA1");
+        antenna2_col       .attach( ms  , "ANTENNA2");
+        mainTime_col      .attach( ms , "TIME");
+        mainInterval_col  .attach( ms , "INTERVAL");
+    }
+
+    // handle (in MS, directly connects to Columns)
+     casacore::MeasurementSet     ms;
+     casacore::uInt               nRow;
+    // Columns //
+     ScalarColumn<Int>    antenna1_col  ;
+     ScalarColumn<Int>    antenna2_col  ;
+     ScalarColumn<Double> mainTime_col ;
+     ScalarColumn<Double> mainInterval_col ;
+
+};
 
 //*******************************************************
 // MeasurementSet Edit Class (MsEdit)
 //  - Modifying test-MS
 //  - Addinng artificial(pseudo) data onto MS
 //*******************************************************
-
-class MsEdit 
+class MsEdit : public  TuneMSConfig, public  DefaultNames        
 {
 public:
 
-    EvaluateInterporation  evgen;
-
-    MsEdit()        { };
-
-
-    // Add or Remove Row  (Antenna) //
-
-        uInt appendRowOnAntennaTable();
-        void removeRowFromAntennaTablew(uInt NRow );
-
-    // Add Row for Interpolation TEST //
-
-        uInt appendRowOnPointingTable(uInt AddCount );
-        uInt appendRowOnMainTable(uInt AddCount );
-    
-    // Write Data on Antenna Table // 
-     
-        void writeDataToAntennaTable(String MsName =DefaultLocalMsName, uInt Row =0 );
-
-    // Write new Columns and init data // 
-
-        void writeDataToPointingTable(String MsName =DefaultLocalMsName );
-
-    // Write (generated) Test Data on Pointing Table //
-
-        void writeInterpolationTestDataOnPointingTable(Double dt, String MsName =DefaultLocalMsName );
-
-    // Write (generated) Test Data in MAIN Table //
-
-        void writeInterpolationTestDataOnMainTable(Double dt, String MsName =DefaultLocalMsName);
+    MsEdit() { init();  }
 
     // Add or Remove Column (Pointing) ////
-
+   
         void duplicateNewColumnsFromDirection();
 
-    //+
-    // Default File Name
-    //-
+    // Add Row //
 
-        const String MsName = DefaultLocalMsName;  // default (C++11) //
+        uInt appendRowOnAntennaTable(uInt n);
+        uInt appendRowOnPointingTable(uInt n);
+        uInt appendRowOnMainTable(uInt n);
+    
+    // Write Data on Antenna Table // 
 
-    //+
-    // Buff between table and local buff to write.
-    //-
+        void writeDataToAntennaTable( uInt Row =0 );
+        void prepareDataToAntennaTable();
 
-        ANTENNADataBuff  AntennaData;   // for Read 
-        ANTENNADataBuff  AntennaData1;  // for Write
+    // Write (generated) Test Data on Pointing Table //
+    // Write (generated) Test Data on MAIN Table //
+
+        void writePseudoOnPointing  ( );
+        void writePseudoOnMainTable (Double dt );
+
+        String LocalMsName_ ;
+
+private:
+    void init() {
+         LocalMsName_ = DefaultLocalMsName()  ;
+    }
 
 };
 
 
 //+
-// Add one row on Antanna Table
+// CAS-8418 Add one row on Antanna Table
 //  returns latest nrow.
 //-
 
-uInt  MsEdit::appendRowOnAntennaTable()
+uInt  MsEdit::appendRowOnAntennaTable(uInt addCnt)
 {
-    // Measurement Set (use default name) //
+    AntennaTableAccess ata(LocalMsName_,true);
+    ata.appendRow(addCnt);
+    ata.flush();
+    uInt nrow = ata.getNrow();
 
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
-
-    // Table handle //
-
-        MSAntenna   hAntennaTable = ms0.antenna();
-
-    // Add Row //
-
-        hAntennaTable.addRow();
-        uInt nrow = hAntennaTable.nrow();
-
-        return nrow;
-}
-
-
-//+
-// Remove specified row from Antanna Table
-//-
-
-void MsEdit::removeRowFromAntennaTablew(uInt nrow )
-{
-    // Measurment Set (use default name ) 
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Table handle //
-
-        MSAntenna   hAntennaTable  = ms0.antenna();
-
-    // Remove Row //
-      
-         hAntennaTable.removeRow( nrow );
-
+    return nrow;
 }
 
 //+
 //  Write Data to Antenna Table 
 //-
 
-void MsEdit::writeDataToAntennaTable(String MsName, uInt Row )
+
+void setData(ANTENNADataBuff &data, uInt id)
 {
-    // Open MS by Update mode //
+    data.name            =  "ZZ0"+std::to_string(id);
 
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
+    printf( "writeDataToAntennaTable():setData  name =[%s]\n",data.name.c_str() );
 
-    // Tables Name //
-
-        String AntennaTableName = ms0.antennaTableName(); 
-        printf("MsEdit:Antanna  Table name \n" );
-        printf(" [%s] \n",AntennaTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSAntenna   hAntennaTable  = ms0.antenna();
-
-    // Get current row count //
-
-        uInt nrow_a = hAntennaTable.nrow();
-
-        printf( "MsEdit:Antenna Table nrow  =%d \n",nrow_a);
-
-    //
-    // Get Column handle from Table  (Antenna)
-    //
-
-        std::unique_ptr<casacore::MSAntennaColumns> 
-                columnAntenna( new casacore::MSAntennaColumns( hAntennaTable ));
-
-    //+
-    // LIST
-    //-
-
-    // Special Column //
-        
-        ScalarColumn<String> antennaName      = columnAntenna->name(); 
-        ScalarColumn<String> antennaStation   = columnAntenna->station();
-        ScalarColumn<String> antennaType      = columnAntenna->type();
-        ScalarColumn<String> antennaMount     = columnAntenna->mount();
-        ArrayColumn<Double>  antennaPosition  = columnAntenna->position();
-        ArrayColumn<Double>  antennaOffset    = columnAntenna->offset();
-
-        ScalarColumn<Double>  antennaDishDiameter    = columnAntenna->dishDiameter();
-
-        // Set Up Locate data  to be copied to Columns. //
-
-        printf( "setting on Local Structure \n" );
-        
-        AntennaData1.name            =  "Z80A";
-        AntennaData1.station         =  "SN123";
-        AntennaData1.type            =  "KUMIKO-based";
-        AntennaData1.mount           =  "IBM-PC";
-        
-        AntennaData1.position.resize(3);
-        AntennaData1.position[0]    =  100051.01 ;
-        AntennaData1.position[1]    =  -100052.02 ;
-        AntennaData1.position[2]    =  100053.03 ;
-
-        AntennaData1.offset.resize(3);
-        AntennaData1.offset[0]    =   33.3 ;
-        AntennaData1.offset[1]    =   44.4 ;
-        AntennaData1.offset[2]    =   55.5 ;
-
-        AntennaData1.dish_diameter  = 2.23620679;
-
-
-        // Put Data to Column. //
-
-        printf( "putting Local Structure to Column.\n" );
-
-        antennaName.         put(Row, AntennaData1.name);
-        antennaStation.      put(Row, AntennaData1.station);
-        antennaType.         put(Row, AntennaData1.type);
-        antennaMount.        put(Row, AntennaData1.mount);
-
-        antennaPosition.     put(Row, AntennaData1.position);
-        antennaOffset.       put(Row, AntennaData1.offset);
-
-        antennaDishDiameter. put(Row, AntennaData1.dish_diameter);
-
-        // Flush //
-        
-        ms0.flush();
-
+    data.station         =  "Station";
+    data.type            =  "lovely-KUMIKO";
+    data.mount           =  "Mount Fuji";
 }
 
+
+void MsEdit::prepareDataToAntennaTable( )
+{
+    AntennaTableAccess ata(LocalMsName_,true);
+
+    uInt nrow_a = ata.getNrow();
+    printf( "MsEdit: prepareDataToAntennaTable () current nrow=%d \n", nrow_a);
+
+    // Buffer //
+    ANTENNADataBuff dt0;
+
+    // Position, Offset  dim=3 //
+    dt0.position.resize(3);
+    dt0.offset.resize(3);
+    for(uInt p=0; p<3; p++)
+    {
+        dt0.position[p] = (Double)p * 0.1 + 100050.0 ;
+        dt0.offset[p]   = (Double)p * 0.1 + 50.0 ;
+    }
+
+    // Write records as defined. //
+    uInt N = getMaxOfAntenna();
+
+    for(uInt ant = 0; ant < N+1; ant++)
+    {
+        // set  //
+        setData(dt0, ant);
+        // Put Data //
+        ata.putRowData(ant, dt0);
+    }
+
+    // flush and close // 
+    ata.flush();
+
+}
 
 //+
 // Add rows by specified count on Pointing Table Table
@@ -987,232 +1433,36 @@ void MsEdit::writeDataToAntennaTable(String MsName, uInt Row )
 
 uInt  MsEdit::appendRowOnPointingTable(uInt AddCount )
 {
-    // Measurement Set (use default name) //
-
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Add Row //
-        printf( "MsEdit:Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
-         
-        hPointingTable.addRow(AddCount);
-        
-        uInt nrow = ms0.nrow();
-        printf( "MsEdit:   New nrow count is %d \n", nrow ); 
-
-       ms0.flush();
-       ms0.resync();
-
-       return nrow;
+    {
+      PointingTableAccess pta(LocalMsName_,true);
+      pta.appendRow(AddCount);
+      pta.flush();
+    }
+    
+    PointingTableAccess pta(LocalMsName_,true);
+    uInt nrow = pta.getNrow();
+   
+    return nrow;
 }
 
-//+
-// Write Columns on Pointing Table  
-//-
-void MsEdit::writeDataToPointingTable(String MsName )
-{
-
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-
-        Description("MsEdit:Adding Data on new columns in POINTING table. ",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt  nrow_p = hPointingTable.nrow();
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        // create the Smart Pointer in use. //
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Listing  (Pointing) 
-    //-
-
-        ScalarColumn<Int>    pointingAntennaId      = columnPointing ->antennaId();
-        ScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ScalarColumn<String> pointingName           = columnPointing ->name();
-        ScalarColumn<Int>    pointingNumPoly        = columnPointing ->numPoly();
-        ScalarColumn<Double> pointingTimeOrigin     = columnPointing ->timeOrigin();
-
-        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        ArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
-        ArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
-        ArrayColumn<Double>  pointingEncoder        = columnPointing ->encoder();
-
-        // Matrix Shape //
-
-        IPosition Ipo;
-        Ipo  = pointingDirection.shape(0);
-        printf(" - Shape of Direction.[%ld, %ld] \n", Ipo[0], Ipo[1] );
-
-        Description( "attempting to add Data on Pointing Table.", "Nrow="+std::to_string(nrow_p)  );
-
-        // prepare initial value //
-
-        Array<Double> init_data1( Ipo, -0.1);
-        Array<Double> init_data2( Ipo, -0.2);
-        Array<Double> init_data3( Ipo, -0.3);
-
-        for (uInt row=0; row<nrow_p; row++)
-        {
-            // set Shape of New added Colum //
-
-            pointingPointingOffset. setShape(row, Ipo); 
-            pointingSourceOffset.   setShape(row, Ipo);
-            pointingEncoder.        setShape(row, Ipo);
-
-            // put initial data to Column //
-            
-            pointingPointingOffset. put( row, init_data1 );
-            pointingSourceOffset.   put( row, init_data2 );
-            pointingEncoder.        put( row, init_data3 );
-
-        }
-
-        // Flush // 
-        ms0.flush();
- 
-}
 
 //+
 //   Create new columns
-//   copied by Direction Table 
-//  
-//    - This is for testing MovingSourceCorrection, 
-//      only OFFSET tables are applied. 
+//    - Make copies of XXXXX_OFFSET and ENOCDE columns. 
 //-
 
 void MsEdit::duplicateNewColumnsFromDirection()
 {
-    // Open MS by Update mode //
+    { 
+        PointingTableAccess ata(LocalMsName_,true);
+        ata.duplicateColumns();
+    } /* Once close */ 
 
-        String MsName = DefaultLocalMsName;
-        Description( "MsEdit:Cpoied from Direction and Adding 3 Columns on Pointing Table ", MsName.c_str() );
-
-        String name =  MsName;
-        MeasurementSet ms0( name.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-        printf("MsEdit:Pointing Table name is [%s] \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Prepare Column //
-
-        // create the Smart Ponter in use. //
-
-        std::unique_ptr<casacore::MSPointingColumns> 
-                columnPointing( new casacore::MSPointingColumns( hPointingTable ));
-
-    // each Column.. used in setDirectionColumn() //
-
-       ArrayColumn< Double > colDirection       =  columnPointing->direction ();
-       ArrayColumn< Double > colTarget          =  columnPointing->target ();
-       ArrayColumn< Double > colPointingOffset  =  columnPointing->pointingOffset ();
-       ArrayColumn< Double > colSourceOffset    =  columnPointing->sourceOffset ();
-       ArrayColumn< Double > colEncoder         =  columnPointing->encoder ();
-
-    //+
-    // Attempt to create new Column.
-    //-
-
-      // Table Desc linked from MS //
-
-        TableDesc  tblDsc = hPointingTable.tableDesc();
-
-      //+
-      // Show current Columns. 
-      //-
-
-        Description("=== Current Columns ======","");
-
-        Vector<String> col_name = tblDsc.columnNames();
-        
-        for (uInt i=0 ; i<col_name.size() ; i++)
-        {
-                printf( "%s \n", col_name[i].c_str() );
-        }
-
-      // Copy Column Descriptor //
-
-        ColumnDesc  OrgColumnDesc = tblDsc.columnDesc ( "DIRECTION" ) ;    
-
-        ColumnDesc  RevColumnDesc1 = ColumnDesc(OrgColumnDesc);
-        ColumnDesc  RevColumnDesc2 = ColumnDesc(OrgColumnDesc);
-        ColumnDesc  RevColumnDesc3 = ColumnDesc(OrgColumnDesc);
-
-      // Coumns Name def //
-    
-        String colname1 = "POINTING_OFFSET";
-        String colname2 = "SOURCE_OFFSET";
-        String colname3 = "ENCODER";
-
-        RevColumnDesc1.setName( colname1 );
-        RevColumnDesc2.setName( colname2 );
-        RevColumnDesc3.setName( colname3 );
-
-        Description( "Adding 3 Columns on Pointing Table ", MsName.c_str() );
-
-        if( ! tblDsc.isColumn( colname1 ) )
-        {
-            printf(" Intended Table Not exist, Attempt to add Column.\n" );
-      
-            // Add Revied Column to TABLE //
-
-            hPointingTable.addColumn(RevColumnDesc1);
-            hPointingTable.addColumn(RevColumnDesc2);
-            hPointingTable.addColumn(RevColumnDesc3); 
-        }
-#if 0
-      // Remove Colume (by Name )
-
-          hPointingTable.removeColumn(colname1);
-          hPointingTable.removeColumn(colname2);
-          hPointingTable.removeColumn(colname3);
-#endif 
-  
-     // Flush ..//
-
-         ms0.flush(); 
- 
-     //+
-     //  Option:: Access data (shown by Array) 
-     //   - If need to inspect , write a code here.
-     //-
-
-#if 0  
-         Array<Double> dir  = colDirection .get(0);
-         Array<Double> tar  = colTarget    .get(0);
-         Array<Double> ptOff  = colPointingOffset .get(0);
-         Array<Double> scOff  = colSourceOffset    .get(0);
-         Array<Double> enc    = colEncoder        .get(0);
-#endif 
-      printf(" Intended Change completed.\n" );
-
-}
+    {
+        PointingTableAccess ata(LocalMsName_,true);
+        ata.fillNewColumns();
+    }
+} 
 
 //*****************************************************************
 // Wtite Test Data on Direction Column in Pointing Table
@@ -1221,55 +1471,10 @@ void MsEdit::duplicateNewColumnsFromDirection()
 //  - see also TEST Fixture  
 //****************************************************************
 
-void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName)
+void  MsEdit::writePseudoOnPointing()
 {
-    Description( "MsEdit:Writing Test Data on Direcotion Column in Pointing Table", 
-                  MsName.c_str()  );
 
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "MsEdit:Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        // create the Smart Pointer in use. //
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Time Info
-    //-
-
-        ScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
- 
-    //+
-    // Listing Columns(Direction related) on Pointing 
-    //-
-
-        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        IPosition Ipo = pointingDirection.shape(0);
-        printf(" - Shape of pointingDirection.[%ld, %ld] \n", Ipo[0], Ipo[1] );
-
+    PointingTableAccess pT( LocalMsName_, true);
 
     //+
     //  Loop for each Row,
@@ -1277,286 +1482,262 @@ void  MsEdit::writeInterpolationTestDataOnPointingTable(Double dt, String MsName
     //          In ordinary case +1 causes Exceeding row count.
     //-
 
-#if 0
-        uInt LoopCnt = nrow_p;
-#else
-        uInt LoopCnt = evgen.getAvailablePointingTestingRow();
-#endif 
-        if(evgen.checkExtendAvailable() )
-        { 
-            printf( "- Extend access to Pointing table = Available.\n" );
-            LoopCnt++;
-        }
+    uInt LoopCnt = getAvailablePointingTestingRow();
 
+    //+
+    // CAS-8418 Review:S6
+    // Clean Up TEST-MS
+    //-
+
+    uInt N = pT.getNrow();
+    for(uInt row=0; row < N; row++)
+    {
+        pT.putAntennaId (row, N ) ;     // AntennaID 
+    }
+    pT.flush();
+
+    //+
+    // For all Antenna and Row 
+    //+
+
+    uInt DirColCount = PointingDirectionCalculator::PtColID::nItems;
+    for (uInt ant=0; ant < getMaxOfAntenna() ; ant++ )
+    {
         for (uInt row=0; row < LoopCnt; row++)
         {
-            //+
-            // Experiment   the following cannot be compiled.
-            //  Set AZEL on this Colun 
-            //-
+            uInt rowA = row + (ant * LoopCnt);
  
-#if 0
-                MDirection mdir = columnPointing ->directionMeas (0, 0 );
-                String name =                mdir.getRefString();
-                printf(" MDIR name = %s \n", name.c_str() );
-#endif
+            // Time //
+              Double timeOnPoint = (Double)row  ;    // timeOnPoint represent the time in every pointing record.
+
+            // Arry form //
+              IPosition Ipo = pT.getIpo();
+              Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
+
+              Vector< Array<Double>  > Dir5;
+              Dir5.resize(DirColCount);
+
+            // Calculate Pseudo-Direction based on timeOnPoint //
+
+              auto  psd_data 
+               = pseudoPointingInfoPointing(timeOnPoint); // generated pseudo data. (Pointing) //
  
-            // DIRECTION  //
-
-                Double delta = (Double)row + dt ;
-
-                Array<Double> direction(Ipo, 0.0);   // IP shape and initial val // 
-                Vector<Double>  psd_data  
-                    = evgen.pseudoDirInfoPointing(delta); // generated pseudo data. (Pointing) //
-
-                direction[0][0] = psd_data[0];
-                direction[0][1] = psd_data[1];
-
-            // write access //
-
-                pointingDirection.   put(row, direction );
-                pointingTarget.      put(row, direction );
-
-            // Time Info. (current) ** NOT USED *** //
-#if 0 
-                Double curTime      = pointingTime.     get(row);
-                Double curInterval  = pointingInterval. get(row);
-#endif
-
-           //+ 
-           // New Time   (intentionally activates interporation)
-           //  basically FIXED values.
-           //-
-            
-                pointingTime.           put(row, psd_data[2] ); // Time
-                pointingInterval.       put(row, psd_data[3] ); // Interval
-
-
-            //+
-            // Show (option)
-            //-
-
-            if(false)
-            {
-                printf( "%d, Time-Interval-dirX- dirY,", row);
-                printf( "%f, %f , ", psd_data[2], psd_data[3] );
-                printf( "%f, %f \n", psd_data[0], psd_data[1] );
-            }
-
-        }
-
-        // Flush //
         
-        ms0.flush();
+            // Coeff for combiniation of Antenna and Column  //
+            if( ifCoeffLocTest() )
+            {
+                //+
+                // Test-Pattern Data 
+                //-
+                for(uInt cno=0; cno<DirColCount; cno++)
+                {   
+                    // const value ..// 
+                      direction[0][0] = 0.1 + 0.1 * (Double)cno  ;
+                      direction[0][1] = 0.1 + 0.1 * (Double)ant;
+                      Dir5[cno] = direction;
+                }
+            }
+            else  // Ordinary cases... // 
+            {
+                for(uInt cno=0; cno<DirColCount; cno++)
+                {
+                   // Add offset 
+                      direction[0][0] = psd_data.position[cno].first  ;
+                      direction[0][1] = psd_data.position[cno].second ;
+                      Dir5[cno] = direction;
+                } 
+            }
+            //+
+            // write to Column 
+            //-
+              pT.putDirection      (rowA, Dir5[PointingDirectionCalculator::PtColID::DIRECTION] );
+              pT.putTarget         (rowA, Dir5[PointingDirectionCalculator::PtColID::TARGET] );
+              pT.putPointingOffset (rowA, Dir5[PointingDirectionCalculator::PtColID::POINTING_OFFSET] );
+              pT.putSourceOffset   (rowA, Dir5[PointingDirectionCalculator::PtColID::SOURCE_OFFSET] );
+              pT.putEncoder        (rowA, Dir5[PointingDirectionCalculator::PtColID::ENCODER] );
+
+            //+ 
+            // New Time (shifted)  (this  activates interporation)
+            //  basically FIXED values.
+            //-
+
+              pT.putTime      (rowA, psd_data.time );     // Time
+              pT.putInterval  (rowA, psd_data.interval ); // Interval
+
+              pT.putAntennaId (rowA, ant ) ;     // AntennaID 
+
+        }//end row
+
+    }// end antid
+
+    pT.flush();
 }
 
 //+
-// Add rows by specified count 
+// CAS-8418 Add rows by specified count 
 // on Main Table Table
 //-
 
 uInt  MsEdit::appendRowOnMainTable(uInt AddCount )
 {
-    // Measurement Set (use default name) //
+     MainTableAccess   mta(LocalMsName_,true);
+     mta.appendRow(AddCount);
+     uInt nRow = mta.getNrow();
+     mta.flush();
 
-        MeasurementSet ms0( MsName.c_str(), casacore::Table::TableOption:: Update );
-
-    // Add Row //
-
-        printf( "MsEdit:INTERPOLATION::Attempt to append [%d] new rows on Pointing Table. \n",AddCount );
-
-        ms0.addRow(AddCount);
-        uInt nrow = ms0.nrow();
-
-        printf( "MsEdit:INTERPOLATION::   New nrow count is %d \n", nrow ); 
-
-       ms0.flush();
-       ms0.resync();
-
-       return nrow;
+     return nRow;
 }
 
 //+
 // Wtite Test Data on Direction Column in MAIN TABLE
 //  -  sample shift  [ 0 < deleta < 1 ]
-//  -  time diffrence = delta * interval 
+//  -  time diffrence = deltaTime * interval 
 //-
 
-void  MsEdit::writeInterpolationTestDataOnMainTable(Double delta_shift, String MsName)
+void  MsEdit::writePseudoOnMainTable(Double div)
 {
-    Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,1) Writing Time in MAIN Table", 
-                  MsName.c_str()  );
-    printf( "ddddddddddddddddddddddddddddddddddddd\n");
-    printf( "   delta_shift =, %f \n", delta_shift );
-    printf( "ddddddddddddddddddddddddddddddddddddd\n");
+    MainTableAccess   mta(LocalMsName_,true);
 
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str(),casacore::Table::TableOption:: Update );
-
-    // Get current row count //
-
-        uInt nrow_ms = ms0.nrow();
-        printf( "MsEdit:INTERPOLATION::Main Table nrow =%d \n",nrow_ms);
+    uInt nrow_ms = mta.getNrow();
+    uInt LoopCnt = getRequiredMainTestingRow()  ;
 
     //+
-    // Column::
-    //   Time Info
+    // CAS-8418 Review:S6
+    // Clean Up TEST-MS
     //-
 
-        ScalarColumn<Double> mainTime           ;
-        ScalarColumn<Double> mainInterval       ;
- 
-    // Attach ..//
+    uInt N = mta.getNrow();
+    for(uInt row=0; row < N; row++)
+    {
+        mta.putAntenna (row, N ) ;     // AntennaID 
+    }   
+    mta.flush();
 
-        mainTime      .attach( ms0 , "TIME");
-        mainInterval  .attach( ms0 , "INTERVAL");
-
-    // WRite .. //
-
-        for (uInt row=0; row<nrow_ms; row++)
+    printf("writePseudoOnMainTable:: writing to MAIN, nrow=%d, number of data on each antenna=%d \n", 
+            nrow_ms,LoopCnt );
+    for (uInt ant =0; ant  < getMaxOfAntenna() ; ant ++ )
+    {
+        for (uInt row=0; row < LoopCnt; row++)
         {
+            uInt  rowA = row + (ant  * LoopCnt);
+
             // Pseudo Data (TEST DATA );
 
-               Vector<Double>  psd_data 
-                   = evgen.pseudoDirInfoMain( (Double)row); // generated pseudo data. (Main table) //
+             auto psd_data
+                   = pseudoPointingInfoMain2( (Double)row); // generated pseudo data. (Main table) //
 
-            // Time Info. (current) ** NOT USED ** //
-#if 0
-                Double curTime      = mainTime.     get(row);
-                Double curInterval  = mainInterval. get(row);
-#endif 
             // Time Set  //
-                Double interval = psd_data[3];
-                Double time     = psd_data[2];
-                
-                Double SetTime = time + (delta_shift * interval) ; 
 
-                mainTime.           put(row, SetTime     );      // Time     (( REvised 10.26))
-                mainInterval.       put(row, interval );         // Interval (( Revised 10.26))
+            Double interval = psd_data.interval;
+            Double time     = psd_data.time;
 
-             // Show Time //
+            Double SetTime = time + (div * interval) ; 
 
-                if (false){
-                        printf( "Main Tbl, %d SetTime=%f,  Interval=%f, \n",
-                            row, SetTime, interval );
-                }
+            mta.  putAntenna  (rowA, ant    );      // AntennaID1 (CAS-8418)
+            mta.  putAntenna2 (rowA, 0   );           // AntennaID2  always fixed = 0 
 
+            mta.  putTime    (rowA, SetTime  );      // Time     (( REvised 10.26))
+            mta.  putInterval(rowA, interval );      // Interval (( Revised 10.26))
 
         }
+    }
 
-        // Flush //
-        
-        ms0.flush();
-
-        Description( "MsEdit:INTERPOLATION::writeInterpolationTestDataOnMainTable ,2) Writing END",
-                      MsName.c_str());
+     mta.flush(); 
 }
 
-// 
-// Base TestClass
-//-
 
-class BaseClass : public ::testing::Test
-{
-
-public:
-
-     RunEnv       env;
-
-protected:
-
-    uInt    ExpectedNrow = 0;   // C++11 feature //
-
-    BaseClass()  { }
-
-    ~BaseClass() { }
-
-    virtual void SetUp() { }
-    virtual void TearDown() { }
-
-private:
- 
-};
 
 //+
 // PointingDirectionCalculator Class 
 // Constructor
 //-
-class TestMeasurementSet : public BaseClass
+class TestMeasurementSet : public BaseClass 
 {
 
 public:
+
+typedef struct _MSDef   {
+    bool   except;  // True = cause Exeption
+    String name;     // MS name, with relative path from CASAPATH
+} MSDef;
 
 protected:
 
         TestMeasurementSet() { }
         ~TestMeasurementSet() { }
 
-        virtual void SetUp()
+        virtual void SetUp()        { }
+        virtual void TearDown()     
         {
-            BaseClass::SetUp();
-        }
-
-        virtual void TearDown()
-        {
-            BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
         }
 
         // Test Fixture Sub //
-        void test_constructor(uInt num );
+        void test_constructor(String const name, bool excep );
+        void test_constructor2(String const name );
 };
 
 /*---------------------------------------
   attempt to open vaious Measurement Set
  ----------------------------------------*/
-void TestMeasurementSet::test_constructor(uInt num )
+void TestMeasurementSet::test_constructor2(String const name)
 {
-
-    String name = env.getCasaMasterPath()+getMsNameFromList( num );
-    Description("Testing Construcror." , name );
-
+    // Copy to Local //
+        String local_ms = CopyMStoWork(name);
     // CONSTRUCTOR  //
-
-        MeasurementSet ms0( name  );      
+        MeasurementSet ms0(local_ms);      
         PointingDirectionCalculator calc(ms0);
-
     // Initial brief Inspection //
-   
-        printf("# Constuctor Initial Check.  [%s] \n", name.c_str()  );
-        printf("  detected nrow : %d \n", calc.getNrowForSelectedMS() );
-      
-        EXPECT_NE((uInt)0, calc.getNrowForSelectedMS() );
+        uInt nrow =  calc.getNrowForSelectedMS();
+        printf("# Constuctor Initial Check.  [%s] row =%d\n", name.c_str(), nrow );
+        EXPECT_NE((uInt)0, nrow );
+}
+void TestMeasurementSet::test_constructor(String name, bool excep )
+{
+    if ( excep )
+         EXPECT_ANY_THROW(  TestMeasurementSet::test_constructor2(name) );
+    else
+         EXPECT_NO_THROW(  TestMeasurementSet::test_constructor2(name) );
 }
 
 /*--------------------------------------------
  *  Constructor test by Vaisous Measurment Set 
- *
- *  - prepare some MSs.
- *  - Most of them works normal, some throws
- *    Exception.
- *  - MS descrition is defines in this file.
  * --------------------------------------------*/
 
 TEST_F(TestMeasurementSet, variousConstructor )
 {
-    TestDescription( "CALC Constructor by various MS" );
+    TestDescription( "CALC Constructor by various MS " );
 
-    size_t max_count = getMSCountFromList();
-    printf("- %zu MeasruementSet for this test are ready.\n" , max_count); 
-
-    for(uInt k=0; k< max_count ; k++)
+    // Measurement Set for Test //
+    std::vector<TestMeasurementSet::MSDef> TestMSList 
     {
-       FunctionalDescription( "CALC Constructor by various MS",getMsNameFromList(k).c_str()  );
+        // Exeption(bool)  , Filename //
+        {true, "hoge/sdimaging.ms"        },
+        {false, "sdimaging/sdimaging.ms"        },
+        {false, "listobs/uid___X02_X3d737_X1_01_small.ms" },
+        {false, "sdimaging/Uranus1.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/Uranus2.cal.Ant0.spw34.ms"   },
+        {false, "sdimaging/azelpointing.ms"      	},
+        {false, "sdimaging/clipping_1row.ms"            },
+        {false, "sdimaging/clipping_2rows.ms"           },
+        {false, "sdimaging/clipping_3rows.ms"           },
+        {false, "sdimaging/clipping_3rows_2chans.ms"    },
+        {false, "sdimaging/clipping_3rows_suprious.ms"  },  
+        {false, "sdimaging/pointing6.ms"                },
+        {false, "sdimaging/sdimaging_flagtest.ms"       },
+        {false, "sdimaging/selection_intent.ms"         },
+        {false, "sdimaging/selection_misc.ms"           },
+        {false, "sdimaging/selection_spw.ms"            },
+        {false, "sdimaging/selection_spw_unifreq.ms"    },
  
-        if (getMSThrowFromList(k))
-        {
-          EXPECT_ANY_THROW( test_constructor( k ) );
-        }
-        else
-        {
-          EXPECT_NO_THROW( test_constructor( k ) );
-        }
+    };
+    for(auto itr =TestMSList.begin(); itr!=TestMSList.end();++itr)
+    {
+        FunctionalDescription( "CALC Constructor by various MS",itr->name.c_str()  );
+        auto name =  itr->name;
+        auto excep = itr->except;
+          test_constructor(name, excep);
     }
 }
 
@@ -1576,16 +1757,15 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
     TestDescription( "RowId functions  by various MS"  );
 
-    String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-     FunctionalDescription("Testing RowId functions." , MsName );
-
-    String name = env.getCasaMasterPath()+MsName;
-
+    // Copy specified MS to local MS.
+     String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";                               
+     String local_ms = CopyMStoWork(remote_ms);
+       
    // Measurment Set and Constructor //
-
-     MeasurementSet ms0( name  );       
+     MeasurementSet ms0( local_ms  );       
      PointingDirectionCalculator calc(ms0);
-     uInt nrow0 = calc.getNrowForSelectedMS(); 
+
+     uInt nrow0 = calc.getNrowForSelectedMS(); // original nRow //
 
    // Prepare  Arraay ..//
 
@@ -1609,28 +1789,20 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 
          String ant_sel = selectList[sw];
 
-         Description("Testing RowId functions." , "case="+std::to_string(sw) );
+         Description("Testing RowId functions." , "AntennaChoise="+std::to_string(sw) );
 
         // getRowIdForOriginalMS //
 
           Vector<uInt> vRowIdOrgMS = calc.getRowIdForOriginalMS();
-
-         printf( " calling selectData() \n");     
-         calc.selectData( ant_sel,  "","","","","","","","","" );
-
-        // Nrow from Selected //
-
+          calc.selectData( ant_sel,  "","","","","","","","","" );
           uInt nrow = calc.getNrowForSelectedMS();
+
           printf("Selected nrow =%d\n",nrow);
 
         // Vecrtor<uInt> getRowID() 
         
-          Description("(1) Vector<uInt> getRowId() ", name );
+          Description("(1) Vector<uInt> getRowId() ", local_ms);
           Vector<uInt> vRowId = calc.getRowId();
-
-        // getRowId( int ) //
- 
-          Description("(2) uInt getRowId() ", name );
 
         // Show and Verify //
           
@@ -1638,15 +1810,18 @@ TEST_F(TestMeasurementSet, RowId_inMS )
           printf( "Num Row (Sel) = %d \n" , nrow );
           printf( "    key=[%s]\n", ant_sel.c_str() ); 
 
+          printf( " checking:\n");
           for (uInt k=0; k < nrow; k++)
           {
               uInt RowId = calc.getRowId(k);
-              printf( "RowID ,%d, checked \n", RowId ); 
-              
+
+              printf( "%d,", RowId ); 
+              if ( ( k % 30 )==29 )   printf( "\n" );
+
               // Check List //
              rowIdCheckList[RowId] ++;
           }
-
+           printf( "\n" );
     } // end for 
     
     //*
@@ -1664,176 +1839,809 @@ TEST_F(TestMeasurementSet, RowId_inMS )
 /*---------------------------------------
   getDirection  base class
  ----------------------------------------*/
-class TestDirection : public BaseClass
+class TestDirection : public MsEdit, public BaseClass
 {
-
 public:
-        uInt const InterpolationDivCount = 10;
+ /* Parameter list */
+typedef struct Parm {
+     bool   use_spline;
+     PointingDirectionCalculator::PtColID  pcol;
+     uInt   antenna;
+     uInt   testCount;
+     Double p_interval;
+     Double m_interval;
+     TrajFunc::Type trFunc;
+     Double errLimit;
+} ParamList;
+
+        // Interpolation Mode //
+          bool use_spline = false;
+
+        // Interpolation divition Count in 'Delta Time' //
+
+        uInt getInterpolationDivCount() { return deltaTimeDivCount_; }
+
+        // Pointing Colum List (common definition) //
+
+        PointingColumnList pColLis_;
+
+        // Internal method //
+        void setCondition(uInt numRow, Double pointingInterval, Double mainInterval, Double errLimit)
+        {
+            setMainRowCount   (numRow);       // aprox. 1-2H 
+            Initialize( pointingInterval,     // Pointing Interval
+                        mainInterval ) ;      // Main Interval
+
+            setInterpolationErrorLimit( errLimit );
+        }
+
+        void prepareAntenna()
+        {
+            uInt N =  getMaxOfAntenna();
+            appendRowOnAntennaTable(N);  // N is required resource. existing =1, add N-1 and extra 1.
+            prepareDataToAntennaTable();
+        }
+
+        void prepareRows()
+        {
+            appendRowOnPointingTable ( getAddInerpolationTestPointingTableRow() );
+            appendRowOnMainTable     ( getAddInerpolationTestMainTableRow() );
+        }
+
+        // MS Tune Parameters //
+
+        Double getMainInterval()     { return(getMainTableInterval()); }
+        Double getPointingInterval() { return(getPointingTableInterval()); }
+
+        Double getErrorLimit() { return (getInterpolationErrorLimit());}
+
+        // Easy Access // 
+        void writeOnPointing()
+        {
+            writePseudoOnPointing () ;
+        }
+ 
+        void writeOnMain(Double div)    // 0<= div < 1.0 //
+        {
+            writePseudoOnMainTable (div);
+        }
+
+         SplineInterpolation::COEFF  tmpCoeff(PointingDirectionCalculator& calc);
+
 protected:
 
-        // MeasurementSet Editting
-     
-            casa::MsEdit  msedit;
+        // Add 3 OFFSET Colums ,copied from DIRECTION column. //
 
-        // Add 3 OFFSET Colums (basically reserved) //
-          void addColumnsOnPointing();
+        void addColumnsOnPointing() { duplicateNewColumnsFromDirection(); }
 
-        // Add avalable data on OFFSET columns  //
-          void addColumnDataOnPointing();
+        //*
+        // Sub-function of TEST_F(TestDirection....)  
+        //*
 
-        // subfunction of TEST_F(TestDirection....)
+        std::vector<Double>  testDirectionByDeltaTime(Double dt, uInt p, uInt a);// Extended(CAS-8418)
+        vector<Double>       testDirectionByInterval(Double p, Double m, uInt pc, uInt a);
 
-        std::vector<Double>  subTestDirection(Double dt);
-        vector<Double>       TestSub(Double p, Double m);
-
-
-        TestDirection()
-        {
-        }
-
-        ~TestDirection()
-        {
-        }
+        TestDirection(){ }
+        ~TestDirection() { }
 
         virtual void SetUp()
         {
-            BaseClass::SetUp();
+            // Copy and add columns,  init columns, 
 
-            //+
-            // Copy and add culumns, 
-            //  init columns, 
-            //  generate test dta
-            //-
-            
             CopyDefaultMStoWork();
-
             addColumnsOnPointing();
-
-            addColumnDataOnPointing();   // FILL DATA
-
         }
 
         virtual void TearDown()
         {
-            BaseClass::TearDown();
-
             // Delete Working MS 
-
-            DeleteWorkingMS();
+             DeleteWorkingMS();
         }
 
+        //* 
+        // Fixture TestCondition option
+        // (Programmer Tunable)
+        //*
+            // Listing option
+            const bool       fgResultListing_ = false;
+            // Convertion option (by setFrame)
+            const bool       fgConversion_    = false;
+            // Google Test On/OFF
+            const bool       fgGoogleTest_    = true;   // must be true, except debug
+
+        //*
+        // Number of Devide Count to make dt.  
+        //*
+          uInt  deltaTimeDivCount_     = 3; // dividing count between P[n] and p[n+1]
+        
+        //*
+        // Fixture::CofficientOnColumnAndAntenna option 
+        //*
+          const bool showCofficient = true;
+
+        //*
+        // Fixture::CompareInterpolation option 
+        //*
+          const bool dumpPointingTbl =  false;
+          const bool dumpMainTbl     =  false;
+          const bool showResult      =  true;
+
+        ///*
+        /// RESERVED::
+        /// NEW PROGRAM STRUCTURE 
+        ///  of InterpolationListedItems
+        ///*
+
+          // here describes new module with simplified structure //
+        
+
+private:
+
 };
-/*--------------------------------------
-   Add 3 new Columns and locate data 
-   on PPOINTING table
-  --------------------------------------*/
 
-void TestDirection::addColumnsOnPointing()
+//-------------------------------------------------
+//    Interporation Test (sub) 
+//     dt : displacement betweeen measure point
+//     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
+//------------------------------------------------
+std::vector<Double>  TestDirection::testDirectionByDeltaTime(Double div, uInt colNo, uInt antId )
 {
-    msedit.duplicateNewColumnsFromDirection();
+    printf("TestDirection::testDirectionByDeltaTime(%f,%u,%u) called. \n", div,colNo, antId);
+    const String local_ms = BaseClass::DefaultLocalMsName(); // from BaseClass //
+
+    // Create Object //
+        MeasurementSet ms( local_ms );
+        PointingDirectionCalculator calc(ms);   
+
+    //  MatrixShape (COLUMN_MAJOR)
+        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ; 
+
+    // setFrame()
+        String FrameName= "J2000";
+        calc.setFrame( FrameName );
+
+    //+
+    // selectData on generated MS
+    //  Antenna name is ANT0, ANT1, AT2
+    //-
+        const String AntSel = "ZZ0" + std::to_string(antId)+ "&&ZZ00"; 
+
+        calc.selectData( AntSel,  "","","","","","","","","" );
+     
+    //  InterPolation mode (Foece Unuse)
+        calc.setSplineInterpolation(use_spline);
+
+    //+
+    // setDirectionColumn()
+    //-
+        printf( "setDirectionColumn(%s)\n", pColLis_.name( colNo ).c_str() );
+        calc.setDirectionColumn( pColLis_.name(colNo) ) ;
+
+    //+
+    // setFrame call for "conversion"
+    // in CAS-8418, try to examine converted result.
+    //-
+        if(fgConversion_)
+        {
+            printf( "setFrame()\n");  
+            String frameName = "AZELGEO" ;
+            calc.setFrame( frameName );
+        }
+
+    //+
+    //  getDirection()
+
+        Matrix<Double>  DirList1  = calc.getDirection();
+        printf( "END calc.getDirection()\n");
+    //+
+    // Direction Interpolation
+    //-
+    Double maxErr_1 = 0.0;
+    Double maxErr_2 = 0.0;             
+    Double absErr_1 = 0.0;
+    Double absErr_2 = 0.0;
+
+    //***********************************************************************
+    // when dt come close to 1.0  (27-MAR-2019) 
+    // - Main Loop must be smaller, otherwise 'take final' happens (=Overflow)
+    // - Number of decreasing is up to Interval ratio.
+    //***********************************************************************
+
+    // Adjust end of row to to stop loop //
+
+    uInt LoopCnt =   getRequiredMainTestingRow()  - getIntervalAdjust() ;
+ 
+    for (uInt row=0; row < LoopCnt ; row++)   
+    {
+        // Direction(1) by getDirection //
+
+          Double calculated_1 = DirList1(row,0);
+          Double calculated_2 = DirList1(row,1);
+
+        // Direction by generated/estimated //
+
+          auto  gen_out2 = pseudoPointingInfoMain2 ((Double)row + div); // dt:Interpolation offset  (sec)
+
+          Double generated_1 = gen_out2.position[colNo].first;
+          Double generated_2 = gen_out2.position[colNo].second;
+
+        //+
+        // Error calculation 
+        //-
+
+          Double Err_1 = calculated_1 - generated_1 ;   
+          Double Err_2 = calculated_2 - generated_2 ;
+
+          absErr_1 = abs(Err_1);
+          absErr_2 = abs(Err_2);
+                
+          if( maxErr_1 < absErr_1 ) maxErr_1 = absErr_1;
+          if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
+
+          // Google Test On/Off
+          if(fgGoogleTest_)
+          {
+	      EXPECT_LE( absErr_1, getInterpolationErrorLimit()  ); 
+              EXPECT_LE( absErr_2, getInterpolationErrorLimit()  ); 
+          }
+
+          // Output List (in One line) On/OFF   //
+          if(fgResultListing_) 
+          {
+              printf( "Evaluation,");
+              printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
+              printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
+              printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
+          }
+    }
+   
+   std::vector<Double> vv(2);
+   vv[0] = maxErr_1;   
+   vv[1] = maxErr_2;
+
+   return vv; 
 }
-
-void TestDirection::addColumnDataOnPointing()
-{
-    msedit.writeDataToPointingTable( DefaultLocalMsName );
-}
-
-/*---------------------------------------
-  setDirectionColumn
-  - check thr accsessor 
-  - Must not make exception.
- ----------------------------------------*/
-
 //+
-// Sub Function (reserved) 
-//  - Method: getAccessor() must be coded in the header 
-//    to return the accessor address
-//  - At the moment, getAccessor() is not implemented
+// TestSub
+//  - Pointing table interval and Main table interval are specified
+//  - execute numerical error test by activating Interpolation
+//    by using slided time in Main Table.
+//-
+std::vector<Double> TestDirection::testDirectionByInterval(Double p_int, Double m_int,
+                                                           uInt p_col, uInt antenna )
+{
+    // Max Error ///
+
+      std::vector<Double> reterr;
+      ErrorStat           errstat;
+    
+    // Add INTERPOLATION TEST DATA 
+
+      writeOnPointing();
+
+    // Test Loop  
+    //   - nDiv is given, internd to spacify number of separating count 
+    //     between one exact point and the next,  
+
+    uInt nDiv = getInterpolationDivCount(); 
+    for (uInt loop=0; loop < nDiv  ; loop ++ )
+    {
+        //+
+        // SetUp Testing  MeasurementSet
+        //-  
+        Double div = (Double)loop/(Double)nDiv;    // 0 <= div  < 1.0 // 
+        writeOnMain( div );
+
+        // Execution //
+        reterr = testDirectionByDeltaTime( div , p_col, antenna );
+
+        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+        printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
+        printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
+
+        errstat.put(reterr);
+    }
+    std::vector<Double> e_max = errstat.e_max();
+    std::vector<Double> e_min = errstat.e_min();
+    printf("----------------------------------------\n");
+    printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
+    printf("----------------------------------------\n");
+
+    return e_max; 
+}
+/*-------------------------------------------------------------------------------
+  TEST FIXTUE:  /// COMMENTS WILL BE REVISED ///
+
+   Interporatio Test in getDirection()  as;
+
+   (1) InterpolationListedItems performs, Listed Parameter being used.
+
+   (2) CoefficientOnColumnAndAntenna examines wheather spline coefficients  
+                        by Antenna and Pointing-Column are normally stored.
+   (3) CompareInterpolation   examins to compare two results by
+                        Linear and Spline interpolation. 
+   (4) setDirectionColumn  probes wheather spline interpolation initialization is 
+                        performed based on a specified Poining-Column.
+
+  -----------------------------------------------------------------------------*/
+ 
+
+/*-----------------------------------------------------------------------
+  Interporatio Test in getDirection()   
+  Specific COMBIIATION Parameter mode
+ - Set of testing parameters are given
+------------------------------------------------------------------------*/ 
+
+/* short description */
+# define P_DIRECTION        PointingDirectionCalculator::PtColID::DIRECTION
+# define P_TARGET           PointingDirectionCalculator::PtColID::TARGET
+# define P_POINTING_OFFSET  PointingDirectionCalculator::PtColID::POINTING_OFFSET
+# define P_SOURCE_OFFSET    PointingDirectionCalculator::PtColID::SOURCE_OFFSET
+# define P_ENCODER          PointingDirectionCalculator::PtColID::ENCODER
+
+std::vector<std::vector<TestDirection::ParamList> >   paramListS =
+{
+    // Senario 0 (Big Ratio) //
+    {
+      {true,  P_DIRECTION, 0,800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     1.0E-05 },
+      {false, P_DIRECTION, 0,800, 1.0,  1.0   ,  TrajFunc::Type::Spline_Special,     5.0E-05 },
+
+      {true,  P_DIRECTION, 0, 800, 0.048,  0.001,  TrajFunc::Type::Normalized_Linear,  1.0E-04 },
+      {true,  P_DIRECTION, 0, 800, 0.048,  1.008,  TrajFunc::Type::Normalized_Linear,  8.5E-08 },
+
+    },
+    // Senario 1 (Test Count Dependency) //
+#define ErrS1 2.0E-05
+    {
+      {true, P_TARGET, 0,500, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {false,P_TARGET, 0,500, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+
+      {true, P_TARGET, 0,510, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,520, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,530, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,540, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,550, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,560, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,570, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,580, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+      {true, P_TARGET, 0,590, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  ErrS1 },
+ 
+    },
+
+    // Senario 2 (all AntenaID) //
+    {
+      {true, P_DIRECTION, 0,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
+      {true, P_DIRECTION, 1,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
+      {true, P_DIRECTION, 2,1080, 0.5,  0.1,  TrajFunc::Type::Spline_Special,  2.0E-04 },
+    },
+
+    // Senario 3 (Typical Interval Ratio) with Sinusoid Curve //
+    {
+      {true, P_DIRECTION, 0,1080, 0.01,  0.05,  TrajFunc::Type::Normalized_Linear,  5.0E-06 },
+      {true, P_DIRECTION, 0,1080, 0.01,  0.05,  TrajFunc::Type::Sinusoid_Slow,      5.0E-06 },
+
+      {true, P_DIRECTION, 0,1080, 0.05,  0.01,  TrajFunc::Type::Normalized_Linear,  6.0E-06 },
+      {true, P_DIRECTION, 0,1080, 0.05,  0.01,  TrajFunc::Type::Sinusoid_Slow,      5.0E-05 },
+    },
+
+    // Senario 4 (test Pointing Column ) //
+    {
+      {true, P_POINTING_OFFSET, 0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_SOURCE_OFFSET,   0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   5.0E-06 },
+      {true, P_ENCODER,         0,1080, 0.1,  0.5,  TrajFunc::Type::Normalized_Linear,   6.0E-06 },
+    },
+
+    // Senario 5 (Insufficient Data, small number of data.) // 
+    {
+      {true, P_DIRECTION, 1,  1260,   1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  5,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  4,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  3,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+      {true, P_DIRECTION, 1,  2,    1.0,  1.0,  TrajFunc::Type::Normalized_Linear,      5.0E-04 },
+    },
+
+#if 0
+    //+
+    // Option::
+    // Senario 6 (Interval , floating point preciseness) 
+    //-
+#define ANT    0
+#define NTEST  540  // default =2580 , Error happens at least on 2550 // 
+#define FUNC   TrajFunc::Type::Normalized_Linear 
+    {
+       {true,  P_DIRECTION, ANT, NTEST, 0.002,  0.001,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 0.02,   0.01,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 0.2,    0.1,     FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 2.0,    1.0,     FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 20.0,   10.0,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 200.0,  100.0,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 2000.0,    1000.0,    FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 20000.0,   10000.0,   FUNC,  5.0E-04 },
+       {true,  P_DIRECTION, ANT, NTEST, 200000.0,  100000.0,  FUNC,  5.0E-04 },
+    },
+#endif    
+};
+
+//*******************************************
+// 6/11 single and Listes will be in one
+//      described list shall be added.
+//*******************************************
+TEST_F(TestDirection, InterpolationListedItems )
+{
+    TestDescription( "Interpolation by Listed condition." );
+
+    ErrorStat  errstat;
+    std::vector<Double> r_err = {0.0}; 
+
+    // Senario and Param loop //
+    for (uInt sno = 0; sno < paramListS.size(); sno++) 
+    {
+        Description( "by Listed Condition ", "sno="+std::to_string(sno));
+        for(uInt n=0; n<paramListS[sno].size();n++)
+        {
+            uInt usingAntenna = paramListS[sno][n].antenna;
+            uInt usingPColumn = paramListS[sno][n].pcol;
+
+            use_spline       = paramListS[sno][n].use_spline;
+            auto testCount   = paramListS[sno][n].testCount;
+            auto     p_i     = paramListS[sno][n].p_interval;
+            auto     m_i     = paramListS[sno][n].m_interval;
+
+            auto   trFunc    = paramListS[sno][n].trFunc;
+            auto   err_limit = paramListS[sno][n].errLimit;
+
+            printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+            printf("&&& Sno = %d , param Set[%d]. Ant=%d Func=%d\n", sno, n, usingAntenna, trFunc );
+            printf("&&&    Spline=%d, N=%d, \n" , use_spline, testCount );
+            printf("&&&    Interval (Poinitng, Main) = (%f,%f) \n", p_i, m_i );
+            printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& \n"   );
+
+            // Copy Template MS and prepare Pointing Columns (code-review fix) //
+
+              CopyDefaultMStoWork();
+              addColumnsOnPointing();
+ 
+            //+
+            // set Examination Condition (revised by CAS-8418) //
+            //-
+
+              TrajFunc::setType( trFunc);
+
+              setCondition( testCount,   /*numinTestingRow */      //number of row
+                            p_i,    // Pointing Interval
+                            m_i,    // Main Interval
+                            err_limit );  // Error limit 
+ 
+            // Prepate Antenna (for Multple-set) //
+              prepareAntenna();
+ 
+            // Increase(Append)  Row on MS for large-file.:
+              prepareRows();
+          
+            //+
+            // Execute Main-Body , get error info //
+            //-
+              r_err = TestDirection::testDirectionByInterval( p_i, m_i, usingPColumn, usingAntenna );
+              errstat.put(r_err);
+
+        }// end param
+    }// end senario
+}
+
+
+
+TEST_F(TestDirection, CoefficientOnColumnAndAntenna )
+{
+     TestDescription( "Coefficient Table Test (by Antenna and Pointing-Columns)" );
+
+      use_spline = true;
+
+    // set Examination Condition  //
+
+      TrajFunc::setType(TrajFunc::Type::Zero);
+
+      setCondition( 1008,       // number of row
+                    0.05,      // Pointing Interval
+                    0.001,      // Main Interval
+                    5.0E-09 );  // Error limit 
+
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
+
+    // NEW: 8-MAR-2019 Set Pseudo control in Special mode 
+      setCoeffLocTest( true ) ; 
+
+    //+
+    // Create MS for all Pointing Columns  and,
+    //   for all regisetered Antenna 
+    //-
+
+    for(uInt pcol=0; pcol < getMaxOfPointingColumn() ; pcol++)   
+    {
+        // Write Data on Pointing TAble  
+        writeOnPointing();
+    }
+
+    //+
+    // setDirectionCplumn() call to create Spline Object.
+    //   creating 5 spline objects with specified Pointing Column.
+    //-
+
+    const String local_ms = BaseClass::DefaultLocalMsName();
+
+    // Create Object //
+    MeasurementSet ms( local_ms );
+    PointingDirectionCalculator calc(ms);
+   
+    //+
+    // Poinying-Column and Antenna Loop
+    //- 
+    PointingColumnList pList;
+    for(uInt pcol=0; pcol < getMaxOfPointingColumn(); pcol++) 
+    {
+        String name =pColLis_.name(pcol);
+
+        calc.setDirectionColumn(name);
+
+        // get current Coefficient Table //
+
+        PointingDirectionCalculator::COEFF coeff = calc.exportCoeff();
+
+        //*
+        // Inspection of Table
+        //  - a0 indicates a Pointing Column, expressed by 0.1 * Col + 0.1;
+        //  - b0 indicates an AntenaId , expressed by 0.1 * AntID + 0.1 ;
+        //    THESE VALUSEs are build in MsEdit::writePseudoOnPointing(). 
+        //*
+        for(uInt ant=0;ant < getMaxOfAntenna()  ;ant++)
+        {
+            if(showCofficient) // Show Coefficient (option)//
+            {
+                for(uInt i =0; i<10; i++)
+                {
+                    uInt Index = i;
+                    Double a0 = coeff[ant][Index][0][0];
+                    Double a1 = coeff[ant][Index][0][1];
+                    Double a2 = coeff[ant][Index][0][2];
+                    Double a3 = coeff[ant][Index][0][3];
+
+                    Double b0 = coeff[ant][Index][1][0];
+                    Double b1 = coeff[ant][Index][1][1];
+                    Double b2 = coeff[ant][Index][1][2];
+                    Double b3 = coeff[ant][Index][1][3];
+
+                    printf( "COEFF[%d][%d][XY][0-3] = %f,%f,%f,%f,|,",ant, Index, a0,a1,a2,a3  );
+                    printf( " %f,%f,%f,%f \n",b0,b1,b2,b3  );
+                }
+                printf( "\n");
+            }
+
+            //+
+            // Inspection by GoogleTest 
+            //-
+
+            if (true)
+            {
+                Double a0 = coeff[ant][0][0][0];
+                Double b0 = coeff[ant][0][1][0];
+
+                uInt antennaDetected = b0 * 10.0 -0.1;
+                uInt columnDetected  = a0 * 10.0 -0.1;
+
+                printf( "CoefficientOnColumnAndAntenna Col=%d, Ant=%d was detected from Coeff.\n", 
+                         columnDetected, antennaDetected );
+                EXPECT_EQ( columnDetected, pcol );
+                EXPECT_EQ( antennaDetected, ant );
+            }
+        }
+    }
+
+
+}
+
+TEST_F(TestDirection, CompareInterpolation )
+{
+  TestDescription( "Interpolation Result Comparing.(Linear vs Spline)" );
+
+    std::vector<Double>   r_err1 ;
+    std::vector<Double>   r_err2 ;
+
+    Double            errorLimit = 5e-04;
+   
+    TestDescription( "getDirection (J2000) with selected data. uvw available" );
+ 
+    // Use the below MS to evaluate the difference of
+    //  interpolation results.
+
+    std::vector<String> MsList = {
+      "sdimaging/Uranus1.cal.Ant0.spw34.ms",
+      "sdimaging/Uranus2.cal.Ant0.spw34.ms"
+    };
+
+    // TEST LOOP //
+
+    for(uInt fno=0; fno<MsList.size(); fno++)
+    {
+
+        // copy  MS from remote //
+        String remote_ms = MsList[fno]; 
+        String local_ms = CopyMStoWork(remote_ms); 
+
+        // Dump Pointing
+
+        if(dumpPointingTbl){
+           PointingTableAccess pta(local_ms);
+           pta.dump("Pointing_"+std::to_string(fno)+ ".csv" );
+        }
+        // Dump Main
+        if(dumpMainTbl){
+           MainTableAccess mta(local_ms);
+           mta.dump("Main_"+std::to_string(fno)+ ".csv" );
+        }
+ 
+        // Create Object //
+        MeasurementSet ms0(local_ms);
+        PointingDirectionCalculator calc(ms0);
+
+        //+
+        // setDirectionColumn() 
+        //-
+
+        String ColName = "DIRECTION";
+        calc.setDirectionColumn( ColName ) ;
+
+        //+
+        //  MatrixShape (COLUMN_MAJOR) 
+        //-
+
+        calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ;
+
+        //+
+        // setFrame()
+        //-
+
+        if(true)
+        {
+            String FrameName= "AZELGEO";
+            calc.setFrame( FrameName );
+        }
+
+        //******************
+        // Examine Linear
+        //******************
+
+        Matrix<Double>  DirList1; // for Linear
+        Matrix<Double>  DirList2; // for Spline
+
+        if(true)
+        {
+            // Set Interporation Mode //
+              calc.setSplineInterpolation(false);
+        
+            //+
+            //  getDirection()
+            //-
+          
+              Description("calling getDirection()" ,"#1" );
+         
+              DirList1  = calc.getDirection();
+              size_t   n_col    = DirList1.ncolumn();
+              size_t   n_row    = DirList1.nrow();
+         
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
+    
+        }
+        //******************
+        // Examine Spline
+        //******************
+        if(true)  // always true, except serious debug. //
+        {
+            // Set Interporation Mode //
+            calc.setSplineInterpolation(true);
+
+            //+
+            //  getDirection()
+            //-
+
+            Description("calling getDirection()" ,"#2" );
+ 
+            DirList2  = calc.getDirection();
+            size_t   n_col    = DirList2.ncolumn();
+            size_t   n_row    = DirList2.nrow();
+ 
+            printf( "getDirection()::Number of Row = %zu \n", n_row );
+            printf( "getDirection()::Number of Col = %zu \n", n_col );
+        }
+
+        //****************************
+        // List, Compare and Examine
+        //****************************
+        uInt size = DirList1.nrow();
+        printf( "===== Interpolation Comparison Info. (File:%s)===== \n", MsList[fno].c_str() );
+        for( uint row=0; row<size; row++)
+        {
+            Double er1 = DirList2(row,0) - DirList1(row,0);
+            Double er2 = DirList2(row,1) - DirList1(row,1);
+
+            EXPECT_LT( er1, errorLimit );
+            EXPECT_LT( er2, errorLimit );
+        
+            if(showResult)
+            {
+                printf("row,%d, ", row );
+                printf("Dir1, %e,%e,", DirList1(row,0),DirList1(row,1) ); 
+                printf("Dir2, %e,%e,", DirList2(row,0),DirList2(row,1) );
+                printf("Err, %e,%e \n", er1, er2 );
+            }
+        }
+    }
+}
+//+
+//  check Accessor ID (So far, this is no Assetion)
 //-  
 
-static void assert_accessor()
+static void inspectAccessor( PointingDirectionCalculator  &calc )
 {
-#if 0
-    void *  pAccessor = calc.getAccessor();
-    printf( "#   Accessor [%p] \n", pAccessor );
-     
-#endif
+    // Check Cofficient is ready //
+    ASSERT_EQ( calc.isCoefficientReady(), true );
+    // Check current Pointing Column ID is accessible //
+    uInt Id = calc.getCurretAccessorId();
 
+    printf( "Spline Cofficient by Pointing [Column= %d] OK.\n",Id);
 }
 
-
+//------------------------------
+// Revised Edition (CAS-8418)
+//  (replaced from old to new)
+//------------------------------
 TEST_F(TestDirection, setDirectionColumn  )
 {
 
-    TestDescription( "setDirectionColumn (String Fram)" );
-    const String MsName = DefaultLocalMsName;
-
-#if 0
-    // Obsoleted soon, use DumpPointing... 
-
-    if(false){
-        printf( "Listing all POINTING TABLE  \n");
-        msedit.PointingTable_List( MsName, false );
-    }
-#endif 
-    // Create Object //
-    
-        MeasurementSet ms( MsName.c_str() );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-    //+
-    // setDirectionColumm()  calls 
-    //
-    //  (note) Checcking 'accessor' address reqires to change header.
-    //         This is not urgent unless, any address error happens.
-    //-
-        String ColName;
-
-        ColName = "DIRECTION";
-        Description("Column Name" , ColName );
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-        assert_accessor();
-
-        ColName = "TARGET";
-        Description("Column Name" , ColName );
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-        assert_accessor();       
+    // set Examination Condition (revised by CAS-8418) //
  
-        ColName = "POINTING_OFFSET";    // NEED to ADD Table in advance  //
-        Description("Column Name" , ColName );
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+      uInt numRow = 1000;
 
-        assert_accessor();
-
-        ColName = "SOURCE_OFFSET"; // NEED to Add Table in advance //
-        Description("Column Name" , ColName );
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-        assert_accessor();
+      TrajFunc::setType(TrajFunc::Type::Normalized_Linear);
  
-        ColName = "ENCODER";      // NEED to add Table in advance  //
-        Description("Column Name" , ColName );
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+      setCondition( numRow,       // number of row
+                     0.01,          // Pointing Interval
+                     0.01,         // Main Interval
+                     8E-06  );  // Error limit 
+ 
+ 
+    // Prepate Antenna (for Multple-set) //
+      prepareAntenna();
+ 
+    // Increase(Append)  Row on MS for large-file.:
+      prepareRows();
 
-        assert_accessor();
+    // Add INTERPOLATION TEST DATA 
+      writeOnPointing();
 
-        ColName = "hogehoge";
-        Description("Column Name" , ColName );
-        EXPECT_ANY_THROW( calc.setDirectionColumn( ColName ) );
+    // MS and calc //
+      MeasurementSet ms( BaseClass::DefaultLocalMsName() );
+      PointingDirectionCalculator calc(ms);
+ 
+    // Test loop //
+    uInt Count =1 ;		// Debug option to check memory leak etc. //
+    for( uInt n=0; n < Count;n++ ) 	// 2 Times. run .../
+    {
+        for(size_t k=0; k < pColLis_.size(); k++)
+        {     
+            String ColName = pColLis_.name(k);
+            Description("Column Name" , ColName );
 
-        assert_accessor();
+            // UNIT TEST //
+            EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
+            inspectAccessor( calc );
+        }
+    }    
 }
-
 /*----------------------------------------------------------
-
   getDirection() and MovingSourceCorrection
 
  - Test performing MovingSource Correction.
@@ -1846,29 +2654,14 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String MsName = DefaultLocalMsName;     
 
-    // List all info on Pointing Table. //
-    //   _List series. was Removed. 
-    //   Replaace to Dump series.
-#if 0
-    if(true) {
-          printf( "Listing all POINTING TABLE  \n");
-          msedit.PointingTable_List( MsName, false );
-    }
-#endif 
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
+        MeasurementSet ms( BaseClass::DefaultLocalMsName() );
         PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-    // setDirectionListMatrixShape           //
+        expectedNrow = calc.getNrowForSelectedMS();
+ 
+    // setDirectionListMatrixShap e          //
 
         Description("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
@@ -1881,15 +2674,6 @@ TEST_F(TestDirection, MovingSourceCorrection  )
     //+
     // setDirectionColumm()  calls 
     //-
-        const vector<String> ColName
-        {
-            "DIRECTION",       
-             "TARGET",
-             "POINTING_OFFSET",  // *** NEED to ADD in advance  //
-             "SOURCE_OFFSET",    // *** NEED to Add in advance //
-             "ENCODER",          // *** NEED to add in advance  //
-             "DIRECTION"         // extra //
-        };
 
         //+
         // Normal Seq. with setMovingSoure Convert.
@@ -1898,10 +2682,11 @@ TEST_F(TestDirection, MovingSourceCorrection  )
 
 	FunctionalDescription("Normal Seq.", "Selectve Convert");
 
-        for(size_t k=0; k < ColName.size(); k++)
+
+        for(size_t k=0; k < pColLis_.size(); k++)
         {
-            Description("Column Name" , ColName[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+            Description("Column Name" , pColLis_.name(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( pColLis_.name(k) ) );
 
             if(true)  // Selective:: TESTING dependency how  setMovingSource() relates. //
             {
@@ -1910,14 +2695,14 @@ TEST_F(TestDirection, MovingSourceCorrection  )
                 EXPECT_NO_THROW( calc.setMovingSource( src ) );
             }    
 
-            Description("calling  getDirection() ", ColName[k] );
+            Description("calling  getDirection() ", pColLis_.name(k) );
             Matrix<Double>  DirList;
             EXPECT_NO_THROW( DirList= calc.getDirection() );
 
             uInt  n_row    = DirList.nrow();
 
             printf( "Number of Row = %d \n", n_row );
-            EXPECT_EQ( n_row, ExpectedNrow);
+            EXPECT_EQ( n_row, expectedNrow);
 
         }
 
@@ -1927,23 +2712,23 @@ TEST_F(TestDirection, MovingSourceCorrection  )
         
         FunctionalDescription("Normal Seq.", "Always call setDirectionColumn");
 
-        for(uInt k=0; k < ColName.size(); k++)
+        for(uInt k=0; k < pColLis_.size(); k++)
         {
-            Description("Column Name" , ColName[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+            Description("Column Name" , pColLis_.name(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( pColLis_.name(k) ) );
 
             String src = "SUN";
             Description("setMovingSource()", src);
             EXPECT_NO_THROW( calc.setMovingSource( src ) );
             
-            Description("calling  getDirection() ", ColName[k] );
+            Description("calling  getDirection() ", pColLis_.name(k) );
             Matrix<Double>  DirList;   
             EXPECT_NO_THROW( DirList = calc.getDirection() );
 
             uInt  n_row = DirList.nrow();
 
             printf( "Number of Row = %d \n", n_row);
-            EXPECT_EQ( n_row, ExpectedNrow);
+            EXPECT_EQ( n_row, expectedNrow);
 
         }
 
@@ -1953,34 +2738,23 @@ TEST_F(TestDirection, MovingSourceCorrection  )
   Verification Test of CAS-11818
   - If you use old source, this test causes
     core dump.
-
-   XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-   XXXX   DO NOT UPDATE !!  XXXX
-   XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 ---------------------------------------------*/
 TEST_F(TestDirection, VerifyCAS11818 )
 {
 
     TestDescription( "configureMovingSourceCorrection(CAS11818) Test" );
-    const String MsName = DefaultLocalMsName;    //  
 
     // MS name for this Test //
 
-        String name =   MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+        String local_ms = BaseClass::DefaultLocalMsName();
+        printf( " Used MS is [%s] \n", local_ms.c_str() );
    
     // Create Object //
     
-        MeasurementSet ms( name.c_str() );
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
+        expectedNrow = calc.getNrowForSelectedMS();
     
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-        ExpectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, ExpectedNrow );
-
-
     // setFrame, setDirectionListMatrixshape    //
     // setMovingSource Convert                  //
 
@@ -1993,37 +2767,27 @@ TEST_F(TestDirection, VerifyCAS11818 )
     //
     // setDirectionColumm()  calls 
     //
-        String Name[6];
-        
-        Name[0] = "DIRECTION";        
-        Name[1] = "TARGET";
-        Name[2] = "POINTING_OFFSET";    // *** NEED to ADD in advance  //
-        Name[3] = "SOURCE_OFFSET";      // *** NEED to Add in advance //
-        Name[4] = "ENCODER";            // *** NEED to add in advance  //
-        Name[5] = "hogehoge";         /// NOT USED ///
-
          
         // No SetMovingSouce executution 
 
         FunctionalDescription("BUG-TEST by assert()" , "setDirectionColumn+ getDirection, without setMovingSource");
 
-        for(uInt k=0; k<5; k++)
-        {
-            Description("Column Name" , Name[k] );
-            EXPECT_NO_THROW( calc.setDirectionColumn( Name[k] ) );
 
-            Description("calling  getDirection() ", Name[k] );
+        for(uInt k=0; k<PointingDirectionCalculator::PtColID::nItems; k++)
+        {
+            Description("Column Name" , pColLis_.name(k) );
+            EXPECT_NO_THROW( calc.setDirectionColumn( pColLis_.name(k) ) );
+
+            Description("calling  getDirection() ", pColLis_.name(k) );
             Matrix<Double>  DirList;   
-#if 1
+
             EXPECT_NO_THROW( DirList= calc.getDirection() );
-#else
-            DirList= calc.getDirection();
-#endif 
+
             uInt  N_Row;
             N_Row  = DirList.nrow();
 
             printf( "Number of Row = %d \n", N_Row );
-            EXPECT_EQ( N_Row, ExpectedNrow);
+            EXPECT_EQ( N_Row, expectedNrow);
 
         }
 
@@ -2038,30 +2802,18 @@ TEST_F(TestDirection, setMovingSource  )
 {
 
     TestDescription( "performMovingSourceCorrection and setDirectionColumns" );
-    const String MsName = DefaultLocalMsName;    //  
+    const String local_ms = BaseClass::DefaultLocalMsName();    //  
 
      // List all info on Pointing Table. //
      //   _List series. was Removed. 
      //   Replaace to Dump series.
-#if 0     
-        if(false)
-        {
-            printf( "Listing all POINTING TABLE  \n");
-            msedit.PointingTable_List( MsName, false );
-        }
-#endif 
+
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
-    
+        MeasurementSet ms( local_ms ); 
         PointingDirectionCalculator calc(ms);
+        expectedNrow = calc.getNrowForSelectedMS();
     
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-        ExpectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, ExpectedNrow );
-
     // setDirectionListMatrixShape()    //
 
         Description("setDirectionListMatrixShape()", "COLUMN_MAJOR" );
@@ -2072,19 +2824,6 @@ TEST_F(TestDirection, setMovingSource  )
         Description("setFrame()", "J2000" );
         EXPECT_NO_THROW( calc.setFrame( "J2000" ) );
 
-    //
-    // setDirectionColumm()  calls 
-    //
-        const std::vector<String> ColName
-        {
-            "DIRECTION",        
-            "TARGET",
-            "POINTING_OFFSET",  // *** NEED to ADD in advance  //
-            "SOURCE_OFFSET",    // *** NEED to Add in advance //
-            "ENCODER",          // *** NEED to add in advance  //
-//          "hogehoge"          // => This makes Exception 
-        };
-
     //+
     //  Four senarios are executed.
     //-  	
@@ -2093,10 +2832,10 @@ TEST_F(TestDirection, setMovingSource  )
     {   
           FunctionalDescription("Senario" , std::to_string(senario).c_str() ); 
 
-          for(size_t k=0; k < ColName.size(); k++)
+          for(size_t k=0; k < pColLis_.size(); k++)
           {
-              Description("- Column Name" , ColName[k] );
-              EXPECT_NO_THROW( calc.setDirectionColumn( ColName[k] ) );
+              Description("- Column Name" , pColLis_.name(k) );
+              EXPECT_NO_THROW( calc.setDirectionColumn( pColLis_.name(k) ) );
 
               if( senario==0 )     // Always No call //
               {
@@ -2126,20 +2865,15 @@ TEST_F(TestDirection, setMovingSource  )
                  EXPECT_NO_THROW( calc.unsetMovingSource() );
               }
 
+              // getDirection //
               Matrix<Double>  DirList;
-
-              //+
-              // getDirection()
-              //-
-
-              Description("- getDirection() ", ColName[k] );
+              Description("- getDirection() ", pColLis_.name(k) );
               EXPECT_NO_THROW( DirList  = calc.getDirection() );
 
-              uInt n_row;
-              n_row  = DirList.nrow();
+              uInt n_row  = DirList.nrow();
 
               printf( "- Number of Row = %d \n", n_row );
-              EXPECT_EQ( n_row, ExpectedNrow);
+              EXPECT_EQ( n_row, expectedNrow);
 
           }
     }
@@ -2155,20 +2889,13 @@ TEST_F(TestDirection, Matrixshape )
 {
 
     TestDescription( "setDirectionListMatrixShape()" );
-    const String MsName = DefaultLocalMsName;    //  
+    const String local_ms = BaseClass::DefaultLocalMsName();    //  
     
     // Create Object //
     
-        MeasurementSet ms( MsName.c_str() );
+        MeasurementSet ms( local_ms );
+        PointingDirectionCalculator calc(ms);
     
-       PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
     //+
     // A set of API Call   
     //    - setDirectionListMatrixShape() and getDirection() 
@@ -2176,617 +2903,36 @@ TEST_F(TestDirection, Matrixshape )
     //      getDirection by IPPosition(p,q,r)
     //-
 
-        Matrix<Double> DirList1;
-        Matrix<Double> DirList2;
-        uInt N_Col;  
-        uInt N_Row ;  
-
         // COLUMN //
     
         Description("setDirectionListMatrixShape", "COLUMN_MAJOR" );
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
-        
-        DirList1  = calc.getDirection();
-        N_Col    = DirList1.ncolumn();
-        N_Row    = DirList1.nrow();
-        printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
 
-        EXPECT_EQ( N_Col, (uInt)2);
+        {
+          Matrix<Double> DirList  = calc.getDirection();
+          auto N_Col    = DirList.ncolumn();
+          auto N_Row    = DirList.nrow();
+          printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
+
+          EXPECT_EQ( N_Col, (uInt)2);
+        }
 
         // ROW  //
-
+       
         Description("setDirectionListMatrixShape", "ROW_MAJOR");
         EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::ROW_MAJOR) );
 
-        DirList2  = calc.getDirection();
-        N_Col    = DirList2.ncolumn();
-        N_Row    = DirList2.nrow();
-        printf ("# NCol = %d , NRow = %d \n", N_Col, N_Row );
-
-        EXPECT_EQ( N_Row, (uInt)2);
-
-}
-
-/*------------------------------------
-  getDirection () and MovingSource()
- -------------------------------------*/
-TEST_F(TestDirection, getDirection1 )
-{
-
-    TestDescription( "getDirection (J2000) No data selection" );
-    const String MsName = DefaultLocalMsName;    
-
-    // Create Object //
-    
-        MeasurementSet ms( MsName.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-    //+
-    // setDirectionColumn() 
-    //-
-  
-        String ColName = "DIRECTION"; 
-        Description( "getDirectionColumn()", ColName  );
-
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-    //+
-    //  MatrixShape (COLUMN_MAJOR) 
-    //-
-        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
-        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
-
-    //+
-    //  setMovingSourceDirection() 
-    //-
-        String src = "MOON";
-        Description("calling setMovingSource()", src);
-
-        EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
-
-    //+
-    //  getDirection()
-    //-
-
-        Description("calling  getDirection() ","" );
-
-        Matrix<Double>  DirList1  = calc.getDirection();
-        uInt  n_row    = DirList1.nrow();
-
-        printf( "Number of Row = %d \n", n_row );
-        EXPECT_EQ( n_row, ExpectedNrow);
-
-    //+
-    // Dump Matrix
-    //-
-
-    if (true) 
-    {
-        Description("Dump obtined Direction info. ","" );
-
-        for (uInt row=0; row< n_row; row++)
         {
-            // Direction //
+          Matrix<Double> DirList  = calc.getDirection();
+          auto N_Col    = DirList.ncolumn();
+          auto N_Row    = DirList.nrow();
+          printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
 
-            Double Val_1 = DirList1(row,0);
-            Double Val_2 = DirList1(row,1);
-
-            casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
-            String strMovDir = MovDir.toString();
-
-            printf(    "Dir at, %d, %f,%f, [Mov:%s]  \n",  
-                    row, Val_1, Val_2, strMovDir.c_str() );
-         }
-
-    }
-
-}
-
-/*--------------------------------------
-   Interpolation Test in getDirection
- ---------------------------------------*/
-
-void DumpPointingTable(String MsName)
-{
-    // Open MS by Update mode //
-
-        MeasurementSet ms0( MsName.c_str());
-
-    // Tables Name //
-
-        String PointingTableName = ms0.pointingTableName();
-        printf("Pointing Table name [%s] \n",PointingTableName.c_str());
-
-    // Prepeare Handle //
-
-        MSPointing  hPointingTable = ms0.pointing();
-
-    // Get current row count //
-
-        uInt nrow_p = hPointingTable.nrow();
-
-        printf( "Pointing Table nrow =%d \n",nrow_p);
-
-    //
-    // Get Column handle from Table  (Pointing)
-    //  
-
-        std::unique_ptr<casacore::ROMSPointingColumns> 
-                columnPointing( new casacore::ROMSPointingColumns( hPointingTable ));
-
-    //+
-    // Listing  (Pointing) 
-    //-
-
-        ScalarColumn<Double> pointingTime           = columnPointing ->time();
-        ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
-        ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-        ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
-
-        printf( "================================\n");
-        printf( " Pointing (Time and Dir) \n");
-        printf( "-----------------+--------------\n");
-
-        for (uInt row=0; row<nrow_p; row++)
-        {
-
-            Vector<Double> valDirection  =   pointingDirection. get(row);
-            Vector<Double> valTarget     =   pointingTarget.    get(row);
-	    Double         valTime       =    pointingTime.     get(row);
-
-            printf( "Pointing,(pos time dir target), %d , %f, , %f, %f, ,%f, %f)  \n", 
-                    row,  valTime, 
-                    valDirection[0],      valDirection[1],
-                    valTarget[0],         valTarget[1] );
-
+          EXPECT_EQ( N_Row, (uInt)2);
         }
-
-}
-    
-
-/*---------------------------------------------
-    Interporation Test (sub) 
-     dt : displacement betweeen measure point
-     [0 <= dt <= 1]   dt=0; X[n],  dt=1, X[n+1]
-  ---------------------------------------------*/
-
-std::vector<Double>  TestDirection::subTestDirection(Double dt )
-{
-    TestDescription( "Interpolation Test in getDirection ()" ); 
-    printf( " dt = %f (sec)\n",dt ); 
-
-    const String MsName = DefaultLocalMsName;
-
-    //  MS (Dump) ** develper option ** //
-
-        if(false)  DumpPointingTable(MsName);
-
-    // Create Object //
-   
-        MeasurementSet ms( MsName.c_str() );
-
-        PointingDirectionCalculator calc(ms);   
- 
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-    //+
-    // selectData
-    //    0=DA61, 1=PM03, 2=PM04
-    //-
-
-        if(true)
-        {
-              const String AntSel = "GBT&&&";
-            calc.selectData( AntSel,  "","","","","","","","","" );
- 
-        }
-
-    //+
-    // setDirectionColumn() 
-    //-
-  
-        String ColName = "DIRECTION"; 
-        Description( "getDirectionColumn()", ColName  );
-
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-    //+
-    //  MatrixShape (COLUMN_MAJOR) 
-    //-
-        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
-        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) ); 
-
-    //+
-    // setFrame()
-    //-
-
-        String FrameName= "J2000";
-
-        EXPECT_NO_THROW( calc.setFrame( FrameName ));
-
-    //  Dump (before)
-
-        if(false)
-        {
-            Description("Dump Pointing (before getDirection) ","" );
-            DumpPointingTable( MsName );
-        }
-
-    //+
-    //  getDirection()
-    //-
-
-        Description("Calling  getDirection() ","" );
-
-        Matrix<Double>  DirList1  = calc.getDirection();
-        size_t   n_col    = DirList1.ncolumn();
-        size_t   n_row    = DirList1.nrow();
-
-        printf( "Number of Row = %zu \n", n_row );
-        printf( "Number of Col = %zu \n", n_col );
-
-    //+
-    // Dump Matrix
-    //-
-
-    Description("Inspecting  Direction Inerpolation ","" ); 
-
-    Double maxErr_1 = 0.0;
-    Double maxErr_2 = 0.0;             
-    Double absErr_1 = 0.0;
-    Double absErr_2 = 0.0;
-
-
-    if(true)
-    {
-        uInt LoopCnt = n_row-2;
-
-        printf("Row, cal_x, cal_y, gen_x. gen_y, err_x, err_y \n");
-
-        for (uInt row=0; row < LoopCnt; row++)  // ACTUNG !!! start from 1 or o ??  /// 
-        {
- 
-            // Direction //
-
-              Double calculated_1 = DirList1(row,0);
-              Double calculated_2 = DirList1(row,1);
-
-    
-            // Generated (Estimated) //
-
-
-                casacore::Vector<Double>  gen_out 
-                      = msedit.evgen.pseudoDirInfoMain(  (Double)row   
-                                                          + dt         );    // dt:Interpolation offset  (sec)
-                                                     
- 
-            //+
-            // Error calculation (TENTATIVE, -> class lib) 
-            //-
-
-                Double generated_1 = gen_out[0]; 
-                Double generated_2 = gen_out[1]; 
-                
-                Double Err_1 = calculated_1 - generated_1 ;   
-                Double Err_2 = calculated_2 - generated_2 ;
-
-                absErr_1 = abs(Err_1);
-                absErr_2 = abs(Err_2);
-                
-                if( maxErr_1 < absErr_1 ) maxErr_1 = absErr_1;
-                if( maxErr_2 < absErr_2 ) maxErr_2 = absErr_2;
-
-            //+ 
-            // Google Test
-            //-
-
-		EXPECT_LE( absErr_1, msedit.evgen.getInterpolationErrorLimit()  ); 
-                EXPECT_LE( absErr_2, msedit.evgen.getInterpolationErrorLimit()  ); 
-
-            // Output List //
-
-                printf( "Evaluation,");
-                printf( "%6d, %13.10f,%13.10f,", row,  calculated_1, calculated_2 );
-                printf( "%13.10f,%13.10f,",      generated_1,  generated_2 );
-                printf( "%12.4e,%12.4e \n",      Err_1,     Err_2);
-        }    
-    }
-   
-   std::vector<Double> vv(2);
-   vv[0] = maxErr_1;   
-   vv[1] = maxErr_2;
-
-   return vv; 
 }
 
-//+
-// TestSub
-//  - Pointing table interval and Main table interval are specified
-//  - execute numerical error test by activating Interpolation
-//    by using slided time in Main Table.
-//-
-std::vector<Double> TestDirection::TestSub(Double p_int, Double m_int)
-{
-    printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
-    printf("      INTERPOLATION:: testing [%f,%f ] \n", p_int,m_int );
-    printf("IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII\n");
 
-    // Max Error ///
-
-    std::vector<Double> reterr;
-    ErrorMax            maxerr;
-    
-
-    // Add INTERPOLATION TEST DATA 
-  
-    msedit.writeInterpolationTestDataOnPointingTable( 0.0 );  // Pointing //
-
-    // Test Loop  
-    //   - nDiv is given, internd to spacify number of separating count 
-    //     between one exact point and the next,  
-
-    uInt nDiv = InterpolationDivCount; 
-    for (uInt loop=0; loop <= nDiv; loop ++ )
-    {
-         //+
-         // SetUp Testing  MeasurmentSet
-         //-
-
-           Description("INTERPOLATION:: Making MeasurementSet",
-                        "INTERPOLATION::k="+to_string( (Double)loop/(Double)nDiv  ));
-
-           msedit.writeInterpolationTestDataOnMainTable( (Double)loop/(Double)nDiv  );
-
-        // excuttion ..// 
-        
-          Description("Execution starts. ","" );
-          reterr = subTestDirection( (Double)loop/(Double)nDiv );
-
-          printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-          printf( " Max Error =, %e, %e \n", reterr[0], reterr[1] );
-          printf( "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee\n");
-
-          maxerr.put(reterr);
-    }
-    std::vector<Double> e_max = maxerr.get();
-
-    printf("----------------------------------------\n");
-    printf("INTERPOLATION:: testing [%f,%f] END     \n", p_int, m_int );
-    printf("----------------------------------------\n");
-
-    return e_max; 
-}
-/*-----------------------------------------------------------------------
-   Interporatio Test in getDirection()   Multiple-Combiniation
-
- - Use Combiniation of Pointing table Interval and Main table Interval
- - Capable of selecting curve fucntion for simulated pointing trajectry
-  ----------------------------------------------------------------------*/
- 
-TEST_F(TestDirection, InterpolationFull )
-{
-    // Combiniation List of Pointing Interval and Main Interval //
-
-    vector<Double> Pointing_IntervalList = { 0.05,  0.1,  0.5,  1.0};
-    vector<Double> Main_IntervalList     = { 1.0,   0.01};
-
-    ErrorMax  maxerr;
-    std::vector<Double> r_err = {0.0}; 
-
-   for( uint m=0; m < Main_IntervalList.size(); m++)
-    {
-        for( uint p=0; p < Pointing_IntervalList.size(); p++)
-        {
-             Double p_i = Pointing_IntervalList[p];
-             Double m_i = Main_IntervalList[m];
-  
-             SetUp();
-             msedit.evgen  .    setCurveFunctionNo(1);   // set Curve Fuction
-             msedit.evgen.      setMainRowCount(5000);
-             msedit.evgen.      Initialize(p_i, m_i) ;
-
-            // Increase Row on MS for large-file.
-
-              msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
-              msedit.appendRowOnMainTable     (msedit.evgen. getAddInerpolationTestMainTableRow() );
-
-              addColumnDataOnPointing();   // FILL DATA 
-
-            // Execute and get error info //
-
-              r_err = TestDirection::TestSub( p_i, m_i );
-              maxerr.put(r_err);
-        }
-    }
-
-    std::vector<Double>  e = maxerr.get();
-    printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-    printf ( "   THE WORST Error = %e, %e \n", e[0], e[1] );
-    printf ( "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG\n");
-}
-
-/*-----------------------------------------------------------------------
-  Interporatio Test in getDirection()   SINGLE mode.
-
-- Set up one set of Pointing table Interval and Main table Interval
-- Table sizes to be created is automatically tuned.
-- Capable of selecting curve fucntion for simulated pointing trajectry
- ----------------------------------------------------------------------*/
-
-TEST_F(TestDirection, InterpolationSingle )
-{
-
-    TestDescription( "Interpolation test in getDirection() SINGLE-mode" );
-
-    //+
-    //  Select Function
-    //    - See EvaluateInterporation class
-    //
-    //  Set Testing Count
-    //    - define test count. some rows are automatically added
-    //-
-
-      msedit.evgen.    setCurveFunctionNo(0);   // set Curve Fuction
-      msedit.evgen.    setMainRowCount   (7200);  // aprox. 2H 
-      msedit.evgen.      Initialize( 0.048,     // Pointing Interval
-                                    1.008 ) ;  // Main Interval 
-
-    // Increase Row on MS for large-file.:
-
-      msedit.appendRowOnPointingTable (msedit.evgen.  getAddInerpolationTestPointingTableRow() );
-      msedit.appendRowOnMainTable     ( msedit.evgen. getAddInerpolationTestMainTableRow() );
-      addColumnDataOnPointing();   // FILL DATA 
-
-    //+
-    //   Pointing TBL and MAIN TBL
-    //-
- 
-
-      std::vector<Double> r_err = {0.0};
-
-      // get currect interval time.. //
-      Double p_interval = msedit.evgen.getPointingTableInterval();
-      Double m_interval = msedit.evgen.getMainTableInterval();
-
-      // Execute and get numerical error info 
-      r_err = TestDirection::TestSub(p_interval, m_interval);
-
-      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
-      printf( " Total Max Error = %e, %e \n", r_err[0], r_err[1] );
-      printf( "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE\n");
-
-}
-/*---------------------------------------------------
-    getDirection  with uvw data dump,
-     - Ordinary (standard sequence) 
-  --------------------------------------------------*/
-
-TEST_F(TestDirection, getDirectionExtended )
-{
-
-    TestDescription( "getDirection (J2000) with selected data. uvw available" );
-
-    // Use DefaultMS as a simple sequence.
-    // Use the below to show uv valuses from MS.
-
-    const String MsName = env.getCasaMasterPath() + "listobs/uid___X02_X3d737_X1_01_small.ms";
-
-    // Create Object //
-    
-        MeasurementSet ms0( MsName.c_str() );
-    
-        PointingDirectionCalculator calc(ms0);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-
-    //+
-    // * Option *
-    // selectData()   
-    //  Please change if() to true,
-    //-
-        if(true)
-        {
-            const String AntSel = "DV01&&DV02";
-            calc.selectData( AntSel,  "","","","","","","","","" );
-
-            ExpectedNrow = calc.getNrowForSelectedMS();
-        }
-
-    //+
-    // setDirectionColumn() 
-    //-
-  
-        String ColName = "DIRECTION"; 
-        Description( "getDirectionColumn()", ColName  );
-
-        EXPECT_NO_THROW( calc.setDirectionColumn( ColName ) );
-
-    //+
-    //      MatrixShape (COLUMN_MAJOR) 
-    //-
-        Description("calling setDirectionListMatrixShape()" ,"Column Major" );
-        EXPECT_NO_THROW( calc.setDirectionListMatrixShape(PointingDirectionCalculator::COLUMN_MAJOR) );
-
-    //+
-    //  setMovingSourceDirection() 
-    //-
-        String src = "MOON";
-        Description("calling setMovingSource()", src);
-         EXPECT_NO_THROW( calc.setMovingSource( src ) ); 
-
-    //+
-    //  getDirection()
-    //-
-
-        Description("calling  getDirection() ","" );
-
-         Matrix<Double>  DirList1  = calc.getDirection();
-         uInt  n_row    = DirList1.nrow();
-
-         printf( "Number of Row = %d \n", n_row );
-         EXPECT_EQ( n_row, ExpectedNrow);
-
-
-    //+
-    // uv value 
-    //  (first attach to Column e )
-    //-
-
-        casacore::ArrayColumn<casacore::Double> uvwColumn;	
-        uvwColumn .attach( ms0 , "UVW");
-
-    //+
-    // Dump Matrix
-    //-
-
-#if 1
-
-    Description("Dump obtined Direction info. ","" );
-
-    for (uInt row=0; row< n_row; row++)
-    {
-        // (u,v,w) //
-
-        uInt RowId = calc.getRowId(row); // point the row in Original. //
-        casacore::Vector<Double>  val_uvw = uvwColumn.get(RowId);
-
-        Double u = val_uvw[0];
-        Double v = val_uvw[1];
-        Double w = val_uvw[2];
-
-        // Direction //
-
-        Double Val_1 = DirList1(row,0);
-        Double Val_2 = DirList1(row,1);
-
-        casacore::MDirection  MovDir  = calc.getMovingSourceDirection();
-        String strMovDir = MovDir.toString();
-
-        printf(    "Dir at, %d, %f,%f, [Mov:%s], uv=, %f,%f,%f  \n",  
-                row, Val_1, Val_2, strMovDir.c_str(), 
-                u, v, w );
-
-    }
-
-#endif 
-
-}
 /*------------------------------------------
    selectData ( <various types of keys>  )
 
@@ -2800,7 +2946,8 @@ class TestSelectData : public BaseClass
 public:
 
 protected:
- 
+
+        // Select Keywords //
         String  AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
         String  SpwSel              = "";     
         String  FieldSel            = "";
@@ -2812,8 +2959,6 @@ protected:
         String  UVRangeSel          = "";
         String  MSSelect            = "";
 
-        String DefMsName = "listobs/uid___X02_X3d737_X1_01_small.ms";
-
         TestSelectData()
         {
         }
@@ -2823,27 +2968,78 @@ protected:
         }
 
 
-        virtual void SetUp()
-        {
-            BaseClass::SetUp();
-        }
+        virtual void SetUp(){ }
 
         virtual void TearDown()
        {
-            BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
        }
 
         void test_selectdata(PointingDirectionCalculator & calc);
 
+       //+
+       // for Reduced Code (CAS-8418 related) 
+       //-
+         void  openMS(String ms);    
+         void  closeMS();
+         void  clearKey();
+         void  selectTest(  String dmy,
+		       bool result, uInt expectedRow );
+
+         // PDCalc Obj. //
+         unique_ptr<PointingDirectionCalculator> calc0;
+
 };
 
-/*------------------------------------------------------
-   Execution of selectData(...)
-    - args are given from external variables
-    - Note that 'calc' MUST be given by reference.
-  ------------------------------------------------------*/
+//-------------------------------
+// Temp New edition
+// with reduced code size
+//-------------------------------
 
-void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
+void  TestSelectData::openMS(String remote_ms )
+{
+    // open //
+      String local_ms = CopyMStoWork(remote_ms);
+      MeasurementSet ms( local_ms );
+    // calc // 
+      unique_ptr<PointingDirectionCalculator> calcTemp( new PointingDirectionCalculator(ms));
+      calc0 = std::move(calcTemp);
+}
+
+void TestSelectData::closeMS()
+{
+    clearKey();
+    calc0.reset();	// Free the object//
+}
+
+void TestSelectData::clearKey()
+{
+    AntSel              = "";      // [C++11] Should be Null, to go throgh GetTEN 
+    SpwSel              = "";
+    FieldSel            = "";
+    TimeSel             = "";
+    ScanSel             = "";
+    FeedSel             = "";
+    IntentSel           = "";
+    ObservationSel      = "";
+    UVRangeSel          = "";
+    MSSelect            = "";
+} 
+void TestSelectData::selectTest(String dmy , bool result, uInt expectedNRow )
+{
+    printf( "TestSelectData:: key = %s \n", dmy.c_str() );
+
+    // Exec //
+      if ( result )EXPECT_NO_THROW( test_selectdata(*calc0) );
+      else   {      EXPECT_ANY_THROW( test_selectdata(*calc0) ); return; }
+    // check
+      uInt nrow = calc0->getNrowForSelectedMS();
+      EXPECT_EQ (expectedNRow, nrow);     // see MS in detail //
+}
+
+
+void TestSelectData::test_selectdata(PointingDirectionCalculator &calc)
 {
 
       calc.selectData( AntSel,
@@ -2861,629 +3057,128 @@ void TestSelectData::test_selectdata(PointingDirectionCalculator& calc)
 }
 
 /*------------------------------------------
-   selectData( Antenna )
-   - Inspect the result with Antenna key. 
+   NEW selectData TEST
+   - more compact. 
   ------------------------------------------*/
 
-TEST_F(TestSelectData, Antenna )
+ TEST_F(TestSelectData, AllTest )
 {
-    TestDescription( "selectData (key=Antenna)" );
 
-    // MS name for this Test //
-   
-       String name = env.getCasaMasterPath() + DefMsName;
-       printf( " Used MS is [%s] \n", name.c_str() );
-  
-    // Create Object //
-    
-       MeasurementSet ms( name.c_str() );
-  
-       PointingDirectionCalculator calc(ms);
+  TestDescription( "selectData (key=Antenna)" );
+    String MsAnt  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsAnt); 
 
-    // Initial brief Inspection //
-   
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n"); 
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       printf("Expected nrow =%d\n",ExpectedNrow);
+    selectTest(  AntSel = "",        true,  1080 );
+    selectTest(  AntSel = "hoge&&&", false, 0    );
+    selectTest(  AntSel = "DV01&&&", true,  180  );
+    selectTest(  AntSel = "DV02&&&", true,  180  );
+    selectTest(  AntSel = "PM03&&&", true,  180  );
+    selectTest(  AntSel = "DV*&&&",  true,  360  );
+     closeMS();
 
-       EXPECT_NE( (uInt)0, ExpectedNrow );
-       
-    //+
-    // TEST SET 
-    //  1) Specify the condition
-    //  2) probe and confirm Exception
-    //  3) Result check , expected Nrow was selected 
-    //-
+  TestDescription( "selectData (key=Spw)" );
+    String MsSpw  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsSpw);
 
-    uInt  nrow ;
+    selectTest(  SpwSel = "",        true,  1080 );
+    selectTest(  SpwSel = "*",       true,  1080 );
+    selectTest(  SpwSel = "hoge",    false, 0 );
+    selectTest(  SpwSel = "0:13~20", true,  270 );
+    selectTest(  SpwSel = "0:13=20", false, 270 ); // Syntax Error
+    selectTest(  SpwSel = "1:13~15", true,  810 ); // with Out of Range
+     closeMS();
 
-      AntSel = "";
-        FunctionalDescription("Antenna: by NULL  (Matches) ",AntSel);
+  TestDescription( "selectData (key=Field)" );
+    String MsField  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsField);
 
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow); 
-        EXPECT_EQ (ExpectedNrow, nrow);     // see MS in detail //
+    selectTest(  FieldSel = "",        true,  4818 );
+    selectTest(  FieldSel = "*",       true,  4818 );
+    selectTest(  FieldSel = "hoge",    false,    0 );
+    selectTest(  FieldSel = "0",       false,  4818 );
+    selectTest(  FieldSel = "1",       true,   4818 );
+    selectTest(  FieldSel = "9",       false,  4818 ); 
+     closeMS();
 
-      AntSel = "hoge&&&";
-        FunctionalDescription("Testing Abnormal Name = hoge (No Matches))",AntSel );
+  TestDescription( "selectData (key=Time)" );
+    String MsTime  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsTime);
 
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ (ExpectedNrow, nrow);
+    selectTest(  TimeSel = "",                        true,   4818 );
+    selectTest(  TimeSel = "hoge",                    false,     0 );
+    selectTest(  TimeSel = ">1900/01/01/00:00:00",    true,   4818 );
+    selectTest(  TimeSel = ">2018/01/01/00:00:00",    false,     0 );
+    selectTest(  TimeSel = "<2014/12/4/00:39:25",     true,      5 );
+    selectTest(  TimeSel = "2014/12/4/00:40:00~2014/12/4/00:40:10",  true,   17 );
+     closeMS();
 
-      AntSel = "DV01&&&";
-        FunctionalDescription("Antenna: Normal specific Name. (Matches) ",AntSel);
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);     // see MS in detail //
-
-      AntSel = "DV02&&&";
-        FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);
-
-      AntSel = "PM03&&&";
-        FunctionalDescription("Antenna: Normal specific Name (No Matches)",AntSel );
-
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ((uInt)180, nrow);
+  TestDescription( "selectData (key=Feed)" );
+    String MsFeed  = "sdimaging/Uranus1.cal.Ant0.spw34.ms";
+    openMS(MsFeed);
  
-      AntSel = "DV*&&&";
+    selectTest(  FeedSel = "",         true,   4818 );
+    selectTest(  FeedSel = "0",        true,   4818 );
+    selectTest(  FeedSel = "1",        true,   4818 );
+     closeMS();
 
-        FunctionalDescription("Antenna: Normal with Wild card char. (Matches)",AntSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        printf("=> Calling getNrowForSelectedMS() after oelectData() called.\n");
-        nrow = calc.getNrowForSelectedMS();
-        printf("Selected nrow =%d\n",nrow);
-        EXPECT_EQ ( (uInt)360, nrow);
+  TestDescription( "selectData (key=Intent)" );
+    String MsIntent  = "sdimaging/selection_intent.ms";
+    openMS(MsIntent);
 
-        //+
-        // Other detail cases are to be programmed here if needed. 
-        //-
+    selectTest(  IntentSel = "",         true,    1024 );
+    selectTest(  IntentSel = "*HOGE*",   false,   0 );
+    selectTest(  IntentSel = "*CAL*",    true,    512 );
+    selectTest(  IntentSel = "*BAND*",   true,    512 );
+     closeMS();  
 
-        return;
-        
-}
+  TestDescription( "selectData (key=Observation)" );
+    String MsObservation  = "/sdimaging/selection_spw.ms";
+    openMS(MsObservation);
 
-/*------------------------------------------
-   selectData( Spw )
-   - Inspect the result with Spw. 
-  ------------------------------------------*/
+    selectTest(  ObservationSel = "",       true,    737 );
+    selectTest(  ObservationSel = "hoge",   false,   0 );
+    selectTest(  ObservationSel = "0",    true,    256 );
+    selectTest(  ObservationSel = "1",    true,    256 );
+    selectTest(  ObservationSel = "2",    true,    225 );
+    selectTest(  ObservationSel = "9",    false,    0 );
+     closeMS();
 
-TEST_F(TestSelectData, Spw )
-{
-    TestDescription( "selectData (key=Spw)" );
+   TestDescription( "selectData (key=UVRange)" );
+    String MsUVRange  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsUVRange);
 
-    // MS name for this Test //
+    selectTest(  UVRangeSel = "",            true,    1080 );
+    selectTest(  UVRangeSel = "hoge",        false,   0 );
+    selectTest(  UVRangeSel = ">1.0lambda",  true,    540 );
+     closeMS();
 
-        String name = env.getCasaMasterPath() + DefMsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
+   TestDescription( "selectData (key=MSSelect)" );
+    String MsMSSelect  = "listobs/uid___X02_X3d737_X1_01_small.ms";
+    openMS(MsMSSelect);
 
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      SpwSel = "";
-        FunctionalDescription( "Spw:Nothig specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-    
-      SpwSel = "*";
-        FunctionalDescription( "Spw: Wildcard *  specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      SpwSel = "hoge";
-        FunctionalDescription( "Spw: abnormal letters  specified.",SpwSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      SpwSel = "0:13~20";
-        FunctionalDescription( "Spw: spw=0, ch=13~20 specified.",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ( (uInt)270, nrow);
-#if 0
-//
-// Once execution OK, the next Error query makes unexpected Return ?
-//
-      SpwSel = "0:13=20";
-        Description( "Spw: spw=0, ch=13~20 specified.(Syntax ERROR)",SpwSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-#endif 
-
-      SpwSel = "1:13~15";
-        FunctionalDescription( "Spw: spw=1, ch=13~20 specified.(None)",SpwSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)810, nrow);
-
+    selectTest(  MSSelect = "",                true,    1080 );
+    selectTest(  MSSelect = "hoge",            false,      0 );
+    selectTest(  MSSelect = "FIELD_ID==0",      true,    600 );
+    selectTest(  MSSelect = "FIELD_ID==1",      true,    360 );
+    selectTest(  MSSelect = "FIELD_ID==2",      true,    120 );
+    selectTest(  MSSelect = "FIELD_ID==3",     false,      0 );
+     closeMS();
 
 }
 
-/*------------------------------------------
-   selectData( Field )
-   - Inspect the result with Field. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Field )
-{ 
-    TestDescription( "selectData (key=Field)" );
-
-    // Using MS //
-    
-        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-      printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE( (uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      FieldSel = "";
-        FunctionalDescription( "Files:Nothig specified.",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FieldSel = "*";
-        FunctionalDescription( "Field: Wildcard *  specified.",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FieldSel = "hoge";
-        FunctionalDescription( "Fieled: abnormal letters  specified.",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FieldSel = "0";  // Field ID 
-        FunctionalDescription( "Field: ID=0 specified.(No exits)",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)0, nrow);       // On-Table , None on MAIN .. //
-
-      FieldSel = "1";  // Field ID 
-        FunctionalDescription( "Field: ID=1 specified.(exits)",FieldSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FieldSel = "9";  // Out of Range
-        FunctionalDescription( "Field: ID=9 Not on the FIELD TABLE",FieldSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Time )
-   - Inspect the result with Time range. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Time )
-{ 
-    TestDescription( "selectData (key=Time)" );
-
-    // Using MS //
-    
-        const String MsName = "sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-      printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      TimeSel = "";
-        FunctionalDescription( "Time: Nothig specified.",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      TimeSel = "hoge";
-        FunctionalDescription( "Time: abnormal letters  specified.",TimeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      TimeSel = ">1900/01/01/00:00:00";
-        FunctionalDescription( "Time: since 1900/01/01/00:00:00  specified.",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      TimeSel = ">2018/01/01/00:00:00";
-        FunctionalDescription( "Time: since 2018/01/01/00:00:00  specified. None matches",TimeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ ((uInt)0, nrow);
-
-      TimeSel = "<2014/12/4/00:39:25";  //  Time Condition  
-        FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        printf( "# Actually detected Nrow = %d \n" , nrow); 
-        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
-        EXPECT_EQ ((uInt)5,   nrow);    
-
-      TimeSel = "2014/12/4/00:40:00~2014/12/4/00:40:10";  //  Combined  10 sec 
-        FunctionalDescription( "Field: a specifc Time, Limited Number  match are expected",TimeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) ); // getTEN makes.
-        nrow = calc.getNrowForSelectedMS();
-        printf( "# Actually detected Nrow = %d \n" , nrow);
-        EXPECT_GT ((uInt)20, nrow);      // On-Table  //
-        EXPECT_EQ ((uInt)17, nrow);    // SEE ACTUAL COUNT on Browser //
-
-}
-
-/*------------------------------------------
-   selectData( Feed )
-   - Inspect the result with Feed key. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Feed )
-{ 
-    TestDescription( "selectData (key=Feed)" );
-
-    // Using MS //
-    
-        const String MsName = "/sdimaging/Uranus1.cal.Ant0.spw34.ms";    // One definition MEAS_FREQ_REF =5
-    
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      FeedSel = "";
-        FunctionalDescription( "Feed: Nothig specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FeedSel = "0";    // NO DATA /
-        FunctionalDescription( "Feed: ID specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      FeedSel = "1";    // NO DATA /
-        FunctionalDescription( "Feed: ID specified.",FeedSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Intent )
-   - Inspect the result with Intent key. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Intent )
-{ 
-    TestDescription( "selectData (key=Intent)" );
-
-    // Using MS //
-    
-        const String MsName = "sdimaging/selection_intent.ms";    // 
-    
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      IntentSel = "";
-        FunctionalDescription( "Intent: Nothig specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
- 
-       // Usage : In what way this term is used. 
-        //   and where to exist in MS.
-          
-      IntentSel = "*HOGE*";     // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      IntentSel = "*CAL*";      // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)512, nrow);
-
-      IntentSel = "*BAND*";      // 
-        FunctionalDescription( "Scan: ID specified.",IntentSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)512, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( Observation )
-   - Inspect the result with Observation info. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, Observation )
-{ 
-    TestDescription( "selectData (key=Observation)" );
-
-    // Using MS //
-    
-        const String MsName = "/sdimaging/selection_spw.ms";    //    Three Observation entries.
-    
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      ObservationSel = "";
-        FunctionalDescription( "Observation: Nothig specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-     ObservationSel = "hoge";     
-        FunctionalDescription( "Observation: abnormal expr..",ObservationSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      ObservationSel = "0";     // one DATA /
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)256, nrow);
-
-      ObservationSel = "1";    // second DATA _
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uint)256, nrow);
-
-      ObservationSel = "2";    // 3rd.Data 
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-         EXPECT_EQ ((uint)225, nrow);
-
-      ObservationSel = "9";    // No Data (err) 
-        FunctionalDescription( "Observation: ID specified.",ObservationSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)0, nrow);
-
-}
-
-/*------------------------------------------
-   selectData( UVRange )
-   - Inspect the result with UVRange. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, UVRange )
-{ 
-    TestDescription( "selectData (key=UV Range)" );
-
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + DefMsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      UVRangeSel = "";
-        FunctionalDescription( "UVrange: Nothig specified.",UVRangeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      UVRangeSel = "hoge";     
-        FunctionalDescription( "UVrange: abnormal expr..",UVRangeSel);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      UVRangeSel = ">1.0lambda";        //  Exprecasacore::Table::TableOption:: Updatession Unknown...../
-        FunctionalDescription( "UVrange: ID specified.",UVRangeSel);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)540, nrow);
-
-
-
-}
-
-/*------------------------------------------
-   selectData( MS select ) - TaQL query -
-   - Inspect the result selected by TaQL form. 
-  ------------------------------------------*/
-
-TEST_F(TestSelectData, MSselect )
-{ 
-    TestDescription( "selectData (key=MS Select)" );
-
-    // MS name for this Test //
-    
-        String name = env.getCasaMasterPath() + DefMsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-    
-    // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
-    
-        PointingDirectionCalculator calc(ms);
-    
-    // Initial brief Inspection //
-    
-       printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-       ExpectedNrow = calc.getNrowForSelectedMS();
-       EXPECT_NE((uInt)0, ExpectedNrow );
-
-      uInt nrow;
-      MSSelect = "";
-        FunctionalDescription( "MSselect: Nothig specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      MSSelect = "hoge";     
-        FunctionalDescription( "MSselect: abnormal expr..",MSSelect);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ (ExpectedNrow, nrow);
-
-      MSSelect = "FIELD_ID==0";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)600, nrow);
-
-      MSSelect = "FIELD_ID==1";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)360, nrow);
-
-      MSSelect = "FIELD_ID==2";        //  Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_NO_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)120, nrow);
-
-      MSSelect = "FIELD_ID==3";        //  ERROR :Query description is here. //
-
-        FunctionalDescription( "MSselect: ID specified.",MSSelect);
-        EXPECT_ANY_THROW( test_selectdata(calc) );
-        nrow = calc.getNrowForSelectedMS();
-
-        EXPECT_EQ ((uInt)0, nrow);
-}
-
+//+
+// setFrame() Test
+//   Examine Direction Type 
+//-
 
 class TestSetFrame : public BaseClass
 {
 
 public:
+    typedef struct _FrameName {
+        bool   available;
+        String name;
+    } FrameTypeList;
 
 protected:
 
@@ -3534,22 +3229,20 @@ const std::vector<FrameTypeList> DefinedFrametypes
     };
 
         TestSetFrame () { }
-
         ~TestSetFrame () { }
 
-        virtual void SetUp()
-        {
-            BaseClass::SetUp();
-        }
+        virtual void SetUp() { }
 
         virtual void TearDown()
        {
-            BaseClass::TearDown();
+            // Delete Working MS 
+            DeleteWorkingMS();
        }
       
         // Test Fixture Sub //
 
-        void check_direction_info(PointingDirectionCalculator& calc, uInt n_frame );
+        void check_direction_info(PointingDirectionCalculator& calc, 
+                                  String name, bool available);
 };
 
 /*-----------------------------------------------
@@ -3557,49 +3250,32 @@ const std::vector<FrameTypeList> DefinedFrametypes
 
    1) setFrame( given name by ARG )
    2) getDirectionType()
-   - 1)and 2) MUST BE SAME.
    3) output (converted to string) must be same 
-
-  Internally use: MDirection getDirectionType()
   -----------------------------------------------*/
 
-void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, uInt n_frame )
-
+void TestSetFrame::check_direction_info(PointingDirectionCalculator& calc, 
+                                        String name, bool available )
 {
-    //+
-    // Test setFrame (Str) 
-    //   No Exception is expected all the time 
-    //-
+    // setFrame call (No exception is expected) //
 
-      EXPECT_NO_THROW( calc.setFrame( DefinedFrametypes[n_frame].name ));
+      EXPECT_NO_THROW( calc.setFrame( name ));
 
-    //+
-    // Durection Type 
-    //  converting to string form to compare.
-    //  output text must contain the specified KEY.
-    //-  
+    // Get Direction Typeby String  //
 
-         // Direction Type //
-  
-       casacore::MDirection DirType  = calc.getDirectionType();
- 
-          printf( "#   MDirection: [%s] \n",  DirType.toString().c_str()  ) ;
-          printf( "#   Given String [%s] \n", DefinedFrametypes[n_frame].name.c_str() );
+      auto DirType  = calc.getDirectionType();
+      String converted = casacore::MDirection::showType	(DirType);
 
+      printf( "=============================  \n"  ) ;
+      printf( "#   Given String          [%s] \n", name. c_str() );
+      printf( "#   MDirection Converted: [%s] \n",  converted.c_str()  ) ;
+      printf( "-----------------------------  \n"  ) ;
         
-        String converted = DirType.toString();
-        String sub_str   = DefinedFrametypes[n_frame].name;
+    // GTEST:: Some of them are not supported and throw Exception //
 
-        // GTEST :: Check SubString // 
-        
-    Description( "Checking frame sub-string. ",DirType.toString().c_str() );
-
-    // Some of them are not supported and throw Exception //
-
-    if(  DefinedFrametypes[n_frame].available == true)       
-        EXPECT_TRUE( converted.find(sub_str) !=std::string::npos); 
+    if(available == true)       
+        EXPECT_TRUE ( name == converted ); 
     else
-        EXPECT_FALSE( converted.find(sub_str) !=std::string::npos);
+        EXPECT_FALSE( name == converted );
 
 }
 
@@ -3613,57 +3289,143 @@ TEST_F(TestSetFrame, setFrame )
 { 
     TestDescription( "setFrame (String FrameName)" );
 
-    // Using MS //
-    
-        const String MsName = "listobs/uid___X02_X3d737_X1_01_small.ms";    
-    
-    // MS name for this Test //
-
-        String name = env.getCasaMasterPath() + MsName;
-        printf( " Used MS is [%s] \n", name.c_str() );
-
+    // Using MS // 
+        const String remote_ms = "listobs/uid___X02_X3d737_X1_01_small.ms";    
+        printf( " Used MS is [%s] \n", remote_ms.c_str() );
+ 
     // Create Object //
-    
-        MeasurementSet ms( name.c_str() );
+        String local_ms = CopyMStoWork(remote_ms);
+        MeasurementSet ms( local_ms );
         PointingDirectionCalculator calc(ms);
     
-    // Initial brief Inspection //
-    
-        printf("=> Calling getNrowForSelectedMS() in Initial Inspection\n");
-        ExpectedNrow = calc.getNrowForSelectedMS();
-        EXPECT_NE((uInt)0, ExpectedNrow );
-
     // Various Frame Type (String) //
 
-        for(uInt k = 0; k < DefinedFrametypes.size() ; k++  )
+        for(auto itr=DefinedFrametypes.begin();itr!=DefinedFrametypes.end() ;++itr )
         {
-            FunctionalDescription( "setFrame(Rsved Name) ", DefinedFrametypes[k].name.c_str() );
-
-            // Execute and check Exception and other requirements//
-        
-            check_direction_info( calc, k ) ;
+            check_direction_info( calc, itr->name, itr->available ) ;
         }
 }
 
+//======================================
+// Time Gap Analysys Code  11-JUL-2019
+//   No use for release.
+//======================================
+#if 0
+TEST_F(TestDirection, MAIN )
+{
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+    MainTableAccess mta(remote_ms);
+
+    String filename = "8418-mainTable.csv" ;
+    mta.dump( filename );
+
+}
+
+TEST_F(TestDirection, POINTING )
+{
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+    PointingTableAccess pta(remote_ms);
+
+    String filename = "8418-pointingTable.csv" ;
+    pta.dump( filename );
+
+}
+
+TEST_F(TestDirection, EPH )
+{
+// Copy specified MS to local MS.
+    String remote_ms = "./Uranus1.cal.Ant0.spw34.ms";
+
+// Measurment Set and Constructor //
+    MeasurementSet ms0( remote_ms  );
+    PointingDirectionCalculator calc(ms0);
+
+// setFrame // 
+
+    calc.setFrame( "AZELGEO" );
+
+// setMogving Source //
+//    calc.setMovingSource( "URANUS" );
+
+    calc.setSplineInterpolation(true);
+
+// getDirection //
+    Matrix<Double> DirList  = calc.getDirection();
+    auto N_Col    = DirList.ncolumn();
+    auto N_Row    = DirList.nrow();
+        printf ("# NCol = %zu , NRow = %zu \n", N_Col, N_Row );
+
+// List //
+#if 1
+    for (uInt row=0; row < N_Row ; row++)
+    {
+
+        Double dir_x = DirList(row,0);
+        Double dir_y = DirList(row,1);
+
+        printf ("Dir, %d, %12.8f, %12.8f  \n", row, dir_x, dir_y );
+
+    }
+#endif 
+
+#if 0
+// Coeff //
+    
+    PointingDirectionCalculator::COEFF coeff = calc.exportCoeff();
+
+    uInt ant =0;
+    uInt size = coeff[0].size();
+    for(uInt Index =0; Index<size; Index++)
+    {
+        Double a0 = coeff[ant][Index][0][0];
+        Double a1 = coeff[ant][Index][0][1];
+        Double a2 = coeff[ant][Index][0][2];
+        Double a3 = coeff[ant][Index][0][3];
+
+        Double b0 = coeff[ant][Index][1][0];
+        Double b1 = coeff[ant][Index][1][1];
+        Double b2 = coeff[ant][Index][1][2];
+        Double b3 = coeff[ant][Index][1][3];
+
+
+        printf ("COEFF,%d, %9.6f,%9.6f,%9.6f,%9.6f, | , %9.6f,%9.6f,%9.6f,%9.6f  \n",
+                Index, a0,a1,a2,a3,   b0,b1,b2,b3 );
+    }
+
+#endif 
+
+
+}
+#endif 
+
+
+
 }  // END namespace
 
-/************************************************
-   Unit Test Main (google test)
+/**********************************************************************
+ Unit Test Main (google test)
     - Based on instructed Template for GTest.
     - Such minimum statements are recommended.
-(Note) Interpolation Test completed 
- *************************************************/
+(Major History) 
+-  7-DEC-18: Merged master (to get new CMakeList)
+-  7-DEC-18: Added initialize (CAS-12114,old 11427-2)
+-  4-APR-19: Internal Feature freazed. 
+             Ommiteed some test conditions to finish within 3 min.
+- 15-APR-19  Changed InterpolationListed. 
+- 14-MAY-19  Changed pseudo data generation. Generating based on 
+             Poining-Column and also with AntennaID.
+- 31-MAY-19  Git Push. "Ready to Validate". Further blush up continue
+- 05-JUN-19  Working in Blush up test code. remove reduntdant.
+- 10-JUN-19  Source Reviewed. Started correction.
+- 24-JUN-19  Simplified TestSelectData, reduced code size .
+- 11-JUL-19  Added time gap test code tentatively. Commented out for push
+ **********************************************************************/
 
 int main (int nArgs, char * args [])
  {
-
    // Initialize //
-
     ::testing::InitGoogleTest(& nArgs, args);
-
    // Run Test //
-
     return (RUN_ALL_TESTS()) ;
-
 }
 
