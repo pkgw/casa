@@ -10,7 +10,7 @@ def simobserve(
     project=None, 
     skymodel=None, inbright=None, indirection=None, incell=None, 
     incenter=None, inwidth=None, # innchan=None,
-    complist=None, compwidth=None,
+    complist=None, compwidth=None, comp_nchan=1,
     setpointings=None,
     ptgfile=None, integration=None, direction=None, mapsize=None, 
     maptype=None, pointingspacing=None, caldirection=None, calflux=None, 
@@ -227,7 +227,6 @@ def simobserve(
 
             model_refdir, coffs = util.average_direction(compdirs)
             model_specrefval = cl.getspectrum(0)['frequency']['m0']
-            model_specrefpix = 0. # components-only doesn't do cube
 
             if util.isquantity(compwidth,halt=False):
                 model_width = compwidth
@@ -235,7 +234,11 @@ def simobserve(
                 model_width = "2GHz"
                 msg("component-only simulation, compwidth unset: setting bandwidth to 2GHz",priority="warn")
 
-            model_nchan = 1
+            model_nchan = comp_nchan
+            # channelize component-only MS 
+            # currently assuming equal width and center as frequency reference
+            model_specrefpix = 0.5*(comp_nchan-1)
+            model_width = qa.div(model_width,model_nchan)
             model_stokes = "I"
 
             cmax = 0.0014 # ~5 arcsec
