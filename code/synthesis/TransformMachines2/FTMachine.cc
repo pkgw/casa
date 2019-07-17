@@ -634,7 +634,7 @@ using namespace casa::vi;
       npixels=((image->shape()).product())/1024;
     else{
       if((imstor->getShape()).product() !=0)
-        npixels=(*(imstor->backwardGrid())).shape().product()/1024;
+        npixels=(imstor->getShape()).product()/1024;
     }
     if(npixels==0) npixels=1; //1 kPixels is minimum then
     Long factor=sizeof(Complex);
