@@ -216,6 +216,7 @@ def simobserve(
 
         else:
             components_only = True
+            msg("component-only simulation",priority="info")
             # calculate model parameters from the component list:
 
             compdirs = []
@@ -230,14 +231,18 @@ def simobserve(
 
             if util.isquantity(compwidth,halt=False):
                 model_width = compwidth
+                msg("compwidth set: setting model bandwidth to input",
+                    priority="info")
             else:
                 model_width = "2GHz"
-                msg("component-only simulation, compwidth unset: setting bandwidth to 2GHz",priority="warn")
+                msg("compwidth unset: setting bandwidth to 2GHz",
+                    priority="warn")
 
             model_nchan = comp_nchan
             # channelize component-only MS 
             # currently assuming equal width and center as frequency reference
             model_specrefpix = 0.5*(comp_nchan-1)
+            msg("scaling model bandwidth by model_nchan",priority="info")
             model_width = qa.div(model_width,model_nchan)
             model_stokes = "I"
 
