@@ -31,7 +31,7 @@
 #include <iomanip>
 
 #include <synthesis/Utilities/PointingDirectionCalculator.h>
-#include <memory>  // for unique_ptr<> 
+#include <memory>  // for unique_ptr<>
 #include <utility> // for std::pair
 
 #include <casa/aipstype.h>
@@ -68,7 +68,7 @@ using namespace std;
 //
 //   debuglog << "Any message" << any_value << debugpost;
 //
-  
+
 //   #define DIRECTIONCALC_DEBUG
 
 namespace {
@@ -127,7 +127,7 @@ inline void performMovingSourceCorrection(
     // DEBUG (CAS-11818) //
     assert( convertToCelestial != nullptr );
     assert( convertToAzel != nullptr );
-         
+
     MDirection srcAzel = (*convertToAzel)();
     MDirection srcDirection = (*convertToCelestial)(srcAzel);
     Vector<Double> srcDirectionVal = srcDirection.getAngle("rad").getValue();
@@ -150,26 +150,26 @@ namespace casa {
 
 //+
 // Original Constructor
-//- 
+//-
 PointingDirectionCalculator::PointingDirectionCalculator(
         MeasurementSet const &ms) :
-        originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(), 
-        pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(), 
+        originalMS_(new MeasurementSet(ms)), selectedMS_(), pointingTable_(),
+        pointingColumns_(), timeColumn_(), intervalColumn_(), antennaColumn_(),
         directionColumnName_(), accessor_(NULL), antennaPosition_(), referenceEpoch_(),
-        referenceFrame_(referenceEpoch_, antennaPosition_), 
-        directionConvert_(NULL), directionType_(MDirection::J2000), movingSource_(NULL), 
-        movingSourceConvert_(NULL), movingSourceCorrection_(NULL), 
+        referenceFrame_(referenceEpoch_, antennaPosition_),
+        directionConvert_(NULL), directionType_(MDirection::J2000), movingSource_(NULL),
+        movingSourceConvert_(NULL), movingSourceCorrection_(NULL),
         antennaBoundary_(), numAntennaBoundary_(0), pointingTimeUTC_(), lastTimeStamp_(-1.0),
-        lastAntennaIndex_(-1), pointingTableIndexCache_(0), 
+        lastAntennaIndex_(-1), pointingTableIndexCache_(0),
         shape_(PointingDirectionCalculator::COLUMN_MAJOR),
 
   /*CAS-8418*/ useSplineInterpolation_(true),	////!!  Set, when Spline is used.  ////
-  /*CAS-8418*/ currSpline_(nullptr), 
+  /*CAS-8418*/ currSpline_(nullptr),
   /*CAS-8418*/ splineObj_(PointingDirectionCalculator::PtColID::nItems),
   /*CAS-8418*/ initializeReady_(PointingDirectionCalculator::PtColID::nItems,false),// Spline initialization Ready
   /*CAS-8418*/ coefficientReady_(PointingDirectionCalculator::PtColID::nItems,false), // Spline Coefficient Ready
   /*CAS-8418*/ accessorId_(DIRECTION)               // specify default accessor ID
-{ 
+{
 // -- original code -- //
     accessor_ = directionAccessor;
 
@@ -311,14 +311,14 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     directionColumnName_ = columnNameUpcase;
 
-//+  
-// New code reuired by CAS-8418  
-//   - When setDirectionColumn is called , 
-//   - new spline coeffcient table corresoinding to specified Direction column is generated. 
+//+
+// New code reuired by CAS-8418
+//   - When setDirectionColumn is called ,
+//   - new spline coeffcient table corresoinding to specified Direction column is generated.
 //      Once generated and from next time, lately created Obj. is pointed and used.
 //   - from init(), this function is called.
 //   - See indetal in;
-//         initializeSplinefromPointingColumn(*originalMS_, accessorId_ );  
+//         initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
 //-
 
     if (directionColumnName_ == "DIRECTION") {
@@ -330,7 +330,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
         accessor_ = targetAccessor;
         accessorId_ = TARGET;
         initializeSplinefromPointingColumn(*originalMS_, accessorId_ );
- 
+
     } else if (directionColumnName_ == "POINTING_OFFSET") {
         accessor_ = pointingOffsetAccessor;
         accessorId_ = POINTING_OFFSET;
@@ -354,7 +354,7 @@ void PointingDirectionCalculator::setDirectionColumn(String const &columnName) {
 
     //+
     // CAS:8418::Limmited service,
-    // when indeicated by flag,force to use traditional Linear Interpolation. 
+    // when indeicated by flag,force to use traditional Linear Interpolation.
     //-
 
      if (getCurrentSplineObj()->isCoefficientReady() == false )
@@ -380,16 +380,16 @@ void PointingDirectionCalculator::setFrame(String const frameType) {
 
     // create conversion engine
 
-    // Accessor 
+    // Accessor
     MDirection nominalInputMeasure = accessor_(*pointingColumns_, 0);
 
     // RefFrame
     MDirection::Ref outReference(directionType_, referenceFrame_);
 
-    // Conversion 
+    // Conversion
     directionConvert_ = new MDirection::Convert(nominalInputMeasure,
             outReference);
-    // Epoch 
+    // Epoch
     const MEpoch *e = dynamic_cast<const MEpoch *>(referenceFrame_.epoch());
     const MPosition *p =
             dynamic_cast<const MPosition *>(referenceFrame_.position());
@@ -465,8 +465,8 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
             debuglog << "start index " << j << debugpost;
 
             // doGetDirection call //
-     
-            Vector<Double> direction = doGetDirection(j,currentAntenna); // CAS-8418 args werre changed. 
+
+            Vector<Double> direction = doGetDirection(j,currentAntenna); // CAS-8418 args werre changed.
 
             debuglog << "index for lat: " << (j * increment)
                     << " (cf. outDirectionFlattened.nelements()="
@@ -487,12 +487,12 @@ Matrix<Double> PointingDirectionCalculator::getDirection() {
 // doGetDirection(irow)
 // - Spline Interpolation is executed, except
 //   number of data is insufficient
-// - Interpolation path in the module was separated. 
+// - Interpolation path in the module was separated.
 //***************************************************
 Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID) {
      debuglog << "doGetDirection(" << irow << "," << antID << ")" << debugpost;
 
-// sec:1 Linear , Spline common// 
+// sec:1 Linear , Spline common//
     Double currentTime =  timeColumn_.convert(irow, MEpoch::UTC).get("s").getValue();
     resetTime(currentTime);
 
@@ -507,8 +507,8 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
     debuglog << "Time " << setprecision(16) << currentTime << " idx=" << index
             << debugpost;
     //+
-    // Check section on series of pointing data 
-    // by 'Binary match' wth Pointing Table 
+    // Check section on series of pointing data
+    // by 'Binary match' wth Pointing Table
     // -
     MDirection direction;
     assert(accessor_ != NULL);
@@ -528,7 +528,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
         Vector<Double> interpolated(2);
 
         //*
-        // CAS-8418 Time Gap 
+        // CAS-8418 Time Gap
         //*
         bool fgsw = getCurrentSplineObj()->isTimeGap(antID, index);
         if((fgsw==false) &&                // Not specially Marled. (CAS-8418)
@@ -540,7 +540,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
 
             Double t0 = pointingTimeUTC_[index - 1];
             Double dtime =  (currentTime - t0) ;
- 
+
             // determin section on 'uIndex'
             uInt uIndex;
             if( index >=1 ){
@@ -553,7 +553,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             }
 
             //+
-            // Execute Interpolation 
+            // Execute Interpolation
             //-
 
               if(getCurrentSplineObj() == nullptr){
@@ -569,7 +569,7 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
               MDirection::Types  refType1;
               MDirection::getType(refType1, dirRef1);
 
-            // LINEAR/SPLINE common 
+            // LINEAR/SPLINE common
             // Convert the interpolated diretion from MDirection to Vector //
               direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
         }
@@ -589,11 +589,11 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
             // obtain Ref type //
             String dirRef1 = dir1.getRefString();
             String dirRef2 = dir2.getRefString();
- 
+
             MDirection::Types refType1, refType2;
             MDirection::getType(refType1, dirRef1);
             MDirection::getType(refType2, dirRef2);
- 
+
             debuglog << "dirRef1 = " << dirRef1 << " ("
                     << MDirection::showType(refType1) << ")" << debugpost;
 
@@ -603,17 +603,17 @@ Vector<Double> PointingDirectionCalculator::doGetDirection(uInt irow, uInt antID
                 dir2 = MDirection::Convert(dir2,
                          MDirection::Ref(refType1, referenceFrameLocal))();
             }
- 
+
             Vector<Double> dirVal1 = dir1.getAngle("rad").getValue();
             Vector<Double> dirVal2 = dir2.getAngle("rad").getValue();
             Vector<Double> scanRate = dirVal2 - dirVal1;
-            
+
             interpolated = dirVal1 + scanRate * (currentTime - t0) / dt;
 
-            // LINEAR/SPLINE common 
+            // LINEAR/SPLINE common
             // Convert the interpolated diretion from MDirection to Vector //
               direction = MDirection(Quantum<Vector<Double> >(interpolated, "rad"),refType1);
-   
+
         }
     }
 
@@ -660,7 +660,7 @@ Vector<Double> PointingDirectionCalculator::getDirection(uInt i) {
     }
     debuglog << "doGetDirection" << debugpost;
 
-    Vector<Double> direction = doGetDirection(i,currentAntennaIndex);  // CAS-8418 args were changed 
+    Vector<Double> direction = doGetDirection(i,currentAntennaIndex);  // CAS-8418 args were changed
 
     return direction;
 }
@@ -702,7 +702,7 @@ void PointingDirectionCalculator::inspectAntenna() {
     // CAS-8418 access violation check
     //-
       assert( count <= selectedMS_->antenna().nrow() );
-    // end add 
+    // end add
 
     antennaBoundary_[count] = nrow;
     ++count;
@@ -725,10 +725,10 @@ void PointingDirectionCalculator::initPointingTable(Int const antennaId) {
                 << debugpost;
         // try ANTENNA_ID == -1
         selected = original(original.col("ANTENNA_ID") == -1);
- 
+
 #if 0   // follwing assert() invalidate throw AipsError() //
         assert(selected.nrow() > 0);
-#endif 
+#endif
         if (selected.nrow() == 0) {
             stringstream ss;
             ss << "Internal Error: POINTING table has no entry for antenna "
@@ -805,8 +805,8 @@ void PointingDirectionCalculator::resetTime(Double const timestamp) {
 //*********************************************************
 
 //+
-// Direction Columns and 
-// AccessorId and accessor_ (function pointer) 
+// Direction Columns and
+// AccessorId and accessor_ (function pointer)
 //-
 
 std::vector<string>   dirColList
@@ -828,7 +828,7 @@ bool PointingDirectionCalculator::checkColumn(MeasurementSet const &ms,String co
 // Activate Spline Interpolation
 // - check specified Column if exist
 // - create Spline object from specified Direction column
-// - prepare Coeffient table for calulation. 
+// - prepare Coeffient table for calulation.
 //-
 bool PointingDirectionCalculator::initializeSplinefromPointingColumn(MeasurementSet const &ms,
                                      PointingDirectionCalculator::PtColID  DirColNo )
@@ -839,7 +839,7 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
     PointingDirectionCalculator::ACCESSOR acc   = accList[DirColNo] ;
 
     //+
-    // Column Range check 
+    // Column Range check
     //-
     if( DirColNo >PointingDirectionCalculator::PtColID::nItems )
     {
@@ -856,14 +856,14 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
     {
         debuglog << "initializeSplinefromPointingColumn, Normal,already active."  << debugpost;
 
-        // SWITCH Master pointer  // 
+        // SWITCH Master pointer  //
         currSpline_ = splineObj_[DirColNo].get();
         assert(currSpline_ !=nullptr);
 
         return true;   // Servece already OK //
     }
     //+
-    // CASE 2: New Direction Colomn, initialize Spline Obj. 
+    // CASE 2: New Direction Colomn, initialize Spline Obj.
     //-
     if(checkColumn(ms, colName))
     {
@@ -879,29 +879,29 @@ bool PointingDirectionCalculator::initializeSplinefromPointingColumn(Measurement
           assert(splineObj_[DirColNo] == false); // MUST BE CLEAN (see C++11 for this statement) //
           splineObj_[DirColNo] = std::move(spTemp);
 
-        // copy to Master pointer, if this is desired.  // 
+        // copy to Master pointer, if this is desired.  //
           currSpline_ = splineObj_[DirColNo].get();
 
         // Obj. available //
            initializeReady_[DirColNo] = true;
 
         return true;
-    } 
-   
+    }
+
     //+
     // Initialize Faiure.
     //-
-  
+
     stringstream ss;
     ss << "FAILED:: No spline obj, atempted to make. No column on Pointing Table." << endl;
     throw AipsError(ss.str());
-   
+
 }
 
 //+
 // CAS-8418::
-// Exporting Internal Status/Object Service 
-//- 
+// Exporting Internal Status/Object Service
+//-
 
 // Export  COEFF:  returns Coefficitent Table of the current Spline-Object
 PointingDirectionCalculator::COEFF  PointingDirectionCalculator::exportCoeff()
@@ -918,7 +918,7 @@ bool PointingDirectionCalculator::isCoefficientReady()
 }
 
 //***************************************************
-//  CAS-8418: 
+//  CAS-8418:
 //  Antenna Boundary (for Pointing Table ) methods
 //  - create antenna information on Pointing Table.
 //***************************************************
@@ -932,23 +932,23 @@ public:
         ~AntennaBoundary() { };
 
         std::pair<casacore::uInt, casacore::uInt>  getAntennaBoundary( casacore::uInt n );
-    
-        casacore::uInt  getNumOfAntenna() {return numAntennaBoundary_ - 1;} 
+
+        casacore::uInt  getNumOfAntenna() {return numAntennaBoundary_ - 1;}
 
         casacore::MSPointing  getPointingHandle() { return hPointing_; };
 
 private:
-       //  AntennaBoundary on Pointing Tablle 
+       //  AntennaBoundary on Pointing Tablle
          casacore::Vector<casacore::uInt>            antennaBoundary_;
          casacore::uInt                              numAntennaBoundary_;
-    
+
        // Pointing Table handle
-         casacore::MSPointing hPointing_; 
- 
+         casacore::MSPointing hPointing_;
+
 };
 
 // Constructor //
-AntennaBoundary::AntennaBoundary(MeasurementSet const &ms) 
+AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
 {
         // Antenna Boundary body //
         antennaBoundary_.resize(ms.antenna().nrow() + 1);
@@ -959,7 +959,7 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         ++count;
 
         // Pointing Table Handle and the Columns Handle//
-        //   with sorting by AntennaID and Time 
+        //   with sorting by AntennaID and Time
 
         MSPointing hPointing_org  = ms.pointing();
 
@@ -984,27 +984,21 @@ AntennaBoundary::AntennaBoundary(MeasurementSet const &ms)
         uInt nrow = antennaList.nelements();
         Int lastAnt = antennaList[0];
 
-        for (uInt i = 0; i < nrow; ++i) 
-        {    
-            if (antennaList[i] > lastAnt) 
-            {    
-                antennaBoundary_[count] = i; 
+        for (uInt i = 0; i < nrow; ++i)
+        {
+            if (antennaList[i] > lastAnt)
+            {
+                antennaBoundary_[count] = i;
                 count++;
                 lastAnt = antennaList[i];
-            }    
+            }
             else if (antennaList[i] < lastAnt )
-            { 
+            {
                  stringstream ss;
                  ss << "Bugcheck. Bad sort in creating antenna list." << endl;
                  throw AipsError(ss.str());
-            }    
+            }
         }
-    
-        //+
-        // CAS-8418 access violation check
-        //-
-          assert( count <= selectedMS_->antenna().nrow() );
-        // end add
 
         antennaBoundary_[count] = nrow;
         ++count;
@@ -1020,20 +1014,20 @@ std::pair<casacore::uInt, casacore::uInt> AntennaBoundary::getAntennaBoundary( c
 }
 
 //***************************************************
-//  CAS-8418: 
+//  CAS-8418:
 //  Spline Inerpolation  methods
 //***************************************************
 
 // constructor (for each accessor) //
-SplineInterpolation::SplineInterpolation(MeasurementSet const &ms, 
-                                         PointingDirectionCalculator::ACCESSOR accessor ) 
+SplineInterpolation::SplineInterpolation(MeasurementSet const &ms,
+                                         PointingDirectionCalculator::ACCESSOR accessor )
 {
     stsCofficientReady  = false;
     init(ms, accessor);
 }
 
 // initialize //
-void SplineInterpolation::init(MeasurementSet const &ms, 
+void SplineInterpolation::init(MeasurementSet const &ms,
                                PointingDirectionCalculator::ACCESSOR const my_accessor)
 {
     // Antenna Bounday //
@@ -1053,20 +1047,20 @@ void SplineInterpolation::init(MeasurementSet const &ms,
     // CAS-8418 Time Gap //
       tmp_dtime.         resize(numAnt);
       tmp_timegap.       resize(numAnt);
- 
+
     // Column handle (only time,direction are needed, others are reserved) //
-    
+
       ScalarColumn<Double> pointingTime           = columnPointing ->time();
       ScalarColumn<Double> pointingInterval       = columnPointing ->interval();
 
     // Following columns are accessed by 'accessor_'   //
-   
+
       ArrayColumn<Double>  pointingDirection      = columnPointing ->direction();
-      ArrayColumn<Double>  pointingTarget         = columnPointing ->target();    
+      ArrayColumn<Double>  pointingTarget         = columnPointing ->target();
       ArrayColumn<Double>  pointingPointingOffset = columnPointing ->pointingOffset();
       ArrayColumn<Double>  pointingSourceOffset   = columnPointing ->sourceOffset();
       ArrayColumn<Double>  pointingencoder        = columnPointing ->encoder();
- 
+
     for(uInt ant=0; ant <numAnt; ant++)
     {
         // Antenna Bounday Pos(start,end) //
@@ -1075,19 +1069,19 @@ void SplineInterpolation::init(MeasurementSet const &ms,
           uInt endPos   = pos.second;
 
         // define size of each antenna
-          uInt size = endPos - startPos;  
+          uInt size = endPos - startPos;
           tmp_dir [ant]. resize(size);
           tmp_time[ant]. resize(size);
 
          // CAS-8418 Time Gap //
           tmp_dtime[ant]. resize(size);
           tmp_timegap[ant]. resize(size);
- 
+
         // set up //
-          std::fill(tmp_timegap[ant].begin(), tmp_timegap[ant].end(), false); // DEFAULT = false // 
+          std::fill(tmp_timegap[ant].begin(), tmp_timegap[ant].end(), false); // DEFAULT = false //
           Double prv_time =  pointingTime.get(startPos); // For making diff time
-        // for each row // 
-        for (uInt row = startPos; row < endPos; row++) 
+        // for each row //
+        for (uInt row = startPos; row < endPos; row++)
         {
             uInt index = row - startPos;
 
@@ -1111,16 +1105,16 @@ void SplineInterpolation::init(MeasurementSet const &ms,
               /* Measured Interval */
               Double dd = time - prv_time;
               dd  = round(10000.0 * dd)/10000.0;  // Round at 0.0001 order
-  
-              tmp_dtime[ant][index] = dd; // record backward diff // 
+
+              tmp_dtime[ant][index] = dd; // record backward diff //
               prv_time  = time;
 
               /* Mark the position (force to exec LINEAR) */
              if(size>=7)
-             {  
+             {
                if(dd >  p_interval){
                    if((index < size-3 )&&(index >=3)) {
-                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+3] =true; // forward
                       tmp_timegap [ant][index+2] =true;
                       tmp_timegap [ant][index+1] =true;
 
@@ -1128,22 +1122,22 @@ void SplineInterpolation::init(MeasurementSet const &ms,
 
                       tmp_timegap [ant][index-1] =true;
                       tmp_timegap [ant][index-2] =true;
-                      tmp_timegap [ant][index-3] =true; // backward 
- 
+                      tmp_timegap [ant][index-3] =true; // backward
+
                    }
                    //*
                    // In case, marking on edges;
                    // (note: time diff(=dd) is backward difference)
                    //*
                    else if (index == 1) {
-                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+3] =true; // forward
                       tmp_timegap [ant][index+2] =true;
                       tmp_timegap [ant][index+1] =true;
                       tmp_timegap [ant][index  ] =true; // center (detected point)
                       tmp_timegap [ant][index-1] =true;
                    }
                    else if (index == 2) {
-                      tmp_timegap [ant][index+3] =true; // forward 
+                      tmp_timegap [ant][index+3] =true; // forward
                       tmp_timegap [ant][index+2] =true;
                       tmp_timegap [ant][index+1] =true;
                       tmp_timegap [ant][index  ] =true; // center (detected point)
@@ -1156,29 +1150,29 @@ void SplineInterpolation::init(MeasurementSet const &ms,
                       tmp_timegap [ant][index  ] =true; // center (detected point)
                       tmp_timegap [ant][index-1] =true;
                       tmp_timegap [ant][index-2] =true;
-                      tmp_timegap [ant][index-3] =true; // backward 
+                      tmp_timegap [ant][index-3] =true; // backward
                    }
                    else if (index == size-2) {
                       tmp_timegap [ant][index+1] =true;
                       tmp_timegap [ant][index  ] =true; // center (detected point)
                       tmp_timegap [ant][index-1] =true;
                       tmp_timegap [ant][index-2] =true;
-                      tmp_timegap [ant][index-3] =true; // backward 
+                      tmp_timegap [ant][index-3] =true; // backward
                    }
                    else if (index == size-1) {
                       tmp_timegap [ant][index  ] =true; // center (detected point)
                       tmp_timegap [ant][index-1] =true;
                       tmp_timegap [ant][index-2] =true;
-                      tmp_timegap [ant][index-3] =true; // backward 
+                      tmp_timegap [ant][index-3] =true; // backward
                    }
                }
-             }  
+             }
         }
     }
 
     //+
     // Minimum Condition Inspection
-    // (N >=4) 
+    // (N >=4)
     //-
 
     for(uInt ant=0; ant <numAnt; ant++)
@@ -1189,17 +1183,17 @@ void SplineInterpolation::init(MeasurementSet const &ms,
         {
           // Warning .. //
             LogIO os(LogOrigin("SplineInterpolation", "init()", WHERE));
-            os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA, must be ge. 4 " 
+            os << LogIO::WARN << "INSUFFICIENT NUMBER OF POINTING DATA, must be ge. 4 "
                << "Alternatively, Linear Interpolation will be used. " << LogIO::POST;
 
            stsCofficientReady = false; // initially in-usable ..
            return;
         }
     }
- 
+
     //+
-    // SDPosInterpolator Objct 
-    //   - create Coefficient Table - 
+    // SDPosInterpolator Objct
+    //   - create Coefficient Table -
     //-
       SDPosInterpolator  sdp (tmp_time, tmp_dir);
 
@@ -1228,7 +1222,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
     {
         // Exception handling is to be here... //
         stringstream ss;
-        ss << "Bugcheck. Requested Index is too large." << endl; 
+        ss << "Bugcheck. Requested Index is too large." << endl;
         throw AipsError(ss.str());
     }
     // Coefficient //
@@ -1253,7 +1247,7 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
     // Return //
 
-    Vector<Double> outval(2); 
+    Vector<Double> outval(2);
     outval[0] = Xs;
     outval[1] = Ys;
 
@@ -1263,5 +1257,5 @@ casacore::Vector<casacore::Double> SplineInterpolation::calculate(uInt index,
 
 }
 
- 
+
 }  //# NAMESPACE CASA - END
