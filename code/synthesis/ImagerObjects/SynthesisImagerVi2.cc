@@ -1272,8 +1272,8 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
     }
 
     itsMappers.checkOverlappingModels("restore");
-    unlockMSs();
     itsMappers.releaseImageLocks();
+    unlockMSs();
    
   }// end of predictModel
 
