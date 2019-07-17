@@ -632,8 +632,10 @@ using namespace casa::vi;
     Long npixels=0;
     if(image)
       npixels=((image->shape()).product())/1024;
-    else
-      npixels=(*(imstor->backwardGrid())).shape().product()/1024;
+    else{
+      if((imstor->getShape()).product() !=0)
+        npixels=(*(imstor->backwardGrid())).shape().product()/1024;
+    }
     if(npixels==0) npixels=1; //1 kPixels is minimum then
     Long factor=sizeof(Complex);
     if(!toVis_p && useDoubleGrid_p)
