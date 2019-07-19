@@ -16,14 +16,14 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         This task allows the user to manipulate some meta-data keywords in a
         measurement set.  The mode='list' shows those keywords that are
         presently implemented, with their values.  The contents associated
-        with the keywords can be obtained (get) and changed (put).
+        with the keywords can be obtained with mode='get' and changed with mode='put'. 
 
         The modes that are available are:
 
            list    --- List all keywords that are recognized, and list the
                        value(s) for each.  Only these keywords can be obtained
                        (get) or changed (put) 
-           summary --- Equivalent to running taskname='listobs'; verbose=F
+           summary --- Provides a summary that is equivalent to running listobs(verbose=False)
            get     --- Get the specified keyword value(s) from the ms
            put     --- Put the specified keyword value(s) into the ms
 
