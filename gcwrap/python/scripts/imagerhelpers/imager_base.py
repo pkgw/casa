@@ -133,7 +133,9 @@ class PySynthesisImager:
 #############################################
     def estimatememory(self):
         #print "MEMORY usage ", self.SItool.estimatememory(), type(self.SItool.estimatememory())
-        griddermem= self.SItool.estimatememory()
+        #griddermem=0
+        if(self.SItool != None):
+            griddermem= self.SItool.estimatememory()
         deconmem=0
         for immod in range(0,self.NF):
             ims= self.allimpars[str(immod)]['imsize']
@@ -144,7 +146,8 @@ class PySynthesisImager:
             #print 'shape', self.allimpars[str(immod)]['imsize'], len(ims) 
             #print "DECON mem usage ", self.SDtools[immod].estimatememory(ims)
             if(len(self.SDtools) > immod):
-                deconmem+=self.SDtools[immod].estimatememory(ims)
+                if(self.SDtools != None):
+                    deconmem+=self.SDtools[immod].estimatememory(ims)
         availmem=casac.cu.hostinfo()['memory']['available']
         if((deconmem+griddermem) > 0.8*availmem):
             casalog.post("Memory available "+str(availmem)+" kB is very close to amount of required memory "+str(deconmem+griddermem)+" kB" , "WARN")
@@ -152,7 +155,8 @@ class PySynthesisImager:
             casalog.post("Memory available "+str(availmem)+" kB and  required memory "+str(deconmem+griddermem)+" kB" , "INFO2")
 ############################################
     def restoreImages(self):
-         for immod in range(0,self.NF):
+        print "SHOW cache ", tb.showcache()
+        for immod in range(0,self.NF):
               self.SDtools[immod].restore()
 
 #############################################
