@@ -47,9 +47,6 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
         Note that the default list of keywords is a subset of the former list. To get
         all the keywords set listitemts=[]. See task parameter listitems for more details.
 
-        hdvalue   --- value to be put in the MS (used in put mode only)
-                  ex: hdvalue=array(['MyTelescope'])
-
 
 </description>
 
