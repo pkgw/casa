@@ -90,10 +90,7 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="stringArray" name="listitems" subparam="true">
-      <description>Keyword items to list. This parameter is only relevant if
-                   mode='list'. Note that the default list is 
-                   a subset of the possible keywords. To get all the keywords
-                   set listitems=[]</description>
+      <description>Keyword items to list. This parameter is only relevant in list mode. Note that the default list is a subset of the possible keywords. To get all the keywords set listitems=[]</description>
          <value type="stringArray">
                    <value type="string">telescope</value>
                    <value type="string">observer</value>
@@ -109,21 +106,20 @@ file:///opt/casa/code/xmlcasa/xml/casa.xsd">
     </param>
 
     <param type="string" name="hdkey" subparam="true">
-        <description>keyword to get/put</description>
+        <description>Keyword to get/put</description>
         <value type="stringArray"></value>
         <example>hdkey='telescope'; see description for list of keywords</example>
     </param>
 
     <param type="string" name="hdindex" subparam="true">
-        <description>index (counting from 0) if keyword is an array (used in get/put
-                     mode only). The empty string '' means all elements</description>
+        <description>Index (counting from 0) if keyword is an array (used in get/put mode only). The empty string means all elements</description>
         <value></value>
         <example>hdindex='3'; see description for list of keywords</example>
     </param>
 
     <param type="any" name="hdvalue" subparam="true">
         <any type="variant"/>
-        <description>value of the keywords to be put in the MS (used in mode='put' only)</description>
+        <description>Value of the keywords to be put in the MS (used in put mode only)</description>
         <value type="string"></value>
         <example>hdvalue=['VLA','BIMA']</example>
     </param>
