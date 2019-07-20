@@ -702,8 +702,8 @@ class simobserve_comp(simobserve_unittest_base):
         obsmode = 'int'
         antennalist = 'alma.out01.cfg'
         totaltime = "28s"
-        res = simobserve(project=self.project,complist=complist,comp_nchan=8,
-                         compwidth=compwidth,comp_nchan=comp_nchan,
+        res = simobserve(project=self.project,complist=complist,
+                         compwidth=compwidth,comp_nchan=8,
                          setpointings=True,
                          integration=integration,direction=direction,
                          mapsize=mapsize,maptype=maptype,obsmode=obsmode,
@@ -1132,7 +1132,8 @@ class simobserve_noise(simobserve_unittest_base):
         inwidth = '1MHz'
         # need to recalculate skymodel and MS
         res = simobserve(project=self.project,skymodel=self.inimage,
-                         inwidth=inwidth,comp_nchan=comp_nchan,setpointings=False,
+                         inwidth=inwidth,comp_nchan=self.comp_nchan,
+                         setpointings=False,
                          ptgfile=self.ptgfile,integration=self.tint,
                          obsmode='sd',sdantlist=self.sdantlist,
                          antennalist=self.antennalist,totaltime=self.tottime,
@@ -1301,7 +1302,8 @@ class simobserve_noise(simobserve_unittest_base):
         inwidth = '1MHz'
         # need to recalculate skymodel and MS
         res = simobserve(project=self.project,skymodel=self.inimage,
-                         inwidth=inwidth,comp_nchan=comp_nchan,setpointings=False,
+                         inwidth=inwidth,comp_nchan=self.comp_nchan,
+                         setpointings=False,
                          ptgfile=self.ptgfile,integration=self.tint,
                          obsmode='sd',sdantlist=self.sdantlist,
                          antennalist=self.antennalist,totaltime=self.tottime,
@@ -1705,7 +1707,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         try:
             res = simobserve(project=self.project,complist=self.incomp,
                              totaltime=self.tottime,mapsize=self.mapsize,
-                             compwidth=compwidth,comp_nchan=comp_nchan)
+                             compwidth=compwidth,comp_nchan=self.comp_nchan)
             self.fail(self.failmsg)
         except Exception, e:
             pos=str(e).find("Quantum::operator- unequal units 'GHz, 'arcsec'")
@@ -1718,7 +1720,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         try:
             res = simobserve(project=self.project,complist=self.incomp,
                              totaltime=self.tottime,mapsize=self.mapsize,
-                             compwidth=compwidth,comp_nchan=comp_nchan)
+                             compwidth=self.compwidth,comp_nchan=comp_nchan)
             self.fail(self.failmsg)
         except Exception, e:
             pos=str(e).find("Parameter verification failed")
