@@ -50,7 +50,7 @@ template<class T> SPIIT ImageBoxcarSmoother<T>::_smooth(
     );
     // fix up smoothed axis metadata
     auto csys = out->coordinates();
-    auto shift = csys.increment()[axis]*_width/2.0;
+    auto shift = csys.increment()[axis]*(_width - 1)/2.0;
     auto rval = csys.referenceValue();
     rval[axis] += shift;
     csys.setReferenceValue(rval);
