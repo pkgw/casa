@@ -31,7 +31,7 @@ class simobserve_unittest_base(unittest.TestCase):
     datapath=os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/simobserve/'
     thistask = "simobserve"
     imkeys=['max','mean','min','npts','rms','blc','blcf','trc','trcf','sigma','sum','sumsq']
-    # relative and ablsolute tolerance
+    # relative and absolute tolerance
     # (atol=0. means to ignore absolute tolerance)
     rtol = 5.0e-3
     atol = 0.
@@ -1132,8 +1132,7 @@ class simobserve_noise(simobserve_unittest_base):
         inwidth = '1MHz'
         # need to recalculate skymodel and MS
         res = simobserve(project=self.project,skymodel=self.inimage,
-                         inwidth=inwidth,comp_nchan=self.comp_nchan,
-                         setpointings=False,
+                         inwidth=inwidth,setpointings=False,
                          ptgfile=self.ptgfile,integration=self.tint,
                          obsmode='sd',sdantlist=self.sdantlist,
                          antennalist=self.antennalist,totaltime=self.tottime,
@@ -1302,8 +1301,7 @@ class simobserve_noise(simobserve_unittest_base):
         inwidth = '1MHz'
         # need to recalculate skymodel and MS
         res = simobserve(project=self.project,skymodel=self.inimage,
-                         inwidth=inwidth,comp_nchan=self.comp_nchan,
-                         setpointings=False,
+                         inwidth=inwidth,setpointings=False,
                          ptgfile=self.ptgfile,integration=self.tint,
                          obsmode='sd',sdantlist=self.sdantlist,
                          antennalist=self.antennalist,totaltime=self.tottime,
@@ -1704,6 +1702,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         """Test bad compwidth"""
         # not frequency
         compwidth="2arcsec"
+        comp_nchan=1
         try:
             res = simobserve(project=self.project,complist=self.incomp,
                              totaltime=self.tottime,mapsize=self.mapsize,
@@ -1716,6 +1715,7 @@ class simobserve_badinputs(simobserve_unittest_base):
 
     def testBad_comp_nchan(self):
         """Test bad comp_nchan"""
+        compwidth="2arcsec"
         comp_nchan=self.badnum
         try:
             res = simobserve(project=self.project,complist=self.incomp,
