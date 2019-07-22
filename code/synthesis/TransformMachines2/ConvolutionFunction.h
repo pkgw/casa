@@ -32,7 +32,9 @@
 #include <synthesis/TransformMachines2/CFTerms.h>
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PolOuterProduct.h>
+#include <synthesis/TransformMachines2/PointingOffsets.h>
 #include <synthesis/TransformMachines2/Utils.h>
 #include <images/Images/ImageInterface.h>
 #include <images/Images/TempImage.h>
@@ -80,11 +82,11 @@ namespace casa{
   public:
     ConvolutionFunction():
       nDim(2),logIO_p(), spwChanSelFlag_p(), spwFreqSelection_p(),
-      computeCFAngleRad_p(360.0*M_PI/180.0), rotateCFOTFAngleRad_p(0.1)
+      computeCFAngleRad_p(360.0*M_PI/180.0), rotateCFOTFAngleRad_p(0.1), po_p()
     {};
     ConvolutionFunction(casacore::Int dim): 
       nDim(dim),logIO_p(), spwChanSelFlag_p(), spwFreqSelection_p(),
-      computeCFAngleRad_p(360.0*M_PI/180.0), rotateCFOTFAngleRad_p(0.1)
+      computeCFAngleRad_p(360.0*M_PI/180.0), rotateCFOTFAngleRad_p(0.1), po_p()
     {nDim=dim;};
     virtual ~ConvolutionFunction();
     
@@ -149,11 +151,20 @@ namespace casa{
     // {setPolMap(polMap); setFeedStokes(feedStokes);};
 
     //    virtual void prepareConvFunction(const VisBuffer2& vb, CFStore2& cfs)=0;
-    virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)=0;
+    //virtual void prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)=0;
+    virtual void prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& theMap)=0;
     virtual casacore::Matrix<casacore::Int> makeBaselineList(const casacore::Vector<casacore::Int>& antList);
     virtual casacore::Int mapAntIDToAntType(const casacore::Int& /*ant*/) {return 0;};
     virtual void setMiscInfo(const casacore::RecordInterface& /*params*/) {};
+    virtual void setPointingOffsets(const casacore::CountedPtr<refim::PointingOffsets>& po){po_p=po;};
     virtual casacore::CountedPtr<CFTerms> getTerm(const casacore::String& /*name*/) {return NULL;}
+    virtual int getOversampling(){return 1;};
+
+    virtual casacore::Vector<casacore::Vector<casacore::Double> > findPointingOffset(const casacore::ImageInterface<casacore::Complex>& image,
+								  const VisBuffer2& vb, const casacore::Bool& doPointing) = 0;
+
+
+
   private:
     casacore::Int nDim;
   protected:
@@ -162,6 +173,7 @@ namespace casa{
     casacore::Cube<casacore::Int> spwChanSelFlag_p;
     casacore::Matrix<casacore::Double> spwFreqSelection_p;
     casacore::Double computeCFAngleRad_p, rotateCFOTFAngleRad_p;
+    casacore::CountedPtr<PointingOffsets> po_p;
   };
   } // end namespace refim
 } // end namespace casa

@@ -103,7 +103,7 @@ int main(int argc, char **argv)
     SDMaskHandler maskhandler;
     Vector<Bool> chanflag(nchan);
     Vector<Bool> zeromask(nchan);
-    Vector<String> type(nchan);
+    Matrix<String> type(1,nchan);
     Bool isthresholdreached(false);
     type.set("noise");
     chanflag.set(false);

@@ -36,6 +36,7 @@
 #include <synthesis/TransformMachines/BeamCalc.h>
 #include <synthesis/TransformMachines2/CFStore.h>
 #include <synthesis/TransformMachines2/CFStore2.h>
+#include <synthesis/TransformMachines2/VB2CFBMap.h>
 #include <synthesis/TransformMachines2/PSTerm.h>
 #include <synthesis/TransformMachines2/WTerm.h>
 #include <synthesis/TransformMachines2/ATerm.h>
@@ -83,7 +84,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 	wbAWP_p=false;
       }
     
-    pixFieldGrad_p.resize(2);pixFieldGrad_p=0.0;
+    pixFieldGrad_p.resize(2);pixFieldGrad_p(0)=0.0; pixFieldGrad_p(1)=0.0;
   }
 
   //
@@ -1553,7 +1554,8 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
   //
   //----------------------------------------------------------------------
   //
-  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)
+//  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VBRow2CFBMapType& theMap)
+  void AWConvFunc::prepareConvFunction(const VisBuffer2& vb, VB2CFBMap& theMap)
   {
     if (aTerm_p->rotationallySymmetric() == false) return;
     Int nRow=theMap.nelements();
@@ -1564,7 +1566,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     CFCell  *cfc, *baseCFC=NULL;
     ATerm *aTerm_l=&*aTerm_p;
     
-    cfb=&*(theMap(0));
+    cfb=&*(theMap[0]);
     cfc = &*(cfb->getCFCellPtr(0,0,0));
     Double actualPA = getPA(vb), currentCFPA = cfc->pa_p.getValue("rad");
     Double dPA = currentCFPA-actualPA;
@@ -1578,7 +1580,7 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
 // #endif
     for (Int irow=0;irow<nRow;irow++)
       {
-	cfb=&*(theMap(irow));
+	cfb=&*(theMap[irow]);
 	//	if ((!cfb.null()) && (cfb != cbPtr))
 	if ((cfb!=NULL) && (cfb != cbPtr))
 	  {
@@ -2057,5 +2059,26 @@ AWConvFunc::AWConvFunc(const casacore::CountedPtr<ATerm> aTerm,
     else os=psTerm.getOversampling();
     return os;
   }
+
+
+
+
+
+  //
+  //----------------------------------------------------------------------
+  //
+  Vector<Vector<Double> > AWConvFunc::findPointingOffset(const ImageInterface<Complex>& image,
+						const VisBuffer2& vb, const Bool& doPointing)
+  {
+    Assert(po_p.null()==False && "Pointingoffset call has not been initialized in AWProjectFT call being made");
+        return po_p->findPointingOffset(image,vb,doPointing);
+    //    if (!doPointing) 
+    //      {cerr<<"AWCF: Using mosaic pointing \n";return po_p->findMosaicPointingOffset(image,vb);}
+    //    else
+    //      {cerr<<"AWCF: Using antenna pointing table \n";return po_p->findAntennaPointingOffset(image,vb);}
+  }
+
+
+
 };
 };

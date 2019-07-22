@@ -181,7 +181,6 @@ void MSCache::loadIt(vector<PMS::Axis>& loadAxes,
 	completeLoadPageHeaderCache();
 
 	deleteVi(); // close any open tables
-	deleteAtm();
 }
 
 void MSCache::loadError(String mesg) {
@@ -892,8 +891,8 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 					case PMS::InterpMethod::NEAREST:
 						interpolator.setInterpMethod(TviInterp::NEAREST);
 						break;
-					case PMS::InterpMethod::CUBIC:
-						interpolator.setInterpMethod(TviInterp::SPLINE);
+					case PMS::InterpMethod::CUBIC_SPLINE:
+						interpolator.setInterpMethod(TviInterp::CUBIC_SPLINE);
 						break;
 					default:
 						String errMsg("MSCache::loadChunks(): unsupported pointing interpolation method: ");
@@ -901,7 +900,7 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						throw(AipsError(errMsg));
 					}
 					switch (loadXYFrame_[i]){
-					case PMS::CoordSystem::AZEL:
+					case PMS::CoordSystem::AZELGEO:
 						piTvi->setOutputDirectionFrame(MDirection::AZELGEO);
 						break;
 					case PMS::CoordSystem::ICRS:
@@ -909,6 +908,12 @@ void MSCache::loadChunks(vi::VisibilityIterator2& vi,
 						break;
 					case PMS::CoordSystem::J2000:
 						piTvi->setOutputDirectionFrame(MDirection::J2000);
+						break;
+					case PMS::CoordSystem::B1950:
+						piTvi->setOutputDirectionFrame(MDirection::B1950);
+						break;
+					case PMS::CoordSystem::GALACTIC:
+						piTvi->setOutputDirectionFrame(MDirection::GALACTIC);
 						break;
 					}
 					auto & raBlock = raMap_.at(raDecParams);
@@ -1130,7 +1135,8 @@ bool MSCache::useAveragedVisBuffer(PMS::Axis axis) {
 	case PMS::PARANG:
 	case PMS::ROW:
 	case PMS::ATM:
-	case PMS::TSKY: {
+	case PMS::TSKY:
+	case PMS::IMAGESB: {
 		useAvg = false;
 		break;
 	}
@@ -1921,9 +1927,14 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		raDecMat.resize(2, dir1Vec.nelements());
 		auto nAnts = dir1Vec.nelements();
 		for (decltype(nAnts) iant = 0; iant < nAnts; ++iant) {
-			raDecMat.column(iant) = dir1Vec(iant).getAngle("deg").getValue();
+			const auto & mVDirection = dir1Vec(iant).getValue();
+			const double within_0_360 = 0.0;
+			auto dirLong360 = MVAngle(mVDirection.getLong())(within_0_360).degree();
+			auto dirLat     = MVAngle(mVDirection.getLat()).degree();
+			raDecMat(0,iant) = dirLong360;
+			raDecMat(1,iant) = dirLat;
 		}
-		*((*loadRa_)[vbnum]) = raDecMat.row(0);
+		*((*loadRa_ )[vbnum]) = raDecMat.row(0);
 		*((*loadDec_)[vbnum]) = raDecMat.row(1);
 		break;
 	}
@@ -1967,22 +1978,28 @@ void MSCache::loadAxis(vi::VisBuffer2* vb, Int vbnum, PMS::Axis axis,
 		break;
 	}
 	case PMS::ATM:
-	case PMS::TSKY: {
+	case PMS::TSKY:
+	case PMS::IMAGESB: {
 		casacore::Int spw = vb->spectralWindows()(0);
 		casacore::Int scan = vb->scan()(0);
-		casacore::Array<casacore::Double> chanFreqGHz =
-			vb->getFrequencies(0, freqFrame_)/1e9;
+		casacore::Array<casacore::Double> chanFreqGHz = vb->getFrequencies(0, freqFrame_)/1e9;
 		casacore::Vector<casacore::Double> curve(1, 0.0);
-		bool isAtm = (axis==PMS::ATM);
-		if (plotmsAtm_) {
-			curve.resize();	
-			curve = plotmsAtm_->calcOverlayCurve(spw, scan, chanFreqGHz,
-					isAtm);
-		}
-		if (isAtm) 
+		if (axis == PMS::ATM) { 
+			if (plotmsAtm_) {
+				plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, chanFreqGHz);
+			}
 			*atm_[vbnum] = curve;
-		else
+		} else if (axis == PMS::TSKY) {
+			if (plotmsAtm_) {
+				plotmsAtm_->calcAtmTskyCurve(curve, spw, scan, chanFreqGHz);
+			}
 			*tsky_[vbnum] = curve;
+		} else {
+			if (plotmsAtm_) {
+				plotmsAtm_->calcImageCurve(curve, spw, scan, chanFreqGHz);
+			}
+			*imageSideband_[vbnum] = curve;
+		}
 		break;
 	}
 	default: {

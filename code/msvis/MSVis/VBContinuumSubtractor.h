@@ -33,6 +33,8 @@
 #include <casa/Arrays/Cube.h>
 #include <ms/MeasurementSets/MeasurementSet.h>
 //#include <msvis/MSVis/VisBuffer.h>
+#include <msvis/MSVis/VisBuffer2.h>
+
 
 namespace casacore{
 
@@ -152,6 +154,7 @@ public:
   // continuum fit.  If not, and squawk is true, a warning will be sent to the
   // logger.  (Extrapolation is allowed, just not recommended.)
   casacore::Bool areFreqsInBounds(VisBuffer& vb, const casacore::Bool squawk) const;
+  casacore::Bool areFreqsInBounds(vi::VisBuffer2& vb, const casacore::Bool squawk) const;
 
   // Fills minfreq and maxfreq with the minimum and maximum frequencies (in Hz,
   // acc. to the casacore::MS def'n v.2) of vb (not the continuum fit!).  If you want to
@@ -159,6 +162,8 @@ public:
   // false and initialize minfreq and maxfreq yourself to DBL_MAX and -1.0,
   // respectively.
   static void getMinMaxFreq(VisBuffer& vb, casacore::Double& minfreq, casacore::Double& maxfreq,
+                            const casacore::Bool initialize=true);
+  static void getMinMaxFreq(vi::VisBuffer2& vb, casacore::Double& minfreq, casacore::Double& maxfreq,
                             const casacore::Bool initialize=true);
 
   // These are provided for the calibration framework so that a
@@ -219,6 +224,16 @@ public:
 
   void setTVIDebug(bool debug) {tvi_debug = debug;}
 
+
+  casacore::Bool apply2(vi::VisBuffer2& vb,
+			casacore::Cube<casacore::Complex>& Vout,
+			//const casacore::MS::PredefinedColumns whichcol,
+			const casacore::Cube<casacore::Complex>& coeffs,
+			const casacore::Cube<casacore::Bool>& coeffsOK, const casacore::Bool doSubtraction=true,
+			const casacore::Bool squawk=true);
+
+
+
 private:
   // Disable default copying, and assignment.
   VBContinuumSubtractor& operator=(VBContinuumSubtractor& other);
@@ -226,6 +241,7 @@ private:
   // Can the fit be _applied_ to vb?
   // If not and squawk is true, send a severe message to os.
   casacore::Bool doShapesMatch(VisBuffer& vb, casacore::LogIO& os, const casacore::Bool squawk=true) const;
+  casacore::Bool doShapesMatch(vi::VisBuffer2& vb, casacore::LogIO& os, const casacore::Bool squawk=true) const;
 
   // Compute baseline (row) index in coeffs_p for (ant1, ant2).
   // It ASSUMES that ant1 and ant2 are both <= maxAnt_p.

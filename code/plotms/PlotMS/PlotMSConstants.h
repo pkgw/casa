@@ -128,7 +128,9 @@ public:
           // Ephemeris
           RADIAL_VELOCITY, RHO,
           // Overlays
-          ATM, TSKY, NONE)
+          ATM, TSKY, IMAGESB,
+		  // POLN only for plot axis labels, titles
+		  POLN, NONE)
 
     PMS_ENUM2(Axis, axes, axesStrings, axis,
           // Metadata
@@ -150,7 +152,8 @@ public:
           "Antenna Positions",
           // Ephemeris
           "Radial Velocity", "Distance (rho)", 
-          "Atm Transmission", "Tsky", "None")
+          "Atm Transmission", "Tsky", "Image Sideband", 
+		  "Poln", "None")
     // </group>
               
     // Returns the axes scale for the given axis.  Currently NORMAL unless the
@@ -177,34 +180,47 @@ public:
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
-              AZEL, ICRS, J2000)
+              AZELGEO, ICRS, J2000, B1950, GALACTIC)
     PMS_ENUM2(CoordSystem, coordSystems, coordSystemStrings, coordSystem,
-              "AzEl", "ICRS", "J2000")
+              "AZELGEO", "ICRS", "J2000", "B1950", "GALACTIC")
     // </group>
+    static const casacore::String & longitudeName(CoordSystem r);
+    static const casacore::String & latitudeName(CoordSystem r);
+	static AngleFormat angleFormat(Axis axis, CoordSystem ref);
+	enum DirectionComponent {
+		LONGITUDE,
+		LATITUDE
+	};
+	static bool isDirectionComponent(Axis axis, DirectionComponent &dc);
+	static AngleFormat angleFormat(CoordSystem ref, DirectionComponent dc);
+
 
     // Enum for the different interpolation methods for data axes.
     // **If these are changed, also update: xmlcasa/tasks/plotms.xml.**
     // <group>
     PMS_ENUM1(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              NEAREST, CUBIC)
+              NEAREST, CUBIC_SPLINE)
     PMS_ENUM2(InterpMethod, interpMethods, interpMethodStrings, interpMethod,
-              "Nearest", "Cubic")
+              "Nearest", "Cubic Spline")
     // </group>
 
     // Returns whether or not the given axis needs the second data parameter to
     // indicate which data column to use or not.  Currently false except for
     // AMP, PHASE, REAL, and IMAG.
     static bool axisIsData(Axis axis);
+    static bool axisIsCalData(Axis axis);
     // Cal table axes which need validation/slicing for poln selection
     static bool axisNeedsCalSlice(Axis axis);
     // Need datacolumn for averaging weight axes          
     static bool axisIsWeight(Axis axis);
     // for loading conjugates and setting axis ranges
     static bool axisIsUV(Axis axis);
+    static bool axisIsUVWave(Axis axis);
     // for adjusting axis ranges
     static bool axisIsOverlay(Axis axis);
     // right ascension or declination
     static bool axisIsRaDec(Axis axis);
+    static casacore::uInt axisScaleBase(Axis axis);
               
     // Enum for different axes types.  Currently only used to display this
     // information to the user in the GUI's cache tab.
@@ -234,7 +250,6 @@ public:
               
     // Returns the unit for the given axis.
     static AxisUnit axisUnit(Axis axis);
-    
     
     // Convert to/from dates and doubles, using the given scale (must be either
     // DATE_MJ_SEC or DATE_MJ_DAY).
@@ -334,6 +349,7 @@ public:
     // <group>
     static const Axis DEFAULT_XAXIS;
     static const Axis DEFAULT_YAXIS;
+    static const Axis DEFAULT_CAL_YAXIS;
     static const DataColumn DEFAULT_DATACOLUMN;
     static const DataColumn DEFAULT_DATACOLUMN_WT;
     static const CoordSystem DEFAULT_COORDSYSTEM;
@@ -348,7 +364,7 @@ public:
     static const casacore::String DEFAULT_CANVAS_AXIS_LABEL_FORMAT;
     static const bool DEFAULT_FONTSET;
     static const int DEFAULT_FONT;
-    static const bool DEFAULT_SHOWAXIS;
+    static const bool DEFAULT_SHOWAXISLABEL;
     static const bool DEFAULT_SHOWLEGEND;
     static const PlotCanvas::LegendPosition DEFAULT_LEGENDPOSITION;
     static const bool DEFAULT_SHOW_GRID;

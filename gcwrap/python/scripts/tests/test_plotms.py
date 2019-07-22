@@ -617,7 +617,7 @@ class test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 230000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         # test ms has no corrected data, should revert to data
         # Plot amp:corrected(->data) vs time and amp:model vs time. 
@@ -647,13 +647,13 @@ class test_axis(plotms_test_base):
                    ('ant-dec','time'),
                    ('ant-dec','ant-ra')
                   ]
-        interp_methods = ['nearest','cubic']
+        interp_methods = ['nearest','cubic spline']
         # Sub-plots grid
         grid_cols = len(yx_axes)
         grid_rows = len(interp_methods)
         n_plots = grid_rows*grid_cols
         # Create 1 plot file per supported reference frame
-        ref_frames = {'icrs':30000,'j2000':30000,'azelgeo':30000}
+        ref_frames = {'icrs':30000,'j2000':30000,'b1950':30000,'galactic':30000,'azelgeo':30000}
         for ref_frame, plot_min_size in ref_frames.iteritems():
             # Plot file
             plot_filename = "testAxis13_radec_" + ref_frame + ".png"
@@ -697,6 +697,8 @@ class test_axis(plotms_test_base):
                               height = 768,
                               highres = True,
                               overwrite = True,
+                              #
+                              showgui = False,
                               #
                               clearplots = is_first_plot
                           )

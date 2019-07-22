@@ -43,7 +43,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
   using namespace vi;
   namespace refim{
   using namespace CFDefs;
-  typedef casacore::Cube<casacore::CountedPtr<CFCell > > VBRow2CFMapType;
+  //typedef casacore::Cube<casacore::CountedPtr<CFCell > > VBRow2CFMapType;
   typedef casacore::Vector<casacore::CountedPtr<CFBuffer > > VBRow2CFBMapType;
   class CFStore2
   {

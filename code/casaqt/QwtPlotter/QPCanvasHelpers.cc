@@ -28,6 +28,8 @@
 
 #include <casaqt/QwtPlotter/QPCanvasHelpers.qo.h>
 
+#include <casacore/casa/Quanta/MVAngle.h>
+
 #include <casaqt/QtUtilities/QtLayeredLayout.h>
 #include <casaqt/QwtPlotter/QPCanvas.qo.h>
 
@@ -77,7 +79,9 @@ QPScaleDraw::QPScaleDraw(QwtPlot* parent, QwtPlot::Axis axis) :
 		m_parent(parent), m_axis(axis), m_scale(NORMAL),
 		m_dateFormat(Plotter::DEFAULT_DATE_FORMAT),
 		m_relativeDateFormat(Plotter::DEFAULT_RELATIVE_DATE_FORMAT),
-		m_referenceSet(false), m_referenceValue(0) {
+		m_referenceSet(false), m_referenceValue(0),
+		m_angleFormat(AngleFormat::DECIMAL),
+		m_mvAngleFormat(MVAngle::Format()){
 	if ( parent != NULL ){
 		parent->setAxisScaleDraw(axis, this);
 	}
@@ -89,7 +93,7 @@ QPScaleDraw::~QPScaleDraw() { }
 
 PlotAxisScale QPScaleDraw::scale() const { return m_scale; }
 
-void QPScaleDraw::setScale(PlotAxisScale scale) {
+void QPScaleDraw::setScale(PlotAxisScale scale, uInt base) {
     if(scale != m_scale) {
         m_scale = scale;
         if ( m_parent != NULL ){
@@ -101,7 +105,12 @@ void QPScaleDraw::setScale(PlotAxisScale scale) {
 #endif
             }
             else {
+#if QWT_VERSION >= 0x060000
+                m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine(base));
+#else
+                base = 10;
                 m_parent->setAxisScaleEngine(m_axis, new QwtLinearScaleEngine());
+#endif
             }
             if(m_parent->autoReplot())
                 m_parent->replot();
@@ -146,6 +155,25 @@ void QPScaleDraw::setReferenceValue(bool on, double value) {
 	}
 }
 
+AngleFormat QPScaleDraw::angleFormat() const { return m_angleFormat; }
+void QPScaleDraw::setAngleFormat(AngleFormat newFormat) {
+	if(newFormat != m_angleFormat) {
+		m_angleFormat = newFormat;
+		switch (newFormat){
+		case AngleFormat::DMS :
+			m_mvAngleFormat = MVAngle::Format(MVAngle::ANGLE_CLEAN,m_angleFormatDefaultPrecision);
+			break;
+		case AngleFormat::HMS :
+			m_mvAngleFormat = MVAngle::Format(MVAngle::TIME_CLEAN,m_angleFormatDefaultPrecision);
+			break;
+		default:
+			m_mvAngleFormat = MVAngle::Format();
+			break;
+		}
+		invalidateCache();
+	}
+}
+
 QwtText QPScaleDraw::label(double value) const {
 	if(m_referenceSet) value -= m_referenceValue;
 	if(m_scale == DATE_MJ_DAY || m_scale == DATE_MJ_SEC) {
@@ -163,6 +191,9 @@ QwtText QPScaleDraw::label(double value) const {
 		return QString(Plotter::formattedDateString(
 			m_referenceSet ? m_relativeDateFormat : m_dateFormat, value,
 			m_scale, m_referenceSet, timePrecision).c_str());
+	} else if (m_scale == ANGLE ) {
+		auto label = MVAngle(Quantity(value,"deg")).string(m_mvAngleFormat);
+		return QString(label.c_str());
 	} else {
 		int tprecision = getTickPrecision();
 		if (tprecision >=0) {

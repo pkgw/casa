@@ -118,12 +118,12 @@ void PlotMSCanvasTab::getValue(PlotMSPlotParameters& params) const {
     c->setLegendPosition( PlotCanvas::legendPosition(
                   legendChooser->currentText().toStdString()));
 
-    c->showXAxis(xAxis->isChecked());
+    c->showXLabel(xAxis->isChecked());
     c->setXFontSet(xAxisFont->isChecked());
     c->setXAxisFont(xAxisFontSpinner->value());
     c->setXLabelFormat(itsXLabelWidget_->getValue());
 
-    c->showYAxis(yAxis->isChecked());
+    c->showYLabel(yAxis->isChecked());
     c->setYFontSet(yAxisFont->isChecked());
     c->setYAxisFont(yAxisFontSpinner->value());
     c->setYLabelFormat(itsYLabelWidget_->getValue());
@@ -145,11 +145,11 @@ void PlotMSCanvasTab::setValue(const PlotMSPlotParameters& params) {
     legend->setChecked(c->legendShown());
     setChooser(legendChooser, PlotCanvas::legendPosition(c->legendPosition()));
     
-    xAxis->setChecked(c->xAxisShown());
+    xAxis->setChecked(c->xLabelShown());
     itsXLabelWidget_->setValue(c->xLabelFormat().format);
     xAxisFont->setChecked(c->xFontSet());
     xAxisFontSpinner->setValue(c->xAxisFont());
-    yAxis->setChecked(c->yAxisShown());
+    yAxis->setChecked(c->yLabelShown());
     itsYLabelWidget_->setValue(c->yLabelFormat().format);
     yAxisFont->setChecked(c->yFontSet());
     yAxisFontSpinner->setValue(c->yAxisFont());
@@ -174,11 +174,11 @@ void PlotMSCanvasTab::update(const PlotMSPlot& plot) {
     highlightWidgetText(legendLabel, c->legendShown() != c2->legendShown() ||
                 (c->legendShown()&&c->legendPosition()!=c2->legendPosition()));
     
-    highlightWidgetText(xAxisLabel, c->xAxisShown() != c2->xAxisShown());
+    highlightWidgetText(xAxisLabel, c->xLabelShown() != c2->xLabelShown());
     highlightWidgetText(xAxisSection, c->xFontSet() != c2->xFontSet() ||
                                       c->xAxisFont() != c2->xAxisFont());
     highlightWidgetText(xLabelLabel, c->xLabelFormat() != c2->xLabelFormat());
-    highlightWidgetText(yAxisLabel, c->yAxisShown() != c2->yAxisShown());
+    highlightWidgetText(yAxisLabel, c->yLabelShown() != c2->yLabelShown());
     highlightWidgetText(yAxisSection, c->yFontSet() != c2->yFontSet() ||
                                       c->yAxisFont() != c2->yAxisFont());
     highlightWidgetText(yLabelLabel, c->yLabelFormat() != c2->yLabelFormat());

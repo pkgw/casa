@@ -130,7 +130,7 @@ using namespace casa::vi;
     //------------------------------------------------------------------
     //
     CFBuffer(): wValues_p(), maxXSupport_p(-1), maxYSupport_p(-1), pointingOffset_p(), cfHitsStats(),
-		freqNdxMapsReady_p(false), freqNdxMap_p(), conjFreqNdxMap_p(), cfCacheDirName_p()
+		freqNdxMapsReady_p(false), freqNdxMap_p(), conjFreqNdxMap_p(), cfCacheDirName_p(), maxCFSize_p(-1)
     {};
     
     CFBuffer(casacore::Int maxXSup, casacore::Int maxYSup):
@@ -326,9 +326,9 @@ using namespace casa::vi;
 						      const casacore::Float& diameter=25.0);
     // casacore::RigidVector<casacore::Int, 3> setParams(const casacore::Int& inu, const casacore::Int& iw, const casacore::Int& muellerElement,
     // 				  const casacore::TableRecord& miscInfo);
-    void setPointingOffset(const casacore::Vector<casacore::Double>& offset) 
+    void setPointingOffset(const casacore::Vector<casacore::Vector<casacore::Double> >& offset) 
     {pointingOffset_p.assign(offset);};
-    casacore::Vector<casacore::Double> getPointingOffset() {return pointingOffset_p;};
+    casacore::Vector<casacore::Vector<casacore::Double> > getPointingOffset() {return pointingOffset_p;};
     //
     // Also set the size of the CF in x and y.
     //
@@ -406,6 +406,9 @@ using namespace casa::vi;
 	      const PolMapType& muellerElements);
     
     casacore::IPosition getShape() {return cfCells_p.shape();}
+
+    int getMaxCFSize();
+    bool finitePointingOffsets();
     //
     //============================= Protected Parts ============================
     //------------------------------------------------------------------
@@ -424,12 +427,14 @@ using namespace casa::vi;
     MuellerMatrixType muellerMask_p;
     
     casacore::Int nPol_p, nChan_p, nW_p, maxXSupport_p, maxYSupport_p;
-    casacore::Vector<casacore::Double> pointingOffset_p;
+    casacore::Vector<casacore::Vector<casacore::Double> > pointingOffset_p;
     casacore::Cube<casacore::Int> cfHitsStats;
     casacore::Bool freqNdxMapsReady_p;
     casacore::Vector<casacore::Vector<casacore::Int> > freqNdxMap_p, conjFreqNdxMap_p;
     void ASSIGNVVofI(casacore::Int** &target,casacore::Vector<casacore::Vector<casacore::Int> >& source, casacore::Bool& doAlloc);
     casacore::String cfCacheDirName_p;
+
+    int maxCFSize_p;
   };
 
   // declare a commonly used template extern

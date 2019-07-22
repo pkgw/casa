@@ -54,7 +54,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       runTimeG_p(0.0), runTimeDG_p(0.0),runTimeG1_p(0.0), runTimeG2_p(0.0), runTimeG3_p(0.0), runTimeG4_p(0.0), runTimeG5_p(0.0), runTimeG6_p(0.0), runTimeG7_p(0.0),
       timer_p(),
       uvwScale_p(), offset_p(), chanMap_p(), polMap_p(), spwChanFreq_p(), spwChanConjFreq_p (), convFuncStore_p(), inc_p(),
-      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0)
+      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0), cached_phaseGrad_p(),vb2CFBMap_p()
 
     {};
     // VisibilityResamplerBase(const CFStore& cfs): 
@@ -64,7 +64,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     VisibilityResamplerBase(const VisibilityResamplerBase& other):
       uvwScale_p(), offset_p(), chanMap_p(), polMap_p(), spwChanFreq_p(), spwChanConjFreq_p (), convFuncStore_p(), inc_p(),
-      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0)
+      cfMap_p(), conjCFMap_p(), paTolerance_p(360.0),vb2CFBMap_p()
     {copy(other);}
 
     virtual ~VisibilityResamplerBase() {};
@@ -136,14 +136,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     
     virtual void releaseBuffers() = 0;
-    VBRow2CFMapType& getVBRow2CFMap() {return vbRow2CFMap_p;};
-    VBRow2CFBMapType& getVBRow2CFBMap() {return vbRow2CFBMap_p;};
-    virtual casacore::Int makeVBRow2CFMap(CFStore2& cfs,
-				ConvolutionFunction& cf,
-				const VisBuffer2& vb, const casacore::Quantity& dPA,
-				const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
-				const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
-				const casacore::Vector<casacore::Double>& pointingOffset);
+//    VBRow2CFMapType& getVBRow2CFMap() {return vbRow2CFMap_p;};
+    VB2CFBMap& getVBRow2CFBMap() {return *vb2CFBMap_p;};
+    // virtual casacore::Int makeVBRow2CFBMap(CFStore2& cfs,
+    // 				ConvolutionFunction& cf,
+    // 				const VisBuffer2& vb, const casacore::Quantity& dPA,
+    // 				const casacore::Vector<casacore::Int>& dataChan2ImChanMap,
+    // 				const casacore::Vector<casacore::Int>& dataPol2ImPolMap,
+    // 				const casacore::Vector<casacore::Double>& pointingOffset);
+
+    void setFieldPhaseGrad(const casacore::Matrix<casacore::Complex>& phaseGrad) {cached_phaseGrad_p.reference(phaseGrad);};
+    void setVB2CFMap(const casacore::CountedPtr<refim::VB2CFBMap>& thisMap) {vb2CFBMap_p = thisMap;}
 
     casacore::Double runTimeG_p, runTimeDG_p, runTimeG1_p, runTimeG2_p, runTimeG3_p, runTimeG4_p, runTimeG5_p, runTimeG6_p, runTimeG7_p;
     casacore::Timer timer_p;
@@ -162,9 +165,10 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     casacore::Vector<casacore::Int> inc_p;
     casacore::Int* __restrict__ incPtr_p;
     casacore::Vector<casacore::Int> cfMap_p, conjCFMap_p;
-    VBRow2CFMapType vbRow2CFMap_p;
-    VBRow2CFBMapType vbRow2CFBMap_p;
+//    VBRow2CFMapType vbRow2CFMap_p;
     double paTolerance_p;
+    casacore::Matrix<casacore::Complex> cached_phaseGrad_p;
+    casacore::CountedPtr<refim::VB2CFBMap> vb2CFBMap_p;
 
     void sgrid(casacore::Int& ndim, 
 	       casacore::Double* __restrict__  pos, 

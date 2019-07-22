@@ -43,6 +43,9 @@
 
 #include <alma/ASDM/CalReductionTable.h>
 #include <alma/ASDM/CalReductionRow.h>
+
+#include <alma/ASDM/SpectralWindowTable.h>
+#include <alma/ASDM/SpectralWindowRow.h>
 	
 
 using asdm::ASDM;
@@ -54,6 +57,9 @@ using asdm::CalDataRow;
 
 using asdm::CalReductionTable;
 using asdm::CalReductionRow;
+
+using asdm::SpectralWindowTable;
+using asdm::SpectralWindowRow;
 
 
 #include <alma/ASDM/Parser.h>
@@ -354,7 +360,20 @@ namespace asdm {
   	
 
 	
+  	
+ 		
 		
+	 	
+			
+		x->spectralWindowId = spectralWindowId.toIDLTag();
+			
+	 	 		
+  	
+
+	
+		
+	
+
 	
 
 	
@@ -623,7 +642,20 @@ namespace asdm {
   	
 
 	
+  	
+ 		
 		
+	 	
+			
+		x.spectralWindowId = spectralWindowId.toIDLTag();
+			
+	 	 		
+  	
+
+	
+		
+	
+
 	
 
 	
@@ -873,6 +905,18 @@ namespace asdm {
 
 	
 		
+		
+			
+		setSpectralWindowId(Tag (x.spectralWindowId));
+			
+ 		
+		
+	
+
+	
+		
+	
+
 	
 
 	
@@ -1048,8 +1092,18 @@ namespace asdm {
 		
 	
 
+  	
+ 		
+		
+		Parser::toXML(spectralWindowId, "spectralWindowId", buf);
+		
+		
+	
+
 	
 		
+	
+
 	
 
 	
@@ -1246,7 +1300,17 @@ namespace asdm {
 	
 
 	
+  		
+			
+	  	setSpectralWindowId(Parser::getTag("spectralWindowId","SpectralWindow",rowDoc));
+			
 		
+	
+
+	
+		
+	
+
 	
 
 	
@@ -1309,6 +1373,13 @@ namespace asdm {
 	
 		
 	calReductionId.toBin(eoss);
+		
+	
+
+	
+	
+		
+	spectralWindowId.toBin(eoss);
 		
 	
 
@@ -1519,6 +1590,16 @@ void CalAntennaSolutionsRow::calReductionIdFromBin(EndianIStream& eis) {
 		
 		
 		calReductionId =  Tag::fromBin(eis);
+		
+	
+	
+}
+void CalAntennaSolutionsRow::spectralWindowIdFromBin(EndianIStream& eis) {
+		
+	
+		
+		
+		spectralWindowId =  Tag::fromBin(eis);
 		
 	
 	
@@ -1801,6 +1882,16 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 		 
           
 		calReductionId = ASDMValuesParser::parse<Tag>(s);
+          
+		
+	}
+	
+	
+	// Convert a string into an Tag 
+	void CalAntennaSolutionsRow::spectralWindowIdFromText(const string & s) {
+		 
+          
+		spectralWindowId = ASDMValuesParser::parse<Tag>(s);
           
 		
 	}
@@ -2586,6 +2677,42 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
 	
 
+	
+
+	
+ 	/**
+ 	 * Get spectralWindowId.
+ 	 * @return spectralWindowId as Tag
+ 	 */
+ 	Tag CalAntennaSolutionsRow::getSpectralWindowId() const {
+	
+  		return spectralWindowId;
+ 	}
+
+ 	/**
+ 	 * Set spectralWindowId with the specified Tag.
+ 	 * @param spectralWindowId The Tag value to which spectralWindowId is to be set.
+ 	 
+ 	
+ 		
+ 	 * @throw IllegalAccessException If an attempt is made to change this field after is has been added to the table.
+ 	 	
+ 	 */
+ 	void CalAntennaSolutionsRow::setSpectralWindowId (Tag spectralWindowId)  {
+  	
+  	
+  		if (hasBeenAdded) {
+ 		
+			throw IllegalAccessException("spectralWindowId", "CalAntennaSolutions");
+		
+  		}
+  	
+ 		this->spectralWindowId = spectralWindowId;
+	
+ 	}
+	
+	
+
 
 	//////////////////////////////////////
 	// Links Attributes getters/setters //
@@ -2624,6 +2751,25 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	 CalReductionRow* CalAntennaSolutionsRow::getCalReductionUsingCalReductionId() {
 	 
 	 	return table.getContainer().getCalReduction().getRowByKey(calReductionId);
+	 }
+	 
+
+	
+
+	
+	
+	
+		
+
+	/**
+	 * Returns the pointer to the row in the SpectralWindow table having SpectralWindow.spectralWindowId == spectralWindowId
+	 * @return a SpectralWindowRow*
+	 * 
+	 
+	 */
+	 SpectralWindowRow* CalAntennaSolutionsRow::getSpectralWindowUsingSpectralWindowId() {
+	 
+	 	return table.getContainer().getSpectralWindow().getRowByKey(spectralWindowId);
 	 }
 	 
 
@@ -2682,6 +2828,8 @@ void CalAntennaSolutionsRow::amplitudeAntRMSFromBin(EndianIStream& eis) {
 	
 
 	
+
+	
 	
 	
 	
@@ -2735,6 +2883,7 @@ receiverBand = CReceiverBand::from_int(0);
 	 fromBinMethods["basebandName"] = &CalAntennaSolutionsRow::basebandNameFromBin; 
 	 fromBinMethods["calDataId"] = &CalAntennaSolutionsRow::calDataIdFromBin; 
 	 fromBinMethods["calReductionId"] = &CalAntennaSolutionsRow::calReductionIdFromBin; 
+	 fromBinMethods["spectralWindowId"] = &CalAntennaSolutionsRow::spectralWindowIdFromBin; 
 	 fromBinMethods["startValidTime"] = &CalAntennaSolutionsRow::startValidTimeFromBin; 
 	 fromBinMethods["endValidTime"] = &CalAntennaSolutionsRow::endValidTimeFromBin; 
 	 fromBinMethods["numReceptor"] = &CalAntennaSolutionsRow::numReceptorFromBin; 
@@ -2776,6 +2925,10 @@ receiverBand = CReceiverBand::from_int(0);
 	
 				 
 	fromTextMethods["calReductionId"] = &CalAntennaSolutionsRow::calReductionIdFromText;
+		 
+	
+				 
+	fromTextMethods["spectralWindowId"] = &CalAntennaSolutionsRow::spectralWindowIdFromText;
 		 
 	
 				 
@@ -2878,6 +3031,8 @@ receiverBand = CReceiverBand::from_int(0);
 	
 
 	
+
+	
 		
 		}
 		else {
@@ -2894,6 +3049,8 @@ receiverBand = CReceiverBand::from_int(0);
 			calDataId = row->calDataId;
 		
 			calReductionId = row->calReductionId;
+		
+			spectralWindowId = row->spectralWindowId;
 		
 		
 		
@@ -2935,6 +3092,7 @@ receiverBand = CReceiverBand::from_int(0);
 		 fromBinMethods["basebandName"] = &CalAntennaSolutionsRow::basebandNameFromBin; 
 		 fromBinMethods["calDataId"] = &CalAntennaSolutionsRow::calDataIdFromBin; 
 		 fromBinMethods["calReductionId"] = &CalAntennaSolutionsRow::calReductionIdFromBin; 
+		 fromBinMethods["spectralWindowId"] = &CalAntennaSolutionsRow::spectralWindowIdFromBin; 
 		 fromBinMethods["startValidTime"] = &CalAntennaSolutionsRow::startValidTimeFromBin; 
 		 fromBinMethods["endValidTime"] = &CalAntennaSolutionsRow::endValidTimeFromBin; 
 		 fromBinMethods["numReceptor"] = &CalAntennaSolutionsRow::numReceptorFromBin; 
@@ -2954,7 +3112,7 @@ receiverBand = CReceiverBand::from_int(0);
 	}
 
 	
-	bool CalAntennaSolutionsRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
+	bool CalAntennaSolutionsRow::compareNoAutoInc(std::string antennaName, AtmPhaseCorrectionMod::AtmPhaseCorrection atmPhaseCorrection, ReceiverBandMod::ReceiverBand receiverBand, BasebandNameMod::BasebandName basebandName, Tag calDataId, Tag calReductionId, Tag spectralWindowId, ArrayTime startValidTime, ArrayTime endValidTime, int numReceptor, std::string refAntennaName, std::vector<Angle > direction, std::vector<Frequency > frequencyRange, Interval integrationTime, std::vector<PolarizationTypeMod::PolarizationType > polarizationTypes, bool correctionValidity, std::vector<float > phaseAnt, std::vector<float > phaseAntRMS, std::vector<float > amplitudeAnt, std::vector<float > amplitudeAntRMS) {
 		bool result;
 		result = true;
 		
@@ -2996,6 +3154,13 @@ receiverBand = CReceiverBand::from_int(0);
 	
 		
 		result = result && (this->calReductionId == calReductionId);
+		
+		if (!result) return false;
+	
+
+	
+		
+		result = result && (this->spectralWindowId == spectralWindowId);
 		
 		if (!result) return false;
 	
@@ -3209,6 +3374,7 @@ receiverBand = CReceiverBand::from_int(0);
 		result["basebandName"] = &CalAntennaSolutionsRow::basebandNameFromBin;
 		result["calDataId"] = &CalAntennaSolutionsRow::calDataIdFromBin;
 		result["calReductionId"] = &CalAntennaSolutionsRow::calReductionIdFromBin;
+		result["spectralWindowId"] = &CalAntennaSolutionsRow::spectralWindowIdFromBin;
 		result["startValidTime"] = &CalAntennaSolutionsRow::startValidTimeFromBin;
 		result["endValidTime"] = &CalAntennaSolutionsRow::endValidTimeFromBin;
 		result["numReceptor"] = &CalAntennaSolutionsRow::numReceptorFromBin;
