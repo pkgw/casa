@@ -88,6 +88,9 @@ TEST(MSMetaInfoForCal, NoMS) {
     ASSERT_EQ(-1,msm.scanNumberAtTime(123456789.0));
 
 
+    // <noms> case returns zero for center freq (for now)
+    ASSERT_EQ(0,msm.centerFreq(0));
+
   }
 
   {
@@ -124,6 +127,7 @@ TEST(MSMetaInfoForCal, NoMS) {
     //cout << "msm.scanNumberAtTime(123456789.0) = " << msm.scanNumberAtTime(123456789.0) << endl;
     ASSERT_EQ(-1,msm.fieldIdAtTime(123456789.0));
     ASSERT_EQ(-1,msm.scanNumberAtTime(123456789.0));
+
 
   }
 
@@ -194,6 +198,13 @@ TEST(MSMetaInfoForCal, MSbyName) {
     cout << "msm.scanNumberAtTime(4793957290.0) = " << msm.scanNumberAtTime(4793957290.0) << endl;
     */
 
+    // Check some center frequencies
+    ASSERT_EQ(1.6675,msm.centerFreq(0));
+    ASSERT_EQ(2.0515,msm.centerFreq(6));
+    ASSERT_EQ(0.9765,msm.centerFreq(8));
+    ASSERT_EQ(1.4885,msm.centerFreq(15));
+
+
   }
 
 
@@ -258,6 +269,16 @@ TEST(MSMetaInfoForCal, MSbyMS) {
   //cout << "msm.scanNumberAtTime(4793957200.0) = " << msm.scanNumberAtTime(4793957200.0) << endl;
   ASSERT_EQ(30,msm.scanNumberAtTime(4793957190.0));  // near end of scan 30
   ASSERT_EQ(31,msm.scanNumberAtTime(4793957200.0));  // near beg of scan 31
+
+
+  // Check some center frequencies
+  ASSERT_EQ(1.6675,msm.centerFreq(0));
+  ASSERT_EQ(2.0515,msm.centerFreq(6));
+  ASSERT_EQ(0.9765,msm.centerFreq(8));
+  ASSERT_EQ(1.4885,msm.centerFreq(15));
+
+  cout << msm.centerFreq(8) << endl;
+
 
 }
 
