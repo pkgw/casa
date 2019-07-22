@@ -478,12 +478,14 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
     cout << "The supplied VisBuffer2 is not attached to a ViImplementation2," << endl
 	 << " which is necessary to generate accurate frequency info." << endl
 	 << " This is probably just a test with a naked VisBuffer2." << endl
-	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl
+	 << " Spoofing freq axis with 1 MHz channels at 100+10*ispw GHz." << endl
 	 << " Spoofing corr axis with [5,6,7,8] (circulars)" << endl;
+
     freqs_.resize(vb.nChannels());
     indgen(freqs_);
     freqs_*=1e6;
     freqs_+=100.0005e9; // _edge_ of first channel at 100 GHz.
+    freqs_+=(10.0e9*vb.spectralWindows()(0));  // 10 GHz spacing of spws
 
     Int nC=vb.nCorrelations();
     corrs_.resize(nC);
@@ -493,6 +495,11 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
       corrs_[1]=6;
       corrs_[2]=7;
     }
+
+    // nAnt is last a2 index +1
+    // Assumes simple sorting of these (which is how test data works)
+    Int nR=vb.nRows();
+    nAnt_=vb.antenna2()(nR-1)+1;
   }
 
   // Store the centroid freq (use mean, for now)
@@ -757,7 +764,7 @@ casacore::Double SDBList::aggregateCentroidFreq() const {
       aggCentroidFreq_=0.0;
       for (Int isdb=0;isdb<nSDB_;++isdb)
 	aggCentroidFreq_+=SDB_[isdb]->centroidFreq();
-      aggCentroidFreq_/Double(nSDB_);
+      aggCentroidFreq_/=Double(nSDB_);
     }
     // We've calculated it
     aggCentroidFreqOK_=true;

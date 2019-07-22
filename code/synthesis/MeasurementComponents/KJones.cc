@@ -362,14 +362,33 @@ void DelayFFT::addWithDupAndShift(const DelayFFT& other) {
     lo+=oNPadChan;
   }
 
+  /*
+  // Add incoming to low and (if nec.) high end of accumulator
+  Slicer sl0(Slice(),Slice(0,oNPadChan,1),Slice());
+  Cube<Complex> v1(oDupShifted(sl0)), v0(other.Vpad_(sl0));
+  v1+=v0;
+  if (oNPadChan<nPadChan_) {
+    Slicer sl1(Slice(),Slice(nPadChan_-oNPadChan,oNPadChan,1),Slice());
+    Cube<Complex> v2(oDupShifted(sl1));
+    v2+=v0;
+  }
+  */
+
   // Form and apply shift
+
+  // Generate delay-dep phase shift Vector
+  Vector<Double> ph(nPadChan_);  indgen(ph);   // delay index
+  Int nPC2(nPadChan_/2);
+  Vector<Double> ph2(ph(Slice(nPC2,nPC2,1)));  // (2nd half is negative)
+  ph2-=Double(nPadChan_);                      // unfolded
+
+  ph/=Double(oNPadChan);                       // cycles/sample for INCOMING delay function!
+
   Double shift=-(other.f0_-f0_);               // Shift _other_ to this at f0_
-  shift/=df_;                                  // samples  
-  Vector<Double> ph(nPadChan_);  indgen(ph);   // indices
-  ph-=Double(nPadChan_/2);                     // centered
-  ph/=Double(nPadChan_);                       // cycles/sample
+  shift/=other.df_;                            // Shift in samples (for INCOMING!)  
   ph*=shift;                                   // cycles
   ph*=(C::_2pi);                               // rad
+
   Vector<Double> fsh(nPadChan_*2);
   fsh(Slice(0,nPadChan_,2))=cos(ph);
   fsh(Slice(1,nPadChan_,2))=sin(ph);
@@ -401,9 +420,11 @@ void DelayFFT::searchPeak() {
   Int ipk;
   Float alo,amax,ahi,fpk;
   for (Int ielem=0;ielem<nElem_;++ielem) {
+    if (ielem==refant_)
+      continue;
     for (Int icorr=0;icorr<nCorr_;++icorr) {
       amp=amplitude(Vpad_(Slice(icorr,1,1),Slice(),Slice(ielem,1,1)));
-      //pha=phase(Vpad_(Slice(icorr,1,1),Slice(),Slice(ielem,1,1)))*(180.0/C::pi);
+      //pha=    phase(Vpad_(Slice(icorr,1,1),Slice(),Slice(ielem,1,1)))*(180.0/C::pi);
       amax=-1.0;
       ipk=0;
       for (Int ich=0;ich<nPadChan_;++ich) {
@@ -426,18 +447,22 @@ void DelayFFT::searchPeak() {
 	delay/=df_;                        // nsec
 
 	/*
-	if (ielem==1 && icorr==0) {
-	cout << "peak indices=[" << ilo << ", " << ipk << ", " << ihi << "]" << endl
-	     << "delay=" 
-	     << Float(ilo)/Float(nPadChan_)/df_ << "..."
-	     << Float(ipk)/Float(nPadChan_)/df_ << "..."
-	     << Float(ihi)/Float(nPadChan_)/df_ << "-->"
-	     << delay << "    " << endl
-	     << "amps=" << alo << " " << amax << " " << ahi << "  (rel="
-	     << alo/amax << " " << amax/amax << " " << ahi/amax << ")"
-	     << endl
-	     << "phases=" << pha(ilo) << "..." << pha(ipk) << "..." << pha(ihi)
-	     << endl;
+	if (ielem<8 && icorr>-1) {
+	  cout << endl << ielem << "-" << icorr << " nPadChan_=" << nPadChan_ << " df_=" << df_ << endl
+	       << "peak indices=[" << ilo << ", " << ipk << ", " << ihi << "]-->" 
+	       << fpk << endl
+	       << "       delay=[" 
+	       << Float(ilo)/Float(nPadChan_)/df_ << ", "
+	       << Float(ipk)/Float(nPadChan_)/df_ << ", "
+	       << Float(ihi)/Float(nPadChan_)/df_ << "]-->"
+	       << delay << "    " << endl
+	       << "amps=" << alo << " " << amax << " " << ahi << "  (rel="
+	       << alo/amax << " " << amax/amax << " " << ahi/amax << ")"
+	       << endl
+	       << "phases=" << pha(ilo) << "..." << pha(ipk) << "..." << pha(ihi)
+	       << endl;
+	  if (ipk==0) 
+	    cout << amp(Slice(nPadChan_-5,5,1)) << amp(Slice(0,5,1)) << endl;
 	}
 	*/
 
@@ -824,7 +849,7 @@ void KJones::selfSolveOne(SDBList& sdbs) {
 
   // Forward to MBD solver if more than one VB (more than one spw, probably)
   if (sdbs.nSDB()!=1) 
-    this->solveOneSDBmbd(sdbs);
+      this->solveOneSDBmbd(sdbs);
 
   // otherwise, call the single-VB solver with the first SDB in the SDBList
   else
@@ -933,7 +958,7 @@ void KJones::solveOneSDBmbd(SDBList& sdbs) {
   Double tbw=floor(2.0+(fhi-flo)/adfmax)*adfmax;
 
   // Pad the total bandwith 8X
-  Double ptbw=tbw*32;  
+  Double ptbw=tbw*8;  
   // TBD:  verifty that all df are factors of tbw
 
   /*

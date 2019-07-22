@@ -29,6 +29,8 @@
 #include <casa/Exceptions/Error.h>
 #include <casa/iostream.h>
 #include <casa/BasicMath/Math.h>
+#include <lattices/Lattices/ArrayLattice.h>
+#include <lattices/LatticeMath/LatticeFFT.h>
 
 #include <synthesis/MeasurementComponents/KJones.h>
 #include <synthesis/MeasurementComponents/SolveDataBuffer.h>
@@ -79,6 +81,8 @@ public:
   }
 
 };
+
+
 
 TEST_F(DelayFFTTest, BasicDelayFFTTest) {
 
@@ -348,7 +352,6 @@ TEST_F(KJonesTest, SBDSolveTest) {
       sdbs.add(*vb2);
 
       K.selfSolveOne(sdbs);
-
 
       Cube<Float> soldiff=abs(K.solveRPar()-del);
 
@@ -710,3 +713,77 @@ TEST_F(KJonesTest, PrecTest) {
 }
 
 */
+
+
+
+
+
+TEST_F(DelayFFTTest, LatticeFFTtest) {
+
+  Int nchan(8);
+  Int pad=2;
+  Int npadchan(nchan*pad);
+  Vector<Bool> ax(1,true);
+  Float F0(100.0);
+
+  {
+
+  Float f0(100.0), df(1.0/nchan);   // in "GHz"
+  Float del(1.0);                   // in "ns" == cycles/GHz,  del/nchan cycles/sample
+  f0+=(1.1*df);
+  Vector<Complex> v(npadchan,Complex(0.0));
+  Vector<Complex> v0(v(Slice(0,nchan,1)));
+  v0.set(Complex(1.0));
+  v0*=this->appdel(nchan,f0,df,del,F0);
+  cout << "phase(v)=" << phase(v)*180.0/C::pi << endl;
+
+  cout << endl;
+
+  ArrayLattice<Complex> c(v);
+  LatticeFFT::cfft0(c,ax,true);
+  cout << "amplitude = " << amplitude(v) << endl;
+  cout << "phase     = " << phase(v)*180.0/C::pi << endl;
+
+  cout << endl;
+
+  // Apply shift
+  Float sh=-(f0-F0);
+  cout << "shift (Hz)      = " << sh << endl;
+  sh/=df;
+  cout << "shift (samples) = " << sh << endl;
+
+
+  Vector<Float> ash(npadchan); indgen(ash); // delay axis index
+  cout << "delay index   = " << ash << endl;
+  ash/=Float(npadchan);                     // cycles/sample
+  cout << "cycles/sample = " << ash << endl;
+  ash*=sh;                                  // cycles 
+  cout << "cycles        = " << ash << endl;
+  ash*=Float(2*C::pi);                      // radians
+  cout << "radians       = " << ash << endl;
+  cout << "degrees       = " << ash*(180.0/C::pi) << endl;
+  Vector<Float> fsh(2*npadchan,0.0);
+  fsh(Slice(0,npadchan,2))=cos(ash);
+  fsh(Slice(1,npadchan,2))=sin(ash);
+  Vector<Complex> csh(npadchan);
+  RealToComplex(csh,fsh);
+  v*=csh;
+  
+  cout << "amplitude = " << amplitude(v) << endl;
+  cout << "phase     = " << phase(v)*180.0/C::pi << endl;
+
+
+  }
+
+  {
+    Int n(128);
+    Vector<Double> x(n); indgen(x);
+    cout << "x=" << x << endl;
+    x/=Double(n);
+    Vector<Double> x2(x(Slice(n/2,n/2,1)));
+    x2-=1.0;
+    cout << "x=" << x << endl;
+    
+  }
+
+}
