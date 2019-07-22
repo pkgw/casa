@@ -66,6 +66,7 @@
 #include <synthesis/TransformMachines2/SkyJones.h>
 
 #include <casa/Utilities/CompositeNumber.h>
+#include <iomanip>
 #include <math.h>
 
 using namespace casacore;
@@ -85,6 +86,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
 
     pbClass_p=PBMathInterface::COMMONPB;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
 }
 
   SimplePBConvFunc::SimplePBConvFunc(const PBMathInterface::PBClass typeToUse): 
@@ -94,6 +96,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     //
     pbClass_p=typeToUse;
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::SimplePBConvFunc(const RecordInterface& rec, const Bool calcfluxneeded)
   : nchan_p(-1),npol_p(-1),pointToPix_p(), directionIndex_p(-1), thePix_p(0), filledFluxScale_p(false),
@@ -103,6 +106,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     String err;
     fromRecord(err, rec, calcfluxneeded);
     ft_p=FFT2D(true);
+    usePointingTable_p=False;
   }
   SimplePBConvFunc::~SimplePBConvFunc(){
     //
@@ -131,7 +135,8 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     	  Int ant1=vb.antenna1()(0);
     	  pos=vb.subtableColumns().antenna().positionMeas()(ant1);
       }
-      //cout << "TELESCOPE " << tel << endl;
+      imInfo.setTelescope(tel);
+      csys_p.setObsInfo(imInfo);
       //Store this to build epochs via the time access of visbuffer later
       timeMType_p=MEpoch::castType(mscol.timeMeas()(0).getRef().getType());
       timeUnit_p=Unit(mscol.timeMeas().measDesc().getUnits()(0).getName());
@@ -271,7 +276,7 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     ant1PointingCache_p.resize(val+1, true);
     if(hasValidPointing){
       //ant1PointingCache_p[val]=vb.direction1()[0];
-      ant1PointingCache_p[val]=vbUtil_p.getPointingDir(vb, vb.antenna1()(0), 0, usePointingTable_p);
+      ant1PointingCache_p[val]=vbutil_p->getPointingDir(vb, vb.antenna1()(0), 0, dc_p.directionType());
     }
     else
       ant1PointingCache_p[val]=vbutil_p->getPhaseCenter(vb);
@@ -869,24 +874,32 @@ void SimplePBConvFunc::findConvFunction(const ImageInterface<Complex>& iimage,
     for (Int k=0; k < nchan; ++k)
       chanFreqs[k]=minfreq-origwidth+tol/2.0+tol*Double(k);
     Int activechan=0;
-    chanMap.set(-1);
+    chanMap.set(0);
     for (uInt k=0; k < chanMap.nelements(); ++k){
-     
-      while((activechan< nchan) && Float(fabs(freq[k]-chanFreqs[activechan])) > Float(tol/2.0)){
-	//		cerr << "k " << k << " atcivechan " << activechan << " comparison " 
+      Double mindiff=DBL_MAX;
+      Int nearestchan=0;
+      while((activechan< nchan) && Double(abs(freq[k]-chanFreqs[activechan])) > Double(tol/Double(2.0))){
+        if(mindiff > Double(abs(freq[k]-chanFreqs[activechan]))){
+          mindiff=Double(abs(freq[k]-chanFreqs[activechan]));
+          nearestchan=activechan;
+        }
+          
+        //	cerr << "k " << k << " atcivechan " << activechan << " comparison " 
 	//     << freq[k] << "    " << chanFreqs[activechan]  << endl;	
 	++activechan;
       }
-      if(activechan != nchan)
+      if(activechan != nchan){
 	chanMap[k]=activechan;
+      }
       //////////////////
-      //if(chanMap[k] < 0)
-      //cerr << "freq diffs " << freq[k]-chanFreqs << "  TOL " << tol/2.0 << endl;
-
+      else{
+        //cerr << std::setprecision(10) << "freq diffs " << freq[k]-chanFreqs << "  TOL " << tol/2.0 << endl;
+        chanMap[k]=nearestchan;
+      }
       ///////////////////////////
       activechan=0;
     }
-
+    //cerr << chanMap << endl;
     return;
   }
 

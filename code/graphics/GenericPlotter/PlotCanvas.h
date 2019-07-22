@@ -228,11 +228,9 @@ public:
     virtual void showAxes(PlotAxisBitset axes) = 0;
     
     
-    #if (0)  // checking hypothesis: this is not used anywhere
     // Returns true if the given axis is shown, false otherwise.
     // DEFAULT IMPLEMENTATION.
     virtual bool isAxisShown(PlotAxis axis) const;
-    #endif 
     
     
     // Shows/hides the given axis.

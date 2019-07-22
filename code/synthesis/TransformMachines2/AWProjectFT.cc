@@ -55,9 +55,9 @@
 
 #include <synthesis/TransformMachines2/ATerm.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
+#include <synthesis/TransformMachines2/PhaseGrad.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
 #include <synthesis/TransformMachines2/EVLAAperture.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 
 //#define CONVSIZE (1024*2)
 // #define OVERSAMPLING 2
@@ -135,7 +135,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 							    const Bool aTermOn,
 							    const Bool psTermOn,
 							    const Bool wTermOn,
-							    const Bool mTermOn,
+							    const Bool,// mTermOn,
 							    const Bool wbAWP,
 							    const Bool conjBeams)
   {
@@ -156,10 +156,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CountedPtr<ConvolutionFunction> awConvFunc;
     //    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm, !wbAWP);
     //if ((ftmName=="mawprojectft") || (mTermOn))
-    if (mTermOn)
-      awConvFunc = new AWConvFuncEPJones(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
-    else
-      awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
+
+    awConvFunc = new AWConvFunc(apertureFunction,psTerm,wTerm,wbAWP, conjBeams);
     return awConvFunc;
   }
   //
@@ -171,14 +169,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       gridder(0), isTiled(false), arrayLattice( ), lattice( ), 
       maxAbsData(0.0), centerLoc(IPosition(4,0)), offsetLoc(IPosition(4,0)),
       pointingToImage(0), usezero_p(false),
-      // convFunc_p(), convWeights_p(),
       epJ_p(),
       doPBCorrection(true), conjBeams_p(true),/*cfCache_p(cfcache),*/ paChangeDetector(),
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false), paNdxProcessed_p(),
       visResampler_p(), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-      rotatedConvFunc_p(),//cfs2_p(), cfwts2_p(), 
-    runTime1_p(0.0), previousSPWID_p(-1), self_p()
+    rotatedConvFunc_p(),
+    runTime1_p(0.0),phaseGrad_p(), previousSPWID_p(-1), self_p(), vb2CFBMap_p()
   {
     //    convSize=0;
     tangentSpecified_p=false;
@@ -209,6 +206,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CFBuffer::initCFBStruct(cfbst_pub);
     //    rotatedConvFunc_p.data=new Array<Complex>();    
     //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
   }
   //
   //---------------------------------------------------------------
@@ -237,7 +235,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       rotateOTFPAIncr_p(0.1),
       Second("s"),Radian("rad"),Day("d"), pbNormalized_p(false),
       visResampler_p(visResampler), sensitivityPatternQualifier_p(-1),sensitivityPatternQualifierStr_p(""),
-    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p()
+    rotatedConvFunc_p(), runTime1_p(0.0),  previousSPWID_p(-1),self_p(), vb2CFBMap_p()
   {
     //convSize=0;
     tangentSpecified_p=false;
@@ -273,12 +271,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     CFBuffer::initCFBStruct(cfbst_pub);
     muellerType_p = muellerType;
     //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
   }
   //
   //---------------------------------------------------------------
   //
   AWProjectFT::AWProjectFT(const RecordInterface& stateRec)
-    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p()
+    : FTMachine(),Second("s"),Radian("rad"),Day("d"),visResampler_p(), self_p(), vb2CFBMap_p()
   {
     //
     // Construct from the input state record
@@ -301,6 +300,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
       }
     pop_p->init();
     //    self_p.reset(this);
+    vb2CFBMap_p = new VB2CFBMap();
   }
   //
   //----------------------------------------------------------------------
@@ -415,6 +415,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	runTime1_p = other.runTime1_p;
 	muellerType_p = other.muellerType_p;
 	previousSPWID_p = other.previousSPWID_p;
+	vb2CFBMap_p = other.vb2CFBMap_p;
 	//	self_p = other.self_p;
       };
     return *this;
@@ -1167,12 +1168,19 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     lastPAUsedForWtImg = currentCFPA = pa;
 
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(image,vb));
+    Vector<Vector<Double> > pointingOffset(convFuncCtor_p->findPointingOffset(image,vb, doPointing));
     Float dPA = paChangeDetector.getParAngleTolerance().getValue("rad");
     Quantity dPAQuant = Quantity(paChangeDetector.getParAngleTolerance());
-    cfSource = visResampler_p->makeVBRow2CFMap(*cfs2_p,*convFuncCtor_p, vb,
-					       dPAQuant,
-					       chanMap,polMap,pointingOffset);
+    // cfSource = visResampler_p->makeVBRow2CFBMap(*cfs2_p,
+    // 						*convFuncCtor_p, 
+    // 						vb,
+    // 					       dPAQuant,
+    // 					       chanMap,polMap,pointingOffset);
+    vb2CFBMap_p->setDoPointing(doPointing);
+    cfSource = vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p,
+						vb,
+						dPAQuant,
+						chanMap,polMap,pointingOffset);
 
     if (cfSource == CFDefs::NOTCACHED)
       {
@@ -2456,12 +2464,17 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //timer_p.mark();
 
-    Vector<Double> pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb));
+    Vector<Vector<Double> >pointingOffset(convFuncCtor_p->findPointingOffset(*image, vb, doPointing));
     if (makingPSF){
       cfwts2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFMap(*cfwts2_p,*convFuncCtor_p, vb,
+      vb2CFBMap_p->setDoPointing(doPointing);
+      vb2CFBMap_p->makeVBRow2CFBMap(*cfwts2_p,
+				      vb,
 				      paChangeDetector.getParAngleTolerance(),
 				      chanMap,polMap,pointingOffset);
+      // visResampler_p->makeVBRow2CFBMap(*cfwts2_p,*convFuncCtor_p, vb,
+      // 				      paChangeDetector.getParAngleTolerance(),
+      // 				      chanMap,polMap,pointingOffset);
     }
     else
       {
@@ -2482,22 +2495,52 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 
 	cfs2_p->invokeGC(vbs.spwID_p);
-      visResampler_p->makeVBRow2CFMap(*cfs2_p,*convFuncCtor_p, vb,
-				      paChangeDetector.getParAngleTolerance(),
-				      chanMap,polMap,pointingOffset);
+	vb2CFBMap_p->setDoPointing(doPointing);
+	vb2CFBMap_p->makeVBRow2CFBMap(*cfs2_p, vb,
+				       paChangeDetector.getParAngleTolerance(),
+				       chanMap,polMap,pointingOffset);
+
+      // visResampler_p->makeVBRow2CFBMap(*cfs2_p,*convFuncCtor_p, vb,
+      // 				      paChangeDetector.getParAngleTolerance(),
+      // 				      chanMap,polMap,pointingOffset);
 
       }
-    //    VBRow2CFMapType theMap(visResampler_p->getVBRow2CFMap());
-    VBRow2CFBMapType& theMap=visResampler_p->getVBRow2CFBMap();
+
+    //    VB2CFBMap& theMap=visResampler_p->getVBRow2CFBMap();
+    // 
+    // Trigger the computation of phase gradiant corresponding to the
+    // field offset (from the VB) w.r.t. the image phase center.
+    //
+    {
+      // Vector<int> maxCFShape(2), convOrigin(2);
+      // maxCFShape[0] = maxCFShape[1] = theMap[0]->getMaxCFSize();
+      // cerr << maxCFShape << endl;
+      // double dummyCFFreq, dummyIMFreq;
+      // int vbSpw = vb.spectralWindows()(0);
+      // int vbFieldID = -1;//((const Int)((vbs.vb_p)->fieldId()(0)));
+
+      // convOrigin = maxCFShape/2;
+      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,
+      // 					       maxCFShape,
+      // 					       convOrigin,
+      // 					       dummyCFFreq,
+      // 					       dummyIMFreq,
+      // 					       vbSpw, vbFieldID))
+      
+
+      // WRONG --  WE NEED NOT CALL THIS.  DELETE THIS?
+      //      vb2CFBMap_p->phaseGradCalculator_p->ComputeFieldPointingGrad(pointingOffset,(*vb2CFBMap_p)[0],vb,0);
+
+      // visResampler_p->setFieldPhaseGrad(vb2CFBMap_p->phaseGrad_p->getFieldPointingGrad());
+
+      // if (phaseGrad_p.ComputeFieldPointingGrad(pointingOffset,(*vb2CFBMap_p)[0],vb))
+      // 	visResampler_p->setFieldPhaseGrad(phaseGrad_p.getFieldPointingGrad());
+    }
     //
     // For AzElApertures, this rotates the CFs.
     //
-    convFuncCtor_p->prepareConvFunction(vb,theMap);
+    convFuncCtor_p->prepareConvFunction(vb,*vb2CFBMap_p);
     
-    
-    //    CFBStruct cfbst_pub;
-    //UUU    theMap[0]->getAsStruct(cfbst_pub);
-    //UUU    vbs.cfBSt_p=cfbst_pub;
     vbs.accumCFs_p=((vbs.uvw_p.nelements() == 0) && dopsf);
     
     
@@ -2512,6 +2555,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // 		 << cfcst.ySupport 
     // 		 << endl;
     // 	  }
+    visResampler_p->setVB2CFMap(vb2CFBMap_p);
 
     
     // The following code is required only for GPU or multi-threaded
@@ -2523,7 +2567,6 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
     //runTime1_p += timer_p.real();
     visResampler_p->initializeDataBuffers(vbs);
-    //    visResampler_p->setConvFunc(cfs_p);
   }
 
   //

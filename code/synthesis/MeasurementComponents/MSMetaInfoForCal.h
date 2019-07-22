@@ -106,6 +106,9 @@ public:
   // Scan number at time
   casacore::Int scanNumberAtTime(casacore::Double time) const;
 
+  // Center freq for specified spw
+  casacore::Double centerFreq(casacore::uInt ispw) const;
+  
 
 private:
 
@@ -117,6 +120,10 @@ private:
 
   // Remember basic shapes
   casacore::uInt nAnt_, nSpw_, nFld_;
+
+  // Spw absolute center frequencies
+  //  (this gets filled OTF, if necessary)
+  mutable casacore::Vector<casacore::Double> centerFreqs_;
 
   // MS pointer
   casacore::MeasurementSet *ms_;

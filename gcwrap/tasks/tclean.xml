@@ -987,16 +987,8 @@ HPX HEALPix grid.  -->
                                  parameterized aperture illumination functions, which are not
                                  available via the vpmanager. So, gridder='awproject' does not allow
                                  the user to set this parameter.
-
 </description>
       <value type="string"></value>
-    </param>
-    
-  <param type="bool" name="usepointing" subparam="true">
-           <shortdescription>Use Pointing table if available for mosaic pointing</shortdescription>
-<description>Use the pointing table to determine where the beam are for mosaic gridder; if False then phasecenters of the fields selected are used to determine direction of each mosaic pointing.
-</description>
-      <value type="bool">False</value>
     </param>
     <param type="bool" name="mosweight" subparam="true">
            <shortdescription>Indepently weight each field in a mosaic</shortdescription>
@@ -1104,6 +1096,13 @@ HPX HEALPix grid.  -->
       <value type="string"></value>
     </param>
 
+    <param type="bool" name="usepointing" subparam="true">
+     <shortdescription>The parameter makes the gridder utilize the pointing table phase directions while computing the residual image.</shortdescription>
+<description>The usepointing flag informs the gridder that it should utilize the pointing table
+to use the correct direction in which the antenna is pointing with respect to the pointing phasecenter. </description>
+      <value type="bool">False</value>
+    </param>
+
     <param type="double" name="computepastep" subparam="true">
      <shortdescription>Parallactic angle interval after the AIFs are recomputed (deg)</shortdescription>
 <description>Parallactic angle interval after the AIFs are recomputed (deg)
@@ -1138,6 +1137,16 @@ HPX HEALPix grid.  -->
 </description>
       <value type="double">360.0</value>
     </param>
+    
+    
+    <param type="double" name="pointingoffsetsigdev" subparam="true">
+     <shortdescription> Heterogenous pointing functionality is not currently available</shortdescription>
+<description> Heterogenous pointing functionality is not currently available
+</description>
+      <value type="double">0.0</value>
+    </param>   
+    
+    
 
     <param type="double" name="pblimit" subparam="true">
      <shortdescription>PB gain level at which to cut off normalizations </shortdescription>
@@ -1701,6 +1710,8 @@ HPX HEALPix grid.  -->
 <description>Maximum number of iterations
 
                        A stopping criterion based on total iteration count.
+                       Currently the parameter type is defined as an integer therefore the integer value 
+                       larger than 2147483647 will not be set properly as it causes an overflow.
 
                        Iterations are typically defined as the selecting one flux component
                        and partially subtracting it out from the residual image.
@@ -2645,7 +2656,7 @@ HPX HEALPix grid.  -->
        <equals type="string" value="mosaic">
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
-         <default param="usepointing"><value>False</value></default>
+         <default param="usepointing"><value>False</value></default> 
          <default param="mosweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
@@ -2655,7 +2666,7 @@ HPX HEALPix grid.  -->
          <default param="normtype"><value>"flatnoise"</value></default>
          <default param="vptable"><value>""</value></default>
          <default param="usepointing"><value>False</value></default>
-         <default param="mosweight"><value>True</value></default>
+         <default param="doweight"><value>True</value></default>
          <default param="pblimit"><value>0.2</value></default>
          <default param="conjbeams"><value>False</value></default>
          <default param="psfphasecenter"><value>""</value></default>
@@ -2674,30 +2685,37 @@ HPX HEALPix grid.  -->
          <default param="pblimit"><value>0.2</value></default>
        </equals>
        <equals type="string" value="awproject">
-         <default param="wprojplanes"><value>1</value></default>
-         <default param="normtype"><value>"flatnoise"</value></default>
-         <default param="psterm"><value>False</value></default>
-         <default param="aterm"><value>True</value></default>
-         <default param="cfcache"><value>""</value></default>
-         <default param="computepastep"><value>360.0</value></default>
-         <default param="rotatepastep"><value>360.0</value></default>
-         <default param="wbawp"><value>False</value></default>
-<!--         <default param="vptable"><value>""</value></default> -->
-         <default param="pblimit"><value>0.2</value></default>
-         <default param="conjbeams"><value>False</value></default>
+	 <default param="wprojplanes"><value>1</value></default>
+	 <default param="normtype"><value>"flatnoise"</value></default>
+	 <default param="psterm"><value>False</value></default>
+	 <default param="aterm"><value>True</value></default>
+	 <default param="cfcache"><value>""</value></default>
+	 <default param="computepastep"><value>360.0</value></default>
+	 <default param="rotatepastep"><value>360.0</value></default>
+	 <default param="pointingoffsetsigdev"><value>0.0</value></default>
+	 <default param="wbawp"><value>True</value></default>
+	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
+	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="mosweight"><value>False</value></default>
+	 <default param="usepointing"><value>False</value></default>
        </equals>
        <equals type="string" value="awprojectft">
-         <default param="wprojplanes"><value>1</value></default>
-         <default param="normtype"><value>"flatnoise"</value></default>
-         <default param="psterm"><value>False</value></default>
-         <default param="aterm"><value>True</value></default>
-         <default param="cfcache"><value>""</value></default>
-         <default param="computepastep"><value>360.0</value></default>
-         <default param="rotatepastep"><value>360.0</value></default>
-         <default param="wbawp"><value>False</value></default>
-<!--         <default param="vptable"><value>""</value></default> -->
-         <default param="pblimit"><value>0.2</value></default>
-         <default param="conjbeams"><value>False</value></default>
+	 <default param="wprojplanes"><value>1</value></default>
+	 <default param="normtype"><value>"flatnoise"</value></default>
+	 <default param="psterm"><value>False</value></default>
+	 <default param="aterm"><value>True</value></default>
+	 <default param="cfcache"><value>""</value></default>
+	 <default param="computepastep"><value>360.0</value></default>
+	 <default param="rotatepastep"><value>360.0</value></default>
+	 <default param="pointingoffsetsigdev"><value>0.0</value></default>
+	 <default param="wbawp"><value>True</value></default>
+	 <default param="mosweight"><value>False</value></default>
+<!--	 <default param="vptable"><value>""</value></default> -->
+	 <default param="pblimit"><value>0.2</value></default>
+	 <default param="conjbeams"><value>False</value></default>
+	 <default param="usepointing"><value>False</value></default>
        </equals>
      </when>
 

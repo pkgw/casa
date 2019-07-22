@@ -296,14 +296,15 @@ with closure errors, use blcal.
         </param>
 
         <param type="stringArray" name="interp">
-<shortdescription>Temporal interpolation for each gaintable (''=linear)</shortdescription>
-<description>Interpolation type (in time[,freq]) to use for each
-gaintable.
+<shortdescription>Interpolation parameters for each gaintable, as a list</shortdescription>
+<description>Interpolation parmameters (in time[,freq]) for each gaintable, as a list of strings.
                      Default: '' --> 'linear,linear' for all gaintable(s)
                      Options: Time: 'nearest', 'linear'
                               Freq: 'nearest', 'linear', 'cubic',
                               'spline'
-
+                   Specify a list of strings, aligned with the list of caltable specified
+                   in gaintable, that contain the required interpolation parameters
+                   for each caltable.
                    * When frequency interpolation is relevant (B, Df,
                      Xf), separate time-dependent and freq-dependent
                      interp types with a comma (freq_after_ the
@@ -317,9 +318,9 @@ gaintable.
                      appended to the time-dependent interpolation
                      specification to enforce obsId boundaries when
                      interpolating in time. 
-                   * Add 'flag' to the freq-dependent interpolation
-                     options to enforce channel-dependent flagging
-                     (rather than interpolation/extrapolation).
+                   * Freq-dependent interp options can have 'flag' appended
+                     to enforce channel-dependent flagging, and/or 'rel' 
+                     appended to invoke relative frequency interpolation
 
                         Examples: 
                         interp='nearest' (in time, freq-dep will be
@@ -329,12 +330,15 @@ gaintable.
                         interp='linearperobs,splineflag' (linear in
                         time per obsId, spline in freq with
                         channelized flagging)
+                        interp='nearest,linearflagrel' (nearest in
+                        time, linear in freq with with channelized 
+                        flagging and relative-frequency interpolation)
                         interp=',spline'  (spline in freq; linear in
                         time by default)
                         interp=['nearest,spline','linear']  (for
                         multiple gaintables)
 </description>
-                <value></value>
+        <value></value>
         </param>
 
         <param type="intArray" name="spwmap">

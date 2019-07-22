@@ -26,8 +26,6 @@
 
 #include <plotms/Data/PlotMSAtm.h>
 
-#include <iomanip>
-
 #include <casa/OS/Path.h>
 #include <casa/OS/File.h>
 #include <casa/Arrays/ArrayLogical.h>

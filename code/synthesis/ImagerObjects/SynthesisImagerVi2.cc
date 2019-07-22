@@ -86,7 +86,7 @@
 #include <synthesis/TransformMachines2/MultiTermFTNew.h>
 #include <synthesis/TransformMachines2/AWProjectWBFTNew.h>
 #include <synthesis/TransformMachines2/AWConvFunc.h>
-#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
+//#include <synthesis/TransformMachines2/AWConvFuncEPJones.h>
 #include <synthesis/TransformMachines2/NoOpATerm.h>
 #include <synthesis/TransformMachines2/SDGrid.h>
 #include <synthesis/TransformMachines/WProjectFT.h>
@@ -619,7 +619,7 @@ Bool SynthesisImagerVi2::defineImage(SynthesisParamsImage& impars,
 			gridpars.padding,gridpars.useAutoCorr,gridpars.useDoublePrec,
 			gridpars.convFunc,
 			gridpars.aTermOn,gridpars.psTermOn, gridpars.mTermOn,
-			gridpars.wbAWP,gridpars.cfCache,gridpars.doPointing,
+			gridpars.wbAWP,gridpars.cfCache,gridpars.usePointing,
 			gridpars.doPBCorr,gridpars.conjBeams,
 			gridpars.computePAStep,gridpars.rotatePAStep,
 			gridpars.interpolation, impars.freqFrameValid, 1000000000,  16, impars.stokes,
@@ -1272,6 +1272,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
     }
 
     itsMappers.checkOverlappingModels("restore");
+    itsMappers.releaseImageLocks();
     unlockMSs();
    
   }// end of predictModel
@@ -1539,7 +1540,7 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Bool mTermOn,          //= false,
 					const Bool wbAWP,            //= true,
 					   const String cfCache,        //= "",
-					   const Bool doPointing,       //= false,
+					   const Bool usePointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
 					const Float computePAStep,         //=360.0
@@ -1602,7 +1603,7 @@ void SynthesisImagerVi2::unlockMSs()
       createAWPFTMachine(theFT, theIFT, ftname, facets, wprojplane, 
 			 padding, useAutocorr, useDoublePrec, gridFunction,
 			 aTermOn, psTermOn, mTermOn, wbAWP, cfCache, 
-			 doPointing, doPBCorr, conjBeams, computePAStep,
+			 usePointing, doPBCorr, conjBeams, computePAStep,
 			 rotatePAStep, cache,tile,imageNamePrefix);
     }
     else if ( ftname == "mosaic" || ftname== "mosft" || ftname == "mosaicft" || ftname== "MosaicFT"){
@@ -1704,7 +1705,7 @@ void SynthesisImagerVi2::unlockMSs()
 					   const Bool mTermOn,          //= false,
 					   const Bool wbAWP,            //= true,
 					   const String cfCache,        //= "",
-					   const Bool doPointing,       //= false,
+					   const Bool usePointing,       //= false,
 					   const Bool doPBCorr,         //= true,
 					   const Bool conjBeams,        //= true,
 					   const Float computePAStep,   //=360.0
@@ -1760,6 +1761,9 @@ void SynthesisImagerVi2::unlockMSs()
 									   aTermOn,
 									   psTermOn, (wprojPlane > 1),
 									   mTermOn, wbAWP, conjBeams);
+
+    CountedPtr<refim::PointingOffsets> po = new refim::PointingOffsets(awConvFunc->getOversampling());
+    awConvFunc->setPointingOffsets(po);
     //
     // Construct the appropriate re-sampler.
     //
@@ -1788,10 +1792,11 @@ void SynthesisImagerVi2::unlockMSs()
     // Re-sampler objects.  
     //
     Float pbLimit_l=1e-3;
+
     theFT = new refim::AWProjectWBFTNew(wprojPlane, cache/2, 
 			      cfCacheObj, awConvFunc, 
 			      visResampler,
-			      /*true */doPointing, doPBCorr, 
+			      /*true */usePointing, doPBCorr, 
 			      tile, computePAStep, pbLimit_l, true,conjBeams,
 			      useDoublePrec);
 
@@ -1818,7 +1823,7 @@ void SynthesisImagerVi2::unlockMSs()
     // theIFT = new AWProjectWBFT(wprojPlane, cache/2, 
     // 			       cfCacheObj, awConvFunc, 
     // 			       visResampler,
-    // 			       /*true */doPointing, doPBCorr, 
+    // 			       /*true */usePointing, doPBCorr, 
     // 			       tile, computePAStep, pbLimit_l, true,conjBeams,
     // 			       useDoublePrec);
 
@@ -1892,7 +1897,6 @@ void SynthesisImagerVi2::unlockMSs()
       //kpb=PBMath::DEFAULT;
     }
    
-    
     theFT = new refim::MosaicFTNew(vps, mLocation_p, stokes, 1000000000, 16, useAutoCorr, 
 				   useDoublePrec, doConjBeams, gridpars_p.usePointing);
     PBMathInterface::PBClass pbtype=((kpb==PBMath::EVLA) || multiTel)? PBMathInterface::COMMONPB: PBMathInterface::AIRY;

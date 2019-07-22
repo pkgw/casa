@@ -630,8 +630,8 @@ namespace casa{
       }
     //	st.CFBStorage[i] = (cfstore[i]).operator->()->getStorage()->getStorage(dummy);
     
-    if (doAlloc) st.pointingOffset=(Double *)malloc(pointingOffset_p.nelements()*sizeof(Double));
-    for (uInt i=0;i<pointingOffset_p.nelements();i++) st.pointingOffset[i]=pointingOffset_p[i];
+    // if (doAlloc) st.pointingOffset=(Double *)malloc(pointingOffset_p.nelements()*sizeof(Double));
+    // for (uInt i=0;i<pointingOffset_p.nelements();i++) st.pointingOffset[i]=pointingOffset_p[i];
 
     if (doAlloc) st.freqValues=(Double *)malloc(freqValues_p.nelements()*sizeof(Double));
     for (uInt i=0;i<freqValues_p.nelements();i++) st.freqValues[i]=freqValues_p[i];
@@ -696,7 +696,32 @@ namespace casa{
 	      }
     	}
   }
+  //
+  //----------------------------------------------------------------------
+  //
+  int CFBuffer::getMaxCFSize()
+  {
+    IPosition shp(cfCells_p.shape());
+    for (Int i=0;i < shp[0]; i++)
+      for (Int j=0; j < shp[1]; j++)
+	for (Int k=0; k < shp[2]; k++)
+	  {
+	    int cfNX = SynthesisUtils::getCFShape(getCFCacheDir(), cfCells_p(i,j,k)->fileName_p)[0];
+	    if (cfNX > maxCFSize_p) maxCFSize_p=cfNX;
+	  }
+    
+    return maxCFSize_p;
+  }
+  //
+  //----------------------------------------------------------------------
+  //
+  bool CFBuffer::finitePointingOffsets()
+  {
+    return ((fabs(pointingOffset_p(0)(0))>0) ||  
+	    (fabs(pointingOffset_p(0)(1))>0));
 
+  }
+  
 } // end casa namespace
 
 

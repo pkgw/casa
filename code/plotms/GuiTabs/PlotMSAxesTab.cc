@@ -346,6 +346,7 @@ void PlotMSAxesTab::axisIdentifierChanged(PlotMSAxisWidget* axisWidget) {
 }
 
 void PlotMSAxesTab::update(const PlotMSPlot& plot) {
+	
     const PlotMSPlotParameters& params = plot.parameters();
     PlotMSPlotParameters newParams(params);
 
@@ -389,7 +390,7 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
     }
 
     // Highlight XWidget changes
-    if (data->isSet()){
+    if (data->filenameIsSet()){
         auto xAxisChanged = cNew->xAxis(0) != c->xAxis(0);
         auto xDataAxisParamsChanged = cNew->xDataColumn(0) != c->xDataColumn(0);
         auto xDirectionAxisParamsChanged = cNew->xDirectionParams(0) != c->xDirectionParams(0);
@@ -406,14 +407,15 @@ void PlotMSAxesTab::update(const PlotMSPlot& plot) {
         highlightWidgetText(itsXWidget_->attachLabel(), xAxisLocationChanged);
         highlightWidgetText(itsXWidget_->rangeLabel(), xRangeModeChanged || xRangeChanged );
     }
-    // Highlight overlay changes
+
+	// Highlight overlay changes
     bool atmRequested(atmRadio->isChecked()), tskyRequested(tskyRadio->isChecked());
     bool overlayChanged = (c->showAtm() != atmRequested) || (c->showTsky() != tskyRequested);
     bool sidebandChanged = ((atmRequested || tskyRequested) && (c->showImage() != imageSbCheckBox->isChecked()));
     highlightWidgetText(overlayLabel, overlayChanged || sidebandChanged);
 
     // Highlight YWidgets changes
-    if (data->isSet()){
+    if (data->filenameIsSet()){
         for ( int i = 0; i < yAxisCount; i++ ){
             QLabel* axisLabel = itsYWidgets_[i]->axisLabel();
             auto yAxisChanged = c->yAxis(i) != cNew->yAxis(i);

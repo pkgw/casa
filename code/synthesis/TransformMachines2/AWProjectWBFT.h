@@ -67,7 +67,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     AWProjectWBFT(const casacore::RecordInterface& stateRec);
     
     // Copy constructor
-    AWProjectWBFT(const AWProjectWBFT &other):AWProjectFT() {operator=(other);};
+    AWProjectWBFT(const AWProjectWBFT &other):AWProjectFT(other) {operator=(other);};
 
     // Assignment operator
     AWProjectWBFT &operator=(const AWProjectWBFT &other);
