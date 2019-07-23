@@ -54,7 +54,8 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     // Empty constructor
     SDAlgorithmClarkClean(casacore::String clarktype);
     virtual  ~SDAlgorithmClarkClean();
-    
+     ///returns the estimate of memory used in kilobytes (kB);
+    virtual casacore::Long estimateRAM(const std::vector<int>& imstor);
   protected:
     
     // Local functions to be overloaded by various algorithm deconvolvers.

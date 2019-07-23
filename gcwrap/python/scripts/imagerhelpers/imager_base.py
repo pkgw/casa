@@ -106,7 +106,6 @@ class PySynthesisImager:
         # For cube imaging:  align the data selections and image setup
         #if self.allimpars['0']['specmode'] != 'mfs' and self.allimpars['0']['specmode'] != 'cubedata':
          #   self.SItool.tuneselectdata()
-
         #self.makeCFCache(exists);
 
 #############################################
@@ -115,6 +114,7 @@ class PySynthesisImager:
          for immod in range(0,self.NF):
               self.SDtools.append(casac.synthesisdeconvolver())
               self.SDtools[immod].setupdeconvolution(decpars=self.alldecpars[str(immod)])
+             
 
 #############################################
     ## Overloaded by ParallelCont
@@ -131,9 +131,32 @@ class PySynthesisImager:
         itbot = self.IBtool.setupiteration(iterpars=self.iterpars)
 
 #############################################
-
+    def estimatememory(self):
+        #print "MEMORY usage ", self.SItool.estimatememory(), type(self.SItool.estimatememory())
+        #griddermem=0
+        if(self.SItool != None):
+            griddermem= self.SItool.estimatememory()
+        deconmem=0
+        for immod in range(0,self.NF):
+            ims= self.allimpars[str(immod)]['imsize']
+            if(type(ims)==int) :
+                ims=[ims, ims]
+            if(len(ims) ==1):
+                ims.append(ims[0])
+            #print 'shape', self.allimpars[str(immod)]['imsize'], len(ims) 
+            #print "DECON mem usage ", self.SDtools[immod].estimatememory(ims)
+            if(len(self.SDtools) > immod):
+                if(self.SDtools != None):
+                    deconmem+=self.SDtools[immod].estimatememory(ims)
+        availmem=casac.cu.hostinfo()['memory']['available']
+        if((deconmem+griddermem) > 0.8*availmem):
+            casalog.post("Memory available "+str(availmem)+" kB is very close to amount of required memory "+str(deconmem+griddermem)+" kB" , "WARN")
+        else:
+            casalog.post("Memory available "+str(availmem)+" kB and  required memory "+str(deconmem+griddermem)+" kB" , "INFO2")
+############################################
     def restoreImages(self):
-         for immod in range(0,self.NF):
+        print "SHOW cache ", tb.showcache()
+        for immod in range(0,self.NF):
               self.SDtools[immod].restore()
 
 #############################################

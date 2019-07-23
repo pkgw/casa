@@ -94,7 +94,22 @@ casac::record* synthesisdeconvolver::interactivegui(const casac::record& iterbot
   }
   return rstat;
 }
+  variant* synthesisdeconvolver::estimatememory(const std::vector<int>& imsize){
+    long long mem1=0;
+    variant * mem_ptr=new variant (mem1);
+    try 
+    {
+      if(!itsDeconvolver)
+        throw(AipsError("cannot estimate memory without setup"));
+      mem1=itsDeconvolver->estimateRAM(imsize);
+      *mem_ptr=variant(mem1);
+    } catch  (AipsError x) {
+    RETHROW(x);
+  }
+    return mem_ptr;
 
+  }
+  
 casac::record* synthesisdeconvolver::executeminorcycle(const casac::record& iterbot)
 {
   casac::record* rstat(0);

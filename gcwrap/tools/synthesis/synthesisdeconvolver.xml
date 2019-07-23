@@ -107,7 +107,22 @@ This is used to construct {\tt synthesisdeconvolver} tool.
 </method>
 
 <!-- ===================================== -->
+<!-- ===================================== -->
+   <method type="function" name="estimatememory">
+   <shortdescription>Get an estimate in kilobytes of memory that will be needed</shortdescription>
 
+<description>
+  This function returns an estimate of the memory (RAM) to be used by synthesisdeconvolver tool. Need to be run after functions setdata and defineimage are done
+</description>
+<input>
+<param type="intArray" name="imsize">
+     <description>Image size that will be deconvolved (vector of int)</description>
+     <value></value>
+     </param>
+</input>
+<returns type="any"><any type="variant"/></returns>
+</method>
+<!-- ===================================== -->
    <method type="function" name="executeminorcycle">
    <shortdescription>Run a minor cycle</shortdescription>
 

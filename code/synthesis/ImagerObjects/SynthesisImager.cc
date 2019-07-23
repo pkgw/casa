@@ -782,6 +782,15 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     return true;
   }
 
+  Long SynthesisImager::estimateRAM(){
+    Long mem=0;
+    LogIO os( LogOrigin("SynthesisImager","estimateRAM",WHERE) );
+    if(itsMappers.nMappers()==0)
+      os << "SynthesisImage has not been setup to get an estimate of memory usage" << LogIO::WARN << LogIO::POST;
+    mem=itsMappers.estimateRAM();
+    return mem;
+  }
+  
   Bool SynthesisImager::defineImage(CountedPtr<SIImageStore> imstor, 
 				    const String& ftmachine)
   {
