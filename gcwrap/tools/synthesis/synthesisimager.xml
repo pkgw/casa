@@ -729,7 +729,17 @@ CORRECTED\_DATA and MODEL\_DATA columns
 <returns type="bool"/>
 </method>
 <!-- ===================================== -->
+<!-- ===================================== -->
+   <method type="function" name="estimatememory">
+   <shortdescription>Get an estimate in kilobytes of memory that will be needed</shortdescription>
 
+<description>
+  This function returns an estimate of the memory (RAM) to be used by sythesisimager tool. Need to be run after functions setdata and defineimage are done
+</description>
+<input/>
+<returns type="any"><any type="variant"/></returns>
+</method>
+<!-- ===================================== -->
    <method type="function" name="getimstore">
    <shortdescription>Get Image Store</shortdescription>
 

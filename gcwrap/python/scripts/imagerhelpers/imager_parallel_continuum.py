@@ -467,3 +467,9 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         for node in self.listOfNodes:
              joblist.append( self.PH.runcmd("toolsi.predictmodel()",node) )
         self.PH.checkJobs( joblist ) # this call blocks until all are done.
+
+    def estimatememory(self):
+        joblist=[]
+        for node in self.listOfNodes:
+            joblist.append( self.PH.runcmd("toolsi.estimatememory()", node) )
+        self.PH.checkJobs( joblist )

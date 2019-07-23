@@ -214,7 +214,8 @@ class SynthesisImager
   const SynthesisParamsImage& getSynthesisParamsImage() {return impars_p;};
   ///This will set the movingSource_p
   void setMovingSource(const casacore::String& movsource);
-
+  ///return an estimate of memory it is going to use in kB
+  virtual casacore::Long estimateRAM();
 
 protected:
  

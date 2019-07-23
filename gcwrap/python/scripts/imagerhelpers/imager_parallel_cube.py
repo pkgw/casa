@@ -372,4 +372,10 @@ class PyParallelCubeSynthesisImager():
             joblist.append( self.PH.runcmd("imager.deleteTools()", node) )
         self.PH.checkJobs( joblist )
 
+    def estimatememory(self):
+        joblist=[]
+        #for node in self.listOfNodes:
+        for node in self.modifiedListOfNodes:
+            joblist.append( self.PH.runcmd("imager.estimatememory()", node) )
+        self.PH.checkJobs( joblist )
 #############################################

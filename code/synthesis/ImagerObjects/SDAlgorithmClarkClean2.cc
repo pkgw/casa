@@ -76,6 +76,18 @@ namespace casa { //# NAMESPACE CASA - BEGIN
  {
    
  }
+  Long SDAlgorithmClarkClean2::estimateRAM(const vector<int>& imsize){
+    Long mem=0;
+    if(itsImages)
+    //Clark deconvolvers will have psf + residual + model + mask (1 plane at a time)
+      mem=sizeof(Float)*(itsImages->getShape()(0))*(itsImages->getShape()(1))*6/1024;
+    else if(imsize.size() >1)
+       mem=sizeof(Float)*(imsize[0])*(imsize[1])*6/1024;
+    else
+      return 0;
+      //throw(AipsError("Deconvolver cannot estimate the memory usage at this point"));
+    return mem;
+  }
 
   //  void SDAlgorithmClarkClean2::initializeDeconvolver( Float &peakresidual, Float &modelflux )
   void SDAlgorithmClarkClean2::initializeDeconvolver()

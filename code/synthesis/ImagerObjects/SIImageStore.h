@@ -218,6 +218,9 @@ class SIImageStore
 
   casacore::CoordinateSystem getCSys(){return itsCoordSys;}
 
+  ///estimate of Memory to be used by the images held in KiloBytes
+  
+  virtual casacore::Long estimateRAM();
 protected:
   std::shared_ptr<casacore::ImageInterface<casacore::Float> > makeSubImage(const casacore::Int facet, const casacore::Int nfacets,
 						  const casacore::Int chan, const casacore::Int nchanchunks,

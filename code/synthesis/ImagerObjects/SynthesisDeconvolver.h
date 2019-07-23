@@ -99,8 +99,9 @@ class SynthesisDeconvolver
   void setStartingModel();
   casacore::Bool setupMask();
   void setAutoMask();
-  void checkRestoringBeam(); 
-
+  void checkRestoringBeam();
+  ////return estimate of memory usage in kB
+  casacore::Long estimateRAM(const std::vector<int>& imsize);
 protected:
 
   std::shared_ptr<SIImageStore> makeImageStore( casacore::String imagename );

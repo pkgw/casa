@@ -176,6 +176,22 @@ synthesisimager::selectdata(const casac::record& selpars)
   return rstat;
 }
 
+  variant* synthesisimager::estimatememory(){
+    *itsLog << casacore::LogOrigin("synthesisimager", __func__);
+    long long mem1=0;
+    variant * mem_ptr=new variant (mem1);
+    try 
+    {
+      if(!itsImager)
+        throw(AipsError("cannot estimate memory without setup"));
+      mem1=itsImager->estimateRAM();
+      *mem_ptr=variant(mem1);
+    } catch  (AipsError x) {
+    RETHROW(x);
+  }
+    return mem_ptr;
+
+  }
 bool synthesisimager::defineimage(const casac::record& impars, const casac::record& gridpars)
 {
   Bool rstat(false);
