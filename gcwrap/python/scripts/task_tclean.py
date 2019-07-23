@@ -265,6 +265,9 @@ def tclean(
             t1=time.time();
             casalog.post("***Time for initializing deconvolver(s): "+"%.2f"%(t1-t0)+" sec", "INFO3", "task_tclean");
 
+        ####now is the time to check estimated memory
+        imager.estimatememory()
+            
         if niter>0:
             t0=time.time();
             imager.initializeIterationControl()

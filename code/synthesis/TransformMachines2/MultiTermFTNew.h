@@ -199,7 +199,8 @@ public:
   virtual void setMovingSource(const casacore::MDirection& mdir);
   // set and get the location used for frame 
   virtual void setLocation(const casacore::MPosition& loc);
-
+   ///estimate of memory necessary in kB
+   virtual casacore::Long estimateRAM(const casacore::CountedPtr<SIImageStore>& imstore);
 protected:
   // have to call the initmaps of subftm
   virtual void initMaps(const vi::VisBuffer2& vb);

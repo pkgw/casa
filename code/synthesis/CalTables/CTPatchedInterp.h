@@ -188,6 +188,9 @@ private:
   // Interpolation modes
   casacore::String timeType_, freqTypeStr_;
 
+  // Relative-to-center interpolation
+  casacore::Bool relativeFreq_;
+
   // Freq-dep interpolation method (from InterpolateArray1D enum)
 #define INTERPMETHOD casacore::InterpolateArray1D<casacore::Double,casacore::Float>::InterpolationMethod
   const INTERPMETHOD freqInterpMethod0_;  // user-specified

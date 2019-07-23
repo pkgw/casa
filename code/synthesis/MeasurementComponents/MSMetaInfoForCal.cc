@@ -46,6 +46,7 @@ MSMetaInfoForCal::MSMetaInfoForCal(String msname) :
   nAnt_(4),
   nSpw_(1),
   nFld_(1),
+  centerFreqs_(0),
   ms_(NULL),
   msmd_(NULL),
   ssp_(NULL)
@@ -85,6 +86,7 @@ MSMetaInfoForCal::MSMetaInfoForCal(const MeasurementSet& ms) :
   nAnt_(0),
   nSpw_(0),
   nFld_(0),
+  centerFreqs_(0),
   ms_(NULL),        // ... but we won't have our own MS pointer
   msmd_(new MSMetaData(&ms,  // Form MSMetaData directly (not more than 50MB)
 		       min(50.0,0.95f*4.0f*Float(ms.nrow())/1e6))),
@@ -103,6 +105,7 @@ MSMetaInfoForCal::MSMetaInfoForCal(uInt nAnt,uInt nSpw,uInt nFld) :
   nAnt_(nAnt),
   nSpw_(nSpw),
   nFld_(nFld),
+  centerFreqs_(0),
   ms_(NULL),
   msmd_(NULL),
   ssp_(NULL)
@@ -119,6 +122,7 @@ MSMetaInfoForCal::MSMetaInfoForCal(const vi::SimpleSimVi2Parameters& sspar) :
   nAnt_(sspar.nAnt_),
   nSpw_(sspar.nSpw_),
   nFld_(sspar.nField_),
+  centerFreqs_(0),
   ms_(NULL),
   msmd_(NULL),
   ssp_(new SimpleSimVi2Parameters(sspar))  // a copy
@@ -290,7 +294,28 @@ Int MSMetaInfoForCal::scanNumberAtTime(Double time) const {
 
 }
 
+Double MSMetaInfoForCal::centerFreq(uInt ispw) const {
+  
+  // If centerFreqs_ not yet filled, do it
+  if (centerFreqs_.nelements()==0) {
+    if (msOk_ && msmd_) {
+      centerFreqs_.resize(nSpw());
+      vector<Quantity> centerFreqQ=msmd_->getCenterFreqs();
+      for (uInt ispw=0;ispw<nSpw();++ispw) {
+	centerFreqs_[ispw]=centerFreqQ[ispw].getValue("GHz");
+      }
+    }
+  }
 
+  // Return value for requested spw, if available
+  if ( ispw<centerFreqs_.nelements() ) {
+    return centerFreqs_[ispw];
+  }
+  else {
+    return 0.0f;
+
+  }
+}
 
 
 } //# NAMESPACE CASA - END

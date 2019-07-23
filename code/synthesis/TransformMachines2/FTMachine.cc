@@ -625,6 +625,25 @@ using namespace casa::vi;
 
   }
 
+  
+  Long FTMachine::estimateRAM(const CountedPtr<SIImageStore>& imstor){
+    //not set up yet 
+    if(!image && !imstor)
+      return -1;
+    Long npixels=0;
+    if(image)
+      npixels=((image->shape()).product())/1024;
+    else{
+      if((imstor->getShape()).product() !=0)
+        npixels=(imstor->getShape()).product()/1024;
+    }
+    if(npixels==0) npixels=1; //1 kPixels is minimum then
+    Long factor=sizeof(Complex);
+    if(!toVis_p && useDoubleGrid_p)
+      factor=sizeof(DComplex);
+    return (npixels*factor);
+  }
+  
   void FTMachine::shiftFreqToSource(Vector<Double>& freqs){
     MDoppler dopshift;
     MEpoch ep(mFrame_p.epoch());

@@ -384,8 +384,17 @@ void MultiTermFTNew::initializeToVisNew(const VisBuffer2& vb,
 
 ///  void MultiTermFTNew::initializeToSky(Block<CountedPtr<ImageInterface<Complex> > > & compImageV
 //ec, Block<Matrix<Float> >& weightsVec, const VisBuffer& vb, const Bool dopsf)
+ Long MultiTermFTNew::estimateRAM(const CountedPtr<SIImageStore>& imstor){
+   Long mem=0;
+   for(uInt k=0; k < subftms_p.nelements(); ++k){
 
-void MultiTermFTNew::initializeToSkyNew(const Bool dopsf, 
+     mem+=subftms_p[k]->estimateRAM(imstor);
+   }
+
+   return mem;
+  }
+
+  void MultiTermFTNew::initializeToSkyNew(const Bool dopsf, 
 					const VisBuffer2& vb,
 					CountedPtr<SIImageStore> imstore)
 {

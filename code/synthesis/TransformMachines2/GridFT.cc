@@ -213,7 +213,15 @@ GridFT::GridFT(const GridFT& other) : FTMachine(), machineName_p("GridFT")
     return new GridFT(*this);
   }
 
-//----------------------------------------------------------------------
+  //===============================
+ Long GridFT::estimateRAM(const CountedPtr<SIImageStore>& imstor){
+   Long mem=FTMachine::estimateRAM(imstor);
+   mem=mem*padding_p*padding_p;
+   return mem;
+  }
+
+
+  //----------------------------------------------------------------------
 void GridFT::init() {
 
   logIO() << LogOrigin("GridFT", "init")  << LogIO::NORMAL;

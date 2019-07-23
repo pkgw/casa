@@ -116,7 +116,8 @@ class SIMapperCollection
   const casacore::CountedPtr<SIMapper> getMapper(casacore::Int which)
   {AlwaysAssert(which>=0 && which<(casacore::Int)itsMappers.nelements(),casacore::AipsError);
     return itsMappers[which];};
-
+  virtual casacore::Long estimateRAM();
+  
 protected:
 
   ///////////////////// Member Objects

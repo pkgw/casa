@@ -1030,6 +1030,8 @@ class simutil:
             t0=[ 17, 30, 45, 51, 65, 55,  75, 196, 100, 230]
             # CAS-8802 B5 = 163-211GHz:
             t0=[ 17, 30, 45, 51, 55, 55,  75, 196, 100, 230]
+            # CAS-12387 match Cycle 7 OT and ASC
+            t0=[ 25, 30, 40, 42, 50, 50,  72, 135, 105, 230]
 
             flim=[31.3,950]
             if self.verbose: self.msg("using ALMA/ACA Rx specs",origin="noisetemp")

@@ -1706,6 +1706,8 @@ to use the correct direction in which the antenna is pointing with respect to th
 <description>Maximum number of iterations
 
                        A stopping criterion based on total iteration count.
+                       Currently the parameter type is defined as an integer therefore the integer value 
+                       larger than 2147483647 will not be set properly as it causes an overflow.
 
                        Iterations are typically defined as the selecting one flux component
                        and partially subtracting it out from the residual image.
