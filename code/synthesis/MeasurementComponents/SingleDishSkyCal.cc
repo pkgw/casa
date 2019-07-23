@@ -877,12 +877,12 @@ void SingleDishSkyCal::calcWtScale()
   map<Int, Matrix<Double> > wtMap;
   if (iter == wtScaleData_.end()) {
     debuglog << "construct weight scaling data for obs " << currObs() << " spw " << currSpw() << debugpost;
-    CTInterface cti(*ct_);
-    MSSelection mss;
-    mss.setObservationExpr(String::toString(currObs()));
-    mss.setSpwExpr(String::toString(currSpw()));
     debuglog << "number of antennas = " << nAnt() << debugpost;
     for (Int iAnt = 0; iAnt < nAnt(); ++iAnt) {
+      CTInterface cti(*ct_);
+      MSSelection mss;
+      mss.setObservationExpr(String::toString(currObs()));
+      mss.setSpwExpr(String::toString(currSpw()));
       mss.setAntennaExpr(String::toString(iAnt) + "&&&");
       TableExprNode ten = mss.toTableExprNode(&cti);
       NewCalTable temp;
