@@ -174,8 +174,6 @@ casa_add_python( tools tools_tests_python lib/python${PYTHONV}/tests
   test_po_sigmalinpolposang.py
   test_po_totpolint.py
   test_predictcomp.py
-  test_refimager.py
-  test_refimager_parallel.py
   test_rerefant.py
   test_report.py
   test_rg_selectedchannels.py

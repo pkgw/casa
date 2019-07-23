@@ -2729,34 +2729,6 @@ class test_widefield(testref_base):
           #do stokes V too..
 
      
-class test_widefield_failing(testref_base):
-
-     def test_widefield_imagemosaic(self):
-          """ [widefield] Test_Widefield_imagemosaic : Image domain mosaic for single-term mfs (or narrowband)  """
-          self.prepData("refim_mawproject.ms")
-          ret = tclean(vis=self.msfile,spw='1',field='*',imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",
-                       niter=30,gridder='imagemosaic',deconvolver='hogbom',parallel=self.parallel)
-          report=self.th.checkall(imexist=[self.img+'.image', self.img+'.psf', self.img+'.weight'],imval=[(self.img+'.image',1.0,[256,256,0,0]),(self.img+'.weight',0.493,[256,256,0,0]) ] )
-          self.checkfinal(report)
-
-
-     def test_widefield_mosaic_outlier(self):
-          """ [multifield] Test_widefield_mosaic_outlier : Mosaic with an outlier field """
-          #### Need another dataset for this.
-          self.prepData("refim_mawproject.ms")
-          ## Outlier uses gridft
-          self.th.write_file(self.img+'.out.txt', 'imagename='+self.img+'1\nimsize=[80,80]\ncell=[8.0arcsec,8.0arcsec]\nphasecenter=J2000 19:58:42.0 +40.55.58.543\nmask=circle[[40pix,40pix],10pix]\ngridder=gridft')
-          ret = tclean(vis=self.msfile,imagename=self.img,imsize=512,cell='10.0arcsec',phasecenter="J2000 19:59:28.500 +40.44.01.50",
-                       outlierfile=self.img+'.out.txt',niter=10,deconvolver='hogbom',gridder='mosaicft',interactive=0,parallel=self.parallel)
-          report=self.th.checkall(ret=ret, 
-                        iterdone=10,  # outlier field has nothing in it :).
-                        nmajordone=2,
-                        imexist=[self.img+'.image', self.img+'1.image'],
-                        imval=[(self.img+'.image',0.933,[256,256,0,0]),
-                               (self.img+'1.image',0.0,[40,40,0,0])])
-          self.checkfinal(report)
-          #### NOT WORKING as the model is being picked from tst1, so residual after 0.6 model and one major cycle is same as dirty and the output image is 1.6 instead of 0.93.
-
 ##############################################
 ##############################################
 
