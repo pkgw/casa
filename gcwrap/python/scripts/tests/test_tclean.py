@@ -2046,14 +2046,15 @@ class test_cube(testref_base):
           self.assertTrue( self.th.checkmodelchan(self.msfile,5) > 0.0 and self.th.checkmodelchan(self.msfile,18) > 0.0 )
           self.checkfinal(report)
           
-          
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily")     
      def test_cube_mtmfs_nterms1(self):		
           """ [cube] Test mtmfs with cube and nterms = 1 """		
           self.prepData('refim_eptwochan.ms')		
           ret = tclean(vis=self.msfile,imagename=self.img+'cc', specmode='cube', imsize=200,cell='8.0arcsec',niter=10,deconvolver='mtmfs',nterms=1,interactive=0,parallel=self.parallel,scales=[0,20,40,100])		
           report=self.th.checkall(ret=ret, imexist=[self.img+'cc.psf.tt0', self.img+'cc.residual.tt0', self.img+'cc.image.tt0', self.img+'cc.model.tt0'],imval=[(self.img+'cc.image.tt0',1.0,[100,100,0,0]),(self.img+'cc.image.tt0',0.492,[100,100,0,1]),(self.img+'cc.image.tt0',0.281,[100,100,0,2])])		
           self.checkfinal(report)		
-          		
+          
+     @unittest.skipIf(ParallelTaskHelper.isMPIEnabled(), "Skip the test temporarily")     
      def test_cubedata_mtmfs_nterms1(self):		
           """ [cube] Test mtmfs with cube data and nterms = 1 """		
           self.prepData('refim_eptwochan.ms')		
