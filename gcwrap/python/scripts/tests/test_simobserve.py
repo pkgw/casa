@@ -493,6 +493,11 @@ class simobserve_comp(simobserve_unittest_base):
         # reference simulated MS
         self.refms_sd = self.refpref_sd+".sd.ms"
         self.refms_int = self.refpref_int+".ms"
+
+        # new data for comp_nchan > 1
+        self.refmodel_int_8ch = self.refpref_int+"8ch.compskymodel"
+        self.refms_int_8ch = self.refpref_int+"8ch.ms"
+
         # copy input components list
         self._copy_input(self.incomp)
 
@@ -729,10 +734,9 @@ class simobserve_comp(simobserve_unittest_base):
         # compare outputs
         currpref = self.project + "/" + \
                  self._get_data_prefix(antennalist,self.project)
-        self._check_imstats(currpref+".compskymodel", self.refmodel_int)
-        self._check_ptgfile(currpref+".ptg.txt", self.refpref_int+".ptg.txt")
-        self._check_msstats(currpref+".ms",self.refms_int)
-
+        self._check_imstats(currpref+".compskymodel", self.refmodel_int_8ch)
+        self._check_ptgfile(currpref+".ptg.txt", self.refpref_int+"8ch.ptg.txt")
+        self._check_msstats(currpref+".ms",self.refms_int_8ch)
 
 
 ########################################################################
@@ -1722,7 +1726,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         try:
             res = simobserve(project=self.project,complist=self.incomp,
                              totaltime=self.tottime,mapsize=self.mapsize,
-                             compwidth=compwidth,comp_nchan=self.comp_nchan)
+                             compwidth=compwidth,comp_nchan=comp_nchan)
             self.fail(self.failmsg)
         except Exception, e:
             pos=str(e).find("Quantum::operator- unequal units 'GHz, 'arcsec'")
@@ -1736,7 +1740,7 @@ class simobserve_badinputs(simobserve_unittest_base):
         try:
             res = simobserve(project=self.project,complist=self.incomp,
                              totaltime=self.tottime,mapsize=self.mapsize,
-                             compwidth=self.compwidth,comp_nchan=comp_nchan)
+                             compwidth=compwidth,comp_nchan=comp_nchan)
             self.fail(self.failmsg)
         except Exception, e:
             pos=str(e).find("Parameter verification failed")
