@@ -442,7 +442,7 @@ class test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 210000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         
         print
@@ -601,7 +601,7 @@ class test_axis(plotms_test_base):
                      plotfile=self.plotfile_jpg, expformat='jpg',
                      highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 230000)
+        self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         # test ms has no corrected data, should revert to data
         # Plot amp:corrected(->data) vs time and amp:model vs time. 
