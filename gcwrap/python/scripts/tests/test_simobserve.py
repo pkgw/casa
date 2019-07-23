@@ -59,7 +59,6 @@ class simobserve_unittest_base(unittest.TestCase):
         ms.close()
         return stats[stats.keys()[0]]
 
-    # TODO: need to check image axes
     def _check_imstats(self, name, ref, rtol=None, atol=None):
         # ref: a dictionary of reference statistics or reference image name
         # name: the name of image to compare statistics
@@ -86,10 +85,27 @@ class simobserve_unittest_base(unittest.TestCase):
                       (key, type(stats[key]), str(stats[key]), str(ref[key])))
             message="image statistic '%s' does not match: %s (expected: %s)" % \
                      (key, str(stats[key]), str(ref[key]))
-            if type(stats[key])==str:
-                self.assertEqual(stats[key],ref[key],
-                                 msg=message)
+            if type(stats[key])==str: 
+                # only maxposf, minposf, blcf, trcf return <type 'str'>
+                # these are actually all lists
+                ax_stats = [x.strip() for x in stats[key].split(',')]
+                ax_ref = [x.strip() for x in ref[key].split(',')]
+                # compare dimension of image axes
+                self.assertEqual(len(ax_stats),len(ax_ref),msg=message)
+                # extract, compare numerical data from axis world coordinates
+                for kk in zip(ax_stats, ax_ref):
+                    # only check the first element in tuple
+                    if qa.isquantity(kk[0]):
+                        # test and reference numbers
+                        s_val = qa.quantity(kk[0])['value']
+                        r_val = qa.quantity(kk[1])['value']
+                        ret=numpy.allclose(s_val,r_val,
+                                           rtol=rtol,atol=atol)
+                        self.assertEqual(ret,True,msg=message)
+                    else: # should only be Stokes axis
+                        self.assertEqual(kk[0],kk[1],msg=message)
             else:
+                # not a string so expect numpy arrays
                 ret=numpy.allclose(stats[key],ref[key],
                                    rtol=rtol,atol=atol)
                 self.assertEqual(ret,True,msg=message)
@@ -694,7 +710,7 @@ class simobserve_comp(simobserve_unittest_base):
         """Test complist simulation: interferometer, but with comp_nchan > 1"""
         complist = self.incomp
         compwidth = self.compwidth
-        comp_nchan = self.comp_nchan
+        comp_nchan = 8
         integration = "4s"
         direction = self.direction
         mapsize = ['20arcsec', '20arcsec']
@@ -703,7 +719,7 @@ class simobserve_comp(simobserve_unittest_base):
         antennalist = 'alma.out01.cfg'
         totaltime = "28s"
         res = simobserve(project=self.project,complist=complist,
-                         compwidth=compwidth,comp_nchan=8,
+                         compwidth=compwidth,comp_nchan=comp_nchan,
                          setpointings=True,
                          integration=integration,direction=direction,
                          mapsize=mapsize,maptype=maptype,obsmode=obsmode,
