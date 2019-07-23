@@ -65,6 +65,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nFPar_(nPar),
   timeType_(timetype),
   freqTypeStr_(freqtype),
+  relativeFreq_(freqtype.contains("rel")),
   freqInterpMethod0_(ftype(freqTypeStr_)),
   freqInterpMethod_(freqInterpMethod0_),
   freqInterpMethodVec_(),
@@ -129,12 +130,24 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   if (isCmplx_)  // Complex input
     nFPar_*=2;  // interpolating 2X as many Float values
 
+
   // Set channel/freq info
   CTSpWindowColumns ctspw(ct_.spectralWindow());
   ctspw.numChan().getColumn(nChanIn_);
   freqIn_.resize(nCTSpw_);
-  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) 
+  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) {
     ctspw.chanFreq().get(iCTspw,freqIn_(iCTspw),true);
+    if (relativeFreq_) {
+      Vector<Double>& fIn(freqIn_(iCTspw));
+      fIn-=mean(fIn); //  assume mean freq is center, and apply offset
+      // Flip LSB
+      if (fIn.nelements()>1 && fIn(0)>fIn(1)) {
+	//cout << " spw=" << iCTspw << " LSB!" << endl;
+	fIn*=Double(-1.0);
+      }
+    }
+    //cout << " freqIn_(" << iCTspw << ")=" << freqIn_(iCTspw) << endl;
+  }
 
   // Manage 'byObs_' carefully
   if (byObs_) {
@@ -237,6 +250,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nFPar_(nPar),
   timeType_(timetype),
   freqTypeStr_(freqtype),
+  relativeFreq_(freqtype.contains("rel")),
   freqInterpMethod0_(ftype(freqTypeStr_)),
   freqInterpMethod_(freqInterpMethod0_),
   freqInterpMethodVec_(),
@@ -308,9 +322,19 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   CTSpWindowColumns ctspw(ct_.spectralWindow());
   ctspw.numChan().getColumn(nChanIn_);
   freqIn_.resize(nCTSpw_);
-  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) 
+  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) {
     ctspw.chanFreq().get(iCTspw,freqIn_(iCTspw),true);
-
+    if (relativeFreq_) {
+      Vector<Double>& fIn(freqIn_(iCTspw));
+      fIn-=mean(fIn); //  assume mean freq is center, and apply offset
+      // Flip LSB
+      if (fIn.nelements()>1 && fIn(0)>fIn(1)) {
+	//cout << " spw=" << iCTspw << " LSB!" << endl;
+	fIn*=Double(-1.0);
+      }
+    }
+    //cout << " freqIn_(" << iCTspw << ")=" << freqIn_(iCTspw) << endl;
+  }
 
   // Manage 'byObs_' carefully
   if (byObs_) {
@@ -408,6 +432,7 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   nFPar_(nPar),
   timeType_(timetype),
   freqTypeStr_(freqtype),
+  relativeFreq_(freqtype.contains("rel")),
   freqInterpMethod0_(ftype(freqTypeStr_)),
   freqInterpMethod_(freqInterpMethod0_),
   freqInterpMethodVec_(),
@@ -473,8 +498,19 @@ CTPatchedInterp::CTPatchedInterp(NewCalTable& ct,
   CTSpWindowColumns ctspw(ct_.spectralWindow());
   ctspw.numChan().getColumn(nChanIn_);
   freqIn_.resize(nCTSpw_);
-  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) 
+  for (uInt iCTspw=0;iCTspw<ctspw.nrow();++iCTspw) {
     ctspw.chanFreq().get(iCTspw,freqIn_(iCTspw),true);
+    if (relativeFreq_) {
+      Vector<Double>& fIn(freqIn_(iCTspw));
+      fIn-=mean(fIn); //  assume mean freq is center, and apply offset
+      // Flip LSB
+      if (fIn.nelements()>1 && fIn(0)>fIn(1)) {
+	//cout << " spw=" << iCTspw << " LSB!" << endl;
+	fIn*=Double(-1.0);
+      }
+    }
+    //    cout << " freqIn_(" << iCTspw << ")=" << freqIn_(iCTspw) << endl;
+  }
 
   // Initialize caltable slices
   sliceTable();

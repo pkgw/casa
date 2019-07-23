@@ -3597,9 +3597,23 @@ void SolvableVisCal::calcPar() {
 
   // Interpolate solution   (CTPatchedInterp)
   if (freqDepPar()) {
-    //    cout << "currFreq() = " << currFreq().shape() << " " << currFreq() << endl;
+
+    //cout << "currFreq() = " << currFreq().shape() << " " << currFreq() << endl;
+
     // Call w/ freq-dep
-    newcal=ci_->interpolate(currObs(),currField(),currSpw(),currTime(),currFreq());
+    if (fInterpType().contains("rel")) {
+      // Relative freq
+      Double freqOff(msmc().centerFreq(currSpw()));
+      Double SBfactor(1.0);
+      if (currFreq().nelements()>1 && currFreq()(0)>currFreq()(1))
+	SBfactor=-1.0f;
+      //cout << "freqOff=" << freqOff << " SBfactor=" << SBfactor << " netSB=" << msmc().msmd().getNetSidebands()[currSpw()] << endl;
+      newcal=ci_->interpolate(currObs(),currField(),currSpw(),currTime(),(currFreq()-freqOff)*SBfactor);
+    }
+    else
+      // absolute freq
+      newcal=ci_->interpolate(currObs(),currField(),currSpw(),currTime(),currFreq());
+
     //    cout.precision(12);
     //    cout << typeName() << " t="<< currTime() << " newcal=" << boolalpha << newcal << endl;
   }
