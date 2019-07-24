@@ -32,7 +32,7 @@
 #include <plotms/test/tUtil.h>
 #include <plotms/Data/MSCache.h>
 #include <casa/Arrays/ArrayLogical.h>
-//#include <casa/Arrays/ArrayMath.h>
+#include <ms/MSSel/MSSelectionTools.h>
 
 using namespace casa;
 
@@ -40,15 +40,17 @@ class PlotMSCacheTest : public ::testing::Test {
 
 protected:
 	virtual void SetUp() {
-		// Using visstat2 regression dataset:
-		// All datacolumns present: data, model, corrected
-		dataPath = tUtil::getFullPath( "ngc5921_add_corect_model.ms", "visstat2" );
-		// specific to this dataset:
-		expNChunk = 60;
-		expNRow = 351;  // rows in first chunk
-		expNChan = 63;
+		// Using mstranform regression dataset:
+		// ASDM_RECEIVER table for showimage
+		dataPath = tUtil::getFullPath("split_ddid_mixedpol_CAS-12283.ms", "mstransform");
+
 		// Set up plotms cache object with no parent (PlotMSApp*)
 		cache = new MSCache(nullptr);
+
+		// specific to this dataset:
+		expNChunk = 1; // one spw selected
+		expNRow = 25;  // rows in first chunk
+		expNChan = 64;
 	}
 
 	virtual void TearDown() {
@@ -57,7 +59,7 @@ protected:
 
 	String dataPath;
 	Int expNChunk, expNRow;
-	uInt expNChan;  // expected values
+	uInt expNChan;
 	MeasurementSet sortedMS;
 	// use defaults (none!)
 	PlotMSSelection itsSelection;
@@ -74,20 +76,21 @@ int main(int argc, char** argv) {
 	return RUN_ALL_TESTS();
 }
 
-TEST_F( PlotMSCacheTest, testOverlays) {
+TEST_F( PlotMSCacheTest, testAtmTskyOverlays) {
 	// Test overlay axis options
 	// ATM, TSKY
 
 	ASSERT_NE(nullptr, cache);  // make sure we have a cache
 
+	// selection, axes, datacolumns
+	itsSelection.setSpw("58");
 	std::vector<PMS::Axis> atmAxes {PMS::ATM, PMS::TSKY};
-	// Datacolumn for non-vis axes always DATA
 	std::vector<PMS::DataColumn> loadData {PMS::DATA, PMS::DATA, PMS::DATA, PMS::DATA};
 
 	// check values for first chunk
 	Int ichunk(0);
 	for (auto yaxis : atmAxes) {
-		std::vector<PMS::Axis> loadAxes{PMS::AMP, PMS::FREQUENCY, yaxis, PMS::FREQUENCY};
+		std::vector<PMS::Axis> loadAxes{PMS::FREQUENCY, PMS::FREQUENCY, PMS::AMP, yaxis};
 		cache->load(loadAxes, loadData, dataPath, 
 					itsSelection, itsAveraging,
 					itsTransformations, itsCalibration,
@@ -95,19 +98,19 @@ TEST_F( PlotMSCacheTest, testOverlays) {
 
 		ASSERT_EQ(expNChunk, cache->nChunk());
 		ASSERT_EQ(expNRow, cache->chunkShapes()(IPosition(2,2,ichunk)));
-		// Check arrays with ArrayLogical.h
+		// Check arrays with ArrayLogical
 		switch(yaxis) {
 			case PMS::ATM: {  // percent
 				Vector<Double> atm(cache->atm(ichunk));
 				ASSERT_EQ(expNChan, atm.size());
-				ASSERT_TRUE(allGT(atm, 99.0));
-				ASSERT_TRUE(allLT(atm, 100.0));
+				ASSERT_TRUE(allGT(atm, 97.0));
+				ASSERT_TRUE(allLT(atm, 98.0));
 				break;
 			}
 			case PMS::TSKY: { // Kelvin
 				Vector<Double> tsky(cache->tsky(ichunk));
 				ASSERT_EQ(expNChan, tsky.size());
-				ASSERT_TRUE(allGT(tsky, 0.0));
+				ASSERT_TRUE(allGT(tsky, 9.0));
 				ASSERT_TRUE(allLT(tsky, 10.0));
 				break;
 			}
@@ -117,3 +120,30 @@ TEST_F( PlotMSCacheTest, testOverlays) {
 	}
 }
 
+TEST_F( PlotMSCacheTest, testImageOverlay) {
+	ASSERT_NE(nullptr, cache);  // make sure we have a cache
+	// selection, axes, datacolumns
+	itsSelection.setSpw("58");
+	std::vector<PMS::Axis> loadAxes {PMS::FREQUENCY, PMS::FREQUENCY, PMS::FREQUENCY, PMS::AMP, PMS::ATM, PMS::IMAGESB};
+	std::vector<PMS::DataColumn> loadData {PMS::DATA, PMS::DATA, PMS::DATA, PMS::DATA, PMS::DATA, PMS::DATA};
+
+	// check values for first (only) chunk
+	int ichunk(0);
+
+	cache->load(loadAxes, loadData, dataPath, 
+				itsSelection, itsAveraging,
+				itsTransformations, itsCalibration,
+				nullptr ); // ThreadCommunication* is nullptr 
+
+	ASSERT_EQ(expNChunk, cache->nChunk());
+	ASSERT_EQ(expNRow, cache->chunkShapes()(IPosition(2,2,ichunk)));
+	// Check arrays with ArrayLogical
+	Vector<Double> atm(cache->atm(ichunk));
+	ASSERT_EQ(expNChan, atm.size());
+	ASSERT_TRUE(allGT(atm, 97.0));
+	ASSERT_TRUE(allLT(atm, 98.0));
+	Vector<Double> image(cache->imageSideband(ichunk));
+	ASSERT_EQ(expNChan, image.size());
+	ASSERT_TRUE(allGT(image, 98.0));
+	ASSERT_TRUE(allLT(image, 99.0));
+}
