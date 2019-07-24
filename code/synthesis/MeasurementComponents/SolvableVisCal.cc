@@ -537,7 +537,9 @@ void SolvableVisCal::setApply(const Record& apply) {
   if (apply.isDefined("spwmap")) 
     spwMap().assign(apply.asArrayInt("spwmap"));
 
-  //  cout << "SVC::setApply: spwMap()=" << spwMap() << endl;
+  // Catch spwmap that is too long
+  if (spwMap().nelements()>uInt(nSpw()))
+    throw(AipsError("Specified spwmap has more elements ("+String::toString(spwMap().nelements())+") than the number of spectral windows in the MS ("+String::toString(nSpw())+")."));
 
   // TBD: move interval to VisCal version?
   // TBD: change to "reach"

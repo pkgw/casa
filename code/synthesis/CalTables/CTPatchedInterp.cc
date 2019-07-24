@@ -1184,8 +1184,8 @@ void CTPatchedInterp::setSpwMap(Vector<Int>& spwmap) {
 
 
   // Alert user if too many spws specified
-  //  TBD
-  //  if (spwmap.nelements()>nMSSpw_)
+  if (spwmap.nelements()>uInt(nMSSpw_))
+    throw(AipsError("Specified spwmap has more elements ("+String::toString(spwmap.nelements())+") than the number of spectral windows in the MS ("+String::toString(nMSSpw_)+")."));
     
   // Handle auto-fanout
   if (spwmap(0)==-999) {
