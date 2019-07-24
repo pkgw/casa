@@ -48,7 +48,10 @@
 #include <nrao/VLA/VLAEnum.h>
 #include <nrao/VLA/VLAFilterSet.h>
 #include <nrao/VLA/VLALogicalRecord.h>
-    
+
+#include <unordered_map>
+#include <string>
+
 #include <casa/namespace.h>
 namespace casacore{
 
@@ -214,6 +217,11 @@ private:
   casacore::Bool stopFilling(VLALogicalRecord &);
   //# pol index RR=0, RL=1, LR=2, LL needed just for index data
   casacore::Int polIndexer(casacore::Stokes::StokesTypes& stokes);
+
+  //# Makes sure the type (epoch) is valid, logs a warning (once) if not
+  //# assumes B1950_VLA if not valid
+  casacore::MDirection::Types validEpoch(casacore::MDirection::Types mdType);
+
   //# Contains a logical record
   VLALogicalRecord itsRecord;
 
@@ -314,6 +322,8 @@ private:
   casacore::Bool itsEVLAisOn;
   casacore::Bool itsInitEpoch;
   casacore::Bool itsRevBeenWarned;
-  
+  std::unordered_map<std::string, bool> itsTransferWarned;
+  bool itsNoPolInfoWarned;
+  bool itsZeroEpochWarned;
 };
 #endif

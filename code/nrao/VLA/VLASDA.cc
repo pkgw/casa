@@ -29,6 +29,8 @@
 #include <casa/Utilities/Assert.h>
 #include <casa/BasicSL/String.h>
 #include <casa/Exceptions/Error.h>
+#include <casa/Logging/LogOrigin.h>
+#include <casa/Logging/LogIO.h>
 #include <casa/BasicMath/Math.h>
 #include <casa/Arrays/Vector.h>
 #include <casa/Arrays/Matrix.h>
@@ -683,7 +685,7 @@ MDirection::Types VLASDA::epoch() const {
   } else if (year == -1) {
     return MDirection::APP;
   }
-  // I have to return something! This should be suitably meaningless.
+  // year is likely 0, N_Types can't be used as is but this signals the problem
   return MDirection::N_Types;
 }
 

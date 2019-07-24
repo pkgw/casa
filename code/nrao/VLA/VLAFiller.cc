@@ -104,8 +104,6 @@
 
 #include <tables/TaQL/ExprNode.h>
 
-
-
 const uInt maxCDA(VLAEnum::CDA3+1);
 const uInt maxIF(VLAEnum::IFD+1);
 const uInt nCat = 6; // Number of Flag categories
@@ -182,7 +180,9 @@ VLAFiller::VLAFiller(MeasurementSet& output, VLALogicalRecord& input, Double fre
   itsApplyTsys(applyTsys),
   itsEVLAisOn(false),
   itsInitEpoch(false),
-  itsRevBeenWarned(false)
+  itsRevBeenWarned(false),
+  itsNoPolInfoWarned(false),
+  itsZeroEpochWarned(false)
 {
   String antscheme=antnamescheme;
   antscheme.downcase();
@@ -345,7 +345,6 @@ void VLAFiller::fill(Int verbose){
 	   << LogIO::POST;
 
 
-      
     while (fillOne()) {
       counts.nVLARecords++;
       if (nrow() != counts.nRows) {
@@ -421,14 +420,15 @@ void VLAFiller::fill(Int verbose){
 
   scanNumber().rwKeywordSet().define(RecordFieldId("LAST_SCAN"), 
 				     Vector<Int>(itsScan));
-
+ 
   {
     MSSpWindowColumns msSpW(itsMS.spectralWindow());
     Int nSpw=itsMS.spectralWindow().nrow();
-    if(nSpw==0) nSpw=1;
     Matrix<Int> selection(2,nSpw);
-    selection.row(0)=0; //start
-    selection.row(1)=msSpW.numChan().getColumn(); 
+    if (nSpw > 0) {
+       selection.row(0)=0; //start
+       selection.row(1)=msSpW.numChan().getColumn();
+    }
     ArrayColumn<Complex> mcd(itsMS,"MODEL_DATA");
     mcd.rwKeywordSet().define("CHANNEL_SELECTION",selection);
   }
@@ -454,7 +454,7 @@ Bool VLAFiller::fillOne() {
   //For new ms and first go...make sure to init this to B1950 if data is so
   // as default blank ms is in J2000 direction  
   if(!itsInitEpoch){
-    itsMSDirType=sda.epoch();
+    itsMSDirType=validEpoch(sda.epoch());
     itsFrame.set(MDirection(MVDirection(), itsMSDirType));
     setDirectionRef(itsMSDirType);
     setUVWRef(Muvw::fromDirType(itsMSDirType));
@@ -503,7 +503,7 @@ Bool VLAFiller::fillOne() {
 
   { // Workout the field ID.
     const MVDirection fieldDirVal(sda.sourceDir());
-    const MDirection::Types fieldDirRef(sda.epoch());
+    const MDirection::Types fieldDirRef(validEpoch(sda.epoch()));
     // Need to convert the direction to the same type as the MS. Otherwise the
     // match will fail.
 
@@ -572,7 +572,7 @@ Bool VLAFiller::fillOne() {
     uInt elem = 0;
     Vector<Double> convertedUvw(3);
     Double u, v, w;
-    const Bool doConversion = (itsMSDirType == sda.epoch()) ? false : true;
+    const Bool doConversion = (itsMSDirType == validEpoch(sda.epoch())) ? false : true;
     for (uInt a = 0; a < nAnt; a++) {
       const VLAADA& ada = itsRecord.ADA(a);
       u = ada.u();
@@ -708,7 +708,7 @@ Bool VLAFiller::fillOne() {
     }
 
     const MVDirection fieldDirVal(itsRecord.SDA().sourceDir());
-    const MDirection::Types fieldDirRef(itsRecord.SDA().epoch());
+    const MDirection::Types fieldDirRef(validEpoch(itsRecord.SDA().epoch()));
     MDirection fieldDir(fieldDirVal, fieldDirRef);
 
     // For the actual direction, we put (Az,El) = (0,0). For the
@@ -743,142 +743,156 @@ Bool VLAFiller::fillOne() {
       itsSpId[c] = -1;
     } else {
       const VLAEnum::CDA thisCDA = VLAEnum::CDA(c);
-      // Firstly, determine the spectral characteristics of the
-      // data in the current CDA
-      const uInt nChan = sda.nChannels(thisCDA);
-      const Unit hz("Hz");
-      const Double chanWidth = sda.channelWidth(thisCDA);
-      const Quantum<Double> bandwidth(nChan*chanWidth, hz);
-      // The tolerance is set at 1/4 of a channel. It is not set smaller
-      // because when Doppler tracking is used the total bandwidth, when
-      // converted to the rest type, will be slightly different from the
-      // topocentric value. // above is the original comments.
-		// We reset the default tolerance for frequency to be the value of the
-		// channel width and also give user the ability to pass in a tolerance
-		// for frequency into vlafillerfromdisk(). For dataset G192 we need a 
-		// tolerance of 6 times of the channe width. For dataset NGC7538, one
-		// has to give a tolerance as larger as 60 times its channel width ( 60000000Hz ).
+      // can not deal with npol = 0, may be arising in poorly understood old correlator modes, needs investigating
+      if (sda.npol(thisCDA) == 0) {
+          // warn once and consider as if this is an invalid CDA
+          if (!itsNoPolInfoWarned) {
+              itsNoPolInfoWarned = true;
+              itsLog << LogIO::SEVERE
+                     << "Unable to determine polarization information for some or all correlator modes." << endl
+                     << "That data can not be filled and the resulting visibility file may be empty."
+                     << LogIO::POST;
+          }
+          itsSpId[c] = -1;
+      } else {
+          // Firstly, determine the spectral characteristics of the
+          // data in the current CDA
+          const uInt nChan = sda.nChannels(thisCDA);
+          const Unit hz("Hz");
+          const Double chanWidth = sda.channelWidth(thisCDA);
+          const Quantum<Double> bandwidth(nChan*chanWidth, hz);
+          // The tolerance is set at 1/4 of a channel. It is not set smaller
+          // because when Doppler tracking is used the total bandwidth, when
+          // converted to the rest type, will be slightly different from the
+          // topocentric value. 
+          // above is the original comments.
+          // We reset the default tolerance for frequency to be the value of the
+          // channel width and also give user the ability to pass in a tolerance
+          // for frequency into vlafillerfromdisk(). For dataset G192 we need a 
+          // tolerance of 6 times of the channe width. For dataset NGC7538, one
+          // has to give a tolerance as larger as 60 times its channel width ( 60000000Hz ).
       
-		if( itsFreqTolerance == 0.0 ) itsFreqTolerance = chanWidth;
-		const Quantum<Double> tolerance( itsFreqTolerance, hz);
-      // Determine the reference frequency.
-      MFrequency refFreq;
-      {
- 	if (sda.dopplerTracking(thisCDA)) {
-	  const MDoppler dop(Quantity(sda.radialVelocity(thisCDA), "m/s"),
-			     sda.dopplerDefn(thisCDA));
-	  refFreq =
-	    MFrequency::fromDoppler(dop,
-	 			    MVFrequency(sda.restFrequency(thisCDA)), 
-	 			    sda.restFrame(thisCDA));
-	} else {
-	  refFreq = MFrequency(MVFrequency(sda.obsFrequency(thisCDA)),
-			       MFrequency::TOPO);
-	}
-      }
-      // The local spectral Id is the value that is either zero or one and
-      // depends on which IF the data in the CDA came from. Be aware that data
-      // from IF B may have a local spectral Id value of either zero or one,
-      // depending on whether IF A is also being used.
-      uInt localSpId;
-      // See if there is a matching row.
-      {
-	const uInt nSpId = CDAId.nelements();
- 	const uInt ifChain = sda.electronicPath(thisCDA);
-	// set MeasFrame to MeasRef of MFrequency, which is need when converting MFrequency
-	// a different frame. 
-	// refFreq.getRef().set( itsFrame );
-	// no, ScalarMeasColumn<M>put() will not accept this! so instead, we do
-	// Find the channel frequencies and pass the first one to matchSpw().
-	Vector<Double> chanFreqs(nChan);
-	indgen(chanFreqs, sda.edgeFrequency( thisCDA )+0.5*chanWidth, chanWidth);
-	const MFrequency::Types itsFreqType = MFrequency::castType(refFreq.getRef().getType());
-	if (itsFreqType != MFrequency::TOPO) { 
-	  // have to convert the channel frequencies from topocentric to the specifed
-	  // frequency type.
-	  MFrequency::Convert freqCnvtr;
-	  freqCnvtr.setModel( MFrequency(MVFrequency(), MFrequency::Ref( MFrequency::TOPO, itsFrame )) );
-	  freqCnvtr.setOut( itsFreqType );
-	  Double freqInHzCnvtrd = freqCnvtr(chanFreqs(0)).getValue().getValue();
-	  chanFreqs( 0 ) = freqInHzCnvtrd;
-	}
+          if( itsFreqTolerance == 0.0 ) itsFreqTolerance = chanWidth;
+          const Quantum<Double> tolerance( itsFreqTolerance, hz);
+          // Determine the reference frequency.
+          MFrequency refFreq;
+          {
+              if (sda.dopplerTracking(thisCDA)) {
+                  const MDoppler dop(Quantity(sda.radialVelocity(thisCDA), "m/s"),
+                                     sda.dopplerDefn(thisCDA));
+                  refFreq =
+                      MFrequency::fromDoppler(dop,
+                                              MVFrequency(sda.restFrequency(thisCDA)), 
+                                              sda.restFrame(thisCDA));
+              } else {
+                  refFreq = MFrequency(MVFrequency(sda.obsFrequency(thisCDA)),
+                                       MFrequency::TOPO);
+              }
+          }
+          // The local spectral Id is the value that is either zero or one and
+          // depends on which IF the data in the CDA came from. Be aware that data
+          // from IF B may have a local spectral Id value of either zero or one,
+          // depending on whether IF A is also being used.
+          uInt localSpId;
+          // See if there is a matching row.
+          {
+              const uInt nSpId = CDAId.nelements();
+              const uInt ifChain = sda.electronicPath(thisCDA);
+              // set MeasFrame to MeasRef of MFrequency, which is need when converting MFrequency
+              // a different frame. 
+              // refFreq.getRef().set( itsFrame );
+              // no, ScalarMeasColumn<M>put() will not accept this! so instead, we do
+              // Find the channel frequencies and pass the first one to matchSpw().
+              Vector<Double> chanFreqs(nChan);
+              indgen(chanFreqs, sda.edgeFrequency( thisCDA )+0.5*chanWidth, chanWidth);
+              const MFrequency::Types itsFreqType = MFrequency::castType(refFreq.getRef().getType());
+              if (itsFreqType != MFrequency::TOPO) { 
+                  // have to convert the channel frequencies from topocentric to the specifed
+                  // frequency type.
+                  MFrequency::Convert freqCnvtr;
+                  freqCnvtr.setModel( MFrequency(MVFrequency(), MFrequency::Ref( MFrequency::TOPO, itsFrame )) );
+                  freqCnvtr.setOut( itsFreqType );
+                  Double freqInHzCnvtrd = freqCnvtr(chanFreqs(0)).getValue().getValue();
+                  chanFreqs( 0 ) = freqInHzCnvtrd;
+              }
 
-	MFrequency chanFreq1 = MFrequency( MVFrequency( chanFreqs( 0 ) ), itsFreqType );
-	// now call the matchSpw() method:
- 	itsSpId[c] = spectralWindow().matchSpw(refFreq, chanFreq1, itsFrame, doppler(), source(), nChan, bandwidth,
-					       ifChain, tolerance, itsSpId[c]);
+              MFrequency chanFreq1 = MFrequency( MVFrequency( chanFreqs( 0 ) ), itsFreqType );
+              // now call the matchSpw() method:
+              itsSpId[c] = spectralWindow().matchSpw(refFreq, chanFreq1, itsFrame, doppler(), source(), nChan, bandwidth,
+                                                     ifChain, tolerance, itsSpId[c]);
 
-     // for testing frequency handling
-    /*
-	cout.precision(12);
-	cout << "Field = " << sda.sourceName() 
-	     << " " << Int(thisCDA)
-	     << " lo=" << sda.edgeFrequency(thisCDA)
-	     << " (" << sda.obsFrequency(thisCDA)<<")"
-	     << " frame="<< sda.restFrame(thisCDA)
-	     << " v="<< sda.radialVelocity(thisCDA)
-	     << " rest="<< sda.restFrequency(thisCDA)
-	     << " freq1="<<chanFreqs(0)
-	     << " new="<<itsSpId[c]
-	     << endl;
-    */
+              // for testing frequency handling
+              /*
+                cout.precision(12);
+                cout << "Field = " << sda.sourceName() 
+                << " " << Int(thisCDA)
+                << " lo=" << sda.edgeFrequency(thisCDA)
+                << " (" << sda.obsFrequency(thisCDA)<<")"
+                << " frame="<< sda.restFrame(thisCDA)
+                << " v="<< sda.radialVelocity(thisCDA)
+                << " rest="<< sda.restFrequency(thisCDA)
+                << " freq1="<<chanFreqs(0)
+                << " new="<<itsSpId[c]
+                << endl;
+              */
 
- 	if (itsSpId[c] < 0) {
-	  // add an entry to Dopper subtable before addSpectralWindow! Also make sure addSouce is called before this!
-	  addDoppler( thisCDA );
-  	  itsSpId[c] = addSpectralWindow(thisCDA, refFreq, nChan,
-  					 bandwidth.getValue(hz), ifChain);
-	  localSpId = nSpId;
- 	} else {
-	  localSpId = 0;
-	  while (localSpId < nSpId && 
-		 CDAId[localSpId].nelements() > 0 && 
-		 itsSpId[CDAId[localSpId][0]] != itsSpId[c]) {
-	    localSpId++;
-	  }
-	}
-	if (localSpId == nSpId) {
-	  CDAId.resize(nSpId + 1);
-	}
-      }
-      // Put this CDA into its spot the indexing blocks.
-      const uInt nCDA = CDAId[localSpId].nelements();
-      CDAId[localSpId].resize(nCDA + 1);
-      CDAId[localSpId][nCDA] = thisCDA;
-      uInt polIdx = 0;
-      if (nCDA != 0) { // Here is a tricky section for you. 
-	               // The debugging statements should help
-  	const Block<uInt>& prevPolId =  polId[CDAId[localSpId][nCDA-1]];
-  	polIdx = prevPolId[prevPolId.nelements()-1] + 1;
+              if (itsSpId[c] < 0) {
+                  // add an entry to Dopper subtable before addSpectralWindow! Also make sure addSouce is called before this!
+                  addDoppler( thisCDA );
+                  itsSpId[c] = addSpectralWindow(thisCDA, refFreq, nChan,
+                                                 bandwidth.getValue(hz), ifChain);
+                  localSpId = nSpId;
+              } else {
+                  localSpId = 0;
+                  while (localSpId < nSpId && 
+                         CDAId[localSpId].nelements() > 0 && 
+                         itsSpId[CDAId[localSpId][0]] != itsSpId[c]) {
+                      localSpId++;
+                  }
+              }
+              if (localSpId == nSpId) {
+                  CDAId.resize(nSpId + 1);
+              }
+          }
+          // Put this CDA into its spot the indexing blocks.
+          const uInt nCDA = CDAId[localSpId].nelements();
+          CDAId[localSpId].resize(nCDA + 1);
+          CDAId[localSpId][nCDA] = thisCDA;
+          uInt polIdx = 0;
+          if (nCDA != 0) { // Here is a tricky section for you. 
+              // The debugging statements should help
+              const Block<uInt>& prevPolId =  polId[CDAId[localSpId][nCDA-1]];
+              polIdx = prevPolId[prevPolId.nelements()-1] + 1;
 
 #if defined(AIPS_DEBUG)
-	itsLog << LogIO::DEBUGGING;
-   	itsLog << "CDA's containing this spectral ID: [";
- 	for (uInt c = 0; c < CDAId[localSpId].nelements(); c++) {
- 	  itsLog << static_cast<Int>(CDAId[localSpId][c])
-		 << ((c+1 < CDAId[localSpId].nelements()) ? ", " : "]\n");
- 	}
-   	itsLog << "The previous CDA containing this spectral ID: " 
-  	       << static_cast<Int>(CDAId[localSpId][nCDA-1]) << endl;
-    	itsLog << "The polarisation map of this CDA: [" ;
-	{
-	  const uInt w = CDAId[localSpId][nCDA-1];
-	  for (uInt c = 0; c < polId[w].nelements(); c++) {
-	    itsLog << polId[w][c]
-		   << ((c+1 < polId[w].nelements()) ? ", " : "]\n");
-	  }
-	}
-   	itsLog << "The last element of the polarisation map: " 
-  	       << prevPolId.nelements()-1 << endl;
-   	itsLog << "The next polarisation starts at index: " 
-  	       <<  polIdx << endl;
-	itsLog << LogIO::POST << LogIO::NORMAL;
+              itsLog << LogIO::DEBUGGING;
+              itsLog << "CDA's containing this spectral ID: [";
+              for (uInt c = 0; c < CDAId[localSpId].nelements(); c++) {
+                  itsLog << static_cast<Int>(CDAId[localSpId][c])
+                         << ((c+1 < CDAId[localSpId].nelements()) ? ", " : "]\n");
+              }
+              itsLog << "The previous CDA containing this spectral ID: " 
+                     << static_cast<Int>(CDAId[localSpId][nCDA-1]) << endl;
+              itsLog << "The polarization map of this CDA: [" ;
+              {
+                  const uInt w = CDAId[localSpId][nCDA-1];
+                  for (uInt c = 0; c < polId[w].nelements(); c++) {
+                      itsLog << polId[w][c]
+                             << ((c+1 < polId[w].nelements()) ? ", " : "]\n");
+                  }
+              }
+              itsLog << "The last element of the polarization map: " 
+                     << prevPolId.nelements()-1 << endl;
+              itsLog << "The next polarization starts at index: " 
+                     <<  polIdx << endl;
+              itsLog << LogIO::POST << LogIO::NORMAL;
 #endif
-      }
-      const uInt nPols = sda.npol(thisCDA);
-      polId[c].resize(nPols);
-      for (uInt p = 0; p < nPols; p++) {
-  	polId[c][p] = p + polIdx;
+          }
+          const uInt nPols = sda.npol(thisCDA);
+          polId[c].resize(nPols);
+          for (uInt p = 0; p < nPols; p++) {
+              polId[c][p] = p + polIdx;
+          }
       }
     }
   }
@@ -893,19 +907,23 @@ Bool VLAFiller::fillOne() {
   }
 
   // Check if the transfer switch is only set on some antennas. If so warn
-  // the user that the polarisation may be misslabeled
+  // the user that the polarization may be misslabeled
   {
     const Stokes::StokesTypes ant0Pol = itsRecord.ADA(0).ifPol(VLAEnum::IFA);
     for (uInt a = 1; a < nAnt; a++) {
       if (itsRecord.ADA(a).ifPol(VLAEnum::IFA) != ant0Pol) {
- 	itsLog << LogIO::WARN
- 	       << "The IF transfer switch for antenna " 
- 	       << itsRecord.ADA(a).antName(itsNewAntName)
-	       << " is different from the setting for antenna " 
-	       << itsRecord.ADA(0).antName(itsNewAntName) << "." << endl
-	       << "Correlations involving this antenna may have "
-	       << "incorrect polarisation labelling." 
-	       << LogIO::POST;
+          // only warn if there's been no warning on this antenna yet - only ants with warnings are ever here
+          if (itsTransferWarned.count(itsRecord.ADA(a).antName(itsNewAntName)) == 0) {
+              itsLog << LogIO::WARN
+                     << "The IF transfer switch for antenna " 
+                     << itsRecord.ADA(a).antName(itsNewAntName)
+                     << " is different from the setting for antenna " 
+                     << itsRecord.ADA(0).antName(itsNewAntName) << "." << endl
+                     << "Correlations involving this antenna may have "
+                     << "incorrect polarization labelling." 
+                     << LogIO::POST;
+              itsTransferWarned[itsRecord.ADA(a).antName(itsNewAntName)] = true;
+          }
       }
     }
   }
@@ -1021,7 +1039,7 @@ Bool VLAFiller::fillOne() {
     for (uInt cda = 0; cda < CDAId[s].nelements(); cda++) {
       itsLog << "    CDA: " << static_cast<Int>(CDAId[s][cda]) + 1 
 	     << " contains " << polId[CDAId[s][cda]].nelements() 
-	     << " polarisations [";
+	     << " polarizations [";
       for (uInt i = 0; i < polId[CDAId[s][cda]].nelements(); i++) {
 	itsLog << polId[CDAId[s][cda]][i]
 	       << ((i+1 < polId[CDAId[s][cda]].nelements()) ? ", " : "] (");
@@ -1813,8 +1831,12 @@ void VLAFiller::logChanges(IterationStatus& counts) {
       if (d < thisDataId.nelements()) {
 	const Int curDD = thisDataId[d];
 	const Int curSpw = dd.spectralWindowId()(curDD);
+        bool logPostPending = false;
 	if (lastSpw[d] != curSpw) {
+          logPostPending = true;
 	  lastSpw[d] = curSpw;
+          // also reset lastPol so the pol is logged for this spw
+          lastPol[d] = -1;
 	  //itsLog << "Spectral window for IF#" 
 	  itsLog << "Spectral window " 
 		 << spw.ifConvChain()(curSpw) + 1
@@ -1831,10 +1853,11 @@ void VLAFiller::logChanges(IterationStatus& counts) {
 	  //  counts.nSpw =  curSpw + 1;
 	  //  itsLog << " NEW";
 	  //}
-	  //itsLog << LogIO::POST;
+	  // itsLog << LogIO::POST;
 	}
 	const Int curPol = dd.polarizationId()(curDD);
 	if (lastPol[d] != curPol) {
+          logPostPending = true;
 	  lastPol[d] = curPol;
 	  //itsLog << "Polarization setup for IF#" 
 	  //	 << spw.ifConvChain()(curSpw) + 1
@@ -1856,8 +1879,12 @@ void VLAFiller::logChanges(IterationStatus& counts) {
 	  //  counts.nPol =  curPol + 1;
 	  //  itsLog << " NEW";
 	  //}
-	  itsLog << LogIO::POST;
+	  //itsLog << LogIO::POST;
 	}
+        if (logPostPending) {
+            itsLog << LogIO::POST;
+            logPostPending = false;
+        }
       } else {
 	lastSpw[d] = -1;
 	lastPol[d] = -1;
@@ -2176,7 +2203,7 @@ uInt VLAFiller::addPolarization(const Vector<Stokes::StokesTypes>& polTypes) {
       polProd(1, p) = 1;
       break;
     default:
-      throw(AipsError("VLAFiller::addPolarization - Bad polarisation value"));
+      throw(AipsError("VLAFiller::addPolarization - Bad polarization value"));
     }
   }
   pol.corrType().put(newRow, polInt);
@@ -2419,6 +2446,21 @@ void VLAFiller::fixFieldDuplicates(MSField& msFld) {
     }
   } 
 
+}
+
+casacore::MDirection::Types VLAFiller::validEpoch(casacore::MDirection::Types mdType)
+{
+    if (mdType == MDirection::N_Types) {
+        // epoch in data is 0, warn and assume B1950_VLA
+        mdType = MDirection::B1950_VLA;
+        if (!itsZeroEpochWarned) {
+            itsLog << LogIO::WARN
+                   << "epoch is 0, assuming B1950_VLA"
+                   << LogIO::POST;
+            itsZeroEpochWarned = true;
+        }
+    }
+    return mdType;
 }
 
 

@@ -268,6 +268,8 @@ public:
   casacore::String calCode() const;
 
   // return the reference frame for the field directions.
+  // returns MDiretion::N_types when epoch is not valid
+  // usually that means epoch =  0 and B1950_VLA should be used.
   casacore::MDirection::Types epoch() const;
 
   // returns whether the data spectrum has been Hanning smoothed (and every

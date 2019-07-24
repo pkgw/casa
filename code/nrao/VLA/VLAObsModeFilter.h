@@ -33,8 +33,14 @@
 #include <nrao/VLA/VLAFilter.h>
 #include <casa/Arrays/Vector.h>
 
+#include <unordered_map>
+#include <string>
+
 #include <casa/namespace.h>
 class VLALogicalRecord;
+
+// used in error reporting: mode description string and a boolean indicating whether the warning has been done
+typedef std::pair<std::string,bool> modeDescWarn;
 
 // <summary>
 // </summary>
@@ -115,6 +121,10 @@ public:
 
 private:
   casacore::Vector<casacore::String> itsObsModes;
+  mutable std::unordered_map<std::string, modeDescWarn> itsUnsupportedModes;
+  casacore::Vector<casacore::String> itsSupportedModes;
+
+  void setModeInternals();
 };
 #endif
 

@@ -47,7 +47,8 @@
 void print(VLALogicalRecord& record) {
   static uInt i = 0;
   i++;
-  cout << "Record " << i << " contains " 
+  cout << "Record " << i << " at revision "
+       << record.RCA().revision() << " contains " 
        << record.RCA().length() << " bytes in an array with "
        << record.RCA().nAntennas() << " antennas." 
        << endl;
