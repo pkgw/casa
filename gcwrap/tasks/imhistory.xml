@@ -27,7 +27,7 @@ successful.
 <input>
     <param type="string" name="imagename" mustexist="true">
 <shortdescription>Name of the input spectral line image</shortdescription>
-<description>Name of the input (CASA, FITS, MIRIAD) image
+<description>Name of the input (CASA or FITS) image
                      Default: none
 
                         Example: imagename='ngc5921.im'
