@@ -1366,23 +1366,19 @@ to use the correct direction in which the antenna is pointing with respect to th
     </param>
 
     <param type="double" name="smallscalebias" subparam="true">
-     <shortdescription>A bias towards smaller scale sizes</shortdescription>
-     <description>A numerical control to bias the solution towards smaller scales.
-
+     <shortdescription>Biases the scale selection when using multi-scale or mtmfs deconvolvers </shortdescription>
+     <description>A numerical control to bias the scales when using multi-scale or mtmfs algorithms.
                       The peak from each scale's smoothed residual is
                       multiplied by ( 1 - smallscalebias * scale/maxscale )
                       to increase or decrease the amplitude relative to other scales,
-                      before the scale with the largest peak is chosen.
-
-                      smallscalebias=0.6 (default) applies a slight bias towards small
-                                              scales, ranging from 1.0 for a point source to
-                                              0.4 for the largest scale size
-
-                      Values larger than 0.6 will bias the solution towards smaller scales.
-                      Values smaller than 0.6 will tend towards giving all scales equal weight.
-
+                      before the scale with the largest peak is chosen. 
+                      Smallscalebias can be varied between -1.0 and 1.0. 
+                      A score of 0.0 gives all scales equal weight (default). 
+		      A score larger than 0.0 will bias the solution towards smaller scales. 
+		      A score smaller than 0.0 will bias the solution towards larger scales.
+		      The effect of smallscalebias is more pronounced when using multi-scale relative to mtmfs. 
 </description>
-      <value type="double">0.6</value>
+      <value type="double">0.0</value>
     </param>
 
 
@@ -2756,11 +2752,12 @@ to use the correct direction in which the antenna is pointing with respect to th
        </equals>
        <equals type="string" value="multiscale">
          <default param="scales"><value type="intArray"></value></default>
-         <default param="smallscalebias"><value>0.6</value></default>
+         <default param="smallscalebias"><value>0.0</value></default>
        </equals>
        <equals type="string" value="mtmfs">
          <default param="scales"><value type="intArray"></value></default>
          <default param="nterms"><value>2</value></default>
+	 <default param="smallscalebias"><value>0.0</value></default>
        </equals>
        <equals type="string" value="aasp">
        </equals>

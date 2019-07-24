@@ -99,7 +99,7 @@ public:
 				  const vi::VisBuffer2& vb,
 				  casacore::CountedPtr<SIImageStore> imstore);
 
-
+  virtual void initBriggsWeightor(vi::VisibilityIterator2& vi);
   // Called at the end of gridding : subftm->finalizeToSky()
   void finalizeToSky(){throw(casacore::AipsError("MultiTermFTNew::finalizeToSky() called without arguments!"));};
 

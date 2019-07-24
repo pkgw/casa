@@ -126,6 +126,20 @@ namespace casa { //# NAMESPACE CASA - BEGIN
     if( itsMCsetup == false)
       {
 	itsCleaner.defineScales( itsScaleSizes );
+	
+	if(itsSmallScaleBias > 1)
+	{
+	  os << LogIO::WARN << "Acceptable smallscalebias values are [-1,1].Changing smallscalebias from " << itsSmallScaleBias <<" to 1." << LogIO::POST; 
+	  itsSmallScaleBias = 1;
+	}
+	
+	if(itsSmallScaleBias < -1)
+	{
+	  os << LogIO::WARN << "Acceptable smallscalebias values are [-1,1].Changing smallscalebias from " << itsSmallScaleBias <<" to -1." << LogIO::POST; 
+	  itsSmallScaleBias = -1;
+	}
+	
+	
 	itsCleaner.setSmallScaleBias( itsSmallScaleBias );
 	//itsCleaner.stopAtLargeScaleNegative( itsStopLargeNegatives );// In MFMSCleanImageSkyModel.cc, this is only for the first two major cycles...
 	itsCleaner.stopPointMode( itsStopPointMode );

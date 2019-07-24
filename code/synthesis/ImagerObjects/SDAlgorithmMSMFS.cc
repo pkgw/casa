@@ -64,12 +64,13 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 
 
-  SDAlgorithmMSMFS::SDAlgorithmMSMFS( uInt nTaylorTerms, Vector<Float> scalesizes ):
+  SDAlgorithmMSMFS::SDAlgorithmMSMFS( uInt nTaylorTerms, Vector<Float> scalesizes, Float smallscalebias):
     SDAlgorithmBase(),
     //    itsImages(),
     itsMatPsfs(), itsMatResiduals(), itsMatModels(),
     itsNTerms(nTaylorTerms),
     itsScaleSizes(scalesizes),
+    itsSmallScaleBias(smallscalebias),
     itsMTCleaner(),
     itsMTCsetup(false)
  {
@@ -116,6 +117,21 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	//cout << "Setting up the MT Cleaner once" << endl;
 	//Vector<Float> scalesizes(1); scalesizes[0]=0.0;
 	itsMTCleaner.setscales( itsScaleSizes );
+	
+	if(itsSmallScaleBias > 1)
+	{
+	  os << LogIO::WARN << "Acceptable smallscalebias values are [-1,1].Changing smallscalebias from " << itsSmallScaleBias <<" to 1." << LogIO::POST; 
+	  itsSmallScaleBias = 1;
+	}
+	
+	if(itsSmallScaleBias < -1)
+	{
+	  os << LogIO::WARN << "Acceptable smallscalebias values are [-1,1].Changing smallscalebias from " << itsSmallScaleBias <<" to -1." << LogIO::POST; 
+	  itsSmallScaleBias = -1;
+	}
+	
+	
+	itsMTCleaner.setSmallScaleBias(itsSmallScaleBias);
 	itsMTCleaner.setntaylorterms( itsNTerms );
 	itsMTCleaner.initialise( itsImages->getShape()[0], itsImages->getShape()[1] );
 	

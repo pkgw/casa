@@ -316,7 +316,7 @@ Bool MultiTermMatrixCleaner::getinvhessian(Matrix<Double> & invhessian)
 
 /* Do the deconvolution */
 Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inputgain, Float userthreshold)
-{
+{ 
   LogIO os(LogOrigin("MultiTermMatrixCleaner", "mtclean()", WHERE));
   if(adbg)os << "SOLVER for Multi-Frequency Synthesis deconvolution" << LogIO::POST;
 
@@ -364,6 +364,7 @@ Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inpu
   
  /********************** START MINOR CYCLE ITERATIONS ***********************/
   //os << "Doing deconvolution iterations..." << LogIO::POST;
+  
   for(itercount_p=0;itercount_p<maxniter_p;itercount_p++)
   {
       globalmaxval_p=-1e+10;
@@ -399,9 +400,9 @@ Int MultiTermMatrixCleaner::mtclean(Int maxniter, Float stopfraction, Float inpu
        {
           if((maxScaleVal_p[scale]*scaleBias_p[scale]) > globalmaxval_p)
           {
-            globalmaxval_p = maxScaleVal_p[scale];
+            globalmaxval_p = maxScaleVal_p[scale]*scaleBias_p[scale];
             globalmaxpos_p = maxScalePos_p[scale];
-           maxscaleindex_p = scale;
+	    maxscaleindex_p = scale;
           }
        }
 
@@ -775,13 +776,13 @@ Int MultiTermMatrixCleaner::setupScaleFunctions()
 	{
 		for(Int scale=0;scale<nscales_p;scale++) 
 		{
-		  //scaleBias_p[scale] = 1 - itsSmallScaleBias * scaleSizes_p[scale]/scaleSizes_p(nscales_p-1);
+		  scaleBias_p[scale] = 1 - itsSmallScaleBias * scaleSizes_p[scale]/scaleSizes_p(nscales_p-1);
 			//scaleBias_p[scale] = 1 - 0.4 * scaleSizes_p[scale]/scaleSizes_p(nscales_p-1);
-	 	  scaleBias_p[scale] = 1.0;
+	 	  //scaleBias_p[scale] = 1.0;
 			//////scaleBias_p[scale] = pow((Float)scale/fac,prefScale)*exp(-1.0*scale/fac)/(pow(prefScale/fac,prefScale)*exp(-1.0*prefScale/fac));
 			//scaleBias_p[scale] = pow((Float)(scale+1)/fac,prefScale)*exp(-1.0*(scale+1)/fac);
-		  //			os << "scale " << scale+1 << " = " << scaleSizes_p(scale) << " pixels with bias = " << scaleBias_p[scale] << LogIO::POST;
-			totalScaleFlux_p[scale]=0.0;
+		  os << "scale " << scale+1 << " = " << scaleSizes_p(scale) << " pixels with bias = " << scaleBias_p[scale] << LogIO::POST;
+		  totalScaleFlux_p[scale]=0.0;
 		}
 	}
 	else scaleBias_p[0]=1.0;

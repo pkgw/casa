@@ -108,7 +108,7 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 	  }
 	else if(decpars.algorithm==String("mtmfs"))
 	  {
-	    itsDeconvolver.reset(new SDAlgorithmMSMFS( decpars.nTaylorTerms, decpars.scales )); 
+	    itsDeconvolver.reset(new SDAlgorithmMSMFS( decpars.nTaylorTerms, decpars.scales, decpars.scalebias )); 
 	  } 
 	else if(decpars.algorithm==String("clark_exp"))
 	  {
