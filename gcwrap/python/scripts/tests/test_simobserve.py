@@ -495,8 +495,8 @@ class simobserve_comp(simobserve_unittest_base):
         self.refms_int = self.refpref_int+".ms"
 
         # new data for comp_nchan > 1
-        self.refmodel_int_8ch = self.refpref_int+"8ch.compskymodel"
-        self.refms_int_8ch = self.refpref_int+"8ch.ms"
+        self.refmodel_int_8ch = self.refpref_int+".8ch.compskymodel"
+        self.refms_int_8ch = self.refpref_int+".8ch.ms"
 
         # copy input components list
         self._copy_input(self.incomp)
@@ -734,9 +734,12 @@ class simobserve_comp(simobserve_unittest_base):
         # compare outputs
         currpref = self.project + "/" + \
                  self._get_data_prefix(antennalist,self.project)
-        self._check_imstats(currpref+".compskymodel", self.refmodel_int_8ch)
-        self._check_ptgfile(currpref+".ptg.txt", self.refpref_int+"8ch.ptg.txt")
-        self._check_msstats(currpref+".ms",self.refms_int_8ch)
+        self._check_imstats(currpref+".compskymodel", 
+                            self.refmodel_int_8ch)
+        self._check_ptgfile(currpref+".ptg.txt", 
+                            self.refpref_int+".8ch.ptg.txt")
+        self._check_msstats(currpref+".ms",
+                            self.refms_int_8ch)
 
 
 ########################################################################
