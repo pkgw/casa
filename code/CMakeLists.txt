@@ -799,33 +799,12 @@ message ( STATUS "BOOST_ROOT=${BOOST_ROOT} (second)" )
 message ( STATUS "casa_packages=${casa_packages} (second)" )
 
 set( boost_components regex program_options filesystem thread serialization system)
-find_package( Boost REQUIRED ${boost_components} )
+find_package( Boost 1.41 REQUIRED COMPONENTS ${boost_components} )
 
 message( STATUS "Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}; Boost_LIBRARIES=${Boost_LIBRARIES}")
 
 if( NOT Boost_FOUND )
   message( FATAL_ERROR "Boost could not be found. Please check!" )
-endif()
-
-# For boost >= 1.35, we need to link also to boost-system
-if( Boost_VERSION GREATER 103499 )
-
-  # Force redetection by resetting these variables
-  if( NOT Boost_SYSTEM_FOUND )
-    message( STATUS "Boost version (${Boost_VERSION}) is 1.35.0 or newer" )
-    unset( Boost_FOUND )
-    unset( Boost_INCLUDE_DIR CACHE )
-  endif()
-  set( boost_components regex program_options filesystem system thread )
-  find_package( Boost REQUIRED ${boost_components} )
-
-  if( NOT Boost_FOUND )
-    message( FATAL_ERROR "Boost-system could not be found. Please check!" )
-  endif()
-endif()
-
-if( NOT Boost_VERSION GREATER 104099 AND NOT CASA_IGNORE_VERSION )
-  message( FATAL_ERROR "Boost version (${Boost_VERSION}) is too old! Must be 104100 (1.41.0) or newer. Please check!" )
 endif()
 
 #
