@@ -29,6 +29,7 @@ template <class T> class Image1DSmoother : public ImageTask<T> {
 	// </synopsis>
 
 public:
+	Image1DSmoother() = delete;
 
 	// destructor
 	virtual ~Image1DSmoother() {}
@@ -83,8 +84,6 @@ private:
 	casacore::Bool _decimate;
 	ImageDecimatorData::Function _decimationFunction;
 
-	// disallow default constructor
-	Image1DSmoother();
 };
 }
 

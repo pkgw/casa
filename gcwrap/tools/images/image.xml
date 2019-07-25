@@ -2878,7 +2878,7 @@ the increment.
 			This application performs boxcar convolution of one axis of an image
 			defined by
 
-			z[i] = (y[i] + y[i+i] + ... + y[i+w])/w
+			z[i] = (y[i] + y[i+i] + ... + y[i+w-1])/w
 
 			where z[i] is the value at pixel i in the box car smoothed image, y[k]
 			is the pixel value of the input image at pixel k, and w is a postivie integer

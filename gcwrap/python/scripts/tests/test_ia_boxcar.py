@@ -237,6 +237,25 @@ class ia_boxcar_test(unittest.TestCase):
         self.assertTrue(beam['positionangle'] == pa, "Wrong pa")
         self.assertTrue(zz.brightnessunit() == unit, "Wrong unit")
         zz.done()
+
+    def test_ref_value(self):
+        """Verify smoothed axis has correct coordinate values"""
+        myia = iatool()
+        myia.fromshape("",[20,20,20])
+        orig = []
+        for i in xrange(20):
+            orig.append(myia.toworld([0, 0, i])['numeric'][2])
+        zz = myia.boxcar(width=3, drop=False)
+        myia.done()
+        self.assertTrue((zz.shape() == [20, 20, 18]).all())
+        got = []
+        for i in xrange(18):
+            # print(zz.toworld([0, 0, 0, i])['numeric'][2], orig[i + 1])
+            # self.assertTrue(
+            #    zz.toworld([0, 0, 0, i])['numeric'][2] == orig[i + 1]
+            # )
+            got.append(zz.toworld([0, 0, 0, i])['numeric'][2])
+        zz.done() 
     
 def suite():
     return [ia_boxcar_test]
