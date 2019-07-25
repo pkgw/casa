@@ -50,6 +50,7 @@ SolveDataBuffer::SolveDataBuffer() :
   vb_(0),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -68,6 +69,7 @@ SolveDataBuffer::SolveDataBuffer(const vi::VisBuffer2& vb) :
   vb_(0),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -92,6 +94,7 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   vb_(),
   nAnt_(0),
   freqs_(0),
+  centroidFreq_(0.0),
   corrs_(0),
   feedPa_(0),
   focusChan_p(-1),
@@ -112,6 +115,7 @@ SolveDataBuffer::SolveDataBuffer(const SolveDataBuffer& sdb) :
   // copy over freqs_, corrs_,feedPa, nAnt_
   //  (things that normally require being attached)
   freqs_.assign(sdb.freqs_);
+  centroidFreq_=sdb.centroidFreq_;
   corrs_.assign(sdb.corrs_);
   feedPa_.assign(sdb.feedPa_);
   nAnt_=sdb.nAnt_;
@@ -474,12 +478,14 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
     cout << "The supplied VisBuffer2 is not attached to a ViImplementation2," << endl
 	 << " which is necessary to generate accurate frequency info." << endl
 	 << " This is probably just a test with a naked VisBuffer2." << endl
-	 << " Spoofing freq axis with 1 MHz channels at 100 GHz." << endl
+	 << " Spoofing freq axis with 1 MHz channels at 100+10*ispw GHz." << endl
 	 << " Spoofing corr axis with [5,6,7,8] (circulars)" << endl;
+
     freqs_.resize(vb.nChannels());
     indgen(freqs_);
     freqs_*=1e6;
     freqs_+=100.0005e9; // _edge_ of first channel at 100 GHz.
+    freqs_+=(10.0e9*vb.spectralWindows()(0));  // 10 GHz spacing of spws
 
     Int nC=vb.nCorrelations();
     corrs_.resize(nC);
@@ -489,7 +495,15 @@ void SolveDataBuffer::initFromVB(const vi::VisBuffer2& vb)
       corrs_[1]=6;
       corrs_[2]=7;
     }
+
+    // nAnt is last a2 index +1
+    // Assumes simple sorting of these (which is how test data works)
+    Int nR=vb.nRows();
+    nAnt_=vb.antenna2()(nR-1)+1;
   }
+
+  // Store the centroid freq (use mean, for now)
+  centroidFreq_ = mean(freqs_);
 
   // Store the feedPa info
   if (vb.isAttached())
@@ -536,7 +550,9 @@ String SolveDataBuffer::polBasis() const
 SDBList::SDBList() :
   nSDB_(0),
   SDB_(),
-  freqs_()
+  freqs_(),
+  aggCentroidFreq_(0),
+  aggCentroidFreqOK_(false)
 {}
 
 SDBList::~SDBList() 
@@ -562,6 +578,8 @@ void SDBList::add(const vi::VisBuffer2& vb)
 
   // Clear the freqs_ info (forces recalculation)
   freqs_.resize(0);
+  aggCentroidFreq_=0.0;
+  aggCentroidFreqOK_=false;
 
 }
 
@@ -724,6 +742,37 @@ casacore::Double SDBList::centroidFreq() const {
     }
   }
   return fsum/Double(nf);
+}
+
+// ~Centroid frequency over all SDBs
+casacore::Double SDBList::aggregateCentroidFreq() const {
+
+  // Trap no data case
+  if (nSDB_==0)
+    throw(AipsError("SDBList::aggregateCentroidFreq(): No SDBs in this SDBList yet."));
+
+  // Need to calculate?
+  if (!aggCentroidFreqOK_) {
+  
+    if (nSDB_==1) {
+      // from first and only SDB
+      aggCentroidFreq_=SDB_[0]->centroidFreq();  
+    }
+    else {
+      // More than one SDB, need to gather simple mean
+      // TBD:  weight this by per-SDB bandwidth
+      aggCentroidFreq_=0.0;
+      for (Int isdb=0;isdb<nSDB_;++isdb)
+	aggCentroidFreq_+=SDB_[isdb]->centroidFreq();
+      aggCentroidFreq_/=Double(nSDB_);
+    }
+    // We've calculated it
+    aggCentroidFreqOK_=true;
+  }
+ 
+  // Reach here, one way or another we have a good value, so return it
+  return aggCentroidFreq_;
+
 }
 
 String SDBList::polBasis() const

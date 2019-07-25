@@ -109,8 +109,10 @@ SimpleSimVi2Parameters::SimpleSimVi2Parameters(Int nField,Int nScan,Int nSpw,Int
   Vector<Double> refFreq(nSpw_,100.0e9);
   // Make multiple spws adjacent (not identical) in frequency
   Int uNChan=nChan.nelements();
-  for (Int i=1;i<nSpw_;i++)
-    refFreq[i]+=Double(nChan[(i-1)%uNChan]*df_[i-1]);
+  for (Int i=1;i<nSpw_;i++) 
+    refFreq[i]=refFreq[i-1]+Double(nChan[(i-1)%uNChan]*df_[i-1]);
+
+  cout << "SSV::refFreq=" << refFreq << endl;
 
   Vector<Double> df(df_);
   Matrix<Float> stokes(stokes_);

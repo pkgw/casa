@@ -3400,7 +3400,8 @@ casacore::Bool Calibrater::genericGatherAndSolve()
       // Size the solvePar arrays inside SVC                                                                                
       //  (smart:  if freqDepPar()=F, uses 1)                                                                               
       //  returns the number of channel solutions to iterate over                                                           
-      Int nChanSol=svc_p->sizeSolveParCurrSpw(sdbs.nChannels());
+      //Int nChanSol=svc_p->sizeSolveParCurrSpw(sdbs.nChannels());
+      Int nChanSol=svc_p->sizeSolveParCurrSpw((svc_p->freqDepPar() ? sdbs.nChannels() : 1));
 
       if (svc_p->useGenericSolveOne()) {
 

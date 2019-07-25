@@ -38,12 +38,14 @@ public:
   // Construct from freq info and data-like casacore::Cube<casacore::Complex>
   //  (for generic testing w/out casacore::MS data)
   DelayFFT(casacore::Double f0, casacore::Double df, casacore::Double padBW, 
-	   casacore::Cube<casacore::Complex> V);
+	   casacore::Cube<casacore::Complex> V, 
+	   casacore::Cube<casacore::Float> wt=casacore::Cube<casacore::Float>());
 
   // Construct from freq info and shape, w/ initialization
   //   (for accumulation)
   DelayFFT(casacore::Double f0, casacore::Double df, casacore::Double padBW, 
-	   casacore::Int nCorr, casacore::Int nElem, casacore::Int refant, casacore::Complex v0);
+	   casacore::Int nCorr, casacore::Int nElem, casacore::Int refant, 
+	   casacore::Complex v0, casacore::Float wt=1.0);
 
   // Construct from a VB
   DelayFFT(const VisBuffer& vb,casacore::Double padBW,casacore::Int refant);
@@ -59,6 +61,9 @@ public:
 
   // Accumulate another DelayFFT
   void add(const DelayFFT& other);
+
+  // Accumulate another DelayFFT, with duplication (if nec) and shift
+  void addWithDupAndShift(const DelayFFT& other);
 
   // Find peaks
   void searchPeak();

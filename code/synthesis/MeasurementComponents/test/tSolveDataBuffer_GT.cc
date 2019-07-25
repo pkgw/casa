@@ -55,60 +55,66 @@ public:
   SolveDataBufferTest() :
     nAnt(5),
     nCorr(4),
+    nSpw(2),
     nChan(2),
     nRow(nAnt*(nAnt-1)/2),
     a1(nRow,-1),
     a2(nRow,-1),
     c0(9,1.0)
  {
-   VisBuffer2 *vb0 = VisBuffer2::factory(VbRekeyable);
+   for (Int ispw=0;ispw<nSpw;++ispw) {
+
+     VisBuffer2 *vb0 = VisBuffer2::factory(VbRekeyable);
    
-   // The basic shape
-   vb0->setShape(nCorr,nChan,nRow);
+     // The basic shape
+     vb0->setShape(nCorr,nChan,nRow);
    
-   // Meta info
-   vb0->setObservationId(Vector<Int>(nRow,0));    // obsid=0
-   vb0->setArrayId(Vector<Int>(nRow,0));          // arrid=0
-   vb0->setScan(Vector<Int>(nRow,1));             // scan #1
-   vb0->setFieldId(Vector<Int>(nRow,1));          // fieldid=0
-   vb0->setTime(Vector<Double>(nRow,1e9));        // time
-   vb0->setTimeCentroid(Vector<Double>(nRow,1e9));        // time
-   vb0->setDataDescriptionIds(Vector<int>(nRow,0));  // ddid=0
-   vb0->setSpectralWindows(Vector<int>(nRow,0));  // spw=0
-   Int irow(0);
-   for (Int i=0;i<nAnt-1;++i) {
-     for (Int j=i+1;j<nAnt;++j,irow++) {
-       a1(irow)=i;
-       a2(irow)=j;
+     // Meta info
+     vb0->setObservationId(Vector<Int>(nRow,0));    // obsid=0
+     vb0->setArrayId(Vector<Int>(nRow,0));          // arrid=0
+     vb0->setScan(Vector<Int>(nRow,1));             // scan #1
+     vb0->setFieldId(Vector<Int>(nRow,1));          // fieldid=1
+     vb0->setTime(Vector<Double>(nRow,1e9));        // time
+     vb0->setTimeCentroid(Vector<Double>(nRow,1e9));        // time
+     vb0->setDataDescriptionIds(Vector<int>(nRow,0));  // ddid=0
+     vb0->setSpectralWindows(Vector<int>(nRow,ispw));  // spw=ispw
+     Int irow(0);
+     for (Int i=0;i<nAnt-1;++i) {
+       for (Int j=i+1;j<nAnt;++j,irow++) {
+	 a1(irow)=i;
+	 a2(irow)=j;
+       }
      }
-   }
-   vb0->setAntenna1(a1);
-   vb0->setAntenna2(a2);
-   
-   // Data, etc.
-   vb0->setFlagRow(Vector<Bool>(nRow,False));  // unflagged
-   vb0->setFlagCube(Cube<Bool>(nCorr,nChan,nRow,False));  // unflagged
-   vb0->setWeightSpectrum(Cube<Float>(nCorr,nChan,nRow,1.0));  // all wt=1
-   vb0->setWeight(Matrix<Float>(nCorr,nRow,1.0));  // all wt=1
-   vb0->setSigma(Matrix<Float>(nCorr,nRow,1.0));  // all wt=1
+     vb0->setAntenna1(a1);
+     vb0->setAntenna2(a2);
+     
+     // Data, etc.
+     vb0->setFlagRow(Vector<Bool>(nRow,False));  // unflagged
+     vb0->setFlagCube(Cube<Bool>(nCorr,nChan,nRow,False));  // unflagged
+     vb0->setWeightSpectrum(Cube<Float>(nCorr,nChan,nRow,1.0));  // all wt=1
+     vb0->setWeight(Matrix<Float>(nCorr,nRow,1.0));  // all wt=1
+     vb0->setSigma(Matrix<Float>(nCorr,nRow,1.0));  // all wt=1
 
-   Cube<Complex> mod(nCorr,nChan,nRow,Complex(1.0));
-   mod(Slice(1,2,1),Slice(),Slice())=Complex(0.0); // zero cross-hand model
-   vb0->setVisCubeModel(mod);
+     Cube<Complex> mod(nCorr,nChan,nRow,Complex(1.0));
+     mod(Slice(1,2,1),Slice(),Slice())=Complex(0.0); // zero cross-hand model
+     vb0->setVisCubeModel(mod);
   
-   Cube<Complex> cb(nCorr,nChan,nRow,Complex(0.0));
-   cb(Slice(0,1,1),Slice(),Slice())=c0;
-   cb(Slice(nCorr-1,1,1),Slice(),Slice())=conj(c0);
-   vb0->setVisCubeCorrected(cb);
+     Cube<Complex> cb(nCorr,nChan,nRow,Complex(0.0));
+     cb(Slice(0,1,1),Slice(),Slice())=c0;
+     cb(Slice(nCorr-1,1,1),Slice(),Slice())=conj(c0);
+     vb0->setVisCubeCorrected(cb);
    
-   // Make the SDBs
-   sdbs.add(*vb0);
+     // Make the SDBs
+     sdbs.add(*vb0);
+     
+     delete vb0;
 
-   delete vb0;
+   }
 
-  }
 
-  Int nAnt, nCorr, nChan, nRow;
+ }
+
+  Int nAnt, nCorr, nSpw, nChan, nRow;
   Vector<Int> a1,a2;
   Complex c0;
   SDBList sdbs;
@@ -124,8 +130,7 @@ int main(int argc, char **argv) {
 
 TEST_F(SolveDataBufferTest, SolveDataBufferState) {
   
-  //cout << "sdbs.nSDB() = " << sdbs.nSDB() << endl;
-  ASSERT_EQ(1,sdbs.nSDB());
+  ASSERT_EQ(nSpw,sdbs.nSDB());
 
   // Refer to first SDB in the SDBList
   SolveDataBuffer& sdb(sdbs(0));
@@ -245,8 +250,9 @@ TEST_F(SolveDataBufferTest, SolveDataBufferState) {
   ASSERT_TRUE(allEQ(sdb.infocusModelVisCube()(Slice(0,2,3),Slice(),Slice()),Complex(1.0)));
   ASSERT_TRUE(allEQ(sdb.infocusModelVisCube()(Slice(1,2,1),Slice(),Slice()),Complex(0.0)));
 
-  sdbs.sizeResiduals(2,2);   //  nPar=2, nDiff=2
-  sdbs.initResidWithModel();
+
+  sdb.sizeResiduals(2,2);   //  nPar=2, nDiff=2
+  sdb.initResidWithModel();
   sdb.finalizeResiduals();
   
   //cout << "sdb.residFlagCube().shape() = " << sdb.residFlagCube().shape() << endl;
@@ -337,5 +343,43 @@ TEST_F(SolveDataBufferTest, SolveDataBufferSolve) {
     // it is better if uniform phase offest is smaller....
 
   }
+
+}
+
+
+TEST_F(SolveDataBufferTest, SDBListStateTest) {
+
+  if (False) {  
+  cout << "sdbs.nSDB() = " << sdbs.nSDB() << endl;
+  cout.precision(15);
+  cout << "sdbs(0).centroidFreq() = " << sdbs(0).centroidFreq() << endl;
+  cout << "sdbs(1).centroidFreq() = " << sdbs(1).centroidFreq() << endl;
+  cout << "sdbs.aggregateCentroidFreq() = " << sdbs.aggregateCentroidFreq() << endl;
+  cout << "sdbs.aggregateObsId() = " << sdbs.aggregateObsId() << endl;
+  cout << "sdbs.aggregateScan()  = " << sdbs.aggregateScan() << endl;
+  cout << "sdbs.aggregateSpw()   = " << sdbs.aggregateSpw() << endl;
+  cout << "sdbs.aggregateFld()   = " << sdbs.aggregateFld() << endl;
+  cout << "sdbs.aggregateTime()  = " << sdbs.aggregateTime() << endl;
+  cout << "sdbs.aggregateTimeCentroid() = " << sdbs.aggregateTimeCentroid() << endl;
+  cout << "sdbs.polBasis()      = " << sdbs.polBasis() << endl;
+  cout << "sdbs.nAntennas()     = " << sdbs.nAntennas() << endl;
+  cout << "sdbs.nCorrelations() = " << sdbs.nCorrelations() << endl;
+  cout << "sdbs.nChannels()     = " << sdbs.nChannels() << endl;
+  }
+
+  EXPECT_EQ(nSpw,sdbs.nSDB());
+  EXPECT_EQ(((sdbs(0).centroidFreq()+sdbs(1).centroidFreq())/2),sdbs.aggregateCentroidFreq());
+  EXPECT_EQ(0,sdbs.aggregateObsId());
+  EXPECT_EQ(1,sdbs.aggregateScan());
+  EXPECT_EQ(0,sdbs.aggregateSpw());
+  EXPECT_EQ(1,sdbs.aggregateFld());
+  EXPECT_EQ(1e9,sdbs.aggregateTime());
+  EXPECT_EQ(1e9,sdbs.aggregateTimeCentroid());
+  EXPECT_EQ(String("CIRC"),sdbs.polBasis());
+  EXPECT_EQ(5,sdbs.nAntennas());
+  EXPECT_EQ(4,sdbs.nCorrelations());
+  EXPECT_EQ(2,sdbs.nChannels());
+  EXPECT_TRUE(sdbs.Ok());
+
 
 }

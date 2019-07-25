@@ -69,12 +69,12 @@ namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Construct from freq info and a data-like Cube<Complex>
 DelayFFT::DelayFFT(Double f0, Double df, Double padBW, 
-		   Cube<Complex> V) :
+		   Cube<Complex> V,Cube<Float> wt) :
   f0_(f0),
   df_(df),
   padBW_(padBW),
   nCorr_(V.shape()(0)),
-  nPadChan_(Int(0.5+padBW/df)),
+  nPadChan_(Int(0.5+padBW/abs(df))),
   nElem_(V.shape()(2)),
   refant_(-1),  // ok?
   Vpad_(),
@@ -89,20 +89,23 @@ DelayFFT::DelayFFT(Double f0, Double df, Double padBW,
   Vpad_.set(0.0);
 
   Slicer sl1(Slice(),Slice(0,V.shape()(1),1),Slice());
-  Vpad_(sl1)=V;
-
+  if (V.shape()==wt.shape())
+    Vpad_(sl1)=(V*wt);
+  else
+    Vpad_(sl1)=V;
+  
   //this->state();
  }
 
 
 // Construct from freq info and shape, w/ initialization
 DelayFFT::DelayFFT(Double f0, Double df, Double padBW, 
-		   Int nCorr, Int nElem, Int refant, Complex v0) :
+		   Int nCorr, Int nElem, Int refant, Complex v0, Float wt) :
   f0_(f0),
   df_(df),
   padBW_(padBW),
   nCorr_(nCorr),
-  nPadChan_(Int(0.5+padBW/df)),
+  nPadChan_(Int(0.5+padBW/abs(df))),
   nElem_(nElem),
   refant_(refant), 
   Vpad_(),
@@ -112,11 +115,11 @@ DelayFFT::DelayFFT(Double f0, Double df, Double padBW,
 
   //  cout << "ctor0: " << f0 << " " << df << " " << padBW << " " << nPadChan_ << endl;
   //  cout << "ctor0: " << f0_ << " " << df_ << " " << padBW_ << " " << nPadChan_ << endl;
-
   //  cout << "pad ch=" << padBW/df_ << " " << nPadChan_*df << endl;
 
   Vpad_.resize(nCorr_,nPadChan_,nElem_);
   Vpad_.set(v0);
+  Vpad_*=wt;  // scale by supplied per-channel weight
 
   //  this->state();
 
@@ -128,7 +131,7 @@ DelayFFT::DelayFFT(const VisBuffer& vb,Double padBW,Int refant) :
   df_(vb.frequency()(1)/1.e9-f0_),
   padBW_(padBW),
   nCorr_(0),    // set in body
-  nPadChan_(Int(0.5+padBW/df_)),
+  nPadChan_(Int(0.5+padBW/abs(df_))),
   nElem_(vb.numberAnt()), // antenna-based
   refant_(refant),
   Vpad_(),
@@ -199,7 +202,7 @@ DelayFFT::DelayFFT(SolveDataBuffer& sdb,Double padBW,Int refant,Int nElem) :
   df_(sdb.freqs()(1)/1e9-f0_),
   padBW_(padBW),
   nCorr_(0),    // set in body
-  nPadChan_(Int(0.5+padBW_/df_)),
+  nPadChan_(Int(0.5+padBW_/abs(df_))),
   nElem_(nElem), // antenna-based
   refant_(refant),
   Vpad_(),
@@ -242,16 +245,18 @@ DelayFFT::DelayFFT(SolveDataBuffer& sdb,Double padBW,Int refant,Int nElem) :
       Cube<Complex> vC(sdb.visCubeCorrected()(sl0));
 
       // Divide by non-zero amps
-      Cube<Float> vCa(amplitude(vC));
-      vCa(vCa<FLT_EPSILON)=1.0;
-      vC/=vCa;
+      //Cube<Float> vCa(amplitude(vC));
+      //vCa(vCa<FLT_EPSILON)=1.0;
+      //vC/=vCa;
 
       // Zero flagged channels
       Cube<Bool> fl(sdb.flagCube()(sl0));
+      Cube<Float> wt(sdb.weightSpectrum()(sl0));
       vC(fl)=Complex(0.0);
-
-      // TBD: apply weights
-      //      Matrix<Float> wt(vb.weightMat()(Slice,Slice(irow,1,1)));
+      wt(fl)=0.0f;
+      
+      // Scale visibilities by weights
+      vC*=wt;
 
       // Acquire this baseline for solving
       Vpad_(sl1)=vC;
@@ -275,8 +280,10 @@ void DelayFFT::FFT() {
 }
 
 void DelayFFT::shift(Double f) {
+  
+  // Shift _this_ at f0_, to _that_ at f
 
-  Double shift=-(f0_-f)/df_;                    // samples  
+  Double shift=-(f0_-f)/df_;              // samples  
   Vector<Double> ph(nPadChan_);  indgen(ph);   // indices
   //  ph-=Double(nPadChan_/2);                     // centered
   ph/=Double(nPadChan_);                       // cycles/sample
@@ -305,8 +312,6 @@ void DelayFFT::add(const DelayFFT& other) {
 
   //  cout << "DelayFFT::add(x)..." << endl;
 
-  IPosition osh=other.Vpad_.shape();
-
   AlwaysAssert( (other.nCorr_==nCorr_), AipsError);
   AlwaysAssert( (other.nPadChan_<=nPadChan_), AipsError);
   AlwaysAssert( (other.nElem_==nElem_), AipsError);
@@ -324,18 +329,102 @@ void DelayFFT::add(const DelayFFT& other) {
 
 }
 
+
+void DelayFFT::addWithDupAndShift(const DelayFFT& other) {
+
+  //  cout << "DelayFFT::addWithDupAndShift(x)..." << endl;
+
+  //  Adds other to this, with phase gradient for freq-space shift
+  //  Includes duplication of other (if necessary), to account for resolution/range differences
+  //   (as long as they are congruent:  other must have channel bandwidth that is integral multiple of this's)
+
+
+  const Int& oNPadChan(other.nPadChan_);
+
+  // Verify shapes match adequately
+  AlwaysAssert( (other.nCorr_==nCorr_), AipsError);         // Same on corr axis
+  AlwaysAssert( (other.nElem_==nElem_), AipsError);         // Same on baseline axis
+  AlwaysAssert( (oNPadChan<=nPadChan_), AipsError);         // fewer samples, or equal
+  AlwaysAssert( ((nPadChan_%oNPadChan)==0), AipsError);     // Ensures congruency
+
+  // All shapes seem ok, so proceed....
+
+  // Work space for other, dupe'd (if necessary) and shifted
+  Cube<Complex> oDupShifted(Vpad_.shape(),Complex(0.0));
+
+  // Duplicate other into workspace
+  Int lo(0);
+  while (lo < nPadChan_) {
+    Slicer sl0(Slice(),Slice(0,oNPadChan,1),Slice());
+    Slicer sl1(Slice(),Slice(lo,oNPadChan,1),Slice());
+    Cube<Complex> v1(oDupShifted(sl1)), v0(other.Vpad_(sl0));
+    v1+=v0;
+    lo+=oNPadChan;
+  }
+
+  /*
+  // Add incoming to low and (if nec.) high end of accumulator
+  Slicer sl0(Slice(),Slice(0,oNPadChan,1),Slice());
+  Cube<Complex> v1(oDupShifted(sl0)), v0(other.Vpad_(sl0));
+  v1+=v0;
+  if (oNPadChan<nPadChan_) {
+    Slicer sl1(Slice(),Slice(nPadChan_-oNPadChan,oNPadChan,1),Slice());
+    Cube<Complex> v2(oDupShifted(sl1));
+    v2+=v0;
+  }
+  */
+
+  // Form and apply shift
+
+  // Generate delay-dep phase shift Vector
+  Vector<Double> ph(nPadChan_);  indgen(ph);   // delay index
+  Int nPC2(nPadChan_/2);
+  Vector<Double> ph2(ph(Slice(nPC2,nPC2,1)));  // (2nd half is negative)
+  ph2-=Double(nPadChan_);                      // unfolded
+
+  ph/=Double(oNPadChan);                       // cycles/sample for INCOMING delay function!
+
+  Double shift=-(other.f0_-f0_);               // Shift _other_ to this at f0_
+  shift/=other.df_;                            // Shift in samples (for INCOMING!)  
+  ph*=shift;                                   // cycles
+  ph*=(C::_2pi);                               // rad
+
+  Vector<Double> fsh(nPadChan_*2);
+  fsh(Slice(0,nPadChan_,2))=cos(ph);
+  fsh(Slice(1,nPadChan_,2))=sin(ph);
+  Vector<DComplex> csh(nPadChan_);
+  RealToComplex(csh,fsh);
+  Vector<Complex> sh(nPadChan_);
+  convertArray(sh,csh);  // downcovert from DComplex to Complex
+
+  // Apply to each elem, corr of shifted
+  for (Int ielem=0;ielem<nElem_;++ielem) {
+    for (Int icorr=0;icorr<nCorr_;++icorr) {
+      Vector<Complex> v(oDupShifted.xyPlane(ielem).row(icorr));
+      v*=sh;
+    }
+  }
+
+  // Finally, add it into this
+  Vpad_+=oDupShifted;
+
+}
+
 void DelayFFT::searchPeak() {
 
   delay_.resize(nCorr_,nElem_);
   delay_.set(0.0);
   flag_.resize(nCorr_,nElem_);
   flag_.set(true);  // all flagged
-  Vector<Float> amp;
+  Vector<Float> amp,pha;
   Int ipk;
   Float alo,amax,ahi,fpk;
   for (Int ielem=0;ielem<nElem_;++ielem) {
+    if (ielem==refant_)
+      continue;
     for (Int icorr=0;icorr<nCorr_;++icorr) {
       amp=amplitude(Vpad_(Slice(icorr,1,1),Slice(),Slice(ielem,1,1)));
+      //pha=    phase(Vpad_(Slice(icorr,1,1),Slice(),Slice(ielem,1,1)))*(180.0/C::pi);
       amax=-1.0;
       ipk=0;
       for (Int ich=0;ich<nPadChan_;++ich) {
@@ -345,8 +434,10 @@ void DelayFFT::searchPeak() {
 	}
       }
 
-      alo=amp(ipk>0 ? ipk-1 : (nPadChan_-1));
-      ahi=amp(ipk<(nPadChan_-1) ? ipk+1 : 0);
+      Int ilo(ipk>0 ? ipk-1 : (nPadChan_-1));
+      Int ihi(ipk<(nPadChan_-1) ? ipk+1 : 0);
+      alo=amp(ilo);
+      ahi=amp(ihi);
 
       Float denom=(alo-2.*amax+ahi);
       if (amax>0.0 && abs(denom)>0.0) {
@@ -356,14 +447,23 @@ void DelayFFT::searchPeak() {
 	delay/=df_;                        // nsec
 
 	/*
-	cout << "delay=" 
-	     << Float(ipk>0 ? ipk-1 : (nPadChan_-1))/Float(nPadChan_)/df_ << "..."
-	     << Float(ipk)/Float(nPadChan_)/df_ << "..."
-	     << Float(ipk<(nPadChan_-1) ? ipk+1 : 0)/Float(nPadChan_)/df_ << "-->"
-	     << delay << "    "
-	     << alo << " " << amax << " " << ahi << "   "
-	     << alo/amax << " " << amax/amax << " " << ahi/amax
-	     << endl;
+	if (ielem<8 && icorr>-1) {
+	  cout << endl << ielem << "-" << icorr << " nPadChan_=" << nPadChan_ << " df_=" << df_ << endl
+	       << "peak indices=[" << ilo << ", " << ipk << ", " << ihi << "]-->" 
+	       << fpk << endl
+	       << "       delay=[" 
+	       << Float(ilo)/Float(nPadChan_)/df_ << ", "
+	       << Float(ipk)/Float(nPadChan_)/df_ << ", "
+	       << Float(ihi)/Float(nPadChan_)/df_ << "]-->"
+	       << delay << "    " << endl
+	       << "amps=" << alo << " " << amax << " " << ahi << "  (rel="
+	       << alo/amax << " " << amax/amax << " " << ahi/amax << ")"
+	       << endl
+	       << "phases=" << pha(ilo) << "..." << pha(ipk) << "..." << pha(ihi)
+	       << endl;
+	  if (ipk==0) 
+	    cout << amp(Slice(nPadChan_-5,5,1)) << amp(Slice(0,5,1)) << endl;
+	}
 	*/
 
 	delay_(icorr,ielem)=delay;     
@@ -749,7 +849,7 @@ void KJones::selfSolveOne(SDBList& sdbs) {
 
   // Forward to MBD solver if more than one VB (more than one spw, probably)
   if (sdbs.nSDB()!=1) 
-    this->solveOneSDBmbd(sdbs);
+      this->solveOneSDBmbd(sdbs);
 
   // otherwise, call the single-VB solver with the first SDB in the SDBList
   else
@@ -814,9 +914,9 @@ void KJones::solveOneSDBmbd(SDBList& sdbs) {
   Int nbuf=sdbs.nSDB();
   
   Vector<Int> nch(nbuf,0);
-  Vector<Double> f0(nbuf,0.0);
-  Vector<Double> df(nbuf,0.0);
-  Double flo(1e15),fhi(0.0);
+  Vector<Double> f0(nbuf,0.0);     // the effective ref frequency for each
+  Vector<Double> df(nbuf,0.0);     // negative will mean LSB
+  Double flo(1e15),fhi(0.0);       // absolute low and high frequencies (SB-independent)
 
   for (Int ibuf=0;ibuf<nbuf;++ibuf) {
     SolveDataBuffer& sdb(sdbs(ibuf));
@@ -824,12 +924,41 @@ void KJones::solveOneSDBmbd(SDBList& sdbs) {
     nch(ibuf)=sdbs(ibuf).nChannels();
     f0(ibuf)=chf(0)/1.0e9;           // GHz
     df(ibuf)=(chf(1)-chf(0))/1.0e9;  // GHz
-    flo=min(flo,f0[ibuf]);
-    fhi=max(fhi,f0[ibuf]+nch[ibuf]*df[ibuf]);
+    flo=min(flo, min(chf));
+    fhi=max(fhi, max(chf));
   }
-  Double tbw=fhi-flo;
+  flo/=1e9;   // GHz
+  fhi/=1e9;   // GHz
 
-  Double ptbw=tbw*8;  // pad total bw by 8X
+  Double sb(0.0);
+  if (allLT(df,0.0)) sb=-1.0;   // All LSB
+  if (allGT(df,0.0)) sb=1.0;    // All USB
+  if (sb==0.0)                  // Mixed!  (FORBIDDEN!)
+    throw(AipsError("Multi-spw delay solutions cannot currently handle mixed sidebands!"));
+
+  /*
+  cout << "df=" << df << endl;
+  cout << "f0=" << f0 << endl;
+  cout << "nch=" << nch << endl;
+  */
+
+  // Channel bandwidth extremes
+  Double adfmax=max(abs(df));   // unsigned!
+  Double adfmin=min(abs(df));   // unsigned!
+  Double sdfmin(sb*adfmin);   // Signed ( <0.0 for LSB)
+
+  //cout << "adfmax=" << adfmax << endl;
+
+  // Total spanned bandwidth as integral multiple of largest absolute channel bandwidth
+  //  NB: Nominal frequency span may not be integral, eg when spws strictly not on same 
+  //      grid and/or with different channel bandwidths
+  //  NB: Assumes max channel bandwidth is an integral multiple of all narrower ones.
+  //      This is generally true, and is more strictly enforced in the addWithDupAndShift 
+  //      call below....
+  Double tbw=floor(2.0+(fhi-flo)/adfmax)*adfmax;
+
+  // Pad the total bandwith 8X
+  Double ptbw=tbw*8;  
   // TBD:  verifty that all df are factors of tbw
 
   /*
@@ -840,16 +969,22 @@ void KJones::solveOneSDBmbd(SDBList& sdbs) {
 
   Int nCor=sdbs(0).nCorrelations();
   
-  DelayFFT sumfft(f0[0],min(df),ptbw,(nCor>1 ? 2 : 1),nAnt(),refant(),Complex(0.0));
-  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
-    DelayFFT delfft1(sdbs(ibuf),ptbw,refant(),nAnt());
-    delfft1.FFT();
-    delfft1.shift(f0[0]);
-    sumfft.add(delfft1);
+  DelayFFT sumfft(f0[0],sdfmin,ptbw,(nCor>1 ? 2 : 1),nAnt(),refant(),Complex(0.0));
 
-    delfft1.searchPeak();
+  for (Int ibuf=0;ibuf<nbuf;++ibuf) {
+    //cout << endl << "ibuf=" << ibuf << "-----------------" << endl;
+    DelayFFT delfft1(sdbs(ibuf),ptbw,refant(),nAnt());
+    //delfft1.state();
+    delfft1.FFT();
+    sumfft.addWithDupAndShift(delfft1);
+    //delfft1.shift(f0[0]);
+    //delfft1.searchPeak();
+    //sumfft.add(delfft1);
   }
 
+  //  cout << endl << "Aggregate---------------" << endl;
+  //  cout << "sumfft.state()=" << endl;
+  //  sumfft.state();
   sumfft.searchPeak();
 
   // Keep solutions

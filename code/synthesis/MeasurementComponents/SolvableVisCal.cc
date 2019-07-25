@@ -2886,16 +2886,22 @@ Bool SolvableVisCal::syncSolveMeta(VisBuffGroupAcc& vbga) {
 void SolvableVisCal::syncSolveMeta(SDBList& sdbs) {  // VI2
   
   //  cout << "spwMap() = " << spwMap() << endl;
-  
-  
 
   // Ask the sdbs
+  Vector<Double> freqs;
+  if (freqDepPar()) 
+    // nominally channelized
+    freqs.reference(sdbs.freqs());
+  else
+    // a single aggregate frequency (as a Vector)
+    freqs.reference(Vector<Double>(1,sdbs.aggregateCentroidFreq()));
+
   setMeta(sdbs.aggregateObsId(),
 	  sdbs.aggregateScan(),
 	  //sdbs.aggregateTime(),   
 	  sdbs.aggregateTimeCentroid(),
 	  sdbs.aggregateSpw(),
-	  sdbs.freqs(),
+	  freqs,        
 	  sdbs.aggregateFld());
 }
 
