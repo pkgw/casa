@@ -171,6 +171,19 @@ if the skymodel is 2D)
       <value>"8GHz"</value>
     </param>
 
+    <param type="int" name="comp_nchan" subparam="true">
+      <shortdescription>Channelization of components</shortdescription>
+<description>Channelization of components
+                     Subparameter of complist
+
+                     If simulating from components only, this defines
+                     the number of channels of the MeasurementSet
+
+                        Example: comp_nchan=256
+</description>
+      <value>1</value>
+    </param>
+
 
 
 <!--*************************************************************-->
@@ -352,10 +365,9 @@ observation?
                      coverage, the synthesized (dirty) beam, and
                      ephemeris information 
                    * If simulating from a component list, you should
-                     specify "compwidth", the desired bandwidth.
-                     There is not currently a way to specify the
-                     spectrum of a component, so simulations from a
-                     componentlist only will be continuum (1 chan)
+                     specify "compwidth", the desired bandwidth; and 
+		     specify "comp_nchan", the desired channelization
+		     if more than one output channel is desired
 </description>
       <value>int</value>
       <allowed kind="enum">
@@ -632,6 +644,7 @@ magnitude (interferometer only)
       <when param="complist">
   <notequals value="">
     <default param="compwidth"><value type="string">8GHz</value></default>
+    <default param="comp_nchan"><value type="int">1</value></default>
   </notequals>
       </when>
       <!-- **********************************************************  -->

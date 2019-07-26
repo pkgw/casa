@@ -10,7 +10,7 @@ def simobserve(
     project=None, 
     skymodel=None, inbright=None, indirection=None, incell=None, 
     incenter=None, inwidth=None, # innchan=None,
-    complist=None, compwidth=None,
+    complist=None, compwidth=None, comp_nchan=1,
     setpointings=None,
     ptgfile=None, integration=None, direction=None, mapsize=None, 
     maptype=None, pointingspacing=None, caldirection=None, calflux=None, 
@@ -56,8 +56,9 @@ def simobserve(
 
         myf = stack_frame_find( )
 
-        # create the utility object:
-        util = simutil(direction)  # this is the dir of the observation - could be ""
+        # create the utility object
+        # this is the dir of the observation (could be "")
+        util = simutil(direction)  
         if verbose: util.verbose = True
         msg = util.msg
         from simutil import is_array_type
@@ -111,11 +112,15 @@ def simobserve(
 
 
         if not overwrite:
-            if (predict and uvmode and os.path.exists(fileroot+"/"+project+".ms")):
-                msg(fileroot+"/"+project+".ms exists but overwrite=F",priority="error")
+            if (predict and uvmode and os.path.exists(fileroot+"/"+
+                                                      project+".ms")):
+                msg(fileroot+"/"+project+".ms exists but overwrite=F",
+                    priority="error")
                 return False
-            if (predict and (not uvmode) and os.path.exists(fileroot+"/"+project+".sd.ms")):
-                msg(fileroot+"/"+project+".sd.ms exists but overwrite=F",priority="error")
+            if (predict and (not uvmode) and os.path.exists(fileroot+"/"+
+                                                            project+".sd.ms")):
+                msg(fileroot+"/"+project+".sd.ms exists but overwrite=F",
+                    priority="error")
                 return False
 
 
@@ -135,17 +140,21 @@ def simobserve(
 
         if((not os.path.exists(skymodel)) and (not os.path.exists(complist))):
             if len(skymodel)>0:
-                msg("Your skymodel '"+skymodel+"' could not be found.",priority="warn")
+                msg("Your skymodel '"+skymodel+"' could not be found.",
+                    priority="warn")
             if len(complist)>0:
-                msg("Your complist '"+complist+"' could not be found.",priority="warn")
+                msg("Your complist '"+complist+"' could not be found.",
+                    priority="warn")
             if len(skymodel)==0 and len(complist)==0:
-                msg("At least one of skymodel or complist must be set.",priority="error")
+                msg("At least one of skymodel or complist must be set.",
+                    priority="error")
                 
             else:
-                msg("No sky input found.  At least one of skymodel or complist must exist.",priority="error")
+                msg("No sky input found."+
+                    "  At least one of skymodel or complist must exist.",
+                    priority="error")
 
-
-        ### WORKAROUND for wrong flux in COMP TP simulations
+        ### WORKAROUND for wrong flux in COMP TP simulations (CAS-5095)
         if (obsmode.startswith("s") and os.path.exists(complist)):
             msg("Single dish simulation has a flux recovery issue when using a components list as an input.\nPlease generate compskymodel image first by obsmode='' and use the image as the skymodel input.\nSorry for the inconvenience.", priority="error")
             return False
@@ -166,7 +175,8 @@ def simobserve(
 
         if os.path.exists(skymodel):
             components_only = False
-            # create a new skymodel called skymodel, or if its already there, called newmodel
+            # create a new skymodel called skymodel, 
+            # or if it's already there, called newmodel
             default_model = project + ".skymodel"
             if skymodel == default_model:
                 newmodel = fileroot + "/" + project + ".newmodel"
@@ -176,7 +186,9 @@ def simobserve(
                 if overwrite:
                     shutil.rmtree(newmodel)
                 else:
-                    msg(newmodel+" exists -- please delete it, change skymodel, or set overwrite=T",priority="error")
+                    msg(newmodel+" exists -- "+
+                        "please delete it, change skymodel, or set overwrite=T",
+                        priority="error")
                     return False
 
             # modifymodel just collects info if skymodel==newmodel
@@ -196,13 +208,16 @@ def simobserve(
             if os.path.exists(modelflat) and (not predict):
                 # if we're not predicting, then we want to use the previously
                 # created modelflat, because it may have components added 
-                msg("flat sky model "+modelflat+" exists, predict not requested",priority="warn")
-                msg(" working from existing model image - please delete it if you wish to overwrite.",priority="warn")
+                msg("flat sky model "+modelflat+
+                    " exists, predict not requested",priority="warn")
+                msg(" working from existing model image - "+
+                    "please delete it if you wish to overwrite.",
+                    priority="warn")
             else:
                 # create and add components into modelflat with util.flatimage()
                 util.flatimage(newmodel,complist=complist,verbose=verbose)
-                # we want the skymodel.flat image to be called that no matter what 
-                # the skymodel image is called, since that's what used in analysis
+                # we want skymodel.flat image to be called that no matter what 
+                # the skymodel image is called, since it's used in analysis
                 if modelflat != newmodel+".flat":
                     if os.path.exists(modelflat):
                         shutil.rmtree(modelflat)
@@ -211,11 +226,13 @@ def simobserve(
             casalog.origin('simobserve')
 
             # set startfeq and bandwidth in util object after modifymodel
-            bandwidth = qa.mul(qa.quantity(model_nchan),qa.quantity(model_width))
+            bandwidth = qa.mul(qa.quantity(model_nchan),
+                               qa.quantity(model_width))
             util.bandwidth = bandwidth
 
         else:
             components_only = True
+            msg("component-only simulation",priority="info")
             # calculate model parameters from the component list:
 
             compdirs = []
@@ -227,15 +244,22 @@ def simobserve(
 
             model_refdir, coffs = util.average_direction(compdirs)
             model_specrefval = cl.getspectrum(0)['frequency']['m0']
-            model_specrefpix = 0. # components-only doesn't do cube
 
             if util.isquantity(compwidth,halt=False):
                 model_width = compwidth
+                msg("compwidth set: setting model bandwidth to input",
+                    priority="info")
             else:
                 model_width = "2GHz"
-                msg("component-only simulation, compwidth unset: setting bandwidth to 2GHz",priority="warn")
+                msg("compwidth unset: setting bandwidth to 2GHz",
+                    priority="warn")
 
-            model_nchan = 1
+            model_nchan = comp_nchan
+            # channelize component-only MS 
+            # currently assuming equal width and center as frequency reference
+            model_specrefpix = 0.5*(comp_nchan-1)
+            msg("scaling model bandwidth by model_nchan",priority="info")
+            model_width = qa.div(model_width,model_nchan)
             model_stokes = "I"
 
             cmax = 0.0014 # ~5 arcsec
@@ -250,16 +274,18 @@ def simobserve(
             model_size = ["%fdeg" % (3*cmax), "%fdeg" % (3*cmax)]
 
 
-        # for cases either if there is a skymodel or if there are only components,
-        # if the user has not input a map size (for setpointings), then use model_size
+        # for cases either if there is a skymodel or are only components,
+        # if user has not input a map size (for setpointings), use model_size
         if len(mapsize) == 0:
             mapsize = model_size
-            if verbose: msg("setting map size to "+str(model_size),origin='simobserve')
+            if verbose: msg("setting map size to "+str(model_size),
+                            origin='simobserve')
         else:
              if is_array_type(mapsize):
                  if len(mapsize[0]) == 0:
                      mapsize = model_size
-                     if verbose: msg("setting map size to "+str(model_size),origin="simobserve")
+                     if verbose: msg("setting map size to "+str(model_size),
+                                     origin="simobserve")
 
         if components_only:
             if is_array_type(mapsize):
@@ -296,14 +322,15 @@ def simobserve(
                 if util.isquantity(tail,halt=False):
                     resl = qa.convert(tail,"arcsec")['value']
                     if os.path.exists(repodir):
-                        confnum = (1.044-6.733*pl.log10(resl*qa.convert(model_specrefval,"GHz")['value']/345.))
+                        confnum = (1.044 - 6.733 * pl.log10(resl * qa.convert(model_specrefval,"GHz")['value'] / 345.))
                         confnum = max(1,min(6,confnum))
                         conf = str(int(round(confnum)))
                         antennalist = repodir + "alma.cycle1." + conf + ".cfg"
                         msg("converted resolution to antennalist "+antennalist)
                         resparsed=True
                     else:
-                        msg("failed to find antenna configuration repository at "+repodir,priority="error")
+                        msg("failed to find antenna configuration repository"+
+                            " at "+repodir,priority="error")
             if not resparsed:
                 q = re.compile('.*CYCLE.?2.?;(.*)')
                 qq = q.match(antennalist.upper())
@@ -314,11 +341,13 @@ def simobserve(
                     if util.isquantity(tail,halt=False):
                         resl = qa.convert(tail,"arcsec")['value']
                         if os.path.exists(repodir):
-                            confnum = 10.**(0.91-0.74*(resl*qa.convert(model_specrefval,"GHz")['value']/345.))
+                            confnum = 10. ** (0.91 - 0.74 * (resl * qa.convert(model_specrefval,"GHz")['value']/345.))
                             confnum = max(1,min(7,confnum))
                             conf = str(int(round(confnum)))
-                            antennalist = repodir + "alma.cycle2." + conf + ".cfg"
-                            msg("converted resolution to antennalist "+antennalist)
+                            antennalist = (repodir + "alma.cycle2." + 
+                                           conf + ".cfg")
+                            msg("converted resolution to antennalist "+
+                                antennalist)
                             resparsed=True
                         else:
                             msg("failed to find antenna configuration repository at "+repodir,priority="error")
@@ -347,7 +376,8 @@ def simobserve(
                 antennalist = repodir + antennalist
             # Now make sure the antennalist exists
             if not os.path.exists(antennalist):
-                util.msg("Couldn't find antennalist: %s" % antennalist, priority="error")
+                util.msg("Couldn't find antennalist: %s" % antennalist,
+                         priority="error")
                 return False
         elif predict or components_only:
             # antennalist is required when predicting or components only
@@ -360,7 +390,8 @@ def simobserve(
             if nant == 1:
                 if predict and uvmode:
                     # observe="int" but antennalist is SD
-                    util.msg("antennalist contains only 1 antenna", priority="error")
+                    util.msg("antennalist contains only 1 antenna", 
+                             priority="error")
                 uvmode = False
             antnames = []
             if not uvmode: #Single-dish
@@ -393,9 +424,9 @@ def simobserve(
                 psfsize = pb
                 # check for model size
                 if not components_only:
-                    minsize = min(qa.convert(model_size[0],'arcsec')['value'],\
+                    minsize = min(qa.convert(model_size[0],'arcsec')['value'],
                                   qa.convert(model_size[1],'arcsec')['value'])
-                    if minsize < 2.5*pb:
+                    if minsize < (2.5 * pb):
                         msg("skymodel should be larger than 2.5*primary beam. Your skymodel: %.3f arcsec < %.3f arcsec: 2.5*primary beam" % (minsize, 2.5*pb),priority="error")
                     del minsize
         else:
@@ -410,7 +441,8 @@ def simobserve(
             # first set based on psfsize:
             # needs high subsampling because small shifts in placement of 
             # components lead to large changes in the difference image.
-            model_cell = [ qa.quantity(str(psfsize/20)+"arcsec"), qa.quantity(str(psfsize/20)+"arcsec") ]
+            model_cell = [ qa.quantity(str(psfsize/20)+"arcsec"), 
+                           qa.quantity(str(psfsize/20)+"arcsec") ]
             
             # XXX if the user has set direction should we center the compskymodel there?
             # if len(direction)>0: model_refdir = direction
@@ -530,14 +562,16 @@ def simobserve(
         else:
             if len(integration)>0:
                 intsec = float(integration)
-                msg("interpreting integration time parameter as "+str(intsec)+"s",priority="warn")
+                msg("interpreting integration time parameter as "+
+                    str(intsec)+"s",priority="warn")
             else:
                 intsec = 0
         integration="%fs" %intsec
 
 
         if setpointings:
-            util.msg("calculating map pointings centered at "+str(dir0),origin='simobserve')
+            util.msg("calculating map pointings centered at "+
+                     str(dir0),origin='simobserve')
 
             if len(pointingspacing) < 1:
                 if uvmode:
@@ -558,8 +592,11 @@ def simobserve(
                 # todo make more robust to nonconforming z[0] strings
 
             if verbose:
-                msg("pointing spacing in mosaic = "+pointingspacing,origin='simobserve')
-            pointings = util.calc_pointings2(pointingspacing,mapsize,maptype=maptype, direction=dir, beam=pb)
+                msg("pointing spacing in mosaic = "+
+                    pointingspacing,origin='simobserve')
+            pointings = util.calc_pointings2(pointingspacing,
+                                             mapsize,maptype=maptype, 
+                                             direction=dir, beam=pb)
             nfld=len(pointings)
             etime = qa.convert(qa.mul(qa.quantity(integration),scanlength),"s")['value']
             # etime is an array of scan lengths - here they're all the same.
@@ -579,7 +616,8 @@ def simobserve(
                 if os.path.exists(fileroot+"/"+ptgfile):
                     ptgfile = fileroot + "/" + ptgfile
                 else:
-                    util.msg("Can't find pointing file "+ptgfile,priority="error")
+                    util.msg("Can't find pointing file "+ptgfile,
+                             priority="error")
                     return False
 
             nfld, pointings, etime = util.read_pointings(ptgfile)
@@ -596,7 +634,9 @@ def simobserve(
             # needs to be less than the min etime:
             if min(etime) < intsec:
                 integration = str(min(etime))+"s"
-                msg("Setting integration to "+integration+" to match the shortest time in the pointing file.",priority="warn")
+                msg("Setting integration to "+integration+
+                    " to match the shortest time in the pointing file.",
+                    priority="warn")
                 intsec = min(etime)
 
 
@@ -688,7 +728,8 @@ def simobserve(
                 shutil.rmtree(fileroot+"/"+project+'.cal.cclist')
             util.isdirection(caldirection)
             cl.done()
-            cl.addcomponent(flux=calfluxjy,dir=caldirection,label="phase calibrator")
+            cl.addcomponent(flux=calfluxjy,dir=caldirection,
+                            label="phase calibrator")
             # set reference freq to center freq of model
             cl.rename(fileroot+"/"+project+'.cal.cclist')
             cl.done()
@@ -730,7 +771,8 @@ def simobserve(
             #if offsets.shape[1] > 16 or pb <= 0 or pb > pl.absolute(max(max(lims))):
             if offsets.shape[1] > 19 or pb <= 0:
                 lims = pl.xlim(),pl.ylim()
-                pl.plot((offsets[0]+shift[0])*3600.,(offsets[1]+shift[1])*3600.,
+                pl.plot((offsets[0]+shift[0])*3600.,
+                        (offsets[1]+shift[1])*3600.,
                         plotcolor+'+',markeredgewidth=1)
                 #if pb > 0 and pl.absolute(lims[0][0]) > pb:
                 if pb > 0:
@@ -797,7 +839,8 @@ def simobserve(
                 if len(z)>1:
                     if len(z[1])>1:
                         msg("Discarding time part of refdate, '"+z[1]+
-                            "', in favor of hourangle parameter = "+hourangle,origin='simobserve')
+                            "', in favor of hourangle parameter = "+hourangle,
+                            origin='simobserve')
 
             if hourangle=="transit":
                 haoffset=0.0
@@ -844,8 +887,7 @@ def simobserve(
                 msg("Total observing time = "+str(totalsec)+"s.")
             else:
                 if not qa.compare(totaltime,"1s"):
-                    msg("totaltime "+totaltime+
-" does not appear to represent a time interval (use 's','min','h'; not 'sec','m','hr')",priority="error")
+                    msg("totaltime "+totaltime+" does not appear to represent a time interval (use 's','min','h'; not 'sec','m','hr')",priority="error")
                     return False
                 totalsec = qa.convert(qa.quantity(totaltime),'s')['value']
 
@@ -858,7 +900,8 @@ def simobserve(
             diam = stnd;
             # WARNING: sm.setspwindow is not consistent with clean::center
             # but the "start" is the center of the first channel:
-            model_start = qa.sub(model_specrefval,qa.mul(model_width,model_specrefpix))
+            model_start = qa.sub(model_specrefval,
+                                 qa.mul(model_width,model_specrefpix))
 
             mounttype = 'alt-az'
             if telescopename in ['DRAO', 'WSRT']:
@@ -885,7 +928,8 @@ def simobserve(
                 sm.setfeed(mode='perfect X Y',pol=[''])
 
             if verbose: 
-                msg(" spectral window set at %s" % qa.tos(model_specrefval),origin='simobserve')
+                msg(" spectral window set at %s" % qa.tos(model_specrefval),
+                    origin='simobserve')
                 sm.setlimits(shadowlimit=0.01, elevationlimit='10deg')
             if uvmode:
                 sm.setauto(0.0)
@@ -940,8 +984,8 @@ def simobserve(
                 sm.observe(sourcename="phase calibrator", spwname=fband,
                            starttime=qa.quantity(sttime, "s"),
                            stoptime=qa.quantity(endtime, "s"),
-                           state_obs_mode="CALIBRATE_PHASE.ON_SOURCE",state_sig=True,
-                           project=project);
+                           state_obs_mode="CALIBRATE_PHASE.ON_SOURCE",
+                           state_sig=True,project=project);
                 sttime = endtime
 
             while (sttime-scanstart) < totalsec: # the last scan could exceed totaltime
@@ -959,9 +1003,13 @@ def simobserve(
                     if docalibrator:
                         endtime = sttime + qa.convert(integration,'s')['value'] 
 
-                        # need to observe cal singly to get new row in obs table, so 
-                        # first observemany the on-source pointing(s)
-                        sm.observemany(sourcenames=srces,spwname=fband,starttimes=starttimes,stoptimes=stoptimes,project=project)
+                        # need to observe cal singly to get new row in obs table
+                        # so first observemany the on-source pointing(s)
+                        sm.observemany(sourcenames=srces,
+                                       spwname=fband,
+                                       starttimes=starttimes,
+                                       stoptimes=stoptimes,
+                                       project=project)
                         # and clear the list
                         srces = []
                         starttimes = []
@@ -970,8 +1018,8 @@ def simobserve(
                         sm.observe(sourcename="phase calibrator", spwname=fband,
                                    starttime=qa.quantity(sttime, "s"),
                                    stoptime=qa.quantity(endtime, "s"),
-                                   state_obs_mode="CALIBRATE_PHASE.ON_SOURCE",state_sig=True,
-                                   project=project);
+                                   state_obs_mode="CALIBRATE_PHASE.ON_SOURCE",
+                                   state_sig=True,project=project);
                     kfld = kfld + 1
                     sttime = endtime
 #                 if kfld > nfld: kfld = 0
@@ -980,7 +1028,11 @@ def simobserve(
 
             # looks up the direction in the field table.
             if not docalibrator:
-                sm.observemany(sourcenames=srces,spwname=fband,starttimes=starttimes,stoptimes=stoptimes,project=project)
+                sm.observemany(sourcenames=srces,
+                               spwname=fband,
+                               starttimes=starttimes,
+                               stoptimes=stoptimes,
+                               project=project)
 
             sm.setdata(fieldid=range(0,nfld))
             if uvmode or components_only: #Interferometer only
@@ -1011,13 +1063,14 @@ def simobserve(
                         msg("Note: diameters in configuration file will not be used - PB for "+telescopename+" will be used",priority="info")
 
 
-            msg("done setting up observations (blank visibilities)",origin='simobserve')
+            msg("done setting up observations (blank visibilities)",
+                origin='simobserve')
             if verbose: sm.summary()
 
             # do actual calculation of visibilities:
 
             if not uvmode: #Single-dish
-                sm.setoptions(gridfunction='pb', ftmachine="sd", location=posobs)
+                sm.setoptions(gridfunction='pb',ftmachine="sd",location=posobs)
 
             if not components_only:
                 if docalibrator:
@@ -1047,13 +1100,15 @@ def simobserve(
                 if docalibrator:
                     complist=complist+","+fileroot+"/"+project+'.cal.cclist'
                 if verbose:
-                    msg("predicting from "+complist,priority="warn",origin="simobserve")
+                    msg("predicting from "+complist,priority="warn",
+                        origin="simobserve")
                 else:
                     msg("predicting from "+complist,origin="simobserve")
                 sm.predict(complist=complist)
 
             sm.done()
-            msg('generation of measurement set '+msfile+' complete',origin="simobserve")
+            msg('generation of measurement set '+msfile+' complete',
+                origin="simobserve")
 
             # rest freqs are hardcoded to the first freq in the spw in core
             tb.open(msfile+"/SPECTRAL_WINDOW/",nomodify=False)
@@ -1107,7 +1162,12 @@ def simobserve(
 
             if (grscreen or grfile):
                 util.newfig(multi=multi,show=grscreen)
-                util.ephemeris(refdate,direction=util.direction,telescope=telescopename,ms=msfile,usehourangle=usehourangle,cofa=posobs)
+                util.ephemeris(refdate,
+                               direction=util.direction,
+                               telescope=telescopename,
+                               ms=msfile,
+                               usehourangle=usehourangle,
+                               cofa=posobs)
                 casalog.origin('simobserve')
                 if uvmode:
                     util.nextfig()
@@ -1129,13 +1189,17 @@ def simobserve(
                     util.nextfig()
                     im.open(msfile)
                     # TODO spectral parms
-                    msg("using default model cell "+str(model_cell[0])+" for PSF calculation",origin='simobserve')
-                    im.defineimage(cellx=str(model_cell[0]["value"])+str(model_cell[0]["unit"]),nx=int(max([minimsize,128])))
+                    msg("using default model cell "+str(model_cell[0])+
+                        " for PSF calculation",origin='simobserve')
+                    im.defineimage(cellx=str(model_cell[0]["value"])+
+                                   str(model_cell[0]["unit"]),
+                                   nx=int(max([minimsize,128])))
                     # TODO trigger im.setoptions(ftmachine="mosaic")
                     if os.path.exists(fileroot+"/"+project+".quick.psf"):
                         shutil.rmtree(fileroot+"/"+project+".quick.psf")
 
-                    # if obs is unknown, casalog will send a warning to screen - temporarily suppress that
+                    # if obs is unknown, casalog will send a warning to screen
+                    # temporarily(?) suppress that
                     if not telescopename in me.obslist():
                         casalog.filter("ERROR")                        
                     im.approximatepsf(psf=fileroot+"/"+project+".quick.psf")
@@ -1156,7 +1220,11 @@ def simobserve(
                     flipped_array = beam_array.transpose()
                     ttrans_array = flipped_array.tolist()
                     ttrans_array.reverse()
-                    pl.imshow(ttrans_array,interpolation='bilinear',cmap=pl.cm.jet,extent=xextent+yextent,origin="bottom")
+                    pl.imshow(ttrans_array,
+                              interpolation='bilinear',
+                              cmap=pl.cm.jet,
+                              extent=xextent+yextent,
+                              origin="bottom")
                     pl.title(project+".quick.psf",fontsize="x-small")
                     b = qa.convert(beam[1],'arcsec')['value']
                     pl.xlim([-3*b,3*b])
@@ -1210,7 +1278,8 @@ def simobserve(
                 shutil.rmtree(noisymsroot+".ms")
             shutil.copytree(msfile,noisymsroot+".ms")
             if sm.name() != '':
-                msg("table persistence error on %s" % sm.name(),priority="error")
+                msg("table persistence error on %s" % sm.name(),
+                    priority="error")
                 return False
 
             # if not predicted this time, get telescopename from ms
@@ -1220,7 +1289,8 @@ def simobserve(
                 telescopename = n[0]
                 # todo add check that entire column is the same
                 tb.done()
-                msg("telescopename read from "+noisymsroot+".ms: "+telescopename)
+                msg("telescopename read from "+noisymsroot+".ms: "+
+                    telescopename)
 
             if telescopename not in knowntelescopes:
                 msg("thermal noise only works properly for ALMA/ACA, (E)VLA, and SMA",origin="simobserve",priority="warn")
@@ -1236,7 +1306,8 @@ def simobserve(
             scoeff = -1  #Force setting the default value, 1./sqrt(2.0)
             if not uvmode: #Single-dish
                 scoeff = 1.0
-                if verbose: msg('sensitivity constant = '+str(scoeff), origin="simobserve")
+                if verbose: msg('sensitivity constant = '+str(scoeff), 
+                                origin="simobserve")
 
             sm.openfromms(noisymsroot+".ms")    # an existing MS
             sm.setdata(fieldid=[]) # force to get all fields
@@ -1293,7 +1364,8 @@ def simobserve(
             else:
                 noisymsroot = fileroot + "/" + project + ".noisier"
             if not uvmode: #Single-dish
-                msg("Can't corrupt SD data with polarization leakage",priority="warn")
+                msg("Can't corrupt SD data with polarization leakage",
+                    priority="warn")
             if os.path.exists(msfile):
                 msg('copying '+msfile+' to ' + 
                     noisymsroot+'.ms and adding polarization leakage',
@@ -1302,7 +1374,8 @@ def simobserve(
                     shutil.rmtree(noisymsroot+".ms")
                 shutil.copytree(msfile,noisymsroot+".ms")
                 if sm.name() != '':
-                    msg("table persistence error on %s" % sm.name(),priority="error")
+                    msg("table persistence error on %s" % sm.name(),
+                        priority="error")
                     return False
 
                 sm.openfromms(noisymsroot+".ms")    # an existing MS
