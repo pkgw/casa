@@ -38,6 +38,7 @@ casa_add_python( tools tools_regressions_admin_python lib/python${PYTHONV}
   tw_utils.py
   extractCASAscript.py
   runTest.py
+  casaTestHelper.py
 )
 
 install( PROGRAMS 
