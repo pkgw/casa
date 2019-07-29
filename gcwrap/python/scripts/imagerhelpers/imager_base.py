@@ -155,7 +155,6 @@ class PySynthesisImager:
             casalog.post("Memory available "+str(availmem)+" kB and  required memory "+str(deconmem+griddermem)+" kB" , "INFO2")
 ############################################
     def restoreImages(self):
-        print "SHOW cache ", tb.showcache()
         for immod in range(0,self.NF):
               self.SDtools[immod].restore()
 
