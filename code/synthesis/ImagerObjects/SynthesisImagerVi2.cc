@@ -487,6 +487,7 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
     if(imshape(3) < 1) {
       return;
     }
+   
     Double minFreq=SpectralImageUtil::worldFreq(cs, 0.0);
     Double maxFreq=SpectralImageUtil::worldFreq(cs,imshape(3)-1);
    
@@ -508,8 +509,8 @@ void SynthesisImagerVi2::andChanSelection(const Int msId, const Int spwId, const
       return;
     }
       
-    maxFreq+=fabs(spectralCoord.increment()(0))/2.0;
-    minFreq-=fabs(spectralCoord.increment()(0))/2.0;
+    maxFreq+=3.0*fabs(spectralCoord.increment()(0))/2.0;
+    minFreq-=3.0*fabs(spectralCoord.increment()(0))/2.0;
     if(minFreq < 0.0) minFreq=0.0;
     
     auto copyFreqBegs=freqBegs_p;
@@ -1281,6 +1282,7 @@ void SynthesisImagerVi2::appendToMapperList(String imagename,
   void SynthesisImagerVi2::makeSdImage(Bool dopsf)
   {
     LogIO os( LogOrigin("SynthesisImagerVi2","makeSdImage",WHERE) );
+
 //    Bool dopsf=false;
     if(datacol_p==FTMachine::PSF) dopsf=true;
 

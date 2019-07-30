@@ -748,8 +748,10 @@ using namespace casa::vi;
       // If image chan width is more than twice the data chan width, make a new list of
       // data frequencies on which to interpolate. This new list is sync'd with the starting image chan
       // and have the same width as the data chans.
-      if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+      /*if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
          ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
+      */
+      if(width > 1.0){
         Double minVF=min(visFreq);
         Double maxVF=max(visFreq);
         Double minIF=min(imageFreq_p);
@@ -766,7 +768,10 @@ using namespace casa::vi;
         else{ // Make a new list of frequencies.
   	Bool found;
   	uInt where=0;
-  	Double interpwidth=visFreq[1]-visFreq[0];
+  	//Double interpwidth=visFreq[1]-visFreq[0];
+        Double interpwidth=copysign(fabs(imageFreq_p[1]-imageFreq_p[0])/floor(width), visFreq[1]-visFreq[0]);
+        //if(name() != "GridFT")
+        //  cerr << "width " << width << " interpwidth " << interpwidth << endl;
   	if(minIF < minVF){ // Need to find the first image-channel with data in it
   	  where=binarySearchBrackets(found, imageFreq_p, minVF, imageFreq_p.nelements());
   	  if(where != imageFreq_p.nelements()){
@@ -784,24 +789,44 @@ using namespace casa::vi;
 
           // This new list of frequencies starts at the first image channel minus half image channel.
   	// It ends at the last image channel plus half image channel.
-  	Int ninterpchan=(Int)ceil((maxIF-minIF+fabs(imageFreq_p[1]-imageFreq_p[0]))/fabs(interpwidth));
+        Int ninterpchan=(Int)ceil((maxIF-minIF+fabs(imageFreq_p[1]-imageFreq_p[0]))/fabs(interpwidth))+2;
   	chanMap.resize(ninterpchan);
   	chanMap.set(-1);
   	interpVisFreq_p.resize(ninterpchan);
   	interpVisFreq_p[0]=(interpwidth > 0) ? minIF : maxIF;
-  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-fabs(imageFreq_p[1]-imageFreq_p[0])/2.0):
-																(interpVisFreq_p[0]+fabs(imageFreq_p[1]-imageFreq_p[0])/2.0);
+        if(freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)
+          interpVisFreq_p[0]-=interpwidth;
+        if(freqInterpMethod_p==InterpolateArray1D<Double, Complex>::cubic)
+          interpVisFreq_p[0]-=2.0*interpwidth;
+        Double startedge=abs(imageFreq_p[1]-imageFreq_p[0])/2.0 -abs(interpwidth)/2.0;
+  	interpVisFreq_p[0] =(interpwidth >0) ? (interpVisFreq_p[0]-startedge):(interpVisFreq_p[0]+startedge);
+
   	for (Int k=1; k < ninterpchan; ++k){
   	  interpVisFreq_p[k] = interpVisFreq_p[k-1]+ interpwidth;
   	}
-
+        Double halfdiff=fabs((imageFreq_p[1]-imageFreq_p[0])/2.0);
   	for (Int k=0; k < ninterpchan; ++k){
   	  ///chanmap with width
-  	  Double nearestchanval = interpVisFreq_p[k]- (imageFreq_p[1]-imageFreq_p[0])/2.0;
-  	  where=binarySearchBrackets(found, imageFreq_p, nearestchanval, imageFreq_p.nelements());
-  	  if(where != imageFreq_p.nelements())
-  	    chanMap[k]=where;
+          //  	  Double nearestchanval = interpVisFreq_p[k]- (imageFreq_p[1]-imageFreq_p[0])/2.0;
+ 	  //where=binarySearchBrackets(found, imageFreq_p, nearestchanval, imageFreq_p.nelements());
+          Int which=-1;
+          for (Int j=0; j< Int(imageFreq_p.nelements()); ++j){
+            //cerr <<  (imageFreq_p[j]-halfdiff)  << "   "   << (imageFreq_p[j]+halfdiff) << " val " << interpVisFreq_p[k] << endl;
+            if( (interpVisFreq_p[k] >= (imageFreq_p[j]-halfdiff)) && (interpVisFreq_p[k] <  (imageFreq_p[j]+halfdiff)))
+              which=j;
+          }
+  	  if((which > -1) && (which < Int(imageFreq_p.nelements()))){
+  	    chanMap[k]=which;
+          }
+          else{
+            //if(name() != "GridFT")
+            //  cerr << "MISSED it " << interpVisFreq_p[k] << endl;
+          }
+  	
+       
   	}
+        //        if(name() != "GridFT")
+        //  cerr << std::setprecision(10) << "chanMap " << chanMap <<  endl; //" interpvisfreq " <<  interpVisFreq_p << " orig " << visFreq << endl;
 
         }// By now, we have a new list of frequencies, synchronized with image channels, but with data chan widths.
       }// end of ' if (we have to make new frequencies) '
@@ -825,7 +850,7 @@ using namespace casa::vi;
   	swapyz(flipflag,modflagCube);
   	swapyz(flipdata,origdata);
   	InterpolateArray1D<Double,Complex>::
-  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p);
+  	  interpolate(data,flag,interpVisFreq_p,visFreq,flipdata,flipflag,freqInterpMethod_p, False, False);
   	flipdata.resize();
   	swapyz(flipdata,data);
   	data.resize();
@@ -834,17 +859,24 @@ using namespace casa::vi;
   	swapyz(flipflag,flag);
   	flag.resize();
   	flag.reference(flipflag);
-          // Note : 'flag' will get augmented with the flags coming out of weight interpolation
-       }
+        // Note : 'flag' will get augmented with the flags coming out of weight interpolation
+      }
       else
         { // get the flag array to the correct shape.
-  	// This will get filled at the end of weight-interpolation.
-           flag.resize(vb.nCorrelations(), interpVisFreq_p.nelements(), vb.nRows());
-           flag.set(false);
-      }
+          // This will get filled at the end of weight-interpolation.
+          flag.resize(vb.nCorrelations(), interpVisFreq_p.nelements(), vb.nRows());
+          flag.set(false);
+        }
         // Now, interpolate the weights also.
         //   (1) Read in the flags from the vb ( setSpectralFlags -> modflagCube )
         //   (2) Collapse the flags along the polarization dimension to match shape of weight.
+        //If BriggsWeightor is used weight is already interpolated so we can bypass this
+         InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod weightinterp=freqInterpMethod_p;
+  
+  if(!briggsWeightor_p.null()){
+    weightinterp= InterpolateArray1D<casacore::Double,casacore::Complex>::nearestNeighbour;
+  }
+      //InterpolateArray1D<casacore::Double,casacore::Complex>::InterpolationMethod weightinterp=InterpolateArray1D<casacore::Double,casacore::Complex>::nearestNeighbour; 
          Matrix<Bool> chanflag(wt.shape());
          AlwaysAssert( chanflag.shape()[0]==modflagCube.shape()[1], AipsError);
          AlwaysAssert( chanflag.shape()[1]==modflagCube.shape()[2], AipsError);
@@ -862,7 +894,7 @@ using namespace casa::vi;
          flipchanflag=transpose(chanflag);
          Matrix<Bool> tempoutputflag;
          InterpolateArray1D<Double,Float>::
-  	 interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,freqInterpMethod_p);
+  	 interpolate(weight,tempoutputflag, interpVisFreq_p, visFreq,flipweight,flipchanflag,weightinterp, False, False);
          flipweight.resize();
          flipweight=transpose(weight);
          weight.resize();
@@ -999,16 +1031,17 @@ using namespace casa::vi;
 		newImFreq=imageFreq_p;
 		
 		//cerr << "width " << width << endl;
-         if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
-         ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){
-			Int newNchan=Int(std::round(width))*imageFreq_p.nelements();
+                /* if(((width >2.0) && (freqInterpMethod_p==InterpolateArray1D<Double, Complex>::linear)) ||
+                   ((width >4.0) && (freqInterpMethod_p !=InterpolateArray1D<Double, Complex>::linear))){*/
+                if(width > 1.0){
+			Int newNchan=Int(std::floor(width))*imageFreq_p.nelements();
 			newImFreq.resize(newNchan);
-			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::round(width);
+			Double newIncr= (imageFreq_p[1]-imageFreq_p[0])/std::floor(width);
 			Double newStart=imageFreq_p[0]-(imageFreq_p[1]-imageFreq_p[0])/2.0+newIncr/2.0;
 			Cube<Complex> newflipgrid(flipgrid.shape()[0], flipgrid.shape()[1], newNchan);
 			for (Int k=0; k < newNchan; ++k){
 				newImFreq[k]=newStart+k*newIncr;
-				Int oldchan=k/Int(std::round(width));
+				Int oldchan=k/Int(std::floor(width));
 				newflipgrid.xyPlane(k)=flipgrid.xyPlane(oldchan);
 				
 			}
@@ -1909,9 +1942,9 @@ using namespace casa::vi;
 	    Double limit=0;
 	    Double where=c(0)*fabs(spectralCoord_p.increment()(0));
 	    if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::linear)
-	      limit=1;
-	    else if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::cubic ||  freqInterpMethod_p==InterpolateArray1D<Double,Complex>::spline)
 	      limit=2;
+	    else if( freqInterpMethod_p==InterpolateArray1D<Double,Complex>::cubic ||  freqInterpMethod_p==InterpolateArray1D<Double,Complex>::spline)
+	      limit=4;
 	    if(((pixel<0) && (where >= (0-limit*fabs(fwidth)))) )
 	      chanMap(chan)=-2;
 	    if((pixel>=nchan) ) {
