@@ -77,7 +77,7 @@ set( CASA_VERSION_PATCH   0   )
 set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
 set( CASA_VERSION_DESC    "" )
 # CASA/ALMA/VLA etc...
-set( CASA_VARIANT  "" )
+set( CASA_VARIANT  "PIPELINE" )
 
 if( CASA_VERSION_FEATURE STREQUAL "0" )
     execute_process( COMMAND svn info
