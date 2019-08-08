@@ -39,7 +39,7 @@ using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 // Utility function to try to give as much info as possible - CAS-12604
-void raise_programmer_error(Long nx_p, Long ny_p, Long x, Long y, const char *file,
+void throw_programmer_error(Long nx_p, Long ny_p, Long x, Long y, const char *file,
                             int line)
 {
   AipsError exc;
@@ -368,8 +368,8 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           ny_p=y;
         }
         else{
-          if(true or (nx_p != x) || (ny_p !=y)) {
-            raise_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
           }
           fftw_execute_dft(planC2CD_forw_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
         }
@@ -383,8 +383,8 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           ny_p=y;
         }
         else{
-          if(true or (nx_p != x) || (ny_p !=y)) {
-            raise_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
           }
           fftw_execute_dft(planC2CD_back_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
         }
@@ -408,8 +408,8 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           
         }
         else{
-          if(true or (nx_p != x) || (ny_p !=y))  {
-            raise_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+          if((nx_p != x) || (ny_p !=y))  {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
           }
           fftwf_execute_dft(planC2C_forw_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
         }
@@ -423,8 +423,8 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
         ny_p=y;
         }
         else{
-          if(true or (nx_p != x) || (ny_p !=y)) {
-            raise_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
           }
           fftwf_execute_dft(planC2C_back_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
         }
@@ -466,8 +466,8 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
         ny_p=y;
       }
       else{
-        if(true or (nx_p != x) || (ny_p !=y)) {
-            raise_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+        if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
           }
         fftwf_execute_dft_r2c(planR2C_p,  in, reinterpret_cast<fftwf_complex *>(out));
       }
