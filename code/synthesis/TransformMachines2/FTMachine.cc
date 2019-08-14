@@ -255,7 +255,10 @@ using namespace casa::vi;
   Bool FTMachine::doublePrecGrid(){
     return useDoubleGrid_p;
   }
-  
+
+  void FTMachine::reset(){
+    //ft_p=FFT2D(true);
+  }
   
   //----------------------------------------------------------------------
    void FTMachine::initPolInfo(const vi::VisBuffer2& vb)

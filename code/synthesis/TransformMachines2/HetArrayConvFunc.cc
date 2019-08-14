@@ -355,6 +355,7 @@ void  HetArrayConvFunc::reset() {
     convSupportBlock_p.resize(0, true);
     convFunctionMap_p.resize(0);
     vbConvIndex_p.clear();
+    ft_p=FFT2D(true);
 }
 
 
