@@ -323,7 +323,7 @@ public:
   virtual void setMovingSource(const casacore::MDirection& mdir);
 
   //reset stuff in an FTMachine
-  virtual void reset(){};
+  virtual void reset();
 
   //set frequency interpolation type
   virtual void setFreqInterpolation(const casacore::String& method);

@@ -235,7 +235,8 @@ SimplePBConvFunc::SimplePBConvFunc(): nchan_p(-1),
     convSizes_p.resize(0, true);
     convSupportBlock_p.resize(0, true);
     convFunctionMap_p.clear();
-   vbConvIndex_p.clear(); 
+   vbConvIndex_p.clear();
+   ft_p=FFT2D(true);
   }
 
 
