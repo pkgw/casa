@@ -38,7 +38,6 @@
 #include <casa/Arrays/Cube.h>
 #include <casacore/casa/Utilities/Sort.h>
 #include <casa/OS/Timer.h>
-#include <casa/OS/Path.h>
 #include <measures/Measures/UVWMachine.h>
 #include <measures/Measures/MeasTable.h>
 #include <ms/MSSel/MSSelectionTools.h>
@@ -988,14 +987,7 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 		     //cerr << t[uniqIndx[k]] << "   " <<  fieldId[origindx[uniqIndx[k]]] << endl;
 		     //cerr << msfc.phaseDirMeas(fieldId[origindx[uniqIndx[k]]], t[uniqIndx[k]]) << endl;
 		     //cerr << "size " <<  cachedPhaseCenter_p[oldPCMSId_p].size() << endl;
-                     String ephemIfAny=msfc.ephemPath(fieldId[origindx[uniqIndx[k]]]);
-                     if(ephemIfAny=="" || !Table::isReadable(ephemIfAny, False)){
 		       (cachedPhaseCenter_p[oldPCMSId_p])[t[uniqIndx[k]]]=msfc.phaseDirMeas(fieldId[origindx[uniqIndx[k]]], t[uniqIndx[k]]);
-                     }
-                     else{
-                       Vector<MDirection> refDir(msfc.referenceDirMeasCol()(fieldId[origindx[uniqIndx[k]]]));
-                       (cachedPhaseCenter_p[oldPCMSId_p])[t[uniqIndx[k]]]=getEphemBasedPhaseDir(vb, ephemIfAny, refDir(0),   t[uniqIndx[k]]);
-                     }
 		     
 		   }
 			
@@ -1037,26 +1029,6 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
 
  }
 
-
-  MDirection VisBufferUtil::getEphemBasedPhaseDir(const vi::VisBuffer2& vb, const String& ephemPath, const MDirection&refDir,  const Double t){
-    MEpoch ep(Quantity(t, "s"), ROMSColumns(vb.ms()).timeMeas()(0).getRef());
-    mframe_.resetEpoch(ep);
-    if(!Table::isReadable(ephemPath, False))
-      return refDir;
-    MeasComet mcomet(Path(ephemPath).absoluteName());
-    mframe_.set(mcomet);
-    MDirection::Ref outref1(MDirection::AZEL, mframe_);
-    MDirection tmpazel=MDirection::Convert(MDirection(MDirection::COMET), outref1)();
-    MDirection::Types outtype=(MDirection::Types) refDir.getRef().getType();
-    MDirection::Ref outref(outtype, mframe_);
-    MDirection outdir=MDirection::Convert(tmpazel, outref)();
-    MVDirection mvoutdir(outdir.getAngle());
-    MVDirection mvrefdir(refDir.getAngle());
-    //copying what ROMSFieldColumns::extractDirMeas  does
-    mvoutdir.shift(mvrefdir.getAngle(), True);
-    return MDirection(mvoutdir, outtype);
-  }
-  
    MDirection VisBufferUtil::getEphemDir(const vi::VisBuffer2& vb, 
 					 const Double timeo){
 
@@ -1064,9 +1036,8 @@ void VisBufferUtil::convertFrequency(Vector<Double>& outFreq,
      ROMSColumns msc(vb.ms());
      const ROMSFieldColumns& msfc=msc.field();
      Int fieldId=vb.fieldId()(0);
-     MDirection refDir(Quantity(0, "deg"), Quantity(0, "deg"),(MDirection::Types)msfc.ephemerisDirMeas(fieldId, timeEphem).getRef().getType());
-     //Now do the parallax correction
-     return getEphemBasedPhaseDir(vb, msfc.ephemPath(fieldId), refDir, timeEphem);
+     return msfc.ephemerisDirMeas(fieldId, timeEphem);
+     
 
 
    }

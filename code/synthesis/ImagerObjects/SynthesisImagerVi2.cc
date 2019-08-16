@@ -2495,7 +2495,7 @@ void SynthesisImagerVi2::unlockMSs()
     vi_p->originChunks();
     vi_p->origin();
     std::map<Int, std::set<Int>> fieldsDone;
-    VisBufferUtil vbU(*vb);
+  
     ///////if tracking a moving source
     MDirection origMovingDir;
     MDirection newPhaseCenter;
@@ -2517,8 +2517,7 @@ void SynthesisImagerVi2::unlockMSs()
 	      if(trackBeam){
 		MDirection newMovingDir;
 		getMovingDirection(*vb, newMovingDir);
-		//newPhaseCenter=vb->phaseCenter();
-                newPhaseCenter=vbU.getPhaseCenter(*vb);
+		newPhaseCenter=vb->phaseCenter();
 		newPhaseCenter.shift(MVDirection(-newMovingDir.getAngle()+origMovingDir.getAngle()), False);
 	      }
 	      itsMappers.addPB(*vb,pbMath, newPhaseCenter, trackBeam);
@@ -2555,8 +2554,7 @@ void SynthesisImagerVi2::unlockMSs()
 	}
       }
       else if(upcase(movingSource_p)=="TRACKFIELD"){
-        VisBufferUtil vbU(vb);
-	movingDir=vbU.getEphemDir(vb, -1.0);
+	movingDir=VisBufferUtil::getEphemDir(vb, -1.0);
       }
       else{
 	throw(AipsError("Erroneous tracking direction set to make pb"));
