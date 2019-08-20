@@ -100,6 +100,7 @@ def polfromgain(vis,tablein,caltable,paoffset):
                         # Escape if insufficient data
                         if (nrows-mypl.sum(flags))<3:
                             antok[iant]=False
+                            st.close()
                             continue
 
 
