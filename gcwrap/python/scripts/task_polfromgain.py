@@ -35,8 +35,9 @@ def polfromgain(vis,tablein,caltable,paoffset):
 
                 casalog.post("New caltable, "+caltable+", corrected for linear polarization, will be generated.")
                 mytb.open(tablein)
-                mytb.copy(newtablename=caltable,deep=True)
+                myout=mytb.copy(newtablename=caltable,deep=True)
                 mytb.close()
+                myout.close()
                 rempol=True
             else:
                 casalog.post("No new caltable will be generated")
@@ -86,7 +87,8 @@ def polfromgain(vis,tablein,caltable,paoffset):
                 antok=mypl.zeros(nant,dtype=bool)
 
                 for iant in range(nant):
-                    st=mytb.query('FIELD_ID=='+str(ifld)+' && SPECTRAL_WINDOW_ID=='+str(ispw)+' && ANTENNA1=='+str(iant))
+                    qstring='FIELD_ID=='+str(ifld)+' && SPECTRAL_WINDOW_ID=='+str(ispw)+' && ANTENNA1=='+str(iant)
+                    st=mytb.query(query=qstring)
                     nrows=st.nrows()
                     if nrows > 0:
 
@@ -98,6 +100,7 @@ def polfromgain(vis,tablein,caltable,paoffset):
                         # Escape if insufficient data
                         if (nrows-mypl.sum(flags))<3:
                             antok[iant]=False
+                            st.close()
                             continue
 
 
@@ -157,7 +160,7 @@ def polfromgain(vis,tablein,caltable,paoffset):
                             else:
                                 st.close()
                                 raise Exception, 'Spurious fractional polarization!'
-                
+
                     st.close()
 
                 nantok=mypl.sum(antok)
