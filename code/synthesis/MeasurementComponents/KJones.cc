@@ -687,6 +687,7 @@ void KJones::setApply(const Record& apply) {
   if (spwMap().nelements()>0) {
     Vector<Double> tmpfreqs;
     tmpfreqs.assign(KrefFreqs_);
+    AlwaysAssert(spwMap().nelements()<=uInt(nSpw()),AipsError);  // Should be guaranteed by now
     for (uInt ispw=0;ispw<spwMap().nelements();++ispw)
       if (spwMap()(ispw)>-1)
 	KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
@@ -749,11 +750,25 @@ void KJones::setCallib(const Record& callib,
   }
   KrefFreqs_/=1.0e9;  // In GHz
 
+  // Manage spwmap in interim manner
+  spwMap().assign(callib.asRecord(0).asArrayInt("spwmap"));
+
+  // If more than one callib entry, currently have to assume spwmap uniformity
+  if (spwMap().nelements()>0 && callib.nfields()>3)
+    logSink() << LogIO::WARN << "Assuming uniform spwmap for frequency pivot point for all callib entries for caltable=" 
+	      << ct_->tableName()
+	      << ": spwmap = " << spwMap()
+	      << LogIO::POST;
+
+  // Catch spwmap that is too long
+  if (spwMap().nelements()>uInt(nSpw()))
+    throw(AipsError("Specified spwmap has more elements ("+String::toString(spwMap().nelements())+") than the number of spectral windows in the MS ("+String::toString(nSpw())+")."));
 
   // Re-assign KrefFreq_ according spwmap (if any)
   if (spwMap().nelements()>0) {
     Vector<Double> tmpfreqs;
     tmpfreqs.assign(KrefFreqs_);
+    AlwaysAssert(spwMap().nelements()<=uInt(nSpw()),AipsError);  // Should be guaranteed by now
     for (uInt ispw=0;ispw<spwMap().nelements();++ispw)
       if (spwMap()(ispw)>-1)
 	KrefFreqs_(ispw)=tmpfreqs(spwMap()(ispw));
