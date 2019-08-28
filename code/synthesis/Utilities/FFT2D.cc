@@ -38,6 +38,19 @@
 using namespace casacore;
 namespace casa { //# NAMESPACE CASA - BEGIN
 
+// Utility function to try to give as much info as possible - CAS-12604
+void throw_programmer_error(Long nx_p, Long ny_p, Long x, Long y, const char *file,
+                            int line)
+{
+  AipsError exc;
+  ostringstream msg;
+  msg << "Programmer error: called FFT2D with wrong size. In " << file << ":" << line
+      << ", with nx_p: " << nx_p << ", ny_p: " << ny_p << ", x: " << x << ", y: " << y
+      << "\n Stack trace: " << exc.getStackTrace();
+  exc.setMessage(msg.str());
+  throw(exc);
+}
+
   FFT2D::FFT2D(Bool useFFTW):planC2C_forw_p(nullptr),planC2C_back_p(nullptr), planR2C_p(nullptr), planC2CD_forw_p(nullptr), planC2CD_back_p(nullptr),  useFFTW_p(useFFTW), wsave_p(0), lsav_p(0), nx_p(-1), ny_p(-1) {
     if(useFFTW_p){
       Int numThreads=HostInfo::numCPUs(true);
@@ -355,8 +368,9 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           ny_p=y;
         }
         else{
-          if((nx_p != x) || (ny_p !=y))
-            throw(AipsError("Programmer error: called FFT2D with wrong size"));
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+          }
           fftw_execute_dft(planC2CD_forw_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
         }
 	//fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
@@ -369,8 +383,9 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           ny_p=y;
         }
         else{
-          if((nx_p != x) || (ny_p !=y))
-            throw(AipsError("Programmer error: called FFT2D with wrong size"));
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
+          }
           fftw_execute_dft(planC2CD_back_p,  reinterpret_cast<fftw_complex *>(out), reinterpret_cast<fftw_complex *>(out));
         }
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
@@ -393,8 +408,9 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
           
         }
         else{
-          if((nx_p != x) || (ny_p !=y))
-             throw(AipsError("Programmer error: called FFT2D with wrong size"));
+          if((nx_p != x) || (ny_p !=y))  {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+          }
           fftwf_execute_dft(planC2C_forw_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
         }
 	//fft1_p.plan_c2c_forward(IPosition(2, x, y),  out);
@@ -407,8 +423,9 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
         ny_p=y;
         }
         else{
-          if((nx_p != x) || (ny_p !=y))
-             throw(AipsError("Programmer error: called FFT2D with wrong size"));
+          if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__,  __LINE__);
+          }
           fftwf_execute_dft(planC2C_back_p, reinterpret_cast<fftwf_complex *>(out),  reinterpret_cast<fftwf_complex *>(out) );
         }
 	//  fft1_p.plan_c2c_backward(IPosition(2, x, y),  out);
@@ -449,8 +466,9 @@ void FFT2D::c2cFFTInDouble(Lattice<Complex>& inout, Bool toFreq){
         ny_p=y;
       }
       else{
-        if((nx_p != x) || (ny_p !=y))
-           throw(AipsError("Programmer error: called FFT2D with wrong size"));
+        if((nx_p != x) || (ny_p !=y)) {
+            throw_programmer_error(nx_p, ny_p, x, y, __FILE__, __LINE__);
+          }
         fftwf_execute_dft_r2c(planR2C_p,  in, reinterpret_cast<fftwf_complex *>(out));
       }
     }
