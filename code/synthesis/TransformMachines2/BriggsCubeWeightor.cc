@@ -101,8 +101,8 @@ using namespace casa::vi;
   }
   //cerr << "in bgwt init " << endl;
   //Need to save previous wieght scheme of vi
-  VisImagingWeight visWgt_p=vi.getImagingWeightGenerator();
-  VisImagingWeight vWghtNat("natural");
+  visWgt_p=vi.getImagingWeightGenerator();
+    VisImagingWeight vWghtNat("natural");
   vi.useImagingWeight(vWghtNat);
   vi::VisBuffer2 *vb=vi.getVisBuffer();
   Int nIndices=0;
@@ -299,6 +299,7 @@ using namespace casa::vi;
 	}
     }
 
+   
     if(visWgt_p.doFilter()){
       visWgt_p.filter (imweight, flag, uvw, vb.getFrequencies(0), imweight);
 

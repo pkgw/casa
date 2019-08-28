@@ -1909,12 +1909,15 @@ class test_cube(testref_base):
           imnat=self.img+"_nat"
           imbriggs0=self.img+"_briggs0"
           imbriggs_2=self.img+"_briggs_2"
+          imbriggs_3=self.img+"_briggs_3"
           retnat = tclean(vis=self.msfile,imagename=imnat,imsize=100,cell='8.0arcsec',specmode='cube',deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='natural', parallel=self.parallel)
           ret0 = tclean(vis=self.msfile,imagename=imbriggs0,imsize=100,cell='8.0arcsec',specmode='cube', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggs', robust=0, parallel=self.parallel)
           ret_2=tclean(vis=self.msfile,imagename=imbriggs_2,imsize=100,cell='8.0arcsec',specmode='cube', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggs', robust=-2.0, parallel=self.parallel)
-          self.assertTrue(os.path.exists(imnat+'.image') and os.path.exists(imbriggs0+'.image') and os.path.exists(imbriggs_2+'.image') )
+          ret_3=tclean(vis=self.msfile,imagename=imbriggs_3,imsize=100,cell='8.0arcsec',specmode='cube', perchanweightdensity=True,deconvolver='hogbom',niter=1,threshold='0Jy',interactive=0, weighting='briggs', robust=0.0, uvtaper=['50arcsec'], parallel=self.parallel)
+          self.assertTrue(os.path.exists(imnat+'.image') and os.path.exists(imbriggs0+'.image') and os.path.exists(imbriggs_2+'.image') and  os.path.exists(imbriggs_3+'.image') )
           self.assertTrue(self.th.check_beam_compare(imbriggs0+'.image', imnat+'.image', operator.lt))
           self.assertTrue(self.th.check_beam_compare(imbriggs_2+'.image', imbriggs0+'.image', operator.lt))
+          self.assertTrue(self.th.check_beam_compare(imbriggs0+'.image', imbriggs_3+'.image', operator.lt))
 #     def test_cube_D3(self):
 #          """ EMPTY : [cube] Test_Cube_D3 : specmode cubesrc - Doppler correct to a SOURCE ephemeris"""
 #          ret = tclean(vis=self.msfile,field='1',spw='0:105~135',specmode='cubesrc',nchan=30,start=105,width=1,veltype='radio',imagename=self.img,imsize=256,cell='0.01arcmin',phasecenter=1,deconvolver='hogbom',niter=10)
