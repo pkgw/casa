@@ -256,8 +256,8 @@ QPSymbol::QPSymbol() : m_style(QPOptions::symbol(style())), m_char('o'),
 
 #if QWT_VERSION >= 0x060000
 QPSymbol::QPSymbol(QwtSymbol::Style style, const QBrush & brush, 
-	const QPen & pen, const QSize & sz) : QwtSymbol(style, brush, pen, sz) { }
-#else	
+    const QPen & pen, const QSize & sz) : QwtSymbol(style, brush, pen, sz) { }
+#else
 QPSymbol::QPSymbol(const QwtSymbol& s): QwtSymbol(s),
         m_style(QPOptions::symbol(s.style())), m_char('o'),
         m_heightIsPixel(true), m_drawPen(&pen()), m_drawBrush(&brush()) { }
@@ -285,8 +285,15 @@ void QPSymbol::setSize(double width, double height, bool heightIsPixel) {
     if(s.width() != width || s.height() != height || (isCharacter() &&
        heightIsPixel != m_heightIsPixel)) {
         m_heightIsPixel = heightIsPixel;
+#if QWT_VERSION >= 0x060000
+        // CAS-12378, make plots look like on RHEL6/Qwt5
+        width += 1.0;
+        height += 1.0;
+#endif
         QwtSymbol::setSize((int)(width + 0.5), (int)(height + 0.5));
-    } else m_heightIsPixel = heightIsPixel;
+    } else {
+        m_heightIsPixel = heightIsPixel;
+    }
 }
 
 bool QPSymbol::heightIsPixel() const { return m_heightIsPixel; }
@@ -402,11 +409,11 @@ QwtPlot::Axis  QPOptions::axis(PlotAxis a)    {
 }
 
 bool QPOptions::isAxisX( PlotAxis a ){
-	bool horizontal = false;
-	if ( a == X_BOTTOM || a == X_TOP ){
-		horizontal = true;
-	}
-	return horizontal;
+    bool horizontal = false;
+    if ( a == X_BOTTOM || a == X_TOP ){
+        horizontal = true;
+    }
+    return horizontal;
 }
     
 
