@@ -78,8 +78,10 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
 		params.setGroup<PMS_PP_Iteration>();
 }
 
+// refers to the size of the points; fewer points = larger size symbols
 const uInt PlotMSPlot::PIXEL_THRESHOLD = 1000000;
-const uInt PlotMSPlot::MEDIUM_THRESHOLD = 10000;
+const uInt PlotMSPlot::SMALL_THRESHOLD = 10000;
+const uInt PlotMSPlot::MEDIUM_THRESHOLD = 3000;
 const uInt PlotMSPlot::LARGE_THRESHOLD = 1000;
 const uInt PlotMSPlot::XLARGE_THRESHOLD = 50;
 
@@ -110,9 +112,13 @@ void PlotMSPlot::customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, uInt data
 			baseSymbol->setSymbol(PlotSymbol::PIXEL);
 			baseSymbol->setSize(1,1);
 		}
+		else if( dataSize > SMALL_THRESHOLD ) {
+			baseSymbol->setSymbol( PlotSymbol::CIRCLE );
+			baseSymbol->setSize(2,2);
+		}
 		else if( dataSize > MEDIUM_THRESHOLD ) {
 			baseSymbol->setSymbol( PlotSymbol::CIRCLE);
-			baseSymbol->setSize(2,2);
+			baseSymbol->setSize(3,3);
 		}
 		else if( dataSize > LARGE_THRESHOLD ) {
 			baseSymbol->setSymbol( PlotSymbol::CIRCLE );
@@ -120,7 +126,7 @@ void PlotMSPlot::customizeAutoSymbol( const PlotSymbolPtr& baseSymbol, uInt data
 		}
 		else {
 			baseSymbol->setSymbol( PlotSymbol::CIRCLE );
-			baseSymbol->setSize(6,6);
+			baseSymbol->setSize(5,5);
 		}
 	}
 }
@@ -133,7 +139,7 @@ void PlotMSPlot::customizeOverlaySymbol( const PlotSymbolPtr& baseSymbol, uInt d
 	} else if( dataSize > XLARGE_THRESHOLD ) {
 		baseSymbol->setSize(4,4);
 	} else {
-		baseSymbol->setSize(6,6);
+		baseSymbol->setSize(5,5);
 	}
 }
 
