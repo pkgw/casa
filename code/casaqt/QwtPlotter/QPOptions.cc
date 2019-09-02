@@ -287,7 +287,7 @@ void QPSymbol::setSize(double width, double height, bool heightIsPixel) {
         m_heightIsPixel = heightIsPixel;
 #if QWT_VERSION >= 0x060000
         // CAS-12378, make plots look like on RHEL6/Qwt5
-        if ((width > 3.0) && (height > 3.0)) {
+        if ((width > 1.0) && (height > 1.0)) {
             width += 1.0;
             height += 1.0;
         }
