@@ -378,7 +378,7 @@ class test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgantenna=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 150000, 310000)
+        self.checkPlotfile(self.plotfile_jpg, 140000, 310000)
         print
 
     def test_averaging_blnant(self):
@@ -1826,7 +1826,7 @@ class test_selection(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=plotfile2_jpg, expformat='jpg', 
                      showgui=False, field='1', highres=True)
         self.assertTrue(res)
-        self.checkPlotfile(plotfile2_jpg, 70000, 160000)
+        self.checkPlotfile(plotfile2_jpg, 60000, 160000)
         self.removePlotfile(plotfile2_jpg)
         print
        
@@ -1874,7 +1874,7 @@ class test_transform(plotms_test_base):
             res = plotms(vis=self.ms, plotfile=plotfile, yaxis='freq', 
                          showgui=False, freqframe=frame, highres=True)
             self.assertTrue(res)
-            self.checkPlotfile(plotfile, 180000)
+            self.checkPlotfile(plotfile, 90000)
             self.removePlotfile(plotfile)
         print
 
