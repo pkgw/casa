@@ -378,7 +378,7 @@ class test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgantenna=True)
         self.assertTrue(res)
-        self.checkPlotfile(self.plotfile_jpg, 150000, 310000)
+        self.checkPlotfile(self.plotfile_jpg, 160000, 310000)
         print
 
     def test_averaging_blnant(self):

@@ -282,16 +282,9 @@ psize_t QPSymbol::size() const {
 
 void QPSymbol::setSize(double width, double height, bool heightIsPixel) {
     const QSize& s = QwtSymbol::size();
-    if(s.width() != width || s.height() != height || (isCharacter() &&
-       heightIsPixel != m_heightIsPixel)) {
+    if ((s.width() != width) || (s.height() != height) || 
+        (isCharacter() && (heightIsPixel != m_heightIsPixel))) {
         m_heightIsPixel = heightIsPixel;
-#if QWT_VERSION >= 0x060000
-        // CAS-12378, make plots look like on RHEL6/Qwt5
-        if ((width > 1.0) && (height > 1.0)) {
-            width += 1.0;
-            height += 1.0;
-        }
-#endif
         QwtSymbol::setSize((int)(width + 0.5), (int)(height + 0.5));
     } else {
         m_heightIsPixel = heightIsPixel;

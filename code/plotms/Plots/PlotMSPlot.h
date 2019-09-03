@@ -461,7 +461,6 @@ private:
     casacore::Int iterStep_;
 
     static const casacore::uInt PIXEL_THRESHOLD;
-    static const casacore::uInt SMALL_THRESHOLD;
     static const casacore::uInt MEDIUM_THRESHOLD;
     static const casacore::uInt LARGE_THRESHOLD;
     static const casacore::uInt XLARGE_THRESHOLD;

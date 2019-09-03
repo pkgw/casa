@@ -513,7 +513,7 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                         if (!drawLine)
                            linePen = m_maskedLine.asQPen();
                         thisColorBin = m_coloredData->binAt(i);
-						thisConnectBin = m_coloredData->connectBinAt(i);
+                        thisConnectBin = m_coloredData->connectBinAt(i);
                         sameBin = (thisConnectBin==lastConnectBin);
                         unsigned int colorBin = thisColorBin % numBins;
                         QBrush coloredBrush = m_coloredBrushes[colorBin];
@@ -676,65 +676,99 @@ void QPScatterPlot::draw_(QPainter* p, const QwtScaleMap& xMap,
                 // don't plot nan and inf !
                 if (!casacore::isNaN(tempx) && !casacore::isNaN(tempy) &&
                     !casacore::isInf(tempx) && !casacore::isInf(tempy)) {
-                  if(drawSymbol && !mask) {
+                  if(drawSymbol && !mask) { // unflagged points
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
+                        // set point position
                         if (pt==0) {
                             qpt = QPoint(xMap.transform(tempx),yMap.transform(tempy));
                         } else { // conjugate for uv plot
                             qpt = QPoint(xMap.transform(-tempx),yMap.transform(-tempy));
                         }
+                        QPointF qptf = QPointF(qpt);
+
+                        // check if point is in drawing area
                         rect.moveCenter(qpt);
-                        if(!brect.intersects(rect)) continue;
+                        if (!brect.intersects(rect)) {
+                            continue;
+                        }
+
+                        // if drawing mixed symbols, set back to unmasked pen/brush
                         if(drawMaskedSymbol) {
                             if(!samePen) p->setPen(pen);
                             if(!sameBrush) p->setBrush(brush);
                         }
-                        if(diffColor) {
+
+                        if (diffColor) {
+                            // set pen/brush for color bin and draw point/symbol
                             unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
                             QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
-                            QPSymbol* coloredSym = coloredSymbol(brushColor);
-                            coloredSym->draw(p, rect);
-                            delete coloredSym;
+                            if (symIsPixel) {
+                                p->drawPoint(qptf);
+                            } else {
+                                QPSymbol* coloredSym = coloredSymbol(brushColor);
+                                coloredSym->drawSymbol(p, qptf);
+                                delete coloredSym;
+                            }
                         } else {
-                            QPointF qptf = QPointF(qpt);
+                            // draw point/symbol in batch mode
                             upoints.push_back(qptf);
-                            if (upoints.size()==15000) {
-                                if (symIsPixel) p->drawPoints(&upoints[0], upoints.size());
-                                else m_symbol.drawSymbols(p, &upoints[0], upoints.size());
+                            if (upoints.size() == 15000) {
+                                if (symIsPixel) {
+                                    p->drawPoints(&upoints[0], upoints.size());
+                                } else {
+                                    m_symbol.drawSymbols(p, &upoints[0], upoints.size());
+                                }
                                 upoints.clear();
                             }
                         }
                     }
-                  } else if(drawMaskedSymbol && mask) {
+                  } else if (drawMaskedSymbol && mask) { // flagged points
                     for (unsigned int pt=0; pt<ptsToDraw; ++pt) {
+                        // set point position
                         if (pt==0) {
                             qpt = QPoint(xMap.transform(tempx), yMap.transform(tempy));
                         } else {
                             qpt = QPoint(xMap.transform(-tempx), yMap.transform(-tempy));
                         }
+                        QPointF qptf = QPointF(qpt);
+
+                        // check if point is in drawing area
                         mRect.moveCenter(qpt);
-                        if(!brect.intersects(mRect)) continue;
-                        if(drawMaskedSymbol) {
+                        if (!brect.intersects(mRect)) {
+                            continue;
+                        }
+
+                        // if drawing mixed symbols, set back to masked pen/brush
+                        if (drawSymbol) {
                             if(!samePen) p->setPen(mpen);
                             if(!sameBrush) p->setBrush(mbrush);
                         }
-                        if(diffColor) {
+
+                        if (diffColor) {
+                            // set pen/brush for color bin and draw point/symbol
                             unsigned int colorBin = (m_coloredData->binAt(i)) % numBins;
                             QBrush coloredBrush = m_coloredBrushes[colorBin];
                             QColor brushColor = coloredBrush.color();
                             p->setBrush(coloredBrush);
                             p->setPen(brushColor);
-                            QPSymbol* coloredSym = coloredSymbol(brushColor);
-                            coloredSym->draw(p, mRect);
+                            if (symIsPixel) {
+                                p->drawPoint(qptf);
+                            } else {
+                                QPSymbol* coloredSym = coloredSymbol(brushColor);
+                                coloredSym->drawSymbol(p, qptf);
+                                delete coloredSym;
+                            }
                         } else {
-                            QPointF qptf = QPointF(qpt);
                             mpoints.push_back(qptf);
-                            if (mpoints.size()==15000) {
-                                if (msymIsPixel) p->drawPoints(&mpoints[0], mpoints.size());
-                                else m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
+                            if (mpoints.size() == 15000) {
+                                if (msymIsPixel) {
+                                    p->drawPoints(&mpoints[0], mpoints.size());
+								} else {
+                                    m_maskedSymbol.drawSymbols(p, &mpoints[0], mpoints.size());
+								}
                                 mpoints.clear();
                             }
                         }
