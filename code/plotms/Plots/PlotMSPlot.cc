@@ -78,6 +78,7 @@ void PlotMSPlot::makeParameters(PlotMSPlotParameters& params, PlotMSApp* /*plotm
 		params.setGroup<PMS_PP_Iteration>();
 }
 
+// refers to the size of the points; fewer points = larger size symbols
 const uInt PlotMSPlot::PIXEL_THRESHOLD = 1000000;
 const uInt PlotMSPlot::MEDIUM_THRESHOLD = 10000;
 const uInt PlotMSPlot::LARGE_THRESHOLD = 1000;
