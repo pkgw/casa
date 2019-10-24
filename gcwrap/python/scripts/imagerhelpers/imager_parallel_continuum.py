@@ -150,17 +150,18 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         #
         cfCacheName=self.allgridpars['0']['cfcache'];
         cfcExists=False;
-
-        if (cfCacheName == ''):
-            cfCacheName = self.allimpars['0']['imagename'] + '.cf'
-            cfCacheName=self.allgridpars['0']['cfcache'] = cfCacheName
+        
+        if(self.allgridpars['0']['gridder'] == 'awproject' or self.allgridpars['0']['gridder'] == 'awprojectft'):
+            if (cfCacheName == ''):
+                cfCacheName = self.allimpars['0']['imagename'] + '.cf'
+                cfCacheName=self.allgridpars['0']['cfcache'] = cfCacheName
  
-        cfcExists = (os.path.exists(cfCacheName) and os.path.isdir(cfCacheName));
-        if (cfcExists):
-            nCFs = len(os.listdir(cfCacheName));
-            if (nCFs == 0):
-                casalog.post(cfCacheName + " exists, but is empty.  Attempt is being made to fill it now.","WARN")
-                cfcExists = False;
+            cfcExists = (os.path.exists(cfCacheName) and os.path.isdir(cfCacheName));
+            if (cfcExists):
+                nCFs = len(os.listdir(cfCacheName));
+                if (nCFs == 0):
+                    casalog.post(cfCacheName + " exists, but is empty.  Attempt is being made to fill it now.","WARN")
+                    cfcExists = False;
 
         # print "##########################################"
         # print "CFCACHE = ",cfCacheName,cfcExists;
