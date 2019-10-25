@@ -150,9 +150,13 @@ class PyParallelContSynthesisImager(PySynthesisImager):
         #
         cfCacheName=self.allgridpars['0']['cfcache'];
         cfcExists=False;
-        if (not (cfCacheName == '')):
+        
+        if(self.allgridpars['0']['gridder'] == 'awproject' or self.allgridpars['0']['gridder'] == 'awprojectft'):
+            if (cfCacheName == ''):
+                cfCacheName = self.allimpars['0']['imagename'] + '.cf'
+                cfCacheName=self.allgridpars['0']['cfcache'] = cfCacheName
+ 
             cfcExists = (os.path.exists(cfCacheName) and os.path.isdir(cfCacheName));
-
             if (cfcExists):
                 nCFs = len(os.listdir(cfCacheName));
                 if (nCFs == 0):
