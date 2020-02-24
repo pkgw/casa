@@ -120,7 +120,7 @@ class ia_subimage_test(unittest.TestCase):
             myia.open(imname)
             zz = myia.subimage("", mask=mask3, stretch=True)
             zz.done()
-            self.asertTrue(False)
+            self.assertTrue(False)
         except:
             pass
         myia.done()
