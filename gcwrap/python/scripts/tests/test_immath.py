@@ -155,7 +155,7 @@ def _getPixelValue( imageName, point ):
     if len( retValue ) < 1 :
         # Create an exception
         msg = str( "Unable to obtain value at: " ) + str(point) + str( " from file " ) + imageName
-        raise ValueError, str
+        raise ValueError(str)
     else:
         retValue = retValue['value']['value']
 
@@ -398,11 +398,11 @@ class immath_test1(unittest.TestCase):
                     retValue['error_msgs']=retValue['error_msgs']\
                               + "\nError: Bad region file, 'garbage.rgn',"\
                               + " was not reported as bad."+str(results)
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Unable to create bad region file.\n\t"
-            raise Exception, err
+            raise Exception(err)
 
         self.assertTrue(retValue['success'],retValue['error_msgs'])
     
@@ -410,9 +410,9 @@ class immath_test1(unittest.TestCase):
         '''Immath 9: Test good region parameter'''
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         results = None
-        print "ARG"
-        print "immath( imagename="+imageList[1]+", expr='IM0', "\
-                        +"region="+imageList[2]+", outfile='input_test12' )"
+        print("ARG")
+        print("immath( imagename="+imageList[1]+", expr='IM0', "\
+                        +"region="+imageList[2]+", outfile='input_test12' )")
         try:
             rec = _rg.fromfiletorecord(imageList[2])
             results=immath( imagename=imageList[1], expr='IM0', \
@@ -693,7 +693,7 @@ class immath_test1(unittest.TestCase):
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }
         results = None            
         try:
-            print "immath( imagename="+imageList[0]+", varnames='A', expr='A', chans='22~35', outfile='input_test14' )"
+            print("immath( imagename="+imageList[0]+", varnames='A', expr='A', chans='22~35', outfile='input_test14' )")
             results = immath( imagename=imageList[0], chans='22~35', expr='A', varnames='A', outfile='input_test14' )
         except:
             retValue['success']=False
@@ -856,7 +856,7 @@ class immath_test2(unittest.TestCase):
         results=None
         try:
             results=immath( imagename=imageList2[0], outfile='expr_test1', expr='IM0 * 2' );
-        except Exception, e:
+        except Exception as e:
             casalog.post( "Exception occured doubling image ... "+str(e), 'DEBUG1')
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -908,7 +908,7 @@ class immath_test2(unittest.TestCase):
         try:    
             results = self._create_expr_test2()
             #immath( outimage, 'evalexpr', str('"')+image1+str('"[INDEXIN(4,[5])]' ) );
-        except Exception, e:
+        except Exception as e:
             casalog.post( "Exception occured getting image slice ... "+str(e), 'DEBUG1')        
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -965,7 +965,7 @@ class immath_test2(unittest.TestCase):
             _ia.open( outimage )
             size=_ia.shape()
             _ia.done()
-        except Exception, e:
+        except Exception as e:
             casalog.post( "Exception occured getting image shape ... "+str(e), 'DEBUG1')
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
@@ -1052,7 +1052,7 @@ class immath_test2(unittest.TestCase):
             outfile = 'full_image_sum.im'
             if (immath(imagename=imagename, expr=expr, outfile=outfile)):
                 expected = numpy.ndarray([2,2])
-                expected.put(range(expected.size),66)
+                expected.put(list(range(expected.size)),66)
                 myia.open(outfile)
                 got = myia.getchunk()
                 myia.done()
@@ -1072,7 +1072,7 @@ class immath_test2(unittest.TestCase):
             outfile = 'subimage_sum.im'
             if (immath(imagename=imagename, expr=expr, outfile=outfile, box='0,0,0,0')):
                 expected = numpy.ndarray([1,1])
-                expected.put(range(expected.size), 66)
+                expected.put(list(range(expected.size)), 66)
                 myia.open(outfile)
                 got = myia.getchunk()
                 myia.done()
@@ -1206,8 +1206,8 @@ class immath_test3(unittest.TestCase):
             maxdiff = numpy.abs(numpy.max(got - expected))
             maxdiffrel = numpy.abs(numpy.max(diff/got))
             if (maxdiff > 0):
-                print "maxdiff " + str(maxdiff)
-                print "maxdiffrel " + str(maxdiffrel)
+                print("maxdiff " + str(maxdiff))
+                print("maxdiffrel " + str(maxdiffrel))
 
                 
             self.assertTrue((diff == 0).all())     
@@ -1521,7 +1521,7 @@ class immath_test3(unittest.TestCase):
         expec['c'] = 'complex'
         expec['cd'] = 'dcomplex'
         shape = [2,2]
-        for mytype in expec.keys():
+        for mytype in list(expec.keys()):
             myprec = 'f'
             if mytype == 'd' or mytype == 'cd':
                 myprec = 'd'

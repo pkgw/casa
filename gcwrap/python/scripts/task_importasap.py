@@ -52,13 +52,13 @@ def importasap(infile=None, outputvis=None, flagbackup=None, overwrite=None, par
                 aflocal.done()
 
         # Write history to output MS
-        param_names = importasap.func_code.co_varnames[:importasap.func_code.co_argcount]
+        param_names = importasap.__code__.co_varnames[:importasap.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         write_history(myms, outputvis, 'importasap', param_names,
                       param_vals, casalog)
 
         return status
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         raise instance
     finally:

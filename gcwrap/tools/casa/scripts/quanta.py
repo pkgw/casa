@@ -77,10 +77,10 @@ convertfreq converts a frequency quantity to another unit.
 \begin{verbatim}
 """
 #
-print "\t----\t convertfreq Ex 1 \t----"
-print qa.convertfreq('5GHz','cm')
+print("\t----\t convertfreq Ex 1 \t----")
+print(qa.convertfreq('5GHz','cm'))
 #{'value': 5.9958491599999997, 'unit': 'cm'}
-print qa.convertfreq('5cm','GHz')
+print(qa.convertfreq('5cm','GHz'))
 #{'value': 5.9958491599999997, 'unit': 'GHz'}
 #
 """
@@ -113,10 +113,10 @@ convertfreq converts a velocity quantity to another unit. Units are either
 \begin{verbatim}
 """
 #
-print "\t----\t convertdop Ex 1 \t----"
-print qa.convertdop('1','km/s')
+print("\t----\t convertdop Ex 1 \t----")
+print(qa.convertdop('1','km/s'))
 #{'value': 299792.45799999998, 'unit': 'km/s'}
-print qa.convertdop('10km/s','1') 
+print(qa.convertdop('10km/s','1')) 
 #{'value': 3.3356409519815205e-05, 'unit': '1'}
 #
 """
@@ -161,19 +161,19 @@ all the possibilities.-->
 \begin{verbatim}
 """
 #
-print "\t----\t quantity Ex 1 \t----"
+print("\t----\t quantity Ex 1 \t----")
 tu = qa.quantity('1Jy')			# make quantity
-print tu
+print(tu)
 #{'value': 1.0, 'unit': 'Jy'}
-print qa.quantity(tu)			# also accepts a quantity
+print(qa.quantity(tu))			# also accepts a quantity
 #{'value': 1.0, 'unit': 'Jy'}
 tu = qa.unit('1Jy')			# make quantity with synonym
-print tu
+print(tu)
 #{'value': 1.0, 'unit': 'Jy'}
-print qa.quantity(-1.3, 'Jy')		# make quantity with separate value
+print(qa.quantity(-1.3, 'Jy'))		# make quantity with separate value
 #{'value': -1.3, 'unit': 'Jy'}
 q1 = qa.quantity([8.57132661e+09, 1.71426532e+10], 'km/s')
-print q1
+print(q1)
 #{'value': array([  8.57132661e+09,   1.71426532e+10]), 'unit': 'km/s'}
 #
 """
@@ -200,18 +200,18 @@ of quantities.
 \begin{verbatim}
 """
 #
-print "\t----\t getvalue Ex 1 \t----"
+print("\t----\t getvalue Ex 1 \t----")
 tu = qa.quantity(-1.3, 'Jy')         # make quantity
-print tu
+print(tu)
 #{'value': -1.3, 'unit': 'Jy'}
-print qa.getvalue(tu)
+print(qa.getvalue(tu))
 #-1.3 
-print qa.getunit(tu)
+print(qa.getunit(tu))
 #Jy 
 a = qa.quantity([3,5],'cm')
-print a
+print(a)
 #{'value': array([ 3.,  5.]), 'unit': 'cm'}
-print qa.getvalue(a)
+print(qa.getvalue(a))
 #[3.0, 5.0]
 #
 """
@@ -245,13 +245,13 @@ getunit returns the internal unit string of a quantity
 \begin{verbatim}
 """
 #
-print "\t----\t getunit Ex 1 \t----"
+print("\t----\t getunit Ex 1 \t----")
 tu = qa.quantity(-1.3, 'Jy')         # make quantity
-print tu
+print(tu)
 #{'value': -1.3, 'unit': 'Jy'}
-print qa.getvalue(tu)
+print(qa.getvalue(tu))
 #-1.3 
-print qa.getunit(tu)
+print(qa.getunit(tu))
 #Jy 
 #
 """
@@ -278,10 +278,10 @@ canonical (with alias canon) gets the canonical value of a quantity
 \begin{verbatim}
 """
 #
-print "\t----\t canonical Ex 1 \t----"
-print qa.canonical('1Jy')			# canonical value of a string
+print("\t----\t canonical Ex 1 \t----")
+print(qa.canonical('1Jy'))			# canonical value of a string
 #{'value': 1e-26, 'unit': 'kg.s-2'}
-print qa.canon(qa.quantity('1Jy'))		# canonical value of a unit
+print(qa.canon(qa.quantity('1Jy')))		# canonical value of a unit
 #{'value': 1e-26, 'unit': 'kg.s-2'}
 #
 """
@@ -307,10 +307,10 @@ canon gets the canonical value of a quantity
 \begin{verbatim}
 """
 #
-print "\t----\t canon Ex 1 \t----"
-print qa.canon('1Jy')			        # canonical value of a string
+print("\t----\t canon Ex 1 \t----")
+print(qa.canon('1Jy'))			        # canonical value of a string
 #{'value': 1e-26, 'unit': 'kg.s-2'}
-print qa.canonical(qa.quantity('1Jy'))		# canonical value of a unit
+print(qa.canonical(qa.quantity('1Jy')))		# canonical value of a unit
 #{'value': 1e-26, 'unit': 'kg.s-2'}
 #
 """
@@ -342,13 +342,13 @@ conversion is to canonical units
 \begin{verbatim}
 """
 #
-print "\t----\t convert Ex 1 \t----"
+print("\t----\t convert Ex 1 \t----")
 tu = qa.quantity('5Mm/s')		# specify a quantity
-print tu
+print(tu)
 #{'value': 5.0, 'unit': 'Mm/s'}
-print qa.convert(tu, 'pc/a')		# convert it to parsec per year
+print(qa.convert(tu, 'pc/a'))		# convert it to parsec per year
 #{'value': 0.0051135608266237404, 'unit': 'pc/a'}
-print qa.convert(tu)			# convert to canonical units
+print(qa.convert(tu))			# convert to canonical units
 #{'value': 5000000.0, 'unit': 'm.s-1'}
 #
 """
@@ -379,14 +379,14 @@ define defines the name and value of a user defined unit
 \begin{verbatim}
 """
 #
-print "\t----\t define Ex 1 \t----"
-print qa.define('JY','1Jy')			# your misspelling
+print("\t----\t define Ex 1 \t----")
+print(qa.define('JY','1Jy'))			# your misspelling
 #True
-print qa.define('VLAunit', '0.898 JY')	# a special unit using it
+print(qa.define('VLAunit', '0.898 JY'))	# a special unit using it
 #True
-print qa.quantity('5 VLAunit') 			# check its use
+print(qa.quantity('5 VLAunit')) 			# check its use
 #{'value': 5.0, 'unit': 'VLAunit'}
-print qa.convert('5 VLAunit','Jy')
+print(qa.convert('5 VLAunit','Jy'))
 #{'value': 4.4900000000000002, 'unit': 'Jy'}
 #
 """
@@ -423,8 +423,8 @@ and 'Constants' recognised).
 \begin{verbatim}
 """
 #
-print "\t----\t map Ex 1 \t----"
-print qa.map('pre')			# list decimal prefixes
+print("\t----\t map Ex 1 \t----")
+print(qa.map('pre'))			# list decimal prefixes
 #        == Prefix ==== 20 ====
 #        E         (exa)                        1e+18
 #        G         (giga)                       1000000000
@@ -446,7 +446,7 @@ print qa.map('pre')			# list decimal prefixes
 #        u         (micro)                      1e-06
 #        y         (yocto)                      1e-24
 #        z         (zepto)                      1e-21
-print qa.map('Constants')			# list known constants
+print(qa.map('Constants'))			# list known constants
 #        == Constants ====
 #        pi    3.14..                    3.14159 
 #        ee    2.71..                    2.71828 
@@ -503,12 +503,12 @@ which can be a coded string (no-case, minimax match):
 \begin{verbatim}
 """
 #
-print "\t----\t maprec Ex 1 \t----"
+print("\t----\t maprec Ex 1 \t----")
 p = qa.maprec('pre')			# list decimal prefixes
-print p['Prefix_G']
+print(p['Prefix_G'])
 #        G         (giga)               1000000000
 s = qa.maprec('SI')		        # list SI units
-print s['SI_Jy']
+print(s['SI_Jy'])
 #Jy        (jansky)                     1e-26 kg.s-2
 #
 """
@@ -529,10 +529,10 @@ fits defines some unit names used in reading and writing FITS files.
 \begin{verbatim}
 """
 #
-print "\t----\t fits Ex 1 \t----"
-print qa.fits()
+print("\t----\t fits Ex 1 \t----")
+print(qa.fits())
 #True
-print qa.map('user')
+print(qa.map('user'))
 #        == User ====
 #        BEAM      (dimensionless beam)         1 _
 #        DAYS      (day)                        86400 s
@@ -608,17 +608,17 @@ separated by a ','.
 \begin{verbatim}
 """
 #
-print "\t----\t angle Ex 1 \t----"
+print("\t----\t angle Ex 1 \t----")
 tu = qa.quantity('5.7.12.345678')		# define an angle
-print tu
+print(tu)
 #{'value': 5.1200960216666669, 'unit': 'deg'}
-print qa.angle(tu)    				# default output
+print(qa.angle(tu))    				# default output
 #+005.07.12 
-print qa.angle(tu, prec=7)			# 7 digits
+print(qa.angle(tu, prec=7))			# 7 digits
 #+005.07.12.3 
-print qa.angle(tu, prec=4)			# 4 digits
+print(qa.angle(tu, prec=4))			# 4 digits
 #+005.07. 
-print qa.angle(tu, form=["tim","no_d"])		# as time, no hours shown
+print(qa.angle(tu, form=["tim","no_d"]))		# as time, no hours shown
 #:20:29 
 #
 """
@@ -681,21 +681,21 @@ separated by a ','.
 \begin{verbatim}
 """
 #
-print "\t----\t time Ex 1 \t----"
+print("\t----\t time Ex 1 \t----")
 tu = qa.quantity('today')		# a time
-print tu
+print(tu)
 #{'value': 54175.708981504627, 'unit': 'd'}
-print qa.time(tu)			# default format
+print(qa.time(tu))			# default format
 #17:00:56
-print qa.time(tu,form="dmy")  		# show date
+print(qa.time(tu,form="dmy"))  		# show date
 #16-Mar-2007/17:00:56
-print qa.time(tu,form=["ymd","day"])	# and day
+print(qa.time(tu,form=["ymd","day"]))	# and day
 #Fri-2007/03/16/17:00:56
-print qa.time(tu,form="fits")           # FITS format    
+print(qa.time(tu,form="fits"))           # FITS format    
 #2007-03-16T17:00:56
-print qa.time(tu,form=["fits","local"]) # local FITS format
+print(qa.time(tu,form=["fits","local"])) # local FITS format
 #2007-03-16T10:00:56-07:00
-print qa.time(tu,form=["ymd","local"])  # local time         
+print(qa.time(tu,form=["ymd","local"]))  # local time         
 #2007/03/16/10:00:56
 #
 """
@@ -727,8 +727,8 @@ add adds two quantities
 \begin{verbatim}
 """
 #
-print "\t----\t add Ex 1 \t----"
-print qa.add('5m', '2yd')   
+print("\t----\t add Ex 1 \t----")
+print(qa.add('5m', '2yd'))   
 #{'value': 6.8288000000000002, 'unit': 'm'}
 #
 """
@@ -760,8 +760,8 @@ sub subtracts two quantities
 \begin{verbatim}
 """
 #
-print "\t----\t sub Ex 1 \t----"
-print qa.sub('5m', '2yd')   
+print("\t----\t sub Ex 1 \t----")
+print(qa.sub('5m', '2yd'))   
 #{'value': 3.1712000000000002, 'unit': 'm'}
 #
 """
@@ -793,8 +793,8 @@ mul multiplies two quantities
 \begin{verbatim}
 """
 #
-print "\t----\t mul Ex 1 \t----"
-print qa.mul('5m', '3s')
+print("\t----\t mul Ex 1 \t----")
+print(qa.mul('5m', '3s'))
 #{'value': 15.0, 'unit': 'm.s'}
 #
 """
@@ -826,8 +826,8 @@ div divides two quantities
 \begin{verbatim}
 """
 #
-print "\t----\t div Ex 1 \t----"
-print qa.div('5m', '3s') 
+print("\t----\t div Ex 1 \t----")
+print(qa.div('5m', '3s')) 
 #{'value': 1.6666666666666667, 'unit': 'm/(s)'}
 #
 """
@@ -854,8 +854,8 @@ neg negates a quantity
 \begin{verbatim}
 """
 #
-print "\t----\t neg Ex 1 \t----"
-print qa.neg('5m')   
+print("\t----\t neg Ex 1 \t----")
+print(qa.neg('5m'))   
 #{'value': -5.0, 'unit': 'm'}
 #
 """
@@ -888,10 +888,10 @@ lower end of the interval can be set as a fraction of $2\pi$
 \begin{verbatim}
 """
 #
-print "\t----\t norm Ex 1 \t----"
-print qa.norm('713deg')			#default normalisation
+print("\t----\t norm Ex 1 \t----")
+print(qa.norm('713deg'))			#default normalisation
 #{'value': -6.9999999999999716, 'unit': 'deg'}
-print qa.norm('713deg', -2.5) 		# normalise to interval -900 - -540 deg
+print(qa.norm('713deg', -2.5)) 		# normalise to interval -900 - -540 deg
 #{'value': -727.0, 'unit': 'deg'}
 #
 """
@@ -923,8 +923,8 @@ le compares two quantities for less than or equal.
 \begin{verbatim}
 """
 #
-print "\t----\t le Ex 1 \t----"
-print qa.le('5m', '2yd')   
+print("\t----\t le Ex 1 \t----")
+print(qa.le('5m', '2yd'))   
 #False
 #
 """
@@ -956,8 +956,8 @@ lt compares two quantities for less than.
 \begin{verbatim}
 """
 #
-print "\t----\t lt Ex 1 \t----"
-print qa.lt('5m', '2yd') 
+print("\t----\t lt Ex 1 \t----")
+print(qa.lt('5m', '2yd')) 
 #False
 #
 """
@@ -989,8 +989,8 @@ eq compares two quantities for equality.
 \begin{verbatim}
 """
 #
-print "\t----\t eq Ex 1 \t----"
-print qa.eq('5m', '2yd')  
+print("\t----\t eq Ex 1 \t----")
+print(qa.eq('5m', '2yd'))  
 #False
 #
 """
@@ -1022,8 +1022,8 @@ ne compares two quantities for non equality.
 \begin{verbatim}
 """
 #
-print "\t----\t ne Ex 1 \t----"
-print qa.ne('5m', '2yd')   
+print("\t----\t ne Ex 1 \t----")
+print(qa.ne('5m', '2yd'))   
 #True
 #
 """
@@ -1055,8 +1055,8 @@ gt compares two quantities for greater than.
 \begin{verbatim}
 """
 #
-print "\t----\t gt Ex 1 \t----"
-print qa.gt('5m', '2yd')   
+print("\t----\t gt Ex 1 \t----")
+print(qa.gt('5m', '2yd'))   
 #True
 #
 """
@@ -1088,8 +1088,8 @@ ge  compares two quantities for greater than or equal.
 \begin{verbatim}
 """
 #
-print "\t----\t ge Ex 1 \t----"
-print qa.ge('5m', '2yd') 
+print("\t----\t ge Ex 1 \t----")
+print(qa.ge('5m', '2yd')) 
 #True
 #
 """
@@ -1115,8 +1115,8 @@ sin gives sine of angle quantity
 \begin{verbatim}
 """
 #
-print "\t----\t sin Ex 1 \t----"
-print qa.sin('7deg')
+print("\t----\t sin Ex 1 \t----")
+print(qa.sin('7deg'))
 #{'value': 0.12186934340514748, 'unit': ''}
 #
 """
@@ -1142,8 +1142,8 @@ cos gives cosine of angle quantity
 \begin{verbatim}
 """
 #
-print "\t----\t cos Ex 1 \t----"
-print qa.cos('7deg')
+print("\t----\t cos Ex 1 \t----")
+print(qa.cos('7deg'))
 #{'value': 0.99254615164132198, 'unit': ''}
 #
 """
@@ -1169,8 +1169,8 @@ tan gives tangent of angle quantity
 \begin{verbatim}
 """
 #
-print "\t----\t tan Ex 1 \t----"
-print qa.tan('7deg')
+print("\t----\t tan Ex 1 \t----")
+print(qa.tan('7deg'))
 #{'value': 0.1227845609029046, 'unit': ''}
 #
 """
@@ -1196,8 +1196,8 @@ asin gives arcsine of non-dimensioned quantity
 \begin{verbatim}
 """
 #
-print "\t----\t asin Ex 1 \t----"
-print qa.convert(qa.asin(qa.sin('7deg')), 'deg')
+print("\t----\t asin Ex 1 \t----")
+print(qa.convert(qa.asin(qa.sin('7deg')), 'deg'))
 #{'value': 7.0, 'unit': 'deg'}
 #
 """
@@ -1223,8 +1223,8 @@ acos gives arccosine of non-dimensioned quantity
 \begin{verbatim}
 """
 #
-print "\t----\t acos Ex 1 \t----"
-print qa.convert(qa.acos(qa.cos('7deg')), 'deg')
+print("\t----\t acos Ex 1 \t----")
+print(qa.convert(qa.acos(qa.cos('7deg')), 'deg'))
 #{'value': 7.0000000000000249, 'unit': 'deg'}
 #
 """
@@ -1250,8 +1250,8 @@ atan gives arctangent of non-dimensioned quantity
 \begin{verbatim}
 """
 #
-print "\t----\t atan Ex 1 \t----"
-print qa.convert(qa.atan(qa.tan('7deg')), 'deg')
+print("\t----\t atan Ex 1 \t----")
+print(qa.convert(qa.atan(qa.tan('7deg')), 'deg'))
 #{'value': 7.0, 'unit': 'deg'}
 #
 """
@@ -1282,8 +1282,8 @@ atan gives arctangent of two non-dimensioned quantity
 \begin{verbatim}
 """
 #
-print "\t----\t atan2 Ex 1 \t----"
-print qa.convert(qa.atan2(qa.sin('7deg'), qa.cos('7deg')), 'deg')
+print("\t----\t atan2 Ex 1 \t----")
+print(qa.convert(qa.atan2(qa.sin('7deg'), qa.cos('7deg')), 'deg'))
 #{'value': 7.0, 'unit': 'deg'}
 #
 """
@@ -1309,8 +1309,8 @@ abs gives absolute value of quantity
 \begin{verbatim}
 """
 #
-print "\t----\t abs Ex 1 \t----"
-print qa.abs('-5km/s')
+print("\t----\t abs Ex 1 \t----")
+print(qa.abs('-5km/s'))
 #{'value': 5.0, 'unit': 'km/s'}
 #
 """
@@ -1336,8 +1336,8 @@ ceil gives ceiling value of quantity
 \begin{verbatim}
 """
 #
-print "\t----\t ceil Ex 1 \t----"
-print qa.ceil('5.1AU')
+print("\t----\t ceil Ex 1 \t----")
+print(qa.ceil('5.1AU'))
 #{'value': 6.0, 'unit': 'AU'}
 #
 """
@@ -1363,8 +1363,8 @@ floor gives flooring value of quantity
 \begin{verbatim}
 """
 #
-print "\t----\t floor Ex 1 \t----"
-print qa.floor('-5.1AU')
+print("\t----\t floor Ex 1 \t----")
+print(qa.floor('-5.1AU'))
 #{'value': -6.0, 'unit': 'AU'}
 #
 """
@@ -1390,8 +1390,8 @@ log gives natural logarithm of dimensionless quantity
 \begin{verbatim}
 """
 #
-print "\t----\t log Ex 1 \t----"
-print qa.log('2')
+print("\t----\t log Ex 1 \t----")
+print(qa.log('2'))
 #{'value': 0.69314718055994529, 'unit': ''}
 #
 """
@@ -1417,8 +1417,8 @@ log10 gives logarithm of dimensionless quantity
 \begin{verbatim}
 """
 #
-print "\t----\t log10 Ex 1 \t----"
-print qa.log10('2')
+print("\t----\t log10 Ex 1 \t----")
+print(qa.log10('2'))
 #{'value': 0.3010299956639812, 'unit': ''}
 #
 """
@@ -1444,13 +1444,13 @@ exp gives exponential value of dimensionless quantity
 \begin{verbatim}
 """
 #
-print "\t----\t exp Ex 1 \t----"
-print qa.exp('2')
+print("\t----\t exp Ex 1 \t----")
+print(qa.exp('2'))
 #{'value': 7.3890560989306504, 'unit': ''}
 try:
-  print qa.exp('2m')
-except Exception, e:
-  print "Caught an expected exception", e
+  print(qa.exp('2m'))
+except Exception as e:
+  print("Caught an expected exception", e)
 #Caught an expected exception Quantum::exp illegal unit type 'm'
 #
 """
@@ -1476,13 +1476,13 @@ sqrt gives square root of quantity with only even powered dimensions
 \begin{verbatim}
 """
 #
-print "\t----\t sqrt Ex 1 \t----"
-print qa.sqrt('2m2')
+print("\t----\t sqrt Ex 1 \t----")
+print(qa.sqrt('2m2'))
 #{'value': 1.4142135623730951, 'unit': 'm'}
 try:
-  print qa.sqrt('2s')
-except Exception, e:
-  print "Caught an expected exception", e
+  print(qa.sqrt('2s'))
+except Exception as e:
+  print("Caught an expected exception", e)
 #Caught an expected exception UnitVal::UnitVal Illegal unit dimensions for root
 #
 """
@@ -1513,10 +1513,10 @@ compare compares the dimensionality of units of two qauntities
 \begin{verbatim}
 """
 #
-print "\t----\t compare Ex 1 \t----"
-print qa.compare('5yd/a', '6m/s')  		# equal dimensions
+print("\t----\t compare Ex 1 \t----")
+print(qa.compare('5yd/a', '6m/s'))  		# equal dimensions
 #True
-print qa.compare('5yd', '5s')		# unequal dimensions
+print(qa.compare('5yd', '5s'))		# unequal dimensions
 #False
 #
 """
@@ -1541,10 +1541,10 @@ check checks if the argument has a properly defined unit string
 \begin{verbatim}
 """
 #
-print "\t----\t check Ex 1 \t----"
-print qa.check('5AE/Jy.pc5/s')
+print("\t----\t check Ex 1 \t----")
+print(qa.check('5AE/Jy.pc5/s'))
 #True
-print qa.check('7MYs')
+print(qa.check('7MYs'))
 #False
 #
 """
@@ -1571,12 +1571,12 @@ unit string
 \begin{verbatim}
 """
 #
-print "\t----\t checkfreq Ex 1 \t----"
-print qa.checkfreq('5GHz')
+print("\t----\t checkfreq Ex 1 \t----")
+print(qa.checkfreq('5GHz'))
 #True
-print qa.checkfreq('5cm')  
+print(qa.checkfreq('5cm'))  
 #True
-print qa.checkfreq('5cm/s2')
+print(qa.checkfreq('5cm/s2'))
 #False
 #
 """
@@ -1607,8 +1607,8 @@ pow raises a quantity to an integer power
 \begin{verbatim}
 """
 #
-print "\t----\t pow Ex 1 \t----"
-print qa.pow('7.2km/s', -3)
+print("\t----\t pow Ex 1 \t----")
+print(qa.pow('7.2km/s', -3))
 #{'value': 0.0026791838134430724, 'unit': '(km/s)-3'}
 #
 """
@@ -1656,8 +1656,8 @@ constants gets a named constant quantity. Names (no-case, minimax) are:
 \begin{verbatim}
 """
 #
-print "\t----\t constants Ex 1 \t----"
-print qa.constants()
+print("\t----\t constants Ex 1 \t----")
+print(qa.constants())
 #{'unit': '', 'value': 3.1415926535897931}
 #
 """
@@ -1683,8 +1683,8 @@ isangle checks if the argument is a valid angle/time quantity.
 \begin{verbatim}
 """
 #
-print "\t----\t isangle Ex 1 \t----"
-print qa.isangle(qa.constants('pi'))
+print("\t----\t isangle Ex 1 \t----")
+print(qa.isangle(qa.constants('pi')))
 #False
 #
 """
@@ -1710,8 +1710,8 @@ totime converts an angle quantity (or a time) to a time quantity
 \begin{verbatim}
 """
 #
-print "\t----\t totime Ex 1 \t----"
-print qa.totime('2d5m')
+print("\t----\t totime Ex 1 \t----")
+print(qa.totime('2d5m'))
 #{'value': 0.0057870370370370376, 'unit': 'd'}
 #
 """
@@ -1737,8 +1737,8 @@ toangle converts a time quantity (or an angle) to an angle quantity
 \begin{verbatim}
 """
 #
-print "\t----\t toangle Ex 1 \t----"
-print qa.toangle('5h30m12.6')
+print("\t----\t toangle Ex 1 \t----")
+print(qa.toangle('5h30m12.6'))
 #{'value': 82.552499999999995, 'unit': 'deg'}
 #
 """
@@ -1767,8 +1767,8 @@ which is a double float. See the example for the fields returned.
 \begin{verbatim}
 """
 #
-print "\t----\t splitdate Ex 1 \t----"
-print qa.splitdate('today')
+print("\t----\t splitdate Ex 1 \t----")
+print(qa.splitdate('today'))
 
 #{'mjd': 54175.752367291658, 'week': 11, 'usec': 533999, 'hour': 18,
 # 'min': 3, 'yearday': 75, 'msec': 533, 'month': 3, 's':
@@ -1810,20 +1810,20 @@ precision is used in the conversion
 \begin{verbatim}
 """
 #
-print "\t----\t tos Ex 1 \t----"
+print("\t----\t tos Ex 1 \t----")
 a = qa.quantity('2.56 yd/s')
-print a
+print(a)
 #{'value': 2.5600000000000001, 'unit': 'yd/s'}
-print qa.tos(a)
+print(qa.tos(a))
 #2.560000000yd/s
 a=qa.quantity(1./7, 'km/s')
-print qa.tos(a)
+print(qa.tos(a))
 #0.142857143km/s
-print qa.tos(a,2)
+print(qa.tos(a,2))
 #0.14km/s
-print qa.tos(a,20)
+print(qa.tos(a,20))
 #0.14285714285714284921km/s
-print qa.tos(a)   
+print(qa.tos(a))   
 #0.142857143km/s
 #
 """
@@ -1847,8 +1847,8 @@ type will return the tool name.
 \begin{verbatim}
 """
 #
-print "\t----\t type Ex 1 \t----"
-print qa.type()
+print("\t----\t type Ex 1 \t----")
+print(qa.type())
 #
 """
 \end{verbatim}
@@ -1881,12 +1881,12 @@ argument is true.
 \begin{verbatim}
 """
 #
-print "\t----\t done Ex 1 \t----"
-print qa.done()
+print("\t----\t done Ex 1 \t----")
+print(qa.done())
 #True
-print qa.done()
+print(qa.done())
 #True
-print qa.done(kill=T)
+print(qa.done(kill=T))
 #True
 #
 """
@@ -1932,13 +1932,13 @@ Checks if the operand is a correct quantity
 \begin{verbatim}
 """
 #
-print "\t----\t isQuantity Ex 1 \t----"
+print("\t----\t isQuantity Ex 1 \t----")
 a = qa.quantity("5Jy")               # make a quantity
-print a
+print(a)
 #{'value': 5.0, 'unit': 'Jy'}
-print qa.isquantity(a)                  # is it one?
+print(qa.isquantity(a))                  # is it one?
 #True
-print qa.isquantity("5Jy")              # and this string?
+print(qa.isquantity("5Jy"))              # and this string?
 #True
 #
 """
@@ -2066,15 +2066,15 @@ dop, unit.
 \begin{verbatim}
 """
 #
-print "\t----\t getformat Ex 1 \t----"
-print qa.getformat('prec')
+print("\t----\t getformat Ex 1 \t----")
+print(qa.getformat('prec'))
 #6 
 #setformat is NOT IMPLEMENTED YET!
 #qa.setformat('prec', 12)	# set precision to 12 significant digits
 #T 
 #print qa.getformat('prec')                                             
 #12 
-print qa.getformat('long')
+print(qa.getformat('long'))
 #hms
 #
 """
@@ -2134,13 +2134,13 @@ input into a string using the global format information set by setformat().
 \begin{verbatim}
 """
 #
-print "\t----\t formxxx Ex 1 \t----"
+print("\t----\t formxxx Ex 1 \t----")
 #qa.setformat('freq','cm')
 #T 
 qa.formxxx('freq',qa.quantity('5GHz'))
 #form_xxx NOT IMPLEMENTED YET!
 #5.99584916 cm 
-print "Last example, exiting! ..."
+print("Last example, exiting! ...")
 exit()
 #
 """

@@ -91,7 +91,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
 
             nfail = 0
             if os.path.exists(outputvis):
-                raise ValueError, "Output MS %s already exists - will not overwrite." % outputvis
+                raise ValueError("Output MS %s already exists - will not overwrite." % outputvis)
             tempout = outputvis+str(time.time())
             os.mkdir(tempout)
             successfulmses = []
@@ -156,13 +156,13 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
             # end for
 
             # send off the jobs
-            print 'Running split_core ... '
+            print('Running split_core ... ')
             helper = ParallelTaskHelper('oldsplit', mylocals)
             helper.override_arg('outputvis',outputviss)
             helper._consolidateOutput = False
             goretval = helper.go()
 
-            for i in xrange(len(mses)):
+            for i in range(len(mses)):
                 m = mses[i]
 
                 # deal with the POINTING table
@@ -208,7 +208,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
                 else:
                     myms.open(successfulmses[0], nomodify=False)
                     auxfile = "split_aux_"+str(time.time())
-                    for i in xrange(1,len(successfulmses)):
+                    for i in range(1,len(successfulmses)):
                         myms.virtconcatenate(successfulmses[i], auxfile, '1Hz', '10mas', True)
                     myms.close()
                     os.remove(auxfile)
@@ -225,7 +225,7 @@ def oldsplit(vis, outputvis, datacolumn, field, spw, width, antenna,
                               timebin, timerange, scan, intent, array, uvrange,
                               correlation, observation, combine, keepflags)
 
-    except Exception, instance:
+    except Exception as instance:
             casalog.post("*** Error: %s" % (instance), 'SEVERE')
             rval = False
 
@@ -239,22 +239,22 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
     retval = True
 
     if not outputvis or outputvis.isspace():
-        raise ValueError, 'Please specify outputvis'
+        raise ValueError('Please specify outputvis')
 
     myms = mstool()
     mytb = None
     if ((type(vis)==str) & (os.path.exists(vis))):
         myms.open(vis, nomodify=True)
     else:
-        raise ValueError, 'Visibility data set not found - please verify the name'
+        raise ValueError('Visibility data set not found - please verify the name')
 
     if os.path.exists(outputvis):
         myms.close()
-        raise ValueError, "Output MS %s already exists - will not overwrite." % outputvis
+        raise ValueError("Output MS %s already exists - will not overwrite." % outputvis)
 
     if (os.path.exists(outputvis+".flagversions")):
         myms.close()
-        raise ValueError, "The flagversions \"%s.flagversions\" for the output MS already exist. Please delete." % outputvis
+        raise ValueError("The flagversions \"%s.flagversions\" for the output MS already exist. Please delete." % outputvis)
 
     # No longer needed.  When did it get put in?  Note that the default
     # spw='*' in myms.split ends up as '' since the default type for a variant
@@ -299,7 +299,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
             else:
                 width = [1]
         except:
-            raise TypeError, 'parameter width is invalid...using 1'
+            raise TypeError('parameter width is invalid...using 1')
 
     if type(correlation) == list:
         correlation = ', '.join(correlation)
@@ -395,11 +395,11 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
 
     # Write history to output MS, not the input ms.
     try:
-        param_names = split_core.func_code.co_varnames[:split_core.func_code.co_argcount]
+        param_names = split_core.__code__.co_varnames[:split_core.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         retval &= write_history(myms, outputvis, 'oldsplit', param_names, param_vals,
                                 casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
 
@@ -438,7 +438,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                         widths = width
                     else:
                         if hasattr(width, '__iter__') and len(width) > 1:
-                            for i in xrange(len(width)):
+                            for i in range(len(width)):
                                 widths[i] = width[i]
                         elif width != 1:
                             #print 'using myms.msseltoindex + a scalar width'
@@ -448,10 +448,10 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                                 w = width[0]
                             else:
                                 w = width
-                            for i in xrange(nspw):
+                            for i in range(nspw):
                                 widths[i] = w
                     #print 'widths =', widths
-                    for rownum in xrange(nflgcmds):
+                    for rownum in range(nflgcmds):
                         # Matches a bare number or a string quoted any way.
                         spwmatch = re.search(r'spw\s*=\s*(\S+)', cmds[rownum])
                         if spwmatch:
@@ -473,7 +473,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
                                         repl = "spw='" + sch2 + "'"
                                     cmd = cmds[rownum].replace(spwmatch.group(), repl)
                             #except: # cmd[rownum] no longer applies.
-                            except Exception, e:
+                            except Exception as e:
                                 casalog.post(
                                     "Error %s updating row %d of FLAG_CMD" % (e,
                                                                               rownum),
@@ -492,7 +492,7 @@ def split_core(vis, outputvis, datacolumn, field, spw, width, antenna,
 
             mytb.close()
 
-        except Exception, instance:
+        except Exception as instance:
             if isopen:
                 mytb.close()
             myms = None

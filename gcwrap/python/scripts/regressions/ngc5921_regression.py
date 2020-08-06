@@ -155,10 +155,10 @@ def reportresults(redi):
     for t in redi:
         tup = redi[t]
         msg = passfail[tup[0]] + ' ' + t + ' test'
-        print >>n5921reglog, msg
+        print(msg, file=n5921reglog)
         tstutl.note(msg, normalsevere[tup[0]])
         if len(tup) > 1:
-            print >>n5921reglog, tup[1]
+            print(tup[1], file=n5921reglog)
         #tstutl.note("\"tup[0]\": \"%s\"" % tup[0], "WARN")
         if not tup[0]:
             ok = False
@@ -192,7 +192,7 @@ passedall = True  # So far!
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -218,7 +218,7 @@ if benchmarking:
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one.  Make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -326,7 +326,7 @@ if benchmarking:
 # Get rid of the autocorrelations from the MS
 #
 #print '--Flagautocorr--'
-print '--Flag auto-correlations--'
+print('--Flag auto-correlations--')
 
 # Don't default this one either, there is only one parameter (vis)
 default(flagdata)
@@ -344,7 +344,7 @@ if benchmarking:
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
 vis = msfile
@@ -393,7 +393,7 @@ callibfile='ngc5921_regression/ngc5921_callib.txt'
 #
 # Bandpass calibration
 #
-print '--Bandpass--'
+print('--Bandpass--')
 default('bandpass')
 
 # We can first do the bandpass on the single 5min scan on 1331+305
@@ -454,7 +454,7 @@ if benchmarking:
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # Armed with the bandpass, we now solve for the
@@ -524,7 +524,7 @@ if benchmarking:
 #=====================================================================
 # List calibration solutions
 #
-print '--Listcal--'
+print('--Listcal--')
 listcalOut = prefix + '.listcal.out'
 
 default('listcal')
@@ -544,25 +544,25 @@ os.system('tail -n +2 ' + listcalOut + '.tmp > ' + listcalOut)
 os.system('rm -f ' + listcalOut + '.tmp')
 
 # Test the listcal output
-print "Comparing listcal output with standard..."
+print("Comparing listcal output with standard...")
 standardOut = pathname+'/data/regression/ngc5921/listcal.default.out'
 listcalresults = {}
 try:
-    print "  1. Checking that metadata agree..."
+    print("  1. Checking that metadata agree...")
     listcalresults['listcal metadata'] = (listing.diffMetadata(listcalOut,
                                                                standardOut,
                                                                prefix=prefix + ".listcal"),)
     # Test data (floats)
-    print "  2. Checking that data agree to within allowed imprecision..."
+    print("  2. Checking that data agree to within allowed imprecision...")
     precision = '0.003'
-    print "     Allowed visibility imprecision is " + precision
+    print("     Allowed visibility imprecision is " + precision)
     listcalresults['listcal data'] = (listing.diffAmpPhsFloat(listcalOut,
                                                               standardOut,
                                                               prefix = prefix+".listcal",
                                                               precision = precision),)
     passedall = reportresults(listcalresults) and passedall
-except Exception, e:
-    print "Error", e, "checking listcal."
+except Exception as e:
+    print("Error", e, "checking listcal.")
     raise e
 
 #
@@ -570,7 +570,7 @@ except Exception, e:
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
 vis = msfile
@@ -618,7 +618,7 @@ if benchmarking:
 # Apply our calibration solutions to the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = msfile
@@ -648,7 +648,7 @@ if benchmarking:
 #
 # Split the gain calibrater data, then the target
 #
-print '--Split 1445+099 Data--'
+print('--Split 1445+099 Data--')
 default('split')
 
 vis = msfile
@@ -675,7 +675,7 @@ if benchmarking:
 #
 # Now split NGC5921 data (before continuum subtraction)
 #
-print '--Split NGC5921 Data--'
+print('--Split NGC5921 Data--')
 
 splitms = prefix + '.src.split.ms'
 outputvis = splitms
@@ -695,7 +695,7 @@ if benchmarking:
 # Export the NGC5921 data as UVFITS
 # Start with the split file.
 #
-print '--Export UVFITS--'
+print('--Export UVFITS--')
 default('exportuvfits')
 
 srcuvfits = prefix + '.split.uvfits'
@@ -717,7 +717,7 @@ multisource = True
 async = export_asynchronously
 
 async_exportuvfits_id = exportuvfits()
-print "async_exportuvfits_id =", async_exportuvfits_id
+print("async_exportuvfits_id =", async_exportuvfits_id)
 
 # Record exportuvfits completion time
 # NOTE: If async=true this can't be used to time exportuvfits
@@ -731,7 +731,7 @@ if benchmarking:
 # UV-plane continuum subtraction on the target
 # (this will update the CORRECTED_DATA column)
 #
-print '--UV Continuum Subtract--'
+print('--UV Continuum Subtract--')
 default('uvcontsub')
 
 vis = msfile
@@ -770,7 +770,7 @@ if checklistvis:
     #=====================================================================
     # List corrected data in MS
     #
-    print '--Listvis--'
+    print('--Listvis--')
     listvisOut = prefix + '.listvis.out'
 
     default('listvis')
@@ -779,8 +779,8 @@ if checklistvis:
 #    selectdata=True
 #    antenna='VA03&VA04'
 #    listfile=listvisOut
-    print "Listing corrected data."
-    print "Reducing output by selecting only baseline 3&4."
+    print("Listing corrected data.")
+    print("Reducing output by selecting only baseline 3&4.")
 #    listvis()
     listvis(vis=srcsplitms,datacolumn='data',selectdata=True,antenna='VA03&VA04',listfile=listvisOut)
 
@@ -789,13 +789,13 @@ if checklistvis:
         listvistime = time.time()
 
     # Test the listvis output
-    print "Comparing continuum subtracted listvis output with repository standard..."
+    print("Comparing continuum subtracted listvis output with repository standard...")
     standardOut = pathname+'/data/regression/ngc5921/listvis.ant34.contsub.out'
 
     # Test metadata
-    print "  Checking that metadata agree and that data agree to within allowed imprecision..."
+    print("  Checking that metadata agree and that data agree to within allowed imprecision...")
     precision = '0.200'
-    print "     Allowed visibility imprecision is ", precision
+    print("     Allowed visibility imprecision is ", precision)
     listvisresults = {}
     try:
         listvisresults['listvis metadata'] = (listing.diffMetadata(listvisOut,
@@ -806,8 +806,8 @@ if checklistvis:
                                                                   prefix=prefix + ".listvis",
                                                                   precision=precision),)
         passedall = reportresults(listvisresults) and passedall
-    except Exception, e:
-        print "Error", e, "checking listvis."
+    except Exception as e:
+        print("Error", e, "checking listvis.")
         raise e               
 
 #=====================================================================
@@ -815,7 +815,7 @@ if checklistvis:
 # Done with calibration
 # Now clean an image cube of N5921
 #
-print '--Clean--'
+print('--Clean--')
 default('clean')
 
 # Pick up our split source data
@@ -911,7 +911,7 @@ if benchmarking:
 #
 # Export the Final CLEAN Image as FITS
 #
-print '--Final Export CLEAN FITS--'
+print('--Final Export CLEAN FITS--')
 default('exportfits')
 
 clnfits = prefix + '.clean.fits'
@@ -936,7 +936,7 @@ if benchmarking:
 #
 # Get some image statistics
 #
-print '--Imstat--'
+print('--Imstat--')
 default('imstat')
 
 imagename = clnimage
@@ -951,7 +951,7 @@ cubestats =imstat()
 #
 # Get some image moments
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 imagename = clnimage
@@ -972,7 +972,7 @@ outfile = momfile
 
 # execute, expecting success
 if not immoments():
-    raise Exception, 'Execution of immoments() returned False.'
+    raise Exception('Execution of immoments() returned False.')
 
 momzeroimage = momfile + '.integrated'
 momoneimage = momfile + '.weighted_coord'
@@ -987,7 +987,7 @@ momoneimage = momfile + '.weighted_coord'
 #
 # Get some statistics of the moment images
 #
-print '--Imstat--'
+print('--Imstat--')
 default('imstat')
 
 imagename = momzeroimage
@@ -1003,13 +1003,13 @@ momonestats = imstat()
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ""
-print ' NGC5921 results '
-print ' =============== '
+print("")
+print(' NGC5921 results ')
+print(' =============== ')
 
-print ''
-print ' --Regression Tests--'
-print ''
+print('')
+print(' --Regression Tests--')
+print('')
 #
 # Use the ms tool to get max of the MSs
 # Eventually should be available from a task
@@ -1019,62 +1019,62 @@ ms.open(calsplitms)
 thistest_cal = max(ms.range(["amplitude"]).get('amplitude'))
 ms.close()
 oldtest_cal = 34.0338668823
-print ' Cal Max amplitude should be ',oldtest_cal
-print ' Found : Max = ',thistest_cal
+print(' Cal Max amplitude should be ',oldtest_cal)
+print(' Found : Max = ',thistest_cal)
 diff_cal = abs((oldtest_cal-thistest_cal)/oldtest_cal)
-print ' Difference (fractional) = ',diff_cal
+print(' Difference (fractional) = ',diff_cal)
 
-print ''
+print('')
 # Pull the max src amp value out of the MS
 ms.open(srcsplitms)
 thistest_src = max(ms.range(["amplitude"]).get('amplitude'))
 ms.close()
 #oldtest_src =  1.37963354588 # This was in chans 5-50
 oldtest_src =  46.2060050964 # now in all chans
-print ' Src Max amplitude should be ',oldtest_src
-print ' Found : Max = ',thistest_src
+print(' Src Max amplitude should be ',oldtest_src)
+print(' Found : Max = ',thistest_src)
 diff_src = abs((oldtest_src-thistest_src)/oldtest_src)
-print ' Difference (fractional) = ',diff_src
+print(' Difference (fractional) = ',diff_src)
 
 #
 # Now use the stats produced by imstat above
 #
-print ''
+print('')
 # Pull the max from the cubestats dictionary
 # created above using imstat
 thistest_immax=cubestats['max'][0]
 oldtest_immax = 0.052414759993553162
-print ' Clean image max should be ',oldtest_immax
-print ' Found : Image Max = ',thistest_immax
+print(' Clean image max should be ',oldtest_immax)
+print(' Found : Image Max = ',thistest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print ' Difference (fractional) = ',diff_immax
+print(' Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 # Pull the rms from the cubestats dictionary
 thistest_imrms=cubestats['rms'][0]
 oldtest_imrms = 0.0020064469
-print ' Clean image rms should be ',oldtest_imrms
-print ' Found : Image rms = ',thistest_imrms
+print(' Clean image rms should be ',oldtest_imrms)
+print(' Found : Image rms = ',thistest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print ' Difference (fractional) = ',diff_imrms
+print(' Difference (fractional) = ',diff_imrms)
 
-print ''
+print('')
 # Pull the max from the momzerostats dictionary
 thistest_momzeromax=momzerostats['max'][0]
 oldtest_momzeromax = 1.4868
-print ' Moment 0 image max should be ',oldtest_momzeromax
-print ' Found : Moment 0 Max = ',thistest_momzeromax
+print(' Moment 0 image max should be ',oldtest_momzeromax)
+print(' Found : Moment 0 Max = ',thistest_momzeromax)
 diff_momzeromax = abs(1.0 - thistest_momzeromax / oldtest_momzeromax)
-print ' Difference (fractional) = ',diff_momzeromax
+print(' Difference (fractional) = ',diff_momzeromax)
 
-print ''
+print('')
 # Pull the mean from the momonestats dictionary
 thistest_momoneavg=momonestats['mean'][0]
 oldtest_momoneavg = 1486.8473
-print ' Moment 1 image mean should be ',oldtest_momoneavg
-print ' Found : Moment 1 Mean = ',thistest_momoneavg
+print(' Moment 1 image mean should be ',oldtest_momoneavg)
+print(' Found : Moment 1 Mean = ',thistest_momoneavg)
 diff_momoneavg = abs((oldtest_momoneavg-thistest_momoneavg)/oldtest_momoneavg)
-print ' Difference (fractional) = ',diff_momoneavg
+print(' Difference (fractional) = ',diff_momoneavg)
 
 
 # Record processing completion time
@@ -1086,9 +1086,9 @@ if benchmarking:
 #=====================================================================
 # Export tests
 #
-print ''
-print ' --Export Tests--'
-print ''
+print('')
+print(' --Export Tests--')
+print('')
 #
 # First the UVFITS
 #
@@ -1102,7 +1102,7 @@ if export_asynchronously:
                 break
             else:
                 time.sleep(1)
-        except Exception, e:
+        except Exception as e:
             tstutl.note("Error checking whether exportuvfits finished.",
                         "SEVERE")
             tstutl.note("async_exportuvfits_id was " + str(async_exportuvfits_id), "SEVERE")
@@ -1122,14 +1122,14 @@ if uvfitsexists:
         fitstest_src = max(ms.range(["amplitude"]).get('amplitude'))
         ms.close()
         tstutl.note("Verified that a valid UVFITS file was written")
-        print ''
+        print('')
         # Test the max in MS
         # oldtest_src =  46.2060050964
-        print ' UVFITS Src Max amplitude should be ', thistest_src
-        print ' Found : UVFITS Max = ', fitstest_src
+        print(' UVFITS Src Max amplitude should be ', thistest_src)
+        print(' Found : UVFITS Max = ', fitstest_src)
         diff_uvfits = abs((fitstest_src - thistest_src) / thistest_src)
-        print ' Difference (fractional) = ', diff_uvfits
-    except Exception, e:
+        print(' Difference (fractional) = ', diff_uvfits)
+    except Exception as e:
         tstutl.note("Failed to open UVFITS file because: "+e, "SEVERE")
 else:
     tstutl.note("Could not open the UVFITS file", "SEVERE")
@@ -1137,7 +1137,7 @@ else:
 #
 # Now the Clean FITS
 #
-print ''
+print('')
 tstutl.note("Opening FITS image file " + fitsimage +
                 " to verify its existence")
 
@@ -1161,21 +1161,21 @@ if fitsimageexists:
         imagename = fitsimage
         fitstats = imstat()
         tstutl.note("Verified that a valid FITS image file was written")
-        print ''
+        print('')
         # Pull the max from the fitstats dictionary
         fitstest_immax=fitstats['max'][0]
-        print ' FITS image max should be ',thistest_immax
-        print ' Found : FITS Image Max = ',fitstest_immax
+        print(' FITS image max should be ',thistest_immax)
+        print(' Found : FITS Image Max = ',fitstest_immax)
         diff_fitsmax = abs((fitstest_immax-thistest_immax)/thistest_immax)
-        print ' Difference (fractional) = ',diff_fitsmax
-        print ''
+        print(' Difference (fractional) = ',diff_fitsmax)
+        print('')
         # Pull the rms from the fitstats dictionary
         fitstest_imrms=fitstats['rms'][0]
-        print ' FITS image rms should be ',thistest_imrms
-        print ' Found : FITS Image rms = ',fitstest_imrms
+        print(' FITS image rms should be ',thistest_imrms)
+        print(' Found : FITS Image rms = ',fitstest_imrms)
         diff_fitsrms = abs((fitstest_imrms-thistest_imrms)/thistest_imrms)
-        print ' Difference (fractional) = ',diff_fitsrms
-    except Exception, e:
+        print(' Difference (fractional) = ',diff_fitsrms)
+    except Exception as e:
         tstutl.note("Failed to open FITS image file because: "+e,"SEVERE")
 else:
     tstutl.note("Could not open the FITS image", "SEVERE")
@@ -1184,29 +1184,29 @@ else:
 #=====================================================================
 #
 if not benchmarking:
-    print ''
-    print '--- Done ---'
+    print('')
+    print('--- Done ---')
 else:
-    print >>n5921reglog,''
-    print >>n5921reglog,''
-    print >>n5921reglog,'********** Data Summary *********'
-    print >>n5921reglog,'*   Observer: TEST     Project:                                             *'
-    print >>n5921reglog,'* Observation: VLA(28 antennas)                                             *'
-    print >>n5921reglog,'* Data records: 22653  Total integration time = 5280 seconds                *'
-    print >>n5921reglog,'* Observed from   09:19:00   to   10:47:00                                  *'
-    print >>n5921reglog,'* Fields: 3                                                                 *'
-    print >>n5921reglog,'*  ID   Name          Right Ascension  Declination   Epoch                  *'
-    print >>n5921reglog,'*  0    1331+30500002_013:31:08.29      +30.30.32.96  J2000                 *'
-    print >>n5921reglog,'*  1    1445+09900002_014:45:16.47      +09.58.36.07  J2000                 *'
-    print >>n5921reglog,'*  2    N5921_2       15:22:00.00      +05.04.00.00  J2000                  *'
-    print >>n5921reglog,'* Data descriptions: 1 (1 spectral windows and 1 polarization setups)       *'
-    print >>n5921reglog,'*  ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs   *'  
-    print >>n5921reglog,'*  0       63 LSRK  1412.68608  24.4140625  1550.19688  1413.44902  RR  LL  *'
-    print >>n5921reglog,'*********************************'
-    print ""
-    print >>n5921reglog,''
-    print >>n5921reglog,'********* Export Tests***********'
-    print >>n5921reglog,'*                               *'
+    print('', file=n5921reglog)
+    print('', file=n5921reglog)
+    print('********** Data Summary *********', file=n5921reglog)
+    print('*   Observer: TEST     Project:                                             *', file=n5921reglog)
+    print('* Observation: VLA(28 antennas)                                             *', file=n5921reglog)
+    print('* Data records: 22653  Total integration time = 5280 seconds                *', file=n5921reglog)
+    print('* Observed from   09:19:00   to   10:47:00                                  *', file=n5921reglog)
+    print('* Fields: 3                                                                 *', file=n5921reglog)
+    print('*  ID   Name          Right Ascension  Declination   Epoch                  *', file=n5921reglog)
+    print('*  0    1331+30500002_013:31:08.29      +30.30.32.96  J2000                 *', file=n5921reglog)
+    print('*  1    1445+09900002_014:45:16.47      +09.58.36.07  J2000                 *', file=n5921reglog)
+    print('*  2    N5921_2       15:22:00.00      +05.04.00.00  J2000                  *', file=n5921reglog)
+    print('* Data descriptions: 1 (1 spectral windows and 1 polarization setups)       *', file=n5921reglog)
+    print('*  ID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs   *', file=n5921reglog)  
+    print('*  0       63 LSRK  1412.68608  24.4140625  1550.19688  1413.44902  RR  LL  *', file=n5921reglog)
+    print('*********************************', file=n5921reglog)
+    print("")
+    print('', file=n5921reglog)
+    print('********* Export Tests***********', file=n5921reglog)
+    print('*                               *', file=n5921reglog)
 
     exportresults = {'UVFITS existence': (uvfitsexists,),
                      'FITS image existence': (fitsimageexists,)}
@@ -1223,9 +1223,9 @@ else:
                                            diff_fitsrms)
     passedall = reportresults(exportresults) and passedall
 
-    print >>n5921reglog,''
-    print >>n5921reglog,'********** Regression ***********'
-    print >>n5921reglog,'*                               *'
+    print('', file=n5921reglog)
+    print('********** Regression ***********', file=n5921reglog)
+    print('*                               *', file=n5921reglog)
     quantresults = {}
     quantresults['cal max amplitude'] = (diff_cal < 0.05,
                                          '*  Cal max amp ' + str(thistest_cal), diff_cal)
@@ -1239,54 +1239,54 @@ else:
 
     if passedall: 
 	regstate=True
-	print >>n5921reglog,'---'
-	print >>n5921reglog,'Passed Regression test for NGC5921'
-	print >>n5921reglog,'---'
-        print ''
-        print 'Regression PASSED'
-        print ''
+	print('---', file=n5921reglog)
+	print('Passed Regression test for NGC5921', file=n5921reglog)
+	print('---', file=n5921reglog)
+        print('')
+        print('Regression PASSED')
+        print('')
         tstutl.note("Passed Regression test for NGC5921","NORMAL")
     else: 
 	regstate=False
-	print >>n5921reglog,'---'
-	print >>n5921reglog,'FAILED Regression test for NGC5921'
-	print >>n5921reglog,'---'
-        print ''
-        print 'Regression FAILED'
-        print ''
+	print('---', file=n5921reglog)
+	print('FAILED Regression test for NGC5921', file=n5921reglog)
+	print('---', file=n5921reglog)
+        print('')
+        print('Regression FAILED')
+        print('')
         tstutl.note("FAILED Regression test for NGC5921","SEVERE")
         # Specify what failed here...just saying "FAILED" is aggravating.
         for d in (listvisresults, listcalresults, exportresults, quantresults):
             listfailures(d)
         
-    print >>n5921reglog,'*********************************'
+    print('*********************************', file=n5921reglog)
 
-    print >>n5921reglog,''
-    print >>n5921reglog,''
-    print >>n5921reglog,'********* Benchmarking *****************'
-    print >>n5921reglog,'*                                      *'
-    print >>n5921reglog,'Total wall clock time was: ', endTime - startTime
-    print >>n5921reglog,'Total CPU        time was: ', endProc - startProc
-    print >>n5921reglog,'Processing rate MB/s  was: ', 35.1/(endTime - startTime)
-    print >>n5921reglog,'* Breakdown:                           *'
-    print >>n5921reglog,'*   import       time was: '+str(importtime-startTime)
-    print >>n5921reglog,'*   flagautocorr time was: '+str(flagtime-listtime)
-    print >>n5921reglog,'*   setjy        time was: '+str(setjytime-flagtime)
-    print >>n5921reglog,'*   bandpass     time was: '+str(bptime-setjytime)
-    print >>n5921reglog,'*   gaincal      time was: '+str(gaintime-bptime)
-    print >>n5921reglog,'*   listcal      time was: '+str(listcaltime-gaintime)    
-    print >>n5921reglog,'*   fluxscale    time was: '+str(fstime-listcaltime)
-    print >>n5921reglog,'*   applycal     time was: '+str(correcttime-fstime)
-    print >>n5921reglog,'*   split-cal    time was: '+str(splitcaltime-correcttime)
-    print >>n5921reglog,'*   split-src    time was: '+str(splitsrctime-splitcaltime)
-    print >>n5921reglog,'*   contsub      time was: '+str(contsubtime-exportuvfitstime)
-    print >>n5921reglog,'*   listvis      time was: '+str(listvistime-contsubtime)
-    print >>n5921reglog,'*   clean        time was: '+str(cleantime-listvistime)
-    print >>n5921reglog,'*****************************************'
+    print('', file=n5921reglog)
+    print('', file=n5921reglog)
+    print('********* Benchmarking *****************', file=n5921reglog)
+    print('*                                      *', file=n5921reglog)
+    print('Total wall clock time was: ', endTime - startTime, file=n5921reglog)
+    print('Total CPU        time was: ', endProc - startProc, file=n5921reglog)
+    print('Processing rate MB/s  was: ', 35.1/(endTime - startTime), file=n5921reglog)
+    print('* Breakdown:                           *', file=n5921reglog)
+    print('*   import       time was: '+str(importtime-startTime), file=n5921reglog)
+    print('*   flagautocorr time was: '+str(flagtime-listtime), file=n5921reglog)
+    print('*   setjy        time was: '+str(setjytime-flagtime), file=n5921reglog)
+    print('*   bandpass     time was: '+str(bptime-setjytime), file=n5921reglog)
+    print('*   gaincal      time was: '+str(gaintime-bptime), file=n5921reglog)
+    print('*   listcal      time was: '+str(listcaltime-gaintime), file=n5921reglog)    
+    print('*   fluxscale    time was: '+str(fstime-listcaltime), file=n5921reglog)
+    print('*   applycal     time was: '+str(correcttime-fstime), file=n5921reglog)
+    print('*   split-cal    time was: '+str(splitcaltime-correcttime), file=n5921reglog)
+    print('*   split-src    time was: '+str(splitsrctime-splitcaltime), file=n5921reglog)
+    print('*   contsub      time was: '+str(contsubtime-exportuvfitstime), file=n5921reglog)
+    print('*   listvis      time was: '+str(listvistime-contsubtime), file=n5921reglog)
+    print('*   clean        time was: '+str(cleantime-listvistime), file=n5921reglog)
+    print('*****************************************', file=n5921reglog)
     #print >>n5921reglog,'basho (test cpu) time was: ?? seconds'
 
-    print ""
-    print "Done!"
+    print("")
+    print("Done!")
 
 n5921reglog.close()
 

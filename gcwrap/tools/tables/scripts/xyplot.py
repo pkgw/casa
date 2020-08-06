@@ -45,7 +45,7 @@ class XYPlot:
 	"""
 	if(len(selstr)>0):self.tool.selectdata(taqlstring=selstr);
 	self.__sel__ = selstr;
-	if(len(self.__sel__)>0):print "New sub selection : " , self.__sel__ ;
+	if(len(self.__sel__)>0):print("New sub selection : " , self.__sel__) ;
 
    # Select data using a TaQL string
    def setdata(self,startchan=0,endchan=0,stepchan=0,startcorr=0,endcorr=0,stepcorr=0,col='data',quant='amp'):
@@ -72,13 +72,13 @@ class XYPlot:
         self.__stepcorr__ = stepcorr;
 	self.__column__ = col;
 	self.__quant__ = quant;
-	print "Selected data : ", self.tabname;
-	if(len(self.__sel__)>0):print "Current sub selection : " , self.__sel__ ;
-	print "Channels : " , self.__startchan__ , " to " , self.__endchan__ , " with stepchan ", self.__stepchan__;
-	print "Correlations : " , self.__startcorr__ , " to " , self.__endcorr__;
-	print "(Zero indicates full range)";
-	print "Data column to plot : ", self.__column__;
-	print "Quantity to plot : ", self.__quant__;
+	print("Selected data : ", self.tabname);
+	if(len(self.__sel__)>0):print("Current sub selection : " , self.__sel__) ;
+	print("Channels : " , self.__startchan__ , " to " , self.__endchan__ , " with stepchan ", self.__stepchan__);
+	print("Correlations : " , self.__startcorr__ , " to " , self.__endcorr__);
+	print("(Zero indicates full range)");
+	print("Data column to plot : ", self.__column__);
+	print("Quantity to plot : ", self.__quant__);
 
    # Set panel info - all plots will use this.
    def setpanel(self,nrows=1,ncols=1,panel=1):
@@ -156,7 +156,7 @@ class XYPlot:
                 ok,xystr,labels = self.__maketaql__(type,self.__startcorr__,self.__endcorr__,self.__stepcorr__,self.__startchan__,self.__endchan__,self.__stepchan__);
         else:
 	        if(self.__endchan__==0 or self.__stepchan__==0):
-		        print 'Please setdata with startchan,endchan,stepchan';
+		        print('Please setdata with startchan,endchan,stepchan');
 		        return False;
 	        if(self.__startchan__==0):self.__startchan__=1;
                 xystr = [];
@@ -205,7 +205,7 @@ class XYPlot:
 	self.tool.plotdata(poption=pop,labels=labels,datastr=xystr);
 	pop.update({'overplot':True,'plotsymbol':'g,'});
 	xystr = ['-UVW[1]','-UVW[2]'];
-	print pop;
+	print(pop);
 	self.tool.plotdata(poption=pop,labels=labels,datastr=xystr);
 
    # Antenna locations from the ANTENNA subtable.
@@ -367,9 +367,9 @@ class XYPlot:
 	  expr = 'IMAG';
 	
 	if(len(parttaql)==0 or len(expr)==0):
-	  print 'Invalid col or quant !';
-	  print 'col = data,corrected,model,residual';
-	  print 'quant = amp,phase,real,imag';
+	  print('Invalid col or quant !');
+	  print('col = data,corrected,model,residual');
+	  print('quant = amp,phase,real,imag');
 	  return False,[],[];
         
 	ytaql = expr+'('+parttaql+')';
@@ -395,7 +395,7 @@ class XYPlot:
 	  labels[0] = labels[0] + ' : mean over pols';
 
 	xystr = [xtaql,ytaql];
-	print xystr;
+	print(xystr);
         return True,xystr,labels;
 
 ###############################################################################

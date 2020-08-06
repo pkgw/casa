@@ -22,7 +22,7 @@ ms     = 'test1.ms'
 def mysplit(ms):
     ms2=ms+'3'
     os.system('rm -rf %s' % ms2)
-    print "split(%s,%s,%s)" % (ms,ms2,'3')
+    print("split(%s,%s,%s)" % (ms,ms2,'3'))
     split(vis=ms, outputvis=ms2, spw='3', datacolumn='data')
 
 def simpletimeclean(vis,times):
@@ -31,7 +31,7 @@ def simpletimeclean(vis,times):
     and not something else
     """
     cmd='rm -rf junk.*; uvcat vis=%s out=junk.mir select="time(%s)"' % (vis,times)
-    print cmd
+    print(cmd)
     os.system(cmd)
     cmd='carmafiller.csh junk.mir junk.ms'
     os.system(cmd)
@@ -40,7 +40,7 @@ def simpletimeclean(vis,times):
 def simple_quick(ms=None):
     if ms==None:
         return
-    print '--simple listobs --',ms
+    print('--simple listobs --',ms)
 
     # make a listing
     listobs(vis=ms)
@@ -49,17 +49,17 @@ def simple_quick(ms=None):
 def simple(ms=None):
     if ms==None:
         return
-    print '--simple clean --',ms
+    print('--simple clean --',ms)
 
     # make a listing
     listobs(vis=ms)
 
     # delete old stuff
     cmd  = 'rm -rf %s' % ms+'.fill.clean.*'
-    print 'CMD: ',cmd
+    print('CMD: ',cmd)
     os.system(cmd)
 
-    print '--simple clean --'
+    print('--simple clean --')
     clean(vis=ms,imagename=ms+'.fill.clean',
           cell=[1.,1.],
           imsize=[128,128],
@@ -83,7 +83,7 @@ def simple(ms=None):
           niter=1,
           stokes='I',
           )
-    print '--simple done --'
+    print('--simple done --')
     cmd = 'du -s %s*' % ms
     os.system(cmd)
     imhead(ms+'.fill.clean.image')
@@ -117,7 +117,7 @@ def bigtest():
         if n == 1:
             hms_0 = hms_1
             continue
-        print hms_0,hms_1
+        print(hms_0,hms_1)
         simpletimeclean('orimsr_ww',hms_0+","+hms_1)
         hms_0 = hms_1
         

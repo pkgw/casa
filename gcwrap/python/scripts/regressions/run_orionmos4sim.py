@@ -52,11 +52,11 @@ os.system('rm -rf '+prefix+'*')
 mytmp     = '==========================='
 mydataset = 'Orion VLA mosaic simulation'
 
-print "========================"+mytmp
-print "Simulating and Cleaning "+mydataset
-print "========================"+mytmp
-print "Script version "+myscriptvers
-print "Output will be prefixed with "+prefix
+print("========================"+mytmp)
+print("Simulating and Cleaning "+mydataset)
+print("========================"+mytmp)
+print("Script version "+myscriptvers)
+print("Output will be prefixed with "+prefix)
 
 #Start from existing MS
 templatems = 'orion_calsplit.ms'
@@ -70,23 +70,23 @@ from itertools import dropwhile
 
 if os.access(templatems,F_OK):
     # already in current directory
-    print "  Using "+templatems+" found in current directory"
+    print("  Using "+templatems+" found in current directory")
 else:
     msname='orion.ms'
     if not os.access(msname,F_OK):
         try:
-            found = dropwhile( lambda x: not os.path.exists(x),
-                           map(lambda x: x+'/regression/orionmos4sim/'+msname,datapaths) ).next()
+            found = next(dropwhile( lambda x: not os.path.exists(x),
+                           [x+'/regression/orionmos4sim/'+msname for x in datapaths] ))
         except:
-            raise IOError," ERROR: "+msname+" not found"
+            raise IOError(" ERROR: "+msname+" not found")
 
         from shutil import copytree
-        print "Copying "+found
+        print("Copying "+found)
         copytree(found,msname)
     # Starting from orion.ms which has already been calibrated
-    print '--Split--'
+    print('--Split--')
     split(vis=msname,outputvis=templatems,datacolumn='corrected')
-    print "  Created "+templatems
+    print("  Created "+templatems)
 
 #Clean params
 myimsize = 800
@@ -108,21 +108,21 @@ mynoise = ""
 #mynoise = "0.019Jy"
 # EVLA X-band SEFD is 300Jy (1Hz,1sec) so 50MHz,5sec would be 19mJy per vis
 
-print "Will use template MS "+ templatems
-print "Will image with imsize %5i and cell %s " % (myimsize,mycell)
-print "Will clean "+str(myniter)+" iterations"
+print("Will use template MS "+ templatems)
+print("Will image with imsize %5i and cell %s " % (myimsize,mycell))
+print("Will clean "+str(myniter)+" iterations")
 if mycen!="":
-    print "Will use phasecenter "+mycen
+    print("Will use phasecenter "+mycen)
 if myfield!="":
-    print "Will image fields "+myfield
+    print("Will image fields "+myfield)
 if myspw!="":
-    print "Will use spw "+myspw
+    print("Will use spw "+myspw)
 if myftmachine!="":
-    print "Will mosaic using ftmachine "+myftmachine
+    print("Will mosaic using ftmachine "+myftmachine)
 if mymask!="":
-    print "Will use clean mask "+mymask
+    print("Will use clean mask "+mymask)
 if mynoise!="":
-    print "Will add noise level of "+mynoise
+    print("Will add noise level of "+mynoise)
 
 # Save the parameters used in clean etc.
 params = {}
@@ -228,24 +228,24 @@ startProc=time.clock()
 #====================================================================
 # Set up component list with 1Jy point source
 clfile = prefix + "_sim.cl"
-print "Creating componentlist "
+print("Creating componentlist ")
 
 for comp in compnames:
     mydirection = "J2000 "+complist[comp]['RA']+" "+complist[comp]['Dec']
     compflux = complist[comp]['flux']
     cl.addcomponent(dir=mydirection, flux=compflux, freq='230.0GHz', spectrumtype='constant')
-    print "  Added comp "+comp+" "+str(compflux)+" Jy at "+mydirection+" ("+str(complist[comp]['xpix'])+","+str(complist[comp]['ypix'])+")"
+    print("  Added comp "+comp+" "+str(compflux)+" Jy at "+mydirection+" ("+str(complist[comp]['xpix'])+","+str(complist[comp]['ypix'])+")")
 
 cl.rename(clfile)
 mycl = cl.torecord()
 cl.close()
 
-print "Created componentlist "+clfile
+print("Created componentlist "+clfile)
 
 #Copy a new MS to work from template
 msfile = prefix + "_sim.ms"
 
-print "Copying "+templatems+" to "+msfile
+print("Copying "+templatems+" to "+msfile)
 
 os.system('cp -rf '+templatems+' '+msfile)
 
@@ -257,14 +257,14 @@ sm.predict(complist=clfile)
 
 #Add noise if desired
 if mynoise!="":
-    print 'Adding noise '+mynoise
+    print('Adding noise '+mynoise)
     sm.setvp(dovp=False)
     sm.setnoise(mode='simplenoise',simplenoise=mynoise)
     sm.corrupt()
 
 sm.close()
 
-print "Completed simulating MS "+msfile
+print("Completed simulating MS "+msfile)
 
 listobs(msfile)
 
@@ -317,15 +317,15 @@ sim1time=time.time()
 #     add it to the mosaic.  The script below leaves it out.
 #====================================================================
 # Clean
-print "Preparing to image data"
+print("Preparing to image data")
 
 # Set up clean boxes
 clnbox = []
 for comp in compnames:
     clnbox.append(complist[comp]['clnbox'])
 
-print ""
-print "Will be cleaning in box(es) "+str(clnbox)
+print("")
+print("Will be cleaning in box(es) "+str(clnbox))
 
 # MFS imaging for continuum
 default("clean")
@@ -374,33 +374,33 @@ cyclespeedup       =  -1
 
 # Set phasecenter either on field 1 or using Crystal's
 #phasecenter        =  "1"
-print "Will be mosaicing using phasecenter "+phasecenter
+print("Will be mosaicing using phasecenter "+phasecenter)
 
-print "First make dirty image"
+print("First make dirty image")
 pbcor              =  True
 dirtimag = prefix + ".dirty"
 imagename          =  dirtimag
 niter              =  0
 clean()
-print "Output images are called "+imagename
+print("Output images are called "+imagename)
 
 dirty1time=time.time()
 
 if mymask == "":
     mask = clnbox
-    print "Will be cleaning using box(es) "+str(mask)
+    print("Will be cleaning using box(es) "+str(mask))
 else:
     mask = mymask
-    print "Will be cleaning using mask "+mask
+    print("Will be cleaning using mask "+mask)
 
 #Clean image
 contimag = prefix + ".clean"
 pbcor              =  False
 imagename          =  contimag
 niter              =  myniter
-print "Now actually clean the image using niter = "+str(niter)
+print("Now actually clean the image using niter = "+str(niter))
 clean()
-print "Output images are called "+imagename
+print("Output images are called "+imagename)
 
 clean1time=time.time()
 
@@ -467,7 +467,7 @@ blcy = ypix + doffy - doffbox
 trcx = xpix + doffx + doffbox
 trcy = ypix + doffy + doffbox
 offbox = str(blcx)+","+ str(blcy)+","+ str(trcx)+","+ str(trcy)
-print "Off-source stats in box "+offbox
+print("Off-source stats in box "+offbox)
 
 # Do dirty image stats
 dirstats = imstat(imagename=dirimage,box = '')
@@ -541,7 +541,7 @@ for comp in compnames:
     compflux = complist[comp]['flux']
     totalflux = totalflux + compflux
     mybox = complist[comp]['box']
-    print "Component "+comp+" stats in box "+mybox
+    print("Component "+comp+" stats in box "+mybox)
     # Dirty image
     xstat_dirimg = imstat(imagename=dirimage,box=mybox)
     # Clean image
@@ -587,8 +587,8 @@ def lprint(msg, lfile):
     """
     Prints msg to both stdout and lfile.
     """
-    print msg
-    print >> logfile, msg
+    print(msg)
+    print(msg, file=logfile)
 
 lprint('Running '+myvers+' on host '+myhost, logfile)
 lprint('  at '+datestring, logfile)
@@ -603,7 +603,7 @@ lprint('Script version: '+params['version'], logfile)
 lprint('User set parameters used in execution:', logfile)
 lprint('---', logfile)
 
-for keys in params['user'].keys():
+for keys in list(params['user'].keys()):
     lprint('  %s  =  %s ' % ( keys, params['user'][keys] ), logfile)
 
 lprint('', logfile)
@@ -867,27 +867,27 @@ prev_results = {}
 
 if not os.access(regressfile,F_OK):
     try:
-        found = dropwhile( lambda x: not os.path.exists(x),
-                       map(lambda x: x+'/regression/orionmos4sim/'+regressfile,datapaths) ).next()
+        found = next(dropwhile( lambda x: not os.path.exists(x),
+                       [x+'/regression/orionmos4sim/'+regressfile for x in datapaths] ))
     except:
-        raise IOError," ERROR: "+regressfile+" not found"
+        raise IOError(" ERROR: "+regressfile+" not found")
 
     from shutil import copy
-    print "Copying "+regressfile
+    print("Copying "+regressfile)
     copy(found,regressfile)
 
 # Now try to access this file
 try:
     fr = open(regressfile,'r')
 except:
-    print "No previous regression results file "+regressfile
+    print("No previous regression results file "+regressfile)
     regression['exist'] = False
 else:
     u = pickle.Unpickler(fr)
     regression = u.load()
     fr.close()
-    print "Regression results filled from "+regressfile
-    print "Regression from version "+regression['version']+" on "+regression['date']
+    print("Regression results filled from "+regressfile)
+    print("Regression from version "+regression['version']+" on "+regression['date'])
     regression['exist'] = True
 
     prev_results = regression['results']
@@ -959,9 +959,9 @@ for comp in compnames:
             testres['op'] = res['op']
             testres['tol'] = res['tol']
 
-            if prev_compresults.has_key(comp):
+            if comp in prev_compresults:
                 # This is a known comp
-                if prev_compresults[comp].has_key(keys):
+                if keys in prev_compresults[comp]:
                     # This is a known regression key
                     prev = prev_compresults[comp][keys]
                     prev_val = prev['value']
@@ -1028,7 +1028,7 @@ for keys in resultlist:
         testres['tol'] = res['tol']
 
         # Compute regression results
-        if prev_results.has_key(keys):
+        if keys in prev_results:
             # This is a known regression key
             prev = prev_results[keys]
             prev_val = prev['value']
@@ -1078,12 +1078,12 @@ if regression['exist']:
     # Final regression status
     if (final_status == 'Passed'):
         regstate=True
-        print >>logfile,'---'
+        print('---', file=logfile)
         lprint('Passed Regression test for ' + mydataset, logfile)
-        print >>logfile,'---'
-        print ''
-        print 'Regression PASSED'
-        print ''
+        print('---', file=logfile)
+        print('')
+        print('Regression PASSED')
+        print('')
     else:
         regstate=False
         lprint('----FAILED Regression test for ' + mydataset, logfile)
@@ -1130,11 +1130,11 @@ p = pickle.Pickler(f)
 p.dump(new_regression)
 f.close()
 
-print ""
-print "Regression result dictionary saved in "+pickfile
-print ""
-print "Use Pickle to retrieve these"
-print ""
+print("")
+print("Regression result dictionary saved in "+pickfile)
+print("")
+print("Use Pickle to retrieve these")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1147,7 +1147,7 @@ lprint("", logfile)
 lprint("Done with " + mydataset, logfile)
 
 logfile.close()
-print "Results are in "+outfile
+print("Results are in "+outfile)
 
 #
 ##########################################################################

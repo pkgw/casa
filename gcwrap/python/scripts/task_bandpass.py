@@ -30,7 +30,7 @@ def bandpass(vis=None,caltable=None,
                 if ((type(vis)==str) & (os.path.exists(vis))):    
                         mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 		mycb.reset()
 
 		# Do data selection according to selectdata
@@ -130,9 +130,9 @@ def bandpass(vis=None,caltable=None,
 		mycb.solve()
 		mycb.close()
 
-	except Exception, instance:
-		print '*** Error ***', instance
+	except Exception as instance:
+		print('*** Error ***', instance)
 		mycb.close()
 		casalog.post("Error in bandpass: %s" % str(instance), "SEVERE")
-		raise Exception, "Error in bandpass: "+str(instance)
+		raise Exception("Error in bandpass: "+str(instance))
 

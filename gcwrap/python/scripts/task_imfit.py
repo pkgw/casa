@@ -14,7 +14,7 @@ def imfit(
     try:
         myia.dohistory(False)
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         result_dict = myia.fitcomponents(
             box=box, region=region, chans=chans, stokes=stokes,
             mask=mask, includepix=includepix,
@@ -26,17 +26,17 @@ def imfit(
             rms=rms, noisefwhm=noisefwhm, summary=summary
         )
         try:
-            param_names = imfit.func_code.co_varnames[:imfit.func_code.co_argcount]
+            param_names = imfit.__code__.co_varnames[:imfit.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]  
             for im in [residual, model]: 
                 write_image_history(
                     im, sys._getframe().f_code.co_name,
                     param_names, param_vals, casalog
                 )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return result_dict
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise instance
     finally:

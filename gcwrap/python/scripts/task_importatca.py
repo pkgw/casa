@@ -77,20 +77,20 @@ def importatca (
             myaf.select(firstscan,lastscan,spw,lowfreq,highfreq,
             fields,edge)
             myaf.fill()
-        except Exception, e:
-          print e;
+        except Exception as e:
+          print(e);
           casalog.post("Failed to import atca rpfits file(s) %s" % files)
           raise
         # Write the args to HISTORY.
         try:
             mslocal = mstool()
-            param_names = importatca.func_code.co_varnames[:importatca.func_code.co_argcount]
+            param_names = importatca.__code__.co_varnames[:importatca.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
                 mslocal, vis, 'importatca', param_names, 
                 param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("Failed to updated HISTORY", 'WARN')
     except:
         pass

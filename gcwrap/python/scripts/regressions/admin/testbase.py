@@ -2,13 +2,14 @@
 ###More complicated tests may inherit from this
 import os
 import string
-import commands
+import subprocess
 import shutil
 import sys
 from  casac import *
 import inspect
 import re
 import pdb
+import importlib
 #from tasks import *  # execfile
 #from taskinit import casalog
 
@@ -30,15 +31,15 @@ class testbase :
 
     def createDirs(self):
         if os.access(self.resultDirectory, os.F_OK) is False:
-            print self.resultDirectory+' does not exist, creating it'
+            print(self.resultDirectory+' does not exist, creating it')
             os.makedirs(self.resultDirectory)
         if os.access(self.workingDirectory, os.F_OK) is False:
-            print self.workingDirectory+' does not exist, creating it'
+            print(self.workingDirectory+' does not exist, creating it')
             os.makedirs(self.workingDirectory)
             
     def setDataBaseDir(self, dir=['./Data']):
         if type(dir) != type(["directory", "list"]):
-            raise TypeError, type(dir)
+            raise TypeError(type(dir))
         self.dataBaseDirectory=dir
 
     def setResultDir(self, dir='./Results'):
@@ -62,7 +63,7 @@ class testbase :
             # This does not work, need to search also for DIR/name.py
             # Also, searching in .../tests/<name>/regression.py is
             # obsolete
-            raise Exception, "Unsupported!"
+            raise Exception("Unsupported!")
         
             theFiles=os.listdir(self.scriptRepository)
             tempy=[]
@@ -82,7 +83,7 @@ class testbase :
         for k  in range(len(theFiles)):
             #self.testsToRun.append(string.split(theFiles[k],'.py')[0])
             self.testsToRun.append(theFiles[k])          
-        print "tests to run = ", self.testsToRun
+        print("tests to run = ", self.testsToRun)
         return len(self.testsToRun)
 
     def getTest(self, testnamek, testName):
@@ -95,7 +96,7 @@ class testbase :
     
     def testname(self, ind=0):
         if(len(self.testsToRun)==0):
-            print 'No tests defined yet'
+            print('No tests defined yet')
             return ''
         return self.testsToRun[ind]
 
@@ -104,7 +105,7 @@ class testbase :
 
         if leFile[0:6] == 'tests/':
             leTest = __import__(testName)
-            reload(leTest)
+            importlib.reload(leTest)
             try:
                 # Fails if module does not
                 # define the description() function
@@ -121,23 +122,23 @@ class testbase :
         try:
             leFile=self.testsToRun[testId]
             if leFile[0:6] == 'tests/':
-                print "Import", leFile
+                print("Import", leFile)
                 leTest = __import__(testName)
                 #print "  imported"
                 allData=leTest.data()
                 # check if there is a doCopy function and use it if possible
                 try:
                     doCopy=leTest.doCopy()
-                    print doCopy
+                    print(doCopy)
                     if (len(doCopy) != len(allData)):
                         doCopy=[-1]
-                        print 'Error: doCopy function supplied list of incorrect length.'
+                        print('Error: doCopy function supplied list of incorrect length.')
                     else:
-                        print 'Using doCopy function to determine whether to copy or link input data.'
+                        print('Using doCopy function to determine whether to copy or link input data.')
                 except:
                     doCopy=[-1]
                     
-                print "Required data =", allData
+                print("Required data =", allData)
                 for leIndex, leData in enumerate(allData) : 
                     theData=self.locatedata(leData)
                     if(theData != ''):
@@ -165,7 +166,7 @@ class testbase :
                 del leTest
 
                 if type(theImages) == None:
-                    raise Exception, "Illegal return value from run()"                   
+                    raise Exception("Illegal return value from run()")                   
                     
                 leResult=[]
                 for leImage in theImages :
@@ -173,7 +174,7 @@ class testbase :
                 self.defineQualityTestList(leResult)
                 return leResult, theImages
             else:
-                print "execfile", leFile
+                print("execfile", leFile)
                 if dry:
                     return [], []
                 a=inspect.stack()
@@ -197,16 +198,16 @@ class testbase :
                 # here. But an exeption propagates
                 
                 fd=open('exec-'+leFile, 'w')
-                print >> fd, "regstate=True"   # used in regression scripts to signal error
-                print >> fd, "execfile('"+leFile+"')"
-                print >> fd, "print 'regstate =', regstate"
-                print >> fd, "if not regstate:"
-                print >> fd, "    raise Exception, 'regstate = False'"
+                print("regstate=True", file=fd)   # used in regression scripts to signal error
+                print("execfile('"+leFile+"')", file=fd)
+                print("print 'regstate =', regstate", file=fd)
+                print("if not regstate:", file=fd)
+                print("    raise Exception, 'regstate = False'", file=fd)
                 fd.close()
 
                 # What we really want, but regstate doesn't propagate:
                 # execfile(leFile, gl)
-                execfile('./exec-'+leFile, gl)
+                exec(compile(open('./exec-'+leFile, "rb").read(), './exec-'+leFile, 'exec'), gl)
                 
                 return [], []   # no product images known
         except:
@@ -244,7 +245,7 @@ class testbase :
                     if findspec['return']:                        
                         spix=findspec['pixel']
                         if(shp[spix]>5):
-                            print 'spectral shape= ', shp[spix],' ', theResult[k], k 
+                            print('spectral shape= ', shp[spix],' ', theResult[k], k) 
                             self.testList[theResult[k]].append('cube')
                     if findstok['return']:
                         kpix=findstok['pixel']
@@ -263,7 +264,7 @@ class testbase :
     
     def searchscript(self,  testname):
         scriptdir=self.scriptRepository
-        print "searching for script", testname, "in ",scriptdir
+        print("searching for script", testname, "in ",scriptdir)
         testName=string.lower(testname)
 
         # search for DIR/tests/<name>.py
@@ -272,13 +273,13 @@ class testbase :
             allScripts=os.listdir(scriptdir+'/tests/')
         else:
             allScripts=[]
-        print "allScripts = ", allScripts
+        print("allScripts = ", allScripts)
         theScript=[]
         numOfScript=0
         for scr in allScripts :
             #if(string.find(scr,testname)>=0):
             if(scr == testname+'.py'):
-                print scr, testname
+                print(scr, testname)
                 #if (self.ispythonscript(scr)):
                 theScript.append('tests/'+scr)
                 numOfScript +=1
@@ -288,7 +289,7 @@ class testbase :
             allScripts=os.listdir(scriptdir)
         else:
             allScripts=[]
-        print "allScripts = ", allScripts
+        print("allScripts = ", allScripts)
         for scr in allScripts:
             #print scriptdir, scr, testname
             if (scr == testname + '.py'):
@@ -297,9 +298,9 @@ class testbase :
         if numOfScript == 0:
             raise Exception("Could not find test %s" % testname)
         if( numOfScript > 1) :
-            print 'More than 1 scripts found for name '+testname
-            print 'Using the following one '+ theScript[0]
-        print "Found", theScript[0]
+            print('More than 1 scripts found for name '+testname)
+            print('Using the following one '+ theScript[0])
+        print("Found", theScript[0])
         return theScript[0]
 
     def ispythonscript(self, thescript):
@@ -315,7 +316,7 @@ class testbase :
             filter_hidden = ' | grep -vE "^\\."  | grep -vE "/\\."'
             
             # See if find understands -L or -follow (depends on find version)
-            (err, a) = commands.getstatusoutput('find -L ' + repository+'/ 1>/dev/null 2>&1')
+            (err, a) = subprocess.getstatusoutput('find -L ' + repository+'/ 1>/dev/null 2>&1')
             if not err:
                 findstr='find -L '+repository+'/ -name '+datafile+' -print 2>/dev/null' + filter_hidden
             else:
@@ -323,10 +324,10 @@ class testbase :
             # A '/' is appended to the directory name; otherwise sometimes find doesn't find.
             # Also, ignore error messages such as missing directory permissions
             
-            (find_errorcode, a)=commands.getstatusoutput(findstr)   # stdout and stderr
+            (find_errorcode, a)=subprocess.getstatusoutput(findstr)   # stdout and stderr
             if find_errorcode > 0 and not a:
                 a = self.python_find(datafile, repository)
-                print "*** python found",a
+                print("*** python found",a)
             #if find_errorcode != 0:
             #    print >> sys.stderr, "%s failed: %s" % (findstr, a)
             retval=''
@@ -335,11 +336,11 @@ class testbase :
                 b=string.split(a, '\n')
                 retval=b[len(b)-1]
                 if(len(b) > 1):
-                    print 'more than 1 file found with name '+datafile
-                print 'will use', retval
+                    print('more than 1 file found with name '+datafile)
+                print('will use', retval)
                 return retval
-        raise Exception, 'Could not find datafile %s in the repository directories %s' \
-              % (datafile, self.dataBaseDirectory)
+        raise Exception('Could not find datafile %s in the repository directories %s' \
+              % (datafile, self.dataBaseDirectory))
 
     def python_find(self, name, path):
         # http://stackoverflow.com/questions/1724693/find-a-file-in-python

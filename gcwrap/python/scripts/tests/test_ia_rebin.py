@@ -77,20 +77,20 @@ def alleqnum(x,num,tolerance=0):
     if len(x.shape)==1:
         for i in range(x.shape[0]):
             if not (abs(x[i]-num) < tolerance):
-                print "x[",i,"]=", x[i]
+                print("x[",i,"]=", x[i])
                 return False
     if len(x.shape)==2:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 if not (abs(x[i][j]-num) < tolerance):
-                    print "x[",i,"][",j,"]=", x[i][j]
+                    print("x[",i,"][",j,"]=", x[i][j])
                     return False
     if len(x.shape)==3:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 for k in range(x.shape[2]):
                     if not (abs(x[i][j][k]-num) < tolerance):
-                        print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
+                        print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
                         return False
     if len(x.shape)==4:
         for i in range(x.shape[0]):
@@ -98,7 +98,7 @@ def alleqnum(x,num,tolerance=0):
                 for k in range(x.shape[2]):
                     for l in range(x.shape[3]):
                         if not (abs(x[i][j][k][l]-num) < tolerance):
-                            print "x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k]
+                            print("x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k])
                             return False
     if len(x.shape)>4:
         stop('unhandled array shape in alleq')
@@ -152,7 +152,7 @@ class ia_rebin_test(unittest.TestCase):
             )
         )
         yy.open(outfile)
-        print "shape " + str(yy.shape())
+        print("shape " + str(yy.shape()))
         self.assertTrue((yy.shape() == [100, 100, 1, 10]).all())
         yy.done()
         
@@ -173,7 +173,7 @@ class ia_rebin_test(unittest.TestCase):
         try:
             myim2b = True
             myim2b = myim2.rebin("", bin=[-100,2], overwrite=True)
-        except Exception, e:
+        except Exception as e:
             myim2b = False
         self.assertFalse(myim2b)
         
@@ -278,7 +278,7 @@ class ia_rebin_test(unittest.TestCase):
         factor = [5,5]
         zz = myia.rebin("", bin=factor, region=rg.box([5,5,0],[25,25,0]),crop=True)
         myia.done()
-        print "*** shape ",zz.shape()
+        print("*** shape ",zz.shape())
         self.assertTrue((zz.shape() == [4,4,1]).all())
         zz.done()
         outfile = "vcsfea.im"

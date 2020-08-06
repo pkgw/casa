@@ -60,8 +60,7 @@ def applycal(
             mycb.open(filename=vis, compress=False, addcorr=True,
                       addmodel=False)
         else:
-            raise Exception, \
-                'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         # enforce default if unspecified
         if applymode == '':
@@ -180,7 +179,7 @@ def applycal(
             # write history
         try:
             param_names = \
-                applycal.func_code.co_varnames[:applycal.func_code.co_argcount]
+                applycal.__code__.co_varnames[:applycal.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
                 mstool(),
@@ -190,19 +189,19 @@ def applycal(
                 param_vals,
                 casalog,
                 )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY"
                          % instance, 'WARN')
-    except Exception, instance:
-        print '*** Error ***', instance
+    except Exception as instance:
+        print('*** Error ***', instance)
         mycb.close()
         casalog.post("Error in applycal: %s" % str(instance), "SEVERE")
-        raise Exception, "Error in applycal: "+str(instance)
+        raise Exception("Error in applycal: "+str(instance))
 
 def reportflags(rec):
     try:
-        if rec.keys().count('origin') == 1 and rec['origin'] \
-            == 'Calibrater::correct' and rec.keys().count('VisEquation'
+        if list(rec.keys()).count('origin') == 1 and rec['origin'] \
+            == 'Calibrater::correct' and list(rec.keys()).count('VisEquation'
                 ) == 1:
             casalog.post('Calibration apply flagging statistics (among calibrateable spws):'
                          )
@@ -232,13 +231,13 @@ def reportflags(rec):
                     flstr += ' / '+str(nVisThis)+partial
                     flstr += ' (' + str(100. * VEi['nflagOut']/nVisThis) + '%)'
                                         
-                    if VEi.has_key('table'):
+                    if 'table' in VEi:
                         flstr += ' (' + VEi['table'] + ')'
                     casalog.post(flstr)
                 if partlog:
                     casalog.post('     ** = Denotes caltable that only corrected a subset of total selected visibilities')
 
-    except Exception, instance:
+    except Exception as instance:
         # complain mildly, but don't alarm
         casalog.post('Error formatting some or all of the applycal flagging log info: '
                       + str(instance))

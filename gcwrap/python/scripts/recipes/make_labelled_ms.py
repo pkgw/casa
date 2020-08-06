@@ -2,7 +2,7 @@ import numpy
 import os
 import shutil
 import stat
-from taskutil import get_global_namespace
+from .taskutil import get_global_namespace
 
 def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
                      whichdatacol='DATA'):
@@ -62,15 +62,15 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
         pass  # through to next clause...
     if not have_tools:
         try:
-            from taskutil import get_global_namespace
+            from .taskutil import get_global_namespace
             my_globals = get_global_namespace()
             tb = my_globals['tb']
             ms = my_globals['ms']
             casalog = my_globals['casalog']
             clearcal = my_globals['clearcal']
         except NameError:
-            print "Could not find tb and ms.  my_globals =",
-            print "\n\t".join(my_globals.keys())
+            print("Could not find tb and ms.  my_globals =", end=' ')
+            print("\n\t".join(list(my_globals.keys())))
 
     casalog.origin("make_labelled_ms")
 
@@ -85,10 +85,10 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
                 if ow:
                     shutil.rmtree(outputms)
                 else:
-                    print "Use ow=True if you really want to overwrite", outputms
+                    print("Use ow=True if you really want to overwrite", outputms)
                     return False
             shutil.copytree(srcms, outputms)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error %s copying %s to %s." % (instance,
                                                          srcms, outputms),
                      'SEVERE')
@@ -118,9 +118,9 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
                 rowcols[quant] = tb.getcol(quant.upper())
             elif quant[:4].upper() == 'TIME':
                 rowcols[quant] = tb.getcol(quant.upper())
-                print quant, "is a timelike quantity, so it will be offset and scaled"
-                print "by subtracting the first value and dividing by the first integration"
-                print "interval."
+                print(quant, "is a timelike quantity, so it will be offset and scaled")
+                print("by subtracting the first value and dividing by the first integration")
+                print("interval.")
                 rowcols[quant] -= rowcols[quant][0]
                 rowcols[quant] /= tb.getcell('INTERVAL')
             elif quant[:3].upper() == 'POL':
@@ -129,23 +129,23 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
                 chanbase = labelbases[quant]
             else:
                 casalog.post("Do not know how to label %s." % quant, 'WARN')
-        except Exception, e:
-            print "Error getting", quant
+        except Exception as e:
+            print("Error getting", quant)
             if debug:
                 return rowcols
             else:
                 raise e
 
     dat = numpy.array(tb.getcol('DATA'))
-    for rowind in xrange(dat.shape[2]):
+    for rowind in range(dat.shape[2]):
         rowlabel = 0
         for q in rowcols:
             rowlabel += rowcols[q][rowind] * labelbases[q]
 					
-        for polind in xrange(dat.shape[0]):
+        for polind in range(dat.shape[0]):
             pollabel = rowlabel + polbase * polind
 				
-            for chanind in xrange(dat.shape[1]):
+            for chanind in range(dat.shape[1]):
                 label = pollabel + chanind * chanbase
                 dat[polind, chanind, rowind] = label
     tb.putcol(whichdatacol, dat.tolist())
@@ -154,7 +154,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
     try:
         addendum = srcms + " labelled by labelbases = {\n"
         qbs = []
-        for q, b in labelbases.items():
+        for q, b in list(labelbases.items()):
             qb = "\t%16s: " % ("'" + q + "'")
             if type(b) == complex:
                 if b.real != 0.0:
@@ -171,7 +171,7 @@ def make_labelled_ms(srcms, outputms, labelbases, ow=False, debug=False,
         # don't show it in the logger.
         ms.writehistory(addendum, origin="make_labelled_ms")
         ms.close()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error %s updating %s's history." % (instance,
                                                               outputms),
                      'SEVERE')
@@ -235,8 +235,8 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
             casalog = my_globals['casalog']
             clearcal = my_globals['clearcal']
         except NameError:
-            print "Could not find tb and ms.  my_globals =",
-            print "\n\t".join(my_globals.keys())
+            print("Could not find tb and ms.  my_globals =", end=' ')
+            print("\n\t".join(list(my_globals.keys())))
 
     casalog.origin("label_itered_ms")
 
@@ -283,7 +283,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
     tb.close()
 
     ms.open(msname, nomodify=False)
-    for ddid in xrange(nddid):
+    for ddid in range(nddid):
         ms.selectinit(datadescid=ddid)
         ms.iterinit(maxrows=2000)
         ms.iterorigin()
@@ -291,7 +291,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
         ismore = True
         while ismore:
             chunk = ms.getdata(cols_to_get)
-            if chunk.has_key('time'):
+            if 'time' in chunk:
                 chunk['time'] -= chunk['time'][0]
                 #chunk['time'] /= chunk['interval'][0]
 
@@ -300,7 +300,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
             for q in labelbases:
                 # Relies on all the columns that are both in labelbases and chunk
                 # being scalar.
-                if chunk.has_key(q.lower()):
+                if q.lower() in chunk:
                     if hasattr(labelbases[q], '__call__'):
                         data = labelbases[q](chunk)
                         if hasattr(data, 'shape'):
@@ -314,13 +314,13 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
                 if hasattr(polbase, '__call__'):
                     chunk[datacol] += polbase(chunk)
                 else:
-                    for polind in xrange(datshape[0]):
+                    for polind in range(datshape[0]):
                         chunk[datacol][polind, :, :] += polbase * polind
             if chanbase:
                 if hasattr(chanbase, '__call__'):
                     chunk[datacol] += chanbase(chunk)
                 else:
-                    for cind in xrange(datshape[1]):
+                    for cind in range(datshape[1]):
                         chunk[datacol][:, cind, :] += chanbase * cind
             ms.putdata({datacol: chunk[datacol]})
             ismore = ms.iternext()
@@ -333,7 +333,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
             addendum += "labelled"
         addendum += " by labelbases = {\n"
         qbs = []
-        for q, b in labelbases.items():
+        for q, b in list(labelbases.items()):
             qb = "\t%16s: " % ("'" + q + "'")
             if hasattr(b, '__call__'):
                 qb += b.__name__ + ' (function)'
@@ -350,7 +350,7 @@ def label_itered_ms(msname, labelbases, debug=False, datacol='DATA',
         # The parms parameter is a false lead - ms.listhistory and listhistory
         # don't show it in the logger.
         ms.writehistory(addendum, origin="label_itered_ms")
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error updating %s's history: %s" % (msname,
                                                               instance),
                      'SEVERE')

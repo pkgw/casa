@@ -35,7 +35,7 @@ def bandname(spwname):
         lo+=8  # 2-digit band name starts 8 chars later
         return spwname[lo:].split("#")[0]
     else:
-        print "Can't discern an ALMA bandname from: "+str(spwname)
+        print("Can't discern an ALMA bandname from: "+str(spwname))
         return spwname
 
 def bandpa(name):
@@ -61,19 +61,19 @@ def bandpa(name):
         if (bn.isdigit()):
             iband=int(bn)
         else:
-            print "Unresolved bandname: default band position angle set to "+str(bparad[0])
+            print("Unresolved bandname: default band position angle set to "+str(bparad[0]))
             iband=0  # Use 0
 
     if (iband<11):
         return bparad[iband]
     else:
-        raise Exception, "Error extracting band position angle for "+str(name)
+        raise Exception("Error extracting band position angle for "+str(name))
 
 
 def qufromgain(caltable,badspw=[],paoffset=0.0):
     
     if paoffset!=0.0:
-        print "NB: default band position angle will be offset by "+str(paoffset)+"deg."
+        print("NB: default band position angle will be offset by "+str(paoffset)+"deg.")
 
     mytb=taskinit.tbtool()
     myme=taskinit.metool()
@@ -92,19 +92,19 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
     # _geodetic_ latitude
     latr=myme.measure(mpos,'WGS84')['m1']['value']
 
-    print 'Latitude = ',latr*180/pi
+    print('Latitude = ',latr*180/pi)
 
     mytb.open(caltable+'/FIELD')
     nfld=mytb.nrows()
     dirs=mytb.getcol('DELAY_DIR')[:,0,:]
     mytb.close()
-    print 'Found as many as '+str(nfld)+' fields.'
+    print('Found as many as '+str(nfld)+' fields.')
 
     mytb.open(caltable+'/SPECTRAL_WINDOW')
     nspw=mytb.nrows()
     bandnames=[bandname(x) for x in mytb.getcol('NAME')]
     mytb.close()
-    print 'Found as many as '+str(nspw)+' spws.'
+    print('Found as many as '+str(nspw)+' spws.')
 
     R=pl.zeros((nspw,nfld))
     Q=pl.zeros((nspw,nfld))
@@ -167,7 +167,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
 
                 fit=pl.lstsq(A,pl.square(ratio))
 
-                ants0=range(nants)
+                ants0=list(range(nants))
                 rsum=pl.sum(ratio[:,ants0],1)
                 rsum/=len(ants0)
                 
@@ -178,7 +178,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
                 P=sqrt(Q[ispw,ifld]**2+U[ispw,ifld]**2)
                 X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
 
-                print 'Fld=',ifld,'Spw=',ispw,'(B='+str(bandnames[ispw])+', PA offset='+str(bandpa(bandnames[ispw])*180/pi+paoffset)+'deg)','Gx/Gy=',R[ispw,ifld],'Q=',Q[ispw,ifld],'U=',U[ispw,ifld],'P=',P,'X=',X
+                print('Fld=',ifld,'Spw=',ispw,'(B='+str(bandnames[ispw])+', PA offset='+str(bandpa(bandnames[ispw])*180/pi+paoffset)+'deg)','Gx/Gy=',R[ispw,ifld],'Q=',Q[ispw,ifld],'U=',U[ispw,ifld],'P=',P,'X=',X)
                 
             else:
                 mask[ispw,ifld]=False
@@ -186,7 +186,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
             st.close()
 
         if sum(mask[:,ifld])>0:
-            print 'For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.'
+            print('For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.')
 
             Qm=pl.mean(Q[mask[:,ifld],ifld])
             Um=pl.mean(U[mask[:,ifld],ifld])
@@ -195,7 +195,7 @@ def qufromgain(caltable,badspw=[],paoffset=0.0):
             Ue=pl.std(U[mask[:,ifld],ifld])
             Pm=sqrt(Qm**2+Um**2)
             Xm=0.5*atan2(Um,Qm)*180/pi
-            print 'Spw mean: Fld=', ifld,'Q=',Qm,'U=',Um,'(rms=',Qe,Ue,')','P=',Pm,'X=',Xm
+            print('Spw mean: Fld=', ifld,'Q=',Qm,'U=',Um,'(rms=',Qe,Ue,')','P=',Pm,'X=',Xm)
 
     mytb.close()
 
@@ -207,7 +207,7 @@ def xyamb(xytab,qu,xyout=''):
     mytb=taskinit.tbtool()
 
     if not isinstance(qu,tuple):
-        raise Exception,'qu must be a tuple: (Q,U)'
+        raise Exception('qu must be a tuple: (Q,U)')
 
     if xyout=='':
         xyout=xytab
@@ -215,7 +215,7 @@ def xyamb(xytab,qu,xyout=''):
         os.system('cp -r '+xytab+' '+xyout)
 
     QUexp=complex(qu[0],qu[1])
-    print 'Expected QU = ',qu   # , '  (',pl.angle(QUexp)*180/pi,')'
+    print('Expected QU = ',qu)   # , '  (',pl.angle(QUexp)*180/pi,')'
 
     mytb.open(xyout,nomodify=False)
 
@@ -232,7 +232,7 @@ def xyamb(xytab,qu,xyout=''):
             c=st.getcol('CPARAM')
             fl=st.getcol('FLAG')
             xyph0=pl.angle(pl.mean(c[0,:,:][pl.logical_not(fl[0,:,:])]),True)
-            print 'Spw = '+str(ispw)+': Found QU = '+str(QU[:,ispw])  # +'   ('+str(pl.angle(qufound)*180/pi)+')'
+            print('Spw = '+str(ispw)+': Found QU = '+str(QU[:,ispw]))  # +'   ('+str(pl.angle(qufound)*180/pi)+')'
             #if ( (abs(q)>0.0 and abs(qu[0])>0.0 and (q/qu[0])<0.0) or
             #     (abs(u)>0.0 and abs(qu[1])>0.0 and (u/qu[1])<0.0) ):
             if ( pl.absolute(pl.angle(qufound/QUexp)*180/pi)>90.0 ):
@@ -240,9 +240,9 @@ def xyamb(xytab,qu,xyout=''):
                 xyph1=pl.angle(pl.mean(c[0,:,:][pl.logical_not(fl[0,:,:])]),True)
                 st.putcol('CPARAM',c)
                 QU[:,ispw]*=-1
-                print '   ...CONVERTING X-Y phase from '+str(xyph0)+' to '+str(xyph1)+' deg'
+                print('   ...CONVERTING X-Y phase from '+str(xyph0)+' to '+str(xyph1)+' deg')
             else:
-                print '      ...KEEPING X-Y phase '+str(xyph0)+' deg'
+                print('      ...KEEPING X-Y phase '+str(xyph0)+' deg')
             st.close()
     QUr={}
     QUr['QU']=QU
@@ -253,10 +253,10 @@ def xyamb(xytab,qu,xyout=''):
     Pm=pl.sqrt(QUm[0]**2+QUm[1]**2)
     Xm=0.5*atan2(QUm[1],QUm[0])*180/pi
 
-    print 'Ambiguity resolved (spw mean): Q=',QUm[0],'U=',QUm[1],'(rms=',QUe[0],QUe[1],')','P=',Pm,'X=',Xm
+    print('Ambiguity resolved (spw mean): Q=',QUm[0],'U=',QUm[1],'(rms=',QUe[0],QUe[1],')','P=',Pm,'X=',Xm)
 
     stokes=[1.0,QUm[0],QUm[1],0.0]
-    print 'Returning the following Stokes vector: '+str(stokes)
+    print('Returning the following Stokes vector: '+str(stokes))
     
     return stokes
 
@@ -312,7 +312,7 @@ def Dgen(dtab,dout):
         irec['subType']='Dgen Jones'
     else:
         mytb.close()
-        raise Exception, 'Not a D?'
+        raise Exception('Not a D?')
 
     mytb.putinfo(irec)
     mytb.putkeyword('VisCal',irec['subType'])
@@ -327,7 +327,7 @@ def fixfeedpa(vis,defband='',forceband=''):
     spwnames=mytb.getcol('NAME')
     mytb.close()
     if len(forceband)>0:
-        print 'Forcing band = ',forceband
+        print('Forcing band = ',forceband)
         spwnames[:]=forceband
         defband=forceband
     mytb.open(vis+'/FEED',nomodify=False)
@@ -339,10 +339,10 @@ def fixfeedpa(vis,defband='',forceband=''):
     spwmask=pl.logical_not(spwmask)
     if (sum(spwmask)>0):
         if (len(defband)>0):
-            print 'NB: Setting spwid=-1 rows in FEED table to RECEPTOR_ANGLE for band='+str(defband)
+            print('NB: Setting spwid=-1 rows in FEED table to RECEPTOR_ANGLE for band='+str(defband))
             ra[0,spwmask]=bandpa(defband)
         else:
-            print 'NB: Setting spwid=-1 rows in FEED table to RECEPTOR_ANGLE=(0,pi/2)'
+            print('NB: Setting spwid=-1 rows in FEED table to RECEPTOR_ANGLE=(0,pi/2)')
     ra[1,:]=ra[0,:]+(pi/2.)
     mytb.putcol('RECEPTOR_ANGLE',ra)
     mytb.close()
@@ -355,7 +355,7 @@ def fillsplitconcat(asdms,outvis,spw='',intent='',field='',dotsys=False,dowvr=Fa
     assert type(outvis)==type("") and len(outvis)>0, "Please specify a name for outvis"
 
     if len(glob.glob(outvis))>0:
-        raise Exception, "Found "+outvis+" already generated."
+        raise Exception("Found "+outvis+" already generated.")
 
     # a temporary space for the intermediate files
     tmpdir='./FILLSPLITCONCAT_TMP/'
@@ -371,10 +371,10 @@ def fillsplitconcat(asdms,outvis,spw='',intent='',field='',dotsys=False,dowvr=Fa
         fillms=tmpdir+sdm+'.ms'
         # only fill if not already present
         if (len(glob.glob(fillms))<1):
-            print 'Filling '+sdmpath+' to '+fillms
+            print('Filling '+sdmpath+' to '+fillms)
             importasdm(asdm=sdmpath,vis=fillms)
         else:
-            print 'Found '+fillms+' already filled.'
+            print('Found '+fillms+' already filled.')
 
         if dotsys or dowvr:
             gaintable=[]
@@ -408,7 +408,7 @@ def fillsplitconcat(asdms,outvis,spw='',intent='',field='',dotsys=False,dowvr=Fa
             # and not already split
             splitms=tmpdir+sdm+'.split_'+spw.replace('*','')+'_'+intent.replace('*','').replace(',','-')+'.ms'
             if (len(glob.glob(splitms))<1):
-                print '  Splitting spw=\''+spw+'\' from '+fillms+' into '+splitms
+                print('  Splitting spw=\''+spw+'\' from '+fillms+' into '+splitms)
                 dc='data'
                 if dotsys or dowvr:
                     dc='corrected'
@@ -418,24 +418,24 @@ def fillsplitconcat(asdms,outvis,spw='',intent='',field='',dotsys=False,dowvr=Fa
                     # only if split successful (spw might not select anything or import failed)
                     splitlist.append(splitms)
                 else:
-                    print 'split failed on '+str(fillms)+'; continuing without it'
+                    print('split failed on '+str(fillms)+'; continuing without it')
             else:
                 splitlist.append(splitms)
-                print '  Found '+splitms+' already split.'
+                print('  Found '+splitms+' already split.')
         else:
             # the filled ms is what we will concat
             splitlist.append(fillms)
     
     if len(splitlist)>1:
-        print 'Concat-ing: ',splitlist,' to ',outvis
+        print('Concat-ing: ',splitlist,' to ',outvis)
         concat(vis=splitlist,concatvis=outvis)
 
     else:
         if len(splitlist[0])>0:
-            print 'Renaming: ',splitlist[0],' to ',outvis
+            print('Renaming: ',splitlist[0],' to ',outvis)
             os.rename(splitlist[0],outvis)
         else:
-            raise Exception, 'No data was generated by filling/splitting/concat-ing'
+            raise Exception('No data was generated by filling/splitting/concat-ing')
 
     # remove the temporary directory
     if cleanup:
@@ -449,22 +449,22 @@ def scanbystate(vis,undo=False):
     mytb.open(vis,nomodify=False)
     scans=mytb.getcol('SCAN_NUMBER')
     states=mytb.getcol('STATE_ID')
-    print 'Unique STATE_IDs = ',str(pl.unique(states))
+    print('Unique STATE_IDs = ',str(pl.unique(states)))
     maxstate=states.max()
 
     if undo:
         d=10**int(floor(log10(scans.min())))
         if d<10:
             mytb.close()
-            raise Exception, 'Apparently, nothing to undo'
+            raise Exception('Apparently, nothing to undo')
         scans-=states
         scans/=d
-        print 'New SCAN_NUMBER = (SCAN_NUMBER - STATE_ID) / '+str(d)
+        print('New SCAN_NUMBER = (SCAN_NUMBER - STATE_ID) / '+str(d))
     else:
         m=10**int(floor(log10(states.max())+1.0))
         scans*=m
         scans+=states
-        print 'New SCAN_NUMBER = SCAN_NUMBER * '+str(m)+' + STATE_ID'
+        print('New SCAN_NUMBER = SCAN_NUMBER * '+str(m)+' + STATE_ID')
 
     mytb.putcol('SCAN_NUMBER',scans)
     mytb.close()

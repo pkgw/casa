@@ -29,7 +29,7 @@ def plotprofilemap(imagename=None, figfile=None, overwrite=None, transparent=Non
                          separatepanel, plotmasked, maskedcolor,
                          showaxislabel, showtick, showticklabel, parsed_size,
                          nx, ny, transparent, plotrange)
-    except Exception, e:
+    except Exception as e:
         casalog.post('Error: %s'%(str(e)), priority='SEVERE')
         import traceback
         casalog.post(traceback.format_exc(), priority='DEBUG')
@@ -100,7 +100,7 @@ def parse_figsize(figsize):
 def parse_numpanels(numpanels):
     parsed = (-1, -1)
     if isinstance(numpanels, str) and len(numpanels) > 0:
-        n = map(int, numpanels.split(','))
+        n = list(map(int, numpanels.split(',')))
         if len(n) == 1:
             parsed = (n[0], n[0])
         else:
@@ -232,8 +232,8 @@ class ProfileMapAxesManager(object):
         self.normalization_factor = factor
 
     def __axes_spmap(self):
-        for x in xrange(self.nh):
-            for y in xrange(self.nv):
+        for x in range(self.nh):
+            for y in range(self.nv):
                 w = self.horizontal_subplot_size
                 h = self.vertical_subplot_size
                 l = 1.0 - self.right_margin - w * (x + 1) + 0.5 * self.horizontal_space
@@ -284,7 +284,7 @@ class ProfileMapAxesManager(object):
         
 
     def setup_labels(self, label_ra, label_dec):
-        for x in xrange(self.nh):
+        for x in range(self.nh):
             w = self.horizontal_subplot_size
             l = 1.0 - self.right_margin - w * (x + 1)
             h = self.bottom_margin * 0.5
@@ -296,7 +296,7 @@ class ProfileMapAxesManager(object):
                         horizontalalignment='center', verticalalignment='center', size=self.ticksize)
             else:
                 a1.texts[0].set_text(HHMMSSss((label_ra[x][0]+label_ra[x][1])/2.0, 0))
-        for y in xrange(self.nv):
+        for y in range(self.nv):
             l = self.left_margin
             w = self.horizontal_subplot_size
             h = self.vertical_subplot_size
@@ -483,10 +483,10 @@ def plot_profile_map(image, figfile, pol, spectralaxis='', restfreq=None, title=
     Nsp = sum(isvalid.flatten())
     casalog.post('Nsp=%s'%(Nsp))
 
-    for x in xrange(NH):
+    for x in range(NH):
         x0 = x * xSTEP
         x1 = (x + 1) * xSTEP
-        for y in xrange(NV):
+        for y in range(NV):
             y0 = y * ySTEP
             y1 = (y + 1) * ySTEP
             valid_index = isvalid[x0:x1,y0:y1].nonzero()
@@ -570,7 +570,7 @@ class SDProfileMapPlotter(object):
         refval = refval_list[0]
         increment = increment_list[0]
         #casalog.post('axis 0: refpix,refval,increment=%s,%s,%s'%(refpix,refval,increment))
-        for x in xrange(self.nh):
+        for x in range(self.nh):
             x0 = (self.nh - x - 1) * self.xstep
             x1 = (self.nh - x - 2) * self.xstep + 1
             LabelRA[x][0] = refval + (x0 - refpix) * increment
@@ -579,7 +579,7 @@ class SDProfileMapPlotter(object):
         refval = refval_list[1]
         increment = increment_list[1]
         #casalog.post('axis 1: refpix,refval,increment=%s,%s,%s'%(refpix,refval,increment))
-        for y in xrange(self.nv):
+        for y in range(self.nv):
             y0 = y * self.ystep
             y1 = (y + 1) * self.ystep - 1
             LabelDEC[y][0] = refval + (y0 - refpix) * increment
@@ -647,8 +647,8 @@ class SDProfileMapPlotter(object):
         
 
         no_data = numpy.zeros(len(frequency), dtype=numpy.float32)
-        for x in xrange(self.nh):
-            for y in xrange(self.nv):
+        for x in range(self.nh):
+            for y in range(self.nv):
                 if self.global_scaling is True:
                     xmin = global_xmin
                     xmax = global_xmax
@@ -760,10 +760,10 @@ class SpectralImage(object):
             self._brightnessunit = ia.brightnessunit()
             if self.spectral_label == 'Frequency':
                 refpix, refval, increment = self.spectral_axis(unit='GHz')
-                self.spectral_data = numpy.array([refval+increment*(i-refpix) for i in xrange(self.nchan)])
+                self.spectral_data = numpy.array([refval+increment*(i-refpix) for i in range(self.nchan)])
             elif self.spectral_label == 'Velocity':
                 refpix, refval, increment = self.spectral_axis(unit='km/s')
-                self.spectral_data = numpy.array([refval+increment*(i-refpix) for i in xrange(self.nchan)])
+                self.spectral_data = numpy.array([refval+increment*(i-refpix) for i in range(self.nchan)])
             if stokes_axis_exists:
                 self.stokes = self.coordsys.stokes()
             else:

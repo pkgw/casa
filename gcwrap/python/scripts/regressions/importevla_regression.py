@@ -10,10 +10,10 @@ import time
 import os
 import pickle
 
-print 'Fill EVLA data'
+print('Fill EVLA data')
 scriptvers = 'Version 2010-04-23 (CASA 3.0.2)'
-print scriptvers
-print ''
+print(scriptvers)
+print('')
 
 # This script may have some interactive commands: scriptmode = True
 # if you are running it and want it to stop during interactive parts.
@@ -22,9 +22,9 @@ scriptmode = False
 prefix = 'importevla_regression'
 
 # Clean up old files
-print 'Removing old files'
+print('Removing old files')
 os.system('rm -rf '+prefix+'.*')
-print 'Setting up control parameters'
+print('Setting up control parameters')
 # 
 #=====================================================================
 # SET UP THE SCRIPT CONTROL PARAMETERS HERE
@@ -50,10 +50,10 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 
 outfile='out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
-print 'Opened log file '+outfile
+print('Opened log file '+outfile)
 
-print >>logfile,'Processing SDM data from '+sdmfile
-print >>logfile,'Script '+scriptvers
+print('Processing SDM data from '+sdmfile, file=logfile)
+print('Script '+scriptvers, file=logfile)
 
 # Some date and version info
 myvers = casalog.version()
@@ -63,9 +63,9 @@ mycwd = os.getcwd()
 myos = os.uname()
 
 # Print version info to outfile
-print >>logfile,'Running '+myvers+' on host '+myhost
-print >>logfile,'at '+datestring
-print >>logfile,''
+print('Running '+myvers+' on host '+myhost, file=logfile)
+print('at '+datestring, file=logfile)
+print('', file=logfile)
 
 #
 stagename = []
@@ -80,8 +80,8 @@ prevTime = startTime
 #Fill from SDM and split from filled MS
 #---------------------------------------------------------
 
-print '---ImportEVLA---'
-print 'This is a EVLA dataset, running importevla'
+print('---ImportEVLA---')
+print('This is a EVLA dataset, running importevla')
 default('importevla')
 asdm = sdmpath+sdmfile
 vis = msfile
@@ -112,7 +112,7 @@ fillsize = float( fstr.split("\t")[0] )
 #---------------------------------------------------------
 # MS statistics
 #---------------------------------------------------------
-print '---Listobs---'
+print('---Listobs---')
 listobs(vis=msfile,verbose=True)
 
 currTime=time.time()
@@ -121,7 +121,7 @@ stagename.append('listobs')
 fillTime = currTime-prevTime
 prevTime = currTime
 
-print '---Visstat---'
+print('---Visstat---')
 myvisstat = visstat(vis=msfile,useflags=True)
 
 n_vis = int( myvisstat['DATA']['npts'] )
@@ -133,14 +133,14 @@ n_vis_prev = 99737600
 ampmax_prev = 1.22975087166
 ampmean_prev = 0.00687524320367
 
-print ' MS unflagged npts = ',n_vis,' ( prev = ',n_vis_prev,' )  frac diff = ',(n_vis-n_vis_prev)/float(n_vis)
-print >>logfile,' MS unflagged npts = ',n_vis,' ( prev = ',n_vis_prev,' )  frac diff = ',(n_vis-n_vis_prev)/float(n_vis)
+print(' MS unflagged npts = ',n_vis,' ( prev = ',n_vis_prev,' )  frac diff = ',(n_vis-n_vis_prev)/float(n_vis))
+print(' MS unflagged npts = ',n_vis,' ( prev = ',n_vis_prev,' )  frac diff = ',(n_vis-n_vis_prev)/float(n_vis), file=logfile)
 
-print ' MS unflagged vis max = ',ampmax,' ( prev = ',ampmax_prev,' )  frac diff = ',(ampmax-ampmax_prev)/ampmax
-print >>logfile,' MS unflagged vis max = ',ampmax,' ( prev = ',ampmax_prev,' )  frac diff = ',(ampmax-ampmax_prev)/ampmax
+print(' MS unflagged vis max = ',ampmax,' ( prev = ',ampmax_prev,' )  frac diff = ',(ampmax-ampmax_prev)/ampmax)
+print(' MS unflagged vis max = ',ampmax,' ( prev = ',ampmax_prev,' )  frac diff = ',(ampmax-ampmax_prev)/ampmax, file=logfile)
 
-print ' MS unflagged mean = ',ampmean,' ( prev = ',ampmean_prev,' )  frac diff = ',(ampmean-ampmean_prev)/ampmean
-print >>logfile,' MS unflagged mean = ',ampmean,' ( prev = ',ampmean_prev,' )  frac diff = ',(ampmean-ampmean_prev)/ampmean
+print(' MS unflagged mean = ',ampmean,' ( prev = ',ampmean_prev,' )  frac diff = ',(ampmean-ampmean_prev)/ampmean)
+print(' MS unflagged mean = ',ampmean,' ( prev = ',ampmean_prev,' )  frac diff = ',(ampmean-ampmean_prev)/ampmean, file=logfile)
 
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -151,7 +151,7 @@ prevTime = currTime
 #---------------------------------------------------------
 #Export as UVFITS
 #---------------------------------------------------------
-print '---ExportUVFITS---'
+print('---ExportUVFITS---')
 default('exportuvfits')
 vis = msfile
 fitsfile = msfile+'.uvfits'
@@ -163,8 +163,8 @@ combinespw = True
 padwithflags = False
 # Choose relevant spw
 spw = exportspw
-print '  Exporting spw '+exportspw+' to UVFITS '+fitsfile
-print >>logfile,'  Exporting spw '+exportspw+' to UVFITS '+fitsfile
+print('  Exporting spw '+exportspw+' to UVFITS '+fitsfile)
+print('  Exporting spw '+exportspw+' to UVFITS '+fitsfile, file=logfile)
 exportuvfits()
 currTime=time.time()
 stagetime.append(currTime-prevTime)
@@ -181,26 +181,26 @@ fitssize = float( fstr.split("\t")[0] )
 # Done
 endProc=time.clock()
 endTime=time.time()
-print ''
-print 'Total wall clock time was: '+str(endTime - startTime)
-print 'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,''
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
+print('')
+print('Total wall clock time was: '+str(endTime - startTime))
+print('Total CPU        time was: '+str(endProc - startProc))
+print('', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
 
 datasize_raw =  sdmsize
 datasize_fill = fillsize          # (after fill)
 datasize_fits = fitssize          # (after export)
-print ''
-print 'SDM datasize (MB)               : '+str(datasize_raw)
-print 'Filled MS datasize (MB)         : '+str(datasize_fill)
-print 'Export UVFITS datasize (MB)     : '+str(datasize_fits)
-print 'Reported sizes are in MB from "du -ms" (1024x1024 bytes)'
-print >>logfile,''
-print >>logfile,'SDM datasize (MB)               : '+str(datasize_raw)
-print >>logfile,'Filled MS datasize (MB)         : '+str(datasize_fill)
-print >>logfile,'Export UVFITS datasize (MB)     : '+str(datasize_fits)
-print >>logfile,'Reported sizes are in MB from "du -ms" (1024x1024 bytes)'
+print('')
+print('SDM datasize (MB)               : '+str(datasize_raw))
+print('Filled MS datasize (MB)         : '+str(datasize_fill))
+print('Export UVFITS datasize (MB)     : '+str(datasize_fits))
+print('Reported sizes are in MB from "du -ms" (1024x1024 bytes)')
+print('', file=logfile)
+print('SDM datasize (MB)               : '+str(datasize_raw), file=logfile)
+print('Filled MS datasize (MB)         : '+str(datasize_fill), file=logfile)
+print('Export UVFITS datasize (MB)     : '+str(datasize_fits), file=logfile)
+print('Reported sizes are in MB from "du -ms" (1024x1024 bytes)', file=logfile)
 
 # Save timing to regression dictionary
 timing = {}
@@ -217,20 +217,20 @@ timing['nstages'] = nstages
 timing['stagename'] = stagename
 timing['stagetime'] = stagetime
 
-print ''
-print 'Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime)
-print 'Net MStoUVFITS export I/O rate MB/s : '+str((datasize_fill+datasize_fits)/exportTime)
-print ''
-print '* Breakdown:                               *'
-print >>logfile,''
-print >>logfile,'Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime)
-print >>logfile,'Net MStoUVFITS export I/O rate MB/s : '+str((datasize_fill+datasize_fits)/exportTime)
-print >>logfile,''
-print >>logfile,'* Breakdown:                               *'
+print('')
+print('Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime))
+print('Net MStoUVFITS export I/O rate MB/s : '+str((datasize_fill+datasize_fits)/exportTime))
+print('')
+print('* Breakdown:                               *')
+print('', file=logfile)
+print('Net SDMtoMS filling I/O rate MB/s   : '+str((datasize_raw+datasize_fill)/fillTime), file=logfile)
+print('Net MStoUVFITS export I/O rate MB/s : '+str((datasize_fill+datasize_fits)/exportTime), file=logfile)
+print('', file=logfile)
+print('* Breakdown:                               *', file=logfile)
 
 for i in range(nstages):
-    print '* %40s * time was: %10.3f ' % (stagename[i],stagetime[i])
-    print >>logfile,'* %40s * time was: %10.3f ' % (stagename[i],stagetime[i])
+    print('* %40s * time was: %10.3f ' % (stagename[i],stagetime[i]))
+    print('* %40s * time was: %10.3f ' % (stagename[i],stagetime[i]), file=logfile)
 
 logfile.close()
 

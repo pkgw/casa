@@ -25,12 +25,12 @@ def data():
 
 def run(fetch=False):
     lepath=locatescript('ngc5921_regression.py')
-    print 'Script used is ',lepath
+    print('Script used is ',lepath)
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 
 ###return the images that will be templated and compared in future runs
     return ['ngc5921_regression/ngc5921.clean.image']

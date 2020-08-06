@@ -94,7 +94,7 @@ def partition(vis,
     # Validate input and output parameters
     try:
         pdh.setupIO()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('%s'%instance,'ERROR')
         return False
 
@@ -112,7 +112,7 @@ def partition(vis,
         try:
             pdh.go()
             pdh.bypassParallelProcessing(0)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return False
                     
@@ -124,12 +124,12 @@ def partition(vis,
 
         # Write history to output MS, not the input ms.
         try:
-            param_names = partition.func_code.co_varnames[:partition.func_code.co_argcount]
+            param_names = partition.__code__.co_varnames[:partition.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             casalog.post('Updating the history in the output', 'DEBUG1')
             write_history(mstool(), outputvis, 'partition', param_names,
                           param_vals, casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
             return False
@@ -169,7 +169,7 @@ def partition(vis,
             
         mtlocal.done()
                     
-    except Exception, instance:
+    except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
         return False

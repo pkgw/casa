@@ -4,7 +4,7 @@
 import casac
 import os
 import shutil
-import commands
+import subprocess
 # all I really need is casalog, but how to get it:?
 from taskinit import *
 import pylab as pl
@@ -39,7 +39,7 @@ def get_taskstr(taskname, params):
     """
     out = ("%s(" % taskname)
     sep = ", "
-    for key, val in params.items():
+    for key, val in list(params.items()):
         out += (key + "=" + __get_str(val) + sep)
 
     return ( out.rstrip(sep) + ")" )
@@ -72,7 +72,7 @@ class compositenumber:
         while maxi<(n2*n3*n5) and itsnumbers[maxi]<=maxval: maxi=maxi+1
         self.itsnumbers=pl.int64(itsnumbers[0:maxi])
     def list(self):
-        print self.itsnumbers
+        print(self.itsnumbers)
     def nextlarger(self,x):
         if x>max(self.itsnumbers): self.generate(2*x)
         xi=0
@@ -214,13 +214,13 @@ class simutil:
                 s=foo[0]+"\x1b[35mWARNING\x1b[0m"+foo[1]
 
             if origin:
-                print clr+"["+origin+"] "+bw+s
+                print(clr+"["+origin+"] "+bw+s)
             else:
-                print s
+                print(s)
 
 
         if priority=="ERROR":
-            raise Exception, s
+            raise Exception(s)
         else:            
             if origin==None:
                 origin="simutil"
@@ -524,7 +524,7 @@ class simutil:
 
             # Start from the top because in the Southern hemisphere it sets first.
             y = qa.add(centy, qa.mul(0.5 * (nrows - 1), yspacing))
-            for row in xrange(0, nrows):         # xrange stops early.
+            for row in range(0, nrows):         # xrange stops early.
                 xspacing = qa.mul(1.0 / pl.cos(qa.convert(y, 'rad')['value']),spacing)
                 ystr = qa.formxxx(y, format='dms',prec=5)
                 
@@ -535,7 +535,7 @@ class simutil:
                     xmin = qa.sub(centx, qa.mul(ncolstomin - 0.5,
                                                 xspacing))
                     stopcolp1 = evencols
-                for col in xrange(0, stopcolp1):        # xrange stops early.
+                for col in range(0, stopcolp1):        # xrange stops early.
                     x = qa.formxxx(qa.add(xmin, qa.mul(col, xspacing)),
                                    format='hms',prec=5)
                     pointings.append("%s%s %s" % (epoch, x, ystr))
@@ -562,14 +562,14 @@ class simutil:
 
             # Start from the top because in the Southern hemisphere it sets first.
             y = qa.add(centy, qa.mul(0.5 * (nrows - 1), yspacing))
-            for row in xrange(0, nrows):         # xrange stops early.
+            for row in range(0, nrows):         # xrange stops early.
                 xspacing = qa.mul(1.0 / pl.cos(qa.convert(y, 'rad')['value']),spacing)
                 ystr = qa.formxxx(y, format='dms',prec=5)
 
                 xmin = qa.sub(centx, qa.mul(ncolstomin, xspacing))
                 stopcolp1 = ncols
         
-                for col in xrange(0, stopcolp1):        # xrange stops early.
+                for col in range(0, stopcolp1):        # xrange stops early.
                     x = qa.formxxx(qa.add(xmin, qa.mul(col, xspacing)),
                                    format='hms',prec=5)
                     pointings.append("%s%s %s" % (epoch, x, ystr))
@@ -765,7 +765,7 @@ class simutil:
             x = x['value']
             y = y['value']
             if epoch != epoch0:                     # Paranoia
-                print "[simutil] WARN: precession not handled by average_direction()"
+                print("[simutil] WARN: precession not handled by average_direction()")
             x = self.wrapang(x, avgx, 360.0)
             avgx += (x - avgx) / i
             avgy += (y - avgy) / i
@@ -814,7 +814,7 @@ class simutil:
             x = x['value']
             y = y['value']
             if epoch != epoch0:                     # Paranoia
-                print "[simutil] WARN: precession not handled by average_direction()"
+                print("[simutil] WARN: precession not handled by average_direction()")
             x = self.wrapang(x, avgx, 360.0)
             xx.append(x)
             yy.append(y)
@@ -893,7 +893,7 @@ class simutil:
         else:
             refcode = 'J2000'
             if self.verbose: self.msg("assuming J2000 for "+direction,origin="simutil.s2m")
-        x, y = map(qa.quantity, dirl[-2:])
+        x, y = list(map(qa.quantity, dirl[-2:]))
         if x['unit'] == '': x['unit']='deg'
         if y['unit'] == '': y['unit']='deg'
         return me.direction(refcode,qa.toangle(x),qa.toangle(y))
@@ -1585,13 +1585,13 @@ class simutil:
                 break
         f.close()
 
-        if not params.has_key("coordsys"):
+        if "coordsys" not in params:
             self.msg("Must specify coordinate system #coorsys=XYZ|UTM|LOCin antenna file",origin="readantenna",priority="error")
             return -1
         else:
             self.coordsys=params["coordsys"]
 
-        if params.has_key("observatory"):
+        if "observatory" in params:
             self.telescopename=params["observatory"]
         else:
             self.telescopename="SIMULATED"
@@ -1606,7 +1606,7 @@ class simutil:
         if found:
             posobs=me.measure(me.observatory(self.telescopename),'WGS84')
             
-        if params.has_key("COFA"):
+        if "COFA" in params:
             obs_latlon=params["COFA"].split(",")
             cofa_lon=float(obs_latlon[0])
             cofa_lat=float(obs_latlon[1])
@@ -1637,17 +1637,17 @@ class simutil:
             if (params["coordsys"].upper()=="UTM"):
         ### expect easting, northing, elevation in m
                 self.msg("Antenna locations in UTM; will read from file easting, northing, elevation in m",origin="readantenna") 
-                if params.has_key("zone"):
+                if "zone" in params:
                     zone=params["zone"]
                 else:
                     self.msg("You must specify zone=NN in your antenna file",origin="readantenna",priority="error")
                     return -1
-                if params.has_key("datum"):
+                if "datum" in params:
                     datum=params["datum"]
                 else:
                     self.msg("You must specify datum in your antenna file",origin="readantenna",priority="error")
                     return -1
-                if params.has_key("hemisphere"):
+                if "hemisphere" in params:
                     nors=params["hemisphere"]
                     nors=nors[0].upper()
                 else:
@@ -1910,14 +1910,14 @@ class simutil:
             'WGS72' :[   0, 0  , 4.5,'WD','World Geodetic System - 72'    ],
             'WGS84' :[   0, 0  ,   0,'WE','World Geodetic System - 84'    ]}
         
-        if not datums.has_key(datumcode):
+        if datumcode not in datums:
             self.msg("unknown datum %s" % datumcode,priority="error")
             return -1
         
         datum=datums[datumcode]
         ellipsoid=datum[3]
         
-        if not ellipsoids.has_key(ellipsoid):
+        if ellipsoid not in ellipsoids:
             self.msg("unknown ellipsoid %s" % ellipsoid,priority="error")
             return -1
         
@@ -2244,7 +2244,7 @@ class simutil:
         ellipsoid, with z normal to the ellipsoid and y pointing north.
         """
         # from Rob Reid;  need to generalize to use any datum...
-        phi, lmbda = map(pl.radians, (lat, longitude))
+        phi, lmbda = list(map(pl.radians, (lat, longitude)))
         sphi = pl.sin(phi)
         a = 6378137.0      # WGS84 equatorial semimajor axis
         b = 6356752.3142   # WGS84 polar semimajor axis
@@ -2281,7 +2281,7 @@ class simutil:
         csinlat=pl.sin(clat)
         ccoslat=pl.cos(clat)
         import types
-        if isinstance(x,types.FloatType): # weak
+        if isinstance(x,float): # weak
             x=[x]
             y=[y]
             z=[z]
@@ -2487,9 +2487,9 @@ class simutil:
                     inbright=inb
             try:
                 scalefactor=float(inbright)/pl.nanmax(arr)
-            except Exception, e:
+            except Exception as e:
                 in_ia.close()
-                raise Exception, e
+                raise Exception(e)
 
         # check shape characteristics of the input;
         # add degenerate axes as neeed:
@@ -2522,15 +2522,15 @@ class simutil:
         # make incell a list if not already
         try:
             if type(incell) == type([]):
-                incell =  map(qa.convert,incell,['arcsec','arcsec'])
+                incell =  list(map(qa.convert,incell,['arcsec','arcsec']))
             else:
                 incell = qa.abs(qa.convert(incell,'arcsec'))
                 # incell[0]<0 for RA increasing left
                 incell = [qa.mul(incell,-1),incell]
-        except Exception, e:
+        except Exception as e:
             # invalid incell
             in_ia.close()
-            raise Exception, e
+            raise Exception(e)
         # later, we can test validity with qa.compare()
 
 
@@ -3358,14 +3358,14 @@ class simutil:
             nwOdd  = int(pl.floor((width / 2) / wSpacing + 0.5))
             nh     = int(pl.floor((height / 2) / hSpacing))
 
-            for ih in pl.array(range(nh*2+1))-nh:
+            for ih in pl.array(list(range(nh*2+1)))-nh:
                 if (self.isEven(ih)):
-                    for iw in pl.array(range(nwEven*2+1))-nwEven:
+                    for iw in pl.array(list(range(nwEven*2+1)))-nwEven:
                         x,y = self.applyRotate(iw*wSpacing, ih*hSpacing, tcos, tsin)
                         xx.append(x)
                         yy.append(y)          
                 else:
-                    for iw in pl.array(range(nwOdd*2+1))-nwOdd:
+                    for iw in pl.array(list(range(nwOdd*2+1)))-nwOdd:
                         x,y = self.applyRotate((iw+0.5)*wSpacing, ih*hSpacing, tcos, tsin)
                         xx.append(x)
                         yy.append(y)
@@ -3377,14 +3377,14 @@ class simutil:
             nhEven = int(pl.floor((height / 2) / hSpacing))
             nhOdd  = int(pl.floor((height / 2) / hSpacing + 0.5))
 
-            for iw in pl.array(range(nw*2+1))-nw:                
+            for iw in pl.array(list(range(nw*2+1)))-nw:                
                 if (self.isEven(iw)):
-                    for ih in pl.array(range(nhEven*2+1))-nhEven:
+                    for ih in pl.array(list(range(nhEven*2+1)))-nhEven:
                         x,y = self.applyRotate(iw*wSpacing, ih*hSpacing, tcos, tsin)
                         xx.append(x)
                         yy.append(y)          
                 else:                    
-                    for ih in pl.array(range(nhOdd*2+1))-nhOdd:
+                    for ih in pl.array(list(range(nhOdd*2+1)))-nhOdd:
                         x,y = self.applyRotate(iw*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                         xx.append(x)
                         yy.append(y)          
@@ -3441,14 +3441,14 @@ class simutil:
         nh     = int(pl.floor((height / 2) / hSpacing))
         nh += self.needsFiller(height, hSpacing, pb, nh*2+1)
 
-        for ih in pl.array(range(nh*2+1))-nh:
+        for ih in pl.array(list(range(nh*2+1)))-nh:
             if (self.isEven(ih)):
-                for iw in pl.array(range(nwEven*2+1))-nwEven:
+                for iw in pl.array(list(range(nwEven*2+1)))-nwEven:
                     x,y = self.applyRotate(iw*wSpacing, ih*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y) # will require additional testing @ angle>0
             else:
-                for iw in pl.array(range(nwOdd*2))-nwOdd:
+                for iw in pl.array(list(range(nwOdd*2)))-nwOdd:
                     x,y = self.applyRotate((iw+0.5)*wSpacing, ih*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y)
@@ -3477,14 +3477,14 @@ class simutil:
         nh     = int(pl.floor((height - hSpacing) / 2 / hSpacing +1))
         nh += self.needsFiller(height, hSpacing, pb, nh*2)
 
-        for ih in pl.array(range(nh*2))-nh:
+        for ih in pl.array(list(range(nh*2)))-nh:
             if (self.isEven(ih)):
-                for iw in pl.array(range(nwEven*2))-nwEven:
+                for iw in pl.array(list(range(nwEven*2)))-nwEven:
                     x,y = self.applyRotate((iw+0.5)*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y)          
             else:
-                for iw in pl.array(range(nwOdd*2+1))-nwOdd:
+                for iw in pl.array(list(range(nwOdd*2+1)))-nwOdd:
                     x,y = self.applyRotate(iw*wSpacing, (ih+0.5)*hSpacing, tcos, tsin)
                     xx.append(x)
                     yy.append(-y)
@@ -3560,11 +3560,11 @@ class simutil:
         import scipy.interpolate as spintrp
         
         if not qa.compare(beam, "rad"):
-            raise ValueError, "beam should be a quantity of antenna primary beam size (angle)"
+            raise ValueError("beam should be a quantity of antenna primary beam size (angle)")
         if not qa.compare(cell, "rad"):
-            raise ValueError, "cell should be a quantity of image pixel size (angle)"
+            raise ValueError("cell should be a quantity of image pixel size (angle)")
         if len(sampling) > 0 and not qa.compare(sampling, "rad"):
-            raise ValueError, "sampling should be a quantity of pointing spacing (angle)"
+            raise ValueError("sampling should be a quantity of pointing spacing (angle)")
         if (convsupport < -1):
             convsupport = 3
 

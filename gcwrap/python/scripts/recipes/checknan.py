@@ -14,7 +14,7 @@ def CheckUVWForNan(ms='', fix=False):
     nanoo=np.isnan(uvw)
     for k in range(nanoo.shape[1]):
       if(nanoo[0,k] or nanoo[1,k] or nanoo[2,k]):
-          print 'row=', k
+          print('row=', k)
           uvw[0,k]=0
           uvw[1,k]=0
           uvw[2,k]=0
@@ -59,7 +59,7 @@ def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
     while moretodo: 
         counter=counter+1;
         
-        print 'Chunk : ', counter 
+        print('Chunk : ', counter) 
 
         resdat = ms.getdata(items=colnames);
   
@@ -67,7 +67,7 @@ def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
             shp = resdat[cname].shape
             nancount = np.isnan( resdat[cname] )
             if np.any( nancount ) :
-                print 'Found  in chunk : ', counter, ' for col :', cname
+                print('Found  in chunk : ', counter, ' for col :', cname)
 
                 if fix:
                     if cname.upper() in ['DATA','CORRECTED_DATA','MODEL_DATA'] :
@@ -76,13 +76,13 @@ def CheckColsForNan(msname='',fix=False,colnames=[],timeinterval=1000):
                         resdat[cname][nancount==True] = complex(0.0,0.0)
                         flags[cname] = resdat[cname]
                         ms.putdata(flags)
-                        print 'Setting value for column : ', cname , ' to zero and corresponding flag to True'
+                        print('Setting value for column : ', cname , ' to zero and corresponding flag to True')
                     elif cname.upper() in ['WEIGHT','WEIGHT_SPECTRUM'] :
                         resdat[cname][nancount==True] = complex(0.0,0.0)
                         ms.putdata({cname:resdat[cname]})
-                        print 'Setting value for column : ', cname , ' to zero'
+                        print('Setting value for column : ', cname , ' to zero')
                     else:
-                        print "Cannot fix. Please use 'CheckUVWForNan()' for UVW column"
+                        print("Cannot fix. Please use 'CheckUVWForNan()' for UVW column")
           
           
         moretodo = ms.iternext();

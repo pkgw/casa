@@ -42,13 +42,13 @@ def importnro(infile=None, outputvis=None, overwrite=None, parallel=None):
         
         
         # Write parameters to HISTORY table of MS
-        param_names = importnro.func_code.co_varnames[:importnro.func_code.co_argcount] 
+        param_names = importnro.__code__.co_varnames[:importnro.__code__.co_argcount] 
         param_vals = [eval(p) for p in param_names]
         write_history(myms, outputvis, 'importnro', param_names, 
                           param_vals, casalog) 
         
         return status
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         raise instance
     finally:

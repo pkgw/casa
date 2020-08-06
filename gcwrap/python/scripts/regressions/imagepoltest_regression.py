@@ -46,7 +46,7 @@ def imagepoltest(which=None):
         note(message, origin="imagepoltest")
     def stop(message):
         note(message, priority="SEVERE", origin="imagepoltest")
-        raise RuntimeError, message
+        raise RuntimeError(message)
     def fail(message=""):
         stop(message)
     def cleanup(dir):
@@ -54,7 +54,7 @@ def imagepoltest(which=None):
             info("Cleaning up directory "+dir)
             def errFunc(raiser, problemPath, excInfo):
                 note(raiser.__name__+'failed on'+problemPath,"SEVERE")
-                raise RuntimeError, "Cleanup of " + dir + " fails!"
+                raise RuntimeError("Cleanup of " + dir + " fails!")
             shutil.rmtree(dir,0,errFunc)
         return True
 
@@ -85,7 +85,7 @@ def imagepoltest(which=None):
                 for j in range(x.shape[1]):
                     for k in range(x.shape[2]):
                         if not (abs(x[i][j][k]-num) < tolerance):
-                            print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
+                            print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
                             return False
         else:
             stop('unhandled array shape in alleqnum')
@@ -134,9 +134,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make RA/DEC only
         #
@@ -147,7 +147,7 @@ def imagepoltest(which=None):
             note("Expect SEVERE error and failure here")
             po.open(imname)
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             isfail = True
         if not isfail:
@@ -162,7 +162,7 @@ def imagepoltest(which=None):
             note("Expect SEVERE error and failure here")
             po.open(imname)
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             isfail = True
         if not isfail:
@@ -177,7 +177,7 @@ def imagepoltest(which=None):
             note("Expect SEVERE error and failure here")
             po.open(imname)
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             isfail = True
         if not isfail:
@@ -191,7 +191,7 @@ def imagepoltest(which=None):
         try:
             po.open(imname)
             isfail = False
-        except Exception, e:
+        except Exception as e:
             isfail = True
         if isfail: stop('open 4 failed')
         if not po.done(): fail()
@@ -204,7 +204,7 @@ def imagepoltest(which=None):
         try:
             po.open(imname)
             isfail = False
-        except Exception, e:
+        except Exception as e:
             isfail = True
         if isfail: stop('open 5 failed')
         if not po.done(): fail()
@@ -238,9 +238,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make some data
@@ -308,7 +308,7 @@ def imagepoltest(which=None):
             note('Expect SEVERE error and Exception here')
             s = po.stokes('fish')
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note('Cuaght expected Exception')
             isfail = True
         if not isfail:
@@ -331,9 +331,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make some data
@@ -445,9 +445,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -548,9 +548,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -595,7 +595,7 @@ def imagepoltest(which=None):
             note("Expect SEVERE error and Exception here")
             s = po.pol('fish')
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             isfail = True
         if not isfail:
@@ -616,9 +616,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -711,9 +711,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -780,7 +780,7 @@ def imagepoltest(which=None):
             note("Expect SEVERE error and Exception here")
             s = po.sigmastokes(which='fish')
             isfail = False
-        except Exception, e:
+        except Exception as e:
             note("Caught expected exception")
             isfail = True
         if not isfail:
@@ -803,9 +803,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -902,9 +902,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make imagepoltestimage
@@ -975,9 +975,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make imagepoltestimage
@@ -1031,9 +1031,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -1195,9 +1195,9 @@ def imagepoltest(which=None):
         # Make the directory
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make some data
         #
@@ -1297,9 +1297,9 @@ def imagepoltest(which=None):
     test10()
     test11()
     test12()
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
     
     
 

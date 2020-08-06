@@ -107,13 +107,13 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 		casalog.origin('wvrgcal')
 
 		if not (type(vis)==str) or not (os.path.exists(vis)):
-			raise Exception, 'Visibility data set not found - please verify the name'
+			raise Exception('Visibility data set not found - please verify the name')
 		
 		if (caltable == ""):
-			raise Exception, "Must provide output calibration table name in parameter caltable."            
+			raise Exception("Must provide output calibration table name in parameter caltable.")            
 		
 		if os.path.exists(caltable):
-			raise Exception, "Output caltable %s already exists - will not overwrite." % caltable
+			raise Exception("Output caltable %s already exists - will not overwrite." % caltable)
 
 		execute_string=  '--ms ' + vis
 
@@ -131,22 +131,22 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 			if not segsource:
 				execute_string+= ' --nsol ' + str(nsol)
 			else:
-				raise Exception, "In order to use nsol>1, segsource must be set to False." % caltable
+				raise Exception("In order to use nsol>1, segsource must be set to False." % caltable)
 		if segsource:
 			execute_string+= ' --segsource'
 
 		if segsource and (len(sourceflag)>0):
 			for src in sourceflag:
 				if not (type(src)==int or type(src)==str):
-					raise Exception, "List elements of parameter sourceflag must be int or string."
+					raise Exception("List elements of parameter sourceflag must be int or string.")
 				if (src != ''):
 					execute_string += ' --sourceflag \"'+str(src)+'\"'
 
 		if segsource and (len(tie)>0):
-			for i in xrange(0,len(tie)):
+			for i in range(0,len(tie)):
 				src = tie[i]
 				if not (type(src)==str):
-					raise Exception, "List elements of parameter tie must be strings."
+					raise Exception("List elements of parameter tie must be strings.")
 				if (src != ''):
 					execute_string += ' --tie '
 					execute_string += '\"'+str(src)+'\"'
@@ -156,14 +156,14 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 		if (len(spw)>0):
 			for myspw in spw:
 				if not (type(myspw)==int):
-					raise Exception, "List elements of parameter spw must be int."
+					raise Exception("List elements of parameter spw must be int.")
 				if (myspw>=0):
 					execute_string += ' --spw '+str(myspw)
 
 		if (len(wvrspw)>0):
 			for myspw in wvrspw:
 				if not (type(myspw)==int):
-					raise Exception, "List elements of parameter wvrspw must be int."
+					raise Exception("List elements of parameter wvrspw must be int.")
 				if (myspw>=0):
 					execute_string += ' --wvrspw '+str(myspw)
 			
@@ -179,8 +179,8 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 				path1 = dispdirpath
 				dispdirpath = os.getenv("CASAPATH").split(' ')[0] + "/data/alma/wvrgcal"
 				if not os.path.exists(dispdirpath+'/libair-ddefault.csv'):
-					raise Exception, "Dispersion table libair-ddefault.csv not found in path "\
-					      +"given by WVRGCAL_DISPDIR nor in \""+dispdirpath+"\""
+					raise Exception("Dispersion table libair-ddefault.csv not found in path "\
+					      +"given by WVRGCAL_DISPDIR nor in \""+dispdirpath+"\"")
 				
 				os.putenv('WVRGCAL_DISPDIR', dispdirpath)
 				
@@ -191,7 +191,7 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 			if not segsource:
 				execute_string+= ' --cont'
 			else:
-				raise Exception, "cont and segsource are not permitted to be True at the same time."
+				raise Exception("cont and segsource are not permitted to be True at the same time.")
 
 		if usefieldtab:
 			execute_string+= ' --usefieldtab'
@@ -203,7 +203,7 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
                         theflagants = ""
 			for ant in wvrflag:
 				if not (type(ant)==int or type(ant)==str):
-					raise Exception, "List elements of parameter wvrflag must be int or string."
+					raise Exception("List elements of parameter wvrflag must be int or string.")
 				if (ant != ''):
                                         if len(theflagants)>0:
                                                 theflagants += ","
@@ -217,7 +217,7 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
                         therefants = ""
                         for ant in refant:
 				if not (type(ant)==int or type(ant)==str):
-					raise Exception, "Parameter refant must be int or string or a list of them."
+					raise Exception("Parameter refant must be int or string or a list of them.")
 				if (ant != ''):
                                         if len(therefants)>0:
                                                 therefants += ","
@@ -249,7 +249,7 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 
 		casalog.post('Running '+theexecutable+' standalone invoked as:')
 		casalog.post(execute_string)
-		print execute_string
+		print(execute_string)
 
 		templogfile = 'wvrgcal_tmp_'+str(numpy.random.randint(1E6,1E8))
 		if not os.access(".", os.W_OK):
@@ -352,7 +352,7 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 		else:
 			rcode = os.WEXITSTATUS(rval)
 			if(rcode == 127):
-				raise Exception, "wvrgcal executable not available."
+				raise Exception("wvrgcal executable not available.")
 			elif(rcode == 255):
 				casalog.post(theexecutable+' terminated with exit status '+str(rcode),'SEVERE')
 				return taskrval
@@ -364,6 +364,6 @@ def wvrgcal(vis=None, caltable=None, toffset=None, segsource=None,
 				casalog.post(theexecutable+' terminated with exit status '+str(rcode),'WARN')
 				return taskrval
 	
-	except Exception, instance:
-		print '*** Error *** ',instance
-		raise Exception, instance
+	except Exception as instance:
+		print('*** Error *** ',instance)
+		raise Exception(instance)

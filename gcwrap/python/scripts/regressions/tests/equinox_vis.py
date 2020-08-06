@@ -36,9 +36,9 @@ def run( fetch=False ):
         passes = passes and compare(peaks, nsigma)
 
     if passes:
-        print ''
-        print 'Regression PASSED'
-        print ''
+        print('')
+        print('Regression PASSED')
+        print('')
 
     return []
 
@@ -86,14 +86,14 @@ def run_tasks(origvis='0420+417.ms', advice=None, lazy=True,
             if os.path.isdir(outputvis):
                 if not lazy:
                     shutil.rmtree(outputvis)
-                    print "Running fixvis(%s, %s, refcode=%s)" % (origvis,
+                    print("Running fixvis(%s, %s, refcode=%s)" % (origvis,
                                                                   outputvis,
-                                                                  equinox)
+                                                                  equinox))
                     fixvis(origvis, outputvis, refcode=equinox)
             else:
-                print "Running fixvis(%s, %s, refcode=%s)" % (origvis,
+                print("Running fixvis(%s, %s, refcode=%s)" % (origvis,
                                                               outputvis,
-                                                              equinox)
+                                                              equinox))
                 fixvis(origvis, outputvis, refcode=equinox)
 
             if convert_phasecenter:
@@ -104,13 +104,13 @@ def run_tasks(origvis='0420+417.ms', advice=None, lazy=True,
             if convert_phasecenter:
                 advice[4] = origphasecenter
                 
-        except Exception, e:
-            print "Error", e, "trying to test equinox", equinox
+        except Exception as e:
+            print("Error", e, "trying to test equinox", equinox)
     return peaks
 
 def getpeak(vis, advice):
     """Clean vis and find the peak of the resulting image."""
-    print "Getting peak of", vis
+    print("Getting peak of", vis)
     pixsize = str(advice[2]['value']) + advice[2]['unit']
     npix = advice[1]    
 
@@ -154,7 +154,7 @@ def compare(peaks, nsigma=3.0):
                               'value': peaks['original']['flux']['error'][0]},
                              'Jy')['value']**2
 
-    equinoxes = peaks.keys()
+    equinoxes = list(peaks.keys())
     equinoxes.remove('original')
     equinoxes.sort()
     result = True
@@ -171,7 +171,7 @@ def compare(peaks, nsigma=3.0):
                                                            dist_from_original['value'])
                 errmsg += " (%.1f x the tolerance)" % (dist_from_original['value']
                                                        / septol) 
-                raise Exception, errmsg
+                raise Exception(errmsg)
 
             # I in Jy
             newflux = qa.convert(peaks[equinox]['flux'], 'Jy')['value'][0]
@@ -180,15 +180,15 @@ def compare(peaks, nsigma=3.0):
                                     'Jy')['value']
             fluxtol = nsigma * math.sqrt(newfluxvar + origfluxvar)
             if abs(newflux - origflux) > fluxtol:
-                print "The flux density of %s, %g Jy, is %.1f x the tolerance away from" % (equinox, newflux, abs(newflux - origflux) / fluxtol)
-                print "the original flux density, %g Jy." % (origflux)
+                print("The flux density of %s, %g Jy, is %.1f x the tolerance away from" % (equinox, newflux, abs(newflux - origflux) / fluxtol))
+                print("the original flux density, %g Jy." % (origflux))
 
             # Different uv distributions might show up best in the beam shape.
             for q in ('majoraxis', 'minoraxis', 'positionangle'):
                 cmp_shape_param(peaks, equinox, q, nsigma)
-        except Exception, e:
+        except Exception as e:
             result = False
-            print "Error", e, "comparing to test equinox", equinox
+            print("Error", e, "comparing to test equinox", equinox)
 
     return result
 
@@ -210,9 +210,9 @@ def cmp_shape_param(peaks, equinox, q, nsigma):
     tol = nsigma * math.sqrt(origvar + newvar)
     err = abs(newq - origq)
     if err > tol:
-        print "The %s of %s, %g %s, is %.1f x the tolerance away from" % (q,
+        print("The %s of %s, %g %s, is %.1f x the tolerance away from" % (q,
                                                                           equinox,
                                                                           newq,
                                                                           unit,
-                                                                          err / tol)
-        print "the original %s, %g %s." % (q, origq, unit)
+                                                                          err / tol))
+        print("the original %s, %g %s." % (q, origq, unit))

@@ -57,17 +57,17 @@ def setToCasaOrder(inputMS='',outputMS=''):
 
   ## Old MS Name
   if(not os.path.exists(inputMS)):
-     print "Original MS ", inputMS, " not found ";
+     print("Original MS ", inputMS, " not found ");
      return False;
 
   if(os.path.exists(outputMS)):
-     print "An MS named ", outputMS, " already exists. Please delete it first, or choose another output MS name";
+     print("An MS named ", outputMS, " already exists. Please delete it first, or choose another output MS name");
      return False;
 
   ## Make a reference table with the correct sort order.
   ## This creates a list of row-numbers that index
   ## into the data in the desired order.
-  print "Making reference table.";
+  print("Making reference table.");
   tb.open(inputMS);
   tmptb = tb.query(name='tmpreftable.tab', query='DATA_DESC_ID>-1',sortlist='ARRAY_ID,FIELD_ID,DATA_DESC_ID,TIME,ANTENNA1,ANTENNA2');
   tmptb.close()
@@ -76,14 +76,14 @@ def setToCasaOrder(inputMS='',outputMS=''):
   ## Save a new table with the sort-order
   ## specified by the list of indices in the
   ## reference table.
-  print "Making deep-copy of ref-table";
+  print("Making deep-copy of ref-table");
   tb.open('tmpreftable.tab');
   tmptb = tb.copy(outputMS,deep=True);
   tmptb.close()
   tb.close();
 
   ## Remove the reference table
-  print "Removing ref-table";
+  print("Removing ref-table");
   if(os.path.exists('tmpreftable.tab')):
       shutil.rmtree('tmpreftable.tab');
 

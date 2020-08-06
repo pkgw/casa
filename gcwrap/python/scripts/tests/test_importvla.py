@@ -207,12 +207,12 @@ class importvla_test_1(unittest.TestCase):
         (msOK, status) = checkms(self.msfile,expectedRows)
         self.assertTrue(msOK,"initial fill failed "+status)
 
-        print "internal checkms test, the following printed status messages are expected here and are not test errors."
+        print("internal checkms test, the following printed status messages are expected here and are not test errors.")
 
         # bad msname
         (msOK, status) = checkms("__dummy__.ms",expectedRows)
         self.assertTrue(not msOK,'checkms test of bad msname failed to report the MS as bad')
-        print status
+        print(status)
 
         # bad number of rows in MAIN
         trueRows = expectedRows["MAIN"]
@@ -220,24 +220,24 @@ class importvla_test_1(unittest.TestCase):
         (msOK, status) = checkms(self.msfile,expectedRows)
         self.assertTrue(not msOK,'checkms test of wrong MAIN rows failed to report the MS as bad')
         expectedRows["MAIN"] = trueRows
-        print status
+        print(status)
 
         # bad autocorrRows value
         (msOK, status) = checkms(self.msfile,expectedRows,autocorrRows=1)
         self.assertTrue(not msOK,'checkms test of wrong autocorrRows value failed to report the MS as bad')
-        print status
+        print(status)
 
         # check for a table that doesn't exit
         badExpectedRows = dict(expectedRows)
         badExpectedRows["NotATable"] = 1
         (msOK, status) = checkms(self.msfile,badExpectedRows)
         self.assertTrue(not msOK,'checkms test for non-existant subtable failed to report the MS as bad')
-        print status
+        print(status)
 
         # check that the ANTENNA follows the "old" scheme when the "new" was actually used
         (msOK, status) = checkms(self.msfile,expectedRows,antnamescheme="old")
         self.assertTrue(not msOK,'checkms test for old antnamescheme failed to report the MS as bad')
-        print status
+        print(status)
 
         # check using an incorrect number of rows for one of the subtables
         badExpectedRows = dict(expectedRows)
@@ -245,7 +245,7 @@ class importvla_test_1(unittest.TestCase):
         badExpectedRows["FLAG_CMD"] = 1
         (msOK, status) = checkms(self.msfile,badExpectedRows)
         self.assertTrue(not msOK,'checkms test for bad number of FLAG_CMD rows failed to report the MS as bad')
-        print status
+        print(status)
 
 class importvla_test_2(unittest.TestCase):
 

@@ -16,7 +16,7 @@ from sdutil import tbmanager
 
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
@@ -76,7 +76,7 @@ class BlparamFileParser(FileReader):
 
     def _nrow(self):
         self.__nrow = 0
-        for i in xrange(self.nline()):
+        for i in range(self.nline()):
             if self.getline(i) == self.__ctxt:
                 self.__nrow += 1
         return self.__nrow
@@ -169,8 +169,8 @@ class sdbaseline_unittest_base(unittest.TestCase):
     def _createBlparamFile(self, file, param_order, val, option=''):
         nspec = 8
         f = open(file, 'w')
-        assert(len(param_order) == len(val.keys()))
-        for key in val.keys():
+        assert(len(param_order) == len(list(val.keys())))
+        for key in list(val.keys()):
             assert(len(val[key]) == nspec)
         for i in range(nspec):
             do_write = True
@@ -231,11 +231,11 @@ class sdbaseline_unittest_base(unittest.TestCase):
         """
         # Check for paths
         if from_dir==None and dest_dir==None:
-            raise ValueError, "Can not copy files to exactly the same path."
+            raise ValueError("Can not copy files to exactly the same path.")
         from_path = os.path.abspath("." if from_dir==None else from_dir.rstrip("/"))
         to_path = os.path.abspath("." if dest_dir==None else dest_dir.rstrip("/"))
         if from_path == to_path:
-            raise ValueError, "Can not copy files to exactly the same path."
+            raise ValueError("Can not copy files to exactly the same path.")
         # Copy a list of files and directories
         for name in names:
             from_name = from_path + "/" + name
@@ -345,8 +345,8 @@ class sdbaseline_unittest_base(unittest.TestCase):
         dd_sel = self._getListSelectedRowID(spwid, spw_sel)
         # get the selected row IDs from selected DD IDs
         row_sel = self._getListSelectedRowID(ddid, dd_sel)
-        if not select_spw: row_sel = range(len(ddid))
-        if not select_pol: pol_sel = range(len(data))
+        if not select_spw: row_sel = list(range(len(ddid)))
+        if not select_pol: pol_sel = list(range(len(data)))
 
         res = []
         for irow in row_sel:
@@ -389,7 +389,7 @@ class sdbaseline_unittest_base(unittest.TestCase):
         (row0, pol0), (row0, pol1), (row1, pol0), ....
         """
         #if len(stat_list)==0: raise Exception, "No row selected in MS"
-        keys=stat_list[0].keys()
+        keys=list(stat_list[0].keys())
         stat_dict={}
         for key in keys:
             stat_dict[key] = []
@@ -424,24 +424,24 @@ class sdbaseline_unittest_base(unittest.TestCase):
         if complist:
             keylist = complist
         else:
-            keylist = refstat.keys()
+            keylist = list(refstat.keys())
             #keylist = self.complist
         
         for key in keylist:
-            self.assertTrue(currstat.has_key(key),\
+            self.assertTrue(key in currstat,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refstat.has_key(key),\
+            self.assertTrue(key in refstat,\
                             msg="%s is not defined in the reference data."\
                             % key)
             refval = refstat[key]
             currval = currstat[key]
             # Quantum values
             if isinstance(refval,dict):
-                if refval.has_key('unit') and currval.has_key('unit'):
+                if 'unit' in refval and 'unit' in currval:
                     if printstat:
-                        print "Comparing unit of '%s': %s (current run), %s (reference)" %\
-                              (key,currval['unit'],refval['unit'])
+                        print("Comparing unit of '%s': %s (current run), %s (reference)" %\
+                              (key,currval['unit'],refval['unit']))
                     self.assertEqual(refval['unit'],currval['unit'],\
                                      "The units of '%s' differs: %s (expected: %s)" % \
                                      (key, currval['unit'], refval['unit']))
@@ -453,8 +453,8 @@ class sdbaseline_unittest_base(unittest.TestCase):
             currval = self._to_list(currval)
             refval = self._to_list(refval)
             if printstat:
-                print "Comparing '%s': %s (current run), %s (reference)" %\
-                      (key,str(currval),str(refval))
+                print("Comparing '%s': %s (current run), %s (reference)" %\
+                      (key,str(currval),str(refval)))
             self.assertTrue(len(currval)==len(refval),"Number of elemnets in '%s' differs." % key)
             if isinstance(refval[0],str):
                 for i in range(len(currval)):
@@ -518,13 +518,13 @@ class sdbaseline_unittest_base(unittest.TestCase):
         coeffs_ref = blparse_ref.coeff()
         rms_ref = blparse_ref.rms()
         allowdiff = 0.01
-        print 'Check baseline parameters:'
-        for irow in xrange(len(rms_out)):
-            print 'Row %s:'%(irow)
-            print '   Reference rms  = %s'%(rms_ref[irow])
-            print '   Calculated rms = %s'%(rms_out[irow])
-            print '   Reference coeffs  = %s'%(coeffs_ref[irow])
-            print '   Calculated coeffs = %s'%(coeffs_out[irow])
+        print('Check baseline parameters:')
+        for irow in range(len(rms_out)):
+            print('Row %s:'%(irow))
+            print('   Reference rms  = %s'%(rms_ref[irow]))
+            print('   Calculated rms = %s'%(rms_out[irow]))
+            print('   Reference coeffs  = %s'%(coeffs_ref[irow]))
+            print('   Calculated coeffs = %s'%(coeffs_out[irow]))
             r0 = rms_ref[irow]
             r1 = rms_out[irow]
             rdiff = (r1 - r0) / r0
@@ -532,11 +532,11 @@ class sdbaseline_unittest_base(unittest.TestCase):
                             msg='row %s: rms is different'%(irow))
             c0 = coeffs_ref[irow]
             c1 = coeffs_out[irow]
-            for ic in xrange(len(c1)):
+            for ic in range(len(c1)):
                 rdiff = (c1[ic] - c0[ic]) / c0[ic]
                 self.assertTrue((abs(rdiff)<allowdiff),
                                 msg='row %s: coefficient for order %s is different'%(irow,ic))
-        print ''
+        print('')
 #         self.assertTrue(listing.compare(out,reference),
 #                         'New and reference files are different. %s != %s. '
 #                         %(out,reference))
@@ -643,7 +643,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         # uncomment the next line once blparam file can be output
         #self._compareBLparam(outfile+"_blparam.txt",self.blrefroot+tid)
         results = self._getStats(outfile)
-        print self._getStats(outfile)
+        print(self._getStats(outfile))
         theresult = None
         for i in range(len(results)):
             theresult = results[i]
@@ -678,7 +678,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         # uncomment the next line once blparam file can be output
         #self._compareBLparam(outfile+"_blparam.txt",self.blrefroot+tid)
         results = self._getStats(outfile)
-        print self._getStats(outfile)
+        print(self._getStats(outfile))
         theresult = None
         for i in range(len(results)):
             theresult = results[i]
@@ -695,7 +695,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
     
     def test003(self):
         """Basic Test 003: simple successful case: blfunc = 'cspline', maskmode = 'list' and masklist=[] (no mask)"""
-        print ""
+        print("")
 
         tid = '003'
         infile = self.infile
@@ -717,7 +717,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         self.assertEqual(result,None,msg="The task returned '"+str(result)+"' instead of None")
         #self._compareBLparam(outfile+"_blparam.txt",self.blrefroot+tid) 
         results = self._getStats(outfile)
-        print self._getStats(outfile)
+        print(self._getStats(outfile))
         
         theresult = None
         for i in range(len(results)):
@@ -771,7 +771,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         os.mkdir(outfile)
         try:
             result = sdbaseline(infile=infile, outfile=outfile, overwrite=False, maskmode=mode)
-        except Exception, e:
+        except Exception as e:
             #pos = str(e).find(outfile+' exists.')
             pos = str(e).find("outfile='" + outfile + "' exists, and cannot overwrite it.")
             self.assertNotEqual(pos, -1, msg='Unexpected exception was thrown: %s'%(str(e)))
@@ -787,7 +787,7 @@ class sdbaseline_basicTest(sdbaseline_unittest_base):
         mode = 'list'
         try:
             sdbaseline(infile=infile, outfile=outfile, spw=spw, maskmode=mode)
-        except Exception, e:
+        except Exception as e:
             self.assertIn('Spw Expression: No match found for 10,', str(e))
 
 
@@ -895,7 +895,7 @@ class sdbaseline_maskTest(sdbaseline_unittest_base):
         spw = '2:%s'%(';'.join(map(self._get_range_in_string,self.blchan2)))
         pol = 'RR'
 
-        print 'spw =', spw
+        print('spw =', spw)
 
         result = sdbaseline(infile=infile,datacolumn=datacolumn,maskmode=mode,
                             outfile=outfile,spw=spw,pol=pol)
@@ -2060,7 +2060,7 @@ class sdbaseline_outbltableTest(sdbaseline_unittest_base):
         rms_s0p0_ms = [0.150905484071, 0.150905484071, 0.149185846787]
 
         for i in range(len(blfunc)):
-            print 'testing blfunc='+blfunc[i]+'...'
+            print('testing blfunc='+blfunc[i]+'...')
             outfile = self.outroot+self.tid+blfunc[i]+'.ms'
             bloutput= self.outroot+self.tid+blfunc[i]+'.bltable'
             result = sdbaseline(infile=infile,datacolumn=datacolumn,
@@ -2117,7 +2117,7 @@ class sdbaseline_outbltableTest(sdbaseline_unittest_base):
         polval = ['', 'RR', 'LL']
         for i in range(len(blfunc)):
             for j in range(len(testmode)):
-                print 'testing blfunc='+blfunc[i]+', testmode='+testmode[j]+'...'
+                print('testing blfunc='+blfunc[i]+', testmode='+testmode[j]+'...')
                 #prepare input data
                 if os.path.exists(infile):
                     shutil.rmtree(infile)
@@ -2165,7 +2165,7 @@ class sdbaseline_outbltableTest(sdbaseline_unittest_base):
         prange = [[0,1], [0], [1]]
         polval = ['', 'RR', 'LL']
         for j in range(len(testmode)):
-            print 'testing blfunc='+blfunc+', testmode='+testmode[j]+'...'
+            print('testing blfunc='+blfunc+', testmode='+testmode[j]+'...')
             #prepare input data
             if os.path.exists(self.infile):
                 shutil.rmtree(self.infile)
@@ -2342,7 +2342,7 @@ class sdbaseline_applybltableTest(sdbaseline_unittest_base):
         try:
             tb.open(tablename=self.bltable, nomodify=False)
             tb.removerows([2])
-            self.assertEquals(tb.nrows(), 3, msg='failed to remove a row in bltable.')
+            self.assertEqual(tb.nrows(), 3, msg='failed to remove a row in bltable.')
         finally:
             tb.close()
         
@@ -2398,7 +2398,7 @@ class sdbaseline_variableTest(sdbaseline_unittest_base):
         idx_list : a list of indices to select in stats
         """
         ret_dict = {}
-        for key in stats.keys():
+        for key in list(stats.keys()):
             ret_dict[key] = [stats[key][idx] for idx in idx_list]
         return ret_dict
 
@@ -2415,7 +2415,7 @@ class sdbaseline_variableTest(sdbaseline_unittest_base):
         """
         self.infile = infile
         sdbaseline(infile=self.infile,blfunc='variable',outfile=self.outfile,**task_param)
-        colname = (task_param['datacolumn'] if task_param.has_key('datacolumn') else 'data').upper()
+        colname = (task_param['datacolumn'] if 'datacolumn' in task_param else 'data').upper()
 
         # calculate statistics of valid spectrum. Test flagged spectrum.
         ivalid_spec = 0
@@ -2440,7 +2440,7 @@ class sdbaseline_variableTest(sdbaseline_unittest_base):
                         valid_idx.append(ispec)
                     ispec += 1
         # shrink reference list if # of processed spectra is smaller than reference (selection)
-        if len(stats_list) < len(reference[reference.keys()[0]]):
+        if len(stats_list) < len(reference[list(reference.keys())[0]]):
             self.assertEqual(len(valid_idx), len(stats_list),
                              "Internal error: len(valid_idx)!=len(stats_list)")
             reference = self.__select_stats(reference, valid_idx)
@@ -2731,7 +2731,7 @@ Basic unit tests for task sdbaseline. No interactive testing.
 
     def run_test(self, **kwargs):
         task_param=self.base_param.copy()
-        for key, value in kwargs.items():
+        for key, value in list(kwargs.items()):
             task_param[key] = value
         result = sdbaseline(**task_param)
 
@@ -4500,7 +4500,7 @@ class sdbaseline_autoTest(sdbaseline_unittest_base):
         rowflag = True if edge is None else False
         if type(rowidx)==int: rowidx = [rowidx]
         tb.open(infile, nomodify=False)
-        if rowidx is None: rowidx = range(tb.nrows())
+        if rowidx is None: rowidx = list(range(tb.nrows()))
         try:
             for idx in rowidx:
                 specs = tb.getcell("FLAG", idx)
@@ -4516,7 +4516,7 @@ class sdbaseline_autoTest(sdbaseline_unittest_base):
 
     def run_test(self, refstat, **kwargs):
         task_param = self.base_param.copy()
-        for key, val in kwargs.items():
+        for key, val in list(kwargs.items()):
             task_param[key] = val
         sdbaseline(**task_param)
         outfile = task_param['outfile']
@@ -4639,13 +4639,13 @@ class sdbaseline_selection(unittest.TestCase):
         self._clearup()
 
     def _get_selection_string(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         return {key: self.selections[key][0]}
 
     def _get_selected_row_and_pol(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         pols = [0,1]
         rows = [0,1]
         if key == 'pol':  #self.selection stores pol ids
@@ -4658,7 +4658,7 @@ class sdbaseline_selection(unittest.TestCase):
         line_chan, line_amp = self.line_data[datacol][('r%d' % irow)][ipol]
         reference = numpy.zeros(nchan)
         reference[line_chan] = line_amp
-        if self.verbose: print("reference=%s" % str(reference))
+        if self.verbose: print(("reference=%s" % str(reference)))
         return reference
 
     def _format_spw_mask(self, datacolumn, sel_param):
@@ -4681,7 +4681,7 @@ class sdbaseline_selection(unittest.TestCase):
         inparams = self._get_selection_string(sel_param)
         inparams['spw'] = self._format_spw_mask(datacolumn, sel_param)
         inparams.update(self.common_param)
-        print("task param: %s" % str(inparams))
+        print(("task param: %s" % str(inparams)))
         sdbaseline(datacolumn=datacolumn, reindex=reindex, **inparams)
         self._test_result(inparams["outfile"], sel_param, datacolumn)
         
@@ -4712,7 +4712,7 @@ class sdbaseline_selection(unittest.TestCase):
                 for out_pol in range(len(polids)):
                     in_pol = polids[out_pol]
                     reference = self._get_reference(nchan, in_row, in_pol, dcol)
-                    if self.verbose: print("data=%s" % str(sp[out_pol]))
+                    if self.verbose: print(("data=%s" % str(sp[out_pol])))
                     self.assertTrue(numpy.allclose(sp[out_pol], reference,
                                                    atol=atol, rtol=rtol),
                                     "Baselined spectrum differs in row=%d, pol=%d" % (out_row, out_pol))
@@ -4796,9 +4796,9 @@ class sdbaseline_selection(unittest.TestCase):
         """Test reindex =T/F in spw selection"""
         outfile = self.common_param['outfile']
         for datacol in ['float_data', 'corrected']:
-            print("Test: %s" % datacol.upper())
+            print(("Test: %s" % datacol.upper()))
             for (reindex, ddid, spid) in zip([True, False], [0, 1], [0,7]):
-                print("- reindex=%s" % str(reindex))
+                print(("- reindex=%s" % str(reindex)))
                 self.run_test("spw", datacol, reindex=reindex)
                 tb.open(outfile)
                 try:
@@ -4817,9 +4817,9 @@ class sdbaseline_selection(unittest.TestCase):
         """Test reindex =T/F in intent selection"""
         outfile = self.common_param['outfile']
         for datacol in ['float_data', 'corrected']:
-            print("Test: %s" % datacol.upper())
+            print(("Test: %s" % datacol.upper()))
             for (reindex, idx) in zip([True, False], [0, 4]):
-                print("- reindex=%s" % str(reindex))
+                print(("- reindex=%s" % str(reindex)))
                 self.run_test("intent", datacol, reindex=reindex)
                 tb.open(outfile)
                 try:

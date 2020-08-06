@@ -13,9 +13,9 @@ class TelemetryLogMonitor:
             filesize = os.path.getsize(filename)/1024
             if (filesize > limit):
                 if (self.showWarning):
-                    print "Logfile size is too large. Disabling telemetry."
-                    print "Filesize: " + str(filesize)
-                    print "Limit: " + str(limit)
+                    print("Logfile size is too large. Disabling telemetry.")
+                    print("Filesize: " + str(filesize))
+                    print("Limit: " + str(limit))
                 casa['state']['telemetry-enabled'] = False
                 self.showWarning = False
         except OSError:

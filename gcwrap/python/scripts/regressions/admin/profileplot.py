@@ -2,7 +2,7 @@ import signal
 import os
 import pylab as pl
 import string
-import commands
+import subprocess
 import sys
 import re
 import time
@@ -91,16 +91,16 @@ def getmem(pid):
     if not os.path.isfile(lsof):
         lsof = "/usr/bin/lsof"
     if not os.path.isfile(lsof):
-        print "Warning: Could not find lsof at /usr/sbin/lsof or /usr/bin/lsof"
+        print("Warning: Could not find lsof at /usr/sbin/lsof or /usr/bin/lsof")
 
-    (errorcode, numoffile) = commands.getstatusoutput(lsof + ' -p ' + str(pid) + ' 2>/dev/null | wc -l')
+    (errorcode, numoffile) = subprocess.getstatusoutput(lsof + ' -p ' + str(pid) + ' 2>/dev/null | wc -l')
     if errorcode != 0:
         numoffile = -1
 
-    (errorcode, mem_virtual)  = commands.getstatusoutput('env -i ps -p ' + str(pid) + ' -o vsz | tail -1')
+    (errorcode, mem_virtual)  = subprocess.getstatusoutput('env -i ps -p ' + str(pid) + ' -o vsz | tail -1')
     if errorcode != 0:
         mem_virtual = -1
-    (errorcode, mem_resident) = commands.getstatusoutput('env -i ps -p ' + str(pid) + ' -o rss | tail -1')
+    (errorcode, mem_resident) = subprocess.getstatusoutput('env -i ps -p ' + str(pid) + ' -o rss | tail -1')
     if errorcode != 0:
         mem_resident = -1
 
@@ -111,7 +111,7 @@ def getmem(pid):
 
     if os.uname()[0] == "Linux":
         cmd = 'top -b -d 1 -n2 | grep -E "^Cpu" | tail -1'
-        (errorcode, a) = commands.getstatusoutput(cmd)   
+        (errorcode, a) = subprocess.getstatusoutput(cmd)   
         if len(a)==0 or errorcode != 0:
             return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
         
@@ -122,7 +122,7 @@ def getmem(pid):
 
     elif os.uname()[0] == "Darwin":
         cmd = 'top -l 2 -s 1 | grep -Eo "CPU.usage.*" | tail -1'
-        (errorcode, a) = commands.getstatusoutput(cmd)
+        (errorcode, a) = subprocess.getstatusoutput(cmd)
         if len(a)==0 or errorcode != 0:
             return -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0
         
@@ -131,7 +131,7 @@ def getmem(pid):
         cpu_id = re.sub('.*[ :]', '', re.sub('%.*', '', a.split(',')[2]))
         cpu_wa = 0 # CPU wait not available from top on Mac
     else:
-        raise Exception, "Unrecognized os.uname()[0] = " + str(os.uname()[0])
+        raise Exception("Unrecognized os.uname()[0] = " + str(os.uname()[0]))
 
     return int(mem_virtual), int(mem_resident), numoffile, \
            cpu_us, cpu_sy, cpu_id, cpu_wa

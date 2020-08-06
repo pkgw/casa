@@ -178,7 +178,7 @@ class ia_fft_test(unittest.TestCase):
         # FFT whole image
         #
         ndim = len(testim.shape())
-        axes = range(ndim)
+        axes = list(range(ndim))
         ok = testim.fft(real=rname, imag=iname, phase=pname, amp=aname, axes=axes)
         self.assertTrue(ok)
         im1 = ia.newimage(rname)

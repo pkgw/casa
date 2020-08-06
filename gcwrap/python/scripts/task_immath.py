@@ -239,18 +239,18 @@ def immath(
                     varnames, filenames, _myia, prec
                 )
         else:
-            raise(Exception, "Unsupported mode " + str(mode))
+            raise Exception
         try:
-            param_names = immath.func_code.co_varnames[:immath.func_code.co_argcount]
+            param_names = immath.__code__.co_varnames[:immath.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             write_image_history(
                 outia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, error:
+    except Exception as error:
         if mode == 'evalexpr':
             casalog.post("Unable to process expression " + expr, 'SEVERE')
         else:
@@ -317,9 +317,9 @@ def _immath_new_pola(
             polithresh = qa.convert(polithresh, bunit)
             _myia.done()
             if (qa.getunit(polithresh) != bunit):
-                raise Exception, "Units of polithresh " + initUnit \
+                raise Exception("Units of polithresh " + initUnit \
                 + " do not conform to input image units of " + bunit \
-                + " so cannot perform thresholding. Please correct units and try again."
+                + " so cannot perform thresholding. Please correct units and try again.")
             polithresh = qa.getvalue(polithresh)[0]
             lpol = tmpFilePrefix + "_lpol"
             mypo.open(target)
@@ -373,7 +373,7 @@ def _immath_new_poli(
                 iunit = _myia.brightnessunit()
                 _myia.done()
             except:
-                raise Exception, 'Unable to get brightness unit from image file ' + filenames[0]
+                raise Exception('Unable to get brightness unit from image file ' + filenames[0])
             if sigmaunit != iunit:
                 newsigma = qa.convert(qsigma,iunit)
             else:
@@ -416,14 +416,14 @@ def _immath_updateexpr(expr, varnames, subImages, filenames, file_map):
             'Unable to create subimages for all image names given'
         )
     # because real file names also have to be mapped to a corresponding subimage, CAS-1830
-    for k in file_map.keys():
+    for k in list(file_map.keys()):
         # we require actual image names to be in quotes when used in the expression
         varnames.extend(["'" + k + "'", '"' + k + '"'])
         subImages.extend(2 * [file_map[k]])
     # Put the subimage names into the expression
     try:
         expr = _immath_expr_from_varnames(expr, varnames, subImages)
-    except Exception, e:
+    except Exception as e:
         casalog.post(
             "Unable to construct pixel expression aborting immath: " + str(e),
             'SEVERE'
@@ -454,7 +454,7 @@ def _immath_createsubimages(
             subImages.append(tmpFile)
             _myia.done()
             i = i + 1
-        except Exception, e:
+        except Exception as e:
             raise Exception(
                 'Unable to apply region to file: ' + image
             )
@@ -473,7 +473,7 @@ def _immath_dofull(
 
 def _immath_dospix(nfiles, varnames):
     if nfiles != 2:
-        raise Exception, 'Requires two images at different frequencies'
+        raise Exception('Requires two images at different frequencies')
     return 'spectralindex(' + varnames[0] + ', ' + varnames[1] + ')'
 
 def _immath_filenames(filenames, tmpfilenames, varnames, mode):
@@ -485,7 +485,7 @@ def _immath_filenames(filenames, tmpfilenames, varnames, mode):
             # check if it is one of varnames, if not check the files in expr exist 
             if(not varnamesSet.issuperset(imname)):
                if( not os.path.exists(imname)):
-                   raise Exception, 'Image data set not found - please verify ' + imname
+                   raise Exception('Image data set not found - please verify ' + imname)
                else:
                    count = count + 1            
         if len(tmpfilenames) == count:
@@ -495,7 +495,7 @@ def _immath_filenames(filenames, tmpfilenames, varnames, mode):
         for i in range(len(filenames)):
             if not os.path.exists(filenames[i]):
                 casalog.post("Image data set not found - please verify " +filenames[i], "SEVERE")
-                raise Exception, 'Image data set not found - please verify '+filenames[i]
+                raise Exception('Image data set not found - please verify '+filenames[i])
     return filenames
 
 def _immath_varnames(varnames, filenames, tmpfilenames):
@@ -515,9 +515,9 @@ def _immath_varnames(varnames, filenames, tmpfilenames):
 def _immath_initial_cleanup(tmpFilePrefix):
     try:
         _immath_cleanup(tmpFilePrefix)
-    except Exception, e:
+    except Exception as e:
         casalog.post( 'Unable to cleanup working directory '+os.getcwd()+'\n'+str(e), 'SEVERE' )
-        raise Exception, str(e)
+        raise Exception(str(e))
 
 def _immath_check_outfile(outfile):
     if not outfile:
@@ -575,7 +575,7 @@ def _immath_expr_from_varnames(expr, varnames, filenames):
         tmpfiles = {}
         for i in range(len(filenames)):
                 tmpfiles[varnames[i]] = filenames[i]
-        tmpvars = tmpfiles.keys()
+        tmpvars = list(tmpfiles.keys())
 
         tmpvars.sort()
         tmpvars.reverse()

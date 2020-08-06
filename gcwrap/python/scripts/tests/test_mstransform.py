@@ -88,7 +88,7 @@ def check_eq(val, expval, tol=None):
                 errmsg = "\n%r\n!=\n%r" % (val, expval)
             raise ValueError(errmsg)
         except Exception:
-            print("Error comparing", val, "to", expval)
+            print(("Error comparing", val, "to", expval))
             raise
 
 # Base class which defines setUp functions
@@ -397,7 +397,7 @@ class test_Combspw1(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 1, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 1, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
 
         # DDI subtable should have 4 rows with the proper indices
@@ -582,7 +582,7 @@ class test_regridms_four_ants(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -643,7 +643,7 @@ class test_regridms_jupiter(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 1, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 1, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
 
     def test_regrid3_2(self):
@@ -1040,7 +1040,7 @@ class test_Hanning_with_g19(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 1, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 1, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
 
 
@@ -1166,7 +1166,7 @@ class test_FreqAvg(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 1, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 1, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
 
     def test_freqavg2(self):
@@ -1208,7 +1208,7 @@ class test_FreqAvg(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -1311,7 +1311,7 @@ class test_Columns(test_base):
 
           self.assertTrue(os.path.exists(self.outputms))
           mcol = th.getColDesc(self.outputms, 'MODEL_DATA')
-          mkeys = mcol.keys()
+          mkeys = list(mcol.keys())
           self.assertTrue(mkeys.__len__()==0, 'Should not add MODEL_DATA column')
           
     def test_col2(self):
@@ -1327,7 +1327,7 @@ class test_Columns(test_base):
 
           # Verify that the virtual column exists
           mcol = th.getColDesc(inpms+'/SOURCE', 'SOURCE_MODEL')
-          mkeys = mcol.keys()
+          mkeys = list(mcol.keys())
           self.assertTrue(mkeys.__len__() > 0, 'Should have a SOURCE_MODEL column')
 
           # Make the virtual column a real MODEL_DATA column
@@ -1335,7 +1335,7 @@ class test_Columns(test_base):
 
           self.assertTrue(os.path.exists(self.outputms))
           mcol = th.getColDesc(self.outputms, 'MODEL_DATA')
-          mkeys = mcol.keys()
+          mkeys = list(mcol.keys())
           self.assertTrue(mkeys.__len__() > 0, 'Should have a MODEL_DATA column')
 
     def test_col3(self):
@@ -1428,7 +1428,7 @@ class test_SeparateSPWs(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -1504,7 +1504,7 @@ class test_SeparateSPWs(test_base):
         
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -1915,7 +1915,7 @@ class test_timeaverage_limits(test_base):
 
         tb_local.open(self.outvis)
         interval = tb_local.getcol('INTERVAL')
-        print(interval[0])
+        print((interval[0]))
         tb_local.close()
         check_eq(interval[0] >= 40.0,True)
 
@@ -2162,7 +2162,7 @@ class test_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
@@ -2174,7 +2174,7 @@ class test_spw_poln(test_base):
 
         # Verify that POLARIZATION table is not re-sized.
         corr_col = th.getVarCol(self.outputms+'/POLARIZATION', 'NUM_CORR')
-        self.assertEqual(corr_col.keys().__len__(), 4, 'Wrong number of rows in POLARIZATION table')
+        self.assertEqual(list(corr_col.keys()).__len__(), 4, 'Wrong number of rows in POLARIZATION table')
 
         listobs(self.outputms, listfile='list.obs')
         self.assertTrue(os.path.exists('list.obs'), 'Probable error in sub-table re-indexing')
@@ -2205,7 +2205,7 @@ class test_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 2, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 2, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
 
@@ -2281,7 +2281,7 @@ class test_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 2, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 2, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
 
@@ -2291,7 +2291,7 @@ class test_spw_poln(test_base):
 
         # Verify that POLARIZATION table is not re-sized.
         corr_col = th.getVarCol(self.outputms+'/POLARIZATION', 'NUM_CORR')
-        self.assertEqual(corr_col.keys().__len__(), 4, 'Wrong number of rows in POLARIZATION table')
+        self.assertEqual(list(corr_col.keys()).__len__(), 4, 'Wrong number of rows in POLARIZATION table')
 
     def test_regrid_spw_with_diff_pol_shape(self):
         '''mstransform: regrid spw 0 that has repeated SPW ID'''
@@ -2345,7 +2345,7 @@ class test_spw_poln(test_base):
 
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(len(out_feed_spw.keys()), 26)
+        self.assertEqual(len(list(out_feed_spw.keys())), 26)
 
 
 class testFlags(test_base):
@@ -2382,7 +2382,7 @@ class testFlags(test_base):
         try:
             mstransform(self.vis, outputvis=self.outputms, datacolumn='data', spw='>14', keepflags=False)
         except RuntimeError as instance:
-            print('Expected Error: {0}'.format(instance))
+            print(('Expected Error: {0}'.format(instance)))
         
         print('Expected Error!')
         
@@ -5869,7 +5869,7 @@ class test_selectiononly_notransformation(test_base):
         mstransform(vis=self.vis, outputvis=self.outputms, spw='1:5;10;15,3:5;10;15,5:5;10;15', scan='1', datacolumn='data', reindex=True)
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')

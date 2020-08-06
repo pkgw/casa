@@ -32,7 +32,7 @@ class mindpipes (threading.Thread) :
         fcntl.fcntl(fd, fcntl.F_SETFL, posix.O_NDELAY)
         id = base64.b64encode(uuid.uuid4().bytes,'..')[0:10]
         self.__queue_lock.acquire( )
-        while self.__queue.has_key(id):
+        while id in self.__queue:
             id = base64.b64encode(uuid.uuid4().bytes,'..')[0:10]
         self.__queue[id] = { 'pipe': fd, 'callback': callback, 'buffer': '', 'data': data }
         self.__queue_lock.release( )
@@ -43,7 +43,7 @@ class mindpipes (threading.Thread) :
 
     def remove ( self, nubbin ):
         self.__queue_lock.acquire( )
-        if self.__queue.has_key(nubbin.id( )):
+        if nubbin.id( ) in self.__queue:
             x = self.queue.pop(nubbin.id( ))
             x.pop('buffer')
             self.__queue_lock.release( )
@@ -60,7 +60,7 @@ class mindpipes (threading.Thread) :
         while ( 1 ) :
             self.__queue_lock.acquire( )
             read_fds = [ ]
-            for key in self.__queue.keys( ) :
+            for key in list(self.__queue.keys( )) :
                 read_fds.append(self.__queue[key]['pipe'])
             self.__queue_lock.release( )
             if not self.__change.locked( ):
@@ -80,7 +80,7 @@ class mindpipes (threading.Thread) :
             line = os.read(file,9216)
             lines = line.splitlines( )
             self.__queue_lock.acquire( )
-            for key in self.__queue.keys( ) :
+            for key in list(self.__queue.keys( )) :
                 if self.__queue[key]['pipe'] == file:
                     if self.__queue[key]['buffer'] !=  '':
                         lines[0] = self.__queue[key]['buffer'] + lines[0]

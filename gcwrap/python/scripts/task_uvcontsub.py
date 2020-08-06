@@ -52,7 +52,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
             mytb.close()
             if(pnrows>0): 
                 shutil.copytree(os.path.realpath(vis+'/POINTING'), auxfile)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("Error handling POINTING table %s: %s" %
                          (vis+'/POINTING',str(instance)),'SEVERE')
 
@@ -60,13 +60,13 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
             try:
                 virtualconcat(concatvis=helper._arg['vis'] + ".cont",vis=cont_subMS_list,
                               copypointing=False)
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post("Error concatenating continuum sub-MSs %s: %s" % 
                              (str(cont_subMS_list),str(instance)),'SEVERE')     
         try:
             virtualconcat(concatvis=helper._arg['vis'] + ".contsub",vis=contsub_subMS_list,
                           copypointing=False)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("Error concatenating continuum-subtracted sub-MSs %s: %s" %
                          (str(contsub_subMS_list),str(instance)),'SEVERE')
 
@@ -89,7 +89,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
                 theptab = os.path.realpath(helper._arg['vis'] + ".contsub/POINTING")
                 os.system('rm -rf '+theptab)
                 os.system('mv '+auxfile+' '+theptab)
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post("Error restoring pointing table from %s: %s" % 
                              (auxfile,str(instance)),'SEVERE')
         
@@ -105,7 +105,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
         # Get these checks done and out of the way.
         # This one is redundant - it is already checked at the XML level.
         if not os.path.isdir(vis):
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         
         #
         if excludechans:
@@ -127,14 +127,14 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
                 badfitspw=''
                 for ispw in range(len(fitspwerr)):
                     badfitspw+=str(fitspwerr.pop())
-                raise Exception, "fitspw contains non-existent spw(s): "+badfitspw
+                raise Exception("fitspw contains non-existent spw(s): "+badfitspw)
         if len(spw)>0:
             spwerr=subtract_spws(spw,allspw)
             if spwerr:
                 badspw=''
                 for ispw in range(len(spwerr)):
                     badspw+=str(spwerr.pop())
-                raise Exception, "spw contains non-existent spw(s): "+badspw
+                raise Exception("spw contains non-existent spw(s): "+badspw)
 
         if 'spw' not in combine:
             #spwmfitspw = subtract_spws(spw, fitspw)
@@ -143,7 +143,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
                 #spwmfitspw = subtract_spws(allspw, fitspw)
                 spwmfitspw = subtract_spws(allspw, locfitspw)
             if spwmfitspw:
-                raise Exception, "combine must include 'spw' when the fit is being applied to spws outside fitspw."
+                raise Exception("combine must include 'spw' when the fit is being applied to spws outside fitspw.")
         
         # cb will put the continuum-subtracted data in CORRECTED_DATA, so
         # protect vis by splitting out its relevant parts to a working copy.
@@ -217,7 +217,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
         # is made, but before cb adds its messages.
         #
         # Not a dict, because we want to maintain the order.
-        param_names = uvcontsub.func_code.co_varnames[:uvcontsub.func_code.co_argcount]
+        param_names = uvcontsub.__code__.co_varnames[:uvcontsub.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
             
         write_history(myms, csvis, 'uvcontsub', param_names, param_vals,
@@ -227,7 +227,7 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
             mycb.setvi(old=True,quiet=False);   # old VI, for now
             mycb.open(csvis)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         # select the data for continuum subtraction
         mycb.reset()
@@ -289,10 +289,10 @@ def uvcontsub(vis, field, fitspw, excludechans, combine, solint, fitorder, spw, 
         # the sub-MS that produce a continuum sub-MS to concatenate at the MMS level
         return True
 
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('Error in uvcontsub: ' + str(instance), 'SEVERE')
         mycb.close()                        # Harmless if cb is closed.
-        raise Exception, 'Error in uvcontsub: ' + str(instance)
+        raise Exception('Error in uvcontsub: ' + str(instance))
 
 
 def _quantityRangesToChannels(vis,field,infitspw,excludechans):
@@ -306,7 +306,7 @@ def _quantityRangesToChannels(vis,field,infitspw,excludechans):
     nspw=mytb.nrows()
     mytb.close()
    
-    fullspwids=str(range(nspw)).strip('[,]')
+    fullspwids=str(list(range(nspw))).strip('[,]')
     tql={'field':field,'spw':fullspwids}
     myms.open(vis)
     myms.msselect(tql,True)

@@ -13,4 +13,4 @@ There are two modules:
                     tables and installs them where casapy can find them.
 """
 
-import request, JPLephem_reader
+from . import request, JPLephem_reader

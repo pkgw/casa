@@ -70,7 +70,7 @@ def visstat(vis=None,
 
     mslocal.close()
 
-    for stats in s.keys():
+    for stats in list(s.keys()):
         casalog.post(stats + " values --- ", "NORMAL")
 
         if s[stats]['npts'] > 0:

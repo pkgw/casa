@@ -419,7 +419,7 @@ class imcontsub_test(unittest.TestCase):
         # edits). This whole test file probably needs to be reviewed but of course time is tight so
         # I cannot do that now.
     
-        for order in xrange(2):
+        for order in range(2):
             contfile='fit_test_cont'+str(order)
             linefile='fit_test_line'+str(order)
 
@@ -432,7 +432,7 @@ class imcontsub_test(unittest.TestCase):
                 
             try:
                 results = imcontsub('g192_a2.image', fitorder=order, contfile=contfile, linefile=linefile)
-            except Exception, err:
+            except Exception as err:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                     +"\nError: Unable to subtract continuum with a fit order="+str(order)\
@@ -472,7 +472,7 @@ class imcontsub_test(unittest.TestCase):
             if (absmax > tol):
                 retval['success'] = False
                 retval['error_msgs'] += errmsg + ' error: Max residual is ' + str(absmax)
-        except Exception, err:
+        except Exception as err:
             retval['success'] = False
             retval['error_msgs'] += errmsg + " error: Exception thrown: " + str(err)
         return retval
@@ -493,7 +493,7 @@ class imcontsub_test(unittest.TestCase):
             results = imcontsub('g192_a2.image', fitorder=0, contfile=cfil,
                                 linefile=lfil, box=bx,
                                 chans='32~37')  # Purposely one-sided.  
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs'] += "\nError: Unable to subtract continuum with box and chans "\
                                       +"\n\t RESULTS: "+str(results)

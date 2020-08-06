@@ -51,23 +51,23 @@ logfile=open('msplot_test.log', 'w' )
 ### This function is used to provide a consistent way of executing each
 ### of the commands, to ensure proper error reporting, ...
 def test_plotting( fnName='' ) :
-    print >>logfile,'Executing command ... '
-    print >>logfile,'     ', fnName
-    print fnName
+    print('Executing command ... ', file=logfile)
+    print('     ', fnName, file=logfile)
+    print(fnName)
     try:
         # Execute the command
         if ( not eval( fnName ) ) :
-            print >>logfile, 'Execution FAILED for command ...' 
-            print >>logfile, '     ', fnName
+            print('Execution FAILED for command ...', file=logfile) 
+            print('     ', fnName, file=logfile)
         else: 
-            print >>logfile, 'SUCCESSFUL execution of command ...' 
-            print >>logfile, '     ' + fnName
+            print('SUCCESSFUL execution of command ...', file=logfile) 
+            print('     ' + fnName, file=logfile)
     except:
-        print >>logfile, 'EXCEPTION occured with command ...' 
-        print >>logfile, '     ', fnName
+        print('EXCEPTION occured with command ...', file=logfile) 
+        print('     ', fnName, file=logfile)
 
 ############################################################################
-print >>logfile, "TESTING OPENING OF FILES"
+print("TESTING OPENING OF FILES", file=logfile)
 test_plotting( "mp.open( ngc5921PATH )" )
 test_plotting( "mp.done()" )
 test_plotting( "mp.open( ngc7538PATH )" )
@@ -79,12 +79,12 @@ test_plotting( "mp.done()" )
 test_plotting( "mp.open(_3C273XC1PATH)" )
 test_plotting( "mp.done()" )
 #test_plotting( "mp.done()" )
-print >>logfile, "\n"
+print("\n", file=logfile)
 
 ########################################################################
 ## test subplot after refactorin
 ## array() is not working with other methods yet!.
-print >>logfile, "TESTING subplot - 4 subplots at once." 
+print("TESTING subplot - 4 subplots at once.", file=logfile) 
 test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plotoptions(subplot=221)" )
 test_plotting( "mp.plot( type='uvcoverage')" )
@@ -97,11 +97,11 @@ test_plotting( "mp.plot( type='elevation')" )
 test_plotting( "mp.clearplot()" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.done()" )
-print >>logfile, "\n"
+print("\n", file=logfile)
 
 ########################################################################
 ## test iteration after refactorin
-print >>logfile, "TESTING ITERATION with vischannel and vistime" 
+print("TESTING ITERATION with vischannel and vistime", file=logfile) 
 test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plotoptions(subplot=221)" )
 #test_plotting( "mp.plot( type='vischannel', column='data', value='amp', iteration='time')" )    
@@ -122,13 +122,13 @@ test_plotting( "mp.iterplotnext()" )
 test_plotting( "mp.iterplotstop()" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 #######################################################################
 ## test plotxy()
 ##
 ## Those commented out are not available yet.
-print >>logfile, "TESTING plotxy function"
+print("TESTING plotxy function", file=logfile)
 
 #test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plotxy(x='antenna1',y='data' )" )
@@ -161,7 +161,7 @@ test_plotting( "mp.plotxy(x='scan_number',y='weighteddata')" )
 test_plotting( "mp.plotxy(y='data',x='antenna1')" )
 
 ### Some of these have issues with data/time
-print >>logfile, "TESTING uvdist with different data types"
+print("TESTING uvdist with different data types", file=logfile)
 test_plotting( "mp.plot( 'uvdist', 'weighteddata' )" )
 test_plotting( "mp.plot( 'uvdist', 'residual' )" )
 test_plotting( "mp.plot( 'uvdist', 'corrected' )" )
@@ -171,7 +171,7 @@ test_plotting( "mp.plot( 'uvdist', 'residual_corrected' )" )
 test_plotting( "mp.plot( 'uvdist', 'weighted_corrected' )" )
 
 ### Some of these have issues with data/time
-print >>logfile, "TESTING plotxy with ITERATIONS"
+print("TESTING plotxy with ITERATIONS", file=logfile)
 test_plotting( "mp.plotxy(x='antenna1',y='data', iteration='field_id' )" ) 
 test_plotting( "mp.plotxy(x='time',y='data', iteration='field_id')" )
 ## Doesn't work yet.
@@ -187,12 +187,12 @@ test_plotting( "mp.plotxy(x='baseline',y='data', iteration='antenna1')" )
 #test_plotting( "mp.plotxy(x='baseline',y='data', iteration='time')" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 #######################################################################
 ## test clearflags()
 ## MAY WISH TO COMMENT THIS OUT AS IT CLEARS ALL FLAGS!
-print >>logfile, "Testing FLAGGING and UNFLAGGING" 
+print("Testing FLAGGING and UNFLAGGING", file=logfile) 
 #test_plotting( "mp.open(ngc5921PATH)" )
 #test_plotting( "mp.clearflags()" )
 test_plotting( "mp.emperorsNewClose()" )
@@ -215,7 +215,7 @@ test_plotting( "mp.clearplot()" )
 #######################################################################
 ## test flagging after setdata()
 #  Temporarily ommited since MSSeletion is rejecting field selections
-print >>logfile, "Tesing FLAGGING with spectral channels" 
+print("Tesing FLAGGING with spectral channels", file=logfile) 
 #
 # Take out the close and open and things crash; bug for HongLin
 #
@@ -240,12 +240,12 @@ test_plotting( "mp.flagdata()" )
 test_plotting( "mp.markregion( region=[30, 40, 60, 70] )" )
 test_plotting( "mp.unflagdata()" )
 #test_plotting( "mp.done()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 
 #######################################################################
 ## iteration test
-print >>logfile, "ITERATION test" 
+print("ITERATION test", file=logfile) 
 test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plotoptions( subplot=221 )" )
 test_plotting( "mp.plot( type='vischannel',iteration='antenna1')" )
@@ -254,21 +254,21 @@ test_plotting( "mp.iterplotnext()" )
 test_plotting( "mp.iterplotstop()" )
 test_plotting( "mp.close()" )
 #test_plotting( "mp.done()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 #######################################################################
 ## test BIMA data
-print >>logfile, "Testing BIMA data" 
+print("Testing BIMA data", file=logfile) 
 test_plotting( "mp.open(g1310_0506PATH)" )
 test_plotting( "mp.plot( type='uvcoverage')" )
 test_plotting( "mp.plot( type='vischannel')" )
 test_plotting( "mp.close()" )
 #test_plotting( "mp.done()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 #######################################################################
 ## test vistime()
-print >>logfile, "Testing VISTIME" 
+print("Testing VISTIME", file=logfile) 
 test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.setdata( spw='0:0~50^5' )" )
 test_plotting( "mp.plot( type='vistime')" )
@@ -278,13 +278,13 @@ test_plotting( "mp.setdata( spw='0:2~25^2', chanavemode='scalarstep', corravemod
 test_plotting( "mp.plot( type='vistime',value='corrected')" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 ##################################################
 ## test setepectral()
 # Temporarly commented out since MSSelection is failing on field
 # selections.
-print >>logfile, "Testing SET SPECTRAL" 
+print("Testing SET SPECTRAL", file=logfile) 
 #test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.setdata( field='1', spw='0:0~50^5', chanavemode='scalarstep')" )
 
@@ -302,19 +302,19 @@ test_plotting( "mp.setdata( spw='0:0~50^5', chanavemode='scalarstep' )")
 test_plotting( "mp.plot( type='uvdist',column='corrected')" )   
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 ##################################################
 ## testing iteration
-print >>logfile, "Testing ARRAY plotting"
+print("Testing ARRAY plotting", file=logfile)
 #test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plot( type='array')" )
 test_plotting( "mp.close()" )
-print >>logfile,"\n"
+print("\n", file=logfile)
 
 #################################################
 ## overplot test
-print >>logfile, "Testing OVERPLOT"
+print("Testing OVERPLOT", file=logfile)
 test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plot( type='vistime', value='phase')" )
 test_plotting( "mp.plotoptions( overplot=1, plotcolor='b' )" )
@@ -362,11 +362,11 @@ test_plotting( "mp.plot( type='elevation')" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
 test_plotting( "mp.emperorsNewClose() " )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 ##############################################################################
 ## multi-plot test
-print >>logfile, "MULTI PLOT test" 
+print("MULTI PLOT test", file=logfile) 
 #test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.clearplot()" )
 test_plotting( "mp.plotoptions( subplot=221 )" )
@@ -394,11 +394,11 @@ test_plotting( "mp.plotoptions(overplot=1, plotcolor='b')" )
 test_plotting( "mp.plot( type='uvdist',column='corrected_data')" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 ##################################################################################
 ## test of flagdata()
-print >>logfile, "Another FLAGGING test" 
+print("Another FLAGGING test", file=logfile) 
 #test_plotting( "mp.open(ngc5921PATH)" )
 test_plotting( "mp.plot( type='vischannel')" )
 ## flag some data with specific region
@@ -415,11 +415,11 @@ test_plotting( "mp.clearplot()" )
 test_plotting( "mp.plot( type='vischannel')" )                  # really flaged?
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >> logfile, "\n" 
+print("\n", file=logfile) 
 
 ##################################################################################
 ## test refreshment of axes
-print >>logfile, "Testing refreshment of axes - SET DATA" 
+print("Testing refreshment of axes - SET DATA", file=logfile) 
 
 #test_plotting( "mp.open(ngc5921PATH)" )
 
@@ -467,7 +467,7 @@ test_plotting( "mp.close()" )
 
 #
 # Rearranged so all those from one measurement set are together!
-print >>logfile, "\nBegin testing of setdata with ngc7538"
+print("\nBegin testing of setdata with ngc7538", file=logfile)
 test_plotting( "mp.open( ngc7538PATH )" )
 
 ## Those commented out DON'T work
@@ -503,7 +503,7 @@ test_plotting( "mp.close()" )
 
 
 ## Again those commented out don't work!
-print >>logfile, "\nBegin testing of setdata with 3C273XC1"
+print("\nBegin testing of setdata with 3C273XC1", file=logfile)
 test_plotting( "mp.open(_3C273XC1PATH)" )
 test_plotting( "mp.setdata( baseline='VLA:N*' )" )
 test_plotting( "mp.setdata( baseline='5:R & *' )" )
@@ -543,14 +543,14 @@ test_plotting( "mp.setdata( spw='0:1~1^1', correlation='rr rl' )" )
 test_plotting( "mp.setdata( spwNames='0', correlation='rr' )" )
 test_plotting( "mp.close()" )
 #test_plotting( "mp.done()" )
-print >> logfile, "\n"
+print("\n", file=logfile)
 
 ##
 ###############################################################################
 # the following condition must be met:
 # nchan*step+ start <= (numberOfChannelOriginally-1))
 
-print >>logfile, "Testing SET SPECTRAL with NGC7538" 
+print("Testing SET SPECTRAL with NGC7538", file=logfile) 
 test_plotting( "mp.open( ngc7538PATH )" )
 test_plotting( "mp.setdata( spw='0~200:0~6^3', chanavemode='vectorchunk' )" )
 
@@ -566,11 +566,11 @@ test_plotting( "mp.setdata( spw='0~1:1~3^2,0~1:4~10^3', field='1' )" )
 test_plotting( "mp.setdata( field='1', spw='0~50:0~8^3,0~50:4~10^2' )" )
 test_plotting( "mp.close()" )
 #test_plotting( "mp.done()" )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 #############################################################################
 ## test methods
-print >>logfile, "Testing SIMPLE functions" 
+print("Testing SIMPLE functions", file=logfile) 
 
 test_plotting( "mp.open( ngc5921PATH )" )
 test_plotting( "mp.plot( type='uvcoverage')" ) 
@@ -614,11 +614,11 @@ test_plotting( "mp.plot( type='elevation', column='data', value='amp' )" )
 test_plotting( "mp.plot( type='parallacticangle',  column='data', value='amp' )" )
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 ##############################################################################
 ## For iterplotstart, cannot pass in the record properly!
-print >>logfile, "Testing ITERPLOT again but with OVERPLOT" 
+print("Testing ITERPLOT again but with OVERPLOT", file=logfile) 
 #test_plotting( "mp.open( ngc5921PATH )" )
 test_plotting( "mp.clearplot()" )
 test_plotting( "mp.plotoptions( title='Amplitude vs UVdist (iterating over Baseline)')" )
@@ -634,11 +634,11 @@ for ant in range( 1,28 ):
     
 test_plotting( "mp.reset()" )
 test_plotting( "mp.clearplot()" )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 ###############################################################################
 #
-print >>logfile, "Miscellaneous tests" 
+print("Miscellaneous tests", file=logfile) 
 #test_plotting( "mp.open( ngc5921PATH )" )
 test_plotting( "mp.clearplot()" )
 
@@ -649,7 +649,7 @@ test_plotting( "mp.clearplot()" )
 #test_plotting( "mp.zoomplot(panel=1,direction=1)" )            
 
 #test_plotting( "mp.done()" )
-print >>logfile, "\n" 
+print("\n", file=logfile) 
 
 
-print >>logfile, '\nDONE all tests'
+print('\nDONE all tests', file=logfile)

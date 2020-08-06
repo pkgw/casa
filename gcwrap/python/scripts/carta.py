@@ -22,5 +22,5 @@ class carta:
             carta_path = cartahome + "/bin/carta.sh"
             if sys.platform == "darwin" :
                 carta_path = cartahome + "/Contents/MacOS/carta.sh"
-            print "Starting carta from:" + carta_path
+            print("Starting carta from:" + carta_path)
         subprocess.check_output([carta_path])

@@ -65,7 +65,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
                         execution parameters in tests.
         """
         if type(new_param) is not dict:
-            raise TypeError, 'The input should be a dictionary'
+            raise TypeError('The input should be a dictionary')
         updated_param = copy.deepcopy(self.standard_param)
         updated_param.update(new_param)
         return updated_param
@@ -116,7 +116,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
         self.assertTrue(os.path.exists(template_image),
                         "Could not find template image '%s'" % template_image)
         refcsys, refshape = self.get_image(template_image)
-        self.assertTrue(reference.has_key('signal'),
+        self.assertTrue('signal' in reference,
                         'Internal Error: No valid reference value for signal sideband')
         # test signal band image
         imagename = task_param['outfile']+'.signalband'
@@ -124,7 +124,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
         # test image band image
         imagename = task_param['outfile']+'.imageband'
         if task_param['getbothside']:
-            self.assertTrue(reference.has_key('image'),
+            self.assertTrue('image' in reference,
                             'Internal Error: No valid reference value for image sideband')
             # modify refcsys for image sideband
             spid = refcsys.findaxisbyname('spectral')
@@ -207,7 +207,7 @@ class sdsidebandsplitTestBase(unittest.TestCase):
         # confirm dimension of csys and shape
         self.assertEqual(len(shape), csys.naxes(),
                          'Dimention mismatch between shape and coordinate system')
-        for i in xrange(len(ref_shape)):
+        for i in range(len(ref_shape)):
             # shape of each dimension
             self.assertEqual(shape[i], ref_shape[i],
                              'Shape in %d-th dimension differs' % i)
@@ -238,7 +238,7 @@ class failureTestCase(sdsidebandsplitTestBase):
     """
     def setUp(self):
         self.g = stack_frame_find()
-        if self.g.has_key('__rethrow_casa_exceptions'):
+        if '__rethrow_casa_exceptions' in self.g:
             self.rethrow_backup = self.g['__rethrow_casa_exceptions']
         else:
             self.rethrow_backup = None
@@ -258,7 +258,7 @@ class failureTestCase(sdsidebandsplitTestBase):
         Run task and compare 
         """
         task_param = self.update_task_param(new_param)
-        self.assertRaisesRegexp(Exception, ref_message, sdsidebandsplit, **task_param)            
+        self.assertRaisesRegex(Exception, ref_message, sdsidebandsplit, **task_param)            
 
     # T-001
     def test_imagename_1image(self):
@@ -285,7 +285,7 @@ class failureTestCase(sdsidebandsplitTestBase):
     def test_outfile_exists(self):
         """test failure: overwrite=F and outfile already exists."""
         for sideband in ('signalband', 'imageband'):
-            print('Test %s' % sideband)
+            print(('Test %s' % sideband))
             name = self.standard_param['outfile'] + '.' + sideband
             os.mkdir(name)
             ref_message = 'Image %s already exists.' % name
@@ -306,7 +306,7 @@ class failureTestCase(sdsidebandsplitTestBase):
         for sideband in ['signalshift', 'imageshift']:
             myshift = self.standard_param[sideband] + [50]
             for shift in (myshift[:5], myshift):
-                print('Test len(%s)=%d' % (sideband, len(shift)))
+                print(('Test len(%s)=%d' % (sideband, len(shift))))
                 param = {sideband: shift}
                 self.run_exception(ref_message, **param)   
 
@@ -317,7 +317,7 @@ class failureTestCase(sdsidebandsplitTestBase):
                        'Frequency should be positive',
                        'From/to units not consistent.')
         for refval, message in zip(('', '-100GHz', '300K'), ref_message):
-            print("Test refval='%s'" % refval)
+            print(("Test refval='%s'" % refval))
             self.run_exception(message, refval=refval, getbothside=True)
 
     # T-027, T-031
@@ -325,7 +325,7 @@ class failureTestCase(sdsidebandsplitTestBase):
         """test failure: threshold = 0.0, 1.0"""
         ref_message = 'Rejection limit should be > 0.0 and < 1.0'
         for thres in (0.0, 1.0):
-            print('Test threshold=%f' % thres)
+            print(('Test threshold=%f' % thres))
             self.run_exception(ref_message, threshold=thres)
         
 class standardTestCase(sdsidebandsplitTestBase):
@@ -361,7 +361,7 @@ class standardTestCase(sdsidebandsplitTestBase):
         self.assertEqual(data.shape, (1,1,1,4080), 'Data shape is not expected one')
         for seg in reference:
             sp = data[0,0,0,seg.start:seg.end]
-            x = range(seg.start, seg.end)
+            x = list(range(seg.start, seg.end))
             #print('Max: ref {0} val {1}'.format(seg.max, sp.max()))
             #print('Min: ref {0} val {1}'.format(seg.min, sp.min()))
             self.assertAlmostEqual2(sp.max(), seg.max, 1e-3, 'Max comparison failed')
@@ -443,7 +443,7 @@ class standardTestCase(sdsidebandsplitTestBase):
                          image=(SpectralInfo(1000, 2200, 6.67820, -0.24841, 6.84674, 1599.9131, 19.75747, -0.15339),
                                 SpectralInfo(2500, 3500, 1.88367, -0.11315, 1.96069, 2999.8335, 9.94222, -0.07489)))
         for doboth in [False, True]:
-            print('getbothside = %s'% str(doboth))
+            print(('getbothside = %s'% str(doboth)))
             self.run_test(reference, otherside=True, getbothside=doboth, overwrite=True)
 
     # T-028, T-029, T-030
@@ -456,7 +456,7 @@ class standardTestCase(sdsidebandsplitTestBase):
         ref_large = dict(signal=(SpectralInfo(0, 1500, 3.99807, 0.97891, 2.96490, 898.00416, -29.48243, 1.04387),
                                SpectralInfo(1500, 3000, 5.99822, 0.96876, 4.83709, 2298.0035, -18.79443, 1.21969)))
         for val, ref in zip((0.0001, 0.5, 0.9999), (ref_small, ref_mid, ref_large)):
-            print('Threshold=%f' % val)
+            print(('Threshold=%f' % val))
             self.run_test(ref, threshold=val, overwrite=True)
 
 class MultiPixTestCase(sdsidebandsplitTestBase):

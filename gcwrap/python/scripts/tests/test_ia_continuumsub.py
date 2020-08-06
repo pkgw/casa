@@ -112,7 +112,7 @@ class ia_continuumsub_test(unittest.TestCase):
         imagename = "zz.im"
         myia.fromshape(imagename, [1,1,50])
         bb = myia.getchunk()
-        for i in xrange(50):
+        for i in range(50):
             bb[0,0,i] = g1d.f(i)
         myia.putchunk(bb)
         outline = "outline"

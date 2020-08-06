@@ -23,15 +23,15 @@ datapath2 = dataroot + 'mstransform/'
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listobs/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'listobs tests will use data from '+datapath         
+print('listobs tests will use data from '+datapath)         
 
 # Reference files
 reffile = datapath+'reflistobs'

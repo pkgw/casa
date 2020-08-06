@@ -23,7 +23,7 @@ EPS = 1e-5  # Logical "zero"
 regstate = True
 
 def printmsg(logfile, msg):
-    print >>logfile, msg
+    print(msg, file=logfile)
     print(msg)
     return
 
@@ -41,30 +41,30 @@ def pipeline_regression():
     
     try:
         import pipeline.recipes.hifacal as hifacal
-    except ImportError, e:
+    except ImportError as e:
         print(e)
         
     
     # Check to see if the ASDM exists
     if not os.path.exists(ASDM):
-        print("Unable to open ASDM: ", ASDM)
+        print(("Unable to open ASDM: ", ASDM))
 	regstate=False
         raise IOError
     else:
-        print("Using {}".format(ASDM))
+        print(("Using {}".format(ASDM)))
         
         
     # copy flux.csv file 
     try:
         shutil.copy2( fluxcsv, fluxcsv_file )
     except:
-        print( "Could not copy {0} file from {1}".format(fluxcsv_file, fluxcsv) )
+        print(( "Could not copy {0} file from {1}".format(fluxcsv_file, fluxcsv) ))
         regstate=False
         raise IOError
 
     # verify if flux.csv exists
     if not os.path.exists( fluxcsv ):
-        print( "flux.csv file {} not found.".format(fluxcsv) )
+        print(( "flux.csv file {} not found.".format(fluxcsv) ))
         regstate=False
         raise IOError
     
@@ -85,7 +85,7 @@ def run():
     pipeline_regression()
     endTime = time.time()
     endProc = time.clock()
-    print("Run Time = ",endTime-startTime,endProc-startProc)
+    print(("Run Time = ",endTime-startTime,endProc-startProc))
 
 def stats():
     global startTime, endTime, startProc, endProc, regstate, standard_context_file
@@ -96,7 +96,7 @@ def stats():
     
     try:
         import pipeline
-    except ImportError, e:
+    except ImportError as e:
         printmsg(logfile, "Unable to import the CASA pipeline.")
         printmsg(logfile, e)
         regstate = False
@@ -161,7 +161,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("Regstate:" , regstate)
+    print(("Regstate:" , regstate))
     if regstate:
         print("Regression PASSED")
     else:

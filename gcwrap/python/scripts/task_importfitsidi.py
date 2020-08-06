@@ -44,8 +44,8 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
                         myspecframe='GEO'
 
                 refframes = {'REST': 0, 'LSRK': 1, 'LSRD': 2, 'BARY': 3, 'GEO': 4, 'TOPO': 5} 
-                if not refframes.has_key(myspecframe):
-                        raise Exception, 'Value '+myspecframe+' of parameter specframe invalid. Possible values are REST, LSRK, LSRD, BARY, GEO, TOPO'
+                if myspecframe not in refframes:
+                        raise Exception('Value '+myspecframe+' of parameter specframe invalid. Possible values are REST, LSRK, LSRD, BARY, GEO, TOPO')
 
 		if(type(fitsidifile)==str):
 			casalog.post('### Reading file '+fitsidifile, 'INFO')
@@ -68,7 +68,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 				myms.close()
 				shutil.rmtree(tname, ignore_errors=True)
 		else:
-                        raise Exception, 'Parameter fitsidifile should be of type str or list'			
+                        raise Exception('Parameter fitsidifile should be of type str or list')			
 
 		if (constobsid):
 			mytb.open(vis+'/OBSERVATION', nomodify=False)
@@ -91,7 +91,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 					newmax = max(ttr[1])
 					mytb.putcell('TIME_RANGE', 0, [newmin,newmax])
 					# delete the other rows
-					mytb.removerows(range(1,nobs))
+					mytb.removerows(list(range(1,nobs)))
 				else:
 					casalog.post('The input files stem from different telescopes. Need to give different obs id.', 'WARN')
 			mytb.close()
@@ -100,7 +100,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 				# give the same obs id == 0 to the entire output MS
 				casalog.post('Setting observation ID of all integrations to 0', 'INFO')
 				mytb.open(vis, nomodify=False)
-				for i in xrange(0, mytb.nrows()):
+				for i in range(0, mytb.nrows()):
 					mytb.putcell('OBSERVATION_ID', i, 0)
 				mytb.close()
 
@@ -124,7 +124,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 			prevtime = len(fields) * [0]
 			prevarrayid = arrayids[timesorted[0]]
 
-			for i in xrange(0,mytb.nrows()):
+			for i in range(0,mytb.nrows()):
 				ii = timesorted[i]
 				timenow = times[ii]
 				fieldnow = fields[ii]
@@ -142,7 +142,7 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 			mytb.putcol('SCAN_NUMBER', scannumbers)	
 			mytb.close()
 
-                if refframes.has_key(myspecframe):
+                if myspecframe in refframes:
                         casalog.post('Setting reference frame for all spectral windows to '+myspecframe, 'INFO')
                         if myspecframe == 'TOPO':
                                 casalog.post('NOTE: reference position for TOPO frame will be the observatory location', 'WARN')
@@ -154,18 +154,18 @@ def importfitsidi(fitsidifile,vis,constobsid=None,scanreindexgap_s=None,specfram
 		
 	        # write history
                 try:
-                        param_names = importfitsidi.func_code.co_varnames[:importfitsidi.func_code.co_argcount]
+                        param_names = importfitsidi.__code__.co_varnames[:importfitsidi.__code__.co_argcount]
                         param_vals = [eval(p) for p in param_names]   
                         retval &= write_history(myms, vis, 'importfitsidi', param_names,
                                                 param_vals, casalog)
 
-                except Exception, instance:
+                except Exception as instance:
                         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                                      'WARN')
 
-	except Exception, instance: 
-		print '*** Error ***',instance
+	except Exception as instance: 
+		print('*** Error ***',instance)
 		shutil.rmtree(vis+'_importfitsidi_tmp_', ignore_errors=True)
-		raise Exception, instance
+		raise Exception(instance)
 
 

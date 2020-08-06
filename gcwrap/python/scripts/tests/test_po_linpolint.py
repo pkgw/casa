@@ -87,7 +87,7 @@ class po_linpolint_test(unittest.TestCase):
     def test_multibeam(self):
         """Test multibeam images for correct behavior"""
         mypo = self.mypo
-        print eq_beams
+        print(eq_beams)
         mypo.open(eq_beams)
         self.assertTrue(mypo.linpolint(True))
         mypo.open(neq_beams)

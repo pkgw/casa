@@ -88,11 +88,11 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
                # check the input param
                if fluxtable=="": 
                    casalog.post("Missing fluxtable name.","SEVERE")
-                   raise Exception, "Missing fluxtable name." 
+                   raise Exception("Missing fluxtable name.") 
                else:
                    if os.path.exists(fluxtable) and not append:
                        casalog.post("fluxtable %s exists." % fluxtable, "SEVERE")
-                       raise Exception, "fluxtable %s exists. Please specify a different name. Or set append=True, to append the results to the table." % fluxtable
+                       raise Exception("fluxtable %s exists. Please specify a different name. Or set append=True, to append the results to the table." % fluxtable)
 
                mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
                output = mycb.fluxscale(tablein=caltable,tableout=fluxtable,reference=reference,
@@ -104,19 +104,19 @@ def fluxscale(vis=None,caltable=None,fluxtable=None,reference=None,transfer=None
 
                #write history
                try:
-                      param_names = fluxscale.func_code.co_varnames[:fluxscale.func_code.co_argcount]
+                      param_names = fluxscale.__code__.co_varnames[:fluxscale.__code__.co_argcount]
                       param_vals = [eval(p) for p in param_names]
                       write_history(mstool(), vis, 'fluxscale', param_names,
                                     param_vals, casalog)
                       writeResultsHistory(mstool(), vis, casalog, output)
-               except Exception, instance:
+               except Exception as instance:
                       casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                                    'WARN')
 
-       except Exception, instance:
-               print '*** Error ***',instance
+       except Exception as instance:
+               print('*** Error ***',instance)
                mycb.close()
-               raise Exception, instance
+               raise Exception(instance)
 
        return output
 
@@ -130,7 +130,7 @@ def writeResultsHistory(myms, vis, mycasalog, indict):
         myms.open(vis)                                                       
         isOpen = True                                                        
 
-        mainkeys = indict.keys()
+        mainkeys = list(indict.keys())
 
         spwids = indict['spwID']
         freqs = indict['freq']  
@@ -201,7 +201,7 @@ def writeResultsHistory(myms, vis, mycasalog, indict):
                            " Jy (reference freq = {:7.3f}".format(fitreffreq)+funitlast+")"
                     myms.writehistory(message=msg3, origin='fluxscale')
                     myms.writehistory(message=msg4, origin='fluxscale')
-    except Exception, instance:
+    except Exception as instance:
         mycasalog.post("*** Error \'%s\' updating fluxscale results in HISTORY of %s" % (instance, vis), 'WARN' )
 
     finally:

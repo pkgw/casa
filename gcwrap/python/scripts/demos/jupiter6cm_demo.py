@@ -234,17 +234,17 @@ fitsdata='planets_6cm.fits'
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
 
-print "Use importuvfits to read UVFITS and make an MS"
+print("Use importuvfits to read UVFITS and make an MS")
 
 # Set up the MS filename and save as new global variable
 msfile = prefix + '.ms'
 
-print "MS will be called "+msfile
+print("MS will be called "+msfile)
 
 # Use task importuvfits
 fitsfile = fitsdata
@@ -255,12 +255,12 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
 
-print "Use listobs to print verbose summary to logger"
+print("Use listobs to print verbose summary to logger")
 
 # You may wish to see more detailed information, in this case
 # use the verbose = True option
@@ -455,10 +455,10 @@ listobs()
 # 
 # Use Plotxy to interactively flag the data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
-print "Now we use plotxy to examine and interactively flag data"
+print("Now we use plotxy to examine and interactively flag data")
 
 vis = msfile
 
@@ -484,18 +484,18 @@ iteration = ''
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotxy"
-print "Showing 1331+305 RR LL for all antennas"
-print "Use MarkRegion then draw boxes around points to flag"
-print "You can use ESC to drop last drawn box"
-print "When happy with boxes, hit Flag to flag"
-print "You can repeat as necessary"
+print("")
+print("-----------------------------------------------------")
+print("Plotxy")
+print("Showing 1331+305 RR LL for all antennas")
+print("Use MarkRegion then draw boxes around points to flag")
+print("You can use ESC to drop last drawn box")
+print("When happy with boxes, hit Flag to flag")
+print("You can repeat as necessary")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # You can also use flagdata to do this non-interactively
 # (see below)
@@ -505,14 +505,14 @@ correlation = 'RL LR'
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Looking at RL LR"
-print "Now flag the bad data here"
+print("")
+print("-----------------------------------------------------")
+print("Looking at RL LR")
+print("Now flag the bad data here")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Now do calibrater 0137+331
@@ -531,17 +531,17 @@ plotxy()
 # Draw a box around some of it and use Locate
 # Looks like much of it is Antenna 9 (ID=8) in spw=1
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting 0137+331 RR LL all antennas"
-print "You see bad data along bottom"
-print "Mark a box around a bit of it and hit Locate"
-print "Look in logger to see what it is"
-print "You see much is Antenna 9 (ID=8) in spw 1"
+print("")
+print("-----------------------------------------------------")
+print("Plotting 0137+331 RR LL all antennas")
+print("You see bad data along bottom")
+print("Mark a box around a bit of it and hit Locate")
+print("Look in logger to see what it is")
+print("You see much is Antenna 9 (ID=8) in spw 1")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 xaxis = 'time'
 spw = '1'
@@ -556,14 +556,14 @@ plotxy()
 
 # YES! the last 4 scans are bad.  Box 'em and flag.
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting vs. time antenna='9' and spw='1' "
-print "Box up last 4 scans which are bad and Flag"
+print("")
+print("-----------------------------------------------------")
+print("Plotting vs. time antenna='9' and spw='1' ")
+print("Box up last 4 scans which are bad and Flag")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Go back and clean up
 xaxis = 'uvdist'
@@ -577,14 +577,14 @@ plotxy()
 
 # Note that RL,LR are too weak to clip on.
 
-print ""
-print "-----------------------------------------------------"
-print "Back to all data"
-print "Clean up remaining bad points"
+print("")
+print("-----------------------------------------------------")
+print("Back to all data")
+print("Clean up remaining bad points")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Finally, do JUPITER
@@ -600,16 +600,16 @@ plotxy()
 # Here you will see that the final scan at 22:00:00 UT is bad
 # Draw a box around it and flag it!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plot JUPITER versus uvdist"
-print "Lots of bad stuff near bottom"
-print "Lets go and find it - try Locate"
-print "Looks like lots of different antennas but at same time"
+print("")
+print("-----------------------------------------------------")
+print("Now plot JUPITER versus uvdist")
+print("Lots of bad stuff near bottom")
+print("Lets go and find it - try Locate")
+print("Looks like lots of different antennas but at same time")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 correlation = ''
 xaxis = 'time'
@@ -619,14 +619,14 @@ plotxy()
 # Here you will see that the final scan at 22:00:00 UT is bad
 # Draw a box around it and flag it!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plotting vs. time"
-print "See bad scan at end - flag it!"
+print("")
+print("-----------------------------------------------------")
+print("Now plotting vs. time")
+print("See bad scan at end - flag it!")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now look at whats left
 correlation = 'RR LL'
@@ -641,16 +641,16 @@ plotxy()
 # bad in this spw. If you box and do Locate (or remember from
 # 0137+331) its probably a bad time.
 
-print ""
-print "-----------------------------------------------------"
-print "Looking now at SPW 1"
-print "Now we set iteration to Antenna"
-print "Step through antennas with Next"
-print "See bad Antenna 9 (ID 8) as in 0137+331"
+print("")
+print("-----------------------------------------------------")
+print("Looking now at SPW 1")
+print("Now we set iteration to Antenna")
+print("Step through antennas with Next")
+print("See bad Antenna 9 (ID 8) as in 0137+331")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # The easiset way to kill it:
 
@@ -663,14 +663,14 @@ plotxy()
 
 # Draw a box around all points in the last bad scans and flag 'em!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plotting vs. time antenna 9 spw 1"
-print "Box up the bad scans and Flag"
+print("")
+print("-----------------------------------------------------")
+print("Now plotting vs. time antenna 9 spw 1")
+print("Box up the bad scans and Flag")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now clean up the rest
 xaxis = 'uvdist'
@@ -688,30 +688,30 @@ plotxy()
 # in RR and LL.  We will rely upon imager to ignore the
 # RL LR for points with RR LL flagged!
 
-print ""
-print "-----------------------------------------------------"
-print "Final cleanup of JUPITER data"
-print "Back to uvdist plot, see remaining bad data"
-print "You can draw little boxes around the outliers and Flag"
-print "Depends how patient you are in drawing boxes!"
-print "Could also use Locate to find where they come from"
+print("")
+print("-----------------------------------------------------")
+print("Final cleanup of JUPITER data")
+print("Back to uvdist plot, see remaining bad data")
+print("You can draw little boxes around the outliers and Flag")
+print("Depends how patient you are in drawing boxes!")
+print("Could also use Locate to find where they come from")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
-print "Done with plotxy!"
+print("Done with plotxy!")
 
 #
 #=====================================================================
 #
 # Use Flagmanager to save a copy of the flags so far
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to save a copy of the flags we just made"
-print "These are named xyflags"
+print("Now will use flagmanager to save a copy of the flags we just made")
+print("These are named xyflags")
 
 vis = msfile
 mode = 'save'
@@ -725,10 +725,10 @@ flagmanager()
 #
 # Use Flagmanager to list all saved versions
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to list all the versions we saved"
+print("Now will use flagmanager to list all the versions we saved")
 
 vis = msfile
 mode = 'list'
@@ -737,7 +737,7 @@ flagmanager()
 
 #
 # Done Flagging
-print '--Done with flagging--'
+print('--Done with flagging--')
 
 #
 #=====================================================================
@@ -746,10 +746,10 @@ print '--Done with flagging--'
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
-print "Use setjy to set flux of 1331+305 (3C286)"
+print("Use setjy to set flux of 1331+305 (3C286)")
 
 vis = msfile
 
@@ -768,26 +768,26 @@ setjy()
 # 1331+305  spwid=  1  [I=7.51, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
 # 
 
-print "Look in logger for the fluxes (should be 7.462 and 7.510 Jy)"
+print("Look in logger for the fluxes (should be 7.462 and 7.510 Jy)")
 
 #
 #=====================================================================
 #
 # Initial gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
-print "Solve for antenna gains on 1331+305 and 0137+331"
-print "We have 2 single-channel continuum spw"
-print "Do not want bandpass calibration"
+print("Solve for antenna gains on 1331+305 and 0137+331")
+print("We have 2 single-channel continuum spw")
+print("Do not want bandpass calibration")
 
 vis = msfile
 
 # set the name for the output gain caltable
 caltable = gtable
 
-print "Output gain cal table will be "+gtable
+print("Output gain cal table will be "+gtable)
 
 # Gain calibrators are 1331+305 and 0137+331 (FIELD_ID 7 and 0)
 # We have 2 IFs (SPW 0,1) with one channel each
@@ -824,17 +824,17 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
-print "Use fluxscale to rescale gain table to make new one"
+print("Use fluxscale to rescale gain table to make new one")
 
 vis = msfile
 
 # set the name for the output rescaled caltable
 fluxtable = ftable
 
-print "Output scaled gain cal table is "+ftable
+print("Output scaled gain cal table is "+ftable)
 
 # point to our first gain cal table
 caltable = gtable
@@ -859,7 +859,7 @@ fluxscale()
 #---------------------------------------------------------------------
 # Plot calibration
 #
-print '--PlotCal--'
+print('--PlotCal--')
 default('plotcal')
 
 showgui = True
@@ -872,14 +872,14 @@ showgui = True
     
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at amplitude in cal-table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at amplitude in cal-table "+caltable)
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 # Now go back and plot to file
@@ -889,14 +889,14 @@ showgui = False
 yaxis = 'amp'
 
 figfile = caltable + '.plotcal.amp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 #saveinputs('plotcal',caltable.plotcal.amp.saved')
 plotcal()
 
 yaxis = 'phase'
 
 figfile = caltable + '.plotcal.phase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 #saveinputs('plotcal',caltable.plotcal.phase.saved')
 plotcal()
 
@@ -906,11 +906,11 @@ plotcal()
 #=====================================================================
 #
 if (dopolcal):
-    print '--Polcal (D)--'
+    print('--Polcal (D)--')
     default('polcal')
     
-    print "Solve for polarization leakage on 0137+331"
-    print "Pretend it has unknown polarization"
+    print("Solve for polarization leakage on 0137+331")
+    print("Pretend it has unknown polarization")
 
     vis = msfile
 
@@ -951,11 +951,11 @@ if (dopolcal):
     #
     # List polcal solutions
     #
-    print '--Listcal (PolD)--'
+    print('--Listcal (PolD)--')
 
     listfile = caltable + '.list'
 
-    print "Listing calibration to file "+listfile
+    print("Listing calibration to file "+listfile)
 
     listcal()
     
@@ -963,7 +963,7 @@ if (dopolcal):
     #
     # Plot polcal solutions
     #
-    print '--Plotcal (PolD)--'
+    print('--Plotcal (PolD)--')
     
     iteration = ''
     showgui = False
@@ -971,28 +971,28 @@ if (dopolcal):
     xaxis = 'real'
     yaxis = 'imag'
     figfile = caltable + '.plotcal.reim.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.reim.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'amp'
     figfile = caltable + '.plotcal.antamp.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antamp.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'phase'
     figfile = caltable + '.plotcal.antphase.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antphase.saved')
     plotcal()
 
     xaxis = 'antenna'
     yaxis = 'snr'
     figfile = caltable + '.plotcal.antsnr.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     #saveinputs('plotcal',caltable+'.plotcal.antsnr.saved')
     plotcal()
 
@@ -1000,12 +1000,12 @@ if (dopolcal):
     # Do Chi (X) pol angle calibration
     #=====================================================================
     # First set the model
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
         
     vis = msfile
         
-    print "Use setjy to set IQU fluxes of "+polxfield
+    print("Use setjy to set IQU fluxes of "+polxfield)
     field = polxfield
     
     for spw in usespwlist:
@@ -1017,10 +1017,10 @@ if (dopolcal):
     #
     # Polarization (X-term) calibration
     #
-    print '--PolCal (X)--'
+    print('--PolCal (X)--')
     default('polcal')
     
-    print "Polarization R-L Phase Calibration (linear approx)"
+    print("Polarization R-L Phase Calibration (linear approx)")
     
     vis = msfile
     
@@ -1092,11 +1092,11 @@ atable = ftable
 # Correct the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
-print "This will apply the calibration to the DATA"
-print "Fills CORRECTED_DATA"
+print("This will apply the calibration to the DATA")
+print("Fills CORRECTED_DATA")
 
 vis = msfile
 
@@ -1126,7 +1126,7 @@ applycal()
 #
 # Now split the Jupiter target data
 #
-print '--Split Jupiter--'
+print('--Split Jupiter--')
 default('split')
 
 vis = msfile
@@ -1143,7 +1143,7 @@ datacolumn = 'corrected'
 # Make an output vis file
 outputvis = srcsplitms
 
-print "Split "+field+" data into new ms "+srcsplitms
+print("Split "+field+" data into new ms "+srcsplitms)
 
 split()
 
@@ -1152,7 +1152,7 @@ field = calname
 
 outputvis = calsplitms
 
-print "Split "+field+" data into new ms "+calsplitms
+print("Split "+field+" data into new ms "+calsplitms)
 
 split()
 
@@ -1168,7 +1168,7 @@ clearcal()
 #=====================================================================
 # Use Plotxy to look at the split calibrated data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = srcsplitms
@@ -1193,14 +1193,14 @@ title = field+"  "
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting JUPITER corrected visibilities"
-print "Look for outliers"
+print("")
+print("-----------------------------------------------------")
+print("Plotting JUPITER corrected visibilities")
+print("Look for outliers")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now go back and plot to files
 interactive = False
@@ -1214,7 +1214,7 @@ yaxis = 'amp'
 # Use the field name as the title
 title = field+"  "
 figfile = vis + '.plotxy.amp.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.amp.saved')
 
 plotxy()
@@ -1222,7 +1222,7 @@ plotxy()
 yaxis = 'phase'
 # Use the field name as the title
 figfile = vis + '.plotxy.phase.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.phase.saved')
 
 plotxy()
@@ -1236,7 +1236,7 @@ yaxis = 'amp'
 # Use the field name as the title
 title = field+"  "
 figfile = vis + '.plotxy.amp.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.amp.saved')
 
 plotxy()
@@ -1244,12 +1244,12 @@ plotxy()
 yaxis = 'phase'
 # Use the field name as the title
 figfile = vis + '.plotxy.phase.png'
-print "Plotting to file "+figfile
+print("Plotting to file "+figfile)
 #saveinputs('plotxy',vis+'.plotxy.phase.saved')
 
 plotxy()
 
-print 'Calibration completed'
+print('Calibration completed')
 #
 #=====================================================================
 #
@@ -1259,15 +1259,15 @@ print 'Calibration completed'
 #
 # Make the scratch columns in the split ms
 #
-print '--Clearcal--'
+print('--Clearcal--')
 default('clearcal')
 
 vis = srcsplitms
 
 clearcal()
 
-print "Created scratch columns for MS "+vis
-print ""
+print("Created scratch columns for MS "+vis)
+print("")
 #
 #=====================================================================
 # FIRST CLEAN / SELFCAL CYCLE
@@ -1276,7 +1276,7 @@ print ""
 # Now clean an image of Jupiter
 # NOTE: this uses the new combined invert/clean/mosaic task Patch 2
 #
-print '--Clean 1--'
+print('--Clean 1--')
 default('clean')
 
 # Pick up our split source data
@@ -1285,13 +1285,13 @@ vis = srcsplitms
 # Make an image root file name
 imagename = imname1
 
-print "Output images will be prefixed with "+imname1
+print("Output images will be prefixed with "+imname1)
 
 # Set up the output continuum image (single plane mfs)
 mode = 'mfs'
 stokes = 'I'
 
-print "Will be a single MFS continuum image"
+print("Will be a single MFS continuum image")
 
 # NOTE: current version field='' doesnt work
 field = '*'
@@ -1345,24 +1345,24 @@ clean()
 # the region, click 'Done Flagging' and it will go and clean another
 # 100 iterations.  When done, click 'Stop'.
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final clean model is "+clnmodel1
-print "Final restored clean image is "+clnimage1
-print "The clean residual image is "+clnresid1
-print "Your final clean mask is "+clnmask1
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final clean model is "+clnmodel1)
+print("Final restored clean image is "+clnimage1)
+print("The clean residual image is "+clnresid1)
+print("Your final clean mask is "+clnmask1)
 
-print ""
-print "This is the final restored clean image in the viewer"
-print "Zoom in and set levels to see faint emission"
-print "Use rectangle drawing tool to box off source"
-print "Double-click inside to print statistics"
-print "Move box on-source and get the max"
-print "Calcualte DynRange = MAXon/RMSoff"
-print "I got 1.060/0.004 = 270"
-print "Still not as good as it can be - lets selfcal"
-print "Close viewer panel when done"
+print("")
+print("This is the final restored clean image in the viewer")
+print("Zoom in and set levels to see faint emission")
+print("Use rectangle drawing tool to box off source")
+print("Double-click inside to print statistics")
+print("Move box on-source and get the max")
+print("Calcualte DynRange = MAXon/RMSoff")
+print("I got 1.060/0.004 = 270")
+print("Still not as good as it can be - lets selfcal")
+print("Close viewer panel when done")
 
 #
 #---------------------------------------------------------------------
@@ -1372,7 +1372,7 @@ viewer(clnimage1,'image')
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # You can use the right-mouse to draw a box in the lower right
 # corner of the image away from emission, the double-click inside
@@ -1405,7 +1405,7 @@ if scriptmode:
 #=====================================================================
 #
 # Do some non-interactive image statistics
-print '--Imstat--'
+print('--Imstat--')
 default('imstat')
 
 imagename = clnimage1
@@ -1418,11 +1418,11 @@ off_statistics1 = imstat()
 
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics1['max'][0]
-print ' Found : Max in image = ',thistest_immax
+print(' Found : Max in image = ',thistest_immax)
 thistest_imrms=off_statistics1['rms'][0]
-print ' Found : rms in image = ',thistest_imrms
-print ' Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
+print(' Found : rms in image = ',thistest_imrms)
+print(' Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
 #
 #---------------------------------------------------------------------
 #
@@ -1432,17 +1432,17 @@ print ''
 # If you've done something in between, can use the ft task to
 # do this manually.
 #
-print '--SelfCal 1--'
+print('--SelfCal 1--')
 default('gaincal')
 
 vis = srcsplitms
 
-print "Will self-cal using MODEL_DATA left in MS by clean"
+print("Will self-cal using MODEL_DATA left in MS by clean")
 
 # New gain table
 caltable = selfcaltab1
 
-print "Will write gain table "+selfcaltab1
+print("Will write gain table "+selfcaltab1)
 
 # Don't need a-priori cals
 selectdata = False
@@ -1459,7 +1459,7 @@ calmode = 'ap'
 # Do 30s solutions with SNR>1
 solint = 30.0
 minsnr = 1.0
-print "Calibrating amplitudes and phases on 30s timescale"
+print("Calibrating amplitudes and phases on 30s timescale")
 
 # Do not need to normalize (let gains float)
 solnorm = False
@@ -1471,7 +1471,7 @@ gaincal()
 # It is useful to put this up in plotcal
 #
 #
-print '--PlotCal--'
+print('--PlotCal--')
 default('plotcal')
 
 caltable = selfcaltab1
@@ -1480,40 +1480,40 @@ yaxis = 'amp'
 
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at amplitude in self-cal table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at amplitude in self-cal table "+caltable)
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 yaxis = 'phase'
 
 plotcal()
 
-print ""
-print "-------------------------------------------------"
-print "Plotcal"
-print "Looking at phases in self-cal table "+caltable
+print("")
+print("-------------------------------------------------")
+print("Plotcal")
+print("Looking at phases in self-cal table "+caltable)
 
 #
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 #---------------------------------------------------------------------
 #
 # Correct the data (no need for interpolation this stage)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = srcsplitms
 
-print "Will apply self-cal table to over-write CORRECTED_DATA in MS"
+print("Will apply self-cal table to over-write CORRECTED_DATA in MS")
 
 gaintable = selfcaltab1
 
@@ -1531,7 +1531,7 @@ applycal()
 #=====================================================================
 # Use Plotxy to look at the self-calibrated data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
 vis = srcsplitms
@@ -1552,24 +1552,24 @@ iteration = ''
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting JUPITER self-corrected visibilities"
-print "Look for outliers, and you can flag them"
+print("")
+print("-----------------------------------------------------")
+print("Plotting JUPITER self-corrected visibilities")
+print("Look for outliers, and you can flag them")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #
 #=====================================================================
 # SECOND CLEAN / SELFCAL CYCLE
 #=====================================================================
 #
-print '--Clean 2--'
+print('--Clean 2--')
 default('clean')
 
-print "Now clean on self-calibrated data"
+print("Now clean on self-calibrated data")
 
 vis = srcsplitms
 
@@ -1598,24 +1598,24 @@ npercycle = 100
 saveinputs('clean',imagename+'.clean.saved')
 clean()
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final clean model is "+clnmodel2
-print "Final restored clean image is "+clnimage2
-print "The clean residual image is "+clnresid2
-print "Your final clean mask is "+clnmask2
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final clean model is "+clnmodel2)
+print("Final restored clean image is "+clnimage2)
+print("The clean residual image is "+clnresid2)
+print("Your final clean mask is "+clnmask2)
 
-print ""
-print "This is the final restored clean image in the viewer"
-print "Zoom in and set levels to see faint emission"
-print "Use rectangle drawing tool to box off source"
-print "Double-click inside to print statistics"
-print "Move box on-source and get the max"
-print "Calcualte DynRange = MAXon/RMSoff"
-print "This time I got 1.076 / 0.001389 = 775 (better)"
-print "Still not as good as it can be - lets selfcal again"
-print "Close viewer panel when done"
+print("")
+print("This is the final restored clean image in the viewer")
+print("Zoom in and set levels to see faint emission")
+print("Use rectangle drawing tool to box off source")
+print("Double-click inside to print statistics")
+print("Move box on-source and get the max")
+print("Calcualte DynRange = MAXon/RMSoff")
+print("This time I got 1.076 / 0.001389 = 775 (better)")
+print("Still not as good as it can be - lets selfcal again")
+print("Close viewer panel when done")
 
 #
 #---------------------------------------------------------------------
@@ -1625,7 +1625,7 @@ viewer(clnimage2,'image')
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # jupiter6cm.usecase.clean2.image     (Jy/beam)
 # 
@@ -1649,10 +1649,10 @@ if scriptmode:
 # Note that the exact numbers you get will depend on how deep you
 # take the interactive clean and how you draw the box for the stats.
 #
-print ""
-print "--------------------------------------------------"
-print "After this script is done you can continue on with"
-print "more self-cal, or try different cleaning options"
+print("")
+print("--------------------------------------------------")
+print("After this script is done you can continue on with")
+print("more self-cal, or try different cleaning options")
 
 #
 #=====================================================================
@@ -1660,7 +1660,7 @@ print "more self-cal, or try different cleaning options"
 #=====================================================================
 #
 # Can do some image statistics if you wish
-print '--Imstat (Cycle 2)--'
+print('--Imstat (Cycle 2)--')
 default('imstat')
 
 imagename = clnimage2
@@ -1673,50 +1673,50 @@ off_statistics2 = imstat()
 
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics2['max'][0]
-print ' Found : Max in image = ',thistest_immax
+print(' Found : Max in image = ',thistest_immax)
 thistest_imrms=off_statistics2['rms'][0]
-print ' Found : rms in image = ',thistest_imrms
-print ' Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
+print(' Found : rms in image = ',thistest_imrms)
+print(' Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
 
 #=====================================================================
 #
 # Print results and regression versus previous runs
 #
-print ""
-print ' Final Jupiter results '
-print ' ===================== '
-print ''
+print("")
+print(' Final Jupiter results ')
+print(' ===================== ')
+print('')
 # Pull the max and rms from the clean image
 thistest_immax=on_statistics2['max'][0]
 oldtest_immax = 1.07732224464
-print '   Clean image  ON-SRC max = ',thistest_immax
-print '   Previously found to be  = ',oldtest_immax
+print('   Clean image  ON-SRC max = ',thistest_immax)
+print('   Previously found to be  = ',oldtest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print '   Difference (fractional) = ',diff_immax
+print('   Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 thistest_imrms=off_statistics2['rms'][0]
 oldtest_imrms = 0.0010449
-print '   Clean image OFF-SRC rms = ',thistest_imrms
-print '   Previously found to be  = ',oldtest_imrms
+print('   Clean image OFF-SRC rms = ',thistest_imrms)
+print('   Previously found to be  = ',oldtest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print '   Difference (fractional) = ',diff_imrms
+print('   Difference (fractional) = ',diff_imrms)
 
-print ''
-print ' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms
-print ''
-print '--- Done with I Imaging and Selfcal---'
+print('')
+print(' Final Clean image Dynamic Range = ',thistest_immax/thistest_imrms)
+print('')
+print('--- Done with I Imaging and Selfcal---')
 
 #
 #=====================================================================
 # Polarization Imaging
 #=====================================================================
 #
-print '--Clean (Polarization)--'
+print('--Clean (Polarization)--')
 default('clean')
 
-print "Now clean polarized data"
+print("Now clean polarized data")
 
 vis = srcsplitms
 
@@ -1748,13 +1748,13 @@ npercycle = 100
 saveinputs('clean',imagename+'.clean.saved')
 clean()
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final restored clean image is "+polimage
-print "Final clean model is "+polmodel
-print "The clean residual image is "+polresid
-print "Your final clean mask is "+polmask
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final restored clean image is "+polimage)
+print("Final clean model is "+polmodel)
+print("The clean residual image is "+polresid)
+print("Your final clean mask is "+polmask)
 
 #
 #=====================================================================
@@ -1762,7 +1762,7 @@ print "Your final clean mask is "+polmask
 #=====================================================================
 #
 # Polarization statistics
-print '--Final Pol Imstat--'
+print('--Final Pol Imstat--')
 default('imstat')
 
 imagename = polimage
@@ -1784,7 +1784,7 @@ for stokes in ['I','Q','U','V']:
 #
 # Peel off some Q and U planes
 #
-print '--Immath--'
+print('--Immath--')
 default('immath')
 
 mode = 'evalexpr'
@@ -1794,21 +1794,21 @@ outfile = ipolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created I image "+outfile
+print("Created I image "+outfile)
 
 stokes = 'Q'
 outfile = qpolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created Q image "+outfile
+print("Created Q image "+outfile)
 
 stokes = 'U'
 outfile = upolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created U image "+outfile
+print("Created U image "+outfile)
 
 #
 #---------------------------------------------------------------------
@@ -1825,13 +1825,13 @@ mysigma = 0.5*( off_statistics['Q']['rms'][0] + off_statistics['U']['rms'][0] )
 sigma = '0.0Jy/beam'
 
 immath()
-print "Created POLI image "+outfile
+print("Created POLI image "+outfile)
 
 outfile = polaimage
 mode = 'pola'
 
 immath()
-print "Created POLA image "+outfile
+print("Created POLA image "+outfile)
 
 #
 #---------------------------------------------------------------------
@@ -1853,23 +1853,23 @@ off_statistics['POLI'] = imstat()
 # If you did not do interactive clean, bring up viewer manually
 viewer(polimage,'image')
 
-print "Displaying pol I now.  You should overlay pola vectors"
-print "Bring up the Load Data panel:"
-print ""
-print "Use LEL for POLA VECTOR with cut above 6*mysigma in POLI = "+str(6*mysigma)
-print "For example:"
-print "\'"+polaimage+"\'[\'"+poliimage+"\'>0.0048]"
-print ""
-print "In the Data Display Options for the vector plot:"
-print "  Set the x,y increments to 2 (default is 3)"
-print "  Use an extra rotation this 90deg to get B field"
-print "Note the lengths are all equal. You can fiddle these."
-print ""
-print "You can also load the poli image as contours"
+print("Displaying pol I now.  You should overlay pola vectors")
+print("Bring up the Load Data panel:")
+print("")
+print("Use LEL for POLA VECTOR with cut above 6*mysigma in POLI = "+str(6*mysigma))
+print("For example:")
+print("\'"+polaimage+"\'[\'"+poliimage+"\'>0.0048]")
+print("")
+print("In the Data Display Options for the vector plot:")
+print("  Set the x,y increments to 2 (default is 3)")
+print("  Use an extra rotation this 90deg to get B field")
+print("Note the lengths are all equal. You can fiddle these.")
+print("")
+print("You can also load the poli image as contours")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # NOTE: the LEL will be something like
 # 'jupiter6cm.usecase.polimg.clean.image.pola'['jupiter6cm.usecase.polimg.clean.image.poli'>0.005]
@@ -1902,27 +1902,27 @@ po.close()
 #
 # Print results
 #
-print ""
-print ' Jupiter polarization results '
-print ' ============================ '
-print ''
+print("")
+print(' Jupiter polarization results ')
+print(' ============================ ')
+print('')
 for stokes in ['I','Q','U','V','POLI']:
-    print ''
-    print ' =============== '
-    print ''
-    print ' Polarization (Stokes '+stokes+'):'
+    print('')
+    print(' =============== ')
+    print('')
+    print(' Polarization (Stokes '+stokes+'):')
     mymax = on_statistics[stokes]['max'][0]
     mymin = on_statistics[stokes]['min'][0]
     myrms = off_statistics[stokes]['rms'][0]
     absmax = max(mymax,mymin)
     mydra = absmax/myrms
-    print '   Clean image  ON-SRC max = ',mymax
-    print '   Clean image  ON-SRC min = ',mymin
-    print '   Clean image OFF-SRC rms = ',myrms
-    print '   Clean image dynamic rng = ',mydra
+    print('   Clean image  ON-SRC max = ',mymax)
+    print('   Clean image  ON-SRC min = ',mymin)
+    print('   Clean image OFF-SRC rms = ',myrms)
+    print('   Clean image dynamic rng = ',mydra)
 
 
-print '--- Done ---'
+print('--- Done ---')
 
 #
 #=====================================================================

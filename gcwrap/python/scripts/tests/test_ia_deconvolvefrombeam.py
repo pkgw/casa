@@ -83,7 +83,7 @@ class ia_deconvolvefrombeam_test(unittest.TestCase):
     
     def test_multibeams(self):
         """ ia.deconvolvefrombeam(): Basic tests"""
-        print "*** start "
+        print("*** start ")
         myia = self.ia
         source = ["4arcsec","3arcsec", "20deg"]
         beam = [
@@ -108,8 +108,8 @@ class ia_deconvolvefrombeam_test(unittest.TestCase):
             fit = res["fit"]
             self.assertTrue(_near(fit["major"], emaj[i], tol))
             self.assertTrue(_near(fit["minor"], emin[i], tol))
-            print "*** got " + str(fit["pa"])
-            print "*** exp " + str(epa[i])
+            print("*** got " + str(fit["pa"]))
+            print("*** exp " + str(epa[i]))
             self.assertTrue(_near(fit["pa"], epa[i], tol))
         
 def suite():

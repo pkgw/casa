@@ -39,30 +39,30 @@ def testit():
             outf = ms.cvelfreqs(spwids=myspwids,mode=mymode,nchan=mynchan,start=mystart,width=mywidth)
             if not type(outf)==type([]):
                 outf = list(outf)
-            print mycase
-            print outf
-            print myexpectation
+            print(mycase)
+            print(outf)
+            print(myexpectation)
             if outf != myexpectation:
-                print "Test failed for case ", mycase
-                print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth
+                print("Test failed for case ", mycase)
+                print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth)
                 myfailures = myfailures + 1
                 failed.append(mycase)
             else:
-                print mycase, " OK"
+                print(mycase, " OK")
         except:
-            print "Test failed with exception for case ", mycase
-            print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth
+            print("Test failed with exception for case ", mycase)
+            print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth)
             myfailures = myfailures + 1         
             failed.append(mycase)
         mytotal = mytotal + 1
 
 def v_iseq(a,b,tol): # test if velocity arrays are equal
     if(len(a)!=len(b)):
-        print len(a), len(b)
+        print(len(a), len(b))
         return False
     for i in range(0,len(a)):
         if(abs(a[i]-b[i])>tol):
-            print i, a[i], b[i]
+            print(i, a[i], b[i])
             return False
     return True
 
@@ -89,8 +89,8 @@ def testitb():
     if (mycase in tests_to_do) or (tests_to_do==[]):
         try:
             outf = ms.cvelfreqs(spwids=myspwids,mode=mymode,nchan=mynchan,start=mystart,width=mywidth, veltype=myveltype, restfreq=str(myrestfrq)+'Hz')
-            print mycase
-            print outf
+            print(mycase)
+            print(outf)
             if not type(outf)==type([]):
                 outf = list(outf)
             fexpectation = []
@@ -102,21 +102,21 @@ def testitb():
             vout = []
             for i in range(0,len(outf)):
                 vout.append(vopt(outf[i]))
-            print "expected: ", myexpectation
-            print "exp freq: ", fexpectation
-            print "output v: ", vout
-            print "exp v:    ", vexpectation
+            print("expected: ", myexpectation)
+            print("exp freq: ", fexpectation)
+            print("output v: ", vout)
+            print("exp v:    ", vexpectation)
             if not v_iseq(outf,fexpectation,10.0): # 10 Hz tolerance
-                print "Test failed for case ", mycase
-                print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,","
-                print "   width=",mywidth,", veltype=",myveltype, ", restfreq=", str(myrestfrq)+'Hz'
+                print("Test failed for case ", mycase)
+                print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,",")
+                print("   width=",mywidth,", veltype=",myveltype, ", restfreq=", str(myrestfrq)+'Hz')
                 myfailures = myfailures + 1
                 failed.append(mycase)
             else:
-                print mycase, " OK"
+                print(mycase, " OK")
         except:
-            print "Test failed with exception ", sys.exc_info()," for case ", mycase
-            print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth,", veltype=",myveltype
+            print("Test failed with exception ", sys.exc_info()," for case ", mycase)
+            print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth,", veltype=",myveltype)
             myfailures = myfailures + 1         
             failed.append(mycase)
         mytotal = mytotal + 1
@@ -128,8 +128,8 @@ def testitc():
     if (mycase in tests_to_do) or (tests_to_do==[]):
         try:
             outf = ms.cvelfreqs(spwids=myspwids,mode=mymode,nchan=mynchan,start=mystart,width=mywidth, veltype=myveltype, restfreq=str(myrestfrq)+'Hz')
-            print mycase
-            print outf
+            print(mycase)
+            print(outf)
             if not type(outf)==type([]):
                 outf = list(outf)
             fexpectation = []
@@ -141,21 +141,21 @@ def testitc():
             vout = []
             for i in range(0,len(outf)):
                 vout.append(vrad(outf[i]))
-            print "expected: ", myexpectation
-            print "exp freq: ", fexpectation
-            print "output v: ", vout
-            print "exp v:    ", vexpectation
+            print("expected: ", myexpectation)
+            print("exp freq: ", fexpectation)
+            print("output v: ", vout)
+            print("exp v:    ", vexpectation)
             if not v_iseq(outf,fexpectation,10.0): # 10 Hz tolerance
-                print "Test failed for case ", mycase
-                print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,","
-                print "   width=",mywidth,", veltype=",myveltype, ", restfreq=", str(myrestfrq)+'Hz'
+                print("Test failed for case ", mycase)
+                print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,",")
+                print("   width=",mywidth,", veltype=",myveltype, ", restfreq=", str(myrestfrq)+'Hz')
                 myfailures = myfailures + 1
                 failed.append(mycase)
             else:
-                print mycase, " OK"
+                print(mycase, " OK")
         except:
-            print "Test failed with exception ", sys.exc_info()," for case ", mycase
-            print "spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth,", veltype=",myveltype
+            print("Test failed with exception ", sys.exc_info()," for case ", mycase)
+            print("spwids=", myspwids,", mode=",mymode,",nchan=",mynchan,", start=",mystart,", width=",mywidth,", veltype=",myveltype)
             myfailures = myfailures + 1         
             failed.append(mycase)
         mytotal = mytotal + 1
@@ -1169,7 +1169,7 @@ def testvoptmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1020,-1)
+    myexpectation = list(range(-1000,-1020,-1))
 
     testitb()
 
@@ -1208,7 +1208,7 @@ def testvoptmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1010m/s"
 
-    myexpectation = range(-1010,-1030,-1)
+    myexpectation = list(range(-1010,-1030,-1))
 
     testitb()
 
@@ -1249,7 +1249,7 @@ def testvoptmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1030,-1)
+    myexpectation = list(range(-1000,-1030,-1))
 
     testitb()
 
@@ -1259,7 +1259,7 @@ def testvoptmode(caseoffset, isDesc):
     mynchan = 10
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1010,-1)
+    myexpectation = list(range(-1000,-1010,-1))
 
     testitb()
 
@@ -1674,7 +1674,7 @@ def testvradmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1020,-1)
+    myexpectation = list(range(-1000,-1020,-1))
 
     testitc()
 
@@ -1713,7 +1713,7 @@ def testvradmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1010m/s"
 
-    myexpectation = range(-1010,-1030,-1)
+    myexpectation = list(range(-1010,-1030,-1))
 
     testitc()
 
@@ -1754,7 +1754,7 @@ def testvradmode(caseoffset, isDesc):
     mynchan = -1
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1030,-1)
+    myexpectation = list(range(-1000,-1030,-1))
 
     testitc()
 
@@ -1764,7 +1764,7 @@ def testvradmode(caseoffset, isDesc):
     mynchan = 10
     mystart = "-1000m/s"
 
-    myexpectation = range(-1000,-1010,-1)
+    myexpectation = list(range(-1000,-1010,-1))
 
     testitc()
 
@@ -1828,7 +1828,7 @@ class cvelfreqs_test(unittest.TestCase):
         # and set the variable tests_to_do to the list of cases before calling this script
 
         if(not os.path.exists('test_uvcontsub2.ms')):
-            print "Copying test data ..."
+            print("Copying test data ...")
             os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/unittest/cvel/test_uvcontsub2.ms .')
             
     def tearDown(self):
@@ -1847,14 +1847,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 0
         spwid = 0
         newnumchan = 10
-        newchanfreq = range(1,newnumchan+1) # i.e. [1,2,3,...,10]
+        newchanfreq = list(range(1,newnumchan+1)) # i.e. [1,2,3,...,10]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -1867,14 +1867,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 1
         spwid = 1
         newnumchan = 10
-        newchanfreq = range(10,newnumchan+1+9) # i.e. [10,11,...,19]
+        newchanfreq = list(range(10,newnumchan+1+9)) # i.e. [10,11,...,19]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -1887,14 +1887,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 2
         spwid = 2
         newnumchan = 10
-        newchanfreq = range(19,newnumchan+1+18) # i.e. [19,20,...,28]
+        newchanfreq = list(range(19,newnumchan+1+18)) # i.e. [19,20,...,28]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -1918,9 +1918,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -1936,7 +1936,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 0
         spwid = 0
         newnumchan = 10
-        newchanfreq = range(newnumchan,0,-1) # i.e. [10,9,8,...,1]
+        newchanfreq = list(range(newnumchan,0,-1)) # i.e. [10,9,8,...,1]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -1944,8 +1944,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -1958,7 +1958,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 1
         spwid = 1
         newnumchan = 10
-        newchanfreq = range(newnumchan+9,9,-1) # i.e. [19,...,10]
+        newchanfreq = list(range(newnumchan+9,9,-1)) # i.e. [19,...,10]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -1966,8 +1966,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -1980,7 +1980,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 2
         spwid = 2
         newnumchan = 10
-        newchanfreq = range(newnumchan+18,18,-1) # i.e. [28,...,19]
+        newchanfreq = list(range(newnumchan+18,18,-1)) # i.e. [28,...,19]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -1988,8 +1988,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2013,9 +2013,9 @@ class cvelfreqs_test(unittest.TestCase):
 
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2038,8 +2038,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(1E10+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2061,8 +2061,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2084,8 +2084,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2109,9 +2109,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2136,8 +2136,8 @@ class cvelfreqs_test(unittest.TestCase):
 
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2161,8 +2161,8 @@ class cvelfreqs_test(unittest.TestCase):
 
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2186,8 +2186,8 @@ class cvelfreqs_test(unittest.TestCase):
             
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2211,9 +2211,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2230,14 +2230,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 0
         spwid = 0
         newnumchan = 10
-        newchanfreq = range(1,newnumchan+1) # i.e. [1,2,3,...,10]
+        newchanfreq = list(range(1,newnumchan+1)) # i.e. [1,2,3,...,10]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2250,14 +2250,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 1
         spwid = 1
         newnumchan = 10
-        newchanfreq = range(10,newnumchan+1+9) # i.e. [10,11,...,19]
+        newchanfreq = list(range(10,newnumchan+1+9)) # i.e. [10,11,...,19]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2270,14 +2270,14 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 2
         spwid = 2
         newnumchan = 10
-        newchanfreq = range(19,newnumchan+1+18) # i.e. [19,20,...,28]
+        newchanfreq = list(range(19,newnumchan+1+18)) # i.e. [19,20,...,28]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         for i in range(0,newnumchan):
             newchanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2301,9 +2301,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2319,7 +2319,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 0
         spwid = 0
         newnumchan = 10
-        newchanfreq = range(newnumchan,0,-1) # i.e. [10,9,8,...,1]
+        newchanfreq = list(range(newnumchan,0,-1)) # i.e. [10,9,8,...,1]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -2327,8 +2327,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2341,7 +2341,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 1
         spwid = 1
         newnumchan = 10
-        newchanfreq = range(newnumchan+9,9,-1) # i.e. [19,...,10]
+        newchanfreq = list(range(newnumchan+9,9,-1)) # i.e. [19,...,10]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -2349,8 +2349,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2363,7 +2363,7 @@ class cvelfreqs_test(unittest.TestCase):
         # spw 2
         spwid = 2
         newnumchan = 10
-        newchanfreq = range(newnumchan+18,18,-1) # i.e. [28,...,19]
+        newchanfreq = list(range(newnumchan+18,18,-1)) # i.e. [28,...,19]
         cw = newchanfreq[1] - newchanfreq[0]
         newchanwidth = []
         newabschanwidth = []
@@ -2371,8 +2371,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(cw)
             newabschanwidth.append(cw)
 
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
 
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2396,9 +2396,9 @@ class cvelfreqs_test(unittest.TestCase):
 
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2421,8 +2421,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(1E10+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2444,8 +2444,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2467,8 +2467,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2492,9 +2492,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2519,8 +2519,8 @@ class cvelfreqs_test(unittest.TestCase):
 
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2544,8 +2544,8 @@ class cvelfreqs_test(unittest.TestCase):
 
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2569,8 +2569,8 @@ class cvelfreqs_test(unittest.TestCase):
             
         newchanfreq.reverse()
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2594,9 +2594,9 @@ class cvelfreqs_test(unittest.TestCase):
         
         ms.close()
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
         if(myfailures>0):
-            print "Failed cases: ", failed
+            print("Failed cases: ", failed)
 
         self.assertEqual(myfailures,0)
 
@@ -2620,8 +2620,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(1E10+i*cw)
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2643,8 +2643,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq-cw/2.+i*cw) # intentional misalignment by half a channel
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2666,8 +2666,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanfreq.append(lastfreq - 0.3*cw +i*cw) # intentional misalignment by 0.3 channelwidths
             newchanwidth.append(cw)
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2685,18 +2685,18 @@ class cvelfreqs_test(unittest.TestCase):
 
         channelfreqs = ms.cvelfreqs(mode='channel', spwids=[0,1,2], start=1, width=2, nchan=10)
         channelfreqs = list(channelfreqs)
-        print "channel freqs ", channelfreqs 
+        print("channel freqs ", channelfreqs) 
         frequencyfreqs = ms.cvelfreqs(mode='frequency', spwids=[0,1,2], start=str(1E9+60)+'Hz', width='100Hz', nchan=10)
         frequencyfreqs = list(frequencyfreqs)
-        print "frequency freqs ", frequencyfreqs
+        print("frequency freqs ", frequencyfreqs)
         restfrqo =  (-1000./299792458.0 + 1.) * (1E10 + 10.)
         opticalfreqs = ms.cvelfreqs(mode='velocity', veltype='optical', spwids=[0,1,2], start="-1001m/s", width='-2m/s', nchan=10, restfreq=restfrqo)
         opticalfreqs = list(opticalfreqs)
-        print "optical freqs ", opticalfreqs
+        print("optical freqs ", opticalfreqs)
         restfrqr = (1E10 + 10.) / (1 - (-1000./299792458.0))
         radiofreqs  = ms.cvelfreqs(mode='velocity', veltype='radio', spwids=[0,1,2], start="-1001m/s", width='-2m/s', nchan=10, restfreq=restfrqr)
         radiofreqs = list(radiofreqs)
-        print "radio freqs ", radiofreqs
+        print("radio freqs ", radiofreqs)
 
         ms.close()
         
@@ -2710,8 +2710,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(newchanfreq[i+1]-newchanfreq[i])
         newchanwidth.append(newchanfreq[newnumchan-1]-newchanfreq[newnumchan-2])
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2730,8 +2730,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(newchanfreq[i+1]-newchanfreq[i])
         newchanwidth.append(newchanfreq[newnumchan-1]-newchanfreq[newnumchan-2])
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2750,8 +2750,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(newchanfreq[i+1]-newchanfreq[i])
         newchanwidth.append(newchanfreq[newnumchan-1]-newchanfreq[newnumchan-2])
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2770,8 +2770,8 @@ class cvelfreqs_test(unittest.TestCase):
             newchanwidth.append(newchanfreq[i+1]-newchanfreq[i])
         newchanwidth.append(newchanfreq[newnumchan-1]-newchanfreq[newnumchan-2])
             
-        print spwid,': ', newchanfreq
-        print '    ', newchanwidth
+        print(spwid,': ', newchanfreq)
+        print('    ', newchanwidth)
             
         tb.putcell('NUM_CHAN', spwid, newnumchan)
         tb.putcell('CHAN_FREQ', spwid, newchanfreq)
@@ -2804,35 +2804,35 @@ class cvelfreqs_test(unittest.TestCase):
         ms.close()
 
         if not (newchannelfreqs == channelfreqs):
-            print "channel output deviates: "
-            print newchannelfreqs
-            print "  expected was:"
-            print channelfreqs
+            print("channel output deviates: ")
+            print(newchannelfreqs)
+            print("  expected was:")
+            print(channelfreqs)
             myfailures = myfailures + 1
         mytotal = mytotal + 1
         if not (newfrequencyfreqs == frequencyfreqs):
-            print "frequency output deviates: "
-            print newfrequencyfreqs
-            print "  expected was:"
-            print frequencyfreqs
+            print("frequency output deviates: ")
+            print(newfrequencyfreqs)
+            print("  expected was:")
+            print(frequencyfreqs)
             myfailures = myfailures + 1
         mytotal = mytotal + 1
         if not (newopticalfreqs == opticalfreqs):
-            print "optical output deviates: "
-            print newopticalfreqs
-            print "  expected was:"
-            print opticalfreqs
+            print("optical output deviates: ")
+            print(newopticalfreqs)
+            print("  expected was:")
+            print(opticalfreqs)
             myfailures = myfailures + 1
         mytotal = mytotal + 1
         if not (newradiofreqs == radiofreqs):
-            print "radio output deviates: "
-            print newradiofreqs
-            print "  expected was:"
-            print radiofreqs
+            print("radio output deviates: ")
+            print(newradiofreqs)
+            print("  expected was:")
+            print(radiofreqs)
             myfailures = myfailures + 1
         mytotal = mytotal + 1
 
-        print myfailures, " failures in ", mytotal, " subtests."
+        print(myfailures, " failures in ", mytotal, " subtests.")
 
         self.assertEqual(myfailures,0)
 

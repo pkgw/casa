@@ -59,7 +59,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
         if spwmfitspw == 'UNKNOWN':
             spwmfitspw = subtract_spws(allspw, fitspw)
         if spwmfitspw:
-            raise Exception, "combine must include 'spw' when the fit is being applied to spws outside fitspw."
+            raise Exception("combine must include 'spw' when the fit is being applied to spws outside fitspw.")
 
     if type(correlation) == list:
         correlation = ', '.join(correlation)
@@ -87,11 +87,11 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
 
     # Write history to output MS, not the input ms.
     try:
-        param_names = uvcontsub3.func_code.co_varnames[:uvcontsub3.func_code.co_argcount]
+        param_names = uvcontsub3.__code__.co_varnames[:uvcontsub3.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]   
         retval &= write_history(myms, outputvis, 'uvcontsub3', param_names, param_vals,
                                 casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
 
@@ -108,7 +108,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
             if nflgcmds > 0:
                 mademod = False
                 cmds = mytb.getcol('COMMAND')
-                for rownum in xrange(nflgcmds):
+                for rownum in range(nflgcmds):
                     # Matches a bare number or a string quoted any way.
                     spwmatch = re.search(r'spw\s*=\s*(\S+)', cmds[rownum])
                     if spwmatch:
@@ -129,7 +129,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
                                     repl = "spw='" + sch2 + "'"
                                 cmd = cmds[rownum].replace(spwmatch.group(), repl)
                         #except: # cmd[rownum] no longer applies.
-                        except Exception, e:
+                        except Exception as e:
                             casalog.post(
                                 "Error %s updating row %d of FLAG_CMD" % (e,
                                                                           rownum),
@@ -144,7 +144,7 @@ def uvcontsub3(vis, fitspw, combine, fitorder, field, spw,
                     mytb.putcol('COMMAND', cmds)
 
             
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating FLAG_CMD" % (instance),
                          'SEVERE')
             retval = False

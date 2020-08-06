@@ -16,7 +16,7 @@ def go(taskname=None):
     myf=stack_frame_find( )
     if taskname==None: taskname=myf['taskname']
     oldtaskname=taskname
-    if(myf.has_key('taskname')):
+    if('taskname' in myf):
         oldtaskname=myf['taskname']
     #myf['taskname']=taskname
     if type(taskname)!=str:
@@ -24,11 +24,11 @@ def go(taskname=None):
         myf['taskname']=taskname
     try:
         parameter_checktype(['taskname'],[taskname],str)
-    except TypeError, e:
-        print "go -- TypeError: ",e
+    except TypeError as e:
+        print("go -- TypeError: ",e)
         return
     fulltaskname=taskname+'()'
-    print 'Executing: ',fulltaskname
+    print('Executing: ',fulltaskname)
     exec(fulltaskname)
     myf['taskname']=oldtaskname
 
@@ -86,8 +86,8 @@ def inp(taskname=None, page=False):
             return
         ####
         myf=stack_frame_find( )
-        if((taskname==None) and (not myf.has_key('taskname'))):
-            print 'No task name defined for inputs display'
+        if((taskname==None) and ('taskname' not in myf)):
+            print('No task name defined for inputs display')
             return
         if taskname==None: taskname=myf['taskname']
         myf['taskname']=taskname
@@ -97,29 +97,29 @@ def inp(taskname=None, page=False):
 
         try:
             parameter_checktype(['taskname'],taskname,str)
-        except TypeError, e:
-            print "inp -- TypeError: ", e
+        except TypeError as e:
+            print("inp -- TypeError: ", e)
             return
-        except ValueError, e:
-            print "inp -- OptionError: ", e
+        except ValueError as e:
+            print("inp -- OptionError: ", e)
             return
 
         ###Check if task exists by checking if task_defaults is defined
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
-        if(myf.has_key('__last_taskname')):
+            raise TypeError("task %s is not defined " %taskname)
+        if('__last_taskname' in myf):
             myf['__last_taskname']=taskname
         else:
             myf.update({'__last_taskname':taskname})
 
-        print '# ',myf['taskname']+' :: '+(eval(myf['taskname']+'.description()'))
+        print('# ',myf['taskname']+' :: '+(eval(myf['taskname']+'.description()')))
         update_params(myf['taskname'], myf)
-    except TypeError, e:
-        print "inp --error: ", e
-    except Exception, e:
-        print "---",e
+    except TypeError as e:
+        print("inp --error: ", e)
+    except Exception as e:
+        print("---",e)
 
 def update_params(func, printtext=True, ipython_globals=None):
     from odict import odict
@@ -143,9 +143,9 @@ def update_params(func, printtext=True, ipython_globals=None):
     ###check if task has defined a task_check_params function
 
     if (hascheck):
-	has_othertasks = myf.has_key('task_location')
+	has_othertasks = 'task_location' in myf
 	if(has_othertasks) :
-	   has_task = myf['task_location'].has_key(myf['taskname'])
+	   has_task = myf['taskname'] in myf['task_location']
 	   if (has_task) :
 		pathname=myf['task_location'][myf['taskname']]
 	   else :
@@ -189,14 +189,14 @@ def update_params(func, printtext=True, ipython_globals=None):
         ###if a dictionary with key 0, 1 etc then need to peel-open
         ###parameters
         if(type(paramval)==dict):
-            if(paramval.has_key(0)):
+            if(0 in paramval):
                 notdict=False
-        if(myf.has_key(params[k])):
+        if(params[k] in myf):
             itsparams.update({params[k]:myf[params[k]]})
         else:
             itsparams.update({params[k]:obj.itsdefault(params[k])})
         if (notdict ):
-            if(not myf.has_key(params[k])):
+            if(params[k] not in myf):
                 myf.update({params[k]:paramval})
                 itsparams.update({params[k]:paramval})
             if(printtext):
@@ -227,17 +227,17 @@ def update_params(func, printtext=True, ipython_globals=None):
                 for somekey in paramval:
                     somedict=dict(paramval[somekey])
                     subkeyupdated.update(dict.fromkeys(somedict, False))
-                    if(somedict.has_key('value') and myf.has_key(params[k])):
+                    if('value' in somedict and params[k] in myf):
                         if(somedict['value']==myf[params[k]]):
                             userdict=somedict
-                    elif(somedict.has_key('notvalue') and myf.has_key(params[k])):
+                    elif('notvalue' in somedict and params[k] in myf):
                         if(somedict['notvalue']!=myf[params[k]]):
                             userdict=somedict
                 ###The behaviour is to use the task.defaults
                 ### for all non set parameters and parameters that
                 ### have no meaning for this selection
                 for j in range(len(subdict)):
-                    subkey=subdict[j].keys()
+                    subkey=list(subdict[j].keys())
                    
                     for kk in range(len(subkey)):
                         
@@ -245,8 +245,8 @@ def update_params(func, printtext=True, ipython_globals=None):
                             #if user selecteddict
                             #does not have the key
                             ##put default
-                            if(userdict.has_key(subkey[kk])):
-                                if(myf.has_key(subkey[kk])):
+                            if(subkey[kk] in userdict):
+                                if(subkey[kk] in myf):
                                     itsparams.update({subkey[kk]:myf[subkey[kk]]})
                                 else:
                                     itsparams.update({subkey[kk]:userdict[subkey[kk]]})
@@ -255,8 +255,8 @@ def update_params(func, printtext=True, ipython_globals=None):
                                 itsparams.update({subkey[kk]:itsdef(params[k], None, itsparams[params[k]], subkey[kk])})
                                 subkeyupdated[subkey[kk]]=True
             ### need to do default when user has not set val
-            if(not myf.has_key(params[k])):
-                if(paramval[0].has_key('notvalue')):
+            if(params[k] not in myf):
+                if('notvalue' in paramval[0]):
                     itsparams.update({params[k]:paramval[0]['notvalue']})
                     myf.update({params[k]:paramval[0]['notvalue']})
                 else:
@@ -267,7 +267,7 @@ def update_params(func, printtext=True, ipython_globals=None):
             notchoice=-1
             valuekey='value'
             for j in range(len(subdict)):
-                if(subdict[j].has_key('notvalue')):
+                if('notvalue' in subdict[j]):
                     valuekey='notvalue'
                     if(subdict[j]['notvalue'] != userval):
                         notchoice=j;
@@ -277,7 +277,7 @@ def update_params(func, printtext=True, ipython_globals=None):
                         choice=j
                         notchoice=j
                         break
-            subkey=subdict[choice].keys()
+            subkey=list(subdict[choice].keys())
             if(hascheck):
                 noerror=obj.check_params(params[k],userval,myf)
             if(printtext):
@@ -289,7 +289,7 @@ def update_params(func, printtext=True, ipython_globals=None):
             for j in range(len(subkey)):
                 if((subkey[j] != valuekey) & (notchoice > -1)):
                     ###put default if not there
-                    if(not myf.has_key(subkey[j])):
+                    if(subkey[j] not in myf):
                         myf.update({subkey[j]:subdict[choice][subkey[j]]})
                     paramval=subdict[choice][subkey[j]]
                     if (j==(len(subkey)-1)):
@@ -416,12 +416,12 @@ def print_params_col(param=None, value=None, comment='', colorparam=None,
     if colorcomment == 'last':        #     (Is colorcomment ever green?)
         commentpart += "\n"
 
-    print parampart + valpart + commentpart
+    print(parampart + valpart + commentpart)
 
 def __set_default_parameters(b):
     myf=stack_frame_find( )
     a=b
-    elkey=a.keys()
+    elkey=list(a.keys())
     for k in range(len(a)):
         if (type(a[elkey[k]]) != dict):
             myf[elkey[k]]=a[elkey[k]]
@@ -431,17 +431,17 @@ def __set_default_parameters(b):
             subdict=a[elkey[k]]
             ##clear out variables of other options if they exist
             for j in range(1,len(subdict)):
-                subkey=subdict[j].keys()
+                subkey=list(subdict[j].keys())
                 for kk in range(len(subkey)):
                     if((subkey[kk] != 'value') & (subkey[kk] != 'notvalue') ):
-                        if(myf.has_key(subkey[kk])):
+                        if(subkey[kk] in myf):
                             del myf[subkey[kk]]
             ###
-            if(subdict[0].has_key('notvalue')):
+            if('notvalue' in subdict[0]):
                 myf[elkey[k]]=subdict[0]['notvalue']
             else:
                 myf[elkey[k]]=subdict[0]['value']
-            subkey=subdict[0].keys()
+            subkey=list(subdict[0].keys())
             for j in range(0, len(subkey)):
                 if((subkey[j] != 'value') & (subkey[j] != 'notvalue')):
                     myf[subkey[j]]=subdict[0][subkey[j]]
@@ -506,17 +506,17 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None,
 
         ###Check if task exists by checking if task_defaults is defined
         obj = False
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
+            raise TypeError("task %s is not defined " %taskname)
         else:
             obj = myf[taskname]
 
         if taskname==None: taskname=myf['taskname']
         myf['taskname']=taskname
         if outfile=='': outfile=taskname+'.saved'
-        if(myf.has_key('__multibackup') and myf['__multibackup']):
+        if('__multibackup' in myf and myf['__multibackup']):
             backupoldfile(outfile)
         
         ##make sure unfolded parameters get their default values
@@ -532,53 +532,53 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None,
         if do_save_inputs:
             try:
                 taskparameterfile=open(outfile,'w')
-                print >>taskparameterfile, '%-15s    = "%s"'%('taskname', taskname)
+                print('%-15s    = "%s"'%('taskname', taskname), file=taskparameterfile)
             except:
                 do_save_inputs = False
-                print "********************************************************************************"
-                print "Warning: no write permission for %s, cannot save task" % outfile
+                print("********************************************************************************")
+                print("Warning: no write permission for %s, cannot save task" % outfile)
                 if os.path.isfile(outfile):
-                    print "         inputs in %s..." % outpathfile
+                    print("         inputs in %s..." % outpathfile)
                     casa['state']['unwritable'].add(outpathfile)
                 elif not os.path.isdir(outfile):
-                    print "         inputs in dir %s..." % outpathdir
+                    print("         inputs in dir %s..." % outpathdir)
                     casa['state']['unwritable'].add(outpathdir)
                 else:
-                    print "         inputs because given file (%s) is a dir..." % outpathfile
-                print "********************************************************************************"
-        f=zip(myf[taskname].__call__.func_code.co_varnames[1:],myf[taskname].__call__.func_defaults)
+                    print("         inputs because given file (%s) is a dir..." % outpathfile)
+                print("********************************************************************************")
+        f=list(zip(myf[taskname].__call__.__code__.co_varnames[1:],myf[taskname].__call__.__defaults__))
         scriptstring='#'+str(taskname)+'('
 	if myparams == None :
 		myparams = {}
         l=0
         for j in range(len(f)):
             k=f[j][0]
-	    if not myparams.has_key(k) and k != 'self' :
+	    if k not in myparams and k != 'self' :
 		    myparams[k] = myf[taskname].parameters[k]
             if(k != 'self' and type(myparams[k])==str):
                 if ( myparams[k].count( '"' ) < 1 ):
                     # if the string doesn't contain double quotes then
                     # use double quotes around it in the parameter file.
                     if do_save_inputs:
-                        print >>taskparameterfile, '%-15s    =  "%s"'%(k, myparams[k])
+                        print('%-15s    =  "%s"'%(k, myparams[k]), file=taskparameterfile)
                     scriptstring=scriptstring+k+'="'+myparams[k]+'",'
                 else:
                     # use single quotes.
                     if do_save_inputs:
-                        print >>taskparameterfile, "%-15s    =  '%s'"%(k, myparams[k])
+                        print("%-15s    =  '%s'"%(k, myparams[k]), file=taskparameterfile)
                     scriptstring=scriptstring+k+"='"+myparams[k]+"',"
             else :
                 if ( j != 0 or k != "self" or
                      str(type(myf[taskname])) != "<type 'instance'>" ) :
                     if do_save_inputs:
-                        print >>taskparameterfile, '%-15s    =  %s'%(k, myparams[k])
+                        print('%-15s    =  %s'%(k, myparams[k]), file=taskparameterfile)
                     scriptstring=scriptstring+k+'='+str(myparams[k])+','
 
             ###Now delete varianle from global user space because
             ###the following applies: "It would be nice if one
             ### could tell the system to NOT recall
             ### previous non-default settings sometimes."
-            if(not myf['casaglobals'] and myf.has_key(k)):
+            if(not myf['casaglobals'] and k in myf):
                 del myf[k]
             l=l+1
             if l%5==0:
@@ -591,10 +591,10 @@ def saveinputs(taskname=None, outfile='', myparams=None, ipython_globals=None,
         scriptstring=scriptstring.replace('        ', '')
         scriptstring=scriptstring.replace('\n', '')
         if do_save_inputs:
-            print >>taskparameterfile,scriptstring
+            print(scriptstring, file=taskparameterfile)
             taskparameterfile.close()
-    except TypeError, e:
-        print "saveinputs --error: ", e
+    except TypeError as e:
+        print("saveinputs --error: ", e)
 def default(taskname=None):
     """ reset given task to its default values :
 
@@ -612,10 +612,10 @@ def default(taskname=None):
             myf['taskname']=taskname
 
         ###Check if task exists by checking if task_defaults is defined
-        if ( not myf.has_key(taskname) and
+        if ( taskname not in myf and
              str(type(myf[taskname])) != "<type 'instance'>" and
              not hasattr(myf[taskname],"defaults") ):
-            raise TypeError, "task %s is not defined " %taskname
+            raise TypeError("task %s is not defined " %taskname)
         eval(myf['taskname']+'.defaults()')
 
         casalog.origin('default')
@@ -623,8 +623,8 @@ def default(taskname=None):
         casalog.post(' #######  Setting values to default for task: '+taskstring+'  #######')
 
 
-    except TypeError, e:
-        print "default --error: ", e
+    except TypeError as e:
+        print("default --error: ", e)
 
 # def taskparamgui(useGlobals=True):
 #     """

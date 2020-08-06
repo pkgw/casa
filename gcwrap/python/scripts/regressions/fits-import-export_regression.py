@@ -30,7 +30,7 @@ datapath = ""
 
 # get the dataset name from the wrapper if possible
 
-if not (locals()).has_key('datasets'):
+if 'datasets' not in (locals()):
     myname = 'fits-import-export_regression :'
     # The default dictionary of test datasets
     #  Each entry is a tuple of filename (w/o extension), expected pixel position of the maximum flux,
@@ -81,75 +81,75 @@ def checkimage(myfitsimage_name, maxpos_expect, maxposf_expect):
     # import the image
     default('importfits')
     try:
-        print myname, ' Importing ', datapath+myfitsimage_name+'.fits', ' ...'
+        print(myname, ' Importing ', datapath+myfitsimage_name+'.fits', ' ...')
         importfits(fitsimage = datapath+myfitsimage_name+'.fits',
                    imagename = myfitsimage_name,
                    overwrite = True)
     except:
-        print myname, ' Error ', sys.exc_info()[0]
+        print(myname, ' Error ', sys.exc_info()[0])
         raise    
     else:
-        print myname, ' No exceptions raised! Now checking image ...'
+        print(myname, ' No exceptions raised! Now checking image ...')
         # perform a basic check of the coordinate system
         ia.open(myfitsimage_name)
         mystat = imstat(imagename = myfitsimage_name)
         ia.close()
         if not (myname == ' '):
-            print mystat
+            print(mystat)
         if not ((mystat['maxpos']) == maxpos_expect).all():
-            print myname, ' Error in imported image ', myfitsimage_name, ':'
-            print myname, '    expected pixel position of maximum is ', maxpos_expect
-            print myname, '                               but found ', mystat['maxpos'] 
+            print(myname, ' Error in imported image ', myfitsimage_name, ':')
+            print(myname, '    expected pixel position of maximum is ', maxpos_expect)
+            print(myname, '                               but found ', mystat['maxpos']) 
             subtest_passed = False    
         if not (mystat['maxposf'] == maxposf_expect):
-            print myname, ' Error in imported image ', myfitsimage_name, ':'
-            print myname, '   expected absolute position of maximum is ', maxposf_expect
-            print myname, '                                  but found ', mystat['maxposf'] 
+            print(myname, ' Error in imported image ', myfitsimage_name, ':')
+            print(myname, '   expected absolute position of maximum is ', maxposf_expect)
+            print(myname, '                                  but found ', mystat['maxposf']) 
             subtest_passed = False 
         if subtest_passed:
-            print myname, ' imported image ', myfitsimage_name, ' as expected.'
+            print(myname, ' imported image ', myfitsimage_name, ' as expected.')
 
             # export the image
             default('exportfits')
             try:
-                print 'Exporting ', myfitsimage_name, '...'
+                print('Exporting ', myfitsimage_name, '...')
                 exportfits(fitsimage = myfitsimage_name + 'exp.fits',
                            imagename = myfitsimage_name,
                            overwrite = True)
             except:
-                print myname, ' Error ', sys.exc_info()[0]
+                print(myname, ' Error ', sys.exc_info()[0])
                 raise    
             else:
-                print myname, ' No exceptions raised! Now comparing exported image with original by re-importing it ...'
+                print(myname, ' No exceptions raised! Now comparing exported image with original by re-importing it ...')
                 # re-import the image    
                 default('importfits')
                 try:
-                    print myname, ' Re-importing ', myfitsimage_name+'exp.fits', ' ...'
+                    print(myname, ' Re-importing ', myfitsimage_name+'exp.fits', ' ...')
                     importfits(fitsimage = myfitsimage_name+'exp.fits',
                                imagename = myfitsimage_name+'exp',
                                overwrite = True)
                 except:
-                    print myname, ' Error ', sys.exc_info()[0]
+                    print(myname, ' Error ', sys.exc_info()[0])
                     raise    
                 else:
-                    print myname, ' No exceptions raised! Now checking image ...'
+                    print(myname, ' No exceptions raised! Now checking image ...')
                     ia.open(myfitsimage_name+'exp')
                     csm = ia.coordsys()
                     ia.close()
                     csm.summary() 
                     mystat = imstat(imagename = myfitsimage_name+'exp')
                     if not ((mystat['maxpos']) == maxpos_expect).all():
-                        print myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':'
-                        print myname, '   expected pixel position of maximum is ', maxpos_expect
-                        print myname, '                               but found ', mystat['maxpos'] 
+                        print(myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':')
+                        print(myname, '   expected pixel position of maximum is ', maxpos_expect)
+                        print(myname, '                               but found ', mystat['maxpos']) 
                         subtest_passed = False    
                     if not (mystat['maxposf'] == maxposf_expect):
-                        print myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':'
-                        print myname, '   expected absolute position of maximum is ', maxposf_expect
-                        print myname, '                                  but found ', mystat['maxposf'] 
+                        print(myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':')
+                        print(myname, '   expected absolute position of maximum is ', maxposf_expect)
+                        print(myname, '                                  but found ', mystat['maxposf']) 
                         subtest_passed = False 
                     if subtest_passed:
-                        print myname, ' re-imported image ', myfitsimage_name+'exp', ' as expected.'
+                        print(myname, ' re-imported image ', myfitsimage_name+'exp', ' as expected.')
     return subtest_passed
 # end def checkimage()
 
@@ -160,89 +160,89 @@ def checkimageb(myfitsimage_name):
     # import the image
     default('importfits')
     try:
-        print myname, ' Importing ', myfitsimage_name+'.fits', ' ...'
+        print(myname, ' Importing ', myfitsimage_name+'.fits', ' ...')
         importfits(fitsimage = datapath+myfitsimage_name+'.fits',
                    imagename = myfitsimage_name,
                    overwrite = True)
     except:
-        print myname, ' Error ', sys.exc_info()[0]
+        print(myname, ' Error ', sys.exc_info()[0])
         raise    
     else:
-        print myname, ' No exceptions raised!'
+        print(myname, ' No exceptions raised!')
         mystat = imstat(imagename = myfitsimage_name)
         # export the image
         default('exportfits')
         try:
-            print 'Exporting ', myfitsimage_name, ' with bitpix=16 ...'
+            print('Exporting ', myfitsimage_name, ' with bitpix=16 ...')
             exportfits(fitsimage = myfitsimage_name + 'exp.fits',
                        imagename = myfitsimage_name,
                        overwrite = True, bitpix=16) # with BITPIX=16 !
         except:
-            print myname, ' Error ', sys.exc_info()[0]
+            print(myname, ' Error ', sys.exc_info()[0])
             raise    
         else:
-            print myname, ' No exceptions raised! Now testing minimum and maximum values ...'
+            print(myname, ' No exceptions raised! Now testing minimum and maximum values ...')
             # re-import the image    
             default('importfits')
             try:
-                print myname, ' Re-importing ', myfitsimage_name+'exp.fits', ' ...'
+                print(myname, ' Re-importing ', myfitsimage_name+'exp.fits', ' ...')
                 importfits(fitsimage = myfitsimage_name+'exp.fits',
                            imagename = myfitsimage_name+'exp',
                            overwrite = True)
             except:
-                print myname, ' Error ', sys.exc_info()[0]
+                print(myname, ' Error ', sys.exc_info()[0])
                 raise    
             else:
-                print myname, ' No exceptions raised! Now checking image ...'
+                print(myname, ' No exceptions raised! Now checking image ...')
                 myotherstat = imstat(imagename = myfitsimage_name+'exp')
                 if not (abs((mystat['min'] - myotherstat['min'])/mystat['min']) < 1E-6):
-                    print myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':'
-                    print myname, '   expected  minimum is ', mystat['min']
-                    print myname, '                               but found ', myotherstat['min'] 
+                    print(myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':')
+                    print(myname, '   expected  minimum is ', mystat['min'])
+                    print(myname, '                               but found ', myotherstat['min']) 
                     subtest_passed = False    
                 if not (abs((mystat['max'] - myotherstat['max'])/mystat['max']) < 1E-6):
-                    print myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':'
-                    print myname, '   expected  maximum is ', mystat['max']
-                    print myname, '                               but found ', myotherstat['max'] 
+                    print(myname, ' Error in re-imported image ', myfitsimage_name+'exp', ':')
+                    print(myname, '   expected  maximum is ', mystat['max'])
+                    print(myname, '                               but found ', myotherstat['max']) 
                     subtest_passed = False    
                 if subtest_passed:
-                    print myname, ' re-imported image ', myfitsimage_name+'exp', ' as expected.'
+                    print(myname, ' re-imported image ', myfitsimage_name+'exp', ' as expected.')
     return subtest_passed
 # end def checkimage()
 
 failed_tests = []
 passed_tests = []
 
-for i in mydict.keys():
+for i in list(mydict.keys()):
 
     thefitsimage_name = mydict[i][0]
     themaxpos_expect = mydict[i][1]
     themaxposf_expect = mydict[i][2]
-    print myname, ' ***********************************************************'
-    print myname, ' Subtest ', i, ': ', mydict[i][3]
+    print(myname, ' ***********************************************************')
+    print(myname, ' Subtest ', i, ': ', mydict[i][3])
     passed = checkimage(thefitsimage_name, themaxpos_expect, themaxposf_expect)
     if passed:
-        print myname, ' Subtest ', i, ' passed.'
+        print(myname, ' Subtest ', i, ' passed.')
         passed_tests.append(mydict[i][3])
     else:
-        print myname, ' Subtest ', i, ' failed.'
+        print(myname, ' Subtest ', i, ' failed.')
         failed_tests.append(mydict[i][3])
-    print myname, ' ***********************************************************'
+    print(myname, ' ***********************************************************')
 
 thefitsimage_name = mydict[1][0]
-print myname, ' ***********************************************************'
-print myname, ' Test of the BITPIX parameter:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of the BITPIX parameter:')
 passed = checkimageb(thefitsimage_name)
 if passed:
-    print myname, ' bitpix test passed.'
+    print(myname, ' bitpix test passed.')
     passed_tests.append('bitpix')
 else:
-    print myname, ' bitpix test failed.'
+    print(myname, ' bitpix test failed.')
     failed_tests.append('bitpix')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of the stokeslast parameter and the SPECSYS keyword:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of the stokeslast parameter and the SPECSYS keyword:')
 exportfits(imagename=datapath+'stokeslast-test.image', fitsimage='stokeslast-test.fits', stokeslast=True, overwrite=True)
 myresult0 = os.system('grep SPECSYS stokeslast-test.fits > /dev/null')
 specsyspresent = (myresult0 == 0)
@@ -262,15 +262,15 @@ myresult2 = imstat('sub2.im', verbose=False)
 passed = (myresult1['min']==myresult2['min']) and (myresult1['max']==myresult2['max']) \
          and (myresult1['sum']==myresult2['sum']) and specsyspresent
 if passed:
-    print myname, ' stokeslast test passed.'
+    print(myname, ' stokeslast test passed.')
     passed_tests.append('stokeslast')
 else:
-    print myname, ' stokeslast test failed.'
+    print(myname, ' stokeslast test failed.')
     failed_tests.append('stokeslast')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of the wavelength parameter:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of the wavelength parameter:')
 os.system('rm -f wavelength-test.fits')
 ia.open(datapath+'stokeslast-test.image')
 ia.tofits(outfile='wavelength-test.fits', wavelength=True)
@@ -286,15 +286,15 @@ passed = passed and ia.open('wavelength-test2.fits')
 ia.close()
 
 if passed:
-    print myname, ' wavelength parameter test passed.'
+    print(myname, ' wavelength parameter test passed.')
     passed_tests.append('wavelength')
 else:
-    print myname, ' wavelength parameter test failed.'
+    print(myname, ' wavelength parameter test failed.')
     failed_tests.append('wavelength')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of export of a standard single-channel image from clean:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of export of a standard single-channel image from clean:')
 os.system('rm -f xxx-test.fits xxx-test-w.fits')
 ia.open(datapath+'xxx-clean.image')
 ia.tofits(outfile='xxx-test.fits')
@@ -306,15 +306,15 @@ passed2 = ia.open('xxx-test-w.fits')
 ia.close()
 passed = passed1==True and passed2==True
 if passed:
-    print myname, ' trivial export tests passed.'
+    print(myname, ' trivial export tests passed.')
     passed_tests.append('trivial')
 else:
-    print myname, ' trivial export test failed.'
+    print(myname, ' trivial export test failed.')
     failed_tests.append('trivial')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of import and export of FITs images with spectral WCS:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of import and export of FITs images with spectral WCS:')
 expecta = {'freq': 2.190956850600E+11,
            'vrad': 2.183247880000E+11,
            'vopt': 2.183247880000E+11,
@@ -339,16 +339,16 @@ passed = True
 #for ctype in ['freq','vrad','wave']:
 for myctype in ['freq','vrad','vopt','wave','awav']:
     try:
-        print 'Testing CTYPE ', myctype, ' ...'
+        print('Testing CTYPE ', myctype, ' ...')
         importfits(imagename=myctype+'.im', fitsimage=datapath+'spec-test-'+myctype+'.fits', overwrite=True)
         cond0 = ia.open(myctype+'.im')
         coordm = ia.coordmeasures()
         cond1 = (abs(coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype])<1.) # avoid Python precision problems
-        print 'value, expectation, diff:', coordm['measure']['spectral']['frequency']['m0']['value'],',',\
-              expecta[myctype], ",", coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype]
+        print('value, expectation, diff:', coordm['measure']['spectral']['frequency']['m0']['value'],',',\
+              expecta[myctype], ",", coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype])
         cond2 = (coordm['measure']['spectral']['frequency']['m0']['unit']==expectb[myctype])
         cond3 = (coordm['measure']['spectral']['frequency']['refer']==expectc[myctype])
-        print cond0, cond1, cond2, cond3
+        print(cond0, cond1, cond2, cond3)
         passed1 = cond0 and cond1 and cond2 and cond3
         ia.close()
         if(myctype=='freq'):
@@ -368,7 +368,7 @@ for myctype in ['freq','vrad','vopt','wave','awav']:
             ia.tofits(outfile='spec-test-'+myctype+'-ex.fits', wavelength=True, airwavelength=True)
             ia.close()
         else:
-            print "Skipping export test for ", myctype
+            print("Skipping export test for ", myctype)
 
         passed2 = True
 
@@ -376,69 +376,69 @@ for myctype in ['freq','vrad','vopt','wave','awav']:
         cond0 = ia.open(myctype+'2.im')
         coordm = ia.coordmeasures()
         cond1 = (abs(coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype])<1.) # avoid Python precision problems
-        print 'value, expectation, diff:', coordm['measure']['spectral']['frequency']['m0']['value'],',',\
-              expecta[myctype], ",", coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype]
+        print('value, expectation, diff:', coordm['measure']['spectral']['frequency']['m0']['value'],',',\
+              expecta[myctype], ",", coordm['measure']['spectral']['frequency']['m0']['value']-expecta[myctype])
         cond2 = (coordm['measure']['spectral']['frequency']['m0']['unit']==expectb[myctype])
         cond3 = (coordm['measure']['spectral']['frequency']['refer']==expectc[myctype])
-        print cond0, cond1, cond2, cond3
+        print(cond0, cond1, cond2, cond3)
         passed2 = cond0 and cond1 and cond2 and cond3
         ia.close()
             
         passedx[myctype] = passed1 and passed2
         passed = passed and passedx[myctype]
     except:
-        print myname, ' Error ', sys.exc_info()[0]
+        print(myname, ' Error ', sys.exc_info()[0])
         passedx[myctype] = False
         passed = False
         
 if passed:
-    print myname, ' Spectral WCS im/export tests passed.'
+    print(myname, ' Spectral WCS im/export tests passed.')
     passed_tests.append('spectralwcs')
 else:
-    print myname, ' Spectral WCS im/export tests failed.'
-    print passedx
+    print(myname, ' Spectral WCS im/export tests failed.')
+    print(passedx)
     failed_tests.append('spectralwcs')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of import with use of parameter defaultaxes:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of import with use of parameter defaultaxes:')
 passed = True
 for name in ['dir_and_stokes.fits', 'dir_stokes_and_freq.fits', 'onlydir.fits', 'dir_and_freq.fits', 'dir_freq_and_stokes.fits', 'freq.fits']:
-    print name
+    print(name)
     importfits(fitsimage=datapath+name, imagename=name+'.im', overwrite=True, defaultaxes=True, defaultaxesvalues=['19h30m00',2.,'6GHz', 'Q'])
     ia.open(name+'.im')
     mycs = ia.coordsys()
     ia.close()
     if not mycs.axiscoordinatetypes() == ['Direction', 'Direction', 'Stokes', 'Spectral']:
-        print "ERROR: unexpected value of axiscoordinatetypes: ", mycs.axiscoordinatetypes()
+        print("ERROR: unexpected value of axiscoordinatetypes: ", mycs.axiscoordinatetypes())
         passed = False
     else:
         mycsr = mycs.torecord()
         if name in ['dir_and_stokes.fits', 'onlydir.fits']:
-            if not ((mycsr.has_key('spectral1') and mycsr['spectral1']['wcs']['crval'] == 6E9) \
-                   or (mycsr.has_key('spectral2') and mycsr['spectral2']['wcs']['crval'] == 6E9)):
-                print "Error: Spectral axis CRVAL should be 6E9"
+            if not (('spectral1' in mycsr and mycsr['spectral1']['wcs']['crval'] == 6E9) \
+                   or ('spectral2' in mycsr and mycsr['spectral2']['wcs']['crval'] == 6E9)):
+                print("Error: Spectral axis CRVAL should be 6E9")
                 passed = False
         if name in ['onlydir.fits', 'dir_and_freq.fits', 'freq.fits']:
-            if not ((mycsr.has_key('stokes1') and mycsr['stokes1']['stokes'][0]=='Q') \
-                    or (mycsr.has_key('stokes2') and mycsr['stokes2']['stokes'][0]=='Q')):
-                print "Error: Stokes axis CRVAL should be Q"
+            if not (('stokes1' in mycsr and mycsr['stokes1']['stokes'][0]=='Q') \
+                    or ('stokes2' in mycsr and mycsr['stokes2']['stokes'][0]=='Q')):
+                print("Error: Stokes axis CRVAL should be Q")
                 passed = False
         if name in ['freq.fits']:
-            if not (mycsr.has_key('direction1') and (mycsr['direction1']['crval'][0]==292.5)):
-                print "Error: RA axis CRVAL should be 292.5"
+            if not ('direction1' in mycsr and (mycsr['direction1']['crval'][0]==292.5)):
+                print("Error: RA axis CRVAL should be 292.5")
                 passed = False
 
 if passed:
-    print myname, ' tests of import with defaultaxes passed.'
+    print(myname, ' tests of import with defaultaxes passed.')
     passed_tests.append('defaultaxes')
 else:
-    print myname, ' tests of import with defaultaxes failed.'
+    print(myname, ' tests of import with defaultaxes failed.')
     failed_tests.append('defaultaxes')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of export of FITs images with spectral conversion layer:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of export of FITs images with spectral conversion layer:')
 expecta = 2.191033189757E+11 # BARY
 expectb = 2.190956850603E+11 # LSRK
 passed = True
@@ -452,9 +452,9 @@ try:
     ia.close()
     myworld = mycs1.toworld([0,0,0,0])['numeric'][2]
     cond1 = (abs(myworld-expecta)<1.) # avoid Python precision problems
-    print 'value, expectation, diff:', myworld,',', expecta, ",", myworld-expecta
+    print('value, expectation, diff:', myworld,',', expecta, ",", myworld-expecta)
     cond2 = (mycs1.referencecode()[2]=='LSRK')
-    print cond0, cond1, cond2
+    print(cond0, cond1, cond2)
     passed1 = cond0 and cond1 and cond2
     os.system('rm -rf spec-test-convbary-ex.fits')
     exportfits(imagename='freqx.im', fitsimage='spec-test-convbary-ex.fits')
@@ -468,27 +468,27 @@ try:
     ia.close()
     myworld = mycs2.toworld([0,0,0,0])['numeric'][2]
     cond1 = (abs(myworld-expecta)<1.) # avoid Python precision problems
-    print 'value, expectation, diff:', myworld,',', expecta, ",", myworld-expecta
+    print('value, expectation, diff:', myworld,',', expecta, ",", myworld-expecta)
     cond2 = (mycs2.referencecode()[2]=='BARY')
-    print cond0, cond1, cond2
+    print(cond0, cond1, cond2)
     passed2 = cond0 and cond1 and cond2
     
     passed = passed1 and passed2
 
 except:
-    print myname, ' Error ', sys.exc_info()[0]
+    print(myname, ' Error ', sys.exc_info()[0])
     passed = False
         
 if passed:
-    print myname, ' Export with conversion layer tests passed.'
+    print(myname, ' Export with conversion layer tests passed.')
     passed_tests.append('Export with conversion layer')
 else:
-    print myname, ' Export with conversion layer tests failed.'
+    print(myname, ' Export with conversion layer tests failed.')
     failed_tests.append('Export with conversion layer')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
-print myname, ' ***********************************************************'
-print myname, ' Test of the beam parameter:'
+print(myname, ' ***********************************************************')
+print(myname, ' Test of the beam parameter:')
 importfits(fitsimage=datapath+'1904-66_AIT.fits', imagename='1904-66_AIT_2.im', beam=['2arcsec','1arcsec','3.0deg'], overwrite=True)
 passed = False
 ia.open('1904-66_AIT_2.im')
@@ -501,29 +501,29 @@ if(x != {}
     passed = True
 
 if passed:
-    print myname, ' beam parameter test passed.'
+    print(myname, ' beam parameter test passed.')
     passed_tests.append('beam')
 else:
-    print myname, ' beam parameter test failed.'
+    print(myname, ' beam parameter test failed.')
     failed_tests.append('beam')
-print myname, ' ***********************************************************'
+print(myname, ' ***********************************************************')
 
 
 if len(failed_tests)>0:
     if len(passed_tests)>0:
-        print myname, ' Summary of passed subtests:'
+        print(myname, ' Summary of passed subtests:')
         for i in range(0, len(passed_tests)):
-            print myname, '          ', passed_tests[i]            
-    print myname, ' Summary of failed subtests:'
+            print(myname, '          ', passed_tests[i])            
+    print(myname, ' Summary of failed subtests:')
     for i in range(0, len(failed_tests)):
-        print myname, '          ', failed_tests[i]
-    raise Exception, repr(len(failed_tests))+' out of '+repr(len(mydict.keys()))+' subtests failed.'
+        print(myname, '          ', failed_tests[i])
+    raise Exception(repr(len(failed_tests))+' out of '+repr(len(list(mydict.keys())))+' subtests failed.')
 else:
-    print 'All subtests passed.'
-    print ''
-    print 'Regression PASSED'
-    print ''
-print 'Done.'
+    print('All subtests passed.')
+    print('')
+    print('Regression PASSED')
+    print('')
+print('Done.')
 
 
 #End of Script

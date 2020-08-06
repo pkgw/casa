@@ -46,13 +46,13 @@ class importasap_test(unittest.TestCase):
     def test_overwrite(self):
         """test_overwrite: File existence check"""
         shutil.copytree(self.infile, self.outfile)
-        with self.assertRaisesRegexp(RuntimeError, '.* exists\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* exists\.$') as cm:
             importasap(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_invaliddata(self):
         """test_invaliddata: Invalid data check"""
         os.remove(os.path.join(self.infile, 'table.info'))
-        with self.assertRaisesRegexp(RuntimeError, '.* is not a valid Scantable\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* is not a valid Scantable\.$') as cm:
             importasap(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_normal(self):
@@ -65,8 +65,8 @@ class importasap_test(unittest.TestCase):
             myms.open(self.outfile)
             myms.close()
             
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             self.fail('outputvis is not a valid ms')
         
         # check weight initialization
@@ -105,7 +105,7 @@ class importasap_test(unittest.TestCase):
         aflocal = casac.agentflagger()
         aflocal.open(self.outfile)
         versions_list = aflocal.getflagversionlist()
-        self.assertTrue(all(map(lambda x: re.match('^%s : .*$'%(version_name), x) is None, versions_list)))
+        self.assertTrue(all([re.match('^%s : .*$'%(version_name), x) is None for x in versions_list]))
         aflocal.done()
 
     def test_noflagversions(self):
@@ -136,13 +136,13 @@ class importasap_test(unittest.TestCase):
             
             _tb.open(os.path.join(vis, 'SPECTRAL_WINDOW'))
             nrow = _tb.nrows()
-            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in xrange(nrow))
+            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in range(nrow))
             effbws = numpy.fromiter(g, dtype=float)
             _tb.close()
             
             _tb.open(vis)
             nrow = _tb.nrows()
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 weight = _tb.getcell('WEIGHT', irow)
                 sigma = _tb.getcell('SIGMA', irow)
                 interval = _tb.getcell('INTERVAL', irow)
@@ -178,7 +178,7 @@ class importasap_test(unittest.TestCase):
         aflocal = casac.agentflagger()
         aflocal.open(vis)
         versions_list = aflocal.getflagversionlist()
-        self.assertTrue(any(map(lambda x: re.match('^%s : .*$'%(version_name), x) is not None, versions_list)))
+        self.assertTrue(any([re.match('^%s : .*$'%(version_name), x) is not None for x in versions_list]))
 
         # restore flag state
         aflocal.restoreflagversion(versionname=version_name, merge='replace')
@@ -191,10 +191,10 @@ class importasap_test(unittest.TestCase):
         tb.close()
 
         # verification
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             self.assertEqual(flag_row_org[irow], flag_row[irow], msg='row %s: FLAG_ROW is different'%(irow))
 
-        for (row, val_org) in flag_org.items():
+        for (row, val_org) in list(flag_org.items()):
             val = flag[row]
             self.assertTrue(all((val_org == val).flatten()), msg='row %s: FLAG is different'%(row))
 
@@ -212,7 +212,7 @@ class importasap_test(unittest.TestCase):
             colkeys = tb.getcolkeywords('PRESSURE')
             self.assertTrue('QuantumUnits' in colkeys)
             pressure_unit = colkeys['QuantumUnits'][0]
-            print('Pressure unit is {0}'.format(pressure_unit))
+            print(('Pressure unit is {0}'.format(pressure_unit)))
             self.assertEqual(pressure_unit, 'hPa')
             
             # value should be in reasonable range

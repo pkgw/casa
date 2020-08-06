@@ -100,17 +100,17 @@ def immoments(
     _tmp_csys = None
     try:
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified" 
+            raise Exception("outfile must be specified") 
         _myia.dohistory(False)
         # First check to see if the output file exists.  If it
         # does then we abort.  CASA doesn't allow files to be
         # over-written, just a policy.
         if os.path.exists(outfile):
-            raise Exception, 'Output file, '+outfile+\
+            raise Exception('Output file, '+outfile+\
               ' exists. immoment can not proceed, please\n'\
-              'remove it or change the output file name.'
+              'remove it or change the output file name.')
         elif ( len( outfile ) ==  1 ):
-            raise Exception, 'outfile is not specified but must be'
+            raise Exception('outfile is not specified but must be')
         _myia.open(imagename)
         _tmp_csys = _myia.coordsys()
         reg = _rg.frombcs(csys=_tmp_csys.torecord(),
@@ -129,17 +129,17 @@ def immoments(
         created_images = _immoments_get_created_images(outia.name(), outfile)
         created_images.append(outia)
         try:
-            param_names = immoments.func_code.co_varnames[:immoments.func_code.co_argcount]
+            param_names = immoments.__code__.co_varnames[:immoments.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             method = sys._getframe().f_code.co_name
             for im in created_images:
                 write_image_history(
                     im, method, param_names, param_vals, casalog
                 )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE') 
         raise
     finally:

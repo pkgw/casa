@@ -9,15 +9,15 @@ projname = "m51sd_co32"
 startTime = time.time()
 startProc = time.clock()
 
-print '--Running sim_observe of M51 (total power) --'
+print('--Running sim_observe of M51 (total power) --')
 # configs are in the repository
 
 l=locals() 
-if not l.has_key("repodir"): 
+if "repodir" not in l: 
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
-print casa['build']
-print 'I think the data repository is at '+repodir
+print(casa['build'])
+print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/simdata/"
 cfgdir=repodir+"/data/alma/simmos/"
 shutil.copytree(datadir+modelname,modelname)
@@ -57,7 +57,7 @@ thermalnoise = 'tsys-manual'  #w/ noise
 t_sky = 263.0
 t_ground = t_sky
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -71,7 +71,7 @@ simobserve()
 obsEndTime = time.time()
 obsEndProc = time.clock()
 
-print '--Running sim_analyze of M51 (total power) --'
+print('--Running sim_analyze of M51 (total power) --')
 # configs are in the repository
 
 #default(sim_analyze)
@@ -96,7 +96,7 @@ showconvolved = True
 #thermalnoise=''
 #
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -173,22 +173,22 @@ datestring = datetime.datetime.isoformat(datetime.datetime.today())
 outfile    = project+"/"+project + '.' + datestring + '.log'
 logfile    = open(outfile, 'w')
 
-print 'Writing regression output to ' + outfile + "\n"
-print >> logfile,casa['build']
+print('Writing regression output to ' + outfile + "\n")
+print(casa['build'], file=logfile)
 
 loghdr = """
 ********** Regression *****************
 """
 
-print >> logfile, loghdr
+print(loghdr, file=logfile)
 
 # more info
 ms.open(project+"/"+project+".aca.tp.sd.ms")
 #ms.open(project+"/"+project+".aca.tp.ms")
-print >> logfile, "Noiseless MS, amp stats:"
-print >> logfile, ms.statistics('DATA','amp')
-print >> logfile, "Noiseless MS, phase stats:"
-print >> logfile, ms.statistics('DATA','phase')
+print("Noiseless MS, amp stats:", file=logfile)
+print(ms.statistics('DATA','amp'), file=logfile)
+print("Noiseless MS, phase stats:", file=logfile)
+print(ms.statistics('DATA','phase'), file=logfile)
 ms.close()
 #ms.open(project+"/"+project+".noisy.ms")
 #print >> logfile, "Noisy MS, amp stats:"
@@ -199,58 +199,58 @@ ms.close()
 
 
 regstate = True
-rskes = refstats.keys()
+rskes = list(refstats.keys())
 rskes.sort()
 for ke in rskes:
     adiff=abs(m51sd_stats[ke][0] - refstats[ke])/abs(refstats[ke])
     if adiff < reftol[ke]:
-        print >> logfile, "* Passed %-5s image test, got % -11.5g expected % -11.5g." % (ke, m51sd_stats[ke][0], refstats[ke])
+        print("* Passed %-5s image test, got % -11.5g expected % -11.5g." % (ke, m51sd_stats[ke][0], refstats[ke]), file=logfile)
     else:
-        print >> logfile, "* FAILED %-5s image test, got % -11.5g instead of % -11.5g." % (ke, m51sd_stats[ke][0], refstats[ke])
+        print("* FAILED %-5s image test, got % -11.5g instead of % -11.5g." % (ke, m51sd_stats[ke][0], refstats[ke]), file=logfile)
         regstate = False
 
-rskes = diffstats.keys()
+rskes = list(diffstats.keys())
 rskes.sort()
 for ke in rskes:
     adiff=abs(m51sd_diffstats[ke][0] - diffstats[ke])/abs(diffstats[ke])
     if adiff < reftol[ke]:
-        print >> logfile, "* Passed %-5s  diff test, got % -11.5g expected % -11.5g." % (ke, m51sd_diffstats[ke][0], diffstats[ke])
+        print("* Passed %-5s  diff test, got % -11.5g expected % -11.5g." % (ke, m51sd_diffstats[ke][0], diffstats[ke]), file=logfile)
     else:
-        print >> logfile, "* FAILED %-5s  diff test, got % -11.5g instead of % -11.5g." % (ke, m51sd_diffstats[ke][0], diffstats[ke])
+        print("* FAILED %-5s  diff test, got % -11.5g instead of % -11.5g." % (ke, m51sd_diffstats[ke][0], diffstats[ke]), file=logfile)
         regstate = False
         
 
-print >> logfile,'---'
+print('---', file=logfile)
 if regstate:
-    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('Passed', end=' ', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
-    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('FAILED', end=' ', file=logfile)
+    print('')
+    print('Regression FAILED')
+    print('')
 
-print >> logfile, 'regression test for simdata of M51 (total power).'
-print >>logfile,'---'
-print >>logfile,'*********************************'
+print('regression test for simdata of M51 (total power).', file=logfile)
+print('---', file=logfile)
+print('*********************************', file=logfile)
     
-print >>logfile,''
-print >>logfile,'********** Benchmarking **************'
-print >>logfile,''
-print >>logfile,'Total wall clock time was: %8.3f s.' % (endTime - startTime)
-print >>logfile,'Total CPU        time was: %8.3f s.' % (endProc - startProc)
-print >>logfile,'Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
-                                                            (endTime - startTime))
+print('', file=logfile)
+print('********** Benchmarking **************', file=logfile)
+print('', file=logfile)
+print('Total wall clock time was: %8.3f s.' % (endTime - startTime), file=logfile)
+print('Total CPU        time was: %8.3f s.' % (endProc - startProc), file=logfile)
+print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
+                                                            (endTime - startTime)), file=logfile)
 
 ### Get last modification time of .ms.
 msfstat = os.stat(project+"/"+project+'.aca.tp.sd.ms')
 #msfstat = os.stat(project+"/"+project+'.aca.tp.ms')
-print >>logfile,'* Breakdown:                           *'
-print >>logfile,'*  generating visibilities took %8.3fs,' % (msfstat[8] - startTime)
-print >>logfile,'*************************************'
+print('* Breakdown:                           *', file=logfile)
+print('*  generating visibilities took %8.3fs,' % (msfstat[8] - startTime), file=logfile)
+print('*************************************', file=logfile)
     
 logfile.close()
 						    
-print '--Finished simdata of M51 (total power) regression--'
+print('--Finished simdata of M51 (total power) regression--')

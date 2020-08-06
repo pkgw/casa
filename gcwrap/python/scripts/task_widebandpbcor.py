@@ -605,7 +605,7 @@ def _set_clean_beam(imname,beamshape):
       ia.open(imname);
       try:
           ia.setrestoringbeam(major=beamshape[0],minor=beamshape[1],pa=beamshape[2]);
-      except Exception, e:
+      except Exception as e:
           casalog.post( "Error setting restoring beam : " + e , 'WARN');
           ia.close();
           return False;

@@ -17,12 +17,12 @@ from sdutil import tbmanager
 
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
 try:
-    import testutils
+    from . import testutils
 except:
     import tests.testutils as testutils
 
@@ -81,7 +81,7 @@ class BlparamFileParser(FileReader):
 
     def _nrow(self):
         self.__nrow = 0
-        for i in xrange(self.nline()):
+        for i in range(self.nline()):
             if self.getline(i) == self.__ctxt:
                 self.__nrow += 1
         return self.__nrow
@@ -174,8 +174,8 @@ class sdfit_unittest_base(unittest.TestCase):
     def _createBlparamFile(self, file, param_order, val, option=''):
         nspec = 8
         f = open(file, 'w')
-        assert(len(param_order) == len(val.keys()))
-        for key in val.keys():
+        assert(len(param_order) == len(list(val.keys())))
+        for key in list(val.keys()):
             assert(len(val[key]) == nspec)
         for i in range(nspec):
             do_write = True
@@ -236,11 +236,11 @@ class sdfit_unittest_base(unittest.TestCase):
         """
         # Check for paths
         if from_dir==None and dest_dir==None:
-            raise ValueError, "Can not copy files to exactly the same path."
+            raise ValueError("Can not copy files to exactly the same path.")
         from_path = os.path.abspath("." if from_dir==None else from_dir.rstrip("/"))
         to_path = os.path.abspath("." if dest_dir==None else dest_dir.rstrip("/"))
         if from_path == to_path:
-            raise ValueError, "Can not copy files to exactly the same path."
+            raise ValueError("Can not copy files to exactly the same path.")
         # Copy a list of files and directories
         for name in names:
             from_name = from_path + "/" + name
@@ -350,8 +350,8 @@ class sdfit_unittest_base(unittest.TestCase):
         dd_sel = self._getListSelectedRowID(spwid, spw_sel)
         # get the selected row IDs from selected DD IDs
         row_sel = self._getListSelectedRowID(ddid, dd_sel)
-        if not select_spw: row_sel = range(len(ddid))
-        if not select_pol: pol_sel = range(len(data))
+        if not select_spw: row_sel = list(range(len(ddid)))
+        if not select_pol: pol_sel = list(range(len(data)))
 
         res = []
         for irow in row_sel:
@@ -394,7 +394,7 @@ class sdfit_unittest_base(unittest.TestCase):
         (row0, pol0), (row0, pol1), (row1, pol0), ....
         """
         #if len(stat_list)==0: raise Exception, "No row selected in MS"
-        keys=stat_list[0].keys()
+        keys=list(stat_list[0].keys())
         stat_dict={}
         for key in keys:
             stat_dict[key] = []
@@ -429,24 +429,24 @@ class sdfit_unittest_base(unittest.TestCase):
         if complist:
             keylist = complist
         else:
-            keylist = refstat.keys()
+            keylist = list(refstat.keys())
             #keylist = self.complist
         
         for key in keylist:
-            self.assertTrue(currstat.has_key(key),\
+            self.assertTrue(key in currstat,\
                             msg="%s is not defined in the current results."\
                             % key)
-            self.assertTrue(refstat.has_key(key),\
+            self.assertTrue(key in refstat,\
                             msg="%s is not defined in the reference data."\
                             % key)
             refval = refstat[key]
             currval = currstat[key]
             # Quantum values
             if isinstance(refval,dict):
-                if refval.has_key('unit') and currval.has_key('unit'):
+                if 'unit' in refval and 'unit' in currval:
                     if printstat:
-                        print "Comparing unit of '%s': %s (current run), %s (reference)" %\
-                              (key,currval['unit'],refval['unit'])
+                        print("Comparing unit of '%s': %s (current run), %s (reference)" %\
+                              (key,currval['unit'],refval['unit']))
                     self.assertEqual(refval['unit'],currval['unit'],\
                                      "The units of '%s' differs: %s (expected: %s)" % \
                                      (key, currval['unit'], refval['unit']))
@@ -458,8 +458,8 @@ class sdfit_unittest_base(unittest.TestCase):
             currval = self._to_list(currval)
             refval = self._to_list(refval)
             if printstat:
-                print "Comparing '%s': %s (current run), %s (reference)" %\
-                      (key,str(currval),str(refval))
+                print("Comparing '%s': %s (current run), %s (reference)" %\
+                      (key,str(currval),str(refval)))
             self.assertTrue(len(currval)==len(refval),"Number of elemnets in '%s' differs." % key)
             if isinstance(refval[0],str):
                 for i in range(len(currval)):
@@ -523,13 +523,13 @@ class sdfit_unittest_base(unittest.TestCase):
         coeffs_ref = blparse_ref.coeff()
         rms_ref = blparse_ref.rms()
         allowdiff = 0.01
-        print 'Check baseline parameters:'
-        for irow in xrange(len(rms_out)):
-            print 'Row %s:'%(irow)
-            print '   Reference rms  = %s'%(rms_ref[irow])
-            print '   Calculated rms = %s'%(rms_out[irow])
-            print '   Reference coeffs  = %s'%(coeffs_ref[irow])
-            print '   Calculated coeffs = %s'%(coeffs_out[irow])
+        print('Check baseline parameters:')
+        for irow in range(len(rms_out)):
+            print('Row %s:'%(irow))
+            print('   Reference rms  = %s'%(rms_ref[irow]))
+            print('   Calculated rms = %s'%(rms_out[irow]))
+            print('   Reference coeffs  = %s'%(coeffs_ref[irow]))
+            print('   Calculated coeffs = %s'%(coeffs_out[irow]))
             r0 = rms_ref[irow]
             r1 = rms_out[irow]
             rdiff = (r1 - r0) / r0
@@ -537,11 +537,11 @@ class sdfit_unittest_base(unittest.TestCase):
                             msg='row %s: rms is different'%(irow))
             c0 = coeffs_ref[irow]
             c1 = coeffs_out[irow]
-            for ic in xrange(len(c1)):
+            for ic in range(len(c1)):
                 rdiff = (c1[ic] - c0[ic]) / c0[ic]
                 self.assertTrue((abs(rdiff)<allowdiff),
                                 msg='row %s: coefficient for order %s is different'%(irow,ic))
-        print ''
+        print('')
 #         self.assertTrue(listing.compare(out,reference),
 #                         'New and reference files are different. %s != %s. '
 #                         %(out,reference))
@@ -631,7 +631,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             with tbmanager(infile) as tb:
                 nrow = tb.nrows()
 
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -648,13 +648,13 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '0,1,2'
             nfit = [1]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             npol = 2
             nrow = len(spw.split(','))
             answer = self.answer012
         
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -677,13 +677,13 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '3:0~4000;4001~8191'
             nfit = [1,1]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             npol = 2
             nrow = 1
             answer = self.answer3
 
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -708,13 +708,13 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '3'
             nfit = [2]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             npol = 2
             nrow = 1
             answer = self.answer3
 
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -739,7 +739,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '0,1,2'
             nfit = [1]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             shutil.rmtree(infile_negative)
             npol = 2
@@ -747,7 +747,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             answer = copy.deepcopy(self.answer012)
             self._generateAnswerForNegativeProfiles(answer)
             
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -772,7 +772,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '3:0~4000;4001~8191'
             nfit = [1,1]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             shutil.rmtree(infile_negative)
             npol = 2
@@ -780,7 +780,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             answer = copy.deepcopy(self.answer3)
             self._generateAnswerForNegativeProfiles(answer)
             
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -807,7 +807,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             spw = '3'
             nfit = [2]
             fitfunc = infile.split('.')[0]
-            print "testing " + fitfunc + " profile..."
+            print("testing " + fitfunc + " profile...")
             result = sdfit(infile=infile_negative, datacolumn=datacolumn, spw=spw, nfit=nfit, fitfunc=fitfunc)
             shutil.rmtree(infile_negative)
             npol = 2
@@ -815,7 +815,7 @@ class sdfit_basicTest(sdfit_unittest_base):
             answer = copy.deepcopy(self.answer3)
             self._generateAnswerForNegativeProfiles(answer)
             
-            for key in result.keys():
+            for key in list(result.keys()):
                 self.assertEqual(len(result[key]), nrow*npol, 
                                  msg="The result data has wrong data length")
                 for i in range(len(result[key])):
@@ -870,13 +870,13 @@ class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
         self._remove(self.templist)
 
     def _get_selection_string(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         return {key: self.selections[key][0]}
 
     def _get_selected_row_and_pol(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         pols = [0,1]
         rows = [0,1]
         if key == 'pol':  #self.selection stores pol ids
@@ -889,16 +889,16 @@ class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
         ref_list = self.reference[datacol]
         idx = row_offset*2+pol_offset
         retval = {}
-        for key in ref_list.keys():
+        for key in list(ref_list.keys()):
             retval[key] = ref_list[key][idx]
-        if self.verbose: print("reference=%s" % str(retval))
+        if self.verbose: print(("reference=%s" % str(retval)))
         return retval
 
     def _get_gauss_param_from_return(self, params, keys):
         """returns a dictionary that stores a list of cent, fwhm, and peak """
         retval = {}
         for key in keys:
-            self.assertTrue(key in params.keys(),
+            self.assertTrue(key in list(params.keys()),
                             "Return value does not have key '%s'" % key)
             retval[key] = [ params[key][irow][0][0] for irow in range(len(params[key])) ]
         return retval
@@ -918,7 +918,7 @@ class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
         # Compare fitting parameters with reference
         (rowids, polids) = self._get_selected_row_and_pol(sel_param)
         self.assertEqual(nrow, 2, "Row number changed in input MS")
-        test_keys = self.reference[dcol].keys()
+        test_keys = list(self.reference[dcol].keys())
         # format return values and make a list of line parameters
         test_value = self._get_gauss_param_from_return(fit_val, test_keys)
         idx = 0
@@ -927,7 +927,7 @@ class sdfit_selection(sdfit_unittest_base,unittest.TestCase):
             for out_pol in range(len(polids)):
                 in_pol = polids[out_pol]
                 reference = self._get_reference(in_row, in_pol, dcol)
-                for key in reference.keys():
+                for key in list(reference.keys()):
                     self.assertTrue(numpy.allclose([test_value[key][idx]],
                                                    [reference[key]],
                                                    atol=atol, rtol=rtol),
@@ -1021,7 +1021,7 @@ class sdfit_auto(sdfit_unittest_base,unittest.TestCase):
 
     def get_reference_from_base(self, is_center):
         ref_val = {}
-        for key, value in self.base_ref.items():
+        for key, value in list(self.base_ref.items()):
             if key=='nfit':
                 if is_center:
                     ref_val[key] = [ 1 for idx in self.center_id ]
@@ -1052,7 +1052,7 @@ class sdfit_auto(sdfit_unittest_base,unittest.TestCase):
             self.assertEqual(fit_val['nfit'][irow], reference['nfit'][irow],
                              "The number of lines in row %d differ: %d (expected: %d)" % (irow, fit_val['nfit'][irow], reference['nfit'][irow]))
             nline = fit_val['nfit'][irow]
-            for key in fit_val.keys():
+            for key in list(fit_val.keys()):
                 if key=='nfit': continue
                 for iline in range(nline):
                     test = fit_val[key][irow][iline]
@@ -1247,14 +1247,14 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         (mytb,) = gentools(['tb'])
         mytb.open(self.infile, nomodify=False)
         try:
-            print 'Editing weight'
-            for irow in xrange(mytb.nrows()):
+            print('Editing weight')
+            for irow in range(mytb.nrows()):
                 # weight for XX is two times larger than YY
-                print '    irow = {}'.format(irow)
+                print('    irow = {}'.format(irow))
                 weight = mytb.getcell('WEIGHT', irow)
-                print '    weight (before)', weight
+                print('    weight (before)', weight)
                 weight[1] *= 2.0
-                print '    weight (after)', weight
+                print('    weight (after)', weight)
                 mytb.putcell('WEIGHT', irow, weight)
         finally:
             mytb.close()
@@ -1304,8 +1304,8 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         return scaled
             
     def verify(self, mode, result, where=[0,1]):
-        print 'mode=\'{}\''.format(mode)
-        print 'result=\'{}\''.format(result)
+        print('mode=\'{}\''.format(mode))
+        print('result=\'{}\''.format(result))
         
         # number of fit results
         # number of fit results should be 1
@@ -1330,10 +1330,10 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         cent_expected = numpy.asarray(self.answer['cent'])[where].squeeze()
         sort_index = numpy.argsort(cent_expected)
         cent_expected = cent_expected[sort_index]
-        print 'cent (result)={}\ncent (expected)={}'.format(cent_result, 
-                                                            cent_expected) 
+        print('cent (result)={}\ncent (expected)={}'.format(cent_result, 
+                                                            cent_expected)) 
         err_factor = 2.0
-        for i in xrange(2):
+        for i in range(2):
             self.assertLessEqual(cent_expected[i], cent_result[i] + err_factor * cent_err[i])
             self.assertGreaterEqual(cent_expected[i], cent_result[i] - err_factor * cent_err[i])
             
@@ -1344,10 +1344,10 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         fwhm_err = fwhm[0,:,1]
         fwhm_expected = numpy.asarray(self.answer['fwhm'])[where].squeeze()
         fwhm_expected = fwhm_expected[sort_index]
-        print 'fwhm (result)={}\nfwhm (expected)={}'.format(fwhm_result, 
-                                                            fwhm_expected) 
+        print('fwhm (result)={}\nfwhm (expected)={}'.format(fwhm_result, 
+                                                            fwhm_expected)) 
         err_factor = 2.0
-        for i in xrange(2):
+        for i in range(2):
             self.assertLessEqual(fwhm_expected[i], fwhm_result[i] + err_factor * fwhm_err[i])
             self.assertGreaterEqual(fwhm_expected[i], fwhm_result[i] - err_factor * fwhm_err[i])
         
@@ -1359,10 +1359,10 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         peak_expected = numpy.asarray(self.answer['peak'])[where].squeeze()
         peak_expected_scaled = self.scale_expected_peak(mode, peak_expected)
         peak_expected_scaled = peak_expected_scaled[sort_index]
-        print 'peak (result)={}\npeak (expected)={}'.format(peak_result, 
-                                                            peak_expected_scaled) 
+        print('peak (result)={}\npeak (expected)={}'.format(peak_result, 
+                                                            peak_expected_scaled)) 
         err_factor = 2.0
-        for i in xrange(2):
+        for i in range(2):
             self.assertLessEqual(peak_expected_scaled[i], peak_result[i] + err_factor * peak_err[i])
             self.assertGreaterEqual(peak_expected_scaled[i], peak_result[i] - err_factor * peak_err[i])
         
@@ -1380,7 +1380,7 @@ class sdfit_polaverage(sdfit_unittest_base,unittest.TestCase):
         # since edit_meta, effectively it corresponds to process both spw 0 and 1
         result = sdfit(infile=self.infile, datacolumn='float_data', fitfunc='gaussian', 
                        nfit=[2], spw='0', fitmode='auto', polaverage=mode)
-        for i in xrange(len(result['nfit'])):
+        for i in range(len(result['nfit'])):
             subresult = {}
             subresult['nfit'] = [result['nfit'][i]]
             subresult['cent'] = [result['cent'][i]]

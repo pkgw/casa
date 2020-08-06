@@ -38,7 +38,7 @@ def hanningsmooth(vis=None,
     # Validate input and output parameters
     try:
         pdh.setupIO()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('%s'%instance,'ERROR')
         return False
 
@@ -46,14 +46,14 @@ def hanningsmooth(vis=None,
     if pdh.isMMSAndNotServer(vis) and keepmms:
         
         if not pdh.validateInputParams():        
-            raise Exception, 'Unable to continue with MMS processing'
+            raise Exception('Unable to continue with MMS processing')
                         
         pdh.setupCluster('hanningsmooth')
 
         # Execute the jobs
         try:
             pdh.go()
-        except Exception, instance:
+        except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return False
                     
@@ -104,19 +104,19 @@ def hanningsmooth(vis=None,
             
         mtlocal.done()
                     
-    except Exception, instance:
+    except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
         return False
 
     # Write history to output MS, not the input ms.
     try:
-        param_names = hanningsmooth.func_code.co_varnames[:hanningsmooth.func_code.co_argcount]
+        param_names = hanningsmooth.__code__.co_varnames[:hanningsmooth.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         casalog.post('Updating the history in the output', 'DEBUG1')
         write_history(mslocal, outputvis, 'hanningsmooth', param_names,
                       param_vals, casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
         return False

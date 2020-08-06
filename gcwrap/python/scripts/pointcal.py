@@ -84,8 +84,8 @@ def pointcal(vis=None,model=None,caltable=None,
         ###
         #Handle globals or user over-ride of arguments
         #
-        function_signature_defaults=dict(zip(pointcal.func_code.co_varnames,pointcal.func_defaults))
-        for item in function_signature_defaults.iteritems():
+        function_signature_defaults=dict(list(zip(pointcal.__code__.co_varnames,pointcal.__defaults__)))
+        for item in function_signature_defaults.items():
                 key,val = item
                 keyVal = eval(key)
                 if (keyVal == None):
@@ -130,11 +130,11 @@ def pointcal(vis=None,model=None,caltable=None,
 		   float]
         try:
                 parameter_checktype(arg_names,arg_values,arg_types)
-        except TypeError, e:
-                print "pointcal -- TypeError: ", e
+        except TypeError as e:
+                print("pointcal -- TypeError: ", e)
 		return
-        except ValueError, e:
-                print "pointcal -- OptionError: ", e
+        except ValueError as e:
+                print("pointcal -- OptionError: ", e)
                 return
         ###
 
@@ -155,8 +155,8 @@ def pointcal(vis=None,model=None,caltable=None,
 		#cb.state()
 		cb.solve()
 		cb.close()
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)
         saveinputs=myf['saveinputs']
         saveinputs('pointcal','pointcal.last')
 
@@ -181,9 +181,9 @@ def pointcal_defaults(param=None):
 	if(param == None):
 		myf['__set_default_parameters'](a)
 	elif(param == 'paramkeys'):
-		return a.keys()			    
+		return list(a.keys())			    
         else:
-		if(a.has_key(param)):
+		if(param in a):
 			return a[param]
 
 
@@ -204,6 +204,6 @@ def pointcal_description(key='pointcal',subkey=None):
         'gainselect': 'Select subset of calibration solutions from gaintable',
         'solint': 'Solution interval (sec)',
         }
-	if(desc.has_key(key)):
+	if(key in desc):
 		return desc[key]
 	return ''

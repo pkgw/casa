@@ -1,5 +1,5 @@
 import os
-import commands
+import subprocess
 import math
 import shutil
 import string
@@ -272,25 +272,25 @@ class ImagerParameters():
         return self.cfcachepars;
 
     def setSelPars(self,selpars):
-        for key in selpars.keys():
+        for key in list(selpars.keys()):
             self.allselpars[key] = selpars[key]
     def setImagePars(self,impars):
-        for key in impars.keys():
+        for key in list(impars.keys()):
             self.allimpars[key] = impars[key]
     def setGridPars(self,gridpars):
-        for key in gridpars.keys():
+        for key in list(gridpars.keys()):
             self.allgridpars[key] = gridpars[key]
     def setWeightPars(self,weightpars):
-        for key in weightpars.keys():
+        for key in list(weightpars.keys()):
             self.weightpars[key] = weightpars[key]
     def setDecPars(self,decpars):
-        for key in decpars.keys():
+        for key in list(decpars.keys()):
             self.alldecpars[key] = decpars[key]
     def setIterPars(self,iterpars):
-        for key in iterpars.keys():
+        for key in list(iterpars.keys()):
             self.iterpars[key] = iterpars[key]
     def setNormPars(self,normpars):
-        for key in normpars.keys():
+        for key in list(normpars.keys()):
             self.allnormpars[key] = normpars[key]
 
 
@@ -313,7 +313,7 @@ class ImagerParameters():
         ### MOVE this segment of code to the constructor so that it's clear which parameters go where ! 
         ### Copy them from 'impars' to 'normpars' and 'decpars'
         self.iterpars.update({'allimages':{} })
-        for immod in self.allimpars.keys() :
+        for immod in list(self.allimpars.keys()) :
             self.allnormpars[immod]['imagename'] = self.allimpars[immod]['imagename']
             self.alldecpars[immod]['imagename'] = self.allimpars[immod]['imagename']
             self.allgridpars[immod]['imagename'] = self.allimpars[immod]['imagename']
@@ -343,7 +343,7 @@ class ImagerParameters():
 
         # If it's already a dict with ms0,ms1,etc...leave it be.
         ok=True
-        for kk in self.allselpars.keys():
+        for kk in list(self.allselpars.keys()):
             if kk.find('ms')!=0:
                 ok=False
 
@@ -352,11 +352,11 @@ class ImagerParameters():
             return errs
 
         # msname, field, spw, etc must all be equal-length lists of strings, or all except msname must be of length 1.
-        if not self.allselpars.has_key('msname'):
+        if 'msname' not in self.allselpars:
             errs = errs + 'MS name(s) not specified'
         else:
 
-            selkeys = self.allselpars.keys()
+            selkeys = list(self.allselpars.keys())
 
             # Convert all non-list parameters into lists.
             for par in selkeys:
@@ -407,7 +407,7 @@ class ImagerParameters():
         if len(self.outlierfile)>0:
             outlierpars,parseerrors = self.parseOutlierFile(self.outlierfile) 
             if parallel:
-                print "CALLING checkParallelMFMixModes..."
+                print("CALLING checkParallelMFMixModes...")
                 errs = self.checkParallelMFMixedModes(self.allimpars,outlierpars)
                 if len(errs): 
                     return errs 
@@ -456,7 +456,7 @@ class ImagerParameters():
 
     def handleImageNames(self):
 
-            for immod in self.allimpars.keys() :
+            for immod in list(self.allimpars.keys()) :
                 inpname = self.allimpars[immod]['imagename']
 
                 ### If a directory name is embedded in the image name, check that the dir exists.
@@ -474,15 +474,15 @@ class ImagerParameters():
             if self.allimpars['0']['restart'] == False:   # Later, can change this to be field dependent too.
                 ## Get a list of image names for all fields (to sync name increment ids across fields)
                 inpnamelist={}
-                for immod in self.allimpars.keys() :
+                for immod in list(self.allimpars.keys()) :
                     inpnamelist[immod] = self.allimpars[immod]['imagename'] 
 
                 newnamelist = self.incrementImageNameList( inpnamelist )
 
-                if len(newnamelist) != len(self.allimpars.keys()) :
+                if len(newnamelist) != len(list(self.allimpars.keys())) :
                     casalog.post('Internal Error : Non matching list lengths in refimagerhelper::handleImageNames. Not updating image names','WARN')
                 else : 
-                    for immod in self.allimpars.keys() :
+                    for immod in list(self.allimpars.keys()) :
                         self.allimpars[immod]['imagename'] = newnamelist[immod]
                 
     def checkAndFixIterationPars(self ):
@@ -560,7 +560,7 @@ class ImagerParameters():
                     tempnormpar[ parpair[0] ] = parpair[1]
                     usepar=True
                 if usepar==False:
-                    print 'Ignoring unknown parameter pair : ' + oneline
+                    print('Ignoring unknown parameter pair : ' + oneline)
 
         if len(errs)==0:
             returnlist.append( {'impars':tempimpar,'gridpars':tempgridpar, 'weightpars':tempweightpar, 'decpars':tempdecpar, 'normpars':tempnormpar} )
@@ -583,7 +583,7 @@ class ImagerParameters():
     def evalToTarget(self, globalpars, subparkey, parname, dtype='int' ):
         try:
             for fld in range(0, len( globalpars ) ):
-                if globalpars[ fld ][subparkey].has_key(parname):
+                if parname in globalpars[ fld ][subparkey]:
                     if dtype=='int' or dtype=='intvec':
                         val_e = eval( globalpars[ fld ][subparkey][parname] )
                     if dtype=='strvec':
@@ -596,7 +596,7 @@ class ImagerParameters():
 
                     globalpars[ fld ][subparkey][parname] = val_e
         except:
-            print 'Cannot evaluate outlier field parameter "' + parname + '"'
+            print('Cannot evaluate outlier field parameter "' + parname + '"')
 
         return globalpars
 
@@ -638,7 +638,7 @@ class ImagerParameters():
                             maxid = val
             newimagename = dirname[2:] + prefix + '_' + str(maxid+1)
 
-        print 'Using : ',  newimagename
+        print('Using : ',  newimagename)
         return newimagename
 
     def incrementImageNameList(self, inpnamelist ):
@@ -646,7 +646,7 @@ class ImagerParameters():
         dirnames={}
         prefixes={}
 
-        for immod in inpnamelist.keys() : 
+        for immod in list(inpnamelist.keys()) : 
             imagename = inpnamelist[immod]
             dirname = '.'
             prefix = imagename
@@ -662,7 +662,7 @@ class ImagerParameters():
 
 
         maxid=0
-        for immod in inpnamelist.keys() : 
+        for immod in list(inpnamelist.keys()) : 
             prefix = prefixes[immod]
             inamelist = [fn for fn in os.listdir(dirnames[immod]) if any([fn.startswith(prefix)])];
             nlen = len(prefix)
@@ -700,7 +700,7 @@ class ImagerParameters():
 
         
         newimagenamelist={}
-        for immod in inpnamelist.keys() : 
+        for immod in list(inpnamelist.keys()) : 
             if maxid==0 : 
                 newimagenamelist[immod] = inpnamelist[immod]
             else:
@@ -716,8 +716,8 @@ class ImagerParameters():
     ## Guard against numpy int32,int64 types which don't convert well across tool boundary.
     ## For CAS-8250. Remove when CAS-6682 is done.
     def fixIntParam(self, allpars, parname ):
-        for immod in allpars.keys() :
-            if allpars[immod].has_key(parname):
+        for immod in list(allpars.keys()) :
+            if parname in allpars[immod]:
                 ims = allpars[immod][parname]
                 if type(ims) != list:
                     ims = int(ims)
@@ -731,16 +731,16 @@ class ImagerParameters():
     #  (e.g. combination cube and continuum for main and outlier fields)
     def checkParallelMFMixedModes(self,allimpars,outlierpars):
         errmsg=''
-        print "outlierpars==",outlierpars
+        print("outlierpars==",outlierpars)
         mainspecmode= allimpars['0']['specmode']
         mainnchan = allimpars['0']['nchan'] 
-        print "mainspecmode=",mainspecmode, "mainnchan=",mainnchan
+        print("mainspecmode=",mainspecmode, "mainnchan=",mainnchan)
         cubeoutlier = False
         contoutlier = False
         isnchanmatch = True
         for immod in range(0, len(outlierpars)):
-            if outlierpars[immod].has_key('impars'):
-                if outlierpars[immod]['impars'].has_key('nchan'):
+            if 'impars' in outlierpars[immod]:
+                if 'nchan' in outlierpars[immod]['impars']:
                     if outlierpars[immod]['impars']['nchan']>1:
                         cubeoutlier=True
                         if outlierpars[immod]['impars']['nchan'] != mainnchan:
@@ -748,7 +748,7 @@ class ImagerParameters():
                     else:
                         contoutlier=True
                 else:
-                    if outlierpars[immod]['impars'].has_key('specmode'):
+                    if 'specmode' in outlierpars[immod]['impars']:
                         if outlierpars[immod]['impars']['specmode']=='mfs':
                            contoutlier=True
         if mainspecmode.find('cube')==0:

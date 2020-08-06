@@ -17,10 +17,10 @@ def replace_with_links(fpats):
         sflist.sort()
         flist.extend(sflist)
     if os.path.islink(flist[0]):
-        print "Uh oh!  The first entry in the list of clones is already a link!"
-        print "fpats:", fpats
-        print "flist:", flist
-        print "Exiting..."
+        print("Uh oh!  The first entry in the list of clones is already a link!")
+        print("fpats:", fpats)
+        print("flist:", flist)
+        print("Exiting...")
         return 0
     nlinks = 0
     for f in flist[1:]:
@@ -55,6 +55,6 @@ def rm_scratch_cols(fpat, keep='data'):
                 shutil.rmtree(vis)
                 os.rename('_r_s_c_tmp.ms', vis)
                 nprocessed += 1
-        except Exception, e:
-            print "Exception %s rming %s's scratch columns." % (e, vis)
+        except Exception as e:
+            print("Exception %s rming %s's scratch columns." % (e, vis))
     return nprocessed

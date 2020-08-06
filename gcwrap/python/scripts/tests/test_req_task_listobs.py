@@ -124,11 +124,11 @@ class listobs_test_base(unittest.TestCase):
         casalog.setlogfile(logpath)
         
         if sys.version_info[0] == 3:
-            print('VERSION', ' ', sys.version_info)
+            print(('VERSION', ' ', sys.version_info))
             # Check that the file can be read in python session default encoding
             with open('testlog.log','r') as fout:
                 list(map(bytes2str, fout.readlines()))
-                print(list(map(bytes2str, fout.readlines())))
+                print((list(map(bytes2str, fout.readlines()))))
                 
         else:
             # Check if the file can be decoded as ascii for python 2.7

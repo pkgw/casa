@@ -77,7 +77,7 @@ except ImportError:
     ia  = iatool()
 
     casa = find_casa( )
-    if casa.has_key('state') and casa['state'].has_key('init_version') and casa['state']['init_version'] > 0:
+    if 'state' in casa and 'init_version' in casa['state'] and casa['state']['init_version'] > 0:
         casaglobals=True
         casac = stack_find("casac")
         casalog = stack_find("casalog")
@@ -280,12 +280,12 @@ class Weblog:
         html.write('<th class="tg-0lax">Status</th>' + '\n')
         html.write('</tr>' + '\n')
 
-        for key, value in dictionary.items():
+        for key, value in list(dictionary.items()):
             Weblog(self.taskname, self.localdict).generate_table_row(str(key), dictionary[key]['description'],  dictionary[key]['runtime'], "tg-ck9b" if dictionary[key]['status'] == True else "tg-r50r" )
         html.write('</table>' + '\n')
 
     def generate_summary_box(self, dictionary):
-        for key, value in dictionary.items():
+        for key, value in list(dictionary.items()):
             html.write('<button class="collapsible">{}</button>'.format(key) + '\n')
             html.write('<div class="content">'+ '\n')
             html.write('<div class="boxed">'+ '\n')
@@ -323,7 +323,7 @@ class Weblog:
 
     def add_miscellaneous_info(self, subdictionary):
         default_keys = ['description','status','runtime','taskcall','rerun']
-        for key, value in subdictionary.items():
+        for key, value in list(subdictionary.items()):
             if key in default_keys:
                 continue
             if type(subdictionary[key]) == list:
@@ -397,12 +397,12 @@ def compare_CASA_variable_cols(referencetab, testtab, varcol, tolerance=0.0):
 #                                            print(tdata[j][k])
                                             differs = True
                                 if differs:
-                                    print('ERROR: Column {} of {} and {} do not agree within tolerance {}'.format(col,referencetab, testtab, tolerance))
+                                    print(('ERROR: Column {} of {} and {} do not agree within tolerance {}'.format(col,referencetab, testtab, tolerance)))
                                     retval = False
                                     break
                         else:
-                            print('ERROR: Column {} of {} and {} do not agree.'.format(col,referencetab, testtab))
-                            print('ERROR: First row to differ is row={}'.format(therow))
+                            print(('ERROR: Column {} of {} and {} do not agree.'.format(col,referencetab, testtab)))
+                            print(('ERROR: First row to differ is row={}'.format(therow)))
                             retval = False
                             break
         finally:
@@ -515,40 +515,40 @@ def compare_CASA_tables(referencetab, testtab, excludecols = [], tolerance=0.001
                     for i in range(0,len(a)):
                         if (isinstance(a[i],float)):
                             if ((mode=="percentage") and (abs(a[i]-b[i]) > tolerance*abs(a[i]))) or ((mode=="absolute") and (abs(a[i]-b[i]) > tolerance)):
-                                print("Column " + cname + " differs")
-                                print("Row=" + str(i))
-                                print("Reference file value: " + str(a[i]))
-                                print("Input file value: " + str(b[i]))
+                                print(("Column " + cname + " differs"))
+                                print(("Row=" + str(i)))
+                                print(("Reference file value: " + str(a[i])))
+                                print(("Input file value: " + str(b[i])))
                                 if (mode=="percentage"):
-                                    print("Tolerance is {0}%; observed difference was {1} %".format (tolerance * 100, 100*abs(a[i]-b[i])/abs(a[i])))
+                                    print(("Tolerance is {0}%; observed difference was {1} %".format (tolerance * 100, 100*abs(a[i]-b[i])/abs(a[i]))))
                                 else:
-                                    print("Absolute tolerance is {0}; observed difference: {1}".format (tolerance, (abs(a[i]-b[i]))))
+                                    print(("Absolute tolerance is {0}; observed difference: {1}".format (tolerance, (abs(a[i]-b[i])))))
                                 differs = True
                                 rval = False
                                 break
                         elif (isinstance(a[i],int) or isinstance(a[i],numpy.int32)):
                             if (abs(a[i]-b[i]) > 0):
-                                print("Column " + cname + " differs")
-                                print("Row=" + str(i))
-                                print("Reference file value: " + str(a[i]))
-                                print("Input file value: " + str(b[i]))
+                                print(("Column " + cname + " differs"))
+                                print(("Row=" + str(i)))
+                                print(("Reference file value: " + str(a[i])))
+                                print(("Input file value: " + str(b[i])))
                                 if (mode=="percentage"):
-                                    print("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i])))
+                                    print(("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i]))))
                                 else:
-                                    print("absolute tolerance should be " + str(abs(a[i]-b[i])))
+                                    print(("absolute tolerance should be " + str(abs(a[i]-b[i]))))
                                 differs = True
                                 rval = False
                                 break
                         elif (isinstance(a[i],str) or isinstance(a[i],numpy.bool_)):
                             if not (a[i]==b[i]):
-                                print("Column " + c + " differs")
-                                print("Row=" + str(i))
-                                print("Reference file value: " + str(a[i]))
-                                print("Input file value: " + str(b[i]))
+                                print(("Column " + c + " differs"))
+                                print(("Row=" + str(i)))
+                                print(("Reference file value: " + str(a[i])))
+                                print(("Input file value: " + str(b[i])))
                                 if (mode=="percentage"):   
-                                    print("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i])))
+                                    print(("tolerance in % should be " + str(100*abs(a[i]-b[i])/abs(a[i]))))
                                 else:
-                                    print("absolute tolerance should be " + str(abs(a[i]-b[i])))
+                                    print(("absolute tolerance should be " + str(abs(a[i]-b[i]))))
                                 differs = True
                                 rval = False
                                 break
@@ -557,19 +557,19 @@ def compare_CASA_tables(referencetab, testtab, excludecols = [], tolerance=0.001
                                 if differs: break
                                 if ((isinstance(a[i][j],float)) or (isinstance(a[i][j],int))):
                                     if ((mode=="percentage") and (abs(a[i][j]-b[i][j]) > tolerance*abs(a[i][j]))) or ((mode=="absolute") and (abs(a[i][j]-b[i][j]) > tolerance)):
-                                        print("Column " + c + " differs")
-                                        print("(Row,Element)=(" + str(j) + "," + str(i) + ")")
-                                        print("Reference file value: " + str(a[i][j]))
-                                        print("Input file value: " + str(b[i][j]))
+                                        print(("Column " + c + " differs"))
+                                        print(("(Row,Element)=(" + str(j) + "," + str(i) + ")"))
+                                        print(("Reference file value: " + str(a[i][j])))
+                                        print(("Input file value: " + str(b[i][j])))
                                         if (mode=="percentage"):
-                                            print("Tolerance in % should be " + str(100*abs(a[i][j]-b[i][j])/abs(a[i][j])))
+                                            print(("Tolerance in % should be " + str(100*abs(a[i][j]-b[i][j])/abs(a[i][j]))))
                                         else:
-                                            print("Absolute tolerance should be " + str(abs(a[i][j]-b[i][j])))
+                                            print(("Absolute tolerance should be " + str(abs(a[i][j]-b[i][j]))))
                                         differs = True
                                         rval = False
                                         break
                                 elif (isinstance(a[i][j],list)) or (isinstance(a[i][j],numpy.ndarray)):
-                                    it = range(0,len(a[i][j]))
+                                    it = list(range(0,len(a[i][j])))
                                     if mode=="percentage":
                                         diff = numpy.abs(numpy.subtract(a[i][j], b[i][j])) > tolerance * numpy.abs(a[i][j])
                                         it = numpy.where(diff)[0]
@@ -582,29 +582,29 @@ def compare_CASA_tables(referencetab, testtab, excludecols = [], tolerance=0.001
                                                  or ((mode=="absolute") and (abs(a[i][j][k]-b[i][j][k]) > tolerance)) \
                                                  or ((mode=="phaseabsdeg") and (phasediffabsdeg(a[i][j][k],b[i][j][k])>tolerance)) \
                                                  ):
-                                            print("Column " + c + " differs")
-                                            print("(Row,Channel,Corr)=(" + str(k) + "," + str(j) + "," + str(i) + ")")
-                                            print("Reference file value: " + str(a[i][j][k]))
-                                            print("Input file value: " + str(b[i][j][k]))
+                                            print(("Column " + c + " differs"))
+                                            print(("(Row,Channel,Corr)=(" + str(k) + "," + str(j) + "," + str(i) + ")"))
+                                            print(("Reference file value: " + str(a[i][j][k])))
+                                            print(("Input file value: " + str(b[i][j][k])))
                                             if (mode=="percentage"):
-                                                print("Tolerance in % should be " + str(100*abs(a[i][j][k]-b[i][j][k])/abs(a[i][j][k])))
+                                                print(("Tolerance in % should be " + str(100*abs(a[i][j][k]-b[i][j][k])/abs(a[i][j][k]))))
                                             elif (mode=="absolute"):
-                                                print("Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k])))
+                                                print(("Absolute tolerance should be " + str(abs(a[i][j][k]-b[i][j][k]))))
                                             elif (mode=="phaseabsdeg"):
-                                                print("Phase tolerance in degrees should be " + str(phasediffabsdeg(a[i][j][k],b[i][j][k])))
+                                                print(("Phase tolerance in degrees should be " + str(phasediffabsdeg(a[i][j][k],b[i][j][k]))))
                                             else:
-                                                print("Unknown comparison mode: ",mode)
+                                                print(("Unknown comparison mode: ",mode))
                                             differs = True
                                             rval = False
                                             break
 
                         else:
-                            print("Unknown data type: ",type(a[i]))
+                            print(("Unknown data type: ",type(a[i])))
                             differs = True
                             rval = False
                             break
                 
-                if not differs: print("Column " + cname + " PASSED")
+                if not differs: print(("Column " + cname + " PASSED"))
     finally:
         tb.close()
         tb2.close()
@@ -666,7 +666,7 @@ def compare_caltables(table1, table2, cols=[], rtol=8e-7, atol=1e-8):
     truthDict = {}
 
 
-    for col in tableVal1.keys():
+    for col in list(tableVal1.keys()):
         logging.debug("Column: {}, dtype: {}".format(col, tableVal1[col].dtype))
         try:
             if numpy.issubdtype(tableVal1[col].dtype, numpy.number):
@@ -675,16 +675,16 @@ def compare_caltables(table1, table2, cols=[], rtol=8e-7, atol=1e-8):
                 # Compare Non Numeric Types
                 truthDict[col] = numpy.array_equal(tableVal1[col],tableVal2[col])
         except:
-            print(col, 'ERROR in finding truth value')
+            print((col, 'ERROR in finding truth value'))
             casalog.post(message=col+': ERROR in determining the truth value')
 
     if len(cols) == 0:
-        truths = [[x, numpy.all(truthDict[x] == True)] for x in truthDict.keys()]
+        truths = [[x, numpy.all(truthDict[x] == True)] for x in list(truthDict.keys())]
     else:
         truths = [[x, numpy.all(truthDict[x] == True)] for x in cols]
 
     #Check that All Options are True
-    for key in truthDict.keys():
+    for key in list(truthDict.keys()):
         if isinstance(truthDict[key], bool):
             if not truthDict[key]:
                 logging.info("{0} in caltables do not match".format(key))
@@ -1020,13 +1020,13 @@ def add_to_dict(self, output=None, dataset="TestData", status=False, **kwargs):
     values['runtime'] = -1.0
     #This is a temp error value
     values['status'] = status
-    if test_case not in output.keys():
+    if test_case not in list(output.keys()):
         output[test_case]= {}
     
-    for key in values.keys():
-        if test_case in output.keys():
+    for key in list(values.keys()):
+        if test_case in list(output.keys()):
             #print("output[test_case].keys(): {}".format(output[test_case].keys()))
-            if key in output[test_case].keys():
+            if key in list(output[test_case].keys()):
                 values[key] = output[test_case][key].append(values[key])
             else:
 
@@ -1153,7 +1153,7 @@ def get_column_shape(tab,col,start_row=0,nrow=1,row_inc=1):
             tb.open(tab)
             col_shape = tb.getcolshapestring(col,start_row,nrow,row_inc)
         except:
-            print('Cannot get shape of col {} from table {} '.format(col,tab))
+            print(('Cannot get shape of col {} from table {} '.format(col,tab)))
 
     finally:
         tb.close()
@@ -1285,7 +1285,7 @@ def exists(imname):
     return os.path.exists(imname)
 
 def get_peak_res(summ):
-    if summ.has_key('summaryminor'):
+    if 'summaryminor' in summ:
         reslist = summ['summaryminor'][1,:]
         peakres = reslist[ len(reslist)-1 ]
     else:
@@ -1311,7 +1311,7 @@ def check_peak_res(summ,correctres, epsilon=0.05):
     return out,peakres
 
 def get_mod_flux(summ):
-    if summ.has_key('summaryminor'):
+    if 'summaryminor' in summ:
         modlist = summ['summaryminor'][2,:]
         modflux = modlist[ len(modlist)-1 ]
     else:
@@ -1335,7 +1335,7 @@ def check_mod_flux(summ,correctmod, epsilon=0.05):
     return out,modflux
 
 def get_iter_done(summ):
-    if summ.has_key('iterdone'):
+    if 'iterdone' in summ:
         iters = summ['iterdone']
     else:
         iters = None
@@ -1658,9 +1658,9 @@ def check_imexist(imgexist):
     if imgexist != None:
         if type(imgexist)==list:
             pstr += check_ims(imgexist, True)
-            print("pstr after checkims = {}".format(pstr))
+            print(("pstr after checkims = {}".format(pstr)))
             pstr += check_keywords(imgexist)
-            print("pstr after check_keywords = {}".format(pstr))
+            print(("pstr after check_keywords = {}".format(pstr)))
     return pstr
 
 def check_imexistnot(imgexistnot):
@@ -1806,7 +1806,7 @@ def skipIfMissingModule(required_module,strict=False):
         def wrapper(self, *args, **kwargs):
             if not flag:
                 # If there is a strict flag run the tests as normal
-                print(sys.argv)
+                print((sys.argv))
                 if strict:
                     function(self)
                     pass

@@ -22,7 +22,7 @@ import regression_utility as tstutl
 
 startTime = time.time()
 
-print "BEGIN: listvis_regression.py"
+print("BEGIN: listvis_regression.py")
 
 testPassed = 0
 testFailed = 0
@@ -32,11 +32,11 @@ regressionDir = 'listvis_regression'
 if (not os.path.exists(regressionDir)): os.mkdir(regressionDir)
 
 if(automate): 
-    print "Running in automated mode."
-    print "  - All MS data will be rebuilt from scratch."
-    print "  - All test files will be removed after testing."
+    print("Running in automated mode.")
+    print("  - All MS data will be rebuilt from scratch.")
+    print("  - All test files will be removed after testing.")
 else:
-    print "Running in non-automated mode!"
+    print("Running in non-automated mode!")
 
 # For testing:
 # casalog.filter('DEBUG2')
@@ -46,7 +46,7 @@ def load_ngc4826(prefix,msname):
     ##########################################################################
     #                                                                        
     # Clear out previous run results
-    print "Removing files and directories: ngc4826.tutorial.*"
+    print("Removing files and directories: ngc4826.tutorial.*")
     os.system('rm -rf '+prefix+'ngc4826.tutorial.*')
     ##########################################################################
     # Import and concatenate sources
@@ -81,11 +81,11 @@ def load_ngc4826(prefix,msname):
     #
     # USB spectral windows written separately by miriad for 16apr98
     # Assumes these are in sub-directory called "fitsfiles" of working directory
-    print '--Importuvfits (16apr98)--'
+    print('--Importuvfits (16apr98)--')
     default('importuvfits')
 
-    print "Starting from the uvfits files exported by miriad"
-    print "The USB spectral windows were written separately by miriad for 16apr98"
+    print("Starting from the uvfits files exported by miriad")
+    print("The USB spectral windows were written separately by miriad for 16apr98")
 
     pathName = os.environ.get('CASAPATH').split()[0] 
     localData = pathName + '/data/regression/ngc4826/'
@@ -108,7 +108,7 @@ def load_ngc4826(prefix,msname):
     #
     ##########################################################################
     #
-    print '--Concat--'
+    print('--Concat--')
     default('concat')
     concat(vis=[prefix+'ngc4826.tutorial.3c273.5.ms',
                 prefix+'ngc4826.tutorial.3c273.6.ms',
@@ -161,10 +161,10 @@ def load_jupiter6cm(prefix,msname):
     #http://casa.nrao.edu/Data/VLA/Planets6cm/planets_6cm.fits
 
     # Import the data from FITS to MS
-    print '--Import--'
-    print "Use importuvfits to read UVFITS and make an MS"
+    print('--Import--')
+    print("Use importuvfits to read UVFITS and make an MS")
     # Set up the MS filename and save as new global variable
-    print "MS will be called "+msfile
+    print("MS will be called "+msfile)
     # Use task importuvfits
     importuvfits(fitsfile=fitsdata,vis=msfile)
 #=============================================================================
@@ -179,9 +179,9 @@ testNum = 0
 # variable numbers of channels; only one correlation, YY.
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": using ngc4826 tutorial data"
-print ""
+print("")
+print("* TEST " + str(testNum) + ": using ngc4826 tutorial data")
+print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 msname = prefix+"ngc4826.tutorial.ms"  
@@ -191,10 +191,10 @@ standardFilename = localData+'listvis.short.out'
 
 #Remove existing data or load data from scratch?
 if (not lt.resetData([msname], automate)):
-    print "Using preexisting data."
+    print("Using preexisting data.")
     lt.removeOut(outputFilename)
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
     load_ngc4826(prefix,msname) # Build data from scratch
 
@@ -221,10 +221,10 @@ go(listvis)
 
 comparefilename = prefix + 'compare_' + str(testNum)
 if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
-    print "passed listvis output test"
+    print("passed listvis output test")
     testPassed +=1
 else:
-    print "failed listvis output test"
+    print("failed listvis output test")
     testFailed +=1
     
 ##########################################################################                                                                        
@@ -232,16 +232,16 @@ else:
 # Run listvis using default values.  Using ngc4826 data from above.
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": default test; using ngc4826 tutorial data."
-print """
+print("")
+print("* TEST " + str(testNum) + ": default test; using ngc4826 tutorial data.")
+print("""
 - Using default input values, except for 'vis' and 'listfile'.
 - This data has multiple spws with variable numbers of channels.
   *** listvis does not handle this data appropriately.    ***
   *** WARNing messages will be sent to the logger.        ***
   *** This is a known issue.  The test should still pass. ***
 
-"""
+""")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 outputFilename = prefix + 'listvis.ngc4826.default.out'
@@ -249,9 +249,9 @@ standardFilename = localData+'listvis.default.out'
 
 tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
 if (not lt.resetData([msname], automate)):
-    print "Using data from test 1."
+    print("Using data from test 1.")
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     msname = prefix+"ngc4826.tutorial.ms"  
     load_ngc4826(prefix,msname) # Build data from scratch
 
@@ -263,10 +263,10 @@ go(listvis)
 
 comparefilename = prefix + 'compare_' + str(testNum)
 if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
-    print "passed listvis output test"
+    print("passed listvis output test")
     testPassed +=1
 else:
-    print "failed listvis output test"
+    print("failed listvis output test")
     testFailed +=1
 
 ##########################################################################                                                                        
@@ -274,9 +274,9 @@ else:
 # Run listvis using all available (non-default) parameters.
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": jupiter 6cm test, use all available parameters"
-print ""
+print("")
+print("* TEST " + str(testNum) + ": jupiter 6cm test, use all available parameters")
+print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 msname = prefix+"jupiter6cm.demo.ms"  
@@ -286,10 +286,10 @@ standardFilename = localData+'listvis.nondefault.out'
 
 #Remove existing data or load data from scratch?
 if (not lt.resetData([msname], automate)):
-    print "Using preexisting data."
+    print("Using preexisting data.")
     lt.removeOut(outputFilename)
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
     load_jupiter6cm(prefix,msname) # Build data from scratch
 
@@ -315,10 +315,10 @@ go(listvis)
 
 comparefilename = prefix + 'compare_' + str(testNum)
 if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
-    print "passed listvis output test"
+    print("passed listvis output test")
     testPassed +=1
 else:
-    print "failed listvis output test"
+    print("failed listvis output test")
     testFailed +=1
 
 ##########################################################################                                                                        
@@ -328,9 +328,9 @@ else:
 # Using jupiter6cm data from above.
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": jupiter 6cm data, mostly defaults"
-print ""
+print("")
+print("* TEST " + str(testNum) + ": jupiter 6cm data, mostly defaults")
+print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 outputFilename = prefix + 'listvis.jupiter6cm.default.out'
@@ -339,9 +339,9 @@ standardFilename = localData+'listvis.default.out'
 tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
 #Remove existing data or load data from scratch?
 if (not lt.resetData([msname], automate)):
-    print "Using data from previous test."
+    print("Using data from previous test.")
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     msname = prefix+"jupiter6cm.demo.ms"  
     load_jupiter6cm(prefix,msname) # Build data from scratch
 
@@ -354,10 +354,10 @@ go(listvis)
 
 comparefilename = prefix + 'compare_' + str(testNum)
 if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
-    print "passed listvis output test"
+    print("passed listvis output test")
     testPassed +=1
 else:
-    print "failed listvis output test"
+    print("failed listvis output test")
     testFailed +=1
 
 ##########################################################################                                                                        
@@ -366,9 +366,9 @@ else:
 # numbers of channels and DATA_FLOAT column (CAS-2138)
 #
 testNum += 1
-print ""
-print "* TEST " + str(testNum) + ": using single dish data OrionS_rawACSmod"
-print ""
+print("")
+print("* TEST " + str(testNum) + ": using single dish data OrionS_rawACSmod")
+print("")
 
 prefix = regressionDir+'/test'+str(testNum)+'/'
 msname = prefix+"OrionS_rawACSmod"  
@@ -378,10 +378,10 @@ standardFilename = localData+'listvis.orionshort.out'
 
 #Remove existing data or load data from scratch?
 if (not lt.resetData([msname], automate)):
-    print "Using preexisting data."
+    print("Using preexisting data.")
     lt.removeOut(outputFilename)
 else:
-    print "Building data from scratch."
+    print("Building data from scratch.")
     tstutl.maketestdir(prefix) # create test dir, overwrite preexisting
     shutil.copytree(localData+'OrionS_rawACSmod', msname)
 
@@ -400,33 +400,33 @@ go(listvis)
 
 comparefilename = prefix + 'compare_' + str(testNum)
 if (lt.runTests(outputFilename,standardFilename,'1.000',comparefilename)):
-    print "passed listvis output test"
+    print("passed listvis output test")
     testPassed +=1
 else:
-    print "failed listvis output test"
+    print("failed listvis output test")
     testFailed +=1
 
 ##########################################################################                                                                        
 # Test complete, summarize.
 #
 
-print ""
-print "* listvis regression test complete"
-print "SUMMARY:"
-print "  number of tests PASSED: " + str(testPassed)
-print "  number of tests FAILED: " + str(testFailed)
-print ""
+print("")
+print("* listvis regression test complete")
+print("SUMMARY:")
+print("  number of tests PASSED: " + str(testPassed))
+print("  number of tests FAILED: " + str(testFailed))
+print("")
 
 if testFailed > 0:
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('')
+    print('Regression FAILED')
+    print('')
 else:
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
 
-print "END: listvis_regression.py"
+print("END: listvis_regression.py")
 
 if (testFailed > 0):
     regstate = False

@@ -109,7 +109,7 @@ def fixvis(vis, outputvis='',field='', refcode='', reuse=True, phasecenter='', d
         ckwdict = tbt.getcolkeyword('PHASE_DIR', 'MEASINFO')
         tbt.close()
         if(refcode==''):
-            if(ckwdict.has_key('TabRefTypes')): # we have a variable reference column
+            if('TabRefTypes' in ckwdict): # we have a variable reference column
                 therefcode = 'J2000' # always use "J2000"
             else: # not a variable reference column
                 therefcode = ckwdict['Ref']
@@ -117,7 +117,7 @@ def fixvis(vis, outputvis='',field='', refcode='', reuse=True, phasecenter='', d
             if not (type(refcode)==str):
                 casalog.post('Invalid refcode '+str(refcode), 'SEVERE')
                 return False                
-            if(ckwdict.has_key('TabRefTypes')): # variable ref column
+            if('TabRefTypes' in ckwdict): # variable ref column
                 refcodelist = ckwdict['TabRefTypes'].tolist()
                 ref = 0
                 if not (refcode in refcodelist):
@@ -136,7 +136,7 @@ def fixvis(vis, outputvis='',field='', refcode='', reuse=True, phasecenter='', d
             casalog.post("Recalculating the UVW coordinates ...", 'NORMAL')
 
             fldids = []
-            for i in xrange(numfields):
+            for i in range(numfields):
                 if (i in fields):
                     fldids.append(i)
 
@@ -191,7 +191,7 @@ def fixvis(vis, outputvis='',field='', refcode='', reuse=True, phasecenter='', d
 
             for fld in fields:
                 allselected = True
-                for i in xrange(numfields):
+                for i in range(numfields):
                     if not (i in fields):
                         allselected = False
                         break
@@ -208,13 +208,13 @@ def fixvis(vis, outputvis='',field='', refcode='', reuse=True, phasecenter='', d
 
         # Write history to output MS
         try:
-            param_names = fixvis.func_code.co_varnames[:fixvis.func_code.co_argcount]
+            param_names = fixvis.__code__.co_varnames[:fixvis.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             retval &= write_history(myms, outputvis, 'fixvis', param_names, param_vals,
                                     casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')        
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' " % (instance), 'SEVERE')
         retval = False
         
@@ -256,7 +256,7 @@ def get_oldref(outputvis, tbt):
     ckwdict = tbt.getcolkeyword('PHASE_DIR', 'MEASINFO')
     flddict = {}
     colstoget = ['PHASE_DIR', 'NAME']
-    if ckwdict.has_key('TabRefTypes') and ckwdict.has_key('TabRefCodes'):
+    if 'TabRefTypes' in ckwdict and 'TabRefCodes' in ckwdict:
         colstoget.append('PhaseDir_Ref')
     for c in colstoget:
         flddict[c] = tbt.getcol(c)
@@ -266,7 +266,7 @@ def get_oldref(outputvis, tbt):
         casalog.post('Orders > 0 are poorly tested.', 'WARN')
     flddict['PHASE_DIR'] = flddict['PHASE_DIR'].transpose((2, 0, 1))
     tbt.close()
-    if(ckwdict.has_key('TabRefTypes') and ckwdict.has_key('TabRefCodes')):
+    if('TabRefTypes' in ckwdict and 'TabRefCodes' in ckwdict):
         isvarref = True
     else:
         isvarref = False
@@ -284,7 +284,7 @@ def modify_fld_vis(fld, outputvis, tbt, myim, commonoldrefstr, phasecenter,
     thenewref = -1
     theolddir = flddict['PHASE_DIR'][fld]
     fieldname = flddict['NAME'][fld]
-    if(ckwdict.has_key('TabRefTypes') and ckwdict.has_key('TabRefCodes')):
+    if('TabRefTypes' in ckwdict and 'TabRefCodes' in ckwdict):
         # determine string name of the phase dir reference frame
         theoldref = flddict['PhaseDir_Ref'][fld]
         refcodestrlist = ckwdict['TabRefTypes'].tolist()
@@ -357,7 +357,7 @@ def modify_fld_vis(fld, outputvis, tbt, myim, commonoldrefstr, phasecenter,
         thedir = me.direction(thenewrefstr, dirstr[1], dirstr[2])
         thenewra_rad = thedir['m0']['value']
         thenewdec_rad = thedir['m1']['value']
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' when interpreting parameter \'phasecenter\': "
                      % (instance), 'SEVERE')
         return False 
@@ -437,7 +437,7 @@ def modify_fld_vis(fld, outputvis, tbt, myim, commonoldrefstr, phasecenter,
     
     fldids = []
     phdirs = []
-    for i in xrange(numfields):
+    for i in range(numfields):
         if (i==fld):
             fldids.append(i)
             phdirs.append(theoldphasecenter)

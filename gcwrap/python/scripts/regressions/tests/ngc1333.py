@@ -18,10 +18,10 @@ def description():
 def run():
     lepath=locatescript('ngc1333_regression.py')
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 #    import lepath+'/g192_regression.py'
 ###resturn the images that will be templated and compared in future runs
 #   return ['src.task.image', 'src.tmom0.red', 'src.tmom0.blu','src.tmom0.all', 'src.tmom1.all' ]

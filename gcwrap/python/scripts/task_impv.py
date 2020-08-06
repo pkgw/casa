@@ -8,11 +8,11 @@ def impv(
     casalog.origin('impv')
     try:
         if len(outfile) == 0:
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         mymode = mode.lower()
         if mymode.startswith('c'):
             if len(start) == 0 or len(end) == 0:
-                raise Exception, "When mode='coords', start and end must both be specified."
+                raise Exception("When mode='coords', start and end must both be specified.")
             center = ""
             length = ""
             pa = ""
@@ -20,20 +20,20 @@ def impv(
             if (
                 len(center) == 0 
                 or (
-                    not isinstance(length, (int, long, float))
+                    not isinstance(length, (int, float))
                     and len(length) == 0
                 )
                 or len(pa) == 0
             ):
-                raise Exception, "When mode='length', center, length, and pa must all be specified."
+                raise Exception("When mode='length', center, length, and pa must all be specified.")
             start = ""
             end = ""
         else:
-            raise Exception, "Unsupported value for mode."
+            raise Exception("Unsupported value for mode.")
         myia = iatool()
         myia.dohistory(False)
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         outia = myia.pv(
             outfile=outfile, start=start, end=end, center=center,
             length=length, pa=pa, width=width, unit=unit,
@@ -41,16 +41,16 @@ def impv(
             stokes=stokes, mask=mask, stretch=stretch, wantreturn=True
         )
         try:
-            param_names = impv.func_code.co_varnames[:impv.func_code.co_argcount]
+            param_names = impv.__code__.co_varnames[:impv.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             write_image_history(
                 outia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

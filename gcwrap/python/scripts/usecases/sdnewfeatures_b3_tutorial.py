@@ -24,8 +24,8 @@ datapath1 = os.environ['CASAPATH'].split()[0]+'/data/regression/ATST5/OrionS/'
 datapath2 = os.environ['CASAPATH'].split()[0]+'/data/alma/atf/sd/'
 datafile1 = 'OrionS_rawACSmod'
 
-print "*******SD analysis demo for Beta Patch 3*******"
-print "This script shows new/modified feautures of single dish tools/tasks\n"
+print("*******SD analysis demo for Beta Patch 3*******")
+print("This script shows new/modified feautures of single dish tools/tasks\n")
 
 #clean up outputs from previous runs
 files=['orion_pscal', 'orion_pscal_if0_3000_5000', 'orion_pscal_bs_if0_blparam.txt',
@@ -39,17 +39,17 @@ if os.path.isdir(datapath1+datafile1):
     os.system('mkdir %s;cp -r %s/[!.svn]*  ./%s' % (datafile1, datapath1+datafile1, datafile1))
 else:
     if not os.path.isdir(datafile1):
-       print "Data file, %s, not found." % datafile1
+       print("Data file, %s, not found." % datafile1)
        sys.exit() 
 
 ################
 # 1. sdcal #
 ################
-print "###############\n 1. sdcal \n###############"
+print("###############\n 1. sdcal \n###############")
 default(sdcal)
 desc="* At first, run calibration for the position switch observation\n" \
      "* (taken from ori_hc3n_task_regression.py) to get calibrated data\n"
-print desc
+print(desc)
 sdfile='OrionS_rawACSmod'
 fluxunit='K'
 calmode='ps'
@@ -65,44 +65,44 @@ outfile='orion_pscal'
 overwrite=True
 plotlevel=1
 inp(sdcal)
-pause=raw_input('* Hit Return to continue ')
+pause=input('* Hit Return to continue ')
 
-print "\n* Run sdcal with these parameters...\n"
+print("\n* Run sdcal with these parameters...\n")
 sdcal()
-print "*** Done sdcal ****\n"
+print("*** Done sdcal ****\n")
 desc="\n" \
      "* NEW FEATURE: channelrange\n" \
      "* now try new parameter, channelrange to save a subset of the spectra\n" \
      "* with restricted channel range. We do the same calibration as the previous\n" \
      "* sdcal run but select IF0 only and set a channel range from 3000 to 5000\n"
-print desc
+print(desc)
 iflist=[0]
 channelrange=[3000,5000]
 outfile='orion_pscal_if0_3000_5000'
 inp(sdcal)
-pause=raw_input('* Hit Return to continue ')
+pause=input('* Hit Return to continue ')
 
-print "\n* Run sdcal with these parameters...\n"
+print("\n* Run sdcal with these parameters...\n")
 sdcal()
-print "*** Done sdcal ****\n"
+print("*** Done sdcal ****\n")
 
-pause=raw_input('* Hit Return to continue ')
+pause=input('* Hit Return to continue ')
 
 desc="\n" \
      "NEW FEATURE: multi-resolution spectra averaging\n"\
      "Set timeaverage=True and averageall=True.  \n" \
      "SKIPPED: This is not test here since we do not have a good test data now\n"
-print desc
+print(desc)
 
-pause=raw_input('\n* Hit Return to continue ')
+pause=input('\n* Hit Return to continue ')
 #################
 # 2. sdbaseline #
 #################
-print "\n###############\n 2. sdbaseline \n###############"
+print("\n###############\n 2. sdbaseline \n###############")
 desc="\n" \
      "* NEW FEATURE: set mask for baseline fitting interactively.\n" \
      "* Set blmode='interact'\n"
-print desc
+print(desc)
 # NEW FEATURE:
 # Set mask(s) for baseline fitting interactively
 
@@ -115,8 +115,8 @@ blmode='interact'
 outfile=sdfile+'_bs'+'_if0'
 plotlevel=1
 inp(sdbaseline)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdbaseline...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdbaseline...\n")
 desc="\n" \
      "* By using mouse bottons, specify region(s).\n" \
      "* To mask (included in baseline fitting) using\n"\
@@ -129,9 +129,9 @@ desc="\n" \
      "* Using right mouse button to unmask the line region...\n" \
      "* Once you satisfy with your masks, go back to the casapy console, \n" \
      "* and hit Return key to start processing.\n"
-print desc
+print(desc)
 sdbaseline()
-print "*** Done sdbaseline ****\n"
+print("*** Done sdbaseline ****\n")
 
 # you will see something like this...
 #UNmask:  [3753.4292059553341, 4415.2132258064503]
@@ -148,8 +148,8 @@ print "*** Done sdbaseline ****\n"
 #Scan[0] (OrionS_ps) Time[2006/01/19/01:52:05]:
 # IF[0] = 0.166
 #--------------------------------------------------
-print "* Saved the fit paramters and rms after baseline fit"
-print "!cat %s" % outfile+'_blparam.txt' 
+print("* Saved the fit paramters and rms after baseline fit")
+print("!cat %s" % outfile+'_blparam.txt') 
 # fitting parameters are stored in
 # <outfile>_blparam.txt
 os.system('cat %s' % outfile+'_blparam.txt')
@@ -173,8 +173,8 @@ os.system('cat %s' % outfile+'_blparam.txt')
 #------------------------------------------------------------
 
 
-pause=raw_input('\n* Hit Return to continue ')
-print "\n###############\n 3. sdflag \n###############"
+pause=input('\n* Hit Return to continue ')
+print("\n###############\n 3. sdflag \n###############")
 #############
 # 3. sdflag #
 #############
@@ -183,7 +183,7 @@ desc="\n" \
      "* Flag\n" \
      "* use the baselined data in the previous step.\n" \
      "* set plotlevel=1 to plot the spectrum with flagged region(s).\n"
-print desc
+print(desc)
 default(sdflag)
 sdfile='orion_pscal_bs_if0'
 specunit='channel'
@@ -191,29 +191,29 @@ maskflag=[[0,100],[2000,3000]]
 flagmode='flag'
 plotlevel=1 
 inp(sdflag)
-pause=raw_input('\n* Hit Return to continue ')
-print "* Run sdflag...\n"
-print "* Type y when asked to apply flag." 
+pause=input('\n* Hit Return to continue ')
+print("* Run sdflag...\n")
+print("* Type y when asked to apply flag.") 
 
 sdflag()
-print "*** Done sdflag ****\n"
+print("*** Done sdflag ****\n")
 # output->orion_pscal_bs_if0_f
 
 desc="\n" \
      "* NEW FEATURE: restore\n" \
      "* get flag masks applied to the data"
-print desc      
+print(desc)      
 # NEW FEATURE:
 # check flagged region(s)  
 default(sdflag)
 sdfile='orion_pscal_bs_if0_f'
 flagmode='restore'
 inp(sdflag)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdflag...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdflag...\n")
 sdflag()
-print "* You will see all flag masks applied to the data...\n"
-print "*** Done sdflag ****\n"
+print("* You will see all flag masks applied to the data...\n")
+print("*** Done sdflag ****\n")
 #--------------------------------------------------
 #History of channel flagging:
 #          DATE: 2008/10/03 10:42:01
@@ -228,27 +228,27 @@ print "*** Done sdflag ****\n"
 desc="\n" \
      "* Try unflag...\n" \
      "* Set flagmode='unflag' \n" 
-print desc
+print(desc)
 sdfile='orion_pscal_bs_if0_f'
 flagmode='unflag'
 maskflag=[2000,3000]
 plotlevel=1
 inp(sdflag)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdflag...\n"
-print "* Type y when asked to apply flag." 
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdflag...\n")
+print("* Type y when asked to apply flag.") 
 sdflag()
-print "*** Done sdflag ****\n"
+print("*** Done sdflag ****\n")
 
-pause=raw_input('\n* Hit Return to continue ')
+pause=input('\n* Hit Return to continue ')
 #############
 # 4. sdplot #
 #############
-print "\n###############\n 4. sdplot \n###############"
+print("\n###############\n 4. sdplot \n###############")
 desc="\n" \
      "* First, generate calibrated data without polarization average.\n" \
      "* This time use sdreduce.\n"
-print desc
+print(desc)
 #
 # Following step is just to save default setting.
 # This is currently needed to restore the default setting
@@ -274,16 +274,16 @@ tau=0.09
 blmode='auto'
 outfile='orion_pscal_allif_tave'
 inp(sdreduce)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdreduce...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdreduce...\n")
 sdreduce()
-print "*** Done sdreduce ****\n"
+print("*** Done sdreduce ****\n")
 
 desc="\n" \
      "* NEW FEATURE: plot color control\n" \
      "* specify colors to be used for plot lines\n" \
      "* stacking IFs, different panel for each polarization.\n"
-print desc
+print(desc)
 
 default(sdplot)
 sdfile='orion_pscal_allif_tave'
@@ -293,48 +293,48 @@ flrange=[-1,1.5]
 sprange=[2500,4500]
 colormap='c m g b' # ='cyan, magenta, green, blue'
 inp(sdplot)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdplot...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdplot...\n")
 sdplot()
-print "*** Done sdplot ****\n"
+print("*** Done sdplot ****\n")
 
 desc="\n" \
      "* NEW FEATURE:\n"\
      "* click left mouse button on one of the lines, a pop-up window will\n" \
      "* appear to display spectral data values as you move the mouse along\n" \
      "*  horizontal direction while keep holding the left mouse button.\n" 
-print desc
+print(desc)
 
-pause=raw_input('\n* Hit Return to continue ')
+pause=input('\n* Hit Return to continue ')
 
 desc="\n" \
      "* NEW FEATURE: line styles \n" \
      "* specify line styles to be used for plot line. \n"
-print desc
+print(desc)
 colormap='none'
 linestyles='line dotted dashed dashdot'
 linewidth=2
 pollist=0
 sprange=[2500,4500]
 inp(sdplot)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdplot...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdplot...\n")
 sdplot()
-print "*** Done sdplot ****\n"
+print("*** Done sdplot ****\n")
 
 desc="\n" \
      "* Currently flrange, and sprange are set globally. \n" \
      "* For now, to reset, you need to run sdplot with \n" \
      "* default parameters.\n"
-print desc
+print(desc)
 
 default(sdplot)
 sdfile='orion_pscal_allif_tave'
 iflist=0
 pollist=0
-print "* Run sdplot...\n"
+print("* Run sdplot...\n")
 sdplot()
-print "*** Done sdplot ****\n"
+print("*** Done sdplot ****\n")
 
 # reset colormap and linestyles
 #sd.plotter.set_colors(default_colormap)
@@ -348,30 +348,30 @@ if tpdemo2:
      "* This example needs the ATF total power data converted from ASDM to MS. \n" \
      "* Also, currently most of the plot control parameters are no effect or \n" \
      "* ignored in total power plotting mode. \n"
-    print desc
+    print(desc)
     sdfile='uid___X1e1_X3197_X1.ms'
     plottype='totalpower'
     inp(sdplot)
-    pause=raw_input('\n* Hit Return to continue ')
-    print "\n* Run sdplot...\n"
+    pause=input('\n* Hit Return to continue ')
+    print("\n* Run sdplot...\n")
     sdplot()
-    print "*** Done sdplot ****\n"
+    print("*** Done sdplot ****\n")
 
 ###########
 # sdscale #
 ###########
-print "###############\n 5. sdscale \n###############"
+print("###############\n 5. sdscale \n###############")
 desc="\n" \
      "*  NEW FEATURE: print out Tsys values before and after scaling\n"
-print desc
+print(desc)
 default(sdscale)
 sdfile='orion_pscal'
 factor=1.5
 inp(sdscale)
-pause=raw_input('\n* Hit Return to continue ')
-print "\n* Run sdscale...\n"
+pause=input('\n* Hit Return to continue ')
+print("\n* Run sdscale...\n")
 sdscale()
-print "*** Done sdscale ****\n"
+print("*** Done sdscale ****\n")
 #Scaled spectra and Tsys by 1.5
 #--------------------------------------------------
 # Original Tsys
@@ -388,15 +388,15 @@ print "*** Done sdscale ****\n"
 #--------------------------------------------------
 
 
-pause=raw_input('\n* Hit Return to continue ')
+pause=input('\n* Hit Return to continue ')
 ##########
 # sdstat #
 ##########
-print "\n###############\n 6. sdstat \n###############"
+print("\n###############\n 6. sdstat \n###############")
 desc="\n" \
      "* NEW FEATURE: statistics to an ASCII file \n" \
      "* Specify by statfile parameter\n"
-print desc
+print(desc)
 # 2. an option to set mask for evalulating statistics interactively
 # 3 integrated intensity 
 #   currently only show in the screeen but not included in 
@@ -408,8 +408,8 @@ iflist=0
 interactive=True
 statfile='orion_stat.txt'
 inp(sdstat)
-pause=raw_input('\n* Hit Return to continue ')
-print "* Run sdstat...\n"
+pause=input('\n* Hit Return to continue ')
+print("* Run sdstat...\n")
 desc="\n" \
      "* Initial mask is set to the entire spectrum\n" \
      "* as shown in yellow. The behavior for multi-IF\n" \
@@ -417,9 +417,9 @@ desc="\n" \
      "* Use right mouse botton to deselect regions\n"\
      "* Hit Return in the casapy console after you \n"\
      "* satisfy your mask selection.\n"
-print desc
+print(desc)
 sdstat()
-print "*** Done sdstat ****\n"
+print("*** Done sdstat ****\n")
 # specify line region, hit return in the console
 # then you will see output looks like this.
 
@@ -494,7 +494,7 @@ print "*** Done sdstat ****\n"
 # in orion_hc3n_stat.txt
 
   
-print "\n###############\n Tool changes \n###############"
+print("\n###############\n Tool changes \n###############")
 
 
 desc="\n" \
@@ -505,16 +505,16 @@ desc="\n" \
      "* For example, \n"\
      "s=sd.scantable('orion_pscal') \n" \
      "restfreqs=s.get_restfreqs() \n" 
-print desc
+print(desc)
 
 s=sd.scantable('orion_pscal')
 restfreqs=s.get_restfreqs()
 desc="* Returned rest frequencies are in a dictionary, and only list\n" \
      "* one(s) current used.\n";
-print desc 
-print "restfreqs=", restfreqs
+print(desc) 
+print("restfreqs=", restfreqs)
 
-pause=raw_input('\n* Hit Return to continue ')
+pause=input('\n* Hit Return to continue ')
 desc="\n* Set new rest frequencies for IF=0.\n" \
      "* let\n"\
      "newrestfreqs=[45490258000.0,45590258000.0]\n"\
@@ -523,7 +523,7 @@ desc="\n* Set new rest frequencies for IF=0.\n" \
      "sel.set_ifs(0)\n" \
      "s.set_selection(sel)\n"\
      "s.set_restfreqs(newrestfreqs)\n"
-print desc
+print(desc)
 newrestfreqs=[45490258000.0,45590258000.0]
 sel=sd.selector()
 sel.set_ifs(0)
@@ -532,21 +532,21 @@ s.set_restfreqs(newrestfreqs)
 
 desc="* Check the new values\n" \
      "s.get_restfreqs() \n"
-print desc
+print(desc)
 newrestfs=s.get_restfreqs()
-print newrestfs
-pause=raw_input('\n* Hit Return to continue ')
+print(newrestfs)
+pause=input('\n* Hit Return to continue ')
 
 desc="\n* List all the rest frequencies currently set for all IFs\n" \
      "sel.reset()\n"\
      "s.set_selection(sel)\n"\
      "s.get_restfreqs()\n"
-print desc
+print(desc)
 sel.reset()
 s.set_selection(sel)
 newrestfs=s.get_restfreqs()
-print newrestfs
+print(newrestfs)
 
-print "*** done get/set_restfreqs demo ***"
+print("*** done get/set_restfreqs demo ***")
 
-print "**** End of the script ****"
+print("**** End of the script ****")

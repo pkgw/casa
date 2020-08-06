@@ -8,7 +8,7 @@ import crashrpt_conf
 
 casa['state']['crash-reporter'] = False
 if ( casa['flags'].crash_report or (
-     os.environ.has_key('CASA_USE_CRASH_REPORTER') and
+     'CASA_USE_CRASH_REPORTER' in os.environ and
      os.environ['CASA_USE_CRASH_REPORTER'].upper( ) == 'TRUE')):
     try:
         systemTempDir = crashrpt_conf.systemTempDir
@@ -27,15 +27,15 @@ if ( casa['flags'].crash_report or (
         posterApp = casa['helpers']['crashPoster']
         if posterApp is None: posterApp = "" # handle case where it wasn't found
         postingUrl = "https://casa.nrao.edu/cgi-bin/crash-report.pl"
-        if os.environ.has_key('CASA_CRASHREPORT_URL') :
+        if 'CASA_CRASHREPORT_URL' in os.environ :
                 postingUrl = os.environ['CASA_CRASHREPORT_URL']
         theLogFile = casa['files']['logfile']
         message = casac.utils()._crash_reporter_initialize(temporaryDirectory, posterApp, postingUrl, theLogFile)
         if len (message) > 0:
             if message != "no-op":
-                print ("***\n*** Crash reporter failed to initialize: " + message)
+                print(("***\n*** Crash reporter failed to initialize: " + message))
         else:
             casa['state']['crash-reporter'] = True
     except Exception as e:
-        print "***\n*** Crash reporter initialization failed.\n***"
-        print "*** exception={0}\n***".format (e)
+        print("***\n*** Crash reporter initialization failed.\n***")
+        print("*** exception={0}\n***".format (e))

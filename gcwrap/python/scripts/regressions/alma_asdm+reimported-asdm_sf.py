@@ -38,13 +38,13 @@ mywvr_correction_file = 'N3256_B6_0.WVR'
 
 # get the dataset name from the wrapper if possible
 mydict = locals()
-if mydict.has_key("asdm_dataset_name"):
+if "asdm_dataset_name" in mydict:
     myasdm_dataset_name = mydict["asdm_dataset_name"]
-if mydict.has_key("ms_dataset_name"):
+if "ms_dataset_name" in mydict:
     myms_dataset_name = mydict["ms_dataset_name"]
-if mydict.has_key("asdm_dataset2_name"):
+if "asdm_dataset2_name" in mydict:
     myasdm_dataset_name = mydict["asdm_dataset2_name"]
-if mydict.has_key("wvr_dataset_name"):
+if "wvr_dataset_name" in mydict:
     mywvr_correction_file = mydict["wvr_correction_file"]
 
 # name of the resulting MS
@@ -62,7 +62,7 @@ def checktable(thename, theexpectation):
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = tb.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -82,21 +82,21 @@ def checktable(thename, theexpectation):
             else:
                 in_agreement = (abs(value - mycell[2]) < mycell[3]).all() 
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tb.close()
             raise
     tb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return
 
 #########################
 
 def verify_asdm(asdmname, withPointing):
-    print "Verifying asdm ", asdmname
+    print("Verifying asdm ", asdmname)
     if(not os.path.exists(asdmname)):
-        print "asdm ", asdmname, " doesn't exist."
+        print("asdm ", asdmname, " doesn't exist.")
         raise Exception
     # test for the existence of all obligatory tables
     allTables = [ "Antenna.xml",
@@ -132,25 +132,25 @@ def verify_asdm(asdmname, withPointing):
     for fileName in allTables:
         filePath = asdmname+'/'+fileName
         if(not os.path.exists(filePath)):
-            print "ASDM table file ", filePath, " doesn't exist."
+            print("ASDM table file ", filePath, " doesn't exist.")
             isOK = False
         elif(xmllint_ok):
             # test if well formed
             rval = os.system('xmllint --noout '+filePath)
             if(rval !=0):
-                print "Table ", filePath, " is not a well formed XML document."
+                print("Table ", filePath, " is not a well formed XML document.")
                 isOK = False
     if(isOK and not xmllint_ok):
-        print "Note: Test of XML well-formedness not possible since xmllint not available."
+        print("Note: Test of XML well-formedness not possible since xmllint not available.")
     else:
-        print "Note: xml validation not possible since ASDM DTDs (schemas) not yet online."
+        print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
         
     if(not os.path.exists(asdmname+"/ASDMBinary")):
-        print "ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist."
+        print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
 
     if(withPointing and not os.path.exists(asdmname+"/Pointing.bin")):
-        print "ASDM binary file "+asdmname+"/Pointing.bin doesn't exist."
+        print("ASDM binary file "+asdmname+"/Pointing.bin doesn't exist.")
         isOK = False
 
     if (not isOK):
@@ -186,7 +186,7 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
     # Find the asdm
     asdm=basename
     os.system('rm -rf '+bname+'_* '+msn)
-    print ">> Importing the asdm: ", asdm, " as measurement set: ",msn 
+    print(">> Importing the asdm: ", asdm, " as measurement set: ",msn) 
     importasdm(
         asdm=asdm,
         vis=msn,
@@ -199,20 +199,20 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         useversion='v3'
         )
 
-    print "Flagging autocorrelations ..."
+    print("Flagging autocorrelations ...")
     flagdata(msn, autocorr=True)
 
     if(cu.compare_version('>=',[3,4,0]) and genwvr): # generate the WVR correction table
-        print ">> Generating the WVR caltable ", caltablename0
+        print(">> Generating the WVR caltable ", caltablename0)
         os.system('rm -rf '+caltablename0)
         wvrgcal(vis=msn, caltable=caltablename0, segsource=False, toffset=-2, reversespw='0~7')
     else:
-        print ">> Reusing existing WVR caltable ", caltablename0
+        print(">> Reusing existing WVR caltable ", caltablename0)
     
     # Delay correction
     
     # Could have done this for both spw simultanesouly
-    print "\n>> 8ns delay corrections: Calculate K tables"
+    print("\n>> 8ns delay corrections: Calculate K tables")
     for i in range(2):
         os.system('rm -rf '+caltablename+"_spw"+str(i)+'.K')
         gencal(
@@ -229,9 +229,9 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
     
     # Bandpass calibration with 'bandpass' 
 	
-    print ">> Find B solutions"
+    print(">> Find B solutions")
     for i in range(2):
-        print ">> SPW: ",i
+        print(">> SPW: ",i)
         os.system('rm -rf '+caltablename+'_spw'+str(i)+'.B')
         
         # Use the bright phase calibrator for the bandpass
@@ -267,9 +267,9 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
     # For GSPLINE solutions, have to do it for different spws separately
     
-    print ">> Find G solutions"
+    print(">> Find G solutions")
     for i in range(2):
-        print ">> SPW: ",i
+        print(">> SPW: ",i)
         os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G')
         gaincal(
             vis=msn,
@@ -284,9 +284,9 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
             gaintype="G",calmode="ap",
             )
 
-    print ">> Find G solutions, using WVR corrections"
+    print(">> Find G solutions, using WVR corrections")
     for i in range(2):
-        print ">> SPW: ",i
+        print(">> SPW: ",i)
         os.system('rm -rf '+caltablename+'_spw'+str(i)+'.G_WVR')
         wvrspw = 0
         if(cu.compare_version('>=',[3,4,0])):
@@ -361,9 +361,9 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
     # for the unsplit ms.
     # There are eight numbers because wvr has four spws, although only one is shown in listobs
     
-    print ">> Apply the G and WVR solutions to",msn
+    print(">> Apply the G and WVR solutions to",msn)
     for i in range (2):
-        print ">> SPW: ",i
+        print(">> SPW: ",i)
         wvrspw = 0
         if(cu.compare_version('>=',[3,4,0])):
             wvrspw = i
@@ -400,8 +400,8 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
         os.system('rm -rf '+calimage+'.*')
 	
-        print "\n>> Clean the phase calibrator, spw",str(i)
-        print ">> The imagename is",calimage
+        print("\n>> Clean the phase calibrator, spw",str(i))
+        print(">> The imagename is",calimage)
         
         default(clean)
         clean(
@@ -423,31 +423,31 @@ def analyseASDM(basename, caltablename0, reference_rms, reference_peak, genwvr=T
         
         calstat=imstat(imagename=calimage+".image",region="",box="100,100,240,500")
         rms[i]=(calstat['rms'][0])
-        print ">> rms in calibrator image: "+str(rms[i])
+        print(">> rms in calibrator image: "+str(rms[i]))
         calstat=imstat(imagename=calimage+".image",region="")
         peak[i]=(calstat['max'][0])
-        print ">> Peak in calibrator image: "+str(peak[i])
-        print ">> Dynamic range in calibrator image: "+str(peak[i]/rms[i])
+        print(">> Peak in calibrator image: "+str(peak[i]))
+        print(">> Dynamic range in calibrator image: "+str(peak[i]/rms[i]))
 
 
     for i in range(2):
-        print ">> image rms ", i, " is ", rms[i], " expected value is ", reference_rms[i] 
+        print(">> image rms ", i, " is ", rms[i], " expected value is ", reference_rms[i]) 
         if(abs(rms[i] - reference_rms[i])/reference_rms[i] > 0.01):
-            print ">> ERROR." 
+            print(">> ERROR.") 
             isOK = False
-        print ">> image peak ", i, " is ", peak[i], " expected value is ", reference_peak[i] 
+        print(">> image peak ", i, " is ", peak[i], " expected value is ", reference_peak[i]) 
         if(abs(peak[i] - reference_peak[i])/reference_peak[i] > 0.01):
-            print ">> ERROR." 
+            print(">> ERROR.") 
             isOK = False
             
     if (isOK):
-        print ''
-        print 'Regression PASSED'
-        print ''
+        print('')
+        print('Regression PASSED')
+        print('')
     else:
-        print ''
-        print 'Regression FAILED'
-        print ''
+        print('')
+        print('Regression FAILED')
+        print('')
 
     return isOK
 
@@ -461,10 +461,10 @@ part1 = True
 try:
     importasdm(myasdm_dataset_name, useversion='v3')
 except:
-    print myname, ": Error ", sys.exc_info()[0]
+    print(myname, ": Error ", sys.exc_info()[0])
     part1 = False
 else:
-    print myname, ": Success! Now checking output ..."
+    print(myname, ": Success! Now checking output ...")
     # when SubMS::setupMS() is used, the main table
     # somehow starts from table.f1 instead of table.f0
     mscomponents = set(["table.dat",
@@ -508,19 +508,19 @@ else:
                         ])
     for name in mscomponents:
         if not os.access(msname+"/"+name, os.F_OK):
-            print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+            print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
             part1 = False
         else:
-            print myname, ": ", name, "present."
-    print myname, ": MS exists. All tables present. Try opening as MS ..."
+            print(myname, ": ", name, "present.")
+    print(myname, ": MS exists. All tables present. Try opening as MS ...")
     try:
         ms.open(msname)
     except:
-        print myname, ": Error  Cannot open MS table", tablename
+        print(myname, ": Error  Cannot open MS table", tablename)
         part1 = False
     else:
         ms.close()
-        print myname, ": OK. Checking tables in detail ..."
+        print(myname, ": OK. Checking tables in detail ...")
 
         # check main table first
         name = ""
@@ -692,7 +692,7 @@ else:
         checktable(name, expected)
 
 if (not part1):
-    print "Part 1 failed."
+    print("Part 1 failed.")
 
 part2 = True
         
@@ -701,8 +701,8 @@ os.system('rm -rf exportasdm-output.asdm myinput.ms')
 os.system('cp -R ' + myvis + ' myinput.ms')
 default('exportasdm')
 try:
-    print "\n>>>> Test of exportasdm: input MS  is ", myvis
-    print "(a simulated input MS with pointing table)"
+    print("\n>>>> Test of exportasdm: input MS  is ", myvis)
+    print("(a simulated input MS with pointing table)")
     rval = exportasdm(
         vis = 'myinput.ms',
         asdm = 'exportasdm-output.asdm',
@@ -710,44 +710,44 @@ try:
         apcorrected=False,
         useversion='v3'
         )
-    print "rval is ", rval
+    print("rval is ", rval)
     if not rval:
         raise Exception
     os.system('rm -rf '+asdmname+'; mv exportasdm-output.asdm '+asdmname)
     verify_asdm(asdmname, True)
 except:
-    print myname, ': *** Unexpected error exporting MS to ASDM, regression failed ***'   
+    print(myname, ': *** Unexpected error exporting MS to ASDM, regression failed ***')   
     raise
     
 try:
-    print "Reimporting the created ASDM ...."
+    print("Reimporting the created ASDM ....")
     importasdm(asdm=asdmname, vis=reimp_msname, wvr_corrected_data='no', useversion='v3')
-    print "Testing existence of reimported MS ...."
+    print("Testing existence of reimported MS ....")
     if(not os.path.exists(reimp_msname)):
-        print "MS ", reimp_msname, " doesn't exist."
+        print("MS ", reimp_msname, " doesn't exist.")
         raise Exception
-    print "Testing equivalence of the original and the reimported MS."
+    print("Testing equivalence of the original and the reimported MS.")
     tb.open(myms_dataset_name)
     nrowsorig = tb.nrows()
-    print "Original MS contains ", nrowsorig, "integrations."
+    print("Original MS contains ", nrowsorig, "integrations.")
     tb.close()
     tb.open(reimp_msname)
     nrowsreimp = tb.nrows()
     tb.close()
-    print "Reimported MS contains ", nrowsreimp, "integrations."
+    print("Reimported MS contains ", nrowsreimp, "integrations.")
     if(not nrowsreimp==nrowsorig):
-        print "Numbers of integrations disagree."
+        print("Numbers of integrations disagree.")
         part2 = False
 except:
-    print myname, ': *** Unexpected error reimporting the exported ASDM, regression failed ***'   
+    print(myname, ': *** Unexpected error reimporting the exported ASDM, regression failed ***')   
     part2 = False
     
 #############
 # Now import an ASDM and do a serious analysis
 
-print
-print '==================================================================='
-print "Serious analysis of an ASDM ..."
+print()
+print('===================================================================')
+print("Serious analysis of an ASDM ...")
 
 rval = True
 part3 = True
@@ -757,11 +757,11 @@ try:
     ref_peak = [0.999954, 1.0001681]
     rval = analyseASDM(myasdm_dataset2_name, mywvr_correction_file, ref_rms, ref_peak, select_real_spws='0;1;2;3;4')
 except:
-    print myname, ': *** Unexpected error analysing ASDM, regression failed ***'   
+    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')   
     part3 = False
 
 if(not rval):
-    print myname, ': *** Unexpected error analysing ASDM, regression failed ***'   
+    print(myname, ': *** Unexpected error analysing ASDM, regression failed ***')   
     part3 = False
 
 #############
@@ -773,9 +773,9 @@ part4 = True
 
 if dopart4:
 
-    print
-    print '==================================================================='
-    print "Export the previously imported ASDM ..."
+    print()
+    print('===================================================================')
+    print("Export the previously imported ASDM ...")
     default('exportasdm')
     try:
         # os.system('rm -rf '+myasdm_dataset2_name+'-re-exported*')
@@ -797,20 +797,20 @@ if dopart4:
             datacolumn='DATA', # the default
             useversion='v3'
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
             raise Exception
         verify_asdm(myasdm_dataset2_name+'-re-exported', True)
     except:
-        print myname, ': *** Unexpected error re-exporting MS to ASDM, regression failed ***'   
+        print(myname, ': *** Unexpected error re-exporting MS to ASDM, regression failed ***')   
         raise
 
 #############
     # repeat analysis on re-exported ASDM
 
-    print
-    print '==================================================================='
-    print "Serious analysis of an exported and re-imported ASDM ..."
+    print()
+    print('===================================================================')
+    print("Serious analysis of an exported and re-imported ASDM ...")
     
     rval = True
     try:
@@ -821,41 +821,41 @@ if dopart4:
                            False, # do not regenerate the WVR table
                        )
     except:
-        print myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***'   
+        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')   
         part4 = False
         
     if(not rval):
-        print myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***'   
+        print(myname, ': *** Unexpected error analysing re-exported ASDM, regression failed ***')   
         part4 = False
 
 # end if dopart4
 
-print
-print '==================================================================='
-print "Summary"
+print()
+print('===================================================================')
+print("Summary")
 
 if(not part1):
-    print "Part 1: ASDM import failed."
+    print("Part 1: ASDM import failed.")
 else:
-    print "Part 1: ASDM import passed."
+    print("Part 1: ASDM import passed.")
 if(not part2):
-    print "Part 2: ASDM export failed."
+    print("Part 2: ASDM export failed.")
 else:
-    print "Part 2: ASDM export passed."
+    print("Part 2: ASDM export passed.")
 if(not part3):
-    print "Part 3: serious analysis of an ASDM failed."
+    print("Part 3: serious analysis of an ASDM failed.")
 else:
-    print "Part 3: serious analysis of an ASDM passed."
+    print("Part 3: serious analysis of an ASDM passed.")
 if dopart4:
     if not part4:
-        print "Part 4: serious analysis of an exported and re-imported ASDM failed."
+        print("Part 4: serious analysis of an exported and re-imported ASDM failed.")
     else:
-        print "Part 4: serious analysis of an exported and re-imported ASDM passed."
+        print("Part 4: serious analysis of an exported and re-imported ASDM passed.")
 else:
-        print "Part 4: serious analysis of an exported and re-imported ASDM not executed."    
+        print("Part 4: serious analysis of an exported and re-imported ASDM not executed.")    
 
 if(not (part1 and part2 and part3 and part4)):
-    print "Regression failed."
+    print("Regression failed.")
     raise
 else:
-    print "Regression passed."
+    print("Regression passed.")

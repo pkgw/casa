@@ -107,7 +107,7 @@ def get_beamid(beam, num_beams):
             for i in range(num_beams): _beam.append(i)
         else:
             for i in range(len(_beam)): _beam[i] = int(_beam[i])
-    except Exception, e:
+    except Exception as e:
         casalog.post("Error \'%s\' input beam ID is invalid" % (e))
     
     min_beamid = _beam[0]
@@ -150,7 +150,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
     # Validate input and output parameters
     try:
         pdh.setupIO()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('%s'%instance,'ERROR')
         return False
 
@@ -191,7 +191,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
         """
         tbin = qa.convert(qa.quantity(timebin), 's')['value']
         if tbin < 0:
-            raise Exception, "Parameter timebin must be > '0s' to do time averaging"
+            raise Exception("Parameter timebin must be > '0s' to do time averaging")
         timeaverage = (tbin > 0)
                        
         if timeaverage:
@@ -214,7 +214,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
 
         mtlocal.done()
                     
-    except Exception, instance:
+    except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
         return False
@@ -256,7 +256,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
                         widths = chanbin
                     else:
                         if hasattr(chanbin, '__iter__') and len(chanbin) > 1:
-                            for i in xrange(len(chanbin)):
+                            for i in range(len(chanbin)):
                                 widths[i] = chanbin[i]
                         elif chanbin != 1:
     #                        print 'using ms.msseltoindex + a scalar width'
@@ -266,10 +266,10 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
                                 w = chanbin[0]
                             else:
                                 w = chanbin
-                            for i in xrange(numspw):
+                            for i in range(numspw):
                                 widths[i] = w
     #                print 'widths =', widths 
-                    for rownum in xrange(nflgcmds):
+                    for rownum in range(nflgcmds):
                         # Matches a bare number or a string quoted any way.
                         spwmatch = re.search(r'spw\s*=\s*(\S+)', cmds[rownum])
                         if spwmatch:
@@ -291,7 +291,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
                                         repl = "spw='" + sch2 + "'"
                                     cmd = cmds[rownum].replace(spwmatch.group(), repl)
                             #except: # cmd[rownum] no longer applies.
-                            except Exception, e:
+                            except Exception as e:
                                 casalog.post(
                                     "Error %s updating row %d of FLAG_CMD" % (e,
                                                                               rownum),
@@ -310,7 +310,7 @@ def do_mst(infile, datacolumn, field, spw, timerange, scan, timebin, outfile):
                 
             mytb.close()
             
-        except Exception, instance:
+        except Exception as instance:
             if isopen:
                 mytb.close()
             mslocal = None
@@ -329,11 +329,11 @@ def add_history(casalog, infile, datacolumn, field, spw, timerange, scan, timebi
     mslocal = mstool()
     # Write history to output MS, not the input ms.
     try:
-        param_names = nrobeamaverage.func_code.co_varnames[:nrobeamaverage.func_code.co_argcount]
+        param_names = nrobeamaverage.__code__.co_varnames[:nrobeamaverage.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         write_history(mslocal, outfile, 'nrobeamaverage', param_names,
                       param_vals, casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
         return False

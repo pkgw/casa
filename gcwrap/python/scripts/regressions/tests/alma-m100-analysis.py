@@ -51,10 +51,10 @@ def run( fetch=False ):
     #####locate the regression script
     try: 
         lepath=locatescript('alma-m100-analysis-regression.py')
-        print 'Script used is ',lepath
-        execfile(lepath, gl, pass_on)
+        print('Script used is ',lepath)
+        exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl, pass_on)
     except:
-        print 'execution failed: ', sys.exc_info()
+        print('execution failed: ', sys.exc_info())
         raise
 ###return the images that will be templated and compared in future runs
     return []

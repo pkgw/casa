@@ -12,7 +12,7 @@ class fixedDict(dict):
         dict.__delitem__(self, key)
 
     def __setitem__(self, key, item):
-        if key not in self.keys(): 
+        if key not in list(self.keys()): 
             raise KeyError("The key {} is not defined.".format(key))
         dict.__setitem__(self, key, item)
 
@@ -29,13 +29,13 @@ class fixedDict(dict):
         return fixedDict(copydict)
     
     def items(self):
-        return zip(self.keys(), self.values())
+        return list(zip(list(self.keys()), list(self.values())))
 
     def keys(self):
         return dict.keys(self)
 
     def update(self, *args, **kwargs):
-        for key, value  in dict(*args, **kwargs).iteritems():
+        for key, value  in dict(*args, **kwargs).items():
             dict.__setitem__(self, key,value)
 
    

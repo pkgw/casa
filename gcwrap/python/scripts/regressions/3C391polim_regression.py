@@ -39,11 +39,11 @@ def difftest(diffval,tol):
 # savecurstats will store the current 
 # regression results in pickle file
 loc = locals()
-if not loc.has_key('savecurstats'):
+if 'savecurstats' not in loc:
   savecurstats=False
 if savecurstats:
-  import cPickle
-if not loc.has_key('savelog'):
+  import pickle
+if 'savelog' not in loc:
   savelog=False    
 if savelog or savecurstats:
   import datetime
@@ -76,13 +76,13 @@ tstutl.cleanup(testdir)
 
 # copying the data to testdir
 tstutl.maketestdir(testdir)
-print "Test working directory: ", testdir
+print("Test working directory: ", testdir)
 try:
-  print "copying data from "+datapath
+  print("copying data from "+datapath)
   shutil.copytree(datapath,testdir+'/'+msdata)
-  print "copying mask image from "+maskpath
+  print("copying mask image from "+maskpath)
   shutil.copyfile(maskpath,testdir+'/'+msk)
-except Exception,e:
+except Exception as e:
   tstutl.note("Failed with:"+str(e))
   raise e
 
@@ -210,7 +210,7 @@ try:
   startProc = time.clock()
 
   # clean
-  print "***Imaging***"
+  print("***Imaging***")
   quimagename='3c391_ctm_spw0_QU_selfcal'
 
   quimagepath=testdir+'/'+quimagename
@@ -233,11 +233,11 @@ try:
   endTime = time.time()
   endProc = time.clock()
 except: 
-  print "Clean execution failed" 
+  print("Clean execution failed") 
    
 else: 
   # analysis
-    print "***Analyze the results***"
+    print("***Analyze the results***")
     curstats={}
     imagename=quimagepath+'.image'
     curstats['qim']=imstat(imagename=imagename, stokes='Q')
@@ -259,14 +259,14 @@ else:
     refpath=rootdatapath+'reference/3C391linpol_regrun.pickle'
     if os.path.isfile(refpath):
       f = open(refpath)
-      import cPickle
+      import pickle
       try:
-        refarch=cPickle.load(f)
-        refstattypes=cPickle.load(f)
+        refarch=pickle.load(f)
+        refstattypes=pickle.load(f)
         for sttype in refstattypes:
-          refstats[sttype]=cPickle.load(f)
+          refstats[sttype]=pickle.load(f)
         refdataused=refpath
-      except (EOFError, cPickle.UnpicklingError):
+      except (EOFError, pickle.UnpicklingError):
         raise e
       f.close() 
         
@@ -292,9 +292,9 @@ else:
     tests['usigdiff']=difftest(diffusigfrac,tolres)
 
     # results logging
-    print "***Logging the reulsts***"
+    print("***Logging the reulsts***")
     failcnts=0
-    for k,v in tests.items():
+    for k,v in list(tests.items()):
       if 'FAILED' in v: 
         regstate=False
         failcnts+=1
@@ -303,74 +303,74 @@ else:
     else:
       msg='FAILED (ntest failed=%s)' % failcnts
 
-    print >>logfile,''
-    print >>logfile,''
-    print >>logfile,'********************************* Data Summary *********************************'
-    print >>logfile,'*                                '
-    print >>logfile,'Observation: EVLA'
-    print >>logfile,'Data records: 54582       Total integration time = 2085.5 seconds'
-    print >>logfile,'Observed from 24-Apr-2010/08:24:53.0   to 24-Apr-2010/08:59:38.5 (UTC)'
-    print >>logfile,'ObservationID = 0         ArrayID = 0'
-    print >>logfile,'Date        Timerange (UTC) Scan  FldId FieldName    nVis Int(s)   SpwIds'
-    print >>logfile,'24-Apr-2010/08:24:53.0 - 08:29:43.0 5      0 3C391 C1 7590   9.83     [0]'
-    print >>logfile,'            08:29:43.0 - 08:34:43.0 6      1 3C391 C2 7821   9.65     [0]'
-    print >>logfile,'            08:34:43.0 - 08:39:43.0 7      2 3C391 C3 7821   9.66     [0]'
-    print >>logfile,'            08:39:43.0 - 08:44:43.0 8      3 3C391 C4 7821   9.61     [0]'
-    print >>logfile,'            08:44:43.0 - 08:49:43.0 9      4 3C391 C5 7843   9.62     [0]'
-    print >>logfile,'            08:49:43.0 - 08:54:43.0 10     5 3C391 C6 7843   9.58     [0]'
-    print >>logfile,'            08:54:43.0 - 08:59:38.5 11     6 3C391 C7 7843   9.58     [0]'
-    print >>logfile,'   (nVis = Total number of time/baseline visibilities per scan)' 
-    print >>logfile,'Fields: 7'
-    print >>logfile,'  ID   Code Name         RA Decl           Epoch   SrcId nVis'   
-    print >>logfile,'  0    NONE 3C391 C1     18:49:24.2440 -00.55.40.5800 J2000 0     7590'   
-    print >>logfile,'  1    NONE 3C391 C2     18:49:29.1490 -00.57.48.0000 J2000 1     7821'   
-    print >>logfile,'  2    NONE 3C391 C3     18:49:19.3390 -00.57.48.0000 J2000 2     7821'   
-    print >>logfile,'  3    NONE 3C391 C4     18:49:14.4340 -00.55.40.5800 J2000 3     7821'   
-    print >>logfile,'  4    NONE 3C391 C5     18:49:19.3390 -00.53.33.1600 J2000 4     7843'   
-    print >>logfile,'  5    NONE 3C391 C6     18:49:29.1490 -00.53.33.1600 J2000 5     7843'   
-    print >>logfile,'  6    NONE 3C391 C7     18:49:34.0540 -00.55.40.5800 J2000 6     7843'   
-    print >>logfile,'   (nVis = Total number of time/baseline visibilities per field)' 
-    print >>logfile,'Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)'
-    print >>logfile,'  SpwID  #Chans Frame Ch1(MHz) ChanWid(kHz)TotBW(kHz) Ref(MHz)    Corrs'           
-    print >>logfile,'  0          64 TOPO  4536        2000 128000      4536 RR  RL  LR  LL ' 
-    print >>logfile,'********************************************************************************'
-    print >>logfile,' '
-    print >>logfile,'******************************** Regression ************************************'
-    print >>logfile,'*                                                                              *'
-    print >>logfile,'Q image test' 
-    print >>logfile,'Peak flux density: %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s' \
+    print('', file=logfile)
+    print('', file=logfile)
+    print('********************************* Data Summary *********************************', file=logfile)
+    print('*                                ', file=logfile)
+    print('Observation: EVLA', file=logfile)
+    print('Data records: 54582       Total integration time = 2085.5 seconds', file=logfile)
+    print('Observed from 24-Apr-2010/08:24:53.0   to 24-Apr-2010/08:59:38.5 (UTC)', file=logfile)
+    print('ObservationID = 0         ArrayID = 0', file=logfile)
+    print('Date        Timerange (UTC) Scan  FldId FieldName    nVis Int(s)   SpwIds', file=logfile)
+    print('24-Apr-2010/08:24:53.0 - 08:29:43.0 5      0 3C391 C1 7590   9.83     [0]', file=logfile)
+    print('            08:29:43.0 - 08:34:43.0 6      1 3C391 C2 7821   9.65     [0]', file=logfile)
+    print('            08:34:43.0 - 08:39:43.0 7      2 3C391 C3 7821   9.66     [0]', file=logfile)
+    print('            08:39:43.0 - 08:44:43.0 8      3 3C391 C4 7821   9.61     [0]', file=logfile)
+    print('            08:44:43.0 - 08:49:43.0 9      4 3C391 C5 7843   9.62     [0]', file=logfile)
+    print('            08:49:43.0 - 08:54:43.0 10     5 3C391 C6 7843   9.58     [0]', file=logfile)
+    print('            08:54:43.0 - 08:59:38.5 11     6 3C391 C7 7843   9.58     [0]', file=logfile)
+    print('   (nVis = Total number of time/baseline visibilities per scan)', file=logfile) 
+    print('Fields: 7', file=logfile)
+    print('  ID   Code Name         RA Decl           Epoch   SrcId nVis', file=logfile)   
+    print('  0    NONE 3C391 C1     18:49:24.2440 -00.55.40.5800 J2000 0     7590', file=logfile)   
+    print('  1    NONE 3C391 C2     18:49:29.1490 -00.57.48.0000 J2000 1     7821', file=logfile)   
+    print('  2    NONE 3C391 C3     18:49:19.3390 -00.57.48.0000 J2000 2     7821', file=logfile)   
+    print('  3    NONE 3C391 C4     18:49:14.4340 -00.55.40.5800 J2000 3     7821', file=logfile)   
+    print('  4    NONE 3C391 C5     18:49:19.3390 -00.53.33.1600 J2000 4     7843', file=logfile)   
+    print('  5    NONE 3C391 C6     18:49:29.1490 -00.53.33.1600 J2000 5     7843', file=logfile)   
+    print('  6    NONE 3C391 C7     18:49:34.0540 -00.55.40.5800 J2000 6     7843', file=logfile)   
+    print('   (nVis = Total number of time/baseline visibilities per field)', file=logfile) 
+    print('Spectral Windows:  (1 unique spectral windows and 1 unique polarization setups)', file=logfile)
+    print('  SpwID  #Chans Frame Ch1(MHz) ChanWid(kHz)TotBW(kHz) Ref(MHz)    Corrs', file=logfile)           
+    print('  0          64 TOPO  4536        2000 128000      4536 RR  RL  LR  LL ', file=logfile) 
+    print('********************************************************************************', file=logfile)
+    print(' ', file=logfile)
+    print('******************************** Regression ************************************', file=logfile)
+    print('*                                                                              *', file=logfile)
+    print('Q image test', file=logfile) 
+    print('Peak flux density: %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s' \
             % (curstats['qim']['max'][0], refstats['qim']['max'][0],\
-               tests['qmaxdiff'][1], tests['qmaxdiff'][0])
-    print >>logfile,'(tolerance=%s)' % tol
-    print >>logfile,'Residual sigma:    %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s ' \
+               tests['qmaxdiff'][1], tests['qmaxdiff'][0]), file=logfile)
+    print('(tolerance=%s)' % tol, file=logfile)
+    print('Residual sigma:    %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s ' \
             % (curstats['qres']['sigma'][0], refstats['qres']['sigma'][0],\
-               tests['qsigdiff'][1],tests['qsigdiff'][0])
-    print >>logfile,'(tolerance=%s)' % tolres
-    print >>logfile,'------------------------------------------------------------'
-    print >>logfile,'U image test '
-    print >>logfile,'Peak flux density: %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s' \
+               tests['qsigdiff'][1],tests['qsigdiff'][0]), file=logfile)
+    print('(tolerance=%s)' % tolres, file=logfile)
+    print('------------------------------------------------------------', file=logfile)
+    print('U image test ', file=logfile)
+    print('Peak flux density: %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s' \
             % (curstats['uim']['max'][0], refstats['uim']['max'][0], \
-               tests['umaxdiff'][1], tests['umaxdiff'][0])
-    print >>logfile,'(tolerance=%s)' % tol
-    print >>logfile,'Residual sigma:    %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s ' \
+               tests['umaxdiff'][1], tests['umaxdiff'][0]), file=logfile)
+    print('(tolerance=%s)' % tol, file=logfile)
+    print('Residual sigma:    %-10.5g (expected: %-10.5g, frac_diff:%-10.5g) %s ' \
             % (curstats['ures']['sigma'][0], refstats['ures']['sigma'][0],\
-               tests['usigdiff'][1],tests['usigdiff'][0])
-    print >>logfile,'(tolerance=%s)' % tolres
-    print >>logfile,' '
-    print >>logfile,' ** reference data used ** '
-    print >>logfile, refdataused
-    print >>logfile,' ============================================================================== '
-    print >>logfile,'Regression %s ' % msg
-    print >>logfile,'*                                                                              *'
-    print >>logfile,'********************************************************************************'
-    print >>logfile,' '
-    print >>logfile,'******************** Benchmarking **************************'
-    print >>logfile,'*                                                          *'
-    print >>logfile,'Total wall clock time was %13.3f: ' % (endTime - startTime)
-    print >>logfile,'Total CPU        time was %13.3f: ' % (endProc - startProc)
-    print >>logfile,'Processing rate MB/s  was %13.3f: ' % (329./(endTime - startTime))
-    print >>logfile,'*                                                          *'
-    print >>logfile,'************************************************************'
+               tests['usigdiff'][1],tests['usigdiff'][0]), file=logfile)
+    print('(tolerance=%s)' % tolres, file=logfile)
+    print(' ', file=logfile)
+    print(' ** reference data used ** ', file=logfile)
+    print(refdataused, file=logfile)
+    print(' ============================================================================== ', file=logfile)
+    print('Regression %s ' % msg, file=logfile)
+    print('*                                                                              *', file=logfile)
+    print('********************************************************************************', file=logfile)
+    print(' ', file=logfile)
+    print('******************** Benchmarking **************************', file=logfile)
+    print('*                                                          *', file=logfile)
+    print('Total wall clock time was %13.3f: ' % (endTime - startTime), file=logfile)
+    print('Total CPU        time was %13.3f: ' % (endProc - startProc), file=logfile)
+    print('Processing rate MB/s  was %13.3f: ' % (329./(endTime - startTime)), file=logfile)
+    print('*                                                          *', file=logfile)
+    print('************************************************************', file=logfile)
     if savelog: logfile.close()
 
     # save the regression results (statistics)  in pickle
@@ -380,7 +380,7 @@ else:
       pickfile = '3c391polim.regression.'+datestring+'.pickle' 
       f = open(pickfile,'w')
       casapath=os.environ['CASAPATH'].split()
-      if os.environ.has_key('HOSTNAME'):
+      if 'HOSTNAME' in os.environ:
         hostname=os.environ['HOSTNAME']
       elif len(casapath) >3:
         hostname=casapath[3]
@@ -402,15 +402,15 @@ else:
           # assume 32bit linux
           arch ="running on %s (32bit linux)" % hostname 
       #Pickling
-      cPickle.dump(arch,f)
+      pickle.dump(arch,f)
       # stats are stored in this order
       statslist=['qim','qres','uim','ures']
-      cPickle.dump(statslist,f)
+      pickle.dump(statslist,f)
       for stats in statslist:
-        cPickle.dump(curstats[stats],f) 
+        pickle.dump(curstats[stats],f) 
       f.close() 
 
     # just to be informative 
     if savelog: 
-      print "Regression %s: " % msg
-      print "log output: %s" % outfile
+      print("Regression %s: " % msg)
+      print("log output: %s" % outfile)

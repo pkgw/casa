@@ -307,40 +307,40 @@ def plotms(vis=None,
     try:
         # Do preliminary checks on argument values
         # Set synonyms to existing_terms
-        if(synonyms.has_key(xaxis)):
+        if(xaxis in synonyms):
             xaxis = synonyms[xaxis]
         if isinstance(yaxis, str):
-            if synonyms.has_key(yaxis):
+            if yaxis in synonyms:
                 yaxis = synonyms[yaxis]
         elif isinstance(yaxis, list):
             for index,axis in enumerate(yaxis):
-                if synonyms.has_key(axis):
+                if axis in synonyms:
                     yaxis[index] = synonyms[axis]
 
         if isinstance(coloraxis, str):
-            if synonyms.has_key(coloraxis):
+            if coloraxis in synonyms:
                 coloraxis = synonyms[coloraxis]
 
-        if(synonyms.has_key(xdatacolumn)):
+        if(xdatacolumn in synonyms):
             xdatacolumn = synonyms[xdatacolumn]
         if isinstance(ydatacolumn, str):
-            if synonyms.has_key(ydatacolumn):
+            if ydatacolumn in synonyms:
                 yaxis = synonyms[ydatacolumn]
         elif isinstance(ydatacolumn, list):
             for index,col in enumerate(ydatacolumn):
-                if synonyms.has_key(col):
+                if col in synonyms:
                     ydatacolumn[index] = synonyms[col]
 
         for param_name in ['xframe','yframe']:
             param_py_value = eval(param_name)
             if isinstance(param_py_value, str):
-                if cpp_radec_frame.has_key(param_py_value):
+                if param_py_value in cpp_radec_frame:
                     exec('{p_name} = cpp_radec_frame[param_py_value]'.format(
                             p_name=param_name)
                     )
             elif isinstance(param_py_value, list):
                 for index,frame in enumerate(param_py_value):
-                    if cpp_radec_frame.has_key(frame):
+                    if frame in cpp_radec_frame:
                         exec('{p_name}[{index}] = cpp_radec_frame[frame]'.format(
                             p_name=param_name,
                             index=index)
@@ -349,13 +349,13 @@ def plotms(vis=None,
         for param_name in ['xinterp','yinterp']:
             param_py_value = eval(param_name)
             if isinstance(param_py_value, str):
-                if cpp_radec_interp.has_key(param_py_value):
+                if param_py_value in cpp_radec_interp:
                     exec('{p_name} = cpp_radec_interp[param_py_value]'.format(
                             p_name=param_name)
                     )
             elif isinstance(param_py_value, list):
                 for index,interp in enumerate(param_py_value):
-                    if cpp_radec_interp.has_key(interp):
+                    if interp in cpp_radec_interp:
                         exec('{p_name}[{index}] = cpp_radec_interp[interp]'.format(
                             p_name=param_name,
                             index=index)
@@ -559,7 +559,7 @@ def plotms(vis=None,
                     if i < yLocationCount:
                         yAxisLocation = yaxislocation[i]
                     if xaxis in ['ant-ra','ant-dec'] or yaxis[i]  in ['ant-ra','ant-dec']:
-                        raise Exception, 'Currently not supported: multiple y-axes involving ant-ra or ant-dec'
+                        raise Exception('Currently not supported: multiple y-axes involving ant-ra or ant-dec')
                     # Always make C++ ra/dec parameters vectors the same length as yaxis
                     xframe = yframe = 'icrs'
                     xinterp = yinterp = 'nearest'
@@ -568,7 +568,7 @@ def plotms(vis=None,
                         yAxisLocation,
                         False, plotindex, i)
             else :
-                raise Exception, 'Please remove duplicate y-axes.'
+                raise Exception('Please remove duplicate y-axes.')
 
         if not showatm:
             showatm = False
@@ -949,9 +949,9 @@ def plotms(vis=None,
                 casalog.post("Exporting the plot.",'NORMAL')
                 plotUpdated = pm.save( plotfile, expformat, verbose, highres, dpi, width, height)
 
-    except Exception, instance:
+    except Exception as instance:
         plotUpdated = False
-        print "Exception during plotms task: ", instance
+        print("Exception during plotms task: ", instance)
         
     if not plotUpdated:
         checkProcesses() # see if something crashed, log failure

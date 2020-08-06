@@ -25,13 +25,13 @@ def fillfakevis(myvis):
     mytb.close()
 
     mytb.open(myvis, nomodify=False)
-    for i in xrange(0,mytb.nrows()):
+    for i in range(0,mytb.nrows()):
         dd = mytb.getcell('DATA_DESC_ID',i)
         thespwid = spwids[dd]
         # generate vis
         thevis = mytb.getcell(mycol, i)
-        for j in xrange(len(thevis)): # loop over pol
-            for k in xrange(len(thevis[j])): # loop over freq
+        for j in range(len(thevis)): # loop over pol
+            for k in range(len(thevis[j])): # loop over freq
                 thevis[j][k] = thefreqs[k][thespwid]/myfactor - myoffset
         mytb.putcell(mycol, i, thevis)
         
@@ -52,7 +52,7 @@ def createtestdata():
 
     thevis = 'AB_no_overlap.ms'
     myspw = thevis+'/SPECTRAL_WINDOW'
-    print myspw
+    print(myspw)
     mytb.open(myspw, nomodify=False)
     thefreqs = mytb.getcol('CHAN_FREQ')
     thereffreq = mytb.getcol('REF_FREQUENCY')
@@ -63,12 +63,12 @@ def createtestdata():
 
         thefreqoffset = 2 * (thefreqs[thenumchan[0]-1][0] - thefreqs[0][1])
 
-        print "thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0]
-        print 'freq offset ', thefreqoffset
+        print("thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0])
+        print('freq offset ', thefreqoffset)
 
-        for i in xrange(1,mytb.nrows()):
+        for i in range(1,mytb.nrows()):
             thereffreq[i] -=  thefreqoffset
-            for j in xrange(thenumchan[i]):
+            for j in range(thenumchan[i]):
                 thefreqs[j][i] -= thefreqoffset
 
         mytb.putcol('CHAN_FREQ', thefreqs)
@@ -87,7 +87,7 @@ def createtestdata():
 
     thevis = 'AB_overlap.ms'
     myspw = thevis + '/SPECTRAL_WINDOW'
-    print myspw
+    print(myspw)
     mytb.open(myspw, nomodify=False)
     thefreqs = mytb.getcol('CHAN_FREQ')
     thereffreq = mytb.getcol('REF_FREQUENCY')
@@ -95,12 +95,12 @@ def createtestdata():
     thenumchan = mytb.getcol('NUM_CHAN')
 
     thefreqoffset = thenumchan[0]*0.1*thechanwid[0][0]
-    print "thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0]
-    print 'freq offset ', thefreqoffset
+    print("thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0])
+    print('freq offset ', thefreqoffset)
 
-    for i in xrange(1,mytb.nrows()):
+    for i in range(1,mytb.nrows()):
         thereffreq[i] -=  thefreqoffset
-        for j in xrange(thenumchan[i]):
+        for j in range(thenumchan[i]):
             thefreqs[j][i] -= thefreqoffset
 
     mytb.putcol('CHAN_FREQ', thefreqs)
@@ -119,7 +119,7 @@ def createtestdata():
 
     thevis = 'BA_no_overlap.ms'
     myspw = thevis+'/SPECTRAL_WINDOW'
-    print myspw
+    print(myspw)
     mytb.open(myspw, nomodify=False)
     thefreqs = mytb.getcol('CHAN_FREQ')
     thereffreq = mytb.getcol('REF_FREQUENCY')
@@ -128,12 +128,12 @@ def createtestdata():
 
     thefreqoffset = 1.1 * (thefreqs[thenumchan[1]-1][1] - thefreqs[0][0])
 
-    print "thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0]
-    print 'freq offset ', thefreqoffset
+    print("thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0])
+    print('freq offset ', thefreqoffset)
 
-    for i in xrange(1,mytb.nrows()):
+    for i in range(1,mytb.nrows()):
         thereffreq[i] -=  thefreqoffset
-        for j in xrange(thenumchan[i]):
+        for j in range(thenumchan[i]):
             thefreqs[j][i] -= thefreqoffset
 
     mytb.putcol('CHAN_FREQ', thefreqs)
@@ -153,7 +153,7 @@ def createtestdata():
 
     thevis = 'BA_overlap.ms'
     myspw = thevis+'/SPECTRAL_WINDOW'
-    print myspw
+    print(myspw)
     mytb.open(myspw, nomodify=False)
     thefreqs = mytb.getcol('CHAN_FREQ')
     thereffreq = mytb.getcol('REF_FREQUENCY')
@@ -162,12 +162,12 @@ def createtestdata():
 
     thefreqoffset = 0.7 * (thefreqs[thenumchan[1]-1][1] - thefreqs[0][0])
 
-    print "thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0]
-    print 'freq offset ', thefreqoffset
+    print("thenumchan[0],thechanwid[0][0]", thenumchan[0], ' ' , thechanwid[0][0])
+    print('freq offset ', thefreqoffset)
 
-    for i in xrange(1,mytb.nrows()):
+    for i in range(1,mytb.nrows()):
         thereffreq[i] -=  thefreqoffset
-        for j in xrange(thenumchan[i]):
+        for j in range(thenumchan[i]):
             thefreqs[j][i] -= thefreqoffset
 
     mytb.putcol('CHAN_FREQ', thefreqs)
@@ -191,15 +191,15 @@ def makedescend(myvis):
     mytb = tbtool()
 
     myspw = myvis+'/SPECTRAL_WINDOW'
-    print myspw
+    print(myspw)
     mytb.open(myspw, nomodify=False)
     thefreqs = mytb.getcol('CHAN_FREQ')
     theoldfreqs = np.array(thefreqs)
     thereffreq = mytb.getcol('REF_FREQUENCY')
     thenumchan = mytb.getcol('NUM_CHAN')
 
-    for i in xrange(mytb.nrows()):
-        for j in xrange(thenumchan[i]):
+    for i in range(mytb.nrows()):
+        for j in range(thenumchan[i]):
             thefreqs[j][i] = theoldfreqs[thenumchan[i]-1-j][i] 
             
         thereffreq[i] = thefreqs[0][i]
@@ -216,7 +216,7 @@ def makedescend(myvis):
 
 def testvisibs(myvis, threshold):
 
-    print "Testing ", myvis, ' with threshold ', threshold, '(= max tolerated error as fraction of channel width)'
+    print("Testing ", myvis, ' with threshold ', threshold, '(= max tolerated error as fraction of channel width)')
 
     mytb = tbtool()
 
@@ -241,11 +241,11 @@ def testvisibs(myvis, threshold):
     os.system('rm -rf '+logfile)
     fp = open(logfile, 'w')
     fp.write(mycvis+'\n')
-    for i in xrange(mytb.nrows()):
+    for i in range(mytb.nrows()):
         thevis = mytb.getcell('DATA',i)
         failure = False
-        for j in xrange(len(thevis)): # pol
-            for k in xrange(len(thevis[j])): # channel
+        for j in range(len(thevis)): # pol
+            for k in range(len(thevis[j])): # channel
                 if(abs(thevis[j][k]-thefreq[k])>thecw[k]*threshold):
                     fp.write( 'row, pol, chan, thevis, thefreq, thevis-thefreq, frac: '\
                               +str(i)+', '+str(j)+', '+str(k)+', '+str(thevis[j][k])+', '\
@@ -259,7 +259,7 @@ def testvisibs(myvis, threshold):
     fp.close()
 
     if not rval:
-        print "Failed in ", count, " of ", mytb.nrows() , " cases (", count/(0.01*mytb.nrows()), "%)"
+        print("Failed in ", count, " of ", mytb.nrows() , " cases (", count/(0.01*mytb.nrows()), "%)")
 
     mytb.close()
     
@@ -277,10 +277,10 @@ passed = True
 for mname in ['AB_no_overlap.ms', 'AB_overlap.ms', 'BA_no_overlap.ms', 'BA_overlap.ms']: 
     for prefix in ['', 'desc-']:
         rval = testvisibs(prefix+mname, tolerance)
-        print rval
+        print(rval)
         passed = passed and rval
     
 if passed:
-    print "PASSED"
+    print("PASSED")
 else:
-    print "FAIL"
+    print("FAIL")

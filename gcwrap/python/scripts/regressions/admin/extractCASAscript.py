@@ -24,13 +24,13 @@ The script runs in one of three modes:
    benchmarks of performance, e.g., as a function of machine.
 '''
 
-from __future__ import print_function
+
 
 # =====================
 # IMPORTS
 # =====================
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import sys
 import codecs
 import re
@@ -46,7 +46,7 @@ if sys.version_info[0] > 2:
     py3 = True
     import urllib.request
 else:
-    import urllib2
+    import urllib.request, urllib.error, urllib.parse
 
 # =====================
 # DEFINITIONS
@@ -544,7 +544,7 @@ def listCASATasks():
     """
     from tasks import allcat
     all_tasks=[]
-    for key in allcat.keys():
+    for key in list(allcat.keys()):
         for taskname in allcat[key]:
             if (taskname[0] == '(') or (taskname[0]=='{'):
                 taskname = taskname[1:-1]
@@ -613,9 +613,9 @@ def main(URL, benchmark=False , diagplotoff=False , plotmsoff=False, noninteract
                 response = urllib.request.urlopen(req,context=gcontext)
                 responseLines = response.read().decode('utf-8').split("\n")
             else:
-                req = urllib2.Request(URL)
+                req = urllib.request.Request(URL)
                 gcontext = ssl.SSLContext(ssl.PROTOCOL_TLS) # Fix for python versions > 2.7.13 to match new certificates 
-                response = urllib2.urlopen(req,context=gcontext)
+                response = urllib.request.urlopen(req,context=gcontext)
                 responseLines = response.read().split("\n")
         else:
             if py3:
@@ -624,8 +624,8 @@ def main(URL, benchmark=False , diagplotoff=False , plotmsoff=False, noninteract
                 responseLines = response.read().decode('utf-8').split("\n")
 
             else:
-                req = urllib2.Request(URL)
-                response = urllib2.urlopen(req)
+                req = urllib.request.Request(URL)
+                response = urllib.request.urlopen(req)
                 responseLines = response.read().split("\n")
         # Clean up the output file name
         outFile = URL.split('/')[-1]

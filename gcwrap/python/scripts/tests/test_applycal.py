@@ -28,9 +28,9 @@ class test_base(unittest.TestCase):
     def setUpFileCore(self,file,type_file):
         
         if os.path.exists(file):
-             print "%s file %s is already in the working area, deleting ..." % (type_file,file)
+             print("%s file %s is already in the working area, deleting ..." % (type_file,file))
              os.system('rm -rf ' + file)
-        print "Copy %s file %s into the working area..." % (type_file,file)
+        print("Copy %s file %s into the working area..." % (type_file,file))
         os.system('cp -R ' + os.environ.get('CASAPATH').split()[0] +
                   '/data/regression/unittest/simplecluster/' + file + ' ' + file)
     
@@ -73,7 +73,7 @@ class Applycal_mms_tests(test_base):
         # Verify that flagbackup works
         self.assertTrue(os.path.exists(self.vis+'.flagversions'), 'Backup of flags was not created') 
         files = os.listdir(self.vis+'/SUBMSS')
-        print files
+        print(files)
         for ff in files:
             self.assertFalse(ff.__contains__('flagversions'))
             

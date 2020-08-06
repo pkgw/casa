@@ -96,7 +96,7 @@ class ia_summary_test(unittest.TestCase):
             cpa = qa.quantity("80deg")
             myia.setrestoringbeam(major=cmaj, minor=cmin, pa=cpa, channel=6, polarization=3)
             summary = myia.summary()
-            self.assertTrue(summary.has_key("perplanebeams"))
+            self.assertTrue("perplanebeams" in summary)
             beams = summary["perplanebeams"]["beams"]
             for c in range(shape[2]):
                 for p in range(shape[3]):

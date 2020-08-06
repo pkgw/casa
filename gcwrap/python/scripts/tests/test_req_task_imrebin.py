@@ -175,7 +175,7 @@ class imrebin_test(unittest.TestCase):
         sizeReg = np.shape(regImage)
         sizeBin = np.shape(binImage)
         
-        print(sizeReg[0], sizeBin[0])
+        print((sizeReg[0], sizeBin[0]))
         self.assertTrue(sizeReg[0] / 2 == sizeBin[0])
     
     def test_floatValue(self):
@@ -444,7 +444,7 @@ class imrebin_test(unittest.TestCase):
         maskCheck = tb.getcol('map')[:,:,0,0]
         tb.close()
         
-        print(maskCheck[0][0],)
+        print((maskCheck[0][0],))
         self.assertTrue(maskCheck[0][0] == maskCheck[0][1] == maskCheck[0][2] == 0)
         
     def test_overwrite(self):

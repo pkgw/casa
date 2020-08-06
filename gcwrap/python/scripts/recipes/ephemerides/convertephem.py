@@ -43,9 +43,9 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
     radvel = tbt.getcol('RadVel')
     radvelunit = 'km/s'
     tmpkw = tbt.getcolkeywords('RadVel')
-    if tmpkw.has_key('UNIT'):
+    if 'UNIT' in tmpkw:
         radvelunit = tmpkw['UNIT']
-    elif tmpkw.has_key('QuantumUnits'):
+    elif 'QuantumUnits' in tmpkw:
         radvelunit = tmpkw['QuantumUnits'][0]
     else:
         casalog.post('Cannot determine units of radial velocity column. Assuming km/s.', 'WARN')
@@ -57,7 +57,7 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
     geolat = kw['GeoLat'] # (deg)
     geolong = kw['GeoLong'] # (deg)
 
-    if kw.has_key('obsloc'):
+    if 'obsloc' in kw:
         obsloc = kw['obsloc']
     else:
         casalog.post('Ephemeris does not have the obsloc keyword.', 'INFO')
@@ -70,7 +70,7 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
     oldref = 'J2000'
     newref = 'ICRS'
 
-    if kw.has_key('posrefsys'):
+    if 'posrefsys' in kw:
         posref = kw['posrefsys']
     else:
         casalog.post('Ephemeris does not have the posrefsys keyword. Assuming ICRF/J2000.0', 'WARN')
@@ -155,7 +155,7 @@ def converttopoephem2geo(tablename='', outtablename='', overwrite=True):
         tbt.putkeyword('obsloc', 'GEOCENTRIC')
         tbt.putkeyword('posrefsys', newposref)
         tbt.close()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' " % (instance), 'SEVERE')
         if overwrite and outtablename==tablename:
             casalog.post('Conversion in situ was not possible. Restoring original ephemeris ...', 'INFO')
@@ -235,7 +235,7 @@ def convert2geo(vis='', field=''):
 
         return rval
 
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' " % (instance), 'SEVERE')
         return False
 

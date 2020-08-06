@@ -38,7 +38,7 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 				tb.open(vis+'/DATA_DESCRIPTION')
 				for k in spwlist:
 					if (k<-1 or k>maxspw):
-						raise Exception, "Error: max valid spw id is "+str(maxspw)
+						raise Exception("Error: max valid spw id is "+str(maxspw))
 						raise
 					else:
 						for j in range(0,tb.nrows()):
@@ -48,15 +48,15 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 				tb.close()
 				casalog.post('DATA_DESC_IDs to process: '+str(myddlist), 'INFO')
 			except:
-				raise Exception, 'Error reading DATA_DESCRIPTION table'
+				raise Exception('Error reading DATA_DESCRIPTION table')
 		#endif
 		outname = 'conjugatedvis_'+vis
 		if not outputvis=="":
 			if((type(outputvis)!=str) or (len(outputvis.split()) < 1)):
-				raise Exception, 'parameter outputvis is invalid'
+				raise Exception('parameter outputvis is invalid')
 			outname = outputvis
 		if not overwrite and os.path.exists(outname):
-			raise Exception, 'outputvis '+outname+' exists and you did not permit overwrite'
+			raise Exception('outputvis '+outname+' exists and you did not permit overwrite')
 		os.system('rm -rf '+outname)
 		os.system('cp -R '+vis+' '+outname)
 		tb.open(outname, nomodify=False)
@@ -65,7 +65,7 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 				for colname in [ 'DATA', 'CORRECTED_DATA', 'FLOAT_DATA' ]:
 					if colname in tb.colnames():
 						casalog.post('Conjugating '+str(colname), 'INFO')
-						for i in xrange(0,tb.nrows()):
+						for i in range(0,tb.nrows()):
 							a = tb.getcell(colname, i)
 							a = a.conjugate()
 							tb.putcell(colname, i, a)
@@ -73,7 +73,7 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 				for colname in [ 'DATA', 'CORRECTED_DATA', 'FLOAT_DATA' ]:
 					if colname in tb.colnames():
 						casalog.post('Conjugating '+str(colname), 'INFO')
-						for i in xrange(0,tb.nrows()):
+						for i in range(0,tb.nrows()):
 							if(tb.getcell("DATA_DESC_ID",i) in myddlist):
 								a = tb.getcell(colname, i)
 								a = a.conjugate()
@@ -88,17 +88,17 @@ def conjugatevis(vis,spwlist=[],outputvis="",overwrite=False):
 			
 		# Write history to output MS
 		try:
-			param_names = conjugatevis.func_code.co_varnames[:conjugatevis.func_code.co_argcount]
+			param_names = conjugatevis.__code__.co_varnames[:conjugatevis.__code__.co_argcount]
 			param_vals = [eval(p) for p in param_names]
 			write_history(mstool(), outputvis, 'conjugatevis', param_names,
 						  param_vals, casalog)
-		except Exception, instance:
+		except Exception as instance:
 			casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
 						 'WARN')
 			
-	except Exception, instance:
+	except Exception as instance:
 		tb.close()
-		print '*** Error ***', instance
-		raise Exception, instance
+		print('*** Error ***', instance)
+		raise Exception(instance)
 
 

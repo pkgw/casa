@@ -154,7 +154,7 @@ class impbcor_test(unittest.TestCase):
         fracDiffRef = (
             gotCsys.referencevalue()['numeric'] - expectedCsys.referencevalue()['numeric']
         )/denom;
-        print "*** " + str(abs(fracDiffRef).max())
+        print("*** " + str(abs(fracDiffRef).max()))
         self.assertTrue(abs(fracDiffRef).max() <= 1.5e-6)
         gotnpts = got.statistics()['npts']
         expnpts = expected.statistics()['npts']

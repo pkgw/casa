@@ -20,12 +20,12 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/exportasdm/
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     testmms = True
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/clearstat/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR
-    print 'clearstat tests will use data from '+datapath    
+    print('clearstat tests will use data from '+datapath)    
 
 class clearstat_test(unittest.TestCase):
     

@@ -31,13 +31,13 @@ def sdsmooth(infile=None, datacolumn=None, antenna=None,
         sdms.smooth(type=kernel, width=kwidth, datacolumn=datacolumn, outfile=outfile)
         
         # Write to HISTORY of outfile MS
-        param_names = sdsmooth.func_code.co_varnames[:sdsmooth.func_code.co_argcount]
+        param_names = sdsmooth.__code__.co_varnames[:sdsmooth.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         write_history(ms, outfile, 'sdsmooth', param_names,
                       param_vals, casalog)
 
-    except Exception, instance:
-        raise Exception, instance
+    except Exception as instance:
+        raise Exception(instance)
     finally:
         sdms.close()
 

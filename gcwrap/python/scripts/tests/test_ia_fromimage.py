@@ -104,7 +104,7 @@ class ia_fromimage_test(unittest.TestCase):
         for t in ("f", "c", "d", "cd"):
             myia.fromshape(name, [20,20], type=t, overwrite=True)
             myia.fromimage("", name)
-            self.assertEquals(
+            self.assertEqual(
                 myia.pixeltype(), etype[t], "data tpye check failed"
             )
             myia.done()

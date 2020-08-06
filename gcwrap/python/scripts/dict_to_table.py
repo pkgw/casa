@@ -45,7 +45,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
     TODO: detect non-float data types, including array cells.
     """
     nrows = 0
-    dkeys = indict.keys()
+    dkeys = list(indict.keys())
     keywords = []
     cols = []
 
@@ -56,12 +56,12 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
         """
         barecol = col
         if hasattr(barecol, 'has_key'):
-            if barecol.has_key('comment'):
+            if 'comment' in barecol:
                 barecol = barecol.get('data')
             if type(barecol)==dict and me.ismeasure(barecol):
                 barecol = barecol['m0']
             # if qa.isquantity(data) can't be trusted.
-            if hasattr(barecol, 'has_key') and barecol.has_key('unit') and barecol.has_key('value'):
+            if hasattr(barecol, 'has_key') and 'unit' in barecol and 'value' in barecol:
                 barecol = barecol['value']
         return barecol
         
@@ -76,7 +76,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
             cols.append(dkeys.pop(dkeys.index(c)))
             if nrows == 0:
                 nrows = len(get_bare_col(indict[c]))
-                print "Got nrows =", nrows, "from", c
+                print("Got nrows =", nrows, "from", c)
 
     # Go through what's left of dkeys and assign them to either keywords or
     # cols.
@@ -140,7 +140,7 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
 
             svndir = tempfile.mkdtemp(dir=workingdir)
             shutil.move(tablepath + '/.svn', svndir)
-        print "Removing %s directory" % tablepath
+        print("Removing %s directory" % tablepath)
         shutil.rmtree(tablepath)
 
     # Create and fill the table.
@@ -188,35 +188,35 @@ def dict_to_table(indict, tablepath, kwkeys=[], colkeys=[], info=None, keepcolor
         if type(info) == dict:
             mytb.putinfo(info)
         mytb.addrows(nrows)     # Must be done before putting the columns.
-    except Exception, e:
-        print "Error", e, "trying to create", tablepath
+    except Exception as e:
+        print("Error", e, "trying to create", tablepath)
         retval = False
     for c in cols:
         try:
             #print "tabdesc[%s] =" % c, tabdesc[c]
             data = indict[c]  # Note the trickle-down nature below.
-            if hasattr(indict[c], 'has_key') and indict[c].has_key('comment'):
+            if hasattr(indict[c], 'has_key') and 'comment' in indict[c]:
                 data = data['data']
             if type(data)==dict and me.ismeasure(data):
                 mytb.putcolkeyword(c, 'MEASINFO', {'Ref': data['refer'],
                                                    'type': data['type']})
                 data = data['m0']   # = quantity         
             # if qa.isquantity(data) can't be trusted.
-            if hasattr(data, 'has_key') and data.has_key('unit') and data.has_key('value'):
+            if hasattr(data, 'has_key') and 'unit' in data and 'value' in data:
                 mytb.putcolkeyword(c, 'QuantumUnits',
                                  numpy.array([data['unit']]))
                 data = data['value']
             mytb.putcol(c, data)
-        except Exception, e:
-            print "Error", e, "trying to put column", c, "in", tablepath
-            print "data[0] =", data[0]
-            print "tabdesc[c] =", tabdesc[c]
+        except Exception as e:
+            print("Error", e, "trying to put column", c, "in", tablepath)
+            print("data[0] =", data[0])
+            print("tabdesc[c] =", tabdesc[c])
             retval = False
     for k in keywords:
         try:
             mytb.putkeyword(k, indict[k])
-        except Exception, e:
-            print "Error", e, "trying to put keyword", k, "in", tablepath
+        except Exception as e:
+            print("Error", e, "trying to put keyword", k, "in", tablepath)
             retval = False
     mytb.close()
 

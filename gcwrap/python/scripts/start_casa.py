@@ -1,7 +1,7 @@
 import os
 import sys
 import traceback
-if os.environ.has_key('LD_PRELOAD'):
+if 'LD_PRELOAD' in os.environ:
     del os.environ['LD_PRELOAD']
 
 import argparse
@@ -45,7 +45,7 @@ casa_shutdown_handlers = [ ]
 ##
 _exit_status=0
 try:
-    __startup_scripts = filter( os.path.isfile, map(lambda f: __pylib + '/' + f, __init_scripts ) )
+    __startup_scripts = list(filter( os.path.isfile, [__pylib + '/' + f for f in __init_scripts] ))
 
     __parse = argparse.ArgumentParser(description='CASA bootstrap',add_help=False)
     __parse.add_argument( '--rcdir',dest='rcdir',default=casa['dirs']['rc'],
@@ -77,7 +77,7 @@ try:
 
 except:
     _exit_status = 1
-    print "Unexpected error:"
+    print("Unexpected error:")
     traceback.print_exc(file=sys.stdout)
     pass
 

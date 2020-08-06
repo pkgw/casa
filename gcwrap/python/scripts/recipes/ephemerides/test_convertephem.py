@@ -26,7 +26,7 @@ def compare(tablename='', outtablename='', toldeg=2.7778e-05, tolradvelkms=0.6):
 
     """
 
-    print toldeg
+    print(toldeg)
 
     if type(tablename)!=str or tablename=='':
         casalog.post('Invalid parameter tablename', 'WARN')
@@ -52,7 +52,7 @@ def compare(tablename='', outtablename='', toldeg=2.7778e-05, tolradvelkms=0.6):
     oradvel = tbt.getcol('RadVel')
     tbt.close()
 
-    for i in xrange(len(ra)):
+    for i in range(len(ra)):
         if ora[i] < 0:
             ora[i] += 360.
         rvq = qa.quantity(radvel[i],'AU/d')
@@ -74,40 +74,40 @@ def compare(tablename='', outtablename='', toldeg=2.7778e-05, tolradvelkms=0.6):
         rdra.append(abs((ra[i]-ora[i])/ra[i]))
         rddec.append(abs((dec[i]-odec[i])/dec[i]))
         rdradvel.append(abs((radvel[i]-oradvel[i])/radvel[i]))
-        print ra[i],", ", ora[i],", ", dra[i],", ", dec[i],", ", odec[i],", ", ddec[i],", ", radvel[i],", ", oradvel[i],", ", dradvel[i]
+        print(ra[i],", ", ora[i],", ", dra[i],", ", dec[i],", ", odec[i],", ", ddec[i],", ", radvel[i],", ", oradvel[i],", ", dradvel[i])
 
     a = np.array(dra)
     b = np.array(ddec)
     c = np.array(dradvel)
 
-    print "Absolute differences mean and max"
-    print "RA (deg)", a.mean(), " ", a.max()
-    print "Dec (deg) ", b.mean(), " ", b.max()
-    print "RA (arcsec)", a.mean()*3600., " ", a.max()*3600.
-    print "Dec (arcsec) ", b.mean()*3600., " ", b.max()*3600.
+    print("Absolute differences mean and max")
+    print("RA (deg)", a.mean(), " ", a.max())
+    print("Dec (deg) ", b.mean(), " ", b.max())
+    print("RA (arcsec)", a.mean()*3600., " ", a.max()*3600.)
+    print("Dec (arcsec) ", b.mean()*3600., " ", b.max()*3600.)
 
-    print
-    print "RadVel (km/s)", c.mean(), " ", c.max()
+    print()
+    print("RadVel (km/s)", c.mean(), " ", c.max())
 
     ra = np.array(rdra)
     rb = np.array(rddec)
     rc = np.array(rdradvel)
 
-    print
-    print "Relative differences mean and max (arcsec and km/s)"
-    print "RA ", ra.mean()*3600., " ", ra.max()*3600.
-    print "Dec ", rb.mean()*3600., " ", rb.max()*3600.
-    print "RadVel ", rc.mean(), " ", rc.max()
+    print()
+    print("Relative differences mean and max (arcsec and km/s)")
+    print("RA ", ra.mean()*3600., " ", ra.max()*3600.)
+    print("Dec ", rb.mean()*3600., " ", rb.max()*3600.)
+    print("RadVel ", rc.mean(), " ", rc.max())
 
     rval = True
     if (a.mean()>toldeg):
-        print "RA  not within ", toldeg*3600., " arcsec of expectation."
+        print("RA  not within ", toldeg*3600., " arcsec of expectation.")
         rval = False
     if (b.mean()>toldeg):
-        print "Dec not within ", toldeg*3600., " arcsec of expectation."
+        print("Dec not within ", toldeg*3600., " arcsec of expectation.")
         rval = False
     if (c.mean()>tolradvelkms):
-        print "radvel not within ", tolradvelkms, " km/s of expectation."
+        print("radvel not within ", tolradvelkms, " km/s of expectation.")
         rval = False
 
     return rval
@@ -124,11 +124,11 @@ def test_convertephem():
     if not os.path.exists(inputtab):
         rval = os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/unittest/fixplanets/'+inputtab+' .')
         if rval!=0:
-            raise Exception, "Error copying input data"
+            raise Exception("Error copying input data")
     if not os.path.exists(reftab):
         rval = os.system('cp -R '+os.environ['CASAPATH'].split()[0]+'/data/regression/unittest/fixplanets/'+reftab+' .')
         if rval!=0:
-            raise Exception, "Error copying reference data"
+            raise Exception("Error copying reference data")
 
     outtab = 'geo-titan.tab'
 

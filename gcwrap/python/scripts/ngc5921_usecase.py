@@ -35,7 +35,7 @@ os.system('rm -rf '+prefix+'*')
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -57,7 +57,7 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -159,7 +159,7 @@ listobs()
 #
 # Get rid of the autocorrelations from the MS
 #
-print '--Flag auto-correlation--'
+print('--Flag auto-correlation--')
 
 default('flagdata')
 vis = msfile
@@ -172,7 +172,7 @@ flagdata()
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
 vis = msfile
@@ -205,7 +205,7 @@ setjy()
 #
 # Bandpass calibration
 #
-print '--Bandpass--'
+print('--Bandpass--')
 default('bandpass')
 
 # We can first do the bandpass on the single 5min scan on 1331+305
@@ -261,7 +261,7 @@ bandpass()
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # Armed with the bandpass, we now solve for the
@@ -324,7 +324,7 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
 vis = msfile
@@ -359,7 +359,7 @@ fluxscale()
 # Apply our calibration solutions to the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = msfile
@@ -402,7 +402,7 @@ applycal()
 #
 # Split the gain calibrater data, then the target
 #
-print '--Split 1445+099 Data--'
+print('--Split 1445+099 Data--')
 default('split')
 
 vis = msfile
@@ -425,7 +425,7 @@ split()
 #
 # Now split NGC5921 data (before continuum subtraction)
 #
-print '--Split NGC5921 Data--'
+print('--Split NGC5921 Data--')
 
 splitms = prefix + '.src.split.ms'
 outputvis = splitms
@@ -440,7 +440,7 @@ split()
 # Export the NGC5921 data as UVFITS
 # Start with the split file.
 #
-print '--Export UVFITS--'
+print('--Export UVFITS--')
 default('exportuvfits')
 
 srcuvfits = prefix + '.split.uvfits'
@@ -467,7 +467,7 @@ exportuvfits()
 # UV-plane continuum subtraction on the target
 # (this will update the CORRECTED_DATA column)
 #
-print '--UV Continuum Subtract--'
+print('--UV Continuum Subtract--')
 default('uvcontsub')
 
 vis = msfile
@@ -479,7 +479,7 @@ field = 'N5921*'
 #spw = '0:4~6;50~59'
 # BETA ALERT: still does not use standard notation
 spw = '0'
-channels = range(4,7)+range(50,60)
+channels = list(range(4,7))+list(range(50,60))
 
 # Averaging time (none)
 solint = 0.0
@@ -514,7 +514,7 @@ srcsplitms = msfile + '.contsub'
 # Done with calibration
 # Now clean an image cube of N5921
 #
-print '--Clean--'
+print('--Clean--')
 default('clean')
 
 # Pick up our split source data
@@ -603,7 +603,7 @@ clnimage = imname+'.image'
 #
 # Export the Final CLEAN Image as FITS
 #
-print '--Final Export CLEAN FITS--'
+print('--Final Export CLEAN FITS--')
 default('exportfits')
 
 clnfits = prefix + '.clean.fits'
@@ -621,7 +621,7 @@ exportfits()
 #
 # Get some image statistics
 #
-print '--Imhead--'
+print('--Imhead--')
 default('imhead')
 
 imagename = clnimage
@@ -637,7 +637,7 @@ cubestats = imhead()
 #
 # Get some image moments
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 imagename = clnimage
@@ -670,7 +670,7 @@ momoneimage = momfile + '.weighted_coord'
 #
 # Get some statistics of the moment images
 #
-print '--Imhead--'
+print('--Imhead--')
 default('imhead')
 
 mode = 'stats'
@@ -688,8 +688,8 @@ momonestats = imhead()
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ' NGC5921 results '
-print ' =============== '
+print(' NGC5921 results ')
+print(' =============== ')
 
 #
 # Use the ms tool to get max of the MSs
@@ -700,65 +700,65 @@ ms.open(calsplitms)
 thistest_cal = max(ms.range(["amplitude"]).get('amplitude'))
 ms.close()
 oldtest_cal = 34.0338668823
-print ' Cal Max amplitude should be ',oldtest_cal
-print ' Found : Max = ',thistest_cal
+print(' Cal Max amplitude should be ',oldtest_cal)
+print(' Found : Max = ',thistest_cal)
 diff_cal = abs((oldtest_cal-thistest_cal)/oldtest_cal)
-print ' Difference (fractional) = ',diff_cal
+print(' Difference (fractional) = ',diff_cal)
 
-print ''
+print('')
 # Pull the max src amp value out of the MS
 ms.open(srcsplitms)
 thistest_src = max(ms.range(["amplitude"]).get('amplitude'))
 ms.close()
 #oldtest_src =  1.37963354588 # This was in chans 5-50
 oldtest_src =  46.2060050964 # now in all chans
-print ' Src Max amplitude should be ',oldtest_src
-print ' Found : Max = ',thistest_src
+print(' Src Max amplitude should be ',oldtest_src)
+print(' Found : Max = ',thistest_src)
 diff_src = abs((oldtest_src-thistest_src)/oldtest_src)
-print ' Difference (fractional) = ',diff_src
+print(' Difference (fractional) = ',diff_src)
 
 #
 # Now use the stats produced by imhead above
 #
-print ''
+print('')
 # Pull the max from the cubestats dictionary
 # created above using imhead
 thistest_immax=cubestats['max'][0]
 oldtest_immax = 0.052414759993553162
-print ' Clean image max should be ',oldtest_immax
-print ' Found : Image Max = ',thistest_immax
+print(' Clean image max should be ',oldtest_immax)
+print(' Found : Image Max = ',thistest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print ' Difference (fractional) = ',diff_immax
+print(' Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 # Pull the rms from the cubestats dictionary
 thistest_imrms=cubestats['rms'][0]
 oldtest_imrms = 0.0020218724384903908
-print ' Clean image rms should be ',oldtest_imrms
-print ' Found : Image rms = ',thistest_imrms
+print(' Clean image rms should be ',oldtest_imrms)
+print(' Found : Image rms = ',thistest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print ' Difference (fractional) = ',diff_imrms
+print(' Difference (fractional) = ',diff_imrms)
 
-print ''
+print('')
 # Pull the max from the momzerostats dictionary
 thistest_momzeromax=momzerostats['max'][0]
 oldtest_momzeromax = 1.40223777294
-print ' Moment 0 image max should be ',oldtest_momzeromax
-print ' Found : Moment 0 Max = ',thistest_momzeromax
+print(' Moment 0 image max should be ',oldtest_momzeromax)
+print(' Found : Moment 0 Max = ',thistest_momzeromax)
 diff_momzeromax = abs((oldtest_momzeromax-thistest_momzeromax)/oldtest_momzeromax)
-print ' Difference (fractional) = ',diff_momzeromax
+print(' Difference (fractional) = ',diff_momzeromax)
 
-print ''
+print('')
 # Pull the mean from the momonestats dictionary
 thistest_momoneavg=momonestats['mean'][0]
 oldtest_momoneavg = 1479.77119646
-print ' Moment 1 image mean should be ',oldtest_momoneavg
-print ' Found : Moment 1 Mean = ',thistest_momoneavg
+print(' Moment 1 image mean should be ',oldtest_momoneavg)
+print(' Found : Moment 1 Mean = ',thistest_momoneavg)
 diff_momoneavg = abs((oldtest_momoneavg-thistest_momoneavg)/oldtest_momoneavg)
-print ' Difference (fractional) = ',diff_momoneavg
+print(' Difference (fractional) = ',diff_momoneavg)
 
-print ''
-print '--- Done ---'
+print('')
+print('--- Done ---')
 
 #
 #=====================================================================

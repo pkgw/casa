@@ -163,7 +163,7 @@ def readJPLephem(fmfile,version=''):
     # Try opening fmfile now, because otherwise there's no point continuing.
     try:
         ephem = open(fmfile, 'rb')
-        print "opened the file=",fmfile
+        print("opened the file=",fmfile)
         lines=ephem.readlines()
         # skip this, handle by rstrip later
         #crCount=0
@@ -259,12 +259,12 @@ def readJPLephem(fmfile,version=''):
                     if not cols[col].get('unwanted'):
                         retdict['data'][col]['data'].append(gdict[col])
                 if len(gdict) < num_cols:
-                    print "Partially mismatching line:"
-                    print line
-                    print "Found:"
-                    print gdict
+                    print("Partially mismatching line:")
+                    print(line)
+                    print("Found:")
+                    print(gdict)
                     print_datapat = True
-                    raw_input("pause0")
+                    input("pause0")
             else:
                 print_datapat = True
                 # Chomp trailing whitespace.
@@ -287,7 +287,7 @@ def readJPLephem(fmfile,version=''):
             # Chomp trailing whitespace.
             myline = re.sub(r'\s*$', '', line)
             titleline = myline
-            remaining_cols = cols.keys()
+            remaining_cols = list(cols.keys())
             found_col = True
             # This loop will terminate one way or another.
             while myline and remaining_cols and found_col:
@@ -323,7 +323,7 @@ def readJPLephem(fmfile,version=''):
             for hk in headers:
                  #print "hk=",hk
                   
-                 if not retdict.has_key(hk):
+                 if hk not in retdict:
                     matchobj = re.search(headers[hk]['pat'], line)
                     if matchobj:
                         if hk=='radii':
@@ -343,37 +343,37 @@ def readJPLephem(fmfile,version=''):
 
     # If there were errors, provide debugging info.
     if comp_mismatches:
-        print "Completely mismatching lines:"
+        print("Completely mismatching lines:")
         #print "\n".join(comp_mismatches)
     if print_datapat:
-        print "The apparent title line is:"
-        print titleline
-        print "datapat = r'%s'" % sdatapat
+        print("The apparent title line is:")
+        print(titleline)
+        print("datapat = r'%s'" % sdatapat)
 
     # Convert numerical strings into actual numbers.
     try:
         retdict['earliest'] = datestr_to_epoch(retdict['data']['MJD']['data'][0])
         retdict['latest'] = datestr_to_epoch(retdict['data']['MJD']['data'][-1])
-    except Exception, e:
-        print "Error!"
-        if retdict.has_key('data'):
-            if retdict['data'].has_key('MJD'):
-                if retdict['data']['MJD'].has_key('data'):
+    except Exception as e:
+        print("Error!")
+        if 'data' in retdict:
+            if 'MJD' in retdict['data']:
+                if 'data' in retdict['data']['MJD']:
                     #print "retdict['data']['MJD']['data'] =", retdict['data']['MJD']['data']
-                    print "retdict['data'] =", retdict['data']
+                    print("retdict['data'] =", retdict['data'])
                 else:
-                    print "retdict['data']['MJD'] has no 'data' key."
-                    print "retdict['data']['MJD'].keys() =", retdict['data']['MJD'].keys()
+                    print("retdict['data']['MJD'] has no 'data' key.")
+                    print("retdict['data']['MJD'].keys() =", list(retdict['data']['MJD'].keys()))
             else:
-                print "retdict['data'] has no 'MJD' key."
-                print "retdict['data'].keys() =", retdict['data'].keys()
+                print("retdict['data'] has no 'MJD' key.")
+                print("retdict['data'].keys() =", list(retdict['data'].keys()))
         else:
-            print "retdict has no 'data' key."
+            print("retdict has no 'data' key.")
         raise e
 
     for hk in headers:
-        if retdict.has_key(hk):
-            if headers[hk].has_key('unit'):
+        if hk in retdict:
+            if 'unit' in headers[hk]:
                 if hk == 'radii':
                     radii = retdict[hk].split('x')
                     if len(radii)==1:
@@ -393,9 +393,9 @@ def readJPLephem(fmfile,version=''):
                         if type(retdict[hk]) != dict:
                             retdict[hk] = {'unit': headers[hk]['unit'],
                                            'value': float(retdict[hk])}
-                    except Exception, e:
-                        print "Error converting header", hk, "to a Quantity."
-                        print "retdict[hk] =", retdict[hk]
+                    except Exception as e:
+                        print("Error converting header", hk, "to a Quantity.")
+                        print("retdict[hk] =", retdict[hk])
                         raise e
             elif hk == 'GeoLong':
                 long_lat_alt = retdict[hk].split(',')
@@ -443,15 +443,15 @@ def readJPLephem(fmfile,version=''):
                         retdict['rot_per'] = {'unit': match.group(2),
                                               'value': float(match.group(1))}
                 except:
-                    print "Error parsing the rotation period from"
-                    print rpstr
+                    print("Error parsing the rotation period from")
+                    print(rpstr)
     
-    if retdict['data'].has_key('ang_sep'):
+    if 'ang_sep' in retdict['data']:
         retdict['data']['obs_code'] = {'comment': 'Obscuration code'}
     for dk in retdict['data']:
         if dk == 'obs_code':
             continue
-        if cols[dk].has_key('unit'):
+        if 'unit' in cols[dk]:
             retdict['data'][dk]['data'] = {'unit': cols[dk]['unit'],
                       'value': scipy.array([float(s) for s in retdict['data'][dk]['data']])}
             if dk == 'RadVel':
@@ -476,7 +476,7 @@ def readJPLephem(fmfile,version=''):
             retdict['data']['obs_code']['data'] = obscodes
 
     if len(retdict.get('radii', {'value': []})['value']) == 3 \
-           and retdict['data'].has_key('NP_RA') and retdict['data'].has_key('NP_DEC'):
+           and 'NP_RA' in retdict['data'] and 'NP_DEC' in retdict['data']:
         # Do a better mean radius estimate using the actual theta.
         retdict['meanrad']['value'] = mean_radius_with_known_theta(retdict)
 
@@ -486,7 +486,7 @@ def readJPLephem(fmfile,version=''):
         version='0003.0001'
     #retdict['VS_VERSION'] = '0003.0001'
     retdict['VS_VERSION'] = version 
-    if retdict.has_key('VS_CREATE'):
+    if 'VS_CREATE' in retdict:
         dt = time.strptime(retdict['VS_CREATE'], "%b %d %H:%M:%S %Y")
     else:
         casalog.post("The ephemeris creation date was not found.  Using the current time.",
@@ -497,11 +497,11 @@ def readJPLephem(fmfile,version=''):
     # VS_DATE is required by MeasComet, but it doesn't seem to be actually used.
     retdict['VS_DATE'] = time.strftime('%Y/%m/%d/%H:%M', time.gmtime())
 
-    if retdict['data'].has_key('MJD'):
+    if 'MJD' in retdict['data']:
         #casalog.post("retdict.keys=%s" % retdict.keys())
         retdict['MJD0'] = retdict['data']['MJD']['value'][0] - retdict['dMJD']
     else:
-        print "The table will not be usable with me.framecomet because it lacks MJD."
+        print("The table will not be usable with me.framecomet because it lacks MJD.")
 
     # adding posrefsys keyword
     if cols['RA']['comment'].count('J2000'):
@@ -525,18 +525,18 @@ def convert_radec(radec_col):
     if len(angstrlist[0].split()) > 1:
         # Prep angstrlist for qa.toangle()
         if radec_col['comment'][:len("declination")].lower() == 'declination':
-            for i in xrange(nrows):
+            for i in range(nrows):
                 dms = angstrlist[i].replace(' ', 'd', 1)
                 angstrlist[i] = dms.replace(' ', 'm') + 's'
         else:                                                  # R.A.
-            for i in xrange(nrows):
+            for i in range(nrows):
                 angstrlist[i] = angstrlist[i].replace(' ', ':')        
 
         # Do first conversion to get unit.
         try:
             firstang = qa.toangle(angstrlist[0])
-        except Exception, e:
-            print "Error: Could not convert", angstrlist[0], "to an angle."
+        except Exception as e:
+            print("Error: Could not convert", angstrlist[0], "to an angle.")
             raise e
         angq['unit'] = firstang['unit']
         angq['value'] = [firstang['value']]
@@ -573,7 +573,7 @@ def get_num_from_str(fstr, wanted="float"):
     if match:
         value = float(match.group(1))
     else:
-        print "Could not convert \"%s\" to a %s." % (fstr, wanted)
+        print("Could not convert \"%s\" to a %s." % (fstr, wanted))
         value = False
     return value
 
@@ -605,7 +605,7 @@ def mean_radius(a, b, c):
         Rterm = 1.0               # 0th order
         onemR = 1.0 - R
         onemRtothei = 1.0
-        for i in xrange(1, 5):    # Start series at 1st order.
+        for i in range(1, 5):    # Start series at 1st order.
             onemRtothei *= onemR
             Rterm -= onemRtothei / (0.5 + 2.0 * i**2)
     avalfabeta = 0.5 * a * b * (1.0 + Rterm)
@@ -629,7 +629,7 @@ def mean_radius_with_known_theta(retdict):
         values[c] = retdict['data'][c]['data']['value']
     av = 0.0
     nrows = len(retdict['data']['RA']['data']['value'])
-    for i in xrange(nrows):
+    for i in range(nrows):
         radec = me.direction('app', {'unit': units['RA'], 'value': values['RA'][i]},
                              {'unit': units['DEC'], 'value': values['DEC'][i]})
         np = me.direction('j2000', {'unit': units['NP_RA'], 'value': values['NP_RA'][i]},
@@ -698,11 +698,11 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
     """
     if not tablepath:
         tablepath = construct_tablepath(fmdict, prefix)
-        print "Writing to", tablepath
+        print("Writing to", tablepath)
        
     # safe gaurd from zapping current directory by dict_to_table()
     if tablepath=='.' or tablepath=='./' or tablepath.isspace():
-        raise Exception, "Invalid tablepath: "+tablepath
+        raise Exception("Invalid tablepath: "+tablepath)
     retval = True
     # keepcolorder=T preserves column ordering in collist below
     #keepcolorder=False
@@ -714,7 +714,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
         okws=['VS_CREATE','VS_DATE','VS_TYPE', 'VS_VERSION', 'NAME', 'MJD0', 'dMJD', 
               'GeoDist', 'GeoLat', 'GeoLong', 'obsloc', 'posrefsys','earliest','latest',
               'radii','meanrad','orb_per','data']
-        oldkws = fmdict.keys()
+        oldkws = list(fmdict.keys())
         kws=[]
         for ik in okws:
             if oldkws.count(ik):
@@ -722,7 +722,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
               oldkws.remove(ik)
         kws+=oldkws 
         kws.remove('data')
-        collist = outdict['data'].keys()
+        collist = list(outdict['data'].keys())
 
         # For cosmetic reasons, encourage a certain order to the columns, i.e.
         # start with alphabetical order,
@@ -744,7 +744,7 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
         
         clashing_cols = [c for c in collist if c in kws]
         if clashing_cols:
-            raise ValueError, 'The input dictionary lists ' + ', '.join(clashing_cols) + ' as both keyword(s) and column(s)'
+            raise ValueError('The input dictionary lists ' + ', '.join(clashing_cols) + ' as both keyword(s) and column(s)')
 
         # This promotes the keys in outdict['data'] up one level, and removes
         # 'data' as a key of outdict.
@@ -757,8 +757,8 @@ def ephem_dict_to_table(fmdict, tablepath='', prefix=''):
                 'subType': 'Comet', 'type': 'IERS'}
 
         retval = dict_to_table(outdict, tablepath, kws, collist, info, keepcolorder)
-    except Exception, e:
-        print 'Error', e, 'trying to export an ephemeris dict to', tablepath
+    except Exception as e:
+        print('Error', e, 'trying to export an ephemeris dict to', tablepath)
         retval = False
 
     return retval
@@ -789,15 +789,15 @@ def jplfiles_to_repository(objs, jpldir='.', jplext='.ephem',
     neph = 0
     casapath = os.getenv('CASAPATH')
     if not casapath:
-        print "CASAPATH is not set."
+        print("CASAPATH is not set.")
         return 0
     datadir = casapath.split()[0] + '/data/ephemerides/JPL-Horizons'
     if not os.path.isdir(datadir):
         try:
             os.mkdir(datadir)
-            print "Created", datadir
-            print "You should probably svn add it."
-        except Exception, e:
+            print("Created", datadir)
+            print("You should probably svn add it.")
+        except Exception as e:
             "Error", e, "creating", datadir
             return 0
     datadir += '/'

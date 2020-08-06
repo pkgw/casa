@@ -103,13 +103,13 @@ class sdfixscan_worker(sdutil.sdtask_interface):
             # check input file
             if type(self.infiles) == list:
                 if len(self.infiles) != 1:
-                    raise Exception, "infiles allows only one input file for pressed-out method." 
+                    raise Exception("infiles allows only one input file for pressed-out method.") 
                 else:
                     self.infiles = self.infiles[0]
             # check direction
             if type(self.direction) == list:
                 if len(self.direction) != 1:
-                    raise Exception, "direction allows only one direction for pressed-out method."
+                    raise Exception("direction allows only one direction for pressed-out method.")
                 else:
                     self.direction = self.direction[0]
         elif self.mode.lower() == 'fft_mask':
@@ -117,16 +117,16 @@ class sdfixscan_worker(sdutil.sdtask_interface):
             # check input file
             if type(self.infiles) == str or \
                    (type(self.infiles) == list and len(self.infiles) < 2):
-                raise Exception, "infiles should be a list of input images for Basket-Weaving."
+                raise Exception("infiles should be a list of input images for Basket-Weaving.")
 
             # check direction
             if type(self.direction) == float:
-                raise Exception, 'direction must have at least two different direction.'
+                raise Exception('direction must have at least two different direction.')
             else:
                 if len(self.direction) < 2:
-                    raise Exception, 'direction must have at least two different direction.'
+                    raise Exception('direction must have at least two different direction.')
         else:
-            raise Exception, 'Unsupported processing mode: %s'%(self.mode)
+            raise Exception('Unsupported processing mode: %s'%(self.mode))
 
     def execute(self):
         if self.mode.lower() == 'model':
@@ -204,7 +204,7 @@ class sdfixscan_worker(sdutil.sdtask_interface):
         elif self.direction == 90.0:
             fitaxis = 1
         else:
-            raise Exception, "Sorry, the task don't support inclined scan with respect to horizontal or vertical axis, right now."
+            raise Exception("Sorry, the task don't support inclined scan with respect to horizontal or vertical axis, right now.")
         # Replace duplicated method ia.fitpolynomial with
         # ia.fitprofile 
         #polyimage = convimage.fitpolynomial( fitfile=tmppolyname, axis=fitaxis, order=numpoly, overwrite=True )
@@ -243,7 +243,7 @@ class sdfixscan_worker(sdutil.sdtask_interface):
 
     def __polynomial_fit_model(self, image=None, model=None, axis=0, order=2):
         if not image or not os.path.exists(image):
-            raise RuntimeError, "No image found to fit."
+            raise RuntimeError("No image found to fit.")
         if os.path.exists( model ):
             # CAS-5410 Use private tools inside task scripts
             cu = utilstool()
@@ -299,7 +299,7 @@ class sdfixscan_worker(sdutil.sdtask_interface):
             del tmp
         nx = data.shape[0]
         ny = data.shape[1]
-        x = range(nx)
+        x = list(range(nx))
         flag = mask ^ True #invert mask for masked array
         mdata = numpy.ma.masked_array(data,flag)
         retc = numpy.ma.polyfit(x,mdata,order)
@@ -338,7 +338,7 @@ class sdfixscan_worker(sdutil.sdtask_interface):
         ny = imshape_out[direction_axis1]
         tmp=[]
         nfile = len(self.infiles)
-        for i in xrange(nfile):
+        for i in range(nfile):
             tmp.append(numpy.zeros(imshape_out,dtype=float))
         maskedpixel=numpy.array(tmp)
         del tmp

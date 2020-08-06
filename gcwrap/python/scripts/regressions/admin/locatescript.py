@@ -46,7 +46,7 @@ def locatescript(lescript=''):
         x=a.read()
         lepath=string.split(string.split(x,'="')[1], " ")[0]+"/lib/python"+PYVER+"/"+lescript
     else:
-        raise Exception, "Regression script %s not found "%(lescript)
+        raise Exception("Regression script %s not found "%(lescript))
     return lepath
 
 def copydata(name, destdir):

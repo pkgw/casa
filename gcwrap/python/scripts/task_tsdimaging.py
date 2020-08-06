@@ -102,7 +102,7 @@ class OldImagerBasedTools(object):
             scansel = SelectionHandler(scan)
             intentsel = SelectionHandler(intent)
             try:
-                for i in xrange(len(vislist)):
+                for i in range(len(vislist)):
                     vis = vislist[i]
                     _field = fieldsel(i)
                     _spw = spwsel(i)
@@ -123,7 +123,7 @@ class OldImagerBasedTools(object):
         
     def test(self, vis):
         with self.open_old_imager(vis) as im:
-            print 'test'
+            print('test')
             raise RuntimeError('ERROR!')
         
     def get_pointing_sampling_params(self, vis, field, spw, baseline, scan, intent, outref, movingsource, pointingcolumntouse, antenna_name):
@@ -192,13 +192,13 @@ def _configure_spectral_axis(mode, nchan, start, width, restfreq):
 
     tmp_start = _format_quantum_unit(start, myunit)
     if tmp_start == None:
-        raise ValueError, "Invalid unit for %s in mode %s: %s" % ('start', mode, start)
+        raise ValueError("Invalid unit for %s in mode %s: %s" % ('start', mode, start))
     start = tmp_start
     if mode == 'channel':
         start = int(start)
     tmp_width = _format_quantum_unit(width, myunit)
     if tmp_width == None:
-        raise ValueError, "Invalid unit for %s in mode %s: %s" % ('width', mode, width)
+        raise ValueError("Invalid unit for %s in mode %s: %s" % ('width', mode, width))
     width = tmp_width
     if mode == 'channel':
         width = int(width)
@@ -254,7 +254,7 @@ def _calc_PB(vis, antenna_id, restfreq):
               "Your data does not seem to have valid one in selected field.\n" + \
               "PB is not calculated.\n" + \
               "Please set restreq or cell manually to generate an image."
-        raise Exception, msg
+        raise Exception(msg)
     # Antenna diameter
     with open_table(os.path.join(vis, 'ANTENNA')) as tb:
         antdiam_ave = tb.getcell('DISH_DIAMETER', antenna_id)
@@ -515,7 +515,7 @@ def _get_restfreq_if_empty(vislist, spw, field, restfreq):
                 try:
                     nrow = t.nrows()
                     if nrow > 0:
-                        for irow in xrange(nrow):
+                        for irow in range(nrow):
                             if t.iscelldefined('REST_FREQUENCY', irow):
                                 rfs = t.getcell('REST_FREQUENCY', irow)
                                 if len(rfs) > 0:
@@ -615,7 +615,7 @@ def do_weight_mask(imagename, weightimage, minweight):
         try:
             stat=ia.statistics(mask="'"+weightimage+"' > 0.0", robust=True)
             valid_pixels=stat['npts']
-        except RuntimeError, e:
+        except RuntimeError as e:
             if e.message.find('No valid data found.') >= 0:
                 valid_pixels = [0]
             else:
@@ -663,7 +663,7 @@ def get_ms_column_unit(tb, colname):
     col_unit = ''
     if colname in tb.colnames():
         cdkw = tb.getcoldesc(colname)['keywords']
-        if cdkw.has_key('QuantumUnits'):
+        if 'QuantumUnits' in cdkw:
             u = cdkw['QuantumUnits']
             if isinstance(u, str):
                 col_unit = u.strip()
@@ -815,7 +815,7 @@ def tsdimaging(infiles, outfile, overwrite, field, spw, antenna, scan, intent, m
             elif brightnessunit.lower() == 'jy/beam':
                 image_unit = 'Jy/beam'
             else:
-                raise ValueError, "Invalid brightness unit, %s" % brightnessunit
+                raise ValueError("Invalid brightness unit, %s" % brightnessunit)
         
         # TODO: handle overwrite
         # TODO: output image name

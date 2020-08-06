@@ -45,10 +45,10 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         try:
             # First check
             if tb.nrows() != tb2.nrows():
-                print 'Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows())
+                print('Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows()))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb.nrows()):
             
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
@@ -65,11 +65,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance)
+                                    print('ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance))
                                     break
                         else:
-                            print 'ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.'
-                            print 'ERROR: First row to differ is row=' + str(therow)
+                            print('ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.')
+                            print('ERROR: First row to differ is row=' + str(therow))
                             retval = False
                             break
         finally:
@@ -77,11 +77,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
             tb2.close()
     
     else:
-        print 'Column: ' +str(col) + 'are not varcolumns.'
+        print('Column: ' +str(col) + 'are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree'
+        print('Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree')
         
     return retval
  
@@ -147,7 +147,7 @@ class Test010_FlaggingVLAData(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide:  Topical Guide Flagging VLA Data'''
 
-        execfile('VLACASAFlagging.py')
+        exec(compile(open('VLACASAFlagging.py', "rb").read(), 'VLACASAFlagging.py', 'exec'))
                 
         return True
 
@@ -237,21 +237,21 @@ class Test021_FlaggingVLAData(unittest.TestCase):
         '''Flagging Summary G55.7+3.4'''
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['field']['G55.7+3.4']['flagged'] / flagInfo['field']['G55.7+3.4']['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 40 and val <= 45, "Percent Flagged Error G55.7+3.4"
 
     def test_20_Flagging_Summary_3C147(self):
         '''Flagging Summary 0542+498=3C147'''
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['field']['0542+498=3C147']['flagged'] / flagInfo['field']['0542+498=3C147']['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 65 and val <= 70, "Percent Flagged Error 0542+498=3C147"
 
     def test_21_Flagging_Summary_J1925(self):
         '''Flagging Summary J1925+2106'''
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['field']['J1925+2106']['flagged'] / flagInfo['field']['J1925+2106']['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 45 and val <= 50, "Percent Flagged Error J1925+2106"
 
     def test_22_spw_0_Flagging(self):
@@ -259,7 +259,7 @@ class Test021_FlaggingVLAData(unittest.TestCase):
         spw = 0
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['spw'][str(spw)]['flagged'] / flagInfo['spw'][str(spw)]['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 60 and val <= 65 ,"Spectral Window 0 Flagging Error"
 
     def test_23_spw_1_Flagging(self):
@@ -267,7 +267,7 @@ class Test021_FlaggingVLAData(unittest.TestCase):
         spw = 1
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['spw'][str(spw)]['flagged'] / flagInfo['spw'][str(spw)]['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 25 and val <= 30 ,"Spectral Window 1 Flagging Error"
 
     def test_24_spw_2_Flagging(self):
@@ -275,7 +275,7 @@ class Test021_FlaggingVLAData(unittest.TestCase):
         spw = 2
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['spw'][str(spw)]['flagged'] / flagInfo['spw'][str(spw)]['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 62 and val <= 67 ,"Spectral Window 2 Flagging Error"
 
     def test_25_spw_3_Flagging(self):
@@ -283,7 +283,7 @@ class Test021_FlaggingVLAData(unittest.TestCase):
         spw = 3
         flagInfo = flagdata(vis='SNR_G55_10s-hanning.ms', mode='summary', action='calculate',  spwchan=True)
         val = 100.0 * (flagInfo['spw'][str(spw)]['flagged'] / flagInfo['spw'][str(spw)]['total'])
-        print "Actual: %s"%(val)
+        print("Actual: %s"%(val))
         assert val >= 20 and val <= 25 ,"Spectral Window 3 Flagging Error"
 
 

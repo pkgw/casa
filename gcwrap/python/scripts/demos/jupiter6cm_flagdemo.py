@@ -58,17 +58,17 @@ fitsdata='planets_6cm.fits'
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
 
-print "Use importuvfits to read UVFITS and make an MS"
+print("Use importuvfits to read UVFITS and make an MS")
 
 # Set up the MS filename and save as new global variable
 msfile = prefix + '.ms'
 
-print "MS will be called "+msfile
+print("MS will be called "+msfile)
 
 # Use task importuvfits
 fitsfile = fitsdata
@@ -79,12 +79,12 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
 
-print "Use listobs to print verbose summary to logger"
+print("Use listobs to print verbose summary to logger")
 
 # You may wish to see more detailed information, in this case
 # use the verbose = True option
@@ -279,10 +279,10 @@ listobs()
 # 
 # Use Plotxy to interactively flag the data
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default('plotxy')
 
-print "Now we use plotxy to examine and interactively flag data"
+print("Now we use plotxy to examine and interactively flag data")
 
 vis = msfile
 
@@ -308,18 +308,18 @@ iteration = ''
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Plotxy"
-print "Showing 1331+305 RR LL for all antennas"
-print "Use MarkRegion then draw boxes around points to flag"
-print "You can use ESC to drop last drawn box"
-print "When happy with boxes, hit Flag to flag"
-print "You can repeat as necessary"
+print("")
+print("-----------------------------------------------------")
+print("Plotxy")
+print("Showing 1331+305 RR LL for all antennas")
+print("Use MarkRegion then draw boxes around points to flag")
+print("You can use ESC to drop last drawn box")
+print("When happy with boxes, hit Flag to flag")
+print("You can repeat as necessary")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # You can also use flagdata to do this non-interactively
 # (see below)
@@ -329,14 +329,14 @@ correlation = 'RL LR'
 
 plotxy()
 
-print ""
-print "-----------------------------------------------------"
-print "Looking at RL LR"
-print "Now flag the bad data here"
+print("")
+print("-----------------------------------------------------")
+print("Looking at RL LR")
+print("Now flag the bad data here")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Now do calibrater 0137+331
@@ -355,17 +355,17 @@ plotxy()
 # Draw a box around some of it and use Locate
 # Looks like much of it is Antenna 9 (ID=8) in spw=1
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting 0137+331 RR LL all antennas"
-print "You see bad data along bottom"
-print "Mark a box around a bit of it and hit Locate"
-print "Look in logger to see what it is"
-print "You see much is Antenna 9 (ID=8) in spw 1"
+print("")
+print("-----------------------------------------------------")
+print("Plotting 0137+331 RR LL all antennas")
+print("You see bad data along bottom")
+print("Mark a box around a bit of it and hit Locate")
+print("Look in logger to see what it is")
+print("You see much is Antenna 9 (ID=8) in spw 1")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 xaxis = 'time'
 spw = '1'
@@ -380,14 +380,14 @@ plotxy()
 
 # YES! the last 4 scans are bad.  Box 'em and flag.
 
-print ""
-print "-----------------------------------------------------"
-print "Plotting vs. time antenna='9' and spw='1' "
-print "Box up last 4 scans which are bad and Flag"
+print("")
+print("-----------------------------------------------------")
+print("Plotting vs. time antenna='9' and spw='1' ")
+print("Box up last 4 scans which are bad and Flag")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Go back and clean up
 xaxis = 'uvdist'
@@ -401,14 +401,14 @@ plotxy()
 
 # Note that RL,LR are too weak to clip on.
 
-print ""
-print "-----------------------------------------------------"
-print "Back to all data"
-print "Clean up remaining bad points"
+print("")
+print("-----------------------------------------------------")
+print("Back to all data")
+print("Clean up remaining bad points")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #---------------------------------------------------------------------
 # Finally, do JUPITER
@@ -424,16 +424,16 @@ plotxy()
 # Here you will see that the final scan at 22:00:00 UT is bad
 # Draw a box around it and flag it!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plot JUPITER versus uvdist"
-print "Lots of bad stuff near bottom"
-print "Lets go and find it - try Locate"
-print "Looks like lots of different antennas but at same time"
+print("")
+print("-----------------------------------------------------")
+print("Now plot JUPITER versus uvdist")
+print("Lots of bad stuff near bottom")
+print("Lets go and find it - try Locate")
+print("Looks like lots of different antennas but at same time")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 correlation = ''
 xaxis = 'time'
@@ -443,14 +443,14 @@ plotxy()
 # Here you will see that the final scan at 22:00:00 UT is bad
 # Draw a box around it and flag it!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plotting vs. time"
-print "See bad scan at end - flag it!"
+print("")
+print("-----------------------------------------------------")
+print("Now plotting vs. time")
+print("See bad scan at end - flag it!")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now look at whats left
 correlation = 'RR LL'
@@ -465,16 +465,16 @@ plotxy()
 # bad in this spw. If you box and do Locate (or remember from
 # 0137+331) its probably a bad time.
 
-print ""
-print "-----------------------------------------------------"
-print "Looking now at SPW 1"
-print "Now we set iteration to Antenna"
-print "Step through antennas with Next"
-print "See bad Antenna 9 (ID 8) as in 0137+331"
+print("")
+print("-----------------------------------------------------")
+print("Looking now at SPW 1")
+print("Now we set iteration to Antenna")
+print("Step through antennas with Next")
+print("See bad Antenna 9 (ID 8) as in 0137+331")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # The easiset way to kill it:
 
@@ -487,14 +487,14 @@ plotxy()
 
 # Draw a box around all points in the last bad scans and flag 'em!
 
-print ""
-print "-----------------------------------------------------"
-print "Now plotting vs. time antenna 9 spw 1"
-print "Box up the bad scans and Flag"
+print("")
+print("-----------------------------------------------------")
+print("Now plotting vs. time antenna 9 spw 1")
+print("Box up the bad scans and Flag")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # Now clean up the rest
 xaxis = 'uvdist'
@@ -512,30 +512,30 @@ plotxy()
 # in RR and LL.  We will rely upon imager to ignore the
 # RL LR for points with RR LL flagged!
 
-print ""
-print "-----------------------------------------------------"
-print "Final cleanup of JUPITER data"
-print "Back to uvdist plot, see remaining bad data"
-print "You can draw little boxes around the outliers and Flag"
-print "Depends how patient you are in drawing boxes!"
-print "Could also use Locate to find where they come from"
+print("")
+print("-----------------------------------------------------")
+print("Final cleanup of JUPITER data")
+print("Back to uvdist plot, see remaining bad data")
+print("You can draw little boxes around the outliers and Flag")
+print("Depends how patient you are in drawing boxes!")
+print("Could also use Locate to find where they come from")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
-print "Done with plotxy!"
+print("Done with plotxy!")
 
 #
 #=====================================================================
 #
 # Use Flagmanager to save a copy of the flags so far
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to save a copy of the flags we just made"
-print "These are named xyflags"
+print("Now will use flagmanager to save a copy of the flags we just made")
+print("These are named xyflags")
 
 vis = msfile
 mode = 'save'
@@ -549,10 +549,10 @@ flagmanager()
 #
 # Use Flagmanager to list all saved versions
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to list all the versions we saved"
+print("Now will use flagmanager to list all the versions we saved")
 
 vis = msfile
 mode = 'list'
@@ -561,7 +561,7 @@ flagmanager()
 
 #
 # Done Flagging
-print '--Done with flagging--'
+print('--Done with flagging--')
 
 #
 #=====================================================================

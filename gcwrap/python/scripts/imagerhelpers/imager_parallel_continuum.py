@@ -1,5 +1,5 @@
 import os
-import commands
+import subprocess
 import math
 import shutil
 import string
@@ -134,7 +134,7 @@ class PyParallelContSynthesisImager(PySynthesisImager):
 
                     ## Pop out the startmodel, as it would already have been created on the main node,.
                     tmpimpars = nimpars[str(fld)]
-                    if tmpimpars.has_key('startmodel'):
+                    if 'startmodel' in tmpimpars:
                         tmpimpars.pop('startmodel')
 
                     joblist.append( self.PH.runcmd("toolsi.defineimage( impars=" + str( nimpars[str(fld)] ) 
@@ -360,9 +360,9 @@ class PyParallelContSynthesisImager(PySynthesisImager):
                     self.PH.checkJobs( joblist )
 
                     ## gather weightdensity and sum and scatter
-                    print "******************************************************"
-                    print " gather and scatter now "
-                    print "******************************************************"
+                    print("******************************************************")
+                    print(" gather and scatter now ")
+                    print("******************************************************")
                     for immod in range(0,self.NF):
                         self.PStools[immod].gatherweightdensity()
                         self.PStools[immod].scatterweightdensity()

@@ -24,7 +24,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
     ## CAS-12368
     depstr = "**** The 'clean' task will be deprecated in the near future. Please use tclean instead. All major functionality from clean is present in tclean via a modified interface along with additional algorithmic options. ****"
     casalog.post(depstr, 'WARN')
-    print depstr
+    print(depstr)
 
     casalog.post('nchan='+str(nchan)+' start='+str(start)+' width='+str(width))  
     #If using new FT-Machines, do not use the on-the-fly model_data columns.
@@ -70,7 +70,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
  
         try: 
             # estimate the size of the image
-            import commands
+            import subprocess
     
             nstokes=len(stokes)
             casalog.post('imsize='+str(imsize)+' nstokes='+str(nstokes))
@@ -86,7 +86,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             av=cu.hostinfo()['memory']['available']
             casalog.post('mem available: '+str(int(av/1024))+'M')
 
-            freemem=commands.getoutput("free")
+            freemem=subprocess.getoutput("free")
             for line in freemem.splitlines():
                 if line.startswith('Mem'):
                     av=float(line.split()[3])/1024
@@ -155,7 +155,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                               cyclefactor=cyclefactor,cyclespeedup=cyclespeedup,nterms=nterms,
                               reffreq=reffreq,chaniter=chaniter,flatnoise=flatnoise,
                               allowchunk=False)
-                    except Exception, instance:
+                    except Exception as instance:
                         if(string.count(instance.message, 'PSFZero') >0):
                             ia.fromimage(outfile=imname+'.image', infile=imname+'.residual', overwrite=True)
                             ia.done()
@@ -233,16 +233,16 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
         # Check imagename
         if((len(imagename) == 0) or
            ((type(imagename) == str) and imagename.isspace())):
-            raise Exception, 'Cannot proceed with blank imagename'
+            raise Exception('Cannot proceed with blank imagename')
 
         opim=imset.checkimageusage(imagename)
         if(len(opim) != 0):
-            raise Exception, 'image '+str(opim[0])+' is opened by another process' if(len(opim)==1) else  'images '+str(opim)+' are under use by other processes'
+            raise Exception('image '+str(opim[0])+' is opened by another process' if(len(opim)==1) else  'images '+str(opim)+' are under use by other processes')
         multifield=False
         if (type(imagename)==list) & (len(imagename) > 1):
             multifield=True
         elif (type(phasecenter) == list) and (len(phasecenter) >1):
-            raise TypeError, 'Number of phasecenters has to be equal to number of images'
+            raise TypeError('Number of phasecenters has to be equal to number of images')
 
         # Figure out which FTMachine to use.
         localFTMachine = getFTMachine(gridmode, imagermode, mode, wprojplanes,
@@ -292,13 +292,13 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                finalimagename=imagename
             else:
                try: 
-                  if int(imset.imageids.values()[0])==0:
+                  if int(list(imset.imageids.values())[0])==0:
                       # must be using outlier file with old syntax
-                      imgname=imagename+'_'+imset.imageids.values()[0]+'.image'
-                      finalimagename=[imagename+'_'+img for img in imset.imageids.values()]
+                      imgname=imagename+'_'+list(imset.imageids.values())[0]+'.image'
+                      finalimagename=[imagename+'_'+img for img in list(imset.imageids.values())]
                except:
                   imgname=imagename+'.image'
-                  finalimagename=imset.imageids.values()
+                  finalimagename=list(imset.imageids.values())
             ia.open(imgname)
             if localnchan > ia.shape()[3]:
                 nchaniter = ia.shape()[3]
@@ -317,10 +317,10 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             tmppath=''
          
         # loop over channels for per-channel clean
-        for j in xrange(nchaniter):
+        for j in range(nchaniter):
             if dochaniter:
 
-                print "Processing channel %s of %s" % (j+1, nchaniter)
+                print("Processing channel %s of %s" % (j+1, nchaniter))
                 casalog.post("Processing channel %s of %s"% (j+1, nchaniter))
                 chaniterParms=imset.setChaniterParms(finalimagename,spw,j,localstart,localwidth,freqs,finc,tmppath)
                 #chaniterParms=imset.setChaniterParms(finalimagename,spw,j,localstart,width,freqs,finc,tmppath)
@@ -383,7 +383,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 if dochaniter:
                     # imagename is already combined
                    if type(imagename)!=list: 
-                       raise Exception, "imagename=%s expected to be a list." % imagename 
+                       raise Exception("imagename=%s expected to be a list." % imagename) 
                    else:
                        imageids=imagename
                        if newformat:
@@ -450,15 +450,15 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                     multifield=True
                     #check if number of elements for each list matches
                     if len(imsizes) != nfield:
-                        raise Exception, "Mismatch in number of imsizes for %s image fields" % nfield 
+                        raise Exception("Mismatch in number of imsizes for %s image fields" % nfield) 
                     if len(phasecenters) != nfield:
-                        raise Exception, "Mismatch in number of phasecenters for %s image fields" % nfield 
+                        raise Exception("Mismatch in number of phasecenters for %s image fields" % nfield) 
                     # check of mask and modelimage need to be done later...
                    
                     # check for dulplicated entry
                     for imname in imageids:
                         if (imageids.count(imname)!=1):
-                           raise Exception, "Duplicate entry for imagename=%s" % imname 
+                           raise Exception("Duplicate entry for imagename=%s" % imname) 
             else:
                 
                 imsizes=[imsize[0], imsize[0]] if ((len(imsize)==1) and numpy.isscalar(imsize[0])) else imsize 
@@ -478,7 +478,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 else:
                     optsize[1]=cleanhelper.getOptimumSize(tmpsize[ksize][1])
                 if((optsize[0] != tmpsize[ksize][0]) or (nksize!=1 and optsize[1] != tmpsize[ksize][1])):
-                       raise ValueError, str(tmpsize[ksize])+' is not an acceptable imagesize, try '+str(optsize) 
+                       raise ValueError(str(tmpsize[ksize])+' is not an acceptable imagesize, try '+str(optsize)) 
            #
            # Moved getAlgorithm() to here so that multifield is set using outlier file.
            #
@@ -570,7 +570,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 imset.makemultifieldmask2(loc_mask,chanslice,newformat, interactive)
                 maskimage=[]
                 #for img in sorted(imset.maskimages):
-                for img in imset.maskimages.keys():
+                for img in list(imset.maskimages.keys()):
                     maskimage.append(imset.maskimages[img])
 	    casalog.post('Used mask(s) : ' + str(loc_mask) + ' to create mask image(s) : ' + str(maskimage),'INFO');
 
@@ -629,7 +629,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                       modname =  imset.imagelist[k]+'.model.tt'+str(tt) ;
                   if(not os.path.exists( modname ) ):
                             if( not os.path.exists(  imset.imagelist[k] ) ):
-                                    raise Exception, "Internal task error. Model image " + imset.imagelist[k] + " does not exist";
+                                    raise Exception("Internal task error. Model image " + imset.imagelist[k] + " does not exist");
                             shutil.copytree( imset.imagelist[k] , modname );		
                             casalog.post("No model found. Making empty initial model : "+modname);
                   else:
@@ -655,9 +655,9 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 qat=qatool();
                 try:
                     rff=qat.canonical(reffreq);
-                except Exception, instance:
-                    print '*** Error *** In conversion of reffreq=\'',reffreq,'\' to a numerical value';
-                    raise Exception, instance
+                except Exception as instance:
+                    print('*** Error *** In conversion of reffreq=\'',reffreq,'\' to a numerical value');
+                    raise Exception(instance)
                 reffreqVal=rff['value'];  # This is the frequency in Hz
 
                 # Set the number of terms and reference-frequency
@@ -666,7 +666,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 
                 # forbid pbcorrection with msmfs for now
                 if(pbcor):
-                    raise Exception, 'Primary-beam correction is currently not supported with nterms>1'
+                    raise Exception('Primary-beam correction is currently not supported with nterms>1')
 
 		casalog.post('Running MS-MFS with '+str(nterms)+' Taylor-terms on dataset : ' + str(vis));
             ###########################################################
@@ -702,7 +702,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
                 maskimage = imset.outputmask
                 ##if no effective mask was passed down but interactive
                 if maskimage == '' and interactive:
-                    if imset.maskimages.has_key(imset.imagelist[0]):
+                    if imset.imagelist[0] in imset.maskimages:
                         maskimage=imset.maskimages[imset.imagelist[0]]
                     else:
                         maskimage = imset.imagelist[0] + '.mask'
@@ -778,7 +778,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
             imset.cleanupTempFiles(tmppath)
             imset.imagelist=finalimagename
         presdir=os.path.realpath('.')
-        for k in xrange(len(imset.imagelist)):
+        for k in range(len(imset.imagelist)):
             newimage=imset.imagelist[k]
 
             if(imset.imagelist[k].count('/') > 0):
@@ -833,7 +833,7 @@ def clean(vis, imagename,outlierfile, field, spw, selectdata, timerange,
 
         del imCln
 
-    except Exception, instance:
-        print '*** Error *** ',instance
-        raise Exception, instance
+    except Exception as instance:
+        print('*** Error *** ',instance)
+        raise Exception(instance)
 

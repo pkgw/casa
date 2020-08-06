@@ -27,7 +27,7 @@ def get_user():
     except AttributeError:
         # os.getlogin() not available on this platform.
         return __get_username()
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.ENOTTY:
             # Known failure case for gksu.
             return __get_username()

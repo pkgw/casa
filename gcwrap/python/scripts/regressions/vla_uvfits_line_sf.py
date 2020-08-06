@@ -19,47 +19,47 @@ class regressverify :
 	else:
 		raise Exception('cannot find data repository')
 
-	print 'datarepos = ', datarepos
+	print('datarepos = ', datarepos)
 	def fill(self) :
 		rstat = True
-		print "Starting fill verification"
+		print("Starting fill verification")
 		ms.open('ngc5921.ms')
 		if(ms.nrow() != 22653) :
 			rstat = False
-			print 'ms.nrow failed: got ',ms.nrow, ' expected 22653'
+			print('ms.nrow failed: got ',ms.nrow, ' expected 22653')
 		suminfo = ms.summary()
 		if suminfo['nfields'] != 3 :
 			rstat = False
-			print 'nfields failed got '+suminfo['nfields']+' expected 3'
+			print('nfields failed got '+suminfo['nfields']+' expected 3')
 		if suminfo['field_0']['name'] != '1331+30500002_0' :
 			rstat = False
-			print 'nfield_0 failed got '+suminfo['field_0']['name']
+			print('nfield_0 failed got '+suminfo['field_0']['name'])
 		if suminfo['field_1']['name'] != '1445+09900002_0' :
 			rstat = False
-			print 'nfield_1 failed got '+suminfo['field_1']['name']
+			print('nfield_1 failed got '+suminfo['field_1']['name'])
 		if suminfo['field_2']['name'] != 'N5921_2' :
 			rstat = False
-			print 'nfield_2 failed got '+suminfo['field_2']['name']
+			print('nfield_2 failed got '+suminfo['field_2']['name'])
 		if suminfo['timeref'] != 'TAI' :
 			rstat = False
-			print 'timeref failed got '+suminfo['timeref']
+			print('timeref failed got '+suminfo['timeref'])
 		ms.close()
 		return rstat
 	def flag(self) :
 		rstat = True
-		print "Starting flagging verification"
+		print("Starting flagging verification")
 		flagsummary = flagdata('ngc5921.ms',mode='summary')
 		if(flagsummary['flagged'] != 203994) :
 		   rstat = false
-		   print 'flagged failed got ', flagsummary['flagged'], ' expected 203994'
+		   print('flagged failed got ', flagsummary['flagged'], ' expected 203994')
 		if(flagsummary['total'] != 2854278) :
 		   rstat = false
-		   print 'flagged failed got ', flagsummary['flagged'], ' expected 2854278'
+		   print('flagged failed got ', flagsummary['flagged'], ' expected 2854278')
 		return rstat
 	def calibrate(self) :
 		import listing
 		rstat = True
-		print "Starting calibrate verification"
+		print("Starting calibrate verification")
 		# Before testing listcal output, remove first line of file
 		# (First line contains hard-coded path to input files)
 		listcalOut = 'ngc5921.listcal.out'
@@ -68,43 +68,43 @@ class regressverify :
 		os.system('rm -f ' + listcalOut + '.tmp')
 
 		# Test the listcal output
-		print "Comparing listcal output with standard..."
+		print("Comparing listcal output with standard...")
 		standardOut = self.datarepos+'/regression/ngc5921/listcal.default.out'
 
 		# Test metadata
 		if (not listing.diffMetadata(listcalOut,standardOut,prefix="ngc5921.listcal")):
 		    rstat = False
-		    print "failed calibrate meta data comparison"
+		    print("failed calibrate meta data comparison")
 
                 # Test data (floats)
                 precision = '0.003'
                 if (not  listing.diffAmpPhsFloat(listcalOut,standardOut,prefix="ngc5921.listcal",
 					                                 precision=precision) ):
                     rstat = False
-		    print "failed calibrate test data comparison"
+		    print("failed calibrate test data comparison")
 
 		return rstat
 	def image(self) :
 		rstat = True
-		print "Starting image verification"
+		print("Starting image verification")
 		cubestats = imstat(imagename='ngc5921.clean.image')
 		if((cubestats['max'][0] - 0.052414759993553162)/0.052414759993553162 > 0.05) :
-			print "failed clean image max test"
+			print("failed clean image max test")
 			rstat = False
 		if((cubestats['rms'][0] - 0.0020218724384903908)/0.0020218724384903908 > 0.05) :
-			print "failed clean image rms test"
+			print("failed clean image rms test")
 			rstat = False
 		return rstat
 	def analysis(self) :
 		rstat = True
-		print "Starting analysis verification"
+		print("Starting analysis verification")
                 momzerostats = imstat(imagename='ngc5921.moments.integrated')
 		if((momzerostats['max'][0] - 1.48628211)/1.48628211 > 0.05) :
-			print "failed momzero max test"
+			print("failed momzero max test")
 			rstat =False
                 momonestats = imstat(imagename='ngc5921.moments.weighted_coord')
 		if((momonestats['mean'][0] - 1484.22001478)/1484.22001478 > 0.05) :
-			print "failed momone mean test"
+			print("failed momone mean test")
 			rstat =False
 		return rstat
 

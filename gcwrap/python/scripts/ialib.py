@@ -28,7 +28,7 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
     try:
         if not myclog and hasattr(casalog, 'post'):
             myclog = casalog
-    except Exception, instance:
+    except Exception as instance:
         # There's no logger to complain to, and I don't want to exit
         # just because of that.
         pass
@@ -42,7 +42,7 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
             #vestr += casa['source']['url']
             #vestr += ' rev. ' + casa['source']['revision']
             vestr += ' ' + casa['build']['time']
-        except Exception, instance:
+        except Exception as instance:
             if hasattr(myclog, 'version'):
                 # Now give it a try.
                 vestr += myclog.version()
@@ -53,7 +53,7 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
         # Write the arguments.
         s = tname + "("
         n = len(param_names)
-        for argnum in xrange(n):
+        for argnum in range(n):
             s += param_names[argnum] + "="
             val = param_vals[argnum]
             sval = str(val)
@@ -69,7 +69,7 @@ def write_image_history(myia, tname, param_names, param_vals, myclog=None):
                 s += ", "
         s += ")" 
         _ia.sethistory(tname, s)
-    except Exception, instance:
+    except Exception as instance:
         if hasattr(myclog, 'post'):
             myclog.post("*** Error \"%s\" updating HISTORY of " % (instance),
                         'SEVERE')

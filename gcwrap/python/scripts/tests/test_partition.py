@@ -336,7 +336,7 @@ class partition_test1(test_base):
         try:
             tbt_local.open(self.msfile+'/MODEL_DATA')
         except Exception as instance:
-            print('*** Expected exception. \"{0}\"'.format(instance))
+            print(('*** Expected exception. \"{0}\"'.format(instance)))
         finally:
             tbt_local.close()
 
@@ -365,7 +365,7 @@ class partition_test1(test_base):
         try:
             tbt_local.open(self.mmsfile+'/MODEL_DATA')
         except Exception as instance:
-            print('*** Expected exception. \"{0}\"'.format(instance))
+            print(('*** Expected exception. \"{0}\"'.format(instance)))
         finally:
             tbt_local.close()
 
@@ -613,7 +613,7 @@ class partition_test2(test_base):
         
         # Check the number of sub-MSs
         mmslist = []
-        klist = thisdict.keys()
+        klist = list(thisdict.keys())
         for kk in klist:
             mmslist.append(thisdict[kk]['MS'])
         
@@ -942,8 +942,8 @@ class test_partition_balanced_multiple_scan(test_base):
         self.assertEqual(len(listpartition_dict), 2)
         self.assertEqual(len(listpartition_dict[0]['scanId']), 26)
         self.assertEqual(len(listpartition_dict[1]['scanId']), 26)
-        self.assertEqual(sum([x['nrows'] for x in listpartition_dict[1]['scanId'].values()]), 4344)
-        self.assertEqual(sum([x['nrows'] for x in listpartition_dict[0]['scanId'].values()]), 4344)
+        self.assertEqual(sum([x['nrows'] for x in list(listpartition_dict[1]['scanId'].values())]), 4344)
+        self.assertEqual(sum([x['nrows'] for x in list(listpartition_dict[0]['scanId'].values())]), 4344)
        
     def test_linked_cols(self):
         '''partition: Verify that SYSPOWER, POINTING and SYSCAL are links'''
@@ -984,7 +984,7 @@ class test_partition_baseline_axis(test_base):
         
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=self.outputms, createdict=True)
-        self.assertEqual(len(thisdict.keys()), 6, 'There should be 6 subMSs in output MMS')
+        self.assertEqual(len(list(thisdict.keys())), 6, 'There should be 6 subMSs in output MMS')
         
     def test_baseline_autocorr(self):
         '''partition: create an MMS per baseline axis only for auto-correlations'''
@@ -1006,7 +1006,7 @@ class test_partition_baseline_axis(test_base):
         
         # Take the dictionary and compare with original MS
         thisdict = listpartition(vis=self.outputms, createdict=True)
-        self.assertEqual(len(thisdict.keys()), 3, 'There should be 3 subMSs in output MMS')
+        self.assertEqual(len(list(thisdict.keys())), 3, 'There should be 3 subMSs in output MMS')
  
 
 # Cleanup class 

@@ -47,9 +47,9 @@ class fixplanets_test1(unittest.TestCase):
         mymst.open(thems)
         thedir = mymst.getfielddirmeas(fieldid=thefieldids[0])
         mymst.close()
-        print "Read direction result ", thedir
+        print("Read direction result ", thedir)
         if not (thedir['refer']==theref):
-            print "ERROR: reference not as expected: expected "+theref+", got "+thedir['refer']
+            print("ERROR: reference not as expected: expected "+theref+", got "+thedir['refer'])
             therval = False
         return therval
     

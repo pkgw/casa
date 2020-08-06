@@ -87,9 +87,9 @@ if not os.path.isfile(fitsdata):
     try:
         from shutil import copyfile
         from itertools import dropwhile
-        copyfile( dropwhile( lambda x: not os.path.isfile(x),
-                             map(lambda x: x+"/ngc5921/ngc5921.fits", REGRESSION_DATA)
-                           ).next( ), "ngc5921.fits" )
+        copyfile( next(dropwhile( lambda x: not os.path.isfile(x),
+                             [x+"/ngc5921/ngc5921.fits" for x in REGRESSION_DATA]
+                           )), "ngc5921.fits" )
         ## runRegressionTest.py runs regressions in current directory
         testdir=''
     except:
@@ -107,7 +107,7 @@ if benchmarking:
 #
 try:
 
-    print '--Import--'
+    print('--Import--')
 
     # Safest to start from task defaults
     default('importuvfits')
@@ -130,7 +130,7 @@ try:
     #
     # Set the fluxes of the primary calibrator(s)
     #
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
 
     setjy(vis=msfile,field='0',scalebychan=False,standard='Perley-Taylor 99')
@@ -144,7 +144,7 @@ try:
     #
     # Gain calibration using integration time
     #
-    print '--Gaincal using interval per integration--'
+    print('--Gaincal using interval per integration--')
     default('gaincal')
 
     Ginttable = prefix + '.int.gcal'
@@ -162,7 +162,7 @@ try:
     #
     # Gain calibration using scan
     #
-    print '--Gaincal using interval infinite--'
+    print('--Gaincal using interval infinite--')
     default('gaincal')
 
     Gscantable = prefix + '.scan.gcal'
@@ -180,7 +180,7 @@ try:
     #
     # Gain calibration using scan table to recalibrate
     #
-    print '--Gaincal using previous solution--'
+    print('--Gaincal using previous solution--')
     default('gaincal')
 
     Grinttable = prefix + '.rint.gcal'
@@ -198,7 +198,7 @@ try:
     #
     # Rum accum on tables
     #
-    print '--Accum on initial data--'
+    print('--Accum on initial data--')
     default('accum')
 
     Acc1table = prefix + '.acc1.gcal'
@@ -216,7 +216,7 @@ try:
     #
     # Rum accum again on tables
     #
-    print '--Accum using previous solution--'
+    print('--Accum using previous solution--')
     default('accum')
 
     Acc2table = prefix + '.acc2.gcal'
@@ -232,7 +232,7 @@ try:
     endTime = time.time()
 
     # Save plot with the two table
-    print '--Saving Plots--'
+    print('--Saving Plots--')
     saveplot = prefix + '.pdf'
     default('plotcal')
     plotcal(caltable=Ginttable,plotsymbol='+',overplot=False,field='0',markersize=10.0,
@@ -263,7 +263,7 @@ try:
     n1 = len(intcol)
     n2 = len(acccol)
     if n1 != n2 :
-        print >> sys.stderr, "The two tables have different lengths"
+        print("The two tables have different lengths", file=sys.stderr)
 
      # Loop over every row,pol and get the data
     for i in range(1,n1,1) :
@@ -279,36 +279,36 @@ try:
     #        print intdata,accdata
             if (abs(intdata - accdata) > EPS) :
                 fail += 1
-                print >>sys.stderr, row,pol,intdata,accdata
+                print(row,pol,intdata,accdata, file=sys.stderr)
 
     if fail > 0 :
         perc = fail*100/total
         regstate = False
-        print >> sys.stdout, ''
-        print >> sys.stdout, 'Regression FAILED'
-        print >> sys.stdout, ''
-        print >> sys.stderr, "Regression test failed: %f %% of values are different "\
-                        "by more than the allowed maximum %s" %(perc,EPS)
+        print('', file=sys.stdout)
+        print('Regression FAILED', file=sys.stdout)
+        print('', file=sys.stdout)
+        print("Regression test failed: %f %% of values are different "\
+                        "by more than the allowed maximum %s" %(perc,EPS), file=sys.stderr)
     else :
         regstate = True
-        print >> sys.stdout, ''
-        print >> sys.stdout, 'Regression PASSED'
-        print >> sys.stdout, ''
-        print >> sys.stdout, "Regression tests passed. %s rows were analysed" %total
+        print('', file=sys.stdout)
+        print('Regression PASSED', file=sys.stdout)
+        print('', file=sys.stdout)
+        print("Regression tests passed. %s rows were analysed" %total, file=sys.stdout)
 
-    print >>sys.stdout,'********* Benchmarking *****************'
-    print >>sys.stdout,'*                                      *'
-    print >>sys.stdout,'Total wall clock time was: '+str(endTime - startTime)
-    print >>sys.stdout,'Total CPU        time was: '+str(endProc - startProc)
-    print >>sys.stdout,'* Breakdown:                           *'
-    print >>sys.stdout,'*   import       time was: '+str(importtime-startTime)
-    print >>sys.stdout,'*   setjy        time was: '+str(setjytime-importtime)
-    print >>sys.stdout,'*   gaincal1     time was: '+str(gaintime1-setjytime)
-    print >>sys.stdout,'*   gaincal2     time was: '+str(gaintime2-gaintime1)
-    print >>sys.stdout,'*   gaincal3     time was: '+str(gaintime3-gaintime2)
-    print >>sys.stdout,'*   accum1       time was: '+str(accumtime1-gaintime3)
-    print >>sys.stdout,'*   accum2       time was: '+str(accumtime2-accumtime1)
-    print >>sys.stdout,'*****************************************'
+    print('********* Benchmarking *****************', file=sys.stdout)
+    print('*                                      *', file=sys.stdout)
+    print('Total wall clock time was: '+str(endTime - startTime), file=sys.stdout)
+    print('Total CPU        time was: '+str(endProc - startProc), file=sys.stdout)
+    print('* Breakdown:                           *', file=sys.stdout)
+    print('*   import       time was: '+str(importtime-startTime), file=sys.stdout)
+    print('*   setjy        time was: '+str(setjytime-importtime), file=sys.stdout)
+    print('*   gaincal1     time was: '+str(gaintime1-setjytime), file=sys.stdout)
+    print('*   gaincal2     time was: '+str(gaintime2-gaintime1), file=sys.stdout)
+    print('*   gaincal3     time was: '+str(gaintime3-gaintime2), file=sys.stdout)
+    print('*   accum1       time was: '+str(accumtime1-gaintime3), file=sys.stdout)
+    print('*   accum2       time was: '+str(accumtime2-accumtime1), file=sys.stdout)
+    print('*****************************************', file=sys.stdout)
 
-except Exception, instance:
-    print >> sys.stderr, "Regression test failed for accum instance = ", instance
+except Exception as instance:
+    print("Regression test failed for accum instance = ", instance, file=sys.stderr)

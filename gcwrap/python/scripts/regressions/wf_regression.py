@@ -75,7 +75,7 @@ if benchmarking:
 #
 try:
     
-    print '--Import--'
+    print('--Import--')
     
     # Safest to start from task defaults
     default('importuvfits')
@@ -102,7 +102,7 @@ try:
     #
     # Run normal clean and create 5 images
     #
-    print '--Clean in classic mode--'
+    print('--Clean in classic mode--')
     default('clean')
     vis = msfile
     outlierfile = 'outliers.txt'
@@ -127,7 +127,7 @@ try:
     #
     # Run clean using widefield mode with 5 outliers
     #
-    print '--Clean in widefield mode--'
+    print('--Clean in widefield mode--')
     taskname = 'clean'
     default(taskname)
     vis = msfile
@@ -159,18 +159,18 @@ try:
     # wf_x.psf
        
     # Get statistics of individual images
-    print '--Imstat--'
+    print('--Imstat--')
     default('imstat')
     imagename = wimage+'.image'
     wstats =imstat()
 
-    print ""
-    print ' Wide-field results '
-    print ' =============== '
+    print("")
+    print(' Wide-field results ')
+    print(' =============== ')
     
-    print ''
-    print ' --Regression Tests--'
-    print ''
+    print('')
+    print(' --Regression Tests--')
+    print('')
     
     sumnpts = 0
     for i in range(5):
@@ -179,14 +179,14 @@ try:
         
         # Compare the number of points in wide-field 
         # image and in individual images
-        print nstats['max'][0]
-        print nstats['min'][0]
+        print(nstats['max'][0])
+        print(nstats['min'][0])
 #        sumnpts += nstats['npts'][0]
     
 #    print "sum_n_npts=%s, w_npts=%s" %(sumnpts,wstats['npts'][0])
-    print 'wide-field stats'
-    print wstats['max'][0]
-    print wstats['min'][0]
+    print('wide-field stats')
+    print(wstats['max'][0])
+    print(wstats['min'][0])
      
     # Pull the max from the nstats dictionary
     # created above using imstat
@@ -211,6 +211,6 @@ try:
         endProc = time.clock()
         endTime = time.time()
 
-except Exception, instance:
-    print >> sys.stderr, "Regression test failed for wide-field instance = ", instance
+except Exception as instance:
+    print("Regression test failed for wide-field instance = ", instance, file=sys.stderr)
 

@@ -32,14 +32,14 @@ def check_eq(val, expval, tol=None):
             if hasattr(are_eq, 'all'):
                 are_eq = are_eq.all()
             if not are_eq:
-                raise ValueError, '!='
+                raise ValueError('!=')
         except ValueError:
             errmsg = "%r != %r" % (val, expval)
             if (len(errmsg) > 66): # 66 = 78 - len('ValueError: ')
                 errmsg = "\n%r\n!=\n%r" % (val, expval)
-            raise ValueError, errmsg
-        except Exception, e:
-            print "Error comparing", val, "to", expval
+            raise ValueError(errmsg)
+        except Exception as e:
+            print("Error comparing", val, "to", expval)
             raise e
 
 class test_nrobeamaverage(unittest.TestCase):
@@ -64,17 +64,17 @@ class test_nrobeamaverage(unittest.TestCase):
     def _get_antid(self):
         with tbmanager(self.i_ms + '/ANTENNA') as tb:
             acol = tb.getcol('NAME')
-        return xrange(len(acol))
+        return range(len(acol))
 
     def _get_onsource_stateid(self):
         with tbmanager(self.i_ms + '/STATE') as tb:
             ocol = tb.getcol('OBS_MODE')
         res = None
-        for i in xrange(len(ocol)):
+        for i in range(len(ocol)):
             if ocol[i] == 'OBSERVE_TARGET#ON_SOURCE':
                 res = i
                 break
-        if res is None: raise Exception, 'State ID for on_source data not found.'
+        if res is None: raise Exception('State ID for on_source data not found.')
         return res
 
     def run_task(self, aux_args=None):
@@ -113,7 +113,7 @@ class test_nrobeamaverage(unittest.TestCase):
         else:
             num_onsource = 0
             num_others = 0
-            for i in xrange(len(stcol)):
+            for i in range(len(stcol)):
                 if (stcol[i] == self.st_onsrc):
                     num_onsource += 1
                 else:
@@ -122,7 +122,7 @@ class test_nrobeamaverage(unittest.TestCase):
 
     def check_values(self, num_ave=None, beam=None):
         if num_ave is None:
-            for iidx in xrange(len(self.i_tm)):
+            for iidx in range(len(self.i_tm)):
                 with tbmanager(self.i_ms) as tb:
                     self.i_dat = tb.getcell('FLOAT_DATA', iidx)
                 oidx = self._get_index_outdata(iidx)
@@ -145,26 +145,26 @@ class test_nrobeamaverage(unittest.TestCase):
         check_eq(oval['a2'], ref_an)
 
         # spectrum
-        for i in xrange(len(ival['dat'][0])):
-            for j in xrange(len(ival['dat'][0][i])):
+        for i in range(len(ival['dat'][0])):
+            for j in range(len(ival['dat'][0][i])):
                 ref_dat = (ival['dat'][0][i][j] + ival['dat'][1][i][j]) / float(num_ave)
                 check_eq(oval['dat'][i][j], ref_dat, self.tol)
 
         # weight and sigma
         ref_wgt = float(num_ave)
         ref_sig = 1.0/math.sqrt(ref_wgt)
-        for i in xrange(len(oval['wgt'])):
+        for i in range(len(oval['wgt'])):
             check_eq(oval['wgt'][i], ref_wgt, self.tol)
             check_eq(oval['sig'][i], ref_sig, self.tol)
 
     def _get_index_outdata(self, iidx):
         res = None
-        for oidx in xrange(len(self.o_tm)):
+        for oidx in range(len(self.o_tm)):
             if (self.o_dd[oidx] == self.i_dd[iidx]) and (self.o_sc[oidx] == self.i_sc[iidx]) and (self.o_st[oidx] == self.i_st[iidx]):
                 if (self.o_st[oidx] != self.st_onsrc) and (self.o_a1[oidx] != self.i_a1[iidx]): continue
                 res = oidx
                 break
-        if res is None: raise Exception, 'Output data not found.'
+        if res is None: raise Exception('Output data not found.')
         return res
 
     def _do_check_values(self, iidx, oidx, beam=None):
@@ -174,8 +174,8 @@ class test_nrobeamaverage(unittest.TestCase):
         o_nchn = len(self.o_dat[0])
         check_eq(o_nchn, len(self.i_dat[0]))
         # spectrum value
-        for ipol in xrange(o_npol):
-            for ichan in xrange(o_nchn):
+        for ipol in range(o_npol):
+            for ichan in range(o_nchn):
                 check_eq(self.o_dat[ipol][ichan], self.i_dat[ipol][ichan])
         check_eq(self.o_tm[oidx], self.i_tm[iidx])
         # antenna ID
@@ -183,9 +183,9 @@ class test_nrobeamaverage(unittest.TestCase):
             lst_beam = self.antid
         else:
             lst_beam = beam.strip().split(',')
-            for i in xrange(len(lst_beam)): lst_beam[i] = int(lst_beam[i])
+            for i in range(len(lst_beam)): lst_beam[i] = int(lst_beam[i])
             min_beam = lst_beam[0]
-            for i in xrange(len(lst_beam)):
+            for i in range(len(lst_beam)):
                 if lst_beam[i] < min_beam: min_beam = lst_beam[i]
             self.min_antid = min_beam
 
@@ -199,7 +199,7 @@ class test_nrobeamaverage(unittest.TestCase):
         # input data (first two data to be averaged into the first output data)
         ival['tm1'], ival['tm2'] = self._get_first_two_timestamps(spw)
         in_dat = []
-        for i in xrange(len(self.i_tm)):
+        for i in range(len(self.i_tm)):
             if (self.i_st[i] == state) and (self.i_dd[i] == spw):
                 if (self.i_tm[i] == ival['tm1']) or (self.i_tm[i] == ival['tm2']):
                     with tbmanager(self.i_ms) as tb:
@@ -207,7 +207,7 @@ class test_nrobeamaverage(unittest.TestCase):
         ival['dat'] = in_dat
 
         # output data (only the first one)
-        for i in xrange(len(self.o_tm)):
+        for i in range(len(self.o_tm)):
             if (self.o_st[i] == state) and (self.o_dd[i] == spw):
                 oval['tm'] = self.o_tm[i]
                 oval['a1'] = self.o_a1[i]
@@ -223,7 +223,7 @@ class test_nrobeamaverage(unittest.TestCase):
     def _get_first_two_timestamps(self, data_desc_id):
         time1 = None
         time2 = None
-        for i in xrange(len(self.i_tm)):
+        for i in range(len(self.i_tm)):
             if (self.i_st[i] == self.st_onsrc) and (self.i_dd[i] == data_desc_id):
                 if time1 is None:
                     time1 = self.i_tm[i]

@@ -50,11 +50,11 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='REGRESSION.'+datestring+'.log'
 regfile=open(outfile,'w')
 
-print >>regfile,''
-print >>regfile,'******** Report '
-print >>regfile,'         ------'
+print('', file=regfile)
+print('******** Report ', file=regfile)
+print('         ------', file=regfile)
 #print >>regfile,'SOURCE \t PASSED  TIME \t\t RATE \t \t LOGFILE'
-print >>regfile,'%9s %6s %9s %9s %39s'%('SOURCE','PASSED','TIME','RATE','LOGFILE')
+print('%9s %6s %9s %9s %39s'%('SOURCE','PASSED','TIME','RATE','LOGFILE'), file=regfile)
 
 scriptlist=['G192','H121','L02D','NGC5921','NGC7538','NGC1333','NGC4826','NGC4826C','ORION','B0319', 'COORDSYSTEST', 'IMAGEPOLTEST', 'IMAGETEST', 'IC2233', 'POINTING']
 ratedict={'G192': 634.9,'H121': 500.,'L02D': 500.,'NGC5921': 35.1,'NGC7538': 240.3,'NGC1333': 500.,'NGC4826': 662.,'NGC4826C': 760., 'ORION': 500., 'B0319': 5.0, 'COORDSYSTEST':44., 'IMAGEPOLTEST':41., 'IMAGETEST':32., 'IC2233':8051, 'POINTING':1080}
@@ -63,15 +63,15 @@ for mysource in scriptlist:
     execute_script='DO_'+mysource
     if (eval(execute_script)):
         try:
-            print 'source ',mysource
-            execfile(str.lower(mysource)+'_regression.py')
+            print('source ',mysource)
+            exec(compile(open(str.lower(mysource)+'_regression.py', "rb").read(), str.lower(mysource)+'_regression.py', 'exec'))
             scriptpass=regstate
             scriptlog=outfile
             scripttime=(endTime-startTime)
             scriptrate=ratedict[mysource]/(endTime-startTime)
-            print >>regfile,'%9s %6s %9s %9s %39s'%(mysource,scriptpass,scripttime,scriptrate,scriptlog)
+            print('%9s %6s %9s %9s %39s'%(mysource,scriptpass,scripttime,scriptrate,scriptlog), file=regfile)
         except:
-            print 'Test failed:', sys.exc_info()[0]
+            print('Test failed:', sys.exc_info()[0])
 
 regfile.close()
 

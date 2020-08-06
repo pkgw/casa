@@ -13,7 +13,7 @@ from parallel.parallel_task_helper import ParallelTaskHelper
 ''' Unit Tests for task partition'''
 
 # jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested 
-if os.environ.has_key('BYPASS_SEQUENTIAL_PROCESSING'):
+if 'BYPASS_SEQUENTIAL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
     
@@ -325,7 +325,7 @@ class partition_test2(test_base):
         
         # Check the number of sub-MSs
         mmslist = []
-        klist = thisdict.keys()
+        klist = list(thisdict.keys())
         for kk in klist:
             mmslist.append(thisdict[kk]['MS'])
         

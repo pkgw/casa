@@ -29,7 +29,7 @@ regstate = True
 # MIN_CASA_REVISION = 36095
 
 def printmsg(logfile, msg):
-    print >>logfile, msg
+    print(msg, file=logfile)
     print(msg)
     return
 
@@ -64,17 +64,17 @@ def pipeline_regression():
     ASDM = rootdatapath  + "13A-537.sb24066356.eb24324502.56514.05971091435"
     try:
         import pipeline.recipes.hifv as hifv
-    except ImportError, e:
+    except ImportError as e:
         print(e)
         
     
     # Check to see if the ASDM exists
     if not os.path.exists(ASDM):
-        print("Unable to open ASDM ", ASDM)
+        print(("Unable to open ASDM ", ASDM))
 	regstate=False
         raise IOError
     else:
-        print("Using ", ASDM)
+        print(("Using ", ASDM))
     
     # Run the CASA VLA Pipeline standard recipe
     try:
@@ -95,7 +95,7 @@ def run():
     pipeline_regression()
     endTime = time.time()
     endProc = time.clock()
-    print("Run Time = ",endTime-startTime,endProc-startProc)
+    print(("Run Time = ",endTime-startTime,endProc-startProc))
 
 def stats():
     global startTime, endTime, startProc, endProc, regstate, standard_context_file
@@ -106,7 +106,7 @@ def stats():
     
     try:
         import pipeline
-    except ImportError, e:
+    except ImportError as e:
         printmsg(logfile, "Unable to import the CASA pipeline.")
         printmsg(logfile, e)
         regstate = False
@@ -211,7 +211,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print("Regstate:" , regstate)
+    print(("Regstate:" , regstate))
     if regstate:
         print("Regression PASSED")
     else:

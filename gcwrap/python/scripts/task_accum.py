@@ -141,14 +141,14 @@ def accum(vis=None,tablein=None,incrtable=None,caltable=None,field=None,calfield
                      _cb.setvi(old=True,quiet=False);   # Old VI
                      _cb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
               else:
-                     raise Exception, 'Visibility data set not found - please verify the name'
+                     raise Exception('Visibility data set not found - please verify the name')
 
               _cb.accumulate(tablein=tablein,incrtable=incrtable,tableout=caltable,
                             field=field,calfield=calfield,interp=interp,t=accumtime,spwmap=spwmap)
               _cb.close()
 
-       except Exception, instance:
-              print '*** Error ***',instance
+       except Exception as instance:
+              print('*** Error ***',instance)
               _cb.close()
-              raise Exception, instance
+              raise Exception(instance)
 

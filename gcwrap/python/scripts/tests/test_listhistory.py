@@ -2,7 +2,7 @@ import os
 import io
 import sys
 import shutil
-import commands
+import subprocess
 from __main__ import default
 from tasks import *
 from taskinit import *
@@ -12,15 +12,15 @@ datapath = os.environ.get('CASAPATH').split()[0] +\
                             '/data/regression/unittest/listhistory/'
 
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listhistory/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'listhistory tests will use data from '+datapath         
+print('listhistory tests will use data from '+datapath)         
 
 class listhistory_test(unittest.TestCase):
 
@@ -59,7 +59,7 @@ class listhistory_test(unittest.TestCase):
         
         res = listhistory(self.msfile)
         cmd="sed -n \"/Begin Task/,/End Task/p\" %s > %s " %(logfile,newfile)
-        print cmd
+        print(cmd)
         os.system(cmd)
     
         # Get the number of lines in file
@@ -68,8 +68,8 @@ class listhistory_test(unittest.TestCase):
             refnum = 36
 
         cmd="wc -l %s |egrep \"[0-9]+\" -o" %newfile    
-        print cmd
-        output=commands.getoutput(cmd)
+        print(cmd)
+        output=subprocess.getoutput(cmd)
         num = int(output)
         self.assertEqual(refnum,num)
 

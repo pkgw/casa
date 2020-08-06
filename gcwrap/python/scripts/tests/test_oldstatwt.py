@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 import numpy.ma as ma
 import random
@@ -48,7 +48,7 @@ class oldstatwt_test(unittest.TestCase):
         validSpecData=specData[~specData.mask]
         dmean = validSpecData.mean()
         nchan=len(validSpecData)
-        for n in xrange(nchan):
+        for n in range(nchan):
           dev = validSpecData[n] - dmean
           # combine real and imag
           dev2 += (dev.real*dev.real + dev.imag*dev.imag)
@@ -98,7 +98,7 @@ class oldstatwt_test(unittest.TestCase):
         #    icorr = random.randint(0,1)
         
         # do it for all rows!
-        for i in xrange(nr):
+        for i in range(nr):
             icorr = 0
             (v,s,r) = self.calcwt(i,icorr,datc,fg)
             if v!=0:

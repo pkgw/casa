@@ -35,22 +35,22 @@ def uvsub(vis=None,reverse=False):
         if ((type(vis)==str) & (os.path.exists(vis))):
             ms.open(thems=vis,nomodify=False)
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
             return
         ms.uvsub(reverse)
         ms.close
         
         # Write history to MS
         try:
-            param_names = uvsub.func_code.co_varnames[:uvsub.func_code.co_argcount]
+            param_names = uvsub.__code__.co_varnames[:uvsub.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(mstool(), vis, 'uvsub', param_names,
                           param_vals, casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')            
 
         return
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)
         return

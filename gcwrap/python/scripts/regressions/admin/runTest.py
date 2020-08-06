@@ -13,7 +13,7 @@ from taskinit import casalog
 from casa_stack_manip import *
 import testwrapper
 from testwrapper import *
-import StringIO
+import io
 import contextlib
 import logging
 import argparse
@@ -167,14 +167,14 @@ def getclasses(testnames):
             classes = tt.getTestClasses(filename)
             for c in classes:
                 pprint.pprint('Class '+c.__name__)
-                for attr, value in c.__dict__.iteritems():
+                for attr, value in c.__dict__.items():
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
-                        print '\t%s'%c(attr)
+                        print('\t%s'%c(attr))
             os.remove(filename+'.py')
             os.remove(filename+'.pyc')
         os.chdir(here)
     except:
-        print '--> ERROR: Cannot copy script to %s'%tmpdir
+        print('--> ERROR: Cannot copy script to %s'%tmpdir)
         logger.error('Failed to open file', exc_info=True)
         return
 
@@ -194,12 +194,12 @@ def getsubtests(filename,list=[]):
         # Check if class has @attr(tag=''). Note: class @attr takes priority over func attr
         if 'tag' in c.__dict__:
             if c.tag == ATTR_VAL:
-                for attr, value in c.__dict__.iteritems():
+                for attr, value in c.__dict__.items():
                     if len(attr) >= len("test") and attr[:len("test")] == "test":
                         testlist_to_execute.append([attr,value.__module__])
         else:
             # Check if functions within each class has @attr(tag = '') or func.tag = ''
-            for attr, value in c.__dict__.iteritems():
+            for attr, value in c.__dict__.items():
                 if len(attr) >= len("test") and attr[:len("test")] == "test":
                     if hasattr(value,'tag'):
                         if value.tag == ATTR_VAL:
@@ -224,13 +224,13 @@ def readJSON(FILE):
 
 def list_tests():
     logger.info("Start Function: list_tests()")
-    print 'Full list of tests'
-    print '-----------------------'
+    print('Full list of tests')
+    print('-----------------------')
     for test in readJSON(LISTofTESTS):
-        print test['testType'], ":" ,test["testScript"]
-    print '-----------------------'
-    print '-----------------------'
-    print 'Full list of tags'
+        print(test['testType'], ":" ,test["testScript"])
+    print('-----------------------')
+    print('-----------------------')
+    print('Full list of tags')
     tmpArray = []    
     for test in readJSON(LISTofTESTS):
         tmpArray.append(test['tag'])
@@ -241,13 +241,13 @@ def list_tests():
     listtags.append('TS2')
     #listtags.append('TS3') #'Disabled Due to CAS-10844'
     for listtag in listtags:
-        print listtag
+        print(listtag)
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
     old = sys.stdout
     if stdout is None:
-        stdout = StringIO.StringIO()
+        stdout = io.StringIO()
     sys.stdout = stdout
     yield stdout
     sys.stdout = old
@@ -270,7 +270,7 @@ class RegressionTestCase(unittest.TestCase):
 
         _potential_data_directories = ( "/opt/casa/data","/home/casa/data","/home/casa/data/trunk","/home/casa/data/master","/opt/casa/data/master","/export/data/casa" )
 
-        REGRESSION_DATA = filter(lambda x: os.access(x,os.F_OK),map(lambda y: y+"/regression",_potential_data_directories))
+        REGRESSION_DATA = [x for x in [y+"/regression" for y in _potential_data_directories] if os.access(x,os.F_OK)]
 
         if not os.access(TESTS_DIR, os.F_OK):
             if os.access(CASA_DIR+'/lib64', os.F_OK):
@@ -299,14 +299,14 @@ class RegressionTestCase(unittest.TestCase):
             path = TESTS_DIR+"test_"+name+".py"
         else:
             raise RuntimeError("task %s not found" % name)
-        print
-        print "------------------------------------------------------------------------------------------------------------------------"
-        print "starting test %s (%s)" % (name,path)
-        print "------------------------------------------------------------------------------------------------------------------------"
+        print()
+        print("------------------------------------------------------------------------------------------------------------------------")
+        print("starting test %s (%s)" % (name,path))
+        print("------------------------------------------------------------------------------------------------------------------------")
         with stdoutIO() as regressionResult:
             #execfile(path,globals()) 
             exec(open(path).read(),globals())
-        print regressionResult.getvalue()
+        print(regressionResult.getvalue())
         if "PASS" in str(regressionResult.getvalue()).upper(): # Looks for PASS, PASSED
             assert True
         elif "FAIL" in str(regressionResult.getvalue()).upper():# Looks for FAIL, FAILED
@@ -325,26 +325,26 @@ def _find_unit_path():
 
 def checkForMPI():
     logger.debug("Start Function: checkForMPI()")
-    if (not os.environ.has_key("OMP_NUM_THREADS")) or (not os.environ.has_key("OMPI_COMM_WORLD_SIZE")): 
-        print "MPICASA is not enabled"
+    if ("OMP_NUM_THREADS" not in os.environ) or ("OMPI_COMM_WORLD_SIZE" not in os.environ): 
+        print("MPICASA is not enabled")
         return False
-    print "MPICASA is enabled"
+    print("MPICASA is enabled")
     return True
 
 def checkForPIPELINE():
     logger.debug("Start Function: def checkForPIPELINE()")
     try:
         import pipeline
-    except ImportError, e:
-        print e
-        print "Unable to import the CASA pipeline"
+    except ImportError as e:
+        print(e)
+        print("Unable to import the CASA pipeline")
         return False
     return True
 
 def checkForCASAGUIDE_DATA():
     logger.debug("Start Function: checkForCASAGUIDE_DATA()")
     if not os.path.isdir(os.environ["CASAPATH"].split()[0] + '/data/casaguidedata/'):
-        print "Could Not Find CasaGuide Data"
+        print("Could Not Find CasaGuide Data")
         return False
     return True
 
@@ -365,7 +365,7 @@ def run(testnames=[]):
         logger.info("Executing All Tests")
         if (HAVE_MEMTEST and MEM):
             logging.critical('Cannot Execute All Tests in MEM mode')
-            raise Exception, 'Cannot Execute All Tests in MEM mode'
+            raise Exception('Cannot Execute All Tests in MEM mode')
         whichtests = 0
         # Get the full list of tests from file
         skip_mpi = False
@@ -396,7 +396,7 @@ def run(testnames=[]):
 
         if listtests == []:
             logging.critical('List of tests \"%s\" is empty or does not exist', LISTofTESTS)
-            raise Exception, 'List of tests \"%s\" is empty or does not exist'%LISTofTESTS
+            raise Exception('List of tests \"%s\" is empty or does not exist'%LISTofTESTS)
 
     elif listtests == 'subset':
         whichtests = 1
@@ -416,19 +416,19 @@ def run(testnames=[]):
             if ('mpi'in testTag):
                  if not mpiEnabled:
                     logger.critical("MPICASA Not Enabled. Cannot Generate Suite for 'mpi' Tag")
-                    raise Exception, 'MPICASA Not Enabled'
+                    raise Exception('MPICASA Not Enabled')
 
             # Run Pipeline tests. Check for Pipeline enabled 
             if ('pipeline'in testTag):
                 if not pipelineEnabled:
                     logger.critical("Pipeline Not Enabled. Cannot Generate Suite for 'pipeline' Tag")
-                    raise Exception, 'Pipeline Not Enabled'
+                    raise Exception('Pipeline Not Enabled')
 
             # Run casaguide tests. Check for casaguide data 
             if ('casaguide'in testTag):
                 if not casaguideEnabled:
                     logger.critical('Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata')
-                    raise Exception, 'Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata'
+                    raise Exception('Cannot Find Casa Guide Data in: ' + os.environ["CASAPATH"].split()[0] + '/data/casaguidedata')
 
             # Test Tag to run all Functional Tests or all regression tags
             if ("functionalTest" in testTag) or ("regression" in testTag):
@@ -442,7 +442,7 @@ def run(testnames=[]):
             elif testTag.startswith("TS"):
                 # BEGIN TODO TEMP
                 if 'TS3' in testTag: # TS3 has almost as many tests as --all option. Disabled till CAS-10844 is resolved
-                    raise Exception, 'Disabled Due to CAS-10844.'
+                    raise Exception('Disabled Due to CAS-10844.')
                 # END TODO TEMP
                 if not mpiEnabled and ("mpi" in test["tag"]): 
                     continue
@@ -457,7 +457,7 @@ def run(testnames=[]):
                 listtests.append(test['testScript'])
 
         if listtests == []:
-            raise Exception, 'List of tests is empty'
+            raise Exception('List of tests is empty')
 
     elif (type(testnames) != type([])):                
         if (os.path.isfile(testnames)):
@@ -465,9 +465,9 @@ def run(testnames=[]):
             whichtests = 1
             listtests = readJSON(testnames)
             if listtests == []:
-                raise Exception, 'List of tests is empty'
+                raise Exception('List of tests is empty')
         else:
-            raise Exception, 'List of tests does not exist'
+            raise Exception('List of tests does not exist')
             
     else:
         # run specific tests
@@ -561,7 +561,7 @@ def run(testnames=[]):
 
     if RUN_SUBTEST:
         if len(testlist_to_execute) == 0:
-            raise ValueError, "Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL)
+            raise ValueError("Cannot Find Tests with Attribute:'%s'"%(ATTR_VAL))
         if not whichtests:
             for i in range(0,len(list)):
                 tmp = []
@@ -578,7 +578,7 @@ def run(testnames=[]):
     if (len(list) == 0):
         os.chdir(PWD)
         logger.critical("ERROR: There are no valid tests to run")
-        raise Exception, 'ERROR: There are no valid tests to run'
+        raise Exception('ERROR: There are no valid tests to run')
 
     # Run all tests and create a XML report
     xmlfile = xmldir+'nose.xml'
@@ -670,7 +670,7 @@ def run(testnames=[]):
             logger.info("XUNIT File: %s", xmlfile)
 
     except:
-        print "Failed to run one or more tests"
+        print("Failed to run one or more tests")
         logger.critical("Failed to run one or more tests", exc_info=True)
         traceback.print_exc()
 
@@ -831,9 +831,9 @@ if __name__ == "__main__":
             if args.dry_run:
                 # Some Parameters do not work with some plugins
                 if args.coverage:
-                    raise Exception, "Cannot have a Dry Run in Coverage Mode"
+                    raise Exception("Cannot have a Dry Run in Coverage Mode")
                 if args.mem:
-                    raise Exception, "Cannot have a Dry Run in Mem Mode"
+                    raise Exception("Cannot have a Dry Run in Mem Mode")
                 DRY_RUN = True
 
             # Run All Test
@@ -856,7 +856,7 @@ if __name__ == "__main__":
             if args.attr: 
                 logger.info('Setting Attr')
                 RUN_SUBTEST = True
-                if len(args.attr) != 1: raise Exception, "Using multiple attributes not yet avaliable."
+                if len(args.attr) != 1: raise Exception("Using multiple attributes not yet avaliable.")
                 ATTR_VAL = args.attr[0]
 
             # Options to change test Execution Modes
@@ -879,7 +879,7 @@ if __name__ == "__main__":
                         logger.debug("Adding Test %s from file %s",re.sub(r'[\n\r]+', '',line),args.file)
                         testnames.append(re.sub(r'[\n\r]+', '',line))
                     except:
-                        raise Exception, " The list should contain one test per line."
+                        raise Exception(" The list should contain one test per line.")
 
             if args.pybot: #run specific tests in pybot mode
                 if (HAVE_ROBOT):
@@ -894,7 +894,7 @@ if __name__ == "__main__":
                    an alternative location for the data. This is used to test tasks with MMS data directory with test data'''
 
                 if not os.path.isdir(args.datadir):
-                    raise Exception, 'Value of --datadir is not a directory -> '+ args.datadir
+                    raise Exception('Value of --datadir is not a directory -> '+ args.datadir)
                 logger.debug("Data Path: %s",args.datadir)
                 # Set an environmental variable for the data directory
                 # Also, overwrite casa paramaters dictionary to point to new data
@@ -902,9 +902,9 @@ if __name__ == "__main__":
                 logger.info("Setting Test Data Dir: %s",args.datadir)
                 casa['dirs']['data'] = args.datadir
                 settestdir(args.datadir)
-                if not os.environ.has_key('TEST_DATADIR'):
+                if 'TEST_DATADIR' not in os.environ:
                     logging.critical("Could not create environmental variable TEST_DATADIR")
-                    raise Exception, 'Could not create environmental variable TEST_DATADIR'
+                    raise Exception('Could not create environmental variable TEST_DATADIR')
 
             # Deal with other arguments
             for arg in unknownArgs:
@@ -916,7 +916,7 @@ if __name__ == "__main__":
 
             #If no tests are given, no subet tag or --all option
             if testnames == []:
-                raise Exception, 'List of tests is empty'
+                raise Exception('List of tests is empty')
 
     if logger.isEnabledFor(logging.DEBUG):
         # Debug Information

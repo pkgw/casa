@@ -2,9 +2,9 @@ import re
 import sys
 import os
 import argparse
-import urllib
-import urllib2
-from HTMLParser import HTMLParser
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+from html.parser import HTMLParser
 from subprocess import check_output
 import platform
 
@@ -25,7 +25,7 @@ class MyHTMLParser(HTMLParser):
             for name, value in attrs:
                 # If href is defined, print it.
                 if name == "href":
-                    print name, "=", value
+                    print(name, "=", value)
                     if value.lower().startswith("carta") and ".md5" not in value:
                         self.links.append(value)
 
@@ -46,7 +46,7 @@ def splitext(path):
 
 
 def resolve_os():
-    print "Resolving OS"
+    print("Resolving OS")
     detected_os = "linux"
     if "el7" in platform.uname()[2]:
         detected_os = 'el7'
@@ -61,12 +61,12 @@ def resolve_os():
     if "Darwin Kernel Version 17" in platform.uname()[3]:
             # os= 'osx1012'
             detected_os = 'osx'
-    print "Found " + detected_os
+    print("Found " + detected_os)
     return detected_os
 
 
 def resolve_url():
-    print "Resolving package URL"
+    print("Resolving package URL")
     # OSX URL
     stitched_url = base_url + curr_os + url_tail
 
@@ -77,16 +77,16 @@ def resolve_url():
 
 
 def get_latest_link(html):
-    print "Getting the latest link"
-    print html
+    print("Getting the latest link")
+    print(html)
     link_parser = MyHTMLParser()
     link_parser.feed(html)
     result = link_parser.get_links()
     split_packages = []
     for pkg in result:
-        print pkg
+        print(pkg)
         split_pkg = re.split("[\.|-]", pkg)
-        print split_pkg
+        print(split_pkg)
         split_packages.append(split_pkg)
 
     if curr_os == "osx":
@@ -99,10 +99,10 @@ def get_latest_link(html):
     version = ".".join(sorted_packages[0][2:5])
     rev = sorted_packages[0][5]
     tail = ".".join(sorted_packages[0][6:len(sorted_packages[0])])
-    print lead
-    print version
-    print rev
-    print tail
+    print(lead)
+    print(version)
+    print(rev)
+    print(tail)
 
     current_version = lead + "-" + version + "-" + rev + "." + tail
 
@@ -133,10 +133,10 @@ packageUrl = ""
 if args.url is not None:
     packageUrl = args.url
 else:
-    print "Downloading package for " + curr_os
-    print "url: " + url
+    print("Downloading package for " + curr_os)
+    print("url: " + url)
 
-    response = urllib2.urlopen(url)
+    response = urllib.request.urlopen(url)
     download_page_html = response.read()
     latest_link = get_latest_link(download_page_html)
     packageUrl = url + latest_link
@@ -151,25 +151,25 @@ if args.installationdir is not None:
     installation_directory = args.installationdir
 
 if installation_type == "package" and installation_directory == "":
-    print "Installing Carta in packaging environment"
+    print("Installing Carta in packaging environment")
     if curr_os == "osx":
         installation_directory = script_dir + "/../../Resources"
-        print "Installing casa into " + installation_directory
+        print("Installing casa into " + installation_directory)
     elif curr_os.startswith("el") :
         installation_directory = script_dir + "/../../etc"
-        print "Installing casa into " + installation_directory
+        print("Installing casa into " + installation_directory)
     else:
-        print "Couldn't resolve installation directory for the package build."
+        print("Couldn't resolve installation directory for the package build.")
 elif installation_directory != "":
-    print "Installing Carta to " + installation_directory
+    print("Installing Carta to " + installation_directory)
 else:
-    print "No valid installation type or directory provided. Exiting..."
+    print("No valid installation type or directory provided. Exiting...")
     sys.exit()
 
 
 # Fetch the package
-print "Download link: " + packageUrl
-urllib.urlretrieve(packageUrl, latest_link)
+print("Download link: " + packageUrl)
+urllib.request.urlretrieve(packageUrl, latest_link)
 
 # Extract package
 if curr_os.startswith("osx"):
@@ -179,25 +179,25 @@ if curr_os.startswith("osx"):
     if m:
         # package_dir = package_dir + m.group(1).strip()
         package_dir += m.group(1).strip()
-    print "Package dir: " + package_dir
+    print("Package dir: " + package_dir)
 
     # Copy to the right place here
     check_output(["cp", "-pR", package_dir + "/Carta.app", installation_directory])
 
     out = check_output(["hdiutil", "detach", package_dir])
-    print out
+    print(out)
     out = check_output(["rm", latest_link])
-    print out
+    print(out)
 elif curr_os.startswith("el"):
-    urllib.urlretrieve (packageUrl)
+    urllib.request.urlretrieve (packageUrl)
     install_dir_mod = installation_directory + "/carta"
-    print "Installing Carta to " +  install_dir_mod
-    print "Extracting " + latest_link
+    print("Installing Carta to " +  install_dir_mod)
+    print("Extracting " + latest_link)
     out = check_output(["tar", "-xvzf", latest_link])
-    print out
+    print(out)
     out = check_output(["mv",  splitext(latest_link)[0], install_dir_mod])
-    print out
+    print(out)
     out = check_output(["rm", latest_link])
-    print out
+    print(out)
 else:
-    print "Unsupported operating system"
+    print("Unsupported operating system")

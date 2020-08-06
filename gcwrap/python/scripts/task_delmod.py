@@ -29,17 +29,17 @@ def delmod(vis=None,otf=None,field=None,scr=None):
             _cb.delmod(otf=otf,field=field,scr=scr)
             _cb.close()
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         # Write history to MS
         try:
-            param_names = delmod.func_code.co_varnames[:delmod.func_code.co_argcount]
+            param_names = delmod.__code__.co_varnames[:delmod.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(mstool(), vis, 'delmod', param_names,
                           param_vals, casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
 
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)

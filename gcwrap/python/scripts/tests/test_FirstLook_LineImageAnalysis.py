@@ -65,10 +65,10 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         try:
             # First check
             if tb.nrows() != tb2.nrows():
-                print 'Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows())
+                print('Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows()))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb.nrows()):
             
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
@@ -85,11 +85,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance)
+                                    print('ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance))
                                     break
                         else:
-                            print 'ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.'
-                            print 'ERROR: First row to differ is row=' + str(therow)
+                            print('ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.')
+                            print('ERROR: First row to differ is row=' + str(therow))
                             retval = False
                             break
         finally:
@@ -97,11 +97,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
             tb2.close()
     
     else:
-        print 'Column: ' +str(col) + 'are not varcolumns.'
+        print('Column: ' +str(col) + 'are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree'
+        print('Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree')
         
     return retval
  
@@ -170,7 +170,7 @@ class Test010_FirstLookatImageAnalysis(unittest.TestCase):
         '''Run Casa Guide: First Look at Line Imaging'''
 
 
-        execfile('FirstLookatImageAnalysis.py')
+        exec(compile(open('FirstLookatImageAnalysis.py', "rb").read(), 'FirstLookatImageAnalysis.py', 'exec'))
                 
         return True
 
@@ -219,7 +219,7 @@ class Test021_FirstLookatImageAnalysis(unittest.TestCase):
         my_stats = imstat("sis14_twhya_n2hp.image", chans="0~4")
         rms_stat = my_stats['rms'][0]
         expected = 0.02 # 20mJy
-        print "Expected: %s , Actual: %s"%(expected,rms_stat)
+        print("Expected: %s , Actual: %s"%(expected,rms_stat))
         assert rms_stat >= 0.018 and rms_stat <= 0.022, "Error in RMS Statistics"
 
     def test_2_Statistics_FLUX(self):
@@ -227,7 +227,7 @@ class Test021_FirstLookatImageAnalysis(unittest.TestCase):
         my_stats = imstat("sis14_twhya_cont.image", box="100,100,150,150")
         flux_stat = my_stats['flux'][0]
         expected = 1.5 # 1.5Jy
-        print "Expected: %s , Actual: %s"%(expected,flux_stat)
+        print("Expected: %s , Actual: %s"%(expected,flux_stat))
         assert flux_stat >= 1.3 and flux_stat <= 1.7, "Error in Flux Statistics"
 
 if __name__ == '__main__':

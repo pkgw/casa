@@ -35,7 +35,7 @@ regstate = True
 
 def print_log( logfile, text ):
     print( text )
-    print >>logfile, text
+    print(text, file=logfile)
     ## for Python3 replace this with the following
     ## print( text, file=logfile )
 
@@ -68,16 +68,16 @@ def pipeline_regression():
 
     try:
         import pipeline.recipes.hsd as hsd
-    except ImportError, e:
+    except ImportError as e:
         print(e)
     
     # Check to see if the ASDM exists
     if not os.path.exists(ASDM):
-        print( "Unable to open ASDM {}".format(ASDM) )
+        print(( "Unable to open ASDM {}".format(ASDM) ))
 	regstate=False
         raise IOError
     else:
-        print( "Using {}".format(ASDM) )
+        print(( "Using {}".format(ASDM) ))
     
 # Run the Pipeline standard recipe
 
@@ -85,13 +85,13 @@ def pipeline_regression():
     try:
         shutil.copy2( jyperk, jyperk_file )
     except:
-        print( "Could not copy {0} file from {1}".format(jyperk_file, jyperk) )
+        print(( "Could not copy {0} file from {1}".format(jyperk_file, jyperk) ))
         regstate=False
         raise IOError
 
     # verify if jyperk.csv exists
     if not os.path.exists( jyperk ):
-        print( "Jy/K file {} not found.".format(jyperk) )
+        print(( "Jy/K file {} not found.".format(jyperk) ))
         regstate=False
         raise IOError
 
@@ -113,7 +113,7 @@ def run():
     pipeline_regression()
     endTime = time.time()
     endProc = time.clock()
-    print("Run Time = {}".format(endTime-startTime,endProc-startProc))
+    print(("Run Time = {}".format(endTime-startTime,endProc-startProc)))
 
 def stats():
     global startTime, endTime, startProc, endProc, regstate, standard_context_file
@@ -123,7 +123,7 @@ def stats():
     try:
         logfile = open(outfile,'w')
     except:
-        print( "Cannot open logfile \"{}\"".format(outfile) )
+        print(( "Cannot open logfile \"{}\"".format(outfile) ))
         raise IOError
 
     casa_version = casalog.version()
@@ -131,7 +131,7 @@ def stats():
     # import pipeline 
     try:
         import pipeline
-    except ImportError, e:
+    except ImportError as e:
         print_log( logfile, e )
         print_log( logfile, "Unable to import the CASA pipeline")
         regstate = False
@@ -302,7 +302,7 @@ def stats():
 
         # evaluate the values for im_*
         im_result = {}
-        for key in im_act.keys():
+        for key in list(im_act.keys()):
             if key == 'direction':
                 separation = me.separation( im_act['direction'], im_goal['direction'] )
                 separation_deg = qa.convert( separation, 'deg' )['value']
@@ -314,14 +314,14 @@ def stats():
 
         # evaluate the values for sp_*
         sp_result = {}
-        for key in sp_act.keys():
+        for key in list(sp_act.keys()):
             sp_result[key] = np.isclose( sp_act[key], sp_goal[key], atol=sp_atol[key], rtol=sp_rtol[key] )
 
         # summary
         print_log( logfile, "#### Results ####" )
         print_log( logfile, " integ_radius < {} pixels".format(integ_radius) )
         print_log( logfile, "  with integrated half-spw image:" )
-        for key in im_result.keys():
+        for key in list(im_result.keys()):
             print_log( logfile, "    {}".format(im_text[key]) )
             if ( key == "pixel" ):
                 print_log( logfile, "      Actual value = ({0}, {1})".format(*im_act[key]) )
@@ -341,7 +341,7 @@ def stats():
             print_log( logfile, "      Result       = {}".format(im_result[key]) )
 
         print_log( logfile, "  with integrated spectrum:" )
-        for key in sp_result.keys():
+        for key in list(sp_result.keys()):
             print_log( logfile, "    {}:".format(sp_text[key]) )
             if ( key == "channel" ):
                 print_log( logfile, "      Actual value = {}".format(sp_act[key]) )
@@ -387,7 +387,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-    print "Regstate:" , regstate
+    print("Regstate:" , regstate)
     if regstate:
         print("Regression PASSED")
     else:

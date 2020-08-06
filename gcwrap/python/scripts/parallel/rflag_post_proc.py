@@ -30,7 +30,7 @@ def combine_rflag_subreport(sub_dict, agg_dict):
 
     :returns: RFlag dictionary after aggregating sub_dict into agg_dict
     """
-    for key, item in sub_dict.items():
+    for key, item in list(sub_dict.items()):
         agg_dict[key] = _aggregate_rflag_item(key, item, agg_dict)
 
     return agg_dict
@@ -128,7 +128,7 @@ def finalize_agg_rflag_thresholds(rflag_dict):
 
     import numpy as np
 
-    for key, val in rflag_dict.items():
+    for key, val in list(rflag_dict.items()):
         if not isinstance(val, str):
             # If the list was empty, we need a dummy (0,3)-shaped array
             if 0 == len(val):

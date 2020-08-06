@@ -106,7 +106,7 @@ os.system('rm -rf '+prefix+'*')
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -131,7 +131,7 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -233,7 +233,7 @@ listobs()
 #
 # Get rid of the autocorrelations from the MS
 #
-print '--Flagautocorr--'
+print('--Flagautocorr--')
 
 # Don't default this one either, there is only one parameter (vis)
 
@@ -244,7 +244,7 @@ flagautocorr()
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
 vis = msfile
@@ -268,7 +268,7 @@ saveinputs('setjy',prefix+'.setjy.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 setjy()
 
@@ -284,7 +284,7 @@ setjy()
 #
 # Bandpass calibration
 #
-print '--Bandpass--'
+print('--Bandpass--')
 default('bandpass')
 
 # We can first do the bandpass on the single 5min scan on 1331+305
@@ -332,7 +332,7 @@ saveinputs('bandpass',prefix+'.bandpass.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 bandpass()
 
@@ -341,7 +341,7 @@ bandpass()
 #
 # Use plotcal to examine the bandpass solutions
 #
-print '--Plotcal (bandpass)--'
+print('--Plotcal (bandpass)--')
 default('plotcal')
 
 caltable = btable
@@ -377,7 +377,7 @@ if scriptmode:
     # iteration = 'antenna'
     showgui = True
     plotcal()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 else:
     # No GUI for this script
     showgui = False
@@ -389,7 +389,7 @@ else:
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # Armed with the bandpass, we now solve for the
@@ -444,7 +444,7 @@ saveinputs('gaincal',prefix+'.gaincal.saved')
 
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 gaincal()
 
@@ -453,7 +453,7 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
 vis = msfile
@@ -478,7 +478,7 @@ saveinputs('fluxscale',prefix+'.fluxscale.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 fluxscale()
 
@@ -495,7 +495,7 @@ fluxscale()
 #
 # Now use plotcal to examine the gain solutions
 #
-print '--Plotcal (fluxscaled gains)--'
+print('--Plotcal (fluxscaled gains)--')
 default('plotcal')
 
 caltable = ftable
@@ -530,7 +530,7 @@ if scriptmode:
     #iteration = 'antenna'
     showgui = True
     plotcal()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 else:
     # No GUI for this script
     showgui = False
@@ -543,7 +543,7 @@ else:
 # Apply our calibration solutions to the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = msfile
@@ -589,7 +589,7 @@ saveinputs('applycal',prefix+'.applycal.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 applycal()
 
@@ -598,7 +598,7 @@ applycal()
 #
 # Now use plotxy to plot the calibrated target data (before contsub)
 #
-print '--Plotxy (NGC5921)--'
+print('--Plotxy (NGC5921)--')
 default('plotxy')
 
 vis = msfile
@@ -620,7 +620,7 @@ datacolumn = 'corrected'
 
 saveinputs('plotxy',prefix+'.plotxy.final.amp.saved')
 
-print "Amp averaged across time and baseline (upper)"
+print("Amp averaged across time and baseline (upper)")
 
 figfile = ''
 if scriptmode:
@@ -641,16 +641,16 @@ crossbls = True
 
 saveinputs('plotxy',prefix+'.plotxy.final.phase.saved')
 
-print "Phase averaged across time and baseline (lower)"
+print("Phase averaged across time and baseline (lower)")
 
-print "Final calibrated data"
+print("Final calibrated data")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
     interactive = True
     figfile = ''
     plotxy()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 else:
     interactive = False
     # Now send final plot to file in PNG format (via .png suffix)
@@ -665,7 +665,7 @@ else:
 #
 # Split NGC5921 data (before continuum subtraction)
 #
-print '--Split NGC5921 Data--'
+print('--Split NGC5921 Data--')
 default('split')
 
 vis = msfile
@@ -679,7 +679,7 @@ saveinputs('split',prefix+'.split.n5921.saved')
 
 split()
 
-print "Created "+splitms
+print("Created "+splitms)
 
 # If you want, split out the calibrater 1445+099 field, all chans
 #print '--Split 1445+099 Data--'
@@ -726,7 +726,7 @@ print "Created "+splitms
 # use the split ms
 # (this will update the CORRECTED_DATA column)
 #
-print '--UV Continuum Subtract--'
+print('--UV Continuum Subtract--')
 default('uvcontsub')
 
 vis = splitms
@@ -755,7 +755,7 @@ saveinputs('uvcontsub',prefix+'.uvcontsub.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 uvcontsub()
 
@@ -819,7 +819,7 @@ srcsplitms = vis + '.contsub'
 #
 # Now clean an image cube of N5921
 #
-print '--Clean (clean)--'
+print('--Clean (clean)--')
 default('clean')
 
 # Pick up our split source continuum-subtracted data
@@ -890,7 +890,7 @@ saveinputs('clean',prefix+'.clean.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 clean()
 
@@ -914,10 +914,10 @@ clnimage = imname+'.image'
 # Now view the image cube of N5921
 #
 if scriptmode:
-    print '--View image--'
-    print "Use Spectral Profile Tool to get line profile in box in center"
+    print('--View image--')
+    print("Use Spectral Profile Tool to get line profile in box in center")
     viewer(clnimage,'image')
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 #=====================================================================
 #
@@ -944,7 +944,7 @@ if scriptmode:
 #
 # Print the image header
 #
-print '--Imhead--'
+print('--Imhead--')
 default('imhead')
 
 imagename = clnimage
@@ -959,7 +959,7 @@ imhead()
 #
 # Get the cube statistics
 #
-print '--Imstat (cube)--'
+print('--Imstat (cube)--')
 default('imstat')
 
 imagename = clnimage
@@ -978,7 +978,7 @@ cubestats = imstat()
 #
 # Get some image moments
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 imagename = clnimage
@@ -1002,7 +1002,7 @@ saveinputs('immoments',prefix+'.immoments.saved')
 # Pause script if you are running in scriptmode
 if scriptmode:
     inp()
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 immoments()
 
@@ -1019,7 +1019,7 @@ momoneimage = momfile + '.weighted_coord'
 #
 # Get some statistics of the moment images
 #
-print '--Imstat (moments)--'
+print('--Imstat (moments)--')
 default('imstat')
 
 imagename = momzeroimage
@@ -1033,11 +1033,11 @@ momonestats = imstat()
 # Now view the moments
 #
 if scriptmode:
-    print '--View image (Moments)--'
+    print('--View image (Moments)--')
     viewer(momzeroimage)
-    print "You can add mom-1 image "+momoneimage
-    print "as a contour plot"
-    user_check=raw_input('Return to continue script\n')
+    print("You can add mom-1 image "+momoneimage)
+    print("as a contour plot")
+    user_check=input('Return to continue script\n')
 
 #=====================================================================
 #
@@ -1047,8 +1047,8 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 
 outfile = 'out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
-print >>logfile,'Results for '+prefix+' :'
-print >>logfile,""
+print('Results for '+prefix+' :', file=logfile)
+print("", file=logfile)
 
 #=====================================================================
 #
@@ -1056,11 +1056,11 @@ print >>logfile,""
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ' NGC5921 results '
-print ' =============== '
+print(' NGC5921 results ')
+print(' =============== ')
 
-print >>logfile,' NGC5921 results '
-print >>logfile,' =============== '
+print(' NGC5921 results ', file=logfile)
+print(' =============== ', file=logfile)
 
 #
 # Use the ms tool to get max of the MSs
@@ -1090,15 +1090,15 @@ ms.close()
 oldtest_src =  46.2060050964 # now in all chans
 diff_src = abs((oldtest_src-thistest_src)/oldtest_src)
 
-print ' Target Src data ampl max = ',thistest_src
-print '   Previous: src data max = ',oldtest_src
-print '   Difference (fractional) = ',diff_src
-print ''
+print(' Target Src data ampl max = ',thistest_src)
+print('   Previous: src data max = ',oldtest_src)
+print('   Difference (fractional) = ',diff_src)
+print('')
 
-print >>logfile,' Target Src data ampl max = ',thistest_src
-print >>logfile,'   Previous: src data max = ',oldtest_src
-print >>logfile,'   Difference (fractional) = ',diff_src
-print >>logfile,''
+print(' Target Src data ampl max = ',thistest_src, file=logfile)
+print('   Previous: src data max = ',oldtest_src, file=logfile)
+print('   Difference (fractional) = ',diff_src, file=logfile)
+print('', file=logfile)
 
 #
 # Now use the stats produced by imstat above
@@ -1139,29 +1139,29 @@ thistest_immax=cubestats['max'][0]
 oldtest_immax = 0.052414759993553162
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
 
-print ' Clean image max = ',thistest_immax
-print '   Previous: max = ',oldtest_immax
-print '   Difference (fractional) = ',diff_immax
-print ''
+print(' Clean image max = ',thistest_immax)
+print('   Previous: max = ',oldtest_immax)
+print('   Difference (fractional) = ',diff_immax)
+print('')
 
-print >>logfile,' Clean Image max = ',thistest_immax
-print >>logfile,'   Previous: max = ',oldtest_immax
-print >>logfile,'   Difference (fractional) = ',diff_immax
-print >>logfile,''
+print(' Clean Image max = ',thistest_immax, file=logfile)
+print('   Previous: max = ',oldtest_immax, file=logfile)
+print('   Difference (fractional) = ',diff_immax, file=logfile)
+print('', file=logfile)
 
 thistest_imrms=cubestats['rms'][0]
 oldtest_imrms = 0.0020218724384903908
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
 
-print ' Clean image rms = ',thistest_imrms
-print '   Previous: rms = ',oldtest_imrms
-print '   Difference (fractional) = ',diff_imrms
-print ''
+print(' Clean image rms = ',thistest_imrms)
+print('   Previous: rms = ',oldtest_imrms)
+print('   Difference (fractional) = ',diff_imrms)
+print('')
 
-print >>logfile,' Clean image rms = ',thistest_imrms
-print >>logfile,'   Previous: rms = ',oldtest_imrms
-print >>logfile,'   Difference (fractional) = ',diff_imrms
-print >>logfile,''
+print(' Clean image rms = ',thistest_imrms, file=logfile)
+print('   Previous: rms = ',oldtest_imrms, file=logfile)
+print('   Difference (fractional) = ',diff_imrms, file=logfile)
+print('', file=logfile)
 
 # Now the moment images
 #
@@ -1169,31 +1169,31 @@ thistest_momzeromax=momzerostats['max'][0]
 oldtest_momzeromax = 1.40223777294
 diff_momzeromax = abs((oldtest_momzeromax-thistest_momzeromax)/oldtest_momzeromax)
 
-print ' Moment 0 image max = ',thistest_momzeromax
-print '   Previous: m0 max = ',oldtest_momzeromax
-print '   Difference (fractional) = ',diff_momzeromax
-print ''
+print(' Moment 0 image max = ',thistest_momzeromax)
+print('   Previous: m0 max = ',oldtest_momzeromax)
+print('   Difference (fractional) = ',diff_momzeromax)
+print('')
 
-print >>logfile,' Moment 0 image max = ',thistest_momzeromax
-print >>logfile,'   Previous: m0 max = ',oldtest_momzeromax
-print >>logfile,'   Difference (fractional) = ',diff_momzeromax
-print >>logfile,''
+print(' Moment 0 image max = ',thistest_momzeromax, file=logfile)
+print('   Previous: m0 max = ',oldtest_momzeromax, file=logfile)
+print('   Difference (fractional) = ',diff_momzeromax, file=logfile)
+print('', file=logfile)
 
 thistest_momoneavg=momonestats['mean'][0]
 oldtest_momoneavg = 1479.77119646
 diff_momoneavg = abs((oldtest_momoneavg-thistest_momoneavg)/oldtest_momoneavg)
 
-print ' Moment 1 image mean = ',thistest_momoneavg
-print '   Previous: m1 mean = ',oldtest_momoneavg
-print '   Difference (fractional) = ',diff_momoneavg
-print ''
-print '--- Done ---'
+print(' Moment 1 image mean = ',thistest_momoneavg)
+print('   Previous: m1 mean = ',oldtest_momoneavg)
+print('   Difference (fractional) = ',diff_momoneavg)
+print('')
+print('--- Done ---')
 
-print >>logfile,' Moment 1 image mean = ',thistest_momoneavg
-print >>logfile,'   Previous: m1 mean = ',oldtest_momoneavg
-print >>logfile,'   Difference (fractional) = ',diff_momoneavg
-print >>logfile,''
-print >>logfile,'--- Done ---'
+print(' Moment 1 image mean = ',thistest_momoneavg, file=logfile)
+print('   Previous: m1 mean = ',oldtest_momoneavg, file=logfile)
+print('   Difference (fractional) = ',diff_momoneavg, file=logfile)
+print('', file=logfile)
+print('--- Done ---', file=logfile)
 
 # Should see output like:
 #
@@ -1217,4 +1217,4 @@ print >>logfile,'--- Done ---'
 # Done
 #
 logfile.close()
-print "Results are in "+outfile
+print("Results are in "+outfile)

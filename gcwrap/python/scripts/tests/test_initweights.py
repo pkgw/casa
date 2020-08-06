@@ -16,7 +16,7 @@ from initweights import initweights
 # to rethrow exception 
 import inspect
 g = stack_frame_find( )
-exception_stat = g['__rethrow_casa_exceptions'] if g.has_key('__rethrow_casa_exceptions') else False
+exception_stat = g['__rethrow_casa_exceptions'] if '__rethrow_casa_exceptions' in g else False
 
 class initweights_common(unittest.TestCase):
     """
@@ -27,15 +27,15 @@ class initweights_common(unittest.TestCase):
         
     # Pick up alternative data directory to run tests on MMSs
     testmms = False
-    if os.environ.has_key('TEST_DATADIR'):   
+    if 'TEST_DATADIR' in os.environ:   
         DATADIR = str(os.environ.get('TEST_DATADIR'))+'/initweights/'
         if os.path.isdir(DATADIR):
             testmms = True
             datapath = DATADIR
         else: 
-            raise ValueError, 'Could not find input data in datapath='+DATADIR
+            raise ValueError('Could not find input data in datapath='+DATADIR)
     
-    print 'initweights tests will use data from '+datapath         
+    print('initweights tests will use data from '+datapath)         
         
     inputms = "tsysweight_ave.ms"
     tsystable = "tsysweight_ave.tsys.cal"
@@ -107,13 +107,13 @@ class initweights_common(unittest.TestCase):
         polyarr[ichan] = 1.0 + 2.0*ichan + 3.0*ichan**2 (ichan=0~nchan-1)
         """
         if nchan < 0:
-            raise ValueError, "nchan should be >=0"
+            raise ValueError("nchan should be >=0")
         if len(coeff)==0:
             if nchan ==0: return []
-            else: raise ValueError, "No valid coefficient given."
+            else: raise ValueError("No valid coefficient given.")
         polyarr = numpy.zeros(nchan)
         for iorder in range(len(coeff)):
-            polyarr += coeff[iorder]*numpy.array(xrange(nchan))**iorder
+            polyarr += coeff[iorder]*numpy.array(range(nchan))**iorder
         return polyarr
 
     def _compare_arrays(self, data, reference, atol=1.e-5, rtol=1.e-5):
@@ -202,7 +202,7 @@ class initweights_common(unittest.TestCase):
         has_sigsp = self._column_exists(self.inputms, "SIGMA_SPECTRUM")
         if self.verbose: print("Test of values in MS after operation")
         for spw in spwlist:
-            if self.verbose: print("SPW %d" % spw)
+            if self.verbose: print(("SPW %d" % spw))
             nchan = -1
             data_found = False
             tb.open(self.inputms)
@@ -261,8 +261,8 @@ class initweights_common(unittest.TestCase):
                 self._testCell(testarr, refarr)
         else:
             if self.verbose and refarr.size < 130:
-                print("Reference = %s" % str(refarr))
-                print("Data = %s" % str(cellarr))
+                print(("Reference = %s" % str(refarr)))
+                print(("Data = %s" % str(cellarr)))
             self.assertEqual(cellarr.shape,refarr.shape)
             self.assertTrue(self._compare_arrays(cellarr, refarr,
                                                  rtol=rtol, atol=atol))
@@ -331,7 +331,7 @@ class initweights_tsys_base(initweights_common):
         elif mode=='tinttsys':
             factor = self.chw*self.exposure
         else:
-            raise ValueError, "invalid mode for tests"
+            raise ValueError("invalid mode for tests")
         if self.tsys_funcs[spw]:
             tsys = self._generate_poly_array(nchan, self.tsys_funcs[spw])
             if not dowtsp:
@@ -346,51 +346,51 @@ class initweights_tsys_base(initweights_common):
 
     def testTsysNN(self):
         """Test wtmode='tsys', interp='nearest,nearest'"""
-        self._runTest('tsys', False, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTsysLL(self):
         """Test wtmode='tsys', interp='linear,linear'"""
-        self._runTest('tsys', False, self.tsys_funcs.keys(), 'linear,linear')
+        self._runTest('tsys', False, list(self.tsys_funcs.keys()), 'linear,linear')
 
     def testTsysLC(self):
         """Test wtmode='tsys', interp='linear,cspline'"""
-        self._runTest('tsys', False, self.tsys_funcs.keys(), 'linear,cspline')
+        self._runTest('tsys', False, list(self.tsys_funcs.keys()), 'linear,cspline')
         
     def testTinttsysNN(self):
         """Test wtmode='tinttsys', interp='nearest,nearest'"""
-        self._runTest('tinttsys', False, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTinttsysLL(self):
         """Test wtmode='tinttsys', interp='linear,linear'"""
-        self._runTest('tinttsys', False, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTinttsysLC(self):
         """Test wtmode='tinttsys', interp='linear,cspline'"""
-        self._runTest('tinttsys', False, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', False, list(self.tsys_funcs.keys()), 'nearest,nearest')
         
     def testTsysNNSp(self):
         """Test wtmode='tsys', interp='nearest,nearest', dowtsp=True"""
-        self._runTest('tsys', True, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTsysLLSp(self):
         """Test wtmode='tsys', interp='linear,linear', dowtsp=True"""
-        self._runTest('tsys', True, self.tsys_funcs.keys(), 'linear,linear')
+        self._runTest('tsys', True, list(self.tsys_funcs.keys()), 'linear,linear')
 
     def testTsysLCSp(self):
         """Test wtmode='tsys', interp='linear,cspline', dowtsp=True"""
-        self._runTest('tsys', True, self.tsys_funcs.keys(), 'linear,cspline')
+        self._runTest('tsys', True, list(self.tsys_funcs.keys()), 'linear,cspline')
         
     def testTinttsysNNSp(self):
         """Test wtmode='tinttsys', interp='nearest,nearest', dowtsp=True"""
-        self._runTest('tinttsys', True, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTinttsysLLSp(self):
         """Test wtmode='tinttsys', interp='linear,linear', dowtsp=True"""
-        self._runTest('tinttsys', True, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
 
     def testTinttsysLCSp(self):
         """Test wtmode='tinttsys', interp='linear,cspline', dowtsp=True"""
-        self._runTest('tinttsys', True, self.tsys_funcs.keys(), 'nearest,nearest')
+        self._runTest('tinttsys', True, list(self.tsys_funcs.keys()), 'nearest,nearest')
         
 class initweights_tsys_map(initweights_common):
     """
@@ -426,16 +426,16 @@ class initweights_tsys_map(initweights_common):
         elif interplist[0].startswith('lin'):
             tsys_funcs = self.tsys_linear
         else:
-            raise ValueError, "got unexpected time interpolation"
-        if spw not in tsys_funcs.keys():
-            raise ValueError, "Testing unexpected spw %d" % spw
+            raise ValueError("got unexpected time interpolation")
+        if spw not in list(tsys_funcs.keys()):
+            raise ValueError("Testing unexpected spw %d" % spw)
         spwintent = 'tsys' if spw in [1,3,5,7] else 'sci'
         if mode=='tsys':
             factor = self.chw[spwintent]
         elif mode=='tinttsys':
             factor = self.chw[spwintent]*self.exposure[spwintent][irow]
         else:
-            raise ValueError, "invalid mode for tests"
+            raise ValueError("invalid mode for tests")
         if tsys_funcs[spw]:
             tsys = self._generate_poly_array(nchan, tsys_funcs[spw][irow])
             if not dowtsp:
@@ -515,7 +515,7 @@ class initweights_base(initweights_common):
 
     def _get_interpolated_wtsp(self, mode, spw, nchan, interplist, irow, dowtsp):
         if spw not in self.valid_spw:
-            raise ValueError, "Testing unexpected spw %d" % spw
+            raise ValueError("Testing unexpected spw %d" % spw)
         wt = -1.0
         if mode=='nyq':
             wt = self.chw[spw]*self.exposure[spw][irow]
@@ -526,7 +526,7 @@ class initweights_base(initweights_common):
         elif mode=='weight':
             wt = self.weight
         else:
-            raise ValueError, "invalid mode for tests"
+            raise ValueError("invalid mode for tests")
 
         return self._generate_poly_array(nchan, [wt])
 
@@ -535,10 +535,10 @@ class initweights_base(initweights_common):
         tb = tbtool()
         tb.open(self.inputms,nomodify=False)
         try:
-            for irow in xrange(tb.nrows()):
+            for irow in range(tb.nrows()):
                 tb.putcell("SIGMA", irow, 1./numpy.sqrt(tb.getcell("WEIGHT", irow)))
         except:
-            raise RuntimeError, "Failed to manually make SIGMA and WEIGHT consistent."
+            raise RuntimeError("Failed to manually make SIGMA and WEIGHT consistent.")
         finally:
             tb.close()
 

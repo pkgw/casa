@@ -91,7 +91,7 @@ def locclean( vis='', imagename='', field='', spw='', phasecenter='', nterms=1, 
 #     im.setvp(dovp=True,usedefaultvp=True,telescope='EVLA');
 #     im.makeimage(type='pb',image=imagename+'.pb');
 
-   print 'clean without mask';
+   print('clean without mask');
    im.clean(model=models,image=restoreds,residual=residuals,algorithm=algo,threshold='0.0Jy',niter=niter,interactive=False,npercycle=niter,gain=gain,mask=''); 
 
    im.done();
@@ -103,12 +103,12 @@ if(regstate):
    npix=512
    phasecenter = 0 #'J2000 19h58m28.5s +40d44m01.50s'
    # Test (1) : CS clean with wideband A-Projection with freq-conjugate beams.
-   print '-- CS Clean with Wideband AProjection and Mosaicing --'
+   print('-- CS Clean with Wideband AProjection and Mosaicing --')
    #default('clean')
    locclean( vis=msname, imagename=imname1, field='0,1', spw='', phasecenter=phasecenter, nterms=1, reffreq='1.5GHz', gridmode='advancedaprojection', wbawp=True, aterm=True, mterm=True, psterm=False, conjbeams=True, painc=360, rotpainc=360.0, cfcache=imname1+'.cfcache.dir', imsize=npix, cell='10.0arcsec', niter=10, gain=0.5, minpb=1e-04, usescratch=True)
 
    # Test (2) : MTMFS clean with wideband A-Projection with freq-conjugate beams.
-   print '-- MTMFS Clean with Wideband AProjection and Mosaicing --'
+   print('-- MTMFS Clean with Wideband AProjection and Mosaicing --')
    #default('clean')
    locclean( vis=msname, imagename=imname2, field='0,1', spw='', phasecenter=phasecenter, nterms=2, reffreq='1.5GHz', gridmode='advancedaprojection', wbawp=True, aterm=True, mterm=True, psterm=False, conjbeams=True, painc=360, rotpainc=360.0, cfcache=imname2+'.cfcache.dir', imsize=npix, cell='10.0arcsec', niter=10, gain=0.5, minpb=1e-04, usescratch=True)
 
@@ -126,12 +126,12 @@ outfile='reg_widebandmosaic_'+datestring+'.log'
 logfile=open(outfile,'w')
 
 # Data summary
-print >>logfile,'**************** Regression-test for wide-band mosaicing *************************'
+print('**************** Regression-test for wide-band mosaicing *************************', file=logfile)
 # Perform the checks
-print >>logfile,''
+print('', file=logfile)
 
 if(not regstate):
-   print >>logfile,'* Data file reg_mawproject_apr13.ms cannot be found';
+   print('* Data file reg_mawproject_apr13.ms cannot be found', file=logfile);
 else:
 
 #####################################################
@@ -220,11 +220,11 @@ else:
 
 ###################################################
 ###################################################
-   print >>logfile,'*********************** Comparison of results **********************************'
-   print >>logfile,'**                                                                            **'
-   print >>logfile,'**      (1) CS with WideBand A-Projection         **'
-   print >>logfile,'**                                                                            **'
-   print >>logfile,'********************************************************************************'
+   print('*********************** Comparison of results **********************************', file=logfile)
+   print('**                                                                            **', file=logfile)
+   print('**      (1) CS with WideBand A-Projection         **', file=logfile)
+   print('**                                                                            **', file=logfile)
+   print('********************************************************************************', file=logfile)
 
    # Test 1 : Intensity
    if(os.path.exists(imname1+'.image')):
@@ -235,25 +235,25 @@ else:
       ia.close();
       diff_cs_intensity = abs( midpix['value']['value'] - correct_cs_intensity )/ abs(correct_cs_intensity);
       if(diff_cs_intensity<0.02): 
-         print >>logfile,'* Passed Test 1 : peak cs_intensity_I test ';
+         print('* Passed Test 1 : peak cs_intensity_I test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 1 : peak cs_intensity_I test at the 2-percent level '
+         print('* FAILED Test 1 : peak cs_intensity_I test at the 2-percent level ', file=logfile)
 	 regstate = False;
 
       diff_cs_intensity_v = abs( midpix_v['value']['value'] - correct_cs_intensity_v )/ abs(correct_cs_intensity_v);
       if(diff_cs_intensity_v<0.02): 
-         print >>logfile,'* Passed Test 1 : peak cs_intensity_V test ';
+         print('* Passed Test 1 : peak cs_intensity_V test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 1 : peak cs_intensity_V test at the 2-percent level '
+         print('* FAILED Test 1 : peak cs_intensity_V test at the 2-percent level ', file=logfile)
 	 regstate = False;
 
-      print >>logfile,'-- Test 1 : peak cs_intensity_I : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_intensity) + ')';
-      print >>logfile,'-- Test 1 : peak cs_intensity_V : ' + str(midpix_v['value']['value']) + ' (' + str(correct_cs_intensity_v) + ')';
+      print('-- Test 1 : peak cs_intensity_I : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_intensity) + ')', file=logfile);
+      print('-- Test 1 : peak cs_intensity_V : ' + str(midpix_v['value']['value']) + ' (' + str(correct_cs_intensity_v) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED Test 1 : No cs_intensity map generated';
+      print('-- FAILED Test 1 : No cs_intensity map generated', file=logfile);
       regstate = False;
 
-   print >>logfile, '\n'
+   print('\n', file=logfile)
 
    # Test 1 : Primary Beam from inside the cfcache
    if(os.path.exists(imname1+'.cfcache.dir/avgPB')):
@@ -263,23 +263,23 @@ else:
       ia.close();
       diff_cs_avgpb = abs( midpix['value']['value'] - correct_cs_avgpb )/ abs(correct_cs_avgpb);
       if(diff_cs_avgpb<0.02): 
-         print >>logfile,'* Passed Test 1 : peak cs_avgpb test ';
+         print('* Passed Test 1 : peak cs_avgpb test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 1 : peak cs_avgpb test at the 2-percent level '
+         print('* FAILED Test 1 : peak cs_avgpb test at the 2-percent level ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- Test 1 : peak cs_avgpb : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_avgpb) + ')';
+      print('-- Test 1 : peak cs_avgpb : ' + str(midpix['value']['value']) + ' (' + str(correct_cs_avgpb) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED Test 1 : No cs_avgpb map generated';
+      print('-- FAILED Test 1 : No cs_avgpb map generated', file=logfile);
       regstate = False;
 
-   print >>logfile, '\n'
+   print('\n', file=logfile)
 
 ###################################################
-   print >>logfile,'*********************** Comparison of results **********************************'
-   print >>logfile,'**                                                                            **'
-   print >>logfile,'**      (2) MTMFS with WideBand A-Projection         **'
-   print >>logfile,'**                                                                            **'
-   print >>logfile,'********************************************************************************'
+   print('*********************** Comparison of results **********************************', file=logfile)
+   print('**                                                                            **', file=logfile)
+   print('**      (2) MTMFS with WideBand A-Projection         **', file=logfile)
+   print('**                                                                            **', file=logfile)
+   print('********************************************************************************', file=logfile)
 
    # Test 2 : Intensity
    if(os.path.exists(imname2+'.image.tt0')):
@@ -289,16 +289,16 @@ else:
       ia.close();
       diff_mtmfs_intensity = abs( midpix['value']['value'] - correct_mtmfs_intensity )/ abs(correct_mtmfs_intensity);
       if(diff_mtmfs_intensity<0.02): 
-         print >>logfile,'* Passed Test 2 : peak mtmfs_intensity test ';
+         print('* Passed Test 2 : peak mtmfs_intensity test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 2 : peak mtmfs_intensity test at the 2-percent level '
+         print('* FAILED Test 2 : peak mtmfs_intensity test at the 2-percent level ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- Test 2 : peak mtmfs_intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_intensity) + ')';
+      print('-- Test 2 : peak mtmfs_intensity : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_intensity) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED Test 2 : No mtmfs_intensity map generated';
+      print('-- FAILED Test 2 : No mtmfs_intensity map generated', file=logfile);
       regstate = False;
 
-   print >>logfile, '\n'
+   print('\n', file=logfile)
 
    # Test 2 : Spectral Index
    if(os.path.exists(imname2+'.image.alpha')):
@@ -308,16 +308,16 @@ else:
       ia.close();
       diff_mtmfs_alpha = abs( midpix['value']['value'] - correct_mtmfs_alpha )/ abs(correct_mtmfs_alpha);
       if(diff_mtmfs_alpha<0.02): 
-         print >>logfile,'* Passed Test 2 : peak mtmfs_alpha test ';
+         print('* Passed Test 2 : peak mtmfs_alpha test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 2 : peak mtmfs_alpha test at the 2-percent level '
+         print('* FAILED Test 2 : peak mtmfs_alpha test at the 2-percent level ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- Test 2 : peak mtmfs_alpha : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_alpha) + ')';
+      print('-- Test 2 : peak mtmfs_alpha : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_alpha) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED Test 2 : No mtmfs_alpha map generated';
+      print('-- FAILED Test 2 : No mtmfs_alpha map generated', file=logfile);
       regstate = False;
 
-   print >>logfile, '\n'
+   print('\n', file=logfile)
 
    # Test 2 : PB 0
    if(os.path.exists(imname2+'.cfcache.dir/avgPB.tt0')):
@@ -327,16 +327,16 @@ else:
       ia.close();
       diff_mtmfs_avgPB_tt0 = abs( midpix['value']['value'] - correct_mtmfs_avgPB_tt0 )/ abs(correct_mtmfs_avgPB_tt0);
       if(diff_mtmfs_avgPB_tt0<0.02): 
-         print >>logfile,'* Passed Test 2 : peak mtmfs_avgPB.tt0 test ';
+         print('* Passed Test 2 : peak mtmfs_avgPB.tt0 test ', file=logfile);
       else: 
-         print >>logfile,'* FAILED Test 2 : peak mtmfs_avgPB.tt0 test at the 2-percent level '
+         print('* FAILED Test 2 : peak mtmfs_avgPB.tt0 test at the 2-percent level ', file=logfile)
 	 regstate = False;
-      print >>logfile,'-- Test 2 : peak mtmfs_avgPB.tt0 : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_avgPB_tt0) + ')';
+      print('-- Test 2 : peak mtmfs_avgPB.tt0 : ' + str(midpix['value']['value']) + ' (' + str(correct_mtmfs_avgPB_tt0) + ')', file=logfile);
    else:
-      print >>logfile,'-- FAILED Test 2 : No mtmfs_avgPB.tt0 map generated';
+      print('-- FAILED Test 2 : No mtmfs_avgPB.tt0 map generated', file=logfile);
       regstate = False;
 
-   print >>logfile, '\n'
+   print('\n', file=logfile)
 
 #   # Test 2 : PB 1
 #   if(os.path.exists(imname2+'.cfcache.dir/coeffPB_1')):
@@ -362,30 +362,30 @@ else:
 
 # Final verdict
 if(regstate):
-   print >>logfile,'PASSED regression test for wideband-mosaic-imaging.'
-   print ''
-   print 'Regression PASSED'
-   print ''
+   print('PASSED regression test for wideband-mosaic-imaging.', file=logfile)
+   print('')
+   print('Regression PASSED')
+   print('')
 else:
-   print >>logfile,'FAILED regression test for wideband-mosaic-imaging.'
-   print ''
-   print 'Regression FAILED'
-   print ''
+   print('FAILED regression test for wideband-mosaic-imaging.', file=logfile)
+   print('')
+   print('Regression FAILED')
+   print('')
 
-print >>logfile,''
+print('', file=logfile)
 
 # Print timing info
-print >>logfile,'********************************************************************************'
-print >>logfile,'**                         Benchmarking                                       **'
-print >>logfile,'********************************************************************************'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(278./(endTime - startTime))
-print >>logfile,'* Breakdown:                                                                   *'
-print >>logfile,'*   copy         time was: '+str(copyTime-startTime)
-print >>logfile,'*   imaging      time was: '+str(endTime-copyTime)
-print >>logfile,'*                                                                              *'
-print >>logfile,'********************************************************************************'
+print('********************************************************************************', file=logfile)
+print('**                         Benchmarking                                       **', file=logfile)
+print('********************************************************************************', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(278./(endTime - startTime)), file=logfile)
+print('* Breakdown:                                                                   *', file=logfile)
+print('*   copy         time was: '+str(copyTime-startTime), file=logfile)
+print('*   imaging      time was: '+str(endTime-copyTime), file=logfile)
+print('*                                                                              *', file=logfile)
+print('********************************************************************************', file=logfile)
 
 logfile.close()
 

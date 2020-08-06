@@ -102,7 +102,7 @@ os.system('rm -rf '+prefix+'*')
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -127,7 +127,7 @@ importuvfits()
 #
 # List a summary of the MS
 #
-print '--Listobs--'
+print('--Listobs--')
 
 # Don't default this one and make use of the previous setting of
 # vis.  Remember, the variables are GLOBAL!
@@ -229,7 +229,7 @@ listobs()
 #
 # Get rid of the autocorrelations from the MS
 #
-print '--Flag auto-correlations--'
+print('--Flag auto-correlations--')
 
 # Don't default this one either, there is only one parameter (vis)
 default('flagdata')
@@ -243,7 +243,7 @@ flagdata()
 #
 # Set the fluxes of the primary calibrator(s)
 #
-print '--Setjy--'
+print('--Setjy--')
 default('setjy')
 
 vis = msfile
@@ -278,7 +278,7 @@ setjy()
 #
 # Bandpass calibration
 #
-print '--Bandpass--'
+print('--Bandpass--')
 default('bandpass')
 
 # We can first do the bandpass on the single 5min scan on 1331+305
@@ -329,7 +329,7 @@ bandpass()
 #
 # Use plotcal to examine the bandpass solutions
 #
-print '--Plotcal (bandpass)--'
+print('--Plotcal (bandpass)--')
 default('plotcal')
 
 caltable = btable
@@ -367,7 +367,7 @@ plotcal()
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # Armed with the bandpass, we now solve for the
@@ -427,7 +427,7 @@ gaincal()
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
 vis = msfile
@@ -464,7 +464,7 @@ fluxscale()
 #
 # Now use plotcal to examine the gain solutions
 #
-print '--Plotcal (fluxscaled gains)--'
+print('--Plotcal (fluxscaled gains)--')
 default('plotcal')
 
 caltable = ftable
@@ -502,7 +502,7 @@ plotcal()
 # Apply our calibration solutions to the data
 # (This will put calibrated data into the CORRECTED_DATA column)
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
 vis = msfile
@@ -552,7 +552,7 @@ applycal()
 #
 # Now use plotxy to plot the calibrated target data (before contsub)
 #
-print '--Plotxy (NGC5921)--'
+print('--Plotxy (NGC5921)--')
 default('plotxy')
 
 vis = msfile
@@ -594,7 +594,7 @@ plotxy()
 #
 # Split the gain calibrater data, then the target
 #
-print '--Split 1445+099 Data--'
+print('--Split 1445+099 Data--')
 default('split')
 
 vis = msfile
@@ -619,7 +619,7 @@ split()
 #
 # Now split NGC5921 data (before continuum subtraction)
 #
-print '--Split NGC5921 Data--'
+print('--Split NGC5921 Data--')
 
 splitms = prefix + '.src.split.ms'
 outputvis = splitms
@@ -636,7 +636,7 @@ split()
 # Export the NGC5921 data as UVFITS
 # Start with the split file.
 #
-print '--Export UVFITS--'
+print('--Export UVFITS--')
 default('exportuvfits')
 
 srcuvfits = prefix + '.split.uvfits'
@@ -660,14 +660,14 @@ saveinputs('exportuvfits',prefix+'.exportuvfits.saved')
 
 myhandle = exportuvfits()
 
-print "The return value for this exportuvfits async task for tm is "+str(myhandle)
+print("The return value for this exportuvfits async task for tm is "+str(myhandle))
 
 #=====================================================================
 #
 # UV-plane continuum subtraction on the target
 # (this will update the CORRECTED_DATA column)
 #
-print '--UV Continuum Subtract--'
+print('--UV Continuum Subtract--')
 default('uvcontsub')
 
 vis = msfile
@@ -716,7 +716,7 @@ srcsplitms = msfile + '.contsub'
 #
 # Now make a dirty image cube
 #
-print '--Clean (invert)--'
+print('--Clean (invert)--')
 default('clean')
 
 # Pick up our split source continuum-subtracted data
@@ -773,7 +773,7 @@ dirtyimage = imname+'.image'
 #
 # Get the dirty image cube statistics
 #
-print '--Imstat (dirty cube)--'
+print('--Imstat (dirty cube)--')
 default('imstat')
 
 imagename = dirtyimage
@@ -790,7 +790,7 @@ dirtystats = imstat()
 #
 # Now clean an image cube of N5921
 #
-print '--Clean (clean)--'
+print('--Clean (clean)--')
 default('clean')
 
 # Pick up our split source continuum-subtracted data
@@ -886,7 +886,7 @@ clnimage = imname+'.image'
 #
 # Export the Final CLEAN Image as FITS
 #
-print '--Final Export CLEAN FITS--'
+print('--Final Export CLEAN FITS--')
 default('exportfits')
 
 clnfits = prefix + '.clean.fits'
@@ -902,13 +902,13 @@ saveinputs('exportfits',prefix+'.exportfits.saved')
 
 myhandle2 = exportfits()
 
-print "The return value for this exportfits async task for tm is "+str(myhandle2)
+print("The return value for this exportfits async task for tm is "+str(myhandle2))
 
 #=====================================================================
 #
 # Print the image header
 #
-print '--Imhead--'
+print('--Imhead--')
 default('imhead')
 
 imagename = clnimage
@@ -923,7 +923,7 @@ imhead()
 #
 # Get the cube statistics
 #
-print '--Imstat (cube)--'
+print('--Imstat (cube)--')
 default('imstat')
 
 imagename = clnimage
@@ -942,7 +942,7 @@ cubestats = imstat()
 #
 # Get some image moments
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 imagename = clnimage
@@ -978,7 +978,7 @@ momoneimage = momfile + '.weighted_coord'
 #
 # Get some statistics of the moment images
 #
-print '--Imstat (moments)--'
+print('--Imstat (moments)--')
 default('imstat')
 
 imagename = momzeroimage
@@ -995,8 +995,8 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 
 outfile = 'out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
-print >>logfile,'Results for '+prefix+' :'
-print >>logfile,""
+print('Results for '+prefix+' :', file=logfile)
+print("", file=logfile)
 
 #=====================================================================
 #
@@ -1004,11 +1004,11 @@ print >>logfile,""
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ' NGC5921 results '
-print ' =============== '
+print(' NGC5921 results ')
+print(' =============== ')
 
-print >>logfile,' NGC5921 results '
-print >>logfile,' =============== '
+print(' NGC5921 results ', file=logfile)
+print(' =============== ', file=logfile)
 
 #
 # Use the ms tool to get max of the MSs
@@ -1021,15 +1021,15 @@ ms.close()
 oldtest_cal = 34.0338668823
 diff_cal = abs((oldtest_cal-thistest_cal)/oldtest_cal)
 
-print ' Calibrator data ampl max = ',thistest_cal
-print '   Previous: cal data max = ',oldtest_cal
-print '   Difference (fractional) = ',diff_cal
-print ''
+print(' Calibrator data ampl max = ',thistest_cal)
+print('   Previous: cal data max = ',oldtest_cal)
+print('   Difference (fractional) = ',diff_cal)
+print('')
 
-print >>logfile,' Calibrator data ampl max = ',thistest_cal
-print >>logfile,'   Previous: cal data max = ',oldtest_cal
-print >>logfile,'   Difference (fractional) = ',diff_cal
-print >>logfile,''
+print(' Calibrator data ampl max = ',thistest_cal, file=logfile)
+print('   Previous: cal data max = ',oldtest_cal, file=logfile)
+print('   Difference (fractional) = ',diff_cal, file=logfile)
+print('', file=logfile)
 
 # Pull the max src amp value out of the MS
 ms.open(srcsplitms)
@@ -1038,15 +1038,15 @@ ms.close()
 oldtest_src =  46.2060050964 # now in all chans
 diff_src = abs((oldtest_src-thistest_src)/oldtest_src)
 
-print ' Target Src data ampl max = ',thistest_src
-print '   Previous: src data max = ',oldtest_src
-print '   Difference (fractional) = ',diff_src
-print ''
+print(' Target Src data ampl max = ',thistest_src)
+print('   Previous: src data max = ',oldtest_src)
+print('   Difference (fractional) = ',diff_src)
+print('')
 
-print >>logfile,' Target Src data ampl max = ',thistest_src
-print >>logfile,'   Previous: src data max = ',oldtest_src
-print >>logfile,'   Difference (fractional) = ',diff_src
-print >>logfile,''
+print(' Target Src data ampl max = ',thistest_src, file=logfile)
+print('   Previous: src data max = ',oldtest_src, file=logfile)
+print('   Difference (fractional) = ',diff_src, file=logfile)
+print('', file=logfile)
 
 #
 # Now use the stats produced by imstat above
@@ -1059,30 +1059,30 @@ thistest_dirtymax=dirtystats['max'][0]
 oldtest_dirtymax = 0.0515365377069
 diff_dirtymax = abs((oldtest_dirtymax-thistest_dirtymax)/oldtest_dirtymax)
 
-print ' Dirty Image max = ',thistest_dirtymax
-print '   Previous: max = ',oldtest_dirtymax
-print '   Difference (fractional) = ',diff_dirtymax
-print ''
+print(' Dirty Image max = ',thistest_dirtymax)
+print('   Previous: max = ',oldtest_dirtymax)
+print('   Difference (fractional) = ',diff_dirtymax)
+print('')
 
-print >>logfile,' Dirty Image max = ',thistest_dirtymax
-print >>logfile,'   Previous: max = ',oldtest_dirtymax
-print >>logfile,'   Difference (fractional) = ',diff_dirtymax
-print >>logfile,''
+print(' Dirty Image max = ',thistest_dirtymax, file=logfile)
+print('   Previous: max = ',oldtest_dirtymax, file=logfile)
+print('   Difference (fractional) = ',diff_dirtymax, file=logfile)
+print('', file=logfile)
 
 # Pull the rms from the cubestats dictionary
 thistest_dirtyrms=dirtystats['rms'][0]
 oldtest_dirtyrms = 0.00243866862729
 diff_dirtyrms = abs((oldtest_dirtyrms-thistest_dirtyrms)/oldtest_dirtyrms)
 
-print ' Dirty Image rms = ',thistest_dirtyrms
-print '   Previous: rms = ',oldtest_dirtyrms
-print '   Difference (fractional) = ',diff_dirtyrms
-print ''
+print(' Dirty Image rms = ',thistest_dirtyrms)
+print('   Previous: rms = ',oldtest_dirtyrms)
+print('   Difference (fractional) = ',diff_dirtyrms)
+print('')
 
-print >>logfile,' Dirty Image rms = ',thistest_dirtyrms
-print >>logfile,'   Previous: rms = ',oldtest_dirtyrms
-print >>logfile,'   Difference (fractional) = ',diff_dirtyrms
-print >>logfile,''
+print(' Dirty Image rms = ',thistest_dirtyrms, file=logfile)
+print('   Previous: rms = ',oldtest_dirtyrms, file=logfile)
+print('   Difference (fractional) = ',diff_dirtyrms, file=logfile)
+print('', file=logfile)
 
 # Now the clean image
 #
@@ -1092,30 +1092,30 @@ thistest_immax=cubestats['max'][0]
 oldtest_immax = 0.052414759993553162
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
 
-print ' Clean Image max = ',thistest_immax
-print '   Previous: max = ',oldtest_immax
-print '   Difference (fractional) = ',diff_immax
-print ''
+print(' Clean Image max = ',thistest_immax)
+print('   Previous: max = ',oldtest_immax)
+print('   Difference (fractional) = ',diff_immax)
+print('')
 
-print >>logfile,' Clean Image max = ',thistest_immax
-print >>logfile,'   Previous: max = ',oldtest_immax
-print >>logfile,'   Difference (fractional) = ',diff_immax
-print >>logfile,''
+print(' Clean Image max = ',thistest_immax, file=logfile)
+print('   Previous: max = ',oldtest_immax, file=logfile)
+print('   Difference (fractional) = ',diff_immax, file=logfile)
+print('', file=logfile)
 
 # Pull the rms from the cubestats dictionary
 thistest_imrms=cubestats['rms'][0]
 oldtest_imrms = 0.0020218724384903908
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
 
-print ' Clean image rms = ',thistest_imrms
-print '   Previous: rms = ',oldtest_imrms
-print '   Difference (fractional) = ',diff_imrms
-print ''
+print(' Clean image rms = ',thistest_imrms)
+print('   Previous: rms = ',oldtest_imrms)
+print('   Difference (fractional) = ',diff_imrms)
+print('')
 
-print >>logfile,' Clean image rms = ',thistest_imrms
-print >>logfile,'   Previous: rms = ',oldtest_imrms
-print >>logfile,'   Difference (fractional) = ',diff_imrms
-print >>logfile,''
+print(' Clean image rms = ',thistest_imrms, file=logfile)
+print('   Previous: rms = ',oldtest_imrms, file=logfile)
+print('   Difference (fractional) = ',diff_imrms, file=logfile)
+print('', file=logfile)
 
 # Now the moment images
 #
@@ -1124,32 +1124,32 @@ thistest_momzeromax=momzerostats['max'][0]
 oldtest_momzeromax = 1.40223777294
 diff_momzeromax = abs((oldtest_momzeromax-thistest_momzeromax)/oldtest_momzeromax)
 
-print ' Moment 0 image max = ',thistest_momzeromax
-print '   Previous: m0 max = ',oldtest_momzeromax
-print '   Difference (fractional) = ',diff_momzeromax
-print ''
+print(' Moment 0 image max = ',thistest_momzeromax)
+print('   Previous: m0 max = ',oldtest_momzeromax)
+print('   Difference (fractional) = ',diff_momzeromax)
+print('')
 
-print >>logfile,' Moment 0 image max = ',thistest_momzeromax
-print >>logfile,'   Previous: m0 max = ',oldtest_momzeromax
-print >>logfile,'   Difference (fractional) = ',diff_momzeromax
-print >>logfile,''
+print(' Moment 0 image max = ',thistest_momzeromax, file=logfile)
+print('   Previous: m0 max = ',oldtest_momzeromax, file=logfile)
+print('   Difference (fractional) = ',diff_momzeromax, file=logfile)
+print('', file=logfile)
 
 # Pull the mean from the momonestats dictionary
 thistest_momoneavg=momonestats['mean'][0]
 oldtest_momoneavg = 1479.77119646
 diff_momoneavg = abs((oldtest_momoneavg-thistest_momoneavg)/oldtest_momoneavg)
 
-print ' Moment 1 image mean = ',thistest_momoneavg
-print '   Previous: m1 mean = ',oldtest_momoneavg
-print '   Difference (fractional) = ',diff_momoneavg
-print ''
-print '--- Done ---'
+print(' Moment 1 image mean = ',thistest_momoneavg)
+print('   Previous: m1 mean = ',oldtest_momoneavg)
+print('   Difference (fractional) = ',diff_momoneavg)
+print('')
+print('--- Done ---')
 
-print >>logfile,' Moment 1 image mean = ',thistest_momoneavg
-print >>logfile,'   Previous: m1 mean = ',oldtest_momoneavg
-print >>logfile,'   Difference (fractional) = ',diff_momoneavg
-print >>logfile,''
-print >>logfile,'--- Done ---'
+print(' Moment 1 image mean = ',thistest_momoneavg, file=logfile)
+print('   Previous: m1 mean = ',oldtest_momoneavg, file=logfile)
+print('   Difference (fractional) = ',diff_momoneavg, file=logfile)
+print('', file=logfile)
+print('--- Done ---', file=logfile)
 
 # Should see output like:
 #
@@ -1173,4 +1173,4 @@ print >>logfile,'--- Done ---'
 # Done
 #
 logfile.close()
-print "Results are in "+outfile
+print("Results are in "+outfile)

@@ -14,7 +14,7 @@ datapath=pathname+'/data/regression/ATST1/L02D/l*.ms'
 startTime=time.time()
 startProc=time.clock()
 
-print '--Copy MS--'
+print('--Copy MS--')
 # Fill - really copy over pristine MS
 os.system('rm -rf l.* l2.* all.* l1.* *.ms* *.image *.model *.residual')
 copystring='cp -r '+datapath+' .'
@@ -23,7 +23,7 @@ clearcal(vis='l.ms')
 clearcal(vis='l2.ms')
 copytime=time.time()
 
-print '--Flag data--'
+print('--Flag data--')
 default('flagdata')
 #flagdata(vis='l.ms',
 #	 timerange=['2002/01/27/05:45:47.0', '2002/01/27/07:00:00.0'],
@@ -35,7 +35,7 @@ flagtime=time.time()
 #
 # l1 calibration 
 #
-print '--Calibration phase/bandpass (3mm)--'
+print('--Calibration phase/bandpass (3mm)--')
 #setjy
 default('setjy')
 setjy(vis='l.ms',field='0',spw='6',scalebychan=False,standard='manual',fluxdensity=[10.87,0.,0.,0.])
@@ -60,7 +60,7 @@ gaincal(vis='l.ms',caltable='l.3mmUSB.gcal0',
 	refant='1',phasewrap=260,
 	preavg=0)
 
-print '--bandpass (3mm)--'
+print('--bandpass (3mm)--')
 #derive bandpass calibration for 3mm (C34S J=2-1) using USB continuum phase solns
 default('bandpass')
 bandpass(vis='l.ms',caltable='l.3mmC34S.bpoly',
@@ -89,7 +89,7 @@ bandpass(vis='l.ms',caltable='l.3mmcont.bpoly',
 	 maskcenter=2,maskedge=0,refant='1',
 	 gaintable='l.3mmUSB.gcal0',append=True)
 
-print '--gaincal phase (3mm)--'
+print('--gaincal phase (3mm)--')
 #derive new and better phase solutions for 3mm LSB
 default('gaincal')
 gaincal(vis='l.ms',caltable='l.3mmcont.gcal',
@@ -115,7 +115,7 @@ calphase3mmtime=time.time()
 #2013+370 3.25
 
 #use old values
-print '--Set fluxscale (setjy)--'
+print('--Set fluxscale (setjy)--')
 default('setjy')
 setjy(vis='l.ms',field='1',spw='6',scalebychan=False,standard='manual',fluxdensity=[1.01,0.,0.,0.])
 setjy(vis='l.ms',field='1',spw='7',scalebychan=False,standard='manual',fluxdensity=[1.01,0.,0.,0.])
@@ -135,7 +135,7 @@ setjy3mmtime=time.time()
 ##
 ##  phase solutions will be pre-applied as well as carried forward 
 ##   to the output solution table.
-print '--gaincal amp (3mm)--'
+print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis='l.ms',caltable='l.3mmcont.amp.gcal',
 	field='0,1,2',spw='7,15,19,6,14,18',
@@ -194,7 +194,7 @@ bandpass(vis='l.ms',caltable='l.1mmUSB.bpoly',
 
 ## Determine phase solutions for 1mm LSB & USB 
 ##
-print '--Phase solutions--'
+print('--Phase solutions--')
 default('gaincal')
 gaincal(vis='l.ms',caltable='l.1mmcont.gcal',
 	field='0,1,2',spw='26,27,30,31',
@@ -205,7 +205,7 @@ gaincal(vis='l.ms',caltable='l.1mmcont.gcal',
 ##  Apply all solutions derived so far, determine
 ##  calibrators' flux densities using a solve for T and
 ##  fluxscale
-print '--Solve for solutions, fluxscale--'
+print('--Solve for solutions, fluxscale--')
 default('gaincal')
 gaincal(vis='l.ms',caltable='l.1mmcont.temp',
 	field='0,1,2',spw='26,27,30,31',
@@ -221,7 +221,7 @@ calphase1mmtime=time.time()
 
 ## Record flux values from logger window.  Manually insert
 ## fluxes with imgr.setjy:
-print '--Setjy 1mm --'
+print('--Setjy 1mm --')
 setjy(vis='l.ms',field='1',spw='27',scalebychan=False,standard='manual',fluxdensity=[1.7,0.,0.,0.])
 setjy(vis='l.ms',field='1',spw='31',scalebychan=False,standard='manual',fluxdensity=[1.7,0.,0.,0.])
 setjy(vis='l.ms',field='2',spw='27',scalebychan=False,standard='manual',fluxdensity=[1.8,0.,0.,0.])
@@ -269,7 +269,7 @@ split(vis='l.ms',outputvis='l.1mmc34s5_4.split.ms',
       datacolumn='corrected')
 splitsrc1mmtime=time.time()
 
-print '--Image 1mm continuum--'
+print('--Image 1mm continuum--')
 ## Get a first image the target source in 1 mm continuum emission:
 default('clean')
 clean(vis='l.1mm.split.ms',imagename='l.1mm',
@@ -279,7 +279,7 @@ clean(vis='l.1mm.split.ms',imagename='l.1mm',
       cell=[0.2,0.2],imsize=[128,128],mode='mfs')
 image1mmtime=time.time()
 
-print '--Resplit data--'
+print('--Resplit data--')
 default('split')
 split(vis='l.ms',outputvis='l1.c34s.split.ms',
       field='3',spw='3:0~511',datacolumn='corrected')
@@ -311,7 +311,7 @@ splitsrc1mmtime=time.time()
 #            29 JAN                (U Cam)    #
 ###############################################
 
-print '--Flag data--'
+print('--Flag data--')
 default('flagdata')
 #flagdata(vis='l2.ms',
 #	 timerange=['2002/01/29/03:37:50.0', '2002/01/29/04:02:48.0'],
@@ -323,7 +323,7 @@ flagtime=time.time()
 #
 # l2 calibration 
 #
-print '--Calibration phase/bandpass (3mm)--'
+print('--Calibration phase/bandpass (3mm)--')
 #setjy
 default('setjy')
 setjy(vis='l2.ms',field='0',spw='6',scalebychan=False,standard='manual',fluxdensity=[10.87,0.,0.,0.])
@@ -348,7 +348,7 @@ gaincal(vis='l2.ms',caltable='l2.3mmUSB.gcal0',
 	phasewrap=260,
 	preavg=0)
 
-print '--bandpass (3mm)--'
+print('--bandpass (3mm)--')
 #derive bandpass calibration for 3mm (C34S J=2-1) using USB continuum phase solns
 default('bandpass')
 bandpass(vis='l2.ms',caltable='l2.3mmC34S.bpoly',
@@ -377,7 +377,7 @@ bandpass(vis='l2.ms',caltable='l2.3mmcont.bpoly',
 	 maskcenter=2,maskedge=0,refant='1',
 	 gaintable='l2.3mmUSB.gcal0',append=True)
 
-print '--gaincal phase (3mm)--'
+print('--gaincal phase (3mm)--')
 #derive new and better phase solutions for 3mm LSB
 default('gaincal')
 gaincal(vis='l2.ms',caltable='l2.3mmcont.gcal',
@@ -402,7 +402,7 @@ calphase3mmtime=time.time()
 #MWC249 = 0.82 Jy
 #2013+370 = 2.60 Jy
 
-print '--Set fluxscale (setjy)--'
+print('--Set fluxscale (setjy)--')
 default('setjy')
 setjy(vis='l2.ms',field='1',spw='6',scalebychan=False,standard='manual',fluxdensity=[1.01,0.,0.,0.])
 setjy(vis='l2.ms',field='1',spw='7',scalebychan=False,standard='manual',fluxdensity=[1.01,0.,0.,0.])
@@ -422,7 +422,7 @@ setjy3mmtime=time.time()
 ##
 ##  phase solutions will be pre-applied as well as carried forward 
 ##   to the output solution table.
-print '--gaincal amp (3mm)--'
+print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis='l2.ms',caltable='l2.3mmcont.amp.gcal',
 	field='0,1,2',spw='7,15,19,6,14,18',
@@ -453,7 +453,7 @@ applycal(vis='l2.ms',
 correct3mmtime=time.time()
 
 # Split calibrated data
-print '--split calibrater--'
+print('--split calibrater--')
 default('split')
 split(vis='l2.ms',outputvis='l2.3mmconta.split.ms',
       field='3',
@@ -504,7 +504,7 @@ bandpass(vis='l2.ms',caltable='l2.1mmUSB.bpoly',
 
 ## Determine phase solutions for 1mm LSB & USB 
 ##
-print '--Phase solutions--'
+print('--Phase solutions--')
 default('gaincal')
 gaincal(vis='l2.ms',caltable='l2.1mmcont.gcal',
 	field='0,1,2',spw='26,27,30,31',
@@ -515,7 +515,7 @@ gaincal(vis='l2.ms',caltable='l2.1mmcont.gcal',
 ##  Apply all solutions derived so far, determine
 ##  calibrators' flux densities using a solve for T and
 ##  fluxscale
-print '--Solve for solutions, fluxscale--'
+print('--Solve for solutions, fluxscale--')
 default('gaincal')
 gaincal(vis='l2.ms',caltable='l2.1mmcont.temp',
 	field='0,1,2',spw='26,27,30,31',
@@ -531,7 +531,7 @@ calphase1mmtime=time.time()
 
 ## Record flux values from logger window.  Manually insert
 ## fluxes with imgr.setjy:
-print '--Setjy 1mm --'
+print('--Setjy 1mm --')
 setjy(vis='l2.ms',field='1',spw='27',scalebychan=False,standard='manual',fluxdensity=[1.75,0.,0.,0.])
 setjy(vis='l2.ms',field='1',spw='31',scalebychan=False,standard='manual',fluxdensity=[1.75,0.,0.,0.])
 setjy(vis='l2.ms',field='2',spw='27',scalebychan=False,standard='manual',fluxdensity=[1.8,0.,0.,0.])
@@ -576,7 +576,7 @@ split(vis='l2.ms',outputvis='l2.1mma.split.ms',
 default('split')
 splitsrc1mmtime=time.time()
 
-print '--Image 1mm continuum--'
+print('--Image 1mm continuum--')
 ## Get a first image the target source in 1 mm continuum emission:
 default('clean')
 clean(vis='l2.1mma.split.ms',imagename='l2.1mm',
@@ -586,7 +586,7 @@ clean(vis='l2.1mma.split.ms',imagename='l2.1mm',
       cell=[0.2,0.2],imsize=[128,128],mode='mfs')
 image1mmtime=time.time()
 
-print '--Resplit data--'
+print('--Resplit data--')
 default('split')
 split(vis='l2.ms',outputvis='l2.c34s.split.ms',
       field='3',spw='3:0~511',datacolumn='corrected')
@@ -612,7 +612,7 @@ splitsrc1mmtime=time.time()
 
 ### COMBINE DATA SETS
 
-print '--Concatenate the data sets--'
+print('--Concatenate the data sets--')
 os.system('cp -r l1.3mmcont.split.ms l02d.3mmcont.split.ms')
 os.system('cp -r l1.c34s.split.ms l02d.c34s.split.ms')
 os.system('cp -r l1.ch3oh.split.ms l02d.ch3oh.split.ms')
@@ -723,50 +723,50 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='l02d.'+datestring+'.log'
 logfile=open(outfile,'w')
 
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
-if (diff_3mm<0.05): print >>logfile,'* Passed 3mm max amplitude test: '
-print >>logfile,'--3mm max amp '+str(thistest_3mm)+'  ('+str(src3mm)+', '+str(100*diff_3mm)+'%)'
-if (diff_1mm<0.05): print >>logfile,'* Passed 1mm max amplitude test '
-print >>logfile,'--1mm max amp '+str(thistest_1mm)+'  ('+str(src1mm)+', '+str(100*diff_1mm)+'%)'
-if (diff_ch3oh<0.05): print >>logfile,'* Passed CH3OH max amplitude test '
-print >>logfile,'--CH3OH max amp '+str(thistest_ch3oh)+'  ('+str(srcch3oh)+', '+str(100*diff_ch3oh)+'%)'
-if (diff_c34s<0.05): print >>logfile,'* Passed C34S max amplitude test '
-print >>logfile,'--C34S max amp '+str(thistest_c34s)+'  ('+str(srcc34s)+', '+str(100*diff_c34s)+'%)'
-if (diff_im3mm<0.05): print >>logfile,'* Passed image (3mm) max test'
-print >>logfile,'--Image max (3mm) '+str(cont3mmmax)+'  ('+str(im3mm)+', '+str(100*diff_im3mm)+'%)'
-if (diff_im1mm<0.05): print >>logfile,'* Passed image (1mm) max test'
-print >>logfile,'--Image max (1mm) '+str(cont1mmmax)+'  ('+str(im1mm)+', '+str(100*diff_im1mm)+'%)'
-if (diff_imch3oh<0.05): print >>logfile,'* Passed image (ch3oh) max test'
-print >>logfile,'--Image max (CH3OH) '+str(ch3ohmax)+'  ('+str(imch3oh)+', '+str(100*diff_imch3oh)+'%)'
-if (diff_imc34s<0.05): print >>logfile,'* Passed image (c34s) max test'
-print >>logfile,'--Image max (C34S) '+str(c34smax)+'  ('+str(imc34s)+', '+str(100*diff_imc34s)+'%)'
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
+if (diff_3mm<0.05): print('* Passed 3mm max amplitude test: ', file=logfile)
+print('--3mm max amp '+str(thistest_3mm)+'  ('+str(src3mm)+', '+str(100*diff_3mm)+'%)', file=logfile)
+if (diff_1mm<0.05): print('* Passed 1mm max amplitude test ', file=logfile)
+print('--1mm max amp '+str(thistest_1mm)+'  ('+str(src1mm)+', '+str(100*diff_1mm)+'%)', file=logfile)
+if (diff_ch3oh<0.05): print('* Passed CH3OH max amplitude test ', file=logfile)
+print('--CH3OH max amp '+str(thistest_ch3oh)+'  ('+str(srcch3oh)+', '+str(100*diff_ch3oh)+'%)', file=logfile)
+if (diff_c34s<0.05): print('* Passed C34S max amplitude test ', file=logfile)
+print('--C34S max amp '+str(thistest_c34s)+'  ('+str(srcc34s)+', '+str(100*diff_c34s)+'%)', file=logfile)
+if (diff_im3mm<0.05): print('* Passed image (3mm) max test', file=logfile)
+print('--Image max (3mm) '+str(cont3mmmax)+'  ('+str(im3mm)+', '+str(100*diff_im3mm)+'%)', file=logfile)
+if (diff_im1mm<0.05): print('* Passed image (1mm) max test', file=logfile)
+print('--Image max (1mm) '+str(cont1mmmax)+'  ('+str(im1mm)+', '+str(100*diff_im1mm)+'%)', file=logfile)
+if (diff_imch3oh<0.05): print('* Passed image (ch3oh) max test', file=logfile)
+print('--Image max (CH3OH) '+str(ch3ohmax)+'  ('+str(imch3oh)+', '+str(100*diff_imch3oh)+'%)', file=logfile)
+if (diff_imc34s<0.05): print('* Passed image (c34s) max test', file=logfile)
+print('--Image max (C34S) '+str(c34smax)+'  ('+str(imc34s)+', '+str(100*diff_imc34s)+'%)', file=logfile)
 
 
 if ((diff_3mm<0.05) & (diff_1mm<0.05) & (diff_ch3oh<0.05) & (diff_ch3oh<0.05) & (diff_im1mm<0.05) & (diff_im3mm<0.05) & (diff_imch3oh < 0.05) & (diff_imc34s<0.05)):
 	regstate=True
-        print >>logfile,'---'
-        print >>logfile,'Passed Regression test for L02D'
-        print >>logfile,'---'
-	print ''
-	print 'Regression PASSED'
-	print ''
+        print('---', file=logfile)
+        print('Passed Regression test for L02D', file=logfile)
+        print('---', file=logfile)
+	print('')
+	print('Regression PASSED')
+	print('')
 else:
         regstate=False
-        print >>logfile,'----FAILED Regression test for L02D'
-	print ''
-	print 'Regression FAILED'
-	print ''
+        print('----FAILED Regression test for L02D', file=logfile)
+	print('')
+	print('Regression FAILED')
+	print('')
 
-print >>logfile,'*********************************'
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(278./(endTime - startTime))
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(278./(endTime - startTime)), file=logfile)
 #print >>logfile,'* Breakdown:                           *'
 #print >>logfile,'*   copy         time was: '+str(copytime-startTime)
 #print >>logfile,'*   flag         time was: '+str(flagtime-copytime)

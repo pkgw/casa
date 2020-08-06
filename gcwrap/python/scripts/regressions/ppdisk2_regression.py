@@ -6,13 +6,13 @@ import os, time
 
 # configs are in the repository
 l=locals() 
-if not l.has_key("repodir"): 
+if "repodir" not in l: 
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
 startTime = time.time()
 startProc = time.clock()
 
-print '--Running simdata of input672GHz_50pc.image--'
+print('--Running simdata of input672GHz_50pc.image--')
 
 my_project="psim2"
 my_modelimage="diskmodel.im2"
@@ -21,8 +21,8 @@ my_modelimage="diskmodel.im2"
 os.system('rm -rf '+my_project+'.* '+my_modelimage)
 tb.clearlocks()
 
-print casa['build']
-print 'I think the data repository is at '+repodir
+print(casa['build'])
+print('I think the data repository is at '+repodir)
 #importfits(fitsimage=repodir+"/data/alma/simmos/input50pc_672GHz.fits",imagename=my_modelimage)
 
 default("simanalyze")
@@ -60,7 +60,7 @@ user_pwv=0.5
 maptype="ALMA2012"
 
 verbose=True
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -121,7 +121,7 @@ datestring = datetime.datetime.isoformat(datetime.datetime.today())
 outfile    = project + "/" + project + '.' + datestring + '.log'
 logfile    = open(outfile, 'w')
 
-print 'Writing regression output to ' + outfile + "\n"
+print('Writing regression output to ' + outfile + "\n")
 
 loghdr = """
 ********** Simulation Summary *********
@@ -135,43 +135,43 @@ The disk input image is a simulation done by Wolf and D'Angelo, converted from
 #A minimally bright star has been included as a clean component.
 
 
-print >> logfile, loghdr
-print >> logfile,casa['build']
+print(loghdr, file=logfile)
+print(casa['build'], file=logfile)
 
 regstate = True
-rskes = refstats.keys()
+rskes = list(refstats.keys())
 rskes.sort()
 for ke in rskes:
     adiff=abs(ppdso_stats[ke][0] - refstats[ke])/abs(refstats[ke])
     if adiff < reftol[ke]:
-        print >> logfile, "* Passed %-5s test, got % -11.5g , expected % -11.5g." % (ke, ppdso_stats[ke][0], refstats[ke])
+        print("* Passed %-5s test, got % -11.5g , expected % -11.5g." % (ke, ppdso_stats[ke][0], refstats[ke]), file=logfile)
     else:
-        print >> logfile, "* FAILED %-5s test, got % -11.5g instead of % -11.5g." % (ke, ppdso_stats[ke][0], refstats[ke])
+        print("* FAILED %-5s test, got % -11.5g instead of % -11.5g." % (ke, ppdso_stats[ke][0], refstats[ke]), file=logfile)
         regstate = False
 
-print >> logfile,'---'
+print('---', file=logfile)
 if regstate:
-    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('Passed', end=' ', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
-    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('FAILED', end=' ', file=logfile)
+    print('')
+    print('Regression FAILED')
+    print('')
 
-print >> logfile, 'regression test for simdata of protoplanetary disk.'
-print >>logfile,'---'
-print >>logfile,'*********************************'
+print('regression test for simdata of protoplanetary disk.', file=logfile)
+print('---', file=logfile)
+print('*********************************', file=logfile)
     
-print >>logfile,''
-print >>logfile,'********** Benchmarking **************'
-print >>logfile,''
-print >>logfile,'Total wall clock time was: %8.3f s.' % (endTime - startTime)
-print >>logfile,'Total CPU        time was: %8.3f s.' % (endProc - startProc)
-print >>logfile,'Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
-                                                         (endTime - startTime))
+print('', file=logfile)
+print('********** Benchmarking **************', file=logfile)
+print('', file=logfile)
+print('Total wall clock time was: %8.3f s.' % (endTime - startTime), file=logfile)
+print('Total CPU        time was: %8.3f s.' % (endProc - startProc), file=logfile)
+print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
+                                                         (endTime - startTime)), file=logfile)
 
 ### Get last modification time of .ms.
 ## msfstat = os.stat('almasimmos_regression.ms')
@@ -180,8 +180,8 @@ print >>logfile,'Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
 ## print >>logfile,'*  %s deconvolution with %d iterations took %8.3fs.' % (alg,
 ##                                                                         niter,
 ##                                                                         endTime - msfstat[8])
-print >>logfile,'*************************************'
+print('*************************************', file=logfile)
     
 logfile.close()
 						    
-print '--Finished simdata of input672GHz_50pc.image regression--'
+print('--Finished simdata of input672GHz_50pc.image regression--')

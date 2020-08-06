@@ -51,9 +51,9 @@ os.system('rm -rf ngc4826.tutorial.*')
 prefix='ngc4826.tutorial'
 msfile = prefix + '.16apr98.ms'
 
-print 'Tutorial Script for BIMASONG NGC4826 Mosaic'
-print 'Will do: import, flagging, calibration, imaging'
-print ''
+print('Tutorial Script for BIMASONG NGC4826 Mosaic')
+print('Will do: import, flagging, calibration, imaging')
+print('')
 #
 ##########################################################################
 #
@@ -80,11 +80,11 @@ print ''
 #
 # USB spectral windows written separately by miriad for 16apr98
 # Assumes these are in sub-directory called "fitsfiles" of working directory
-print '--Importuvfits (16apr98)--'
+print('--Importuvfits (16apr98)--')
 default('importuvfits')
 
-print "Starting from the uvfits files exported by miriad"
-print "The USB spectral windows were written separately by miriad for 16apr98"
+print("Starting from the uvfits files exported by miriad")
+print("The USB spectral windows were written separately by miriad for 16apr98")
 
 importuvfits(fitsfile='fitsfiles/3c273.fits5', vis='ngc4826.tutorial.3c273.5.ms')
 
@@ -121,7 +121,7 @@ importuvfits(fitsfile='fitsfiles/ngc4826.ll.fits8', vis='ngc4826.tutorial.ngc482
 #
 ##########################################################################
 #
-print '--Concat--'
+print('--Concat--')
 default('concat')
 
 concat(vis=['ngc4826.tutorial.3c273.5.ms',
@@ -212,7 +212,7 @@ concat(vis=['ngc4826.tutorial.3c273.5.ms',
 #
 # Fix up the MS (temporary, changes to importfits underway)
 #
-print '--Fixing up spw rest frequencies in MS--'
+print('--Fixing up spw rest frequencies in MS--')
 vis='ngc4826.tutorial.ms'
 tb.open(vis+'/SOURCE',nomodify=false)
 spwid=tb.getcol('SPECTRAL_WINDOW_ID')
@@ -226,8 +226,8 @@ tb.close()
 ##########################################################################
 # 16 APR Calibration
 ##########################################################################
-print '--Clearcal--'
-print 'Create scratch columns and initialize in '+'ngc4826.tutorial.ms'
+print('--Clearcal--')
+print('Create scratch columns and initialize in '+'ngc4826.tutorial.ms')
 
 # Force create/initialize of scratch columns
 # NOTE: plotxy will not run properly without this step.
@@ -239,18 +239,18 @@ clearcal(vis='ngc4826.tutorial.ms')
 #
 # List contents of MS
 #
-print '--Listobs--'
+print('--Listobs--')
 listobs(vis='ngc4826.tutorial.ms')
 
 # Should see the listing included at the end of this script
 #
 
-print "There are 3 fields observed in a total of 16 spectral windows"
-print "   field=0    3c273    spwids 0,1,2,3               64 chans "
-print "   field=1    1310+323 spwids 4,5,6,7,8,9,10,11     32 chans "
-print "   field=2~8  NGC4826  spwids 12,13,14,15           64 chans "
-print ""
-print "See listobs summary in logger"
+print("There are 3 fields observed in a total of 16 spectral windows")
+print("   field=0    3c273    spwids 0,1,2,3               64 chans ")
+print("   field=1    1310+323 spwids 4,5,6,7,8,9,10,11     32 chans ")
+print("   field=2~8  NGC4826  spwids 12,13,14,15           64 chans ")
+print("")
+print("See listobs summary in logger")
 #
 ##########################################################################
 # Plotting and Flagging
@@ -258,7 +258,7 @@ print "See listobs summary in logger"
 #
 # The plotxy task is the interactive x-y display and flagging GUI
 #
-print '--Plotxy--'
+print('--Plotxy--')
 default(plotxy)
 
 # Here we will suggest things to plot, and actually only do a few
@@ -331,9 +331,9 @@ plotxy(vis='ngc4826.tutorial.ms',xaxis='velocity',yaxis='amp',field='2',spw='12~
        averagemode='vector',timebin='1e7',crossscans=True,
        selectplot=True,newplot=False,title='Field 2 SPW 12~15')
 
-print "You could Mark Region around outliers and Flag"
+print("You could Mark Region around outliers and Flag")
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 #
 # You could set up a Python loop to do all the N4826 fields, like this:
@@ -367,14 +367,14 @@ user_check=raw_input('Return to continue script\n')
 plotxy(vis='ngc4826.tutorial.ms',xaxis='time',yaxis='amp',field='8',spw='12~15',
        selectplot=True,newplot=False,title='Field 8 SPW 12~15')
 
-print "You can see some bad data here"
-print "Mark Region and Locate, look in logger"
-print "This is a correlator glitch in baseline 3-9 at 06:19:30"
-print "PLEASE DON\'T FLAG ANYTHING HERE. THE SCRIPT WILL DO IT!"
-print "In a normal session you could Mark Region and Flag."
-print "Here we will use flagdata instead."
+print("You can see some bad data here")
+print("Mark Region and Locate, look in logger")
+print("This is a correlator glitch in baseline 3-9 at 06:19:30")
+print("PLEASE DON\'T FLAG ANYTHING HERE. THE SCRIPT WILL DO IT!")
+print("In a normal session you could Mark Region and Flag.")
+print("Here we will use flagdata instead.")
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 # If you change xaxis='channel' you see its all channels
 #
@@ -382,13 +382,13 @@ user_check=raw_input('Return to continue script\n')
 #
 # Flag end channels
 #
-print '--Flagdata--'
+print('--Flagdata--')
 default('flagdata')
 
-print ""
-print "Flagging edge channels in all spw"
-print "  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 "
-print ""
+print("")
+print("Flagging edge channels in all spw")
+print("  0~3:0~1;62~63 , 4~11:0~1;30~31, 12~15:0~1;62~63 ")
+print("")
 
 flagdata(vis='ngc4826.tutorial.ms', mode='manualflag',
          spw='0~3:0;1;62;63,4~11:0;1;30;31,12~15:0;1;62;63')
@@ -396,10 +396,10 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manualflag',
 #
 # Flag correlator glitch
 #
-print ""
-print "Flagging bad correlator field 8 antenna 3&9 spw 15 all channels"
-print "  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0"
-print ""
+print("")
+print("Flagging bad correlator field 8 antenna 3&9 spw 15 all channels")
+print("  timerange 1998/04/16/06:19:00.0~1998/04/16/06:20:00.0")
+print("")
 
 flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', field='8', spw='15', antenna='3&9', 
          timerange='1998/04/16/06:19:00.0~1998/04/16/06:20:00.0')
@@ -424,18 +424,18 @@ flagdata(vis='ngc4826.tutorial.ms', mode='manualflag', field='8', spw='15', ante
 #       averagemode='vector',timebin='1e7',crossscans=True,
 #       selectplot=True,newplot=False,title='Field 1 SPW 4')
 
-print "Completed pre-calibration flagging"
+print("Completed pre-calibration flagging")
 
 #
 ##########################################################################
 #
 # Use Flagmanager to save a copy of the flags so far
 #
-print '--Flagmanager--'
+print('--Flagmanager--')
 default('flagmanager')
 
-print "Now will use flagmanager to save a copy of the flags we just made"
-print "These are named myflags"
+print("Now will use flagmanager to save a copy of the flags we just made")
+print("These are named myflags")
 
 flagmanager(vis='ngc4826.tutorial.ms',mode='save',versionname='myflags',
             comment='My flags',merge='replace')
@@ -463,7 +463,7 @@ flagmanager(vis='ngc4826.tutorial.ms',mode='save',versionname='myflags',
 #
 # Set the flux density of 3C273 to 23 Jy
 #
-print '--Setjy (3C273)--'
+print('--Setjy (3C273)--')
 default('setjy')
 
 setjy(vis='ngc4826.tutorial.ms',field='0',fluxdensity=[23.0,0.,0.,0.],spw='0~3')
@@ -475,15 +475,15 @@ setjy(vis='ngc4826.tutorial.ms',field='0',fluxdensity=[23.0,0.,0.,0.],spw='0~3')
 #
 # Gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 default('gaincal')
 
 # This should be combining all spw for the two calibrators for single
 # scan-based solutions
 
-print 'Gain calibration for fields 0,1 and spw 0~11'
-print 'Using solint=inf combining over spw'
-print 'Output table ngc4826.tutorial.16apr98.gcal'
+print('Gain calibration for fields 0,1 and spw 0~11')
+print('Using solint=inf combining over spw')
+print('Output table ngc4826.tutorial.16apr98.gcal')
 
 gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
 	field='0,1', spw='0~11', gaintype='G', minsnr=2.0,
@@ -495,12 +495,12 @@ gaincal(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
 #
 # Transfer the flux density scale:
 #
-print '--Fluxscale--'
+print('--Fluxscale--')
 default('fluxscale')
 
-print ''
-print 'Transferring flux of 3C273 to sources: 1310+323'
-print 'Output table ngc4826.tutorial.16apr98.fcal'
+print('')
+print('Transferring flux of 3C273 to sources: 1310+323')
+print('Output table ngc4826.tutorial.16apr98.fcal')
 
 fluxscale(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
 	  fluxtable='ngc4826.tutorial.16apr98.fcal',
@@ -511,24 +511,24 @@ fluxscale(vis='ngc4826.tutorial.ms', caltable='ngc4826.tutorial.16apr98.gcal',
 ##########################################################################
 #
 # Plot calibration
-print '--Plotcal (fluxscale)--'
+print('--Plotcal (fluxscale)--')
 default(plotcal)
 
 # Interactive plotcal
 plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='amp', field='')
-print ''
-print 'Plotting final scaled gain calibration table'
-print 'First amp vs. time for all fields '
+print('')
+print('Plotting final scaled gain calibration table')
+print('First amp vs. time for all fields ')
 	
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='phase', field='')
-print ''
-print 'and phase vs. time '
+print('')
+print('and phase vs. time ')
 
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 # And you can plot the SNR of the solution
 #plotcal(caltable='ngc4826.tutorial.16apr98.fcal', yaxis='snr', field='')
@@ -545,10 +545,10 @@ user_check=raw_input('Return to continue script\n')
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
 # to all other spwids... 
-print '--Applycal--'
+print('--Applycal--')
 default('applycal')
 
-print 'Applying calibration table ngc4826.tutorial.16apr98.fcal to data'
+print('Applying calibration table ngc4826.tutorial.16apr98.fcal to data')
 
 applycal(vis='ngc4826.tutorial.ms',
 	 field='', spw='',
@@ -560,7 +560,7 @@ applycal(vis='ngc4826.tutorial.ms',
 ##########################################################################
 #
 # Check calibrated data
-print '--Plotxy--'
+print('--Plotxy--')
 default(plotxy)
 
 #
@@ -631,7 +631,7 @@ default(plotxy)
 #field = '1'
 #spw = '4~11'
 
-print "Done calibration and plotting"
+print("Done calibration and plotting")
 #
 ##########################################################################
 #
@@ -643,22 +643,22 @@ print "Done calibration and plotting"
 #
 # Split out calibrated target source and calibrater data:
 #
-print '--Split--'
+print('--Split--')
 default('split')
 
-print 'Splitting 3C273 data to ngc4826.tutorial.16apr98.3C273.split.ms'
+print('Splitting 3C273 data to ngc4826.tutorial.16apr98.3C273.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.3C273.split.ms',
       field='0',spw='0~3:0~63', datacolumn='corrected')
 
-print 'Splitting 1310+323 data to ngc4826.tutorial.16apr98.1310+323.split.ms'
+print('Splitting 1310+323 data to ngc4826.tutorial.16apr98.1310+323.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.1310+323.split.ms',
       field='1', spw='4~11:0~31', datacolumn='corrected')
 
-print 'Splitting NGC4826 data to ngc4826.tutorial.16apr98.src.split.ms'
+print('Splitting NGC4826 data to ngc4826.tutorial.16apr98.src.split.ms')
 
 split(vis='ngc4826.tutorial.ms',
       outputvis='ngc4826.tutorial.16apr98.src.split.ms',
@@ -723,7 +723,7 @@ split(vis='ngc4826.tutorial.ms',
 #
 # Image the target source mosaic:
 #
-print '--Clean (NGC4826)--'
+print('--Clean (NGC4826)--')
 default('clean')
 
 clean(vis='ngc4826.tutorial.16apr98.src.split.ms',
@@ -759,35 +759,35 @@ clean(vis='ngc4826.tutorial.16apr98.src.split.ms',
 ##########################################################################
 #
 # Do interactive viewing of clean image
-print '--Viewer--'
+print('--Viewer--')
 viewer('ngc4826.tutorial.16apr98.src.clean.image')
 
-print ""
-print "This is the non-pbcorrected cube of NGC4826"
-print "Use tape deck to move through channels"
-print "Close the viewer when done"
-print ""
+print("")
+print("This is the non-pbcorrected cube of NGC4826")
+print("Use tape deck to move through channels")
+print("Close the viewer when done")
+print("")
 #
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 #
 ##########################################################################
 #
 # Statistics on clean image cube
 #
-print '--ImStat (Clean cube)--'
+print('--ImStat (Clean cube)--')
 
 srcstat = imstat('ngc4826.tutorial.16apr98.src.clean.image')
 
-print "Found image max = "+str(srcstat['max'][0])
+print("Found image max = "+str(srcstat['max'][0]))
 
 # offbox = '106,161,153,200'
 
 offstat = imstat('ngc4826.tutorial.16apr98.src.clean.image',
                  box='106,161,153,200')
 
-print "Found off-source image rms = "+str(offstat['sigma'][0])
+print("Found off-source image rms = "+str(offstat['sigma'][0]))
 
 # cenbox = '108,108,148,148'
 # offlinechan = '0,1,2,3,4,5,30,31,32,33,34,35'
@@ -796,14 +796,14 @@ offlinestat = imstat('ngc4826.tutorial.16apr98.src.clean.image',
                      box='108,108,148,148',
                      chans='0,1,2,3,4,5,30,31,32,33,34,35')
 
-print "Found off-line image rms = "+str(offlinestat['sigma'][0])
+print("Found off-line image rms = "+str(offlinestat['sigma'][0]))
 
 #
 ##########################################################################
 #
 # Manually correct for mosaic response pattern using .image/.flux images
 #
-print '--ImMath (PBcor)--'
+print('--ImMath (PBcor)--')
 
 immath(outfile='ngc4826.tutorial.16apr98.src.clean.pbcor',
        mode='evalexpr',
@@ -814,22 +814,22 @@ immath(outfile='ngc4826.tutorial.16apr98.src.clean.pbcor',
 #
 # Statistics on PBcor image cube
 #
-print '--ImStat (PBcor cube)--'
+print('--ImStat (PBcor cube)--')
 
 pbcorstat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor')
 
-print "Found image max = "+str(pbcorstat['max'][0])
+print("Found image max = "+str(pbcorstat['max'][0]))
 
 pbcoroffstat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor',
                       box='106,161,153,200')
 
-print "Found off-source image rms = "+str(pbcoroffstat['sigma'][0])
+print("Found off-source image rms = "+str(pbcoroffstat['sigma'][0]))
 
 pbcorofflinestat = imstat('ngc4826.tutorial.16apr98.src.clean.pbcor',
                           box='108,108,148,148',
                           chans='0,1,2,3,4,5,30,31,32,33,34,35')
 
-print "Found off-line image rms = "+str(pbcorofflinestat['sigma'][0])
+print("Found off-line image rms = "+str(pbcorofflinestat['sigma'][0]))
 
 #
 ##########################################################################
@@ -838,14 +838,14 @@ print "Found off-line image rms = "+str(pbcorofflinestat['sigma'][0])
 #
 # NGC4826 LSR velocity is 408 km/s; delta is 20 km/s
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 momfile = 'ngc4826.tutorial.16apr98.moments'
 momzeroimage = 'ngc4826.tutorial.16apr98.moments.integrated'
 momoneimage = 'ngc4826.tutorial.16apr98.moments.mom1'
 
-print "Calculating Moments 0,1 for PBcor image"
+print("Calculating Moments 0,1 for PBcor image")
 
 immoments(imagename='ngc4826.tutorial.16apr98.src.clean.pbcor',
 	  moments=0,axis=3,
@@ -873,31 +873,31 @@ immoments(imagename='ngc4826.tutorial.16apr98.src.clean.image',
 # Now view the resulting images
 viewer('ngc4826.tutorial.16apr98.moments.integrated')
 #
-print "Now viewing Moment-0 ngc4826.tutorial.16apr98.moments.integrated"
-print "Note PBCOR effects at field edge"
-print "Change the colorscale to get better image"
-print "You can also Open and overlay Contours of Moment-1 ngc4826.tutorial.16apr98.moments.mom1"
-print "Close the viewer when done"
+print("Now viewing Moment-0 ngc4826.tutorial.16apr98.moments.integrated")
+print("Note PBCOR effects at field edge")
+print("Change the colorscale to get better image")
+print("You can also Open and overlay Contours of Moment-1 ngc4826.tutorial.16apr98.moments.mom1")
+print("Close the viewer when done")
 #
 # Pause script if you are running in scriptmode
-user_check=raw_input('Return to continue script\n')
+user_check=input('Return to continue script\n')
 
 #
 ##########################################################################
 #
 # Statistics on moment images
 #
-print '--ImStat (Moment images)--'
+print('--ImStat (Moment images)--')
 
 momzerostat=imstat('ngc4826.tutorial.16apr98.moments.integrated')
 
-print "Found moment 0 max = "+str(momzerostat['max'][0])
+print("Found moment 0 max = "+str(momzerostat['max'][0]))
 
-print "Found moment 0 rms = "+str(momzerostat['rms'][0])
+print("Found moment 0 rms = "+str(momzerostat['rms'][0]))
 
 momonestat=imstat('ngc4826.tutorial.16apr98.moments.mom1')
 
-print "Found moment 1 median = "+str(momonestat['median'][0])
+print("Found moment 1 median = "+str(momonestat['median'][0]))
 
 #
 ##########################################################################
@@ -978,8 +978,8 @@ print "Found moment 1 median = "+str(momonestat['median'][0])
 #
 # Now show how to print out results
 #
-print '--Results (16apr98)--'
-print ''
+print('--Results (16apr98)--')
+print('')
 #
 # Currently using non-PBcor values
 #
@@ -992,15 +992,15 @@ thistest_imrms = momzerostat['rms'][0]
 #
 # Report a few key stats
 #
-print '  NGC4826 Image Cube Max = '+str(im_srcmax16)
-print "          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3])
-print '          '+srcstat['maxposf']
-print ''
-print '          Off-Source Rms = '+str(im_offrms16)
-print '          Signal-to-Noise ratio = '+str(im_srcmax16/im_offrms16)
-print ''
-print '          Off-Line   Rms = '+str(im_offlinerms16)
-print '          Signal-to-Noise ratio = '+str(im_srcmax16/im_offlinerms16)
+print('  NGC4826 Image Cube Max = '+str(im_srcmax16))
+print("          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3]))
+print('          '+srcstat['maxposf'])
+print('')
+print('          Off-Source Rms = '+str(im_offrms16))
+print('          Signal-to-Noise ratio = '+str(im_srcmax16/im_offrms16))
+print('')
+print('          Off-Line   Rms = '+str(im_offlinerms16))
+print('          Signal-to-Noise ratio = '+str(im_srcmax16/im_offlinerms16))
 
 # Note previous regression values (using this script STM 2008-06-04) were:
 #srcmax16=1.45868253708
@@ -1018,6 +1018,6 @@ print '          Signal-to-Noise ratio = '+str(im_srcmax16/im_offlinerms16)
 #print '--Moment  0 rms (16apr98): '+str(thistest_imrms)+' was '+str(imrms)
 #print ''
 
-print "Done with NGC4826 Tutorial"
+print("Done with NGC4826 Tutorial")
 #
 ##########################################################################

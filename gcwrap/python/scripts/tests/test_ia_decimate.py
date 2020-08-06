@@ -122,7 +122,7 @@ class ia_decimate_test(unittest.TestCase):
             expec[2] /= factor
             if m == 0:
                 expec[2] += 1
-            print "method ",method
+            print("method ",method)
             self.assertTrue((zz.shape() == expec).all())
             
             inc = myia.coordsys()

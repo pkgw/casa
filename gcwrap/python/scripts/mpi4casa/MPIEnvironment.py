@@ -79,7 +79,7 @@ class MPIEnvironment:
             
         # Set initialization flag
         mpi_initialized = True
-    except Exception, instance:
+    except Exception as instance:
         mpi_initialization_error_msg = traceback.format_exc()
         __mpi_factory = None
         mpi_world_size = 1
@@ -126,7 +126,7 @@ class MPIEnvironment:
             __mpi_buffer = __mpi_factory.Alloc_mem(mpi_buffer_size_in_mb*1024*1024)
             __mpi_factory.Attach_buffer(__mpi_buffer)
             mpi_buffer_allocated = True
-        except Exception, instance:
+        except Exception as instance:
             mpi_buffer_allocated = False
             mpi_buffer_allocation_error_msg = traceback.format_exc()
         

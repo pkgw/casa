@@ -23,7 +23,7 @@ def fringefit(vis=None,caltable=None,
 		if ((type(vis)==str) & (os.path.exists(vis))):
 			mycb.open(filename=vis,compress=False,addcorr=False,addmodel=False)
 		else:
-			raise Exception, 'Visibility data set not found - please verify the name'
+			raise Exception('Visibility data set not found - please verify the name')
 		# Do data selection according to selectdata
 		if (selectdata):
 			casalog.post("Selecting data")
@@ -108,17 +108,17 @@ def fringefit(vis=None,caltable=None,
 		reportsolvestats(mycb.activityrec());
 		mycb.close()
 
-	except Exception, instance:
-		print '*** Error ***', instance
+	except Exception as instance:
+		print('*** Error ***', instance)
 		mycb.close()
 		exc_type, exc_obj, exc_tb = sys.exc_info()
 		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
 		casalog.post("Error in fringefit: %s" % str(instance), "SEVERE")
 		casalog.post("{}:{}:{}".format(exc_type, fname, exc_tb.tb_lineno))
-		raise Exception, "Error in fringefit: "+str(instance)
+		raise Exception("Error in fringefit: "+str(instance))
 
 def reportsolvestats(rec):
-	if (rec.keys().count('origin')==1 and
+	if (list(rec.keys()).count('origin')==1 and
 	    rec['origin']=='Calibrater::genericGatherAndSolve'):
 		casalog.post("Calibration solve statistics per spw:  (expected/attempted/succeeded):")
 		nexp=rec['nExpected']

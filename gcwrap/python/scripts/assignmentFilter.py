@@ -34,7 +34,7 @@ _af_msg_keys = {
 	types.MethodType		  : 0,
 	types.BuiltinFunctionType         : 0,
 	types.BuiltinMethodType           : 0,
-	types.ObjectType		  : 1,
+	object		  : 1,
 	types.InstanceType		  : 1,
 	types.ModuleType		  : 1,
 	"__casac__"			  : 2,
@@ -60,7 +60,7 @@ _af_param   = "%(warncolor)s WARNING:%(normal)s unknown parameter %(tokcolor)s%(
 def debugMsg(*args):
 	try:
 		if _asf_debug:
-			print TermColors.Cyan, "DEBUG:",string.join(map(str,args)),TermColors.Normal
+			print(TermColors.Cyan, "DEBUG:",string.join(map(str,args)),TermColors.Normal)
 	except:
 		pass
 
@@ -91,7 +91,7 @@ def global_lookup(token):
 			stacklevel=k
 			break
 	myf=sys._getframe(stacklevel).f_globals
-	if(myf.has_key(token)):
+	if(token in myf):
 		result = myf[token]
 	return result
 
@@ -102,7 +102,7 @@ def _af_validate_parameter(token):
 	else:
 		param = token[4:]  # 'par.' is four characters
 		try:
-			if par.__dict__.has_key(param):
+			if param in par.__dict__:
 				return True
 			else:
 				msgDict = {
@@ -111,11 +111,11 @@ def _af_validate_parameter(token):
 				"warncolor":TermColors.Red,
 				"normal":TermColors.Normal
 				}
-				print _af_param % msgDict
-				y_or_n = raw_input()
+				print(_af_param % msgDict)
+				y_or_n = input()
 				return (y_or_n and y_or_n.startswith("y"))
 		except e:
-			print TermColors.Cyan, "Exception: ", e
+			print(TermColors.Cyan, "Exception: ", e)
 			pass
 		return False
 
@@ -150,10 +150,10 @@ def assignmentFilter(self,line):
 						debugMsg('builtin', type(__builtins__))
 						isBuiltin = False
 						try:
-							isBuiltin = __builtins__.__dict__.has_key(token)
+							isBuiltin = token in __builtins__.__dict__
 						except:
 							try:
-								isBuiltin = __builtins__.has_key(token)
+								isBuiltin = token in __builtins__
 							except:
 								pass
 						if isBuiltin:
@@ -162,12 +162,12 @@ def assignmentFilter(self,line):
 						else:
 							lvar_type = type(global_lookup(token))
 							debugMsg('global',lvar_type)
-							if _af_msg_keys.has_key(lvar_type):
+							if lvar_type in _af_msg_keys:
 								lineOK = False
 							else:
 								try:
 									lvar_type = string.split(lvar_type.__module__, '.')[0]
-									if _af_msg_keys.has_key(lvar_type):
+									if lvar_type in _af_msg_keys:
 										lineOK = False
 								except:
 									pass
@@ -187,10 +187,10 @@ def assignmentFilter(self,line):
 		"warncolor":TermColors.Red,
 		"normal":TermColors.Normal
 		}
-		print _af_warning % msgDict
+		print(_af_warning % msgDict)
 		if example:
 			suggestion = _af_suggest + example + _af_help
-			print suggestion % msgDict
+			print(suggestion % msgDict)
 		return ""
 
 

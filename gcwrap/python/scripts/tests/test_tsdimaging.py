@@ -16,12 +16,12 @@ _ia = iatool( )
 _rg = rgtool( )
 
 try:
-    import selection_syntax
+    from . import selection_syntax
 except:
     import tests.selection_syntax as selection_syntax
 
 try:
-    import testutils
+    from . import testutils
 except:
     import tests.testutils as testutils
 
@@ -60,7 +60,7 @@ def merge_dict(d1, d2):
     dictionary is adopted.
     """
     if type(d1) != dict or type(d2) != dict:
-        raise ValueError, "Internal error. inputs should be dictionaries."
+        raise ValueError("Internal error. inputs should be dictionaries.")
     d12 = d1.copy()
     d12.update(d2)
     return d12
@@ -212,7 +212,7 @@ class sdimaging_unittest_base(unittest.TestCase, sdimaging_standard_paramset):
                          is False (take image mask into account).
         """
         self._checkfile(name)
-        if compstats is None: compstats = ref.keys()
+        if compstats is None: compstats = list(ref.keys())
         if region is None: region = ""
         _ia.open(name)
         try:
@@ -414,7 +414,7 @@ class sdimaging_test0(sdimaging_unittest_base):
         """Test008: Existing outfile with overwrite=False"""
         outfile = self.outfile + image_suffix
         f=open(outfile, 'w')
-        print >> f, 'existing file'
+        print('existing file', file=f)
         f.close()
         self.task_param['overwrite'] = False
         msg = 'Output file \'{0}\' exists.'.format(outfile)
@@ -575,7 +575,7 @@ class sdimaging_test1(sdimaging_unittest_base):
         self.task_param.update(dict(nchan=nchan,start=0,width=1))
         # for testing 
         #self.task_param['gridfunction'] = 'BOX'
-        for (k,v) in self.task_param.iteritems():
+        for (k,v) in self.task_param.items():
             casalog.post('test102: {0} = \'{1}\' (type {2})'.format(k,v,type(v)))
         outshape = (self.imsize[0],self.imsize[1],1,nchan)
         refstats={'blc': numpy.array([0, 0, 0, 0], dtype=numpy.int32),
@@ -865,7 +865,7 @@ class sdimaging_test2(sdimaging_unittest_base):
         ms.open(self.rawfile)
         spwinfo =  ms.getspectralwindowinfo()
         ms.close()
-        spwid0 = spwinfo.keys()[0]
+        spwid0 = list(spwinfo.keys())[0]
         start = '%fHz' % (spwinfo[spwid0]['Chan1Freq']+0.5*(spwinfo[spwid0]['TotalWidth']-spwinfo[spwid0]['ChanWidth'])) 
         width = '%fHz' % (spwinfo[spwid0]['TotalWidth'])
         self.task_param.update(dict(nchan=nchan,start=start,width=width))
@@ -1554,7 +1554,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         spw = ''
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         region =  self.spw_region_all
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
@@ -1653,7 +1653,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         region =  self.spw_region_all
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
         refstats = merge_dict(self.spw_stat_common, construct_refstat_uniform(flux, region['blc'], region['trc']) )
@@ -1705,7 +1705,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         region =  self.spw_region_chan1
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
         refstats = merge_dict(self.spw_stat_common, construct_refstat_uniform(flux, region['blc'], region['trc']) )
@@ -1724,7 +1724,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         infile = self.unifreq_ms
         spw = '*:299.9749~300.0251GHz'   #chan=2-7 of spw=1 should be selected
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         # end of temporal change
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
@@ -1744,7 +1744,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         region =  self.spw_region_chan1
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
         refstats = merge_dict(self.spw_stat_common, construct_refstat_uniform(flux, region['blc'], region['trc']) )
@@ -1805,7 +1805,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         region =  self.spw_region_chan1
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
         refstats = merge_dict(self.spw_stat_common, construct_refstat_uniform(flux, region['blc'], region['trc']) )
@@ -1824,7 +1824,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         infile = self.unifreq_ms
         spw = '*:299.9749~300.0251GHz'   #chan=2-7 of spw=1 should be selected
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         # end of temporal change
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
@@ -1844,7 +1844,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         region =  self.spw_region_chan1
         infile = self.unifreq_ms
         flux_list = self.__get_flux_value(infile)
-        selspw = range(len(flux_list))
+        selspw = list(range(len(flux_list)))
         self.task_param.update(dict(infiles=infile,spw=spw,imsize=self.spw_imsize_auto))
         flux = sum([flux_list[idx] for idx in selspw])/float(len(selspw))
         refstats = merge_dict(self.spw_stat_common, construct_refstat_uniform(flux, region['blc'], region['trc']) )
@@ -1959,7 +1959,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
         refstats = ref.copy()
         refstats.update(box)
         for stats in ['blcf', 'trcf']:
-            if refstats.has_key(stats): refstats.pop(stats)
+            if stats in refstats: refstats.pop(stats)
         self._checkstats(name,refstats,region=boxreg,
                          compstats=compstats,atol=atol,rtol=rtol,
                          ignoremask=ignoremask)
@@ -1972,7 +1972,7 @@ class sdimaging_test_selection(selection_syntax.SelectionSyntaxTest,sdimaging_un
             return self.spw_flux
         elif infile == self.unifreq_ms:
             return self.spw_flux_unifreq
-        else: raise Exception, "Internal error: invalid input file to get flux value."
+        else: raise Exception("Internal error: invalid input file to get flux value.")
 
 ###
 # Test to verify if flag information is handled properly
@@ -2105,7 +2105,7 @@ class sdimaging_test_flag(sdimaging_unittest_base):
             interval = tb.getcol('INTERVAL')
             max_interval = interval.max()
             tshift = numpy.empty_like(torig)
-            for ichunk in xrange(nchunk):
+            for ichunk in range(nchunk):
                 ifrom = ichunk * nrow_chunk
                 ito = (ichunk+1) * nrow_chunk
                 tshift[ifrom:ito] = torig[ifrom:ito] + ichunk * max_interval
@@ -2141,12 +2141,12 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         xn = 2
         xw = self.imsize[0]/xn
         self.x_range = []
-        for i in xrange(xn):
+        for i in range(xn):
             self.x_range.append([xw*i, xw*(i+1)])
         yn = 3
         yw = self.imsize[1]/yn
         self.y_range = []
-        for i in xrange(yn):
+        for i in range(yn):
             self.y_range.append([yw*i, yw*(i+1)])
         self.f_range = [[0,1]] if chanmerge else [[0,2],[2,7],[7,10]]
 
@@ -2154,27 +2154,27 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         val = self._get_refvalues(self.rawfile, chanmerge)
         idx = 0
         outfile = self.outfile + image_suffix
-        for i in xrange(len(self.x_range)):
-            for j in xrange(len(self.y_range)):
-                for k in xrange(len(self.f_range)):
+        for i in range(len(self.x_range)):
+            for j in range(len(self.y_range)):
+                for k in range(len(self.f_range)):
                     self._checkvalue(outfile, False, self.x_range[i], self.y_range[j], self.f_range[k],  val[idx], chanmerge)
                     idx += 1
 
     def _check_mask(self, chanmerge=False):
         val = self._get_refmask(self.maskfile, chanmerge)
         idx = 0
-        for i in xrange(len(self.x_range)):
-            for j in xrange(len(self.y_range)):
-                for k in xrange(len(self.f_range)):
+        for i in range(len(self.x_range)):
+            for j in range(len(self.y_range)):
+                for k in range(len(self.f_range)):
                     self._checkvalue(self.maskfile, True, self.x_range[i], self.y_range[j], self.f_range[k],  val[idx], chanmerge)
                     idx += 1
 
     def _check_weight(self, chanmerge=False):
         val = self._get_refweight(self.weightfile, chanmerge)
         idx = 0
-        for i in xrange(len(self.x_range)):
-            for j in xrange(len(self.y_range)):
-                for k in xrange(len(self.f_range)):
+        for i in range(len(self.x_range)):
+            for j in range(len(self.y_range)):
+                for k in range(len(self.f_range)):
                     self._checkvalue(self.weightfile, False, self.x_range[i], self.y_range[j], self.f_range[k],  val[idx], chanmerge)
                     idx += 1
 
@@ -2211,7 +2211,7 @@ class sdimaging_test_flag(sdimaging_unittest_base):
                             res.append(tb.getcell('DATA', irow)[0][0].real)
                     else:
                         if (tb.getcell('FLAG', irow)[0]==True).all():
-                            for k in xrange(3): res.append(0.0)
+                            for k in range(3): res.append(0.0)
                         else:
                             res.append(tb.getcell('DATA', irow)[0][0].real)
                             if (tb.getcell('FLAG', irow)[0][5]):
@@ -2227,9 +2227,9 @@ class sdimaging_test_flag(sdimaging_unittest_base):
         with tbmanager(file) as tb:
             val = tb.getcell(colname, 0)
 
-        for i in xrange(x_range[0], x_range[1]):
-            for j in xrange(y_range[0], y_range[1]):
-                for k in xrange(f_range[0], f_range[1]):
+        for i in range(x_range[0], x_range[1]):
+            for j in range(y_range[0], y_range[1]):
+                for k in range(f_range[0], f_range[1]):
                     diff_value = abs(val[i][j][0][k]-ref_value)
                     self.assertTrue(diff_value < tol)
 
@@ -2565,7 +2565,7 @@ class sdimaging_test_restfreq(sdimaging_unittest_base):
         tb.open(self.infiles+'/SOURCE', nomodify=False)
         rf = tb.getcell('REST_FREQUENCY',0)
         rf.resize(0)
-        for idx in xrange(tb.nrows()):
+        for idx in range(tb.nrows()):
             tb.putcell('REST_FREQUENCY', idx, rf)
             self.assertTrue(len(tb.getcell('REST_FREQUENCY',idx))==0)
         tb.flush()
@@ -2659,10 +2659,10 @@ class sdimaging_test_mapextent(unittest.TestCase):
             blc_ref[0] -= 360.0
         #self.verify_mapextent(npix_ref, blc_ref, trc_ref)
         # resulting map contain reference position
-        print 'npix', npix, 'npix_ref', npix_ref
-        print 'blc', blc, 'blc_ref', blc_ref
-        print 'trc', trc, 'trc_ref', trc_ref 
-        print 'extent', extent
+        print('npix', npix, 'npix_ref', npix_ref)
+        print('blc', blc, 'blc_ref', blc_ref)
+        print('trc', trc, 'trc_ref', trc_ref) 
+        print('extent', extent)
         # check if map area covers whole pointing data
         # this is done by comparing blc and trc with their references 
         # that are usually computed from actual distribution of 
@@ -2717,8 +2717,8 @@ class sdimaging_test_mapextent(unittest.TestCase):
         #trcf_ref = '00:46:27.547 +04.17.39.004'
         blcf_ref = '00:47:09.795 +04.17.10.435' #CAS-11955
         trcf_ref = '00:46:53.670 +04.19.57.935' #CAS-11955
-        blc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], blcf_ref.split()))
-        trc_ref = numpy.array(map(lambda x: qa.quantity(x)['value'], trcf_ref.split()))
+        blc_ref = numpy.array([qa.quantity(x)['value'] for x in blcf_ref.split()])
+        trc_ref = numpy.array([qa.quantity(x)['value'] for x in trcf_ref.split()])
         #blc_ref, trc_ref = get_mapextent_ephemeris(self.infiles_ephem)
         self.verify_mapextent(npix_ref, blc_ref, trc_ref)
     
@@ -2809,11 +2809,11 @@ class sdimaging_test_ephemeris(unittest.TestCase):
         with tbmanager(outfile) as tb:
             imdata = tb.getcell('map', 0)
             imsize = self.param_base['imsize']
-            for y in xrange(imsize):
+            for y in range(imsize):
                 # get min and max of non-zero pixels for each raster-scan row
                 xmin = imsize
                 xmax = 0
-                for x in xrange(imsize):
+                for x in range(imsize):
                     if imdata[x][y][0][0] > 0.0:
                         if x < xmin: xmin = x
                         if xmax < x: xmax = x
@@ -3198,15 +3198,15 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
             for infile in infiles:
                 mymsmd.open(infile)
                 try:
-                    for irow in xrange(int(mymsmd.nrows())):
+                    for irow in range(int(mymsmd.nrows())):
                         pointingdirection = mymsmd.pointingdirection(irow)['antenna1']['pointingdirection']
                         ra = pointingdirection['m0']['value']
                         dec = pointingdirection['m1']['value']
                         min_separation = 1e10
                         min_ra = -1
                         min_dec = -1
-                        for ira in xrange(imsize):
-                            for idec in xrange(imsize):
+                        for ira in range(imsize):
+                            for idec in range(imsize):
                                 gra = ra_list[ira]
                                 gdec = dec_list[idec]
                                 separation = math.sqrt(math.pow(ra - gra, 2) + math.pow(dec - gdec, 2))
@@ -3218,11 +3218,11 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
                 finally:
                     mymsmd.close()
             
-            print '### gridmeta', gridmeta
-            for ira in xrange(imsize):
-                for idec in xrange(imsize):
+            print('### gridmeta', gridmeta)
+            for ira in range(imsize):
+                for idec in range(imsize):
                     meta = gridmeta[ira][idec]
-                    for imeta in xrange(len(meta)):
+                    for imeta in range(len(meta)):
                         infile, irow = meta[imeta]
                         mytb.open(infile)
                         try:
@@ -3231,27 +3231,27 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
                             mytb.close()
                         grid[ira][idec].append(data)
             
-            for ira in xrange(imsize):
-                for idec in xrange(imsize):
+            for ira in range(imsize):
+                for idec in range(imsize):
                     data = numpy.asarray(grid[ira][idec], dtype=numpy.float64)
                     if len(data) < 3:
                         continue
-                    print '### ira', ira, 'idec', idec, 'data', data
-                    for ichan in xrange(data.shape[1]):
+                    print('### ira', ira, 'idec', idec, 'data', data)
+                    for ichan in range(data.shape[1]):
                         slice = data[:,ichan]
                         argmin = numpy.argmin(slice)
                         argmax = numpy.argmax(slice)
-                        print '### ira', ira, 'idec', idec, 'argmin', argmin, 'argmax', argmax
+                        print('### ira', ira, 'idec', idec, 'argmin', argmin, 'argmax', argmax)
                         for imeta in (argmin, argmax):
                             infile, irow = gridmeta[ira][idec][imeta]
                             mytb.open(infile, nomodify=False)
                             try:
-                                print '### clip', infile, 'row', irow, 'chan', ichan, 'data', mytb.getcell('FLOAT_DATA', irow)
+                                print('### clip', infile, 'row', irow, 'chan', ichan, 'data', mytb.getcell('FLOAT_DATA', irow))
                                 #mytb.putcell('FLAG_ROW', irow, True)
                                 flag = mytb.getcell('FLAG', irow)
-                                print '### flag (before)', flag
+                                print('### flag (before)', flag)
                                 flag[0,ichan] = True
-                                print '### flag (after)', flag
+                                print('### flag (after)', flag)
                                 mytb.putcell('FLAG', irow, flag)
                             finally:
                                 mytb.close()
@@ -3276,10 +3276,10 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         reference_mask = myia.getchunk(getmask=True)
         myia.close()
         
-        print '### result', result.flatten()
-        print '### mask', result_mask.flatten()
-        print '### reference', reference.flatten()
-        print '### mask', reference_mask.flatten()
+        print('### result', result.flatten())
+        print('### mask', result_mask.flatten())
+        print('### reference', reference.flatten())
+        print('### mask', reference_mask.flatten())
         
         self.assertTrue(numpy.all(result_mask == reference_mask))
         
@@ -3291,7 +3291,7 @@ class sdimaging_test_clipping(sdimaging_unittest_base):
         vdiff = numpy.vectorize(diff)
         err = vdiff(mresult, mreference)
         eps = 1.0e-6
-        print 'err = %s (max %s min %s)'%(err, err.max(), err.min())
+        print('err = %s (max %s min %s)'%(err, err.max(), err.min()))
         self.assertTrue(numpy.all(err < eps)) 
     
     def test_1row(self):

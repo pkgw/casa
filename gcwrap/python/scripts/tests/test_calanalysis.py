@@ -129,26 +129,26 @@ class calanalysis_tsys1_get(calanalysis_tsys1_base):
 
         for entry in ['valueErr', 'value', 'flag', 'frequency']:
             self.assertTrue(entry in out)
-            self.assertEquals(type(out[entry]), numpy.ndarray)
+            self.assertEqual(type(out[entry]), numpy.ndarray)
 
         for entry in ['feed', 'rap', 'antenna1', 'antenna2', 'field', 'abscissa']:
             self.assertTrue(entry in out)
-            self.assertEquals(type(out[entry]), str)
+            self.assertEqual(type(out[entry]), str)
 
-        self.assertEquals(out['rap'], 'REAL')
+        self.assertEqual(out['rap'], 'REAL')
 
     def _check_stats_items_values(self, stats):
         """ Sanity checks on the stats output from a calanalysis.get """
         stats_len = 392
-        self.assertEquals(type(stats), dict)
-        self.assertEquals(len(stats), stats_len)
+        self.assertEqual(type(stats), dict)
+        self.assertEqual(len(stats), stats_len)
         for idx in range(0, len(stats)):
-            self.assertEquals(len(stats[str(idx)]), 11)
+            self.assertEqual(len(stats[str(idx)]), 11)
             self._check_ca_get_out(stats[str(idx)])
-        self.assertEquals(stats['0']['feed'], '1')
-        self.assertEquals(stats['0']['field'], '0')
-        self.assertEquals(stats['1']['feed'], '2')
-        self.assertEquals(stats[str(stats_len-1)]['feed'], '2')
+        self.assertEqual(stats['0']['feed'], '1')
+        self.assertEqual(stats['0']['field'], '0')
+        self.assertEqual(stats['1']['feed'], '2')
+        self.assertEqual(stats[str(stats_len-1)]['feed'], '2')
 
     def test_get_empty(self):
         """ Test tool get function with wrong selections """
@@ -157,12 +157,12 @@ class calanalysis_tsys1_get(calanalysis_tsys1_base):
         # SPW 10 is missing
         stats10 = self.ca.get(spw='10', antenna=self.antennaName, axis='TIME',
                               ap='AMPLITUDE')
-        self.assertEquals(stats10, {})
+        self.assertEqual(stats10, {})
 
         # SPW 12 also missing
         stats12 = self.ca.get(spw='12', antenna=self.antennaName, axis='TIME',
                               ap='AMPLITUDE')
-        self.assertEquals(stats12, {})
+        self.assertEqual(stats12, {})
 
     def test_get_one_spw(self):
         """ Test tool get function. Uses the main stuff in CalAnalysys/CalStats::stats """
@@ -189,16 +189,16 @@ class calanalysis_tsys1_fit(calanalysis_tsys1_base):
         for entry in ['vars', 'frequency', 'res', 'valueErr', 'flag', 'covars',
                       'pars', 'value', 'model']:
             self.assertTrue(entry in fit['1'])
-            self.assertEquals(type(fit['1'][entry]), numpy.ndarray)
+            self.assertEqual(type(fit['1'][entry]), numpy.ndarray)
 
         for entry in ['feed', 'rap', 'antenna1', 'antenna2', 'weight', 'field',
                       'abscissa', 'order']:
             self.assertTrue(entry in fit['1'])
-            self.assertEquals(type(fit['1'][entry]), str)
+            self.assertEqual(type(fit['1'][entry]), str)
 
         for entry in ['resMean', 'redChi2', 'time', 'resVar']:
             self.assertTrue(entry in fit['1'])
-            self.assertEquals(type(fit['1'][entry]), float)
+            self.assertEqual(type(fit['1'][entry]), float)
 
         self.assertTrue(fit['1']['abscissa'], 'frequency')
         self.assertTrue(fit['1']['order'], 'LINEAR')
@@ -214,7 +214,7 @@ class calanalysis_tsys1_fit(calanalysis_tsys1_base):
         fit_amp = self.ca.fit(spw='13', axis='TIME', ap='AMPLITUDE', norm=True,
                               order='LINEAR', type='LSQ', weight=False)
         fit_len = 392
-        self.assertEquals(len(fit_amp), fit_len)
+        self.assertEqual(len(fit_amp), fit_len)
         self._check_ca_fit(fit_amp)
 
     def test_fit_phase(self):
@@ -224,7 +224,7 @@ class calanalysis_tsys1_fit(calanalysis_tsys1_base):
         fit_phase = self.ca.fit(spw='13', axis='TIME', ap='PHASE', unwrap=True,
                                 jumpmax=0.1, order='LINEAR', type='LSQ', weight=False)
         fit_len = 392
-        self.assertEquals(len(fit_phase), fit_len)
+        self.assertEqual(len(fit_phase), fit_len)
         self._check_ca_fit(fit_phase)
 
     def test_fit_amp_sel(self):
@@ -235,7 +235,7 @@ class calanalysis_tsys1_fit(calanalysis_tsys1_base):
         fit_amp_field = self.ca.fit(field='Callisto', spw='13', axis='TIME', ap='AMPLITUDE',
                                     norm=True, order='LINEAR', type='LSQ', weight=False)
         fit_len_field = 28
-        self.assertEquals(len(fit_amp_field), fit_len_field)
+        self.assertEqual(len(fit_amp_field), fit_len_field)
         self._check_ca_fit(fit_amp_field)
 
 

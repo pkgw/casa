@@ -22,15 +22,15 @@ datapath = os.environ.get('CASAPATH').split()[0] + '/data/regression/unittest/li
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/listvis/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'listvis tests will use data from '+datapath         
+print('listvis tests will use data from '+datapath)         
 
 # Reference files
 reffile = datapath+'reflistvis'

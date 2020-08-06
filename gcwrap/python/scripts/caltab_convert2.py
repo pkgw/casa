@@ -145,7 +145,7 @@ def caltab_convert2( caltabold, ms, pType, caltabnew='' ):
 	# Determine the scans and put them into the new-format caltable
 
 	scanTimes = get_scantimes( ms )
-	keys = scanTimes.keys()
+	keys = list(scanTimes.keys())
 
 	times = tbOld.getcol( 'TIME' )
 	scans = numpy.zeros( 0, dtype='int' )
@@ -243,7 +243,7 @@ def caltab_convert2( caltabold, ms, pType, caltabnew='' ):
 	tbDesc.open( caltabold + '/CAL_DESC' )
 
 	nDesc = tbDesc.nrows()
-	rDesc = range( nDesc )
+	rDesc = list(range( nDesc))
 
 	spwMap = tbDesc.getcol( 'SPECTRAL_WINDOW_ID' )[0]
 
@@ -325,7 +325,7 @@ def get_scantimes( ms ):
 	d = dict()
 
 	for r in range( tbHandle.nrows() ):
-		if not d.has_key( scans[r] ): d[scans[r]] = list()
+		if scans[r] not in d: d[scans[r]] = list()
 		d[scans[r]].append( times[r] )
 
 	tbHandle.close()
@@ -336,7 +336,7 @@ def get_scantimes( ms ):
 
 	scanTimes = dict()
 
-	for k in d.keys():
+	for k in list(d.keys()):
 		scanTimes[k] = dict()
 		scanTimes[k]['min'] = numpy.min( d[k] )
 		scanTimes[k]['max'] = numpy.max( d[k] )

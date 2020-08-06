@@ -77,7 +77,7 @@ startProc=time.clock()
 ##########################################################################
 ## Concatenate the separate sources
 ##
-print '--Copy/initialize (16apr98)--'
+print('--Copy/initialize (16apr98)--')
 copystring16apr='cp -r '+datapath+'n4826_16apr98.ms '+msfile
 os.system(copystring16apr)
 
@@ -101,7 +101,7 @@ listobs(vis=msfile)
 #
 # Set the flux density of 3C273 to 23 Jy
 #
-print '--Setjy (16apr98)--'
+print('--Setjy (16apr98)--')
 default('setjy')
 
 setjy(vis=msfile,field='0',fluxdensity=[23.0,0.,0.,0.])
@@ -113,7 +113,7 @@ setjy2time=time.time()
 #
 # Flag end channels
 #
-print '--Flagdata (16apr98)--'
+print('--Flagdata (16apr98)--')
 default('flagdata')
 
 flagdata(vis=msfile, spw='2~5:0;1;62;63', mode='manualflag')
@@ -125,7 +125,7 @@ flagdata2time=time.time()
 #
 # Derive gain calibration solutions, try VLA-like calibration:
 #
-print '--Gaincal (16apr98) --'
+print('--Gaincal (16apr98) --')
 default('gaincal')
 
 gcaltable = prefix + '.16apr98.gcal'
@@ -144,7 +144,7 @@ gaincal2time=time.time()
 #
 # Transfer the flux density scale:
 #
-print '--Fluxscale (16apr98)--'
+print('--Fluxscale (16apr98)--')
 default('fluxscale')
 
 fcaltable = prefix + '.16apr98.fcal'
@@ -167,7 +167,7 @@ fluxscale2time=time.time()
 # Correct the calibrater/target source data:
 # Use new parm spwmap to apply gain solutions derived from spwid1
 # to all other spwids... 
-print '--Applycal (16apr98)--'
+print('--Applycal (16apr98)--')
 default('applycal')
 
 applycal(vis=msfile,
@@ -185,7 +185,7 @@ correct2time=time.time()
 #
 # Split out calibrated target source and calibrater data:
 #
-print '--Split (16apr98)--'
+print('--Split (16apr98)--')
 default('split')
 
 calsplitms = prefix + '.16apr98.cal.split.ms'
@@ -208,7 +208,7 @@ split2time=time.time()
 #
 # Extra flagging
 #
-print '--More Flagdata (16apr98)--'
+print('--More Flagdata (16apr98)--')
 default('flagdata')
 
 flagdata(vis=srcsplitms, mode='manualflag',
@@ -225,7 +225,7 @@ flagdata(vis=srcsplitms, mode='manualflag',
 #
 # Image the calibrater data:
 #
-print '--Clean (cal)--'
+print('--Clean (cal)--')
 default('clean')
 
 calimage = prefix + '.16apr98.cal.clean'
@@ -244,7 +244,7 @@ imagecal2time=time.time()
 #
 # Image the target source mosaic:
 #
-print '--Clean (src)--'
+print('--Clean (src)--')
 default('clean')
 
 ### mosaic data ...Sault weighting implies a noise unform image
@@ -268,7 +268,7 @@ srcclnimage = srcimage + '.image'
 #
 #miriad:source velocity is 408; delta is 20 km/s; 24 maps
 #
-print '--ImMoments--'
+print('--ImMoments--')
 default('immoments')
 
 momfile = prefix + '.16apr98.moments'
@@ -291,7 +291,7 @@ endTime=time.time()
 #
 # Regression
 # 16 APR
-print '--Statistics (16apr98)--'
+print('--Statistics (16apr98)--')
 
 #
 # Get MS stats
@@ -329,12 +329,12 @@ thistest_imrms=momzerostat['rms'][0]
 #
 # Report a few key stats
 #
-print '  NGC4826 Image Cube Max = '+str(srcstat['max'][0])
-print "          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3])
-print '          '+srcstat['maxposf']
-print ''
-print '          Off-Source Rms = '+str(offstat['sigma'][0])
-print '          Signal-to-Noise ratio = '+str(im_srcmax16/im_offrms16)
+print('  NGC4826 Image Cube Max = '+str(srcstat['max'][0]))
+print("          At ("+str(srcstat['maxpos'][0])+","+str(srcstat['maxpos'][1])+") Channel "+str(srcstat['maxpos'][3]))
+print('          '+srcstat['maxposf'])
+print('')
+print('          Off-Source Rms = '+str(offstat['sigma'][0]))
+print('          Signal-to-Noise ratio = '+str(im_srcmax16/im_offrms16))
 #
 ##########################################################################
 #
@@ -402,54 +402,54 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='out.'+prefix+'.'+datestring+'.log'
 logfile=open(outfile,'w')
 
-print ''
-print '**************** NGC4826 Results *****************'
-print '*                                                *'
-print '--Cal visamp av (16apr98): '+str(thistest_cal_16apr)+' was '+str(calmean16)+' '+calvis_status
-print '--Src visamp av (16apr98): '+str(thistest_src_16apr)+' was '+str(srcmean16)+' '+srcvis_status
-print '--Cal image max (16apr98): '+str(im_calmax16)+' was '+str(calmax16)+' '+calmax_status
-print '--Src image max (16apr98): '+str(im_srcmax16)+' was '+str(srcmax16)+' '+srcmax_status
-print '--Off-src   rms (16apr98): '+str(im_offrms16)+' was '+str(offrms16)+' '+offrms_status
-print '--Moment  0 max (16apr98): '+str(thistest_immax)+' was '+str(immax)+' '+mom0max_status
-print '--Moment  0 rms (16apr98): '+str(thistest_imrms)+' was '+str(imrms)+' '+mom0rms_status
-print ''
+print('')
+print('**************** NGC4826 Results *****************')
+print('*                                                *')
+print('--Cal visamp av (16apr98): '+str(thistest_cal_16apr)+' was '+str(calmean16)+' '+calvis_status)
+print('--Src visamp av (16apr98): '+str(thistest_src_16apr)+' was '+str(srcmean16)+' '+srcvis_status)
+print('--Cal image max (16apr98): '+str(im_calmax16)+' was '+str(calmax16)+' '+calmax_status)
+print('--Src image max (16apr98): '+str(im_srcmax16)+' was '+str(srcmax16)+' '+srcmax_status)
+print('--Off-src   rms (16apr98): '+str(im_offrms16)+' was '+str(offrms16)+' '+offrms_status)
+print('--Moment  0 max (16apr98): '+str(thistest_immax)+' was '+str(immax)+' '+mom0max_status)
+print('--Moment  0 rms (16apr98): '+str(thistest_imrms)+' was '+str(imrms)+' '+mom0rms_status)
+print('')
 
-print >>logfile,'********** NGC4826 Regression ***********'
-print >>logfile,'*                                       *'
-print >>logfile,'* '+calvis_status+' cal mean amp (16apr)'
-print >>logfile,'--Cal mean amp (16apr) '+str(thistest_cal_16apr)+','+str(calmean16)
-print >>logfile,'* '+srcvis_status+' src mean amp (16apr)'
-print >>logfile,'--Src mean amp (16apr) '+str(thistest_src_16apr)+','+str(srcmean16)
-print >>logfile,'* '+calmax_status+' cal image max (16apr)'
-print >>logfile,'--Image max (cal;16apr): '+str(im_calmax16)+','+str(calmax16)
-print >>logfile,'* '+srcmax_status+' src image max (16apr)'
-print >>logfile,'--Image max (src;16apr): '+str(im_srcmax16)+','+str(srcmax16)
-print >>logfile,'* '+offrms_status+'   off-src rms (16apr)'
-print >>logfile,'--Image rms (off;16apr): '+str(im_offrms16)+','+str(offrms16)
-print >>logfile,'* '+mom0max_status+' mom 0 max test'
-print >>logfile,'--Image max '+str(thistest_immax)+','+str(immax)
-print >>logfile,'* '+mom0max_status+' mom 0 rms test'
-print >>logfile,'--Image rms '+str(thistest_imrms)+','+str(imrms)
+print('********** NGC4826 Regression ***********', file=logfile)
+print('*                                       *', file=logfile)
+print('* '+calvis_status+' cal mean amp (16apr)', file=logfile)
+print('--Cal mean amp (16apr) '+str(thistest_cal_16apr)+','+str(calmean16), file=logfile)
+print('* '+srcvis_status+' src mean amp (16apr)', file=logfile)
+print('--Src mean amp (16apr) '+str(thistest_src_16apr)+','+str(srcmean16), file=logfile)
+print('* '+calmax_status+' cal image max (16apr)', file=logfile)
+print('--Image max (cal;16apr): '+str(im_calmax16)+','+str(calmax16), file=logfile)
+print('* '+srcmax_status+' src image max (16apr)', file=logfile)
+print('--Image max (src;16apr): '+str(im_srcmax16)+','+str(srcmax16), file=logfile)
+print('* '+offrms_status+'   off-src rms (16apr)', file=logfile)
+print('--Image rms (off;16apr): '+str(im_offrms16)+','+str(offrms16), file=logfile)
+print('* '+mom0max_status+' mom 0 max test', file=logfile)
+print('--Image max '+str(thistest_immax)+','+str(immax), file=logfile)
+print('* '+mom0max_status+' mom 0 rms test', file=logfile)
+print('--Image rms '+str(thistest_imrms)+','+str(imrms), file=logfile)
 
 if ((diff_cal16apr<0.08) &(diff_src16apr<0.08) &(diff_calmax16<0.08) &(diff_srcmax16<0.08)
     &(diff_offrms16<0.08) &(diff_immax<0.08) &(diff_imrms<0.08) ):
 	regstate=True
-	print >>logfile,'---'
-	print >>logfile,'Passed Regression test for NGC 4826 Mosaic'
-	print >>logfile,'---'
-	print 'Passed Regression test for NGC 4826 Mosaic'
+	print('---', file=logfile)
+	print('Passed Regression test for NGC 4826 Mosaic', file=logfile)
+	print('---', file=logfile)
+	print('Passed Regression test for NGC 4826 Mosaic')
 else:
 	regstate=False
-	print >>logfile,'----FAILED Regression test for NGC 4826 Mosaic'
-	print '----FAILED Regression test for NGC 4826 Mosaic'
-print >>logfile,'*********************************'
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(300./(endTime - startTime))
-print >>logfile,'* Breakdown:                           *'
+	print('----FAILED Regression test for NGC 4826 Mosaic', file=logfile)
+	print('----FAILED Regression test for NGC 4826 Mosaic')
+print('*********************************', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(300./(endTime - startTime)), file=logfile)
+print('* Breakdown:                           *', file=logfile)
 
 logfile.close()
 

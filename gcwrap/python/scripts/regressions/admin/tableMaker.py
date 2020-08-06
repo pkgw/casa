@@ -29,7 +29,7 @@ class tableMaker:
   self.oldarchive(thedir)
   if self.header != '' and os.path.isfile(self.header):
       shutil.copy(self.header, self.pagename)
-  self.fd=os.open(self.pagename,os.O_APPEND|os.O_WRONLY,0644)
+  self.fd=os.open(self.pagename,os.O_APPEND|os.O_WRONLY,0o644)
   s='<title>'
   s+='Test results for '+time.strftime('%Y_%m_%d') +'</title>\n'
   os.write(self.fd,s)
@@ -58,7 +58,7 @@ class tableMaker:
   os.close(self.fd)
   if self.footer != '' and os.path.isfile(self.footer):
       os.system('cat '+self.footer+' >> '+self.pagename)
-  print 'table written to %s\n'%self.pagename
+  print('table written to %s\n'%self.pagename)
   return self.pagename
 
  def oldarchive(self, result_dir):
@@ -74,7 +74,7 @@ class tableMaker:
 
      a.sort(reverse=True)
 
-     fd=os.open(result_dir+'/archive.html', os.O_CREAT|os.O_WRONLY,0644)
+     fd=os.open(result_dir+'/archive.html', os.O_CREAT|os.O_WRONLY,0o644)
      s='<title>'
      s+='Archive of test results '+time.strftime('%Y_%m_%d') +'</title>\n'
      os.write(fd,s)

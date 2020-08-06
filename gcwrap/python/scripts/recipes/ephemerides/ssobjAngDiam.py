@@ -42,7 +42,7 @@ def ssobjangdiam(srcName, epoch, ephemdata="",unit=""):
 def findEphemTable(datapath,srcName, mjd):
 
     if not os.path.exists(datapath):
-       raise IOError, "%s does not exist"
+       raise IOError("%s does not exist")
 
     thetable = ""
     tblist = glob.glob(datapath+"*_J2000.tab")
@@ -58,6 +58,6 @@ def findEphemTable(datapath,srcName, mjd):
                break
       
     if thetable == "":
-        raise IOError, "Input epoch(mjd) = %s is out of the ranges of available ephemeris tables" % mjd
+        raise IOError("Input epoch(mjd) = %s is out of the ranges of available ephemeris tables" % mjd)
     return thetable
                    

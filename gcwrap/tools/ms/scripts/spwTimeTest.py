@@ -21,7 +21,7 @@ for i in range(0,23):
 endTime2=time.time();
 
 
-print "Time for auto-msplot:     " + str(endTime1-startTime1);
-print "Time for msplot in scrpt: " + str(endTime2-startTime2);
+print("Time for auto-msplot:     " + str(endTime1-startTime1));
+print("Time for msplot in scrpt: " + str(endTime2-startTime2));
 
 #mp.close();

@@ -22,15 +22,15 @@ datapath = os.environ.get('CASAPATH').split()[0] +\
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/fluxscale/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'fluxscale tests will use data from '+datapath         
+print('fluxscale tests will use data from '+datapath)         
 
     
 class fluxscale1_test(unittest.TestCase):
@@ -189,8 +189,8 @@ class fluxscale1_test(unittest.TestCase):
         try:
           thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
                   transfer='1445*', antenna='!24', timerange='>1995/04/13/09:38:00', incremental=True)
-        except exceptions.RuntimeError, instance:
-          print "Expected exception raised:",instance
+        except exceptions.RuntimeError as instance:
+          print("Expected exception raised:",instance)
 
     def test_antennaselwithscan(self):
         '''Fluxscale test 1.6: antenna selection with scan selection test'''
@@ -216,7 +216,7 @@ class fluxscale1_test(unittest.TestCase):
         thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
                   transfer='1445*,1331*', incremental=True)
         self.assertTrue(os.path.exists(outtable))
-        self.assertFalse(thisdict.has_key('0'))
+        self.assertFalse('0' in thisdict)
 
     def test_append(self):
         '''Fluxscale test 1.8: test append=True: append to the existing fluxtable'''
@@ -241,7 +241,7 @@ class fluxscale1_test(unittest.TestCase):
         thisdict = fluxscale(vis=self.msfile, caltable=gtable, fluxtable=outtable, reference='1331*',
                   transfer='1445*,1331*', append=True)
         self.assertTrue(os.path.exists(outtable))
-        self.assertFalse(thisdict.has_key('0'))
+        self.assertFalse('0' in thisdict)
         tblocal.open(outtable)
         nrowafter=tblocal.nrows() 
         tblocal.close()
@@ -705,11 +705,11 @@ class fluxscale_fit_test(unittest.TestCase):
         self.assertTrue(diff_fluxd<tol)
        
         diff_spidx0=abs(refdict['4']['spidx'][0]-thisdict['4']['spidx'][0])/refdict['4']['spidx'][0]
-        print ("diff for a_0 for field 4: diff_spidx0=",diff_spidx0)
+        print(("diff for a_0 for field 4: diff_spidx0=",diff_spidx0))
         self.assertTrue(diff_spidx0<tolspidx)
         diff_spidx3=abs(refdict['4']['spidx'][3]-thisdict['4']['spidx'][3])/refdict['4']['spidx'][3]
         self.assertTrue(diff_spidx3<tolspidx)
-        print ("diff for a_3 for field 4: diff_spidx3=",diff_spidx3)
+        print(("diff for a_3 for field 4: diff_spidx3=",diff_spidx3))
 
 def suite():
     return [fluxscale1_test, fluxscale2_test, fluxscale3_test, fluxscale_fit_test]

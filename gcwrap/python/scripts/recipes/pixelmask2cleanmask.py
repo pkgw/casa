@@ -24,7 +24,7 @@ def pixelmask2cleanmask(imagename='',maskname='mask0',maskimage='',usemasked=Fal
              inmaskname=msk
              break
     if inmaskname=='':
-        raise Exception, "mask %s does not exist. Available masks are: %s" % (maskname,masks)
+        raise Exception("mask %s does not exist. Available masks are: %s" % (maskname,masks))
 
     tb = casac.table()
     tb.open(imagename+'/'+maskname)

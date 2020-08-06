@@ -6,7 +6,7 @@ from tasks import flagdata, flagmanager
 from taskinit import aftool, tbtool
 from __main__ import default
 import exceptions
-import __builtin__
+import builtins
 from parallel.parallel_task_helper import ParallelTaskHelper
 from casa_stack_manip import stack_frame_find
 import flaghelper as fh
@@ -21,16 +21,16 @@ datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/fl
 
 # Pick up alternative data directory to run tests on MMSs
 testmms = False
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/flagdata/'
     if os.path.isdir(DATADIR):
         testmms = True
         datapath = DATADIR
 
-print 'flagmanager tests will use data from '+datapath         
+print('flagmanager tests will use data from '+datapath)         
 
 # jagonzal (CAS-4287): Add a cluster-less mode to by-pass parallel processing for MMSs as requested 
-if os.environ.has_key('BYPASS_PARALLEL_PROCESSING'):
+if 'BYPASS_PARALLEL_PROCESSING' in os.environ:
     ParallelTaskHelper.bypassParallelProcessing(1)
 
 # Local copy of the agentflagger tool
@@ -44,9 +44,9 @@ class test_base(unittest.TestCase):
         self.vis = "flagdatatest.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r '+datapath + self.vis +' '+ self.vis)
 
         os.system('rm -rf ' + self.vis + '.flagversions')
@@ -57,9 +57,9 @@ class test_base(unittest.TestCase):
         self.vis = "cal.fewscans.bpass"
 
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -122,7 +122,7 @@ class test_flagmanager_ms(test_base):
         if testmms:
             areg = self.vis+'/SUBMSS/*flagversions*'
             import glob
-            print 'Check for .flagversions in the wrong place.'
+            print('Check for .flagversions in the wrong place.')
             self.assertEqual(glob.glob(areg), [], 'There should not be any .flagversions in the'
                                                 ' SUBMSS directory')
             
@@ -140,19 +140,19 @@ class test_flagmanager_ms(test_base):
         flagmanager(vis=self.vis)
         ant2 = flagdata(vis=self.vis, mode='summary')['flagged']
 
-        print "After flagging antenna 2 there were", ant2, "flags"
+        print("After flagging antenna 2 there were", ant2, "flags")
 
         # Change flags, then restore
         flagdata(vis=self.vis, mode='manual', antenna="3", flagbackup=True)
         flagmanager(vis = self.vis)
         ant3 = flagdata(vis=self.vis, mode='summary')['flagged']
 
-        print "After flagging antenna 2 and 3 there were", ant3, "flags"
+        print("After flagging antenna 2 and 3 there were", ant3, "flags")
 
         flagmanager(vis=self.vis, mode='restore', versionname='flagdata_2')
         restore2 = flagdata(vis=self.vis, mode='summary')['flagged']
 
-        print "After restoring pre-antenna 2 flagging, there are", restore2, "flags; should be", ant2
+        print("After restoring pre-antenna 2 flagging, there are", restore2, "flags; should be", ant2)
 
         self.assertEqual(restore2, ant2)
 
@@ -161,8 +161,8 @@ class test_flagmanager_ms(test_base):
                   
         try:
             flagmanager(vis = self.vis,mode = "save",versionname = "")     
-        except IOError, e:
-            print 'Expected exception: %s'%e
+        except IOError as e:
+            print('Expected exception: %s'%e)
         
     def test_rename(self):
         '''flagmanager: do not overwrite an existing versionname'''
@@ -199,7 +199,7 @@ class test_flagmanager_ms(test_base):
         self.assertTrue(os.path.exists(self.vis+'.flagversions/flags.'+newname),
                         'Flagversions file does not exist: flags.'+newname)
         
-        print 'Move existing versionname to temporary name'
+        print('Move existing versionname to temporary name')
         flagmanager(vis=self.vis, mode='save', versionname=newname)
         flagmanager(vis=self.vis, mode='list')
         lf = os.listdir(self.vis+'.flagversions')
@@ -244,7 +244,7 @@ class test_flagmanager_ms(test_base):
         if testmms:
             areg = self.vis+'/SUBMSS/*flagversions*'
             import glob
-            print 'Check for .flagversions in the wrong place.'
+            print('Check for .flagversions in the wrong place.')
             self.assertEqual(glob.glob(areg), [], 'There should not be any .flagversions in the'
                                                 ' SUBMSS directory')
 
@@ -288,7 +288,7 @@ class test_flagmanager_caltables(test_base):
                         'Flagversion file does not exist: flags.'+newname)        
 
         self.assertEqual(flagsdict[0]['name'], newname, 'Dictionary should show new name of flag versions')
-        print flagsdict
+        print(flagsdict)
 
 # Cleanup class 
 class cleanup(test_base):

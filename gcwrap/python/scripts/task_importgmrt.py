@@ -129,7 +129,7 @@ def importgmrt( fitsfile, flagfile, vis ):
     try:
         casalog.post( 'Starting import ...', 'NORMAL' )
         importuvfits( fitsfile, vis )
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str(instance), 'SEVERE' )
         return retValue
 
@@ -139,11 +139,11 @@ def importgmrt( fitsfile, flagfile, vis ):
 
     # Write history
     try:
-        param_names = importgmrt.func_code.co_varnames[:importgmrt.func_code.co_argcount]
+        param_names = importgmrt.__code__.co_varnames[:importgmrt.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         ok &= write_history(myms, vis, 'importgmrt', param_names,
                             param_vals, casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
     
@@ -161,7 +161,7 @@ def importgmrt( fitsfile, flagfile, vis ):
             names.append( stations[idx].split(':')[0] )
         mytb.putcol( 'NAME', numpy.array( names ) )
         mytb.done()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( 'Unable to properly name the antennas, but continuing')
         casalog.post( str(instance), 'WARN' )
 
@@ -185,7 +185,7 @@ def importgmrt( fitsfile, flagfile, vis ):
         startObs = qa.time( str( trange[0] )+'s', prec=8, form='ymd' )[0]
         endObs   = qa.time( str( trange[1] )+'s', prec=8, form='ymd' )[0]
         
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( 'Unable to find obaservation start/en times', 'SEVERE' )
         casalog.post( str(instance), 'SEVERE' )
         return retValue
@@ -375,7 +375,7 @@ def importgmrt( fitsfile, flagfile, vis ):
                 aflocal.init()
                 aflocal.run(True, True)
                 aflocal.done()
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post( 'Unable to flag data from flag file '+file\
                               +'.\nAntennas='+antennas+' and timerange='\
                               +timerange, 'WARN' )

@@ -10,13 +10,13 @@ import pylab as pl
 startTime = time.time()
 startProc = time.clock()
 
-print '--Running simdata of test cube--'
+print('--Running simdata of test cube--')
 # configs are in the repository
 l=locals()
-if not l.has_key("repodir"):
+if "repodir" not in l:
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
-print 'I think the data repository is at '+repodir
+print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/simdata/"
 cfgdir=repodir+"/data/alma/simmos/"
 rmtables("testcube2")
@@ -49,7 +49,7 @@ thermalnoise=""
 verbose=True
 overwrite=True
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -86,7 +86,7 @@ datestring = datetime.datetime.isoformat(datetime.datetime.today())
 outfile    = project+"/"+project + '.' + datestring + '.log'
 logfile    = open(outfile, 'w')
 
-print 'Writing regression output to ' + outfile + "\n"
+print('Writing regression output to ' + outfile + "\n")
 
 loghdr = """
 ********** Regression *****************
@@ -94,14 +94,14 @@ loghdr = """
 
 
 
-print >> logfile, loghdr
+print(loghdr, file=logfile)
 
 regstate = True
 
 if max(abs(newdata.shape-pl.array(refshape)))<=0:
-    print >> logfile, "* Passed shape test with shape "+str(newdata.shape)
+    print("* Passed shape test with shape "+str(newdata.shape), file=logfile)
 else:
-    print >> logfile, "* FAILED shape test, expecting %s, got %s" % (str(refshape),str(newdata.shape))
+    print("* FAILED shape test, expecting %s, got %s" % (str(refshape),str(newdata.shape)), file=logfile)
     regstate = False
 
 cube_stats={'max':newdata.max(),
@@ -110,7 +110,7 @@ cube_stats={'max':newdata.max(),
             'std':newdata.std()}
 
 regstate=True
-rskes = refstats.keys()
+rskes = list(refstats.keys())
 rskes.sort()
 for ke in rskes:
     adiff=abs(cube_stats[ke] - refstats[ke])/abs(refstats[ke])
@@ -124,36 +124,36 @@ for ke in rskes:
         status=status+"%9.2e + %9.2ej , expected %9.2e + %9.2ej." % (cube_stats[ke].real, cube_stats[ke].imag, refstats[ke].real, refstats[ke].imag)
     else:
         status=status+"%9.2e          , expected %9.2e." % (cube_stats[ke], refstats[ke])
-    print >> logfile, status
+    print(status, file=logfile)
 
 
 
 
-print >> logfile,'---'
+print('---', file=logfile)
 if regstate:
-    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('Passed', end=' ', file=logfile)
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
-    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('FAILED', end=' ', file=logfile)
+    print('')
+    print('Regression FAILED')
+    print('')
 
-print >> logfile, 'regression test for simdata of test cube.'
-print >>logfile,'---'
-print >>logfile,'*********************************'
+print('regression test for simdata of test cube.', file=logfile)
+print('---', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,'********** Benchmarking **************'
-print >>logfile,''
-print >>logfile,'Total wall clock time was: %8.3f s.' % (endTime - startTime)
-print >>logfile,'Total CPU        time was: %8.3f s.' % (endProc - startProc)
-print >>logfile,'Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
-                                                         (endTime - startTime))
-print >>logfile,'*************************************'
+print('', file=logfile)
+print('********** Benchmarking **************', file=logfile)
+print('', file=logfile)
+print('Total wall clock time was: %8.3f s.' % (endTime - startTime), file=logfile)
+print('Total CPU        time was: %8.3f s.' % (endProc - startProc), file=logfile)
+print('Wall processing  rate was: %8.3f MB/s.' % (17896.0 /
+                                                         (endTime - startTime)), file=logfile)
+print('*************************************', file=logfile)
 
 logfile.close()
 
-print '--Finished simdata of test cube regression--'
+print('--Finished simdata of test cube regression--')

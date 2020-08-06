@@ -7,11 +7,11 @@ import shutil
 if os.path.exists(projname): shutil.rmtree(projname)
 
 l=locals() 
-if not l.has_key("repodir"): 
+if "repodir" not in l: 
     repodir=os.getenv("CASAPATH").split(' ')[0]
 
-print casa['build']
-print 'I think the data repository is at '+repodir
+print(casa['build'])
+print('I think the data repository is at '+repodir)
 datadir=repodir+"/data/regression/simdata/"
 if os.path.exists("6334.cl"): shutil.rmtree("6334.cl")
 shutil.copytree(datadir+"6334.cl","6334.cl")
@@ -34,7 +34,7 @@ totaltime          =  "7200s"
 antennalist        =  "alma.cycle0.extended.cfg"
 thermalnoise       =  ""
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -58,7 +58,7 @@ niter              =  500
 threshold          =  "0.1mJy"
 analyze            =  True
 
-if not l.has_key('interactive'): interactive=False
+if 'interactive' not in l: interactive=False
 if interactive:
     graphics="both"
 else:
@@ -79,17 +79,17 @@ regstate=True
 verbose=True
 import testhelper as th
 newImage=project+"/"+project + '.alma.cycle0.extended.image'
-if verbose: print newImage
+if verbose: print(newImage)
 templateImage=th.findTemplate("sim_testcomp",newImage)
 regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 
 newImage=project+"/"+project + '.alma.cycle0.extended.diff'
-if verbose: print newImage
+if verbose: print(newImage)
 templateImage=th.findTemplate("sim_testcomp",newImage)
 regstate=regstate and th.compImages(newImage,templateImage,verbose=verbose)
 
 newMS=project+"/"+project + '.alma.cycle0.extended.ms'
-if verbose: print newMS
+if verbose: print(newMS)
 templateMS=th.findTemplate("sim_testcomp",newMS)
 regstate=regstate and th.compMS(newMS,templateMS,verbose=verbose)
 
@@ -134,14 +134,14 @@ regstate=regstate and th.compMS(newMS,templateMS,verbose=verbose)
 #print >> logfile,'---'
 if regstate:
 #    print >> logfile, 'Passed',
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
 else:
 #    print >> logfile, 'FAILED',
-    print ''
-    print 'Regression FAILED'
-    print ''
+    print('')
+    print('Regression FAILED')
+    print('')
 #
 #print >> logfile, 'regression test for component-only simdata'
 #print >>logfile,'---'

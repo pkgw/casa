@@ -58,7 +58,7 @@ gl=sys._getframe(stacklevel).f_globals
 def data():
     ### return the data files that are needed by the regression script
     myfiles = []
-    for i in (pass_on['datasets']).keys():
+    for i in list((pass_on['datasets']).keys()):
         myfiles.append(pass_on['datasets'][i][0] + '.fits')
     myfiles.append('stokeslast-test.image')    
     myfiles.append('xxx-clean.image')    
@@ -84,7 +84,7 @@ def doCopy():
     ###   or 1 if the corresponding file should be really copied to
     ###   the work directory
     cp = []
-    for i in (pass_on['datasets']).keys():
+    for i in list((pass_on['datasets']).keys()):
         cp.append(0)
     cp.append(0)
     cp.append(0)
@@ -112,10 +112,10 @@ def run( fetch=False ):
     #####locate the regression script
     try: 
         lepath=locatescript('fits-import-export_regression.py')
-        print 'Script used is ',lepath
-        execfile(lepath, gl, pass_on)
+        print('Script used is ',lepath)
+        exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl, pass_on)
     except:
-        print 'execution failed: ', sys.exc_info()
+        print('execution failed: ', sys.exc_info())
         raise
 ###return the images that will be templated and compared in future runs
     return []

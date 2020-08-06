@@ -4,5 +4,5 @@
 #log# args = []
 #log# It is safe to make manual edits below here.
 #log#-----------------------------------------------------------------------
-execfile('/users/kgolap/python/findreplace.py')
+exec(compile(open('/users/kgolap/python/findreplace.py', "rb").read(), '/users/kgolap/python/findreplace.py', 'exec'))
 exit 

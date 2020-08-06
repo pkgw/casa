@@ -34,13 +34,13 @@ makeplots=False
 thesteps = []
 
 try:
-    print 'List of steps to be executed ...', mysteps
+    print('List of steps to be executed ...', mysteps)
     thesteps = mysteps
 except:
-    print 'global variable mysteps not set.'
+    print('global variable mysteps not set.')
 if (thesteps==[]):
-    thesteps = range(0,len(step_title))
-    print 'mysteps empty. Executing all steps: ', thesteps
+    thesteps = list(range(0,len(step_title)))
+    print('mysteps empty. Executing all steps: ', thesteps)
 
 # The Python variable 'mysteps' will control which steps
 # are executed when you start the script using
@@ -87,20 +87,20 @@ myephemeris = 'Titan_55197-59214dUTC_J2000.tab'
 
 # get the dataset name from the wrapper if possible
 mydict = locals()
-if mydict.has_key("asdm_dataset_name"):
+if "asdm_dataset_name" in mydict:
     if(myasdm_dataset_name != mydict["asdm_dataset_name"]):
         raise("Wrong input file 1")
-if mydict.has_key("asdm_dataset2_name"):
+if "asdm_dataset2_name" in mydict:
     if(myasdm_dataset2_name != mydict["asdm_dataset2_name"]):
         raise("Wrong input file 2")        
-if mydict.has_key("tsys_table"):
+if "tsys_table" in mydict:
     if(myephemeris != mydict["ephemeris"]):
         raise("Wrong input file 3")                
 
 # ephemeris attachment
 mystep = 0
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     for name in basename:
         fixplanets(vis=name+'.ms.split.cal.titan.spw0',
@@ -118,7 +118,7 @@ if(mystep in thesteps):
 # concat
 mystep = 1
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     myvis = []
     for name in basename:
@@ -132,7 +132,7 @@ if(mystep in thesteps):
 # selfcal
 mystep = 2
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     setjy(vis="titan.ms",field="0",spw="0",reffreq="1GHz",standard="Butler-JPL-Horizons 2010")
 
@@ -146,7 +146,7 @@ if(mystep in thesteps):
 # cvel
 mystep = 3
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     name = "titan.ms"
     os.system('rm -rf cvel_'+name)
@@ -172,7 +172,7 @@ if(mystep in thesteps):
 # imaging
 mystep = 4
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     os.system('rm -rf titanline.*')
     clean(vis="cvel_titan.ms",
@@ -194,7 +194,7 @@ if(mystep in thesteps):
 # verification
 mystep = 5
 if(mystep in thesteps):
-    print 'Step ', mystep, step_title[mystep]
+    print('Step ', mystep, step_title[mystep])
 
     passed = True
 
@@ -204,7 +204,7 @@ if(mystep in thesteps):
     theframe = mytb.getcell('MEAS_FREQ_REF', 0)
     mytb.close()
     if (theframe!=0):
-        print "ERROR: reference frame of SPW 0 in cvel_titan.ms should be REST==0 but is ", theframe
+        print("ERROR: reference frame of SPW 0 in cvel_titan.ms should be REST==0 but is ", theframe)
         passed = False
 
     # verify image properties 
@@ -314,12 +314,12 @@ if(mystep in thesteps):
         passed = False
 
     if not passed:
-        print "Regression FAILED"
-        raise Exception, ('Results are different from expectations by more than {0} percent.'.
+        print("Regression FAILED")
+        raise Exception('Results are different from expectations by more than {0} percent.'.
                           format(tolerance))
     else:
         casalog.post( "\nAll peak and RMS values within {0} percent of the expectation.".
                       format(tolerance))
-        print "Regression PASSED"
+        print("Regression PASSED")
 
-print 'Done.'
+print('Done.')

@@ -45,10 +45,10 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         try:
             # First check
             if tb.nrows() != tb2.nrows():
-                print 'Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows())
+                print('Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows()))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb.nrows()):
             
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
@@ -65,11 +65,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance)
+                                    print('ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance))
                                     break
                         else:
-                            print 'ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.'
-                            print 'ERROR: First row to differ is row=' + str(therow)
+                            print('ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.')
+                            print('ERROR: First row to differ is row=' + str(therow))
                             retval = False
                             break
         finally:
@@ -77,11 +77,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
             tb2.close()
     
     else:
-        print 'Column: ' +str(col) + 'are not varcolumns.'
+        print('Column: ' +str(col) + 'are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree'
+        print('Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree')
         
     return retval
  
@@ -144,7 +144,7 @@ class Test010_CorrectingBandpassCalib(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide:  Topical Guide Correcting Bandpass VLA Data'''
 
-        execfile('VLACASABandpassSlope.py')
+        exec(compile(open('VLACASABandpassSlope.py', "rb").read(), 'VLACASABandpassSlope.py', 'exec'))
                 
         return True
 
@@ -240,7 +240,7 @@ class Test021_CorrectingBandpassCalib(unittest.TestCase):
         flux1 = fluxscale(vis='G192-BP.ms', caltable='calG192.G1',  fluxtable='calG192.F1', reference='0', transfer='1', listfile='3C84.fluxinfo', fitorder=1)
         fluxDensity = float(flux1['1']['fitFluxd'])
         expected = 29.0285 
-        print "Expected: %s , Actual: %s"%(expected,fluxDensity)
+        print("Expected: %s , Actual: %s"%(expected,fluxDensity))
         assert 28.9976336 <= fluxDensity <= 29.0593664, "Error in Flux density for 3c84-J0319+413 with 28.9976336 <= %s <= 29.0593664"%(fluxDensity)
 
     def test_17_Spidx_3c84_J0319_413(self):
@@ -248,7 +248,7 @@ class Test021_CorrectingBandpassCalib(unittest.TestCase):
         flux1 = fluxscale(vis='G192-BP.ms', caltable='calG192.G1',  fluxtable='calG192.F1', reference='0', transfer='1', listfile='3C84.fluxinfo', fitorder=1)
         Spidx = float(flux1['1']['spidx'][1])
         expected = (-1.0) * 0.538791
-        print "Expected: %s , Actual: %s"%(expected,Spidx)
+        print("Expected: %s , Actual: %s"%(expected,Spidx))
         assert  ((-1.0)* 0.54762051) <= Spidx <= ((-1.0)* 0.52996149), "Error in Flux Spidx for 3c84-J0319+413 -0.54762051 <= %s <= -0.52996149" %(Spidx)
 
 class Test022_CorrectingBandpassCalib(unittest.TestCase):

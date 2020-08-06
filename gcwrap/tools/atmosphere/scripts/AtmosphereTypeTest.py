@@ -1,4 +1,4 @@
 #attool = casac.homefinder.find_home_by_name('atmosphereHome')
 myat = casac.atmosphere()
-print(myat.listAtmosphereTypes())
+print((myat.listAtmosphereTypes()))
 #exit()

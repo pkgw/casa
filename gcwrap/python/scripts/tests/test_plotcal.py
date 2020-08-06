@@ -13,14 +13,14 @@ import time
 datapath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/"
 
 # Read the data sets from another directory
-if os.environ.has_key('TEST_DATADIR'):  
+if 'TEST_DATADIR' in os.environ:  
     DATADIR = str(os.environ.get('TEST_DATADIR'))
     if os.path.isdir(DATADIR):
         datapath = DATADIR
     else:
-        print 'WARN: directory '+DATADIR+' does not exist'
+        print('WARN: directory '+DATADIR+' does not exist')
 
-print 'plotcal tests will use data from '+datapath
+print('plotcal tests will use data from '+datapath)
 
 class plotcal_test_base(unittest.TestCase):
 
@@ -80,7 +80,7 @@ class plotcal_test_base(unittest.TestCase):
     def checkPlotfile(self, plotfile, minSize, maxSize=None):
         self.assertTrue(os.path.isfile(plotfile), "Plot was not created")
         plotSize = os.path.getsize(plotfile)
-        print plotfile, 'file size is', plotSize
+        print(plotfile, 'file size is', plotSize)
         self.assertGreater(plotSize, minSize)
         if maxSize:
             self.assertLess(plotSize, maxSize)
@@ -137,7 +137,7 @@ class test_axes(plotcal_test_base):
                  'scan', 'amp', 'phase', 'real', 'imag', 'snr', 'delay',
                  'spgain']
         for axis in xaxes:
-            print "Testing", axis 
+            print("Testing", axis) 
             plotcal(caltable=self.Gtable, xaxis=axis, showgui=False, 
                     figfile=self.fig)
             # invalid axes for G table
@@ -153,7 +153,7 @@ class test_axes(plotcal_test_base):
         yaxes = ['amp', 'phase', 'real', 'imag', 'snr', 'antenna', 'antenna1',
                  'antenna2', 'scan', 'tsys', 'delay', 'spgain', 'tec']
         for axis in yaxes:
-            print "Testing", axis 
+            print("Testing", axis) 
             plotcal(caltable=self.Gtable, yaxis=axis, showgui=False, 
                     figfile=self.fig)
             # invalid axes for G table
@@ -198,7 +198,7 @@ class test_selection(plotcal_test_base):
         # with most cal tables you can't tell if circular or linear
         # plotcal works with either (plots 1st or 2nd axis)
         for poln in polns:
-            print "Select poln", poln
+            print("Select poln", poln)
             plotcal(caltable=self.Btable, poln=poln, showgui=False, 
                     figfile=self.fig)
             self.checkPlotfile(self.fig, 60000)
@@ -210,7 +210,7 @@ class test_selection(plotcal_test_base):
         self.setUpBms()
         fields = ['0', '1', '2']
         for field in fields:
-            print "Select field", field
+            print("Select field", field)
             plotcal(caltable=self.Btable, field=field, showgui=False, 
                     figfile=self.fig)
             if field=='0':

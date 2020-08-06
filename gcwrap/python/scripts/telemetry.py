@@ -5,7 +5,7 @@ import tarfile
 from casac import casac
 import datetime
 import time
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import __casac__
 import TelemetryLogMonitor
 import ssl
@@ -43,13 +43,13 @@ class telemetry:
         inactiveTLogSize = 0
 
         if (logfiles and logfiles[0] != None):
-            print "Found an existing telemetry logfile: " + self.logdir  + "/" + logfiles[0]
+            print("Found an existing telemetry logfile: " + self.logdir  + "/" + logfiles[0])
             casa['files']['telemetry-logfile'] = self.logdir  + "/" + logfiles[0]
             for i in range(1, len(logfiles)):
                 inactiveTLogSize = inactiveTLogSize + os.path.getsize(self.logdir  + "/" + logfiles[i])/1024
                 #print "Inactive log size: " + str(inactiveTLogSize)
         else :
-            print "Creating a new telemetry file"
+            print("Creating a new telemetry file")
             self.setNewTelemetryFile()
 
         # Setup Telemetry log size monitoring
@@ -65,14 +65,14 @@ class telemetry:
         # Subtract the inactive log sizes from the total log file size limit
         tLogSizeLimit = tLogSizeLimit - inactiveTLogSize
         if (tLogSizeLimit <= 0):
-            print "Telemetry log size limit exceeded. Disabling telemetry."
+            print("Telemetry log size limit exceeded. Disabling telemetry.")
             casa['state']['telemetry-enabled'] = False
         else :
             tLogMonitor = TelemetryLogMonitor.TelemetryLogMonitor()
             tLogMonitor.start(casa['files']['telemetry-logfile'],tLogSizeLimit, tLogSizeInterval, casa)
-            print "Telemetry initialized. Telemetry will send anonymized usage statistics to NRAO."
-            print 'You can disable telemetry by adding the following line to your ~/.casarc file:'
-            print 'EnableTelemetry: False'
+            print("Telemetry initialized. Telemetry will send anonymized usage statistics to NRAO.")
+            print('You can disable telemetry by adding the following line to your ~/.casarc file:')
+            print('EnableTelemetry: False')
 
     def setNewTelemetryFile(self):
         self.casa['files']['telemetry-logfile'] =  self.logdir + '/casastats-' + self.casaver +'-'  + self.hostid + "-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime()) + self.variantSuffix + '.log'
@@ -98,7 +98,7 @@ class telemetry:
             self.createStampFile()
             if (self.isSubmitInterval()):
                 postingUrl = 'https://casa.nrao.edu/cgi-bin/crash-report.pl'
-                if os.environ.has_key('CASA_CRASHREPORT_URL') :
+                if 'CASA_CRASHREPORT_URL' in os.environ :
                     postingUrl = os.environ['CASA_CRASHREPORT_URL']
                 self.send(postingUrl)
                 self.refreshStampFile()
@@ -144,8 +144,8 @@ class telemetry:
         # Test if internet connection is available.
         context = ssl._create_unverified_context()
         try:
-            urllib2.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
-        except urllib2.URLError as err:
+            urllib.request.urlopen('https://casa.nrao.edu/', timeout=20, context=context)
+        except urllib.error.URLError as err:
             self.logger.post("No telemetry server available. Not submitting data")
             return
 

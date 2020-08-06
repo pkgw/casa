@@ -23,7 +23,7 @@ def checktable(thename, theexpectation):
     global msname, myname
     tb.open(msname+"/"+thename)
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         value = tb.getcell(mycell[0], mycell[1])
         # see if value is array
         try:
@@ -46,13 +46,13 @@ def checktable(thename, theexpectation):
                 except:
                     in_agreement = False
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tb.close()
             return False
     tb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 
@@ -70,7 +70,7 @@ class test_createmultims(unittest.TestCase):
         os.chdir(datapath)
         for mymsname in sorted(glob.glob("part*.ms")):
             if not mymsname in filespresent:
-                print "Copying ", mymsname
+                print("Copying ", mymsname)
                 shutil.copytree(mymsname, cpath+'/'+mymsname)
         os.chdir(cpath)
 

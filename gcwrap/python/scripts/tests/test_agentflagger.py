@@ -13,9 +13,9 @@ class test_base(unittest.TestCase):
         self.vis = "cal.fewscans.bpass"
 
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -29,10 +29,10 @@ class test_base(unittest.TestCase):
         self.vis = "X7ef.tsys"
          
         if os.path.exists(self.vis):
-            print "The CalTable is already around, just unflag"
+            print("The CalTable is already around, just unflag")
             
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -46,9 +46,9 @@ class test_base(unittest.TestCase):
         self.vis = "Four_ants_3C286.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                          os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -62,9 +62,9 @@ class test_base(unittest.TestCase):
         self.vis = "TwoSpw.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -77,9 +77,9 @@ class test_base(unittest.TestCase):
         self.vis = "uid___A002_X30a93d_X43e_small.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -92,9 +92,9 @@ class test_base(unittest.TestCase):
         self.vis = "SDFloatColumn.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r ' + \
                         os.environ.get('CASAPATH').split()[0] +
                         "/data/regression/unittest/flagdata/" + self.vis + ' ' + self.vis)
@@ -159,7 +159,7 @@ class test_tsys(test_base):
         aflocal.done() 
         
         # Check the summary dictionary with field breakdown
-        fields = res['report0'].keys()
+        fields = list(res['report0'].keys())
         fields.remove('name')
         fields.remove('type')
         fflags1 = 0

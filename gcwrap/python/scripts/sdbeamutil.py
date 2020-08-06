@@ -51,7 +51,7 @@ class TheoreticalBeam:
         if my_qa.isangle(angle):
             return my_qa.getvalue(my_qa.convert(angle, "arcsec"))[0]
         elif my_qa.getunit(angle)=='': return float(angle)
-        else: raise ValueError, "Invalid angle: %s" % (str(angle))
+        else: raise ValueError("Invalid angle: %s" % (str(angle)))
 
     def __parse_width(self, val, cell_size_arcsec):
         """
@@ -63,7 +63,7 @@ class TheoreticalBeam:
         if my_qa.isangle(val): return self.__to_arcsec(val)
         elif my_qa.getunit(val) in ('', 'pixel'):
             return my_qa.getvalue(val)*cell_size_arcsec
-        else: raise ValueError, "Invalid width %s" % str(val)
+        else: raise ValueError("Invalid width %s" % str(val))
 
     
     def set_antenna(self, diam, blockage="0.0m", taper=10):
@@ -208,16 +208,16 @@ class TheoreticalBeam:
 
     def __assert_antenna(self):
         """Raise an error if antenna information is not set"""
-        if not self.is_antenna_set: raise RuntimeError, "Antenna is not set"
+        if not self.is_antenna_set: raise RuntimeError("Antenna is not set")
 
     def __assert_kernel(self):
         """Raise an error if imaging parameters are not set"""
-        if not self.is_kernel_set: raise RuntimeError, "Kernel is not set."
+        if not self.is_kernel_set: raise RuntimeError("Kernel is not set.")
 
     def __assert_sampling(self):
         """Raise an error if sampling information is not set"""
         if not self.is_sampling_set:
-            raise RuntimeError, "Sampling information is not set"
+            raise RuntimeError("Sampling information is not set")
 
     def get_antenna_beam(self):
         """
@@ -290,7 +290,7 @@ class TheoreticalBeam:
             return self.get_pb_kernel(axis,diam,self.ref_freq, epsilon=epsilon)
             #return (self.rootAiryIntensity(axis, epsilon))**2
         else:
-            raise RuntimeError, "Invalid kernel: %s" % self.kernel_type
+            raise RuntimeError("Invalid kernel: %s" % self.kernel_type)
 
     def summary(self):
         """Print summary of parameters set to the class"""
@@ -325,7 +325,7 @@ class TheoreticalBeam:
         casalog.post("reference frequency: %s" % str(self.ref_freq))
         casalog.post("cell size: %s arcsec" % str(self.cell_arcsec))
         casalog.post("kernel type: %s" % self.kernel_type)
-        for key, val in self.kernel_param.items():
+        for key, val in list(self.kernel_param.items()):
             casalog.post("%s: %s" % (key, str(val)))
 
     def __sampling_summary(self):
@@ -640,7 +640,7 @@ class TheoreticalBeam:
             parameters = np.asarray([fwhm_guess], dtype=np.float64)
         else:
             parameters = np.asarray([fwhm_guess,truncate], dtype=np.float64)
-        if (verbose): print "Fitting for %d parameters: guesses = %s" % (len(parameters), parameters)
+        if (verbose): print("Fitting for %d parameters: guesses = %s" % (len(parameters), parameters))
         xx = np.asarray(x, dtype=np.float64)
         yy = np.asarray(y, dtype=np.float64)
         lenx = len(x)
@@ -649,7 +649,7 @@ class TheoreticalBeam:
             xx = x[np.where(np.abs(x) < xwidth*0.5)[0]]
             yy = y[np.where(np.abs(x) < xwidth*0.5)[0]]
             if (verbose):
-                print "Keeping %d/%d points, guess = %f arcsec" % (len(x),lenx,fwhm_guess)
+                print("Keeping %d/%d points, guess = %f arcsec" % (len(x),lenx,fwhm_guess))
         result = optimize.leastsq(self.gaussfit_errfunc, parameters, args=(xx,yy),
                                   full_output=1)
         bestParameters = result[0]
@@ -658,13 +658,13 @@ class TheoreticalBeam:
         mesg = result[3]
         ier = result[4]
         if (verbose):
-            print "optimize.leastsq: ier=%d, #calls=%d, message = %s" % (ier,numberFunctionCalls,mesg)
+            print("optimize.leastsq: ier=%d, #calls=%d, message = %s" % (ier,numberFunctionCalls,mesg))
         if (type(bestParameters) == list or type(bestParameters) == np.ndarray):
             fwhm = bestParameters[0]
-            if verbose: print "fitted FWHM = %f" % (fwhm)
+            if verbose: print("fitted FWHM = %f" % (fwhm))
             if (truncate != False):
                 truncate = bestParameters[1]
-                print "optimized truncation = %f" % (truncate)
+                print("optimized truncation = %f" % (truncate))
         else:
             fwhm = bestParameters
         return(fwhm,truncate)
@@ -695,7 +695,7 @@ def findFWHM(x,y,level=0.5, s=0):
         #result = 2*findZeroCrossingBySlope(x, y-halfmax)
         #return(result)
         errmsg = "Unsupported FWHM search in CASA. More than two corssings (%d) at level %f (%f %% of peak)." % (len(result), halfmax, level)
-        raise Exception, errmsg
+        raise Exception(errmsg)
 
 def primaryBeamArcsec(frequency, diameter, obscuration, taper, 
                       showEquation=True, use2007formula=True, fwhmfactor=None):
@@ -719,7 +719,7 @@ def primaryBeamArcsec(frequency, diameter, obscuration, taper,
     if (taper < 0):
         taper = abs(taper)
     if (obscuration>0.4*diameter):
-        print "This central obscuration is too large for the method of calculation employed here."
+        print("This central obscuration is too large for the method of calculation employed here.")
         return
     if (type(frequency) == str):
         my_qa = qatool()
@@ -747,7 +747,7 @@ def effectiveTaper(fwhmFactor=1.16, diameter=12, obscuration=0.75,
     """
     cOF = centralObstructionFactor(diameter, obscuration)
     if (fwhmFactor < 1.02 or fwhmFactor > 1.22):
-        print "Invalid fwhmFactor (1.02<fwhmFactor<1.22)"
+        print("Invalid fwhmFactor (1.02<fwhmFactor<1.22)")
         return
     if (baarsTaperFactor(10,use2007formula)*cOF<fwhmFactor):
         increment = 0.01

@@ -411,7 +411,7 @@ def simobserve(
             # (set back to simdata - there must be an automatic way to do this)
             casalog.origin('simobserve')
 
-            for k in xrange(0,nant): antnames.append('A%02d'%k)
+            for k in range(0,nant): antnames.append('A%02d'%k)
             aveant = stnd.mean()
             # TODO use max ant = min PB instead?
             pb = pbcoeff*0.29979/qa.convert(qa.quantity(model_specrefval),'GHz')['value']/aveant*3600.*180/pl.pi # arcsec
@@ -685,7 +685,7 @@ def simobserve(
         ymax=ymax+pb*relmargin/3600
         overlap = False
         # wrapang in median_direction should make offsets always small, not >360
-        for i in xrange(offsets.shape[1]):
+        for i in range(offsets.shape[1]):
             xc = pl.absolute(offsets[0,i]+shift[0])  # offsets and shift are in degrees
             yc = pl.absolute(offsets[1,i]+shift[1])
             if xc < xmax and yc < ymax:
@@ -779,7 +779,7 @@ def simobserve(
                     plotpb(pb,pl.gca(),lims=lims,color=plotcolor)
             else:
                 from matplotlib.patches import Circle
-                for i in xrange(offsets.shape[1]):
+                for i in range(offsets.shape[1]):
                     pl.gca().add_artist(Circle(
                         ((offsets[0,i]+shift[0])*3600,
                          (offsets[1,i]+shift[1])*3600),
@@ -942,7 +942,7 @@ def simobserve(
             sm.settimes(integrationtime=integration, usehourangle=usehourangle, 
                         referencetime=mereftime)
 
-            for k in xrange(0,nfld):
+            for k in range(0,nfld):
                 src = project + '_%d' % k
                 sm.setfield(sourcename=src, sourcedirection=pointings[k],
                             calcode="OBJ", distance='0m')
@@ -1034,7 +1034,7 @@ def simobserve(
                                stoptimes=stoptimes,
                                project=project)
 
-            sm.setdata(fieldid=range(0,nfld))
+            sm.setdata(fieldid=list(range(0,nfld)))
             if uvmode or components_only: #Interferometer only
                 sm.setvp(dovp=True,usedefaultvp=False)
                 # only use mosaic gridding for Het arrays for now - 
@@ -1396,25 +1396,25 @@ def simobserve(
         if os.path.exists(fileroot+"/"+project+".noisy.sd.T.cal"):
             shutil.rmtree(fileroot+"/"+project+".noisy.sd.T.cal")
 
-    except TypeError, e:
+    except TypeError as e:
         finalize_tools()
         #msg("simobserve -- TypeError: %s" % e, priority="error")
         casalog.post("simobserve -- TypeError: %s" % e, priority="ERROR")
-        raise TypeError, e
+        raise TypeError(e)
         return False
-    except ValueError, e:
+    except ValueError as e:
         finalize_tools()
         #print "task_simobserve -- OptionError: ", e
         #msg("simobserve -- OptionError: %s" % e, priority="error")
         casalog.post("simobserve -- OptionError: %s" % e, priority="ERROR")
-        raise ValueError, e
+        raise ValueError(e)
         return False
-    except Exception, instance:
+    except Exception as instance:
         finalize_tools()
         #print '***Error***',instance
         #msg("simobserve -- Exception: %s" % instance, priority="error")
         casalog.post("simobserve -- Exception: %s" % instance, priority="ERROR")
-        raise Exception, instance
+        raise Exception(instance)
         return False
     return True
 
@@ -1441,7 +1441,7 @@ def plotpb(pb,axes,lims=None,color='k'):
         pblegend.set_alpha(0.7)
         axes.add_artist(pblegend)
     except:
-        print "Using old matplotlib substituting with circle"
+        print("Using old matplotlib substituting with circle")
         # work around for old matplotlib
         boxsize = pb*1.1
         if not lims: lims = axes.get_xlim(),axes.get_ylim()

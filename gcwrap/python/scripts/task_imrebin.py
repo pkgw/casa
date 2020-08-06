@@ -26,9 +26,9 @@ def imrebin(
     outia = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         if (type(region) != type({})):
             myrg = rgtool()
             reg = myrg.frombcs(
@@ -42,16 +42,16 @@ def imrebin(
             overwrite=overwrite, stretch=stretch, crop=crop
         )
         try:
-            param_names = imrebin.func_code.co_varnames[:imrebin.func_code.co_argcount]
+            param_names = imrebin.__code__.co_varnames[:imrebin.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             write_image_history(
                 outia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

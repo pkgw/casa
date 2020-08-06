@@ -30,7 +30,7 @@ def get_antenna_position(vis, row):
         mytb.close()
         
     posref = poskey['MEASINFO']['Ref']
-    qpos = [qa.quantity(v,u) for v,u in itertools.izip(pos, poskey['QuantumUnits'])]
+    qpos = [qa.quantity(v,u) for v,u in zip(pos, poskey['QuantumUnits'])]
     mantpos = me.position(rf=posref, v0=qpos[0], v1=qpos[1], v2=qpos[2])
     
     return mantpos
@@ -57,7 +57,7 @@ def get_valid_pointing_info(vis):
         mytb.close()
         
     dirref = dirkey['MEASINFO']['Ref']
-    qdir = [qa.quantity(v,u) for v,u in itertools.izip(pdir[:,0], dirkey['QuantumUnits'])]
+    qdir = [qa.quantity(v,u) for v,u in zip(pdir[:,0], dirkey['QuantumUnits'])]
     mpdir = me.direction(rf=dirref, v0=qdir[0], v1=qdir[1])
 
     timeref = timekey['MEASINFO']['Ref']
@@ -94,14 +94,14 @@ class importnro_test(unittest.TestCase):
     def test_overwrite(self):
         """test_overwrite: File existence check"""
         shutil.copy(self.infile, self.outfile)
-        with self.assertRaisesRegexp(RuntimeError, '.* exists\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* exists\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_invaliddata(self):
         """test_invaliddata: Invalid data check"""
         with open(self.infile, 'wb') as f: f.write('AA')
         #os.remove(os.path.join(self.infile, 'table.info'))
-        with self.assertRaisesRegexp(RuntimeError, '.* is not a valid NOSTAR data\.$') as cm:
+        with self.assertRaisesRegex(RuntimeError, '.* is not a valid NOSTAR data\.$') as cm:
             importnro(infile=self.infile, outputvis=self.outfile, overwrite=False)
     
     def test_normal(self):
@@ -113,8 +113,8 @@ class importnro_test(unittest.TestCase):
             myms.open(self.outfile)
             myms.close()
             
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
             self.fail('outputvis is not a valid ms')
         
         # check weight initialization
@@ -140,13 +140,13 @@ class importnro_test(unittest.TestCase):
             
             _tb.open(os.path.join(vis, 'SPECTRAL_WINDOW'))
             nrow = _tb.nrows()
-            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in xrange(nrow))
+            g = (numpy.mean(_tb.getcell('EFFECTIVE_BW', irow)) for irow in range(nrow))
             effbws = numpy.fromiter(g, dtype=float)
             _tb.close()
             
             _tb.open(vis)
             nrow = _tb.nrows()
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 weight = _tb.getcell('WEIGHT', irow)
                 sigma = _tb.getcell('SIGMA', irow)
                 interval = _tb.getcell('INTERVAL', irow)
@@ -237,7 +237,7 @@ class importnro_test(unittest.TestCase):
         finally:
             mytb.close()
             
-        for t, dt in itertools.izip(source_time, source_interval):
+        for t, dt in zip(source_time, source_interval):
             source_time_range = numpy.asarray([t-dt/2, t+dt/2])
             diff = numpy.abs((source_time_range - time_range) / time_range)
             #print 'diff={}'.format(diff)
@@ -301,7 +301,7 @@ class importnro_test(unittest.TestCase):
             colkeys = tb.getcolkeywords(colname)
             self.assertTrue('QuantumUnits' in colkeys)
             column_unit = colkeys['QuantumUnits'][0]
-            print('{0} unit is {1}'.format(colname, column_unit))
+            print(('{0} unit is {1}'.format(colname, column_unit)))
             self.assertEqual(column_unit, unit)
             
             # value should be in reasonable range

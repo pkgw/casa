@@ -14,9 +14,9 @@ def imsubimage(
     tmp_csys = None
     try:
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified."
+            raise Exception("outfile must be specified.")
         xregion = region
         if (type(region) != type({})):
             tmp_csys = myia.coordsys()
@@ -30,16 +30,16 @@ def imsubimage(
             overwrite=overwrite, list=verbose, stretch=stretch, keepaxes=keepaxes
         )
         try:
-            param_names = imsubimage.func_code.co_varnames[:imsubimage.func_code.co_argcount]
+            param_names = imsubimage.__code__.co_varnames[:imsubimage.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             write_image_history(
                 outia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
         raise
     finally:

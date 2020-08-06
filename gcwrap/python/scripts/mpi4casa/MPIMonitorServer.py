@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import thread # To handle service threads like monitoring
+import _thread # To handle service threads like monitoring
 import time # To handle sleep times
 import traceback # To pretty-print tracebacks
 import os
@@ -7,10 +7,10 @@ import os
 from taskinit import casalog
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommunicator singleton
-from MPICommunicator import MPICommunicator
+from .MPICommunicator import MPICommunicator
 
 
 class MPIMonitorServer: 
@@ -161,7 +161,7 @@ class MPIMonitorServer:
             
             try:
                 self.__ping_status_request_handler_service_on = True
-                self.__ping_status_request_handler_service_thread = thread.start_new_thread(self.__ping_status_request_handler_service, ())
+                self.__ping_status_request_handler_service_thread = _thread.start_new_thread(self.__ping_status_request_handler_service, ())
             except Exception as instance:
                 self.__ping_status_request_handler_service_on = False
                 self.__ping_status_request_handler_service_running = False

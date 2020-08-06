@@ -38,7 +38,7 @@ def checktable(thename, theexpectation, dataslice=[]):
     if thename == "":
         thename = "MAIN"
     for mycell in theexpectation:
-        print myname, ": comparing ", mycell
+        print(myname, ": comparing ", mycell)
         if mycell[0]=="DATA" or mycell[0]=="CHAN_WIDTH" or mycell[0]=="CHAN_FREQ":
 	    value = tb.getcellslice(mycell[0], mycell[1],dataslice[0],dataslice[1],dataslice[2])
 	else:
@@ -54,7 +54,7 @@ def checktable(thename, theexpectation, dataslice=[]):
             else:
                 in_agreement = ( abs(value - mycell[2]) < mycell[3]) 
         else:
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 in_agreement = value == mycell[2]
             else:
                 # it's an array
@@ -67,13 +67,13 @@ def checktable(thename, theexpectation, dataslice=[]):
                     except:
                         in_agreement = False
         if not in_agreement:
-            print myname, ":  Error in MS subtable", thename, ":"
-            print "     column ", mycell[0], " row ", mycell[1], " contains ", value
-            print "     expected value is ", mycell[2]
+            print(myname, ":  Error in MS subtable", thename, ":")
+            print("     column ", mycell[0], " row ", mycell[1], " contains ", value)
+            print("     expected value is ", mycell[2])
             tb.close()
             return False
     tb.close()
-    print myname, ": table ", thename, " as expected."
+    print(myname, ": table ", thename, " as expected.")
     return True
 
 
@@ -103,7 +103,7 @@ class test_importmiriad(unittest.TestCase):
         retValue = {'success': True, 'msgs': "", 'error_msgs': '' }    
 
         self.res = importmiriad(my_dataset_names[0], msname,tsys=False)
-        print myname, ": Success! Now checking output ..."
+        print(myname, ": Success! Now checking output ...")
         mscomponents = set(["table.dat",
                             "table.f0",
 			    "table.f0i",
@@ -153,21 +153,21 @@ class test_importmiriad(unittest.TestCase):
                             ])
         for name in mscomponents:
             if not os.access(msname+"/"+name, os.F_OK):
-                print myname, ": Error  ", msname+"/"+name, "doesn't exist ..."
+                print(myname, ": Error  ", msname+"/"+name, "doesn't exist ...")
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']+msname+'/'+name+' does not exist'
             else:
-                print myname, ": ", name, "present."
-        print myname, ": MS exists. All tables present. Try opening as MS ..."
+                print(myname, ": ", name, "present.")
+        print(myname, ": MS exists. All tables present. Try opening as MS ...")
         try:
             ms.open(msname)
         except:
-            print myname, ": Error  Cannot open MS table", tablename
+            print(myname, ": Error  Cannot open MS table", tablename)
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']+'Cannot open MS table '+tablename
         else:
             ms.close()
-            print myname, ": OK. Checking tables in detail ..."
+            print(myname, ": OK. Checking tables in detail ...")
             retValue['success']=True
     
             # check main table first

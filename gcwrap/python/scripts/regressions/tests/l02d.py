@@ -21,12 +21,12 @@ def data():
 
 def run(fetch=False):
     lepath=locatescript('l02d_regression.py')
-    print 'Script used is ',lepath
+    print('Script used is ',lepath)
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 
 ###return the images that will be templated and compared in future runs
     return ['l2.3mmcont.image', 'l2.1mm.image',  'l02d.3mmcont.image', 'l02d.1mmcont.image', 'l02d.c34s.image', 'l02d.ch3oh.image' ]

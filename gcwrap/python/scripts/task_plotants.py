@@ -126,7 +126,7 @@ def getPlotantsAntennaInfo(msname, log, exclude, checkbaselines):
 		for (x, y, z) in tb.getcol('POSITION').transpose()])
 	tb.close()
 
-	allAntIds = range(len(antNames))
+	allAntIds = list(range(len(antNames)))
 	if checkbaselines:
 		# Get antenna ids from main table; this will add to runtime
 		tb.open(msname)
@@ -153,7 +153,7 @@ def getPlotantsAntennaInfo(msname, log, exclude, checkbaselines):
 	stationNames = [stationNames[i] for i in antIdsUsed]
 
 	nAnts = len(antIdsUsed)
-	print "Number of points being plotted:", nAnts
+	print("Number of points being plotted:", nAnts)
 	casalog.post("Number of points being plotted: " + str(nAnts))
 	if nAnts == 0: # excluded all antennas
 		return telescope, antNames, [], [], []

@@ -10,8 +10,8 @@ import numpy as np
 from taskinit import *
 try:
     from xml.dom import minidom
-except ImportError, e:
-    print "failed to load xml.dom.minidom:\n", e
+except ImportError as e:
+    print("failed to load xml.dom.minidom:\n", e)
     exit(1)
 
 def listsdm(sdm=None):
@@ -359,7 +359,7 @@ def listsdm(sdm=None):
             SPWs += spw
         #printSPWs = sorted(SPWs)
         printSPWs = list(set(SPWs))
-        casalog.post("  %s - %s %s %s  %s %s  %s" % (startTimeShort[i], endTimeShort[i], str(scandict.keys()[i]).rjust(4), str(scandict[scan]['field']).rjust(5), scandict[scan]['source'].ljust(15), str(printSPWs), scandict[scan]['intent']))
+        casalog.post("  %s - %s %s %s  %s %s  %s" % (startTimeShort[i], endTimeShort[i], str(list(scandict.keys())[i]).rjust(4), str(scandict[scan]['field']).rjust(5), scandict[scan]['source'].ljust(15), str(printSPWs), scandict[scan]['intent']))
         i = i + 1
 
     casalog.post(" ")

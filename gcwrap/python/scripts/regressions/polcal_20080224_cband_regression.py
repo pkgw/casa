@@ -50,9 +50,9 @@ scriptprefix = 'polcal_20080224_cband_regression'
 # Clean up old files
 os.system('rm -rf '+prefix+'*')
 
-print 'Regression Script for VLA POLCAL C-Band Data'
-print 'Will do: import, flagging, calibration, imaging, analysis'
-print ''
+print('Regression Script for VLA POLCAL C-Band Data')
+print('Will do: import, flagging, calibration, imaging, analysis')
+print('')
 
 #=====================================================================
 
@@ -237,10 +237,10 @@ pcalmodel['2202+422'] = pcalfield
 #
 # Set the polmodel from pcalmodel
 #
-print '--Setting up Polarization models--'
+print('--Setting up Polarization models--')
 
 polmodel = {}
-for field in pcalmodel.keys() :
+for field in list(pcalmodel.keys()) :
     spwmodel = {}
     # the RLPD is atan2(U,Q) so Q=I*P/I*cos(RLPD)  U=I*P/I*sin(RLPD)
     for spw in usespwlist:
@@ -265,8 +265,8 @@ for field in pcalmodel.keys() :
     
     polmodel[field] = spwmodel
 
-print "Created polmodel dictionary"
-print polmodel
+print("Created polmodel dictionary")
+print(polmodel)
 #
 #=====================================================================
 # Start processing
@@ -285,8 +285,8 @@ if ( importmode == 'vla' ):
     #
     # Import the data from VLA Export to MS
     #
-    print '--ImportVLA--'
-    print "Use importvla to read VLA Export and make an MS"
+    print('--ImportVLA--')
+    print("Use importvla to read VLA Export and make an MS")
     
     importvla(archivefiles=datafile,
               vis=msfile,
@@ -299,8 +299,8 @@ elif ( importmode == 'fits' ):
     #
     # Import the data from VLA Export to MS
     #
-    print '--ImportUVFITS--'
-    print "Use importuvfits to read UVFITS and make an MS"
+    print('--ImportUVFITS--')
+    print("Use importuvfits to read UVFITS and make an MS")
 
     importuvfits(fitsfile=datafile,
                  vis=msfile,
@@ -310,8 +310,8 @@ else:
     #
     # Copy from msfile
     #
-    print '--MS Copy--'
-    print "Copying "+datafile+" to "+msfile
+    print('--MS Copy--')
+    print("Copying "+datafile+" to "+msfile)
     os.system('cp -r '+datafile+' '+msfile)
     
 
@@ -321,9 +321,9 @@ if benchmarking:
 #
 #=====================================================================
 #
-print '--Listobs--'
+print('--Listobs--')
 
-print "List summary of MS"
+print("List summary of MS")
 
 listobs(vis=msfile)
 
@@ -439,8 +439,8 @@ if ( myquackinterval > 0.0 ):
     #
     # First quack the data
     #
-    print '--Flagdata (scan starts)--'
-    print "Quacking scan beginnings using interval "+str(myquackinterval)
+    print('--Flagdata (scan starts)--')
+    print("Quacking scan beginnings using interval "+str(myquackinterval))
     flagdata(vis=msfile,
              correlation='',
              field='',
@@ -451,8 +451,8 @@ if ( myquackinterval > 0.0 ):
     
 #
 if (flagants != '' and not flagants.isspace() ):
-    print '--Flagdata (antennas)--'
-    print "Flag all data to AN "+flagants
+    print('--Flagdata (antennas)--')
+    print("Flag all data to AN "+flagants)
     
     flagdata(vis=msfile,
              correlation='',
@@ -464,8 +464,8 @@ if (flagants != '' and not flagants.isspace() ):
 flagtimes = '19:06:50~19:06:57,19:21:17~19:21:20'
 #
 if (flagtimes != '' and not flagtimes.isspace() ):
-    print '--Flagdata (timerange)--'
-    print "Flag timeranges "+flagtimes
+    print('--Flagdata (timerange)--')
+    print("Flag timeranges "+flagtimes)
     
     flagdata(vis=msfile,
              correlation='',
@@ -486,13 +486,13 @@ if benchmarking:
 # Set the fluxes of the primary calibrator(s)
 #
 if ( setjymode == 'flux' ):
-    print '--Setjy--'
+    print('--Setjy--')
 
-    print "Use setjy to set flux of "+fluxcalfield+" to point model"
+    print("Use setjy to set flux of "+fluxcalfield+" to point model")
     
     # Loop over spw
     for spw in usespwlist:
-        print "Setting SPW "+spw+" to "+str(fluxdensity)
+        print("Setting SPW "+spw+" to "+str(fluxdensity))
         setjy(vis=msfile,    
               field=fluxcalfield,
               spw=usespw,
@@ -503,20 +503,20 @@ if ( setjymode == 'flux' ):
 
 
 elif ( setjymode == 'ft' ):
-    print '--FT--'
+    print('--FT--')
 
     for spw in usespwlist:
         model = fluxcaldir + fluxcalmodel+'_'+spw+'_IQUV.model'
-        print "Use FT to set model "+model
+        print("Use FT to set model "+model)
         ft(vis=msfile,
            field=fluxcalfield,
            model=model)
     
 else:
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
     
-    print "Use setjy to set flux of "+fluxcalfield
+    print("Use setjy to set flux of "+fluxcalfield)
     
     setjy(vis=msfile,
           field=fluxcalfield,
@@ -535,7 +535,7 @@ else:
     #  SETJY     '0137+331        ' IF =  1 FLUX = 5.4054 (Jy calcd)
     #  SETJY     '0137+331        ' IF =  2 FLUX = 5.4585 (Jy calcd)
     
-    print "Look in logger for the fluxes (should be 5.405 and 5.458 Jy)"
+    print("Look in logger for the fluxes (should be 5.405 and 5.458 Jy)")
 
 if benchmarking:
     setjy2time=time.time()
@@ -544,12 +544,12 @@ if benchmarking:
 #
 # Initial gain calibration
 #
-print '--Gaincal--'
+print('--Gaincal--')
 
-print "Solve for antenna gains on sources "+gaincalfield
-print "We have 2 single-channel continuum spw"
-print "Output gain table name is "+gtable
-print "Calibrating using fields "+field
+print("Solve for antenna gains on sources "+gaincalfield)
+print("We have 2 single-channel continuum spw")
+print("Output gain table name is "+gtable)
+print("Calibrating using fields "+field)
 
 gaincal(vis=msfile,
         caltable=gtable,
@@ -571,10 +571,10 @@ if benchmarking:
 #
 # List gain calibration
 #
-print '--Listcal--'
+print('--Listcal--')
 
 listfile=caltable + '.list'
-print "Listing calibration to file "+listfile
+print("Listing calibration to file "+listfile)
 
 listcal(vis=msfile,
         caltable=gtable,
@@ -588,11 +588,11 @@ if benchmarking:
 #
 # Bootstrap flux scale
 #
-print '--Fluxscale--'
-print "Use fluxscale to rescale gain table to make new one"
+print('--Fluxscale--')
+print("Use fluxscale to rescale gain table to make new one")
 
 ftable = prefix + '.fluxscale'
-print "Output scaled gain cal table is "+ftable
+print("Output scaled gain cal table is "+ftable)
 
 fluxscale(vis=msfile,
           fluxtable=ftable,
@@ -629,8 +629,8 @@ if benchmarking:
 #
 # List fluxscale table
 #
-print '--Listcal--'
-print "Listing calibration to file "+listfile
+print('--Listcal--')
+print("Listing calibration to file "+listfile)
 
 listcal(vis=msfile,
         caltable=ftable,
@@ -643,10 +643,10 @@ if benchmarking:
 #
 # Plot final gain calibration
 #
-print '--Plotcal--'
+print('--Plotcal--')
 
 figfile = caltable + '.plot.amp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 
 plotcal(caltable=ftable,
         xaxis='time',
@@ -655,7 +655,7 @@ plotcal(caltable=ftable,
         figfile=figfile)
 
 figfile = caltable + '.plot.phase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 
 plotcal(caltable=ftable,
         xaxis='time',
@@ -664,7 +664,7 @@ plotcal(caltable=ftable,
         figfile=figfile)
 
 figfile = caltable + '.plot.antamp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 
 plotcal(caltable=ftable,
         xaxis='antenna',
@@ -683,10 +683,10 @@ if ( setpolmodel and polcalmode.count('X') > 0 ):
     #
     # Now run setjy to (re)set model for polxfield
     #
-    print '--Setjy--'
+    print('--Setjy--')
     default('setjy')
 
-    print "Use setjy to set IQU fluxes of "+polxfield
+    print("Use setjy to set IQU fluxes of "+polxfield)
 
     for spw in usespwlist:
         setjy(vis=msfile,
@@ -701,10 +701,10 @@ if benchmarking:
 #
 # Polarization (D-term) calibration
 #
-print '--PolCal--'
+print('--PolCal--')
 default('polcal')
 
-print "Polarization D-term Calibration (linear approx) on "+polcalfield
+print("Polarization D-term Calibration (linear approx) on "+polcalfield)
 
 ptable = prefix + '.pcal'
 
@@ -734,10 +734,10 @@ if benchmarking:
 #
 # List polcal solutions
 #
-print '--Listcal--'
+print('--Listcal--')
 
 listfile = caltable+'.list'
-print "Listing calibration to file "+listfile
+print("Listing calibration to file "+listfile)
 
 listcal(vis=msfile,
         caltable=ptable,
@@ -750,10 +750,10 @@ if benchmarking:
 #
 # Plot polcal solutions
 #
-print '--Plotcal--'
+print('--Plotcal--')
 
 figfile = caltable + '.plot.reim.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 plotcal(caltable=ptable,
         xaxis='real',
         yaxis='imag',
@@ -761,7 +761,7 @@ plotcal(caltable=ptable,
         figfile=figfile)
 
 figfile = caltable + '.plot.antamp.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 plotcal(caltable=ptable,
         xaxis='antenna',
         yaxis='amp',
@@ -769,7 +769,7 @@ plotcal(caltable=ptable,
         figfile=figfile)
 
 figfile = caltable + '.plot.antphase.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 plotcal(caltable=ptable,
         xaxis='antenna',
         yaxis='phase',
@@ -777,7 +777,7 @@ plotcal(caltable=ptable,
         figfile=figfile)
 
 figfile = caltable + '.plot.antsnr.png'
-print "Plotting calibration to file "+figfile
+print("Plotting calibration to file "+figfile)
 plotcal(caltable=ptable,
         xaxis='antenna',
         yaxis='snr',
@@ -792,7 +792,7 @@ if benchmarking:
 #=====================================================================
 #
 dopolx = False
-if ( pcalmodel.has_key(polxfield) ):
+if ( polxfield in pcalmodel ):
     dopolx = True
 
     if ( setpolmodel and not polcalmode.count('X') > 0 ):
@@ -802,8 +802,8 @@ if ( pcalmodel.has_key(polxfield) ):
         # Now run setjy if we havent already
         #
     
-        print '--Setjy--'
-        print "Use setjy to set IQU fluxes of "+polxfield
+        print('--Setjy--')
+        print("Use setjy to set IQU fluxes of "+polxfield)
         
         for spw in usespwlist:
             setjy(vis=msfile,
@@ -820,10 +820,10 @@ if ( pcalmodel.has_key(polxfield) ):
     #
     # Polarization (X-term) calibration
     #
-    print '--PolCal--'
+    print('--PolCal--')
     default('polcal')
     
-    print "Polarization R-L Phase Calibration (linear approx)"
+    print("Polarization R-L Phase Calibration (linear approx)")
     xtable = prefix + '.polx'
     
     polcal(vis=msfile,
@@ -864,10 +864,10 @@ if ( pcalmodel.has_key(polxfield) ):
     #
     # Plot polcal solutions
     #
-    print '--Plotcal--'
+    print('--Plotcal--')
 
     figfile = caltable + '.plot.png'
-    print "Plotting calibration to file "+figfile
+    print("Plotting calibration to file "+figfile)
     
     plotcal(caltable=xtable,
             xaxis='antenna',
@@ -881,8 +881,8 @@ if ( pcalmodel.has_key(polxfield) ):
 
 else:
     if (polxfield != '' and not polxfield.isspace() ):
-        print "DO NOT HAVE PCALMODEL FOR "+polxfield
-        print "PCALMODEL = ",pcalmodel
+        print("DO NOT HAVE PCALMODEL FOR "+polxfield)
+        print("PCALMODEL = ",pcalmodel)
 
     if benchmarking:
         setxjy2time=time.time()
@@ -897,11 +897,11 @@ else:
 #
 # First using gaincalfield
 #
-print '--ApplyCal--'
+print('--ApplyCal--')
 default('applycal')
 
-print "This will apply the calibration to the DATA"
-print "Fills CORRECTED_DATA"
+print("This will apply the calibration to the DATA")
+print("Fills CORRECTED_DATA")
 
 # Start with the fluxscaled G table, the D table, and the X table
 if (dopolx):
@@ -909,7 +909,7 @@ if (dopolx):
 else:
     gaintable = [ftable,ptable]
 
-print "Applying calibration to all fields."
+print("Applying calibration to all fields.")
 
 applycal(vis=msfile,
          parang=True,
@@ -924,11 +924,11 @@ if benchmarking:
 #
 # Now write out the corrected data
 #
-print '--Split--'
+print('--Split--')
 default('split')
 
 srcsplitms=prefix + '.split.ms'
-print "Split CORRECTED_DATA into DATA in new ms "+srcsplitms
+print("Split CORRECTED_DATA into DATA in new ms "+srcsplitms)
 
 split(vis=msfile,
       outputvis=srcsplitms,
@@ -960,11 +960,11 @@ for src in srclist:
     
     for spwid in usespwlist:
 
-        print '-- Clean '+src+' spw '+spwid+' --'
+        print('-- Clean '+src+' spw '+spwid+' --')
         default('clean')
 
         imname1 = prefix + '.' + src + '.' + spwid + '.clean'
-        print "  Output images will be prefixed with "+imname1
+        print("  Output images will be prefixed with "+imname1)
 
         clean(vis=srcsplitms,
               imagename=imname1,
@@ -1165,15 +1165,15 @@ regressfile = regressdir + scriptprefix + '.pickle'
 try:
     fr = open(regressfile,'r')
 except:
-    print "No previous regression results file "+regressfile
+    print("No previous regression results file "+regressfile)
 else:
     u = pickle.Unpickler(fr)
     regression = u.load()
     fr.close()
-    print "Previous regression results filled from "+regressfile
+    print("Previous regression results filled from "+regressfile)
     
-    if regression.has_key('results'):
-        print "  on "+regression['host']+" for "+regression['version']+" at "+regression['date']
+    if 'results' in regression:
+        print("  on "+regression['host']+" for "+regression['version']+" at "+regression['date'])
         regressmodel = regression['results']
     else:
         # Older version
@@ -1183,8 +1183,8 @@ else:
 # Report Final Stats
 #=====================================================================
 #
-print 'Results for '+prefix+' :'
-print ""
+print('Results for '+prefix+' :')
+print("")
 
 import datetime
 datestring=datetime.datetime.isoformat(datetime.datetime.today())
@@ -1200,19 +1200,19 @@ mycwd = os.getcwd()
 myos = os.uname()
 
 # Print version to outfile
-print >>logfile,'Running '+myvers+' on host '+myhost
-print >>logfile,'at '+datestring
-print >>logfile,''
+print('Running '+myvers+' on host '+myhost, file=logfile)
+print('at '+datestring, file=logfile)
+print('', file=logfile)
 
-print >>logfile,'Results for '+prefix+' :'
-print >>logfile,""
+print('Results for '+prefix+' :', file=logfile)
+print("", file=logfile)
 
-if ( polmodel.has_key(polxfield) ):
+if ( polxfield in polmodel ):
     # Check RL phase offset on X calibrator
-    print "R-L phase residual from image of "+polxfield
-    print ""
-    print >>logfile,"R-L phase residual from image of "+polxfield+" :"
-    print >>logfile,""
+    print("R-L phase residual from image of "+polxfield)
+    print("")
+    print("R-L phase residual from image of "+polxfield+" :", file=logfile)
+    print("", file=logfile)
     
     src = polxfield
     rlcor = {}
@@ -1229,26 +1229,26 @@ if ( polmodel.has_key(polxfield) ):
         rlcor[spwid] = rlpcor
         rlpcor_deg = rlpcor*180.0/pl.pi
         
-        print "R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg
-        print >>logfile,"R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg
+        print("R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg)
+        print("R-L Phase Correction SPW "+spwid+" = %7.2f deg" % rlpcor_deg, file=logfile)
     
 
-if regression.has_key('results'):
-    print >>logfile,""
-    print >>logfile,"Regression versus "+regression['version']+" on host "+regression['host']+" at "+regression['date']
+if 'results' in regression:
+    print("", file=logfile)
+    print("Regression versus "+regression['version']+" on host "+regression['host']+" at "+regression['date'], file=logfile)
 
 #
 #=====================================================================
 #
 # Loop over sources and spw
 #
-print ""
-print "Final Stats:"
-print ""
+print("")
+print("Final Stats:")
+print("")
 
-print >>logfile,""
-print >>logfile,"Final Stats:"
-print >>logfile,""
+print("", file=logfile)
+print("Final Stats:", file=logfile)
+print("", file=logfile)
 
 new_regression = {}
 
@@ -1267,8 +1267,8 @@ outpolmodel = {}
 passfail = True
 for src in srclist:
 
-    print "Source "+src+" :"
-    print >>logfile,"Source "+src+" :"
+    print("Source "+src+" :")
+    print("Source "+src+" :", file=logfile)
 
     outpolsrc = {}
     for spwid in usespwlist:
@@ -1301,12 +1301,12 @@ for src in srclist:
 
         #print '  spw %s CASA I = %7.3f Q = %7.3f U = %7.3f V = %7.3f ' %\
         #      (spwid,ipol,qpol,upol,vpol)
-        print '  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
-              (spwid,ipol,ppol,fpol,rlpd_deg)
-        print >>logfile,'  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
-              (spwid,ipol,ppol,fpol,rlpd_deg)
+        print('  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
+              (spwid,ipol,ppol,fpol,rlpd_deg))
+        print('  spw %s CASA I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
+              (spwid,ipol,ppol,fpol,rlpd_deg), file=logfile)
 
-        if (regressmodel.has_key(src)):
+        if (src in regressmodel):
             iflx = regressmodel[src][spwid]['ipol']
             fflx = regressmodel[src][spwid]['fpol']
             rlreg = regressmodel[src][spwid]['rlpd']
@@ -1317,10 +1317,10 @@ for src in srclist:
             uflx = pflx*sin(rlreg)
             vflx = 0.0
 
-            print '  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
-                  (spwid,iflx,pflx,fflx,rlreg_deg)
-            print >>logfile,'  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
-                  (spwid,iflx,pflx,fflx,rlreg_deg)
+            print('  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
+                  (spwid,iflx,pflx,fflx,rlreg_deg))
+            print('  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg' %\
+                  (spwid,iflx,pflx,fflx,rlreg_deg), file=logfile)
 
             ipol_diff = ipol - iflx
             ppol_diff = ppol - pflx
@@ -1337,35 +1337,35 @@ for src in srclist:
 
             passfail = passfail & test
             
-            print '  spw %s DIFF I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg %s ' %\
-                  (spwid,ipol_diff,ppol_diff,fpol_diff,rlpd_diff_deg,teststr)
-            print >>logfile,'  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg %s ' %\
-                  (spwid,ipol_diff,ppol_diff,fpol_diff,rlpd_diff_deg,teststr)
-            print ''
-            print >>logfile,""
+            print('  spw %s DIFF I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg %s ' %\
+                  (spwid,ipol_diff,ppol_diff,fpol_diff,rlpd_diff_deg,teststr))
+            print('  spw %s PREV I = %7.3f P = %7.3f F = %7.4f X = %7.2f deg %s ' %\
+                  (spwid,ipol_diff,ppol_diff,fpol_diff,rlpd_diff_deg,teststr), file=logfile)
+            print('')
+            print("", file=logfile)
     
     # Done with spw
     outpolmodel[src] = outpolsrc
     
-    if (regressmodel.has_key(src)):
+    if (src in regressmodel):
         pass
     else:
-        print ""
-        print >>logfile,""
+        print("")
+        print("", file=logfile)
 
 # Done with src
-if (regressmodel.has_key(src)):
+if (src in regressmodel):
     if passfail:
         passfailstr = 'PASSED'
     else:
         passfailstr = 'FAILED'
             
-    print 'POLCAL Regression '+passfailstr
-    print >>logfile,'POLCAL Regression '+passfailstr
+    print('POLCAL Regression '+passfailstr)
+    print('POLCAL Regression '+passfailstr, file=logfile)
 
-    print ''
-    print 'Regression '+passfailstr
-    print ''
+    print('')
+    print('Regression '+passfailstr)
+    print('')
 
 new_regression['results'] = outpolmodel
 
@@ -1421,61 +1421,61 @@ new_regression['results'] = outpolmodel
 # Benchmarking results
 #
 if benchmarking:
-    print >>logfile,''
-    print >>logfile,'********* Benchmarking *****************'
-    print >>logfile,'*                                      *'
-    print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-    print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-    print >>logfile,'Processing rate MB/s  was: '+str(300./(endTime - startTime))
-    print >>logfile,'* Breakdown:                           *'
-    print >>logfile,'*   import       time was: '+str(import2time-startTime)
-    print >>logfile,'*   listobs      time was: '+str(list2time-import2time)
-    print >>logfile,'*   flagdata     time was: '+str(flag2time-list2time)
-    print >>logfile,'*   setjy        time was: '+str(setjy2time-flag2time)
-    print >>logfile,'*   gaincal      time was: '+str(gaincal2time-setjy2time)
-    print >>logfile,'*   listcal(G)   time was: '+str(listgcal2time-gaincal2time)
-    print >>logfile,'*   fluxscale    time was: '+str(fluxscale2time-listgcal2time)
-    print >>logfile,'*   listcal(F)   time was: '+str(listfcal2time-fluxscale2time)
-    print >>logfile,'*   plotcal(F)   time was: '+str(plotcal2time-listfcal2time)
+    print('', file=logfile)
+    print('********* Benchmarking *****************', file=logfile)
+    print('*                                      *', file=logfile)
+    print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+    print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+    print('Processing rate MB/s  was: '+str(300./(endTime - startTime)), file=logfile)
+    print('* Breakdown:                           *', file=logfile)
+    print('*   import       time was: '+str(import2time-startTime), file=logfile)
+    print('*   listobs      time was: '+str(list2time-import2time), file=logfile)
+    print('*   flagdata     time was: '+str(flag2time-list2time), file=logfile)
+    print('*   setjy        time was: '+str(setjy2time-flag2time), file=logfile)
+    print('*   gaincal      time was: '+str(gaincal2time-setjy2time), file=logfile)
+    print('*   listcal(G)   time was: '+str(listgcal2time-gaincal2time), file=logfile)
+    print('*   fluxscale    time was: '+str(fluxscale2time-listgcal2time), file=logfile)
+    print('*   listcal(F)   time was: '+str(listfcal2time-fluxscale2time), file=logfile)
+    print('*   plotcal(F)   time was: '+str(plotcal2time-listfcal2time), file=logfile)
 
     if dosetpoljy:
-        print >>logfile,'*   setjy(D)     time was: '+str(setpoljy2time-plotcal2time)
-        print >>logfile,'*   polcal(D)    time was: '+str(polcal2time-setpoljy2time)
+        print('*   setjy(D)     time was: '+str(setpoljy2time-plotcal2time), file=logfile)
+        print('*   polcal(D)    time was: '+str(polcal2time-setpoljy2time), file=logfile)
     else:
-        print >>logfile,'*   polcal(D)    time was: '+str(polcal2time-plotcal2time)
+        print('*   polcal(D)    time was: '+str(polcal2time-plotcal2time), file=logfile)
     
-    print >>logfile,'*   listcal(D)   time was: '+str(listpcal2time-polcal2time)
-    print >>logfile,'*   plotcal(D)   time was: '+str(plotpcal2time-listpcal2time)
+    print('*   listcal(D)   time was: '+str(listpcal2time-polcal2time), file=logfile)
+    print('*   plotcal(D)   time was: '+str(plotpcal2time-listpcal2time), file=logfile)
 
     if dopolx:
-        print >>logfile,'*   setjy(X)     time was: '+str(setxjy2time-plotpcal2time)
-        print >>logfile,'*   polcal(X)    time was: '+str(xpolcal2time-setxjy2time)
-        print >>logfile,'*   plotcal(X)   time was: '+str(plotxcal2time-xpolcal2time)
-        print >>logfile,'*   applycal     time was: '+str(correct2time-plotxcal2time)
+        print('*   setjy(X)     time was: '+str(setxjy2time-plotpcal2time), file=logfile)
+        print('*   polcal(X)    time was: '+str(xpolcal2time-setxjy2time), file=logfile)
+        print('*   plotcal(X)   time was: '+str(plotxcal2time-xpolcal2time), file=logfile)
+        print('*   applycal     time was: '+str(correct2time-plotxcal2time), file=logfile)
     else:
-        print >>logfile,'*   applycal     time was: '+str(correct2time-plotpcal2time)
+        print('*   applycal     time was: '+str(correct2time-plotpcal2time), file=logfile)
     
-    print >>logfile,'*   split        time was: '+str(split2time-correct2time)
-    print >>logfile,'*   clean/stat   time was: '+str(clean2time-split2time)
-    print >>logfile,'*****************************************'
-    print >>logfile,'sandrock (2008-06-17) wall time was: 255 seconds'
-    print >>logfile,'sandrock (2008-06-17) CPU  time was: 233 seconds'
+    print('*   split        time was: '+str(split2time-correct2time), file=logfile)
+    print('*   clean/stat   time was: '+str(clean2time-split2time), file=logfile)
+    print('*****************************************', file=logfile)
+    print('sandrock (2008-06-17) wall time was: 255 seconds', file=logfile)
+    print('sandrock (2008-06-17) CPU  time was: 233 seconds', file=logfile)
 
 logfile.close()
 
-print ''
+print('')
 if benchmarking:
-    print 'Total wall clock time was: '+str(endTime - startTime)
-    print 'Total CPU        time was: '+str(endProc - startProc)
-    print 'Processing rate MB/s  was: '+str(300./(endTime - startTime))
-    print ''
+    print('Total wall clock time was: '+str(endTime - startTime))
+    print('Total CPU        time was: '+str(endProc - startProc))
+    print('Processing rate MB/s  was: '+str(300./(endTime - startTime)))
+    print('')
 
-print "Done with POLCAL Regression"
+print("Done with POLCAL Regression")
 #
 # Done
 #
 logfile.close()
-print "Results are in "+outfile
+print("Results are in "+outfile)
 
 #
 #=====================================================================
@@ -1491,11 +1491,11 @@ p.dump(new_regression)
 p.dump(clnmodel)
 p.dump(polmodel)
 f.close()
-print ""
-print "Dictionaries new_regression,clnmodel,polmodel saved in "+pickfile
-print ""
-print "Use Pickle to retrieve these"
-print ""
+print("")
+print("Dictionaries new_regression,clnmodel,polmodel saved in "+pickfile)
+print("")
+print("Use Pickle to retrieve these")
+print("")
 
 # e.g.
 # f = open(pickfile)
@@ -1505,10 +1505,10 @@ print ""
 # polmodel = u.load()
 # f.close()
 
-print ""
-print "Completed POLCAL Regression"
+print("")
+print("Completed POLCAL Regression")
 if passfail:
-    print "Regression PASSED"
+    print("Regression PASSED")
 else:
-    print "Regression FAILED"
+    print("Regression FAILED")
             

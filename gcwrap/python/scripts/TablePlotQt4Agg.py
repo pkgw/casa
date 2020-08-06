@@ -79,7 +79,7 @@ yaxis='amp'
 ylabels=''
 
 class Cursors:  #namespace
-    HAND, POINTER, SELECT_REGION, MOVE = range(4)
+    HAND, POINTER, SELECT_REGION, MOVE = list(range(4))
 cursors = Cursors()
 
 
@@ -197,7 +197,7 @@ class PlotFlag:
 	px2,py2 = a.transData.xy_tup( (xmax, ymax) )
 	    
 	self.draw_rect(px1, py1, px2, py2, xmin, ymin, xmax, ymax, a)
-	print "Region to Flag on panel ", self.rows, self.cols, self.panel+1, ": ", xmin, ymin , "->" , xmax, ymax;
+	print("Region to Flag on panel ", self.rows, self.cols, self.panel+1, ": ", xmin, ymin , "->" , xmax, ymax);
 		
 	#if a.get_aspect() == 'equal': a.set_aspect('equal',True)
 	#self.tb.draw()

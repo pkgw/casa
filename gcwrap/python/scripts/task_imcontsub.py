@@ -64,18 +64,18 @@ def imcontsub(
         if not lineim:
             raise Exception("ia.continuumsub did not complete successfully")
         try:
-            param_names = imcontsub.func_code.co_varnames[:imcontsub.func_code.co_argcount]
+            param_names = imcontsub.__code__.co_varnames[:imcontsub.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             for x in [lineim, contfile]:
                 write_image_history(
                     x, sys._getframe().f_code.co_name,
                     param_names, param_vals, casalog
                 )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         lineim.done()
         return True
-    except Exception, err:
+    except Exception as err:
         casalog.post( 'Error: Unable to perform continuum subtraction'+str(err), 'SEVERE' )
         raise
     finally:

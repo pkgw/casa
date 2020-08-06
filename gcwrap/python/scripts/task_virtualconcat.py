@@ -69,21 +69,21 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
         doweightscale = False
         if(len(visweightscale)>0):
             if (len(visweightscale) != len(vis)):
-                raise Exception, 'parameter visweightscale must have same number of elements as parameter vis'
+                raise Exception('parameter visweightscale must have same number of elements as parameter vis')
             for factor in visweightscale:
                 if factor<0.:
-                    raise Exception, 'parameter visweightscale must only contain positive numbers'
+                    raise Exception('parameter visweightscale must only contain positive numbers')
                 elif factor!=1.:
                     doweightscale=True
                     
         if((type(concatvis)!=str) or (len(concatvis.split()) < 1)):
-            raise Exception, 'Parameter concatvis is invalid.'
+            raise Exception('Parameter concatvis is invalid.')
 
         if(vis.count(concatvis) > 0):
-            raise Exception, 'Parameter concatvis must not be equal to one of the members of parameter vis.'
+            raise Exception('Parameter concatvis must not be equal to one of the members of parameter vis.')
 
         if(os.path.exists(concatvis)):
-            raise Exception, 'The output MMS must not yet exist.'
+            raise Exception('The output MMS must not yet exist.')
 
         # process the input MSs in chronological order
         sortedvis = []
@@ -211,11 +211,11 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
             needscrcols.append(t.colnames().count('CORRECTED_DATA')==0 or t.colnames().count('MODEL_DATA')==0)
             t.close()
         else:
-            raise Exception, 'Visibility data set '+theconcatvis+' not found - please verify the name'
+            raise Exception('Visibility data set '+theconcatvis+' not found - please verify the name')
 
         for elvis in vis :             ###Oh no Elvis does not exist Mr Bill
             if(not os.path.exists(elvis)):
-                raise Exception, 'Visibility data set '+elvis+' not found - please verify the name'
+                raise Exception('Visibility data set '+elvis+' not found - please verify the name')
 
             # check if all scratch columns are present
             t.open(elvis)
@@ -245,7 +245,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                 t.open(theconcatvis, nomodify=False)
                 for colname in [ 'WEIGHT', 'WEIGHT_SPECTRUM']:
                     if (colname in t.colnames()) and (t.iscelldefined(colname,0)):
-                        for j in xrange(0,t.nrows()):
+                        for j in range(0,t.nrows()):
                             a = t.getcell(colname, j)
                             a *= wscale
                             t.putcell(colname, j, a)
@@ -287,11 +287,11 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
 
         # Write history to MS
         try:
-            param_names = virtualconcat.func_code.co_varnames[:virtualconcat.func_code.co_argcount]
+            param_names = virtualconcat.__code__.co_varnames[:virtualconcat.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(mstool(), theconcatvis, 'virtualconcat', param_names,
                           param_vals, casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
 
@@ -302,7 +302,7 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
         if os.path.exists(masterptable) and copypointing:
             casalog.post('Concatenating the POINTING tables ...', 'INFO')
             i = 0
-            for i in xrange(len(mmsmembers)):
+            for i in range(len(mmsmembers)):
                 ptable = mmsmembers[i]+'/POINTING'
                 if ismaster[i] and os.path.exists(ptable):
                     casalog.post('   '+ptable, 'INFO')
@@ -334,13 +334,13 @@ def virtualconcat(vislist,concatvis,freqtol,dirtol,respectname,
                 shutil.move(tempdir+'/'+elvis, elvis)
             os.rmdir(tempdir)
 
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)
         if keepcopy and tempdir!='':
-            print "Restoring original MSs ..."
+            print("Restoring original MSs ...")
             for elvis in originalvis:
                 if os.path.exists(tempdir+'/'+elvis):
                     shutil.rmtree(elvis)
                     shutil.move(tempdir+'/'+elvis, elvis)
             os.rmdir(tempdir)
-        raise Exception, instance
+        raise Exception(instance)

@@ -87,7 +87,7 @@ class Test010_VLAContinuum3C391(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide:  VLA Continuum Tutorial 3C391'''
 
-        execfile('VLAContinuumTutorial3C391.py')
+        exec(compile(open('VLAContinuumTutorial3C391.py', "rb").read(), 'VLAContinuumTutorial3C391.py', 'exec'))
                 
         return True
 
@@ -368,7 +368,7 @@ class Test021_VLAContinuum3C391(unittest.TestCase):
         mystat = imstat(imagename='3c391_ctm_spw0_IQUV.pbcorimage',stokes='')
         peak_flux_density = float(mystat['max'][0])
         expected = 0.15447656810283661 
-        print "Expected: %s , Actual: %s"%(expected,peak_flux_density)
+        print("Expected: %s , Actual: %s"%(expected,peak_flux_density))
         assert 0.146 <= peak_flux_density <= 0.163, "Error in Flux density for 3c391_ctm_spw0 with 0.146 <= %s <= 0.163"%(peak_flux_density)
 
 

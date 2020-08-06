@@ -13,7 +13,7 @@ import unittest
 from sdgaincal import sdgaincal
 
 try:
-    from testutils import copytree_ignore_subversion
+    from .testutils import copytree_ignore_subversion
 except:
     from tests.testutils import copytree_ignore_subversion
 
@@ -61,8 +61,8 @@ class sdgaincal_test_base(unittest.TestCase):
                           'interp': '',
                           'spwmap': []}
         retval = {}
-        for (k,v) in default_params.items():
-            if params.has_key(k):
+        for (k,v) in list(default_params.items()):
+            if k in params:
                 retval[k] = params[k]
             else:
                 retval[k] = v
@@ -143,9 +143,9 @@ class sdgaincal_test_base(unittest.TestCase):
                     t.close()
                 ma = numpy.ma.masked_array(fparam, flag)
                 mean_gain = ma.mean(axis=2)
-                print mean_gain
+                print(mean_gain)
                 npol = fparam.shape[0]
-                for ipol in xrange(npol):
+                for ipol in range(npol):
                     if numpy.any(flag[ipol] == False):
                         self.assertTrue(abs(mean_gain[ipol] - 1.0) < 0.01)
                 
@@ -177,7 +177,7 @@ class sdgaincal_fail_test(sdgaincal_test_base):
         self.assertEqual(result, False)
         
     def _test_except_regex(self, exception_type, pattern, **params):
-        with self.assertRaisesRegexp(exception_type, pattern) as cm:
+        with self.assertRaisesRegex(exception_type, pattern) as cm:
             self.run_task(**params)
         
     def test_fail01(self):
@@ -233,7 +233,7 @@ class sdgaincal_const_test(sdgaincal_test_base):
         self.assertEqual(nrow, 0)
         
     def _verify_param_and_flag(self, table):
-        for irow in xrange(table.nrows()):
+        for irow in range(table.nrows()):
             fparam = table.getcell('CPARAM', irow).real
             self.assertTrue(numpy.all(fparam == 1.0))
                 
@@ -288,7 +288,7 @@ class sdgaincal_variable_test(sdgaincal_test_base):
             ref_nrow = reftable.nrows()
             self.assertEqual(nrow, ref_nrow)
             
-            for irow in xrange(nrow):
+            for irow in range(nrow):
                 ref_fparam = reftable.getcell('CPARAM', irow).real
                 fparam = table.getcell('CPARAM', irow).real
                 self.assertTrue(numpy.all(ref_fparam == fparam))
@@ -344,7 +344,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
             shutil.rmtree(self.skytable)
     
     def _verify_param_and_flag_const(self, table):
-        for irow in xrange(table.nrows()):
+        for irow in range(table.nrows()):
             param = table.getcell('CPARAM', irow).real
             self.assertTrue(numpy.all(param == 1.0))
                 
@@ -379,7 +379,7 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
               1.07135618,  1.07277775,  1.07423937,  1.07552946,  1.07685661,
               1.07822275,  1.07963037,  1.08108199,  1.08235824,  1.08367515,
               1.08503532,  1.08644176], dtype=numpy.float64)
-        for irow in xrange(nrow):
+        for irow in range(nrow):
             ref_param = ref[irow % nrow_per_spw]
             param = table.getcell('CPARAM', irow).real
             diff = numpy.abs((param - ref_param) / ref_param)
@@ -455,10 +455,10 @@ class sdgaincal_preapply_test(sdgaincal_test_base):
         (tb,) = gentools(['tb'])
         tb.open(self.tsystable, nomodify=False)
         spw_id = tb.getcol('SPECTRAL_WINDOW_ID')
-        print 'before ', spw_id
-        for i in xrange(len(spw_id)):
+        print('before ', spw_id)
+        for i in range(len(spw_id)):
             spw_id[i] = spwmap[spw_id[i]]
-        print 'after', spw_id
+        print('after', spw_id)
         tb.putcol('SPECTRAL_WINDOW_ID', spw_id)
         tb.close()
 
@@ -526,8 +526,8 @@ class sdgaincal_single_polarization_test(sdgaincal_test_base):
         Only first polarization is effective.
         Second polarization should be all flagged.
         """
-        print 'sdgaincal_single_polarization_test._verify_param_and_flag'
-        for irow in xrange(table.nrows()):
+        print('sdgaincal_single_polarization_test._verify_param_and_flag')
+        for irow in range(table.nrows()):
             fparam = table.getcell('CPARAM', irow).real
             self.assertTrue(numpy.all(fparam[0] == 1.0))
             self.assertTrue(numpy.all(fparam[1] == 0.0))
@@ -546,7 +546,7 @@ class sdgaincal_single_polarization_test(sdgaincal_test_base):
         self.assertTrue(os.path.exists(self.infile_YY))
         with sdutil.tbmanager(self.infile_YY) as tb:
             try:
-                for irow in xrange(tb.nrows()):
+                for irow in range(tb.nrows()):
                     flag = tb.getcell('FLAG', irow)
                     self.assertEqual(flag.shape[0], 1)
             finally:

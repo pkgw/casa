@@ -1,15 +1,15 @@
 #!/usr/bin/env python
-import thread # To handle service threads like monitoring
+import _thread # To handle service threads like monitoring
 import time # To handle sleep times
 import traceback # To pretty-print tracebacks
 
 from taskinit import casalog
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommunicator singleton
-from MPICommunicator import MPICommunicator
+from .MPICommunicator import MPICommunicator
         
 
 class MPIMonitorClient:
@@ -153,7 +153,7 @@ class MPIMonitorClient:
             
             try:
                 self.__monitor_status_service_on = True
-                self.__monitor_status_service_thread = thread.start_new_thread(self.__monitor_status_service, ())
+                self.__monitor_status_service_thread = _thread.start_new_thread(self.__monitor_status_service, ())
             except:
                 formatted_traceback = traceback.format_exc()
                 self.__monitor_status_service_on = False
@@ -242,7 +242,7 @@ class MPIMonitorClient:
             
             try:
                 self.__ping_status_response_handler_service_on = True
-                self.__ping_status_response_handler_service_thread = thread.start_new_thread(self.__ping_status_response_handler_service, ())
+                self.__ping_status_response_handler_service_thread = _thread.start_new_thread(self.__ping_status_response_handler_service, ())
             except:
                 formatted_traceback = traceback.format_exc()
                 self.__ping_status_response_handler_service_on = False
@@ -299,7 +299,7 @@ class MPIMonitorClient:
             if server is None:
                 return dict(self.__server_status_list)
             else:
-                if self.__server_status_list.has_key(server):
+                if server in self.__server_status_list:
                     return dict(self.__server_status_list[server])
                 else:
                     casalog.post("Server n# %s is out of range" % str(server),"WARN",casalog_call_origin)  
@@ -309,8 +309,8 @@ class MPIMonitorClient:
             
             casalog_call_origin = "MPIMonitorClient::get_server_status_keyword"
             
-            if self.__server_status_list.has_key(server):
-                if self.__server_status_list[server].has_key(keyword):
+            if server in self.__server_status_list:
+                if keyword in self.__server_status_list[server]:
                     return self.__server_status_list[server][keyword]
                 else:
                     casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)
@@ -322,8 +322,8 @@ class MPIMonitorClient:
             
             casalog_call_origin = "MPIMonitorClient::set_server_status_keyword"
             
-            if self.__server_status_list.has_key(server):
-                if self.__server_status_list[server].has_key(keyword):
+            if server in self.__server_status_list:
+                if keyword in self.__server_status_list[server]:
                     self.__server_status_list[server][keyword]=value
                 else:
                     casalog.post("Status keyword %s not defined" % str(keyword),"WARN",casalog_call_origin)

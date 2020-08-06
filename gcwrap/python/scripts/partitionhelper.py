@@ -24,7 +24,7 @@ except ImportError:
     from __main__ import *
     from taskinit import *
 
-    import commands
+    import subprocess
     use_old_casa5_commands = True
 
     mst_local = mstool()
@@ -99,7 +99,7 @@ class convertToMMS():
         casalog.post('Will save output MMS to '+self.mmsdir)
 
         # Walk through input directory
-        files = os.walk(self.inpdir,followlinks=True).next()
+        files = next(os.walk(self.inpdir,followlinks=True))
 
         # Get MS list
         mslist = []
@@ -189,8 +189,8 @@ class convertToMMS():
         cmd1 = 'grep Type '+mydir+'/table.info'
         cmd2 = 'grep SubType '+mydir+'/table.info'
         if use_old_casa5_commands:
-            mytype = commands.getoutput(cmd1)
-            stype = commands.getoutput(cmd2)
+            mytype = subprocess.getoutput(cmd1)
+            stype = subprocess.getoutput(cmd2)
         else:
             mytype = bytes2str(subprocess.check_output(cmd1)).rstrip("\n")
             stype = bytes2str(subprocess.check_output(cmd2)).rstrip("\n")
@@ -408,11 +408,11 @@ def getMMSScans(mmsdict):
         print('ERROR: Input is not a dictionary')
         return []
     
-    tkeys = mmsdict.keys()
+    tkeys = list(mmsdict.keys())
     scanlist = []
     slist = set(scanlist)
     for k in tkeys:
-        skeys = mmsdict[k]['scanId'].keys()
+        skeys = list(mmsdict[k]['scanId'].keys())
         for j in skeys:
             slist.add(j)
     
@@ -432,7 +432,7 @@ def getScanList(msfile, selection={}):
     scand = mst_local.getscansummary()
     mst_local.close()
         
-    scanlist = scand.keys()
+    scanlist = list(scand.keys())
     
     return scanlist
     
@@ -467,7 +467,7 @@ def getScanNrows(msfile, myscan, selection={}):
         return Nrows
     
     subscans = scand[str(myscan)]
-    for ii in subscans.keys():
+    for ii in list(subscans.keys()):
         Nrows += scand[str(myscan)][ii]['nRow']
     
     return Nrows
@@ -483,7 +483,7 @@ def getMMSScanNrows(thisdict, myscan):
         print('ERROR: Input is not a dictionary')
         return -1
     
-    tkeys = thisdict.keys()
+    tkeys = list(thisdict.keys())
     scanrows = 0
     for k in tkeys:
         if myscan in thisdict[k]['scanId']:
@@ -518,7 +518,7 @@ def getSpwIds(msfile, myscan, selection={}):
     subscans = scand[str(myscan)]
     aspws = np.array([],dtype=int)
     
-    for ii in subscans.keys():
+    for ii in list(subscans.keys()):
         sscanid = ii
         spwids = scand[str(myscan)][sscanid]['SpwIds']
         aspws = np.append(aspws,spwids)
@@ -602,13 +602,13 @@ def getScanSpwSummary(mslist=[]):
         spwdict = msspwlist[ims]
         
         # The keys are the scan numbers
-        scanlist = scandict.keys()
+        scanlist = list(scandict.keys())
         
         # Get information per scan
         tempdict['scanId'] = {}
         for scan in scanlist:
             newscandict = {}
-            subscanlist = scandict[scan].keys()
+            subscanlist = list(scandict[scan].keys())
             
             # Get spws and nrows per sub-scan
             nrows = 0
@@ -634,7 +634,7 @@ def getScanSpwSummary(mslist=[]):
             # Now get the number of channels per spw
             for ind in range(spwsize):
                 spwid = uniquespws[ind]
-                for sid in spwdict.keys():
+                for sid in list(spwdict.keys()):
                     if spwdict[sid]['SpectralWindowId'] == spwid:
                         nchans = spwdict[sid]['NumChan']
                         charray[ind] = nchans
@@ -661,11 +661,11 @@ def getMMSSpwIds(thisdict):
         print('ERROR: Input is not a dictionary')
         return []
     
-    tkeys = thisdict.keys()
+    tkeys = list(thisdict.keys())
 
     aspws = np.array([],dtype='int32')
     for k in tkeys:
-        scanlist = thisdict[k]['scanId'].keys()
+        scanlist = list(thisdict[k]['scanId'].keys())
         for s in scanlist:
             spwids = thisdict[k]['scanId'][s]['spwIds']
             aspws = np.append(aspws, spwids)
@@ -682,13 +682,13 @@ def getMMSSpwIds(thisdict):
 def getSubMSSpwIds(subms, thisdict):
     
     import numpy as np
-    tkeys = thisdict.keys()
+    tkeys = list(thisdict.keys())
     aspws = np.array([],dtype='int32')
     mysubms = os.path.basename(subms)
     for k in tkeys:
         if thisdict[k]['MS'] == mysubms:
             # get the spwIds of this subMS
-            scanlist = thisdict[k]['scanId'].keys()
+            scanlist = list(thisdict[k]['scanId'].keys())
             for s in scanlist:
                 spwids = thisdict[k]['scanId'][s]['spwIds']
                 aspws = np.append(aspws, spwids)
@@ -738,7 +738,7 @@ def getSubtables(vis):
     tbt_local.open(vis)
     myKeyw = tbt_local.getkeywords()
     tbt_local.close()
-    for k in myKeyw.keys():
+    for k in list(myKeyw.keys()):
         theKeyw = myKeyw[k]
         if (type(theKeyw)==str and theKeyw.split(' ')[0]=='Table:'
             and not k=='SORTED_TABLE'):
@@ -1197,7 +1197,7 @@ def getPartitionMap(msfilename, nsubms, selection={}, axis=['field','spw','scan'
             dmytaql[ddi].append(scan)
 
         mytaql = []
-        for ddi, scans in dmytaql.items():
+        for ddi, scans in list(dmytaql.items()):
             scansel = '[' + ', '.join([str(x) for x in scans]) + ']'
             mytaql.append(('(DATA_DESC_ID==%i && (SCAN_NUMBER IN %s))') % (ddi, scansel))
 
@@ -1257,7 +1257,7 @@ def plotVisDistribution(nvisMap,idNvisDistributionPerSubMs,filename,idLabel,plot
     # Initialize color vector to alternate cold/warm colors
     nid = len(nvisMap)
     colorVector = list()
-    colorRange = range(nid)
+    colorRange = list(range(nid))
     colorVectorEven = colorRange[::2]
     colorVectorOdd = colorRange[1::2]
     colorVectorOdd.reverse()
@@ -1269,7 +1269,7 @@ def plotVisDistribution(nvisMap,idNvisDistributionPerSubMs,filename,idLabel,plot
     # Generate stacked bar plot
     coloridx = 0 # color index
     width = 0.35 # bar width
-    nsubms = len(idNvisDistributionPerSubMs[idNvisDistributionPerSubMs.keys()[0]])
+    nsubms = len(idNvisDistributionPerSubMs[list(idNvisDistributionPerSubMs.keys())[0]])
     idx = np.arange(nsubms) # location of the bar centers in the horizontal axis
     bottomLevel = np.zeros(nsubms) # Reference level for the bars to be stacked after the previous ones
     legendidLabels = list() # List of legend idLabels

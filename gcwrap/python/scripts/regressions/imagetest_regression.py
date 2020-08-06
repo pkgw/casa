@@ -48,17 +48,17 @@ def note(message, priority="NORMAL", origin="imagetest", ntime=None, postcli='F'
     #if not ntime:  #if (ntime==None):
     #    ntime=time.asctime()
     #print ntime, priority, origin, message
-    print message
+    print(message)
     casalog.postLocally(message, priority, origin)
 
 def info(message):
     #note(message,origin='imagetest')
-    print message
+    print(message)
     casalog.postLocally(message, priority="NORMAL", origin='imagetest')
 
 def fail(message=""):
     casalog.postLocally(message, priority="SEVERE", origin='imagetest')
-    raise RuntimeError, message
+    raise RuntimeError(message)
 
     #Glish's all() returns T if every element of x is either T (if x's
     #type is boolean) or non-zero (otherwise). It returns F if any
@@ -74,8 +74,8 @@ def all(x,y):
         return False
     for i in range(len(x)):
         if not (x[i]==y[i]):
-            print "x["+str(i)+"]=", x[i]
-            print "y["+str(i)+"]=", y[i]
+            print("x["+str(i)+"]=", x[i])
+            print("y["+str(i)+"]=", y[i])
             return False
     return True
 
@@ -137,29 +137,29 @@ def alltrue(x):
 
 def alleq(x,y,tolerance=0):
     if x.size != y.size:
-        print "x.size=", x.size
-        print "y.size=", y.size
+        print("x.size=", x.size)
+        print("y.size=", y.size)
         return False
     if len(x.shape)==1:
         for i in range(x.shape[0]):
             if not (abs(x[i]-y[i]) < tolerance):
-                print "x[",i,"]=", x[i]
-                print "y[",i,"]=", y[i]
+                print("x[",i,"]=", x[i])
+                print("y[",i,"]=", y[i])
                 return False
     if len(x.shape)==2:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 if not (abs(x[i][j]-y[i][j]) < tolerance):
-                    print "x[",i,"][",j,"]=", x[i][j]
-                    print "y[",i,"][",j,"]=", y[i][j]
+                    print("x[",i,"][",j,"]=", x[i][j])
+                    print("y[",i,"][",j,"]=", y[i][j])
                     return False
     if len(x.shape)==3:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 for k in range(x.shape[2]):
                     if not (abs(x[i][j][k]-y[i][j][k]) < tolerance):
-                        print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
-                        print "y[",i,"][",j,"][",k,"]=", y[i][j][k]
+                        print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
+                        print("y[",i,"][",j,"][",k,"]=", y[i][j][k])
                         return False
     if len(x.shape)==4:
         for i in range(x.shape[0]):
@@ -167,8 +167,8 @@ def alleq(x,y,tolerance=0):
                 for k in range(x.shape[2]):
                     for l in range(x.shape[3]):
                         if not (abs(x[i][j][k][l]-y[i][j][k][l]) < tolerance):
-                            print "x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k][l]
-                            print "y[",i,"][",j,"][",k,"][",l,"]=", y[i][j][k][l]
+                            print("x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k][l])
+                            print("y[",i,"][",j,"][",k,"][",l,"]=", y[i][j][k][l])
                             return False
     if len(x.shape)>4:
         stop('unhandled array shape in alleq')
@@ -178,20 +178,20 @@ def alleqnum(x,num,tolerance=0):
     if len(x.shape)==1:
         for i in range(x.shape[0]):
             if not (abs(x[i]-num) < tolerance):
-                print "x[",i,"]=", x[i]
+                print("x[",i,"]=", x[i])
                 return False
     if len(x.shape)==2:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 if not (abs(x[i][j]-num) < tolerance):
-                    print "x[",i,"][",j,"]=", x[i][j]
+                    print("x[",i,"][",j,"]=", x[i][j])
                     return False
     if len(x.shape)==3:
         for i in range(x.shape[0]):
             for j in range(x.shape[1]):
                 for k in range(x.shape[2]):
                     if not (abs(x[i][j][k]-num) < tolerance):
-                        print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
+                        print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
                         return False
     if len(x.shape)==4:
         for i in range(x.shape[0]):
@@ -199,7 +199,7 @@ def alleqnum(x,num,tolerance=0):
                 for k in range(x.shape[2]):
                     for l in range(x.shape[3]):
                         if not (abs(x[i][j][k][l]-num) < tolerance):
-                            print "x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k]
+                            print("x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k])
                             return False
     if len(x.shape)>4:
         stop('unhandled array shape in alleq')
@@ -244,7 +244,7 @@ def imagedemo():
             info("Cleaning up directory "+dir)
             def errFunc(raiser, problemPath, excInfo):
                 note(raiser.__name__+'failed on'+problemPath,"SEVERE")
-                raise RuntimeError, "Cleanup of " + dir + " fails!"
+                raise RuntimeError("Cleanup of " + dir + " fails!")
             shutil.rmtree(dir,0,errFunc)
         return True
 
@@ -255,10 +255,10 @@ def imagedemo():
     # Make directory
     #
     try:
-        os.mkdir(demodir,0770)
-    except IOError, e:
+        os.mkdir(demodir,0o770)
+    except IOError as e:
         note(e, "SEVERE")
-        raise RuntimeError, "Failed to make directory " + demodir
+        raise RuntimeError("Failed to make directory " + demodir)
     #
     # Manufacture some data   
     #
@@ -292,14 +292,14 @@ def imagetest(which=None, size=[32,32,8]):
 
     def stop(message):
         note(message, priority='SEVERE',origin='imagetest()')
-        raise RuntimeError, message
+        raise RuntimeError(message)
 
     def cleanup(dir):
         if (os.path.isdir(dir)):
             info("Cleaning up directory "+dir)
             def errFunc(raiser, problemPath, excInfo):
                 note(raiser.__name__+'failed on'+problemPath,"SEVERE")
-                raise RuntimeError, "Cleanup of " + dir + " fails!"
+                raise RuntimeError("Cleanup of " + dir + " fails!")
             shutil.rmtree(dir,0,errFunc)
         return True
 
@@ -309,8 +309,8 @@ def imagetest(which=None, size=[32,32,8]):
         errmsg = 'compareComponentList: '
         if (n0 != n1):
             errmsg += 'Number of components differ'
-            print cl0.torecord()
-            print cl1.torecord()
+            print(cl0.torecord())
+            print(cl1.torecord())
             info(errmsg)
             return False
         #
@@ -497,7 +497,7 @@ def imagetest(which=None, size=[32,32,8]):
         return height * math.exp(-(x+y))
 
     def doneAllImageTypes(rec):
-        names = rec.keys()
+        names = list(rec.keys())
         for mytype in names:
             ok = rec[mytype]['tool'].done()
             if not ok: fail()
@@ -621,9 +621,9 @@ def imagetest(which=None, size=[32,32,8]):
 
     # 3D only
     def pick(imshape, data, inc):
-        idxx = range(0,imshape[0],inc[0])  #range doesn't include maxval
-        idxy = range(0,imshape[1],inc[1])
-        idxz = range(0,imshape[2],inc[2])
+        idxx = list(range(0,imshape[0],inc[0]))  #range doesn't include maxval
+        idxy = list(range(0,imshape[1],inc[1]))
+        idxz = list(range(0,imshape[2],inc[2]))
         data2 = ia.makearray(0,[len(idxx),len(idxy),len(idxz)])
         kk = 0
         for k in idxz:
@@ -646,7 +646,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             if (myim.type()=='image'):
                 pass
-        except Exception, e:
+        except Exception as e:
             myim = ia.newimagefromfile(imagefile);
             if not myim:
                 stop('fitsreflect: image constructor failed');
@@ -656,33 +656,33 @@ def imagetest(which=None, size=[32,32,8]):
         mi['world'] = 'world';
         ok = myim.setmiscinfo(mi)
         if not ok:
-            raise RuntimeError, 'setmiscinfo failed in fitsreflect'
+            raise RuntimeError('setmiscinfo failed in fitsreflect')
         myim.sethistory(history=["A","B","C","D"])
         #
         p1 = myim.getregion()
         m1 = myim.getregion(getmask=True)
         if len(p1)==0 or len(m1)==0:
-            raise RuntimeError, 'getregion 1 failed in fitsreflect'
+            raise RuntimeError('getregion 1 failed in fitsreflect')
         imshape = myim.shape()
         m0=m1
         m1[0,0,0] = False
         m1[imshape[0]-1,imshape[1]-1,imshape[2]-1] = False
         ok = myim.putregion(pixelmask=m1)
         if not ok:
-            raise RuntimeError, 'putregion 1 failed in fitsreflect'
+            raise RuntimeError('putregion 1 failed in fitsreflect')
         #
         bitpix = -32
         if do16: bitpix = 16
         history = myim.history(False)
         ok = myim.tofits(outfile=fitsfile, bitpix=bitpix)
         if not ok:
-            raise RuntimeError, 'tofits failed in fitsreflect'
+            raise RuntimeError('tofits failed in fitsreflect')
         #
         testdir = os.path.dirname(fitsfile)
         imname2 = testdir +'/fitsreflect.image'
         myim2 = ia.newimagefromfits(outfile=imname2, infile=fitsfile)
         if not ok:
-            raise RuntimeError, 'ia.newimagefromfits failed in fitsreflect'
+            raise RuntimeError('ia.newimagefromfits failed in fitsreflect')
         p1 = myim.getregion()
         m1 = myim.getregion(getmask=True)
         if len(p1)==0 or len(m1)==0:
@@ -692,7 +692,7 @@ def imagetest(which=None, size=[32,32,8]):
         if len(p2)==0 or len(m2)==0:
             stop('fitsreflect: getregion 3 failed')
         if not allbooleq(m2,m1):
-            raise RuntimeError, 'Some mask values have changed in FITS reflection'
+            raise RuntimeError('Some mask values have changed in FITS reflection')
         #
         d = p2-p1
         sh = d.shape
@@ -701,14 +701,14 @@ def imagetest(which=None, size=[32,32,8]):
                 for k in range(sh[2]):
                     if m1[i][j][k]==True:
                         if not (abs(d[i][j][k]) < 0.0001):
-                            raise RuntimeError, 'Some values have changed in FITS reflection'
+                            raise RuntimeError('Some values have changed in FITS reflection')
         ok = myim.putregion(pixelmask=m0);
         if not ok:
-            raise RuntimeError, 'putregion 2 failed in fitsreflect'
+            raise RuntimeError('putregion 2 failed in fitsreflect')
         #
         mi = myim2.miscinfo();
         if not (mi['hello'] == 'hello') or not (mi['world'] == 'world'):
-            raise RuntimeError, 'miscinfo changed after fits in fitsreflect'
+            raise RuntimeError('miscinfo changed after fits in fitsreflect')
         #
         history2 = myim2.history(False);
         #Behaviour of history logged in FITS changed (2007/10/02)
@@ -720,22 +720,22 @@ def imagetest(which=None, size=[32,32,8]):
         for i in range(len(history2)/2 - 1):
             history3.append(history2[2*(i+1)])
         if not all(history,history2):
-            print "history written=", history
-            print "history retrieved=", history2
-            raise RuntimeError, 'history changed after fits in fitsreflect'
+            print("history written=", history)
+            print("history retrieved=", history2)
+            raise RuntimeError('history changed after fits in fitsreflect')
         #
         ok = myim2.done();
         if not ok:
-            raise RuntimeError, 'done 1 failed in fitsreflect'
+            raise RuntimeError('done 1 failed in fitsreflect')
         if opened:
             ok = myim.done();
             if not ok:
-                raise RuntimeError, 'done 2 failed in fitsreflect'
+                raise RuntimeError('done 2 failed in fitsreflect')
         #
         os.remove(fitsfile)
         ok = cleanup(imname2)
         if not ok:
-            raise RuntimeError, 'image file deletion failed in fitsreflect'
+            raise RuntimeError('image file deletion failed in fitsreflect')
         return True
 
     def coordcheck(im1, axes, testdir):
@@ -750,11 +750,11 @@ def imagetest(which=None, size=[32,32,8]):
             fail('coordsys 1 failed in coordcheck')
         shape2=[]
 	tmp = im1.shape()
-	print tmp
+	print(tmp)
         for i in axes:
             shape2.append(tmp[i])
-	    print tmp[i]
-	print 'shape2 is ', type(shape2), shape2
+	    print(tmp[i])
+	print('shape2 is ', type(shape2), shape2)
         ok = ia.fromshape(imname, shape2, cs2.torecord())
         if not ok:
             fail('ia.fromshape 1 failed in coordcheck');
@@ -765,7 +765,7 @@ def imagetest(which=None, size=[32,32,8]):
             fail('summary 2 failed in coordcheck')
         rec2 = ok
         #
-        if rec1.has_key('axisnames') and rec2.has_key('axisnames'):
+        if 'axisnames' in rec1 and 'axisnames' in rec2:
             rec1axes=[]
             for i in axes:
                 rec1axes.append(rec1['axisnames'][i])
@@ -776,7 +776,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('axisnames key missing')
             return False
         #
-        if rec1.has_key('refpix') and rec2.has_key('refpix'):
+        if 'refpix' in rec1 and 'refpix' in rec2:
             rec1axes=[]
             for i in axes:
                 rec1axes.append(rec1['refpix'][i])
@@ -787,7 +787,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('refpix key missing')
             return False
         #
-        if rec1.has_key('refval') and rec2.has_key('refval'):
+        if 'refval' in rec1 and 'refval' in rec2:
             rec1axes=[]
             for i in axes:
                 rec1axes.append(rec1['refval'][i])
@@ -798,7 +798,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('refval key missing')
             return False
         #
-        if rec1.has_key('incr') and rec2.has_key('incr'):
+        if 'incr' in rec1 and 'incr' in rec2:
             rec1axes=[]
             for i in axes:
                 rec1axes.append(rec1['incr'][i])
@@ -809,7 +809,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('incr key missing')
             return False
         #
-        if rec1.has_key('axisunits') and rec2.has_key('axisunits'):
+        if 'axisunits' in rec1 and 'axisunits' in rec2:
             rec1axes=axes
             for i in range(len(axes)):
                 rec1axes[i]=rec1['axisunits'][i]
@@ -850,9 +850,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make some data
@@ -947,7 +947,7 @@ def imagetest(which=None, size=[32,32,8]):
         # Do histograms
         info('Find histograms')
         ok = man.histograms()
-	print ok
+	print(ok)
         if not ok: fail()
         stuff = ok['counts']
         info('')
@@ -1179,9 +1179,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         imname = testdir+'/'+'ia.fromshape.image'
@@ -1189,7 +1189,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromshape(shape='fish')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception:'+str(e))
             myim = False
         if myim:
@@ -1199,7 +1199,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromshape(outfile=[10,20], shape=[10,20])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1229,7 +1229,7 @@ def imagetest(which=None, size=[32,32,8]):
                stop('ia.fromshape constructor 4 unexpectedly did not fail')
            else:
                note('Expected SEVERE error occurred')
-	except Exception, e:
+	except Exception as e:
             note('Caught expected Exception')
             myim = False
         myim = ia.newimagefromshape(shape=[10,20], csys=csys.torecord())
@@ -1240,7 +1240,7 @@ def imagetest(which=None, size=[32,32,8]):
         if not csys2:
             stop('coordsys 2 failed')
         csys2Rec = csys2.torecord()
-        if not all(csysRec.keys(),csys2Rec.keys()):
+        if not all(list(csysRec.keys()),list(csys2Rec.keys())):
             stop('coordinates from ia.fromshape 5 are wrong')
         ok = myim.done()
         if not ok: fail()
@@ -1302,9 +1302,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         # Make some data
@@ -1317,7 +1317,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromarray(outfile=[10,20], pixels=data)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1344,7 +1344,7 @@ def imagetest(which=None, size=[32,32,8]):
            myim = ia.newimagefromarray(outfile=imname, pixels=data, csys='xyz')
            if myim.isopen():
                stop('ia.fromarray constructor 3 unexpectedly did not fail')
-	except Exception, e :
+	except Exception as e :
             note('Caught expected Exception')
 
         myim = ia.newimagefromarray(pixels=data, csys=csys.torecord())
@@ -1355,7 +1355,7 @@ def imagetest(which=None, size=[32,32,8]):
         if not csys2:
             stop('coordinates 2 failed')
         csys2Rec = csys2.torecord()
-        if not all(csysRec.keys(),csys2Rec.keys()):
+        if not all(list(csysRec.keys()),list(csys2Rec.keys())):
             stop('coordinates from ia.fromarray 4 are wrong')
         ok = myim.done()
         if not ok: fail()
@@ -1377,9 +1377,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Test native aips++ image
         imname = testdir+'/'+'image.image'
@@ -1444,9 +1444,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Test ia.fromimage constructor
         #
@@ -1459,7 +1459,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromimage(outfile=imname2, infile='_doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1470,7 +1470,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromimage(outfile=imname2, infile='_doggies',region='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1524,9 +1524,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         info('Testing ia.fromfits constructor')
         imname = testdir+'/'+'ia.fromshape.image'
@@ -1539,7 +1539,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromfits(outfile=imname3, infile='_doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1558,7 +1558,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim = ia.newimagefromfits(outfile=imname3, infile=imname2,
                                        whichhdu=22)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1606,9 +1606,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         #
         imname = testdir+'/'+'ia.fromshapeconcat.image'
@@ -1618,7 +1618,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim = True
             note('Expect SEVERE error and Exception here')
             myim = ia.imageconcat(outfile=imname2, infiles='_doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1637,7 +1637,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim = ia.imageconcat(outfile=imname2, infiles=infiles,
                                   axis=29, relax=True)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim = False
         if myim:
@@ -1647,7 +1647,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim = ia.imageconcat(outfile=imname2, infiles=infiles, axis=1,
                                relax=False)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception:'+str(e))
             myim = False
         if myim:
@@ -1691,9 +1691,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make two images
         imname1 = testdir+'/'+'ia.fromshape.image'
@@ -1869,9 +1869,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make two images
         imname1 = testdir+'/'+'ia.fromshape.image1'
@@ -1970,7 +1970,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note("Expect a SEVERE error and exception here.")
             ok = myim.setcoordsys(mycs2.torecord())
-        except Exception, e:
+        except Exception as e:
             note("Exception: "+ str(e),"SEVERE")
             note("Exception occurred as expected.")
             ok = False
@@ -1982,7 +1982,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note("Expect a SEVERE error and exception here.")
             ok = myim.setcoordsys(badcs)
-        except Exception, e:
+        except Exception as e:
             note("Exception occurred as expected.")
         if ok:
             stop('setcoordsys 4 unexpectedly did not fail')
@@ -2099,9 +2099,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make images of all the wondrous flavours that we have
         #
@@ -2114,7 +2114,7 @@ def imagetest(which=None, size=[32,32,8]):
         #
         # Loop over all image types
         #
-        types = images.keys()
+        types = list(images.keys())
         for mytype in types:
             info('')
             info('Testing Image type ' + images[mytype]["type"])
@@ -2246,7 +2246,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putchunk(pixels=pixels, blc=[3,4,5])
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred.')
                 ok = False
             if ok:
@@ -2254,7 +2254,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putchunk(pixels=pixels, inc=[3,4,5])
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred.')
                 ok = False
             if ok:
@@ -2379,9 +2379,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make images of all the wondrous flavours that we have
         root = testdir + '/' + 'testimage'
@@ -2391,7 +2391,7 @@ def imagetest(which=None, size=[32,32,8]):
             fail('failed to make all image types')
 
         # Loop over all image types
-        types = images.keys()
+        types = list(images.keys())
         for mytype in types:
             info('')
             info('Testing Image type ' + images[mytype]["type"])
@@ -2505,16 +2505,16 @@ def imagetest(which=None, size=[32,32,8]):
         #
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         imshape = [10,20,30]
         images = makeAllImageTypes(imshape, root, includereadonly=False)
         if not images:
             fail('failed to make all image types')
 
         # Loop over all image types
-        types = images.keys()
+        types = list(images.keys())
         for thetype in types:
             info('')
             info('Testing Image type ' + images[thetype]["type"])
@@ -2551,7 +2551,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putregion()
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred.')
                 ok = False
             if ok:
@@ -2560,7 +2560,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putregion(pixels=pixels)
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred')
                 ok = False
             if ok:
@@ -2569,7 +2569,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putregion(pixelmask=mask)
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred')
                 ok = False
             if ok:
@@ -2578,7 +2578,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.putregion(pixels=pixels)
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred')
                 ok = False
             if ok:
@@ -2637,11 +2637,11 @@ def imagetest(which=None, size=[32,32,8]):
                 stop('putregion 9 failed')
             pixels = ia.makearray(0.0, [sh[0], sh[1]])
             # Pad with degenerate axes
-	    print sh
-	    print "shape", sh[0], sh[1]
-	    print type(sh[0])
-	    print type(sh[1])
-	    print "pixels", pixels
+	    print(sh)
+	    print("shape", sh[0], sh[1])
+	    print(type(sh[0]))
+	    print(type(sh[1]))
+	    print("pixels", pixels)
             ok = myim.putregion(pixels=pixels, usemask=False)
             if not ok:
                 stop('putregion 10 failed')
@@ -2742,7 +2742,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.set(pixels='doggies')
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred')
                 ok = False
             if ok:
@@ -2750,7 +2750,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.set(pixelmask='doggies')
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred: '+str(e))
                 ok = False
             if ok:
@@ -2762,14 +2762,14 @@ def imagetest(which=None, size=[32,32,8]):
 	    try :
                note('Expect Warning message here')
                ok = myim.set(region='doggies')
-	    except Exception, e:
+	    except Exception as e:
 	       ok = False
             if ok:
                 stop('set 4 unexpectedly did not fail')
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.set(pixels='imname')
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred')
                 ok = False
             if ok:
@@ -2896,7 +2896,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.replacemaskedpixels(pixels=True)
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred: '+str(e))
                 ok = False
             if ok:
@@ -2904,7 +2904,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note('Expect SEVERE error and Exception here')
                 ok = myim.replacemaskedpixels(mask ='makemaskgood doggies')
-            except Exception, e:
+            except Exception as e:
                 note('Expected exception occurred: '+str(e))
                 ok = False
             if ok:
@@ -3021,9 +3021,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make image
         imshape = [12,24,20]
@@ -3078,9 +3078,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make images of all the wondrous flavours that we have
         root = testdir + '/' + 'testimage'
@@ -3090,7 +3090,7 @@ def imagetest(which=None, size=[32,32,8]):
             fail('failed to make all image types')
 
         # Loop over all image types
-        types = images.keys()
+        types = list(images.keys())
         for mytype in types:
             info('')
             info('Testing Image type ' + images[mytype]["type"])
@@ -3103,11 +3103,11 @@ def imagetest(which=None, size=[32,32,8]):
             bb = myim.boundingbox()
             if not bb:
                 stop('boundingbox 1 failed')
-            ok = bb.has_key('blc') and bb.has_key('trc')
-            ok = ok and bb.has_key('inc')
-            ok = ok and bb.has_key('bbShape')
-            ok = ok and bb.has_key('regionShape')
-            ok = ok and bb.has_key('imageShape')
+            ok = 'blc' in bb and 'trc' in bb
+            ok = ok and 'inc' in bb
+            ok = ok and 'bbShape' in bb
+            ok = ok and 'regionShape' in bb
+            ok = ok and 'imageShape' in bb
             if not ok:
                 stop('boundingbox record 1 has invalid fields')
             stat = not all(bb['blc'],[0,0,0])
@@ -3166,7 +3166,7 @@ def imagetest(which=None, size=[32,32,8]):
             try:
                 note("Expect SEVERE Error and Exception here")
                 bb = myim.boundingbox(region=r1)
-            except Exception, e:
+            except Exception as e:
                 #print "Expected Exception: ", e
                 note("Excepted occurred as expected.")
                 bb = {}
@@ -3182,9 +3182,9 @@ def imagetest(which=None, size=[32,32,8]):
         #
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         imname =  testdir + '/' + 'ia.fromshape.image2'
         imshape = [10,10,4,10,10]
         ok = ia.fromshape(outfile=imname, shape=imshape)
@@ -3210,9 +3210,9 @@ def imagetest(which=None, size=[32,32,8]):
         if not w:
             stop('coordmeasures failed')
         w = w['measure']
-        ok = w.has_key('direction') and w.has_key('spectral')
-        ok = ok and w.has_key('stokes')
-        ok = ok and w.has_key('linear')
+        ok = 'direction' in w and 'spectral' in w
+        ok = ok and 'stokes' in w
+        ok = ok and 'linear' in w
         if not ok:
             stop('coordmeasures record has wrong fields')
         #
@@ -3252,9 +3252,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
 
         # Make images of all the wondrous flavours that we have
         root = testdir + '/' + 'testimage'
@@ -3266,7 +3266,7 @@ def imagetest(which=None, size=[32,32,8]):
         # Loop over all image types
         info('')
         info('Testing summary')
-        types = images.keys()
+        types = list(images.keys())
         for mytype in types:
             info('')
             info('Testing Image type ' + images[mytype]["type"])
@@ -3278,18 +3278,18 @@ def imagetest(which=None, size=[32,32,8]):
             header = myim.summary(list=False)
             if not header:
                 fail('unable to retrieve summary')
-            ok = header.has_key('ndim') and header.has_key('shape')
-            ok = ok and header.has_key('tileshape')
-            ok = ok and header.has_key('axisnames')
-            ok = ok and header.has_key('refpix')
-            ok = ok and header.has_key('refval')
-            ok = ok and header.has_key('incr')
-            ok = ok and header.has_key('axisunits')
-            ok = ok and header.has_key('unit')
-            ok = ok and header.has_key('imagetype')
-            ok = ok and header.has_key('hasmask')
-            ok = ok and header.has_key('defaultmask')
-            ok = ok and header.has_key('masks')
+            ok = 'ndim' in header and 'shape' in header
+            ok = ok and 'tileshape' in header
+            ok = ok and 'axisnames' in header
+            ok = ok and 'refpix' in header
+            ok = ok and 'refval' in header
+            ok = ok and 'incr' in header
+            ok = ok and 'axisunits' in header
+            ok = ok and 'unit' in header
+            ok = ok and 'imagetype' in header
+            ok = ok and 'hasmask' in header
+            ok = ok and 'defaultmask' in header
+            ok = ok and 'masks' in header
             if not ok:
                 stop('summary record is invalid')
             if not myim.done():
@@ -3302,9 +3302,9 @@ def imagetest(which=None, size=[32,32,8]):
         #
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         imshape = [12,24,20]
         images = makeAllImageTypes(imshape, root, includereadonly=False)
         if not images:
@@ -3314,7 +3314,7 @@ def imagetest(which=None, size=[32,32,8]):
         #
         info('')
         info('Testing maskhandler')
-        types = images.keys()
+        types = list(images.keys())
         for mytype in types:
             info('')
             info('Testing Image type ' + images[mytype]["type"])
@@ -3473,9 +3473,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         imname = testdir +'/'+'ia.fromshape.image1'
         imshape = [10,20,6]
@@ -3501,7 +3501,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.subimage(outfile=imname2, region='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3552,7 +3552,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note("Expect SEVERE error and Exception here")
             ok = myim.insert(region='fish')
-        except Exception, e:
+        except Exception as e:
             note("Caught expected exception.")
             ok = False
         if ok:
@@ -3613,9 +3613,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         imname = testdir+'/'+'ia.fromshape.image'
         imshape = [10,10]
@@ -3637,7 +3637,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here - 1')
             kernel = ia.makearray(0.0,[3,3])
             myim2 = myim.convolve(kernel=kernel, region='fish');
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception:'+str(e))
             myim2 = False
         if myim2:
@@ -3647,7 +3647,7 @@ def imagetest(which=None, size=[32,32,8]):
             #kernel = array(0,2,4,6,8)
             kernel = ia.makearray(0,[2,4,6,8])
             myim2 = myim.convolve(kernel=kernel)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2:
@@ -3655,7 +3655,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here - 3')
             myim2 = myim.convolve(outfile=[1,2,3])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2:
@@ -3768,9 +3768,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         imname = testdir+'/'+'ia.fromshape.image'
         imshape = [128,128]
@@ -3794,7 +3794,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.sepconvolve(region='fish');
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3802,7 +3802,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.sepconvolve(types=["doggies"], widths=[1], axes=[0])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3811,7 +3811,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim2 = myim.sepconvolve(types=["gauss","gauss","gauss","gauss"],
                                      widths=[5,5,5,5], axes=[0,1,2,3])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3819,7 +3819,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.sepconvolve(types=["gauss","gauss"], widths=[1], axes=[0,1])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3827,7 +3827,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.sepconvolve(outfile=[1,2,3])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2:
@@ -3966,9 +3966,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         pixels = ia.makearray(0.0, [10, 20])
         pixels[0,0] = -100
@@ -3981,7 +3981,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.statistics(axes=[10,20])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -3989,7 +3989,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.statistics(includepix=[-100,100], excludepix=[-100,100])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -3998,13 +3998,13 @@ def imagetest(which=None, size=[32,32,8]):
         stats = myim.statistics(list=False)
         if not stats:
             stop('Statistics failed (1)')
-        ok = stats.has_key('npts') and stats.has_key('sum')
-        ok = ok and stats.has_key('sumsq')
-        ok = ok and stats.has_key('min')
-        ok = ok and stats.has_key('max')
-        ok = ok and stats.has_key('mean')
-        ok = ok and stats.has_key('sigma')
-        ok = ok and stats.has_key('rms')
+        ok = 'npts' in stats and 'sum' in stats
+        ok = ok and 'sumsq' in stats
+        ok = ok and 'min' in stats
+        ok = ok and 'max' in stats
+        ok = ok and 'mean' in stats
+        ok = ok and 'sigma' in stats
+        ok = ok and 'rms' in stats
         if not ok:
             stop('Statistics record does not have the correct fields')
         prod = 1
@@ -4112,9 +4112,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         imshape = [50,100]
         pixels = ia.makearray(0.0, imshape)
@@ -4126,7 +4126,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(axis=0, moments=[22])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4134,7 +4134,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(axis=99)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4142,7 +4142,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(method='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4150,7 +4150,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(smoothaxes=[9,19])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4158,7 +4158,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(smoothaxes=[9,19], smoothtypes="gauss gauss", smoothwidths=[10,10])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4166,7 +4166,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(smoothaxes=[0,1], smoothtypes="fish gauss", smoothwidths=[10,10])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4174,7 +4174,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(smoothaxes=[0,1], smoothtypes="gauss gauss", smoothwidths=[-100,10])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4182,7 +4182,7 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             ok = myim.moments(includepix=[-100,100], excludepix=[-100,100])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -4204,7 +4204,7 @@ def imagetest(which=None, size=[32,32,8]):
         base3 = testdir+'/'+'base3'
         #im2 = myim.moments(outfile=base3, axis=0, moments=[-1,0,1,2,3,5,6,7,8,9,10,11])
         im2 = myim.moments(outfile=base3, axis=0,
-                           moments=range(-1,4)+range(5,12))
+                           moments=list(range(-1,4))+list(range(5,12)))
         if not im2:
             fail('failed to get moments (3)')
         ok = im2.done()
@@ -4245,9 +4245,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make sky image
         nx = 128
         ny = 128
@@ -4455,21 +4455,21 @@ def imagetest(which=None, size=[32,32,8]):
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.convolve2d (major='1km', minor='20arcsec', axes=[0,1])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2: stop ('Forced failure 1 did not occur')
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.convolve2d (major='10arcsec', minor='10Hz', axes=[0,2])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2: stop ('Forced failure 2 did not occur')
         try:
             note('Expect SEVERE error and Exception here')
             myim2 = myim.convolve2d (major='10pix', minor='10arcsec', axes=[0,1])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             myim2 = False
         if myim2: stop ('Forced failure 3 did not occur')
@@ -4492,9 +4492,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make sky image
         nx = 128
         ny = 128
@@ -4726,7 +4726,7 @@ def imagetest(which=None, size=[32,32,8]):
             errMean = stats['sigma'] / math.sqrt(stats['npts'])
             sig = stats['sigma']
             #
-            if rec[n].has_key('mean'):
+            if 'mean' in rec[n]:
                 d = abs(stats['mean'] - rec[n]['mean'])
                 if (d > errMean):
                     #fail('Mean wrong for distribution ' + n)
@@ -4734,7 +4734,7 @@ def imagetest(which=None, size=[32,32,8]):
                     #print "d=", d, "errMean=", errMean
                     pass
             #
-            if rec[n].has_key('var'):
+            if 'var' in rec[n]:
                 d = abs(sig*sig - rec[n]['var'])
                 #if (d > errMean):    # What is the error in the variance ???
                 #    #fail('Variance wrong for distribution '+ n)
@@ -4758,9 +4758,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         # Make images of all the wondrous flavours that we have
         #
@@ -4779,7 +4779,7 @@ def imagetest(which=None, size=[32,32,8]):
         rbi['major'] = qa.quantity('10arcsec')
         rbi['minor'] = qa.quantity('5arcsec')
         rbi['positionangle'] = qa.quantity('30deg')
-        names = rec.keys()
+        names = list(rec.keys())
         for mytype in names:
             info('Testing Image type '+rec[mytype]['type'])
             #
@@ -4799,8 +4799,8 @@ def imagetest(which=None, size=[32,32,8]):
             if not ok: fail()
             mio = myim.miscinfo()
             if not mio: fail()
-            for f in mii.keys():
-                if mio.has_key(f):
+            for f in list(mii.keys()):
+                if f in mio:
                     if (mii[f] != mio[f]):
                         fail('miscinfo field values do not reflect')
                 else:
@@ -4810,8 +4810,8 @@ def imagetest(which=None, size=[32,32,8]):
             if not ok: fail()
             rbo = myim.restoringbeam();
             if not rbo: fail()
-            for f in rbi.keys():
-                if rbo.has_key(f):
+            for f in list(rbi.keys()):
+                if f in rbo:
                     if (qa.getvalue(rbi[f]) != qa.getvalue(rbo[f])):
                         fail('restoring beam values do not reflect')
                     if (qa.getunit(rbi[f]) != qa.getunit(rbo[f])):
@@ -4883,9 +4883,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         #
         info('Testing toascii')
         info('')
@@ -4949,7 +4949,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim2 = True
             note('Expect SEVERE error and Exception here')
             myim2 = myim.twopointcorrelation(axes=[20])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2: stop('twopointcorrelation 1 unexpectedly did not fail')
@@ -4957,7 +4957,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim2 = True
             note('Expect SEVERE error and Exception here')
             myim2 = myim.twopointcorrelation(method='fish')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception:'+str(e))
             myim2 = False
         if myim2: stop('twopointcorrelation 2 unexpectedly did not fail')
@@ -4965,7 +4965,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim2 = True
             note('Expect SEVERE error and Exception here')
             myim2 = myim.twopointcorrelation(region='fish')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2: stop('twopointcorrelation 3 unexpectedly did not fail')
@@ -4973,7 +4973,7 @@ def imagetest(which=None, size=[32,32,8]):
             myim2 = True
             note('Expect SEVERE error and Exception here')
             myim2 = myim.twopointcorrelation(mask='fish')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2: stop('twopointcorrelation 4 unexpectedly did not fail')
@@ -5037,9 +5037,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         lineOut = testdir + '/line.im'
         contOut = testdir + '/cont.im'
 
@@ -5062,7 +5062,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim2 = myim.continuumsub(lineOut, contOut, region='fish',
                                       overwrite=True)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e) )
             myim2 = False
         if myim2:
@@ -5074,7 +5074,7 @@ def imagetest(which=None, size=[32,32,8]):
             #                          overwrite=True)
             myim2 = myim.continuumsub(lineOut, contOut, channels=[-99],
                                       overwrite=True)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2:
@@ -5084,7 +5084,7 @@ def imagetest(which=None, size=[32,32,8]):
             note('Expect SEVERE error and Exception here')
             myim2 = myim.continuumsub(lineOut, contOut, fitorder=-2,
                                       overwrite=True)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             myim2 = False
         if myim2:
@@ -5165,9 +5165,9 @@ def imagetest(which=None, size=[32,32,8]):
             return False
         try:
             os.mkdir(testdir)
-        except IOError, e:
+        except IOError as e:
             note(e, "SEVERE")
-            raise RuntimeError, "mkdir " + testdir + " fails!"
+            raise RuntimeError("mkdir " + testdir + " fails!")
         # Make image
         imshape = [100,100]
         pixels = ia.makearray(0.0, imshape)
@@ -5243,9 +5243,9 @@ def imagetest(which=None, size=[32,32,8]):
     test37()
     test39()  # update once functionals is available
     test40()  # doesn't do much without gui
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
     
 imagedemo()
 
@@ -5260,5 +5260,5 @@ if Benchmarking:
 else:
     imagetest()
 
-print "End of imagetest.py"
+print("End of imagetest.py")
 #exit()

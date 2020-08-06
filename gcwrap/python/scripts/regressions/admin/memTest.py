@@ -40,9 +40,9 @@ def nice_classname(obj):
 def write_message(fileleak, memoryleak):
 
     if fileleak != 0:
-        print "Net file descriptors opened:", fileleak
+        print("Net file descriptors opened:", fileleak)
     if memoryleak != 0:
-        print "Net memory allocated:", memoryleak, "kB"
+        print("Net memory allocated:", memoryleak, "kB")
     return "<system-out>\
 &lt;measurement&gt;&lt;name&gt;Files leaked&lt;/name&gt;&lt;value&gt;" + str(fileleak) + "&lt;/value&gt;&lt;/measurement&gt;\
 &lt;measurement&gt;&lt;name&gt;Memory leaked (kB)&lt;/name&gt;&lt;value&gt;" + str(memoryleak) + "&lt;/value&gt;&lt;/measurement&gt;\
@@ -71,7 +71,7 @@ class MemTest(nose.plugins.xunit.Xunit):
         if not os.path.exists(self.lsof):
             self.lsof = "/usr/bin/lsof"
         if not os.path.exists(self.lsof):
-            print "Warning: Could not find lsof at /usr/sbin/lsof or /usr/bin/lsof"
+            print("Warning: Could not find lsof at /usr/sbin/lsof or /usr/bin/lsof")
 
     def report(self, stream):
         """Writes an Xunit-formatted XML file
@@ -103,7 +103,7 @@ class MemTest(nose.plugins.xunit.Xunit):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdoutdata, stderrdata = p.communicate(None)
         if stderrdata is not None and len(stderrdata) > 0:
-            print >> sys.stderr, stderrdata
+            print(stderrdata, file=sys.stderr)
         return (p.returncode, stdoutdata)
 
     def startTest(self, test):
@@ -130,10 +130,10 @@ class MemTest(nose.plugins.xunit.Xunit):
     def stopContext(self, context):
         try:
             out = subprocess.check_output("du -h", shell=True)
-        except subprocess.CalledProcessError, e:
+        except subprocess.CalledProcessError as e:
             out = e.output
-        print "Directory contents after", context
-        print out
+        print("Directory contents after", context)
+        print(out)
 
     def _update_after_test(self):
         # The predefined hooks stopTest() and afterTest() cannot be used

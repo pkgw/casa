@@ -71,7 +71,7 @@ class asteroid_TPM:
         # when the mjd is outside of the current data...
         # 
         #if int(yr) < 2015: yr = '2015'
-        if self.src in self.knownsrcdict.keys():
+        if self.src in list(self.knownsrcdict.keys()):
             filename = self.datapath+self.src+"_ALMA_TPMprediction_"+yr+"_"+self.knownsrcdict[self.src]['interval']+".txt"
             if (self.openedFile != filename):
                 # read a new file
@@ -164,6 +164,6 @@ class asteroid_TPM:
 		freqs = np.array(freqv)
 	if header4.find("YYYY")<0:
 	    if header4.split()[5] != 'MJD':
-		print "The header info (column names) seem to be different from expected format (i.e. YYYY MM DD HH MI MJD flx01 ...)" 
+		print("The header info (column names) seem to be different from expected format (i.e. YYYY MM DD HH MI MJD flx01 ...)") 
 	     
 	return freqs       

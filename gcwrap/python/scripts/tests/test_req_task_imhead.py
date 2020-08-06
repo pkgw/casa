@@ -91,8 +91,8 @@ class imhead_test(unittest.TestCase):
             The length of the expected and recieved keys must also be the same.
         '''
         listed = imhead(datacopy, mode='list')
-        self.assertTrue(all([True for item in expectedKeys if item in listed.keys()]))
-        self.assertTrue(len(expectedKeys) == len(listed.keys()))
+        self.assertTrue(all([True for item in expectedKeys if item in list(listed.keys())]))
+        self.assertTrue(len(expectedKeys) == len(list(listed.keys())))
         
     def test_listkeysHdkeyVal(self):
         '''
@@ -105,8 +105,8 @@ class imhead_test(unittest.TestCase):
             The lists of expected values and recived ones must also be of equal length.
         '''
         listed = imhead(datacopy, mode='list', hdkey='beammajor', hdvalue=1)
-        self.assertTrue(all([True for item in expectedKeys if item in listed.keys()]))
-        self.assertTrue(len(expectedKeys) == len(listed.keys()))
+        self.assertTrue(all([True for item in expectedKeys if item in list(listed.keys())]))
+        self.assertTrue(len(expectedKeys) == len(list(listed.keys())))
     
     def test_history(self):
         '''
@@ -159,8 +159,8 @@ class imhead_test(unittest.TestCase):
             
         #self.assertDictEqual(endDict, imhead(datacopy, mode='list'))
         
-        self.assertTrue(len(endDict.keys()) == len(imhead(datacopy, mode='list').keys()))
-        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in imhead(datacopy, mode='list').keys()]))
+        self.assertTrue(len(list(endDict.keys())) == len(list(imhead(datacopy, mode='list').keys())))
+        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in list(imhead(datacopy, mode='list').keys())]))
         
     def test_add(self):
         '''
@@ -188,8 +188,8 @@ class imhead_test(unittest.TestCase):
         for key in expectedKeys:
             imhead(datacopy, mode='add', hdkey=key, hdvalue=endDict[key])
         
-        self.assertTrue(len(endDict.keys()) == len(imhead(datacopy, mode='list').keys()))
-        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in imhead(datacopy, mode='list').keys()]))
+        self.assertTrue(len(list(endDict.keys())) == len(list(imhead(datacopy, mode='list').keys())))
+        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in list(imhead(datacopy, mode='list').keys())]))
         
     def test_put(self):
         '''
@@ -210,8 +210,8 @@ class imhead_test(unittest.TestCase):
             imhead(datacopy, mode='put', hdkey=key, hdvalue=InDict[key])
             
         
-        self.assertTrue(len(endDict.keys()) == len(imhead(datacopy, mode='list').keys()))
-        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in imhead(datacopy, mode='list').keys()]))
+        self.assertTrue(len(list(endDict.keys())) == len(list(imhead(datacopy, mode='list').keys())))
+        self.assertTrue(np.all([np.all(imhead(datacopy, mode='list')[key]==endDict[key]) for key in list(imhead(datacopy, mode='list').keys())]))
         
     def test_get(self):
         '''
@@ -248,8 +248,8 @@ class imhead_test(unittest.TestCase):
         
         #self.assertTrue(str(summaryDictnoV) == str(compared))
         #self.assertDictEqual(summaryDictnoV, imhead(datacopy, mode='summary'))
-        self.assertTrue(len(compared.keys()) == len(summaryDictnoV.keys()))
-        self.assertTrue(np.all([np.all(compared[key]==summaryDictnoV[key]) for key in compared.keys()]))
+        self.assertTrue(len(list(compared.keys())) == len(list(summaryDictnoV.keys())))
+        self.assertTrue(np.all([np.all(compared[key]==summaryDictnoV[key]) for key in list(compared.keys())]))
         
 def suite():
     return[imhead_test]

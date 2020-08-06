@@ -27,7 +27,7 @@ if benchmarking:
 #
 # Import the data from FITS to MS
 #
-print '--Import--'
+print('--Import--')
 
 # Safest to start from task defaults
 default('importuvfits')
@@ -51,7 +51,7 @@ if benchmarking:
 
 flagdata(vis=msfile, mode='manual', antenna='VA10', spw='*', field='0')
 
-print '--Widefield--'
+print('--Widefield--')
 default('widefield')
 
 # Pick up our split source data
@@ -133,7 +133,7 @@ clnimage = imname+'.image'
 if benchmarking:
     cleantime = time.time()
 
-print '--Imstat--'
+print('--Imstat--')
 default('imstat')
 
 imagename = clnimage
@@ -147,30 +147,30 @@ cubestats =imstat()
 # Treat this like a regression script
 # WARNING: currently requires toolkit
 #
-print ""
-print ' 3DDAT results '
-print ' =============== '
+print("")
+print(' 3DDAT results ')
+print(' =============== ')
 
-print ''
-print ' --Regression Tests--'
-print ''
+print('')
+print(' --Regression Tests--')
+print('')
 # Pull the max from the cubestats dictionary
 # created above using imstat
 thistest_immax=cubestats['max'][0]
 oldtest_immax = 7.50
-print ' Clean image max should be ',oldtest_immax
-print ' Found : Image Max = ',thistest_immax
+print(' Clean image max should be ',oldtest_immax)
+print(' Found : Image Max = ',thistest_immax)
 diff_immax = abs((oldtest_immax-thistest_immax)/oldtest_immax)
-print ' Difference (fractional) = ',diff_immax
+print(' Difference (fractional) = ',diff_immax)
 
-print ''
+print('')
 # Pull the rms from the cubestats dictionary
 thistest_imrms=cubestats['rms'][0]
 oldtest_imrms = 0.134
-print ' Clean image rms should be ',oldtest_imrms
-print ' Found : Image rms = ',thistest_imrms
+print(' Clean image rms should be ',oldtest_imrms)
+print(' Found : Image rms = ',thistest_imrms)
 diff_imrms = abs((oldtest_imrms-thistest_imrms)/oldtest_imrms)
-print ' Difference (fractional) = ',diff_imrms
+print(' Difference (fractional) = ',diff_imrms)
 
 
 
@@ -183,63 +183,63 @@ if benchmarking:
 #=====================================================================
 #
 if not benchmarking:
-    print ''
-    print '--- Done ---'
+    print('')
+    print('--- Done ---')
 else:
     import datetime
     datestring=datetime.datetime.isoformat(datetime.datetime.today())
     outfile='wproj3ddat.'+datestring+'.log'
     logfile=open(outfile,'w')
 
-    print >>logfile,''
-    print >>logfile,''
+    print('', file=logfile)
+    print('', file=logfile)
 
 
     if (diff_immax < 0.05):
         passimmax = True
-        print >>logfile,'* Passed image max test'
+        print('* Passed image max test', file=logfile)
     else:
         passimmax = False
-        print >>logfile,'* FAILED image max test'
-    print >>logfile,'*  Image max '+str(thistest_immax)
+        print('* FAILED image max test', file=logfile)
+    print('*  Image max '+str(thistest_immax), file=logfile)
 
     if (diff_imrms < 0.05):
         passimrms = True
-        print >>logfile,'* Passed image rms test'
+        print('* Passed image rms test', file=logfile)
     else:
         passimrms = False
-        print >>logfile,'* FAILED image rms test'
-    print >>logfile,'*  Image rms '+str(thistest_imrms)
+        print('* FAILED image rms test', file=logfile)
+    print('*  Image rms '+str(thistest_imrms), file=logfile)
 
     if (passimmax and passimrms ): 
 	regstate=True
-	print >>logfile,'---'
-	print >>logfile,'Passed Regression test for wproj3ddat'
-	print >>logfile,'---'
+	print('---', file=logfile)
+	print('Passed Regression test for wproj3ddat', file=logfile)
+	print('---', file=logfile)
     else: 
 	regstate=False
-	print >>logfile,'---'
-	print >>logfile,'FAILED Regression test for wproj3ddat'
-	print >>logfile,'---'
-    print >>logfile,'*********************************'
+	print('---', file=logfile)
+	print('FAILED Regression test for wproj3ddat', file=logfile)
+	print('---', file=logfile)
+    print('*********************************', file=logfile)
 
-    print >>logfile,''
-    print >>logfile,''
-    print >>logfile,'********* Benchmarking *****************'
-    print >>logfile,'*                                      *'
-    print >>logfile,'Total wall clock time was: ', endTime - startTime
-    print >>logfile,'Total CPU        time was: ', endProc - startProc
-    print >>logfile,'Processing rate MB/s  was: ', 35.1/(endTime - startTime)
-    print >>logfile,'* Breakdown:                           *'
-    print >>logfile,'*   import       time was: '+str(importtime-startTime)
-    print >>logfile,'*   clean        time was: '+str(cleantime-importtime)
-    print >>logfile,'*****************************************'
-    print >>logfile,'basho (test cpu) time was: ?? seconds'
+    print('', file=logfile)
+    print('', file=logfile)
+    print('********* Benchmarking *****************', file=logfile)
+    print('*                                      *', file=logfile)
+    print('Total wall clock time was: ', endTime - startTime, file=logfile)
+    print('Total CPU        time was: ', endProc - startProc, file=logfile)
+    print('Processing rate MB/s  was: ', 35.1/(endTime - startTime), file=logfile)
+    print('* Breakdown:                           *', file=logfile)
+    print('*   import       time was: '+str(importtime-startTime), file=logfile)
+    print('*   clean        time was: '+str(cleantime-importtime), file=logfile)
+    print('*****************************************', file=logfile)
+    print('basho (test cpu) time was: ?? seconds', file=logfile)
 
     logfile.close()
 
-    print ""
-    print "Done!"
+    print("")
+    print("Done!")
         
 #exit()
 #

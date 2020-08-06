@@ -28,10 +28,10 @@ def description():
 def run():
     lepath=locatescript('leo2pt_regression.py')
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 
     return []
 

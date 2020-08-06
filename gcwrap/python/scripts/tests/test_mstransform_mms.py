@@ -118,7 +118,7 @@ class test_base(unittest.TestCase):
         if os.path.exists(self.testmms):
             os.system("rm -rf " + self.testmms)
             
-        print "................. Creating test MMS .................."
+        print("................. Creating test MMS ..................")
         mstransform(vis=msfile, outputvis=self.testmms, datacolumn='data',
                     createmms=True,separationaxis=axis, scan=scans, spw=spws, numsubms=numms)
         
@@ -281,7 +281,7 @@ class test_mms_transformations(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -341,7 +341,7 @@ class test_mms_transformations(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 2, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 2, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
 
@@ -440,7 +440,7 @@ class test_mms_freqavg(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -487,7 +487,7 @@ class test_mms_freqavg(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -520,7 +520,7 @@ class test_mms_freqavg(test_base):
 
         # Verify that some sub-tables are properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 2,'Error re-indexing DATA_DESCRIPTION table')
@@ -565,7 +565,7 @@ class test_mms_parallel(test_base):
 
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(len(out_feed_spw.keys()), 8)
+        self.assertEqual(len(list(out_feed_spw.keys())), 8)
         self.assertEqual(out_feed_spw['r1'], 0)
         self.assertEqual(out_feed_spw['r5'], 1)
 
@@ -595,7 +595,7 @@ class test_mms_parallel(test_base):
         
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(len(out_feed_spw.keys()), 20)
+        self.assertEqual(len(list(out_feed_spw.keys())), 20)
         self.assertEqual(out_feed_spw['r1'], 0)
         self.assertEqual(out_feed_spw['r5'], 1)
         self.assertEqual(out_feed_spw['r9'], 2)
@@ -653,7 +653,7 @@ class test_mms_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 2, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 2, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
 
@@ -663,11 +663,11 @@ class test_mms_spw_poln(test_base):
 
         # Verify that POLARIZATION table is not re-sized.
         corr_col = th.getVarCol(self.outputms+'/POLARIZATION', 'NUM_CORR')
-        self.assertEqual(corr_col.keys().__len__(), 4, 'Wrong number of rows in POLARIZATION table')
+        self.assertEqual(list(corr_col.keys()).__len__(), 4, 'Wrong number of rows in POLARIZATION table')
 
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(len(out_feed_spw.keys()), 52)
+        self.assertEqual(len(list(out_feed_spw.keys())), 52)
 
     def test_mms_spw_selection2(self):
         '''mstransform: Create MMS and select two spws with different polarization shapes'''
@@ -690,7 +690,7 @@ class test_mms_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
@@ -702,11 +702,11 @@ class test_mms_spw_poln(test_base):
 
         # Verify that POLARIZATION table is not re-sized.
         corr_col = th.getVarCol(self.outputms+'/POLARIZATION', 'NUM_CORR')
-        self.assertEqual(corr_col.keys().__len__(), 4, 'Wrong number of rows in POLARIZATION table')
+        self.assertEqual(list(corr_col.keys()).__len__(), 4, 'Wrong number of rows in POLARIZATION table')
 
         # Check the FEED table
         out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(len(out_feed_spw.keys()), 52)
+        self.assertEqual(len(list(out_feed_spw.keys())), 52)
 
     def test_mms_spw_selection3(self):
         '''mstransform: Create MMS and select three spws with numsubms=2'''
@@ -728,7 +728,7 @@ class test_mms_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
@@ -758,7 +758,7 @@ class test_mms_spw_poln(test_base):
 
         # Verify that DATA_DESCRIPTION table is properly re-indexed.
         spw_col = th.getVarCol(self.outputms+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 3, 'Wrong number of rows in DD table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 3, 'Wrong number of rows in DD table')
         self.assertEqual(spw_col['r1'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r2'][0], 0,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
         self.assertEqual(spw_col['r3'][0], 1,'Error re-indexing SPECTRAL_WINDOW_ID of DATA_DESCRIPTION table')
@@ -770,7 +770,7 @@ class test_mms_spw_poln(test_base):
         self.assertEqual(out_feed_spw['r27'],[1])
         self.assertEqual(out_feed_spw['r28'],[1])
         self.assertEqual(out_feed_spw['r51'],[1])
-        self.assertEqual(len(out_feed_spw.keys()), 52)
+        self.assertEqual(len(list(out_feed_spw.keys())), 52)
 
     def test_mms_XXYY_selection(self):
         '''mstransform: correlation='RR,LL' should select and re-index properly'''
@@ -796,7 +796,7 @@ class test_mms_spw_poln(test_base):
 
         # Verify that POLARIZATION table is not re-sized.
         corr_col = th.getVarCol(self.outputms+'/POLARIZATION', 'NUM_CORR')
-        self.assertEqual(corr_col.keys().__len__(), 4, 'Wrong number of rows in POLARIZATION table')
+        self.assertEqual(list(corr_col.keys()).__len__(), 4, 'Wrong number of rows in POLARIZATION table')
 
         # Check the FEED table
 #        out_feed_spw = th.getVarCol(self.outputms+'/FEED', 'SPECTRAL_WINDOW_ID')
@@ -1004,8 +1004,8 @@ class test_mms_input(test_base):
                         combinespws=True, timeaverage=True, timebin='20s',timespan='scan')
             self.assertTrue((ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS'))
         
-        except Exception, instance:
-            print 'This error should have not happened %s'%instance
+        except Exception as instance:
+            print('This error should have not happened %s'%instance)
         
     def test_combspws_timespan_spw_axis_error(self):
         '''mstransform: combinespws=True, timespan=scan axis=spw'''
@@ -1031,8 +1031,8 @@ class test_mms_input(test_base):
                         combinespws=True, timeaverage=True, timebin='20s',timespan='scan')
             self.assertTrue((ParallelDataHelper.isParallelMS(self.outputms),'Output should be an MMS'))
         
-        except Exception, instance:
-            print 'Expected error: %s'%instance
+        except Exception as instance:
+            print('Expected error: %s'%instance)
 
 #    @unittest.skip('Skip until CAS-6946 is fixed')
     def test_split_MMS_weight_corr_sel(self):
@@ -1087,8 +1087,8 @@ class test_mms_output(test_base):
         self.outputms = 'outmms1.mms'
         try:
             mstransform(self.vis, outputvis=self.outputms, datacolumn='corrected', createmms=True, combinespws=True, spw='12,13', scan='31')
-        except Exception, instance:
-            print 'Expected error: %s'%instance
+        except Exception as instance:
+            print('Expected error: %s'%instance)
 
     def test_output_mms2(self):
         '''mstransform: combinespws=True, output axis=spw. Expect error.'''
@@ -1096,8 +1096,8 @@ class test_mms_output(test_base):
         try:
             mstransform(self.vis, outputvis=self.outputms, datacolumn='corrected', createmms=True, combinespws=True, spw='12,13',
                         separationaxis='scan')
-        except Exception, instance:
-            print 'Expected error: %s'%instance
+        except Exception as instance:
+            print('Expected error: %s'%instance)
 
     def test_output_mms3(self):
         '''mstransform: timeaverage=True, timespan=scan, output axis=auto.'''
@@ -1158,7 +1158,7 @@ class test_vla_mixed_polarizations_mms(test_base):
         
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue(summary.has_key('correlation'), 'Flagdata failure due to missformated MS') 
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS') 
 
     def test_vla_mixed_polarizations_mms2(self):
         
@@ -1184,7 +1184,7 @@ class test_vla_mixed_polarizations_mms(test_base):
         
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue(summary.has_key('correlation'), 'Flagdata failure due to missformated MS') 
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS') 
         
         
 class test_alma_wvr_correlation_products_mms(test_base):
@@ -1215,7 +1215,7 @@ class test_alma_wvr_correlation_products_mms(test_base):
         
         # Check that flagdata can run properly with output MS
         summary = flagdata(vis=self.outputms,mode='summary')
-        self.assertTrue(summary.has_key('correlation'), 'Flagdata failure due to missformated MS')   
+        self.assertTrue('correlation' in summary, 'Flagdata failure due to missformated MS')   
         
 
 class test_otf_calibration(test_base_compare):
@@ -1307,7 +1307,7 @@ class test_no_reindexing(test_base):
         
         # Verify that sub-tables have not been reindex
         spw_col = th.getVarCol(self.outvis+'/DATA_DESCRIPTION', 'SPECTRAL_WINDOW_ID')
-        self.assertEqual(spw_col.keys().__len__(), 4, 'Wrong number of rows in DDI table')
+        self.assertEqual(list(spw_col.keys()).__len__(), 4, 'Wrong number of rows in DDI table')
         self.assertEqual(spw_col['r1'][0], 0,'Error, DATA_DESCRIPTION tablehas been re-index')
         self.assertEqual(spw_col['r2'][0], 1,'Error, DATA_DESCRIPTION tablehas been re-index')
         self.assertEqual(spw_col['r3'][0], 2,'Error, DATA_DESCRIPTION tablehas been re-index')

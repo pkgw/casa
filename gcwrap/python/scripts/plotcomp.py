@@ -60,8 +60,8 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
 
         # Read the configuration info.
         if not antennalist:
-            print "compdict['antennalist'] must be set!"
-            print "Try something in", os.getenv("CASAPATH").split(' ')[0] + "/data/alma/simmos/"
+            print("compdict['antennalist'] must be set!")
+            print("Try something in", os.getenv("CASAPATH").split(' ')[0] + "/data/alma/simmos/")
             return failval()
         # Try repodir if raw antennalist doesn't work.
         if not os.path.exists(antennalist):
@@ -201,7 +201,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
         pl.clf()
         pl.ioff() 
         nfreqs = len(compdict['freqs (GHz)'])
-        for freqnum in xrange(nfreqs):
+        for freqnum in range(nfreqs):
             freq = compdict['freqs (GHz)'][freqnum]
             casalog.post("Plotting " + str(freq) + " GHz.")
             pl.plot(baselines/kl, data[freqnum], symb, label="%.3g GHz" % freq)
@@ -246,7 +246,7 @@ def plotcomp(compdict, showplot=True, wantdict=False, symb=',',
                       'savedfig': compdict.get('savedfig')}
         else:
             retval = True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post(str(instance), 'SEVERE')
         if os.path.isdir(tempms):
             shutil.rmtree(tempms)

@@ -581,13 +581,13 @@ class specfit_test(unittest.TestCase):
             ngauss=2, mask=mymask + ">-100",
             stretch=True
         )
-        self.assertTrue(len(zz.keys()) > 0)
+        self.assertTrue(len(list(zz.keys())) > 0)
         yy.done()
         zz = specfit(
             imagename, ngauss=2, mask=mymask + ">-100",
             stretch=True
         )
-        self.assertTrue(len(zz.keys()) > 0)
+        self.assertTrue(len(list(zz.keys())) > 0)
 
     def test_8(self):
         """ Test two gaussian + one polynomial image with estimates"""
@@ -979,7 +979,7 @@ class specfit_test(unittest.TestCase):
         myia.putchunk(bb)
         residual = "bad.im"
         res = myia.fitprofile(ngauss=0, poly=2, residual=residual)
-        zz = range(20)
+        zz = list(range(20))
         del zz[15]
         del zz[10]
         del zz[5]

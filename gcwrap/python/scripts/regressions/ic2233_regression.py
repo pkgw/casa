@@ -168,7 +168,7 @@ def run():
     ic2233_reg();
     endTime = time.time();
     endProc = time.clock();
-    print "Run Time = ",endTime-startTime,endProc-startProc;
+    print("Run Time = ",endTime-startTime,endProc-startProc);
 
 def stats():
     global startTime, endTime, startProc, endProc;
@@ -209,26 +209,26 @@ def stats():
         dVRMS    = vstats["rms"]-StokesVRMS;
         dVMaxPos = vstats["maxpos"]-StokesVPeakPos;
 
-        print >>logfile, "Stokes-I Statistics:";
-        print >>logfile, "-------------------------------------------------";
-        print >>logfile, "Max = ",istats["max"], "  RMS = ",istats["rms"];
-        print >>logfile, "MaxPos = ",istats["maxpos"];
-        print >>logfile, "";
-        print >>logfile, "Stokes-V Statistics:";
-        print >>logfile, "-------------------------------------------------";
-        print >>logfile, "Max = ",vstats["max"], "  RMS = ",vstats["rms"];
-        print >>logfile, "MaxPos = ",vstats["maxpos"];
-        print >>logfile, "";
-        print >>logfile, "Stokes-I Delta-regression Statistics:"
-        print >>logfile, "-------------------------------------------------";
-        print >>logfile, "dMax = ",dIMax, "  dRMS = ",dIRMS;
-        print >>logfile, "dMaxPos = ",dIMaxPos;
-        print >>logfile, "";
-        print >>logfile, "Stokes-V Delta-regression Statistics:"
-        print >>logfile, "-------------------------------------------------";
-        print >>logfile, "dMax = ",dVMax, "  dRMS = ",dVRMS;
-        print >>logfile, "dMaxPos = ",dVMaxPos;
-        print >>logfile,"";
+        print("Stokes-I Statistics:", file=logfile);
+        print("-------------------------------------------------", file=logfile);
+        print("Max = ",istats["max"], "  RMS = ",istats["rms"], file=logfile);
+        print("MaxPos = ",istats["maxpos"], file=logfile);
+        print("", file=logfile);
+        print("Stokes-V Statistics:", file=logfile);
+        print("-------------------------------------------------", file=logfile);
+        print("Max = ",vstats["max"], "  RMS = ",vstats["rms"], file=logfile);
+        print("MaxPos = ",vstats["maxpos"], file=logfile);
+        print("", file=logfile);
+        print("Stokes-I Delta-regression Statistics:", file=logfile)
+        print("-------------------------------------------------", file=logfile);
+        print("dMax = ",dIMax, "  dRMS = ",dIRMS, file=logfile);
+        print("dMaxPos = ",dIMaxPos, file=logfile);
+        print("", file=logfile);
+        print("Stokes-V Delta-regression Statistics:", file=logfile)
+        print("-------------------------------------------------", file=logfile);
+        print("dMax = ",dVMax, "  dRMS = ",dVRMS, file=logfile);
+        print("dMaxPos = ",dVMaxPos, file=logfile);
+        print("", file=logfile);
 
         if ((abs(dIMax) < EPS) &
             (abs(dIRMS) < EPS) &
@@ -238,23 +238,23 @@ def stats():
             #        (dVMaxPos==0).all()
             ):
             regstate=True;
-            print >>logfile,"IC2233 Regression passed.";
-            print ''
-            print 'Regression PASSED'
-            print ''
+            print("IC2233 Regression passed.", file=logfile);
+            print('')
+            print('Regression PASSED')
+            print('')
         else:
             regstate=False;
-            print ''
-            print 'Regression FAILED'
-            print ''
-            print >>logfile,"IC2233 Regression failed.";
+            print('')
+            print('Regression FAILED')
+            print('')
+            print("IC2233 Regression failed.", file=logfile);
         
-            print >>logfile,''
-            print >>logfile,''
-            print >>logfile,'********* Benchmarking *****************'
-            print >>logfile,'*                                      *'
-            print >>logfile,'Total wall clock time was: ', endTime - startTime
-            print >>logfile,'Total CPU        time was: ', endProc - startProc
+            print('', file=logfile)
+            print('', file=logfile)
+            print('********* Benchmarking *****************', file=logfile)
+            print('*                                      *', file=logfile)
+            print('Total wall clock time was: ', endTime - startTime, file=logfile)
+            print('Total CPU        time was: ', endProc - startProc, file=logfile)
 
         logfile.flush()
         logfile.close();
@@ -262,8 +262,8 @@ def stats():
         a=f.read()
         f.close() 
         casalog.post(a, origin="ic2233")
-    except Exception, instance:
-        print "###Error in ic2233 regression: ",instance;
+    except Exception as instance:
+        print("###Error in ic2233 regression: ",instance);
         raise instance
 
 for i in range(1):

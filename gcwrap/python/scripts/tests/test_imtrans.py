@@ -79,7 +79,7 @@ cas_2364im = "CAS-2364.im"
 def run_transpose(imagename, outfile, order):
     myia = iatool()
     myia.open(imagename)
-    print "*** order " + str(order)
+    print("*** order " + str(order))
     res = myia.transpose(outfile=outfile, order=order)
     myia.done()
     return res

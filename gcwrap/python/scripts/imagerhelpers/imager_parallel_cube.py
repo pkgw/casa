@@ -1,5 +1,5 @@
 import os
-import commands
+import subprocess
 import math
 import shutil
 import string
@@ -48,7 +48,7 @@ class PyParallelCubeSynthesisImager():
          
         self.PH = PyParallelImagerHelper()
         self.NN = self.PH.NN
-        self.NF = len(allimagepars.keys())
+        self.NF = len(list(allimagepars.keys()))
         self.listOfNodes = self.PH.getNodeList();
         ## Partition both data and image coords the same way.
         #self.allselpars = self.PH.partitionCubeDataSelection(allselpars)
@@ -103,12 +103,12 @@ class PyParallelCubeSynthesisImager():
             tnode = str(ipart)
             selparsPerNode= {tnode:{}}
             imparsPerNode= {tnode:{}}
-            for fid in allimagepars.iterkeys():
+            for fid in allimagepars.keys():
                 ###restoring original spw selection just to allow weight density to be the same
                 ###ultimately should be passed by MPI if done this way
-                for mss in origspw.keys():
+                for mss in list(origspw.keys()):
                     alldataimpars[fid][nodeidx][mss]['spw']=origspw[mss]['spw']
-                for ky in alldataimpars[fid][nodeidx].iterkeys():
+                for ky in alldataimpars[fid][nodeidx].keys():
 ###                commenting this as it is resetting the selpars when key is not "msxxx" 
 ##                    selparsPerNode[tnode]={}
                     if ky.find('ms')==0:

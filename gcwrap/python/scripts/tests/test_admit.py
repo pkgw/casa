@@ -10,7 +10,7 @@ import datetime as dt
 # admit/admit/test/unittest_*.py
 ##########################################################################
 
-print "*** No tests will run if admit module is not installed in casa"
+print("*** No tests will run if admit module is not installed in casa")
 admit_import = True
 try:
     import admit
@@ -275,7 +275,7 @@ class admit_test_Project(admit_test_base):
         try:
             cwd1 = os.getcwd()
         except OSError:
-            print "\nCannot get current work directory."
+            print("\nCannot get current work directory.")
         cwd2 = self.project.currDir
         self.assertEqual(cwd1, cwd2)
 
@@ -664,7 +664,7 @@ class admit_test_FM(admit_test_base2):
         self.assertTrue(fm.inFlow(task1))
         # test downstream of tid2 (including tid2)
         dstream = fm.downstream(tid2)
-        self.assertEquals(dstream, set([tid2, tid3]))
+        self.assertEqual(dstream, set([tid2, tid3]))
 
         # test stale()
         for ds in dstream:

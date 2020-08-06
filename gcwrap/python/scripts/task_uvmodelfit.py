@@ -15,7 +15,7 @@ def uvmodelfit(vis=None,
                         mycb.setvi(old=True,quiet=False);  # old VI for now
                         mycb.open(vis)
                 else:
-                        raise Exception, 'Visibility data set not found - please verify the name'
+                        raise Exception('Visibility data set not found - please verify the name')
 
 		# Do data selection according to selectdata
 		if (selectdata):
@@ -32,8 +32,8 @@ def uvmodelfit(vis=None,
 
 		mycb.modelfit(niter=niter,compshape=comptype,par=sourcepar,vary=varypar,file=outfile)
 		mycb.close()
-	except Exception, instance:
-		print '*** Error ***',instance
+	except Exception as instance:
+		print('*** Error ***',instance)
 		mycb.close()
-		raise Exception, instance
+		raise Exception(instance)
 

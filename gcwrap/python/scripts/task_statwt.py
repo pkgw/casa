@@ -64,16 +64,16 @@ def statwt(
         if rval != None and preview == False:
             # Write history to MS
             try:
-                param_names = statwt.func_code.co_varnames[:statwt.func_code.co_argcount]
+                param_names = statwt.__code__.co_varnames[:statwt.__code__.co_argcount]
                 param_vals = [eval(p) for p in param_names]
                 write_history(mstool(), vis, 'statwt', param_names,
                               param_vals, casalog)
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                              'WARN')            
             
         return rval
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( '*** Error ***'+str(instance), 'SEVERE' )
         raise
     finally:

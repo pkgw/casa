@@ -109,10 +109,10 @@ polaimage = polimage+'.pola'
 # Polarization Imaging
 #=====================================================================
 #
-print '--Clean (Polarization)--'
+print('--Clean (Polarization)--')
 default('clean')
 
-print "Now clean polarized data"
+print("Now clean polarized data")
 
 vis = srcsplitms
 
@@ -143,13 +143,13 @@ npercycle = 100
 saveinputs('clean',imagename+'.clean.saved')
 clean()
 
-print ""
-print "----------------------------------------------------"
-print "Clean"
-print "Final restored clean image is "+polimage
-print "Final clean model is "+polmodel
-print "The clean residual image is "+polresid
-print "Your final clean mask is "+polmask
+print("")
+print("----------------------------------------------------")
+print("Clean")
+print("Final restored clean image is "+polimage)
+print("Final clean model is "+polmodel)
+print("The clean residual image is "+polresid)
+print("Your final clean mask is "+polmask)
 
 #
 #=====================================================================
@@ -157,7 +157,7 @@ print "Your final clean mask is "+polmask
 #=====================================================================
 #
 # Polarization statistics
-print '--Final Pol Imstat--'
+print('--Final Pol Imstat--')
 default('imstat')
 
 imagename = polimage
@@ -179,7 +179,7 @@ for stokes in ['I','Q','U','V']:
 #
 # Peel off some Q and U planes
 #
-print '--Immath--'
+print('--Immath--')
 default('immath')
 
 mode = 'evalexpr'
@@ -189,21 +189,21 @@ outfile = ipolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created I image "+outfile
+print("Created I image "+outfile)
 
 stokes = 'Q'
 outfile = qpolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created Q image "+outfile
+print("Created Q image "+outfile)
 
 stokes = 'U'
 outfile = upolimage
 expr = '\"'+polimage+'\"'
 
 immath()
-print "Created U image "+outfile
+print("Created U image "+outfile)
 
 #
 #---------------------------------------------------------------------
@@ -220,13 +220,13 @@ mysigma = 0.5*( off_statistics['Q']['rms'][0] + off_statistics['U']['rms'][0] )
 sigma = '0.0Jy/beam'
 
 immath()
-print "Created POLI image "+outfile
+print("Created POLI image "+outfile)
 
 outfile = polaimage
 mode = 'pola'
 
 immath()
-print "Created POLA image "+outfile
+print("Created POLA image "+outfile)
 
 #
 #---------------------------------------------------------------------
@@ -248,23 +248,23 @@ off_statistics['POLI'] = imstat()
 # If you did not do interactive clean, bring up viewer manually
 viewer(polimage,'image')
 
-print "Displaying pol I now.  You should overlay pola vectors"
-print "Bring up the Load Data panel:"
-print ""
-print "Use LEL for POLA VECTOR with cut above 6*mysigma in POLI = "+str(6*mysigma)
-print "For example:"
-print "\'"+polaimage+"\'[\'"+poliimage+"\'>0.0048]"
-print ""
-print "In the Data Display Options for the vector plot:"
-print "  Set the x,y increments to 2 (default is 3)"
-print "  Use an extra rotation this 90deg to get B field"
-print "Note the lengths are all equal. You can fiddle these."
-print ""
-print "You can also load the poli image as contours"
+print("Displaying pol I now.  You should overlay pola vectors")
+print("Bring up the Load Data panel:")
+print("")
+print("Use LEL for POLA VECTOR with cut above 6*mysigma in POLI = "+str(6*mysigma))
+print("For example:")
+print("\'"+polaimage+"\'[\'"+poliimage+"\'>0.0048]")
+print("")
+print("In the Data Display Options for the vector plot:")
+print("  Set the x,y increments to 2 (default is 3)")
+print("  Use an extra rotation this 90deg to get B field")
+print("Note the lengths are all equal. You can fiddle these.")
+print("")
+print("You can also load the poli image as contours")
 
 # Pause script if you are running in scriptmode
 if scriptmode:
-    user_check=raw_input('Return to continue script\n')
+    user_check=input('Return to continue script\n')
 
 # NOTE: the LEL will be something like
 # 'jupiter6cm.usecase.polimg.clean.image.pola'['jupiter6cm.usecase.polimg.clean.image.poli'>0.005]
@@ -297,27 +297,27 @@ po.close()
 #
 # Print results
 #
-print ""
-print ' Jupiter polarization results '
-print ' ============================ '
-print ''
+print("")
+print(' Jupiter polarization results ')
+print(' ============================ ')
+print('')
 for stokes in ['I','Q','U','V','POLI']:
-    print ''
-    print ' =============== '
-    print ''
-    print ' Polarization (Stokes '+stokes+'):'
+    print('')
+    print(' =============== ')
+    print('')
+    print(' Polarization (Stokes '+stokes+'):')
     mymax = on_statistics[stokes]['max'][0]
     mymin = on_statistics[stokes]['min'][0]
     myrms = off_statistics[stokes]['rms'][0]
     absmax = max(mymax,mymin)
     mydra = absmax/myrms
-    print '   Clean image  ON-SRC max = ',mymax
-    print '   Clean image  ON-SRC min = ',mymin
-    print '   Clean image OFF-SRC rms = ',myrms
-    print '   Clean image dynamic rng = ',mydra
+    print('   Clean image  ON-SRC max = ',mymax)
+    print('   Clean image  ON-SRC min = ',mymin)
+    print('   Clean image OFF-SRC rms = ',myrms)
+    print('   Clean image dynamic rng = ',mydra)
 
 
-print '--- Done ---'
+print('--- Done ---')
 
 #
 #=====================================================================

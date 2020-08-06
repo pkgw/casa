@@ -36,7 +36,7 @@ def commongrid(vis=[], spws=[], widths=[],
     """
 
     if len(vis)<2:
-        print "ERROR: less than two input MSs"
+        print("ERROR: less than two input MSs")
         return False
 
     if type(widths)==int or type(widths)==str:
@@ -44,14 +44,14 @@ def commongrid(vis=[], spws=[], widths=[],
         for i in range(0,len(spws)):
             widthlist.append(widths)
         widths = widthlist
-        print "# Expanding widths parameter to ", widths
+        print("# Expanding widths parameter to ", widths)
 
     if len(spws)!=len(widths):
-        print "ERROR: the lists in parameters spws and widths must have the same length"
+        print("ERROR: the lists in parameters spws and widths must have the same length")
         return False
 
     if mode=='velocity' and len(spws)!=len(restfreqs):
-        print "ERROR: the lists in parameters spws and restfreqs must have the same length"
+        print("ERROR: the lists in parameters spws and restfreqs must have the same length")
         return False
 
     mymst = mstool()
@@ -79,8 +79,8 @@ def commongrid(vis=[], spws=[], widths=[],
                                                )
         mymst.close()
     except:
-        print "ERROR when determining grids."
-        print sys.exc_info()
+        print("ERROR when determining grids.")
+        print(sys.exc_info())
         return False
 
 
@@ -91,7 +91,7 @@ def commongrid(vis=[], spws=[], widths=[],
         gridlens.append([])
         for j in range(0,len(vis)):
             if(len(grids[j][i])<2):
-                print "ERROR: cannot handle single channel grids"
+                print("ERROR: cannot handle single channel grids")
                 return False
             minfreqs[len(minfreqs)-1].append(min(grids[j][i]))
             gridlens[len(gridlens)-1].append(len(grids[j][i]))
@@ -111,20 +111,20 @@ def commongrid(vis=[], spws=[], widths=[],
 
         nchans.append( thenchan )
 
-    print 'mymss = ',; print vis
-    print 'myspws = ',; print spws
-    print 'startfreqs = ',; print startfreqs
-    print 'widths = ',; print widths
-    print 'nchans = ',; print nchans
+    print('mymss = ', end=' '); print(vis)
+    print('myspws = ', end=' '); print(spws)
+    print('startfreqs = ', end=' '); print(startfreqs)
+    print('widths = ', end=' '); print(widths)
+    print('nchans = ', end=' '); print(nchans)
 
-    print 'for myms in mymss:'
-    print '    for i in range(0,len(myspws)):'
+    print('for myms in mymss:')
+    print('    for i in range(0,len(myspws)):')
     thecommand = 'cvel(vis=myms, mode=\'frequency\', spw=myspws[i], outframe=\''+outframe+\
                   '\',\n        '+\
                   'start=str(startfreqs[i])+\'Hz\', width=str(widths[i])+'+\
                   '\'Hz\', nchan=nchans[i],\n        '+\
                   'outputvis=\'cvel_\'+myms+\'_spw\'+str(myspws[i]))'
-    print '        '+thecommand
+    print('        '+thecommand)
 
     rval = {}
     rval['outframe'] = outframe

@@ -33,19 +33,19 @@ def importuvfits(fitsfile, vis, antnamescheme=None):
             casalog.post("")
             myms.fromfits(vis, fitsfile, antnamescheme=antnamescheme)
             myms.close()
-        except Exception, instance: 
+        except Exception as instance: 
             casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
             raise
         # Write the args to HISTORY.
         try:
             param_names = \
-                importuvfits.func_code.co_varnames[:importuvfits.func_code.co_argcount]
+                importuvfits.__code__.co_varnames[:importuvfits.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
                 myms, vis, 'importuvfits', param_names, 
                 param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("Failed to updated HISTORY table", 'WARN')
     except:
         pass

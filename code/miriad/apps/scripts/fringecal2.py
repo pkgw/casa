@@ -37,20 +37,20 @@ def fringe(vis=vis, ms=ms, field='0'):
     # SpwId
     #  0-5   wideband data (15 channels, LSB/USB)
     
-    print '--start calibration over: run cleancal on data--'
+    print('--start calibration over: run cleancal on data--')
 
     clearcal(vis=ms)
 
     # Bandpass calibration
 
     if do_bandpass:
-        print '--Bandpass--'
+        print('--Bandpass--')
         default('bandpass')
         bandpass(vis=ms,caltable=ms+'.bcal',gaintable='',gainfield='',
              interp='',field=field, spw='',selectdata=False,gaincurve=False,
              opacity=0.0,bandtype='B',solint='1000s',combine='scan',refant='8',
              solnorm=False)
-        print '--Bandpass done--'
+        print('--Bandpass done--')
 
     #####
     # setjy and gain calibration
@@ -97,9 +97,9 @@ def fringe(vis=vis, ms=ms, field='0'):
     #        minsnr=2.0, refant='8', gaincurve=False, opacity=0.0, 
     #       solint='600s', combine='scan')
     
-        print '--gaincal done--'
+        print('--gaincal done--')
 
-    print '--fluxscale (nothing) done--'
+    print('--fluxscale (nothing) done--')
 
     #####
     # Apply calibration to calibrator and source data
@@ -142,16 +142,16 @@ def fringe(vis=vis, ms=ms, field='0'):
           niter=1000,stokes='I')
 
 def simple(vis=vis, ms=ms):
-    print '--simple filler --',vis
+    print('--simple filler --',vis)
     # carmafiller
     cmd = 'carmafiller vis=%s ms=%s' % (vis,ms)
     os.system(cmd)
-    print '--listobs --'
+    print('--listobs --')
     # make a listing
     listobs(vis=ms)
     field='0'
 
-    print '--clean --'
+    print('--clean --')
     clean(vis=ms,imagename=ms+'.fill.clean',cell=[2.,2.],imsize=[128,128],
           field=field,spw='0:0',threshold=10., 
 #          psfmode='hogbom',

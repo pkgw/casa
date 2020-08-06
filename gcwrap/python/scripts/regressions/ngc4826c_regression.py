@@ -12,7 +12,7 @@ os.system('rm -rf n4826_t* mosaic.flux mosaic.model mosaic.image mosaic.residual
 pathname=os.environ.get('CASAPATH').split()[0]
 datapath = pathname + '/data/regression/ATST3/NGC4826/'
 
-print '--Copy data to local directory--'
+print('--Copy data to local directory--')
 mspath='cp -r '+datapath+'n4826_both.ms .'
 os.system(mspath)
 os.system('chmod -R a+wx n4826_both.ms')
@@ -21,7 +21,7 @@ startTime = time.time()
 startProc = time.clock()
 
 
-print '--Feather--'
+print('--Feather--')
 # Starting from:
 #    BIMA mosaic image (Moment 0) : n4826_mom0.im
 #    NRAO 12m OTF image (Moment 0): n4826_12mmom0.im
@@ -33,7 +33,7 @@ feathertime = time.time()
 #BIMA:  Max:1.627327e+02        Flux:1.035314e+04 Jy    rms:1.587101e+01
 #12m:   Max:9.939910e+02        Flux:2.600573e+03 Jy    rms:1.159703e+02
 
-print '--Feather cube--'
+print('--Feather cube--')
 # Starting from:
 #    BIMA mosaic image (Moment 0) : n4826_bima.im
 #    NRAO 12m OTF image (Moment 0): NGC4826.12motf.chan.fits
@@ -54,7 +54,7 @@ feathercubetime = time.time()
 # Maximum value   1.881626e+00 at [113, 115, 1, 25] (12:56:45.388, +21.40.51.100, I, 1.15172e+11Hz)
 # Flux density  =   1.054628e+02 Jy
 
-print '--Feather cube - create synth image--'
+print('--Feather cube - create synth image--')
 # Starting from:
 #    BIMA calibrated visibilities: n4826_both.ms
 #    NRAO 12m OTF cube: NGC4826.12motf.chan.fits
@@ -86,7 +86,7 @@ feather('n4826_tfeathersynth.im','mosaic.image','n4826_t12mchan2.im')
 #Pcombo:  Max: 1.681789e+00   Flux: 1.454376e+02 Jy   Rms: 8.196454e-02
 feathersynthtime = time.time()
 
-print '--Single Dish as Model--'
+print('--Single Dish as Model--')
 # Starting from:
 #    BIMA calibrated visibilities: n4826_both.ms
 #    NRAO 12m OTF cube: n4826_t12mchan.im
@@ -115,7 +115,7 @@ sdmodeltime = time.time()
 #BIMA:  Max:1.627327e+02        Flux:1.035314e+04 Jy    rms:1.587101e+01
 #Pcombo:Max:1.511604e+02        Flux:2.016790e+03 Jy    rms:1.873132e+01
 
-print '--Joint Deconvolution--'
+print('--Joint Deconvolution--')
 # Regrid 12m image onto synth imaging coordinates
 # Tool-kit only (currently)
 ia.open('n4826_tjoint1.image')
@@ -253,59 +253,59 @@ datestring=datetime.datetime.isoformat(datetime.datetime.today())
 outfile='ngc4826c.'+datestring+'.log'
 logfile=open(outfile, 'w')
 
-print >>logfile, ''
-print >>logfile, '********** Data Summary *********'
-print >>logfile, ''
-print >>logfile, '*   Observer:      Project: t108c115.n48'
-print >>logfile, '*Observation: BIMA(10 antennas)'
-print >>logfile, '*  Telescope Observation Date    Observer       Project'
-print >>logfile, '*  BIMA      [                   4.39941e+09,  4.39942e+09]               t108c115.n48'
-print >>logfile, '*Data records: 109260       Total integration time = 628492 seconds'
-print >>logfile, '*   Observed from   04:04:31   to   10:39:23'
-print >>logfile, '*Fields: 7'
-print >>logfile, '*  ID   Name          Right Ascension  Declination   Epoch'
-print >>logfile, '*  0    NGC4826-F0    12:56:44.24      +21.41.05.10  J2000'
-print >>logfile, '*  1    NGC4826-F1    12:56:41.08      +21.41.05.10  J2000'
-print >>logfile, '*  2    NGC4826-F2    12:56:42.66      +21.41.43.20  J2000'
-print >>logfile, '*  3    NGC4826-F3    12:56:45.82      +21.41.43.20  J2000'
-print >>logfile, '*  4    NGC4826-F4    12:56:47.40      +21.41.05.10  J2000'
-print >>logfile, '*  5    NGC4826-F5    12:56:45.82      +21.40.27.00  J2000'
-print >>logfile, '*  6    NGC4826-F6    12:56:42.66      +21.40.27.00  J2000'
-print >>logfile, '*Spectral Windows:  (4 unique spectral windows and 1 unique polarization setups)'
-print >>logfile, '*  SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs'
-print >>logfile, '*  0          64 LSRD  114950.387  1562.5      100000      115271.2    YY'
-print >>logfile, '*  1          64 LSRD  115040.402  1562.5      100000      115271.2    YY'
-print >>logfile, '*  2          64 LSRD  115130.143  1562.5      100000      115271.2    YY'
-print >>logfile, '*  3          64 LSRD  115220.157  1562.5      100000      115271.2    YY'
-print >>logfile, '*Antennas: 10'
-print >>logfile, '*   ID=   1-3: ANT1=UNKNOWN, ANT2=UNKNOWN, ANT3=UNKNOWN, ANT4=UNKNOWN,'
-print >>logfile,'*   ID=   5-7: ANT5=UNKNOWN, ANT6=UNKNOWN, ANT7=UNKNOWN, ANT8=UNKNOWN,'
-print >>logfile,'*   ID=   9-9: ANT9=UNKNOWN, ANT10=UNKNOWN'
-print >>logfile,'*********************************'
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
+print('', file=logfile)
+print('********** Data Summary *********', file=logfile)
+print('', file=logfile)
+print('*   Observer:      Project: t108c115.n48', file=logfile)
+print('*Observation: BIMA(10 antennas)', file=logfile)
+print('*  Telescope Observation Date    Observer       Project', file=logfile)
+print('*  BIMA      [                   4.39941e+09,  4.39942e+09]               t108c115.n48', file=logfile)
+print('*Data records: 109260       Total integration time = 628492 seconds', file=logfile)
+print('*   Observed from   04:04:31   to   10:39:23', file=logfile)
+print('*Fields: 7', file=logfile)
+print('*  ID   Name          Right Ascension  Declination   Epoch', file=logfile)
+print('*  0    NGC4826-F0    12:56:44.24      +21.41.05.10  J2000', file=logfile)
+print('*  1    NGC4826-F1    12:56:41.08      +21.41.05.10  J2000', file=logfile)
+print('*  2    NGC4826-F2    12:56:42.66      +21.41.43.20  J2000', file=logfile)
+print('*  3    NGC4826-F3    12:56:45.82      +21.41.43.20  J2000', file=logfile)
+print('*  4    NGC4826-F4    12:56:47.40      +21.41.05.10  J2000', file=logfile)
+print('*  5    NGC4826-F5    12:56:45.82      +21.40.27.00  J2000', file=logfile)
+print('*  6    NGC4826-F6    12:56:42.66      +21.40.27.00  J2000', file=logfile)
+print('*Spectral Windows:  (4 unique spectral windows and 1 unique polarization setups)', file=logfile)
+print('*  SpwID  #Chans Frame Ch1(MHz)    Resoln(kHz) TotBW(kHz)  Ref(MHz)    Corrs', file=logfile)
+print('*  0          64 LSRD  114950.387  1562.5      100000      115271.2    YY', file=logfile)
+print('*  1          64 LSRD  115040.402  1562.5      100000      115271.2    YY', file=logfile)
+print('*  2          64 LSRD  115130.143  1562.5      100000      115271.2    YY', file=logfile)
+print('*  3          64 LSRD  115220.157  1562.5      100000      115271.2    YY', file=logfile)
+print('*Antennas: 10', file=logfile)
+print('*   ID=   1-3: ANT1=UNKNOWN, ANT2=UNKNOWN, ANT3=UNKNOWN, ANT4=UNKNOWN,', file=logfile)
+print('*   ID=   5-7: ANT5=UNKNOWN, ANT6=UNKNOWN, ANT7=UNKNOWN, ANT8=UNKNOWN,', file=logfile)
+print('*   ID=   9-9: ANT9=UNKNOWN, ANT10=UNKNOWN', file=logfile)
+print('*********************************', file=logfile)
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
 status = {False: "! FAILED", True: "* Passed"}
-print >>logfile, status[diff_f1 < 0.05], 'Feather 1 image max test '
-print >>logfile,'*--  Feather 1: Image max '+str(feather1_immax)+','+str(f1_max)
-print >>logfile, status[diff_f2 < 0.05], 'Feather 2 image max test'
-print >>logfile,'*--  Feather 2: Image max '+str(feather2_immax)+','+str(f2_max)
-print >>logfile, status[diff_f3 < 0.05], 'Feather 3 image max test'
-print >>logfile,'*--  Feather 3: Image max '+str(feather3_immax)+','+str(f3_max)
-print >>logfile, status[diff_jc1 < 0.05], 'Joint Deconvolution 1 image max test' 
-print >>logfile,'*--  Joint Decon1: Image max '+str(jc1_immax)+','+str(jc1_max)
-print >>logfile, status[diff_jc2 < 0.05], 'Joint Deconvolution 2 image max test'
-print >>logfile,'*--  Joint Decon2: Image max '+str(jc2_immax)+','+str(jc2_max)
-print >>logfile, status[diff_f1f < 0.05], 'Feather 1 flux test '
-print >>logfile,'*--  Feather 1: Flux '+str(feather1_flux)+','+str(f1_flux)
-print >>logfile, status[diff_f2f < 0.05], 'Feather 2 flux test'
-print >>logfile,'*--  Feather 2: Flux '+str(feather2_flux)+','+str(f2_flux)
-print >>logfile, status[diff_f3f < 0.05], 'Feather 3 flux test'
-print >>logfile,'*--  Feather 3: Flux '+str(feather3_flux)+','+str(f3_flux)
-print >>logfile, status[diff_jc1f < 0.05], 'Joint Deconvolution flux test'
-print >>logfile,'*--  Joint Decon1: Flux '+str(joint1_flux)+','+str(jc1_flux)
-print >>logfile, status[diff_jc2f < 0.05], 'Joint Deconvolution flux test'
-print >>logfile,'*--  Joint Decon2: Flux '+str(joint2_flux)+','+str(jc2_flux)
+print(status[diff_f1 < 0.05], 'Feather 1 image max test ', file=logfile)
+print('*--  Feather 1: Image max '+str(feather1_immax)+','+str(f1_max), file=logfile)
+print(status[diff_f2 < 0.05], 'Feather 2 image max test', file=logfile)
+print('*--  Feather 2: Image max '+str(feather2_immax)+','+str(f2_max), file=logfile)
+print(status[diff_f3 < 0.05], 'Feather 3 image max test', file=logfile)
+print('*--  Feather 3: Image max '+str(feather3_immax)+','+str(f3_max), file=logfile)
+print(status[diff_jc1 < 0.05], 'Joint Deconvolution 1 image max test', file=logfile) 
+print('*--  Joint Decon1: Image max '+str(jc1_immax)+','+str(jc1_max), file=logfile)
+print(status[diff_jc2 < 0.05], 'Joint Deconvolution 2 image max test', file=logfile)
+print('*--  Joint Decon2: Image max '+str(jc2_immax)+','+str(jc2_max), file=logfile)
+print(status[diff_f1f < 0.05], 'Feather 1 flux test ', file=logfile)
+print('*--  Feather 1: Flux '+str(feather1_flux)+','+str(f1_flux), file=logfile)
+print(status[diff_f2f < 0.05], 'Feather 2 flux test', file=logfile)
+print('*--  Feather 2: Flux '+str(feather2_flux)+','+str(f2_flux), file=logfile)
+print(status[diff_f3f < 0.05], 'Feather 3 flux test', file=logfile)
+print('*--  Feather 3: Flux '+str(feather3_flux)+','+str(f3_flux), file=logfile)
+print(status[diff_jc1f < 0.05], 'Joint Deconvolution flux test', file=logfile)
+print('*--  Joint Decon1: Flux '+str(joint1_flux)+','+str(jc1_flux), file=logfile)
+print(status[diff_jc2f < 0.05], 'Joint Deconvolution flux test', file=logfile)
+print('*--  Joint Decon2: Flux '+str(joint2_flux)+','+str(jc2_flux), file=logfile)
 
 if (diff_f1 < 0.05 and
     diff_f2 < 0.05 and
@@ -316,34 +316,34 @@ if (diff_f1 < 0.05 and
     diff_f3f < 0.05 and
     diff_jc1f < 0.05): 
 	regstate=True
-	print >>logfile,'---'
-	print >>logfile,'Passed Regression test for NGC4826'
-	print >>logfile,'---'
-	print ''
-	print 'Regression PASSED'
-	print ''
+	print('---', file=logfile)
+	print('Passed Regression test for NGC4826', file=logfile)
+	print('---', file=logfile)
+	print('')
+	print('Regression PASSED')
+	print('')
 else: 
 	regstate=False
-	print ''
-	print 'Regression FAILED'
-	print ''
-	print >>logfile,'----FAILED Regression test for NGC4826'
-print >>logfile,'*********************************'
+	print('')
+	print('Regression FAILED')
+	print('')
+	print('----FAILED Regression test for NGC4826', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(760./(endTime - startTime))
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(760./(endTime - startTime)), file=logfile)
 # n4826_both.ms x 3 plus image sizesish
-print >>logfile,'* Breakdown:                           *'
-print >>logfile,'*   feather      time was: '+str(feathertime-startTime)
-print >>logfile,'*   feathercube  time was: '+str(feathercubetime-feathertime)
-print >>logfile,'*   feathersynth time was: '+str(feathersynthtime-feathercubetime)
-print >>logfile,'*   sdmodel      time was: '+str(sdmodeltime-feathersynthtime)
-print >>logfile,'*   joint decon  time was: '+str(jointtime-sdmodeltime)
-print >>logfile,'*****************************************'
+print('* Breakdown:                           *', file=logfile)
+print('*   feather      time was: '+str(feathertime-startTime), file=logfile)
+print('*   feathercube  time was: '+str(feathercubetime-feathertime), file=logfile)
+print('*   feathersynth time was: '+str(feathersynthtime-feathercubetime), file=logfile)
+print('*   sdmodel      time was: '+str(sdmodeltime-feathersynthtime), file=logfile)
+print('*   joint decon  time was: '+str(jointtime-sdmodeltime), file=logfile)
+print('*****************************************', file=logfile)
 
 logfile.close()

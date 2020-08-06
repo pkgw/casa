@@ -44,7 +44,7 @@ sm.done()
 
 tb.open(name+".noisy.ms")
 v=tb.getcol("DATA")
-print "rms= (",pl.rms_flat(v.real),"+",pl.rms_flat(v.imag),"j) -> ",pl.rms_flat(v)
+print("rms= (",pl.rms_flat(v.real),"+",pl.rms_flat(v.imag),"j) -> ",pl.rms_flat(v))
 rms1=pl.rms_flat(v)
 tb.done()
 
@@ -66,12 +66,12 @@ sm.done()
 
 tb.open(name+".noisy.ms")
 v=tb.getcol("DATA")
-print "rms= (",pl.rms_flat(v.real),"+",pl.rms_flat(v.imag),"j) -> ",pl.rms_flat(v)
+print("rms= (",pl.rms_flat(v.real),"+",pl.rms_flat(v.imag),"j) -> ",pl.rms_flat(v))
 rms2=pl.rms_flat(v)
 tb.done()
 
 if rms1 != rms2:
-    print "ERROR! NOISE is increasing without cause!!"
+    print("ERROR! NOISE is increasing without cause!!")
 else:
-    print "PASSED"
+    print("PASSED")
 

@@ -181,8 +181,8 @@ class ia_modify_test(unittest.TestCase):
             errmsg = 'compareComponentList: '
             if (n0 != n1):
                 errmsg += 'Number of components differ'
-                print cl0.torecord()
-                print cl1.torecord()
+                print(cl0.torecord())
+                print(cl1.torecord())
                 info(errmsg)
                 return False
             #

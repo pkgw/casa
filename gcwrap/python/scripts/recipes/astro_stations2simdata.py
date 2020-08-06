@@ -13,7 +13,7 @@ def dms2d(dms):
     """
     Given a d:m:s string, return it as a float in degrees.
     """
-    d, m, s = map(float, dms.split(':'))
+    d, m, s = list(map(float, dms.split(':')))
     m += s / 60.0
     m /= 60.0
     if dms[0] == '-':

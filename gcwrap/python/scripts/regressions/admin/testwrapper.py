@@ -1,7 +1,7 @@
 """ Class to wrap a test to use with unittest framework."""
 
 import os
-import commands
+import subprocess
 import sys
 import shutil
 import inspect
@@ -12,6 +12,7 @@ import casac
 import unittest
 
 import tests.selection_syntax as selection_syntax
+import importlib
 SyntaxTestClasses = [selection_syntax.SelectionSyntaxTest]
 
 PYVER = str(sys.version_info[0]) + "." + str(sys.version_info[1])
@@ -38,7 +39,7 @@ class Helper():
     
     def test_dummy(self):
         '''Helper function'''
-        raise Exception, "Cannot find test %s"%self.tname
+        raise Exception("Cannot find test %s"%self.tname)
 
 class UnitTest:
     def __init__(self,testname=''):
@@ -57,7 +58,7 @@ class UnitTest:
         """Copy data files to local working directory"""
         
         dataFiles = self.dataFiles
-        print 'Searching for input data in %s'%(self.datadir)
+        print('Searching for input data in %s'%(self.datadir))
         for datafile in dataFiles: 
             file = self.locatedata(datafile, self.datadir)
             #if data already exist, remove them
@@ -79,7 +80,7 @@ class UnitTest:
         self.dataFiles = []
 
     def getFuncTest(self):
-        print '-------------- Unit Test for %s ---------------'%self.testname
+        print('-------------- Unit Test for %s ---------------'%self.testname)
         """Wrap a script using unittest"""
         testscript = self.searchscript(self.testname, self.scriptdir)
         
@@ -93,13 +94,13 @@ class UnitTest:
 
         # import the test
         mytest = __import__(self.testname)
-        reload(mytest)
+        importlib.reload(mytest)
 
         #get the data
         try:
             self.dataFiles = mytest.data()
         except:
-            print 'No data needed or found'
+            print('No data needed or found')
               
         # Wrap the test, funcSetup and funcTeardown in a FunctionTestCase and return it
         testcase = (unittest.FunctionTestCase(mytest.run,setUp=self.funcSetup,
@@ -111,9 +112,9 @@ class UnitTest:
 
     def getUnitTest(self,list=[]):
         """Set up a unit test script to run wit nose"""    
-        print '-------------- Unit Test for %s ---------------'%self.testname
+        print('-------------- Unit Test for %s ---------------'%self.testname)
         if list:
-            print 'List of specific tests %s'%(list)
+            print('List of specific tests %s'%(list))
             
         # search for script in repository
         testscript = self.searchscript(self.testname, self.scriptdir)
@@ -132,7 +133,7 @@ class UnitTest:
 
         # import the test
         mytest = __import__(self.testname)
-        reload(mytest)
+        importlib.reload(mytest)
         
         # get the classes
         classes = mytest.suite()
@@ -142,7 +143,7 @@ class UnitTest:
         if not list:
 #            print "no list"
             for c in classes:
-                for attr, value in c.__dict__.iteritems():                
+                for attr, value in c.__dict__.items():                
 #                    print attr, " = ", value
                     if len(attr) >= len("test") and \
                         attr[:len("test")] == "test" : \
@@ -150,7 +151,7 @@ class UnitTest:
                 for base in SyntaxTestClasses:
                     if issubclass(c, base):
                         test_name_list = [t._testMethodName for t in testlist]
-                        for attr, value in base.__dict__.iteritems():
+                        for attr, value in base.__dict__.items():
                             if len(attr) >= len("test") and \
                                 attr[:len("test")] == "test" :
                                 if attr not in test_name_list:
@@ -163,7 +164,7 @@ class UnitTest:
                     if self.isaclass(c,input):
 #                        print "it is a class"
                         # It is a class. Get all its methods
-                        for attr, value in c.__dict__.iteritems():
+                        for attr, value in c.__dict__.items():
                             if len(attr) >= len("test") and \
                                 attr[:len("test")] == "test" : \
                                 # append each test method to the list    
@@ -171,7 +172,7 @@ class UnitTest:
                         for base in SyntaxTestClasses:
                             if issubclass(c, base):
                                 test_name_list = [t._testMethodName for t in testlist]
-                                for attr, value in base.__dict__.iteritems():
+                                for attr, value in base.__dict__.items():
                                     if len(attr) >= len("test") and \
                                         attr[:len("test")] == "test" :
                                         if attr not in test_name_list:
@@ -179,13 +180,13 @@ class UnitTest:
                     else:
                         # maybe it is a method. Get only this one
 #                        print "maybe it is a method"
-                        for attr, value in c.__dict__.iteritems():
+                        for attr, value in c.__dict__.items():
                             if input == attr:
                                 testlist.append(c(attr))
                         for base in SyntaxTestClasses:
                             if issubclass(c, base):
                                 test_name_list = [t._testMethodName for t in testlist]
-                                for attr, value in base.__dict__.iteritems():
+                                for attr, value in base.__dict__.items():
                                     if input == attr:
                                         if attr not in test_name_list:
                                             testlist.append(c(attr))
@@ -214,14 +215,14 @@ class UnitTest:
             workdir = '/tmp/utests'
         
         if os.path.isdir(workdir):
-            print 'Cleaning up '+ workdir
+            print('Cleaning up '+ workdir)
             shutil.rmtree(workdir)
 
 
     def createDir(self, workdir):
         """Create a working directory"""
         if os.access(workdir, os.F_OK) is False:
-            print workdir+' does not exist, creating it'
+            print(workdir+' does not exist, creating it')
             os.makedirs(workdir)
 
 
@@ -233,7 +234,7 @@ class UnitTest:
             filter_hidden = ' | grep -vE "^\\."  | grep -vE "/\\."'
             
             #See if find understands -L or -follow (depends on find version)
-            (err, a) = commands.getstatusoutput('find -L ' + repository+'/ 1>/dev/null 2>&1')
+            (err, a) = subprocess.getstatusoutput('find -L ' + repository+'/ 1>/dev/null 2>&1')
             if not err:
                 findstr='find -L '+repository+'/ -name '+datafile+' -print 2>/dev/null' + filter_hidden
             else:
@@ -241,7 +242,7 @@ class UnitTest:
             # A '/' is appended to the directory name; otherwise sometimes find doesn't find.
             #Also, ignore error messages such as missing directory permissions
             
-            (find_errorcode, a)=commands.getstatusoutput(findstr)   # stdout and stderr
+            (find_errorcode, a)=subprocess.getstatusoutput(findstr)   # stdout and stderr
             #if find_errorcode != 0:
             #    print >> sys.stderr, "%s failed: %s" % (findstr, a)
             retval=''
@@ -250,16 +251,16 @@ class UnitTest:
                 b=string.split(a, '\n')
                 retval=b[len(b)-1]
                 if(len(b) > 1):
-                    print 'More than 1 file found with name '+datafile
-                print 'Will use', retval
+                    print('More than 1 file found with name '+datafile)
+                print('Will use', retval)
                 return retval
-        raise Exception, 'Could not find datafile %s in the repository directories %s' \
-              % (datafile, datadir)
+        raise Exception('Could not find datafile %s in the repository directories %s' \
+              % (datafile, datadir))
  
 
     def searchscript(self, testname, scriptdir):
         """Search for the script"""
-        print "Searching for script %s in %s" %(testname,scriptdir)                  
+        print("Searching for script %s in %s" %(testname,scriptdir))                  
 #        TestName=string.lower(testname)
         TestName = testname
 
@@ -280,18 +281,18 @@ class UnitTest:
                       
         if numOfScript == 0:
 #            raise Exception, 'Could not find test %s' %TestName 
-            print 'ERROR: Could not find test %s' %TestName
+            print('ERROR: Could not find test %s' %TestName)
             return ""  
             
         if( numOfScript > 1) :
-            print 'More than 1 scripts found for name '+TestName
-            print 'Using the following one '+ theScript
+            print('More than 1 scripts found for name '+TestName)
+            print('Using the following one '+ theScript)
             
-        print "Found", theScript
+        print("Found", theScript)
         return theScript
 
     def getTest(self, testnamek, testName, scriptdir, workdir):
-        print 'Copy the script to the working dir'
+        print('Copy the script to the working dir')
         if testnamek[0:6] == 'tests/':
             shutil.copy(scriptdir+'/'+testnamek,
                         workdir+'/'+testName+'.py')
@@ -330,12 +331,12 @@ class UnitTest:
                 numOfScript += 1  
                       
         if numOfScript == 0:
-            print 'ERROR: Could not find test %s' %TestName
+            print('ERROR: Could not find test %s' %TestName)
             return False  
             
         if( numOfScript > 1) :
-            print 'More than 1 scripts found for name '+TestName
-            print 'Copying the following one '+ fscript
+            print('More than 1 scripts found for name '+TestName)
+            print('Copying the following one '+ fscript)
                     
         try:
             shutil.copy(fscript, copyto)
@@ -355,7 +356,7 @@ class UnitTest:
             atest = self.testname
         # import the test
         mytest = __import__(atest)
-        reload(mytest)
+        importlib.reload(mytest)
         
         # get the classes from the suite function
         classes = mytest.suite()
@@ -396,6 +397,6 @@ class ExecTest(unittest.TestCase,UnitTest):
                 break
         gl=sys._getframe(stacklevel).f_globals
         
-        execfile(self.testscript, gl)   
+        exec(compile(open(self.testscript, "rb").read(), self.testscript, 'exec'), gl)   
         
 

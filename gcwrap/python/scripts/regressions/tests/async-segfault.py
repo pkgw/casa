@@ -25,7 +25,7 @@ gl=sys._getframe(stacklevel).f_globals
 def data():
     ### return the data files that are needed by the regression script
     myfiles = []
-    for i in pass_on.keys():
+    for i in list(pass_on.keys()):
         myfiles.append(pass_on[i])
     return myfiles
 
@@ -48,10 +48,10 @@ def run( fetch=False ):
     #####locate the regression script
     try: 
         lepath=locatescript('async-segfault_regression.py')
-        print 'Script used is ',lepath
-        execfile(lepath, gl, pass_on)
+        print('Script used is ',lepath)
+        exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl, pass_on)
     except:
-        print 'execution failed: ', sys.exc_info()
+        print('execution failed: ', sys.exc_info())
         raise
 ###return the images that will be templated and compared in future runs
     return []

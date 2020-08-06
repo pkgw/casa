@@ -44,10 +44,10 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         try:
             # First check
             if tb.nrows() != tb2.nrows():
-                print 'Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows())
+                print('Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows()))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb.nrows()):
             
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
@@ -64,11 +64,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance)
+                                    print('ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance))
                                     break
                         else:
-                            print 'ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.'
-                            print 'ERROR: First row to differ is row=' + str(therow)
+                            print('ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.')
+                            print('ERROR: First row to differ is row=' + str(therow))
                             retval = False
                             break
         finally:
@@ -76,11 +76,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
             tb2.close()
     
     else:
-        print 'Column: ' +str(col) + 'are not varcolumns.'
+        print('Column: ' +str(col) + 'are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree'
+        print('Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree')
         
     return retval
  
@@ -122,7 +122,7 @@ class Test010_NGC612(unittest.TestCase):
         elif os.path.isfile("/usr/bin/curl"):
             os.system("/usr/bin/curl https://casaguides.nrao.edu/images/4/48/Ngc612region.txt -o ngc612region.crtf")
         else:
-            print "Could not download ngc612region.crtf!"
+            print("Could not download ngc612region.crtf!")
 
         if os.uname()[0] == 'Darwin':
             os.system(os.environ.get('CASAPATH').split()[0] +"/Resources/python/extractCASAscript.py -n -p -d 'https://casaguides.nrao.edu/index.php/ATCA_Continuum_Polarization_Tutorial_NGC612-CASA%s'"%(version))
@@ -134,7 +134,7 @@ class Test010_NGC612(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide: NGC612'''
 
-        execfile('ATCAContinuumPolarizationTutorialNGC612-CASA' + version +'.py')
+        exec(compile(open('ATCAContinuumPolarizationTutorialNGC612-CASA' + version +'.py', "rb").read(), 'ATCAContinuumPolarizationTutorialNGC612-CASA' + version +'.py', 'exec'))
                 
         return True
 
@@ -219,7 +219,7 @@ class Test021_NGC612(unittest.TestCase):
         mystats1=imstat(imagename='ngc612h.P',mask='ngc612h.P>0.002')
         expected = 1.166
         val = float(mystats1['flux'])
-        print "Expected: %s , Actual: %s"%(expected,val)
+        print("Expected: %s , Actual: %s"%(expected,val))
         self.assertGreaterEqual(val, 1.164)
         self.assertLessEqual(val, 1.168)
         #assert val >= 1.164 and val <= 1.168, "Total polarized flux density Error Should Equal: 1.166"
@@ -229,7 +229,7 @@ class Test021_NGC612(unittest.TestCase):
         mystats2=imstat(imagename='ngc612h.X',region='box [ [ 325pix , 260pix] , [345pix, 275pix ] ]')
         expected = ((-1.0) * (61.7))
         val = mystats2['mean']
-        print "Expected: %s , Actual: %s"%(expected,val)
+        print("Expected: %s , Actual: %s"%(expected,val))
         self.assertGreaterEqual(val, ((-1.0)*(63.7)))
         self.assertLessEqual(val, ((-1.0)*(59.7)))
         #assert val >= ((-1.0)*(61.9)) and val <= ((-1.0)*(61.5)) , "Pol. angles in western lobe Error Should Equal: -61.7 Degrees"
@@ -239,7 +239,7 @@ class Test021_NGC612(unittest.TestCase):
         mystats3=imstat(imagename='ngc612h.X',region='box [ [ 365pix , 250pix] , [385pix,  265pix ] ]')
         expected = 22.8
         val = mystats3['mean'][0]
-        print "Expected: %s , Actual: %s"%(expected,val)
+        print("Expected: %s , Actual: %s"%(expected,val))
         self.assertGreaterEqual(val, 21.2)
         self.assertLessEqual(val, 25.2)
         #assert val >= 23.0 and val <= 23.4 , "Pol. angles in western lobe Error Should Equal: 23.2 Degrees"

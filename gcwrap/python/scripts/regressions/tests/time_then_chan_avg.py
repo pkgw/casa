@@ -32,7 +32,7 @@ expected = {
             'datshp':         (1, 4, 1320),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(8)],
+                'tav': {('FLAG', 0): [False for i in range(8)],
   #                      ('WEIGHT', 0): (589824.0, 0.1),
                         ('WEIGHT', 0): (655360.0, 0.1),
 #                        ('EXPOSURE', 0): 18.874367952346802,
@@ -47,17 +47,17 @@ expected = {
                                                      6.33345938+6.j,  6.33345938+7.j]]), 0.005),
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
-                        ('FLAG', 1): [False for i in xrange(8)],
+                        ('FLAG', 1): [False for i in range(8)],
 #                        ('WEIGHT', 1): (655360.0, 0.1),
                         ('WEIGHT', 1): (45.0, 0.1),
 #                        ('SIGMA', 1): 0.0012352647,
                         ('SIGMA', 1): 0.14907120168209076,
 #                        ('WEIGHT', 2): (45.0, 0.05),
                         ('WEIGHT', 2): (0.0, 0.05),
-                        ('FLAG', 3): [False for i in xrange(8)],
+                        ('FLAG', 3): [False for i in range(8)],
                         ('ANTENNA2', 5): 7,  # Baseline 0-6 is dropped
                         },
-                'cav': {('FLAG', 0): [False for i in xrange(4)],
+                'cav': {('FLAG', 0): [False for i in range(4)],
 #                        ('WEIGHT', 0): (1179648.0,0.1),
                         ('WEIGHT', 0): (1310720.0,0.1),
 #                        ('EXPOSURE', 0): 18.874367952346802,
@@ -71,14 +71,14 @@ expected = {
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
                         ('ARRAY_ID', 1): 0,
-                        ('FLAG', 1): [False for i in xrange(4)],
+                        ('FLAG', 1): [False for i in range(4)],
 #                        ('WEIGHT', 1): (1310720.0, 0.1),
                         ('WEIGHT', 1): (90.0, 0.1),
 #                        ('SIGMA', 1): 0.0008734640,
                         ('SIGMA', 1): 0.10540925711393356,
 #                        ('WEIGHT', 2): (90.0, 0.05),
                         ('WEIGHT', 2): (0.0, 0.05),
-                        ('FLAG', 3): [False for i in xrange(4)],
+                        ('FLAG', 3): [False for i in range(4)],
                         ('ANTENNA2', 5): 7  # Baseline 0-6 is dropped
                         }}},
 
@@ -89,7 +89,7 @@ expected = {
             'datshp':         (1, 4, 269),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(8)],
+                'tav': {('FLAG', 0): [False for i in range(8)],
                         ('WEIGHT', 0): (589824.0, 1.0),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('DATA', 1): (numpy.array([[0.0+0.j, 4.5+1.j,
@@ -110,14 +110,14 @@ expected = {
                         ('WEIGHT_SPECTRUM', 2): (numpy.array([[5.625, 5.625, 5.625, 5.625,
                                                                5.625, 5.625, 5.625, 5.625]]),
                                                  0.01),
-                        ('FLAG', 3): [True for i in xrange(8)],
+                        ('FLAG', 3): [True for i in range(8)],
                         ('WEIGHT_SPECTRUM', 4): (numpy.array([[16384.004, 8192.0,
                                                                8192.0, 8192.0,
                                                                8192.0, 8192.0,
                                                                8192.0, 8192.0]]), 0.1),
                         ('ANTENNA2', 5): 7,  # Baseline 0-6 is dropped
                         },
-                'cav': {('FLAG', 0): [False for i in xrange(4)],
+                'cav': {('FLAG', 0): [False for i in range(4)],
                         ('WEIGHT', 0): (589824.0, 0.1),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('FEED1', 0): 0,
@@ -137,7 +137,7 @@ expected = {
                         ('WEIGHT', 2): (45.0, 0.05),
                         ('WEIGHT_SPECTRUM', 2): (numpy.array([[11.25, 11.25,
                                                                11.25, 11.25]]), 0.01),
-                        ('FLAG', 3): [True for i in xrange(4)],
+                        ('FLAG', 3): [True for i in range(4)],
                         ('WEIGHT_SPECTRUM', 4): (numpy.array([[24576.0, 16384.0,
                                                                16384.0, 16384.0]]), 0.1),
                         ('ANTENNA2', 5): 7,  # Baseline 0-6 is dropped
@@ -148,31 +148,31 @@ expected = {
             'datshp':         (1, 4, 270),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(8)],
+                'tav': {('FLAG', 0): [False for i in range(8)],
                         ('WEIGHT', 0): (589823.9375, 0.1),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('DATA', 1): (numpy.array([[4.5+0.j, 4.5+1.j,
                                                     4.5+2.j, 4.5+3.j,
                                                     4.5+4.j, 4.5+5.j,
                                                     4.5+6.j, 4.5+7.j]]), 0.005),
-                        ('WEIGHT_SPECTRUM', 1): (numpy.array([[81920.0 for i in xrange(8)]]),
+                        ('WEIGHT_SPECTRUM', 1): (numpy.array([[81920.0 for i in range(8)]]),
                                                  0.1),
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
-                        ('FLAG', 1): [False for i in xrange(8)],
+                        ('FLAG', 1): [False for i in range(8)],
                         ('WEIGHT', 1): (655360.0, 0.1),
                         ('SIGMA', 1): 0.0012352647,
                         ('WEIGHT', 2): (655359.9375, 0.05),
                         ('ANTENNA2', 5): 6  # Baseline 0-6 is OK in spw 2.
                         },
-                'cav': {('FLAG', 0): [False for i in xrange(4)],
+                'cav': {('FLAG', 0): [False for i in range(4)],
                         ('WEIGHT', 0): (589823.9375, 1.0),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('FEED1', 0): 0,
                         ('FEED2', 9): 0,
                         ('DATA', 1): (numpy.array([[4.5+0.5j, 4.5+2.5j,
                                                     4.5+4.5j, 4.5+6.5j]]), 0.005),
-                        ('WEIGHT_SPECTRUM', 1): (numpy.array([[163840.0 for i in xrange(4)]]),
+                        ('WEIGHT_SPECTRUM', 1): (numpy.array([[163840.0 for i in range(4)]]),
                                                  0.1),
                         ('TIME', 1): (4715114710.4857559, 0.01),
                         ('EXPOSURE', 1): 20.971519947052002,
@@ -187,7 +187,7 @@ expected = {
             'datshp':         (1, 2, 808),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(4)],
+                'tav': {('FLAG', 0): [False for i in range(4)],
                         ('WEIGHT', 0): (294912.0, 0.1),
                         ('EXPOSURE', 0): 18.8744,
                         ('DATA', 1): (numpy.array([[0.0+0.j, 4.5+1.j,
@@ -232,7 +232,7 @@ expected = {
             'datshp': set([(1, 4, 1), (1, 2, 1)]),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(8)],
+                'tav': {('FLAG', 0): [False for i in range(8)],
                         ('WEIGHT', 0): (589824.0, 0.1),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('DATA', 1): (numpy.array([[0.0+0.j, 4.5+1.j, 4.5+2.j, 4.5+3.j,
@@ -251,7 +251,7 @@ expected = {
                         ('WEIGHT_SPECTRUM', 2): (numpy.array([[5.625, 5.625, 5.625, 5.625,
                                                                5.625, 5.625, 5.625, 5.625]]),
                                                  0.01),
-                        ('FLAG', 3): [True for i in xrange(8)], # wt invalid, but wtsp valid
+                        ('FLAG', 3): [True for i in range(8)], # wt invalid, but wtsp valid
                         ('WEIGHT_SPECTRUM', 4): (numpy.array([[16384.0, 8192.0,
                                                                 8192.0, 8192.0,
                                                                 8192.0, 8192.0,
@@ -260,7 +260,7 @@ expected = {
                         ('DATA_DESC_ID', 44): 0,
                         ('DATA_DESC_ID', 134): 1
                         },
-                'cav': {('FLAG', 0): [False for i in xrange(4)],
+                'cav': {('FLAG', 0): [False for i in range(4)],
                         ('WEIGHT', 0): (589824.0, 0.1),
                         ('EXPOSURE', 0): 18.874368,
                         ('FEED1', 0): 0,
@@ -283,7 +283,7 @@ expected = {
                         ('WEIGHT', 2): (45.0, 0.05),
                         ('WEIGHT_SPECTRUM', 2): (numpy.array([[11.25, 11.25, 11.25, 11.25]]),
                                                  0.01),
-                        ('FLAG', 3): [True for i in xrange(4)], # wt invalid, but wtsp valid
+                        ('FLAG', 3): [True for i in range(4)], # wt invalid, but wtsp valid
                         ('WEIGHT_SPECTRUM', 4): (numpy.array([[24576.00585938, 16384.00390625,
                                                                16384.00390625, 16384.00390625]]),
                                                  0.05),
@@ -299,7 +299,7 @@ expected = {
             'datshp': (1, 2, 269),
             'cells': {
                 #T or C  (col, row)  val, or (val, tolerance)
-                'tav': {('FLAG', 0): [False for i in xrange(4)],
+                'tav': {('FLAG', 0): [False for i in range(4)],
                         ('WEIGHT', 0): (294912.0, 0.1),
                         ('EXPOSURE', 0): 18.874367952346802,
                         ('DATA', 1): (numpy.array([[4.500+4.j, 4.500+5.j,
@@ -314,7 +314,7 @@ expected = {
                         ('WEIGHT', 2): (22.5, 0.05),
                         ('WEIGHT_SPECTRUM', 2): (numpy.array([[5.625, 5.625, 5.625, 5.625]]),
                                                  0.01),
-                        ('FLAG', 3): [True for i in xrange(4)],
+                        ('FLAG', 3): [True for i in range(4)],
                         ('WEIGHT_SPECTRUM', 4): (numpy.array([[8192.00195312, 8192.00195312,
                                                                8192.00195312, 8192.00195312]]),
                                                  0.005),
@@ -372,7 +372,7 @@ def data():
     """As I understand it, this must return the filenames of needed input data."""
     
     # Just in case order matters.
-    inplist = expected.keys()
+    inplist = list(expected.keys())
     inplist.sort()
     
     #return ['split/' + inpms for inpms in inplist]
@@ -391,7 +391,7 @@ def run(fetch=False):
         tbin = str(expected[input_ms]['tav']) + 's'
         cbin = expected[input_ms]['cav']
 
-        spwsels = expected[input_ms].keys()
+        spwsels = list(expected[input_ms].keys())
         spwsels.remove('tav')
         spwsels.remove('cav')
         spwsels.remove('dep')
@@ -414,42 +414,42 @@ def run(fetch=False):
                                                     outms=outputms,
                                                     chanselstr=spwsel,
                                                     zaptemp=False)
-            except Exception, e:
-                raise Exception, "Error (%s) running time_then_chan_avg()." % e
+            except Exception as e:
+                raise Exception("Error (%s) running time_then_chan_avg()." % e)
 
             ###### Test # of rows.
             if nrows_aft_tavg != expected[input_ms][spwsel]['nrows_aft_tavg']:
-                raise Exception, """
+                raise Exception("""
                 The number of rows after time averaging (%d) does not match
                 the expected number (%d) for input MS %s with selection string "%s"
                 """ % (nrows_aft_tavg, expected[input_ms][spwsel]['nrows_aft_tavg'],
-                       input_ms, spwsel)
+                       input_ms, spwsel))
 
             if nrows_aft_cavg != expected[input_ms][spwsel]['nrows_aft_cavg']:
-                raise Exception, """
+                raise Exception("""
                 The number of rows after channel averaging (%d) does not match
                 the expected number (%d) for input MS %s with selection string "%s"
                 """ % (nrows_aft_cavg, expected[input_ms][spwsel]['nrows_aft_cavg'],
-                       input_ms, spwsel)
+                       input_ms, spwsel))
 
             if shp_aft_cavg != expected[input_ms][spwsel]['datshp']:
-                raise Exception, """
+                raise Exception("""
                 The data shape (%s) after channel averaging does not match
                 the expectation (%s) for input MS %s with selection string "%s"
                 """ % (shp_aft_cavg, expected[input_ms][spwsel]['datshp'],
-                       input_ms, spwsel)
+                       input_ms, spwsel))
 
             ###### Compare averaged data with expectation, and rm the averaged
             ###### data if it passes.
             outputmses = {'tav': tavms, 'cav': outputms}
-            for avtype, avms in outputmses.iteritems():
+            for avtype, avms in outputmses.items():
                 expcells = expected[input_ms][spwsel]['cells'][avtype]
                 try:
                     tb.open(avms)
-                except Exception, e:
-                    raise Exception, "Error (%s) opening %s." % (e, avms)
+                except Exception as e:
+                    raise Exception("Error (%s) opening %s." % (e, avms))
                 try:
-                    for ((col, row), expent) in expcells.iteritems():
+                    for ((col, row), expent) in expcells.items():
                         usetol = True
                         if isinstance(expent, tuple):
                             tol = expent[1]
@@ -469,25 +469,25 @@ def run(fetch=False):
                         if hasattr(closeenough, 'all'):
                             closeenough = closeenough.all()
                         if not closeenough:
-                            if not badcells.has_key(avms):
+                            if avms not in badcells:
                                 badcells[avms] = {}
                             badcells[avms][(col, row)] = (gotval, expent)
-                except Exception, e:
-                    raise Exception, "Error (%s) checking %s's cell %s." % (e, avms,
-                                                                            (col, row))
+                except Exception as e:
+                    raise Exception("Error (%s) checking %s's cell %s." % (e, avms,
+                                                                            (col, row)))
                 finally:
                     tb.close()
 
-                if not badcells.has_key(avms):
+                if avms not in badcells:
                     shutil.rmtree(avms)
     if badcells:
         pp = pprint.PrettyPrinter(indent=0, width=80)
         pp.pprint(badcells)
-        raise Exception, "There were unexpected values in the averaged MSes.  Check the log."
+        raise Exception("There were unexpected values in the averaged MSes.  Check the log.")
     
-    print ''
-    print 'Regression PASSED'
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
 
     return []
 
@@ -540,7 +540,7 @@ def time_then_chan_avg(inms, tbin, chanbin, outms="", zaptemp=True,
         ms.open(tms)
         nrows_aft_tavg = ms.nrow()
         ms.close()
-    except Exception, e:
+    except Exception as e:
         casalog.post(
 """Error from split(vis='%s', outputvis='%s',
                  timebin='%s', spw='%s', datacolumn='%s').""" % (inms, tms,
@@ -565,13 +565,13 @@ def time_then_chan_avg(inms, tbin, chanbin, outms="", zaptemp=True,
         if funnyshapes:
             dat = tb.getvarcol('DATA')
             nrows_aft_cavg = len(dat)
-            shape_aft_cavg = set([d.shape for d in dat.itervalues()])
+            shape_aft_cavg = set([d.shape for d in dat.values()])
         else:
             dat = tb.getcol('DATA')
             shape_aft_cavg = dat.shape
             nrows_aft_cavg = shape_aft_cavg[-1]
         tb.close()
-    except Exception, e:
+    except Exception as e:
         casalog.post(
 """Error from split(vis='%s', outputvis='%s',
                  datacolumn='data', width=%d, spw='%s').""" % (tms, outms,
@@ -599,6 +599,6 @@ def disk_usage(pat):
             size, path = outline.split() # newline dumped.
             size = int(size)
             retval[path] = size
-        except Exception, e:
-            print "Error (%s) getting size and path from %s." % (e, outline)
+        except Exception as e:
+            print("Error (%s) getting size and path from %s." % (e, outline))
     return retval

@@ -30,12 +30,12 @@ def data():
 def run(fetch=False):
     #####locate the regression script
     lepath=locatescript('testcompsim.py')
-    print 'Script used is ',lepath
+    print('Script used is ',lepath)
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 ###return the images that will be templated and compared in future runs
     return ['cltest/cltest.alma.cycle0.extended.ms','cltest/cltest.alma.cycle0.extended.image','cltest/cltest.alma.cycle0.extended.diff']
 

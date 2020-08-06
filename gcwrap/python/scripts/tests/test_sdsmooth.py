@@ -18,7 +18,7 @@ from sdsmooth import sdsmooth
 #from test.test_funcattrs import StaticMethodAttrsTest
 
 try:
-    from testutils import copytree_ignore_subversion
+    from .testutils import copytree_ignore_subversion
 except:
     from tests.testutils import copytree_ignore_subversion
 
@@ -97,7 +97,7 @@ class sdsmooth_test_base(unittest.TestCase):
         @functools.wraps(func)
         def wrapper(self):
             with sdutil.tbmanager(self.infile) as tb:
-                for irow in xrange(tb.nrows()):
+                for irow in range(tb.nrows()):
                     self.assertTrue(tb.iscelldefined('WEIGHT_SPECTRUM', irow))
             
             # weight mode flag
@@ -111,7 +111,7 @@ class sdsmooth_test_base(unittest.TestCase):
         datacol_name = self.datacolumn.upper()
         weight_mode = hasattr(self, 'weight_propagation') and getattr(self, 'weight_propagation') is True
         
-        if kwargs.has_key('kwidth'):
+        if 'kwidth' in kwargs:
             kwidth = kwargs['kwidth']
         else:
             kwidth = 5
@@ -122,7 +122,7 @@ class sdsmooth_test_base(unittest.TestCase):
         self.assertIsNone(self.result, msg='The task must complete without error')
         self.assertTrue(os.path.exists(self.outfile), msg='Output file is not properly created.')
 
-        if kwargs.has_key('spw'):
+        if 'spw' in kwargs:
             spw = kwargs['spw']
         else:
             spw = ''
@@ -162,7 +162,7 @@ class sdsmooth_test_base(unittest.TestCase):
 
         # verify data
         eps = 1.0e-6
-        for key in data_out.keys():
+        for key in list(data_out.keys()):
             row_in = data_in[key]
             flg_in = flag_in[key]
             row_in[numpy.where(flg_in == True)] = 0.0
@@ -199,9 +199,9 @@ class sdsmooth_test_base(unittest.TestCase):
                 wkernel = kernel_array[start_chan:start_chan+wkwidth].copy()
                 wkernel /= sum(wkernel)
                 weight_expected = wgt_in.copy()
-                for ichan in xrange(half_width, nchan-half_width):
+                for ichan in range(half_width, nchan-half_width):
                     s = numpy.zeros(npol, dtype=float)
-                    for jchan in xrange(wkwidth):
+                    for jchan in range(wkwidth):
                         s += wkernel[jchan] * wkernel[jchan] / wgt_in[:,ichan-half_width+jchan,0]
                     weight_expected[:,ichan,0] = 1.0 / s
                 #print weight_expected[:,:10]
@@ -455,13 +455,13 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
     verbose = False
  
     def _get_selection_string(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         return {key: self.selections[key][0]}
 
     def _get_selected_row_and_pol(self, key):
-        if key not in self.selections.keys():
-            raise ValueError, "Invalid selection parameter %s" % key
+        if key not in list(self.selections.keys()):
+            raise ValueError("Invalid selection parameter %s" % key)
         pols = [0,1]
         rows = [0,1]
         if key == 'pol':  #self.selection stores pol ids
@@ -476,11 +476,11 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
         elif datacol.startswith("corr"):
             col_offset = 50
         else:
-            raise ValueError, "Got unexpected datacolumn."
+            raise ValueError("Got unexpected datacolumn.")
         spike_chan = col_offset + 20*row_offset + 10*pol_offset
         reference = numpy.zeros(nchan)
         reference[spike_chan-2:spike_chan+3] = 0.2
-        if self.verbose: print("reference=%s" % str(reference))
+        if self.verbose: print(("reference=%s" % str(reference)))
         return reference
     
     def run_test(self, sel_param, datacolumn, reindex=True):
@@ -509,7 +509,7 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
                 for out_pol in range(len(polids)):
                     in_pol = polids[out_pol]
                     reference = self._get_reference(nchan, in_row, in_pol, dcol)
-                    if self.verbose: print("data=%s" % str(sp[out_pol]))
+                    if self.verbose: print(("data=%s" % str(sp[out_pol])))
                     self.assertTrue(numpy.allclose(sp[out_pol], reference,
                                                    atol=atol, rtol=rtol),
                                     "Smoothed spectrum differs in row=%d, pol=%d" % (out_row, out_pol))
@@ -577,9 +577,9 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
         """Test reindex =T/F in spw selection"""
         outfile = self.common_param['outfile']
         for datacol in ['float_data', 'corrected']:
-            print("Test: %s" % datacol.upper())
+            print(("Test: %s" % datacol.upper()))
             for (reindex, ddid, spid) in zip([True, False], [0, 1], [0,7]):
-                print("- reindex=%s" % str(reindex))
+                print(("- reindex=%s" % str(reindex)))
                 self.run_test("spw", datacol, reindex=reindex)
                 tb.open(outfile)
                 try:
@@ -597,9 +597,9 @@ class sdsmooth_selection(sdsmooth_test_base, unittest.TestCase):
         """Test reindex =T/F in intent selection"""
         outfile = self.common_param['outfile']
         for datacol in ['float_data', 'corrected']:
-            print("Test: %s" % datacol.upper())
+            print(("Test: %s" % datacol.upper()))
             for (reindex, idx) in zip([True, False], [0, 4]):
-                print("- reindex=%s" % str(reindex))
+                print(("- reindex=%s" % str(reindex)))
                 self.run_test("intent", datacol, reindex=reindex)
                 tb.open(outfile)
                 try:

@@ -78,7 +78,7 @@ class Test010_VLAIRC10216(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide:  VLA high frequency Spectral Line tutorial - IRC+10216'''
 
-        execfile('VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py')
+        exec(compile(open('VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py', "rb").read(), 'VLAhighfrequencySpectralLinetutorial-IRC_2B10216.py', 'exec'))
                 
         return True
 

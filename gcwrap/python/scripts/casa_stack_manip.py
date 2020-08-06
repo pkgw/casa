@@ -19,7 +19,7 @@ def stack_find(symbol, level='stack') :
 
         myf=sys._getframe(stacklevel).f_globals
 
-        if myf.has_key(symbol) and myf.has_key(label) :
+        if symbol in myf and label in myf :
             return myf[symbol]
 
         else:
@@ -34,7 +34,7 @@ def stack_find(symbol, level='stack') :
 
         myf=sys._getframe(stacklevel).f_globals
 
-        if myf.has_key(symbol) :
+        if symbol in myf :
             return myf[symbol]
 
         else:
@@ -70,7 +70,7 @@ def stack_frame_find(level='stack') :
 
     myf=sys._getframe(stacklevel).f_globals
 
-    if myf.has_key(label) :
+    if label in myf :
         return myf
     else:
         return None

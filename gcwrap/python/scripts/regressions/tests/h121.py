@@ -21,12 +21,12 @@ def data():
 
 def run(fetch=False):
     lepath=locatescript('h121_regression.py')
-    print 'Script used is ',lepath
+    print('Script used is ',lepath)
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 #    import lepath+'/g192_regression.py'
 ###resturn the images that will be templated and compared in future runs
     return ['nrao150.3mm.image', 'h121.co10.image',  '0224b.3mm.image', 'h121b.co10.image', 'h121all.3mm.image', 'h121c.co10.image' ]

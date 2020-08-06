@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import thread # To handle service threads like monitoring
+import _thread # To handle service threads like monitoring
 import threading
 import time # To handle sleep times
 import traceback # To pretty-print tracebacks
@@ -9,13 +9,13 @@ from taskinit import casalog
 from taskinit import casa
 
 # Import MPIEnvironment static class
-from MPIEnvironment import MPIEnvironment
+from .MPIEnvironment import MPIEnvironment
 
 # Import MPICommunicator singleton
-from MPICommunicator import MPICommunicator
+from .MPICommunicator import MPICommunicator
 
 # Import MPIMonitorClient singleton
-from MPIMonitorClient import MPIMonitorClient
+from .MPIMonitorClient import MPIMonitorClient
 
 # Define log levels
 log_levels = ['DEBUG','DEBUG1','DEBUG2','NORMAL','NORMAL1','NORMAL2','NORMAL3','NORMAL4','NORMAL5',
@@ -207,7 +207,7 @@ class MPICommandClient:
             
             try:
                 self.__command_response_handler_service_on = True
-                self.__command_response_handler_service_thread = thread.start_new_thread(self.__command_response_handler_service, ())
+                self.__command_response_handler_service_thread = _thread.start_new_thread(self.__command_response_handler_service, ())
             except:
                 formatted_traceback = traceback.format_exc()
                 self.__command_response_handler_service_on = False
@@ -364,7 +364,7 @@ class MPICommandClient:
             
             try:
                 self.__command_request_queue_service_on = True
-                self.__command_request_queue_service_thread = thread.start_new_thread(self.__command_request_queue_service, ())
+                self.__command_request_queue_service_thread = _thread.start_new_thread(self.__command_request_queue_service, ())
             except:
                 formatted_traceback = traceback.format_exc()
                 self.__command_request_queue_service_on = False
@@ -406,7 +406,7 @@ class MPICommandClient:
                 but excluding the entries with keys given in the second
                 parameter.
                 """
-                filtered = {key: value for key, value in a_dict.items()
+                filtered = {key: value for key, value in list(a_dict.items())
                             if key not in keys_exclude}
                 return filtered
 
@@ -708,7 +708,7 @@ class MPICommandClient:
             
             except:
                 formatted_traceback = traceback.format_exc()
-                print "Unhandled exception in MPICommandClient::stop_services %s" %(formatted_traceback)
+                print("Unhandled exception in MPICommandClient::stop_services %s" %(formatted_traceback))
                 
             # UnMark MPI environment to be finalized by the MPICommunicator destructor
             # (Either because it is already finalized or due to a 
@@ -1067,7 +1067,7 @@ class MPICommandClient:
             pending_command_request_id_list = list(command_request_id_list)
             while len(pending_command_request_id_list) > 0:
                 for command_request_id in command_request_id_list:
-                    print self.__command_request_list[command_request_id]
+                    print(self.__command_request_list[command_request_id])
                     if self.__command_request_list[command_request_id]['status'] == 'request sent':
                         pending_command_request_id_list.remove(command_request_id)
                 time.sleep(MPIEnvironment.mpi_push_command_request_block_mode_sleep_time)            

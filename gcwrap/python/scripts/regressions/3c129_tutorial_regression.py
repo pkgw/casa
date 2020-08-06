@@ -105,18 +105,18 @@ if benchmarking:
 # IMPORT, FLAG, CALIBRATE, IMAGE THE B-CONFIGURATION DATA
 #=====================================================================
 #
-print ""
-print "Loading B-config data..."
-print ""
+print("")
+print("Loading B-config data...")
+print("")
 
 #=====================================================================
 # Fill B-config data at C-band (5 GHz)
-print "--Import (Bconfig)--"
+print("--Import (Bconfig)--")
 importvla(archivefiles=['AT166_1', 'AT166_2'],vis=msnameB,bandname='C',evlabands=False); 
  
 #=====================================================================
 # List a summary of the dataset in the logger
-print "--Listobs--"
+print("--Listobs--")
 listobs(vis=msnameB); 
  
 #--> Note scan sequence, fields, and spectral window information, etc. 
@@ -136,7 +136,7 @@ fluxcaldir = pathname + '/data/nrao/VLA/CalModels/'
 #fluxcaldir = './'
 
 #  NB: By default, the model for 0420+417 is a 1 Jy point source 
-print "--Setjy--"
+print("--Setjy--")
 # Should say:
 ## 0518+165  spwid=  0  [I=3.688, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
 ## 0518+165  spwid=  1  [I=3.862, Q=0, U=0, V=0] Jy, (Perley-Taylor 99)
@@ -151,26 +151,26 @@ setjy(vis=msnameB,field='0134+329',modimage=fluxcaldir+'3C48_C.im',scalebychan=F
 #plotxy(vis=msnameB,spw='0',field='0420+417,0518+165,0134+329',selectdata=True,correlation='RR,LL',interactive=False,figfile='at166B.plotxy.initial.spw0.png');
 #plotxy(vis=msnameB,spw='1',field='0420+417,0518+165,0134+329',selectdata=True,correlation='RR,LL',interactive=False,figfile='at166B.plotxy.initial.spw1.png'); 
 
-print "--Flagdata--"
+print("--Flagdata--")
 flagdata(vis=msnameB,antenna='VA01',timerange='1994/07/25/14:21:10.0~14:21:20.0',mode='manual')
 
 #=====================================================================
 # Solve for gains on calibrators 
 #  NB: reference phases to VA12; pre-apply parallactic angle correction 
-print "--Gaincal--"
+print("--Gaincal--")
 gaincal(vis=msnameB,caltable='at166B.gcal',field='0420+417,0518+165,0134+329',refant='VA12',parang=True); 
  
 #--> (22/22 good solutions) 
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 # Use subplot panels to stack amp, phase, snr above each other
 if scriptmode:
     plotcal(caltable='at166B.gcal',yaxis='amp',subplot=311); 
     plotcal(caltable='at166B.gcal',yaxis='phase',subplot=312); 
     plotcal(caltable='at166B.gcal',yaxis='snr',subplot=313); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166B.gcal',yaxis='amp',subplot=211,showgui=False,figfile=''); 
     plotcal(caltable='at166B.gcal',yaxis='phase',subplot=212,showgui=False,figfile='at166B.gcal.plotcal.png'); 
@@ -179,17 +179,17 @@ else:
  
 #=====================================================================
 # Scale gain solution from 0420+417 according to f.d. calibrators 
-print "--Fluxscale--"
+print("--Fluxscale--")
 fluxscale(vis=msnameB,caltable='at166B.gcal',fluxtable='at166B.fcal',reference='0518+165,0134+329'); 
  
 # -->  0420: 1.441/1.443 Jy (broadly consistent with VLA Cal man values at L & X) 
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 if scriptmode:
     plotcal(caltable='at166B.fcal',yaxis='amp'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166B.fcal',yaxis='amp',showgui=False,figfile='at166B.fcal.plotcal.png'); 
 
@@ -198,7 +198,7 @@ else:
 #=====================================================================
 # Solve for instrumental polarization on 0420+417 (and also for source poln) 
 # NB: IMPORTANT: use gcal---not fcal---here because model is _still_ 1.0 Jy 
-print "--Polcal (D)--"
+print("--Polcal (D)--")
 polcal(vis=msnameB,caltable='at166B.dcal',field='0420+417',refant='VA12',gaintable='at166B.gcal',gainfield='0420+417'); 
  
 # --> 2/2 good solutions; 
@@ -206,10 +206,10 @@ polcal(vis=msnameB,caltable='at166B.dcal',field='0420+417',refant='VA12',gaintab
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 if scriptmode:
     plotcal(caltable='at166B.dcal',xaxis='antenna',yaxis='amp'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166B.dcal',xaxis='antenna',yaxis='amp',showgui=False,figfile='at166B.dcal.plotcal.png'); 
 
@@ -219,13 +219,13 @@ else:
 #=====================================================================
 # Set full polarization model for 0518+165 (pol is 11.1% @ -11 deg  [RL = -22]) 
 #  NB: neglecting source structure here) 
-print "--Setjy (X)--"
+print("--Setjy (X)--")
 setjy(vis=msnameB,field='0518+165',spw='0',scalebychan=False,standard='manual',fluxdensity=[3.688, 0.380, -0.153, 0.0]); 
 setjy(vis=msnameB,field='0518+165',spw='1',scalebychan=False,standard='manual',fluxdensity=[3.862, 0.397, -0.161, 0.0]); 
  
 #=====================================================================
 # Solve for polarization position angle on 0518+165 
-print "--Polcal (X)--"
+print("--Polcal (X)--")
 polcal(vis='at166B.ms',caltable='at166B.xcal',field='0518+165',refant='VA12',poltype='Xf',gaintable=['at166B.fcal', 'at166B.dcal'],gainfield=['0518+165','0420+417']); 
  
 # --> 2/2 good solutions 
@@ -235,14 +235,14 @@ polcal(vis='at166B.ms',caltable='at166B.xcal',field='0518+165',refant='VA12',pol
 # apply all calibration... 
 #  (NB: different fields are selected from each caltable, depending on selected data fields) 
 #  (NB: parang=True is set to rotate polarization p.a. frame from antennas to sky 
-print "--Applycal--"
-print "  apply calibration to 0420+417,3C129"
+print("--Applycal--")
+print("  apply calibration to 0420+417,3C129")
 applycal(vis=msnameB,field='0420+417,3C129',gaintable=['at166B.fcal','at166B.dcal','at166B.xcal'],gainfield=['0420+417','0420+417','0518+165'],parang=True); 
 
-print "  apply calibration to 0518+165"
+print("  apply calibration to 0518+165")
 applycal(vis=msnameB,field='0518+165',gaintable=['at166B.fcal','at166B.dcal','at166B.xcal'],gainfield=['0518+165','0420+417','0518+165'],parang=True); 
 
-print "  apply calibration to 0134+329"
+print("  apply calibration to 0134+329")
 applycal(vis=msnameB,field='0134+329',gaintable=['at166B.fcal','at166B.dcal','at166B.xcal'],gainfield=['0134+329','0420+417','0518+165'],parang=True); 
  
 #=====================================================================
@@ -253,7 +253,7 @@ applycal(vis=msnameB,field='0134+329',gaintable=['at166B.fcal','at166B.dcal','at
 
 #=====================================================================
 # do some simple imaging of each source 
-print "--Clean--"
+print("--Clean--")
 # 3C129: 
 # We will do a simple image-plane Hogbom clean with psfmode='hogbom' and imagermode=''
 # This will clean the IQUV planes consecutively
@@ -262,7 +262,7 @@ print "--Clean--"
 #
 clean(vis=msnameB,imagename='at166B.3c129',field='3C129',psfmode='hogbom',imagermode='',niter=2500,imsize=[2048,2048],cell=['0.3arcsec','0.3arcsec'],stokes='IQUV',weighting='briggs',robust=0.5,interactive=False);
 
-print "  Clean image is at166B.3c129.image"
+print("  Clean image is at166B.3c129.image")
 
 # You can do a a Cotton-Schwab clean with psfmode='clark' and imagermode='csclean'
 # You can try a threshold also.
@@ -280,9 +280,9 @@ print "  Clean image is at166B.3c129.image"
 #=====================================================================
 # Examine images in viewer... 
 if scriptmode:
-    print "--Viewer--"
+    print("--Viewer--")
     viewer('at166B.3c129.image')
-    user_check=raw_input('When done, close viewer and hit Return to continue script\n')
+    user_check=input('When done, close viewer and hit Return to continue script\n')
     
 #  Questions:  Do calibrator polarizations come out right? 
 #              Is calibrator structure as expected? 
@@ -295,17 +295,17 @@ if scriptmode:
 # IMPORT, FLAG, CALIBRATE, IMAGE THE C-CONFIGURATION DATA
 #=====================================================================
 # NOW, reduce C-config data in much the same way...
-print ""
-print "Now reducing C-config data..."
-print ""
+print("")
+print("Now reducing C-config data...")
+print("")
  
 # Fill C-config data at C-band (5 GHz)
-print "--Import (Cconfig)--"
+print("--Import (Cconfig)--")
 importvla(archivefiles='AT166_3',vis=msnameC,bandname='C',evlabands=False); 
  
 #=====================================================================
 # List a summary of the dataset in the logger
-print "--Listobs--"
+print("--Listobs--")
 listobs(vis=msnameC); 
  
 #=====================================================================
@@ -313,7 +313,7 @@ listobs(vis=msnameC);
 #  NB: these sources are resolved, so we use model images provided 
 #      by the VLA, with location set in B-config part of script
 #  NB: By default, the model for 0420+417 is a 1 Jy point source 
-print "--Setjy--"
+print("--Setjy--")
 setjy(vis=msnameC,field='0518+165',modimage=fluxcaldir+'3C138_C.im',scalebychan=False,standard='Perley-Taylor 99'); 
 setjy(vis=msnameC,field='0134+329',modimage=fluxcaldir+'3C48_C.im',scalebychan=False,standard='Perley-Taylor 99');
  
@@ -326,20 +326,20 @@ setjy(vis=msnameC,field='0134+329',modimage=fluxcaldir+'3C48_C.im',scalebychan=F
  
 # Solve for gains on calibrators 
 #  NB: reference phases to VA12; pre-apply parallactic angle correction 
-print "--Gaincal--"
+print("--Gaincal--")
 gaincal(vis=msnameC,caltable='at166C.gcal',field='0420+417,0518+165,0134+329',refant='VA12',parang=True,solint=500); 
  
 #--> (12/14 good solutions)  NB: no solutions for 0134+329 (too little data?) 
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 if scriptmode:
     plotcal(caltable='at166C.gcal',yaxis='amp'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 
     plotcal(caltable='at166C.gcal',yaxis='phase'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166C.gcal',yaxis='amp',subplot=211,showgui=False,figfile=''); 
     plotcal(caltable='at166C.gcal',yaxis='phase',subplot=212,showgui=False,figfile='at166C.gcal.plotcal.png'); 
@@ -348,16 +348,16 @@ else:
  
 #=====================================================================
 # Scale gain solution from 0420+417 according to f.d. calibrators 
-print "--Fluxscale--"
+print("--Fluxscale--")
 fluxscale(vis=msnameC,caltable='at166C.gcal',fluxtable='at166C.fcal',reference='0518+165'); 
 # -->  0420:  1.282/1.292 Jy (broadly consistent with VLA Cal man values at L & X) 
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 if scriptmode:
     plotcal(caltable='at166C.fcal',yaxis='amp'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166C.fcal',yaxis='amp',showgui=False,figfile='at166C.fcal.plotcal.png'); 
  
@@ -365,17 +365,17 @@ else:
  
 # Solve for instrumental polarization on 0420+417 (and also for source poln) 
 # NB: IMPORTANT: use gcal---not fcal---here because model is _still_ 1.0 Jy 
-print "--Polcal (D)--"
+print("--Polcal (D)--")
 polcal(vis=msnameC,caltable='at166C.dcal',field='0420+417',refant='VA12',gaintable='at166C.gcal',gainfield='0420+417'); 
 # --> 2/2 good solutions; 
 # --> 0420: 0.035Jy @ -41.4deg / 0.033Jy @ 18.1deg 
  
 #=====================================================================
 # Examine solutions: 
-print "--Plotcal--"
+print("--Plotcal--")
 if scriptmode:
     plotcal(caltable='at166C.dcal',xaxis='antenna',yaxis='amp'); 
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
 else:
     plotcal(caltable='at166C.dcal',xaxis='antenna',yaxis='amp',showgui=False,figfile='at166C.dcal.plotcal.png'); 
 
@@ -385,13 +385,13 @@ else:
 #=====================================================================
 # Set full polarization model for 0518+165 (pol is 11.1% @ -11 deg  [RL = -22]) 
 #  NB: neglecting source structure here) 
-print "--Setjy (X)--"
+print("--Setjy (X)--")
 setjy(vis=msnameC,field='0518+165',spw='0',scalebychan=False,standard='manual',fluxdensity=[3.688, 0.380, -0.153, 0.0]); 
 setjy(vis=msnameC,field='0518+165',spw='1',scalebychan=False,standard='manual',fluxdensity=[3.862, 0.397, -0.161, 0.0]); 
  
 #=====================================================================
 # Solve for polarization position angle on 0518+165 
-print "--Polcal (X)--"
+print("--Polcal (X)--")
 polcal(vis='at166C.ms',caltable='at166C.xcal',field='0518+165',refant='VA12',poltype='Xf',gaintable=['at166C.fcal', 'at166C.dcal'],gainfield=['0518+165','0420+417']); 
 # --> 2/2 good solutions 
 # --> 0518:  77.0deg  / -42.0deg  
@@ -401,11 +401,11 @@ polcal(vis='at166C.ms',caltable='at166C.xcal',field='0518+165',refant='VA12',pol
 #  (NB: different fields are selected from each caltable, depending on selected data fields) 
 #  (NB: parang=True is set to rotate polarization p.a. frame from antennas to sky 
 #...to 0420 & 3C129 
-print "--Applycal--"
-print "  apply calibration to 0420+417,3C129"
+print("--Applycal--")
+print("  apply calibration to 0420+417,3C129")
 applycal(vis=msnameC,field='0420+417,3C129',gaintable=['at166C.fcal','at166C.dcal','at166C.xcal'],gainfield=['0420+417','0420+417','0518+165'],parang=True); 
 
-print "  apply calibration to 0518+165"
+print("  apply calibration to 0518+165")
 applycal(vis=msnameC,field='0518+165',gaintable=['at166C.fcal','at166C.dcal','at166C.xcal'],gainfield=['0518+165','0420+417','0518+165'],parang=True); 
  
 #=====================================================================
@@ -416,7 +416,7 @@ applycal(vis=msnameC,field='0518+165',gaintable=['at166C.fcal','at166C.dcal','at
  
 #=====================================================================
 # do some simple imaging of each source 
-print "--Clean--"
+print("--Clean--")
 # 3C129: 
 # We will do a simple image-plane Hogbom clean with psfmode='hogbom' and imagermode=''
 # This will clean the IQUV planes consecutively
@@ -425,7 +425,7 @@ print "--Clean--"
 #
 clean(vis=msnameC,imagename='at166C.3c129',field='3C129',psfmode='hogbom',imagermode='',niter=2500,imsize=[2048,2048],cell=['0.3arcsec','0.3arcsec'],stokes='IQUV',weighting='briggs',robust=0.5,interactive=False); 
 
-print "  Clean image is at166C.3c129.image"
+print("  Clean image is at166C.3c129.image")
 
 # You can do a a Cotton-Schwab clean with psfmode='clark' and imagermode='csclean'
 # You can try a threshold also.
@@ -440,10 +440,10 @@ print "  Clean image is at166C.3c129.image"
 #=====================================================================
 # Examine images in viewer... 
 if scriptmode:
-    print "--Viewer--"
+    print("--Viewer--")
     viewer('at166C.3c129.image')
-    print "  Notice better representation of large-scale emission than in B-config"
-    user_check=raw_input('hit Return to continue script\n')
+    print("  Notice better representation of large-scale emission than in B-config")
+    user_check=input('hit Return to continue script\n')
     
 #  Questions:  Do calibrator polarizations come out right? 
 #              Is calibrator structure as expected? 
@@ -457,31 +457,31 @@ if scriptmode:
 #=====================================================================
 # IMAGING OF COMBINED B+C CONFIGURATIONS
 #=====================================================================
-print ""
-print "Combining B and C config data..."
-print ""
+print("")
+print("Combining B and C config data...")
+print("")
 
 # The next steps extract the 3C129 data from the above datasets, and combine 
 # them to permit a dual-config imaging run 
  
 #=====================================================================
 # split out 3C129
-print "--Split (3C129)--"
+print("--Split (3C129)--")
 split(vis=msnameB,outputvis='at166B.3C129.ms',field='3C129'); 
 split(vis=msnameC,outputvis='at166C.3C129.ms',field='3C129'); 
  
 #=====================================================================
 # make one MS so we can image the combined config
-print "--Concat (B+C config)--"
+print("--Concat (B+C config)--")
 concat(vis=['at166B.3C129.ms','at166C.3C129.ms'],concatvis='3C129BC.ms'); 
 
 #=====================================================================
-print "--Listobs--"
+print("--Listobs--")
 listobs(vis='3C129BC.ms'); 
  
 #=====================================================================
 # Clean the image
-print "--Clean--"
+print("--Clean--")
 #
 # You can do a simple image-plane Hogbom clean with psfmode='hogbom' and imagermode=''
 # This will clean the IQUV planes consecutively
@@ -491,8 +491,8 @@ print "--Clean--"
 # We will also set a threshold
 
 if scriptmode:
-    print "Use interactive clean to draw clean boxes or polygons on image"
-    print "Increase npercycle as you clean deeper"
+    print("Use interactive clean to draw clean boxes or polygons on image")
+    print("Increase npercycle as you clean deeper")
     clean(vis='3C129BC.ms',imagename='3C129BC.clean',psfmode='clark',imagermode='csclean',niter=50000,threshold='0.08mJy',imsize=[2048,2048],cell=['0.3arcsec','0.3arcsec'],stokes='IQUV',weighting='briggs',robust=0.5,interactive=True,npercycle=1000)
 else:
     clean(vis='3C129BC.ms',imagename='3C129BC.clean',psfmode='clark',imagermode='csclean',niter=50000,threshold='0.16mJy',imsize=[2048,2048],cell=['0.3arcsec','0.3arcsec'],stokes='IQUV',weighting='briggs',robust=0.5,interactive=False);
@@ -501,7 +501,7 @@ else:
 # If you do custom clean boxes and clean more deeply you should
 # be able to reach a dynamic range over 1000.
 
-print "  Clean image is 3C129BC.clean.image"
+print("  Clean image is 3C129BC.clean.image")
 
 # Variation: you could set up clean boxes around emission, e.g.
 # mask = [[992,988,1172,1139],[1029,1053,1212,1222],[1029,1081,1299,1222],[1065,1158,1397,1409],[1237,1153,1612,1583]]
@@ -509,7 +509,7 @@ print "  Clean image is 3C129BC.clean.image"
 #=====================================================================
 # Examine image in viewer... 
 if scriptmode:
-    print "--Viewer--"
+    print("--Viewer--")
     viewer('3C129BC.clean.image')
  
 #  Questions:  How has the 3C129 image changed?  Is it better? 
@@ -521,7 +521,7 @@ if scriptmode:
  
 #=====================================================================
 # Extract I, Q, U, V images 
-print "--Immath--"
+print("--Immath--")
 immath(stokes='I', outfile='3C129BC.I', mode='evalexpr', expr='\'3C129BC.clean.image\''); 
 immath(stokes='Q', outfile='3C129BC.Q', mode='evalexpr', expr='\'3C129BC.clean.image\''); 
 immath(stokes='U', outfile='3C129BC.U', mode='evalexpr', expr='\'3C129BC.clean.image\''); 
@@ -541,7 +541,7 @@ ia.close()
  
 #=====================================================================
 # Complex Linear Polarization 
-print "--ComplexLinPol (toolkit)--"
+print("--ComplexLinPol (toolkit)--")
 
 # NOTE: The viewer can take complex images to make Vector plots, although
 # the image analysis tasks (and ia tool) cannot yet handle these.  But we
@@ -568,19 +568,19 @@ po.close()
 #=====================================================================
 # View results
 # In viewer 'Load Data' window, use the following LEL expression to load the p.a. image: 
-print "--Viewer--"
+print("--Viewer--")
 if scriptmode:
     viewer('3C129BC.I')
 else:
-    print "  For viewer: "
+    print("  For viewer: ")
 
-print "  In Load Data' window LEL box, use the following: "
-print "    '3C129BC.X'['3C129BC.P'>0.00015] "
-print "  or" 
-print "    '3C129BC.cmplxlinpol'['3C129BC.P'>0.0001] "
+print("  In Load Data' window LEL box, use the following: ")
+print("    '3C129BC.X'['3C129BC.P'>0.00015] ")
+print("  or") 
+print("    '3C129BC.cmplxlinpol'['3C129BC.P'>0.0001] ")
 
 if scriptmode:
-    user_check=raw_input('hit Return to continue script\n')
+    user_check=input('hit Return to continue script\n')
   
 #=====================================================================
 # RESULTS
@@ -590,33 +590,33 @@ if scriptmode:
 outerbox = '1100,100,1950,750'
 # Inner source-free region 1315,940,1532,1143  (in clean bowl area)
 innerbox = '1315,940,1532,1143'
-print "--Imstat--"
+print("--Imstat--")
 
 # Stats on IPOL
 ipolstat = imstat('3C129BC.clean.image',stokes='I')
 ipolstat_offsrc = imstat('3C129BC.clean.image',stokes='I',box=outerbox)
 
-print '  %40s : %12.7f ' % ('3C129 Combined  I maximum (Jy)', ipolstat['max'][0])
-print '  %40s : %12.7f ' % ('3C129 Combined  I off-source rms (Jy)', ipolstat_offsrc['sigma'][0])
-print '  %40s : %12.3f ' % ('3C129 Combined  I dynamic range',
-                            ipolstat['max'][0]/ipolstat_offsrc['sigma'][0])
+print('  %40s : %12.7f ' % ('3C129 Combined  I maximum (Jy)', ipolstat['max'][0]))
+print('  %40s : %12.7f ' % ('3C129 Combined  I off-source rms (Jy)', ipolstat_offsrc['sigma'][0]))
+print('  %40s : %12.3f ' % ('3C129 Combined  I dynamic range',
+                            ipolstat['max'][0]/ipolstat_offsrc['sigma'][0]))
 
 # Stats on QPOL,UPOL
 qupolstat = imstat('3C129BC.clean.image',stokes='QU')
 qupolstat_offsrc = imstat('3C129BC.clean.image',stokes='QU',box=outerbox)
 quabsmax = max( qupolstat['max'][0], -qupolstat['min'][0] )
 
-print ''
-print '  %40s : %12.7f ' % ('3C129 Combined QU maximum (Jy)', quabsmax)
-print '  %40s : %12.7f ' % ('3C129 Combined QU off-source rms (Jy)', qupolstat_offsrc['sigma'][0])
-print '  %40s : %12.3f ' % ('3C129 Combined QU dynamic range',
-                            quabsmax/qupolstat_offsrc['sigma'][0])
+print('')
+print('  %40s : %12.7f ' % ('3C129 Combined QU maximum (Jy)', quabsmax))
+print('  %40s : %12.7f ' % ('3C129 Combined QU off-source rms (Jy)', qupolstat_offsrc['sigma'][0]))
+print('  %40s : %12.3f ' % ('3C129 Combined QU dynamic range',
+                            quabsmax/qupolstat_offsrc['sigma'][0]))
 
 # Stats on entire V image
 vpolstat = imstat('3C129BC.clean.image',stokes='V')
 
-print ''
-print '  %40s : %12.7f ' % ('3C129 Combined VPOL image rms (Jy)', vpolstat['sigma'][0])
+print('')
+print('  %40s : %12.7f ' % ('3C129 Combined VPOL image rms (Jy)', vpolstat['sigma'][0]))
 
 #=====================================================================
 # DONE
@@ -625,19 +625,19 @@ if benchmarking:
     endProc=time.clock()
     endTime=time.time()
 
-print ""
-print "Done with 3C129 Tutorial"
+print("")
+print("Done with 3C129 Tutorial")
 
 if benchmarking:
     walltime = (endTime - startTime)
     cputime = (endProc - startProc)
     
-    print ''
-    print 'Regression PASSED'
-    print ''
-    print 'Total wall clock time was: %10.3f ' % walltime
-    print 'Total CPU        time was: %10.3f ' % cputime
-    print ''
+    print('')
+    print('Regression PASSED')
+    print('')
+    print('Total wall clock time was: %10.3f ' % walltime)
+    print('Total CPU        time was: %10.3f ' % cputime)
+    print('')
 
 #
 ##########################################################################

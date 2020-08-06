@@ -38,7 +38,7 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
     tmppsf=''
     tmpImagename=''
     if(len(psf)==0):
-        raise Exception, "****give some psf please****"
+        raise Exception("****give some psf please****")
     if(len(psf)==1):
         if (type(psf[0])==str and os.path.exists(psf[0])):
             psf=psf[0]
@@ -48,7 +48,7 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
             if(psfaxis<4):
                 modPsf=_add_axes(psf)
                 if modPsf is False:
-                    raise Exception, "****problem with input psf image****"
+                    raise Exception("****problem with input psf image****")
                 else:
                     tmppsf='__decon_tmp_psf'
                     ia.fromimage(tmppsf,modPsf, overwrite=True)
@@ -60,12 +60,12 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
             if(imnaxis<4):
                 tmpImagename=_add_axes(imagename)
                 if tmpImagename is False:
-                    raise Exception, "****problem with input diry image****"
+                    raise Exception("****problem with input diry image****")
                 else:
                     imagename=tmpImagename
 
         else:
-            raise Exception, "****psf file, %s does not exist****" % psf
+            raise Exception("****psf file, %s does not exist****" % psf)
 
     if(len(psf)==3):
         #We've got bmaj bmin bpa
@@ -77,12 +77,12 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
         if(imnaxis<4):
            tmpImagename=_add_axes(imagename)
            if tmpImagename is False:
-               raise Exception, "****problem with input diry image****"
+               raise Exception("****problem with input diry image****")
            else:
                imagename=tmpImagename
         tmppsf=model+'.psf'
         dc.open(imagename,psf='', warn=False)
-        print 
+        print() 
         dc.makegaussian(tmppsf,bmaj=psf[0],bmin=psf[1],
                         bpa=psf[2], normalize=False)
         dc.close()
@@ -100,7 +100,7 @@ def deconvolve(imagename,model,psf,alg,niter,gain,threshold,mask,scales,sigma,ta
         dc.mem(niter=niter, sigma=sigma, targetflux=targetflux,
                model=model, prior=prior)
     else:
-        raise Exception, '****algorithm %s is not known****'%alg
+        raise Exception('****algorithm %s is not known****'%alg)
     dc.restore(model=model, image=model+'.restored')
     dc.residual(model=model, image=model+'.residual')
     dc.close()    

@@ -28,9 +28,9 @@ if(not os.path.exists(vis_g)):
 
 
 def verify_asdm(asdmname, withPointing):
-    print "Verifying asdm ", asdmname
+    print("Verifying asdm ", asdmname)
     if(not os.path.exists(asdmname)):
-        print "asdm ", asdmname, " doesn't exist."
+        print("asdm ", asdmname, " doesn't exist.")
         raise Exception
     # test for the existence of all obligatory tables
     allTables = [ "Antenna.xml",
@@ -64,23 +64,23 @@ def verify_asdm(asdmname, withPointing):
     for fileName in allTables:
         filePath = asdmname+'/'+fileName
         if(not os.path.exists(filePath)):
-            print "ASDM table file ", filePath, " doesn't exist."
+            print("ASDM table file ", filePath, " doesn't exist.")
             isOK = False
         else:
             # test if well formed
             rval = os.system('xmllint --noout '+filePath)
             if(rval !=0):
-                print "Table ", filePath, " is not a well formed XML document."
+                print("Table ", filePath, " is not a well formed XML document.")
                 isOK = False
 
-    print "Note: xml validation not possible since ASDM DTDs (schemas) not yet online."
+    print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
         
     if(not os.path.exists(asdmname+"/ASDMBinary")):
-        print "ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist."
+        print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
         isOK = False
 
     if(withPointing and not os.path.exists(asdmname+"/Pointing.bin")):
-        print "ASDM binary file "+asdmname+"/Pointing.bin doesn't exist."
+        print("ASDM binary file "+asdmname+"/Pointing.bin doesn't exist.")
         isOK = False
 
     if (not isOK):
@@ -91,13 +91,13 @@ def verify_asdm(asdmname, withPointing):
 keeptestlist = True
 
 try:
-    print "List of tests to be executed ...", testlist
+    print("List of tests to be executed ...", testlist)
 except:
-    print "Global variable testlist not set."
+    print("Global variable testlist not set.")
     testlist = []
 if (testlist==[]):
-    print "testlist empty. Executing all tests."
-    testlist = range(0,100)
+    print("testlist empty. Executing all tests.")
+    testlist = list(range(0,100))
     keeptestlist = False
 
 total = 0
@@ -112,16 +112,16 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Testing default."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Testing default.")
         rval = exportasdm()
         if not rval:
-            print myname, ': *** Error as expected ***'   
+            print(myname, ': *** Error as expected ***')   
         else:
-            print "Failed ..."
+            print("Failed ...")
             failures +=1
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 
@@ -133,8 +133,8 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "small input MS, default output"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("small input MS, default output")
         rval = exportasdm(
             vis = 'myinput.ms',
             asdm = 'exportasdm-output.asdm',
@@ -142,14 +142,14 @@ if (testnumber in testlist):
             verbose=True,
             apcorrected=False
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
             raise Exception
         omsname = "test"+str(testnumber)+'exportasdm-output.asdm'
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, False)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 3
@@ -160,21 +160,21 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "simulated input MS, default output"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("simulated input MS, default output")
         rval = exportasdm(
             vis = 'myinput.ms',
             asdm = 'exportasdm-output.asdm',
             archiveid="S1"
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
             raise Exception
         omsname = "test"+str(testnumber)+'exportasdm-output.asdm'
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, True)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 4
@@ -185,22 +185,22 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "real input MS, default output"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("real input MS, default output")
         rval = exportasdm(
             vis = 'myinput.ms',
             asdm = 'exportasdm-output.asdm',
             archiveid="S1",
             apcorrected=False
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
             raise Exception
         omsname = "test"+str(testnumber)+'exportasdm-output.asdm'
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, False)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 5
@@ -211,22 +211,22 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "real input MS, MS has several SPWs observed in parallel - not supported, expected error"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("real input MS, MS has several SPWs observed in parallel - not supported, expected error")
         rval = exportasdm(
             vis = 'myinput.ms',
             asdm = 'exportasdm-output.asdm',
             archiveid="S1",
             apcorrected=False
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
-            print myname, ': *** Error as expected ***'   
+            print(myname, ': *** Error as expected ***')   
         else:
-            print "Failed ..."
+            print("Failed ...")
             failures +=1
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 6
@@ -237,28 +237,28 @@ if (testnumber in testlist):
     default('exportasdm')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "simulated input MS with pointing table, default output"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("simulated input MS with pointing table, default output")
         rval = exportasdm(
             vis = 'myinput.ms',
             asdm = 'exportasdm-output.asdm',
             archiveid="S002",
             apcorrected=False
             )
-        print "rval is ", rval
+        print("rval is ", rval)
         if not rval:
             raise Exception
         omsname = "test"+str(testnumber)+'exportasdm-output.asdm'
         os.system('rm -rf '+omsname+'; mv exportasdm-output.asdm '+omsname)
         verify_asdm(omsname, True)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 
 # Summary ########################################
-print "Tests = ", total    
-print "Failures = ", failures
+print("Tests = ", total)    
+print("Failures = ", failures)
 
 # empty test list if it was empty to start with
 if not keeptestlist:

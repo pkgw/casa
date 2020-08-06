@@ -7,19 +7,19 @@ from IPython.terminal.prompts import Prompts, Token
 
 try:
     from casac import casac
-except ImportError, e:
-    print "failed to load casa:\n", e
+except ImportError as e:
+    print("failed to load casa:\n", e)
     os._exit(1)
 
 try:
     import matplotlib
-except ImportError, e:
-    print "failed to load matplotlib:\n", e
-    print "sys.path =", "\n\t".join(sys.path)
+except ImportError as e:
+    print("failed to load matplotlib:\n", e)
+    print("sys.path =", "\n\t".join(sys.path))
 
 from casa_system import casa
 
-if not os.environ.has_key('OMP_NUM_THREADS'):
+if 'OMP_NUM_THREADS' not in os.environ:
     # if OMP_NUM_THREADS is not set, set it to max(1,N_CPU-2)
     os.environ['OMP_NUM_THREADS'] = str(max(1,multiprocessing.cpu_count()-2))
 
@@ -41,9 +41,9 @@ def true_false_handler(self, etype, value, tb, tb_offset=None):
            str(value) == "name 'F' is not defined" or \
            str(value) == "name 'true' is not defined" or \
            str(value) == "name 'false' is not defined" :
-            print "------------------------------------------------------------------------------"
-            print "Warning: CASA no longer defines T/true and F/false as synonyms for True/False"
-            print "------------------------------------------------------------------------------"
+            print("------------------------------------------------------------------------------")
+            print("Warning: CASA no longer defines T/true and F/false as synonyms for True/False")
+            print("------------------------------------------------------------------------------")
     ###
     ### without incrementing the execution_count, you get:
     ###
@@ -67,12 +67,12 @@ _casa_top_frame_ = True
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 ## set up casa root
 ## ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-if os.environ.has_key('CASAPATH') :
+if 'CASAPATH' in os.environ :
     __casapath__ = os.environ['CASAPATH'].split(' ')[0]
     __casaarch__ = os.environ['CASAPATH'].split(' ')[1]
     if not os.path.exists(__casapath__ + "/data") :
-        print "DEBUG: CASAPATH = %s" % (__casapath__)
-        print "Unable to find the data repository directory in your CASAPATH. Please fix."
+        print("DEBUG: CASAPATH = %s" % (__casapath__))
+        print("Unable to find the data repository directory in your CASAPATH. Please fix.")
         os._exit(1)
     else :
         casa['dirs']['root'] = __casapath__
@@ -93,7 +93,7 @@ if os.environ.has_key('CASAPATH') :
         elif os.path.exists(__casapath__ + "/xml"):
             casa['dirs']['xml'] = __casapath__ + "/xml"
         else:
-            raise RuntimeError, "Unable to find the XML constraints directory in your CASAPATH"
+            raise RuntimeError("Unable to find the XML constraints directory in your CASAPATH")
 
         casa['dirs']['doc'] = None
         if os.path.exists(__casapath__ + "/share/doc"):
@@ -116,7 +116,7 @@ else :
             break
         __casapath__ = os.path.dirname(__casapath__)
     if not os.path.exists(__casapath__ + "/data") :
-        raise RuntimeError, "casa path could not be determined"
+        raise RuntimeError("casa path could not be determined")
     else :
         casa['dirs']['root'] = __casapath__
         casa['dirs']['data'] = __casapath__ + "/data"
@@ -135,7 +135,7 @@ else :
         elif os.path.exists(__casapath__ + "/xml"):
             casa['dirs']['xml'] = __casapath__ + "/xml"
         else:
-            raise RuntimeError, "Unable to find the XML constraints directory in your CASAPATH"
+            raise RuntimeError("Unable to find the XML constraints directory in your CASAPATH")
 
         casa['dirs']['doc'] = None
         if os.path.exists(__casapath__ + "/share/doc"):
@@ -276,16 +276,16 @@ if casa['flags'].pipeline or casa['flags'].agg:
 ### is printed...
 if casa['flags'].trace:
     import inspect
-    import __builtin__
-    _savimp = __builtin__.__import__
+    import builtins
+    _savimp = builtins.__import__
 
     def _newimp(name, *x):
         caller = inspect.currentframe( ).f_back
-        print "%s => %s" % (caller.f_globals.get('__name__'), name)
+        print("%s => %s" % (caller.f_globals.get('__name__'), name))
         result = _savimp(name, *x)
-        print "---> %s: %s" % (name, result.__file__ if hasattr(result,'__file__') else '?')
+        print("---> %s: %s" % (name, result.__file__ if hasattr(result,'__file__') else '?'))
         return result
 
-    __builtin__.__import__ = _newimp
+    builtins.__import__ = _newimp
 
-print "%sCASA %s -- Common Astronomy Software Applications\n" % ((casa['variant'] + " ").lstrip(), casa['build']['version'])
+print("%sCASA %s -- Common Astronomy Software Applications\n" % ((casa['variant'] + " ").lstrip(), casa['build']['version']))

@@ -6,7 +6,7 @@ from casac import casac as _casac
 
 _homedir = _os.getenv('HOME')
 if _homedir == None :
-   print "Environment variable HOME is not set, please set it"
+   print("Environment variable HOME is not set, please set it")
    _sys.exit(1)
 
 #import casadef
@@ -14,10 +14,10 @@ if _homedir == None :
 ##
 ## first set up CASAPATH
 ##
-if _os.environ.has_key('CASAPATH') :
+if 'CASAPATH' in _os.environ :
     __casapath__ = _os.environ['CASAPATH'].split(' ')[0]
     if not _os.path.exists(__casapath__ + "/data") :
-        raise RuntimeError, "CASAPATH environment variable is improperly set"
+        raise RuntimeError("CASAPATH environment variable is improperly set")
 else :
     __casapath__ = _casac.__file__
     while __casapath__ and __casapath__ != "/" :
@@ -27,7 +27,7 @@ else :
     if __casapath__ and __casapath__ != "/" :
         _os.environ['CASAPATH']=__casapath__ + " linux local host"
     else :
-        raise RuntimeError, "CASAPATH environment variable must be set"
+        raise RuntimeError("CASAPATH environment variable must be set")
 
 #import __casac__
 #cu = __casac__.utils.utils()
@@ -118,7 +118,7 @@ def _setup_path():
     if _os.path.exists(__ipcontroller__) :
         _os.environ['PATH'] = _os.path.dirname(__ipcontroller__) + ":" + _os.environ['PATH']
     else :
-        raise RuntimeError, "cannot configure CASA tasking system"
+        raise RuntimeError("cannot configure CASA tasking system")
     __ld_library_path__ = (lambda fd: fd.readline().strip('\n').split(':'))(_os.popen(_rootdir + "/casapyinfo --exec 'echo $LD_LIBRARY_PATH'"))
     for x in __ld_library_path__: _sys.path.append(x)
 

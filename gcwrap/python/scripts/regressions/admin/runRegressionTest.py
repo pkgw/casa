@@ -23,7 +23,7 @@ _potential_data_directories = ( "/opt/casa/data",
                                 "/opt/casa/data/master",
                                 "/export/data/casa" )
 
-REGRESSION_DATA = filter(lambda x: os.access(x,os.F_OK),map(lambda y: y+"/regression",_potential_data_directories))
+REGRESSION_DATA = [x for x in [y+"/regression" for y in _potential_data_directories] if os.access(x,os.F_OK)]
                       
 
 if not os.access(TESTS_DIR, os.F_OK):
@@ -78,9 +78,9 @@ if __name__ == "__main__":
                                                                      "debug","classes=","file=",
                                                                      "datadir="])
                 
-            except getopt.GetoptError, err:
+            except getopt.GetoptError as err:
                 # Print help information and exit:
-                print str(err) # will print something like "option -a not recognized"
+                print(str(err)) # will print something like "option -a not recognized"
                 os._exit(2)
                 
             # List of tests to run
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             
             #If no option is given, show the Help page
             if opts == [] and args == []:
-                print "no arguments given..."
+                print("no arguments given...")
                 os._exit(1)
                 
             
@@ -125,12 +125,12 @@ if __name__ == "__main__":
                     # directory with test data
                     datadir = a
                     if not os.path.isdir(datadir):                            
-                        raise Exception, 'Value of --datadir is not a directory -> '+datadir  
+                        raise Exception('Value of --datadir is not a directory -> '+datadir)  
                     
                     # Set an environmental variable for the data directory
                     settestdir(datadir)
-                    if not os.environ.has_key('TEST_DATADIR'):    
-                        raise Exception, 'Could not create environmental variable TEST_DATADIR'                        
+                    if 'TEST_DATADIR' not in os.environ:    
+                        raise Exception('Could not create environmental variable TEST_DATADIR')                        
                         
                 elif o in ("-a", "--all"):
                     alltests = True
@@ -160,7 +160,7 @@ if __name__ == "__main__":
     name = testnames[0]
     path = _find_script_path(name)
     #publish_summary.runTest('" + script + "', WORKING_DIR='"+self._path['test']+'/pubsum'+"', RESULT_DIR='"+self._path['output']+"', RESULT_SUBDIR='"+script+"', REDIRECT=False" + PYPROFILE + ")" ])
-    print "------------------------------------------------------------------------------------------------------------------------"
-    print "starting test %s (%s)" % (name,path)
-    print "------------------------------------------------------------------------------------------------------------------------"
-    execfile(path)
+    print("------------------------------------------------------------------------------------------------------------------------")
+    print("starting test %s (%s)" % (name,path))
+    print("------------------------------------------------------------------------------------------------------------------------")
+    exec(compile(open(path, "rb").read(), path, 'exec'))

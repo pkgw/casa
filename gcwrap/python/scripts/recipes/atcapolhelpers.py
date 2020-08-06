@@ -35,13 +35,13 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
     nfld=mytb.nrows()
     dirs=mytb.getcol('DELAY_DIR')[:,0,:]
     mytb.close()
-    print 'Found '+str(nfld)+' fields.'
+    print('Found '+str(nfld)+' fields.')
 
     mytb.open(caltable+'/SPECTRAL_WINDOW')
     freq=mytb.getcol('REF_FREQUENCY')
     nspw=mytb.nrows()
     mytb.close()
-    print 'Found '+str(nspw)+' spws.'
+    print('Found '+str(nspw)+' spws.')
 
     #sort out pa offset to apply
     paoff=pl.zeros(nspw)
@@ -65,7 +65,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
         mask[badspw,:]=False
 
     if (len(fieldids)==0):
-        fieldids=range(nfld)
+        fieldids=list(range(nfld))
 
     QU={}
     mytb.open(caltable)
@@ -136,7 +136,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
                 P=sqrt(Q[ispw,ifld]**2+U[ispw,ifld]**2)
                 X=0.5*atan2(U[ispw,ifld],Q[ispw,ifld])*180/pi
 
-                print 'Fld=%i, Spw=%i, PA Offset=%5.1f, Gx/Gy=%5.3f, Q=%5.3f, U=%5.3f, P=%5.3f, X=%5.1f' % (ifld,ispw,paoff[ispw],R[ispw,ifld],Q[ispw,ifld],U[ispw,ifld],P,X)
+                print('Fld=%i, Spw=%i, PA Offset=%5.1f, Gx/Gy=%5.3f, Q=%5.3f, U=%5.3f, P=%5.3f, X=%5.1f' % (ifld,ispw,paoff[ispw],R[ispw,ifld],Q[ispw,ifld],U[ispw,ifld],P,X))
 
             else:
                 mask[ispw,ifld]=False
@@ -144,7 +144,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
             st.close()
 
         if (sum(mask[:,ifld]))>0:
-            print 'For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.'
+            print('For field id = ',ifld,' there are ',sum(mask[:,ifld]),'good spws.')
 
             Qm=pl.mean(Q[mask[:,ifld],ifld])
             Um=pl.mean(U[mask[:,ifld],ifld])
@@ -153,7 +153,7 @@ def qufromgain(caltable,badspw=[],badant=[],fieldids=[],paoffset=None):
             Ue=pl.std(U[mask[:,ifld],ifld])
             Pm=sqrt(Qm**2+Um**2)
             Xm=0.5*atan2(Um,Qm)*180/pi
-            print 'Spw mean: Fld=%i Fractional: Q=%5.3f, U=%5.3f, (rms= %5.3f,%5.3f), P=%5.3f, X=%5.1f' % (ifld,Qm,Um,Qe,Ue,Pm,Xm)
+            print('Spw mean: Fld=%i Fractional: Q=%5.3f, U=%5.3f, (rms= %5.3f,%5.3f), P=%5.3f, X=%5.1f' % (ifld,Qm,Um,Qe,Ue,Pm,Xm))
     mytb.close()
 
     return QU

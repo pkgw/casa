@@ -53,7 +53,7 @@ def lsms(musthave=[], mspat="*[-_.][Mm][Ss]", combine='or', remind=True,
                                   not sortfirst, not sortfirst)
 
     if sortfirst:
-        mses = msdict.keys()
+        mses = list(msdict.keys())
 
         # Do a locale sensitive sort of mses - this and some other niceties were
         # cribbed from an implementation by Padraig Brady of ls in python at
@@ -74,7 +74,7 @@ def print_ms(currms, msdict, listall=False, use_tb=False, remind=True):
     currmsstr = ''
     if listall:                # List all its optional things
         notindefn = []
-        subtabs = msdict.keys()
+        subtabs = list(msdict.keys())
         subtabs.sort()
         for st in subtabs:
             ststr = ''
@@ -130,11 +130,11 @@ def print_ms(currms, msdict, listall=False, use_tb=False, remind=True):
 
     if currmsstr:
         if use_tb:
-            print currms + ":\n" + currmsstr
+            print(currms + ":\n" + currmsstr)
         else:
-            print currms + ": " + currmsstr.strip()
+            print(currms + ": " + currmsstr.strip())
     else:
-        print currms
+        print(currms)
 
 
 def string_from_list_or_set(li):
@@ -420,7 +420,7 @@ mstables = {
             }
     }
 
-possible_subtables = set(mstables['req'].keys() + mstables['opt'].keys())
+possible_subtables = set(list(mstables['req'].keys()) + list(mstables['opt'].keys()))
 
 
 def find_needed_items(musthave=set([]), listall=False):
@@ -436,7 +436,7 @@ def find_needed_items(musthave=set([]), listall=False):
     for mh in musthave:
         mhparts = mh.split('/')
         if len(mhparts) > 1:
-            if not needed_items.has_key(mhparts[0]):
+            if mhparts[0] not in needed_items:
                 needed_items[mhparts[0]] = set([mhparts[1]])
             else:
                 needed_items.add(mhparts[1])           
@@ -474,9 +474,9 @@ def find_needed_items(musthave=set([]), listall=False):
                 mytb = casac.table()
                 use_tb = hasattr(mytb, 'colnames')
             except:
-                print "Could not find the tb tool.  Try running inside a casapy session or setting PYTHONPATH to /usr/lib/casapy/.../lib/python2.*."
+                print("Could not find the tb tool.  Try running inside a casapy session or setting PYTHONPATH to /usr/lib/casapy/.../lib/python2.*.")
         if need_tb and not use_tb:
-            print "Removing", ', '.join(need_tb), "from the criteria for matching."
+            print("Removing", ', '.join(need_tb), "from the criteria for matching.")
             musthave.difference_update(need_tb)
 
     return needed_subtables, needed_items, use_tb, mytb
@@ -588,15 +588,15 @@ def checkMSes(holderdict, dir, files):
                 # Start with MAIN
                 try:
                     tb.open(currms)
-                except Exception, e:
+                except Exception as e:
                     # Typically if we are here currms is too malformed for
                     # tb to handle, and e is usually "currms does not exist",
                     # which is usually incorrect.
                     #print "mses =", ", ".join(mses)
                     if str(e)[-15:] == " does not exist":
-                        print "tb could not open", currms
+                        print("tb could not open", currms)
                     else:
-                        print "Error", e, "from tb.open(", currms, ")"
+                        print("Error", e, "from tb.open(", currms, ")")
                     break
                     
                 retval[currms]['MAIN']['cols'] = tb.colnames()

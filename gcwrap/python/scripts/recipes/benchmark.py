@@ -24,12 +24,12 @@ def benchmark(func, args, kwargs, nreps=5, nperrep=1):
     """
     meantime = 0.0
     maxtime =  0.0
-    print "Run",
-    for i in xrange(nreps):
-        print i + 1,
+    print("Run", end=' ')
+    for i in range(nreps):
+        print(i + 1, end=' ')
         sys.stdout.flush()
         t0 = time.time()
-        for j in xrange(nperrep):
+        for j in range(nperrep):
             dummy = func(*args, **kwargs)
         wallclocktime = (time.time() - t0) / float(nperrep)
         meantime += (wallclocktime - meantime) / (i + 1.0)
@@ -39,8 +39,8 @@ def benchmark(func, args, kwargs, nreps=5, nperrep=1):
             mintime = min(mintime, wallclocktime)
         maxtime = max(maxtime, wallclocktime)
     if nreps > 1:
-        print "\nMin wall clock time:  %.3gs" % mintime
-        print "Mean wall clock time: %.3gs" % meantime
-        print "Max wall clock time:  %.3gs" % maxtime
+        print("\nMin wall clock time:  %.3gs" % mintime)
+        print("Mean wall clock time: %.3gs" % meantime)
+        print("Max wall clock time:  %.3gs" % maxtime)
     else:
-        print "\nWall clock time: %.3gs" % mintime
+        print("\nWall clock time: %.3gs" % mintime)

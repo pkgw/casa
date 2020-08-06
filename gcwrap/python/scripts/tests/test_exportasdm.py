@@ -56,9 +56,9 @@ class exportasdm_test(unittest.TestCase):
 
 
     def verify_asdm(self,asdmname, withPointing):
-        print "Verifying asdm ", asdmname
+        print("Verifying asdm ", asdmname)
         if(not os.path.exists(asdmname)):
-            print "asdm ", asdmname, " doesn't exist."
+            print("asdm ", asdmname, " doesn't exist.")
             raise Exception
         # test for the existence of all obligatory tables
         allTables = [ "Antenna.xml",
@@ -94,25 +94,25 @@ class exportasdm_test(unittest.TestCase):
         for fileName in allTables:
             filePath = asdmname+'/'+fileName
             if(not os.path.exists(filePath)):
-                print "ASDM table file ", filePath, " doesn't exist."
+                print("ASDM table file ", filePath, " doesn't exist.")
                 isOK = False
             elif(xmllint_ok):
                 # test if well formed
                 rval = os.system('xmllint --noout '+filePath)
                 if(rval !=0):
-                    print "Table ", filePath, " is not a well formed XML document."
+                    print("Table ", filePath, " is not a well formed XML document.")
                     isOK = False
         if(isOK and not xmllint_ok):
-            print "Note: Test of XML well-formedness not possible since xmllint not available."
+            print("Note: Test of XML well-formedness not possible since xmllint not available.")
         else:
-            print "Note: xml validation not possible since ASDM DTDs (schemas) not yet online."
+            print("Note: xml validation not possible since ASDM DTDs (schemas) not yet online.")
             
         if(not os.path.exists(asdmname+"/ASDMBinary")):
-            print "ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist."
+            print("ASDM binary directory "+asdmname+"/ASDMBinary doesn't exist.")
             isOK = False
     
         if(withPointing and not os.path.exists(asdmname+"/Pointing.bin")):
-            print "ASDM binary file "+asdmname+"/Pointing.bin doesn't exist."
+            print("ASDM binary file "+asdmname+"/Pointing.bin doesn't exist.")
             isOK = False
     
         if (not isOK):
@@ -268,7 +268,7 @@ class exportasdm_test(unittest.TestCase):
 ##             useversion='v3'
 ##             )
         self.rval = True
-        print "Test disabled."
+        print("Test disabled.")
 
         self.assertNotEqual(self.rval,False)
 ##        omsname = "test"+str(10)+self.out

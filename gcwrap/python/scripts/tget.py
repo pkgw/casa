@@ -23,10 +23,10 @@ def tget(task=None, savefile=''):
         try:
 		myf=stack_frame_find( )
 		if task==None :
-			if myf.has_key('task') :
+			if 'task' in myf :
 				task=myf['task']
 			else : 
-				if myf.has_key('taskname') : task=myf['taskname']
+				if 'taskname' in myf : task=myf['taskname']
 		myf['taskname']=task
 		myf['task']=task
                 if type(task)!=str:
@@ -34,13 +34,13 @@ def tget(task=None, savefile=''):
 		       	myf['task']=task
                         myf['taskname']=task
                 parameter_checktype(['task','savefile'],[task,savefile],[str,str])
-                parameter_checkmenu('task',task,tasksum.keys())
+                parameter_checkmenu('task',task,list(tasksum.keys()))
 
                 ###Check if task exists by checking if task_defaults is defined
-		if ( not myf.has_key(task) and 
+		if ( task not in myf and 
 		     str(type(myf[task])) != "<type 'instance'>" and 
 		     not hasattr(myf[task],"defaults") ):
-		          raise TypeError, "task %s is not defined " %task
+		          raise TypeError("task %s is not defined " %task)
 
                 if task==None: task=myf['task']
                 myf['task']=task
@@ -63,13 +63,13 @@ def tget(task=None, savefile=''):
 				try:
 					taskparameterfile=open(savefile,'r')
 				except:
-					print "Sorry - no task.last or .saved"
+					print("Sorry - no task.last or .saved")
 					return
 		
 			taskparameterfile.close()
-		execfile(savefile)
+		exec(compile(open(savefile, "rb").read(), savefile, 'exec'))
 		# Put the task parameters back into the global namespace
-                f=zip(myf[task].__call__.func_code.co_varnames[1:],myf[task].__call__.func_defaults)
+                f=list(zip(myf[task].__call__.__code__.co_varnames[1:],myf[task].__call__.__defaults__))
                 missing_ks = []
                 for j in f:
                         k = j[0]
@@ -79,17 +79,17 @@ def tget(task=None, savefile=''):
                                 except NameError:
                                         missing_ks.append(k)
                 if missing_ks:
-                        print "Did not find a saved value for",
+                        print("Did not find a saved value for", end=' ')
                         if len(missing_ks) > 1:
-                                print ', '.join(missing_ks[:-1]),
-                                print 'or', missing_ks[-1]
+                                print(', '.join(missing_ks[:-1]), end=' ')
+                                print('or', missing_ks[-1])
                         else:
-                                print missing_ks[0]
-                        print "The set of task parameters has probably changed"
-                        print "since", savefile, "was written."
-		print "Restored parameters from file "+savefile
-        except TypeError, e:
-                print "tget --error: ", e
+                                print(missing_ks[0])
+                        print("The set of task parameters has probably changed")
+                        print("since", savefile, "was written.")
+		print("Restored parameters from file "+savefile)
+        except TypeError as e:
+                print("tget --error: ", e)
 
 def tget_defaults(param=None):
        myf=stack_frame_find( )
@@ -99,9 +99,9 @@ def tget_defaults(param=None):
        if(param == None):
                myf['__set_default_parameters'](a)
        elif(param == 'paramkeys'):
-               return a.keys()
+               return list(a.keys())
        else:
-               if(a.has_key(param)):
+               if(param in a):
                        return a[param]
 
 def tget_description(key='listobs',subkey=None):
@@ -109,7 +109,7 @@ def tget_description(key='listobs',subkey=None):
        'task': 'Name of task whose parameters will be set',
        'savefile': 'Name of parameter file (e.g., task.last)',
        }
-   if(desc.has_key(key)):
+   if(key in desc):
            return desc[key]
    return ''
 

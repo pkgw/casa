@@ -4,7 +4,7 @@ import time
 
 _homedir = os.getenv('HOME')
 if _homedir == None :
-   print "Environment variable HOME is not set, please set it"
+   print("Environment variable HOME is not set, please set it")
    sys.exit(1)
 
 __curtime = time.strftime("%Y%m%d-%H%M%S", time.gmtime())

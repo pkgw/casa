@@ -1,7 +1,7 @@
 #finished 7-10
 from pylab import *
 import string
-import commands
+import subprocess
 import sys
 from time import *
 from os import *
@@ -14,7 +14,7 @@ procnam=sys.argv[1]
 
 def getmem(procName='') :
     cmd='top -n 1 -b -i | grep ' + procName
-    a=commands.getoutput(cmd)
+    a=subprocess.getoutput(cmd)
     if(len(a)==0) :
         return -1.0,-1.0
     memstr0=string.atof(string.split(string.split(a)[4],'m')[0])*1024.0*1024.0
@@ -51,11 +51,11 @@ while i< 10000:
 		y11.append(y1)
 		y22.append(y2)
 	else:
-       		print 'no ', procnam
+       		print('no ', procnam)
 		#sleep(10.0)
 		sleep(3.0)
 	i+=1
-	print i
+	print(i)
 plot(t,y11,lw=2)
 plot(t,y22,lw=2)
 if max(y11)>=max(y22): axis([0.9*min(t),1.1*max(t),0.9*min(y11),1.1*max(y11)])
@@ -72,13 +72,13 @@ title('memory usage of '+procnam)
 #set up special images directory?
 s='IMAGES'
 if access(s,F_OK) is False:
-        print s+' directory DNE, so am making one!'
+        print(s+' directory DNE, so am making one!')
         mkdir(s)
-else: print s+' directory exists; will add to it!'
+else: print(s+' directory exists; will add to it!')
 
 #label image according to time created
 t=gmtime( time() )
 s+=('/%s-%s-%s-%s-%s.png') %(t[0],t[1],t[2],t[3],t[4])
-print 'fin-ished!\nfile written to %s'%(s)
+print('fin-ished!\nfile written to %s'%(s))
 savefig(s);
 show() #not really necessary

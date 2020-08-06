@@ -44,8 +44,7 @@ def clearcal(
             cblocal.setvi(old=True,quiet=False);  # Old VI for now
             cblocal.open(vis, addmodel=addmodel)
         else:
-            raise Exception, \
-                'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
 
         # If necessary (scr col not just created), initialize scr cols
         if doinit:
@@ -54,13 +53,13 @@ def clearcal(
         cblocal.close()
 
         # Write history to the MS
-        param_names = clearcal.func_code.co_varnames[:clearcal.func_code.co_argcount]
+        param_names = clearcal.__code__.co_varnames[:clearcal.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         casalog.post('Updating the history in the output', 'DEBUG1')
         write_history(mslocal, vis, 'clearcal', param_names,
                       param_vals, casalog)
         
-    except Exception, instance:
+    except Exception as instance:
 
-        print '*** Error ***', instance
+        print('*** Error ***', instance)
 

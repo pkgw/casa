@@ -1,4 +1,4 @@
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import re
 import ssl
 import webbrowser
@@ -36,14 +36,14 @@ class __doc(object):
         if len(self.__task_list) == 0:
             try:
                 ### osx rejects NRAO's CERT
-                self.__task_list = re.findall("\w+.xml", urllib2.urlopen(self.__task_url,context=self.__unverified_ctx( )).read().decode())
+                self.__task_list = re.findall("\w+.xml", urllib.request.urlopen(self.__task_url,context=self.__unverified_ctx( )).read().decode())
             except:
                 self.__task_list = [ ]
 
         if len(self.__tool_list) == 0:
             try:
                 ### osx rejects NRAO's CERT
-                self.__tool_list = re.findall("\w+.xml", urllib2.urlopen(self.__tool_url,context=self.__unverified_ctx( )).read().decode())
+                self.__tool_list = re.findall("\w+.xml", urllib.request.urlopen(self.__tool_url,context=self.__unverified_ctx( )).read().decode())
             except:
                 self.__tool_list = [ ]
 

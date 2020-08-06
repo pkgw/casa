@@ -15,12 +15,12 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
         helper.go()
         # Write history to MS.
         try:
-            param_names = initweights.func_code.co_varnames[:initweights.func_code.co_argcount]
+            param_names = initweights.__code__.co_varnames[:initweights.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             casalog.post('Updating the history in the output', 'DEBUG1')
             write_history(ms, vis, 'initweights', param_names,
                           param_vals, casalog)
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                          'WARN')
         
@@ -36,7 +36,7 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
         if ((type(vis)==str) & (os.path.exists(vis))):
             if wtmode.upper().find("TSYS") > -1:
                 if not os.path.exists(tsystable):
-                    raise Exception, 'Tsys calibration table %s not found' % tsystable
+                    raise Exception('Tsys calibration table %s not found' % tsystable)
                 if len(spwmap)==0:
                     spwmap=[-1]
                 if interp=="":
@@ -47,22 +47,22 @@ def initweights(vis=None,wtmode=None,tsystable=None,gainfield=None,interp=None,s
             mycb.initweights(wtmode=wtmode,dowtsp=dowtsp,tsystable=tsystable,gainfield=gainfield,interp=interp,spwmap=spwmap)
             mycb.close()
         else:
-            raise Exception, 'Visibility data set not found - please verify the name'
+            raise Exception('Visibility data set not found - please verify the name')
         
         # Write history to MS.
         # When running in parallel, history will be written in the parallel section above
         # normal MSs should write the history here
         if ParallelTaskHelper.isMPIClient():
             try:
-                param_names = initweights.func_code.co_varnames[:initweights.func_code.co_argcount]
+                param_names = initweights.__code__.co_varnames[:initweights.__code__.co_argcount]
                 param_vals = [eval(p) for p in param_names]
                 casalog.post('Updating the history in the output', 'DEBUG1')
                 write_history(myms, vis, 'initweights', param_names,
                               param_vals, casalog)
-            except Exception, instance:
+            except Exception as instance:
                 casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                              'WARN')
 
 
-    except Exception, instance:
-        print '*** Error ***',instance
+    except Exception as instance:
+        print('*** Error ***',instance)

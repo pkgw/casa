@@ -97,13 +97,13 @@ def plotweather(vis='', seasonal_weight=0.5, doPlot=True, plotName = ''):
             WEATHER_table_exists = True
 
         except:
-            print 'could not open weather table, using seasonal model only and turning off plots'
+            print('could not open weather table, using seasonal model only and turning off plots')
             tb.close()
             WEATHER_table_exists = False
             doPlot=False
             seasonal_weight = 1.0
     else:
-        print 'could not find a weather table, using seasonal model only and turning off plots'
+        print('could not find a weather table, using seasonal model only and turning off plots')
         WEATHER_table_exists = False
         doPlot=False
         seasonal_weight = 1.0

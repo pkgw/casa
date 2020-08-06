@@ -64,6 +64,6 @@ def browsetable(tablename=None, mightedit=None,
                 #shutil.rmtree(ftname)  # Can't do until browser exits.
             t.close()  # Can be closed even if not open.
         else:
-            raise Exception, 'Table ' + str(tablename) + ' not found - please check the name'
-    except Exception, instance:
-        print '*** Error ***', instance
+            raise Exception('Table ' + str(tablename) + ' not found - please check the name')
+    except Exception as instance:
+        print('*** Error ***', instance)

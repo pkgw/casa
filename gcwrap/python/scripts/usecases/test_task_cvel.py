@@ -29,26 +29,26 @@ def verify_ms(msname, expnumspws, expnumchan, inspw):
     dimdata = tb.getcell("FLAG", 0)[0].size
     tb.close()
     if not (nr==expnumspws):
-        print "Found "+str(nr)+", expected "+str(expnumspws)+" spectral windows in "+msname
+        print("Found "+str(nr)+", expected "+str(expnumspws)+" spectral windows in "+msname)
         raise Exception
     if not (nc == expnumchan):
-        print "Found "+ str(nc) +", expected "+str(expnumchan)+" channels in spw "+str(inspw)+" in "+msname
+        print("Found "+ str(nc) +", expected "+str(expnumchan)+" channels in spw "+str(inspw)+" in "+msname)
         raise Exception
     if not (dimdata == expnumchan):
-        print "Found "+ str(nc) +", expected "+str(expnumchan)+" channels in FLAG column in "+msname
+        print("Found "+ str(nc) +", expected "+str(expnumchan)+" channels in FLAG column in "+msname)
         raise Exception
     return True
 
 keeptestlist = True
 
 try:
-    print "List of tests to be executed ...", testlist
+    print("List of tests to be executed ...", testlist)
 except:
-    print "Global variable testlist not set."
+    print("Global variable testlist not set.")
     testlist = []
 if (testlist==[]):
-    print "testlist empty. Executing all tests."
-    testlist = range(0,100)
+    print("testlist empty. Executing all tests.")
+    testlist = list(range(0,100))
     keeptestlist = False
 
 total = 0
@@ -63,16 +63,16 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Testing default."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Testing default.")
         rval = cvel()
         if not rval:
-            print myname, ': *** Error as expected ***'   
+            print(myname, ': *** Error as expected ***')   
         else:
-            print "Failed ..."
+            print("Failed ...")
             failures +=1
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 2
@@ -83,16 +83,16 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Only input vis set ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Only input vis set ...")
         rval = cvel(vis = 'myinput.ms')
         if not rval:
-            print myname, ': *** Error as expected ***'   
+            print(myname, ': *** Error as expected ***')   
         else:
-            print "Failed ..."
+            print("Failed ...")
             failures += 1
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 3
@@ -103,8 +103,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set ...")
         rval = cvel(vis = 'myinput.ms', outputvis = 'cvel-output.ms')
         if not rval:
             raise Exception
@@ -112,7 +112,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 64, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 4
@@ -123,8 +123,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, more complex input vis, one field selected ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, more complex input vis, one field selected ...")
         rval = cvel(vis = 'myinput.ms', outputvis = 'cvel-output.ms', field = '1')
         if not rval:
             raise Exception
@@ -132,7 +132,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 64, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 5
@@ -143,8 +143,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, more complex input vis, one field selected, passall = True ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, more complex input vis, one field selected, passall = True ...")
         rval = cvel(
                 vis = 'myinput.ms',
                 outputvis = 'cvel-output.ms',
@@ -157,7 +157,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 2, 64, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 6
@@ -168,8 +168,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, more complex input vis, one field selected, one spw selected, passall = True ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, more complex input vis, one field selected, one spw selected, passall = True ...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -183,7 +183,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 2, 64, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 ## # Tests with more than one spectral window ###################
@@ -196,8 +196,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False ..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False ...")
         rval = cvel(
                 vis = 'myinput.ms',
                 outputvis = 'cvel-output.ms',
@@ -211,7 +211,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 8
@@ -222,8 +222,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 1..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 1...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -239,7 +239,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 9
@@ -250,8 +250,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 2..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 2...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -268,7 +268,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 10
@@ -279,8 +279,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 3..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 3...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -298,7 +298,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 11
@@ -309,8 +309,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 4..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 4...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -328,7 +328,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 12
@@ -339,8 +339,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, two fields selected, 2 spws selected, passall = False, regridding 5..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, two fields selected, 2 spws selected, passall = False, regridding 5...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -359,7 +359,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 13
@@ -370,8 +370,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with one spws, one field selected, one spws selected, passall = False, regridding 6..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with one spws, one field selected, one spws selected, passall = False, regridding 6...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -391,7 +391,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 14
@@ -402,8 +402,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with one spws, one field selected, one spws selected, passall = False, non-existing phase center..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with one spws, one field selected, one spws selected, passall = False, non-existing phase center...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -424,7 +424,7 @@ if (testnumber in testlist):
         verify_ms(omsname, 1, 2, 0)
         failures += 1
     except:
-        print myname, ': *** Expected error ***'   
+        print(myname, ': *** Expected error ***')   
 
 testnumber = 15
 if (testnumber in testlist):
@@ -434,8 +434,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 8..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with two spws, one field selected, 2 spws selected, passall = False, regridding 8...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -454,7 +454,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 1, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 16
@@ -465,8 +465,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -485,7 +485,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 17
@@ -496,8 +496,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9...")
         rval = cvel(
                 vis = 'myinput.ms',
                 outputvis = 'cvel-output.ms',
@@ -517,7 +517,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 18
@@ -528,8 +528,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9..."
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("Input and output vis set, input vis with one spw, two fields selected, passall = False, regridding 9...")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -549,7 +549,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 19
@@ -560,8 +560,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, channel mode, 10 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, channel mode, 10 output channels")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -577,7 +577,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 10, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 20
@@ -588,8 +588,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, channel mode, 111 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, channel mode, 111 output channels")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -605,7 +605,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 111, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 21
@@ -616,8 +616,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, frequency mode, 21 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, frequency mode, 21 output channels")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -633,7 +633,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 21, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 22
@@ -644,8 +644,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, frequency mode, 210 output channels, negative width (sign will be ignored)"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, frequency mode, 210 output channels, negative width (sign will be ignored)")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -661,7 +661,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 210, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 23
@@ -672,9 +672,9 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, radio velocity mode, 30 output channels"
-        print "start = ", start, ", width = ", width
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, radio velocity mode, 30 output channels")
+        print("start = ", start, ", width = ", width)
         vrad = (220398.676E6 - 229586E6)/220398.676E6 * 2.99792E8
         vwidth = ((220398.676E6 - 229586E6+1600E3)/220398.676E6 * 2.99792E8) - vrad
         vrad = vrad-vwidth/2.
@@ -695,7 +695,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 30, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 24
@@ -706,8 +706,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, radio velocity mode, 35 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, radio velocity mode, 35 output channels")
         vrad = (220398.676E6 - 229586E6)/220398.676E6 * 2.99792E8
         vwidth = ((220398.676E6 - 229586E6+3200E3)/220398.676E6 * 2.99792E8) - vrad
         vrad = vrad-vwidth/2.
@@ -728,7 +728,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 35, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 25
@@ -739,8 +739,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels")
         lambda0 = 2.99792E8/220398.676E6
         lambda1 = 2.99792E8/229586E6
         lambda2 = 2.99792E8/(229586E6+1600E3)
@@ -764,7 +764,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 40, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 26
@@ -781,8 +781,8 @@ if (testnumber in testlist):
         lambda2 = 2.99792E8/(229586E6+1200E3)
         vwidth = vopt - (lambda2-lambda0)/lambda0 * 2.99792E8
         vopt = vopt-vwidth/2.
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, optical velocity mode, 40 output channels")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -800,7 +800,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 41, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 27
@@ -812,8 +812,8 @@ if (testnumber in testlist):
     # no regrid
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, no regridding"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, no regridding")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms'
@@ -824,7 +824,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 28
@@ -835,8 +835,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, channel mode, 30 channels "
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, channel mode, 30 channels ")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -851,7 +851,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 30, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
         
 testnumber = 29
@@ -862,8 +862,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, channel mode, 31 channels "
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, channel mode, 31 channels ")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -878,7 +878,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 31, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 30
@@ -889,8 +889,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, mode channel_b, no regridding"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, mode channel_b, no regridding")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -902,7 +902,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2443, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 31
@@ -913,8 +913,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -928,7 +928,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 32
@@ -939,8 +939,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo, Hanning smoothing"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 24 spws to combine, scratch columns, mode channel, frame trafo, Hanning smoothing")
         rval = cvel(
             vis = 'myinput.ms',
             outputvis = 'cvel-output.ms',
@@ -955,7 +955,7 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 2440, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 testnumber = 33
@@ -966,8 +966,8 @@ if (testnumber in testlist):
     default('cvel')
     total += 1
     try:
-        print "\n>>>> Test ", testnumber, ", input MS: ", myvis
-        print "SMA input MS, 1 spw, scratch columns, mode channel, no trafo, Hanning smoothing"
+        print("\n>>>> Test ", testnumber, ", input MS: ", myvis)
+        print("SMA input MS, 1 spw, scratch columns, mode channel, no trafo, Hanning smoothing")
         rval = cvel(
             vis = 'myinput.ms',
             spw='1',
@@ -982,15 +982,15 @@ if (testnumber in testlist):
         os.system('rm -rf '+omsname+'; mv cvel-output.ms '+omsname)
         verify_ms(omsname, 1, 128, 0)
     except:
-        print myname, ': *** Unexpected error ***'   
+        print(myname, ': *** Unexpected error ***')   
         failures += 1
 
 
 
 
 # Summary ########################################
-print "Tests = ", total    
-print "Failures = ", failures
+print("Tests = ", total)    
+print("Failures = ", failures)
 
 # empty test list if it was empty to start with
 if not keeptestlist:

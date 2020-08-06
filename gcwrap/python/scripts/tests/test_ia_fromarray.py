@@ -146,7 +146,7 @@ class ia_fromarray_test(unittest.TestCase):
                 myia = ia2.newimagefromarray("", zz, type="f")
             kk = myia.getchunk()[0]
             myia.done()
-            print "diff", (1 - jj/kk)
+            print("diff", (1 - jj/kk))
             self.assertTrue(numpy.isclose(kk, jj, 1e-8*oc, 1e-8*oc))
             self.assertFalse(numpy.isclose(kk, jj, 1e-9*oc, 1e-9*oc))
             if i == 0:

@@ -82,7 +82,7 @@ class Test010_VLAMG0414(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide: MG0414+0534 P-band Spectral Line Tutorial'''
 
-        execfile('MG0414_2B0534P-bandSpectralLineTutorial.py')
+        exec(compile(open('MG0414_2B0534P-bandSpectralLineTutorial.py', "rb").read(), 'MG0414_2B0534P-bandSpectralLineTutorial.py', 'exec'))
                 
         return True
 

@@ -87,7 +87,7 @@ import shutil
 import casac
 from tasks import *
 from taskinit import *
-import commands
+import subprocess
 import unittest
 
 ###########################################################################
@@ -113,36 +113,36 @@ complexim = 'complex.im'
 
 def deep_equality(a, b): 
     if (type(a) != type(b)):
-        print "types don't match, a is a " + str(type(a)) + " b is a " + str(type(b))
+        print("types don't match, a is a " + str(type(a)) + " b is a " + str(type(b)))
         return False
     if (type(a) == dict):
-        if (a.keys() != b.keys()):
-            print "keys don't match, a is " + str(a.keys()) + " b is " + str(b.keys())
+        if (list(a.keys()) != list(b.keys())):
+            print("keys don't match, a is " + str(list(a.keys())) + " b is " + str(list(b.keys())))
             return False
-        for k in a.keys():
+        for k in list(a.keys()):
             if (
                 k == "telescope" or k == "observer"
                 or k == "telescopeposition"
             ):
                 continue
             elif (not deep_equality(a[k], b[k])):
-                print "dictionary member inequality a[" + str(k) \
-                    + "] is " + str(a[k]) + " b[" + str(k) + "] is " + str(b[k])
+                print("dictionary member inequality a[" + str(k) \
+                    + "] is " + str(a[k]) + " b[" + str(k) + "] is " + str(b[k]))
                 return False
         return True
     if (type(a) == float):
         if not (a == b or abs((a-b)/a) <= 1e-6):
-            print "float mismatch, a is " + str(a) + ", b is " + str(b)
+            print("float mismatch, a is " + str(a) + ", b is " + str(b))
         return a == b or abs((a-b)/a) <= 1e-6
     if (type(a) == numpy.ndarray):
         if (a.shape != b.shape):
-            print "shape mismatch a is " + str(a.shape) + " b is " + str(b.shape)
+            print("shape mismatch a is " + str(a.shape) + " b is " + str(b.shape))
             return False
         x = a.tolist()
         y = b.tolist()
         for i in range(len(x)):
             if (not deep_equality(x[i], y[i])):
-                print "array element mismatch, x is " + str(x[i]) + " y is " + str(y[i])
+                print("array element mismatch, x is " + str(x[i]) + " y is " + str(y[i]))
                 return False
         return True
     return a == b
@@ -491,8 +491,8 @@ class imhead_test(unittest.TestCase):
             self.assertTrue(newval == equinox)
             if ( val != None ):
                 imhead( input_file, 'put', 'equinox', val )
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print(str(e))
             self.assertTrue(False)
         
         #######  RESTFREQUENCY  #############
@@ -500,20 +500,20 @@ class imhead_test(unittest.TestCase):
         newval= None
         try:                    
             val=imhead( input_file, 'get', 'restfreq' )
-            print "*** val " + str(val)
+            print("*** val " + str(val))
             imhead( input_file, 'put', 'restfreq', '1.421GHz' )
-            print "kk"
+            print("kk")
             imhead( input_file, 'put', 'restfreq', '15.272GHz, 1.67GHz' )
-            print "yy"
+            print("yy")
             newval=imhead( input_file, 'get', 'restfreq' )
-            print "newval " + str(newval)
+            print("newval " + str(newval))
             if ( val != None ):  
-                print "val2 " + str(val)      
+                print("val2 " + str(val))      
                 #imhead( input_file, 'put', 'restfreq', str(val['value'])+str(val['unit']) )
                 imhead( input_file, 'put', 'restfreq', val['value'])
-                print "done"
-        except Exception, instance:
-            print str(instance)
+                print("done")
+        except Exception as instance:
+            print(str(instance))
             self.assertTrue(False)
         else:
             self.assertFalse( val!=None and val == newval )
@@ -790,8 +790,8 @@ class imhead_test(unittest.TestCase):
             val=imhead( input_file, 'get', 'object' )
             imhead( input_file, 'del', 'object' )
             newval=imhead( input_file, 'get', 'object' )
-            print "*** val " + str(val)
-            print "*** new " + str(newval)
+            print("*** val " + str(val))
+            print("*** new " + str(newval))
         except:
             self.assertTrue(False)
         else:
@@ -864,9 +864,9 @@ class imhead_test(unittest.TestCase):
         shutil.copytree(input_file, input_file_copy)
         cur_hdr = imhead( input_file, 'list' )
         orig_hdr = imhead( input_file_copy, 'list' )
-        gotkeys = cur_hdr.keys()
+        gotkeys = list(cur_hdr.keys())
         gotkeys.sort()
-        expkeys = orig_hdr.keys()
+        expkeys = list(orig_hdr.keys())
         expkeys.sort()
         self.assertTrue(expkeys == gotkeys)
         for key in expkeys:
@@ -935,19 +935,19 @@ class imhead_test(unittest.TestCase):
             casalog.setlogfile('casa.log')
             
             cmd = 'grep cdelt1 ' + logfile
-            out = commands.getoutput(cmd)
+            out = subprocess.getoutput(cmd)
             self.assertNotEqual(out,'','The keyword cdelt1 is not listed')
             cmd = 'grep crval1 ' + logfile
-            out = commands.getoutput(cmd)
+            out = subprocess.getoutput(cmd)
             self.assertNotEqual(out,'','The keyword crval1 is not listed')
             cmd = 'grep ctype1 ' + logfile
-            out = commands.getoutput(cmd)
+            out = subprocess.getoutput(cmd)
             self.assertNotEqual(out,'','The keyword ctype1 is not listed')
             cmd = 'grep cunit1 ' + logfile
-            out = commands.getoutput(cmd)
+            out = subprocess.getoutput(cmd)
             self.assertNotEqual(out,'','The keyword cunit1 is not listed')
             cmd = 'grep shape ' + logfile
-            out = commands.getoutput(cmd)
+            out = subprocess.getoutput(cmd)
             self.assertNotEqual(out,'','The keyword shape is not listed')
             
             myimd = imdtool()
@@ -1569,7 +1569,7 @@ class imhead_test(unittest.TestCase):
         myia.fromshape(imagename, [1, 1])
         myia.done()
         a = imhead(imagename=imagename, mode="list")
-        self.assertTrue(not a.has_key("restfreq") and len(a.keys()) > 0)
+        self.assertTrue("restfreq" not in a and len(list(a.keys())) > 0)
         self.assertFalse(imhead(imagename=imagename, mode="get", hdkey="restfreq"))
         self.assertFalse(
             imhead(
@@ -1604,7 +1604,7 @@ class imhead_test(unittest.TestCase):
                 count += 1
         myia.done()
         zz = imhead(imagename=imagename, mode="list")
-        self.assertTrue(zz['perplanebeams'].has_key("median area beam"))
+        self.assertTrue("median area beam" in zz['perplanebeams'])
         self.assertTrue(
             zz['perplanebeams']["median area beam"]
             == {

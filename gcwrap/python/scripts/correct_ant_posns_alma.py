@@ -340,10 +340,10 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             asdm_ant_pos = tb_tool.getcol('position')
             tb_tool.close()
 
-        ant_posns_ms = map(list, zip(asdm_ant_pos[0], asdm_ant_pos[1],
-                                     asdm_ant_pos[2]))
-        pad_posns_ms = map(list, zip(asdm_pad_pos[0], asdm_pad_pos[1],
-                                     asdm_pad_pos[2]))
+        ant_posns_ms = list(map(list, list(zip(asdm_ant_pos[0], asdm_ant_pos[1],
+                                     asdm_ant_pos[2]))))
+        pad_posns_ms = list(map(list, list(zip(asdm_pad_pos[0], asdm_pad_pos[1],
+                                     asdm_pad_pos[2]))))
         return (ant_names, pad_names, ant_posns_ms, pad_posns_ms)
 
     def get_time_range_from_obs(vis_name):
@@ -564,7 +564,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
     # Get corrected positions by querying the TMC database via the TMCDB
     # AntennaPad service
     try:
-        import urllib2
+        import urllib.request, urllib.error, urllib.parse
         (ant_names_db, ant_corr_posns, pad_posns) = fetch_tmcdb_info(ant_names, obs_time)
         if (ant_names_db != ant_names).any():
             raise RuntimeError('The antenna names found in the MS (which were '
@@ -576,7 +576,7 @@ def correct_ant_posns_alma(vis_name, print_offsets=False):
             calc_ant_params_from_positions(ant_names, ant_corr_posns,
                                            pad_posns, ant_posns_ms, pad_posns_ms))
         ret_code = 0
-    except urllib2.URLError as exc:
+    except urllib.error.URLError as exc:
         casalog.post('Network or server issue found while querying ALMA TMC DB '
                      'AntennaPad service. Details: {}'.format(exc), 'ERROR')
         ret_code = 2

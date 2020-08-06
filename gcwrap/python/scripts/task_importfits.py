@@ -45,24 +45,24 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 		_myia.dohistory(False)
 		if os.path.exists(imagename):
 			if not overwrite:
-				raise RuntimeError, 'Output image exists already and you did not set overwrite to True.'
+				raise RuntimeError('Output image exists already and you did not set overwrite to True.')
 			else:
 				os.system('rm -rf '+imagename)
 
 		if defaultaxes:
 			if len(defaultaxesvalues)!=4:
-				raise TypeError, 'When defaultaxes==True, parameter defaultaxesvalues must be provided as a list of 4 values: RA, Dec, Freq, Stokes,\n e.g. [\'13.5h\', \'-2.5deg\', \'88.5GHz\', \'I\']\nFor existing axes, empty strings can be given as values.'
+				raise TypeError('When defaultaxes==True, parameter defaultaxesvalues must be provided as a list of 4 values: RA, Dec, Freq, Stokes,\n e.g. [\'13.5h\', \'-2.5deg\', \'88.5GHz\', \'I\']\nFor existing axes, empty strings can be given as values.')
 			_myia.open(fitsimage)
 			_mycs=_myia.coordsys()
 			acts = _mycs.axiscoordinatetypes()
 			cnames = _mycs.names()
 			_myia.close()
 			if ('Direction' in acts and not ('Right Ascension' in cnames and 'Declination' in cnames)):
-				raise RuntimeError, 'Non-standard direction axes. Cannot add default axes.'
+				raise RuntimeError('Non-standard direction axes. Cannot add default axes.')
 			if ('Spectral' in acts and not 'Frequency' in cnames):
-				raise RuntimeError, 'Non-standard spectral axis. Cannot add default axes.'
+				raise RuntimeError('Non-standard spectral axis. Cannot add default axes.')
 			if ('Stokes' in acts and not 'Stokes' in cnames):
-				raise RuntimeError, 'Non-standard Stokes axis. Cannot add default axes.'
+				raise RuntimeError('Non-standard Stokes axis. Cannot add default axes.')
 
 			if not ('Right Ascension' in cnames and 'Declination' in cnames):
 				addaxes = True
@@ -81,18 +81,18 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 
 		if beam!=[]: # user has set beam
 			if type(beam)!=list or len(beam)!=3 or not (type(beam[0])==str and type(beam[1])==str and type(beam[2])):
-				raise TypeError, "Parameter beam is invalid (should be list of 3 strings or empty): "+str(beam)
+				raise TypeError("Parameter beam is invalid (should be list of 3 strings or empty): "+str(beam))
 			qabeam = []
 			for i in range(0,3):
 				try:
 					qabeam.append(qa.quantity(beam[i]))
 					tmp = qa.toangle(qabeam[i])
 				except:
-					raise TypeError, "Parameter beam["+str(i)+"] is invalid (should be an angle): "+str(beam[i])
+					raise TypeError("Parameter beam["+str(i)+"] is invalid (should be an angle): "+str(beam[i]))
 			if (qa.convert(qabeam[0], 'arcsec') >= qa.convert(qabeam[1], 'arcsec')):
 				addbeam = True
 			else:
-				raise TypeError, "Parameter beam["+str(i)+"] is invalid (major axis must be >= minor axis): "+str(beam)
+				raise TypeError("Parameter beam["+str(i)+"] is invalid (major axis must be >= minor axis): "+str(beam))
 
 		_myia.fromfits(tmpname,fitsimage,whichrep,whichhdu,zeroblanks)
 		_myia.close()
@@ -122,7 +122,7 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 				else:
 					qara = qa.quantity(qa.angle(ra)[0])
 					if qara['unit'].find('deg') < 0:
-						raise TypeError, "RA default value is not a valid angle quantity " %ra
+						raise TypeError("RA default value is not a valid angle quantity " %ra)
 					raval = qara['value']
 
 				dec = defaultaxesvalues[1]
@@ -131,7 +131,7 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 				else:
 					qadec = qa.quantity(qa.angle(dec)[0])
 					if qadec['unit'].find('deg') < 0:
-						raise TypeError, "DEC default value is not a valid angle quantity " %dec
+						raise TypeError("DEC default value is not a valid angle quantity " %dec)
 					decval = qadec['value']
 					
                                 _mynewcs.setunits(value='deg deg', type='direction')
@@ -144,7 +144,7 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 				else:
 					qafreq = qa.quantity(freq)
 					if qafreq['unit'].find('Hz') < 0:
-						raise TypeError, "Freq default value is not a valid frequency quantity " %freq
+						raise TypeError("Freq default value is not a valid frequency quantity " %freq)
 					freqval = qa.convertfreq(qafreq,'Hz')['value']
                                 _mynewcs.setunits(value='Hz', type='spectral')
 				_mynewcs.setreferencevalue(type='spectral', value=freqval)
@@ -187,16 +187,16 @@ def importfits(fitsimage,imagename,whichrep,whichhdu,zeroblanks,overwrite,defaul
 					     "If you wish to add a beam or brightness units to your image, please use\n"
 					     "the \"beam\" parameter or ia.setrestoringbeam() and ia.setbrightnessunit()", 'WARN')
 		try:
-			param_names = importfits.func_code.co_varnames[:importfits.func_code.co_argcount]
+			param_names = importfits.__code__.co_varnames[:importfits.__code__.co_argcount]
 			param_vals = [eval(p) for p in param_names]   
 			write_image_history(
                 _myia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-		except Exception, instance:
+		except Exception as instance:
 			casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
 		return True
-	except Exception, instance:
+	except Exception as instance:
 		casalog.post( str( '*** Error ***') + str(instance), 'SEVERE')
 		raise
 	finally:

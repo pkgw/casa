@@ -18,12 +18,12 @@ calpath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/gai
 overlaypath = os.environ.get('CASAPATH').split()[0] + "/data/regression/unittest/mstransform/"
 
 # Pick up alternative data directory to run tests on MMSs
-if os.environ.has_key('TEST_DATADIR'):   
+if 'TEST_DATADIR' in os.environ:   
     DATADIR = str(os.environ.get('TEST_DATADIR'))+'/plotms/'
     if os.path.isdir(DATADIR):
         datapath = DATADIR         
 
-print 'plotms tests will use data from '+ datapath
+print('plotms tests will use data from '+ datapath)
 
 class plotms_test_base(unittest.TestCase):
 
@@ -85,7 +85,7 @@ class plotms_test_base(unittest.TestCase):
     def checkPlotfile(self, plotfileName, minSize, maxSize=None):
         self.assertTrue(os.path.isfile(plotfileName), "Plot was not created")
         plotSize = os.path.getsize(plotfileName)
-        print plotfileName, 'file size is', plotSize
+        print(plotfileName, 'file size is', plotSize)
         self.assertGreater(plotSize, minSize)
         if maxSize:
             self.assertLess(plotSize, maxSize)
@@ -155,7 +155,7 @@ class test_basic(plotms_test_base):
                      xaxis='scan', showgui=False, highres=True)   
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 50000)
-        print
+        print()
         
     def test_basic_blankplot(self):               
         '''test_basic_blankplot: Blank plot running plotms with no arguments'''
@@ -166,7 +166,7 @@ class test_basic(plotms_test_base):
                 highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 22000)
-        print    
+        print()    
            
     def test_basic_overwrite(self):
         '''test_basic_overwrite: Check overwrite functionality'''
@@ -189,7 +189,7 @@ class test_basic(plotms_test_base):
                      overwrite=True, showgui=False, highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000)
-        print
+        print()
 
     def test_basic_overplot2MS(self):
         '''test_basic_overplot2MS: Overplot two data sets on one plot.'''
@@ -214,8 +214,8 @@ class test_basic(plotms_test_base):
             self.assertTrue(res) 
             self.checkPlotfile(self.plotfile_jpg, 45000)
         else:
-            print "Skipping test, no path to alternate MS"
-        print
+            print("Skipping test, no path to alternate MS")
+        print()
 
     def test_basic_overplot2MS_freq(self):
         '''test_basic_overplot2MS_freq: CAS-6975 overplotting problem'''
@@ -234,8 +234,8 @@ class test_basic(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(self.plotfile_jpg, 30000)
         else:
-            print "Skipping test, no path to alternate MS"
-        print
+            print("Skipping test, no path to alternate MS")
+        print()
 
     def test_basic_overplot2colors(self):
         '''test_basic_overplot2colors: CAS-7043 Create overplot with different color for each'''
@@ -258,8 +258,8 @@ class test_basic(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(self.plotfile_jpg, 40000)
         else:
-            print "Skipping test, no path to alternate MS"
-        print
+            print("Skipping test, no path to alternate MS")
+        print()
 
     def xtest_basic_screenExport(self):
         '''test_basic_screenExport: Export plot in screen resolution'''
@@ -271,7 +271,7 @@ class test_basic(plotms_test_base):
                      showgui=False, highres=False)   
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 30000)
-        print
+        print()
 
     def xtest_basic_pngExport(self):
         '''test_basic_pngExport: Export plot in png format'''
@@ -283,7 +283,7 @@ class test_basic(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile_png, 30000)
         self.removePlotfile(plotfile_png)
-        print
+        print()
 
     def xtest_basic_pdfExport(self):
         '''test_basic_pdfExport: Export plot in pdf format'''
@@ -295,7 +295,7 @@ class test_basic(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile_pdf, 30000)
         self.removePlotfile(plotfile_pdf)
-        print
+        print()
 
 
 
@@ -321,7 +321,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgtime='60', highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000, 310000)
-        print
+        print()
     
     def test_averaging_timescan(self):
         '''test_averaging_timescan: Average time over scans'''
@@ -333,7 +333,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgtime='120', avgscan=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 140000, 210000)
-        print
+        print()
 
     def test_averaging_timefield(self):
         '''test_averaging_timefield: Average time over fields'''
@@ -345,7 +345,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgtime='120', avgfield=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 140000, 210000)
-        print
+        print()
 
     def test_averaging_chan(self):
         '''test_averaging_chan: Average channel'''
@@ -357,7 +357,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgchannel='7')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 150000, 230000)
-        print
+        print()
 
     def test_averaging_baseline(self):
         '''test_averaging_baseline: Average over baseline'''
@@ -368,7 +368,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgbaseline=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 140000, 210000)
-        print
+        print()
 
     def test_averaging_antenna(self):
         '''test_averaging_antenna: Average per antenna'''
@@ -379,7 +379,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgantenna=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 160000, 310000)
-        print
+        print()
 
     def test_averaging_blnant(self):
         '''test_averaging_blnant: Average over baseline and per antenna (should fail)'''
@@ -389,7 +389,7 @@ class test_averaging(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, avgbaseline=True, avgantenna=True)
         self.assertFalse(res)
-        print
+        print()
 
     def test_averaging_spw(self):
         '''test_averaging_spw: Average over spw'''
@@ -400,7 +400,7 @@ class test_averaging(plotms_test_base):
                      showgui=False, avgspw=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000, 310000)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -429,7 +429,7 @@ class test_axis(plotms_test_base):
                      symbolfill=['mesh3','mesh3'], highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 40000)
-        print
+        print()
         
     def test_axis_twoAxes(self):
         '''test_axis_twoAxes: Single plot with two y axes/locations.'''
@@ -445,7 +445,7 @@ class test_axis(plotms_test_base):
         self.checkPlotfile(self.plotfile_jpg, 200000)
         self.removePlotfile()
         
-        print
+        print()
 
     def test_axis_wtamp(self):
         '''test_axis_wtamp: Test that wt*amp works for x-and y-axis choices.'''
@@ -463,7 +463,7 @@ class test_axis(plotms_test_base):
                      highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 210000)
-        print
+        print()
 
     def test_axis_nodatacol(self):
         '''test_axis_nodatacol: Test non-visibility data (no datacolumn) x vs. y'''
@@ -474,7 +474,7 @@ class test_axis(plotms_test_base):
                      showgui=False, xaxis='elevation', yaxis='azimuth')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 30000)
-        print
+        print()
 
     def test_axis_datacolumns(self):
         '''test_axis_datacolumns: Test datacolumn options'''
@@ -495,7 +495,7 @@ class test_axis(plotms_test_base):
                 minSize = 30000
             self.checkPlotfile(plotfile, minSize)
             self.removePlotfile(plotfile)
-        print
+        print()
 
     def test_axis_baddatacolumn(self):
         '''test_axis_baddatacolumn: Test invalid datacolumn'''
@@ -508,7 +508,7 @@ class test_axis(plotms_test_base):
             self.assertFalse(res)
         except RuntimeError:  # "Parameter verification failed" rethrown on test server
             pass
-        print
+        print()
 
     def test_axis_datacolumnNoFloat(self):
         '''test_axis_datacolumnNoFloat: Choose 'float' datacolumn that does not exist'''
@@ -518,7 +518,7 @@ class test_axis(plotms_test_base):
         res = plotms(vis=self.ms, plotfile=self.plotfile_jpg, highres=True,
                      showgui=False, ydatacolumn='float')
         self.assertFalse(res)
-        print
+        print()
 
     def test_axis_synonyms(self):
         '''test_axis_synonym: Test shortened form of axis names'''
@@ -539,7 +539,7 @@ class test_axis(plotms_test_base):
             showgui=False, yaxis=['chan','freq'])
         self.checkPlotfile(plotfile, 30000)
         self.removePlotfile(plotfile)
-        print
+        print()
 
     def test_axis_syn_bad(self):
         '''test_axis_syn_bad: Test invalid axis synonym'''
@@ -552,7 +552,7 @@ class test_axis(plotms_test_base):
             self.assertFalse(res)
         except RuntimeError:  # "Parameter verification failed" rethrown on test server
             pass
-        print
+        print()
 
     # Removed from regular testing but available for manual testing!
     def xtest_axis_ALL(self):
@@ -577,7 +577,7 @@ class test_axis(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(plotfile, 40000)
             self.removePlotfile(plotfile)
-        print
+        print()
 
     def test_axis_twoDataAxes(self):
         '''test_axis_twoDataAxes: Single plot with two y data axes.'''
@@ -623,7 +623,7 @@ class test_axis(plotms_test_base):
                      yaxislocation=['left','right']) 
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000)
-        print
+        print()
 
     def test_axis_radec_params(self,debug=False):
         '''test_axis_radec_params: Test ant-ra/ant-dec parameters'''
@@ -638,7 +638,7 @@ class test_axis(plotms_test_base):
         n_plots = grid_rows*grid_cols
         # Create 1 plot file per supported reference frame
         ref_frames = {'icrs':30000,'j2000':30000,'b1950':30000,'galactic':30000,'azelgeo':30000}
-        for ref_frame, plot_min_size in ref_frames.iteritems():
+        for ref_frame, plot_min_size in ref_frames.items():
             # Plot file
             plot_filename = "testAxis13_radec_" + ref_frame + ".png"
             plot_dir = self.outputDir if not debug else '/tmp'
@@ -693,7 +693,7 @@ class test_axis(plotms_test_base):
             self.checkPlotfile(plot_path, plot_min_size)
             if not debug:
                 self.removePlotfile(plot_path)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -722,8 +722,8 @@ class test_calibration(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(self.plotfile_jpg, 240000)
         else:
-            print "Skipping test, no path to calibration tables"
-        print 
+            print("Skipping test, no path to calibration tables")
+        print() 
 
     def test_calibration_badcallib(self):
         '''test_calibration_badcallib: callib file does not exist'''
@@ -735,7 +735,7 @@ class test_calibration(plotms_test_base):
                      showgui=False, callib='/tmp/nocallib.txt',
                      highres=True)
         self.assertFalse(res)
-        print 
+        print() 
 
 # ------------------------------------------------------------------------------
  
@@ -760,7 +760,7 @@ class test_calplots(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 30000)
         self.removePlotfile()
-        print
+        print()
  
     def test_calplot_axes(self):
         '''test_calplot_axes: Basic plot of caltable with non-default axes'''
@@ -780,7 +780,7 @@ class test_calplots(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 60000)
         self.removePlotfile()
-        print
+        print()
 
     def test_calplot_iteration(self):
         '''test_calplot_iteration: caltable with corr iteraxis'''
@@ -796,7 +796,7 @@ class test_calplots(plotms_test_base):
         self.assertEqual(fileCount,2)
         self.checkPlotfile(plotfile1, 30000)
         self.removeFiles(self.outputDir, "testCalPlot03_")
-        print
+        print()
 
     def test_calplot_selection(self):
         '''test_calplot_selection: caltable with corr selection'''
@@ -808,7 +808,7 @@ class test_calplots(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 30000)
         self.removePlotfile()
-        print
+        print()
 
     def test_calplot_ratioplot(self):
         '''test_calplot_ratioplot: caltable with corr selection'''
@@ -820,7 +820,7 @@ class test_calplots(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 50000)
         self.removePlotfile()
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -964,7 +964,7 @@ class test_display(plotms_test_base):
                      symbolcolor='00aa00')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 84000)
-        print
+        print()
 
     def test_display_flsymbol(self):
         '''test_display_flsymbol: Set a custom plotting flaggedsymbol'''
@@ -977,7 +977,7 @@ class test_display(plotms_test_base):
                      flaggedsymbolcolor='00ff00', flaggedsymbolfill='mesh3')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 40000)
-        print
+        print()
         
     def test_display_flsymbol_false( self ):
         '''test_display_flsymbol_false:  CAS-7046:  customflaggedsymbol=False '''
@@ -1001,7 +1001,7 @@ class test_display(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 40000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
 
     def test_display_legend(self):
         '''test_display_legend: Place a legend on a plot.'''
@@ -1014,7 +1014,7 @@ class test_display(plotms_test_base):
                      highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 50000)
-        print
+        print()
 
     def test_display_legend_overplot(self):
         '''test_display_legend_overplot: Test that legend works with overplots'''
@@ -1038,7 +1038,7 @@ class test_display(plotms_test_base):
                      plotfile=self.plotfile_jpg, highres=True)   
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 45000)
-        print
+        print()
          
     def test_display_coloraxis(self):
         '''test_display_coloraxis: Colorize by time on an elevation x amp plot.'''
@@ -1067,7 +1067,7 @@ class test_display(plotms_test_base):
                      coloraxis='time', averagedata=True, avgtime='3600')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 40000)
-        print    
+        print()    
 
     def test_display_yaxisloc(self):
         '''test_display_yaxisloc: Overplot scan on left y-axis and field on right y-axis.'''
@@ -1083,7 +1083,7 @@ class test_display(plotms_test_base):
                      symbolfill=['mesh3','mesh3'])
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 50000)
-        print    
+        print()    
         
     def test_display_yaxisloc_iter(self):
         '''test_display_yaxisloc_iter: Overplot (scan and field) vs time and iterate over antenna.'''
@@ -1103,7 +1103,7 @@ class test_display(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile1_jpg, 150000)
         self.removePlotfile(plotfile1_jpg)
-        print       
+        print()       
       
     # Removing from test suite until tarball seg fault fixed
     def xtest_display_sharedaxis(self):
@@ -1120,7 +1120,7 @@ class test_display(plotms_test_base):
         self.assertTrue(res)
         fileCount = self.getFilecount( self.outputDir, "testDisplay09_" )
         self.assertEqual(fileCount,19)
-        print
+        print()
 
     def test_display_sharedaxis_scale(self):
         '''test_display_sharedaxis_scale: CAS-7074 xsharedaxis needs to be a subparameter of global scale'''
@@ -1132,7 +1132,7 @@ class test_display(plotms_test_base):
                      gridrows=2, gridcols=2, iteraxis='antenna',
                      showgui=False, xsharedaxis=True, highres=True)
         self.assertFalse(res)
-        print
+        print()
 
     def test_display_labels(self):
         '''test_display_labels: test custom title and axis labels'''
@@ -1144,7 +1144,7 @@ class test_display(plotms_test_base):
                      title='NGC5921', xlabel='x axis', ylabel='y axis')
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000)
-        print
+        print()
 
     def test_display_gridlines(self):
         '''test_display_gridlines: show major and minor grids'''
@@ -1156,7 +1156,7 @@ class test_display(plotms_test_base):
                      highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 280000)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -1181,7 +1181,7 @@ class test_grid(plotms_test_base):
                      rowindex=1, colindex=1, highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 50000)
-        print
+        print()
 
     def test_grid_fill(self):
         '''test_grid_fill: Set grid and fill each location with a plot'''
@@ -1223,7 +1223,7 @@ class test_grid(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 50000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
 
     def test_grid_fill_overplot(self):
         '''test_grid_fill_overplot: 2x2 multiplot display with single plots and overplots'''
@@ -1244,7 +1244,7 @@ class test_grid(plotms_test_base):
                      customsymbol=[True], symbolshape=['diamond'], symbolsize=[3],
                      symbolcolor=['ff0000'], symbolfill=['mesh3'])
         self.assertTrue(res)
-        print 'Added overplot 1'
+        print('Added overplot 1')
         # Overplot field vs time in same plot
         res = plotms(vis=self.ms, gridrows=2, gridcols=2,
                      showgui=False, yaxis='field',
@@ -1253,26 +1253,26 @@ class test_grid(plotms_test_base):
                      customsymbol=[True], symbolshape=['circle'], symbolsize=[3],
                      symbolcolor=['00FF00'], symbolfill=['mesh3'])   
         self.assertTrue(res)
-        print 'Added overplot 2'  
+        print('Added overplot 2')  
         # Add a single basic plot amp vs time in the first row, second column
         res = plotms(vis=self.ms, showgui=False, gridrows=2, gridcols=2, 
                      rowindex=0, colindex=1, plotindex=2, clearplots=False)
         self.assertTrue(res)
-        print 'Added single plot'
+        print('Added single plot')
         # Add in an iteration plot and export it.
         res = plotms(vis=self.ms, plotfile=plotFile, expformat='jpg',
                      showgui=False, iteraxis='scan', exprange='all',
                      gridrows=2, gridcols=2, highres=True,
                      rowindex=1, colindex=0, plotindex=3, clearplots=False)
         self.assertTrue(res)
-        print 'Added iteration plot, now exporting'
+        print('Added iteration plot, now exporting')
         self.checkPlotfile(plotFiles[0], 180000)
         self.removePlotfile(plotFiles[0])
         self.checkPlotfile(plotFiles[1], 150000)
         self.removePlotfile(plotFiles[1])
         self.checkPlotfile(plotFiles[2], 30000)
         self.removePlotfile(plotFiles[2])
-        print
+        print()
 
     def test_grid_badplotindex(self):
         '''test_grid_badplotindex: Set plotindex out of range'''
@@ -1285,7 +1285,7 @@ class test_grid(plotms_test_base):
                      plotindex=1, rowindex=0, colindex=1, 
                      gridrows=2, gridcols=2, highres=True) 
         self.assertFalse(res)
-        print
+        print()
 
     def test_grid_badindex(self):
         '''test_grid_badindex: use row/col index larger than gridrow/gridcol'''
@@ -1297,7 +1297,7 @@ class test_grid(plotms_test_base):
                      gridrows=2, gridcols=2, rowindex=2, colindex=2)
         self.assertTrue(res)
         self.checkNoPlotfile(self.plotfile_jpg)
-        print
+        print()
 
     def xtest_grid_screenExport(self):
         '''test_grid_screenExport: Export grid plot in screen resolution'''
@@ -1331,7 +1331,7 @@ class test_grid(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile1_jpg, 70000)
         self.removePlotfile(plotfile1_jpg)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -1365,7 +1365,7 @@ class test_iteration(plotms_test_base):
         for  i in range(0, len(plotFiles)):
             self.checkPlotfile(plotFiles[i], 40000)
             self.removePlotfile(plotFiles[i])
-        print
+        print()
 
     def test_iteration_antenna(self):
         '''test_iteration_antenna: Iterate by antenna and export all'''
@@ -1379,7 +1379,7 @@ class test_iteration(plotms_test_base):
         # no Antenna23
         self.assertEqual(fileCount, 27)
         self.removeFiles(self.outputDir, "testIteration02_")
-        print
+        print()
 
     def test_iteration_time(self):
         '''test_iteration_time: Iterate over time'''
@@ -1394,7 +1394,7 @@ class test_iteration(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile1_jpg, 30000)
         self.removePlotfile(plotfile1_jpg)
-        print
+        print()
 
     def test_iteration_timeavg(self):
         '''test_iteration_time: Iterate over averaged time'''
@@ -1408,7 +1408,7 @@ class test_iteration(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile1_jpg, 30000)
         self.removePlotfile(plotfile1_jpg)
-        print
+        print()
 
     def test_iteration_grid(self):
         '''test_iteration_grid: Iterate by scan on square grid.'''
@@ -1427,7 +1427,7 @@ class test_iteration(plotms_test_base):
         self.removePlotfile(plotfile1_jpg)
         self.checkPlotfile(plotfile2_jpg, 55000)
         self.removePlotfile(plotfile2_jpg) 
-        print    
+        print()    
         
     def test_iteration_grid2(self):
         '''test_iteration_grid2: Iterate by scan with right axis and non-square grid.'''
@@ -1447,7 +1447,7 @@ class test_iteration(plotms_test_base):
         self.removePlotfile(plotfile1_jpg)
         self.checkPlotfile(plotfile2_jpg, 25000)
         self.removePlotfile(plotfile2_jpg) 
-        print
+        print()
 
 
     def test_iteration_selection( self ):
@@ -1473,7 +1473,7 @@ class test_iteration(plotms_test_base):
         self.removePlotfile(plotfile2_jpg)
         self.checkPlotfile(plotfile3_jpg, 160000)
         self.removePlotfile(plotfile3_jpg)
-        print
+        print()
         
     def test_iteration_select1( self ):
         '''test_iteration_select1: CAS-7050 (Pipeline) Iteration with selection of 1'''
@@ -1490,7 +1490,7 @@ class test_iteration(plotms_test_base):
         self.assertEqual(fileCount, 1) 
         self.checkPlotfile(plotfile1_jpg, 60000)
         self.removePlotfile(plotfile1_jpg)
-        print
+        print()
        
     def test_iteration_select0( self ):
         '''test_iteration_select0: CAS-7050 (Pipeline) Iteration with empty selection'''
@@ -1502,7 +1502,7 @@ class test_iteration(plotms_test_base):
                      xaxis="time", yaxis="amp", antenna="100,101,102",
                      showgui=False, iteraxis='antenna', highres=True)
         self.assertFalse(res)
-        print
+        print()
 
     def test_iteration_badselection( self ):
         '''test_iteration_badselection:  CAS-7050:  (Pipeline) Iteration with bad selection, you should be able to tell what plots are skipped.'''
@@ -1524,7 +1524,7 @@ class test_iteration(plotms_test_base):
         for  i in range(0, len(plotFiles)):
             self.checkPlotfile(plotFiles[i], 40000)
             self.removePlotfile(plotFiles[i])
-        print
+        print()
 
     def test_iteration_corr(self):
         '''test_iteration_corr: Iterate by correlation and export all'''
@@ -1542,7 +1542,7 @@ class test_iteration(plotms_test_base):
         self.removePlotfile(plotfile1_jpg)
         self.checkPlotfile(plotfile2_jpg, 220000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -1569,7 +1569,7 @@ class test_multi(plotms_test_base):
         time.sleep(5)
 
         # Plot in the second column, first row, plotindex=0
-        print 'Test plot 1'
+        print('Test plot 1')
         res = plotms(vis=self.ms, gridrows=2, gridcols=2,
                      rowindex=0, colindex=1, highres=True,
                      showgui=False, plotfile=plotfile1_jpg,
@@ -1579,7 +1579,7 @@ class test_multi(plotms_test_base):
         self.checkPlotfile(plotfile1_jpg, 50000)
         self.removePlotfile(plotfile1_jpg)
         # Overplot in the same panel, plotindex=1
-        print 'Test plot 2'
+        print('Test plot 2')
         res = plotms(vis=self.ms, plotfile=plotfile2_jpg,
                      showgui=False, clearplots=False, 
                      plotindex=1, rowindex=0, colindex=1,
@@ -1590,7 +1590,7 @@ class test_multi(plotms_test_base):
         self.checkPlotfile(plotfile2_jpg, 50000)
         self.removePlotfile(plotfile2_jpg)
         # Define a second plot plotindex=2, in the lower right corner
-        print 'Test plot 3'
+        print('Test plot 3')
         res = plotms(vis=self.ms, clearplots=False, 
                      plotindex=2, rowindex=1, colindex=1, 
                      gridrows=2, gridcols=2,
@@ -1600,7 +1600,7 @@ class test_multi(plotms_test_base):
         self.checkPlotfile(plotfile3_jpg, 50000)
         self.removePlotfile(plotfile3_jpg)
         
-        print 'Test plot 4'
+        print('Test plot 4')
         # Move the plot with the overplot one panel to the left. 
         # Clear the plots and rerun the script.
         res = plotms(vis=self.ms, showgui=False,
@@ -1622,7 +1622,7 @@ class test_multi(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile4_jpg, 50000)
         self.removePlotfile(plotfile4_jpg)
-        print
+        print()
 
     def test_multi_args(self):
         '''test_multi_args: CAS-6662 Pipeline no plot scenario with multiple arguments.'''
@@ -1655,7 +1655,7 @@ class test_multi(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 30000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -1697,7 +1697,7 @@ class test_overlays(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000)
         self.removePlotfile()
-        print
+        print()
 
     def test_image_overlay(self):
         '''test_image_overlay: atm and image overplots'''
@@ -1720,7 +1720,7 @@ class test_overlays(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 190000)
         self.removePlotfile()
-        print
+        print()
 
 # ------------------------------------------------------------------------------
 
@@ -1759,7 +1759,7 @@ class test_selection(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile3_jpg, 60000, 130000)
         self.removePlotfile(plotfile3_jpg)
-        print
+        print()
 
     def test_selection_spw(self):
         '''test_selection_spw: Check spw invalid/valid selections'''
@@ -1779,7 +1779,7 @@ class test_selection(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 190000, 310000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
         
     def test_selection_ant(self):
         # Will check max size to ensure selection was done
@@ -1808,7 +1808,7 @@ class test_selection(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile3_jpg, 50000, 110000)
         self.removePlotfile(plotfile3_jpg)
-        print
+        print()
 
     def test_selection_field(self):
         '''test_selection_field: Check field invalid/valid selections'''
@@ -1828,7 +1828,7 @@ class test_selection(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 70000, 160000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
        
     def test_selection_corr(self):
         '''test_selection_corr: Check corr invalid/valid selections'''
@@ -1848,7 +1848,7 @@ class test_selection(plotms_test_base):
         self.assertTrue(res)
         self.checkPlotfile(plotfile2_jpg, 190000, 310000)
         self.removePlotfile(plotfile2_jpg)
-        print
+        print()
 
     # Test MS has no STATE table for intent selection
 
@@ -1876,7 +1876,7 @@ class test_transform(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(plotfile, 180000)
             self.removePlotfile(plotfile)
-        print
+        print()
 
     def test_transform_badframe(self):
         '''test_transform_badframe: Test that invalid freqframe fails.'''
@@ -1889,7 +1889,7 @@ class test_transform(plotms_test_base):
             self.assertFalse(res)
         except RuntimeError:  # "Parameter verification failed" rethrown on test server
             pass
-        print
+        print()
         
     def test_transform_veldef(self):
         '''test_transform_veldef: Test velocity definitions'''
@@ -1903,7 +1903,7 @@ class test_transform(plotms_test_base):
             self.assertTrue(res)
             self.checkPlotfile(plotfile, 260000)
             self.removePlotfile(plotfile)
-        print
+        print()
 
     def test_transform_restfreq(self):
         '''test_transform_restfreq: Test rest frequency'''
@@ -1914,7 +1914,7 @@ class test_transform(plotms_test_base):
                      showgui=False, restfreq='1420', highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 260000)
-        print
+        print()
         
     def test_transform_shift(self):
         '''test_transform_shift: Test phase shift'''
@@ -1925,13 +1925,13 @@ class test_transform(plotms_test_base):
                      showgui=False, shift=[-15, -15], highres=True)
         self.assertTrue(res)
         self.checkPlotfile(self.plotfile_jpg, 90000)
-        print
+        print()
 
 # ------------------------------------------------------------------------------
  
 def suite():
-    print 'Tests may fail due to DBUS timeout if the version of Qt is not at least 4.8.5'
-    print
+    print('Tests may fail due to DBUS timeout if the version of Qt is not at least 4.8.5')
+    print()
     return [test_basic,
             test_averaging,
             test_axis,

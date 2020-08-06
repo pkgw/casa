@@ -80,10 +80,10 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
 
             values = {}
             if not listitems:
-                listitems = keywords.keys()
+                listitems = list(keywords.keys())
                 listitems.sort()
             for key in listitems:
-                if keywords.has_key(key):
+                if key in keywords:
                     kwtuple = keywords.get(key)
                     if keyword_exists(vis, kwtuple):
                         casalog.post('    ' + str(kwtuple[0]) + \
@@ -106,12 +106,12 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
             ms.open(vis)
             ms.summary()
             ms.close()
-            print "Summary information is listed in logger"
+            print("Summary information is listed in logger")
 
         # In GET/PUT mode, focus on 1 particular bit of MS data
         elif (mode=='get' or mode=='put'):
-            if(not keywords.has_key(hdkey)): 
-                raise Exception, "hdkey " + str(hdkey) +" is not a recognized keyword. Your options are " + str(keywords.keys())
+            if(hdkey not in keywords): 
+                raise Exception("hdkey " + str(hdkey) +" is not a recognized keyword. Your options are " + str(list(keywords.keys())))
 
             # get/put the data specified by hdkey
             if mode == 'get':
@@ -122,7 +122,7 @@ def vishead(vis, mode=None, listitems=None, hdkey=None, hdindex=None, hdvalue=No
                 getput_keyw(mode, vis, keywords[hdkey], hdindex, hdvalue)
                 casalog.post(hdkey + ' set to ' + str(hdvalue))
 
-    except Exception, instance:
+    except Exception as instance:
         casalog.post( str('*** Error *** ') + str(instance), 'SEVERE')
 
     return

@@ -63,10 +63,10 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
         try:
             # First check
             if tb.nrows() != tb2.nrows():
-                print 'Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows())
+                print('Length of '+ str(referencetab) +' differ from '+ str(testtab)+','+ str(tb.nrows())+ '!=' + str(tb2.nrows()))
                 retval = False
             else:
-                for therow in xrange(tb.nrows()):
+                for therow in range(tb.nrows()):
             
                     rdata = tb.getcell(col,therow)
                     tdata = tb2.getcell(col,therow)
@@ -83,11 +83,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
                                         if (abs(rdata[j][k]-tdata[j][k]) > tolerance*abs(rdata[j][k]+tdata[j][k])):
                                             differs = True
                                 if differs:
-                                    print 'ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance)
+                                    print('ERROR: Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab)+  ' do not agree within tolerance '+ str(tolerance))
                                     break
                         else:
-                            print 'ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.'
-                            print 'ERROR: First row to differ is row=' + str(therow)
+                            print('ERROR: Column ' +str(col)+ ' of ' +str(referencetab)+ ' and ' +str(testtab) + ' do not agree.')
+                            print('ERROR: First row to differ is row=' + str(therow))
                             retval = False
                             break
         finally:
@@ -95,11 +95,11 @@ def compVarColTables(referencetab, testtab, varcol, tolerance=0.):
             tb2.close()
     
     else:
-        print 'Column: ' +str(col) + 'are not varcolumns.'
+        print('Column: ' +str(col) + 'are not varcolumns.')
         retval = False
 
     if retval:
-        print 'Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree'
+        print('Column ' + str(col) + ' of '  + str(referencetab) +  ' and ' + str(testtab) + ' agree')
         
     return retval
  
@@ -179,7 +179,7 @@ class Test010_FirstLookatSelfCalibration(unittest.TestCase):
     def test_00_runGuide(self):
         '''Run Casa Guide: First Look at Self-Calibration'''
 
-        execfile('FirstLookatSelfCalibration.py')
+        exec(compile(open('FirstLookatSelfCalibration.py', "rb").read(), 'FirstLookatSelfCalibration.py', 'exec'))
                 
         return True
 

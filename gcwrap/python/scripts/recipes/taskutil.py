@@ -46,7 +46,7 @@ def check_param_types(taskname, arg_desc):
     printing an error message).
     """
     e = None
-    arg_names = arg_desc.keys()
+    arg_names = list(arg_desc.keys())
     arg_values=[]
     arg_types =[]
     for arg in arg_names:
@@ -54,10 +54,10 @@ def check_param_types(taskname, arg_desc):
         arg_types.append(arg_desc[arg][1])
     try:
         parameter_checktype(arg_names, arg_values, arg_types)
-    except TypeError, e:
-        print taskname, "-- TypeError: ", e
-    except ValueError, e:
-        print taskname, " -- OptionError: ", e
+    except TypeError as e:
+        print(taskname, "-- TypeError: ", e)
+    except ValueError as e:
+        print(taskname, " -- OptionError: ", e)
     return e
 
 def startlog(casalog, taskname):

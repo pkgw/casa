@@ -75,27 +75,27 @@ def imcollapse(
     casalog.origin('imcollapse')
     try :
         if (len(outfile) == 0):
-            raise Exception, "outfile must be specified" 
+            raise Exception("outfile must be specified") 
         myia = iatool()
         myia.dohistory(False)
         if (not myia.open(imagename)):
-            raise Exception, "Cannot create image analysis tool using " + imagename
+            raise Exception("Cannot create image analysis tool using " + imagename)
         outia = myia.collapse(
             function, axes, outfile, region, box, chans,
             stokes, mask, overwrite, stretch
         )
         try:
-            param_names = imcollapse.func_code.co_varnames[:imcollapse.func_code.co_argcount]
+            param_names = imcollapse.__code__.co_varnames[:imcollapse.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]   
             write_image_history(
                 outia, sys._getframe().f_code.co_name,
                 param_names, param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("*** Error \'%s\' updating HISTORY" % (instance), 'WARN')
         outia.done()
         return True
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('*** Error *** ' + str(instance), 'SEVERE')
         raise
     finally:

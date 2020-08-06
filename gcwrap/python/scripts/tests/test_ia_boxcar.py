@@ -243,13 +243,13 @@ class ia_boxcar_test(unittest.TestCase):
         myia = iatool()
         myia.fromshape("",[20,20,20])
         orig = []
-        for i in xrange(20):
+        for i in range(20):
             orig.append(myia.toworld([0, 0, i])['numeric'][2])
         zz = myia.boxcar(width=3, drop=False)
         myia.done()
         self.assertTrue((zz.shape() == [20, 20, 18]).all())
         got = []
-        for i in xrange(18):
+        for i in range(18):
             # print(zz.toworld([0, 0, 0, i])['numeric'][2], orig[i + 1])
             # self.assertTrue(
             #    zz.toworld([0, 0, 0, i])['numeric'][2] == orig[i + 1]

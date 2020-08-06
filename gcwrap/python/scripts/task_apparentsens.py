@@ -65,8 +65,8 @@ def apparentsens(vis=None,
 
 		return out
 
-	except Exception, instance:
-		print '*** Error ***', instance
+	except Exception as instance:
+		print('*** Error ***', instance)
 		casalog.post("Error in apparentsens: %s" % str(instance), "SEVERE")
-		raise Exception, "Error in apparentsens: "+str(instance)
+		raise Exception("Error in apparentsens: "+str(instance))
 

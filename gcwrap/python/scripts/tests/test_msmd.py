@@ -112,7 +112,7 @@ class msmd_test(unittest.TestCase):
         self.assertTrue((got == expec).all())
 
         got = self.md.antennaids()
-        expec = range(self.md.nantennas())
+        expec = list(range(self.md.nantennas()))
         self.assertTrue((got == expec).all())
 
         got = self.md.antennaids(["DV12", "DA*", "DV1*"])
@@ -236,7 +236,7 @@ class msmd_test(unittest.TestCase):
             self.assertTrue((got==names[expec2]).all())
         self.assertRaises(Exception, self.md.fieldsforscans, asmap=True)
         mymap = self.md.fieldsforscans(asmap=True, obsid=0, arrayid=0)
-        for k, v in mymap.iteritems():
+        for k, v in mymap.items():
             self.assertTrue(len(v) == 1)
             ik = int(k)
             if ik in [1, 2, 3, 4]:
@@ -477,7 +477,7 @@ class msmd_test(unittest.TestCase):
             self.assertTrue(got == [names[i]])
         self.assertTrue(self.md.namesforfields() == names)
         got = self.md.namesforfields([4, 0, 2])
-        print "*** got " + str(got)
+        print("*** got " + str(got))
         self.assertTrue(got == ["V866 Sco", "3C279", "Titan"])
 
     def test_nantennas(self):
@@ -514,7 +514,7 @@ class msmd_test(unittest.TestCase):
 
     def test_scannumbers(self):
         """ Test scannumbers()"""
-        expec = numpy.array(range(1, 33))
+        expec = numpy.array(list(range(1, 33)))
         self.assertTrue((self.md.scannumbers()==expec).all())
 
     def test_scansforfield(self):
@@ -655,7 +655,7 @@ class msmd_test(unittest.TestCase):
         """Test spwsforbasebands()"""
         for mode in ("i", "e", "o"):
             got = self.md.spwsforbaseband(sqldmode=mode)
-            print "*** got " + str(got)
+            print("*** got " + str(got))
             self.assertTrue(len(got) == 5)
             if mode == "o":
                 self.assertTrue(len(got['0']) == 0)
@@ -983,7 +983,7 @@ class msmd_test(unittest.TestCase):
             4842825866.1360006332, 4842825867.1439990997, 4842825868.1520004272,
             4842825869.1599998474, 4842825870.1680002213
         ]
-        self.assertTrue(len(got.keys()) == 9)
+        self.assertTrue(len(list(got.keys())) == 9)
         for i in range(9):
             k = str(i)
             e = numpy.array(expec[i])
@@ -1026,7 +1026,7 @@ class msmd_test(unittest.TestCase):
         got = self.md.wvrspws(complement=False)
         self.assertTrue((got == expec).all())
         got = self.md.wvrspws(complement=True)
-        expec = range(1, 25)
+        expec = list(range(1, 25))
         self.assertTrue((got == expec).all())
 
     def test_almaspws(self):
@@ -1038,7 +1038,7 @@ class msmd_test(unittest.TestCase):
         got = self.md.almaspws(sqld=True)
         self.assertTrue(len(got) == 1 and got[0] == 3)
         got = self.md.almaspws(sqld=True, complement=True)
-        expec = range(40)
+        expec = list(range(40))
         expec.remove(3)
         self.assertTrue((got == expec).all())
 
@@ -1049,7 +1049,7 @@ class msmd_test(unittest.TestCase):
         ])
         self.assertTrue((got == expec).all())
         got = self.md.almaspws(chavg=True, complement=True)
-        jj = range(40)
+        jj = list(range(40))
         for i in expec:
             jj.remove(i)
         expec = jj
@@ -1059,7 +1059,7 @@ class msmd_test(unittest.TestCase):
         expec = [17, 19, 21, 23]
         self.assertTrue((got == expec).all())
         got = self.md.almaspws(fdm=True, complement=True)
-        jj = range(40)
+        jj = list(range(40))
         for i in expec:
             jj.remove(i)
         expec = jj
@@ -1069,7 +1069,7 @@ class msmd_test(unittest.TestCase):
         expec = [1, 3, 5, 7, 9, 11, 13, 15]
         self.assertTrue((got == expec).all())
         got = self.md.almaspws(tdm=True, complement=True)
-        jj = range(40)
+        jj = list(range(40))
         for i in expec:
             jj.remove(i)
         expec = jj
@@ -1082,7 +1082,7 @@ class msmd_test(unittest.TestCase):
         ])
         self.assertTrue((got == expec).all())
         got = self.md.almaspws(wvr=True, complement=True)
-        expec = range(1, 25)
+        expec = list(range(1, 25))
         self.assertTrue((got == expec).all())
 
 
@@ -1137,16 +1137,16 @@ class msmd_test(unittest.TestCase):
         """Test datadescids()"""
         md = self.md;
         got = md.datadescids()
-        self.assertTrue((got == range(25)).all())
+        self.assertTrue((got == list(range(25))).all())
         got = md.datadescids(-1, -1)
-        self.assertTrue((got == range(25)).all())
+        self.assertTrue((got == list(range(25))).all())
         for i in range(25):
             got = md.datadescids(i, -1)
             self.assertTrue(got == [i])
         got = md.datadescids(pol=1)
         self.assertTrue(got == [0])
         got = md.datadescids(pol=0)
-        self.assertTrue((got == range(1, 25)).all())
+        self.assertTrue((got == list(range(1, 25))).all())
         got = md.datadescids(spw=10, pol=1)
         self.assertTrue(len(got) == 0)
 
@@ -1206,7 +1206,7 @@ class msmd_test(unittest.TestCase):
         """Test spwsfornames()"""
         md = self.md
         got = md.spwsfornames()
-        for k,v in got.iteritems():
+        for k,v in got.items():
             if (k == ""):
                 self.assertEqual(len(v), 39)
             elif k == 'BB_1#SQLD':
@@ -1410,7 +1410,7 @@ class msmd_test(unittest.TestCase):
         for i in range(25):
             self.assertTrue(md.spwfordatadesc(i) == i)
         spws = md.spwfordatadesc(-1)
-        expec = numpy.array(range(25))
+        expec = numpy.array(list(range(25)))
         self.assertTrue((spws == expec).all())
 
     def test_polidfordatadesc(self):
@@ -1439,7 +1439,7 @@ class msmd_test(unittest.TestCase):
             self.assertTrue(ncorr == expec)
         ncorrs = md.ncorrforpol(-1)
         self.assertTrue(len(ncorrs) == 2)
-        print "ncorrs", ncorrs
+        print("ncorrs", ncorrs)
         self.assertTrue(ncorrs[0] == 2 and ncorrs[1] == 1)
 
     def test_corrtypesforpol(self):
@@ -1464,7 +1464,7 @@ class msmd_test(unittest.TestCase):
                 self.assertRaises(Exception, md.corrprodsforpol, i)
             elif i == 0:
                 ct = md.corrprodsforpol(i)
-                print "got", ct
+                print("got", ct)
                 self.assertTrue(ct.size == 4)
                 self.assertTrue(ct[0][0] == 0 and ct[1][1] == 1)
                 self.assertTrue(ct[0][1] == 1 and ct[1][0] == 0)
@@ -1640,7 +1640,7 @@ class msmd_test(unittest.TestCase):
             -0.27584353, -0.27584353, -0.27584353, -0.27584353, -0.27584353
         ]
         dirs = md.sourcedirs()
-        n = len(dirs.keys())
+        n = len(list(dirs.keys()))
         for i in range(n):
             d = dirs[str(i)]
             self.assertTrue(me.getref(d) == "J2000")
@@ -1656,7 +1656,7 @@ class msmd_test(unittest.TestCase):
         """Test msmd.propermotions()"""
         md = self.md;
         mu = md.propermotions()
-        self.assertTrue(len(mu.keys()) == 200)
+        self.assertTrue(len(list(mu.keys())) == 200)
         for i in range(200):
             mymu = mu[str(i)]
             lon = mymu['longitude']
@@ -1847,7 +1847,7 @@ class msmd_test(unittest.TestCase):
             69, 138, 69, 138, 385, 2310, 385, 2310, 385, 2310, 385, 2310
         ]
         got = md.timesforspws()
-        self.assertTrue(len(got.keys()) == 40, "Wrong number of keys")
+        self.assertTrue(len(list(got.keys())) == 40, "Wrong number of keys")
         for i in range(40):
             expeclen = 0
             if i < 25:

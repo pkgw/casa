@@ -178,7 +178,7 @@ def _momentTest_debug_msg( msgNum=0 ):
     if ( not debugMsgs ):
         return
     idx = msgNum % 54
-    print str(msgNum)+":  "+debug_msgs[idx]
+    print(str(msgNum)+":  "+debug_msgs[idx])
     return
 
 datapath = os.environ.get('CASAPATH').split()[0]+'/data/regression/immoment/'
@@ -335,7 +335,7 @@ class immoment_test1(unittest.TestCase):
         results=None
         try:    
             results=immoments( 'n1333_both.image', moments=[-1], axis='spec', outfile='moment_test_2_1' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment -1 on n133_both.image\n"\
@@ -352,7 +352,7 @@ class immoment_test1(unittest.TestCase):
         results=None    
         try:    
             results=immoments( 'n1333_both.image', moments=[5], axis='spec', outfile='moment_test_2_5' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment 5 on n133_both.image\n"\
@@ -365,7 +365,7 @@ class immoment_test1(unittest.TestCase):
 #        _momentTest_debug_msg( 13 )
         try:    
             results=immoments( 'n1333_both.image', moments=[11], axis='spec', outfile='moment_test_2_11' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment 11 on n133_both.image\n"\
@@ -384,7 +384,7 @@ class immoment_test1(unittest.TestCase):
         results=None    
         try:    
             results=immoments( 'n1333_both.image', moments=[0], axis='ra', outfile='input_test_axis_ra' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment 0 on axis ra on n133_both.image\n"\
@@ -397,7 +397,7 @@ class immoment_test1(unittest.TestCase):
 #        _momentTest_debug_msg( 15 )
         try:
             results=immoments( 'n1333_both.image', moments=[0], axis=1, outfile='input_test_axis_dec' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        + "\nError: Unable to create moment 0 on axis spec on n133_both.image\n"\
@@ -411,7 +411,7 @@ class immoment_test1(unittest.TestCase):
 #        _momentTest_debug_msg( 16 )
         try:    
             results=immoments( 'n1333_both.image', moments=[0], axis='spec', outfile='input_test_axis_spec' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment 0 on axis spec on n133_both.image\n"\
@@ -424,7 +424,7 @@ class immoment_test1(unittest.TestCase):
 #        _momentTest_debug_msg( 17 )
         try:    
             results=immoments( 'n1333_both.image', moments=[0], axis='stokes', outfile='input_test_axis_stokes' )
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment 0 on axis stokes on n133_both.image\n"\
@@ -830,7 +830,7 @@ class immoment_test1(unittest.TestCase):
     
         
         casalog.post( "Done immoments INPUT/OUTPUT tests.", 'NORMAL2' )
-        print "RETURNING", retValue
+        print("RETURNING", retValue)
         self.assertTrue(retValue['success'],retValue['error_msgs'])
         self.assertTrue(len(tb.showcache()) == 0)
 
@@ -879,7 +879,7 @@ class immoment_test2(unittest.TestCase):
         results = None
         try:
             results=immoments( 'n1333_both.image', moments=[0], axis='spec', chans='2~15', includepix=[0.003,100.0],excludepix=[-1],outfile = 'moment_test.mom0' )
-        except Exception, e:
+        except Exception as e:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to very moment 0.\n"\
@@ -947,7 +947,7 @@ class immoment_test2(unittest.TestCase):
                 infile, moments=[1], axis='spec', chans='2~15',
                 includepix=[0.02,100.0],excludepix=[-1], outfile=got
             )
-        except Exception, e:
+        except Exception as e:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to very moment 1.\n"\
@@ -977,7 +977,7 @@ class immoment_test2(unittest.TestCase):
     ####################################################################
     def test_pixel_set(self):
         '''Immoment: Testing the correctness of the include/exclude pix parameters'''
-        print "starting PIXEL selection tests"
+        print("starting PIXEL selection tests")
         retValue = {'success': True, \
                     'msgs': '', \
                     'error_msgs': "Pixel selection test NOT implemented yet." }
@@ -991,7 +991,7 @@ class immoment_test2(unittest.TestCase):
     ####################################################################
     def test_region(self):
         '''Immoment: Testing the correctness of the region selection with moment calcs'''
-        print "starting REGION selection tests"
+        print("starting REGION selection tests")
         retValue = {'success': True, \
                     'msgs': '', \
                     'error_msgs': "region selection test NOT implemented yet." }
@@ -1084,7 +1084,7 @@ class immoment_test2(unittest.TestCase):
                                       
             results=None
             results = immoments( 'n1333_both.image', mask=maskStr, outfile='mask_test_4' )
-        except Exception, e:
+        except Exception as e:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                        +"\nError: Unable to create moment with mask from a 2nd file"\
@@ -1222,8 +1222,8 @@ class immoment_test2(unittest.TestCase):
             self.assertTrue(got.open("Temporary_Image." + im))
             self.assertTrue(exp.open("exp." + im))
             shape = got.shape()
-            print "*** shape", shape
-            print "*** cc shape", cc.shape
+            print("*** shape", shape)
+            print("*** cc shape", cc.shape)
             gotpix = got.getchunk() * cc
             exppix = exp.getchunk() * cc
             got.done()

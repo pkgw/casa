@@ -1,7 +1,7 @@
 import os
 import sys
 import shutil
-import commands
+import subprocess
 import numpy
 from __main__ import default
 from tasks import *
@@ -15,7 +15,7 @@ import inspect
 #################################
 from refimagerhelper import PySynthesisImager, PyParallelContSynthesisImager,PyParallelCubeSynthesisImager, PyParallelDeconvolver, PyParallelImagerHelper,ImagerParameters
 
-import commands
+import subprocess
 #### Specify parameters.
 def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parallelcube=False):
 
@@ -72,7 +72,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           delmod(msname)  ## Get rid of OTF model
           delmodkeywords(msname) ## Get rid of extra OTF model keywords that sometimes persist...
 
-          print "At start : ", checkmodel(msname)
+          print("At start : ", checkmodel(msname))
 
           testList = {
                ## readonly
@@ -93,7 +93,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
           ###           different when using a modelcolumn or a virtual model. Needs more checking.
 
           if testid > 5:
-               print 'No such test.'
+               print('No such test.')
                return
 
           paramList = ImagerParameters(msname=msname,field='0',spw='0',\
@@ -110,7 +110,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
                                        threshold=threshold,loopgain=loopgain,\
                                        restoringbeam=restoringbeam,
                                        interactive=interactive,mask=mask)
-          print 'Run to check model  :  checkmodel("' + msname + '")'
+          print('Run to check model  :  checkmodel("' + msname + '")')
 
      if(testnum==21):  ## 21 image-field, mfs --- Multiple Stokes planes -- Clark
           casalog.post("==================================");
@@ -384,7 +384,7 @@ def getparams(testnum=1,testid=0, parallelmajor=False,parallelminor=False,parall
 
           casalog.post("Sub-test "+str(testid)+":"+testList[testid]['desc']);
           casalog.post("==================================");
-          if testList[testid].has_key('veltype'):
+          if 'veltype' in testList[testid]:
                inveltype=testList[testid]['veltype']
           else:
                inveltype='radio'
@@ -736,7 +736,7 @@ def doClean( params = [None,False,False,False] , doplot=True ):
     elif pcube==True:
          imager = PyParallelCubeSynthesisImager(params[0])
     else:
-         print 'Invalid parallel combination in doClean.'
+         print('Invalid parallel combination in doClean.')
          return
 
     ### Set up Imagers, Deconvolvers, IterControl, and ParallelSync.
@@ -776,7 +776,7 @@ def doMajor( params = [None,False,False,False] , doplot=True , tomake='both'):
     elif pcube==True:
          imager = PyParallelCubeSynthesisImager(params[0])
     else:
-         print 'Invalid parallel combination in doClean.'
+         print('Invalid parallel combination in doClean.')
          return
 
 
@@ -914,16 +914,16 @@ def toolTestMajorCycle2( testnum=1 ):
           SItool.selectdata( **(allselpars[ mss ] ) )
 
      for fld in sorted(allimagepars.keys()):
-          print 'Setup imaging and image for field ' + str(fld)
+          print('Setup imaging and image for field ' + str(fld))
           SItool.defineimage( **(allimagepars[fld]) )
 
      SItool.setweighting( **allgridpars )
 
      PStools = []
-     nfld = len( allimagepars.keys() )
+     nfld = len( list(allimagepars.keys()) )
      for fld in range(0, nfld ):
           PStool.append(casac.synthesisnormalizer())
-          normpars = {'imagename':allimagepars[ (allimagepars.keys())[fld] ]['imagename']}
+          normpars = {'imagename':allimagepars[ (list(allimagepars.keys()))[fld] ]['imagename']}
           PStool.setupnormalizer( normpars )
 
      for fld in range(0, nfld):
@@ -962,11 +962,11 @@ def checkDataPartitioningCode():
      impars = paramList.getImagePars()
 
      synu = casac.synthesisutils()
-     print synu.contdatapartition( selpars , 2)
+     print(synu.contdatapartition( selpars , 2))
 
-     print synu.cubedatapartition( selpars, 2)
+     print(synu.cubedatapartition( selpars, 2))
      
-     print synu.cubeimagepartition( impars, 2)
+     print(synu.cubeimagepartition( impars, 2))
 
      synu.done()
 
@@ -1008,12 +1008,12 @@ def checkPars():
 #     print synu.checkselectionparams( fixrec )
 
 
-     print impars['0']
+     print(impars['0'])
      fixrec = synu.checkimageparams( impars['0'] )
-     print "---------------------------------------------"
-     print fixrec
-     print "---------------------------------------------"
-     print synu.checkimageparams( fixrec )
+     print("---------------------------------------------")
+     print(fixrec)
+     print("---------------------------------------------")
+     print(synu.checkimageparams( fixrec ))
 
      synu.done()
 
@@ -1021,7 +1021,7 @@ def testImageCoordinates( testnum=1, testid=0):
     
     multitest=False
     if testnum==13: multitest=True
-    if multitest and testid==-1: testid=range(21)
+    if multitest and testid==-1: testid=list(range(21))
     if type(testid)==int: testid=[testid]
     for tst in testid:
       params = getparams( testnum, testid=tst )
@@ -1041,7 +1041,7 @@ def testImageCoordinates( testnum=1, testid=0):
         #print selpars
         nchan = impars['nchan']
         if (nchan!=imsummary['shape'][3]): 
-          print "No. of image channel =%s while nchan asked is %s" % (imsummary['shape'][3], nchan) 
+          print("No. of image channel =%s while nchan asked is %s" % (imsummary['shape'][3], nchan)) 
         checkimcoord(outcsys,selpars,impars) 
 
 def checkimcoord(csys,selpars,impars):
@@ -1096,9 +1096,9 @@ def checkimcoord(csys,selpars,impars):
     if type(start)==str and start=="":
       widthval=0
       if type(width)==dict:
-        if width.has_key('type') and width['type']=='radialvelocity':
+        if 'type' in width and width['type']=='radialvelocity':
           widthval = width['m0']['value']
-        elif width.has_key('unit') and width['unit'].count('m/s'):
+        elif 'unit' in width and width['unit'].count('m/s'):
           widthval = width['value']
         if (descendingfreq and widthval < 0) or (not descendingfreq and widthval > 0):
           reversechanorder=True
@@ -1115,9 +1115,9 @@ def checkimcoord(csys,selpars,impars):
 
     # from output image --------------------------------
     # freqframe
-    if csys.has_key('spectral2'):
+    if 'spectral2' in csys:
       specCoord = csys['spectral2']
-      if specCoord.has_key('tabular'):
+      if 'tabular' in specCoord:
         imch0=specCoord['tabular']['crval'][0]
         iminc=specCoord['tabular']['cdelt'][0]
       else:
@@ -1162,7 +1162,7 @@ def checkimcoord(csys,selpars,impars):
           vmode = True
       elif type(start)==dict:
         # measure freq/vel format
-        if start.has_key('type'):
+        if 'type' in start:
           mframe = start['refer']
           if start['type']=='frequency':
             freq0q = start['m0']
@@ -1227,18 +1227,18 @@ def checkimcoord(csys,selpars,impars):
       me.doframe(me.epoch(obsdate['refer'],str(obsdate['m0']['value'])+obsdate['m0']['unit']))
       me.doframe(csys['telescopeposition'])
       me.doframe(me.direction(csys['direction0']['conversionSystem'],str(csys['direction0']['crval'][0])+'rad',str(csys['direction0']['crval'][1])+'rad'))
-      print "******************\n"
+      print("******************\n")
       #print me.showframe()
       #print "imch0=", imch0
       imch0conv=me.measure(me.frequency(imframe,str(imch0)+'Hz'),dataframe)['m0']['value']
     #print "dataframe=",dataframe, " outframe=",outframe, " imframe=",imframe
     if (abs(imch0conv-startfreq)/startfreq < 0.0001):      
       if (reversechanorder):
-        print "OK, image last chan freq match with the data selections and start specification: start freq=", startfreq 
+        print("OK, image last chan freq match with the data selections and start specification: start freq=", startfreq) 
       else:
-        print "OK, image ch0 freq match with the data selections and start specification: start freq=", startfreq 
+        print("OK, image ch0 freq match with the data selections and start specification: start freq=", startfreq) 
     else:
-      print "Error, image ch0 freq does not match with the data selections+start specification, imch0(in %s)=%s start freq=%s" % (dataframe,imch0conv,startfreq)
+      print("Error, image ch0 freq does not match with the data selections+start specification, imch0(in %s)=%s start freq=%s" % (dataframe,imch0conv,startfreq))
 
 
 def vfconv(velorfreqstr, frame, restfstr, veltype):
@@ -1253,7 +1253,7 @@ def vfconv(velorfreqstr, frame, restfstr, veltype):
       mfreq = me.frequency(frame, qa.quantity(velorfreqstr))
       retvf = me.todoppler(veltype, mfreq, qa.quantity(restfstr))
     else:
-      print "Error! cannot convert ", velorfreqstr
+      print("Error! cannot convert ", velorfreqstr)
     return retvf
     
 
@@ -1305,4 +1305,4 @@ def checkmodel(msname=""):
      else:
           hasvirmod=False
      tb.close()
-     print msname , ": modelcol=", hasmodcol, " modsum=", modsum, " virmod=", hasvirmod
+     print(msname , ": modelcol=", hasmodcol, " modsum=", modsum, " virmod=", hasvirmod)

@@ -93,7 +93,7 @@ class clearcal_test(unittest.TestCase):
         '''test takeMS: Checks that a MS is accepeted and invalid inputs are refused by clearcal'''
         casalog.setlogfile('testlog.log')
         clearcal(clearMS)
-        print(os.path.exists('nep2_shrunk.ms'))
+        print((os.path.exists('nep2_shrunk.ms')))
         # Need to check logs for all of these bc it will always return NoneType if it passes or fails
         self.assertFalse('SEVERE' in open('testlog.log').read())
         # In CASA 6 assertion Errors will be raised with improper inputs

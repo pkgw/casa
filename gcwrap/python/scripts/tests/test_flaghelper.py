@@ -25,8 +25,8 @@ parseAgents
 
 def test_eq(result, total, flagged):
 
-    print "%s of %s data was flagged, expected %s of %s" % \
-    (result['flagged'], result['total'], flagged, total)
+    print("%s of %s data was flagged, expected %s of %s" % \
+    (result['flagged'], result['total'], flagged, total))
     assert result['total'] == total, \
                "%s data in total; %s expected" % (result['total'], total)
     assert result['flagged'] == flagged, \
@@ -62,9 +62,9 @@ class test_base(unittest.TestCase):
         self.vis = "uid___A002_X30a93d_X43e_small.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r '+datapath + self.vis +' '+ self.vis)
 
     def setUp_4ants(self):
@@ -72,9 +72,9 @@ class test_base(unittest.TestCase):
         self.vis = "Four_ants_3C286.ms"
 
         if os.path.exists(self.vis):
-            print "The MS is already around, just unflag"
+            print("The MS is already around, just unflag")
         else:
-            print "Moving data..."
+            print("Moving data...")
             os.system('cp -r '+datapath + self.vis +' '+ self.vis)
 
     def setUp_onlineFlags(self):
@@ -128,7 +128,7 @@ class test_flaghelper(test_base):
 
     def test_readFiles(self):
         '''flaghelper: read several files from disk'''
-        print ''
+        print('')
         
         myinput = "scan='1'\n"\
                 "scan='2'\n"\
@@ -158,7 +158,7 @@ class test_flaghelper(test_base):
         
     def test_readAndParse(self):
         '''flaghelper: compare the read and parse from a file and from a list of strings'''
-        print ''
+        print('')
         
         # <startTime>4891227930515540000 <endTime>4891227932453838000
         # <startTime>4891228473545856000 <endTime>4891228473731891000
@@ -205,7 +205,7 @@ class test_flaghelper(test_base):
         
     def test_readAndParseTbuff(self):
         '''flaghelper: compare the read and parse and apply tbuff'''
-        print ''
+        print('')
         
         # MJD in seconds of timeranges are these
         # <startTime>4891227930515540000 <endTime>4891227932453838000
@@ -266,7 +266,7 @@ class test_flaghelper(test_base):
 
     def test_readAndParseIrregularTbuff(self):
         '''flaghelper: compare the read and parse and apply of irregular tbuff'''
-        print ''
+        print('')
         
         # MJD in seconds of timeranges are these
         # <startTime>4891227930515540000 <endTime>4891227932453838000
@@ -449,8 +449,8 @@ class test_flaghelper(test_base):
         mydict = fh.parseDictionary(cmd)
         try:
             res = fh.evaluateFlagParameters(mydict, fparams)
-        except exceptions.IOError, instance:
-            print 'Expected error: %s'%instance
+        except exceptions.IOError as instance:
+            print('Expected error: %s'%instance)
         else:
             self.assertNotEqual(res, True, 'Some parameter in cmd should not evaluate True')
        
@@ -466,8 +466,8 @@ class test_flaghelper(test_base):
 
         try:
             res = fh.evaluateFlagParameters(mydict,fparams)
-        except exceptions.IOError, instance:
-            print 'Expected error: %s'%instance
+        except exceptions.IOError as instance:
+            print('Expected error: %s'%instance)
         else:
             self.assertNotEqual(res, True, 'Some parameter in cmd should not evaluate True')
       
@@ -503,8 +503,8 @@ class test_flaghelper(test_base):
         mydict = fh.parseDictionary(cmd)
         try:
             res = fh.evaluateFlagParameters(mydict,fparams)
-        except exceptions.IOError, instance:
-            print 'Expected error: %s'%instance
+        except exceptions.IOError as instance:
+            print('Expected error: %s'%instance)
         else:
             self.assertNotEqual(res, True, 'Some parameter in cmd should not evaluate True')
         
@@ -525,13 +525,13 @@ class test_flaghelper(test_base):
         '''flaghelper: test parsing XML for online flags'''
         self.setUp_mockasdm()
         fdict = fh.parseXML(self.inpfile, 0.0)
-        self.assertTrue(fdict[0].has_key('spw'))
+        self.assertTrue('spw' in fdict[0])
         spw0 = fdict[0]['spw']
         cmd0 = fdict[0]['command']
         self.assertTrue(spw0.__contains__('WVR#NOMINAL'))
         self.assertFalse(spw0.__contains__('WVR#Antenna'))
-        self.assertEqual(len(fdict.keys()), 12572)
-        self.assertTrue(cmd0.has_key('spw'))
+        self.assertEqual(len(list(fdict.keys())), 12572)
+        self.assertTrue('spw' in cmd0)
 
         
 def suite():

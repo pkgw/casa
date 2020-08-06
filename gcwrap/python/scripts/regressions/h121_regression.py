@@ -15,7 +15,7 @@ datapath=pathname+'/data/regression/ATST1/H121/*3mmmay*.ms'
 startTime=time.time()
 startProc=time.clock()
 
-print '--Copy MS--'
+print('--Copy MS--')
 # Fill - really copy over pristine MS
 os.system('rm -rf *3mmmay*.ms h121*.c* h121*.3* 0224* 2200* nrao150*')
 copystring='cp -r '+datapath+' .'
@@ -40,7 +40,7 @@ gaincal(vis=msfile1,caltable='h121.3mm.ph.gcal0',
 	gaintype='GSPLINE',calmode='p',splinetime=10000.,
 	refant='1',phasewrap=260,preavg=120.)
 
-print '--bandpass (3mm)--'
+print('--bandpass (3mm)--')
 #derive bandpass calibration 
 # solint value
 default('bandpass')
@@ -89,7 +89,7 @@ calphase3mmtime=time.time()
 #NRAO 150: 3.12
 
 #use old values
-print '--Set fluxscale (setjy)--'
+print('--Set fluxscale (setjy)--')
 default('setjy')
 setjy(vis=msfile1,field='0',spw='7',scalebychan=False,standard='manual',fluxdensity=[2.607,0.,0.,0.])
 setjy(vis=msfile1,field='2',spw='7',scalebychan=False,standard='manual',fluxdensity=[1.107,0.,0.,0.])
@@ -100,7 +100,7 @@ setjy3mmtime=time.time()
 ##
 ##  phase solutions will be pre-applied as well as carried forward 
 ##   to the output solution table.
-print '--gaincal amp (3mm)--'
+print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis=msfile1,caltable='h121.3mm.amp.gcal',
 	field='0,1,2,4',spw='7:8~55',
@@ -125,7 +125,7 @@ applycal(vis=msfile1,
 	 gaintable=['h121.3mm.ph.gcal','h121.3mm.amp.gcal','2200.3mm.bpoly'])
 
 # Split calibrated target source data
-print '--split calibrater--'
+print('--split calibrater--')
 default('split')
 split(vis=msfile1,outputvis='h121.3mm.split.ms',
 #      field=3,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
@@ -175,7 +175,7 @@ gaincal(vis=msfile2,caltable='h121b.3mm.ph.gcal0',
 	refant='1',phasewrap=260,
 	preavg=120.)
 
-print '--bandpass (3mm)--'
+print('--bandpass (3mm)--')
 #derive bandpass calibration 
 # solint value
 default('bandpass')
@@ -224,7 +224,7 @@ calphase3mmtime=time.time()
 #C454.3 : 6.127
 
 #use old values
-print '--Set fluxscale (setjy)--'
+print('--Set fluxscale (setjy)--')
 default('setjy')
 setjy(vis=msfile2,field='0',spw='7',scalebychan=False,standard='manual',fluxdensity=[3.235,0.,0.,0.])
 setjy(vis=msfile2,field='1',spw='7',scalebychan=False,standard='manual',fluxdensity=[1.507,0.,0.,0.])
@@ -235,7 +235,7 @@ setjy3mmtime=time.time()
 ##
 ##  phase solutions will be pre-applied as well as carried forward 
 ##   to the output solution table.
-print '--gaincal amp (3mm)--'
+print('--gaincal amp (3mm)--')
 default('gaincal')
 gaincal(vis=msfile2,caltable='h121b.3mm.amp.gcal',
 	field='0,1,3,4',spw='7:8~55',
@@ -260,7 +260,7 @@ applycal(vis=msfile2,
 	 gaintable=['h121b.3mm.ph.gcal','h121b.3mm.amp.gcal','2200b.3mm.bpoly'])
 
 # Split calibrated target source data
-print '--split calibrater--'
+print('--split calibrater--')
 default('split')
 split(vis=msfile2,outputvis='h121b.3mm.split.ms',
 #      field=2,spw=7,nchan=48,start=8,step=1,datacolumn='corrected')
@@ -394,45 +394,45 @@ outfile='h121.'+datestring+'.log'
 logfile=open(outfile,'w')
 
 passfail = {True: '* Passed', False: '* FAILED'}
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
-print >>logfile, passfail[diff_3mma < 0.05], '3mm (5may) max amplitude test '
-print >>logfile,'--3mm max (5may) amp '+str(thistest_3mm)
-print >>logfile, passfail[diff_3mmb < 0.05], '3mm (9may) max amplitude test '
-print >>logfile,'--3mm max (9may) amp '+str(thistest_3mmb)
-print >>logfile, passfail[diff_co10a < 0.05], 'CO 1-0 image max (5may) test '
-print >>logfile,'--CO 1-0 (5may) image max '+str(co10a)
-print >>logfile, passfail[diff_co10b < 0.05], 'CO 1-0 image max (9may) test '
-print >>logfile,'--CO 1-0 (9may) image max '+str(co10b)
-print >>logfile, passfail[diff_co10c < 0.05], 'CO 1-0 image max (combined) test '
-print >>logfile,'--CO 1-0 (combine) image max '+str(co10c)
-print >>logfile, passfail[diff_cont < 0.05], '3mm image max test '
-print >>logfile,'--3mm image max  '+str(cont3mmmax)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
+print(passfail[diff_3mma < 0.05], '3mm (5may) max amplitude test ', file=logfile)
+print('--3mm max (5may) amp '+str(thistest_3mm), file=logfile)
+print(passfail[diff_3mmb < 0.05], '3mm (9may) max amplitude test ', file=logfile)
+print('--3mm max (9may) amp '+str(thistest_3mmb), file=logfile)
+print(passfail[diff_co10a < 0.05], 'CO 1-0 image max (5may) test ', file=logfile)
+print('--CO 1-0 (5may) image max '+str(co10a), file=logfile)
+print(passfail[diff_co10b < 0.05], 'CO 1-0 image max (9may) test ', file=logfile)
+print('--CO 1-0 (9may) image max '+str(co10b), file=logfile)
+print(passfail[diff_co10c < 0.05], 'CO 1-0 image max (combined) test ', file=logfile)
+print('--CO 1-0 (combine) image max '+str(co10c), file=logfile)
+print(passfail[diff_cont < 0.05], '3mm image max test ', file=logfile)
+print('--3mm image max  '+str(cont3mmmax), file=logfile)
 
 
 if ((diff_3mma<0.05) & (diff_3mmb<0.05) & (diff_co10a<0.05) & (diff_co10b<0.05) & (diff_co10c<0.05) & (diff_cont<0.05)):
 	regstate=True
-        print >>logfile,'---'
-        print >>logfile,'Passed Regression test for H121'
-        print >>logfile,'---'
-	print ''
-	print 'Regression PASSED'
-	print ''
+        print('---', file=logfile)
+        print('Passed Regression test for H121', file=logfile)
+        print('---', file=logfile)
+	print('')
+	print('Regression PASSED')
+	print('')
 else:
         regstate=False
-	print ''
-	print 'Regression FAILED'
-	print ''
-        print >>logfile,'----FAILED Regression test for H121'
-print >>logfile,'*********************************'
+	print('')
+	print('Regression FAILED')
+	print('')
+        print('----FAILED Regression test for H121', file=logfile)
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(278./(endTime - startTime))
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(278./(endTime - startTime)), file=logfile)
 #print >>logfile,'* Breakdown:                           *'
 #print >>logfile,'*   copy         time was: '+str(copytime-startTime)
 #print >>logfile,'*   flag         time was: '+str(flagtime-copytime)

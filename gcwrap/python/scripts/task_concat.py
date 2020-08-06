@@ -139,7 +139,7 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 			if (vis[0] == mmslist[0]):
 				casalog.post('*** The first input MS is a multi-MS to which no row can be added. Cannot proceed.', 'WARN')
 				casalog.post('*** Please use virtualconcat or convert the first input MS to a normal MS using split.', 'WARN')
-				raise Exception, 'Cannot append to a multi-MS. Please use virtualconcat.'
+				raise Exception('Cannot append to a multi-MS. Please use virtualconcat.')
 
 			casalog.post('*** The following input measurement sets are multi-MSs', 'INFO')
 			for mname in mmslist:
@@ -151,10 +151,10 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 		doweightscale = False
 		if(len(visweightscale)>0):
 			if (len(visweightscale) != len(vis)):
-				raise Exception, 'parameter visweightscale must have same number of elements as parameter vis'
+				raise Exception('parameter visweightscale must have same number of elements as parameter vis')
 			for factor in visweightscale:
 				if factor<0.:
-					raise Exception, 'parameter visweightscale must only contain positive numbers'
+					raise Exception('parameter visweightscale must only contain positive numbers')
 				elif factor!=1.:
 					doweightscale=True
 
@@ -180,15 +180,15 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 
 
 		if((type(concatvis)!=str) or (len(concatvis.split()) < 1)):
-			raise Exception, 'parameter concatvis is invalid'				
+			raise Exception('parameter concatvis is invalid')				
 
 		existingconcatvis = False
 		if(vis.count(concatvis) > 0):
 			existingconcatvis = True
 			cvisindex =  sortedvis.index(concatvis)
 			if not sorted_namestuples[cvisindex][0] == sorted_namestuples[0][0]:
-				raise Exception, 'If concatvis is set to the name of an existing MS in vis, it must be the chronologically first.'+\
-				      '\n I.e. in this case you should set concatvis to '+sortedvis[0]
+				raise Exception('If concatvis is set to the name of an existing MS in vis, it must be the chronologically first.'+\
+				      '\n I.e. in this case you should set concatvis to '+sortedvis[0])
 			sortedvis.pop(cvisindex)
 			if doweightscale:
 				vwscale = sortedvisweightscale[cvisindex]
@@ -247,7 +247,7 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 			if type(forcesingleephemfield)==str or type(forcesingleephemfield)==int:
 				forcesingleephemfield = [forcesingleephemfield]
 			if not type(forcesingleephemfield) == list:
-				raise Exception, 'Type of parameter forcesingleephemfield must be str, int, or list'
+				raise Exception('Type of parameter forcesingleephemfield must be str, int, or list')
 
 			themss = [theconcatvis]
 			for x in vis:
@@ -262,17 +262,17 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 					tmptab = os.path.basename(thetabs[0])+'.concattmp'
 					targettab = theconcatvis+'/FIELD/'+os.path.basename(thetabs[0])
 					if not os.path.exists(targettab):
-						raise Exception, 'Internal ERROR: ephemeris '+targettab+' does not exist'	
+						raise Exception('Internal ERROR: ephemeris '+targettab+' does not exist')	
 					concatephem.concatephem(thetabs, tmptab)
 					if os.path.exists(tmptab):
 						os.system('rm -rf '+targettab)
 						os.system('mv '+tmptab+' '+targettab)
 					else:
 						casalog.post('ERROR while forcing single ephemeris for field '+str(ephemfield), 'SEVERE')
-						raise Exception, 'Concatenation of ephemerides for field '+str(ephemfield)+' failed.'
+						raise Exception('Concatenation of ephemerides for field '+str(ephemfield)+' failed.')
 				else:
 					casalog.post('ERROR while forcing single ephemeris for field '+str(ephemfield), 'SEVERE')
-					raise Exception, 'Cannot find ephemerides for field '+str(ephemfield)+' in all input MSs.'
+					raise Exception('Cannot find ephemerides for field '+str(ephemfield)+' in all input MSs.')
 
 
 		# Determine if scratch columns should be considered at all
@@ -299,12 +299,12 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 			needcorr.append(t.colnames().count('CORRECTED_DATA')==0)
 			t.close()
                 else:
-                        raise Exception, 'Visibility data set '+theconcatvis+' not found - please verify the name'
+                        raise Exception('Visibility data set '+theconcatvis+' not found - please verify the name')
 
 		
 		for elvis in vis : 			###Oh no Elvis does not exist Mr Bill
 			if(not os.path.exists(elvis)):
-				raise Exception, 'Visibility data set '+elvis+' not found - please verify the name'
+				raise Exception('Visibility data set '+elvis+' not found - please verify the name')
 
 			# check if all scratch columns are present
 			t.open(elvis)
@@ -343,14 +343,14 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 				t.open(theconcatvis, nomodify=False)
 				for colname in [ 'WEIGHT', 'WEIGHT_SPECTRUM']:
 					if (colname in t.colnames()) and (t.iscelldefined(colname,0)):
-						for j in xrange(0,t.nrows()):
+						for j in range(0,t.nrows()):
 							a = t.getcell(colname, j)
 							a *= wscale
 							t.putcell(colname, j, a)
 				for colname in ['SIGMA']:
 					if (wscale > 0. and colname in t.colnames()) and (t.iscelldefined(colname,0)):
 						sscale = 1./sqrt(wscale)
-						for j in xrange(0,t.nrows()):
+						for j in range(0,t.nrows()):
 							a = t.getcell(colname, j)
 							a *= sscale
 							t.putcell(colname, j, a)
@@ -379,7 +379,7 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 
 			if(considerscrcols and needscrcols[i]):
 				if(ParallelTaskHelper.isParallelMS(elvis)):
-					raise Exception, 'Cannot create scratch columns in a multi-MS. Use virtualconcat.'
+					raise Exception('Cannot create scratch columns in a multi-MS. Use virtualconcat.')
 				else:
 					# create scratch cols			
 					casalog.post('creating scratch columns for '+elvis+' (original MS unchanged)', 'INFO')
@@ -406,11 +406,11 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 
 		# Write history to output MS, not the input ms.
 		try:
-			param_names = concat.func_code.co_varnames[:concat.func_code.co_argcount]
+			param_names = concat.__code__.co_varnames[:concat.__code__.co_argcount]
 			param_vals = [eval(p) for p in param_names]
 			write_history(mstool(), concatvis, 'concat', param_names,
 						  param_vals, casalog)
-		except Exception, instance:
+		except Exception as instance:
 			casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
 						 'WARN')
 
@@ -418,7 +418,7 @@ def concat(vislist,concatvis,freqtol,dirtol,respectname,timesort,copypointing,
 		
 		return True
 
-	except Exception, instance:
-		print '*** Error ***',instance
-		raise Exception, instance
+	except Exception as instance:
+		print('*** Error ***',instance)
+		raise Exception(instance)
 

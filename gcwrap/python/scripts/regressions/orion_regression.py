@@ -16,7 +16,7 @@ pathname=os.environ.get('CASAPATH')
 datapath=os.environ.get('CASAPATH').split()[0]+'/data/regression/ATST3/Orion/'
 #datapath='/home/casa/data/trunk/regression/ATST3/Orion/'
 
-print '--Copy data to local directory--'
+print('--Copy data to local directory--')
 mspath='cp -r '+datapath+'orion.ms .'
 os.system(mspath)
 os.system('chmod -R a+wx orion.ms')
@@ -25,7 +25,7 @@ startTime = time.time()
 startProc = time.clock()
 
 
-print '--Feather--'
+print('--Feather--')
 # Starting from:
 #    VLA Orion mosaic image : orion_vlamem.im
 #    GBT OTF image : orion.gbt.im
@@ -34,7 +34,7 @@ feathertime = time.time()
 #GBT:   Max:5.129806e+01        Flux:2.425065e+02 Jy    rms:1.277546e+01
 #VLA:   Max:8.340111e-01        Flux:1.891523e+02 Jy    rms:1.099514e-01
 
-print '--Feather - create synth image--'
+print('--Feather - create synth image--')
 # Starting from:
 #    VLA Orion mosaic image : orion.ms
 #    GBT OTF image : orion.gbt.im
@@ -80,7 +80,7 @@ feather('orion_tfeather2.im','orion.task.image',datapath+'orion.gbt.im')
 #VLA:   Max:8.340111e-01        Flux:1.891523e+02 Jy    rms:1.099514e-01
 feathersynthtime = time.time()
 
-print '--Single Dish as Model (multi-scale)--'
+print('--Single Dish as Model (multi-scale)--')
 ## Starting from:
 ##    VLA calibrated visibilities: orion.ms
 ##    GBT OTF cube: orion.gbt.im
@@ -118,7 +118,7 @@ sdmodelmstime = time.time()
 ###GBT:   Max:5.129806e+01        Flux:2.425065e+02 Jy    rms:1.277546e+01
 ###VLA:   Max:8.340111e-01        Flux:1.891523e+02 Jy    rms:1.099514e-01
 ##
-print '--Single Dish as Model (MEM)--'
+print('--Single Dish as Model (MEM)--')
 ### Starting from:
 ###    VLA calibrated visibilities: orion.ms
 ###    GBT OTF cube: orion.gbt.im
@@ -144,7 +144,7 @@ sdmodelmemtime=time.time()
 #### DO joint deconvolution
 ######
 def joint_deconvolve(datapath):
-	print '--Joint deconvolution --'
+	print('--Joint deconvolution --')
 
 	#Regrid GBT image onto synth imaging coordinates
 	ia.open('orion_tsdms.image')
@@ -215,59 +215,59 @@ for k, fn in (('Feather 1',           'orion_tfeather.im'),
 		test_results[k] = ia.statistics(list=True, verbose=True)
 		ia.close()
 	else:
-		print >>logfile, "Could not open", fn, "for reading!"
+		print("Could not open", fn, "for reading!", file=logfile)
 
-print >>logfile,''
-print >>logfile,'********** Data Summary *********'
-print >>logfile,'           GBT image '
-print >>logfile,'Image name       : orion.gbt.im'
-print >>logfile,'Object name      :'
-print >>logfile,'Image type       : PagedImage'
-print >>logfile,'Image quantity   : Intensity'
-print >>logfile,'Pixel mask(s)    : mask0'
-print >>logfile,'Region(s)        : None'
-print >>logfile,'Image units      : Jy/beam'
-print >>logfile,'Restoring Beam   : 98.0547 arcsec, 98.0547 arcsec, 79.25 deg'
-print >>logfile,'Direction reference : J2000'
-print >>logfile,'Spectral  reference : LSRK'
-print >>logfile,'Velocity  type      : RADIO'
-print >>logfile,'Rest frequency      : 1 Hz'
-print >>logfile,'Telescope           : GBT'
-print >>logfile,'Observer            : UNKNOWN'
-print >>logfile,'Date observation    : UNKNOWN'
-print >>logfile,'Axis Coord Type      Name             Proj Shape Tile   Coord value at pixel    Coord incr Units'
-print >>logfile,'------------------------------------------------------------------------------------------------'
-print >>logfile,'1    1     Direction Right Ascension   SIN   300  300  05:35:17.470   151.00 -2.000000e+00 arcsec'
-print >>logfile,'2    1     Direction Declination       SIN   300  300 -05.23.06.790   151.00  2.000000e+00 arcsec'
-print >>logfile,'3    2     Stokes    Stokes                    1    1             I'
-print >>logfile,'4    3     Spectral  Frequency                 1    1    8.4351e+09     1.00  6.050000e+07 Hz'
-print >>logfile,'                     Velocity                                  -inf     1.00           nan km/s'
-print >>logfile,'   Observer: unavailable     Project: DSTST'
-print >>logfile,'Observation: VLA(26 antennas)'
-print >>logfile,'Data records: 1093716       Total integration time = 8545 seconds'
-print >>logfile,'   Observed from   11:15:48   to   13:38:13'
-print >>logfile,'Fields: 12'
-print >>logfile,'  ID   Name          Right Ascension  Declination   Epoch'
-print >>logfile,'  0    0518+165      05:21:09.89      +16.38.22.04  J2000'
-print >>logfile,'  1    0539-057      05:41:38.09      -05.41.49.43  J2000'
-print >>logfile,'  2    ORION1        05:35:07.42      -05.25.36.07  J2000'
-print >>logfile,'  3    ORION2        05:35:17.42      -05.25.36.79  J2000'
-print >>logfile,'  4    ORION3        05:35:27.42      -05.25.37.52  J2000'
-print >>logfile,'  5    ORION4        05:35:27.47      -05.23.07.52  J2000'
-print >>logfile,'  6    ORION5        05:35:17.47      -05.23.06.79  J2000'
-print >>logfile,'  7    ORION6        05:35:07.47      -05.23.06.07  J2000'
-print >>logfile,'  8    ORION7        05:35:07.52      -05.20.36.07  J2000'
-print >>logfile,'  9    ORION8        05:35:17.52      -05.20.36.80  J2000'
-print >>logfile,'  10   ORION9        05:35:27.52      -05.20.37.52  J2000'
-print >>logfile,'  11   ORION10       05:35:32.61      -05.16.07.88  J2000'
-print >>logfile,'Spectral Windows:  (2 unique spectral windows and 1 unique polarization setups)'
-print >>logfile,'  SpwID  #Chans Frame Ch1(MHz)  Resoln(kHz) TotBW(kHz) Ref(MHz) Corrs'
-print >>logfile,'  0           1 TOPO  8435.1    50000       50000      8435.1   RR  RL  LR  LL'
-print >>logfile,'  1           1 TOPO  8485.1    50000       50000      8485.1   RR  RL  LR  LL'
-print >>logfile,'*********************************'
-print >>logfile,''
-print >>logfile,'********** Regression ***********'
-print >>logfile,'*                               *'
+print('', file=logfile)
+print('********** Data Summary *********', file=logfile)
+print('           GBT image ', file=logfile)
+print('Image name       : orion.gbt.im', file=logfile)
+print('Object name      :', file=logfile)
+print('Image type       : PagedImage', file=logfile)
+print('Image quantity   : Intensity', file=logfile)
+print('Pixel mask(s)    : mask0', file=logfile)
+print('Region(s)        : None', file=logfile)
+print('Image units      : Jy/beam', file=logfile)
+print('Restoring Beam   : 98.0547 arcsec, 98.0547 arcsec, 79.25 deg', file=logfile)
+print('Direction reference : J2000', file=logfile)
+print('Spectral  reference : LSRK', file=logfile)
+print('Velocity  type      : RADIO', file=logfile)
+print('Rest frequency      : 1 Hz', file=logfile)
+print('Telescope           : GBT', file=logfile)
+print('Observer            : UNKNOWN', file=logfile)
+print('Date observation    : UNKNOWN', file=logfile)
+print('Axis Coord Type      Name             Proj Shape Tile   Coord value at pixel    Coord incr Units', file=logfile)
+print('------------------------------------------------------------------------------------------------', file=logfile)
+print('1    1     Direction Right Ascension   SIN   300  300  05:35:17.470   151.00 -2.000000e+00 arcsec', file=logfile)
+print('2    1     Direction Declination       SIN   300  300 -05.23.06.790   151.00  2.000000e+00 arcsec', file=logfile)
+print('3    2     Stokes    Stokes                    1    1             I', file=logfile)
+print('4    3     Spectral  Frequency                 1    1    8.4351e+09     1.00  6.050000e+07 Hz', file=logfile)
+print('                     Velocity                                  -inf     1.00           nan km/s', file=logfile)
+print('   Observer: unavailable     Project: DSTST', file=logfile)
+print('Observation: VLA(26 antennas)', file=logfile)
+print('Data records: 1093716       Total integration time = 8545 seconds', file=logfile)
+print('   Observed from   11:15:48   to   13:38:13', file=logfile)
+print('Fields: 12', file=logfile)
+print('  ID   Name          Right Ascension  Declination   Epoch', file=logfile)
+print('  0    0518+165      05:21:09.89      +16.38.22.04  J2000', file=logfile)
+print('  1    0539-057      05:41:38.09      -05.41.49.43  J2000', file=logfile)
+print('  2    ORION1        05:35:07.42      -05.25.36.07  J2000', file=logfile)
+print('  3    ORION2        05:35:17.42      -05.25.36.79  J2000', file=logfile)
+print('  4    ORION3        05:35:27.42      -05.25.37.52  J2000', file=logfile)
+print('  5    ORION4        05:35:27.47      -05.23.07.52  J2000', file=logfile)
+print('  6    ORION5        05:35:17.47      -05.23.06.79  J2000', file=logfile)
+print('  7    ORION6        05:35:07.47      -05.23.06.07  J2000', file=logfile)
+print('  8    ORION7        05:35:07.52      -05.20.36.07  J2000', file=logfile)
+print('  9    ORION8        05:35:17.52      -05.20.36.80  J2000', file=logfile)
+print('  10   ORION9        05:35:27.52      -05.20.37.52  J2000', file=logfile)
+print('  11   ORION10       05:35:32.61      -05.16.07.88  J2000', file=logfile)
+print('Spectral Windows:  (2 unique spectral windows and 1 unique polarization setups)', file=logfile)
+print('  SpwID  #Chans Frame Ch1(MHz)  Resoln(kHz) TotBW(kHz) Ref(MHz) Corrs', file=logfile)
+print('  0           1 TOPO  8435.1    50000       50000      8435.1   RR  RL  LR  LL', file=logfile)
+print('  1           1 TOPO  8485.1    50000       50000      8485.1   RR  RL  LR  LL', file=logfile)
+print('*********************************', file=logfile)
+print('', file=logfile)
+print('********** Regression ***********', file=logfile)
+print('*                               *', file=logfile)
 
 #              Test name          Stat type Expected  Label irregularities 
 test_descs = (('Feather 1',           'max',  0.780,  ' '),
@@ -287,12 +287,12 @@ def log_test_result(test_results, testdesc, logfile):
 	result = test_results[testdesc[0]][testdesc[1]][0]
 	reldiff = abs(1.0 - result / testdesc[2])
 	if reldiff < 0.05:
-		print >>logfile, '* Passed',
-		print '* Alright',
+		print('* Passed', end=' ', file=logfile)
+		print('* Alright', end=' ')
 		retval = True
 	else:
-		print >>logfile, '! FAILED',
-		print '#####FAILED'
+		print('! FAILED', end=' ', file=logfile)
+		print('#####FAILED')
 		retval = False
 
 	# RR 4/18/2009: I think this complication might stem from a bug in the
@@ -316,10 +316,10 @@ def log_test_result(test_results, testdesc, logfile):
 	if len(testdesc) > 3:
 		title2 += testdesc[3]
 		
-	print >>logfile, title1, 'test'
-	print title1, 'test'
-	print >>logfile, '*--  ' + title2 + str(result) + ',' + str(testdesc[2])
-	print '*--  ' + title2 + str(result) + ',' + str(testdesc[2])
+	print(title1, 'test', file=logfile)
+	print(title1, 'test')
+	print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]), file=logfile)
+	print('*--  ' + title2 + str(result) + ',' + str(testdesc[2]))
 	return retval
 
 regstate = True
@@ -327,33 +327,33 @@ for td in test_descs:
 	regstate &= log_test_result(test_results, td, logfile)
 
 if regstate:
-        print >>logfile, '---'
-        print >>logfile, 'Passed Regression test for Orion'
-        print >>logfile, '---'
-        print ''
-        print 'Regression PASSED'
-        print ''
+        print('---', file=logfile)
+        print('Passed Regression test for Orion', file=logfile)
+        print('---', file=logfile)
+        print('')
+        print('Regression PASSED')
+        print('')
 else:
-        print >>logfile, '----FAILED Regression test for Orion'
-        print ''
-        print 'Regression FAILED'
-        print ''
+        print('----FAILED Regression test for Orion', file=logfile)
+        print('')
+        print('Regression FAILED')
+        print('')
 
-print >>logfile, '*********************************'
+print('*********************************', file=logfile)
 
-print >>logfile,''
-print >>logfile,''
-print >>logfile,'********* Benchmarking *****************'
-print >>logfile,'*                                      *'
-print >>logfile,'Total wall clock time was: '+str(endTime - startTime)
-print >>logfile,'Total CPU        time was: '+str(endProc - startProc)
-print >>logfile,'Processing rate MB/s  was: '+str(760./(endTime - startTime))
-print >>logfile,'* Breakdown:                           *'
-print >>logfile,'*   feather      time was: '+str(feathertime-startTime)
-print >>logfile,'*   feathersynth time was: '+str(feathersynthtime-feathertime)
-print >>logfile,'*   sdmodel (MS) time was: '+str(sdmodelmstime-feathersynthtime)
-print >>logfile,'*   sdmodel(MEM) time was: '+str(sdmodelmemtime-sdmodelmstime)
-print >>logfile,'*   joint decon  time was: '+str(jointmemtime-sdmodelmemtime)
-print >>logfile,'*****************************************'
+print('', file=logfile)
+print('', file=logfile)
+print('********* Benchmarking *****************', file=logfile)
+print('*                                      *', file=logfile)
+print('Total wall clock time was: '+str(endTime - startTime), file=logfile)
+print('Total CPU        time was: '+str(endProc - startProc), file=logfile)
+print('Processing rate MB/s  was: '+str(760./(endTime - startTime)), file=logfile)
+print('* Breakdown:                           *', file=logfile)
+print('*   feather      time was: '+str(feathertime-startTime), file=logfile)
+print('*   feathersynth time was: '+str(feathersynthtime-feathertime), file=logfile)
+print('*   sdmodel (MS) time was: '+str(sdmodelmstime-feathersynthtime), file=logfile)
+print('*   sdmodel(MEM) time was: '+str(sdmodelmemtime-sdmodelmstime), file=logfile)
+print('*   joint decon  time was: '+str(jointmemtime-sdmodelmemtime), file=logfile)
+print('*****************************************', file=logfile)
 #
 logfile.close()

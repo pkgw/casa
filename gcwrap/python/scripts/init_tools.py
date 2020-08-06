@@ -1,7 +1,7 @@
 try:
     from casac import casac
-except ImportError, e:
-    print "failed to load casa:\n", e
+except ImportError as e:
+    print("failed to load casa:\n", e)
     sys.exit(1)
 
 from casa_system import casa
@@ -98,7 +98,7 @@ try:
     else:
         vi = viewertool( True )
 except:
-    print "Unable to start viewer, maybe no dbus available?"
+    print("Unable to start viewer, maybe no dbus available?")
 
 
 im,cb,ms,tb,me,ia,po,sm,cl,cs,rg,sl,dc,vp,msmd,fi,fn,imd,sdms,lm,at=gentools()

@@ -41,9 +41,9 @@ def run( fetch=False ):
     #####locate the regression script
     lepath=locatescript('accum_regression.py')
     gl['regstate']=True
-    execfile(lepath, gl)
-    print 'regstate =', gl['regstate']
+    exec(compile(open(lepath, "rb").read(), lepath, 'exec'), gl)
+    print('regstate =', gl['regstate'])
     if not gl['regstate']:
-        raise Exception, 'regstate = False'
+        raise Exception('regstate = False')
 
     return []

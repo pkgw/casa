@@ -59,22 +59,22 @@ def note(message, priority="INFO", origin="coordsystest", ntime=None, postcli='F
     #if not ntime:  #if (ntime==None):
     #    ntime=time.asctime()
     #print ntime, priority, origin, message
-    if postcli: print message
+    if postcli: print(message)
     casalog.postLocally(message, priority, origin)
 ###
 def info(message):
     #note(message,origin='coordsystest')
-    print message
+    print(message)
     casalog.postLocally(message, priority="INFO", origin="coordsystest")
 
 def fail(message=""):
     casalog.postLocally(message, priority="SEVERE", origin='coordsystest')
-    raise RuntimeError, message
+    raise RuntimeError(message)
 
 ###
 def stop(message=""):
     note(message ,priority='SEVERE', origin='coordsystest')
-    raise RuntimeError, message
+    raise RuntimeError(message)
 
 ###
 def cleanup(dir):
@@ -83,7 +83,7 @@ def cleanup(dir):
         def errFunc(raiser, problemPath, excInfo):
             #print raiser.__name__,'failed on',problemPath
             note(raiser.__name__+'failed on'+problemPath,"SEVERE")
-            raise RuntimeError, "Cleanup of " + dir + " fails!"
+            raise RuntimeError("Cleanup of " + dir + " fails!")
         shutil.rmtree(dir,0,errFunc)
     return True
 
@@ -92,36 +92,36 @@ def all(x,y,tolerance=0):
         return False
     for i in range(len(x)):
         if not (abs(x[i]-y[i]) <= tolerance):
-            print "x["+str(i)+"]=", x[i]
-            print "y["+str(i)+"]=", y[i]
+            print("x["+str(i)+"]=", x[i])
+            print("y["+str(i)+"]=", y[i])
             return False
     return True
 
 def alleq(x,y,tolerance=0):
     if x.size != y.size:
-        print "x.size=", x.size
-        print "y.size=", y.size
+        print("x.size=", x.size)
+        print("y.size=", y.size)
         return False
     if len(x.shape)==1:
         for i in range(len(x)):
             if not (abs(x[i]-y[i]) < tolerance):
-                print "x[",i,"]=", x[i]
-                print "y[",i,"]=", y[i]
+                print("x[",i,"]=", x[i])
+                print("y[",i,"]=", y[i])
                 return False
     if len(x.shape)==2:
         for i in range(len(x)):
             for j in range(len(x[i])):
                 if not (abs(x[i][j]-y[i][j]) < tolerance):
-                    print "x[",i,"][",j,"]=", x[i][j]
-                    print "y[",i,"][",j,"]=", y[i][j]
+                    print("x[",i,"][",j,"]=", x[i][j])
+                    print("y[",i,"][",j,"]=", y[i][j])
                     return False
     if len(x.shape)==3:
         for i in range(len(x)):
             for j in range(len(x[i])):
                 for k in range(len(x[i][j])):
                     if not (abs(x[i][j][k]-y[i][j][k]) < tolerance):
-                        print "x[",i,"][",j,"][",k,"]=", x[i][j][k]
-                        print "y[",i,"][",j,"][",k,"]=", y[i][j][k]
+                        print("x[",i,"][",j,"][",k,"]=", x[i][j][k])
+                        print("y[",i,"][",j,"][",k,"]=", y[i][j][k])
                         return False
     if len(x.shape)==4:
         for i in range(len(x)):
@@ -129,8 +129,8 @@ def alleq(x,y,tolerance=0):
                 for k in range(len(x[i][j])):
                     for l in range(len(x[i][j][k])):
                         if not (abs(x[i][j][k][l]-y[i][j][k][l]) < tolerance):
-                            print "x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k][l]
-                            print "y[",i,"][",j,"][",k,"][",l,"]=", y[i][j][k][l]
+                            print("x[",i,"][",j,"][",k,"][",l,"]=", x[i][j][k][l])
+                            print("y[",i,"][",j,"][",k,"][",l,"]=", y[i][j][k][l])
                             return False
     if len(x.shape)>4:
         stop('unhandled array shape in alleq')
@@ -327,7 +327,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setreferencecode(value='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('setreferencecode unexpectedly did not fail')
@@ -356,7 +356,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setprojection('fish')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setprojection 1 unexpectedly did not fail')
@@ -406,7 +406,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setrestfrequency(rf1)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setrestfrequency 3 unexpectedly did not fail')
@@ -416,7 +416,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             rf = mycs.restfrequency()
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             rf = False
         if rf: fail('restfrequency unexpectedly did not fail')
@@ -426,7 +426,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setrestfrequency(rf1)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setrestfrequency 4 unexpectedly did not fail')
@@ -447,9 +447,9 @@ def coordsystest():
         #
         r = mycs.torecord()
         if not r: fail('torecord 1 failed')
-        ok = r.has_key('direction0') and r.has_key('stokes1')
-        ok = ok and r.has_key('spectral2')
-        ok = ok and r.has_key('linear3')
+        ok = 'direction0' in r and 'stokes1' in r
+        ok = ok and 'spectral2' in r
+        ok = ok and 'linear3' in r
         if not ok: fail('torecord did not produce valid record')
         #
         cs2 = cs.newcoordsys(direction=False, spectral=False, stokes="", linear=0)
@@ -606,7 +606,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setunits(value="Hz Hz Hz")
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setunits 2 unexpectedly did not fail')
@@ -614,7 +614,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setunits(value="m")
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setunits 3 unexpectedly did not fail')
@@ -682,7 +682,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setreferencepixel (type='lin', value=[0,0])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setreferencepixel 1 unexpectedly did not fail')
@@ -690,7 +690,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.referencepixel('lin')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             ok = False
         if ok: fail('setreferencepixel 2 unexpectedly did not fail')
@@ -809,7 +809,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setreferencevalue (value='i like doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('setreferencevalue unexpectedly did not fail')
@@ -888,7 +888,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setincrement(value='i like doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('setincrement 1 unexpectedly did not fail')
@@ -908,7 +908,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             val2 = mycs.increment(type='lin', format='q')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             val2 = False
         if val2: fail('increment 2 unexpectedly did not fail')
@@ -944,7 +944,7 @@ def coordsystest():
             stokes = True
             note('Expect SEVERE error and Exception here')
             stokes = mycs.stokes()
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             stokes = False
         if stokes: fail('stokes 2 unexpectedly did not fail')
@@ -952,7 +952,7 @@ def coordsystest():
             ok = True
             note('Expect SEVERE error and Exception here')
             ok = mycs.setstokes("I V")
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('setstokes 2 unexpectedly did not fail')
@@ -1117,13 +1117,13 @@ def coordsystest():
         m = mycs.toworld(value=rp, format='m')
         if not m: fail()
         m = m['measure']
-        ok = m.has_key('direction') and m.has_key('spectral')
-        ok = ok and m['spectral'].has_key('frequency')
-        ok = ok and m['spectral'].has_key('opticalvelocity')
-        ok = ok and m['spectral'].has_key('radiovelocity')
-        ok = ok and m['spectral'].has_key('betavelocity')
-        ok = ok and m.has_key('stokes')
-        ok = ok and m.has_key('linear')
+        ok = 'direction' in m and 'spectral' in m
+        ok = ok and 'frequency' in m['spectral']
+        ok = ok and 'opticalvelocity' in m['spectral']
+        ok = ok and 'radiovelocity' in m['spectral']
+        ok = ok and 'betavelocity' in m['spectral']
+        ok = ok and 'stokes' in m
+        ok = ok and 'linear' in m
         if not ok: fail('toworld 3 gives wrong fields')
         d = m['direction']
         f = m['spectral']['frequency']
@@ -1247,12 +1247,12 @@ def coordsystest():
         # same presently
         #
         toworld = mycs.axesmap(toworld=True)
-	print toworld
+	print(toworld)
         if not len(toworld): fail()
         topixel = mycs.axesmap(toworld=False)
         if not len(topixel): fail()
         #
-        idx = range(0,len(mycs.referencepixel()['numeric']))
+        idx = list(range(0,len(mycs.referencepixel()['numeric'])))
         if not all(toworld,idx): fail('toworld map is wrong')
         if not all(topixel,idx): fail('topixel map is wrong')
         #
@@ -1284,7 +1284,7 @@ def coordsystest():
         try:
             note("Expect SEVERE error and Exception here")
             ok = mycs.reorder([1,2])
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             ok = False
         if ok: fail('reorder 2 unexpectedly did not fail')
@@ -1292,7 +1292,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.reorder([1,2,3,10])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('reorder 3 unexpectedly did not fail')
@@ -1328,7 +1328,7 @@ def coordsystest():
         #
         freq = rv['numeric'][0]
         freqUnit = mycs.units();
-	print freqUnit
+	print(freqUnit)
         vel = mycs.frequencytovelocity(value=freq, frequnit=freqUnit[0],
                                        doppler='radio', velunit='km/s')
         if (abs(vel) > 1e-6):
@@ -1385,7 +1385,7 @@ def coordsystest():
             vel = mycs.frequencytovelocity(value=rv['numeric'][0],
                                            frequnit='Jy',
                                            doppler='radio', velunit='km/s')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             vel = False
         if vel: fail('frequencytovelocity 5 unexpectedly did not fail')
@@ -1395,7 +1395,7 @@ def coordsystest():
             freq = mycs.velocitytofrequency(value=rv['numeric'][0],
                                             frequnit='Jy',
                                             doppler='radio', velunit='km/s')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             freq = False
         if freq: fail('velocitytofrequency 5 unexpectedly did not fail')
@@ -1406,7 +1406,7 @@ def coordsystest():
             vel = mycs.frequencytovelocity(value=rv['numeric'][0],
                                            frequnit='GHz',
                                            doppler='radio', velunit='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             vel = False
         if vel: fail('frequencytovelocity 6 unexpectedly did not fail')
@@ -1416,7 +1416,7 @@ def coordsystest():
             freq = mycs.velocitytofrequency(value=rv['numeric'][0],
                                             frequnit='GHz',
                                             doppler='radio', velunit='doggies')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception: '+str(e))
             freq = False
         if freq:
@@ -1431,7 +1431,7 @@ def coordsystest():
             vel = True
             vel = mycs.frequencytovelocity(value=[1.0], frequnit='Hz',
                                            doppler='radio', velunit='km/s')
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             vel = False
         if vel:
@@ -1538,7 +1538,7 @@ def coordsystest():
         try:
             note("Expect SEVERE error and Exception here")
             p2 = mycs.toabs(p)
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             p2 = False
         if p2: fail('toabs 1 unexpectedly did not fail')
@@ -1548,7 +1548,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             p3 = mycs.torel(p2)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             p3 = False
         if p3: fail('torel 1 unexpectedly did not fail')
@@ -1568,7 +1568,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             w3 = mycs.torel(w2)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             w3 = False
         if w3: fail('torel 2 unexpectedly did not fail')
@@ -2170,7 +2170,7 @@ def coordsystest():
         try:
             note("Expect SEVERE error and Exception here")
             ok = mycs.setspectral(refcode='lsrk')
-        except Exception, e:
+        except Exception as e:
             note("Caught expected Exception")
             ok = False
         if ok:
@@ -2228,7 +2228,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.settabular(pixel=[1,2], world=[1,2])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -2253,7 +2253,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.settabular(pixel=[0,1,2], world=[10,20])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('settabular test 2 unexpectedly did not fail')
@@ -2261,7 +2261,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.settabular(pixel=[0,1], world=[1,10,20])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('settabular test 3 unexpectedly did not fail')
@@ -2271,14 +2271,14 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.settabular(pixel=[0,1,2,3])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('settabular test 5 unexpectedly did not fail')
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.settabular(world=[0,1,2,3])
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok: fail('settabular test 6 unexpectedly did not fail')
@@ -2492,7 +2492,7 @@ def coordsystest():
         try:
             note('Expect SEVERE error and Exception here')
             ok = mycs.replace(cs2.torecord(), whichin=0, whichout=0)
-        except Exception, e:
+        except Exception as e:
             note('Caught expected Exception')
             ok = False
         if ok:
@@ -2541,8 +2541,8 @@ if Benchmarking:
 else:
     coordsystest()
 
-print ''
-print 'Regression PASSED'
-print ''
+print('')
+print('Regression PASSED')
+print('')
 
 #exit()

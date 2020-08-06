@@ -1,9 +1,9 @@
 import traceback
-print "starting:", TESTS_DIR+"/tests/equinox_vis.py"
+print("starting:", TESTS_DIR+"/tests/equinox_vis.py")
 try:
-    execfile(TESTS_DIR+"/tests/equinox_vis.py")
+    exec(compile(open(TESTS_DIR+"/tests/equinox_vis.py", "rb").read(), TESTS_DIR+"/tests/equinox_vis.py", 'exec'))
     run(True)
-except Exception, exc:
+except Exception as exc:
     traceback.print_exc()
     os._exit(1)
 

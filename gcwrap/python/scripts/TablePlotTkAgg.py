@@ -1,7 +1,7 @@
 import sys
 import os
 import pylab as pl
-import Tkinter as Tk
+import tkinter as Tk
 from matplotlib.backend_bases import cursors
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -240,7 +240,7 @@ class PlotFlag:
     def savefig(self, *args):
         import time;
         fname = 'plot-casapy-'+time.strftime('%Y-%m-%dT%H:%M:%S')+'.png';
-        print 'Saving figure as ', fname, ' in current working directory.'
+        print('Saving figure as ', fname, ' in current working directory.')
         self.canvas.figure.savefig(fname);
 
     def enable_iter_button(self):
@@ -410,7 +410,7 @@ class PlotFlag:
         self.newtoolbar = True;
         if self.quitted is False:
                 self.quit(closewin=True);
-                print " ";
+                print(" ");
                 #print "................................................................";
                 #print "............. Please IGNORE Tkinter error message. .............";
                 #print "................................................................";
@@ -1015,12 +1015,14 @@ class PlotFlag:
         sub=int(verstr[1])
         return (maj>0 or sub>=98)
 
-    def get_inverse_xy(self,trans,(x,y)):
+    def get_inverse_xy(self,trans, xxx_todo_changeme):
+        (x,y) = xxx_todo_changeme
         if hasattr(trans,"inverse_xy_tup"): return trans.inverse_xy_tup((x, y))
         elif hasattr(trans,"inverted"): return trans.inverted().transform((x, y))
         else: return None
 
-    def get_xy(self,trans,(x,y)):
+    def get_xy(self,trans, xxx_todo_changeme1):
+        (x,y) = xxx_todo_changeme1
         return self.switch_func(trans,["xy_tup","transform"],(x,y))
 
     def copy_trans(self,trans): 

@@ -133,7 +133,7 @@ good_rgn_file   =  'n4826_bima_test.rgn'
 
 def info(message):
     #note(message,origin='regionmgrtest')
-    print message
+    print(message)
     casalog.postLocally(message, priority="NORMAL", origin='regionmgrtest')
 
 
@@ -147,7 +147,7 @@ def info(message):
 ############################################################################
 
 def note(message, priority="NORMAL", origin="imval_test"):
-    print message
+    print(message)
     casalog.postLocally(message, priority, origin)
 
 
@@ -455,11 +455,11 @@ class imval_test(unittest.TestCase):
             fp=open( rgn_file, 'w' )
             fp.writelines('This file does NOT contain a valid CASA region specification\n')
             fp.close()
-        except Exception, err:
+        except Exception as err:
             retValue['success']=False
             retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: Unable to create bad region file.\n\t"
-            raise Exception, err
+            raise Exception(err)
     
             
     
@@ -529,7 +529,7 @@ class imval_test(unittest.TestCase):
         dir_trc=[]
         min_chan=max_chan=-1
         min_stokes=max_stokes=-1    
-        if ( len(bbox) > 0 and bbox.has_key('blc') and bbox.has_key('trc') ):
+        if ( len(bbox) > 0 and 'blc' in bbox and 'trc' in bbox ):
             blc=bbox['blc']
             trc=bbox['trc']
     
@@ -558,14 +558,14 @@ class imval_test(unittest.TestCase):
                      +"\nError: Failed to get the value in the bottom left"\
                      +" corner, "+tbox+"."
         else:
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key('data') and results.has_key('unit')\
-                 and results.has_key('mask') ):
+            if ( results!=None and 'blc' in results \
+                 and 'data' in results and 'unit' in results\
+                 and 'mask' in results ):
                 msg='Bottom left corner valus is, '+str(results['blc'])\
                      +', value is: '+str(results['data'])+str(results['unit'])\
                      +' with mask '+str(results['mask'])
-            if ( results==None or not results.has_key('data') \
-                 or not results.has_key('data') or \
+            if ( results==None or 'data' not in results \
+                 or 'data' not in results or \
                ( results['data']+1.035184e-09>error_margin or not results['mask']) ):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
@@ -587,14 +587,14 @@ class imval_test(unittest.TestCase):
                      +"\nError: Failed to get the value in the bottom right"\
                      +" corner. "+tbox+"."                
         else:
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key('data') and results.has_key('unit')\
-                 and results.has_key('mask') ):
+            if ( results!=None and 'blc' in results \
+                 and 'data' in results and 'unit' in results\
+                 and 'mask' in results ):
                 msg='Bottom right corner, '+str(results['blc'])+', value is: '\
                      +str(results['data'])+str(results['unit'])\
                      +' with mask '+str(results['mask'])
-            if ( results==None or not results.has_key('data') \
-                 or not results.has_key('data') or \
+            if ( results==None or 'data' not in results \
+                 or 'data' not in results or \
                 ( results['data']+1.172165e-09 > 0.00001 or not results['mask'])):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
@@ -617,14 +617,14 @@ class imval_test(unittest.TestCase):
                      +"\nError: Failed to get the value in the top left"\
                      +" corner, "+tbox+"."
         else:
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key('data') and results.has_key('unit')\
-                 and results.has_key('mask') ):
+            if ( results!=None and 'blc' in results \
+                 and 'data' in results and 'unit' in results\
+                 and 'mask' in results ):
                 msg='Top left corner, '+str(results['blc'])+', value is: '\
                      +str(results['data'])+str(results['unit'])\
                      +' with mask '+str(results['mask'])
-            if ( results==None or not results.has_key('data') \
-                 or not results.has_key('data') or \
+            if ( results==None or 'data' not in results \
+                 or 'data' not in results or \
                  ( results['data']+4.2731923e-09>error_margin or not results['mask'])):
                 retValue['success']=False
                 retValue['error_msgs'] = retValue['error_msgs'] + "\nError: Expected value of -4.273192e-09, and mask=True"  + "\n\t" + msg
@@ -644,14 +644,14 @@ class imval_test(unittest.TestCase):
                      +"\nError: Failed to get the value in the top right"\
                      +" corner. "+tbox+"."
         else:
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key('data') and results.has_key('unit')\
-                 and results.has_key('mask') ):
+            if ( results!=None and 'blc' in results \
+                 and 'data' in results and 'unit' in results\
+                 and 'mask' in results ):
                 msg='Top right corner, '+str(results['blc'])+', value is: '\
                      +str(results['data'])+str(results['unit'])\
                      +' with mask '+str(results['mask'])
-            if ( results==None or not results.has_key('data') \
-                 or not results.has_key('data') or \
+            if ( results==None or 'data' not in results \
+                 or 'data' not in results or \
                  (results['data']+3.647830e-09>error_margin or not results['mask'])):
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
@@ -674,13 +674,13 @@ class imval_test(unittest.TestCase):
                      +"\nError: Failed to get the value at the last channel "\
                      +" and last stokes, "+tbox+"."
         else:
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key('data') and results.has_key('unit')\
-                 and results.has_key('mask') ):
+            if ( results!=None and 'blc' in results \
+                 and 'data' in results and 'unit' in results\
+                 and 'mask' in results ):
                 msg='Value found at'+str(results['blc'])+' is: '\
                      +str(results['data'])+str(results['unit'])\
                      +'. with mask '+str(results['mask'])
-                if ( results==None or not results.has_key('data') or \
+                if ( results==None or 'data' not in results or \
                      ( results['data']-3.55266e-10 > error_margin ) ):
                     retValue['success']=False
                     retValue['error_msgs']=retValue['error_msgs']\
@@ -702,13 +702,13 @@ class imval_test(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: "+msg
             else:
-                if ( results!=None and results.has_key( 'blc') \
-                     and results.has_key('data') and results.has_key('unit')\
-                     and results.has_key('mask') ):
+                if ( results!=None and 'blc' in results \
+                     and 'data' in results and 'unit' in results\
+                     and 'mask' in results ):
                     msg='Value found at'+str(results['blc'])+' is: '\
                          +str(results['data'])+str(results['unit'])\
                          +'. with mask '+str(results['mask'])
-                if ( results==None or not results.has_key('data') or \
+                if ( results==None or 'data' not in results or \
                      ( results['data']-0.062294 > error_margin ) ):
                     retValue['success']=False
                     retValue['error_msgs']=retValue['error_msgs']\
@@ -729,14 +729,14 @@ class imval_test(unittest.TestCase):
                 retValue['error_msgs']=retValue['error_msgs']\
                      +"\nError: "+msg
             else:
-                if ( results!=None and results.has_key( 'blc') \
-                     and results.has_key('data') and results.has_key('unit')\
-                     and results.has_key('mask') ):
+                if ( results!=None and 'blc' in results \
+                     and 'data' in results and 'unit' in results\
+                     and 'mask' in results ):
                      msg='Value found at'+str(results['blc'])+' is: '\
                      +str(results['data'])+str(results['unit'])\
                      +'. with mask '+str(results['mask'])
     
-                if ( results==None or not results.has_key('data') or \
+                if ( results==None or 'data' not in results or \
                      ( results['data']+0.070744 > error_margin ) ):
                     retValue['success']=False
                     retValue['error_msgs']=retValue['error_msgs']\
@@ -784,7 +784,7 @@ class imval_test(unittest.TestCase):
         
         dir_blc=dir_trc=[]
         min_chan=max_chan=min_stokes=max_stokes=-2
-        if ( len(bbox) > 0 and bbox.has_key('blc') and bbox.has_key('trc') ):
+        if ( len(bbox) > 0 and 'blc' in bbox and 'trc' in bbox ):
             blc=bbox['blc']
             trc=bbox['trc']
             
@@ -837,7 +837,7 @@ class imval_test(unittest.TestCase):
             try:
                 results=imval( imagename=image_file, box=tbox, \
                                chans=chans[index], stokes=stokes[index] )
-            except Exception, e:
+            except Exception as e:
                 retValue['success']=False
                 retValue['error_msgs']=retValue['error_msgs']\
                                         +"\nError: Failed " + testnames[index]\
@@ -846,17 +846,17 @@ class imval_test(unittest.TestCase):
                 return retValue
                                         
             msg=''
-            if ( results!=None and results.has_key( 'blc') \
-                 and results.has_key( 'trc') ):
+            if ( results!=None and 'blc' in results \
+                 and 'trc' in results ):
                 msg='Data array bounded by: , '+str(results['blc'])\
                      +' and '+str(results['trc'])
                 
             data_array=[]
-            if ( results!=None and results.has_key( 'data') ):
+            if ( results!=None and 'data' in results ):
                 data_array=results['data']
     
             mask_array=[]
-            if ( results!=None and results.has_key( 'mask') ):
+            if ( results!=None and 'mask' in results ):
                 mask_array=results['mask']
     
             if ( len( mask_array ) < 1 or \

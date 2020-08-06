@@ -53,21 +53,21 @@ def importmiriad (
             # beginning of importmiriad implementation
             # -----------------------------------------
             mymf.fill(vis,mirfile,tsys,spw,vel,linecal,wide,debug)
-        except Exception, e:
-          print e;
+        except Exception as e:
+          print(e);
           casalog.post("Failed to import miriad file %s" % mirfile)
           raise
         # Write the args to HISTORY.
         try:
             mslocal = mstool()
             param_names = \
-                importmiriad.func_code.co_varnames[:importmiriad.func_code.co_argcount]
+                importmiriad.__code__.co_varnames[:importmiriad.__code__.co_argcount]
             param_vals = [eval(p) for p in param_names]
             write_history(
                 mslocal, vis, 'importmiriad', param_names, 
                 param_vals, casalog
             )
-        except Exception, instance:
+        except Exception as instance:
             casalog.post("Failed to updated HISTORY", 'WARN')
     except:
         pass

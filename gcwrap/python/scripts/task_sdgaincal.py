@@ -47,14 +47,14 @@ def parse_spwmap(spwmap, index):
     if len(spwmap) == 0:
         # empty list
         return DEFAULT_VALUE['spwmap']
-    elif all(map(lambda x: hasattr(x, '__iter__'), spwmap)):
+    elif all([hasattr(x, '__iter__') for x in spwmap]):
         # spwmap is list-of-list
         if index >= len(spwmap):
             # maybe wrong index
             return DEFAULT_VALUE['spwmap']
         else:
             return parse_spwmap_item(spwmap[index])
-    elif all(map(lambda x: isinstance(x, int), spwmap)):
+    elif all([isinstance(x, int) for x in spwmap]):
         # maybe single spwmap that is valid to all applytables
         return spwmap
     assert False
@@ -71,7 +71,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
     try:
         # outfile must be specified
         if (outfile == '') or not isinstance(outfile, str):
-            raise ValueError, "outfile is empty."
+            raise ValueError("outfile is empty.")
         
         # overwrite check
         if os.path.exists(outfile) and not overwrite:
@@ -82,7 +82,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
             #mycb.setvi(old=True)
             mycb.open(filename=infile, compress=False, addcorr=False, addmodel=False)
         else:
-            raise RuntimeError, 'infile not found - please verify the name'
+            raise RuntimeError('infile not found - please verify the name')
         
         # select data
         if isinstance(antenna, str) and len(antenna) > 0:
@@ -101,7 +101,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
                 mycb.setapply(table=applytable, interp=thisinterp, spwmap=thisspwmap)
         elif hasattr(applytable, '__iter__'):
             # list type 
-            for i in xrange(len(applytable)):
+            for i in range(len(applytable)):
                 table = applytable[i]
                 if isinstance(table, str) and len(table) > 0:
                     thisinterp = parse_interp(interp, i)
@@ -111,7 +111,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
                 else:
                     RuntimeError, 'wrong type of applytable item ({0}). it should be string'.format(type(table))
         else:
-            raise RuntimeError, 'wrong type of applytable ({0}). it should be string or list'.format(type(applytable))
+            raise RuntimeError('wrong type of applytable ({0}). it should be string or list'.format(type(applytable)))
         
         # set solve
         if calmode == 'doublecircle':
@@ -137,7 +137,7 @@ def sdgaincal(infile=None, calmode=None, radius=None, smooth=None,
         ## reporting calibration solution
         #reportsolvestats(mycb.activityrec());
 
-    except Exception, e:
+    except Exception as e:
         import traceback
         casalog.post(traceback.format_exc(), priority='DEBUG')
         casalog.post(errmsg(e), priority='SEVERE')

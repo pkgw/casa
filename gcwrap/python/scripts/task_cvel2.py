@@ -47,7 +47,7 @@ def cvel2(
     # Validate input and output parameters
     try:
         pdh.setupIO()
-    except Exception, instance:
+    except Exception as instance:
         casalog.post('%s'%instance,'ERROR')
         return False
 
@@ -59,14 +59,14 @@ def cvel2(
         # Work the heuristics of combinespws=True and the separationaxis of the input             
         retval = pdh.validateInputParams()
         if not retval['status']:
-            raise Exception, 'Unable to continue with MMS processing'
+            raise Exception('Unable to continue with MMS processing')
                         
         pdh.setupCluster('cvel2')
 
         # Execute the jobs
         try:
             status = pdh.go()
-        except Exception, instance:
+        except Exception as instance:
             casalog.post('%s'%instance,'ERROR')
             return status
                            
@@ -135,7 +135,7 @@ def cvel2(
             
         mtlocal.done()
 
-    except Exception, instance:
+    except Exception as instance:
         mtlocal.done()
         casalog.post('%s'%instance,'ERROR')
         return False
@@ -143,11 +143,11 @@ def cvel2(
     # Write history to output MS, not the input ms.
     try:
         mslocal = mstool()
-        param_names = cvel2.func_code.co_varnames[:cvel2.func_code.co_argcount]
+        param_names = cvel2.__code__.co_varnames[:cvel2.__code__.co_argcount]
         param_vals = [eval(p) for p in param_names]
         write_history(mslocal, outputvis, 'cvel2', param_names,
                       param_vals, casalog)
-    except Exception, instance:
+    except Exception as instance:
         casalog.post("*** Error \'%s\' updating HISTORY" % (instance),
                      'WARN')
         return False
