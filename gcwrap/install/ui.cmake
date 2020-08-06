@@ -112,12 +112,12 @@ macro( casa_add_tasks module _target )
 
   install( 
     FILES ${_xmls}
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/xml
+    DESTINATION share/casa-python/xml
     )
 
   install( 
     PROGRAMS ${_out_py}
-    DESTINATION lib/python${PYTHONV} 
+    DESTINATION ${PYTHON_TASKD}
     )
 
   # Create tasksinfo.py
@@ -160,7 +160,7 @@ macro( casa_add_tasks module _target )
   add_dependencies( ${module}_fast tasks_fast )
 
   install(
-    PROGRAMS ${_tasks} ${_tasksinfo} DESTINATION lib/python${PYTHONV}
+    PROGRAMS ${_tasks} ${_tasksinfo} DESTINATION ${PYTHON_TASKD}
     )
 endmacro()
 
@@ -264,13 +264,9 @@ macro( casa_add_tools out_swig out_sources out_py )
         SET_SOURCE_FILES_PROPERTIES(${_swigi} PROPERTIES SWIG_FLAGS "-I${CMAKE_SOURCE_DIR};-threads")
     ENDIF()
     #SWIG_ADD_MODULE(${_base} python ${_swig} ${_path}/${_base}_cmpt.cc)
-    if (${CMAKE_VERSION} VERSION_LESS "3.8.0")
-       SWIG_ADD_MODULE(${_base} python ${_swigi} ${_swigstatics})
-    else()
-       SWIG_ADD_LIBRARY(${_base} LANGUAGE python SOURCES ${_swigi} ${_swigstatics})
-    endif()
+    SWIG_ADD_LIBRARY(${_base} LANGUAGE python TYPE MODULE OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR} SOURCES ${_swigi} ${_swigstatics})
     SWIG_LINK_LIBRARIES( ${_base} ${CASACODE_LIBRARIES} ${INTEL_LIBS}
-	                          ${PYTHON_LIBRARIES}
+	                          ${PYMOD_LIBRARIES}
 				  ${ATM_LIBRARIES}
 				  ${CMAKE_CURRENT_BINARY_DIR}/libtools${CMAKE_SHARED_LIBRARY_SUFFIX}
 				  ${QT4_LIBRARIES}
@@ -319,8 +315,8 @@ macro( casa_add_tools out_swig out_sources out_py )
 
   set(${out_sources} ${${out_sources}} ${_initpy} )
   set(${out_sources} ${${out_sources}} ${_casacpy} )
-  install(FILES ${_initpy} DESTINATION  lib/python${PYTHONV}/__casac__ )
-  install(FILES ${_casacpy} DESTINATION lib/python${PYTHONV} )
+  install(FILES ${_initpy} DESTINATION  ${PYTHON_LIBD}/__casac__ )
+  install(FILES ${_casacpy} DESTINATION ${PYTHON_LIBD} )
   
 endmacro( casa_add_tools )
 

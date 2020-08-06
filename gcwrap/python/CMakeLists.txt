@@ -19,7 +19,7 @@
 #
 
 #casa_add_executable(tableplot projtable  apps/projtable/projtable.cc)
-casa_add_python( python  casa_python lib/python${PYTHONV}
+casa_add_python( python  casa_python ${PYTHON_TASKD}
 scripts/tf.py
 scripts/assignmentFilter.py
 scripts/callibrary.py

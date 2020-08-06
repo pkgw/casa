@@ -21,6 +21,9 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+cmake_policy(SET CMP0056 NEW)
+cmake_policy(SET CMP0066 NEW)
+
 # ccache use is optional
 option( UseCcache OFF )
 
@@ -335,9 +338,9 @@ if( APPLE )
     if( CMAKE_SYSTEM MATCHES ^Darwin-9 )
         set( casa_packages /opt/casa/core2-apple-darwin8/3rd-party )
         if( DEFINED ENV{LDFLAGS} )
-            set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error $ENV{LDFLAGS}" )
+            set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error $ENV{LDFLAGS}" )
         else( )
-            set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error" )
+            set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
         endif( )
         if( NOT arch )
         	set( arch darwin )
@@ -409,15 +412,15 @@ if( APPLE )
 			NOT LLVMCOMPILER )
 	        set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" )
                 if( DEFINED ENV{LDFLAGS} )
-                    set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran $ENV{LDFLAGS}")
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran $ENV{LDFLAGS}")
                 else( )
-                    set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran")
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran")
                 endif( )
 	    else()
                 if( DEFINED ENV{LDFLAGS} )
-                    set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit $ENV{LDFLAGS}"  )
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit $ENV{LDFLAGS}"  )
                 else( )
-                    set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit"  )
+                    set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit"  )
                 endif( )
         endif()
         # Which part of CASA needs -framework AppKit to run? This should probably *not* be added
@@ -457,9 +460,9 @@ if( APPLE )
 elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
 
     if( DEFINED ENV{LDFLAGS} )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
     else( )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
     endif( )
 
     if( CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 )
@@ -521,15 +524,14 @@ else()
     message( WARNING "Unsupported system: ${CMAKE_SYSTEM_NAME}" )
 endif()
 
+if(CASA_PACKAGES)
+  set( casa_packages "${CASA_PACKAGES}" )
+endif()
+
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
-if( NOT CMAKE_CXX_FLAGS )
-  set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
-endif()
-
-if( NOT CMAKE_C_FLAGS )
-  set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
-endif()
+set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
+set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -542,18 +544,7 @@ dump( casaroot )
 dump( CMAKE_INSTALL_PREFIX )
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
-    set( epochdelta 1385614800 )
-    if ( EXISTS ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^\#/ ) }" ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    elseif( EXISTS ${CMAKE_INSTALL_PREFIX}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^#/ ) }" ${CMAKE_INSTALL_PREFIX}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    else( )
-        execute_process( COMMAND perl -e "$t=time( )-${epochdelta};$z=$t & 0xff; $y=($t>>8)&0xff; $x=($t>>16)&0xffff; print \"$x.$y.$z\""
-                         OUTPUT_VARIABLE __casa_soversion )
-    endif( )
-    set(casa_soversion ${__casa_soversion} CACHE STRING "version for shared objects")
+    set(casa_soversion "56.0.0" CACHE STRING "version for shared objects")
     message( STATUS "Shared object version number ${casa_soversion}" )
 else( )
     message( STATUS "User disabled shared library versioning" )
@@ -712,12 +703,12 @@ if( NOT SKIP_PGPLOT )
     set( _deps X11 FORTRAN )
   endif()
   if (CMAKE_SYSTEM MATCHES ^Darwin-11 AND NOT LLVMCOMPILER )
-     set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran" )
+     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit -lgfortran" )
   else()
      if (APPLE)
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -framework AppKit" )
      else()
-        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}" )
      endif()
   endif()
   casa_find( PGPLOT
@@ -979,7 +970,8 @@ if( NOT PYTHON_LIBNAME )
   message( FATAL_ERROR "The variable PYTHON_LIBNAME is undefined. Most likely, CMake's cache is out of date and you need to redetect your PYTHON installation (\"cmake -U PYTHON*\")")
 endif()
 
-string( SUBSTRING ${PYTHON_LIBNAME} 0 3 PYTHONV )
+# PYTHON_LIBNAME might be "3.6m" ; PYTHONV might be "3.6"; PV might be "36"
+string( REGEX REPLACE "m$" "" PYTHONV "${PYTHON_LIBNAME}" )
 string( REPLACE "." "" PV ${PYTHONV} )
 set( python_library python${PYTHON_LIBNAME} )
 
@@ -1022,7 +1014,7 @@ casa_find( PYTHON
   VERSION 2.5    # minimum required
   INCLUDES Python.h
      numpy/npy_interrupt.h   # for numpy
-  INCLUDES_SUFFIXES python${PYTHONV}
+  INCLUDES_SUFFIXES python${PYTHON_LIBNAME}
   PREFIX_HINTS
      ${NUMPY_ROOT_DIR}
      ${python_prefix}/lib/python${PYTHONV}/site-packages/numpy/core
@@ -1274,7 +1266,7 @@ casa_find( RPFITS
 casa_find( READLINE
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
-  LIBS readline ncurses
+  LIBS readline ncursesw
   PREFIX_HINTS ${READLINE_ROOT_DIR}
   CPP_VERSION "RL_VERSION_MAJOR << '.' << RL_VERSION_MINOR"
   RUN_VERSION rl_library_version
@@ -1287,8 +1279,11 @@ casa_config_end()
 #
 # The following variables are substitued into python scripts
 #
-set( PYTHON_LIBD ${CMAKE_INSTALL_PREFIX}/python/${PYTHONV} )
-set( PYTHON_TASKD ${PYTHON_LIBD} )
+# XXX: we are injecting the assumption that the `python` in $PATH is
+# the one we want.
+execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())" OUTPUT_VARIABLE PYTHON_LIBD)
+STRING(STRIP "${PYTHON_LIBD}" PYTHON_LIBD)
+set( PYTHON_TASKD share/casa-python/tasks )
 #
 # allow user to override contents of casadef.py (needed for linux rpms)
 #
@@ -1303,10 +1298,26 @@ else()
     set( PYTHON_TASKD_CASADEF ${PYTHONTASKD} )
 endif()
 
+# For Python modules, which might reference headers and symbols from the
+# Python C API but on macOS *must not* link to libpython. Instead, you must
+# use a special flag to make the linker not error out on the missing symbols.
+# Here we have just copied that flag, and other potentially-magical ones, from
+# what's currently used on macOS, which is ... not awesome. I can never figure
+# out how to determine the correct toolchain flags for Python modules
+# on-the-fly.
+
+if (CMAKE_SYSTEM MATCHES ^Darwin)
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES "-undefined dynamic_lookup -Wl,-dead_strip_dylibs -flto -Wl,-export_dynamic")
+else()
+  set(PYMOD_INCLUDE_DIRS ${PYTHON_INCLUDE_DIRS})
+  set(PYMOD_LIBRARIES ${PYTHON_LIBRARIES})
+endif()
+
 # The modules must be defined in dependency order!
 # This will set up include paths, and which libraries to link to
 
-casa_add_module( tools CASACORE PYTHON QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
+casa_add_module( tools CASACORE PYMOD QT4 DBUS READLINE DL XERCES LIBSAKURA CASACODE )
 
 #
 # ASAP's build depends on something called a makedefs file. Fake one of those.
@@ -1397,6 +1408,6 @@ install( FILES
          install/casa2tlatex.xsl
          install/casa2tsum.xsl
          install/casatlist.xsl
-         DESTINATION ${CMAKE_INSTALL_PREFIX}/xml )
+         DESTINATION share/casa-python/xml )
 
 install( FILES install/saxon8.jar DESTINATION lib )

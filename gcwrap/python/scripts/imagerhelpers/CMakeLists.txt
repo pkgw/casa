@@ -24,7 +24,7 @@
 
 
 
-casa_add_python( tools tools_imagerhelpers lib/python${PYTHONV}/imagerhelpers
+casa_add_python( tools tools_imagerhelpers ${PYTHON_LIBD}/imagerhelpers
   fixedDict.py 
   imager_base.py	
   imager_parallel_cube.py

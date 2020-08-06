@@ -24,7 +24,7 @@
 
 
 
-casa_add_python( tools tools_parallel_python lib/python${PYTHONV}/parallel
+casa_add_python( tools tools_parallel_python ${PYTHON_LIBD}/parallel
   parallel_data_helper.py
   parallel_task_helper.py
   rflag_post_proc.py

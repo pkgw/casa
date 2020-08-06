@@ -20,6 +20,9 @@
 
 cmake_minimum_required( VERSION 2.8 )
 
+cmake_policy(SET CMP0056 NEW)
+cmake_policy(SET CMP0066 NEW)
+
 # ccache use is optional
 option( UseCcache OFF )
 
@@ -73,7 +76,7 @@ include( CASA )
 set( CASA_VERSION_MAJOR   5   )
 set( CASA_VERSION_MINOR   6   )
 set( CASA_VERSION_PATCH   3   )
-set( CASA_VERSION_FEATURE 0 CACHE STRING "feature version" )
+set( CASA_VERSION_FEATURE 1 )
 set( CASA_VERSION_DESC    "" )
 # CASA/ALMA/VLA etc...
 set( CASA_VARIANT  "PIPELINE" )
@@ -373,9 +376,9 @@ if( APPLE )
     if( CMAKE_SYSTEM MATCHES ^Darwin-9 )
         set( casa_packages /opt/casa/core2-apple-darwin8/3rd-party )
         if( DEFINED ENV{LDFLAGS} )
-            set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error $ENV{LDFLAGS}" )
+            set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error $ENV{LDFLAGS}" )
         else( )
-            set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error" )
+            set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
         endif( )
         if( NOT arch )
             set( arch darwin )
@@ -443,15 +446,15 @@ if( APPLE )
         if( NOT _gfortran_version STREQUAL "4.4" AND NOT _gfortran_version STREQUAL "4.2" AND NOT LLVMCOMPILER )
             set( CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS}" )
             if( DEFINED ENV{LDFLAGS} )
-                set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran $ENV{LDFLAGS}")
+                set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran $ENV{LDFLAGS}")
             else( )
-                set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran")
+                set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran")
             endif( )
         else()
             if( DEFINED ENV{LDFLAGS} )
-                set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit $ENV{LDFLAGS}"  )
+                set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit $ENV{LDFLAGS}"  )
             else( )
-                set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit"  )
+                set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit"  )
             endif( )
         endif()
         # Which part of CASA needs -framework AppKit to run? This should probably *not* be added
@@ -495,9 +498,9 @@ if( APPLE )
 elseif( CMAKE_SYSTEM_NAME STREQUAL Linux )
 
     if( DEFINED ENV{LDFLAGS} )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined $ENV{LDFLAGS} -Wl,-rpath,${INTEL_LIB_PATH}")
     else( )
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined -Wl,-rpath,${INTEL_LIB_PATH}")
     endif( )
 
     if( CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64 )
@@ -562,13 +565,8 @@ endif()
 
 set( CMAKE_MODULE_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS} )
 
-if( NOT CMAKE_CXX_FLAGS )
-  set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
-endif()
-
-if( NOT CMAKE_C_FLAGS )
-  set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
-endif()
+set( CMAKE_CXX_FLAGS "${DEFAULT_CXX_FLAGS} ${EXTRA_CXX_FLAGS}" )
+set( CMAKE_C_FLAGS "${DEFAULT_C_FLAGS} ${EXTRA_C_FLAGS}" )
 
 if( NOT RE_CMAKE )
     if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -582,18 +580,7 @@ dump( CMAKE_INSTALL_PREFIX )
 
 SET(NO_SOVERSION FALSE CACHE BOOL "do not add version information to shared libraries")
 if( NOT NO_SOVERSION )
-    set( epochdelta 1385614800 )
-    if ( EXISTS ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^\#/ ) }" ${CMAKE_INSTALL_PREFIX}/${arch}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    elseif( EXISTS ${CMAKE_INSTALL_PREFIX}/casa_sover.txt )
-        execute_process( COMMAND perl -e "while (<>) { chomp and print if (! m/^#/ ) }" ${CMAKE_INSTALL_PREFIX}/casa_sover.txt
-                         OUTPUT_VARIABLE __casa_soversion )
-    else( )
-        execute_process( COMMAND perl -e "$t=time( )-${epochdelta};$z=$t & 0xff; $y=($t>>8)&0xff; $x=($t>>16)&0xffff; print \"$x.$y.$z\""
-                         OUTPUT_VARIABLE __casa_soversion )
-    endif( )
-    set(casa_soversion ${__casa_soversion} CACHE STRING "version for shared objects")
+    set(casa_soversion "56.0.0" CACHE STRING "version for shared objects")
     message( STATUS "Shared object version number ${casa_soversion}" )
 else( )
     message( STATUS "User disabled shared library versioning" )
@@ -818,33 +805,12 @@ message ( STATUS "BOOST_ROOT=${BOOST_ROOT} (second)" )
 message ( STATUS "casa_packages=${casa_packages} (second)" )
 
 set( boost_components regex program_options filesystem thread serialization system)
-find_package( Boost REQUIRED ${boost_components} )
+find_package( Boost 1.41 REQUIRED COMPONENTS ${boost_components} )
 
 message( STATUS "Boost_INCLUDE_DIRS=${Boost_INCLUDE_DIRS}; Boost_LIBRARIES=${Boost_LIBRARIES}")
 
 if( NOT Boost_FOUND )
   message( FATAL_ERROR "Boost could not be found. Please check!" )
-endif()
-
-# For boost >= 1.35, we need to link also to boost-system
-if( Boost_VERSION GREATER 103499 )
-
-  # Force redetection by resetting these variables
-  if( NOT Boost_SYSTEM_FOUND )
-    message( STATUS "Boost version (${Boost_VERSION}) is 1.35.0 or newer" )
-    unset( Boost_FOUND )
-    unset( Boost_INCLUDE_DIR CACHE )
-  endif()
-  set( boost_components regex program_options filesystem system thread )
-  find_package( Boost REQUIRED ${boost_components} )
-
-  if( NOT Boost_FOUND )
-    message( FATAL_ERROR "Boost-system could not be found. Please check!" )
-  endif()
-endif()
-
-if( NOT Boost_VERSION GREATER 104099 AND NOT CASA_IGNORE_VERSION )
-  message( FATAL_ERROR "Boost version (${Boost_VERSION}) is too old! Must be 104100 (1.41.0) or newer. Please check!" )
 endif()
 
 #
@@ -944,10 +910,10 @@ if( NOT SKIP_PGPLOT )
     set( _deps X11 FORTRAN )
   endif()
   if (CMAKE_SYSTEM MATCHES ^Darwin-11 AND NOT LLVMCOMPILER )
-     set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit -lgfortran" )
+     set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit -lgfortran" )
   else()
      if (APPLE)
-        set( CMAKE_SHARED_LINKER_FLAGS "-Wl,-undefined -Wl,error -framework AppKit" )
+        set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error -framework AppKit" )
      else()
         set( CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,error" )
      endif()
@@ -1063,7 +1029,7 @@ casa_find( CASACORE
            INCLUDES casa/aips.h
                     casa/version.h
            INCLUDES_SUFFIXES casacore
-           LIBS ${casacore_libs}
+           LIBS ${casacore_libs} pthread
            PREFIX_HINTS ${casacore_prefix}
            CPP_VERSION CASACORE_VERSION
            RUN_VERSION "casacore::getVersionCASA()"
@@ -1121,12 +1087,6 @@ if(CMAKE_SYSTEM_NAME STREQUAL Linux AND GSL_LIBRARIES)
         set( GSL_LIBRARIES "${GSL_LIBRARIES};/usr/lib64/atlas/libsatlas.so" )
     endif( )
 endif( )
-
-# Java
-casa_find( Java
-  VERSION 1.5
-  PROGRAMS java
-  PROG_VERSION "-version")
 
 if ( ${dbusxx} STREQUAL dbus-c++ )
   # C++ DBus
@@ -1347,7 +1307,7 @@ casa_find( RPFITS
 casa_find( READLINE
   VERSION 4.3
   INCLUDES readline/readline.h #depends on <cstdio> to compile
-  LIBS readline ncurses
+  LIBS readline ncursesw
   PREFIX_HINTS ${READLINE_ROOT_DIR}
   CPP_VERSION "RL_VERSION_MAJOR << '.' << RL_VERSION_MINOR"
   RUN_VERSION rl_library_version

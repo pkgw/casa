@@ -38,27 +38,9 @@ add_custom_command( OUTPUT definitions
 #Resources/python
 add_custom_target(
     tools_python_casadef
-    COMMAND echo "import os" > casadef.py
-    COMMAND echo "task_directory = None" >> casadef.py
-    COMMAND echo "\\#\\# CASAPATH is the primary environment variable" >> casadef.py
-    COMMAND echo "if os.environ.has_key\\\(\\'CASAPATH\\'\\\):" >> casadef.py
-    COMMAND echo "    __casapath__ = os.environ[\\'CASAPATH\\'].split\\\(\\' \\'\\\)[0]" >> casadef.py
-    COMMAND echo "    __casaarch__ = os.environ[\\'CASAPATH\\'].split\\\(\\' \\'\\\)[1]" >> casadef.py
-    COMMAND echo "    if os.path.exists\\\(__casapath__ + \\'/lib/python2.7/casapy.py\\'\\\):" >> casadef.py
-    COMMAND echo "        task_directory = __casapath__ + \\'/lib/python2.7\\'" >> casadef.py
-    COMMAND echo "        python_library_directory = task_directory" >> casadef.py
-    COMMAND echo "    elif os.path.exists\\\(__casapath__ + \\'/Resources/python/casapy.py\\'\\\):" >> casadef.py
-    COMMAND echo "        task_directory = __casapath__ + \\'/Resources/python\\'" >> casadef.py
-    COMMAND echo "        python_library_directory = task_directory" >> casadef.py
-    COMMAND echo "    elif os.path.exists\\\(__casapath__ + \\'/\\' + __casaarch__ + \\'/python2.7/casapy.py\\'\\\):" >> casadef.py
-    COMMAND echo "        task_directory = __casapath__ + \\'/\\' + __casaarch__ + \\'/python2.7\\'" >> casadef.py
-    COMMAND echo "        python_library_directory = task_directory" >> casadef.py
-    COMMAND echo "\\#\\# if CASAPATH does not yeild any result, check secondary variables..." >> casadef.py
-    COMMAND echo "if task_directory is None:" >> casadef.py
-    COMMAND echo "    if os.environ.has_key\\\(\\'__CASAPY_TASKDIR\\'\\\):" >> casadef.py
-    COMMAND echo "        task_directory = os.environ[\\'__CASAPY_TASKDIR\\']" >> casadef.py
-    COMMAND echo "    if os.environ.has_key\\\(\\'__CASAPY_PYTHONDIR\\'\\\):" >> casadef.py
-    COMMAND echo "        python_library_directory = os.environ[\\'__CASAPY_PYTHONDIR\\']" >> casadef.py
+    COMMAND echo "import os, site" > casadef.py
+    COMMAND echo "task_directory = os.environ.get\\\(\\'__CASAPY_TASKDIR\\',\\'${CMAKE_INSTALL_PREFIX}/share/casa-python/tasks\\'\\\)" >> casadef.py
+    COMMAND echo "python_library_directory = os.environ.get\\\(\\'__CASAPY_PYTHONDIR\\',site.getsitepackages\\\(\\\)[0]\\\)" >> casadef.py
     COMMAND echo "casa_version = \\\"${CASA_MAJOR_VERSION}.${CASA_MINOR_VERSION}.${CASA_PATCH_VERSION}\\\"" >> casadef.py
     COMMAND echo "if os.environ.get\\\(\\'CASAVERSION\\'\\\) is not None:" >> casadef.py
     COMMAND echo "    casa_version = os.environ.get\\\(\\'CASAVERSION\\'\\\)" >> casadef.py
@@ -70,7 +52,7 @@ add_dependencies( tools_python_casadef tools_definitions )
 
 add_dependencies( inst tools_python_casadef )
 add_dependencies( tools_fast tools_python_casadef )
-install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/casadef.py DESTINATION lib/python${PYTHONV} )
+install( PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/casadef.py DESTINATION ${PYTHON_LIBD} )
 
 if( MPI_CXX_FOUND )
   set( tools_DEFINITIONS ${tools_DEFINITIONS}
@@ -227,7 +209,7 @@ foreach(_tool ${tools_swig} )
    add_dependencies( _${_base} libtools)
    add_dependencies( inst  _${_base} )
    install( TARGETS _${_base}
-	            DESTINATION lib/python${PYTHONV}/__casac__ )
+	            DESTINATION ${PYTHON_LIBD}/__casac__ )
 endforeach()
 
 add_dependencies( inst  libtools generated_sources generated_py )
@@ -237,5 +219,5 @@ add_dependencies( libtools_fast  generated_sources )
 foreach(_tool ${tools_py} )
    get_filename_component( _base ${_tool} NAME_WE )
    install( FILES ${CMAKE_CURRENT_BINARY_DIR}/${_base}.py
-	               DESTINATION lib/python${PYTHONV}/__casac__ )
+	               DESTINATION ${PYTHON_LIBD}/__casac__ )
 endforeach()
