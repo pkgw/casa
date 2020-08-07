@@ -1034,7 +1034,7 @@ ROVisibilityIterator::moreChunks () const
     return readImpl_p->moreChunks ();
 }
 
-const ROMSColumns &
+const MSColumns &
 ROVisibilityIterator::msColumns () const
 {
     CheckImplementationPointerR ();

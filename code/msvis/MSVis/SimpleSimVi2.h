@@ -330,7 +330,7 @@ public:
   //  Not meaningful for non-I/O
   virtual void slurp () const override { SSVi2NotPossible() };
 
-  // Access the current casacore::ROMSColumns object in MSIter -- NOT POSSIBLE
+  // Access the current casacore::MSColumns object in MSIter -- NOT POSSIBLE
   virtual const vi::SubtableColumns & subtableColumns () const override { SSVi2NotPossible() };
 
 
@@ -371,55 +371,55 @@ public:
   //**********************************************************************
 
   // Access to antenna subtable
-  const casacore::ROMSAntennaColumns& antennaSubtablecols() const override;
+  const casacore::MSAntennaColumns& antennaSubtablecols() const override;
 
   // Access to dataDescription subtable
-  const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const override;
+  const casacore::MSDataDescColumns& dataDescriptionSubtablecols() const override;
 
   // Access to feed subtable
-  const casacore::ROMSFeedColumns& feedSubtablecols() const override;
+  const casacore::MSFeedColumns& feedSubtablecols() const override;
 
   // Access to field subtable
-  const casacore::ROMSFieldColumns& fieldSubtablecols() const override;
+  const casacore::MSFieldColumns& fieldSubtablecols() const override;
 
   // Access to flagCmd subtable
-  const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const override;
+  const casacore::MSFlagCmdColumns& flagCmdSubtablecols() const override;
 
   // Access to history subtable
-  const casacore::ROMSHistoryColumns& historySubtablecols() const override;
+  const casacore::MSHistoryColumns& historySubtablecols() const override;
 
   // Access to observation subtable
-  const casacore::ROMSObservationColumns& observationSubtablecols() const override;
+  const casacore::MSObservationColumns& observationSubtablecols() const override;
 
   // Access to pointing subtable
-  const casacore::ROMSPointingColumns& pointingSubtablecols() const override;
+  const casacore::MSPointingColumns& pointingSubtablecols() const override;
 
   // Access to polarization subtable
-  const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const override;
+  const casacore::MSPolarizationColumns& polarizationSubtablecols() const override;
 
   // Access to processor subtable
-  const casacore::ROMSProcessorColumns& processorSubtablecols() const override;
+  const casacore::MSProcessorColumns& processorSubtablecols() const override;
 
   // Access to spectralWindow subtable
-  const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const override;
+  const casacore::MSSpWindowColumns& spectralWindowSubtablecols() const override;
 
   // Access to state subtable
-  const casacore::ROMSStateColumns& stateSubtablecols() const override;
+  const casacore::MSStateColumns& stateSubtablecols() const override;
 
   // Access to doppler subtable
-  const casacore::ROMSDopplerColumns& dopplerSubtablecols() const override;
+  const casacore::MSDopplerColumns& dopplerSubtablecols() const override;
 
   // Access to freqOffset subtable
-  const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const override;
+  const casacore::MSFreqOffsetColumns& freqOffsetSubtablecols() const override;
 
   // Access to source subtable
-  const casacore::ROMSSourceColumns& sourceSubtablecols() const override;
+  const casacore::MSSourceColumns& sourceSubtablecols() const override;
 
   // Access to sysCal subtable
-  const casacore::ROMSSysCalColumns& sysCalSubtablecols() const override;
+  const casacore::MSSysCalColumns& sysCalSubtablecols() const override;
 
   // Access to weather subtable
-  const casacore::ROMSWeatherColumns& weatherSubtablecols() const override;
+  const casacore::MSWeatherColumns& weatherSubtablecols() const override;
 
 private:
 

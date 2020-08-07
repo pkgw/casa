@@ -175,7 +175,7 @@ public:
     casacore::Vector<casacore::Double>& lsrFrequency(casacore::Vector<casacore::Double>& ) const { NotImplementedROVIA; }
     void lsrFrequency(const casacore::Int& , casacore::Vector<casacore::Double>& , casacore::Bool& ) { NotImplementedROVIA; }
     const casacore::MeasurementSet& ms() const  { NotImplementedROVIA; }
-    const casacore::ROMSColumns& msColumns() const;
+    const casacore::MSColumns& msColumns() const;
     casacore::Int msId() const;
     casacore::Int nCorr() const { NotPrefetched; }
     casacore::Int nRow() const { NotPrefetched; }

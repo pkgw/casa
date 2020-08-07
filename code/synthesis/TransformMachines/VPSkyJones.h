@@ -93,13 +93,13 @@ class VPSkyJones : public BeamSkyJones {
 public:
 
   // constructor from a VP Table
-  VPSkyJones(const casacore::ROMSColumns& msc, casacore::Table& table,
+  VPSkyJones(const casacore::MSColumns& msc, casacore::Table& table,
 	     const casacore::Quantity &parAngleInc,
 	     BeamSquint::SquintType doSquint,
 	     const casacore::Quantity &skyPositionThreshold = casacore::Quantity(180.,"deg"));
 
   // constructor for default PB type associated with MS
-  VPSkyJones(const casacore::ROMSColumns& msc, 
+  VPSkyJones(const casacore::MSColumns& msc, 
 	     casacore::Bool makeDefaultPBsFromMS = true,
 	     const casacore::Quantity &parallacticAngleIncrement = casacore::Quantity(720.0, "deg"),
 	     BeamSquint::SquintType doSquint = BeamSquint::NONE,

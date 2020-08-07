@@ -433,8 +433,8 @@ public:
     // Remove scratch cols data from vb
     void removeScratchCols();
 
-    // Access the current casacore::ROMSColumns object via VisIter
-    virtual const casacore::ROMSColumns & msColumns() const;
+    // Access the current casacore::MSColumns object via VisIter
+    virtual const casacore::MSColumns & msColumns() const;
 
     virtual  casacore::Int numberAnt () const;
 

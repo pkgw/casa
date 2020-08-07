@@ -56,23 +56,44 @@ class Slice;
 class String;
 template <typename T, Int n> class SquareMatrix;
 template <typename T> class Vector;
-class ROMSAntennaColumns;
-class ROMSDataDescColumns;
-class ROMSFeedColumns;
-class ROMSFieldColumns;
-class ROMSFlagCmdColumns;
-class ROMSHistoryColumns;
-class ROMSObservationColumns;
-class ROMSPointingColumns;
-class ROMSPolarizationColumns;
-class ROMSProcessorColumns;
-class ROMSSpWindowColumns;
-class ROMSStateColumns;
-class ROMSDopplerColumns;
-class ROMSFreqOffsetColumns;
-class ROMSSourceColumns;
-class ROMSSysCalColumns;
-class ROMSWeatherColumns;
+class MSAntennaColumns;
+class MSDataDescColumns;
+class MSFeedColumns;
+class MSFieldColumns;
+class MSFlagCmdColumns;
+class MSHistoryColumns;
+class MSObservationColumns;
+class MSPointingColumns;
+class MSPolarizationColumns;
+class MSProcessorColumns;
+class MSSpWindowColumns;
+class MSStateColumns;
+class MSDopplerColumns;
+class MSFreqOffsetColumns;
+class MSSourceColumns;
+class MSSysCalColumns;
+class MSWeatherColumns;
+
+typedef MSAntennaColumns ROMSAntennaColumns;
+typedef MSDataDescColumns ROMSDataDescColumns;
+typedef MSFeedColumns ROMSFeedColumns;
+typedef MSFieldColumns ROMSFieldColumns;
+typedef MSFlagCmdColumns ROMSFlagCmdColumns;
+typedef MSHistoryColumns ROMSHistoryColumns;
+typedef MSObservationColumns ROMSObservationColumns;
+typedef MSPointingColumns ROMSPointingColumns;
+typedef MSPolarizationColumns ROMSPolarizationColumns;
+typedef MSProcessorColumns ROMSProcessorColumns;
+typedef MSSpWindowColumns ROMSSpWindowColumns;
+typedef MSStateColumns ROMSStateColumns;
+typedef MSDopplerColumns ROMSDopplerColumns;
+typedef MSFreqOffsetColumns ROMSFreqOffsetColumns;
+typedef MSSourceColumns ROMSSourceColumns;
+typedef MSSysCalColumns ROMSSysCalColumns;
+typedef MSWeatherColumns ROMSWeatherColumns;
+
+class MSColumns;
+typedef MSColumns ROMSColumns;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -534,7 +555,7 @@ public:
 
     virtual void slurp () const = 0;
 
-    // Access the current casacore::ROMSColumns object in MSIter
+    // Access the current casacore::MSColumns object in MSIter
 
     virtual const vi::SubtableColumns & subtableColumns () const = 0;
 
@@ -636,55 +657,55 @@ public:
     //**********************************************************************
 
     // Access to antenna subtable
-    virtual const casacore::ROMSAntennaColumns& antennaSubtablecols() const = 0;
+    virtual const casacore::MSAntennaColumns& antennaSubtablecols() const = 0;
 
     // Access to dataDescription subtable
-    virtual const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const = 0;
+    virtual const casacore::MSDataDescColumns& dataDescriptionSubtablecols() const = 0;
 
     // Access to feed subtable
-    virtual const casacore::ROMSFeedColumns& feedSubtablecols() const = 0;
+    virtual const casacore::MSFeedColumns& feedSubtablecols() const = 0;
 
     // Access to field subtable
-    virtual const casacore::ROMSFieldColumns& fieldSubtablecols() const = 0;
+    virtual const casacore::MSFieldColumns& fieldSubtablecols() const = 0;
 
     // Access to flagCmd subtable
-    virtual const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const = 0;
+    virtual const casacore::MSFlagCmdColumns& flagCmdSubtablecols() const = 0;
 
     // Access to history subtable
-    virtual const casacore::ROMSHistoryColumns& historySubtablecols() const = 0;
+    virtual const casacore::MSHistoryColumns& historySubtablecols() const = 0;
 
     // Access to observation subtable
-    virtual const casacore::ROMSObservationColumns& observationSubtablecols() const = 0;
+    virtual const casacore::MSObservationColumns& observationSubtablecols() const = 0;
 
     // Access to pointing subtable
-    virtual const casacore::ROMSPointingColumns& pointingSubtablecols() const = 0;
+    virtual const casacore::MSPointingColumns& pointingSubtablecols() const = 0;
 
     // Access to polarization subtable
-    virtual const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const = 0;
+    virtual const casacore::MSPolarizationColumns& polarizationSubtablecols() const = 0;
 
     // Access to processor subtable
-    virtual const casacore::ROMSProcessorColumns& processorSubtablecols() const = 0;
+    virtual const casacore::MSProcessorColumns& processorSubtablecols() const = 0;
 
     // Access to spectralWindow subtable
-    virtual const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const = 0;
+    virtual const casacore::MSSpWindowColumns& spectralWindowSubtablecols() const = 0;
 
     // Access to state subtable
-    virtual const casacore::ROMSStateColumns& stateSubtablecols() const = 0;
+    virtual const casacore::MSStateColumns& stateSubtablecols() const = 0;
 
     // Access to doppler subtable
-    virtual const casacore::ROMSDopplerColumns& dopplerSubtablecols() const = 0;
+    virtual const casacore::MSDopplerColumns& dopplerSubtablecols() const = 0;
 
     // Access to freqOffset subtable
-    virtual const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const = 0;
+    virtual const casacore::MSFreqOffsetColumns& freqOffsetSubtablecols() const = 0;
 
     // Access to source subtable
-    virtual const casacore::ROMSSourceColumns& sourceSubtablecols() const = 0;
+    virtual const casacore::MSSourceColumns& sourceSubtablecols() const = 0;
 
     // Access to sysCal subtable
-    virtual const casacore::ROMSSysCalColumns& sysCalSubtablecols() const = 0;
+    virtual const casacore::MSSysCalColumns& sysCalSubtablecols() const = 0;
 
     // Access to weather subtable
-    virtual const casacore::ROMSWeatherColumns& weatherSubtablecols() const = 0;
+    virtual const casacore::MSWeatherColumns& weatherSubtablecols() const = 0;
 
 
 protected:

@@ -16,7 +16,7 @@
 namespace casacore {
     class MDirection;
     class MeasurementSet;
-    class ROMSPointingColumns;
+    class MSPointingColumns;
 }
 
 namespace casa {
@@ -171,14 +171,14 @@ class PointingColumns : public PointingSource {
 
 public:
 
-    PointingColumns (const casacore::ROMSPointingColumns &);
+    PointingColumns (const casacore::MSPointingColumns &);
 
     virtual Pointing getPointingRow (int row, double targetTime, bool asMeasure) const override;
     virtual int nRows () const override;
 
 private:
 
-    const casacore::ROMSPointingColumns & pointingColumns_p;
+    const casacore::MSPointingColumns & pointingColumns_p;
 };
 
 

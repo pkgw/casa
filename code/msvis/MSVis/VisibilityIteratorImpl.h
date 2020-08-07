@@ -622,8 +622,8 @@ public:
     // is thrown.
     virtual void detachVisBuffer (VisBuffer & vb);
 
-    // Access the current casacore::ROMSColumns object in MSIter
-    virtual const casacore::ROMSColumns & msColumns () const {
+    // Access the current casacore::MSColumns object in MSIter
+    virtual const casacore::MSColumns & msColumns () const {
         return msIter_p.msColumns ();
     }
 

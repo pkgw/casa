@@ -692,8 +692,8 @@ public:
   // If the object detached is not the last one attached an exception
   // is thrown.
   void detachVisBuffer(VisBuffer& vb);
-  // Access the current casacore::ROMSColumns object in MSIter
-  const casacore::ROMSColumns& msColumns() const;
+  // Access the current casacore::MSColumns object in MSIter
+  const casacore::MSColumns& msColumns() const;
   // get back the selected spectral windows and spectral channels for
   // current ms 
   void allSelectedSpectralWindows(casacore::Vector<casacore::Int>& spws, casacore::Vector<casacore::Int>& nvischan);

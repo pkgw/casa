@@ -47,23 +47,23 @@ class MDirection;
 class MSDerivedValues;
 class MSIter;
 class RecordInterface;
-class ROMSAntennaColumns;
-class ROMSDataDescColumns;
-class ROMSFeedColumns;
-class ROMSFieldColumns;
-class ROMSFlagCmdColumns;
-class ROMSHistoryColumns;
-class ROMSObservationColumns;
-class ROMSPointingColumns;
-class ROMSPolarizationColumns;
-class ROMSProcessorColumns;
-class ROMSSpWindowColumns;
-class ROMSStateColumns;
-class ROMSDopplerColumns;
-class ROMSFreqOffsetColumns;
-class ROMSSourceColumns;
-class ROMSSysCalColumns;
-class ROMSWeatherColumns;
+class MSAntennaColumns;
+class MSDataDescColumns;
+class MSFeedColumns;
+class MSFieldColumns;
+class MSFlagCmdColumns;
+class MSHistoryColumns;
+class MSObservationColumns;
+class MSPointingColumns;
+class MSPolarizationColumns;
+class MSProcessorColumns;
+class MSSpWindowColumns;
+class MSStateColumns;
+class MSDopplerColumns;
+class MSFreqOffsetColumns;
+class MSSourceColumns;
+class MSSysCalColumns;
+class MSWeatherColumns;
 template <typename T, Int N> class RigidVector;
 template <typename T, Int N> class SquareMatrix;
 }
@@ -106,23 +106,23 @@ public:
 
     SubtableColumns (casacore::CountedPtr <casacore::MSIter> msIter);
 
-    const casacore::ROMSAntennaColumns& antenna() const;
-    const casacore::ROMSDataDescColumns& dataDescription() const;
-    const casacore::ROMSFeedColumns& feed() const;
-    const casacore::ROMSFieldColumns& field() const;
-    const casacore::ROMSFlagCmdColumns& flagCmd() const;
-    const casacore::ROMSHistoryColumns& history() const;
-    const casacore::ROMSObservationColumns& observation() const;
-    const casacore::ROMSPointingColumns& pointing() const;
-    const casacore::ROMSPolarizationColumns& polarization() const;
-    const casacore::ROMSProcessorColumns& processor() const;
-    const casacore::ROMSSpWindowColumns& spectralWindow() const;
-    const casacore::ROMSStateColumns& state() const;
-    const casacore::ROMSDopplerColumns& doppler() const;
-    const casacore::ROMSFreqOffsetColumns& freqOffset() const;
-    const casacore::ROMSSourceColumns& source() const;
-    const casacore::ROMSSysCalColumns& sysCal() const;
-    const casacore::ROMSWeatherColumns& weather() const;
+    const casacore::MSAntennaColumns& antenna() const;
+    const casacore::MSDataDescColumns& dataDescription() const;
+    const casacore::MSFeedColumns& feed() const;
+    const casacore::MSFieldColumns& field() const;
+    const casacore::MSFlagCmdColumns& flagCmd() const;
+    const casacore::MSHistoryColumns& history() const;
+    const casacore::MSObservationColumns& observation() const;
+    const casacore::MSPointingColumns& pointing() const;
+    const casacore::MSPolarizationColumns& polarization() const;
+    const casacore::MSProcessorColumns& processor() const;
+    const casacore::MSSpWindowColumns& spectralWindow() const;
+    const casacore::MSStateColumns& state() const;
+    const casacore::MSDopplerColumns& doppler() const;
+    const casacore::MSFreqOffsetColumns& freqOffset() const;
+    const casacore::MSSourceColumns& source() const;
+    const casacore::MSSysCalColumns& sysCal() const;
+    const casacore::MSWeatherColumns& weather() const;
 
 private:
 
@@ -769,55 +769,55 @@ public:
   //**********************************************************************
 
   // Access to antenna subtable
-  const casacore::ROMSAntennaColumns& antennaSubtablecols() const;
+  const casacore::MSAntennaColumns& antennaSubtablecols() const;
 
   // Access to dataDescription subtable
-  const casacore::ROMSDataDescColumns& dataDescriptionSubtablecols() const;
+  const casacore::MSDataDescColumns& dataDescriptionSubtablecols() const;
 
   // Access to feed subtable
-  const casacore::ROMSFeedColumns& feedSubtablecols() const;
+  const casacore::MSFeedColumns& feedSubtablecols() const;
 
   // Access to field subtable
-  const casacore::ROMSFieldColumns& fieldSubtablecols() const;
+  const casacore::MSFieldColumns& fieldSubtablecols() const;
 
   // Access to flagCmd subtable
-  const casacore::ROMSFlagCmdColumns& flagCmdSubtablecols() const;
+  const casacore::MSFlagCmdColumns& flagCmdSubtablecols() const;
 
   // Access to history subtable
-  const casacore::ROMSHistoryColumns& historySubtablecols() const;
+  const casacore::MSHistoryColumns& historySubtablecols() const;
 
   // Access to observation subtable
-  const casacore::ROMSObservationColumns& observationSubtablecols() const;
+  const casacore::MSObservationColumns& observationSubtablecols() const;
 
   // Access to pointing subtable
-  const casacore::ROMSPointingColumns& pointingSubtablecols() const;
+  const casacore::MSPointingColumns& pointingSubtablecols() const;
 
   // Access to polarization subtable
-  const casacore::ROMSPolarizationColumns& polarizationSubtablecols() const;
+  const casacore::MSPolarizationColumns& polarizationSubtablecols() const;
 
   // Access to processor subtable
-  const casacore::ROMSProcessorColumns& processorSubtablecols() const;
+  const casacore::MSProcessorColumns& processorSubtablecols() const;
 
   // Access to spectralWindow subtable
-  const casacore::ROMSSpWindowColumns& spectralWindowSubtablecols() const;
+  const casacore::MSSpWindowColumns& spectralWindowSubtablecols() const;
 
   // Access to state subtable
-  const casacore::ROMSStateColumns& stateSubtablecols() const;
+  const casacore::MSStateColumns& stateSubtablecols() const;
 
   // Access to doppler subtable
-  const casacore::ROMSDopplerColumns& dopplerSubtablecols() const;
+  const casacore::MSDopplerColumns& dopplerSubtablecols() const;
 
   // Access to freqOffset subtable
-  const casacore::ROMSFreqOffsetColumns& freqOffsetSubtablecols() const;
+  const casacore::MSFreqOffsetColumns& freqOffsetSubtablecols() const;
 
   // Access to source subtable
-  const casacore::ROMSSourceColumns& sourceSubtablecols() const;
+  const casacore::MSSourceColumns& sourceSubtablecols() const;
 
   // Access to sysCal subtable
-  const casacore::ROMSSysCalColumns& sysCalSubtablecols() const;
+  const casacore::MSSysCalColumns& sysCalSubtablecols() const;
 
   // Access to weather subtable
-  const casacore::ROMSWeatherColumns& weatherSubtablecols() const;
+  const casacore::MSWeatherColumns& weatherSubtablecols() const;
 
 
 //**********************************************************************

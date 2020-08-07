@@ -38,7 +38,7 @@
 
 namespace casacore{
 
-class ROMSPointingColumns;
+class MSPointingColumns;
 }
 
 namespace casa { //# NAMESPACE CASA - BEGIN
@@ -98,7 +98,7 @@ private:
 
   // casacore::Int nRows_p;
 
-  casacore::Int getIndex(const casacore::ROMSPointingColumns& mspc, const casacore::Double& time);
+  casacore::Int getIndex(const casacore::MSPointingColumns& mspc, const casacore::Double& time);
 
   void ok();
 

@@ -963,103 +963,103 @@ void SimpleSimVi2::corruptByParang(Cube<Complex>& vis) const {
   }
 }
 
-const casacore::ROMSAntennaColumns& SimpleSimVi2::antennaSubtablecols() const
+const casacore::MSAntennaColumns& SimpleSimVi2::antennaSubtablecols() const
 {
     return *antennaSubTablecols_p;
 }
 
 // Access to dataDescription subtable
-const casacore::ROMSDataDescColumns& SimpleSimVi2::dataDescriptionSubtablecols() const
+const casacore::MSDataDescColumns& SimpleSimVi2::dataDescriptionSubtablecols() const
 {
     return *ddSubTablecols_p;
 }
 
 // Access to feed subtable
-const casacore::ROMSFeedColumns& SimpleSimVi2::feedSubtablecols() const
+const casacore::MSFeedColumns& SimpleSimVi2::feedSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to field subtable
-const casacore::ROMSFieldColumns& SimpleSimVi2::fieldSubtablecols() const
+const casacore::MSFieldColumns& SimpleSimVi2::fieldSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to flagCmd subtable
-const casacore::ROMSFlagCmdColumns& SimpleSimVi2::flagCmdSubtablecols() const
+const casacore::MSFlagCmdColumns& SimpleSimVi2::flagCmdSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to history subtable
-const casacore::ROMSHistoryColumns& SimpleSimVi2::historySubtablecols() const
+const casacore::MSHistoryColumns& SimpleSimVi2::historySubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to observation subtable
-const casacore::ROMSObservationColumns& SimpleSimVi2::observationSubtablecols() const
+const casacore::MSObservationColumns& SimpleSimVi2::observationSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to pointing subtable
-const casacore::ROMSPointingColumns& SimpleSimVi2::pointingSubtablecols() const
+const casacore::MSPointingColumns& SimpleSimVi2::pointingSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to polarization subtable
-const casacore::ROMSPolarizationColumns& SimpleSimVi2::polarizationSubtablecols() const
+const casacore::MSPolarizationColumns& SimpleSimVi2::polarizationSubtablecols() const
 {
     return *polSubTablecols_p;
 }
 
 // Access to processor subtable
-const casacore::ROMSProcessorColumns& SimpleSimVi2::processorSubtablecols() const
+const casacore::MSProcessorColumns& SimpleSimVi2::processorSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to spectralWindow subtable
-const casacore::ROMSSpWindowColumns& SimpleSimVi2::spectralWindowSubtablecols() const
+const casacore::MSSpWindowColumns& SimpleSimVi2::spectralWindowSubtablecols() const
 {
     return *spwSubTablecols_p;
 }
 
 // Access to state subtable
-const casacore::ROMSStateColumns& SimpleSimVi2::stateSubtablecols() const
+const casacore::MSStateColumns& SimpleSimVi2::stateSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to doppler subtable
-const casacore::ROMSDopplerColumns& SimpleSimVi2::dopplerSubtablecols() const
+const casacore::MSDopplerColumns& SimpleSimVi2::dopplerSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to freqOffset subtable
-const casacore::ROMSFreqOffsetColumns& SimpleSimVi2::freqOffsetSubtablecols() const
+const casacore::MSFreqOffsetColumns& SimpleSimVi2::freqOffsetSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to source subtable
-const casacore::ROMSSourceColumns& SimpleSimVi2::sourceSubtablecols() const
+const casacore::MSSourceColumns& SimpleSimVi2::sourceSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to sysCal subtable
-const casacore::ROMSSysCalColumns& SimpleSimVi2::sysCalSubtablecols() const
+const casacore::MSSysCalColumns& SimpleSimVi2::sysCalSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
 
 // Access to weather subtable
-const casacore::ROMSWeatherColumns& SimpleSimVi2::weatherSubtablecols() const
+const casacore::MSWeatherColumns& SimpleSimVi2::weatherSubtablecols() const
 {
     SSVi2NotYetImplemented();
 }
