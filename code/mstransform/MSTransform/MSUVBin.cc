@@ -2534,7 +2534,7 @@ void MSUVBin::makeWConv(vi::VisibilityIterator2& iter, Cube<Complex>& convFunc, 
     Bool cpscr2;
     Complex *scr=screen.getStorage(cpscr);
     Complex *scr2=screen2.getStorage(cpscr2);
-    Double twoPiW=2.0*C::pi*Double(iw*iw)/cpWscale;
+    Double twoPiW=2.0*M_PI*Double(iw*iw)/cpWscale;
     for (Int iy=-inner/2;iy<inner/2;iy++) {
       Double m=s1*Double(iy);
       Double msq=m*m;

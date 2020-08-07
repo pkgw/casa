@@ -36,6 +36,12 @@
 #include <display/Display/AttVal.h>
 #include <display/Display/AttValTol.h>
 
+namespace casacore {
+	inline unsigned int abs(unsigned int x) {
+		return x;
+	}
+}
+
 namespace casa { //# NAMESPACE CASA - BEGIN
 
 	template <class T>

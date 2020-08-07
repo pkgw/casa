@@ -663,7 +663,7 @@ void WPConvFunc::findConvFunction(const ImageInterface<Complex>& image,
     if(cpWConvSize>1) {
       //      Double twoPiW=2.0*C::pi*sqrt(Double(iw))/uvScale(2);
       //Double twoPiW=2.0*C::pi*Double(iw)/wScale_p;
-      Double twoPiW=2.0*C::pi*Double(iw*iw)/cpWscale;
+      Double twoPiW=2.0*M_PI*Double(iw*iw)/cpWscale;
       for (Int iy=-inner/2;iy<inner/2;iy++) {
 	Double m=s1*Double(iy);
 	Double msq=m*m;
